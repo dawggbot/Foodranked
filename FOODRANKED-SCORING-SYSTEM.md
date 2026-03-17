@@ -258,43 +258,40 @@ Why these ranges:
 - `C` represents weak or mixed
 - `D` represents poor category fit
 
-## Step 9: pros / cons generation
+## Step 10: pros / cons scoring
 
-Generate `pros` and `cons` from the score breakdown.
+Pros and cons are score-bearing contextual sections.
+They must add new information that is not already displayed in the nutrient sections.
 
-### Pros
-Take the strongest positive scored signals.
-Prefer:
-- `↑↑↑`
-- `↑↑`
-- then strongest `↑`
-
-### Cons
-Take the strongest negative scored signals.
-Prefer:
-- `↓↓↓`
-- `↓↓`
-- then strongest `↓`
-
-### Editorial/context rule
-Some foods may justify short context-aware notes that are not captured cleanly by the core nutrient table.
-Examples:
+### Allowed examples
 - heme iron absorbability
 - antioxidants
 - polyphenols
 - sodium concerns
 - agricultural concerns
+- processing penalties
+- refinement / puffed-format penalties
+- satiety penalties
 
-In v1 these should be treated as **editorial explanation notes** or optional future overrides, not a separate score source.
+### Required count
+- exactly 3 pros
+- exactly 3 cons
 
-### Output style
-Convert pros/cons into short viewer-friendly lines, not raw metric names.
+### Impact model
+- `major_pro = +2`
+- `minor_pro = +1`
+- `minor_con = -1`
+- `major_con = -2`
 
-Example:
-- Pro: `excellent omega-3 content for this category`
-- Pro: `strong fibre density`
-- Con: `sugar is higher than ideal here`
-- Con: `bioavailability is weaker than stronger contenders`
+### Normalization rule
+Do not give pros or cons a built-in neutral floor just because 3 items exist.
+
+```text
+pros_normalized = (sum(pro_scores) / 6) × 100
+cons_normalized = (abs(sum(con_scores)) / 6) × 100
+```
+
+This lets weak foods stay weak and severe cons matter properly.
 
 ## Step 10: narration-friendly explanation rules
 
@@ -357,4 +354,8 @@ This system is good because it is:
 core directly or stay header-only?
 - Should editorial pros/cons ever affect score in v2, or remain display-only forever?
 - Should tier thresholds later be tuned using real scored-food distributions?
+-food distributions?
+using real scored-food distributions?
+-food distributions?
+ned using real scored-food distributions?
 -food distributions?

@@ -6,7 +6,7 @@ Compares expected tiers vs current scorer output.
 
 - **Almonds** (nuts)
   - expected: **n/a**
-  - actual: **C** (49)
+  - actual: **C** (47)
   - verdict: **n/a**
 - **Bacon** (meats)
   - expected: **D**
@@ -14,11 +14,11 @@ Compares expected tiers vs current scorer output.
   - verdict: **MISMATCH**
 - **Brown Rice** (grains)
   - expected: **B**
-  - actual: **C** (49)
+  - actual: **C** (47)
   - verdict: **MISMATCH**
 - **Chestnuts** (nuts)
   - expected: **D**
-  - actual: **D** (34)
+  - actual: **D** (33)
   - verdict: **MATCH**
 - **Chicken Thigh** (meats)
   - expected: **n/a**
@@ -26,24 +26,24 @@ Compares expected tiers vs current scorer output.
   - verdict: **n/a**
 - **Oats** (grains)
   - expected: **n/a**
-  - actual: **B** (66)
+  - actual: **C** (63)
   - verdict: **n/a**
 - **Rice Cakes** (grains)
   - expected: **D**
-  - actual: **C** (51)
+  - actual: **C** (57)
   - verdict: **MISMATCH**
 - **Salmon** (meats)
   - expected: **S**
-  - actual: **B** (75)
+  - actual: **A** (75)
   - verdict: **MISMATCH**
 - **Walnuts** (nuts)
   - expected: **S**
   - actual: **C** (62)
   - verdict: **MISMATCH**
 
-## Recalibration read
+## Structural-pass read
 
-- Nuts now lean harder into fats as the defining category signal.
-- Grains now care more about carb quality and less about inflated starch/protein rescue.
-- Meats now reward protein usefulness more strongly while reducing mineral drag.
-- Remaining mismatches point to threshold and context-floor problems, not just section weights.
+- Context scoring now behaves without a neutral floor, so weak foods are less cushioned.
+- Nuts reward omega-3 leadership harder.
+- Meats now give elite fish a more realistic path upward through fats/protein and gentler tier thresholds.
+- Grains now punish low-satiety / high-GI weak performers more aggressively through context and section weighting.

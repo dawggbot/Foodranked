@@ -123,23 +123,22 @@ Suggested fields:
 
 ## Normalization model
 
-To keep pros/cons sections comparable across foods:
+To keep pros/cons sections comparable across foods, but avoid giving weak foods too much free lift:
 
 ```text
 pros_raw = sum(pro score values)
 pros_max = 3 items × 2 = 6
-pros_normalized = ((pros_raw + pros_max) / (2 × pros_max)) × 100
+pros_normalized = (pros_raw / pros_max) × 100
 
-cons_raw = sum(con score values)
+cons_raw = abs(sum(con score values))
 cons_max = 3 items × 2 = 6
-cons_normalized = ((cons_raw + cons_max) / (2 × cons_max)) × 100
+cons_normalized = (cons_raw / cons_max) × 100
 ```
 
-Alternative interpretation for implementation:
-- treat `pros` as positive-only section
-- treat `cons` as negative-only section and normalize accordingly
-
-Pick one approach in code and keep it stable.
+This means:
+- weak pros stay weak
+- heavy cons hit harder
+- there is no artificial 50-point floor just because 3 items exist
 
 ## Recommended v1 implementation rule
 

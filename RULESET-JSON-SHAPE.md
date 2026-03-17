@@ -98,6 +98,7 @@ Use:
 
 ### 4. Keep context items separate from nutrient metrics
 Do not force antioxidants, pesticide risk, sodium concerns, etc. into the same metric array as nutrient data.
+Use context normalization without a built-in neutral floor, so severe cons can actually push weak foods down.
 
 ## Recommended starter files
 

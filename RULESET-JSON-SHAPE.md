@@ -81,7 +81,7 @@ Keep the JSON split into:
 
 ## Practical rules
 
-### 1. Use signed scores in bands
+### 1. Use signed scores in bands for submacros only
 Even if the label arrow looks positive or negative on-screen, the stored `score` should be explicit.
 That keeps implementation simple.
 
@@ -90,14 +90,25 @@ If included, they should be:
 - `scoringRole: display_only`
 - no score contribution
 
-### 3. Prefer explicit applicability
+### 3. Vitamins and minerals do not use arrow bands
+They should score from `%DV` fill logic instead.
+Recommended v1 rule:
+- `metric_points = min(floor(DV_percent / 10), 10)`
+
+### 4. Prefer explicit applicability
 Use:
 - `required`
 - `optional`
 - `not_applicable`
 
-### 4. Keep context items separate from nutrient metrics
+### 5. Keep context items separate from nutrient metrics
 Do not force antioxidants, pesticide risk, sodium concerns, etc. into the same metric array as nutrient data.
+
+### 6. Lock pros/cons counts
+The scoring/output model should enforce:
+- `maxPros: 3`
+- `maxCons: 3`
+- final video output contains exactly 3 pros and 3 cons
 
 ## Recommended starter files
 

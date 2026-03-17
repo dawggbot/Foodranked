@@ -105,6 +105,14 @@ Potential asset classes:
 - keep reveals satisfying and rhythmic
 - let the final tier reveal feel like a payoff
 
+## Locked section scoring/display notes
+- Only **submacros** use the arrow-indicator logic.
+- Vitamins and minerals are scored from `%DV` bar fill, not arrow indicators.
+- Example rule: `90% DV = 9 points`.
+- Pros section must show exactly **3 pros**.
+- Cons section must show exactly **3 cons**.
+- Pros/cons can include context beyond the earlier nutrition sections when useful.
+
 ## Open questions
 - How locked are the exact timings for each section?
 - Which visual elements are permanent versus category-specific?

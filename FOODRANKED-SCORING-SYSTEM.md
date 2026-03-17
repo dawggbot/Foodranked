@@ -61,18 +61,22 @@ The actual score should come from:
   - essential amino acids
   - non-essential amino acids
   - bioavailability
-- vitamins
-- minerals
-
-### Derived outputs
-These are generated from the score breakdown and explanation rules:
+- vitamins scored from `%DV`
+- minerals scored from `%DV`
 - pros
 - cons
+
+### Important scoring split
+Use these rules strictly:
+- **Macros** (`fat_g`, `carb_g`, `protein_g`, `kcal`) are display-only.
+- **Submacros** use arrow-indicator / threshold-band scoring.
+- **Vitamins and minerals do not use arrow scoring.** They score directly from `%DV`.
+- **Pros and cons are separate scored context items** and must be present as exactly 3 pros and 3 cons in the video output.
+
+### Derived outputs
+These are still generated for presentation:
 - summary line
 - final explanation
-
-In v1, pros and cons should be **derived outputs**, not a separate primary scoring engine.
-This avoids double-counting.
 
 ## Step 1: metric polarity and applicability
 
@@ -321,6 +325,13 @@ This system is good because it is:
 ## Open questions for later refinement
 - Should some vitamins/minerals later contribute only as bonuses instead of full section scores?
 - Should calories influence final score directly or stay header-only?
+- Should editorial pros/cons ever affect score in v2, or remain display-only forever?
+- Should tier thresholds later be tuned using real scored-food distributions?
+core directly or stay header-only?
+- Should editorial pros/cons ever affect score in v2, or remain display-only forever?
+- Should tier thresholds later be tuned using real scored-food distributions?
+-food distributions?
+re directly or stay header-only?
 - Should editorial pros/cons ever affect score in v2, or remain display-only forever?
 - Should tier thresholds later be tuned using real scored-food distributions?
 core directly or stay header-only?

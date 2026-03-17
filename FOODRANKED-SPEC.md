@@ -5,7 +5,7 @@
 FoodRanked is a short-form nutrition content system focused on **general health, fitness, and longevity**.
 
 Current scope:
-- wholefoods only
+- foods are no longer limited to wholefoods only
 - one food per episode
 - nutrition judged **per 100g**
 - cozy pixel-art / RPG stat-sheet / Pokédex aesthetic
@@ -164,4 +164,6 @@ There are already 10+ manually produced test videos, so the current priority is:
 ## Guiding principle
 
 Do not reinvent the format from scratch.
+Formalise, clean up, and systemise the format that already works.
+rmat from scratch.
 Formalise, clean up, and systemise the format that already works.

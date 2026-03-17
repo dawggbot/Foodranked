@@ -38,3 +38,9 @@ Keeping FoodRanked isolated here makes GitHub sync and project browsing much cle
 - `scripts/` — scoring/prototype scripts
 - `skills/` — custom FoodRanked OpenClaw skills
 - root docs — project spec, format, schema, scoring docs
+
+## Latest project direction
+
+- wholefoods-only is no longer a hard scope rule
+- FoodRanked can include more processed foods where that improves content variety and channel potential
+- keep one food per episode and per-100g comparison as the core structure

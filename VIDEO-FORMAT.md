@@ -12,7 +12,7 @@ This file describes the current FoodRanked video structure.
 
 ## Scope assumptions
 - one food per video
-- wholefoods only for current phase
+- foods are not restricted to wholefoods only
 - judged per 100g
 
 ## Opening hook

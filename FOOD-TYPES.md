@@ -254,6 +254,6 @@ Prefer this over radically different top-level score formulas per category.
 
 ## Open questions
 - What exactly qualifies for `misc`?
-- Will wholefoods-only remain permanent or just v1 scope?
+- Should processed foods stay inside the same 11 top-level types or get a stronger cross-cutting processing penalty model?
 - Which icon/sprite system should be universal versus category-specific?
 - Should some categories later split into subtypes, e.g. red meat vs seafood, leafy veg vs starchy veg?

@@ -72,8 +72,8 @@ function main() {
         proteins: scored.result.sectionScores.proteins,
         vitamins: scored.result.sectionScores.vitamins,
         minerals: scored.result.sectionScores.minerals,
-        pros: scored.result.sectionScores.pros,
-        cons: scored.result.sectionScores.cons
+        baseScore: scored.result.baseScore,
+        contextAdjustment: scored.result.contextAdjustment.appliedAdjustment
       });
     }
   }

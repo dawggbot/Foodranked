@@ -22,7 +22,9 @@ Separate these layers:
    - What each metric means, how it is displayed, and its default polarity
 3. **Food-type ruleset**
    - Which metrics apply to a category, how much they matter, and which thresholds they use
-4. **Derived outputs**
+4. **Context rules**
+   - Which pros/cons can affect rank, how much they can move it, and where the caps are
+5. **Derived outputs**
    - section payloads, strengths, weaknesses, summary, and tier
 
 ## Important scoring distinction
@@ -35,12 +37,16 @@ These are shown prominently in the video but do **not** directly score the food:
 - kcal
 
 ### Score-bearing metrics
-These are the main numeric inputs for scoring:
+These are the main numeric inputs for the **base nutrition score**:
 - fat submetrics
 - carb submetrics
 - protein submetrics
 - vitamins
 - minerals
+
+### Context items
+Pros/cons can still influence rank, but only through major flags.
+They are not treated as normal weighted sections.
 
 ### Derived outputs
 These are generated from the scored evidence:
@@ -48,8 +54,6 @@ These are generated from the scored evidence:
 - cons
 - summary line
 - final explanation
-
-Pros/cons may later allow editorial override for narration, but v1 should treat them as **derived outputs**, not a separate scoring engine.
 
 ## Metric polarity model
 
@@ -60,8 +64,6 @@ Use this model instead:
 - `higher_worse`
 - `neutral_display_only`
 - `not_applicable`
-
-This avoids forced logic like pretending every metric matters equally in every category.
 
 ## Main entities
 
@@ -155,7 +157,7 @@ Suggested fields:
 - explanation_template nullable
 
 ### section_weights
-Top-level score section weights.
+Top-level nutrition section weights.
 
 Suggested fields:
 - id
@@ -165,6 +167,21 @@ Suggested fields:
 - proteins_weight
 - vitamins_weight
 - minerals_weight
+
+### context_rules
+Context adjustment policy.
+
+Suggested fields:
+- id
+- ruleset_id
+- required_pros
+- required_cons
+- major_pro_score
+- minor_pro_score
+- minor_con_score
+- major_con_score
+- max_scoring_majors
+- max_score_adjustment
 
 ### tier_thresholds
 Versioned mapping from overall score to final tier.
@@ -176,18 +193,6 @@ Suggested fields:
 - min_score
 - max_score
 - notes nullable
-
-### derived_output_rules
-Optional configuration for narrative output generation.
-
-Suggested fields:
-- id
-- ruleset_id
-- max_pros
-- max_cons
-- summary_template nullable
-- highlight_selection_rule
-- tie_break_rule nullable
 
 ## Default band scoring
 
@@ -211,11 +216,11 @@ There is no neutral zero band in v1. Each scored metric should lean clearly posi
 6. For each `scored` metric, resolve the matching threshold band.
 7. Convert the band to score value.
 8. Multiply by metric weight.
-9. Aggregate metric scores by section.
+9. Aggregate metric scores by nutrition section.
 10. Normalize each score-bearing section.
-11. Apply section weights to compute the overall score.
-12. Map overall score to final tier.
-13. Apply contextual score items for pros/cons where present.
+11. Apply nutrition section weights to compute the `baseScore`.
+12. Apply the capped context adjustment.
+13. Map the final score to the tier.
 14. Generate derived outputs:
    - summary
    - explanation notes
@@ -230,6 +235,8 @@ The ruleset system should generate:
 - strongest positives
 - strongest negatives
 - short summary
+- base score
+- applied context adjustment
 - final tier
 - explanation snapshot referencing the ruleset version used
 
@@ -258,7 +265,9 @@ The ruleset system should generate:
     "proteins": 63,
     "vitamins": 58,
     "minerals": 81,
-    "overall": 74
+    "baseScore": 74,
+    "contextAdjustment": 3,
+    "overall": 77
   },
   "finalTier": "B",
   "summary": "Strong fat quality and mineral density carry this food, but protein usefulness is more moderate for the category."
@@ -274,13 +283,7 @@ Published videos should always be explainable using:
 - the exact ruleset version
 - the tier threshold version
 
-## Open questions
-- Should section weights be globally fixed in v1, or stored per ruleset version for future flexibility?
-- Should explanation templates live at metric level, ruleset level, or both?
-- Which editorial overrides are allowed without changing the score?
-- Should score runs be stored as immutable computation snapshots?
-ture flexibility?
-- Should explanation templates live at metric level, ruleset level, or both?
-- Which editorial overrides are allowed without changing the score?
-- Should score runs be stored as immutable computation snapshots?
-ld score runs be stored as immutable computation snapshots?
+## Calibration note
+
+Tier tuning should be driven by anchor foods.
+If obviously bad in-category foods are not landing in D, or elite in-category foods are not landing in S, the answer is to recalibrate the ruleset — not to hide the problem with arbitrary editorial adjustments.

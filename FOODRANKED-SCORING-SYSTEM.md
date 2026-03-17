@@ -17,7 +17,7 @@ It should judge foods by **how well they perform within their category**.
 That means the scoring system has 4 layers:
 1. **Canonical facts** — raw per-100g nutrition data with explicit units
 2. **Category ruleset** — thresholds, applicability, polarity, and weights for that food type
-3. **Score computation** — section scores and overall tier
+3. **Score computation** — section scores, contextual adjustment, and overall tier
 4. **Narrative derivation** — pros, cons, summary, and explanation payloads
 
 ## Locked assumptions
@@ -45,7 +45,7 @@ These are important for the viewer but do **not** directly affect the score:
 These are header / macro-context values.
 
 ### Score-bearing metrics
-The actual score should come from:
+The base nutrition score comes from:
 - fat submetrics
   - saturated fat
   - omega 3
@@ -64,15 +64,16 @@ The actual score should come from:
 - vitamins
 - minerals
 
+### Context items
+Pros and cons are still present in every result, but they are **not section-weighted like fats/carbs/proteins**.
+They act as a capped modifier layer after the 5 nutrition sections are scored.
+
 ### Derived outputs
 These are generated from the score breakdown and explanation rules:
 - pros
 - cons
 - summary line
 - final explanation
-
-In v1, pros and cons should be **derived outputs**, not a separate primary scoring engine.
-This avoids double-counting.
 
 ## Step 1: metric polarity and applicability
 
@@ -145,9 +146,9 @@ metric_normalized = metric_points × 10
 
 Metric weights still apply at the section level.
 
-## Step 3: score-bearing sections
+## Step 4: score-bearing sections
 
-The scoring engine should aggregate into 5 score-bearing sections:
+The nutrition engine aggregates into 5 score-bearing sections:
 - fats
 - carbs
 - proteins
@@ -155,67 +156,45 @@ The scoring engine should aggregate into 5 score-bearing sections:
 - minerals
 
 The video still has 7 sections, but:
-- `pros` is a derived presentation section
-- `cons` is a derived presentation section
+- `pros` is a context/explanation section
+- `cons` is a context/explanation section
 
-## Step 4: section weighting
+## Step 5: section weighting
 
-Recommended v1 default overall weighting:
+Top-level weights should exist only for the 5 nutrition sections.
+Food types can still differ here, but the differences should stay explainable.
 
-- fats: **22%**
-- carbs: **22%**
-- proteins: **22%**
-- vitamins: **17%**
-- minerals: **17%**
+Recommended rule:
+- all 5 section weights must sum to `1.0`
+- `pros` and `cons` must not appear in `sectionWeights`
 
-Why this split:
-- macro-adjacent submetrics drive much of category identity
-- micronutrients still matter heavily
-- the model remains understandable and auditable
-
-### Category tuning rule
-Food types should usually differ by changing:
+Category differences should mostly come from:
 - metric applicability
 - metric weights
-- narration priority
+- threshold bands
+- modest section-weight shifts where needed
 
-Prefer this over radically different top-level section formulas for every category.
+Not from turning pros/cons into a second hidden scoring engine.
 
-Examples:
-- nuts can heavily weight omega 3 and polyunsaturated fat inside fats
-- grains can heavily weight fibre and glycemic index inside carbs
-- meats can heavily weight essential amino acids and bioavailability inside proteins
-- vegetables can heavily weight vitamins and minerals through metric weights rather than a brand-new math system
+## Step 6: metric weighting
 
-## Step 5: metric weighting
-
-Each scored metric gets a weight from 1 to 3.
+Each scored metric gets a weight from 1 to 4.
 
 Suggested meaning:
 - **1** = minor signal
 - **2** = important signal
 - **3** = major category-defining signal
+- **4** = dominant category-defining signal, use sparingly
 
-Example for a `nuts` ruleset:
-- omega 3 = 3
-- polyunsaturated fat = 3
-- fibre = 2
-- sugar = 2
-- saturated fat = 2
-- glycemic index = 1
-- essential amino acids = 2
-- bioavailability = 2
-- key minerals = 2 or 3
+## Step 7: section score calculation
 
-## Step 6: section score calculation
-
-For each scored metric:
+For each scored arrow-band metric:
 
 ```text
 weighted_metric_score = band_score × metric_weight
 ```
 
-For each score-bearing section:
+For each arrow-band section:
 
 ```text
 section_raw_score = sum(weighted_metric_scores)
@@ -223,25 +202,55 @@ section_max_score = sum(3 × metric_weight for each scored metric in section)
 section_normalized = ((section_raw_score + section_max_score) / (2 × section_max_score)) × 100
 ```
 
-This converts each section onto a 0–100 scale.
+For DV sections:
+
+```text
+section_raw_score = sum(dv_points × metric_weight)
+section_max_score = sum(10 × metric_weight for each scored metric in section)
+section_normalized = (section_raw_score / section_max_score) × 100
+```
 
 Metrics marked `not_applicable` are excluded.
 Metrics marked `display_only` are ignored by scoring.
 
-## Step 7: overall score calculation
+## Step 8: base score calculation
 
 ```text
-overall_score =
-  fats_score × 0.22 +
-  carbs_score × 0.22 +
-  proteins_score × 0.22 +
-  vitamins_score × 0.17 +
-  minerals_score × 0.17
+base_score =
+  fats_score × fats_weight +
+  carbs_score × carbs_weight +
+  proteins_score × proteins_weight +
+  vitamins_score × vitamins_weight +
+  minerals_score × minerals_weight
 ```
 
 Round to nearest whole number for display.
 
-## Step 8: tier mapping
+## Step 9: contextual adjustment
+
+Pros and cons can still affect ranking, but only through **major** items.
+
+### Scoring rule
+- `major_pro = +3`
+- `minor_pro = 0`
+- `minor_con = 0`
+- `major_con = -3`
+
+### Caps
+- max `3` scoring majors total
+- max total context adjustment = `±9`
+
+### Design intent
+This keeps context meaningful without letting editorial judgment overpower the nutrition core.
+Minor items are still valuable for narration and explanation, but they should not farm points.
+
+## Step 10: final score calculation
+
+```text
+overall_score = clamp(base_score + context_adjustment, 0, 100)
+```
+
+## Step 11: tier mapping
 
 Recommended v1 tier thresholds:
 
@@ -251,59 +260,18 @@ Recommended v1 tier thresholds:
 - **C** = 45–63
 - **D** = 0–44
 
-Why these ranges:
-- `S` stays rare and meaningful
-- `A` still feels genuinely strong
-- `B` represents solid / decent
-- `C` represents weak or mixed
-- `D` represents poor category fit
+These can be tuned later if calibration data proves they are too strict or too lenient, but category-specific tier maps should be avoided unless clearly justified.
 
-## Step 10: pros / cons scoring
-
-Pros and cons are score-bearing contextual sections.
-They must add new information that is not already displayed in the nutrient sections.
-
-### Allowed examples
-- heme iron absorbability
-- antioxidants
-- polyphenols
-- sodium concerns
-- agricultural concerns
-- processing penalties
-- refinement / puffed-format penalties
-- satiety penalties
-
-### Required count
-- exactly 3 pros
-- exactly 3 cons
-
-### Impact model
-- `major_pro = +2`
-- `minor_pro = +1`
-- `minor_con = -1`
-- `major_con = -2`
-
-### Normalization rule
-Do not give pros or cons a built-in neutral floor just because 3 items exist.
-
-```text
-pros_normalized = (sum(pro_scores) / 6) × 100
-cons_normalized = (abs(sum(con_scores)) / 6) × 100
-```
-
-This lets weak foods stay weak and severe cons matter properly.
-
-## Step 10: narration-friendly explanation rules
+## Step 12: narration-friendly explanation rules
 
 Every scored food should produce:
 - 1 short overall summary
-- top 2–3 pros
-- top 2–3 cons
+- top pros
+- top cons
 - section highlights
 - final tier explanation
 
-The summary should synthesize what the earlier sections and contextual pros/cons mean together.
-It should not be mistaken for the pros/cons section itself.
+The summary should synthesize what the earlier sections and contextual flags mean together.
 
 Example summary shape:
 
@@ -311,7 +279,7 @@ Example summary shape:
 Strong fat quality and fibre carry this food, but weaker protein usefulness keeps it out of S tier.
 ```
 
-## Step 11: missing-data policy
+## Step 13: missing-data policy
 
 Missing values must not silently break fairness.
 
@@ -322,7 +290,7 @@ Recommended v1 rule:
 
 This prevents fake precision.
 
-## Step 12: score outputs needed by the tool
+## Step 14: score outputs needed by the tool
 
 The scoring engine should output:
 - header-ready values
@@ -330,6 +298,8 @@ The scoring engine should output:
 - raw band results
 - weighted contributions
 - section scores
+- base score
+- applied context adjustment
 - overall score
 - final tier
 - generated pros
@@ -337,25 +307,11 @@ The scoring engine should output:
 - short summary
 - ruleset version used
 
-## Step 13: why this model is a good v1
+## Calibration target
 
-This system is good because it is:
-- strict enough to be real
-- flexible enough for 11 categories
-- easy to explain visually
-- easy to version
-- cleanly separated from presentation logic
+When tuning rulesets, the practical target is:
+- D-tier foods should land in D
+- S-tier foods should land in S
+- middle tiers should feel stable and believable
 
-## Open questions for later refinement
-- Should some vitamins/minerals later contribute only as bonuses instead of full section scores?
-- Should calories influence final score directly or stay header-only?
-- Should editorial pros/cons ever affect score in v2, or remain display-only forever?
-- Should tier thresholds later be tuned using real scored-food distributions?
-core directly or stay header-only?
-- Should editorial pros/cons ever affect score in v2, or remain display-only forever?
-- Should tier thresholds later be tuned using real scored-food distributions?
--food distributions?
-using real scored-food distributions?
--food distributions?
-ned using real scored-food distributions?
--food distributions?
+That means every category should eventually be tuned against anchor foods rather than only abstract philosophy.

@@ -10,19 +10,20 @@ This file tracks the current nuts-only calibration target.
 ## Current tuning decision
 
 For the first nuts-only pass, use the **smallest practical change**:
-- keep the current nuts ruleset logic intact
+- keep the current nuts metric logic intact
+- keep the new major-only context adjustment model intact
 - change only the **nuts tier thresholds**
 
 ## Rationale
 
-The nuts category is currently score-compressed in the C range:
+The nuts category is currently score-compressed relative to the global thresholds:
 - walnuts are clearly the category leader and should separate upward
 - almonds should land as a strong but not elite nut
 - chestnuts already behave like a weak nut-category fit
 
-So the first clean fix is threshold calibration, not ruleset churn.
+So the cleanest first pass is threshold calibration, not ruleset churn.
 
-## Current nuts thresholds
+## Active nuts thresholds
 
 ```json
 [
@@ -34,7 +35,17 @@ So the first clean fix is threshold calibration, not ruleset churn.
 ]
 ```
 
-## Possible second-pass refinements later
-- reduce vitamin influence for nuts
+## Why not change weights yet?
+
+Because the three current anchors already separate in the right order by raw score:
+- walnuts highest
+- almonds middle
+- chestnuts lowest
+
+That means top-level tier mapping is the smallest valid correction.
+
+## Likely second-pass refinements later
+- reduce over-punishment of low omega-3 nuts that are still excellent overall
 - reconsider whether `starch_g` should be rewarded at all in nuts
-- consider whether exceptional omega-3 performance should get even more explicit category lift
+- decide whether vitamin contribution is too weak or appropriately minimal for this category
+- add more anchors like pistachios, peanuts, pecans, cashews, and macadamias before touching weights

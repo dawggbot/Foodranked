@@ -64,11 +64,49 @@ function normalizeDvSection(items) {
 }
 
 function normalizeContextSection(items, positive) {
-  const raw = items.reduce((sum, i) => sum + i.scoreValue, 0);
-  const max = items.length * 2;
+  const raw = items.reduce((sum, i) => sum + (Number(i.scoreValue) || 0), 0);
+  const max = items.length * 3;
   if (max === 0) return null;
   if (positive) return clamp((raw / max) * 100, 0, 100);
   return clamp((Math.abs(raw) / max) * 100, 0, 100);
+}
+
+function resolveContextScoreValue(item, scoreMap) {
+  const impactLevel = String(item.impactLevel || '').toLowerCase();
+  const side = item.side || item.kind || null;
+  if (side && scoreMap?.[`${impactLevel}_${side}`] !== undefined) return scoreMap[`${impactLevel}_${side}`];
+  if (item.scoreKey && scoreMap?.[item.scoreKey] !== undefined) return scoreMap[item.scoreKey];
+  return 0;
+}
+
+function computeContextAdjustment(contextItems, contextRules) {
+  const scoreMap = contextRules?.scoreMap || {};
+  const maxScoringMajors = contextRules?.maxScoringMajors ?? 3;
+  const maxScoreAdjustment = contextRules?.maxScoreAdjustment ?? 9;
+
+  const flattened = [
+    ...((contextItems?.pros || []).map(item => ({ ...item, side: 'pro' }))),
+    ...((contextItems?.cons || []).map(item => ({ ...item, side: 'con' })))
+  ].map(item => ({
+    ...item,
+    resolvedScoreValue: resolveContextScoreValue(item, scoreMap)
+  }));
+
+  const scoringMajors = flattened.filter(item => item.resolvedScoreValue !== 0);
+  const appliedItems = scoringMajors.slice(0, maxScoringMajors);
+  const rawAdjustment = appliedItems.reduce((sum, item) => sum + item.resolvedScoreValue, 0);
+  const appliedAdjustment = clamp(rawAdjustment, -maxScoreAdjustment, maxScoreAdjustment);
+
+  return {
+    contextDisplayScores: {
+      pros: normalizeContextSection(flattened.filter(item => item.side === 'pro').map(item => ({ scoreValue: item.resolvedScoreValue })), true),
+      cons: normalizeContextSection(flattened.filter(item => item.side === 'con').map(item => ({ scoreValue: item.resolvedScoreValue })), false)
+    },
+    appliedItems,
+    ignoredItems: scoringMajors.slice(maxScoringMajors),
+    rawAdjustment,
+    appliedAdjustment
+  };
 }
 
 function getTier(score, thresholds) {
@@ -172,8 +210,7 @@ function main() {
     process.exit(2);
   }
 
-  const pros = food.contextItems?.pros || [];
-  const cons = food.contextItems?.cons || [];
+  const contextComputation = computeContextAdjustment(food.contextItems || {}, ruleset.contextRules || {});
 
   const sectionScores = {
     fats: normalizeArrowSection(sectionMetricScores.fats),
@@ -181,17 +218,19 @@ function main() {
     proteins: normalizeArrowSection(sectionMetricScores.proteins),
     vitamins: normalizeDvSection(sectionMetricScores.vitamins),
     minerals: normalizeDvSection(sectionMetricScores.minerals),
-    pros: normalizeContextSection(pros, true),
-    cons: normalizeContextSection(cons, false)
+    pros: contextComputation.contextDisplayScores.pros,
+    cons: contextComputation.contextDisplayScores.cons
   };
 
   const weights = ruleset.sectionWeights || {};
-  let overallScore = 0;
-  for (const [section, score] of Object.entries(sectionScores)) {
-    if (typeof score === 'number' && typeof weights[section] === 'number') overallScore += score * weights[section];
+  let baseScore = 0;
+  for (const section of ['fats', 'carbs', 'proteins', 'vitamins', 'minerals']) {
+    const score = sectionScores[section];
+    if (typeof score === 'number' && typeof weights[section] === 'number') baseScore += score * weights[section];
   }
-  overallScore = Math.round(overallScore);
+  baseScore = Math.round(baseScore);
 
+  const overallScore = clamp(baseScore + contextComputation.appliedAdjustment, 0, 100);
   const tier = getTier(overallScore, ruleset.tierThresholds);
   const summary = buildSummary(sectionScores, tier);
 
@@ -201,6 +240,13 @@ function main() {
     ruleset: { id: ruleset.id, version: ruleset.version },
     header: food.header,
     sectionScores: Object.fromEntries(Object.entries(sectionScores).map(([k, v]) => [k, v === null ? null : Number(v.toFixed(1))])),
+    baseScore,
+    contextAdjustment: {
+      rawAdjustment: contextComputation.rawAdjustment,
+      appliedAdjustment: contextComputation.appliedAdjustment,
+      appliedItems: contextComputation.appliedItems,
+      ignoredItems: contextComputation.ignoredItems
+    },
     overallScore,
     tier,
     summary,

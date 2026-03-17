@@ -8,7 +8,7 @@ Create a JSON structure that is:
 - simple enough to build quickly
 - explicit enough to audit
 - versionable
-- aligned with the current docs
+- aligned with the current repo logic
 
 ## Design principle
 
@@ -32,13 +32,11 @@ Keep the JSON split into:
     "unit": "g"
   },
   "sectionWeights": {
-    "fats": 0.18,
-    "carbs": 0.18,
-    "proteins": 0.18,
-    "vitamins": 0.14,
-    "minerals": 0.14,
-    "pros": 0.09,
-    "cons": 0.09
+    "fats": 0.51,
+    "carbs": 0.20,
+    "proteins": 0.07,
+    "vitamins": 0.07,
+    "minerals": 0.15
   },
   "metricRules": [
     {
@@ -63,11 +61,13 @@ Keep the JSON split into:
     "requiredCons": 3,
     "allowedItemKeys": [],
     "scoreMap": {
-      "major_pro": 2,
-      "minor_pro": 1,
-      "minor_con": -1,
-      "major_con": -2
-    }
+      "major_pro": 3,
+      "minor_pro": 0,
+      "minor_con": 0,
+      "major_con": -3
+    },
+    "maxScoringMajors": 3,
+    "maxScoreAdjustment": 9
   },
   "tierThresholds": [
     { "tier": "S", "min": 90, "max": 100 },
@@ -98,61 +98,25 @@ Use:
 
 ### 4. Keep context items separate from nutrient metrics
 Do not force antioxidants, pesticide risk, sodium concerns, etc. into the same metric array as nutrient data.
-Use context normalization without a built-in neutral floor, so severe cons can actually push weak foods down.
 
-## Recommended starter files
+### 5. Keep section weights limited to nutrition sections
+Use `sectionWeights` only for:
+- fats
+- carbs
+- proteins
+- vitamins
+- minerals
 
-Use this folder layout:
-
-```text
-rulesets/
-  nuts.v1.json
-  seeds.v1.json
-  grains.v1.json
-contexts/
-  context-items.catalog.json
-```
-
-## Suggested starter categories
-
-Best first categories to implement:
-1. **nuts**
-   - already has clear threshold drafts
-   - rich enough to test fat + fibre + mineral weighting
-2. **grains**
-   - good test of carb-quality logic
-   - useful for GI/fibre/starch handling
-3. **meats** or **vegetables**
-   - meats test animal-protein logic and not-applicable carbs
-   - vegetables test micronutrient-heavy scoring
-
-If you want the cleanest initial spread, use:
-- nuts
-- grains
-- vegetables
-
-That gives you:
-- dense-fat category
-- dense-carb category
-- micronutrient-first category
+Do **not** include `pros` or `cons` in `sectionWeights`.
+Those are handled later through the capped context adjustment layer.
 
 ## Implementation note
 
-The first code pass should support:
-- load food JSON
-- load one ruleset JSON
-- score nutrient sections
-- score context items
-- output normalized sections + final tier + summary payload
+The scorer should:
+1. compute 5 nutrition section scores
+2. combine them into a `baseScore`
+3. apply only major contextual modifiers
+4. cap context adjustment at `±9`
+5. map the final score to the tier
 
-That is enough to make the project feel real.
-tion note
-
-The first code pass should support:
-- load food JSON
-- load one ruleset JSON
-- score nutrient sections
-- score context items
-- output normalized sections + final tier + summary payload
-
-That is enough to make the project feel real.
+That keeps the math explainable while still allowing a few genuinely important pros/cons to matter.

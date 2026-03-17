@@ -5,20 +5,18 @@
   "status": "draft",
   "basis": { "value": 100, "unit": "g" },
   "sectionWeights": {
-    "fats": 0.03,
-    "carbs": 0.42,
-    "proteins": 0.08,
-    "vitamins": 0.05,
-    "minerals": 0.12,
-    "pros": 0.10,
-    "cons": 0.20
+    "fats": 0.04,
+    "carbs": 0.66,
+    "proteins": 0.06,
+    "vitamins": 0.07,
+    "minerals": 0.17
   },
   "metricRules": [
     { "metricKey": "saturated_fat_g", "sectionKey": "fats", "scoringRole": "scored", "scoringMode": "arrow_bands", "applicability": "optional", "weight": 1, "polarity": "higher_worse" },
     { "metricKey": "omega3_mg", "sectionKey": "fats", "scoringRole": "scored", "scoringMode": "arrow_bands", "applicability": "optional", "weight": 1, "polarity": "higher_better" },
     { "metricKey": "polyunsaturated_fat_g", "sectionKey": "fats", "scoringRole": "scored", "scoringMode": "arrow_bands", "applicability": "optional", "weight": 1, "polarity": "higher_better" },
     { "metricKey": "cholesterol_mg", "sectionKey": "fats", "scoringRole": "scored", "scoringMode": "arrow_bands", "applicability": "not_applicable", "weight": 0, "polarity": "higher_worse" },
-    { "metricKey": "starch_g", "sectionKey": "carbs", "scoringRole": "scored", "scoringMode": "arrow_bands", "applicability": "required", "weight": 2, "polarity": "higher_better", "bands": [
+    { "metricKey": "starch_g", "sectionKey": "carbs", "scoringRole": "scored", "scoringMode": "arrow_bands", "applicability": "required", "weight": 0, "polarity": "higher_better", "bands": [
       { "label": "↓↓↓", "max": 30, "score": -3 }, { "label": "↓↓", "min": 30, "max": 40, "score": -2 }, { "label": "↓", "min": 40, "max": 50, "score": -1 }, { "label": "↑", "min": 50, "max": 60, "score": 1 }, { "label": "↑↑", "min": 60, "max": 70, "score": 2 }, { "label": "↑↑↑", "min": 70, "score": 3 }
     ]},
     { "metricKey": "fibre_g", "sectionKey": "carbs", "scoringRole": "scored", "scoringMode": "arrow_bands", "applicability": "required", "weight": 3, "polarity": "higher_better", "bands": [
@@ -42,7 +40,9 @@
   "contextRules": {
     "requiredPros": 3,
     "requiredCons": 3,
-    "scoreMap": { "major_pro": 2, "minor_pro": 1, "minor_con": -1, "major_con": -2 }
+    "scoreMap": { "major_pro": 3, "minor_pro": 0, "minor_con": 0, "major_con": -3 },
+    "maxScoringMajors": 3,
+    "maxScoreAdjustment": 9
   },
   "tierThresholds": [
     { "tier": "S", "min": 90, "max": 100 },

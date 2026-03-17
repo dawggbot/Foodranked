@@ -11,53 +11,19 @@ function clamp(n, min, max) {
 }
 
 function scoreFromBands(value, bands) {
-  if (value === null || value === undefined || !Array.isArray(bands) || bands.length === 0) {
-    return null;
-  }
-
+  if (value === null || value === undefined || !Array.isArray(bands) || bands.length === 0) return null;
   for (const band of bands) {
     const hasMin = Object.prototype.hasOwnProperty.call(band, 'min');
     const hasMax = Object.prototype.hasOwnProperty.call(band, 'max');
     const minOk = !hasMin || value >= band.min;
     const maxOk = !hasMax || value <= band.max;
-    if (minOk && maxOk) {
-      return { label: band.label, score: band.score };
-    }
+    if (minOk && maxOk) return { label: band.label, score: band.score };
   }
-
   return null;
 }
 
-function normalizeWeightedScores(items) {
-  if (!items.length) return null;
-  const raw = items.reduce((sum, i) => sum + i.weightedScore, 0);
-  const max = items.reduce((sum, i) => sum + 3 * i.weight, 0);
-  if (max === 0) return null;
-  const normalized = ((raw + max) / (2 * max)) * 100;
-  return clamp(normalized, 0, 100);
-}
-
-function normalizeContextSection(items, kind) {
-  const filtered = items.filter(i => i.kind === kind);
-  const raw = filtered.reduce((sum, i) => sum + i.scoreValue, 0);
-  const max = 6; // up to 3 items × 2
-  const normalized = ((raw + max) / (2 * max)) * 100;
-  return clamp(normalized, 0, 100);
-}
-
-function metricBandFallback(metricKey, value, polarity) {
+function metricBandFallback(value, polarity) {
   if (value === null || value === undefined) return null;
-
-  const dvMetric = metricKey.endsWith('_dv');
-  if (dvMetric) {
-    if (value <= 5) return { label: '↓↓↓', score: -3 };
-    if (value <= 10) return { label: '↓↓', score: -2 };
-    if (value <= 20) return { label: '↓', score: -1 };
-    if (value <= 40) return { label: '↑', score: 1 };
-    if (value <= 80) return { label: '↑↑', score: 2 };
-    return { label: '↑↑↑', score: 3 };
-  }
-
   if (polarity === 'higher_better') {
     if (value <= 1) return { label: '↓↓↓', score: -3 };
     if (value <= 2) return { label: '↓↓', score: -2 };
@@ -66,7 +32,6 @@ function metricBandFallback(metricKey, value, polarity) {
     if (value <= 5) return { label: '↑↑', score: 2 };
     return { label: '↑↑↑', score: 3 };
   }
-
   if (polarity === 'higher_worse') {
     if (value <= 1) return { label: '↓↓↓', score: 3 };
     if (value <= 2) return { label: '↓↓', score: 2 };
@@ -75,8 +40,35 @@ function metricBandFallback(metricKey, value, polarity) {
     if (value <= 5) return { label: '↑↑', score: -2 };
     return { label: '↑↑↑', score: -3 };
   }
-
   return null;
+}
+
+function dvPoints(dvPercent) {
+  return Math.min(Math.floor(dvPercent / 10), 10);
+}
+
+function normalizeArrowSection(items) {
+  if (!items.length) return null;
+  const raw = items.reduce((sum, i) => sum + i.weightedScore, 0);
+  const max = items.reduce((sum, i) => sum + 3 * i.weight, 0);
+  if (max === 0) return null;
+  return clamp(((raw + max) / (2 * max)) * 100, 0, 100);
+}
+
+function normalizeDvSection(items) {
+  if (!items.length) return null;
+  const raw = items.reduce((sum, i) => sum + i.weightedScore, 0);
+  const max = items.reduce((sum, i) => sum + 10 * i.weight, 0);
+  if (max === 0) return null;
+  return clamp((raw / max) * 100, 0, 100);
+}
+
+function normalizeContextSection(items, positive) {
+  const raw = items.reduce((sum, i) => sum + i.scoreValue, 0);
+  const max = items.length * 2;
+  if (max === 0) return null;
+  if (positive) return clamp((raw / max) * 100, 0, 100);
+  return clamp((Math.abs(raw) / max) * 100, 0, 100);
 }
 
 function getTier(score, thresholds) {
@@ -90,7 +82,6 @@ function buildSummary(sectionScores, tier) {
   const entries = Object.entries(sectionScores)
     .filter(([, v]) => typeof v === 'number')
     .sort((a, b) => b[1] - a[1]);
-
   const best = entries[0]?.[0] || 'strengths';
   const worst = entries[entries.length - 1]?.[0] || 'weaknesses';
   return `${capitalize(best)} are carrying this food most, while ${worst} are the biggest drag. It lands in ${tier} tier.`;
@@ -98,6 +89,17 @@ function buildSummary(sectionScores, tier) {
 
 function capitalize(s) {
   return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+function validateExactContextCount(food, ruleset) {
+  const requiredPros = ruleset.contextRules?.requiredPros ?? 3;
+  const requiredCons = ruleset.contextRules?.requiredCons ?? 3;
+  const pros = food.contextItems?.pros || [];
+  const cons = food.contextItems?.cons || [];
+  const errors = [];
+  if (pros.length !== requiredPros) errors.push(`Expected exactly ${requiredPros} pros, got ${pros.length}`);
+  if (cons.length !== requiredCons) errors.push(`Expected exactly ${requiredCons} cons, got ${cons.length}`);
+  return errors;
 }
 
 function main() {
@@ -110,14 +112,13 @@ function main() {
   const food = readJson(foodPath);
   const ruleset = readJson(rulesetPath);
 
-  const sectionMetricScores = {
-    fats: [],
-    carbs: [],
-    proteins: [],
-    vitamins: [],
-    minerals: []
-  };
+  const exactCountErrors = validateExactContextCount(food, ruleset);
+  if (exactCountErrors.length) {
+    console.error(JSON.stringify({ status: 'invalid_context_items', errors: exactCountErrors }, null, 2));
+    process.exit(3);
+  }
 
+  const sectionMetricScores = { fats: [], carbs: [], proteins: [], vitamins: [], minerals: [] };
   const missingRequired = [];
   const metricBreakdown = [];
 
@@ -126,63 +127,68 @@ function main() {
     if (rule.applicability === 'not_applicable') continue;
 
     const value = food.metrics?.[rule.metricKey];
-
     if ((value === null || value === undefined) && rule.applicability === 'required') {
       missingRequired.push(rule.metricKey);
       continue;
     }
-
     if (value === null || value === undefined) continue;
 
-    const bandResult = scoreFromBands(value, rule.bands) || metricBandFallback(rule.metricKey, value, rule.polarity);
-    if (!bandResult) continue;
+    if (rule.scoringMode === 'dv_points') {
+      const points = dvPoints(value);
+      const weightedScore = points * (rule.weight || 1);
+      const row = {
+        metricKey: rule.metricKey,
+        sectionKey: rule.sectionKey,
+        scoringMode: 'dv_points',
+        dvPercent: value,
+        points,
+        weight: rule.weight || 1,
+        weightedScore
+      };
+      metricBreakdown.push(row);
+      sectionMetricScores[rule.sectionKey].push(row);
+      continue;
+    }
 
+    const bandResult = scoreFromBands(value, rule.bands) || metricBandFallback(value, rule.polarity);
+    if (!bandResult) continue;
     const weightedScore = bandResult.score * (rule.weight || 1);
     const row = {
       metricKey: rule.metricKey,
       sectionKey: rule.sectionKey,
+      scoringMode: 'arrow_bands',
       value,
       band: bandResult.label,
       score: bandResult.score,
       weight: rule.weight || 1,
       weightedScore
     };
-
     metricBreakdown.push(row);
-    if (sectionMetricScores[rule.sectionKey]) {
-      sectionMetricScores[rule.sectionKey].push(row);
-    }
+    sectionMetricScores[rule.sectionKey].push(row);
   }
 
   if (missingRequired.length) {
-    console.error(JSON.stringify({
-      status: 'incomplete',
-      missingRequired
-    }, null, 2));
+    console.error(JSON.stringify({ status: 'incomplete', missingRequired }, null, 2));
     process.exit(2);
   }
 
-  const contextItems = {
-    pros: (food.contextItems?.pros || []).map(i => ({ ...i, kind: 'pros' })),
-    cons: (food.contextItems?.cons || []).map(i => ({ ...i, kind: 'cons' }))
-  };
+  const pros = food.contextItems?.pros || [];
+  const cons = food.contextItems?.cons || [];
 
   const sectionScores = {
-    fats: normalizeWeightedScores(sectionMetricScores.fats),
-    carbs: normalizeWeightedScores(sectionMetricScores.carbs),
-    proteins: normalizeWeightedScores(sectionMetricScores.proteins),
-    vitamins: normalizeWeightedScores(sectionMetricScores.vitamins),
-    minerals: normalizeWeightedScores(sectionMetricScores.minerals),
-    pros: normalizeContextSection(contextItems.pros, 'pros'),
-    cons: normalizeContextSection(contextItems.cons, 'cons')
+    fats: normalizeArrowSection(sectionMetricScores.fats),
+    carbs: normalizeArrowSection(sectionMetricScores.carbs),
+    proteins: normalizeArrowSection(sectionMetricScores.proteins),
+    vitamins: normalizeDvSection(sectionMetricScores.vitamins),
+    minerals: normalizeDvSection(sectionMetricScores.minerals),
+    pros: normalizeContextSection(pros, true),
+    cons: normalizeContextSection(cons, false)
   };
 
   const weights = ruleset.sectionWeights || {};
   let overallScore = 0;
   for (const [section, score] of Object.entries(sectionScores)) {
-    if (typeof score === 'number' && typeof weights[section] === 'number') {
-      overallScore += score * weights[section];
-    }
+    if (typeof score === 'number' && typeof weights[section] === 'number') overallScore += score * weights[section];
   }
   overallScore = Math.round(overallScore);
 
@@ -191,23 +197,14 @@ function main() {
 
   const output = {
     status: 'ok',
-    food: {
-      id: food.id,
-      name: food.name,
-      foodType: food.foodType
-    },
-    ruleset: {
-      id: ruleset.id,
-      version: ruleset.version
-    },
+    food: { id: food.id, name: food.name, foodType: food.foodType },
+    ruleset: { id: ruleset.id, version: ruleset.version },
     header: food.header,
-    sectionScores: Object.fromEntries(
-      Object.entries(sectionScores).map(([k, v]) => [k, v === null ? null : Number(v.toFixed(1))])
-    ),
+    sectionScores: Object.fromEntries(Object.entries(sectionScores).map(([k, v]) => [k, v === null ? null : Number(v.toFixed(1))])),
     overallScore,
     tier,
     summary,
-    contextItems: food.contextItems || { pros: [], cons: [] },
+    contextItems: food.contextItems,
     metricBreakdown
   };
 

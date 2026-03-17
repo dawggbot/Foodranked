@@ -14,89 +14,34 @@
     "cons": 0.09
   },
   "metricRules": [
-    { "metricKey": "saturated_fat_g", "sectionKey": "fats", "scoringRole": "scored", "applicability": "optional", "weight": 1, "polarity": "higher_worse" },
-    { "metricKey": "omega3_mg", "sectionKey": "fats", "scoringRole": "scored", "applicability": "optional", "weight": 1, "polarity": "higher_better" },
-    { "metricKey": "polyunsaturated_fat_g", "sectionKey": "fats", "scoringRole": "scored", "applicability": "optional", "weight": 1, "polarity": "higher_better" },
-    { "metricKey": "cholesterol_mg", "sectionKey": "fats", "scoringRole": "scored", "applicability": "not_applicable", "weight": 0, "polarity": "higher_worse" },
-
-    {
-      "metricKey": "starch_g",
-      "sectionKey": "carbs",
-      "scoringRole": "scored",
-      "applicability": "required",
-      "weight": 2,
-      "polarity": "higher_better",
-      "bands": [
-        { "label": "↓↓↓", "max": 30, "score": -3 },
-        { "label": "↓↓", "min": 30, "max": 40, "score": -2 },
-        { "label": "↓", "min": 40, "max": 50, "score": -1 },
-        { "label": "↑", "min": 50, "max": 60, "score": 1 },
-        { "label": "↑↑", "min": 60, "max": 70, "score": 2 },
-        { "label": "↑↑↑", "min": 70, "score": 3 }
-      ]
-    },
-    {
-      "metricKey": "fibre_g",
-      "sectionKey": "carbs",
-      "scoringRole": "scored",
-      "applicability": "required",
-      "weight": 3,
-      "polarity": "higher_better",
-      "bands": [
-        { "label": "↓↓↓", "max": 1, "score": -3 },
-        { "label": "↓↓", "min": 1, "max": 3, "score": -2 },
-        { "label": "↓", "min": 3, "max": 6, "score": -1 },
-        { "label": "↑", "min": 6, "max": 10, "score": 1 },
-        { "label": "↑↑", "min": 10, "max": 15, "score": 2 },
-        { "label": "↑↑↑", "min": 15, "score": 3 }
-      ]
-    },
-    {
-      "metricKey": "sugar_g",
-      "sectionKey": "carbs",
-      "scoringRole": "scored",
-      "applicability": "required",
-      "weight": 1,
-      "polarity": "higher_worse",
-      "bands": [
-        { "label": "↓↓↓", "max": 0.5, "score": 3 },
-        { "label": "↓↓", "min": 0.5, "max": 1, "score": 2 },
-        { "label": "↓", "min": 1, "max": 3, "score": 1 },
-        { "label": "↑", "min": 3, "max": 6, "score": -1 },
-        { "label": "↑↑", "min": 6, "max": 10, "score": -2 },
-        { "label": "↑↑↑", "min": 10, "score": -3 }
-      ]
-    },
-    {
-      "metricKey": "glycemic_index",
-      "sectionKey": "carbs",
-      "scoringRole": "scored",
-      "applicability": "required",
-      "weight": 3,
-      "polarity": "higher_worse",
-      "bands": [
-        { "label": "↓↓↓", "max": 40, "score": 3 },
-        { "label": "↓↓", "min": 40, "max": 50, "score": 2 },
-        { "label": "↓", "min": 50, "max": 60, "score": 1 },
-        { "label": "↑", "min": 60, "max": 70, "score": -1 },
-        { "label": "↑↑", "min": 70, "max": 80, "score": -2 },
-        { "label": "↑↑↑", "min": 80, "score": -3 }
-      ]
-    },
-
-    { "metricKey": "essential_amino_acids_score", "sectionKey": "proteins", "scoringRole": "scored", "applicability": "optional", "weight": 2, "polarity": "higher_better" },
-    { "metricKey": "nonessential_amino_acids_score", "sectionKey": "proteins", "scoringRole": "scored", "applicability": "optional", "weight": 1, "polarity": "higher_better" },
-    { "metricKey": "bioavailability_percent", "sectionKey": "proteins", "scoringRole": "scored", "applicability": "optional", "weight": 2, "polarity": "higher_better" },
-
-    { "metricKey": "vitamin_b12_dv", "sectionKey": "vitamins", "scoringRole": "scored", "applicability": "not_applicable", "weight": 0, "polarity": "higher_better" },
-    { "metricKey": "vitamin_e_dv", "sectionKey": "vitamins", "scoringRole": "scored", "applicability": "optional", "weight": 1, "polarity": "higher_better" },
-    { "metricKey": "iron_dv", "sectionKey": "minerals", "scoringRole": "scored", "applicability": "optional", "weight": 2, "polarity": "higher_better" },
-    { "metricKey": "magnesium_dv", "sectionKey": "minerals", "scoringRole": "scored", "applicability": "optional", "weight": 2, "polarity": "higher_better" },
-    { "metricKey": "zinc_dv", "sectionKey": "minerals", "scoringRole": "scored", "applicability": "optional", "weight": 1, "polarity": "higher_better" }
+    { "metricKey": "saturated_fat_g", "sectionKey": "fats", "scoringRole": "scored", "scoringMode": "arrow_bands", "applicability": "optional", "weight": 1, "polarity": "higher_worse" },
+    { "metricKey": "omega3_mg", "sectionKey": "fats", "scoringRole": "scored", "scoringMode": "arrow_bands", "applicability": "optional", "weight": 1, "polarity": "higher_better" },
+    { "metricKey": "polyunsaturated_fat_g", "sectionKey": "fats", "scoringRole": "scored", "scoringMode": "arrow_bands", "applicability": "optional", "weight": 1, "polarity": "higher_better" },
+    { "metricKey": "cholesterol_mg", "sectionKey": "fats", "scoringRole": "scored", "scoringMode": "arrow_bands", "applicability": "not_applicable", "weight": 0, "polarity": "higher_worse" },
+    { "metricKey": "starch_g", "sectionKey": "carbs", "scoringRole": "scored", "scoringMode": "arrow_bands", "applicability": "required", "weight": 2, "polarity": "higher_better", "bands": [
+      { "label": "↓↓↓", "max": 30, "score": -3 }, { "label": "↓↓", "min": 30, "max": 40, "score": -2 }, { "label": "↓", "min": 40, "max": 50, "score": -1 }, { "label": "↑", "min": 50, "max": 60, "score": 1 }, { "label": "↑↑", "min": 60, "max": 70, "score": 2 }, { "label": "↑↑↑", "min": 70, "score": 3 }
+    ]},
+    { "metricKey": "fibre_g", "sectionKey": "carbs", "scoringRole": "scored", "scoringMode": "arrow_bands", "applicability": "required", "weight": 3, "polarity": "higher_better", "bands": [
+      { "label": "↓↓↓", "max": 1, "score": -3 }, { "label": "↓↓", "min": 1, "max": 3, "score": -2 }, { "label": "↓", "min": 3, "max": 6, "score": -1 }, { "label": "↑", "min": 6, "max": 10, "score": 1 }, { "label": "↑↑", "min": 10, "max": 15, "score": 2 }, { "label": "↑↑↑", "min": 15, "score": 3 }
+    ]},
+    { "metricKey": "sugar_g", "sectionKey": "carbs", "scoringRole": "scored", "scoringMode": "arrow_bands", "applicability": "required", "weight": 1, "polarity": "higher_worse", "bands": [
+      { "label": "↓↓↓", "max": 0.5, "score": 3 }, { "label": "↓↓", "min": 0.5, "max": 1, "score": 2 }, { "label": "↓", "min": 1, "max": 3, "score": 1 }, { "label": "↑", "min": 3, "max": 6, "score": -1 }, { "label": "↑↑", "min": 6, "max": 10, "score": -2 }, { "label": "↑↑↑", "min": 10, "score": -3 }
+    ]},
+    { "metricKey": "glycemic_index", "sectionKey": "carbs", "scoringRole": "scored", "scoringMode": "arrow_bands", "applicability": "required", "weight": 3, "polarity": "higher_worse", "bands": [
+      { "label": "↓↓↓", "max": 40, "score": 3 }, { "label": "↓↓", "min": 40, "max": 50, "score": 2 }, { "label": "↓", "min": 50, "max": 60, "score": 1 }, { "label": "↑", "min": 60, "max": 70, "score": -1 }, { "label": "↑↑", "min": 70, "max": 80, "score": -2 }, { "label": "↑↑↑", "min": 80, "score": -3 }
+    ]},
+    { "metricKey": "essential_amino_acids_score", "sectionKey": "proteins", "scoringRole": "scored", "scoringMode": "arrow_bands", "applicability": "optional", "weight": 2, "polarity": "higher_better" },
+    { "metricKey": "nonessential_amino_acids_score", "sectionKey": "proteins", "scoringRole": "scored", "scoringMode": "arrow_bands", "applicability": "optional", "weight": 1, "polarity": "higher_better" },
+    { "metricKey": "bioavailability_percent", "sectionKey": "proteins", "scoringRole": "scored", "scoringMode": "arrow_bands", "applicability": "optional", "weight": 2, "polarity": "higher_better" },
+    { "metricKey": "vitamin_b12_dv", "sectionKey": "vitamins", "scoringRole": "scored", "scoringMode": "dv_points", "applicability": "not_applicable", "weight": 0 },
+    { "metricKey": "vitamin_e_dv", "sectionKey": "vitamins", "scoringRole": "scored", "scoringMode": "dv_points", "applicability": "optional", "weight": 1 },
+    { "metricKey": "iron_dv", "sectionKey": "minerals", "scoringRole": "scored", "scoringMode": "dv_points", "applicability": "optional", "weight": 2 },
+    { "metricKey": "magnesium_dv", "sectionKey": "minerals", "scoringRole": "scored", "scoringMode": "dv_points", "applicability": "optional", "weight": 2 },
+    { "metricKey": "zinc_dv", "sectionKey": "minerals", "scoringRole": "scored", "scoringMode": "dv_points", "applicability": "optional", "weight": 1 }
   ],
   "contextRules": {
-    "maxPros": 3,
-    "maxCons": 3,
+    "requiredPros": 3,
+    "requiredCons": 3,
     "scoreMap": { "major_pro": 2, "minor_pro": 1, "minor_con": -1, "major_con": -2 }
   },
   "tierThresholds": [

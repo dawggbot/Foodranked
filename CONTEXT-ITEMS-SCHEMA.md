@@ -144,8 +144,8 @@ Pick one approach in code and keep it stable.
 ## Recommended v1 implementation rule
 
 For simplicity, use:
-- up to 3 pros
-- up to 3 cons
+- exactly 3 pros
+- exactly 3 cons
 - explicit stored `score_value`
 - human-reviewed wording
 
@@ -174,3 +174,4 @@ Those belong in the main nutrient sections already.
 - Should context items eventually be rule-triggered from source metadata?
 - Should context items have category-specific allowlists?
 - Should some context items require citations before approval?
+ citations before approval?

@@ -61,22 +61,18 @@ The actual score should come from:
   - essential amino acids
   - non-essential amino acids
   - bioavailability
-- vitamins scored from `%DV`
-- minerals scored from `%DV`
-- pros
-- cons
-
-### Important scoring split
-Use these rules strictly:
-- **Macros** (`fat_g`, `carb_g`, `protein_g`, `kcal`) are display-only.
-- **Submacros** use arrow-indicator / threshold-band scoring.
-- **Vitamins and minerals do not use arrow scoring.** They score directly from `%DV`.
-- **Pros and cons are separate scored context items** and must be present as exactly 3 pros and 3 cons in the video output.
+- vitamins
+- minerals
 
 ### Derived outputs
-These are still generated for presentation:
+These are generated from the score breakdown and explanation rules:
+- pros
+- cons
 - summary line
 - final explanation
+
+In v1, pros and cons should be **derived outputs**, not a separate primary scoring engine.
+This avoids double-counting.
 
 ## Step 1: metric polarity and applicability
 
@@ -96,9 +92,15 @@ Examples:
 - cholesterol: often `not_applicable` for plant categories
 - macro grams: usually `neutral_display_only`
 
-## Step 2: threshold band system
+## Step 2: submacro threshold system
 
-Each scored metric in a category-specific ruleset stores thresholds using the 6-band ladder:
+Only **submacros** use the 6-band arrow ladder.
+This applies to:
+- fat submetrics
+- carb submetrics
+- protein submetrics
+
+Each scored submacro in a category-specific ruleset stores thresholds using:
 
 - `↓↓↓`
 - `↓↓`
@@ -116,7 +118,32 @@ Recommended numeric mapping:
 - `↑↑ = +2`
 - `↑↑↑ = +3`
 
-There is no zero band on purpose. Every tracked metric should lean clearly positive or negative for the category.
+There is no zero band on purpose. Every tracked submacro should lean clearly positive or negative for the category.
+
+## Step 3: vitamin/mineral DV scoring
+
+Vitamins and minerals must be scored from **DV% bar fill**, not arrow bands.
+
+Use this rule:
+
+```text
+metric_points = min(floor(DV_percent / 10), 10)
+```
+
+Examples:
+- 9% DV = 0 points
+- 10% DV = 1 point
+- 47% DV = 4 points
+- 90% DV = 9 points
+- 100%+ DV = 10 points
+
+For normalization, convert DV points to a 0–100 metric score:
+
+```text
+metric_normalized = metric_points × 10
+```
+
+Metric weights still apply at the section level.
 
 ## Step 3: score-bearing sections
 
@@ -325,13 +352,6 @@ This system is good because it is:
 ## Open questions for later refinement
 - Should some vitamins/minerals later contribute only as bonuses instead of full section scores?
 - Should calories influence final score directly or stay header-only?
-- Should editorial pros/cons ever affect score in v2, or remain display-only forever?
-- Should tier thresholds later be tuned using real scored-food distributions?
-core directly or stay header-only?
-- Should editorial pros/cons ever affect score in v2, or remain display-only forever?
-- Should tier thresholds later be tuned using real scored-food distributions?
--food distributions?
-re directly or stay header-only?
 - Should editorial pros/cons ever affect score in v2, or remain display-only forever?
 - Should tier thresholds later be tuned using real scored-food distributions?
 core directly or stay header-only?

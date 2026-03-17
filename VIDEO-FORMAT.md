@@ -57,6 +57,9 @@ There are 7 sections in order:
 - information should appear progressively, not all dumped at once
 - the system should favour clarity on small screens
 - subtitles must not clash with header or key stat areas
+- only submacros in fats/carbs/proteins use arrow-indicator visuals
+- vitamins and minerals use DV% bar-fill visuals, not arrow-indicator visuals
+- pros and cons should end on exactly 3 bullet points each in the final output
 
 ## Closing structure
 
@@ -104,14 +107,6 @@ Potential asset classes:
 - use pixel-art decoration to enhance, not clutter
 - keep reveals satisfying and rhythmic
 - let the final tier reveal feel like a payoff
-
-## Locked section scoring/display notes
-- Only **submacros** use the arrow-indicator logic.
-- Vitamins and minerals are scored from `%DV` bar fill, not arrow indicators.
-- Example rule: `90% DV = 9 points`.
-- Pros section must show exactly **3 pros**.
-- Cons section must show exactly **3 cons**.
-- Pros/cons can include context beyond the earlier nutrition sections when useful.
 
 ## Open questions
 - How locked are the exact timings for each section?

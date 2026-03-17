@@ -59,8 +59,8 @@ Keep the JSON split into:
     }
   ],
   "contextRules": {
-    "maxPros": 3,
-    "maxCons": 3,
+    "requiredPros": 3,
+    "requiredCons": 3,
     "allowedItemKeys": [],
     "scoreMap": {
       "major_pro": 2,
@@ -81,7 +81,7 @@ Keep the JSON split into:
 
 ## Practical rules
 
-### 1. Use signed scores in bands for submacros only
+### 1. Use signed scores in bands
 Even if the label arrow looks positive or negative on-screen, the stored `score` should be explicit.
 That keeps implementation simple.
 
@@ -90,25 +90,14 @@ If included, they should be:
 - `scoringRole: display_only`
 - no score contribution
 
-### 3. Vitamins and minerals do not use arrow bands
-They should score from `%DV` fill logic instead.
-Recommended v1 rule:
-- `metric_points = min(floor(DV_percent / 10), 10)`
-
-### 4. Prefer explicit applicability
+### 3. Prefer explicit applicability
 Use:
 - `required`
 - `optional`
 - `not_applicable`
 
-### 5. Keep context items separate from nutrient metrics
+### 4. Keep context items separate from nutrient metrics
 Do not force antioxidants, pesticide risk, sodium concerns, etc. into the same metric array as nutrient data.
-
-### 6. Lock pros/cons counts
-The scoring/output model should enforce:
-- `maxPros: 3`
-- `maxCons: 3`
-- final video output contains exactly 3 pros and 3 cons
 
 ## Recommended starter files
 
@@ -147,6 +136,16 @@ That gives you:
 - micronutrient-first category
 
 ## Implementation note
+
+The first code pass should support:
+- load food JSON
+- load one ruleset JSON
+- score nutrient sections
+- score context items
+- output normalized sections + final tier + summary payload
+
+That is enough to make the project feel real.
+tion note
 
 The first code pass should support:
 - load food JSON

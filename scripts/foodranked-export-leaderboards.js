@@ -5,10 +5,54 @@ const { spawnSync } = require('child_process');
 
 const repoRoot = path.resolve(__dirname, '..');
 const scoreAllPath = path.join(__dirname, 'foodranked-score-all.js');
+const foodsDir = path.join(repoRoot, 'foods');
 const outputsDir = path.join(repoRoot, 'outputs', 'leaderboards');
+const rulesetsDir = path.join(repoRoot, 'rulesets');
+const scorerPath = path.join(__dirname, 'foodranked-scorer.js');
 
 function ensureDir(dir) {
   fs.mkdirSync(dir, { recursive: true });
+}
+
+function readJson(p) {
+  return JSON.parse(fs.readFileSync(p, 'utf8'));
+}
+
+function listJson(dir) {
+  return fs.readdirSync(dir)
+    .filter(name => name.endsWith('.json'))
+    .map(name => path.join(dir, name));
+}
+
+function inferRulesetPath(foodJson) {
+  const food = readJson(foodJson);
+  return {
+    food,
+    rulesetPath: path.join(rulesetsDir, `${food.foodType}.v1.json`)
+  };
+}
+
+function runScore(foodPath, rulesetPath) {
+  const res = spawnSync(process.execPath, [scorerPath, foodPath, rulesetPath], {
+    cwd: repoRoot,
+    encoding: 'utf8'
+  });
+
+  if (res.status !== 0) {
+    return {
+      ok: false,
+      foodPath,
+      rulesetPath,
+      error: (res.stderr || res.stdout || '').trim()
+    };
+  }
+
+  return {
+    ok: true,
+    foodPath,
+    rulesetPath,
+    result: JSON.parse(res.stdout)
+  };
 }
 
 function sortRows(rows) {
@@ -46,6 +90,30 @@ function buildOverview(grouped) {
   return overview;
 }
 
+function buildRichDetails() {
+  const foodFiles = listJson(foodsDir).filter(f => f.endsWith('.sample.json'));
+  const details = [];
+
+  for (const foodPath of foodFiles) {
+    const { food, rulesetPath } = inferRulesetPath(foodPath);
+    if (!fs.existsSync(rulesetPath)) continue;
+    const scored = runScore(foodPath, rulesetPath);
+    if (!scored.ok) continue;
+    details.push({
+      food: scored.result.food.name,
+      type: scored.result.food.foodType,
+      tier: scored.result.tier,
+      overallScore: scored.result.overallScore,
+      explanation: scored.result.explanation,
+      sectionScores: scored.result.sectionScores,
+      baseScore: scored.result.baseScore,
+      contextAdjustment: scored.result.contextAdjustment.appliedAdjustment
+    });
+  }
+
+  return groupByType(details);
+}
+
 function main() {
   ensureDir(outputsDir);
 
@@ -63,13 +131,15 @@ function main() {
   const rows = scored.summary || [];
   const grouped = groupByType(rows);
   const overview = buildOverview(grouped);
+  const richDetails = buildRichDetails();
 
   const allLeaderboard = {
     status: 'ok',
     generatedAt: new Date().toISOString(),
     categories: Object.keys(grouped).sort(),
     overview,
-    leaderboards: grouped
+    leaderboards: grouped,
+    explanations: richDetails
   };
 
   fs.writeFileSync(path.join(outputsDir, 'all-categories.json'), JSON.stringify(allLeaderboard, null, 2));
@@ -80,7 +150,8 @@ function main() {
       generatedAt: allLeaderboard.generatedAt,
       category: type,
       count: leaderboard.length,
-      leaderboard
+      leaderboard,
+      explanations: richDetails[type] || []
     };
     fs.writeFileSync(path.join(outputsDir, `${type}.json`), JSON.stringify(payload, null, 2));
   }

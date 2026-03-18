@@ -116,17 +116,83 @@ function getTier(score, thresholds) {
   return 'UNKNOWN';
 }
 
-function buildSummary(sectionScores, tier) {
-  const entries = Object.entries(sectionScores)
-    .filter(([, v]) => typeof v === 'number')
-    .sort((a, b) => b[1] - a[1]);
-  const best = entries[0]?.[0] || 'strengths';
-  const worst = entries[entries.length - 1]?.[0] || 'weaknesses';
-  return `${capitalize(best)} are carrying this food most, while ${worst} are the biggest drag. It lands in ${tier} tier.`;
-}
-
 function capitalize(s) {
   return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+function prettySectionName(section) {
+  const map = {
+    fats: 'fats',
+    carbs: 'carbs',
+    proteins: 'proteins',
+    vitamins: 'vitamins',
+    minerals: 'minerals',
+    pros: 'pros',
+    cons: 'cons'
+  };
+  return map[section] || section;
+}
+
+function buildSummary(sectionScores, tier) {
+  const nutritionEntries = ['fats', 'carbs', 'proteins', 'vitamins', 'minerals']
+    .map(section => [section, sectionScores[section]])
+    .filter(([, v]) => typeof v === 'number')
+    .sort((a, b) => b[1] - a[1]);
+
+  const best = nutritionEntries[0]?.[0] || null;
+  const worst = nutritionEntries[nutritionEntries.length - 1]?.[0] || null;
+  const bestScore = nutritionEntries[0]?.[1] ?? null;
+
+  if (bestScore === null || bestScore === 0) {
+    return `This food is being judged mostly by contextual strengths and weaknesses rather than nutrient sections. It lands in ${tier} tier.`;
+  }
+
+  return `${capitalize(prettySectionName(best))} are carrying this food most, while ${prettySectionName(worst)} are the biggest drag. It lands in ${tier} tier.`;
+}
+
+function buildTierReason(tier, overallScore, baseScore, contextAdjustment) {
+  const contextBit = contextAdjustment === 0
+    ? 'Context barely changed the result.'
+    : contextAdjustment > 0
+      ? `Context lifted it by ${contextAdjustment} point${contextAdjustment === 1 ? '' : 's'}.`
+      : `Context dragged it down by ${Math.abs(contextAdjustment)} point${Math.abs(contextAdjustment) === 1 ? '' : 's'}.`;
+  return `This food lands in ${tier} tier with an overall score of ${overallScore} from a base nutrition score of ${baseScore}. ${contextBit}`;
+}
+
+function pickSectionExtremes(sectionScores) {
+  const nutritionSections = ['fats', 'carbs', 'proteins', 'vitamins', 'minerals'];
+  const entries = nutritionSections
+    .map(section => ({ section, score: sectionScores[section] }))
+    .filter(entry => typeof entry.score === 'number')
+    .sort((a, b) => b.score - a.score);
+
+  const strongest = entries[0] && entries[0].score > 0 ? entries[0] : null;
+  const weakest = entries.length && entries[entries.length - 1].score > 0 ? entries[entries.length - 1] : null;
+
+  return { strongest, weakest };
+}
+
+function buildNarrationNotes(extremes, tier, contextAdjustment) {
+  const notes = [];
+  if (extremes.strongest) notes.push(`Strongest section: ${capitalize(prettySectionName(extremes.strongest.section))}.`);
+  if (extremes.weakest) notes.push(`Weakest section: ${capitalize(prettySectionName(extremes.weakest.section))}.`);
+  if (contextAdjustment > 0) notes.push(`Context improved the final tier case by ${contextAdjustment} point${contextAdjustment === 1 ? '' : 's'}.`);
+  if (contextAdjustment < 0) notes.push(`Context weakened the final tier case by ${Math.abs(contextAdjustment)} point${Math.abs(contextAdjustment) === 1 ? '' : 's'}.`);
+  notes.push(`Final verdict: ${tier} tier.`);
+  return notes;
+}
+
+function trimContextItems(items, side, limit = 3) {
+  return (items || [])
+    .map(item => ({
+      title: item.title,
+      explanation: item.explanation,
+      impactLevel: item.impactLevel,
+      side,
+      resolvedScoreValue: item.resolvedScoreValue ?? 0
+    }))
+    .sort((a, b) => Math.abs(b.resolvedScoreValue) - Math.abs(a.resolvedScoreValue))
+    .slice(0, limit);
 }
 
 function validateExactContextCount(food, ruleset) {
@@ -233,6 +299,29 @@ function main() {
   const overallScore = clamp(baseScore + contextComputation.appliedAdjustment, 0, 100);
   const tier = getTier(overallScore, ruleset.tierThresholds);
   const summary = buildSummary(sectionScores, tier);
+  const extremes = pickSectionExtremes(sectionScores);
+  const topPros = trimContextItems(contextComputation.appliedItems.filter(item => item.side === 'pro'), 'pro');
+  const topCons = trimContextItems(contextComputation.appliedItems.filter(item => item.side === 'con'), 'con');
+  const fallbackPros = topPros.length ? topPros : trimContextItems((food.contextItems?.pros || []).map(item => ({ ...item, resolvedScoreValue: 0 })), 'pro');
+  const fallbackCons = topCons.length ? topCons : trimContextItems((food.contextItems?.cons || []).map(item => ({ ...item, resolvedScoreValue: 0 })), 'con');
+
+  const explanation = {
+    summary,
+    whyThisTier: buildTierReason(tier, overallScore, baseScore, contextComputation.appliedAdjustment),
+    strongestSection: extremes.strongest ? {
+      key: extremes.strongest.section,
+      label: capitalize(prettySectionName(extremes.strongest.section)),
+      score: Number(extremes.strongest.score.toFixed(1))
+    } : null,
+    weakestSection: extremes.weakest ? {
+      key: extremes.weakest.section,
+      label: capitalize(prettySectionName(extremes.weakest.section)),
+      score: Number(extremes.weakest.score.toFixed(1))
+    } : null,
+    topPros: fallbackPros,
+    topCons: fallbackCons,
+    narrationNotes: buildNarrationNotes(extremes, tier, contextComputation.appliedAdjustment)
+  };
 
   const output = {
     status: 'ok',
@@ -250,6 +339,7 @@ function main() {
     overallScore,
     tier,
     summary,
+    explanation,
     contextItems: food.contextItems,
     metricBreakdown
   };

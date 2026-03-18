@@ -32,9 +32,16 @@ function inferRulesetPath(food) {
   return path.join(repoRoot, 'rulesets', `${food.foodType}.v1.json`);
 }
 
-function pick(list, fallback = '') {
+function hashString(input) {
+  const str = String(input || '');
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h = ((h << 5) - h) + str.charCodeAt(i);
+  return Math.abs(h);
+}
+
+function pick(list, fallback = '', seed = '') {
   if (!Array.isArray(list) || !list.length) return fallback;
-  return list[0];
+  return list[hashString(seed) % list.length];
 }
 
 function titleForSection(key) {
@@ -135,17 +142,17 @@ function joinShort(parts) {
   return valid.join('. ') + (valid.length ? '.' : '');
 }
 
-function sectionContextLine(foodType) {
-  return pick(categoryContext[foodType], '');
+function sectionContextLine(foodType, seed = '') {
+  return pick(categoryContext[foodType], '', `${foodType}:${seed}`);
 }
 
 function strongestMetricLine(result, sectionKey) {
   const metrics = topMetricsForSection(result, sectionKey, 2);
-  if (!metrics.length) return pick(corePhrases.lackluster, 'everything else is lackluster');
+  if (!metrics.length) return pick(corePhrases.lackluster, 'everything else is lackluster', `${result.food.id}:${sectionKey}:lackluster`);
 
   for (const metric of metrics) {
     const ex = exaggerationRules[metric.metricKey];
-    if (ex) return pick(ex);
+    if (ex) return pick(ex, '', `${result.food.id}:${sectionKey}:${metric.metricKey}`);
   }
 
   const names = metrics.map(m => formatMetricKey(m.metricKey));
@@ -154,7 +161,7 @@ function strongestMetricLine(result, sectionKey) {
 }
 
 function buildHook(result) {
-  return pick(corePhrases.openers, '{subject} ranked.').replaceAll('{subject}', result.food.name);
+  return pick(corePhrases.openers, '{subject} ranked.', `${result.food.id}:hook`).replaceAll('{subject}', result.food.name);
 }
 
 function buildIntro(result) {
@@ -167,15 +174,15 @@ function buildIntro(result) {
 function buildMacroSection(result, key) {
   const macro = macroLine(result, key);
   const strongest = strongestMetricLine(result, key);
-  const context = sectionContextLine(result.food.foodType);
+  const context = sectionContextLine(result.food.foodType, `${result.food.id}:${key}`);
   return joinShort([macro, strongest, context]);
 }
 
 function buildMicrosSection(result, sectionKey) {
   const top = topMetricsForSection(result, sectionKey, 2);
-  if (!top.length) return `${pick(corePhrases.lackluster, 'everything else is lackluster')}.`;
+  if (!top.length) return `${pick(corePhrases.lackluster, 'everything else is lackluster', `${result.food.id}:${sectionKey}:micro-lackluster`)}.`;
   const lead = top.map(m => metricDisplayText(m)).join(', ');
-  const tail = (result.sectionScores?.[sectionKey] || 0) <= 15 ? pick(corePhrases.lackluster, 'everything else is lackluster') : '';
+  const tail = (result.sectionScores?.[sectionKey] || 0) <= 15 ? pick(corePhrases.lackluster, 'everything else is lackluster', `${result.food.id}:${sectionKey}:tail`) : '';
   return joinShort([
     `${lead} stand out most`,
     tail
@@ -195,7 +202,7 @@ function sectionNarration(result, sectionKey) {
     const macro = macroLine(result, sectionKey);
     return joinShort([
       macro,
-      pick(corePhrases.contextEyecatcher, 'this section is mostly just an eyecatcher here'),
+      pick(corePhrases.contextEyecatcher, 'this section is mostly just an eyecatcher here', `${result.food.id}:${sectionKey}:eyecatcher`),
       'the real score comes later from context'
     ]);
   }
@@ -231,7 +238,7 @@ function displayItemsForSection(result, sectionKey) {
 function buildClosing(result) {
   return {
     summary: `So overall, ${result.explanation?.summary || result.summary}`,
-    finalReveal: pick(corePhrases.finalReveal, '{subject} is {tier} tier.')
+    finalReveal: pick(corePhrases.finalReveal, '{subject} is {tier} tier.', `${result.food.id}:finalReveal`)
       .replaceAll('{subject}', result.food.name)
       .replaceAll('{tier}', result.tier),
     useCaseNote: result.explanation?.whyThisTier || '',

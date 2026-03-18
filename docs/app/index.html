@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FoodRanked Dashboard</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar panel">
+      <div class="sidebar-top">
+        <h1>FoodRanked</h1>
+        <p class="muted">Local dashboard for browsing foods and previewing the display system.</p>
+      </div>
+
+      <div class="controls">
+        <input id="searchInput" type="search" placeholder="Search foods..." />
+        <select id="typeFilter">
+          <option value="all">All food types</option>
+        </select>
+        <select id="tierFilter">
+          <option value="all">All tiers</option>
+          <option value="S">S</option>
+          <option value="A">A</option>
+          <option value="B">B</option>
+          <option value="C">C</option>
+          <option value="D">D</option>
+          <option value="unscored">Unscored</option>
+        </select>
+      </div>
+
+      <div class="food-count muted"><span id="foodCount">0</span> foods</div>
+      <div id="foodList" class="food-list"></div>
+    </aside>
+
+    <main class="main-area">
+      <section class="top-grid">
+        <div class="panel summary-panel">
+          <div class="summary-head">
+            <div>
+              <h2 id="foodName">Select a food</h2>
+              <p id="foodMeta" class="muted">Food type, basis, kcal, score.</p>
+            </div>
+            <div class="badge-row">
+              <span id="tierBadge" class="tier-badge tier-none">—</span>
+              <span id="scoreBadge" class="score-badge">No score</span>
+            </div>
+          </div>
+          <p id="foodSummary" class="summary-text muted">Choose a food from the left to inspect its data and preview the display template.</p>
+        </div>
+
+        <div class="panel quick-panel">
+          <h3>Display controls</h3>
+          <label>
+            Scene
+            <select id="sceneSelect">
+              <option value="hook">Hook</option>
+              <option value="fats">Fats</option>
+              <option value="carbs">Carbs</option>
+              <option value="proteins">Proteins</option>
+              <option value="vitamins">Vitamins</option>
+              <option value="minerals">Minerals</option>
+              <option value="pros">Pros</option>
+              <option value="cons">Cons</option>
+              <option value="final">Verdict</option>
+            </select>
+          </label>
+          <label>
+            Bubble size
+            <input id="bubbleScale" type="range" min="80" max="150" value="100" />
+          </label>
+          <label>
+            Subtitle lift
+            <input id="subtitleLift" type="range" min="0" max="220" value="0" />
+          </label>
+          <p class="muted small">Use these sliders to quickly feel how the template changes before editing the SVG wireframes.</p>
+        </div>
+      </section>
+
+      <section class="content-grid">
+        <div class="panel preview-panel">
+          <div class="phone-preview" id="phonePreview">
+            <div class="phone-bg"></div>
+            <div class="header-card">
+              <div class="food-thumb" id="foodThumb">🍽️</div>
+              <div class="header-copy">
+                <div class="header-title" id="previewFoodName">Food</div>
+                <div class="header-tags">
+                  <span class="tag" id="previewFoodType">Food Type</span>
+                  <span class="tag muted-tag" id="previewBasis">Per 100g</span>
+                </div>
+              </div>
+              <div class="kcal-box">
+                <div class="kcal-value" id="previewKcal">000</div>
+                <div class="kcal-label">kcal</div>
+              </div>
+            </div>
+
+            <div class="section-chip" id="previewSceneChip">HOOK</div>
+
+            <div class="stage-card">
+              <div class="hook-layout" id="hookLayout">
+                <div class="hero-art">HERO</div>
+                <div class="hook-title" id="hookTitle">FOOD NAME</div>
+                <div class="hook-ranked">RANKED</div>
+              </div>
+
+              <div class="macro-layout hidden" id="macroLayout">
+                <div class="macro-head-row">
+                  <div class="macro-bubble fat" id="macroBubble">◉</div>
+                  <div class="macro-headline" id="macroHeadline">42g FAT</div>
+                </div>
+                <div class="slot-list" id="macroSlots"></div>
+              </div>
+
+              <div class="micro-layout hidden" id="microLayout">
+                <div class="micro-row">
+                  <div class="micro-label" id="micro1Label">Vitamin B12</div>
+                  <div class="micro-bar"><div class="micro-fill" id="micro1Fill"></div></div>
+                  <div class="micro-value" id="micro1Value">20%</div>
+                </div>
+                <div class="micro-row">
+                  <div class="micro-label" id="micro2Label">Vitamin D</div>
+                  <div class="micro-bar"><div class="micro-fill" id="micro2Fill"></div></div>
+                  <div class="micro-value" id="micro2Value">2%</div>
+                </div>
+              </div>
+
+              <div class="bullets-layout hidden" id="bulletsLayout"></div>
+
+              <div class="verdict-layout hidden" id="verdictLayout">
+                <div class="tier-stamp" id="previewTierStamp">D</div>
+                <div class="score-plate" id="previewScorePlate">39</div>
+              </div>
+            </div>
+
+            <div class="subtitle-box" id="subtitleBox">
+              <div id="subtitleText">Select a food to preview the display.</div>
+            </div>
+
+            <div class="progress-row" id="progressRow"></div>
+          </div>
+        </div>
+
+        <div class="panel detail-panel">
+          <div class="detail-tabs">
+            <button class="tab active" data-tab="overview">Overview</button>
+            <button class="tab" data-tab="macros">Macros</button>
+            <button class="tab" data-tab="micros">Micros</button>
+            <button class="tab" data-tab="context">Pros / Cons</button>
+          </div>
+          <div id="detailContent" class="detail-content"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="./data/foods-index.js"></script>
+  <script src="./app.js" type="module"></script>
+</body>
+</html>

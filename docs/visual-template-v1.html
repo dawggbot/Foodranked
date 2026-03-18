@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FoodRanked Visual Template v1 Mockup</title>
+  <style>
+    :root {
+      --bg: #16161d;
+      --panel: rgba(22, 26, 35, 0.9);
+      --panel-2: #232836;
+      --text: #f7f3e8;
+      --muted: #b8b3a7;
+      --accent: #4caf50;
+      --accent-2: #ffd166;
+      --danger: #d96c6c;
+      --shadow: #0b0d12;
+      --subtle: #31384a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, #1a1f2b 0%, #11151d 100%);
+      color: var(--text);
+      font-family: Inter, system-ui, sans-serif;
+      display: grid;
+      place-items: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .wrap { display: grid; gap: 18px; justify-items: center; }
+    .phone {
+      width: 420px;
+      aspect-ratio: 9 / 16;
+      background: radial-gradient(circle at top, rgba(76,175,80,.16), transparent 35%), linear-gradient(180deg, #1b2030 0%, #121724 100%);
+      border: 6px solid #2e3649;
+      border-radius: 26px;
+      box-shadow: 0 18px 50px rgba(0,0,0,.45);
+      position: relative;
+      overflow: hidden;
+    }
+    .pixel-border { border: 3px solid #46506a; box-shadow: inset 0 0 0 2px #1a1f2b; }
+    .header {
+      position: absolute; left: 12px; right: 12px; top: 18px; height: 92px;
+      background: var(--panel); border-radius: 14px; display: grid;
+      grid-template-columns: 72px 1fr 92px; gap: 12px; padding: 10px 12px; align-items: center;
+    }
+    .food-badge {
+      width: 72px; height: 72px; border-radius: 16px; background: linear-gradient(135deg, #ff9f68, #e85d75);
+      display: grid; place-items: center; font-size: 34px;
+    }
+    .food-meta h1 { font-size: 20px; margin: 0 0 6px; line-height: 1; }
+    .tags { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .tag, .tiny { background: var(--panel-2); border-radius: 999px; padding: 5px 10px; font-size: 11px; color: var(--muted); }
+    .tag.type { color: white; background: var(--accent); }
+    .kcal {
+      background: linear-gradient(180deg, #2a3041 0%, #212636 100%); border-radius: 14px;
+      height: 72px; display: grid; place-items: center; text-align: center;
+    }
+    .kcal .n { font-size: 24px; font-weight: 800; line-height: 1; }
+    .kcal .l { font-size: 11px; color: var(--muted); }
+    .section-chip {
+      position: absolute; top: 126px; left: 22px; background: var(--panel); border-radius: 999px;
+      padding: 8px 14px; font-weight: 700; font-size: 12px; letter-spacing: .06em; text-transform: uppercase;
+    }
+    .stage {
+      position: absolute; left: 18px; right: 18px; top: 156px; bottom: 124px;
+      border-radius: 18px; background: linear-gradient(180deg, rgba(34,40,54,.72), rgba(20,24,34,.72)); padding: 18px;
+    }
+    .macro { background: rgba(255,255,255,.04); border-radius: 14px; padding: 14px 16px; margin-bottom: 14px; }
+    .macro .label { font-size: 12px; letter-spacing: .08em; color: var(--muted); text-transform: uppercase; }
+    .macro .value { font-size: 32px; font-weight: 900; line-height: 1.1; margin-top: 6px; }
+    .cards { display: grid; gap: 12px; }
+    .card {
+      background: rgba(255,255,255,.045); border-radius: 14px; padding: 12px 14px;
+      display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px;
+    }
+    .card .name { font-size: 15px; font-weight: 700; }
+    .card .sub { font-size: 12px; color: var(--muted); margin-top: 3px; }
+    .arrow { font-size: 20px; font-weight: 900; color: #8ef0a3; min-width: 48px; text-align: right; }
+    .note {
+      margin-top: 14px; background: rgba(255, 209, 102, .12); color: #ffe2a0;
+      border-radius: 12px; padding: 10px 12px; font-size: 13px; font-weight: 600;
+    }
+    .subs {
+      position: absolute; left: 28px; right: 28px; bottom: 104px; min-height: 78px;
+      display: grid; place-items: center; text-align: center; pointer-events: none;
+    }
+    .subs .text {
+      background: rgba(12,14,20,.74); border-radius: 16px; padding: 12px 16px; font-size: 16px;
+      line-height: 1.35; max-width: 100%; box-shadow: 0 8px 20px rgba(0,0,0,.2);
+    }
+    .progress {
+      position: absolute; left: 0; right: 0; bottom: 44px; display: flex; justify-content: center; gap: 12px;
+    }
+    .dot { width: 14px; height: 14px; border-radius: 999px; background: #4a5266; box-shadow: inset 0 0 0 2px #2a3140; }
+    .dot.done { background: #799b82; }
+    .dot.active { background: var(--accent); box-shadow: 0 0 0 3px rgba(76,175,80,.18); }
+    .label-bar { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; max-width: 860px; text-align: center; color: var(--muted); font-size: 13px; }
+    .small { max-width: 860px; color: var(--muted); text-align: center; line-height: 1.45; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="phone">
+      <div class="header pixel-border">
+        <div class="food-badge pixel-border">🍓</div>
+        <div class="food-meta">
+          <h1>Raspberries</h1>
+          <div class="tags">
+            <div class="tag type">Fruits</div>
+            <div class="tiny">Per 100g</div>
+          </div>
+        </div>
+        <div class="kcal pixel-border">
+          <div>
+            <div class="n">52</div>
+            <div class="l">kcal</div>
+          </div>
+        </div>
+      </div>
+      <div class="section-chip pixel-border">Carbs</div>
+      <div class="stage pixel-border">
+        <div class="macro pixel-border">
+          <div class="label">Macro headline</div>
+          <div class="value">CARBS 11.9g</div>
+        </div>
+        <div class="cards">
+          <div class="card pixel-border">
+            <div><div class="name">Sugar</div><div class="sub">4.4g per 100g</div></div>
+            <div class="arrow">↓↓↓</div>
+          </div>
+          <div class="card pixel-border">
+            <div><div class="name">Fibre</div><div class="sub">6.5g per 100g</div></div>
+            <div class="arrow">↑↑</div>
+          </div>
+          <div class="card pixel-border">
+            <div><div class="name">Glycemic Index</div><div class="sub">32 GI</div></div>
+            <div class="arrow">↓↓</div>
+          </div>
+        </div>
+        <div class="note pixel-border">for a fruit, sugar moderation is the whole game</div>
+      </div>
+      <div class="subs">
+        <div class="text">carbs is 11.9 grams per 100 grams. sugar and glycemic index stand out most.</div>
+      </div>
+      <div class="progress">
+        <div class="dot done"></div>
+        <div class="dot active"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+    </div>
+    <div class="label-bar">
+      <span>Permanent header</span>
+      <span>Section chip</span>
+      <span>Macro headline</span>
+      <span>3 reveal slots</span>
+      <span>Commentary note</span>
+      <span>Subtitle safe zone</span>
+      <span>7 progress dots</span>
+    </div>
+    <div class="small">
+      This is a simple visual mockup of the locked vertical template — not the final renderer. It shows the layout system the timing/reveal planner will target next.
+    </div>
+  </div>
+</body>
+</html>

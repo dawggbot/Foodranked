@@ -208,7 +208,8 @@ function renderPreview() {
     const headlineValue = scene === 'fats' ? food.header?.fat_g : scene === 'carbs' ? food.header?.carb_g : food.header?.protein_g;
     els.macroBubble.className = `macro-bubble ${bubbleClass}`;
     els.macroBubble.style.transform = `scale(${bubbleScale})`;
-    els.macroBubble.textContent = scene === 'fats' ? '🛡' : scene === 'carbs' ? '⚡' : '💪';
+    els.macroBubbleImg.src = macroSpriteMap[scene] || '';
+    els.macroBubbleImg.alt = `${scene} bubble`;
     els.macroHeadline.textContent = `${headlineValue ?? '—'}g ${scene.toUpperCase()}`;
     const items = sceneMetricItems(food, scene);
     els.macroSlots.innerHTML = items.map(([title, value]) => `<div class="slot-card"><div class="slot-title">${title}</div><div class="slot-sub">${value}</div></div>`).join('');
@@ -306,6 +307,20 @@ init();
   [els.sceneSelect, els.bubbleScale, els.subtitleLift].forEach(el => el.addEventListener('input', renderPreview));
 
   state.selectedFood = state.data.foods[0];
+  updateFoodList();
+  renderSummary();
+  renderDetails();
+  renderPreview();
+}
+
+init();
+();
+  renderDetails();
+  renderPreview();
+}
+
+init();
+d = state.data.foods[0];
   updateFoodList();
   renderSummary();
   renderDetails();

@@ -56,7 +56,13 @@ const foods = fs.readdirSync(foodsDir)
         outputDir: episode.outputs?.directory ?? null,
         sceneCount: scenes.length,
         accent: episode.visualBinding?.categoryAccent ?? null,
-        tierColor: episode.visualBinding?.tierColor ?? null
+        tierColor: episode.visualBinding?.tierColor ?? null,
+        script: exists(path.join(repoRoot, episode.outputs?.directory || '', 'script.json'))
+          ? readJson(path.join(repoRoot, episode.outputs.directory, 'script.json'))
+          : null,
+        narrationText: exists(path.join(repoRoot, episode.outputs?.directory || '', 'narration.txt'))
+          ? fs.readFileSync(path.join(repoRoot, episode.outputs.directory, 'narration.txt'), 'utf8')
+          : null
       } : null
     };
   });

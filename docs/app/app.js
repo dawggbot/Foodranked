@@ -247,6 +247,26 @@ function renderDetails() {
     return;
   }
 
+  if (tab === 'script') {
+    const hasScript = !!food.episode?.script;
+    const narration = food.episode?.narrationText?.trim() || '';
+    const scriptObj = food.episode?.script;
+    const readableScript = scriptObj ? [
+      scriptObj.hook,
+      scriptObj.intro,
+      ...(scriptObj.sections || []).map(section => section.narration),
+      scriptObj.closing?.summary,
+      scriptObj.closing?.finalReveal,
+      scriptObj.closing?.useCaseNote,
+      scriptObj.closing?.cta
+    ].filter(Boolean).join('\n\n') : '';
+    els.detailContent.innerHTML = `
+      <div class="detail-card"><h4>Script status</h4><div class="script-status ${hasScript ? 'ok' : 'missing'}">${hasScript ? 'Generated script available' : 'No generated script yet'}</div></div>
+      <div class="detail-card"><h4>Narration draft</h4>${hasScript ? `<div class="script-block">${escapeHtml(narration || readableScript)}</div>` : '<p>Generate an episode package for this food to see the script here.</p>'}</div>
+      <div class="detail-card"><h4>Structured script snapshot</h4>${hasScript ? `<div class="script-block">${escapeHtml(JSON.stringify(scriptObj, null, 2))}</div>` : '<p>No script.json available yet.</p>'}</div>`;
+    return;
+  }
+
   const pros = food.contextItems?.pros || [];
   const cons = food.contextItems?.cons || [];
   els.detailContent.innerHTML = `

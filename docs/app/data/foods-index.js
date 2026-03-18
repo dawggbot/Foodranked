@@ -1,5 +1,5 @@
 window.FOODRANKED_DATA = {
-  "generatedAt": "2026-03-18T21:33:15.392Z",
+  "generatedAt": "2026-03-18T21:55:15.745Z",
   "count": 156,
   "foods": [
     {

@@ -45,7 +45,15 @@ const els = {
   progressRow: document.getElementById('progressRow'),
   sceneSelect: document.getElementById('sceneSelect'),
   bubbleScale: document.getElementById('bubbleScale'),
+  bubbleOffsetX: document.getElementById('bubbleOffsetX'),
+  headlineScale: document.getElementById('headlineScale'),
+  stampScale: document.getElementById('stampScale'),
   subtitleLift: document.getElementById('subtitleLift'),
+  presetName: document.getElementById('presetName'),
+  presetSelect: document.getElementById('presetSelect'),
+  savePresetBtn: document.getElementById('savePresetBtn'),
+  resetPresetBtn: document.getElementById('resetPresetBtn'),
+  deletePresetBtn: document.getElementById('deletePresetBtn'),
   foodThumb: document.getElementById('foodThumb'),
   phonePreview: document.getElementById('phonePreview'),
   hookTitle: document.getElementById('hookTitle')
@@ -61,9 +69,61 @@ const macroSpriteMap = {
   carbs: './assets/macro-carbs-lightning.gif',
   proteins: './assets/macro-protein-arm.gif'
 };
+const PRESET_KEY = 'foodranked-layout-presets-v1';
+const DEFAULT_CONTROLS = {
+  bubbleScale: 100,
+  bubbleOffsetX: 0,
+  headlineScale: 100,
+  stampScale: 100,
+  subtitleLift: 0
+};
 
 function fmtType(v){ return String(v||'').replace(/-/g,' '); }
 function fmtBasis(food){ return `Per ${food?.basis?.value ?? 100}${food?.basis?.unit ?? 'g'}`; }
+
+function getControls() {
+  return {
+    bubbleScale: Number(els.bubbleScale.value),
+    bubbleOffsetX: Number(els.bubbleOffsetX.value),
+    headlineScale: Number(els.headlineScale.value),
+    stampScale: Number(els.stampScale.value),
+    subtitleLift: Number(els.subtitleLift.value)
+  };
+}
+
+function setControls(values = {}) {
+  const merged = { ...DEFAULT_CONTROLS, ...values };
+  els.bubbleScale.value = merged.bubbleScale;
+  els.bubbleOffsetX.value = merged.bubbleOffsetX;
+  els.headlineScale.value = merged.headlineScale;
+  els.stampScale.value = merged.stampScale;
+  els.subtitleLift.value = merged.subtitleLift;
+}
+
+function loadPresets() {
+  try {
+    return JSON.parse(localStorage.getItem(PRESET_KEY) || '{}');
+  } catch {
+    return {};
+  }
+}
+
+function savePresets(presets) {
+  localStorage.setItem(PRESET_KEY, JSON.stringify(presets));
+}
+
+function refreshPresetSelect() {
+  const presets = loadPresets();
+  const current = els.presetSelect.value;
+  els.presetSelect.innerHTML = '<option value="">Load saved preset</option>';
+  Object.keys(presets).sort().forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name;
+    els.presetSelect.appendChild(opt);
+  });
+  if (presets[current]) els.presetSelect.value = current;
+}
 
 function sceneMetricItems(food, scene) {
   const m = food.metrics || {};
@@ -204,9 +264,11 @@ function renderPreview() {
   if (!food) return;
 
   const scene = els.sceneSelect.value;
+  const controls = getControls();
   const accent = accentMap[food.foodType] || '#6b7280';
-  const bubbleScale = Number(els.bubbleScale.value) / 100;
-  const subtitleLift = Number(els.subtitleLift.value);
+  const bubbleScale = controls.bubbleScale / 100;
+  const headlineScale = controls.headlineScale / 100;
+  const stampScale = controls.stampScale / 100;
 
   els.previewFoodName.textContent = food.name;
   els.previewFoodType.textContent = fmtType(food.foodType);
@@ -216,7 +278,7 @@ function renderPreview() {
   els.previewSceneChip.style.background = accent;
   els.foodThumb.textContent = emojiMap[food.foodType] || '🍽️';
   els.hookTitle.textContent = food.name.toUpperCase();
-  els.subtitleBox.style.transform = `translateY(-${subtitleLift}px)`;
+  els.subtitleBox.style.transform = `translateY(-${controls.subtitleLift}px)`;
   els.phonePreview.querySelector('.phone-bg').style.background = `radial-gradient(circle at top, ${accent}33 0, #141824 58%, #0f1117 100%)`;
 
   const activeIndex = sceneOrder.indexOf(scene === 'final' ? 'final' : scene);
@@ -233,10 +295,12 @@ function renderPreview() {
     const bubbleClass = scene === 'fats' ? 'fat' : scene === 'carbs' ? 'carbs' : 'proteins';
     const headlineValue = scene === 'fats' ? food.header?.fat_g : scene === 'carbs' ? food.header?.carb_g : food.header?.protein_g;
     els.macroBubble.className = `macro-bubble ${bubbleClass}`;
-    els.macroBubble.style.transform = `scale(${bubbleScale})`;
+    els.macroBubble.style.transform = `translateX(${controls.bubbleOffsetX}px) scale(${bubbleScale})`;
     els.macroBubbleImg.src = macroSpriteMap[scene] || '';
     els.macroBubbleImg.alt = `${scene} bubble`;
     els.macroHeadline.textContent = `${headlineValue ?? '—'}g ${scene.toUpperCase()}`;
+    els.macroHeadline.style.transform = `scale(${headlineScale})`;
+    els.macroHeadline.style.transformOrigin = 'left center';
     const items = sceneMetricItems(food, scene);
     els.macroSlots.innerHTML = items.map(([title, value]) => `<div class="slot-card"><div class="slot-title">${title}</div><div class="slot-sub">${value}</div></div>`).join('');
     els.subtitleText.textContent = sceneSubtitle(food, scene);
@@ -269,6 +333,7 @@ function renderPreview() {
   const tier = food.episode?.tier || '—';
   els.previewTierStamp.textContent = tier;
   els.previewTierStamp.style.background = accentMap[food.foodType] || '#7c3aed';
+  els.previewTierStamp.style.transform = `scale(${stampScale})`;
   els.previewScorePlate.textContent = food.episode?.overallScore ?? '—';
   els.subtitleText.textContent = sceneSubtitle(food, scene);
 }
@@ -280,6 +345,44 @@ function initTabs() {
     state.activeTab = tab.dataset.tab;
     renderDetails();
   }));
+}
+
+function initPresets() {
+  refreshPresetSelect();
+
+  els.savePresetBtn.addEventListener('click', () => {
+    const name = els.presetName.value.trim();
+    if (!name) return;
+    const presets = loadPresets();
+    presets[name] = getControls();
+    savePresets(presets);
+    refreshPresetSelect();
+    els.presetSelect.value = name;
+  });
+
+  els.resetPresetBtn.addEventListener('click', () => {
+    setControls(DEFAULT_CONTROLS);
+    renderPreview();
+  });
+
+  els.presetSelect.addEventListener('change', () => {
+    const name = els.presetSelect.value;
+    if (!name) return;
+    const presets = loadPresets();
+    if (presets[name]) {
+      setControls(presets[name]);
+      renderPreview();
+    }
+  });
+
+  els.deletePresetBtn.addEventListener('click', () => {
+    const name = els.presetSelect.value;
+    if (!name) return;
+    const presets = loadPresets();
+    delete presets[name];
+    savePresets(presets);
+    refreshPresetSelect();
+  });
 }
 
 function init() {
@@ -298,9 +401,11 @@ function init() {
   });
 
   initTabs();
+  initPresets();
   [els.searchInput, els.typeFilter, els.tierFilter].forEach(el => el.addEventListener('input', updateFoodList));
-  [els.sceneSelect, els.bubbleScale, els.subtitleLift].forEach(el => el.addEventListener('input', renderPreview));
+  [els.sceneSelect, els.bubbleScale, els.bubbleOffsetX, els.headlineScale, els.stampScale, els.subtitleLift].forEach(el => el.addEventListener('input', renderPreview));
 
+  setControls(DEFAULT_CONTROLS);
   state.selectedFood = state.data.foods[0];
   updateFoodList();
   renderSummary();

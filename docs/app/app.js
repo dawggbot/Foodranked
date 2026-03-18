@@ -233,7 +233,7 @@ function renderPreview() {
     setVisible(els.bulletsLayout);
     const items = food.contextItems?.[scene] || [];
     els.bulletsLayout.innerHTML = items.slice(0,3).map(item => `<div class="bullet-card ${scene === 'cons' ? 'cons' : ''}"><div class="bullet-icon">${scene === 'pros' ? '＋' : '－'}</div><div class="bullet-text">${item.title}</div></div>`).join('');
-    els.subtitleText.textContent = `${scene === 'pros' ? 'Biggest pros.' : 'Biggest cons.'}`;
+    els.subtitleText.textContent = sceneSubtitle(food, scene);
     return;
   }
 
@@ -260,6 +260,37 @@ async function init() {
   if (!state.data) {
     document.body.innerHTML = '<div style="padding:24px;color:white;background:#111">Dashboard data missing. Run <code>node scripts/generate-dashboard-data.js</code> in the Foodranked repo.</div>';
     return;
+  }
+
+  const types = [...new Set(state.data.foods.map(food => food.foodType))].sort();
+  types.forEach(type => {
+    const opt = document.createElement('option');
+    opt.value = type;
+    opt.textContent = fmtType(type);
+    els.typeFilter.appendChild(opt);
+  });
+
+  initTabs();
+  [els.searchInput, els.typeFilter, els.tierFilter].forEach(el => el.addEventListener('input', updateFoodList));
+  [els.sceneSelect, els.bubbleScale, els.subtitleLift].forEach(el => el.addEventListener('input', renderPreview));
+
+  state.selectedFood = state.data.foods[0];
+  updateFoodList();
+  renderSummary();
+  renderDetails();
+  renderPreview();
+}
+
+init();
+ate.selectedFood = state.data.foods[0];
+  updateFoodList();
+  renderSummary();
+  renderDetails();
+  renderPreview();
+}
+
+init();
+ return;
   }
 
   const types = [...new Set(state.data.foods.map(food => food.foodType))].sort();

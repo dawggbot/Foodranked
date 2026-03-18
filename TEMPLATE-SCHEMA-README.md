@@ -30,19 +30,21 @@ Examples:
   - `submetric_1`
   - `submetric_2`
   - `submetric_3`
-  - `commentary_note`
 - vitamins/minerals:
   - `micronutrient_1`
   - `micronutrient_2`
-  - `commentary_note`
 - pros/cons:
   - `bullet_1`
   - `bullet_2`
   - `bullet_3`
 - closing:
-  - `summary_text`
   - `tier_stamp`
-  - `final_line`
+
+## Text rule
+
+Inside the body of the video, the only text should come from subtitles derived from narration.
+
+That means the template should avoid extra commentary labels, note tags, or closing text blocks beyond the subtitle system.
 
 ## Recommended next step
 

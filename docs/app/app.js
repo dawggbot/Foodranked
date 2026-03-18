@@ -20,6 +20,7 @@ const els = {
   previewFoodName: document.getElementById('previewFoodName'),
   previewBasis: document.getElementById('previewBasis'),
   previewKcal: document.getElementById('previewKcal'),
+  previewKcalBox: document.getElementById('previewKcalBox'),
   previewSceneChip: document.getElementById('previewSceneChip'),
   foodTypeSprite: document.getElementById('foodTypeSprite'),
   hookLayout: document.getElementById('hookLayout'),
@@ -31,13 +32,6 @@ const els = {
   macroBubbleImg: document.getElementById('macroBubbleImg'),
   macroHeadline: document.getElementById('macroHeadline'),
   macroSlots: document.getElementById('macroSlots'),
-  microTopline: document.getElementById('microTopline'),
-  micro1Label: document.getElementById('micro1Label'),
-  micro1Fill: document.getElementById('micro1Fill'),
-  micro1Value: document.getElementById('micro1Value'),
-  micro2Label: document.getElementById('micro2Label'),
-  micro2Fill: document.getElementById('micro2Fill'),
-  micro2Value: document.getElementById('micro2Value'),
   previewTierStamp: document.getElementById('previewTierStamp'),
   previewScorePlate: document.getElementById('previewScorePlate'),
   subtitleText: document.getElementById('subtitleText'),
@@ -64,36 +58,19 @@ const sceneLabels = { hook:'Hook', fats:'Fats', carbs:'Carbs', proteins:'Protein
 const emojiMap = { grains:'🌾', meats:'🥩', fruits:'🍎', vegetables:'🥬', dairy:'🥛', legumes:'🫘', nuts:'🥜', seeds:'🌰', 'oils-and-fats':'🫒', misc:'🥤', tubers:'🥔' };
 const accentMap = { grains:'#d4a64c', meats:'#b83c4f', fruits:'#d75a5a', vegetables:'#55a06b', dairy:'#e3dcc2', legumes:'#8d6849', nuts:'#93673f', seeds:'#b7925e', 'oils-and-fats':'#d39a33', misc:'#7e8697', tubers:'#bd7f3a' };
 const tierClassMap = { S:'tier-S', A:'tier-A', B:'tier-B', C:'tier-C', D:'tier-D' };
-const macroSpriteMap = {
-  fats: './assets/macro-fats-shield.gif',
-  carbs: './assets/macro-carbs-lightning.gif',
-  proteins: './assets/macro-protein-arm.gif'
-};
+const macroSpriteMap = { fats:'./assets/macro-fats-shield.gif', carbs:'./assets/macro-carbs-lightning.gif', proteins:'./assets/macro-protein-arm.gif' };
 const typeSpriteMap = {
-  grains: './assets/grains.png',
-  meats: './assets/meats.png',
-  fruits: './assets/fruit.png',
-  vegetables: './assets/veg.png',
-  dairy: './assets/dairy.png',
-  legumes: './assets/legumes.png',
-  nuts: './assets/nuts.png',
-  seeds: './assets/seeds.png',
-  'oils-and-fats': './assets/oil and fat.png',
-  misc: './assets/misc.png',
-  tubers: './assets/tubers.png'
+  grains:'./assets/grains.png', meats:'./assets/meats.png', fruits:'./assets/fruit.png', vegetables:'./assets/veg.png', dairy:'./assets/dairy.png', legumes:'./assets/legumes.png', nuts:'./assets/nuts.png', seeds:'./assets/seeds.png', 'oils-and-fats':'./assets/oil and fat.png', misc:'./assets/misc.png', tubers:'./assets/tubers.png'
 };
 const PRESET_KEY = 'foodranked-layout-presets-v1';
-const DEFAULT_CONTROLS = {
-  bubbleScale: 100,
-  bubbleOffsetX: 0,
-  headlineScale: 100,
-  stampScale: 100,
-  subtitleLift: 0
-};
+const DEFAULT_CONTROLS = { bubbleScale: 100, bubbleOffsetX: 0, headlineScale: 100, stampScale: 100, subtitleLift: 0 };
 
 function fmtType(v){ return String(v||'').replace(/-/g,' '); }
 function fmtBasis(food){ return `Per ${food?.basis?.value ?? 100}${food?.basis?.unit ?? 'g'}`; }
 function escapeHtml(str){return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function titleizeMetric(key){ return String(key||'').replace(/_dv$/,'').replace(/_mg$/,'').replace(/_g$/,'').replace(/_percent$/,'').replace(/_/g,' ').replace(/\bgi\b/i,'glycemic index').replace(/\bomega3\b/i,'omega 3').replace(/\bvitamin b12\b/i,'vitamin B12').replace(/\bvitamin d\b/i,'vitamin D'); }
+function clamp(n,min,max){ return Math.max(min, Math.min(max, n)); }
+function alpha(hex,a){ const clean = String(hex||'#999').replace('#',''); const full = clean.length===3 ? clean.split('').map(x=>x+x).join('') : clean; const num = parseInt(full,16); const r=(num>>16)&255,g=(num>>8)&255,b=num&255; return `rgba(${r}, ${g}, ${b}, ${a})`; }
 
 function getControls() {
   return {
@@ -114,14 +91,8 @@ function setControls(values = {}) {
   els.subtitleLift.value = merged.subtitleLift;
 }
 
-function loadPresets() {
-  try { return JSON.parse(localStorage.getItem(PRESET_KEY) || '{}'); }
-  catch { return {}; }
-}
-
-function savePresets(presets) {
-  localStorage.setItem(PRESET_KEY, JSON.stringify(presets));
-}
+function loadPresets() { try { return JSON.parse(localStorage.getItem(PRESET_KEY) || '{}'); } catch { return {}; } }
+function savePresets(presets) { localStorage.setItem(PRESET_KEY, JSON.stringify(presets)); }
 
 function refreshPresetSelect() {
   const presets = loadPresets();
@@ -136,36 +107,71 @@ function refreshPresetSelect() {
   if (presets[current]) els.presetSelect.value = current;
 }
 
-function sceneMetricItems(food, scene) {
-  const m = food.metrics || {};
-  if (scene === 'fats') return [
-    ['Saturated fat', m.saturated_fat_g != null ? `${m.saturated_fat_g}g` : '—'],
-    ['Omega 3', m.omega3_mg != null ? `${m.omega3_mg}mg` : '—'],
-    ['Polyunsaturated fat', m.polyunsaturated_fat_g != null ? `${m.polyunsaturated_fat_g}g` : '—']
-  ].filter(([,v]) => v !== '—');
-  if (scene === 'carbs') return [
-    ['Fibre', m.fibre_g != null ? `${m.fibre_g}g` : '—'],
-    ['Sugar', m.sugar_g != null ? `${m.sugar_g}g` : '—'],
-    ['Glycemic index', m.glycemic_index != null ? `${m.glycemic_index}` : '—']
-  ].filter(([,v]) => v !== '—');
-  if (scene === 'proteins') return [
-    ['Bioavailability', m.bioavailability_percent != null ? `${m.bioavailability_percent}%` : '—'],
-    ['Essential amino acids', m.essential_amino_acids_score != null ? `${m.essential_amino_acids_score}` : '—'],
-    ['Nonessential amino acids', m.nonessential_amino_acids_score != null ? `${m.nonessential_amino_acids_score}` : '—']
-  ].filter(([,v]) => v !== '—');
-  return [];
+function rulesForSection(food, section) {
+  return food.ruleset?.metricRulesBySection?.[section] || [];
+}
+
+function deriveBarRange(rule) {
+  const bands = Array.isArray(rule?.bands) ? rule.bands : [];
+  const mins = bands.map(b => typeof b.min === 'number' ? b.min : null).filter(v => v != null);
+  const maxs = bands.map(b => typeof b.max === 'number' ? b.max : null).filter(v => v != null);
+  const fallbackMax = rule?.scoringMode === 'dv_points' ? 100 : 10;
+  return { min: mins.length ? Math.min(...mins, 0) : 0, max: maxs.length ? Math.max(...maxs, fallbackMax) : fallbackMax };
+}
+
+function valueForMetric(food, metricKey) { return food.metrics?.[metricKey] ?? null; }
+
+function formatMetricValue(metricKey, value, hideUnits = false) {
+  if (value == null) return '—';
+  if (/_dv$/.test(metricKey)) return `${value}% DV`;
+  if (hideUnits) return `${value}`;
+  if (/_mg$/.test(metricKey)) return `${value}mg`;
+  if (/_g$/.test(metricKey)) return `${value}g`;
+  if (/_percent$/.test(metricKey)) return `${value}%`;
+  return `${value}`;
+}
+
+function arrowForRuleValue(rule, value) {
+  if (value == null) return '·';
+  const bands = Array.isArray(rule?.bands) ? rule.bands : [];
+  const match = bands.find(b => (b.min == null || value >= b.min) && (b.max == null || value < b.max));
+  return match?.label || '·';
+}
+
+function macroHeaderValue(food, scene) {
+  return scene === 'fats' ? food.header?.fat_g : scene === 'carbs' ? food.header?.carb_g : scene === 'proteins' ? food.header?.protein_g : null;
+}
+
+function macroSubmetrics(food, scene) {
+  const rules = rulesForSection(food, scene).filter(rule => rule.metricKey !== ({ fats:'fat_g', carbs:'carb_g', proteins:'protein_g' }[scene])).slice(0, 4);
+  return rules.map(rule => {
+    const range = deriveBarRange(rule);
+    const value = valueForMetric(food, rule.metricKey);
+    const normalized = value == null ? 0 : clamp(((value - range.min) / Math.max(range.max - range.min, 1)) * 100, 0, 100);
+    return {
+      title: titleizeMetric(rule.metricKey),
+      value: formatMetricValue(rule.metricKey, value),
+      arrow: arrowForRuleValue(rule, value),
+      fill: normalized,
+      polarity: rule.polarity,
+      min: range.min,
+      max: range.max
+    };
+  });
 }
 
 function microItems(food, scene) {
-  const m = food.metrics || {};
-  if (scene === 'vitamins') return [
-    ['Vitamin B12', `${m.vitamin_b12_dv ?? 0}% DV`, m.vitamin_b12_dv ?? 0],
-    ['Vitamin D', `${m.vitamin_d_dv ?? 0}% DV`, m.vitamin_d_dv ?? 0]
-  ];
-  return [
-    ['Magnesium', `${m.magnesium_dv ?? 0}% DV`, m.magnesium_dv ?? 0],
-    ['Iron', `${m.iron_dv ?? 0}% DV`, m.iron_dv ?? 0]
-  ];
+  return rulesForSection(food, scene).map(rule => {
+    const range = deriveBarRange(rule);
+    const value = valueForMetric(food, rule.metricKey) ?? 0;
+    const normalized = clamp(((value - range.min) / Math.max(range.max - range.min, 1)) * 100, 0, 100);
+    return {
+      label: titleizeMetric(rule.metricKey),
+      valueLabel: formatMetricValue(rule.metricKey, value),
+      fill: normalized,
+      raw: value
+    };
+  });
 }
 
 function sceneSubtitle(food, scene) {
@@ -173,11 +179,11 @@ function sceneSubtitle(food, scene) {
   if (scene === 'fats') return `Fat is ${food.header?.fat_g ?? '—'}g.`;
   if (scene === 'carbs') return `Carbs is ${food.header?.carb_g ?? '—'}g.`;
   if (scene === 'proteins') return `Protein is ${food.header?.protein_g ?? '—'}g.`;
-  if (scene === 'vitamins') return 'Vitamins rise in their own section.';
-  if (scene === 'minerals') return 'Minerals rise in their own section.';
-  if (scene === 'pros') return 'Three stacked pros, one reveal at a time.';
-  if (scene === 'cons') return 'Three stacked cons, heavier than the pros.';
-  return `${food.name} is ${food.episode?.tier || '—'} tier. Score: ${food.episode?.overallScore ?? '—'}.`;
+  if (scene === 'vitamins') return 'Vitamin bars stay full-height and fill upward by daily value.';
+  if (scene === 'minerals') return 'Mineral bars stay full-height and fill upward by daily value.';
+  if (scene === 'pros') return 'All pros stack in their own lane.';
+  if (scene === 'cons') return 'All cons stack in their own lane.';
+  return `${food.name} is ${food.episode?.tier || '—'} tier.`;
 }
 
 function updateFoodList() {
@@ -186,9 +192,7 @@ function updateFoodList() {
   const tier = els.tierFilter.value;
   state.filtered = state.data.foods.filter(food => {
     const tierValue = food.episode?.tier || 'unscored';
-    return (!query || food.name.toLowerCase().includes(query) || food.id.includes(query)) &&
-      (type === 'all' || food.foodType === type) &&
-      (tier === 'all' || tierValue === tier);
+    return (!query || food.name.toLowerCase().includes(query) || food.id.includes(query)) && (type === 'all' || food.foodType === type) && (tier === 'all' || tierValue === tier);
   });
 
   els.foodCount.textContent = state.filtered.length;
@@ -233,6 +237,7 @@ function renderDetails() {
     els.detailContent.innerHTML = `
       <div class="detail-card"><h4>Episode</h4><p>${food.episode ? `Tier ${food.episode.tier}, score ${food.episode.overallScore}, approx ${food.episode.durationSeconds}s, ${food.episode.sceneCount} scenes.` : 'No episode package generated yet.'}</p></div>
       <div class="detail-card"><h4>Why this tier</h4><p>${food.episode?.whyThisTier || 'Generate an episode package to see the tier explanation.'}</p></div>
+      <div class="detail-card"><h4>Ruleset snapshot</h4><p>${food.ruleset ? `Weights — fats ${food.ruleset.sectionWeights?.fats ?? 0}, carbs ${food.ruleset.sectionWeights?.carbs ?? 0}, proteins ${food.ruleset.sectionWeights?.proteins ?? 0}, vitamins ${food.ruleset.sectionWeights?.vitamins ?? 0}, minerals ${food.ruleset.sectionWeights?.minerals ?? 0}.` : 'No ruleset loaded.'}</p></div>
       <div class="detail-card"><h4>Header snapshot</h4><div class="stat-grid">
         <div class="stat-pill"><div class="k">kcal</div><div class="v">${food.header?.kcal ?? '—'}</div></div>
         <div class="stat-pill"><div class="k">fat</div><div class="v">${food.header?.fat_g ?? '—'}g</div></div>
@@ -244,19 +249,20 @@ function renderDetails() {
   }
 
   if (tab === 'macros') {
-    const macroCards = [
-      ['Fat', `${food.header?.fat_g ?? '—'}g`], ['Carbs', `${food.header?.carb_g ?? '—'}g`], ['Protein', `${food.header?.protein_g ?? '—'}g`],
-      ['Sat fat', `${food.metrics?.saturated_fat_g ?? '—'}g`], ['Fibre', `${food.metrics?.fibre_g ?? '—'}g`], ['Sugar', `${food.metrics?.sugar_g ?? '—'}g`], ['GI', `${food.metrics?.glycemic_index ?? '—'}`], ['Omega 3', `${food.metrics?.omega3_mg ?? '—'}mg`]
-    ];
-    els.detailContent.innerHTML = `<div class="detail-card"><h4>Macro layer</h4><div class="stat-grid">${macroCards.map(([k,v]) => `<div class="stat-pill"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('')}</div></div><div class="detail-card"><h4>Submacro support</h4><p>Current macro layout supports 3 supporting submetric slots per scene, not 4.</p></div>`;
+    const cards = ['fats','carbs','proteins'].map(section => {
+      const items = macroSubmetrics(food, section);
+      return `<div class="detail-card"><h4>${sceneLabels[section]}</h4><div class="stat-grid">${items.map(item => `<div class="stat-pill"><div class="k">${item.title}</div><div class="v">${item.value} ${item.arrow}</div></div>`).join('')}</div></div>`;
+    }).join('');
+    els.detailContent.innerHTML = cards || '<div class="detail-card"><p>No macro rules available.</p></div>';
     return;
   }
 
   if (tab === 'micros') {
-    const microCards = [
-      ['Vit B12', `${food.metrics?.vitamin_b12_dv ?? 0}% DV`], ['Vit D', `${food.metrics?.vitamin_d_dv ?? 0}% DV`], ['Vit E', `${food.metrics?.vitamin_e_dv ?? 0}% DV`], ['Vit K', `${food.metrics?.vitamin_k_dv ?? 0}% DV`], ['Iron', `${food.metrics?.iron_dv ?? 0}% DV`], ['Magnesium', `${food.metrics?.magnesium_dv ?? 0}% DV`], ['Zinc', `${food.metrics?.zinc_dv ?? 0}% DV`], ['Potassium', `${food.metrics?.potassium_dv ?? 0}% DV`]
-    ];
-    els.detailContent.innerHTML = `<div class="detail-card"><h4>Micronutrient layer</h4><div class="stat-grid">${microCards.map(([k,v]) => `<div class="stat-pill"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('')}</div></div>`;
+    const vitamins = microItems(food, 'vitamins');
+    const minerals = microItems(food, 'minerals');
+    els.detailContent.innerHTML = `
+      <div class="detail-card"><h4>Vitamins</h4><div class="stat-grid">${vitamins.map(item => `<div class="stat-pill"><div class="k">${item.label}</div><div class="v">${item.valueLabel}</div></div>`).join('')}</div></div>
+      <div class="detail-card"><h4>Minerals</h4><div class="stat-grid">${minerals.map(item => `<div class="stat-pill"><div class="k">${item.label}</div><div class="v">${item.valueLabel}</div></div>`).join('')}</div></div>`;
     return;
   }
 
@@ -264,15 +270,7 @@ function renderDetails() {
     const hasScript = !!food.episode?.script;
     const narration = food.episode?.narrationText?.trim() || '';
     const scriptObj = food.episode?.script;
-    const readableScript = scriptObj ? [
-      scriptObj.hook,
-      scriptObj.intro,
-      ...(scriptObj.sections || []).map(section => section.narration),
-      scriptObj.closing?.summary,
-      scriptObj.closing?.finalReveal,
-      scriptObj.closing?.useCaseNote,
-      scriptObj.closing?.cta
-    ].filter(Boolean).join('\n\n') : '';
+    const readableScript = scriptObj ? [scriptObj.hook, scriptObj.intro, ...(scriptObj.sections || []).map(section => section.narration), scriptObj.closing?.summary, scriptObj.closing?.finalReveal, scriptObj.closing?.useCaseNote, scriptObj.closing?.cta].filter(Boolean).join('\n\n') : '';
     els.detailContent.innerHTML = `
       <div class="detail-card"><h4>Script status</h4><div class="script-status ${hasScript ? 'ok' : 'missing'}">${hasScript ? 'Generated script available' : 'No generated script yet'}</div></div>
       <div class="detail-card"><h4>Narration draft</h4>${hasScript ? `<div class="script-block">${escapeHtml(narration || readableScript)}</div>` : '<p>Generate an episode package for this food to see the script here.</p>'}</div>
@@ -300,6 +298,62 @@ function applyFoodTypeTheme(food) {
   els.foodTypeSprite.src = typeSpriteMap[food.foodType] || '';
   els.foodTypeSprite.alt = `${fmtType(food.foodType)} sprite`;
   els.foodThumb.style.background = `linear-gradient(135deg, ${accent}, #1f2937)`;
+  els.previewKcalBox.style.borderColor = accent;
+  els.previewKcalBox.style.boxShadow = `inset 0 0 0 2px ${alpha(accent, .18)}`;
+  els.previewKcalBox.style.background = `linear-gradient(180deg, ${alpha(accent,.24)}, ${alpha('#111827', .92)})`;
+  els.previewKcal.style.color = accent;
+  els.previewBasis.style.background = alpha(accent, .18);
+  els.previewBasis.style.border = `1px solid ${alpha(accent, .38)}`;
+}
+
+function renderMacroScene(food, scene, controls) {
+  setVisible(els.macroLayout);
+  const bubbleClass = scene === 'fats' ? 'fat' : scene === 'carbs' ? 'carbs' : 'proteins';
+  const headlineValue = macroHeaderValue(food, scene);
+  els.macroBubble.className = `macro-bubble ${bubbleClass}`;
+  els.macroBubble.style.transform = `translateX(${controls.bubbleOffsetX}px) scale(${controls.bubbleScale / 100})`;
+  els.macroBubbleImg.src = macroSpriteMap[scene] || '';
+  els.macroBubbleImg.alt = `${scene} bubble`;
+  els.macroHeadline.textContent = `${headlineValue ?? '—'}g ${scene.toUpperCase()}`;
+  els.macroHeadline.style.transform = `scale(${controls.headlineScale / 100})`;
+  els.macroHeadline.style.transformOrigin = 'left center';
+  const items = macroSubmetrics(food, scene);
+  els.macroSlots.innerHTML = items.map(item => `
+    <div class="slot-card">
+      <div class="slot-topline"><span class="slot-title">${item.title}</span><span class="slot-arrow">${item.arrow}</span></div>
+      <div class="slot-bar"><div class="slot-fill" style="width:${item.fill}%"></div></div>
+      <div class="slot-sub"><span>${item.value}</span><span>${item.min}–${item.max}</span></div>
+    </div>`).join('');
+  els.subtitleText.textContent = sceneSubtitle(food, scene);
+}
+
+function renderMicroScene(food, scene) {
+  setVisible(els.microLayout);
+  const items = microItems(food, scene);
+  els.microLayout.innerHTML = `
+    <div class="micro-columns wide ${items.length > 4 ? 'many' : ''}">
+      ${items.map(item => `
+        <div class="micro-col">
+          <div class="micro-bar-vertical"><div class="micro-fill-vertical" style="height:${item.fill}%"></div></div>
+          <div class="micro-col-label">${item.label}</div>
+          <div class="micro-col-value">${item.valueLabel}</div>
+        </div>`).join('')}
+    </div>`;
+  els.subtitleText.textContent = sceneSubtitle(food, scene);
+}
+
+function renderBulletsScene(food, scene) {
+  setVisible(els.bulletsLayout);
+  const items = food.contextItems?.[scene] || [];
+  els.bulletsLayout.innerHTML = items.map((item, index) => `
+    <div class="bullet-card ${scene === 'cons' ? 'cons' : 'pros'}">
+      <div class="bullet-kicker">${scene === 'pros' ? `PRO ${index + 1}` : `CON ${index + 1}`}</div>
+      <div class="bullet-text-block">
+        <div class="bullet-text">${item.title}</div>
+        <div class="bullet-subtext">${item.explanation || ''}</div>
+      </div>
+    </div>`).join('');
+  els.subtitleText.textContent = sceneSubtitle(food, scene);
 }
 
 function renderPreview() {
@@ -308,10 +362,6 @@ function renderPreview() {
 
   const scene = els.sceneSelect.value;
   const controls = getControls();
-  const bubbleScale = controls.bubbleScale / 100;
-  const headlineScale = controls.headlineScale / 100;
-  const stampScale = controls.stampScale / 100;
-
   els.previewFoodName.textContent = food.name;
   els.previewBasis.textContent = fmtBasis(food);
   els.previewKcal.textContent = food.header?.kcal ?? '—';
@@ -329,50 +379,14 @@ function renderPreview() {
     els.subtitleText.textContent = sceneSubtitle(food, scene);
     return;
   }
-
-  if (['fats','carbs','proteins'].includes(scene)) {
-    setVisible(els.macroLayout);
-    const bubbleClass = scene === 'fats' ? 'fat' : scene === 'carbs' ? 'carbs' : 'proteins';
-    const headlineValue = scene === 'fats' ? food.header?.fat_g : scene === 'carbs' ? food.header?.carb_g : scene === 'proteins' ? food.header?.protein_g : '—';
-    els.macroBubble.className = `macro-bubble ${bubbleClass}`;
-    els.macroBubble.style.transform = `translateX(${controls.bubbleOffsetX}px) scale(${bubbleScale})`;
-    els.macroBubbleImg.src = macroSpriteMap[scene] || '';
-    els.macroBubbleImg.alt = `${scene} bubble`;
-    els.macroHeadline.textContent = `${headlineValue ?? '—'}g ${scene.toUpperCase()}`;
-    els.macroHeadline.style.transform = `scale(${headlineScale})`;
-    els.macroHeadline.style.transformOrigin = 'left center';
-    const items = sceneMetricItems(food, scene);
-    els.macroSlots.innerHTML = items.map(([title, value]) => `<div class="slot-card"><div class="slot-title">${title}</div><div class="slot-sub">${value}</div></div>`).join('');
-    els.subtitleText.textContent = sceneSubtitle(food, scene);
-    return;
-  }
-
-  if (['vitamins','minerals'].includes(scene)) {
-    setVisible(els.microLayout);
-    const items = microItems(food, scene);
-    els.microTopline.textContent = scene === 'vitamins' ? 'VITAMIN SUPPORT' : 'MINERAL SUPPORT';
-    els.micro1Label.textContent = items[0][0];
-    els.micro1Value.textContent = items[0][1];
-    els.micro1Fill.style.height = `${Math.min(items[0][2], 100)}%`;
-    els.micro2Label.textContent = items[1][0];
-    els.micro2Value.textContent = items[1][1];
-    els.micro2Fill.style.height = `${Math.min(items[1][2], 100)}%`;
-    els.subtitleText.textContent = sceneSubtitle(food, scene);
-    return;
-  }
-
-  if (['pros','cons'].includes(scene)) {
-    setVisible(els.bulletsLayout);
-    const items = food.contextItems?.[scene] || [];
-    els.bulletsLayout.innerHTML = items.slice(0,3).map(item => `<div class="bullet-card ${scene === 'cons' ? 'cons' : ''}"><div class="bullet-icon">${scene === 'pros' ? '＋' : '－'}</div><div class="bullet-text">${item.title}</div></div>`).join('');
-    els.subtitleText.textContent = sceneSubtitle(food, scene);
-    return;
-  }
+  if (['fats','carbs','proteins'].includes(scene)) return renderMacroScene(food, scene, controls);
+  if (['vitamins','minerals'].includes(scene)) return renderMicroScene(food, scene);
+  if (['pros','cons'].includes(scene)) return renderBulletsScene(food, scene);
 
   setVisible(els.verdictLayout);
   const tier = food.episode?.tier || '—';
   els.previewTierStamp.textContent = tier;
-  els.previewTierStamp.style.transform = `scale(${stampScale})`;
+  els.previewTierStamp.style.transform = `scale(${controls.stampScale / 100})`;
   els.previewScorePlate.textContent = food.episode?.overallScore ?? '—';
   els.subtitleText.textContent = sceneSubtitle(food, scene);
 }
@@ -388,7 +402,6 @@ function initTabs() {
 
 function initPresets() {
   refreshPresetSelect();
-
   els.savePresetBtn.addEventListener('click', () => {
     const name = els.presetName.value.trim();
     if (!name) return;
@@ -398,22 +411,13 @@ function initPresets() {
     refreshPresetSelect();
     els.presetSelect.value = name;
   });
-
-  els.resetPresetBtn.addEventListener('click', () => {
-    setControls(DEFAULT_CONTROLS);
-    renderPreview();
-  });
-
+  els.resetPresetBtn.addEventListener('click', () => { setControls(DEFAULT_CONTROLS); renderPreview(); });
   els.presetSelect.addEventListener('change', () => {
     const name = els.presetSelect.value;
     if (!name) return;
     const presets = loadPresets();
-    if (presets[name]) {
-      setControls(presets[name]);
-      renderPreview();
-    }
+    if (presets[name]) { setControls(presets[name]); renderPreview(); }
   });
-
   els.deletePresetBtn.addEventListener('click', () => {
     const name = els.presetSelect.value;
     if (!name) return;

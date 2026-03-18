@@ -1,0 +1,554 @@
+{
+  "id": "carrots-episode-v1",
+  "generatedAt": "2026-03-18T23:20:40.770Z",
+  "status": "draft",
+  "mode": "compact",
+  "food": {
+    "id": "carrots",
+    "name": "Carrots",
+    "foodType": "vegetables",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "sourceFile": "foods/carrots.sample.json"
+  },
+  "sourceOfTruth": {
+    "scoreScript": "scripts/foodranked-scorer.js",
+    "scriptGenerator": "scripts/foodranked-generate-script.js",
+    "rulesetFile": "rulesets/vegetables.v1.json",
+    "visualTemplateFile": "templates/visual-template.v1.json"
+  },
+  "outputs": {
+    "directory": "outputs/episodes/carrots-compact",
+    "scoreJson": "score.json",
+    "scriptJson": "script.json",
+    "manifestJson": "episode-manifest.json",
+    "narrationTxt": "narration.txt",
+    "subtitlesJson": "subtitles.json"
+  },
+  "scoreSnapshot": {
+    "overallScore": 28,
+    "tier": "B",
+    "baseScore": 25,
+    "contextAdjustment": 3,
+    "sectionScores": {
+      "fats": 66.7,
+      "carbs": 41.7,
+      "proteins": 38.9,
+      "vitamins": 30,
+      "minerals": 0,
+      "pros": 33.3,
+      "cons": 0
+    },
+    "explanation": {
+      "summary": "Fats are carrying this food most, while minerals are the biggest drag. It lands in B tier.",
+      "whyThisTier": "This food lands in B tier with an overall score of 28 from a base nutrition score of 25. Context lifted it by 3 points.",
+      "strongestSection": {
+        "key": "fats",
+        "label": "Fats",
+        "score": 66.7
+      },
+      "weakestSection": null,
+      "topPros": [
+        {
+          "title": "very strong vitamin A identity",
+          "explanation": "This is a major category strength and part of what makes carrots a genuinely good vegetable.",
+          "impactLevel": "major",
+          "side": "pro",
+          "resolvedScoreValue": 3
+        }
+      ],
+      "topCons": [
+        {
+          "title": "sweetness is a bit higher than the cleanest vegetables",
+          "explanation": "Still fine, just not ultra-low-sugar by category standards.",
+          "impactLevel": "minor",
+          "side": "con",
+          "resolvedScoreValue": 0
+        },
+        {
+          "title": "micronutrient spread is narrower than elite greens",
+          "explanation": "Great at some things, less absurdly dense overall than the very top vegetables.",
+          "impactLevel": "minor",
+          "side": "con",
+          "resolvedScoreValue": 0
+        },
+        {
+          "title": "protein is basically irrelevant",
+          "explanation": "Not a real flaw, but still nearly absent.",
+          "impactLevel": "minor",
+          "side": "con",
+          "resolvedScoreValue": 0
+        }
+      ],
+      "narrationNotes": [
+        "Strongest section: Fats.",
+        "Context improved the final tier case by 3 points.",
+        "Final verdict: B tier."
+      ]
+    }
+  },
+  "scriptSnapshot": {
+    "hook": "Carrots ranked.",
+    "intro": null,
+    "closing": {
+      "summary": "Carrots stands out for very strong vitamin A identity and cheap and practical. but it also gets held back by sweetness is a bit higher than the cleanest vegetables and micronutrient spread is narrower than elite greens. Best when you want low downside and easy micronutrient support.",
+      "finalReveal": "Carrots is B tier.",
+      "useCaseNote": "Best when you want low downside and easy micronutrient support.",
+      "cta": "Would you rank it the same, or nah?"
+    },
+    "sectionOrder": [
+      "fats",
+      "carbs",
+      "proteins",
+      "vitamins",
+      "minerals",
+      "pros",
+      "cons"
+    ]
+  },
+  "visualBinding": {
+    "templateId": "foodranked-visual-template.v1",
+    "aspectRatio": "9:16",
+    "categoryAccent": "Leaf Green",
+    "tierColor": "red"
+  },
+  "reviewChecklist": [
+    "Verify nutrient values are sourced well enough for publishable use.",
+    "Review narration for category repetition and trim any awkward lines.",
+    "Confirm subtitle density stays readable at phone speed.",
+    "Replace placeholder hero/sprite art with final asset selection.",
+    "Check that the final tier verdict feels editorially defensible."
+  ],
+  "nextHumanStep": "Review the generated narration + manifest, then use the manifest as the handoff into visual assembly / editing.",
+  "scenePlan": {
+    "mode": "compact",
+    "totalEstimatedDurationSeconds": 101.63,
+    "scenes": [
+      {
+        "id": "hook",
+        "kind": "hook",
+        "startSeconds": 0,
+        "durationSeconds": 2.1,
+        "endSeconds": 2.1,
+        "narrationText": "Carrots ranked.",
+        "subtitleText": "Carrots ranked.",
+        "visualBinding": {
+          "title": "Carrots",
+          "rankedWord": "RANKED",
+          "foodType": "vegetables",
+          "kcal": 41,
+          "categoryAccent": "Leaf Green"
+        },
+        "revealPlan": [
+          "hero_food",
+          "hook_title",
+          "hook_ranked_word"
+        ]
+      },
+      {
+        "id": "fats",
+        "kind": "section",
+        "startSeconds": 2.1,
+        "durationSeconds": 6.71,
+        "endSeconds": 8.81,
+        "narrationText": "fat is 0.2g. omega 3 is doing serious work here. for a vegetable, nutrient payoff is the whole point.",
+        "subtitleText": "fat is 0.2g. omega 3 is doing serious work here. for a vegetable, nutrient payoff is the whole point.",
+        "visualBinding": {
+          "sectionKey": "fats",
+          "title": "Fats",
+          "score": 66.7,
+          "templateSlots": [
+            "macro_headline",
+            "submetric_1",
+            "submetric_2",
+            "submetric_3"
+          ],
+          "displayItems": [
+            {
+              "metricKey": "saturated_fat_g",
+              "text": "saturated fat at 0",
+              "weightedScore": 3,
+              "scoringMode": "arrow_bands",
+              "band": "↓↓↓",
+              "dvPercent": null,
+              "value": 0
+            },
+            {
+              "metricKey": "omega3_mg",
+              "text": "omega3 at 12",
+              "weightedScore": 3,
+              "scoringMode": "arrow_bands",
+              "band": "↑↑↑",
+              "dvPercent": null,
+              "value": 12
+            },
+            {
+              "metricKey": "polyunsaturated_fat_g",
+              "text": "polyunsaturated fat at 0.1",
+              "weightedScore": -3,
+              "scoringMode": "arrow_bands",
+              "band": "↓↓↓",
+              "dvPercent": null,
+              "value": 0.1
+            }
+          ],
+          "timingHint": "short-medium"
+        },
+        "revealPlan": [
+          "macro_headline",
+          "submetric_1",
+          "submetric_2",
+          "submetric_3"
+        ]
+      },
+      {
+        "id": "carbs",
+        "kind": "section",
+        "startSeconds": 8.81,
+        "durationSeconds": 9.53,
+        "endSeconds": 18.34,
+        "narrationText": "carbs is 9.6g. the sugar load matters more than you would want. for vegetables, low downside is useful, but there still needs to be enough nutritional return.",
+        "subtitleText": "carbs is 9.6g. the sugar load matters more than you would want. for vegetables, low downside is useful, but there still needs to be enough nutritional return.",
+        "visualBinding": {
+          "sectionKey": "carbs",
+          "title": "Carbs",
+          "score": 41.7,
+          "templateSlots": [
+            "macro_headline",
+            "submetric_1",
+            "submetric_2",
+            "submetric_3"
+          ],
+          "displayItems": [
+            {
+              "metricKey": "fibre_g",
+              "text": "fibre at 2.8",
+              "weightedScore": -3,
+              "scoringMode": "arrow_bands",
+              "band": "↓",
+              "dvPercent": null,
+              "value": 2.8
+            },
+            {
+              "metricKey": "sugar_g",
+              "text": "sugar at 4.7",
+              "weightedScore": -3,
+              "scoringMode": "arrow_bands",
+              "band": "↑",
+              "dvPercent": null,
+              "value": 4.7
+            },
+            {
+              "metricKey": "glycemic_index",
+              "text": "glycemic index at 39",
+              "weightedScore": 3,
+              "scoringMode": "arrow_bands",
+              "band": "↓",
+              "dvPercent": null,
+              "value": 39
+            },
+            {
+              "metricKey": "starch_g",
+              "text": "starch at 1.4",
+              "weightedScore": -2,
+              "scoringMode": "arrow_bands",
+              "band": "↓↓",
+              "dvPercent": null,
+              "value": 1.4
+            }
+          ],
+          "timingHint": "short-medium"
+        },
+        "revealPlan": [
+          "macro_headline",
+          "submetric_1",
+          "submetric_2",
+          "submetric_3"
+        ]
+      },
+      {
+        "id": "proteins",
+        "kind": "section",
+        "startSeconds": 18.34,
+        "durationSeconds": 8.47,
+        "endSeconds": 26.81,
+        "narrationText": "protein is 0.9g. protein quality is clearly one of the selling points. protein is not the main pitch here, but extra support still matters.",
+        "subtitleText": "protein is 0.9g. protein quality is clearly one of the selling points. protein is not the main pitch here, but extra support still matters.",
+        "visualBinding": {
+          "sectionKey": "proteins",
+          "title": "Proteins",
+          "score": 38.9,
+          "templateSlots": [
+            "macro_headline",
+            "submetric_1",
+            "submetric_2",
+            "submetric_3"
+          ],
+          "displayItems": [
+            {
+              "metricKey": "essential_amino_acids_score",
+              "text": "essential amino acids score at 1",
+              "weightedScore": -3,
+              "scoringMode": "arrow_bands",
+              "band": "↓↓↓",
+              "dvPercent": null,
+              "value": 1
+            },
+            {
+              "metricKey": "bioavailability_percent",
+              "text": "bioavailability at 30",
+              "weightedScore": 3,
+              "scoringMode": "arrow_bands",
+              "band": "↑↑↑",
+              "dvPercent": null,
+              "value": 30
+            },
+            {
+              "metricKey": "nonessential_amino_acids_score",
+              "text": "nonessential amino acids score at 2",
+              "weightedScore": -2,
+              "scoringMode": "arrow_bands",
+              "band": "↓↓",
+              "dvPercent": null,
+              "value": 2
+            }
+          ],
+          "timingHint": "short-medium"
+        },
+        "revealPlan": [
+          "macro_headline",
+          "submetric_1",
+          "submetric_2",
+          "submetric_3"
+        ]
+      },
+      {
+        "id": "vitamins",
+        "kind": "section",
+        "startSeconds": 26.81,
+        "durationSeconds": 10.24,
+        "endSeconds": 37.05,
+        "narrationText": "vitamin a at 93% DV, vitamin k at 11% DV, vitamin c at 7% DV stand out most. that helps, but vitamins still are not the main selling point.",
+        "subtitleText": "vitamin a at 93% DV, vitamin k at 11% DV, vitamin c at 7% DV stand out most. that helps, but vitamins still are not the main selling point.",
+        "visualBinding": {
+          "sectionKey": "vitamins",
+          "title": "Vitamins",
+          "score": 30,
+          "templateSlots": [
+            "micronutrient_1",
+            "micronutrient_2"
+          ],
+          "displayItems": [
+            {
+              "metricKey": "vitamin_a_dv",
+              "text": "vitamin a at 93% DV",
+              "weightedScore": 18,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 93,
+              "value": null
+            },
+            {
+              "metricKey": "vitamin_k_dv",
+              "text": "vitamin k at 11% DV",
+              "weightedScore": 3,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 11,
+              "value": null
+            },
+            {
+              "metricKey": "vitamin_c_dv",
+              "text": "vitamin c at 7% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 7,
+              "value": null
+            }
+          ],
+          "timingHint": "short-medium"
+        },
+        "revealPlan": [
+          "micronutrient_1",
+          "micronutrient_2"
+        ]
+      },
+      {
+        "id": "minerals",
+        "kind": "section",
+        "startSeconds": 37.05,
+        "durationSeconds": 7.06,
+        "endSeconds": 44.11,
+        "narrationText": "potassium at 7% DV, magnesium at 3% DV, iron at 2% DV stand out most. that stays fairly limited overall.",
+        "subtitleText": "potassium at 7% DV, magnesium at 3% DV, iron at 2% DV stand out most. that stays fairly limited overall.",
+        "visualBinding": {
+          "sectionKey": "minerals",
+          "title": "Minerals",
+          "score": 0,
+          "templateSlots": [
+            "micronutrient_1",
+            "micronutrient_2"
+          ],
+          "displayItems": [
+            {
+              "metricKey": "potassium_dv",
+              "text": "potassium at 7% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 7,
+              "value": null
+            },
+            {
+              "metricKey": "magnesium_dv",
+              "text": "magnesium at 3% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 3,
+              "value": null
+            },
+            {
+              "metricKey": "iron_dv",
+              "text": "iron at 2% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 2,
+              "value": null
+            },
+            {
+              "metricKey": "calcium_dv",
+              "text": "calcium at 3% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 3,
+              "value": null
+            }
+          ],
+          "timingHint": "short-medium"
+        },
+        "revealPlan": [
+          "micronutrient_1",
+          "micronutrient_2"
+        ]
+      },
+      {
+        "id": "pros",
+        "kind": "section",
+        "startSeconds": 44.11,
+        "durationSeconds": 17.65,
+        "endSeconds": 61.76,
+        "narrationText": "on the plus side. very strong vitamin A identity because this is a major category strength and part of what makes carrots a genuinely good vegetable. cheap and practical because easy to buy, store, snack on, and cook with. easy raw-snack use because a practical advantage compared with fussier vegetables.",
+        "subtitleText": "on the plus side. very strong vitamin A identity because this is a major category strength and part of what makes carrots a genuinely good vegetable. cheap and practical because easy to buy, store, snack on, and cook with. easy raw-snack use because a practical advantage compared with fussier vegetables.",
+        "visualBinding": {
+          "sectionKey": "pros",
+          "title": "Pros",
+          "score": 33.3,
+          "templateSlots": [
+            "bullet_1",
+            "bullet_2",
+            "bullet_3"
+          ],
+          "displayItems": [
+            {
+              "type": "pro",
+              "title": "very strong vitamin A identity",
+              "explanation": "This is a major category strength and part of what makes carrots a genuinely good vegetable.",
+              "impactLevel": "major",
+              "scoreValue": 2
+            },
+            {
+              "type": "pro",
+              "title": "cheap and practical",
+              "explanation": "Easy to buy, store, snack on, and cook with.",
+              "impactLevel": "minor",
+              "scoreValue": 1
+            },
+            {
+              "type": "pro",
+              "title": "easy raw-snack use",
+              "explanation": "A practical advantage compared with fussier vegetables.",
+              "impactLevel": "minor",
+              "scoreValue": 1
+            }
+          ],
+          "timingHint": "medium"
+        },
+        "revealPlan": [
+          "bullet_1",
+          "bullet_2",
+          "bullet_3"
+        ]
+      },
+      {
+        "id": "cons",
+        "kind": "section",
+        "startSeconds": 61.76,
+        "durationSeconds": 19.76,
+        "endSeconds": 81.52,
+        "narrationText": "on the weaker side. sweetness is a bit higher than the cleanest vegetables because still fine, just not ultra-low-sugar by category standards. micronutrient spread is narrower than elite greens because great at some things, less absurdly dense overall than the very top vegetables. protein is basically irrelevant because not a real flaw, but still nearly absent.",
+        "subtitleText": "on the weaker side. sweetness is a bit higher than the cleanest vegetables because still fine, just not ultra-low-sugar by category standards. micronutrient spread is narrower than elite greens because great at some things, less absurdly dense overall than the very top vegetables. protein is basically irrelevant because not a real flaw, but still nearly absent.",
+        "visualBinding": {
+          "sectionKey": "cons",
+          "title": "Cons",
+          "score": 0,
+          "templateSlots": [
+            "bullet_1",
+            "bullet_2",
+            "bullet_3"
+          ],
+          "displayItems": [
+            {
+              "type": "con",
+              "title": "sweetness is a bit higher than the cleanest vegetables",
+              "explanation": "Still fine, just not ultra-low-sugar by category standards.",
+              "impactLevel": "minor",
+              "scoreValue": -1
+            },
+            {
+              "type": "con",
+              "title": "micronutrient spread is narrower than elite greens",
+              "explanation": "Great at some things, less absurdly dense overall than the very top vegetables.",
+              "impactLevel": "minor",
+              "scoreValue": -1
+            },
+            {
+              "type": "con",
+              "title": "protein is basically irrelevant",
+              "explanation": "Not a real flaw, but still nearly absent.",
+              "impactLevel": "minor",
+              "scoreValue": -1
+            }
+          ],
+          "timingHint": "medium"
+        },
+        "revealPlan": [
+          "bullet_1",
+          "bullet_2",
+          "bullet_3"
+        ]
+      },
+      {
+        "id": "final",
+        "kind": "closing",
+        "startSeconds": 81.52,
+        "durationSeconds": 20.11,
+        "endSeconds": 101.63,
+        "narrationText": "Carrots stands out for very strong vitamin A identity and cheap and practical. but it also gets held back by sweetness is a bit higher than the cleanest vegetables and micronutrient spread is narrower than elite greens. Best when you want low downside and easy micronutrient support. Carrots is B tier. Best when you want low downside and easy micronutrient support.",
+        "subtitleText": "Carrots is B tier. Best when you want low downside and easy micronutrient support.",
+        "visualBinding": {
+          "tier": "B",
+          "tierColor": "red"
+        },
+        "revealPlan": [
+          "tier_stamp"
+        ]
+      }
+    ]
+  }
+}

@@ -11,45 +11,26 @@ const scorerPath = path.join(__dirname, 'foodranked-scorer.js');
 const scriptGeneratorPath = path.join(__dirname, 'foodranked-generate-script.js');
 const visualTemplatePath = path.join(repoRoot, 'templates', 'visual-template.v1.json');
 
-function ensureDir(dirPath) {
-  fs.mkdirSync(dirPath, { recursive: true });
-}
-
-function readJson(p) {
-  return JSON.parse(fs.readFileSync(p, 'utf8'));
-}
-
-function writeJson(p, data) {
-  fs.writeFileSync(p, JSON.stringify(data, null, 2) + '\n');
-}
-
-function writeText(p, text) {
-  fs.writeFileSync(p, text.endsWith('\n') ? text : text + '\n');
-}
+function ensureDir(dirPath) { fs.mkdirSync(dirPath, { recursive: true }); }
+function readJson(p) { return JSON.parse(fs.readFileSync(p, 'utf8')); }
+function writeJson(p, data) { fs.writeFileSync(p, JSON.stringify(data, null, 2) + '\n'); }
+function writeText(p, text) { fs.writeFileSync(p, text.endsWith('\n') ? text : text + '\n'); }
 
 function safeSlug(value) {
-  return String(value || '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+  return String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 }
 
 function resolveFoodPath(input) {
   const asGiven = path.resolve(input);
   if (fs.existsSync(asGiven)) return asGiven;
-
   const withSampleSuffix = path.join(foodsDir, `${input}.sample.json`);
   if (fs.existsSync(withSampleSuffix)) return withSampleSuffix;
-
   const withJsonSuffix = path.join(foodsDir, `${input}.json`);
   if (fs.existsSync(withJsonSuffix)) return withJsonSuffix;
-
   throw new Error(`Could not resolve food input: ${input}`);
 }
 
-function inferRulesetPath(food) {
-  return path.join(rulesetsDir, `${food.foodType}.v1.json`);
-}
+function inferRulesetPath(food) { return path.join(rulesetsDir, `${food.foodType}.v1.json`); }
 
 function runJsonScript(scriptPath, args) {
   const res = spawnSync(process.execPath, [scriptPath, ...args], {
@@ -57,11 +38,7 @@ function runJsonScript(scriptPath, args) {
     encoding: 'utf8',
     maxBuffer: 50 * 1024 * 1024
   });
-
-  if (res.status !== 0) {
-    throw new Error((res.stderr || res.stdout || `Failed running ${path.basename(scriptPath)}`).trim());
-  }
-
+  if (res.status !== 0) throw new Error((res.stderr || res.stdout || `Failed running ${path.basename(scriptPath)}`).trim());
   return JSON.parse(res.stdout);
 }
 
@@ -77,17 +54,17 @@ function sentenceParts(script) {
   ].filter(Boolean);
 }
 
-function buildNarrationText(script, score, options = {}) {
+function buildNarrationText(script, options = {}) {
   const compact = options.mode === 'compact';
   if (!compact) return sentenceParts(script).join('\n\n');
 
-  const closing = compactClosing(script, score);
   const parts = [
     script.hook,
     ...script.sections.map(section => compactSectionNarration(section, options)),
-    closing.finalReveal,
-    closing.useCaseNote,
-    options.includeCta ? closing.cta : null
+    script.closing.summary,
+    script.closing.finalReveal,
+    script.closing.useCaseNote,
+    options.includeCta ? script.closing.cta : null
   ].filter(Boolean);
 
   return parts.join('\n\n');
@@ -100,9 +77,7 @@ function estimateDurationSeconds(text, wordsPerMinute = 165, floorSeconds = 1.4)
   return Number(Math.max(raw, floorSeconds).toFixed(2));
 }
 
-function categoryAccent(template, foodType) {
-  return template.paletteBindings?.[foodType] || 'Neutral Grey';
-}
+function categoryAccent(template, foodType) { return template.paletteBindings?.[foodType] || 'Neutral Grey'; }
 
 function sectionVisualBinding(section, template) {
   const sectionTemplate = template.sectionTemplates?.[section.key] || {};
@@ -116,38 +91,8 @@ function sectionVisualBinding(section, template) {
   };
 }
 
-function compactSectionNarration(section, options = {}) {
-  const fuller = options.lengthProfile === 'fuller';
-
-  if (['pros', 'cons'].includes(section.key)) {
-    if (fuller) return section.narration;
-    const items = Array.isArray(section.displayItems) ? section.displayItems.slice(0, 3) : [];
-    if (!items.length) return section.narration;
-    const prefix = section.key === 'pros' ? 'biggest pros' : 'biggest cons';
-    return `${prefix}: ${items.map(item => item.title).join('. ')}.`;
-  }
-
-  if (fuller) return section.narration;
-
-  const sentenceParts = String(section.narration || '')
-    .split(/\.\s+/)
-    .map(part => part.trim().replace(/\.$/, ''))
-    .filter(Boolean);
-
-  if (section.key === 'vitamins' || section.key === 'minerals') {
-    return sentenceParts.slice(0, 1).join('. ') + (sentenceParts.length ? '.' : '');
-  }
-
-  return sentenceParts.slice(0, 2).join('. ') + (sentenceParts.length ? '.' : '');
-}
-
-function compactClosing(script, score) {
-  return {
-    summary: null,
-    finalReveal: script.closing.finalReveal,
-    useCaseNote: `Score: ${score.overallScore}.`,
-    cta: null
-  };
+function compactSectionNarration(section) {
+  return section.narration;
 }
 
 function buildScenePlan(script, score, template, options = {}) {
@@ -155,11 +100,8 @@ function buildScenePlan(script, score, template, options = {}) {
   const scenes = [];
   let cursor = 0;
 
-  const introText = compact ? script.intro : null;
-  const hookText = compact
-    ? script.hook
-    : [script.hook, script.intro].filter(Boolean).join(' ');
-  const hookDuration = estimateDurationSeconds(hookText, compact ? (options.lengthProfile === 'fuller' ? 182 : 195) : 180, compact ? (options.lengthProfile === 'fuller' ? 2.4 : 2.1) : 2.4);
+  const hookText = compact ? script.hook : [script.hook, script.intro].filter(Boolean).join(' ');
+  const hookDuration = estimateDurationSeconds(hookText, compact ? 188 : 180, compact ? 2.1 : 2.4);
   scenes.push({
     id: 'hook',
     kind: 'hook',
@@ -181,17 +123,7 @@ function buildScenePlan(script, score, template, options = {}) {
 
   for (const section of script.sections) {
     const narrationText = compact ? compactSectionNarration(section, options) : section.narration;
-    const subtitleText = narrationText;
-    const visualBinding = sectionVisualBinding(section, template);
-    if (compact && ['pros', 'cons'].includes(section.key)) {
-      visualBinding.displayItems = (visualBinding.displayItems || []).slice(0, 3);
-      visualBinding.templateSlots = (visualBinding.templateSlots || []).slice(0, 3);
-    }
-    const duration = estimateDurationSeconds(
-      narrationText,
-      compact ? (options.lengthProfile === 'fuller' ? 160 : 182) : 168,
-      compact ? (options.lengthProfile === 'fuller' ? 2.1 : 1.7) : 2.1
-    );
+    const duration = estimateDurationSeconds(narrationText, compact ? 170 : 168, compact ? 2.1 : 2.1);
     scenes.push({
       id: section.key,
       kind: 'section',
@@ -199,20 +131,17 @@ function buildScenePlan(script, score, template, options = {}) {
       durationSeconds: duration,
       endSeconds: Number((cursor + duration).toFixed(2)),
       narrationText,
-      subtitleText,
-      visualBinding,
-      revealPlan: compact && ['pros', 'cons'].includes(section.key)
-        ? (template.sectionTemplates?.[section.key]?.revealSlots || []).slice(0, 3)
-        : (template.sectionTemplates?.[section.key]?.revealSlots || [])
+      subtitleText: narrationText,
+      visualBinding: sectionVisualBinding(section, template),
+      revealPlan: template.sectionTemplates?.[section.key]?.revealSlots || []
     });
     cursor += duration;
   }
 
-  const closing = compact ? compactClosing(script, score) : script.closing;
-  const closingText = [closing.summary, closing.finalReveal, closing.useCaseNote, options.includeCta ? closing.cta : null]
+  const closingText = [script.closing.summary, script.closing.finalReveal, script.closing.useCaseNote, options.includeCta ? script.closing.cta : null]
     .filter(Boolean)
     .join(' ');
-  const closingDuration = estimateDurationSeconds(closingText, compact ? (options.lengthProfile === 'fuller' ? 178 : 190) : 170, compact ? (options.lengthProfile === 'fuller' ? 2.2 : 2.0) : 2.6);
+  const closingDuration = estimateDurationSeconds(closingText, compact ? 182 : 170, compact ? 2.2 : 2.6);
   scenes.push({
     id: 'final',
     kind: 'closing',
@@ -220,7 +149,7 @@ function buildScenePlan(script, score, template, options = {}) {
     durationSeconds: closingDuration,
     endSeconds: Number((cursor + closingDuration).toFixed(2)),
     narrationText: closingText,
-    subtitleText: [closing.finalReveal, closing.useCaseNote].filter(Boolean).join(' '),
+    subtitleText: [script.closing.finalReveal, script.closing.useCaseNote].filter(Boolean).join(' '),
     visualBinding: {
       tier: script.tier,
       tierColor: template.tierColors?.[script.tier] || null
@@ -247,7 +176,6 @@ function buildSubtitleCues(scenePlan) {
 
 function buildManifest({ food, rulesetPath, foodPath, score, script, template, scenePlan, outputDir, options }) {
   const compact = options.mode === 'compact';
-  const closing = compact ? compactClosing(script, score) : script.closing;
 
   return {
     id: `${food.id}-episode-v1`,
@@ -286,7 +214,7 @@ function buildManifest({ food, rulesetPath, foodPath, score, script, template, s
     scriptSnapshot: {
       hook: script.hook,
       intro: compact ? null : script.intro,
-      closing,
+      closing: script.closing,
       sectionOrder: script.sections.map(section => section.key)
     },
     visualBinding: {
@@ -297,7 +225,7 @@ function buildManifest({ food, rulesetPath, foodPath, score, script, template, s
     },
     reviewChecklist: [
       'Verify nutrient values are sourced well enough for publishable use.',
-      'Review narration for natural flow and trim any robotic lines.',
+      'Review narration for category repetition and trim any awkward lines.',
       'Confirm subtitle density stays readable at phone speed.',
       'Replace placeholder hero/sprite art with final asset selection.',
       'Check that the final tier verdict feels editorially defensible.'
@@ -330,36 +258,22 @@ function main() {
   }
 
   const options = { mode, includeCta, lengthProfile };
-
   const foodPath = resolveFoodPath(foodInput);
   const food = readJson(foodPath);
   const rulesetPath = rulesetArg ? path.resolve(rulesetArg) : inferRulesetPath(food);
-
-  if (!fs.existsSync(rulesetPath)) {
-    throw new Error(`Ruleset not found: ${rulesetPath}`);
-  }
+  if (!fs.existsSync(rulesetPath)) throw new Error(`Ruleset not found: ${rulesetPath}`);
 
   const template = readJson(visualTemplatePath);
   const score = runJsonScript(scorerPath, [foodPath, rulesetPath]);
   const script = runJsonScript(scriptGeneratorPath, [foodPath, rulesetPath]);
   const scenePlan = buildScenePlan(script, score, template, options);
   const subtitles = buildSubtitleCues(scenePlan);
-  const narrationText = buildNarrationText(script, score, options);
+  const narrationText = buildNarrationText(script, options);
 
   const outputDir = path.join(outputsDir, safeSlug(`${food.id}${mode === 'compact' ? '-compact' : ''}`));
   ensureDir(outputDir);
 
-  const manifest = buildManifest({
-    food,
-    rulesetPath,
-    foodPath,
-    score,
-    script,
-    template,
-    scenePlan,
-    outputDir,
-    options
-  });
+  const manifest = buildManifest({ food, rulesetPath, foodPath, score, script, template, scenePlan, outputDir, options });
 
   writeJson(path.join(outputDir, 'score.json'), score);
   writeJson(path.join(outputDir, 'script.json'), script);
@@ -380,4 +294,3 @@ function main() {
 }
 
 main();
-

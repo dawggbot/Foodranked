@@ -1,0 +1,550 @@
+{
+  "id": "ice-cream-episode-v1",
+  "generatedAt": "2026-03-18T23:20:45.598Z",
+  "status": "draft",
+  "mode": "compact",
+  "food": {
+    "id": "ice-cream",
+    "name": "Ice Cream",
+    "foodType": "dairy",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "sourceFile": "foods/ice-cream.sample.json"
+  },
+  "sourceOfTruth": {
+    "scoreScript": "scripts/foodranked-scorer.js",
+    "scriptGenerator": "scripts/foodranked-generate-script.js",
+    "rulesetFile": "rulesets/dairy.v1.json",
+    "visualTemplateFile": "templates/visual-template.v1.json"
+  },
+  "outputs": {
+    "directory": "outputs/episodes/ice-cream-compact",
+    "scoreJson": "score.json",
+    "scriptJson": "script.json",
+    "manifestJson": "episode-manifest.json",
+    "narrationTxt": "narration.txt",
+    "subtitlesJson": "subtitles.json"
+  },
+  "scoreSnapshot": {
+    "overallScore": 11,
+    "tier": "D",
+    "baseScore": 20,
+    "contextAdjustment": -9,
+    "sectionScores": {
+      "fats": 33.3,
+      "carbs": 9.5,
+      "proteins": 19,
+      "vitamins": 0,
+      "minerals": 6,
+      "pros": 0,
+      "cons": 100
+    },
+    "explanation": {
+      "summary": "Fats are carrying this food most, while vitamins are the biggest drag. It lands in D tier.",
+      "whyThisTier": "This food lands in D tier with an overall score of 11 from a base nutrition score of 20. Context dragged it down by 9 points.",
+      "strongestSection": {
+        "key": "fats",
+        "label": "Fats",
+        "score": 33.3
+      },
+      "weakestSection": null,
+      "topPros": [
+        {
+          "title": "high enjoyment factor",
+          "explanation": "A real-world reason people eat it, even if the category fit is weak.",
+          "impactLevel": "minor",
+          "side": "pro",
+          "resolvedScoreValue": 0
+        },
+        {
+          "title": "still retains some calcium",
+          "explanation": "Not nutritionally empty, just weak compared with stronger dairy foods.",
+          "impactLevel": "minor",
+          "side": "pro",
+          "resolvedScoreValue": 0
+        },
+        {
+          "title": "still clearly dairy-based",
+          "explanation": "That matters for fairness when picking anchors.",
+          "impactLevel": "minor",
+          "side": "pro",
+          "resolvedScoreValue": 0
+        }
+      ],
+      "topCons": [
+        {
+          "title": "sugar load is a major dairy-category problem",
+          "explanation": "This pushes it away from what strong dairy foods are supposed to deliver.",
+          "impactLevel": "major",
+          "side": "con",
+          "resolvedScoreValue": -3
+        },
+        {
+          "title": "saturated fat is a major drawback",
+          "explanation": "A second major strike against the food in this category.",
+          "impactLevel": "major",
+          "side": "con",
+          "resolvedScoreValue": -3
+        },
+        {
+          "title": "protein usefulness is weak for dairy",
+          "explanation": "That makes it a poor fit compared with stronger dairy anchors like yogurt.",
+          "impactLevel": "major",
+          "side": "con",
+          "resolvedScoreValue": -3
+        }
+      ],
+      "narrationNotes": [
+        "Strongest section: Fats.",
+        "Context weakened the final tier case by 9 points.",
+        "Final verdict: D tier."
+      ]
+    }
+  },
+  "scriptSnapshot": {
+    "hook": "Ice Cream ranked.",
+    "intro": null,
+    "closing": {
+      "summary": "Ice Cream stands out for high enjoyment factor and still retains some calcium. but it also gets held back by sugar load is a major dairy-category problem and saturated fat is a major drawback. Best only when the taste or format matters more than getting the strongest dairy profile.",
+      "finalReveal": "Ice Cream is D tier.",
+      "useCaseNote": "Best only when the taste or format matters more than getting the strongest dairy profile.",
+      "cta": "Would you rank it the same, or nah?"
+    },
+    "sectionOrder": [
+      "fats",
+      "carbs",
+      "proteins",
+      "vitamins",
+      "minerals",
+      "pros",
+      "cons"
+    ]
+  },
+  "visualBinding": {
+    "templateId": "foodranked-visual-template.v1",
+    "aspectRatio": "9:16",
+    "categoryAccent": "Cream White",
+    "tierColor": "purple"
+  },
+  "reviewChecklist": [
+    "Verify nutrient values are sourced well enough for publishable use.",
+    "Review narration for category repetition and trim any awkward lines.",
+    "Confirm subtitle density stays readable at phone speed.",
+    "Replace placeholder hero/sprite art with final asset selection.",
+    "Check that the final tier verdict feels editorially defensible."
+  ],
+  "nextHumanStep": "Review the generated narration + manifest, then use the manifest as the handoff into visual assembly / editing.",
+  "scenePlan": {
+    "mode": "compact",
+    "totalEstimatedDurationSeconds": 106.03,
+    "scenes": [
+      {
+        "id": "hook",
+        "kind": "hook",
+        "startSeconds": 0,
+        "durationSeconds": 2.1,
+        "endSeconds": 2.1,
+        "narrationText": "Ice Cream ranked.",
+        "subtitleText": "Ice Cream ranked.",
+        "visualBinding": {
+          "title": "Ice Cream",
+          "rankedWord": "RANKED",
+          "foodType": "dairy",
+          "kcal": 207,
+          "categoryAccent": "Cream White"
+        },
+        "revealPlan": [
+          "hero_food",
+          "hook_title",
+          "hook_ranked_word"
+        ]
+      },
+      {
+        "id": "fats",
+        "kind": "section",
+        "startSeconds": 2.1,
+        "durationSeconds": 9.53,
+        "endSeconds": 11.63,
+        "narrationText": "fat is 11g. saturated fat is one of the main pressure points. for dairy, the fat side can either add richness or drag the whole profile down.",
+        "subtitleText": "fat is 11g. saturated fat is one of the main pressure points. for dairy, the fat side can either add richness or drag the whole profile down.",
+        "visualBinding": {
+          "sectionKey": "fats",
+          "title": "Fats",
+          "score": 33.3,
+          "templateSlots": [
+            "macro_headline",
+            "submetric_1",
+            "submetric_2",
+            "submetric_3"
+          ],
+          "displayItems": [
+            {
+              "metricKey": "saturated_fat_g",
+              "text": "saturated fat at 7",
+              "weightedScore": -12,
+              "scoringMode": "arrow_bands",
+              "band": "↑↑",
+              "dvPercent": null,
+              "value": 7
+            },
+            {
+              "metricKey": "cholesterol_mg",
+              "text": "cholesterol at 44",
+              "weightedScore": 4,
+              "scoringMode": "arrow_bands",
+              "band": "↓",
+              "dvPercent": null,
+              "value": 44
+            },
+            {
+              "metricKey": "omega3_mg",
+              "text": "omega3 at 30",
+              "weightedScore": -2,
+              "scoringMode": "arrow_bands",
+              "band": "↓↓",
+              "dvPercent": null,
+              "value": 30
+            },
+            {
+              "metricKey": "polyunsaturated_fat_g",
+              "text": "polyunsaturated fat at 0.4",
+              "weightedScore": -2,
+              "scoringMode": "arrow_bands",
+              "band": "↓↓",
+              "dvPercent": null,
+              "value": 0.4
+            }
+          ],
+          "timingHint": "short-medium"
+        },
+        "revealPlan": [
+          "macro_headline",
+          "submetric_1",
+          "submetric_2",
+          "submetric_3"
+        ]
+      },
+      {
+        "id": "carbs",
+        "kind": "section",
+        "startSeconds": 11.63,
+        "durationSeconds": 8.47,
+        "endSeconds": 20.1,
+        "narrationText": "carbs is 24g. glycemic impact is a big part of the story. for a dairy food, protein and practicality have to carry the case.",
+        "subtitleText": "carbs is 24g. glycemic impact is a big part of the story. for a dairy food, protein and practicality have to carry the case.",
+        "visualBinding": {
+          "sectionKey": "carbs",
+          "title": "Carbs",
+          "score": 9.5,
+          "templateSlots": [
+            "macro_headline",
+            "submetric_1",
+            "submetric_2",
+            "submetric_3"
+          ],
+          "displayItems": [
+            {
+              "metricKey": "sugar_g",
+              "text": "sugar at 21",
+              "weightedScore": -12,
+              "scoringMode": "arrow_bands",
+              "band": "↑↑↑",
+              "dvPercent": null,
+              "value": 21
+            },
+            {
+              "metricKey": "starch_g",
+              "text": "starch at 0",
+              "weightedScore": -3,
+              "scoringMode": "arrow_bands",
+              "band": "↓↓↓",
+              "dvPercent": null,
+              "value": 0
+            },
+            {
+              "metricKey": "glycemic_index",
+              "text": "glycemic index at 61",
+              "weightedScore": -2,
+              "scoringMode": "arrow_bands",
+              "band": "↑",
+              "dvPercent": null,
+              "value": 61
+            }
+          ],
+          "timingHint": "short-medium"
+        },
+        "revealPlan": [
+          "macro_headline",
+          "submetric_1",
+          "submetric_2",
+          "submetric_3"
+        ]
+      },
+      {
+        "id": "proteins",
+        "kind": "section",
+        "startSeconds": 20.1,
+        "durationSeconds": 8.82,
+        "endSeconds": 28.92,
+        "narrationText": "protein is 3.5g. essential amino acids score is where the section starts to wobble. for dairy, useful protein can rescue a lot of weaker traits.",
+        "subtitleText": "protein is 3.5g. essential amino acids score is where the section starts to wobble. for dairy, useful protein can rescue a lot of weaker traits.",
+        "visualBinding": {
+          "sectionKey": "proteins",
+          "title": "Proteins",
+          "score": 19,
+          "templateSlots": [
+            "macro_headline",
+            "submetric_1",
+            "submetric_2",
+            "submetric_3"
+          ],
+          "displayItems": [
+            {
+              "metricKey": "essential_amino_acids_score",
+              "text": "essential amino acids score at 4",
+              "weightedScore": -6,
+              "scoringMode": "arrow_bands",
+              "band": "↓↓",
+              "dvPercent": null,
+              "value": 4
+            },
+            {
+              "metricKey": "bioavailability_percent",
+              "text": "bioavailability at 70",
+              "weightedScore": -6,
+              "scoringMode": "arrow_bands",
+              "band": "↓↓",
+              "dvPercent": null,
+              "value": 70
+            },
+            {
+              "metricKey": "nonessential_amino_acids_score",
+              "text": "nonessential amino acids score at 6",
+              "weightedScore": -1,
+              "scoringMode": "arrow_bands",
+              "band": "↓",
+              "dvPercent": null,
+              "value": 6
+            }
+          ],
+          "timingHint": "short-medium"
+        },
+        "revealPlan": [
+          "macro_headline",
+          "submetric_1",
+          "submetric_2",
+          "submetric_3"
+        ]
+      },
+      {
+        "id": "vitamins",
+        "kind": "section",
+        "startSeconds": 28.92,
+        "durationSeconds": 9.18,
+        "endSeconds": 38.1,
+        "narrationText": "vitamin b12 at 6% DV, vitamin a at 8% DV stand out most. that is not enough to move the verdict very far on its own.",
+        "subtitleText": "vitamin b12 at 6% DV, vitamin a at 8% DV stand out most. that is not enough to move the verdict very far on its own.",
+        "visualBinding": {
+          "sectionKey": "vitamins",
+          "title": "Vitamins",
+          "score": 0,
+          "templateSlots": [
+            "micronutrient_1",
+            "micronutrient_2"
+          ],
+          "displayItems": [
+            {
+              "metricKey": "vitamin_b12_dv",
+              "text": "vitamin b12 at 6% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 6,
+              "value": null
+            },
+            {
+              "metricKey": "vitamin_a_dv",
+              "text": "vitamin a at 8% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 8,
+              "value": null
+            }
+          ],
+          "timingHint": "short-medium"
+        },
+        "revealPlan": [
+          "micronutrient_1",
+          "micronutrient_2"
+        ]
+      },
+      {
+        "id": "minerals",
+        "kind": "section",
+        "startSeconds": 38.1,
+        "durationSeconds": 7.06,
+        "endSeconds": 45.16,
+        "narrationText": "calcium at 13% DV, zinc at 3% DV, magnesium at 2% DV stand out most. that stays fairly limited overall.",
+        "subtitleText": "calcium at 13% DV, zinc at 3% DV, magnesium at 2% DV stand out most. that stays fairly limited overall.",
+        "visualBinding": {
+          "sectionKey": "minerals",
+          "title": "Minerals",
+          "score": 6,
+          "templateSlots": [
+            "micronutrient_1",
+            "micronutrient_2"
+          ],
+          "displayItems": [
+            {
+              "metricKey": "calcium_dv",
+              "text": "calcium at 13% DV",
+              "weightedScore": 3,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 13,
+              "value": null
+            },
+            {
+              "metricKey": "zinc_dv",
+              "text": "zinc at 3% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 3,
+              "value": null
+            },
+            {
+              "metricKey": "magnesium_dv",
+              "text": "magnesium at 2% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 2,
+              "value": null
+            }
+          ],
+          "timingHint": "short-medium"
+        },
+        "revealPlan": [
+          "micronutrient_1",
+          "micronutrient_2"
+        ]
+      },
+      {
+        "id": "pros",
+        "kind": "section",
+        "startSeconds": 45.16,
+        "durationSeconds": 16.24,
+        "endSeconds": 61.4,
+        "narrationText": "the upsides first. high enjoyment factor because a real-world reason people eat it, even if the category fit is weak. still retains some calcium because not nutritionally empty, just weak compared with stronger dairy foods. still clearly dairy-based because that matters for fairness when picking anchors.",
+        "subtitleText": "the upsides first. high enjoyment factor because a real-world reason people eat it, even if the category fit is weak. still retains some calcium because not nutritionally empty, just weak compared with stronger dairy foods. still clearly dairy-based because that matters for fairness when picking anchors.",
+        "visualBinding": {
+          "sectionKey": "pros",
+          "title": "Pros",
+          "score": 0,
+          "templateSlots": [
+            "bullet_1",
+            "bullet_2",
+            "bullet_3"
+          ],
+          "displayItems": [
+            {
+              "type": "pro",
+              "title": "high enjoyment factor",
+              "explanation": "A real-world reason people eat it, even if the category fit is weak.",
+              "impactLevel": "minor",
+              "scoreValue": 1
+            },
+            {
+              "type": "pro",
+              "title": "still retains some calcium",
+              "explanation": "Not nutritionally empty, just weak compared with stronger dairy foods.",
+              "impactLevel": "minor",
+              "scoreValue": 1
+            },
+            {
+              "type": "pro",
+              "title": "still clearly dairy-based",
+              "explanation": "That matters for fairness when picking anchors.",
+              "impactLevel": "minor",
+              "scoreValue": 1
+            }
+          ],
+          "timingHint": "medium"
+        },
+        "revealPlan": [
+          "bullet_1",
+          "bullet_2",
+          "bullet_3"
+        ]
+      },
+      {
+        "id": "cons",
+        "kind": "section",
+        "startSeconds": 61.4,
+        "durationSeconds": 21.88,
+        "endSeconds": 83.28,
+        "narrationText": "on the weaker side. sugar load is a major dairy-category problem because this pushes it away from what strong dairy foods are supposed to deliver. saturated fat is a major drawback because a second major strike against the food in this category. protein usefulness is weak for dairy because that makes it a poor fit compared with stronger dairy anchors like yogurt.",
+        "subtitleText": "on the weaker side. sugar load is a major dairy-category problem because this pushes it away from what strong dairy foods are supposed to deliver. saturated fat is a major drawback because a second major strike against the food in this category. protein usefulness is weak for dairy because that makes it a poor fit compared with stronger dairy anchors like yogurt.",
+        "visualBinding": {
+          "sectionKey": "cons",
+          "title": "Cons",
+          "score": 100,
+          "templateSlots": [
+            "bullet_1",
+            "bullet_2",
+            "bullet_3"
+          ],
+          "displayItems": [
+            {
+              "type": "con",
+              "title": "sugar load is a major dairy-category problem",
+              "explanation": "This pushes it away from what strong dairy foods are supposed to deliver.",
+              "impactLevel": "major",
+              "scoreValue": -2
+            },
+            {
+              "type": "con",
+              "title": "saturated fat is a major drawback",
+              "explanation": "A second major strike against the food in this category.",
+              "impactLevel": "major",
+              "scoreValue": -2
+            },
+            {
+              "type": "con",
+              "title": "protein usefulness is weak for dairy",
+              "explanation": "That makes it a poor fit compared with stronger dairy anchors like yogurt.",
+              "impactLevel": "major",
+              "scoreValue": -2
+            }
+          ],
+          "timingHint": "medium"
+        },
+        "revealPlan": [
+          "bullet_1",
+          "bullet_2",
+          "bullet_3"
+        ]
+      },
+      {
+        "id": "final",
+        "kind": "closing",
+        "startSeconds": 83.28,
+        "durationSeconds": 22.75,
+        "endSeconds": 106.03,
+        "narrationText": "Ice Cream stands out for high enjoyment factor and still retains some calcium. but it also gets held back by sugar load is a major dairy-category problem and saturated fat is a major drawback. Best only when the taste or format matters more than getting the strongest dairy profile. Ice Cream is D tier. Best only when the taste or format matters more than getting the strongest dairy profile.",
+        "subtitleText": "Ice Cream is D tier. Best only when the taste or format matters more than getting the strongest dairy profile.",
+        "visualBinding": {
+          "tier": "D",
+          "tierColor": "purple"
+        },
+        "revealPlan": [
+          "tier_stamp"
+        ]
+      }
+    ]
+  }
+}

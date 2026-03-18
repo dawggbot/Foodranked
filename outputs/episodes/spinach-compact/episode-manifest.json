@@ -1,0 +1,559 @@
+{
+  "id": "spinach-episode-v1",
+  "generatedAt": "2026-03-18T23:20:53.529Z",
+  "status": "draft",
+  "mode": "compact",
+  "food": {
+    "id": "spinach",
+    "name": "Spinach",
+    "foodType": "vegetables",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "sourceFile": "foods/spinach.sample.json"
+  },
+  "sourceOfTruth": {
+    "scoreScript": "scripts/foodranked-scorer.js",
+    "scriptGenerator": "scripts/foodranked-generate-script.js",
+    "rulesetFile": "rulesets/vegetables.v1.json",
+    "visualTemplateFile": "templates/visual-template.v1.json"
+  },
+  "outputs": {
+    "directory": "outputs/episodes/spinach-compact",
+    "scoreJson": "score.json",
+    "scriptJson": "script.json",
+    "manifestJson": "episode-manifest.json",
+    "narrationTxt": "narration.txt",
+    "subtitlesJson": "subtitles.json"
+  },
+  "scoreSnapshot": {
+    "overallScore": 53,
+    "tier": "S",
+    "baseScore": 50,
+    "contextAdjustment": 3,
+    "sectionScores": {
+      "fats": 66.7,
+      "carbs": 70,
+      "proteins": 61.1,
+      "vitamins": 65.7,
+      "minerals": 8.3,
+      "pros": 33.3,
+      "cons": 0
+    },
+    "explanation": {
+      "summary": "Carbs are carrying this food most, while minerals are the biggest drag. It lands in S tier.",
+      "whyThisTier": "This food lands in S tier with an overall score of 53 from a base nutrition score of 50. Context lifted it by 3 points.",
+      "strongestSection": {
+        "key": "carbs",
+        "label": "Carbs",
+        "score": 70
+      },
+      "weakestSection": {
+        "key": "minerals",
+        "label": "Minerals",
+        "score": 8.3
+      },
+      "topPros": [
+        {
+          "title": "elite micronutrient density",
+          "explanation": "This is exactly the kind of nutrient-packed vegetable the category is supposed to reward.",
+          "impactLevel": "major",
+          "side": "pro",
+          "resolvedScoreValue": 3
+        }
+      ],
+      "topCons": [
+        {
+          "title": "contains anti-nutrients",
+          "explanation": "Oxalates can reduce mineral usefulness in some contexts.",
+          "impactLevel": "minor",
+          "side": "con",
+          "resolvedScoreValue": 0
+        },
+        {
+          "title": "volume shrinks a lot when cooked",
+          "explanation": "Can make portions feel smaller than expected.",
+          "impactLevel": "minor",
+          "side": "con",
+          "resolvedScoreValue": 0
+        },
+        {
+          "title": "not useful as a fuel food",
+          "explanation": "That is fine for vegetables, but it does limit some use cases.",
+          "impactLevel": "minor",
+          "side": "con",
+          "resolvedScoreValue": 0
+        }
+      ],
+      "narrationNotes": [
+        "Strongest section: Carbs.",
+        "Weakest section: Minerals.",
+        "Context improved the final tier case by 3 points.",
+        "Final verdict: S tier."
+      ]
+    }
+  },
+  "scriptSnapshot": {
+    "hook": "Spinach ranked.",
+    "intro": null,
+    "closing": {
+      "summary": "Spinach stands out for elite micronutrient density and very light for the volume. but it also gets held back by contains anti-nutrients and volume shrinks a lot when cooked. Best when you want low downside and easy micronutrient support.",
+      "finalReveal": "Spinach is S tier.",
+      "useCaseNote": "Best when you want low downside and easy micronutrient support.",
+      "cta": "Would you rank it the same, or nah?"
+    },
+    "sectionOrder": [
+      "fats",
+      "carbs",
+      "proteins",
+      "vitamins",
+      "minerals",
+      "pros",
+      "cons"
+    ]
+  },
+  "visualBinding": {
+    "templateId": "foodranked-visual-template.v1",
+    "aspectRatio": "9:16",
+    "categoryAccent": "Leaf Green",
+    "tierColor": "platinum-gold"
+  },
+  "reviewChecklist": [
+    "Verify nutrient values are sourced well enough for publishable use.",
+    "Review narration for category repetition and trim any awkward lines.",
+    "Confirm subtitle density stays readable at phone speed.",
+    "Replace placeholder hero/sprite art with final asset selection.",
+    "Check that the final tier verdict feels editorially defensible."
+  ],
+  "nextHumanStep": "Review the generated narration + manifest, then use the manifest as the handoff into visual assembly / editing.",
+  "scenePlan": {
+    "mode": "compact",
+    "totalEstimatedDurationSeconds": 97.22,
+    "scenes": [
+      {
+        "id": "hook",
+        "kind": "hook",
+        "startSeconds": 0,
+        "durationSeconds": 2.1,
+        "endSeconds": 2.1,
+        "narrationText": "Spinach ranked.",
+        "subtitleText": "Spinach ranked.",
+        "visualBinding": {
+          "title": "Spinach",
+          "rankedWord": "RANKED",
+          "foodType": "vegetables",
+          "kcal": 23,
+          "categoryAccent": "Leaf Green"
+        },
+        "revealPlan": [
+          "hero_food",
+          "hook_title",
+          "hook_ranked_word"
+        ]
+      },
+      {
+        "id": "fats",
+        "kind": "section",
+        "startSeconds": 2.1,
+        "durationSeconds": 7.76,
+        "endSeconds": 9.86,
+        "narrationText": "fat is 0.4g. omega 3 is doing serious work here. for a vegetable, low downside and high payoff is what you want.",
+        "subtitleText": "fat is 0.4g. omega 3 is doing serious work here. for a vegetable, low downside and high payoff is what you want.",
+        "visualBinding": {
+          "sectionKey": "fats",
+          "title": "Fats",
+          "score": 66.7,
+          "templateSlots": [
+            "macro_headline",
+            "submetric_1",
+            "submetric_2",
+            "submetric_3"
+          ],
+          "displayItems": [
+            {
+              "metricKey": "saturated_fat_g",
+              "text": "saturated fat at 0.1",
+              "weightedScore": 3,
+              "scoringMode": "arrow_bands",
+              "band": "↓↓↓",
+              "dvPercent": null,
+              "value": 0.1
+            },
+            {
+              "metricKey": "omega3_mg",
+              "text": "omega3 at 138",
+              "weightedScore": 3,
+              "scoringMode": "arrow_bands",
+              "band": "↑↑↑",
+              "dvPercent": null,
+              "value": 138
+            },
+            {
+              "metricKey": "polyunsaturated_fat_g",
+              "text": "polyunsaturated fat at 0.2",
+              "weightedScore": -3,
+              "scoringMode": "arrow_bands",
+              "band": "↓↓↓",
+              "dvPercent": null,
+              "value": 0.2
+            }
+          ],
+          "timingHint": "short-medium"
+        },
+        "revealPlan": [
+          "macro_headline",
+          "submetric_1",
+          "submetric_2",
+          "submetric_3"
+        ]
+      },
+      {
+        "id": "carbs",
+        "kind": "section",
+        "startSeconds": 9.86,
+        "durationSeconds": 10.24,
+        "endSeconds": 20.1,
+        "narrationText": "carbs is 3.6g. sugar, glycemic index, and starch are doing most of the work. for vegetables, low downside is useful, but there still needs to be enough nutritional return.",
+        "subtitleText": "carbs is 3.6g. sugar, glycemic index, and starch are doing most of the work. for vegetables, low downside is useful, but there still needs to be enough nutritional return.",
+        "visualBinding": {
+          "sectionKey": "carbs",
+          "title": "Carbs",
+          "score": 70,
+          "templateSlots": [
+            "macro_headline",
+            "submetric_1",
+            "submetric_2",
+            "submetric_3"
+          ],
+          "displayItems": [
+            {
+              "metricKey": "sugar_g",
+              "text": "sugar at 0.4",
+              "weightedScore": 9,
+              "scoringMode": "arrow_bands",
+              "band": "↓↓↓",
+              "dvPercent": null,
+              "value": 0.4
+            },
+            {
+              "metricKey": "glycemic_index",
+              "text": "glycemic index at 15",
+              "weightedScore": 9,
+              "scoringMode": "arrow_bands",
+              "band": "↓↓↓",
+              "dvPercent": null,
+              "value": 15
+            },
+            {
+              "metricKey": "starch_g",
+              "text": "starch at 0.1",
+              "weightedScore": -3,
+              "scoringMode": "arrow_bands",
+              "band": "↓↓↓",
+              "dvPercent": null,
+              "value": 0.1
+            },
+            {
+              "metricKey": "fibre_g",
+              "text": "fibre at 2.2",
+              "weightedScore": -3,
+              "scoringMode": "arrow_bands",
+              "band": "↓",
+              "dvPercent": null,
+              "value": 2.2
+            }
+          ],
+          "timingHint": "short-medium"
+        },
+        "revealPlan": [
+          "macro_headline",
+          "submetric_1",
+          "submetric_2",
+          "submetric_3"
+        ]
+      },
+      {
+        "id": "proteins",
+        "kind": "section",
+        "startSeconds": 20.1,
+        "durationSeconds": 8.47,
+        "endSeconds": 28.57,
+        "narrationText": "protein is 2.9g. protein quality is clearly one of the selling points. protein is not the main pitch here, but extra support still matters.",
+        "subtitleText": "protein is 2.9g. protein quality is clearly one of the selling points. protein is not the main pitch here, but extra support still matters.",
+        "visualBinding": {
+          "sectionKey": "proteins",
+          "title": "Proteins",
+          "score": 61.1,
+          "templateSlots": [
+            "macro_headline",
+            "submetric_1",
+            "submetric_2",
+            "submetric_3"
+          ],
+          "displayItems": [
+            {
+              "metricKey": "bioavailability_percent",
+              "text": "bioavailability at 35",
+              "weightedScore": 3,
+              "scoringMode": "arrow_bands",
+              "band": "↑↑↑",
+              "dvPercent": null,
+              "value": 35
+            },
+            {
+              "metricKey": "essential_amino_acids_score",
+              "text": "essential amino acids score at 2",
+              "weightedScore": -2,
+              "scoringMode": "arrow_bands",
+              "band": "↓↓",
+              "dvPercent": null,
+              "value": 2
+            },
+            {
+              "metricKey": "nonessential_amino_acids_score",
+              "text": "nonessential amino acids score at 4",
+              "weightedScore": 1,
+              "scoringMode": "arrow_bands",
+              "band": "↑",
+              "dvPercent": null,
+              "value": 4
+            }
+          ],
+          "timingHint": "short-medium"
+        },
+        "revealPlan": [
+          "macro_headline",
+          "submetric_1",
+          "submetric_2",
+          "submetric_3"
+        ]
+      },
+      {
+        "id": "vitamins",
+        "kind": "section",
+        "startSeconds": 28.57,
+        "durationSeconds": 8.82,
+        "endSeconds": 37.39,
+        "narrationText": "vitamin k at 402% DV, vitamin a at 56% DV, vitamin c at 31% DV stand out most. that gives this food real vitamin support.",
+        "subtitleText": "vitamin k at 402% DV, vitamin a at 56% DV, vitamin c at 31% DV stand out most. that gives this food real vitamin support.",
+        "visualBinding": {
+          "sectionKey": "vitamins",
+          "title": "Vitamins",
+          "score": 65.7,
+          "templateSlots": [
+            "micronutrient_1",
+            "micronutrient_2"
+          ],
+          "displayItems": [
+            {
+              "metricKey": "vitamin_k_dv",
+              "text": "vitamin k at 402% DV",
+              "weightedScore": 30,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 402,
+              "value": null
+            },
+            {
+              "metricKey": "vitamin_a_dv",
+              "text": "vitamin a at 56% DV",
+              "weightedScore": 10,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 56,
+              "value": null
+            },
+            {
+              "metricKey": "vitamin_c_dv",
+              "text": "vitamin c at 31% DV",
+              "weightedScore": 6,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 31,
+              "value": null
+            }
+          ],
+          "timingHint": "short-medium"
+        },
+        "revealPlan": [
+          "micronutrient_1",
+          "micronutrient_2"
+        ]
+      },
+      {
+        "id": "minerals",
+        "kind": "section",
+        "startSeconds": 37.39,
+        "durationSeconds": 7.06,
+        "endSeconds": 44.45,
+        "narrationText": "potassium at 12% DV, magnesium at 19% DV, iron at 15% DV stand out most. that stays fairly limited overall.",
+        "subtitleText": "potassium at 12% DV, magnesium at 19% DV, iron at 15% DV stand out most. that stays fairly limited overall.",
+        "visualBinding": {
+          "sectionKey": "minerals",
+          "title": "Minerals",
+          "score": 8.3,
+          "templateSlots": [
+            "micronutrient_1",
+            "micronutrient_2"
+          ],
+          "displayItems": [
+            {
+              "metricKey": "potassium_dv",
+              "text": "potassium at 12% DV",
+              "weightedScore": 2,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 12,
+              "value": null
+            },
+            {
+              "metricKey": "magnesium_dv",
+              "text": "magnesium at 19% DV",
+              "weightedScore": 2,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 19,
+              "value": null
+            },
+            {
+              "metricKey": "iron_dv",
+              "text": "iron at 15% DV",
+              "weightedScore": 1,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 15,
+              "value": null
+            },
+            {
+              "metricKey": "calcium_dv",
+              "text": "calcium at 8% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 8,
+              "value": null
+            }
+          ],
+          "timingHint": "short-medium"
+        },
+        "revealPlan": [
+          "micronutrient_1",
+          "micronutrient_2"
+        ]
+      },
+      {
+        "id": "pros",
+        "kind": "section",
+        "startSeconds": 44.45,
+        "durationSeconds": 18.71,
+        "endSeconds": 63.16,
+        "narrationText": "on the plus side. elite micronutrient density because this is exactly the kind of nutrient-packed vegetable the category is supposed to reward. very light for the volume because a practical plus for a maintenance-and-repair food. easy to use in lots of meals because works raw, cooked, blended, and as a side or add-in.",
+        "subtitleText": "on the plus side. elite micronutrient density because this is exactly the kind of nutrient-packed vegetable the category is supposed to reward. very light for the volume because a practical plus for a maintenance-and-repair food. easy to use in lots of meals because works raw, cooked, blended, and as a side or add-in.",
+        "visualBinding": {
+          "sectionKey": "pros",
+          "title": "Pros",
+          "score": 33.3,
+          "templateSlots": [
+            "bullet_1",
+            "bullet_2",
+            "bullet_3"
+          ],
+          "displayItems": [
+            {
+              "type": "pro",
+              "title": "elite micronutrient density",
+              "explanation": "This is exactly the kind of nutrient-packed vegetable the category is supposed to reward.",
+              "impactLevel": "major",
+              "scoreValue": 2
+            },
+            {
+              "type": "pro",
+              "title": "very light for the volume",
+              "explanation": "A practical plus for a maintenance-and-repair food.",
+              "impactLevel": "minor",
+              "scoreValue": 1
+            },
+            {
+              "type": "pro",
+              "title": "easy to use in lots of meals",
+              "explanation": "Works raw, cooked, blended, and as a side or add-in.",
+              "impactLevel": "minor",
+              "scoreValue": 1
+            }
+          ],
+          "timingHint": "medium"
+        },
+        "revealPlan": [
+          "bullet_1",
+          "bullet_2",
+          "bullet_3"
+        ]
+      },
+      {
+        "id": "cons",
+        "kind": "section",
+        "startSeconds": 63.16,
+        "durationSeconds": 16.59,
+        "endSeconds": 79.75,
+        "narrationText": "now the downsides. contains anti-nutrients because oxalates can reduce mineral usefulness in some contexts. volume shrinks a lot when cooked because can make portions feel smaller than expected. not useful as a fuel food because that is fine for vegetables, but it does limit some use cases.",
+        "subtitleText": "now the downsides. contains anti-nutrients because oxalates can reduce mineral usefulness in some contexts. volume shrinks a lot when cooked because can make portions feel smaller than expected. not useful as a fuel food because that is fine for vegetables, but it does limit some use cases.",
+        "visualBinding": {
+          "sectionKey": "cons",
+          "title": "Cons",
+          "score": 0,
+          "templateSlots": [
+            "bullet_1",
+            "bullet_2",
+            "bullet_3"
+          ],
+          "displayItems": [
+            {
+              "type": "con",
+              "title": "contains anti-nutrients",
+              "explanation": "Oxalates can reduce mineral usefulness in some contexts.",
+              "impactLevel": "minor",
+              "scoreValue": -1
+            },
+            {
+              "type": "con",
+              "title": "volume shrinks a lot when cooked",
+              "explanation": "Can make portions feel smaller than expected.",
+              "impactLevel": "minor",
+              "scoreValue": -1
+            },
+            {
+              "type": "con",
+              "title": "not useful as a fuel food",
+              "explanation": "That is fine for vegetables, but it does limit some use cases.",
+              "impactLevel": "minor",
+              "scoreValue": -1
+            }
+          ],
+          "timingHint": "medium"
+        },
+        "revealPlan": [
+          "bullet_1",
+          "bullet_2",
+          "bullet_3"
+        ]
+      },
+      {
+        "id": "final",
+        "kind": "closing",
+        "startSeconds": 79.75,
+        "durationSeconds": 17.47,
+        "endSeconds": 97.22,
+        "narrationText": "Spinach stands out for elite micronutrient density and very light for the volume. but it also gets held back by contains anti-nutrients and volume shrinks a lot when cooked. Best when you want low downside and easy micronutrient support. Spinach is S tier. Best when you want low downside and easy micronutrient support.",
+        "subtitleText": "Spinach is S tier. Best when you want low downside and easy micronutrient support.",
+        "visualBinding": {
+          "tier": "S",
+          "tierColor": "platinum-gold"
+        },
+        "revealPlan": [
+          "tier_stamp"
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,536 @@
+{
+  "id": "orange-episode-v1",
+  "generatedAt": "2026-03-18T23:20:49.280Z",
+  "status": "draft",
+  "mode": "compact",
+  "food": {
+    "id": "orange",
+    "name": "Orange",
+    "foodType": "fruits",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "sourceFile": "foods/orange.sample.json"
+  },
+  "sourceOfTruth": {
+    "scoreScript": "scripts/foodranked-scorer.js",
+    "scriptGenerator": "scripts/foodranked-generate-script.js",
+    "rulesetFile": "rulesets/fruits.v1.json",
+    "visualTemplateFile": "templates/visual-template.v1.json"
+  },
+  "outputs": {
+    "directory": "outputs/episodes/orange-compact",
+    "scoreJson": "score.json",
+    "scriptJson": "script.json",
+    "manifestJson": "episode-manifest.json",
+    "narrationTxt": "narration.txt",
+    "subtitlesJson": "subtitles.json"
+  },
+  "scoreSnapshot": {
+    "overallScore": 42,
+    "tier": "B",
+    "baseScore": 39,
+    "contextAdjustment": 3,
+    "sectionScores": {
+      "fats": 66.7,
+      "carbs": 51.3,
+      "proteins": 33.3,
+      "vitamins": 37.5,
+      "minerals": 0,
+      "pros": 33.3,
+      "cons": 0
+    },
+    "explanation": {
+      "summary": "Fats are carrying this food most, while minerals are the biggest drag. It lands in B tier.",
+      "whyThisTier": "This food lands in B tier with an overall score of 42 from a base nutrition score of 39. Context lifted it by 3 points.",
+      "strongestSection": {
+        "key": "fats",
+        "label": "Fats",
+        "score": 66.7
+      },
+      "weakestSection": null,
+      "topPros": [
+        {
+          "title": "vitamin C reputation is a real strength",
+          "explanation": "This is one of the clearest viewer-recognisable wins in the fruit category.",
+          "impactLevel": "major",
+          "side": "pro",
+          "resolvedScoreValue": 3
+        }
+      ],
+      "topCons": [
+        {
+          "title": "protein contribution is tiny",
+          "explanation": "That is normal for fruit, but it still limits nutritional breadth.",
+          "impactLevel": "minor",
+          "side": "con",
+          "resolvedScoreValue": 0
+        },
+        {
+          "title": "sugar can climb fast",
+          "explanation": "A lot of fruits look healthy but still lean sweet.",
+          "impactLevel": "minor",
+          "side": "con",
+          "resolvedScoreValue": 0
+        },
+        {
+          "title": "satiety is not especially strong",
+          "explanation": "Fruit often needs help from the rest of the meal.",
+          "impactLevel": "minor",
+          "side": "con",
+          "resolvedScoreValue": 0
+        }
+      ],
+      "narrationNotes": [
+        "Strongest section: Fats.",
+        "Context improved the final tier case by 3 points.",
+        "Final verdict: B tier."
+      ]
+    }
+  },
+  "scriptSnapshot": {
+    "hook": "Orange ranked.",
+    "intro": null,
+    "closing": {
+      "summary": "Orange stands out for vitamin C reputation is a real strength and easy to use as a whole food. but it also gets held back by protein contribution is tiny and sugar can climb fast. Best when you want sweetness that still earns its place nutritionally.",
+      "finalReveal": "Orange is B tier.",
+      "useCaseNote": "Best when you want sweetness that still earns its place nutritionally.",
+      "cta": "Would you rank it the same, or nah?"
+    },
+    "sectionOrder": [
+      "fats",
+      "carbs",
+      "proteins",
+      "vitamins",
+      "minerals",
+      "pros",
+      "cons"
+    ]
+  },
+  "visualBinding": {
+    "templateId": "foodranked-visual-template.v1",
+    "aspectRatio": "9:16",
+    "categoryAccent": "Bright Red",
+    "tierColor": "red"
+  },
+  "reviewChecklist": [
+    "Verify nutrient values are sourced well enough for publishable use.",
+    "Review narration for category repetition and trim any awkward lines.",
+    "Confirm subtitle density stays readable at phone speed.",
+    "Replace placeholder hero/sprite art with final asset selection.",
+    "Check that the final tier verdict feels editorially defensible."
+  ],
+  "nextHumanStep": "Review the generated narration + manifest, then use the manifest as the handoff into visual assembly / editing.",
+  "scenePlan": {
+    "mode": "compact",
+    "totalEstimatedDurationSeconds": 96.68,
+    "scenes": [
+      {
+        "id": "hook",
+        "kind": "hook",
+        "startSeconds": 0,
+        "durationSeconds": 2.1,
+        "endSeconds": 2.1,
+        "narrationText": "Orange ranked.",
+        "subtitleText": "Orange ranked.",
+        "visualBinding": {
+          "title": "Orange",
+          "rankedWord": "RANKED",
+          "foodType": "fruits",
+          "kcal": 47,
+          "categoryAccent": "Bright Red"
+        },
+        "revealPlan": [
+          "hero_food",
+          "hook_title",
+          "hook_ranked_word"
+        ]
+      },
+      {
+        "id": "fats",
+        "kind": "section",
+        "startSeconds": 2.1,
+        "durationSeconds": 7.06,
+        "endSeconds": 9.16,
+        "narrationText": "fat is 0.1g. omega 3 is doing serious work here. for a fruit, this really comes down to sugar control.",
+        "subtitleText": "fat is 0.1g. omega 3 is doing serious work here. for a fruit, this really comes down to sugar control.",
+        "visualBinding": {
+          "sectionKey": "fats",
+          "title": "Fats",
+          "score": 66.7,
+          "templateSlots": [
+            "macro_headline",
+            "submetric_1",
+            "submetric_2",
+            "submetric_3"
+          ],
+          "displayItems": [
+            {
+              "metricKey": "saturated_fat_g",
+              "text": "saturated fat at 0",
+              "weightedScore": 3,
+              "scoringMode": "arrow_bands",
+              "band": "↓↓↓",
+              "dvPercent": null,
+              "value": 0
+            },
+            {
+              "metricKey": "omega3_mg",
+              "text": "omega3 at 20",
+              "weightedScore": 3,
+              "scoringMode": "arrow_bands",
+              "band": "↑↑↑",
+              "dvPercent": null,
+              "value": 20
+            },
+            {
+              "metricKey": "polyunsaturated_fat_g",
+              "text": "polyunsaturated fat at 0",
+              "weightedScore": -3,
+              "scoringMode": "arrow_bands",
+              "band": "↓↓↓",
+              "dvPercent": null,
+              "value": 0
+            }
+          ],
+          "timingHint": "short-medium"
+        },
+        "revealPlan": [
+          "macro_headline",
+          "submetric_1",
+          "submetric_2",
+          "submetric_3"
+        ]
+      },
+      {
+        "id": "carbs",
+        "kind": "section",
+        "startSeconds": 9.16,
+        "durationSeconds": 8.12,
+        "endSeconds": 17.28,
+        "narrationText": "carbs is 11.8g. fibre is where the section starts to wobble. for fruit, the tradeoff is sweetness versus fibre, satiety, and overall payoff.",
+        "subtitleText": "carbs is 11.8g. fibre is where the section starts to wobble. for fruit, the tradeoff is sweetness versus fibre, satiety, and overall payoff.",
+        "visualBinding": {
+          "sectionKey": "carbs",
+          "title": "Carbs",
+          "score": 51.3,
+          "templateSlots": [
+            "macro_headline",
+            "submetric_1",
+            "submetric_2",
+            "submetric_3"
+          ],
+          "displayItems": [
+            {
+              "metricKey": "fibre_g",
+              "text": "fibre at 2.4",
+              "weightedScore": -8,
+              "scoringMode": "arrow_bands",
+              "band": "↓↓",
+              "dvPercent": null,
+              "value": 2.4
+            },
+            {
+              "metricKey": "glycemic_index",
+              "text": "glycemic index at 43",
+              "weightedScore": 8,
+              "scoringMode": "arrow_bands",
+              "band": "↓↓",
+              "dvPercent": null,
+              "value": 43
+            },
+            {
+              "metricKey": "sugar_g",
+              "text": "sugar at 9.4",
+              "weightedScore": 4,
+              "scoringMode": "arrow_bands",
+              "band": "↓",
+              "dvPercent": null,
+              "value": 9.4
+            },
+            {
+              "metricKey": "starch_g",
+              "text": "starch at 0.2",
+              "weightedScore": -3,
+              "scoringMode": "arrow_bands",
+              "band": "↓↓↓",
+              "dvPercent": null,
+              "value": 0.2
+            }
+          ],
+          "timingHint": "short-medium"
+        },
+        "revealPlan": [
+          "macro_headline",
+          "submetric_1",
+          "submetric_2",
+          "submetric_3"
+        ]
+      },
+      {
+        "id": "proteins",
+        "kind": "section",
+        "startSeconds": 17.28,
+        "durationSeconds": 8.47,
+        "endSeconds": 25.75,
+        "narrationText": "protein is 0.9g. protein quality is clearly one of the selling points. for a fruit, the cleanest wins are low sugar and decent fibre.",
+        "subtitleText": "protein is 0.9g. protein quality is clearly one of the selling points. for a fruit, the cleanest wins are low sugar and decent fibre.",
+        "visualBinding": {
+          "sectionKey": "proteins",
+          "title": "Proteins",
+          "score": 33.3,
+          "templateSlots": [
+            "macro_headline",
+            "submetric_1",
+            "submetric_2",
+            "submetric_3"
+          ],
+          "displayItems": [
+            {
+              "metricKey": "essential_amino_acids_score",
+              "text": "essential amino acids score at 1",
+              "weightedScore": -3,
+              "scoringMode": "arrow_bands",
+              "band": "↓↓↓",
+              "dvPercent": null,
+              "value": 1
+            },
+            {
+              "metricKey": "nonessential_amino_acids_score",
+              "text": "nonessential amino acids score at 1",
+              "weightedScore": -3,
+              "scoringMode": "arrow_bands",
+              "band": "↓↓↓",
+              "dvPercent": null,
+              "value": 1
+            },
+            {
+              "metricKey": "bioavailability_percent",
+              "text": "bioavailability at 30",
+              "weightedScore": 3,
+              "scoringMode": "arrow_bands",
+              "band": "↑↑↑",
+              "dvPercent": null,
+              "value": 30
+            }
+          ],
+          "timingHint": "short-medium"
+        },
+        "revealPlan": [
+          "macro_headline",
+          "submetric_1",
+          "submetric_2",
+          "submetric_3"
+        ]
+      },
+      {
+        "id": "vitamins",
+        "kind": "section",
+        "startSeconds": 25.75,
+        "durationSeconds": 8.47,
+        "endSeconds": 34.22,
+        "narrationText": "vitamin c at 59% DV, vitamin a at 5% DV stand out most. that helps, but vitamins still are not the main selling point.",
+        "subtitleText": "vitamin c at 59% DV, vitamin a at 5% DV stand out most. that helps, but vitamins still are not the main selling point.",
+        "visualBinding": {
+          "sectionKey": "vitamins",
+          "title": "Vitamins",
+          "score": 37.5,
+          "templateSlots": [
+            "micronutrient_1",
+            "micronutrient_2"
+          ],
+          "displayItems": [
+            {
+              "metricKey": "vitamin_c_dv",
+              "text": "vitamin c at 59% DV",
+              "weightedScore": 15,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 59,
+              "value": null
+            },
+            {
+              "metricKey": "vitamin_a_dv",
+              "text": "vitamin a at 5% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 5,
+              "value": null
+            }
+          ],
+          "timingHint": "short-medium"
+        },
+        "revealPlan": [
+          "micronutrient_1",
+          "micronutrient_2"
+        ]
+      },
+      {
+        "id": "minerals",
+        "kind": "section",
+        "startSeconds": 34.22,
+        "durationSeconds": 7.06,
+        "endSeconds": 41.28,
+        "narrationText": "potassium at 4% DV, magnesium at 2% DV, iron at 0% DV stand out most. that stays fairly limited overall.",
+        "subtitleText": "potassium at 4% DV, magnesium at 2% DV, iron at 0% DV stand out most. that stays fairly limited overall.",
+        "visualBinding": {
+          "sectionKey": "minerals",
+          "title": "Minerals",
+          "score": 0,
+          "templateSlots": [
+            "micronutrient_1",
+            "micronutrient_2"
+          ],
+          "displayItems": [
+            {
+              "metricKey": "potassium_dv",
+              "text": "potassium at 4% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 4,
+              "value": null
+            },
+            {
+              "metricKey": "magnesium_dv",
+              "text": "magnesium at 2% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 2,
+              "value": null
+            },
+            {
+              "metricKey": "iron_dv",
+              "text": "iron at 0% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 0,
+              "value": null
+            }
+          ],
+          "timingHint": "short-medium"
+        },
+        "revealPlan": [
+          "micronutrient_1",
+          "micronutrient_2"
+        ]
+      },
+      {
+        "id": "pros",
+        "kind": "section",
+        "startSeconds": 41.28,
+        "durationSeconds": 17.29,
+        "endSeconds": 58.57,
+        "narrationText": "pros first. vitamin C reputation is a real strength because that gives it a clear in-category edge. easy to use as a whole food because simple, recognisable, and realistic for everyday eating. brings a clean fruit identity because it still contributes something valuable even when it is not elite.",
+        "subtitleText": "pros first. vitamin C reputation is a real strength because that gives it a clear in-category edge. easy to use as a whole food because simple, recognisable, and realistic for everyday eating. brings a clean fruit identity because it still contributes something valuable even when it is not elite.",
+        "visualBinding": {
+          "sectionKey": "pros",
+          "title": "Pros",
+          "score": 33.3,
+          "templateSlots": [
+            "bullet_1",
+            "bullet_2",
+            "bullet_3"
+          ],
+          "displayItems": [
+            {
+              "type": "pro",
+              "title": "vitamin C reputation is a real strength",
+              "explanation": "This is one of the clearest viewer-recognisable wins in the fruit category.",
+              "impactLevel": "major",
+              "scoreValue": 2
+            },
+            {
+              "type": "pro",
+              "title": "easy to use as a whole food",
+              "explanation": "Simple, recognisable, and realistic for everyday eating.",
+              "impactLevel": "minor",
+              "scoreValue": 1
+            },
+            {
+              "type": "pro",
+              "title": "brings a clean fruit identity",
+              "explanation": "It still contributes something valuable even when it is not elite.",
+              "impactLevel": "minor",
+              "scoreValue": 1
+            }
+          ],
+          "timingHint": "medium"
+        },
+        "revealPlan": [
+          "bullet_1",
+          "bullet_2",
+          "bullet_3"
+        ]
+      },
+      {
+        "id": "cons",
+        "kind": "section",
+        "startSeconds": 58.57,
+        "durationSeconds": 18,
+        "endSeconds": 76.57,
+        "narrationText": "on the weaker side. protein contribution is tiny because that is normal for fruit, but it still limits nutritional breadth. sugar can climb fast because a lot of fruits look healthy but still lean sweet. satiety is not especially strong because fruit often needs help from the rest of the meal.",
+        "subtitleText": "on the weaker side. protein contribution is tiny because that is normal for fruit, but it still limits nutritional breadth. sugar can climb fast because a lot of fruits look healthy but still lean sweet. satiety is not especially strong because fruit often needs help from the rest of the meal.",
+        "visualBinding": {
+          "sectionKey": "cons",
+          "title": "Cons",
+          "score": 0,
+          "templateSlots": [
+            "bullet_1",
+            "bullet_2",
+            "bullet_3"
+          ],
+          "displayItems": [
+            {
+              "type": "con",
+              "title": "protein contribution is tiny",
+              "explanation": "That is normal for fruit, but it still limits nutritional breadth.",
+              "impactLevel": "minor",
+              "scoreValue": -1
+            },
+            {
+              "type": "con",
+              "title": "sugar can climb fast",
+              "explanation": "A lot of fruits look healthy but still lean sweet.",
+              "impactLevel": "minor",
+              "scoreValue": -1
+            },
+            {
+              "type": "con",
+              "title": "satiety is not especially strong",
+              "explanation": "Fruit often needs help from the rest of the meal.",
+              "impactLevel": "minor",
+              "scoreValue": -1
+            }
+          ],
+          "timingHint": "medium"
+        },
+        "revealPlan": [
+          "bullet_1",
+          "bullet_2",
+          "bullet_3"
+        ]
+      },
+      {
+        "id": "final",
+        "kind": "closing",
+        "startSeconds": 76.57,
+        "durationSeconds": 20.11,
+        "endSeconds": 96.68,
+        "narrationText": "Orange stands out for vitamin C reputation is a real strength and easy to use as a whole food. but it also gets held back by protein contribution is tiny and sugar can climb fast. Best when you want sweetness that still earns its place nutritionally. Orange is B tier. Best when you want sweetness that still earns its place nutritionally.",
+        "subtitleText": "Orange is B tier. Best when you want sweetness that still earns its place nutritionally.",
+        "visualBinding": {
+          "tier": "B",
+          "tierColor": "red"
+        },
+        "revealPlan": [
+          "tier_stamp"
+        ]
+      }
+    ]
+  }
+}

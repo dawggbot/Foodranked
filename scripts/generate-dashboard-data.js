@@ -4,6 +4,7 @@ const path = require('path');
 
 const repoRoot = path.resolve(__dirname, '..');
 const foodsDir = path.join(repoRoot, 'foods');
+const rulesetsDir = path.join(repoRoot, 'rulesets');
 const outputsDir = path.join(repoRoot, 'outputs', 'episodes');
 const outDir = path.join(repoRoot, 'docs', 'app', 'data');
 const outFile = path.join(outDir, 'foods-index.json');
@@ -25,6 +26,24 @@ function findEpisode(foodId) {
   return null;
 }
 
+function ruleSummary(ruleset) {
+  const sections = ['fats', 'carbs', 'proteins', 'vitamins', 'minerals'];
+  const summary = {};
+  for (const section of sections) {
+    summary[section] = (ruleset.metricRules || [])
+      .filter(rule => rule.sectionKey === section)
+      .map(rule => ({
+        metricKey: rule.metricKey,
+        scoringMode: rule.scoringMode,
+        polarity: rule.polarity || null,
+        applicability: rule.applicability || null,
+        weight: rule.weight ?? null,
+        bands: rule.bands || []
+      }));
+  }
+  return summary;
+}
+
 const foods = fs.readdirSync(foodsDir)
   .filter(name => name.endsWith('.sample.json'))
   .sort()
@@ -34,6 +53,8 @@ const foods = fs.readdirSync(foodsDir)
     const episode = findEpisode(food.id);
     const score = episode?.scoreSnapshot || null;
     const scenes = episode?.scenePlan?.scenes || [];
+    const rulesetPath = path.join(rulesetsDir, `${food.foodType}.v1.json`);
+    const ruleset = exists(rulesetPath) ? readJson(rulesetPath) : null;
 
     return {
       id: food.id,
@@ -45,6 +66,13 @@ const foods = fs.readdirSync(foodsDir)
       metrics: food.metrics || {},
       contextItems: food.contextItems || { pros: [], cons: [] },
       sourceFile: path.relative(repoRoot, file),
+      ruleset: ruleset ? {
+        id: ruleset.id,
+        version: ruleset.version,
+        sectionWeights: ruleset.sectionWeights || {},
+        contextRules: ruleset.contextRules || {},
+        metricRulesBySection: ruleSummary(ruleset)
+      } : null,
       episode: episode ? {
         mode: episode.mode,
         overallScore: score?.overallScore ?? null,

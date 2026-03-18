@@ -1,27 +1,33 @@
 # Dashboard Troubleshoot Notes
 
-## What was fixed in this cleanup pass
+## What was fixed in this pass
 
-- Rebuilt `docs/app/app.js` cleanly to remove corruption from repeated incremental edits.
-- Kept the script-viewer tab.
-- Kept preset save/load controls.
-- Kept macro sprite integration.
-- Replaced the text food-type tag in the preview header with the new food-type sprite files.
-- Applied food-type accent palettes to the display shell (background tint, chip accent, header thumb accent).
+- Reworked the preview app so the display is driven more directly by each food type's ruleset.
+- Header food-type sprites were enlarged and kept pixelated instead of being scaled in a blurry way.
+- Macro scenes now support 4 submetric cards with fill bars and ruleset-based arrow labels.
+- Vitamin and mineral scenes now render the full ruleset bar sets instead of just two hardcoded items.
+- Micronutrient bars always keep the full bar shell visible, even when the value is 0.
+- Vitamin/mineral displays now show DV% only in the preview layer, not mg/mcg amounts.
+- Removed section-title dependence from the phone preview so the template structure can be judged without that extra chip.
+- Pros and cons now render with separate cards/layout treatment instead of sharing the same broken output path.
+- Food-type palette accents now also drive the kcal plate and some supporting small elements.
+- Dashboard data generation now includes a ruleset summary per food so the static app can render ruleset-aware previews without a server.
 
-## Current known design constraint
+## Current practical notes
 
-Macro scenes currently support:
-- 1 main macro headline
-- 3 supporting submetric slots
+- The dashboard is still a static browser app. Regenerate `docs/app/data/*` after changing episode outputs or rulesets:
 
-They do **not** yet support 4 supporting submacro cards.
+```bash
+node scripts/generate-dashboard-data.js
+```
 
-## Pages asset rule
+- Open directly in a browser:
 
-Anything the dashboard needs directly should live under:
-- `docs/app/assets/`
+```text
+docs/app/index.html
+```
 
-That includes:
-- macro GIF sprites
-- food type header sprites
+## Known follow-up territory
+
+- The preview still uses the repo's current metric model, so if a food has sparse category metrics the 4-card macro layout may show fewer cards.
+- Some foods still need more editorial tuning in the narration layer even after the generator update; the generator is improved, but not yet a final human polish pass for every single outlier.

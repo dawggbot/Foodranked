@@ -1,0 +1,550 @@
+{
+  "id": "dates-episode-v1",
+  "generatedAt": "2026-03-18T23:20:43.270Z",
+  "status": "draft",
+  "mode": "compact",
+  "food": {
+    "id": "dates",
+    "name": "Dates",
+    "foodType": "fruits",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "sourceFile": "foods/dates.sample.json"
+  },
+  "sourceOfTruth": {
+    "scoreScript": "scripts/foodranked-scorer.js",
+    "scriptGenerator": "scripts/foodranked-generate-script.js",
+    "rulesetFile": "rulesets/fruits.v1.json",
+    "visualTemplateFile": "templates/visual-template.v1.json"
+  },
+  "outputs": {
+    "directory": "outputs/episodes/dates-compact",
+    "scoreJson": "score.json",
+    "scriptJson": "script.json",
+    "manifestJson": "episode-manifest.json",
+    "narrationTxt": "narration.txt",
+    "subtitlesJson": "subtitles.json"
+  },
+  "scoreSnapshot": {
+    "overallScore": 16,
+    "tier": "C",
+    "baseScore": 25,
+    "contextAdjustment": -9,
+    "sectionScores": {
+      "fats": 66.7,
+      "carbs": 35.9,
+      "proteins": 50,
+      "vitamins": 0,
+      "minerals": 7.5,
+      "pros": 0,
+      "cons": 100
+    },
+    "explanation": {
+      "summary": "Fats are carrying this food most, while vitamins are the biggest drag. It lands in C tier.",
+      "whyThisTier": "This food lands in C tier with an overall score of 16 from a base nutrition score of 25. Context dragged it down by 9 points.",
+      "strongestSection": {
+        "key": "fats",
+        "label": "Fats",
+        "score": 66.7
+      },
+      "weakestSection": null,
+      "topPros": [
+        {
+          "title": "still brings some useful minerals",
+          "explanation": "Not nutritionally empty despite the weak fruit fit.",
+          "impactLevel": "minor",
+          "side": "pro",
+          "resolvedScoreValue": 0
+        },
+        {
+          "title": "can be useful in high-energy contexts",
+          "explanation": "There are niche cases where the dense sugar load is useful.",
+          "impactLevel": "minor",
+          "side": "pro",
+          "resolvedScoreValue": 0
+        },
+        {
+          "title": "still a recognisable whole fruit",
+          "explanation": "That matters for fairness even when the category fit is weak.",
+          "impactLevel": "minor",
+          "side": "pro",
+          "resolvedScoreValue": 0
+        }
+      ],
+      "topCons": [
+        {
+          "title": "sugar density is a major category problem",
+          "explanation": "Fruit is supposed to moderate sugar with fibre and payoff, and dates push the sugar side extremely hard.",
+          "impactLevel": "major",
+          "side": "con",
+          "resolvedScoreValue": -3
+        },
+        {
+          "title": "glycemic behaviour is rough for fruit",
+          "explanation": "Much weaker fit than fruits with gentler carb behaviour.",
+          "impactLevel": "major",
+          "side": "con",
+          "resolvedScoreValue": -3
+        },
+        {
+          "title": "dried-fruit concentration makes the sugar hit even harsher",
+          "explanation": "This is the cleanest reason dates should remain below ordinary whole fruits like grapes.",
+          "impactLevel": "major",
+          "side": "con",
+          "resolvedScoreValue": -3
+        }
+      ],
+      "narrationNotes": [
+        "Strongest section: Fats.",
+        "Context weakened the final tier case by 9 points.",
+        "Final verdict: C tier."
+      ]
+    }
+  },
+  "scriptSnapshot": {
+    "hook": "Dates ranked.",
+    "intro": null,
+    "closing": {
+      "summary": "Dates stands out for still brings some useful minerals and can be useful in high-energy contexts. but it also gets held back by sugar density is a major category problem and glycemic behaviour is rough for fruit. Best only when the convenience or taste matters more than the nutrition return.",
+      "finalReveal": "Dates is C tier.",
+      "useCaseNote": "Best only when the convenience or taste matters more than the nutrition return.",
+      "cta": "Would you rank it the same, or nah?"
+    },
+    "sectionOrder": [
+      "fats",
+      "carbs",
+      "proteins",
+      "vitamins",
+      "minerals",
+      "pros",
+      "cons"
+    ]
+  },
+  "visualBinding": {
+    "templateId": "foodranked-visual-template.v1",
+    "aspectRatio": "9:16",
+    "categoryAccent": "Bright Red",
+    "tierColor": "green"
+  },
+  "reviewChecklist": [
+    "Verify nutrient values are sourced well enough for publishable use.",
+    "Review narration for category repetition and trim any awkward lines.",
+    "Confirm subtitle density stays readable at phone speed.",
+    "Replace placeholder hero/sprite art with final asset selection.",
+    "Check that the final tier verdict feels editorially defensible."
+  ],
+  "nextHumanStep": "Review the generated narration + manifest, then use the manifest as the handoff into visual assembly / editing.",
+  "scenePlan": {
+    "mode": "compact",
+    "totalEstimatedDurationSeconds": 108.19,
+    "scenes": [
+      {
+        "id": "hook",
+        "kind": "hook",
+        "startSeconds": 0,
+        "durationSeconds": 2.1,
+        "endSeconds": 2.1,
+        "narrationText": "Dates ranked.",
+        "subtitleText": "Dates ranked.",
+        "visualBinding": {
+          "title": "Dates",
+          "rankedWord": "RANKED",
+          "foodType": "fruits",
+          "kcal": 282,
+          "categoryAccent": "Bright Red"
+        },
+        "revealPlan": [
+          "hero_food",
+          "hook_title",
+          "hook_ranked_word"
+        ]
+      },
+      {
+        "id": "fats",
+        "kind": "section",
+        "startSeconds": 2.1,
+        "durationSeconds": 8.12,
+        "endSeconds": 10.22,
+        "narrationText": "fat is 0.4g. omega 3 is doing serious work here. for a fruit, being sweet is normal, but controlling it is what matters.",
+        "subtitleText": "fat is 0.4g. omega 3 is doing serious work here. for a fruit, being sweet is normal, but controlling it is what matters.",
+        "visualBinding": {
+          "sectionKey": "fats",
+          "title": "Fats",
+          "score": 66.7,
+          "templateSlots": [
+            "macro_headline",
+            "submetric_1",
+            "submetric_2",
+            "submetric_3"
+          ],
+          "displayItems": [
+            {
+              "metricKey": "saturated_fat_g",
+              "text": "saturated fat at 0",
+              "weightedScore": 3,
+              "scoringMode": "arrow_bands",
+              "band": "↓↓↓",
+              "dvPercent": null,
+              "value": 0
+            },
+            {
+              "metricKey": "omega3_mg",
+              "text": "omega3 at 10",
+              "weightedScore": 3,
+              "scoringMode": "arrow_bands",
+              "band": "↑↑↑",
+              "dvPercent": null,
+              "value": 10
+            },
+            {
+              "metricKey": "polyunsaturated_fat_g",
+              "text": "polyunsaturated fat at 0",
+              "weightedScore": -3,
+              "scoringMode": "arrow_bands",
+              "band": "↓↓↓",
+              "dvPercent": null,
+              "value": 0
+            }
+          ],
+          "timingHint": "short-medium"
+        },
+        "revealPlan": [
+          "macro_headline",
+          "submetric_1",
+          "submetric_2",
+          "submetric_3"
+        ]
+      },
+      {
+        "id": "carbs",
+        "kind": "section",
+        "startSeconds": 10.22,
+        "durationSeconds": 8.82,
+        "endSeconds": 19.04,
+        "narrationText": "carbs is 75g. the fibre support does a lot of the heavy lifting. for fruit, the tradeoff is sweetness versus fibre, satiety, and overall payoff.",
+        "subtitleText": "carbs is 75g. the fibre support does a lot of the heavy lifting. for fruit, the tradeoff is sweetness versus fibre, satiety, and overall payoff.",
+        "visualBinding": {
+          "sectionKey": "carbs",
+          "title": "Carbs",
+          "score": 35.9,
+          "templateSlots": [
+            "macro_headline",
+            "submetric_1",
+            "submetric_2",
+            "submetric_3"
+          ],
+          "displayItems": [
+            {
+              "metricKey": "sugar_g",
+              "text": "sugar at 63.4",
+              "weightedScore": -12,
+              "scoringMode": "arrow_bands",
+              "band": "↑↑↑",
+              "dvPercent": null,
+              "value": 63.4
+            },
+            {
+              "metricKey": "fibre_g",
+              "text": "fibre at 8",
+              "weightedScore": 8,
+              "scoringMode": "arrow_bands",
+              "band": "↑↑",
+              "dvPercent": null,
+              "value": 8
+            },
+            {
+              "metricKey": "glycemic_index",
+              "text": "glycemic index at 62",
+              "weightedScore": -4,
+              "scoringMode": "arrow_bands",
+              "band": "↑",
+              "dvPercent": null,
+              "value": 62
+            },
+            {
+              "metricKey": "starch_g",
+              "text": "starch at 0",
+              "weightedScore": -3,
+              "scoringMode": "arrow_bands",
+              "band": "↓↓↓",
+              "dvPercent": null,
+              "value": 0
+            }
+          ],
+          "timingHint": "short-medium"
+        },
+        "revealPlan": [
+          "macro_headline",
+          "submetric_1",
+          "submetric_2",
+          "submetric_3"
+        ]
+      },
+      {
+        "id": "proteins",
+        "kind": "section",
+        "startSeconds": 19.04,
+        "durationSeconds": 8.12,
+        "endSeconds": 27.16,
+        "narrationText": "protein is 2.5g. protein quality is clearly one of the selling points. for a fruit, you want sweetness to be kept in check.",
+        "subtitleText": "protein is 2.5g. protein quality is clearly one of the selling points. for a fruit, you want sweetness to be kept in check.",
+        "visualBinding": {
+          "sectionKey": "proteins",
+          "title": "Proteins",
+          "score": 50,
+          "templateSlots": [
+            "macro_headline",
+            "submetric_1",
+            "submetric_2",
+            "submetric_3"
+          ],
+          "displayItems": [
+            {
+              "metricKey": "bioavailability_percent",
+              "text": "bioavailability at 32",
+              "weightedScore": 3,
+              "scoringMode": "arrow_bands",
+              "band": "↑↑↑",
+              "dvPercent": null,
+              "value": 32
+            },
+            {
+              "metricKey": "essential_amino_acids_score",
+              "text": "essential amino acids score at 2",
+              "weightedScore": -2,
+              "scoringMode": "arrow_bands",
+              "band": "↓↓",
+              "dvPercent": null,
+              "value": 2
+            },
+            {
+              "metricKey": "nonessential_amino_acids_score",
+              "text": "nonessential amino acids score at 3",
+              "weightedScore": -1,
+              "scoringMode": "arrow_bands",
+              "band": "↓",
+              "dvPercent": null,
+              "value": 3
+            }
+          ],
+          "timingHint": "short-medium"
+        },
+        "revealPlan": [
+          "macro_headline",
+          "submetric_1",
+          "submetric_2",
+          "submetric_3"
+        ]
+      },
+      {
+        "id": "vitamins",
+        "kind": "section",
+        "startSeconds": 27.16,
+        "durationSeconds": 9.18,
+        "endSeconds": 36.34,
+        "narrationText": "vitamin c at 0% DV, vitamin a at 3% DV stand out most. that is not enough to move the verdict very far on its own.",
+        "subtitleText": "vitamin c at 0% DV, vitamin a at 3% DV stand out most. that is not enough to move the verdict very far on its own.",
+        "visualBinding": {
+          "sectionKey": "vitamins",
+          "title": "Vitamins",
+          "score": 0,
+          "templateSlots": [
+            "micronutrient_1",
+            "micronutrient_2"
+          ],
+          "displayItems": [
+            {
+              "metricKey": "vitamin_c_dv",
+              "text": "vitamin c at 0% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 0,
+              "value": null
+            },
+            {
+              "metricKey": "vitamin_a_dv",
+              "text": "vitamin a at 3% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 3,
+              "value": null
+            }
+          ],
+          "timingHint": "short-medium"
+        },
+        "revealPlan": [
+          "micronutrient_1",
+          "micronutrient_2"
+        ]
+      },
+      {
+        "id": "minerals",
+        "kind": "section",
+        "startSeconds": 36.34,
+        "durationSeconds": 7.06,
+        "endSeconds": 43.4,
+        "narrationText": "potassium at 15% DV, magnesium at 11% DV, iron at 6% DV stand out most. that stays fairly limited overall.",
+        "subtitleText": "potassium at 15% DV, magnesium at 11% DV, iron at 6% DV stand out most. that stays fairly limited overall.",
+        "visualBinding": {
+          "sectionKey": "minerals",
+          "title": "Minerals",
+          "score": 7.5,
+          "templateSlots": [
+            "micronutrient_1",
+            "micronutrient_2"
+          ],
+          "displayItems": [
+            {
+              "metricKey": "potassium_dv",
+              "text": "potassium at 15% DV",
+              "weightedScore": 2,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 15,
+              "value": null
+            },
+            {
+              "metricKey": "magnesium_dv",
+              "text": "magnesium at 11% DV",
+              "weightedScore": 1,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 11,
+              "value": null
+            },
+            {
+              "metricKey": "iron_dv",
+              "text": "iron at 6% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 6,
+              "value": null
+            }
+          ],
+          "timingHint": "short-medium"
+        },
+        "revealPlan": [
+          "micronutrient_1",
+          "micronutrient_2"
+        ]
+      },
+      {
+        "id": "pros",
+        "kind": "section",
+        "startSeconds": 43.4,
+        "durationSeconds": 18.35,
+        "endSeconds": 61.75,
+        "narrationText": "the upsides first. still brings some useful minerals because not nutritionally empty despite the weak fruit fit. can be useful in high-energy contexts because there are niche cases where the dense sugar load is useful. still a recognisable whole fruit because that matters for fairness even when the category fit is weak.",
+        "subtitleText": "the upsides first. still brings some useful minerals because not nutritionally empty despite the weak fruit fit. can be useful in high-energy contexts because there are niche cases where the dense sugar load is useful. still a recognisable whole fruit because that matters for fairness even when the category fit is weak.",
+        "visualBinding": {
+          "sectionKey": "pros",
+          "title": "Pros",
+          "score": 0,
+          "templateSlots": [
+            "bullet_1",
+            "bullet_2",
+            "bullet_3"
+          ],
+          "displayItems": [
+            {
+              "type": "pro",
+              "title": "still brings some useful minerals",
+              "explanation": "Not nutritionally empty despite the weak fruit fit.",
+              "impactLevel": "minor",
+              "scoreValue": 1
+            },
+            {
+              "type": "pro",
+              "title": "can be useful in high-energy contexts",
+              "explanation": "There are niche cases where the dense sugar load is useful.",
+              "impactLevel": "minor",
+              "scoreValue": 1
+            },
+            {
+              "type": "pro",
+              "title": "still a recognisable whole fruit",
+              "explanation": "That matters for fairness even when the category fit is weak.",
+              "impactLevel": "minor",
+              "scoreValue": 1
+            }
+          ],
+          "timingHint": "medium"
+        },
+        "revealPlan": [
+          "bullet_1",
+          "bullet_2",
+          "bullet_3"
+        ]
+      },
+      {
+        "id": "cons",
+        "kind": "section",
+        "startSeconds": 61.75,
+        "durationSeconds": 24.35,
+        "endSeconds": 86.1,
+        "narrationText": "on the weaker side. sugar density is a major category problem because fruit is supposed to moderate sugar with fibre and payoff, and dates push the sugar side extremely hard. glycemic behaviour is rough for fruit because much weaker fit than fruits with gentler carb behaviour. dried-fruit concentration makes the sugar hit even harsher because this is the cleanest reason dates should remain below ordinary whole fruits like grapes.",
+        "subtitleText": "on the weaker side. sugar density is a major category problem because fruit is supposed to moderate sugar with fibre and payoff, and dates push the sugar side extremely hard. glycemic behaviour is rough for fruit because much weaker fit than fruits with gentler carb behaviour. dried-fruit concentration makes the sugar hit even harsher because this is the cleanest reason dates should remain below ordinary whole fruits like grapes.",
+        "visualBinding": {
+          "sectionKey": "cons",
+          "title": "Cons",
+          "score": 100,
+          "templateSlots": [
+            "bullet_1",
+            "bullet_2",
+            "bullet_3"
+          ],
+          "displayItems": [
+            {
+              "type": "con",
+              "title": "sugar density is a major category problem",
+              "explanation": "Fruit is supposed to moderate sugar with fibre and payoff, and dates push the sugar side extremely hard.",
+              "impactLevel": "major",
+              "scoreValue": -2
+            },
+            {
+              "type": "con",
+              "title": "glycemic behaviour is rough for fruit",
+              "explanation": "Much weaker fit than fruits with gentler carb behaviour.",
+              "impactLevel": "major",
+              "scoreValue": -2
+            },
+            {
+              "type": "con",
+              "title": "dried-fruit concentration makes the sugar hit even harsher",
+              "explanation": "This is the cleanest reason dates should remain below ordinary whole fruits like grapes.",
+              "impactLevel": "major",
+              "scoreValue": -2
+            }
+          ],
+          "timingHint": "medium"
+        },
+        "revealPlan": [
+          "bullet_1",
+          "bullet_2",
+          "bullet_3"
+        ]
+      },
+      {
+        "id": "final",
+        "kind": "closing",
+        "startSeconds": 86.1,
+        "durationSeconds": 22.09,
+        "endSeconds": 108.19,
+        "narrationText": "Dates stands out for still brings some useful minerals and can be useful in high-energy contexts. but it also gets held back by sugar density is a major category problem and glycemic behaviour is rough for fruit. Best only when the convenience or taste matters more than the nutrition return. Dates is C tier. Best only when the convenience or taste matters more than the nutrition return.",
+        "subtitleText": "Dates is C tier. Best only when the convenience or taste matters more than the nutrition return.",
+        "visualBinding": {
+          "tier": "C",
+          "tierColor": "green"
+        },
+        "revealPlan": [
+          "tier_stamp"
+        ]
+      }
+    ]
+  }
+}

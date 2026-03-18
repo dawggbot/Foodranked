@@ -57,9 +57,9 @@ const emojiMap = { grains:'🌾', meats:'🥩', fruits:'🍎', vegetables:'🥬'
 const accentMap = { grains:'#d4a64c', meats:'#b83c4f', fruits:'#ef4444', vegetables:'#22c55e', dairy:'#f3e8c8', legumes:'#8b5e3c', nuts:'#8b5a2b', seeds:'#c7a46a', 'oils-and-fats':'#f59e0b', misc:'#6b7280', tubers:'#d97706' };
 const tierClassMap = { S:'tier-S', A:'tier-A', B:'tier-B', C:'tier-C', D:'tier-D' };
 const macroSpriteMap = {
-  fats: '../../assets/macro-fats-shield.gif',
-  carbs: '../../assets/macro-carbs-lightning.gif',
-  proteins: '../../assets/macro-protein-arm.gif'
+  fats: './assets/macro-fats-shield.gif',
+  carbs: './assets/macro-carbs-lightning.gif',
+  proteins: './assets/macro-protein-arm.gif'
 };
 
 function fmtType(v){ return String(v||'').replace(/-/g,' '); }

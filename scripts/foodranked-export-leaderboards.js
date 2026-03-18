@@ -35,7 +35,8 @@ function inferRulesetPath(foodJson) {
 function runScore(foodPath, rulesetPath) {
   const res = spawnSync(process.execPath, [scorerPath, foodPath, rulesetPath], {
     cwd: repoRoot,
-    encoding: 'utf8'
+    encoding: 'utf8',
+    maxBuffer: 50 * 1024 * 1024
   });
 
   if (res.status !== 0) {
@@ -119,7 +120,8 @@ function main() {
 
   const res = spawnSync(process.execPath, [scoreAllPath], {
     cwd: repoRoot,
-    encoding: 'utf8'
+    encoding: 'utf8',
+    maxBuffer: 50 * 1024 * 1024
   });
 
   if (res.status !== 0) {

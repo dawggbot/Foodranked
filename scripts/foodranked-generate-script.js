@@ -140,26 +140,32 @@ function strongestMetricLine(result, sectionKey) {
     const omega3 = metrics.find(metric => metric.metricKey === 'omega3_mg' && (metric.value || 0) > 0 && metric.weightedScore > 0);
     const saturatedFat = metrics.find(metric => metric.metricKey === 'saturated_fat_g' && metric.weightedScore < 0);
     const cholesterol = metrics.find(metric => metric.metricKey === 'cholesterol_mg' && metric.weightedScore < 0);
+    const polyunsaturatedFat = metrics.find(metric => metric.metricKey === 'polyunsaturated_fat_g' && metric.weightedScore > 0);
     if (omega3) return result.food.foodType === 'meats'
-      ? 'this is the kind of fat profile you actually want from a meat'
-      : 'the fat quality is doing a lot of the work here';
+      ? 'omega 3 is exactly the kind of fat support you want from a meat'
+      : 'omega 3 is doing a lot of the work here';
     if (saturatedFat) return 'saturated fat is a major pressure point';
     if (cholesterol) return 'cholesterol adds to the tradeoff';
+    if (polyunsaturatedFat) return 'polyunsaturated fat is one of the better parts of the profile';
   }
 
   if (sectionKey === 'carbs') {
     const fibre = metrics.find(metric => metric.metricKey === 'fibre_g' && (metric.value || 0) > 0 && metric.weightedScore > 0);
     const glycemicIndex = metrics.find(metric => metric.metricKey === 'glycemic_index' && metric.weightedScore < 0);
     const sugar = metrics.find(metric => metric.metricKey === 'sugar_g' && (metric.value || 0) > 0 && metric.weightedScore < 0);
-    if (fibre) return 'the fibre support is doing a lot of the work';
-    if (glycemicIndex) return 'the carb side gets messy pretty quickly';
+    const starch = metrics.find(metric => metric.metricKey === 'starch_g' && (metric.value || 0) > 0);
+    if (fibre) return 'fibre is doing a lot of the work here';
+    if (glycemicIndex) return 'glycemic index is where this starts to get messy';
     if (sugar) return 'the sugar load matters more than you would want';
+    if (starch) return 'starch is doing most of the heavy lifting here';
   }
 
   if (sectionKey === 'proteins') {
     const bioavailability = metrics.find(metric => metric.metricKey === 'bioavailability_percent' && metric.weightedScore > 0);
     const essentialAmino = metrics.find(metric => metric.metricKey === 'essential_amino_acids_score' && metric.weightedScore > 0);
-    if (bioavailability || essentialAmino) return 'protein quality is a real strength here';
+    if (bioavailability && essentialAmino) return 'bioavailability and amino acid quality are both strong';
+    if (bioavailability) return 'bioavailability is one of the best parts of the protein story';
+    if (essentialAmino) return 'essential amino acid support is one of the better parts here';
   }
 
   const names = metrics.map(m => formatMetricKey(m.metricKey));

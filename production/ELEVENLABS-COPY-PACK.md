@@ -7,7 +7,9 @@ Use this pack for the first launch-five narration exports.
 - tone: clear, confident, fair
 - energy: slightly punchy, not overhyped
 - pause style: brief pause between sections, no long dramatic silences
-- final line: `X tier.` should feel like a hard stop
+- final line: `X TIER!` should feel like a hard stop
+- use the narration block format from `production/NARRATION-OPS.md`
+- speak out abbreviations like `daily value` instead of `DV`
 
 ## Export naming
 Save files as:

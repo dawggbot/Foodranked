@@ -317,8 +317,8 @@ function mergeContextItem(item) {
 function buildProsConsSection(result, side) {
   const items = side === 'pros' ? (result.contextItems?.pros || []) : (result.contextItems?.cons || []);
   const openers = side === 'pros'
-    ? ['pros first', 'on the plus side', 'the upsides first']
-    : ['now the downsides', 'the drawbacks next', 'on the weaker side'];
+    ? ['pros first:', 'on the plus side:', 'the upsides first:']
+    : ['now the downsides:', 'the drawbacks next:', 'on the weaker side:'];
   const intro = pick(openers, side === 'pros' ? 'pros first' : 'now the downsides', `${result.food.id}:${side}:intro`);
   const lines = [intro, ...items.map(mergeContextItem).filter(Boolean)];
   return lines.join('. ') + '.';
@@ -473,3 +473,4 @@ function main() {
 }
 
 main();
+);

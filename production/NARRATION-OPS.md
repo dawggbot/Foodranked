@@ -8,6 +8,20 @@ For voice generation, use:
 
 Do not use older generated script text if it disagrees with the voice file.
 
+## Narration text format
+Use this exact structure when a script is being prepared for narration tooling:
+- food name on its own line in caps with `!`
+- then `-`
+- then `RANKED!`
+- then `-`
+- then one spoken block per section
+- each block separated by a line containing only `-`
+- final line should be the tier in caps like `D TIER!`
+
+For spoken nutrition abbreviations:
+- say `daily value`, not `DV`
+- prefer fully spoken wording when abbreviations could confuse viewers
+
 ## Launch 5 queue
 1. bacon
 2. rice-cakes

@@ -140,31 +140,32 @@ function strongestMetricLine(result, sectionKey) {
     const omega3 = metrics.find(metric => metric.metricKey === 'omega3_mg' && (metric.value || 0) > 0 && metric.weightedScore > 0);
     const saturatedFat = metrics.find(metric => metric.metricKey === 'saturated_fat_g' && metric.weightedScore < 0);
     const cholesterol = metrics.find(metric => metric.metricKey === 'cholesterol_mg' && metric.weightedScore < 0);
-    if (omega3) return 'omega 3 is doing serious work here';
-    if (saturatedFat) return 'saturated fat is one of the main pressure points';
-    if (cholesterol) return 'cholesterol is also part of the tradeoff';
+    if (omega3) return result.food.foodType === 'meats'
+      ? 'this is the kind of fat profile you actually want from a meat'
+      : 'the fat quality is doing a lot of the work here';
+    if (saturatedFat) return 'saturated fat is a major pressure point';
+    if (cholesterol) return 'cholesterol adds to the tradeoff';
   }
 
   if (sectionKey === 'carbs') {
     const fibre = metrics.find(metric => metric.metricKey === 'fibre_g' && (metric.value || 0) > 0 && metric.weightedScore > 0);
     const glycemicIndex = metrics.find(metric => metric.metricKey === 'glycemic_index' && metric.weightedScore < 0);
     const sugar = metrics.find(metric => metric.metricKey === 'sugar_g' && (metric.value || 0) > 0 && metric.weightedScore < 0);
-    if (fibre) return 'the fibre support does a lot of the heavy lifting';
-    if (glycemicIndex) return 'glycemic impact is a big part of the story';
+    if (fibre) return 'the fibre support is doing a lot of the work';
+    if (glycemicIndex) return 'the carb side gets messy pretty quickly';
     if (sugar) return 'the sugar load matters more than you would want';
   }
 
   if (sectionKey === 'proteins') {
     const bioavailability = metrics.find(metric => metric.metricKey === 'bioavailability_percent' && metric.weightedScore > 0);
     const essentialAmino = metrics.find(metric => metric.metricKey === 'essential_amino_acids_score' && metric.weightedScore > 0);
-    if (bioavailability) return 'protein quality is clearly one of the selling points';
-    if (essentialAmino) return 'the amino acid profile is carrying real weight';
+    if (bioavailability || essentialAmino) return 'protein quality is a real strength here';
   }
 
   const names = metrics.map(m => formatMetricKey(m.metricKey));
-  if (!isPositive) return `${names[0]} is where the section starts to wobble`;
-  if (names.length === 1) return `${names[0]} is the big one`;
-  if (names.length === 2) return `${names[0]} and ${names[1]} stand out most`;
+  if (!isPositive) return `${names[0]} is where things start to fall off`;
+  if (names.length === 1) return `${names[0]} is doing most of the work`;
+  if (names.length === 2) return `${names[0]} and ${names[1]} matter most here`;
   return `${names[0]}, ${names[1]}, and ${names[2]} are doing most of the work`;
 }
 
@@ -183,36 +184,37 @@ function buildMacroSection(result, key) {
 
   const categoryLines = {
     meats: {
-      fats: 'for meats, fat quality is one of the biggest separators once protein is already solid',
-      carbs: 'for meats, carbs are barely the point, so the rest has to justify the food',
-      proteins: 'for meats, strong protein is expected, so the side factors decide how high it climbs'
+      fats: 'for meats, fat quality matters a lot once the protein is already there',
+      carbs: 'in this category, carbs barely matter',
+      proteins: 'strong protein is expected here, so the rest of the profile decides how high it climbs'
     },
     grains: {
-      carbs: 'for grains, the real question is whether those carbs come with enough fibre and stability',
-      proteins: 'protein helps, but grains still need the carb side to stay under control'
+      fats: 'fat is basically not the story here',
+      carbs: 'for grains, the carb quality matters much more than the raw number',
+      proteins: 'protein helps, but not enough if the carb side is weak'
     },
     fruits: {
-      carbs: 'for fruit, the tradeoff is sweetness versus fibre, satiety, and overall payoff'
+      carbs: 'for fruit, the real question is whether the sweetness stays under control'
     },
     vegetables: {
-      carbs: 'for vegetables, low downside is useful, but there still needs to be enough nutritional return',
+      carbs: 'for vegetables, low downside is useful, but there still needs to be real payoff',
       proteins: 'protein is not the main pitch here, but extra support still matters'
     },
     legumes: {
-      carbs: 'for legumes, the carb story matters less when fibre and protein are both backing it up',
-      proteins: 'legumes need protein support to feel worth the carbs'
+      carbs: 'for legumes, the carbs look much better when fibre and protein are both backing them up',
+      proteins: 'protein support is a big part of what makes legumes worth it'
     },
     dairy: {
-      fats: 'for dairy, the fat side can either add richness or drag the whole profile down',
-      proteins: 'for dairy, useful protein can rescue a lot of weaker traits'
+      fats: 'for dairy, the fat side can either add richness or drag the whole thing down',
+      proteins: 'useful protein can rescue a lot of weaker traits here'
     },
     'oils-and-fats': {
-      fats: 'for fats, quality matters far more than quantity here',
-      carbs: 'carbs are almost irrelevant in this category',
-      proteins: 'protein is barely part of the case in this category'
+      fats: 'for this category, the real question is fat quality',
+      carbs: 'not relevant here',
+      proteins: 'also not relevant here'
     },
     nuts: {
-      fats: 'for nuts, fat quality is supposed to be the main advantage',
+      fats: 'for nuts, fat quality has to justify the calorie density',
       proteins: 'protein is support here, not the whole argument'
     },
     seeds: {
@@ -224,7 +226,7 @@ function buildMacroSection(result, key) {
       proteins: 'protein is usually limited here, so the other sections have to carry more'
     },
     misc: {
-      carbs: 'the real story here is context rather than nutrition depth'
+      carbs: 'and that is basically the whole nutrition story'
     }
   };
 
@@ -237,14 +239,18 @@ function buildMicrosSection(result, sectionKey) {
   if (!top.length) return `${pick(corePhrases.lackluster, 'everything else is lackluster', `${result.food.id}:${sectionKey}:micro-lackluster`)}.`;
 
   if (result.food.foodType === 'misc') {
-    return sectionKey === 'vitamins' ? 'No real vitamin story here.' : 'No real mineral story here.';
+    return sectionKey === 'vitamins' ? 'no real vitamin story here.' : 'no real mineral story here.';
+  }
+
+  const score = result.sectionScores?.[sectionKey] || 0;
+  if (sectionKey === 'minerals' && score <= 5) {
+    return 'minerals are basically not part of the case here.';
   }
 
   const names = top.map(m => metricDisplayText(m)).join(', ');
-  const score = result.sectionScores?.[sectionKey] || 0;
   const context = sectionKey === 'vitamins'
-    ? (score >= 50 ? 'that gives this food real vitamin support' : score >= 20 ? 'that helps, but vitamins still are not the main selling point' : 'that is not enough to move the verdict very far on its own')
-    : (score >= 50 ? 'that gives this food real mineral support' : score >= 20 ? 'that is useful, but still not a huge mineral edge' : 'that stays fairly limited overall');
+    ? (score >= 60 ? 'that is major vitamin support' : score >= 35 ? 'that gives this food real vitamin support' : score >= 15 ? 'that is only mild support overall' : 'that is barely moving the needle')
+    : (score >= 60 ? 'that is major mineral support' : score >= 35 ? 'that gives this food real mineral support' : score >= 15 ? 'useful, but still not a major mineral edge' : 'useful, but still pretty limited');
 
   return joinShort([`${names} stand out most`, context]);
 }
@@ -350,27 +356,43 @@ function buildClosing(result) {
   const tier = result.tier;
   const pros = (result.contextItems?.pros || []).map(item => trimSentence(item.title)).filter(Boolean);
   const cons = (result.contextItems?.cons || []).map(item => trimSentence(item.title)).filter(Boolean);
-  const strongestPros = pros.slice(0, 2).join(' and ');
-  const strongestCons = cons.slice(0, 2).join(' and ');
+  const proText = pros.slice(0, 2).join(' and ');
+  const conText = cons.slice(0, 2).join(' and ');
+  const useCase = lowerFirst(bestUsesLine(result));
 
-  const summary = [
-    strongestPros ? `${subject} stands out for ${strongestPros}` : `${subject} has some clear strengths`,
-    strongestCons ? `but it also gets held back by ${strongestCons}` : 'and the downsides stay fairly contained',
-    bestUsesLine(result)
-  ].join('. ') + '.';
+  let summary;
+  if (tier === 'S' || tier === 'A') {
+    summary = [
+      proText ? `${subject} has a genuinely strong overall case, especially ${proText}` : `${subject} has a genuinely strong overall case`,
+      conText ? `the downsides are there, but ${conText} do not outweigh the upside` : 'the downsides stay pretty contained',
+      useCase
+    ].join('. ') + '.';
+  } else if (tier === 'D' || tier === 'C') {
+    summary = [
+      proText ? `${proText} help ${lowerFirst(subject)}` : `${subject} has a few things going for it`,
+      conText ? `but ${conText} drag it down hard` : 'but the overall case stays weak',
+      useCase
+    ].join('. ') + '.';
+  } else {
+    summary = [
+      proText ? `${subject} does have some solid upside, especially ${proText}` : `${subject} does have some solid upside`,
+      conText ? `but ${conText} keep it from climbing higher` : 'and the downsides keep it fairly balanced',
+      useCase
+    ].join('. ') + '.';
+  }
 
   return {
     summary,
-    finalReveal: `${subject} is ${tier} tier.`,
+    finalReveal: `${tier} tier.`,
     useCaseNote: bestUsesLine(result) + '.',
     cta: 'Would you rank it the same, or nah?'
   };
 }
 
 function sectionNarration(result, sectionKey) {
-  if (result.food.foodType === 'misc' && sectionKey === 'fats') return 'Simple one.';
-  if (result.food.foodType === 'misc' && sectionKey === 'carbs') return joinShort([macroLine(result, sectionKey), 'but the real story is the context, not the nutrition profile']);
-  if (result.food.foodType === 'misc' && sectionKey === 'proteins') return 'No real nutrition story here.';
+  if (result.food.foodType === 'misc' && sectionKey === 'fats') return 'simple one.';
+  if (result.food.foodType === 'misc' && sectionKey === 'carbs') return joinShort([macroLine(result, sectionKey), 'and that is basically the whole nutrition story']);
+  if (result.food.foodType === 'misc' && sectionKey === 'proteins') return 'no real protein story here.';
 
   if (['fats', 'carbs', 'proteins'].includes(sectionKey)) return buildMacroSection(result, sectionKey);
   if (sectionKey === 'vitamins') return buildMicrosSection(result, 'vitamins');

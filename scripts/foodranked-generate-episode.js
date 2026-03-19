@@ -42,29 +42,27 @@ function runJsonScript(scriptPath, args) {
   return JSON.parse(res.stdout);
 }
 
-function sentenceParts(script) {
+function sentenceParts(script, options = {}) {
   return [
     script.hook,
     script.intro,
     ...script.sections.map(section => section.narration),
     script.closing.summary,
-    script.closing.finalReveal,
-    script.closing.useCaseNote,
-    script.closing.cta
+    options.includeCta ? script.closing.cta : null,
+    script.closing.finalReveal
   ].filter(Boolean);
 }
 
 function buildNarrationText(script, options = {}) {
   const compact = options.mode === 'compact';
-  if (!compact) return sentenceParts(script).join('\n\n');
+  if (!compact) return sentenceParts(script, options).join('\n\n');
 
   const parts = [
     script.hook,
     ...script.sections.map(section => compactSectionNarration(section, options)),
     script.closing.summary,
-    script.closing.finalReveal,
-    script.closing.useCaseNote,
-    options.includeCta ? script.closing.cta : null
+    options.includeCta ? script.closing.cta : null,
+    script.closing.finalReveal
   ].filter(Boolean);
 
   return parts.join('\n\n');
@@ -138,7 +136,7 @@ function buildScenePlan(script, score, template, options = {}) {
     cursor += duration;
   }
 
-  const closingText = [script.closing.summary, script.closing.finalReveal, script.closing.useCaseNote, options.includeCta ? script.closing.cta : null]
+  const closingText = [script.closing.summary, options.includeCta ? script.closing.cta : null, script.closing.finalReveal]
     .filter(Boolean)
     .join(' ');
   const closingDuration = estimateDurationSeconds(closingText, compact ? 182 : 170, compact ? 2.2 : 2.6);

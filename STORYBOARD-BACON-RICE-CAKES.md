@@ -241,7 +241,7 @@ Keep lines short and centered.
 59.04–76.29
 
 ### Narration
-`biggest cons. sodium is a major drawback because a central practical health issue for bacon. processing is a major negative because a key downside now that more processed foods are in scope. fat profile is rough for the category because hard to justify against stronger meats.`
+`biggest cons. sodium is a major drawback because a central practical health issue for bacon. processing is a major negative because a key downside now that more processed foods are in scope. rarely improves a meal much on its own because usually works more as a flavour add-on than a genuinely strong meat choice.`
 
 ### Visual
 - title chip: `CONS`

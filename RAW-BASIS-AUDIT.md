@@ -18,6 +18,7 @@ These file names strongly suggest prepared-state or format-specific entries:
 ## Likely treatment
 - keep as-is **only if** the prepared / mixed / processed format is the real episode subject
 - otherwise replace with a raw-base version and treat preparation as context, not the main nutrient basis
+- see `RAW-BASIS-DECISIONS.md` for the current keep / convert calls
 
 ## Notes
 - some foods like fries, baked beans, roasted salted seeds, and drinks may reasonably stay prepared-format because the prepared format is the actual thing viewers are judging

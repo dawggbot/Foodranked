@@ -36,11 +36,9 @@ These should not be the default basis if the goal is to rank the base food.
 These are probably fine to keep conceptually, but should be clearer in the dataset.
 
 ### Rename / clarify
-- `foods/soy-milk-unsweetened-powder-basis.sample.json`
-  - Better options:
-    - `soy-milk-unsweetened.sample.json`
-    - `soy-milk-unsweetened-reconstituted.sample.json`
-  - **Reason:** current naming sounds like a technical placeholder, not a clean episode subject.
+- soy milk cleanup complete:
+  - `foods/soy-milk-unsweetened.sample.json`
+  - **Reason:** cleaner product-style naming that matches how people actually think about the food.
 
 ## Notes
 - The real mistake is not having prepared-food entries.
@@ -53,4 +51,7 @@ These are probably fine to keep conceptually, but should be clearer in the datas
 1. create a raw cassava default entry
 2. rename or replace the soy milk powder-basis entry
 3. leave the other flagged files as prepared/product-specific episodes
+4. continue auditing future files with the same rule
+ with the same rule
+odes
 4. continue auditing future files with the same rule

@@ -46,6 +46,7 @@ These are probably fine to keep conceptually, but should be clearer in the datas
 - So the safest approach is:
   - base ingredient -> raw values
   - prepared product / snack / dish -> prepared values
+- `foods/bacon.sample.json` has been switched back to a raw-bacon basis so the published numbers reflect what people actually buy and what package labels usually show, rather than cooked concentration.
 
 ## Recommended next actions
 1. create a raw cassava default entry

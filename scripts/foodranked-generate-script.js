@@ -79,20 +79,23 @@ function formatMetricKey(metricKey) {
     .replace(/\bdv\b/i, 'daily value');
 }
 
-function metricDisplayText(metric) {
-  if (metric.scoringMode === 'dv_points') return `${formatMetricKey(metric.metricKey)} at ${metric.dvPercent}% DV`;
+function metricDisplayText(metric, options = {}) {
+  const speakDailyValue = options.speakDailyValue !== false;
+  if (metric.scoringMode === 'dv_points') {
+    return `${formatMetricKey(metric.metricKey)} at ${metric.dvPercent}% ${speakDailyValue ? 'daily value' : 'DV'}`;
+  }
   if (metric.band) return `${formatMetricKey(metric.metricKey)} at ${metric.value}`;
   return formatMetricKey(metric.metricKey);
 }
 
-function topMetricsForSection(result, sectionKey, limit = 3) {
+function topMetricsForSection(result, sectionKey, limit = 3, options = {}) {
   return (result.metricBreakdown || [])
     .filter(item => item.sectionKey === sectionKey)
     .sort((a, b) => Math.abs(b.weightedScore) - Math.abs(a.weightedScore))
     .slice(0, limit)
     .map(metric => ({
       metricKey: metric.metricKey,
-      text: metricDisplayText(metric),
+      text: metricDisplayText(metric, options),
       weightedScore: metric.weightedScore,
       scoringMode: metric.scoringMode,
       band: metric.band || null,
@@ -116,12 +119,20 @@ function macroLine(result, key) {
   const [headerKey, label] = map[key] || [];
   const value = headerMacro(result, headerKey);
   if (value === null || value === undefined) return null;
-  return `${label} is ${value}g`;
+  return `${value}g of ${label}`;
 }
 
 function joinShort(parts) {
   const valid = parts.filter(Boolean).map(part => String(part).trim()).filter(Boolean);
   return valid.join('. ') + (valid.length ? '.' : '');
+}
+
+function naturalList(items) {
+  const valid = (items || []).filter(Boolean).map(item => String(item).trim()).filter(Boolean);
+  if (!valid.length) return '';
+  if (valid.length === 1) return valid[0];
+  if (valid.length === 2) return `${valid[0]} and ${valid[1]}`;
+  return `${valid.slice(0, -1).join(', ')}, and ${valid[valid.length - 1]}`;
 }
 
 function sectionContextLine(foodType, seed = '') {
@@ -241,7 +252,7 @@ function buildMacroSection(result, key) {
 }
 
 function buildMicrosSection(result, sectionKey) {
-  const top = topMetricsForSection(result, sectionKey, 3);
+  const top = topMetricsForSection(result, sectionKey, 3, { speakDailyValue: true });
   if (!top.length) return `${pick(corePhrases.lackluster, 'everything else is lackluster', `${result.food.id}:${sectionKey}:micro-lackluster`)}.`;
 
   if (result.food.foodType === 'misc') {
@@ -257,8 +268,9 @@ function buildMicrosSection(result, sectionKey) {
   const context = sectionKey === 'vitamins'
     ? (score >= 60 ? 'that is major vitamin support' : score >= 35 ? 'that gives this food real vitamin support' : score >= 15 ? 'that is only mild support overall' : 'that is barely moving the needle')
     : (score >= 60 ? 'that is major mineral support' : score >= 35 ? 'that gives this food real mineral support' : score >= 15 ? 'useful, but still not a major mineral edge' : 'useful, but still pretty limited');
+  const standoutLine = top.length === 1 ? `${names} stands out most` : `${names} stand out most`;
 
-  return joinShort([`${names} stand out most`, context]);
+  return joinShort([standoutLine, context]);
 }
 
 function lowerFirst(s) {
@@ -360,29 +372,25 @@ function bestUsesLine(result) {
 function buildClosing(result) {
   const subject = result.food.name;
   const tier = result.tier;
-  const pros = (result.contextItems?.pros || []).map(item => trimSentence(item.title)).filter(Boolean);
-  const cons = (result.contextItems?.cons || []).map(item => trimSentence(item.title)).filter(Boolean);
-  const proText = pros.slice(0, 2).join(' and ');
-  const conText = cons.slice(0, 2).join(' and ');
   const useCase = lowerFirst(bestUsesLine(result));
 
   let summary;
   if (tier === 'S' || tier === 'A') {
     summary = [
-      proText ? `${subject} has a genuinely strong overall case, especially ${proText}` : `${subject} has a genuinely strong overall case`,
-      conText ? `the downsides are there, but ${conText} do not outweigh the upside` : 'the downsides stay pretty contained',
+      `${subject} has a genuinely strong overall case`,
+      'the practical downsides are real, but they do not outweigh the upside',
       useCase
     ].join('. ') + '.';
   } else if (tier === 'D' || tier === 'C') {
     summary = [
-      proText ? `${proText} help ${lowerFirst(subject)}` : `${subject} has a few things going for it`,
-      conText ? `but ${conText} drag it down hard` : 'but the overall case stays weak',
+      `${subject} does have a few real-world upsides`,
+      'but the nutrition case is still weak and the downsides drag it down hard',
       useCase
     ].join('. ') + '.';
   } else {
     summary = [
-      proText ? `${subject} does have some solid upside, especially ${proText}` : `${subject} does have some solid upside`,
-      conText ? `but ${conText} keep it from climbing higher` : 'and the downsides keep it fairly balanced',
+      `${subject} does have some solid upside`,
+      'but the tradeoffs keep it from climbing higher',
       useCase
     ].join('. ') + '.';
   }

@@ -319,9 +319,9 @@ function buildProsConsSection(result, side) {
   const openers = side === 'pros'
     ? ['pros first:', 'on the plus side:', 'the upsides first:']
     : ['now the downsides:', 'the drawbacks next:', 'on the weaker side:'];
-  const intro = pick(openers, side === 'pros' ? 'pros first' : 'now the downsides', `${result.food.id}:${side}:intro`);
-  const lines = [intro, ...items.map(mergeContextItem).filter(Boolean)];
-  return lines.join('. ') + '.';
+  const intro = pick(openers, side === 'pros' ? 'pros first:' : 'now the downsides:', `${result.food.id}:${side}:intro`);
+  const body = items.map(mergeContextItem).filter(Boolean).join('. ');
+  return body ? `${intro} ${body}.` : intro;
 }
 
 function bestUsesLine(result) {
@@ -473,4 +473,3 @@ function main() {
 }
 
 main();
-);

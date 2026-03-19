@@ -33,6 +33,9 @@ Build a repeatable system that can:
 
 ### Basis
 - all food values judged per 100g
+- default to **raw** values for base foods whenever that is reasonably available
+- only use cooked / prepared / processed values when that prepared state is the actual food being ranked
+- do not let pros/cons repeat the macro, submacro, vitamin, or mineral case already shown on screen unless they add extra context such as absorbability, fermentation, antioxidants, processing burden, sourcing, tolerance, or another genuinely separate factor
 
 ### Video identity
 - short-form vertical videos

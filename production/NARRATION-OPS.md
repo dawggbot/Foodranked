@@ -54,3 +54,14 @@ Before accepting a take:
 
 ## If a line sounds off in voice
 Prefer fixing the script in `final-narration.txt`, then regenerate/re-record, instead of keeping hidden ad-lib differences.
+
+## Pros and cons rule
+Do not use pros/cons to repeat what the fats, carbs, proteins, vitamins, or minerals sections already said.
+Use pros/cons for extra information instead, such as:
+- antioxidants or polyphenols
+- fermentation or probiotic angle
+- absorbability or anti-nutrients
+- processing burden
+- sourcing / authenticity / contamination risk
+- tolerance / digestion / practicality
+- satiety / meal role / convenience

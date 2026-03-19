@@ -40,7 +40,7 @@ Build a repeatable system that can:
 ### Video identity
 - short-form vertical videos
 - cozy / cheery pixel / 8-bit music
-- pixel-art food imagery and animated sprites
+- pixel-art food imagery and animated sprites shown at crisp integer scaling
 - visual feel like a pixel RPG stat sheet or Pokédex entry
 
 ### Opening
@@ -70,6 +70,10 @@ Each video uses 7 sections:
 Additional format rules:
 - 7 progress dots indicate current section
 - information is revealed in sync with narration
+- macro scenes use the macro sprite plus a bar for the main macro only
+- submacros use arrow indicators only, with repeated arrow sprites for 1/2/3 strength bands
+- vitamins use their own sprite treatment while vitamins and minerals keep full-height DV bars
+- pros and cons are bullet points with major or minor labels
 - final screen stamps in the tier result
 
 ### Tier colours

@@ -7,6 +7,11 @@ GitHub Pages serves the dashboard from `docs/app/`, so preview assets used by th
 - `docs/app/assets/macro-protein-arm.gif`
 - `docs/app/assets/macro-carbs-lightning.gif`
 - `docs/app/assets/macro-fats-shield.gif`
+- `docs/app/assets/vitamin-sprite.svg`
+- `docs/app/assets/arrow-up-green.svg`
+- `docs/app/assets/arrow-down-green.svg`
+- `docs/app/assets/arrow-up-red.svg`
+- `docs/app/assets/arrow-down-red.svg`
 
 ## Rule of thumb
 

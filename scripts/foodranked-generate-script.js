@@ -330,7 +330,7 @@ function mergeContextItem(item) {
   const explanation = condenseExplanation(item.explanation || '');
   if (!title) return explanation;
   if (!explanation) return title;
-  return `${title} because ${explanation}`;
+  return `${title}. ${explanation}`;
 }
 
 function buildProsConsSection(result, side) {

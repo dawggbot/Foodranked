@@ -53,19 +53,31 @@ function sentenceParts(script, options = {}) {
   ].filter(Boolean);
 }
 
+function capitalizeSentenceStarts(text) {
+  const input = String(text || '').trim();
+  if (!input) return '';
+  return input
+    .replace(/(^|[.!?]\s+)([a-z])/g, (_, prefix, char) => `${prefix}${char.toUpperCase()}`)
+    .replace(/^([a-z])/, (_, char) => char.toUpperCase());
+}
+
+function narrationHookParts(script) {
+  return [`${script.food.name}!`, 'ranked!'];
+}
+
 function buildNarrationText(script, options = {}) {
   const compact = options.mode === 'compact';
-  if (!compact) return sentenceParts(script, options).join('\n\n');
+  if (!compact) return sentenceParts(script, options).map(capitalizeSentenceStarts).join('\n\n');
 
   const parts = [
-    script.hook,
+    ...narrationHookParts(script),
     ...script.sections.map(section => compactSectionNarration(section, options)),
     script.closing.summary,
     options.includeCta ? script.closing.cta : null,
     script.closing.finalReveal
-  ].filter(Boolean);
+  ].filter(Boolean).map(capitalizeSentenceStarts);
 
-  return parts.join('\n\n');
+  return parts.join('\n\n-\n\n');
 }
 
 function estimateDurationSeconds(text, wordsPerMinute = 165, floorSeconds = 1.4) {

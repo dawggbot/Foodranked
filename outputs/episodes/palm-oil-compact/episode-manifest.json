@@ -1,6 +1,6 @@
 {
   "id": "palm-oil-episode-v1",
-  "generatedAt": "2026-03-19T15:02:51.325Z",
+  "generatedAt": "2026-03-19T22:20:11.604Z",
   "status": "draft",
   "mode": "compact",
   "food": {
@@ -28,49 +28,53 @@
     "subtitlesJson": "subtitles.json"
   },
   "scoreSnapshot": {
-    "overallScore": 37,
+    "overallScore": 36,
     "tier": "B",
-    "baseScore": 37,
-    "contextAdjustment": 0,
+    "baseScore": 33,
+    "contextAdjustment": 3,
     "sectionScores": {
-      "fats": 47.6,
+      "fats": 41.7,
       "carbs": null,
       "proteins": null,
-      "vitamins": 4,
-      "minerals": 0,
-      "pros": 0,
-      "cons": 0
+      "vitamins": 10,
+      "minerals": null,
+      "pros": 33.3,
+      "cons": 33.3
     },
     "explanation": {
-      "summary": "Fats are carrying this food most, while minerals are the biggest drag. It lands in B tier.",
-      "whyThisTier": "This food lands in B tier with an overall score of 37 from a base nutrition score of 37. Context barely changed the result.",
+      "summary": "Fats are carrying this food most, while vitamins are the biggest drag. It lands in B tier.",
+      "whyThisTier": "This food lands in B tier with an overall score of 36 from a base nutrition score of 33. Context lifted it by 3 points.",
       "strongestSection": {
         "key": "fats",
         "label": "Fats",
-        "score": 47.6
+        "score": 41.7
       },
-      "weakestSection": null,
+      "weakestSection": {
+        "key": "vitamins",
+        "label": "Vitamins",
+        "score": 10
+      },
       "topPros": [
         {
           "title": "highly useful in cooking",
           "explanation": "Practical culinary value matters here.",
           "impactLevel": "minor",
           "side": "pro",
-          "resolvedScoreValue": 0
+          "resolvedScoreValue": 1
         },
         {
           "title": "efficient energy source",
           "explanation": "That can be a strength in the right context.",
           "impactLevel": "minor",
           "side": "pro",
-          "resolvedScoreValue": 0
+          "resolvedScoreValue": 1
         },
         {
           "title": "helps meals actually work",
           "explanation": "A fat that people can use well matters more than a theoretical one.",
           "impactLevel": "minor",
           "side": "pro",
-          "resolvedScoreValue": 0
+          "resolvedScoreValue": 1
         }
       ],
       "topCons": [
@@ -98,6 +102,8 @@
       ],
       "narrationNotes": [
         "Strongest section: Fats.",
+        "Weakest section: Vitamins.",
+        "Context improved the final tier case by 3 points.",
         "Final verdict: B tier."
       ]
     }
@@ -137,7 +143,7 @@
   "nextHumanStep": "Review the generated narration + manifest, then use the manifest as the handoff into visual assembly / editing.",
   "scenePlan": {
     "mode": "compact",
-    "totalEstimatedDurationSeconds": 71.63,
+    "totalEstimatedDurationSeconds": 66.33,
     "scenes": [
       {
         "id": "hook",
@@ -171,7 +177,7 @@
         "visualBinding": {
           "sectionKey": "fats",
           "title": "Fats",
-          "score": 47.6,
+          "score": 41.7,
           "templateSlots": [
             "macro_headline",
             "submetric_1",
@@ -180,15 +186,6 @@
           ],
           "displayItems": [
             {
-              "metricKey": "cholesterol_mg",
-              "text": "cholesterol at 0",
-              "weightedScore": 15,
-              "scoringMode": "arrow_bands",
-              "band": "↓↓↓",
-              "dvPercent": null,
-              "value": 0
-            },
-            {
               "metricKey": "saturated_fat_g",
               "text": "saturated fat at 49",
               "weightedScore": -14,
@@ -196,6 +193,15 @@
               "band": "↑↑",
               "dvPercent": null,
               "value": 49
+            },
+            {
+              "metricKey": "cholesterol_mg",
+              "text": "cholesterol at 0",
+              "weightedScore": 10,
+              "scoringMode": "arrow_bands",
+              "band": "↓↓",
+              "dvPercent": null,
+              "value": 0
             },
             {
               "metricKey": "omega3_mg",
@@ -285,14 +291,14 @@
         "id": "vitamins",
         "kind": "section",
         "startSeconds": 17.28,
-        "durationSeconds": 9.53,
-        "endSeconds": 26.81,
-        "narrationText": "vitamin e at 19% daily value, vitamin k at 8% daily value, vitamin a at 0% daily value stand out most. that is barely moving the needle.",
-        "subtitleText": "vitamin e at 19% daily value, vitamin k at 8% daily value, vitamin a at 0% daily value stand out most. that is barely moving the needle.",
+        "durationSeconds": 5.29,
+        "endSeconds": 22.57,
+        "narrationText": "vitamin e at 19% daily value stands out most. that is barely moving the needle.",
+        "subtitleText": "vitamin e at 19% daily value stands out most. that is barely moving the needle.",
         "visualBinding": {
           "sectionKey": "vitamins",
           "title": "Vitamins",
-          "score": 4,
+          "score": 10,
           "templateSlots": [
             "micronutrient_1",
             "micronutrient_2"
@@ -306,24 +312,6 @@
               "band": null,
               "dvPercent": 19,
               "value": null
-            },
-            {
-              "metricKey": "vitamin_k_dv",
-              "text": "vitamin k at 8% daily value",
-              "weightedScore": 0,
-              "scoringMode": "dv_points",
-              "band": null,
-              "dvPercent": 8,
-              "value": null
-            },
-            {
-              "metricKey": "vitamin_a_dv",
-              "text": "vitamin a at 0% daily value",
-              "weightedScore": 0,
-              "scoringMode": "dv_points",
-              "band": null,
-              "dvPercent": 0,
-              "value": null
             }
           ],
           "timingHint": "short-medium"
@@ -336,48 +324,20 @@
       {
         "id": "minerals",
         "kind": "section",
-        "startSeconds": 26.81,
-        "durationSeconds": 3.18,
-        "endSeconds": 29.99,
-        "narrationText": "minerals are basically not part of the case here.",
-        "subtitleText": "minerals are basically not part of the case here.",
+        "startSeconds": 22.57,
+        "durationSeconds": 2.12,
+        "endSeconds": 24.69,
+        "narrationText": "the rest is not doing much.",
+        "subtitleText": "the rest is not doing much.",
         "visualBinding": {
           "sectionKey": "minerals",
           "title": "Minerals",
-          "score": 0,
+          "score": null,
           "templateSlots": [
             "micronutrient_1",
             "micronutrient_2"
           ],
-          "displayItems": [
-            {
-              "metricKey": "iron_dv",
-              "text": "iron at 0% daily value",
-              "weightedScore": 0,
-              "scoringMode": "dv_points",
-              "band": null,
-              "dvPercent": 0,
-              "value": null
-            },
-            {
-              "metricKey": "magnesium_dv",
-              "text": "magnesium at 0% daily value",
-              "weightedScore": 0,
-              "scoringMode": "dv_points",
-              "band": null,
-              "dvPercent": 0,
-              "value": null
-            },
-            {
-              "metricKey": "calcium_dv",
-              "text": "calcium at 0% daily value",
-              "weightedScore": 0,
-              "scoringMode": "dv_points",
-              "band": null,
-              "dvPercent": 0,
-              "value": null
-            }
-          ],
+          "displayItems": [],
           "timingHint": "short-medium"
         },
         "revealPlan": [
@@ -388,15 +348,15 @@
       {
         "id": "pros",
         "kind": "section",
-        "startSeconds": 29.99,
+        "startSeconds": 24.69,
         "durationSeconds": 15.18,
-        "endSeconds": 45.17,
+        "endSeconds": 39.87,
         "narrationText": "pros first: highly useful in cooking because practical culinary value matters here. efficient energy source because that can be a strength in the right context. helps meals actually work because a fat that people can use well matters more than a theoretical one.",
         "subtitleText": "pros first: highly useful in cooking because practical culinary value matters here. efficient energy source because that can be a strength in the right context. helps meals actually work because a fat that people can use well matters more than a theoretical one.",
         "visualBinding": {
           "sectionKey": "pros",
           "title": "Pros",
-          "score": 0,
+          "score": 33.3,
           "templateSlots": [
             "bullet_1",
             "bullet_2",
@@ -436,15 +396,15 @@
       {
         "id": "cons",
         "kind": "section",
-        "startSeconds": 45.17,
+        "startSeconds": 39.87,
         "durationSeconds": 16.24,
-        "endSeconds": 61.41,
+        "endSeconds": 56.11,
         "narrationText": "on the weaker side: extremely calorie dense by default because that is the unavoidable category burden. easy to overpour without noticing because practical portion creep is real. not a complete food on its own because even the better fats are still just part of a meal.",
         "subtitleText": "on the weaker side: extremely calorie dense by default because that is the unavoidable category burden. easy to overpour without noticing because practical portion creep is real. not a complete food on its own because even the better fats are still just part of a meal.",
         "visualBinding": {
           "sectionKey": "cons",
           "title": "Cons",
-          "score": 0,
+          "score": 33.3,
           "templateSlots": [
             "bullet_1",
             "bullet_2",
@@ -484,9 +444,9 @@
       {
         "id": "final",
         "kind": "closing",
-        "startSeconds": 61.41,
+        "startSeconds": 56.11,
         "durationSeconds": 10.22,
-        "endSeconds": 71.63,
+        "endSeconds": 66.33,
         "narrationText": "Palm Oil does have some solid upside. but the tradeoffs keep it from climbing higher. best in controlled amounts where fat quality is the main reason to use it. B tier.",
         "subtitleText": "B tier. Best in controlled amounts where fat quality is the main reason to use it.",
         "visualBinding": {

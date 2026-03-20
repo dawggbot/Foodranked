@@ -1,6 +1,6 @@
 {
   "id": "dates-episode-v1",
-  "generatedAt": "2026-03-19T15:02:45.176Z",
+  "generatedAt": "2026-03-19T22:20:05.213Z",
   "status": "draft",
   "mode": "compact",
   "food": {
@@ -28,28 +28,32 @@
     "subtitlesJson": "subtitles.json"
   },
   "scoreSnapshot": {
-    "overallScore": 16,
+    "overallScore": 21,
     "tier": "C",
-    "baseScore": 25,
-    "contextAdjustment": -9,
+    "baseScore": 27,
+    "contextAdjustment": -6,
     "sectionScores": {
-      "fats": 66.7,
-      "carbs": 35.9,
+      "fats": 100,
+      "carbs": 38.9,
       "proteins": 50,
-      "vitamins": 0,
-      "minerals": 7.5,
-      "pros": 0,
-      "cons": 100
+      "vitamins": null,
+      "minerals": 10,
+      "pros": 33.3,
+      "cons": 66.7
     },
     "explanation": {
-      "summary": "Fats are carrying this food most, while vitamins are the biggest drag. It lands in C tier.",
-      "whyThisTier": "This food lands in C tier with an overall score of 16 from a base nutrition score of 25. Context dragged it down by 9 points.",
+      "summary": "Fats are carrying this food most, while minerals are the biggest drag. It lands in C tier.",
+      "whyThisTier": "This food lands in C tier with an overall score of 21 from a base nutrition score of 27. Context dragged it down by 6 points.",
       "strongestSection": {
         "key": "fats",
         "label": "Fats",
-        "score": 66.7
+        "score": 100
       },
-      "weakestSection": null,
+      "weakestSection": {
+        "key": "minerals",
+        "label": "Minerals",
+        "score": 10
+      },
       "topPros": [
         {
           "title": "still brings some useful minerals",
@@ -79,26 +83,27 @@
           "explanation": "Fruit is supposed to moderate sugar with fibre and payoff, and dates push the sugar side extremely hard.",
           "impactLevel": "major",
           "side": "con",
-          "resolvedScoreValue": -3
+          "resolvedScoreValue": -2
         },
         {
           "title": "glycemic behaviour is rough for fruit",
           "explanation": "Much weaker fit than fruits with gentler carb behaviour.",
           "impactLevel": "major",
           "side": "con",
-          "resolvedScoreValue": -3
+          "resolvedScoreValue": -2
         },
         {
           "title": "dried-fruit concentration makes the sugar hit even harsher",
           "explanation": "This is the cleanest reason dates should remain below ordinary whole fruits like grapes.",
           "impactLevel": "major",
           "side": "con",
-          "resolvedScoreValue": -3
+          "resolvedScoreValue": -2
         }
       ],
       "narrationNotes": [
         "Strongest section: Fats.",
-        "Context weakened the final tier case by 9 points.",
+        "Weakest section: Minerals.",
+        "Context weakened the final tier case by 6 points.",
         "Final verdict: C tier."
       ]
     }
@@ -138,7 +143,7 @@
   "nextHumanStep": "Review the generated narration + manifest, then use the manifest as the handoff into visual assembly / editing.",
   "scenePlan": {
     "mode": "compact",
-    "totalEstimatedDurationSeconds": 98.67,
+    "totalEstimatedDurationSeconds": 91.59,
     "scenes": [
       {
         "id": "hook",
@@ -172,7 +177,7 @@
         "visualBinding": {
           "sectionKey": "fats",
           "title": "Fats",
-          "score": 66.7,
+          "score": 100,
           "templateSlots": [
             "macro_headline",
             "submetric_1",
@@ -197,15 +202,6 @@
               "band": "↑↑↑",
               "dvPercent": null,
               "value": 10
-            },
-            {
-              "metricKey": "polyunsaturated_fat_g",
-              "text": "polyunsaturated fat at 0",
-              "weightedScore": -3,
-              "scoringMode": "arrow_bands",
-              "band": "↓↓↓",
-              "dvPercent": null,
-              "value": 0
             }
           ],
           "timingHint": "short-medium"
@@ -228,7 +224,7 @@
         "visualBinding": {
           "sectionKey": "carbs",
           "title": "Carbs",
-          "score": 35.9,
+          "score": 38.9,
           "templateSlots": [
             "macro_headline",
             "submetric_1",
@@ -262,15 +258,6 @@
               "band": "↑",
               "dvPercent": null,
               "value": 62
-            },
-            {
-              "metricKey": "starch_g",
-              "text": "starch at 0",
-              "weightedScore": -3,
-              "scoringMode": "arrow_bands",
-              "band": "↓↓↓",
-              "dvPercent": null,
-              "value": 0
             }
           ],
           "timingHint": "short-medium"
@@ -342,38 +329,19 @@
         "id": "vitamins",
         "kind": "section",
         "startSeconds": 28.57,
-        "durationSeconds": 7.41,
-        "endSeconds": 35.98,
-        "narrationText": "vitamin c at 0% daily value, vitamin a at 3% daily value stand out most. that is barely moving the needle.",
-        "subtitleText": "vitamin c at 0% daily value, vitamin a at 3% daily value stand out most. that is barely moving the needle.",
+        "durationSeconds": 2.1,
+        "endSeconds": 30.67,
+        "narrationText": "the rest is pretty lackluster.",
+        "subtitleText": "the rest is pretty lackluster.",
         "visualBinding": {
           "sectionKey": "vitamins",
           "title": "Vitamins",
-          "score": 0,
+          "score": null,
           "templateSlots": [
             "micronutrient_1",
             "micronutrient_2"
           ],
-          "displayItems": [
-            {
-              "metricKey": "vitamin_c_dv",
-              "text": "vitamin c at 0% daily value",
-              "weightedScore": 0,
-              "scoringMode": "dv_points",
-              "band": null,
-              "dvPercent": 0,
-              "value": null
-            },
-            {
-              "metricKey": "vitamin_a_dv",
-              "text": "vitamin a at 3% daily value",
-              "weightedScore": 0,
-              "scoringMode": "dv_points",
-              "band": null,
-              "dvPercent": 3,
-              "value": null
-            }
-          ],
+          "displayItems": [],
           "timingHint": "short-medium"
         },
         "revealPlan": [
@@ -384,15 +352,15 @@
       {
         "id": "minerals",
         "kind": "section",
-        "startSeconds": 35.98,
-        "durationSeconds": 8.12,
-        "endSeconds": 44.1,
-        "narrationText": "potassium at 15% daily value, magnesium at 11% daily value, iron at 6% daily value stand out most. useful, but still pretty limited.",
-        "subtitleText": "potassium at 15% daily value, magnesium at 11% daily value, iron at 6% daily value stand out most. useful, but still pretty limited.",
+        "startSeconds": 30.67,
+        "durationSeconds": 6.35,
+        "endSeconds": 37.02,
+        "narrationText": "potassium at 15% daily value, magnesium at 11% daily value stand out most. useful, but still pretty limited.",
+        "subtitleText": "potassium at 15% daily value, magnesium at 11% daily value stand out most. useful, but still pretty limited.",
         "visualBinding": {
           "sectionKey": "minerals",
           "title": "Minerals",
-          "score": 7.5,
+          "score": 10,
           "templateSlots": [
             "micronutrient_1",
             "micronutrient_2"
@@ -415,15 +383,6 @@
               "band": null,
               "dvPercent": 11,
               "value": null
-            },
-            {
-              "metricKey": "iron_dv",
-              "text": "iron at 6% daily value",
-              "weightedScore": 0,
-              "scoringMode": "dv_points",
-              "band": null,
-              "dvPercent": 6,
-              "value": null
             }
           ],
           "timingHint": "short-medium"
@@ -436,15 +395,15 @@
       {
         "id": "pros",
         "kind": "section",
-        "startSeconds": 44.1,
+        "startSeconds": 37.02,
         "durationSeconds": 18.35,
-        "endSeconds": 62.45,
+        "endSeconds": 55.37,
         "narrationText": "the upsides first: still brings some useful minerals because not nutritionally empty despite the weak fruit fit. can be useful in high-energy contexts because there are niche cases where the dense sugar load is useful. still a recognisable whole fruit because that matters for fairness even when the category fit is weak.",
         "subtitleText": "the upsides first: still brings some useful minerals because not nutritionally empty despite the weak fruit fit. can be useful in high-energy contexts because there are niche cases where the dense sugar load is useful. still a recognisable whole fruit because that matters for fairness even when the category fit is weak.",
         "visualBinding": {
           "sectionKey": "pros",
           "title": "Pros",
-          "score": 0,
+          "score": 33.3,
           "templateSlots": [
             "bullet_1",
             "bullet_2",
@@ -484,15 +443,15 @@
       {
         "id": "cons",
         "kind": "section",
-        "startSeconds": 62.45,
+        "startSeconds": 55.37,
         "durationSeconds": 24.35,
-        "endSeconds": 86.8,
+        "endSeconds": 79.72,
         "narrationText": "on the weaker side: sugar density is a major category problem because fruit is supposed to moderate sugar with fibre and payoff, and dates push the sugar side extremely hard. glycemic behaviour is rough for fruit because much weaker fit than fruits with gentler carb behaviour. dried-fruit concentration makes the sugar hit even harsher because this is the cleanest reason dates should remain below ordinary whole fruits like grapes.",
         "subtitleText": "on the weaker side: sugar density is a major category problem because fruit is supposed to moderate sugar with fibre and payoff, and dates push the sugar side extremely hard. glycemic behaviour is rough for fruit because much weaker fit than fruits with gentler carb behaviour. dried-fruit concentration makes the sugar hit even harsher because this is the cleanest reason dates should remain below ordinary whole fruits like grapes.",
         "visualBinding": {
           "sectionKey": "cons",
           "title": "Cons",
-          "score": 100,
+          "score": 66.7,
           "templateSlots": [
             "bullet_1",
             "bullet_2",
@@ -532,9 +491,9 @@
       {
         "id": "final",
         "kind": "closing",
-        "startSeconds": 86.8,
+        "startSeconds": 79.72,
         "durationSeconds": 11.87,
-        "endSeconds": 98.67,
+        "endSeconds": 91.59,
         "narrationText": "Dates does have a few real-world upsides. but the nutrition case is still weak and the downsides drag it down hard. best only when the convenience or taste matters more than the nutrition return. C tier.",
         "subtitleText": "C tier. Best only when the convenience or taste matters more than the nutrition return.",
         "visualBinding": {

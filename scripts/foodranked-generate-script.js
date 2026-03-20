@@ -253,7 +253,14 @@ function buildMacroSection(result, key) {
 
 function buildMicrosSection(result, sectionKey) {
   const top = topMetricsForSection(result, sectionKey, 3, { speakDailyValue: true });
-  if (!top.length) return `${pick(corePhrases.lackluster, 'everything else is lackluster', `${result.food.id}:${sectionKey}:micro-lackluster`)}.`;
+  if (!top.length) {
+    if (result.food.foodType === 'misc') {
+      return sectionKey === 'vitamins' ? 'no real vitamin story here.' : 'no real mineral story here.';
+    }
+    return sectionKey === 'vitamins'
+      ? `${pick(corePhrases.lackluster, 'everything else is lackluster', `${result.food.id}:${sectionKey}:micro-lackluster`)}.`
+      : 'minerals are basically not adding much here.';
+  }
 
   if (result.food.foodType === 'misc') {
     return sectionKey === 'vitamins' ? 'no real vitamin story here.' : 'no real mineral story here.';

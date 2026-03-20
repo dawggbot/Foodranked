@@ -1,6 +1,6 @@
 {
   "id": "ice-cream-episode-v1",
-  "generatedAt": "2026-03-19T15:02:47.253Z",
+  "generatedAt": "2026-03-19T22:20:07.639Z",
   "status": "draft",
   "mode": "compact",
   "food": {
@@ -28,28 +28,32 @@
     "subtitlesJson": "subtitles.json"
   },
   "scoreSnapshot": {
-    "overallScore": 11,
+    "overallScore": 18,
     "tier": "D",
-    "baseScore": 20,
-    "contextAdjustment": -9,
+    "baseScore": 24,
+    "contextAdjustment": -6,
     "sectionScores": {
       "fats": 33.3,
-      "carbs": 9.5,
-      "proteins": 19,
-      "vitamins": 0,
-      "minerals": 6,
-      "pros": 0,
-      "cons": 100
+      "carbs": 11.1,
+      "proteins": 31,
+      "vitamins": null,
+      "minerals": 10,
+      "pros": 33.3,
+      "cons": 66.7
     },
     "explanation": {
-      "summary": "Fats are carrying this food most, while vitamins are the biggest drag. It lands in D tier.",
-      "whyThisTier": "This food lands in D tier with an overall score of 11 from a base nutrition score of 20. Context dragged it down by 9 points.",
+      "summary": "Fats are carrying this food most, while minerals are the biggest drag. It lands in D tier.",
+      "whyThisTier": "This food lands in D tier with an overall score of 18 from a base nutrition score of 24. Context dragged it down by 6 points.",
       "strongestSection": {
         "key": "fats",
         "label": "Fats",
         "score": 33.3
       },
-      "weakestSection": null,
+      "weakestSection": {
+        "key": "minerals",
+        "label": "Minerals",
+        "score": 10
+      },
       "topPros": [
         {
           "title": "high enjoyment factor",
@@ -79,26 +83,27 @@
           "explanation": "This pushes it away from what strong dairy foods are supposed to deliver.",
           "impactLevel": "major",
           "side": "con",
-          "resolvedScoreValue": -3
+          "resolvedScoreValue": -2
         },
         {
           "title": "saturated fat is a major drawback",
           "explanation": "A second major strike against the food in this category.",
           "impactLevel": "major",
           "side": "con",
-          "resolvedScoreValue": -3
+          "resolvedScoreValue": -2
         },
         {
           "title": "protein usefulness is weak for dairy",
           "explanation": "That makes it a poor fit compared with stronger dairy anchors like yogurt.",
           "impactLevel": "major",
           "side": "con",
-          "resolvedScoreValue": -3
+          "resolvedScoreValue": -2
         }
       ],
       "narrationNotes": [
         "Strongest section: Fats.",
-        "Context weakened the final tier case by 9 points.",
+        "Weakest section: Minerals.",
+        "Context weakened the final tier case by 6 points.",
         "Final verdict: D tier."
       ]
     }
@@ -138,7 +143,7 @@
   "nextHumanStep": "Review the generated narration + manifest, then use the manifest as the handoff into visual assembly / editing.",
   "scenePlan": {
     "mode": "compact",
-    "totalEstimatedDurationSeconds": 94.37,
+    "totalEstimatedDurationSeconds": 84.47,
     "scenes": [
       {
         "id": "hook",
@@ -237,7 +242,7 @@
         "visualBinding": {
           "sectionKey": "carbs",
           "title": "Carbs",
-          "score": 9.5,
+          "score": 11.1,
           "templateSlots": [
             "macro_headline",
             "submetric_1",
@@ -253,15 +258,6 @@
               "band": "↑↑↑",
               "dvPercent": null,
               "value": 21
-            },
-            {
-              "metricKey": "starch_g",
-              "text": "starch at 0",
-              "weightedScore": -3,
-              "scoringMode": "arrow_bands",
-              "band": "↓↓↓",
-              "dvPercent": null,
-              "value": 0
             },
             {
               "metricKey": "glycemic_index",
@@ -286,14 +282,14 @@
         "id": "proteins",
         "kind": "section",
         "startSeconds": 19.39,
-        "durationSeconds": 8.47,
-        "endSeconds": 27.86,
-        "narrationText": "3.5g of protein. essential amino acids score is where things start to fall off. useful protein can rescue a lot of weaker traits here.",
-        "subtitleText": "3.5g of protein. essential amino acids score is where things start to fall off. useful protein can rescue a lot of weaker traits here.",
+        "durationSeconds": 7.41,
+        "endSeconds": 26.8,
+        "narrationText": "3.5g of protein. bioavailability is where things start to fall off. useful protein can rescue a lot of weaker traits here.",
+        "subtitleText": "3.5g of protein. bioavailability is where things start to fall off. useful protein can rescue a lot of weaker traits here.",
         "visualBinding": {
           "sectionKey": "proteins",
           "title": "Proteins",
-          "score": 19,
+          "score": 31,
           "templateSlots": [
             "macro_headline",
             "submetric_1",
@@ -301,15 +297,6 @@
             "submetric_3"
           ],
           "displayItems": [
-            {
-              "metricKey": "essential_amino_acids_score",
-              "text": "essential amino acids score at 4",
-              "weightedScore": -6,
-              "scoringMode": "arrow_bands",
-              "band": "↓↓",
-              "dvPercent": null,
-              "value": 4
-            },
             {
               "metricKey": "bioavailability_percent",
               "text": "bioavailability at 70",
@@ -320,11 +307,20 @@
               "value": 70
             },
             {
-              "metricKey": "nonessential_amino_acids_score",
-              "text": "nonessential amino acids score at 6",
-              "weightedScore": -1,
+              "metricKey": "essential_amino_acids_score",
+              "text": "essential amino acids score at 4",
+              "weightedScore": -3,
               "scoringMode": "arrow_bands",
               "band": "↓",
+              "dvPercent": null,
+              "value": 4
+            },
+            {
+              "metricKey": "nonessential_amino_acids_score",
+              "text": "nonessential amino acids score at 6",
+              "weightedScore": 1,
+              "scoringMode": "arrow_bands",
+              "band": "↑",
               "dvPercent": null,
               "value": 6
             }
@@ -341,39 +337,20 @@
       {
         "id": "vitamins",
         "kind": "section",
-        "startSeconds": 27.86,
-        "durationSeconds": 7.41,
-        "endSeconds": 35.27,
-        "narrationText": "vitamin b12 at 6% daily value, vitamin a at 8% daily value stand out most. that is barely moving the needle.",
-        "subtitleText": "vitamin b12 at 6% daily value, vitamin a at 8% daily value stand out most. that is barely moving the needle.",
+        "startSeconds": 26.8,
+        "durationSeconds": 2.1,
+        "endSeconds": 28.9,
+        "narrationText": "everything else is fairly underwhelming.",
+        "subtitleText": "everything else is fairly underwhelming.",
         "visualBinding": {
           "sectionKey": "vitamins",
           "title": "Vitamins",
-          "score": 0,
+          "score": null,
           "templateSlots": [
             "micronutrient_1",
             "micronutrient_2"
           ],
-          "displayItems": [
-            {
-              "metricKey": "vitamin_b12_dv",
-              "text": "vitamin b12 at 6% daily value",
-              "weightedScore": 0,
-              "scoringMode": "dv_points",
-              "band": null,
-              "dvPercent": 6,
-              "value": null
-            },
-            {
-              "metricKey": "vitamin_a_dv",
-              "text": "vitamin a at 8% daily value",
-              "weightedScore": 0,
-              "scoringMode": "dv_points",
-              "band": null,
-              "dvPercent": 8,
-              "value": null
-            }
-          ],
+          "displayItems": [],
           "timingHint": "short-medium"
         },
         "revealPlan": [
@@ -384,15 +361,15 @@
       {
         "id": "minerals",
         "kind": "section",
-        "startSeconds": 35.27,
-        "durationSeconds": 8.12,
-        "endSeconds": 43.39,
-        "narrationText": "calcium at 13% daily value, zinc at 3% daily value, magnesium at 2% daily value stand out most. useful, but still pretty limited.",
-        "subtitleText": "calcium at 13% daily value, zinc at 3% daily value, magnesium at 2% daily value stand out most. useful, but still pretty limited.",
+        "startSeconds": 28.9,
+        "durationSeconds": 4.59,
+        "endSeconds": 33.49,
+        "narrationText": "calcium at 13% daily value stands out most. useful, but still pretty limited.",
+        "subtitleText": "calcium at 13% daily value stands out most. useful, but still pretty limited.",
         "visualBinding": {
           "sectionKey": "minerals",
           "title": "Minerals",
-          "score": 6,
+          "score": 10,
           "templateSlots": [
             "micronutrient_1",
             "micronutrient_2"
@@ -406,24 +383,6 @@
               "band": null,
               "dvPercent": 13,
               "value": null
-            },
-            {
-              "metricKey": "zinc_dv",
-              "text": "zinc at 3% daily value",
-              "weightedScore": 0,
-              "scoringMode": "dv_points",
-              "band": null,
-              "dvPercent": 3,
-              "value": null
-            },
-            {
-              "metricKey": "magnesium_dv",
-              "text": "magnesium at 2% daily value",
-              "weightedScore": 0,
-              "scoringMode": "dv_points",
-              "band": null,
-              "dvPercent": 2,
-              "value": null
             }
           ],
           "timingHint": "short-medium"
@@ -436,15 +395,15 @@
       {
         "id": "pros",
         "kind": "section",
-        "startSeconds": 43.39,
+        "startSeconds": 33.49,
         "durationSeconds": 16.24,
-        "endSeconds": 59.63,
+        "endSeconds": 49.73,
         "narrationText": "the upsides first: high enjoyment factor because a real-world reason people eat it, even if the category fit is weak. still retains some calcium because not nutritionally empty, just weak compared with stronger dairy foods. still clearly dairy-based because that matters for fairness when picking anchors.",
         "subtitleText": "the upsides first: high enjoyment factor because a real-world reason people eat it, even if the category fit is weak. still retains some calcium because not nutritionally empty, just weak compared with stronger dairy foods. still clearly dairy-based because that matters for fairness when picking anchors.",
         "visualBinding": {
           "sectionKey": "pros",
           "title": "Pros",
-          "score": 0,
+          "score": 33.3,
           "templateSlots": [
             "bullet_1",
             "bullet_2",
@@ -484,15 +443,15 @@
       {
         "id": "cons",
         "kind": "section",
-        "startSeconds": 59.63,
+        "startSeconds": 49.73,
         "durationSeconds": 21.88,
-        "endSeconds": 81.51,
+        "endSeconds": 71.61,
         "narrationText": "on the weaker side: sugar load is a major dairy-category problem because this pushes it away from what strong dairy foods are supposed to deliver. saturated fat is a major drawback because a second major strike against the food in this category. protein usefulness is weak for dairy because that makes it a poor fit compared with stronger dairy anchors like yogurt.",
         "subtitleText": "on the weaker side: sugar load is a major dairy-category problem because this pushes it away from what strong dairy foods are supposed to deliver. saturated fat is a major drawback because a second major strike against the food in this category. protein usefulness is weak for dairy because that makes it a poor fit compared with stronger dairy anchors like yogurt.",
         "visualBinding": {
           "sectionKey": "cons",
           "title": "Cons",
-          "score": 100,
+          "score": 66.7,
           "templateSlots": [
             "bullet_1",
             "bullet_2",
@@ -532,9 +491,9 @@
       {
         "id": "final",
         "kind": "closing",
-        "startSeconds": 81.51,
+        "startSeconds": 71.61,
         "durationSeconds": 12.86,
-        "endSeconds": 94.37,
+        "endSeconds": 84.47,
         "narrationText": "Ice Cream does have a few real-world upsides. but the nutrition case is still weak and the downsides drag it down hard. best only when the taste or format matters more than getting the strongest dairy profile. D tier.",
         "subtitleText": "D tier. Best only when the taste or format matters more than getting the strongest dairy profile.",
         "visualBinding": {

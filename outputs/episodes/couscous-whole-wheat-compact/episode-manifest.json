@@ -1,6 +1,6 @@
 {
   "id": "couscous-whole-wheat-episode-v1",
-  "generatedAt": "2026-03-19T15:02:44.696Z",
+  "generatedAt": "2026-03-19T22:20:04.643Z",
   "status": "draft",
   "mode": "compact",
   "food": {
@@ -28,49 +28,53 @@
     "subtitlesJson": "subtitles.json"
   },
   "scoreSnapshot": {
-    "overallScore": 39,
+    "overallScore": 45,
     "tier": "B",
-    "baseScore": 39,
-    "contextAdjustment": 0,
+    "baseScore": 42,
+    "contextAdjustment": 3,
     "sectionScores": {
       "fats": 66.7,
-      "carbs": 46.3,
+      "carbs": 50,
       "proteins": 83.3,
-      "vitamins": 0,
-      "minerals": 4,
-      "pros": 0,
-      "cons": 0
+      "vitamins": null,
+      "minerals": 10,
+      "pros": 33.3,
+      "cons": 33.3
     },
     "explanation": {
-      "summary": "Proteins are carrying this food most, while vitamins are the biggest drag. It lands in B tier.",
-      "whyThisTier": "This food lands in B tier with an overall score of 39 from a base nutrition score of 39. Context barely changed the result.",
+      "summary": "Proteins are carrying this food most, while minerals are the biggest drag. It lands in B tier.",
+      "whyThisTier": "This food lands in B tier with an overall score of 45 from a base nutrition score of 42. Context lifted it by 3 points.",
       "strongestSection": {
         "key": "proteins",
         "label": "Proteins",
         "score": 83.3
       },
-      "weakestSection": null,
+      "weakestSection": {
+        "key": "minerals",
+        "label": "Minerals",
+        "score": 10
+      },
       "topPros": [
         {
           "title": "useful staple energy source",
           "explanation": "That matters because grains are often judged by how practical they are in real diets.",
           "impactLevel": "minor",
           "side": "pro",
-          "resolvedScoreValue": 0
+          "resolvedScoreValue": 1
         },
         {
           "title": "works as a meal anchor",
           "explanation": "A lot of value comes from being easy to build around.",
           "impactLevel": "minor",
           "side": "pro",
-          "resolvedScoreValue": 0
+          "resolvedScoreValue": 1
         },
         {
           "title": "usually affordable and scalable",
           "explanation": "Practicality matters for staple foods.",
           "impactLevel": "minor",
           "side": "pro",
-          "resolvedScoreValue": 0
+          "resolvedScoreValue": 1
         }
       ],
       "topCons": [
@@ -98,6 +102,8 @@
       ],
       "narrationNotes": [
         "Strongest section: Proteins.",
+        "Weakest section: Minerals.",
+        "Context improved the final tier case by 3 points.",
         "Final verdict: B tier."
       ]
     }
@@ -137,7 +143,7 @@
   "nextHumanStep": "Review the generated narration + manifest, then use the manifest as the handoff into visual assembly / editing.",
   "scenePlan": {
     "mode": "compact",
-    "totalEstimatedDurationSeconds": 77.61,
+    "totalEstimatedDurationSeconds": 75.83,
     "scenes": [
       {
         "id": "hook",
@@ -222,12 +228,12 @@
         "startSeconds": 9.16,
         "durationSeconds": 8.47,
         "endSeconds": 17.63,
-        "narrationText": "77.4g of carbs. glycemic index is where this starts to get messy. for grains, the carb quality matters much more than the raw number.",
-        "subtitleText": "77.4g of carbs. glycemic index is where this starts to get messy. for grains, the carb quality matters much more than the raw number.",
+        "narrationText": "77.4g of carbs. fibre is doing a lot of the work here. for grains, the carb quality matters much more than the raw number.",
+        "subtitleText": "77.4g of carbs. fibre is doing a lot of the work here. for grains, the carb quality matters much more than the raw number.",
         "visualBinding": {
           "sectionKey": "carbs",
           "title": "Carbs",
-          "score": 46.3,
+          "score": 50,
           "templateSlots": [
             "macro_headline",
             "submetric_1",
@@ -238,18 +244,18 @@
             {
               "metricKey": "glycemic_index",
               "text": "glycemic index at 65",
-              "weightedScore": -4,
+              "weightedScore": -8,
               "scoringMode": "arrow_bands",
-              "band": "↑",
+              "band": "↑↑",
               "dvPercent": null,
               "value": 65
             },
             {
               "metricKey": "fibre_g",
               "text": "fibre at 5",
-              "weightedScore": -3,
+              "weightedScore": 3,
               "scoringMode": "arrow_bands",
-              "band": "↓",
+              "band": "↑",
               "dvPercent": null,
               "value": 5
             },
@@ -341,29 +347,19 @@
         "id": "vitamins",
         "kind": "section",
         "startSeconds": 25.39,
-        "durationSeconds": 5.29,
-        "endSeconds": 30.68,
-        "narrationText": "vitamin e at 0% daily value stands out most. that is barely moving the needle.",
-        "subtitleText": "vitamin e at 0% daily value stands out most. that is barely moving the needle.",
+        "durationSeconds": 2.1,
+        "endSeconds": 27.49,
+        "narrationText": "everything else is fairly underwhelming.",
+        "subtitleText": "everything else is fairly underwhelming.",
         "visualBinding": {
           "sectionKey": "vitamins",
           "title": "Vitamins",
-          "score": 0,
+          "score": null,
           "templateSlots": [
             "micronutrient_1",
             "micronutrient_2"
           ],
-          "displayItems": [
-            {
-              "metricKey": "vitamin_e_dv",
-              "text": "vitamin e at 0% daily value",
-              "weightedScore": 0,
-              "scoringMode": "dv_points",
-              "band": null,
-              "dvPercent": 0,
-              "value": null
-            }
-          ],
+          "displayItems": [],
           "timingHint": "short-medium"
         },
         "revealPlan": [
@@ -374,15 +370,15 @@
       {
         "id": "minerals",
         "kind": "section",
-        "startSeconds": 30.68,
-        "durationSeconds": 3.18,
-        "endSeconds": 33.86,
-        "narrationText": "minerals are basically not part of the case here.",
-        "subtitleText": "minerals are basically not part of the case here.",
+        "startSeconds": 27.49,
+        "durationSeconds": 4.59,
+        "endSeconds": 32.08,
+        "narrationText": "magnesium at 11% daily value stands out most. useful, but still pretty limited.",
+        "subtitleText": "magnesium at 11% daily value stands out most. useful, but still pretty limited.",
         "visualBinding": {
           "sectionKey": "minerals",
           "title": "Minerals",
-          "score": 4,
+          "score": 10,
           "templateSlots": [
             "micronutrient_1",
             "micronutrient_2"
@@ -396,24 +392,6 @@
               "band": null,
               "dvPercent": 11,
               "value": null
-            },
-            {
-              "metricKey": "iron_dv",
-              "text": "iron at 6% daily value",
-              "weightedScore": 0,
-              "scoringMode": "dv_points",
-              "band": null,
-              "dvPercent": 6,
-              "value": null
-            },
-            {
-              "metricKey": "zinc_dv",
-              "text": "zinc at 8% daily value",
-              "weightedScore": 0,
-              "scoringMode": "dv_points",
-              "band": null,
-              "dvPercent": 8,
-              "value": null
             }
           ],
           "timingHint": "short-medium"
@@ -426,15 +404,15 @@
       {
         "id": "pros",
         "kind": "section",
-        "startSeconds": 33.86,
+        "startSeconds": 32.08,
         "durationSeconds": 17.29,
-        "endSeconds": 51.15,
+        "endSeconds": 49.37,
         "narrationText": "pros first: useful staple energy source because that matters because grains are often judged by how practical they are in real diets. works as a meal anchor because a lot of value comes from being easy to build around. usually affordable and scalable because practicality matters for staple foods.",
         "subtitleText": "pros first: useful staple energy source because that matters because grains are often judged by how practical they are in real diets. works as a meal anchor because a lot of value comes from being easy to build around. usually affordable and scalable because practicality matters for staple foods.",
         "visualBinding": {
           "sectionKey": "pros",
           "title": "Pros",
-          "score": 0,
+          "score": 33.3,
           "templateSlots": [
             "bullet_1",
             "bullet_2",
@@ -474,15 +452,15 @@
       {
         "id": "cons",
         "kind": "section",
-        "startSeconds": 51.15,
+        "startSeconds": 49.37,
         "durationSeconds": 16.24,
-        "endSeconds": 67.39,
+        "endSeconds": 65.61,
         "narrationText": "now the downsides: protein quality is limited because even the better grains usually need pairing. carb load is still the main burden because that is the category risk no grain fully escapes. quality can drop fast with processing because the grain category punishes refinement pretty hard.",
         "subtitleText": "now the downsides: protein quality is limited because even the better grains usually need pairing. carb load is still the main burden because that is the category risk no grain fully escapes. quality can drop fast with processing because the grain category punishes refinement pretty hard.",
         "visualBinding": {
           "sectionKey": "cons",
           "title": "Cons",
-          "score": 0,
+          "score": 33.3,
           "templateSlots": [
             "bullet_1",
             "bullet_2",
@@ -522,9 +500,9 @@
       {
         "id": "final",
         "kind": "closing",
-        "startSeconds": 67.39,
+        "startSeconds": 65.61,
         "durationSeconds": 10.22,
-        "endSeconds": 77.61,
+        "endSeconds": 75.83,
         "narrationText": "Whole-Wheat Couscous does have some solid upside. but the tradeoffs keep it from climbing higher. best when you want a staple carb that actually brings something useful with it. B tier.",
         "subtitleText": "B tier. Best when you want a staple carb that actually brings something useful with it.",
         "visualBinding": {

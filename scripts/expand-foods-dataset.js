@@ -8,6 +8,12 @@ const foodsDir = path.join(repoRoot, 'foods');
 function deepClone(v) { return JSON.parse(JSON.stringify(v)); }
 function slugify(s) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); }
 function round1(n) { return n === null || n === undefined ? n : Math.round(n * 10) / 10; }
+function hashString(input) {
+  const str = String(input || '');
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h = ((h << 5) - h) + str.charCodeAt(i);
+  return Math.abs(h);
+}
 
 const allMetricKeys = [
   'saturated_fat_g','omega3_mg','polyunsaturated_fat_g','cholesterol_mg','starch_g','fibre_g','sugar_g','glycemic_index',
@@ -320,11 +326,153 @@ const library = {
   }
 };
 
-function mergeContext(baseContext, override={}) {
-  const out = deepClone(baseContext);
-  if (override.pros?.length) out.pros[0] = override.pros[0];
-  if (override.cons?.length) out.cons[0] = override.cons[0];
-  return buildContext(out);
+function supplementalContext(type) {
+  const pools = {
+    fruits: {
+      pros: [
+        { itemKey: 'fruit_snack_swap', impactLevel: 'minor', scoreValue: 1, title: 'usually beats ultra-processed sweet snacks', explanation: 'That replacement value matters in real life.' },
+        { itemKey: 'fruit_simple_ingredient_story', impactLevel: 'minor', scoreValue: 1, title: 'ingredient simplicity is hard to argue with', explanation: 'Whole-fruit clarity is part of the category appeal.' }
+      ],
+      cons: [
+        { itemKey: 'fruit_perishability', impactLevel: 'minor', scoreValue: -1, title: 'can be easy to waste if timing is off', explanation: 'Perishability is a practical downside people actually feel.' },
+        { itemKey: 'fruit_portion_speed', impactLevel: 'minor', scoreValue: -1, title: 'easy to eat quickly when it is very sweet', explanation: 'That can blur the line between light and sugar-heavy portions.' }
+      ]
+    },
+    vegetables: {
+      pros: [
+        { itemKey: 'veg_low_calorie_padding', impactLevel: 'minor', scoreValue: 1, title: 'helps add volume without much calorie cost', explanation: 'That makes vegetables easier to use often.' },
+        { itemKey: 'veg_plate_balance', impactLevel: 'minor', scoreValue: 1, title: 'makes meals feel more balanced', explanation: 'The category has real value beyond single-nutrient stats.' }
+      ],
+      cons: [
+        { itemKey: 'veg_palatability_limit', impactLevel: 'minor', scoreValue: -1, title: 'taste and texture can limit compliance', explanation: 'A strong paper profile still needs real-world repeatability.' },
+        { itemKey: 'veg_underpowered_alone', impactLevel: 'minor', scoreValue: -1, title: 'rarely carries a meal by itself', explanation: 'That is normal here, but still part of the tradeoff.' }
+      ]
+    },
+    grains: {
+      pros: [
+        { itemKey: 'grain_batch_cooking', impactLevel: 'minor', scoreValue: 1, title: 'easy to batch cook at scale', explanation: 'That practicality is part of why grains matter.' },
+        { itemKey: 'grain_budget_stability', impactLevel: 'minor', scoreValue: 1, title: 'can keep meals cheap and steady', explanation: 'That is a genuine category strength.' }
+      ],
+      cons: [
+        { itemKey: 'grain_overeating_risk', impactLevel: 'minor', scoreValue: -1, title: 'easy to overshoot portions', explanation: 'Staple carbs can pile up fast without much friction.' },
+        { itemKey: 'grain_needs_pairing_quality', impactLevel: 'minor', scoreValue: -1, title: 'needs strong pairings to feel complete', explanation: 'The grain rarely finishes the nutrition job alone.' }
+      ]
+    },
+    legumes: {
+      pros: [
+        { itemKey: 'legume_meal_density', impactLevel: 'minor', scoreValue: 1, title: 'does a lot of jobs at once', explanation: 'Protein, fibre, and meal utility are why legumes stay valuable.' },
+        { itemKey: 'legume_budget_protein', impactLevel: 'minor', scoreValue: 1, title: 'one of the cheaper ways to buy useful nutrition', explanation: 'That matters for real diets, not just theory.' }
+      ],
+      cons: [
+        { itemKey: 'legume_prep_time', impactLevel: 'minor', scoreValue: -1, title: 'prep time can still be a barrier', explanation: 'Dry legumes especially ask more from the cook.' },
+        { itemKey: 'legume_texture_limit', impactLevel: 'minor', scoreValue: -1, title: 'texture is not universally loved', explanation: 'That can reduce how often people actually use them.' }
+      ]
+    },
+    tubers: {
+      pros: [
+        { itemKey: 'tuber_comfort_food_utility', impactLevel: 'minor', scoreValue: 1, title: 'easy comfort-food base with less baggage than junk food', explanation: 'That practical swap value matters.' },
+        { itemKey: 'tuber_kitchen_flexibility', impactLevel: 'minor', scoreValue: 1, title: 'works across a lot of cooking styles', explanation: 'Utility counts for staple carbs.' }
+      ],
+      cons: [
+        { itemKey: 'tuber_easy_to_refine_badly', impactLevel: 'minor', scoreValue: -1, title: 'can go downhill fast when heavily processed', explanation: 'The category has a big preparation trap.' },
+        { itemKey: 'tuber_satiety_variance', impactLevel: 'minor', scoreValue: -1, title: 'satiety payoff depends a lot on format', explanation: 'Some versions are much steadier than others.' }
+      ]
+    },
+    nuts: {
+      pros: [
+        { itemKey: 'nuts_snack_resilience', impactLevel: 'minor', scoreValue: 1, title: 'holds up as a better snack default than most packaged options', explanation: 'That real-world swap value counts.' },
+        { itemKey: 'nuts_texture_satisfaction', impactLevel: 'minor', scoreValue: 1, title: 'texture helps them feel satisfying', explanation: 'That can make moderation easier than with softer snack foods.' }
+      ],
+      cons: [
+        { itemKey: 'nuts_portion_slippage', impactLevel: 'minor', scoreValue: -1, title: 'portion control can get slippery fast', explanation: 'Dense foods punish casual handful math.' },
+        { itemKey: 'nuts_price_variance', impactLevel: 'minor', scoreValue: -1, title: 'good versions can get expensive', explanation: 'That affects how realistic frequent use is.' }
+      ]
+    },
+    seeds: {
+      pros: [
+        { itemKey: 'seed_booster_role', impactLevel: 'minor', scoreValue: 1, title: 'easy to sprinkle into meals for a real upgrade', explanation: 'Seeds often shine as support foods.' },
+        { itemKey: 'seed_mineral_density_identity', impactLevel: 'minor', scoreValue: 1, title: 'often brings dense micronutrient support', explanation: 'That is part of what makes the category interesting.' }
+      ],
+      cons: [
+        { itemKey: 'seed_serving_reality', impactLevel: 'minor', scoreValue: -1, title: 'paper scores can overstate realistic serving sizes', explanation: 'People often eat far less than 100 grams.' },
+        { itemKey: 'seed_calorie_concentration', impactLevel: 'minor', scoreValue: -1, title: 'calories concentrate quickly', explanation: 'Even useful support foods can get dense fast.' }
+      ]
+    },
+    meats: {
+      pros: [
+        { itemKey: 'meat_hunger_control', impactLevel: 'minor', scoreValue: 1, title: 'can control hunger well in real meals', explanation: 'That is a major reason the category stays relevant.' },
+        { itemKey: 'meat_simple_high_protein', impactLevel: 'minor', scoreValue: 1, title: 'gives a straightforward protein solution', explanation: 'The category often wins on simplicity and reliability.' }
+      ],
+      cons: [
+        { itemKey: 'meat_sourcing_variance', impactLevel: 'minor', scoreValue: -1, title: 'sourcing quality can change the real-world result a lot', explanation: 'Not every version of the same meat is equal.' },
+        { itemKey: 'meat_cooking_dependency', impactLevel: 'minor', scoreValue: -1, title: 'the outcome depends heavily on preparation', explanation: 'A good raw profile can still be cooked into a worse result.' }
+      ]
+    },
+    dairy: {
+      pros: [
+        { itemKey: 'dairy_convenient_protein', impactLevel: 'minor', scoreValue: 1, title: 'can be a very convenient protein vehicle', explanation: 'Convenience is one of dairy’s strongest practical advantages.' },
+        { itemKey: 'dairy_meal_adhesion', impactLevel: 'minor', scoreValue: 1, title: 'easy to fit into familiar meals', explanation: 'That lowers friction for regular use.' }
+      ],
+      cons: [
+        { itemKey: 'dairy_tolerance_variation', impactLevel: 'minor', scoreValue: -1, title: 'tolerance varies a lot person to person', explanation: 'A category strength is less useful if the food does not agree with you.' },
+        { itemKey: 'dairy_sodium_density_trap', impactLevel: 'minor', scoreValue: -1, title: 'some versions get dense fast on fat, sodium, or both', explanation: 'The category swings a lot by format.' }
+      ]
+    },
+    'oils-and-fats': {
+      pros: [
+        { itemKey: 'oil_cooking_leverage', impactLevel: 'minor', scoreValue: 1, title: 'small amounts can change a whole meal', explanation: 'That leverage matters when the fat quality is good.' },
+        { itemKey: 'oil_absorption_support', impactLevel: 'minor', scoreValue: 1, title: 'can help meals feel more complete and usable', explanation: 'Fats sometimes improve the whole plate, not just their own stats.' }
+      ],
+      cons: [
+        { itemKey: 'oil_calorie_density_extreme', impactLevel: 'minor', scoreValue: -1, title: 'calorie density is brutally high', explanation: 'Tiny serving errors matter here.' },
+        { itemKey: 'oil_easy_to_overpour', impactLevel: 'minor', scoreValue: -1, title: 'easy to overuse without noticing', explanation: 'Liquid calories are slippery in the kitchen.' }
+      ]
+    },
+    misc: {
+      pros: [
+        { itemKey: 'misc_swap_value', impactLevel: 'minor', scoreValue: 1, title: 'can still earn points as a better swap', explanation: 'The category should reward harm reduction when it is real.' },
+        { itemKey: 'misc_use_case_specificity', impactLevel: 'minor', scoreValue: 1, title: 'sometimes makes sense in a narrow use case', explanation: 'Context matters more here than raw nutrient purity.' }
+      ],
+      cons: [
+        { itemKey: 'misc_health_halo_risk', impactLevel: 'minor', scoreValue: -1, title: 'easy to oversell beyond what the numbers support', explanation: 'Misc items often attract exaggerated narratives.' },
+        { itemKey: 'misc_not_foundational', impactLevel: 'minor', scoreValue: -1, title: 'rarely deserves to be treated as a foundation food', explanation: 'Most of these are situational, not core nutrition plays.' }
+      ]
+    }
+  };
+  return pools[type] || { pros: [], cons: [] };
+}
+
+function pickContextItems(pool, count, seedBase) {
+  const items = deepClone(pool || []);
+  return items
+    .map((item, index) => ({ item, sortKey: hashString(`${seedBase}:${item.itemKey || index}`) }))
+    .sort((a, b) => a.sortKey - b.sortKey)
+    .slice(0, count)
+    .map(entry => entry.item);
+}
+
+function mergeContext(baseContext, override = {}, type, id) {
+  const supplement = supplementalContext(type);
+  const basePros = [...deepClone(baseContext.pros || []), ...deepClone(supplement.pros || [])];
+  const baseCons = [...deepClone(baseContext.cons || []), ...deepClone(supplement.cons || [])];
+  const selectedPros = pickContextItems(basePros, 3, `${type}:${id}:pros`);
+  const selectedCons = pickContextItems(baseCons, 3, `${type}:${id}:cons`);
+
+  if (override.pros?.length) {
+    override.pros.slice().reverse().forEach(item => {
+      selectedPros.unshift(deepClone(item));
+    });
+  }
+  if (override.cons?.length) {
+    override.cons.slice().reverse().forEach(item => {
+      selectedCons.unshift(deepClone(item));
+    });
+  }
+
+  return buildContext({
+    pros: selectedPros.slice(0, 3),
+    cons: selectedCons.slice(0, 3)
+  });
 }
 
 function makeFood(type, tuple) {
@@ -336,7 +484,7 @@ function makeFood(type, tuple) {
     basis: { value: 100, unit: 'g' },
     header: Object.fromEntries(Object.entries(header).map(([k,v]) => [k, round1(v)])),
     metrics: metrics({}, metricOverrides),
-    contextItems: mergeContext(library[type].baseContext, contextOverride || {}),
+    contextItems: mergeContext(library[type].baseContext, contextOverride || {}, type, id),
     expectedTier,
     sourceNotes: [
       'Expanded dataset sample for FoodRanked pressure-testing.',

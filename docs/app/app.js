@@ -76,6 +76,19 @@ const arrowSpriteMap = {
 };
 const PRESET_KEY = 'foodranked-layout-presets-v1';
 const DEFAULT_CONTROLS = { bubbleScale: 100, bubbleOffsetX: 0, headlineScale: 100, stampScale: 100, subtitleLift: 0 };
+const macroRangeBlueprint = {
+  nuts: { fats:{ min:30, max:75 }, carbs:{ min:5, max:30 }, proteins:{ min:10, max:30 } },
+  seeds: { fats:{ min:25, max:70 }, carbs:{ min:5, max:35 }, proteins:{ min:10, max:30 } },
+  grains: { fats:{ min:1, max:10 }, carbs:{ min:50, max:85 }, proteins:{ min:5, max:18 } },
+  legumes: { fats:{ min:1, max:10 }, carbs:{ min:40, max:65 }, proteins:{ min:15, max:30 } },
+  fruits: { fats:{ min:0, max:5 }, carbs:{ min:8, max:25 }, proteins:{ min:0, max:4 } },
+  vegetables: { fats:{ min:0, max:3 }, carbs:{ min:3, max:15 }, proteins:{ min:1, max:6 } },
+  tubers: { fats:{ min:0, max:2 }, carbs:{ min:15, max:35 }, proteins:{ min:1, max:5 } },
+  meats: { fats:{ min:2, max:35 }, carbs:{ min:0, max:1 }, proteins:{ min:15, max:30 } },
+  dairy: { fats:{ min:0, max:35 }, carbs:{ min:3, max:10 }, proteins:{ min:3, max:25 } },
+  'oils-and-fats': { fats:{ min:80, max:100 }, carbs:{ min:0, max:1 }, proteins:{ min:0, max:1 } },
+  misc: { fats:{ min:0, max:1 }, carbs:{ min:0, max:1 }, proteins:{ min:0, max:1 } }
+};
 
 function fmtType(v){ return String(v||'').replace(/-/g,' '); }
 function fmtBasis(food){ return `Per ${food?.basis?.value ?? 100}${food?.basis?.unit ?? 'g'}`; }
@@ -179,6 +192,8 @@ function macroHeaderMetricKey(scene) {
 }
 
 function derivedMacroRange(food, scene) {
+  const blueprint = macroRangeBlueprint[food.foodType]?.[scene];
+  if (blueprint) return { ...blueprint, source: 'blueprint' };
   const metricKey = macroHeaderMetricKey(scene);
   const peers = (state.data?.foods || []).filter(item => item.foodType === food.foodType);
   const values = peers.map(item => Number(item.header?.[metricKey])).filter(value => Number.isFinite(value));
@@ -190,6 +205,12 @@ function derivedMacroRange(food, scene) {
 function normalizedPercent(value, range) {
   if (!Number.isFinite(value)) return 0;
   return clamp(((value - range.min) / Math.max(range.max - range.min, 1)) * 100, 0, 100);
+}
+
+function formatMacroAmount(value) {
+  if (!Number.isFinite(Number(value))) return '—';
+  const num = Number(value);
+  return `${Number.isInteger(num) ? num : Number(num.toFixed(1))}g`;
 }
 
 function macroSubmetrics(food, scene) {
@@ -366,19 +387,18 @@ function renderMacroScene(food, scene, controls) {
   const headlineValue = macroHeaderValue(food, scene);
   const macroRange = derivedMacroRange(food, scene);
   const macroFill = normalizedPercent(Number(headlineValue), macroRange);
+  const accent = accentMap[food.foodType] || '#6b7280';
   els.macroBubble.className = `macro-bubble ${scene}`;
   els.macroBubble.style.transform = `translateX(${controls.bubbleOffsetX}px) scale(${controls.bubbleScale / 100})`;
   els.macroBubbleImg.src = macroSpriteMap[scene] || '';
   els.macroBubbleImg.alt = `${scene} sprite`;
   els.macroHeadline.innerHTML = `
     <div class="macro-headline-top">
-      <span class="macro-headline-value">${headlineValue ?? '—'}g</span>
       <span class="macro-headline-label">${scene.toUpperCase()}</span>
     </div>
-    <div class="macro-range-row">
-      <span class="macro-range-label">${macroRange.min}g</span>
-      <div class="macro-track"><div class="macro-fill" style="width:${macroFill}%"></div></div>
-      <span class="macro-range-label">${Number(macroRange.max.toFixed(1))}g</span>
+    <div class="macro-bar-shell ${scene}" style="--macro-accent:${accent}; --macro-fill:${macroFill}%;">
+      <div class="macro-bar-fill"></div>
+      <div class="macro-bar-value">${formatMacroAmount(headlineValue)}</div>
     </div>`;
   els.macroHeadline.style.transform = `scale(${controls.headlineScale / 100})`;
   els.macroHeadline.style.transformOrigin = 'left center';

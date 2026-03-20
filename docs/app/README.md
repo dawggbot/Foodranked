@@ -17,9 +17,9 @@ Main purpose of the current dashboard pass:
 - inspect score + script data
 - preview the current vertical display template
 - test structure-first layout decisions before polishing aesthetics
-- verify larger food-type sprites, ruleset-driven macro cards, full micro bar graphs, and separate pros/cons sections
-- verify macro and vitamin sprites render without bubble/box chrome
-- verify submacros use arrow sprites only, with repeated arrows for stronger bands
+- verify larger food-type sprites, ruleset-driven macro bars, full micro bar graphs, and separate pros/cons sections
+- verify vitamin and mineral sprites render without bubble/box chrome
+- verify submacros use bullet rows plus arrow sprites, with repeated arrows for stronger bands
 - verify pros/cons stay as bullet points with major/minor labels
 
 The preview app now expects dashboard data to include a compact ruleset summary for each food so the static display can render per-category arrow labels and DV bar ranges.

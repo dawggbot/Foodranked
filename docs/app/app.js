@@ -418,7 +418,6 @@ function renderMacroScene(food, scene, controls) {
       <div class="slot-bullet">•</div>
       <div class="slot-main">
         <div class="slot-copy"><span class="slot-title">${item.title}</span><span class="slot-value">${item.value}</span></div>
-        <div class="slot-subbar"><div class="slot-subfill" style="width:${item.fill}%"></div></div>
       </div>
       <div class="slot-arrow-wrap">${item.arrowMarkup}</div>
     </div>`).join('');

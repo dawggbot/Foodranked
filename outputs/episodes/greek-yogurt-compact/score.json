@@ -16,18 +16,18 @@
     "protein_g": 9
   },
   "sectionScores": {
-    "fats": 68.1,
-    "carbs": 76.2,
+    "fats": 69.4,
+    "carbs": 88.9,
     "proteins": 92.9,
-    "vitamins": 13.3,
-    "minerals": 6,
-    "pros": 33.3,
-    "cons": 0
+    "vitamins": 20,
+    "minerals": 10,
+    "pros": 44.4,
+    "cons": 33.3
   },
-  "baseScore": 60,
+  "baseScore": 63,
   "contextAdjustment": {
-    "rawAdjustment": 3,
-    "appliedAdjustment": 3,
+    "rawAdjustment": 4,
+    "appliedAdjustment": 4,
     "appliedItems": [
       {
         "itemKey": "fermented_food_bonus",
@@ -37,17 +37,68 @@
         "explanation": "That gives it a practical benefit beyond the visible protein and fat numbers alone.",
         "evidenceType": "manual",
         "side": "pro",
-        "resolvedScoreValue": 3
+        "resolvedScoreValue": 2
+      },
+      {
+        "itemKey": "high_satiety",
+        "impactLevel": "minor",
+        "scoreValue": 1,
+        "title": "quite filling for the calories",
+        "explanation": "The protein density gives it strong practical satiety value.",
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 1
+      },
+      {
+        "itemKey": "easy_high_protein_use",
+        "impactLevel": "minor",
+        "scoreValue": 1,
+        "title": "easy high-protein staple",
+        "explanation": "Very easy to build meals or snacks around.",
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 1
       }
     ],
-    "ignoredItems": []
+    "ignoredItems": [
+      {
+        "itemKey": "satfat_not_low",
+        "impactLevel": "minor",
+        "scoreValue": -1,
+        "title": "saturated fat is not trivial",
+        "explanation": "Still much cleaner than weak dairy foods, but not ultra-low-fat.",
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": -1
+      },
+      {
+        "itemKey": "lactose_context",
+        "impactLevel": "minor",
+        "scoreValue": -1,
+        "title": "not suitable for everyone",
+        "explanation": "Lactose tolerance and dairy tolerance vary.",
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": -1
+      },
+      {
+        "itemKey": "topping_dependency",
+        "impactLevel": "minor",
+        "scoreValue": -1,
+        "title": "healthiness can shift with toppings",
+        "explanation": "Sugary add-ins can change the practical outcome fast.",
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": -1
+      }
+    ]
   },
-  "overallScore": 63,
+  "overallScore": 67,
   "tier": "S",
   "summary": "Proteins are carrying this food most, while minerals are the biggest drag. It lands in S tier.",
   "explanation": {
     "summary": "Proteins are carrying this food most, while minerals are the biggest drag. It lands in S tier.",
-    "whyThisTier": "This food lands in S tier with an overall score of 63 from a base nutrition score of 60. Context lifted it by 3 points.",
+    "whyThisTier": "This food lands in S tier with an overall score of 67 from a base nutrition score of 63. Context lifted it by 4 points.",
     "strongestSection": {
       "key": "proteins",
       "label": "Proteins",
@@ -56,7 +107,7 @@
     "weakestSection": {
       "key": "minerals",
       "label": "Minerals",
-      "score": 6
+      "score": 10
     },
     "topPros": [
       {
@@ -64,7 +115,21 @@
         "explanation": "That gives it a practical benefit beyond the visible protein and fat numbers alone.",
         "impactLevel": "major",
         "side": "pro",
-        "resolvedScoreValue": 3
+        "resolvedScoreValue": 2
+      },
+      {
+        "title": "quite filling for the calories",
+        "explanation": "The protein density gives it strong practical satiety value.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 1
+      },
+      {
+        "title": "easy high-protein staple",
+        "explanation": "Very easy to build meals or snacks around.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 1
       }
     ],
     "topCons": [
@@ -93,7 +158,7 @@
     "narrationNotes": [
       "Strongest section: Proteins.",
       "Weakest section: Minerals.",
-      "Context improved the final tier case by 3 points.",
+      "Context improved the final tier case by 4 points.",
       "Final verdict: S tier."
     ]
   },
@@ -177,10 +242,10 @@
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 0.2,
-      "band": "↓↓↓",
-      "score": -3,
+      "band": "↓↓",
+      "score": -2,
       "weight": 1,
-      "weightedScore": -3
+      "weightedScore": -2
     },
     {
       "metricKey": "cholesterol_mg",
@@ -191,16 +256,6 @@
       "score": 3,
       "weight": 4,
       "weightedScore": 12
-    },
-    {
-      "metricKey": "starch_g",
-      "sectionKey": "carbs",
-      "scoringMode": "arrow_bands",
-      "value": 0,
-      "band": "↓↓↓",
-      "score": -3,
-      "weight": 1,
-      "weightedScore": -3
     },
     {
       "metricKey": "sugar_g",
@@ -262,15 +317,6 @@
       "weightedScore": 4
     },
     {
-      "metricKey": "vitamin_a_dv",
-      "sectionKey": "vitamins",
-      "scoringMode": "dv_points",
-      "dvPercent": 2,
-      "points": 0,
-      "weight": 1,
-      "weightedScore": 0
-    },
-    {
       "metricKey": "calcium_dv",
       "sectionKey": "minerals",
       "scoringMode": "dv_points",
@@ -278,24 +324,6 @@
       "points": 1,
       "weight": 3,
       "weightedScore": 3
-    },
-    {
-      "metricKey": "zinc_dv",
-      "sectionKey": "minerals",
-      "scoringMode": "dv_points",
-      "dvPercent": 5,
-      "points": 0,
-      "weight": 1,
-      "weightedScore": 0
-    },
-    {
-      "metricKey": "magnesium_dv",
-      "sectionKey": "minerals",
-      "scoringMode": "dv_points",
-      "dvPercent": 3,
-      "points": 0,
-      "weight": 1,
-      "weightedScore": 0
     }
   ]
 }

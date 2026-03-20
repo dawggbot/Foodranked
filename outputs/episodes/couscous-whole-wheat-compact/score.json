@@ -17,53 +17,119 @@
   },
   "sectionScores": {
     "fats": 66.7,
-    "carbs": 46.3,
+    "carbs": 50,
     "proteins": 83.3,
-    "vitamins": 0,
-    "minerals": 4,
-    "pros": 0,
-    "cons": 0
+    "vitamins": null,
+    "minerals": 10,
+    "pros": 33.3,
+    "cons": 33.3
   },
-  "baseScore": 39,
+  "baseScore": 42,
   "contextAdjustment": {
-    "rawAdjustment": 0,
-    "appliedAdjustment": 0,
-    "appliedItems": [],
-    "ignoredItems": []
+    "rawAdjustment": 3,
+    "appliedAdjustment": 3,
+    "appliedItems": [
+      {
+        "itemKey": "grain_energy_staple",
+        "impactLevel": "minor",
+        "scoreValue": 1,
+        "title": "useful staple energy source",
+        "explanation": "That matters because grains are often judged by how practical they are in real diets.",
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 1
+      },
+      {
+        "itemKey": "grain_meal_anchor",
+        "impactLevel": "minor",
+        "scoreValue": 1,
+        "title": "works as a meal anchor",
+        "explanation": "A lot of value comes from being easy to build around.",
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 1
+      },
+      {
+        "itemKey": "grain_affordability",
+        "impactLevel": "minor",
+        "scoreValue": 1,
+        "title": "usually affordable and scalable",
+        "explanation": "Practicality matters for staple foods.",
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 1
+      }
+    ],
+    "ignoredItems": [
+      {
+        "itemKey": "grain_protein_limit",
+        "impactLevel": "minor",
+        "scoreValue": -1,
+        "title": "protein quality is limited",
+        "explanation": "Even the better grains usually need pairing.",
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": -1
+      },
+      {
+        "itemKey": "grain_carb_ceiling",
+        "impactLevel": "minor",
+        "scoreValue": -1,
+        "title": "carb load is still the main burden",
+        "explanation": "That is the category risk no grain fully escapes.",
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": -1
+      },
+      {
+        "itemKey": "grain_processing_sensitivity",
+        "impactLevel": "minor",
+        "scoreValue": -1,
+        "title": "quality can drop fast with processing",
+        "explanation": "The grain category punishes refinement pretty hard.",
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": -1
+      }
+    ]
   },
-  "overallScore": 39,
+  "overallScore": 45,
   "tier": "B",
-  "summary": "Proteins are carrying this food most, while vitamins are the biggest drag. It lands in B tier.",
+  "summary": "Proteins are carrying this food most, while minerals are the biggest drag. It lands in B tier.",
   "explanation": {
-    "summary": "Proteins are carrying this food most, while vitamins are the biggest drag. It lands in B tier.",
-    "whyThisTier": "This food lands in B tier with an overall score of 39 from a base nutrition score of 39. Context barely changed the result.",
+    "summary": "Proteins are carrying this food most, while minerals are the biggest drag. It lands in B tier.",
+    "whyThisTier": "This food lands in B tier with an overall score of 45 from a base nutrition score of 42. Context lifted it by 3 points.",
     "strongestSection": {
       "key": "proteins",
       "label": "Proteins",
       "score": 83.3
     },
-    "weakestSection": null,
+    "weakestSection": {
+      "key": "minerals",
+      "label": "Minerals",
+      "score": 10
+    },
     "topPros": [
       {
         "title": "useful staple energy source",
         "explanation": "That matters because grains are often judged by how practical they are in real diets.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 1
       },
       {
         "title": "works as a meal anchor",
         "explanation": "A lot of value comes from being easy to build around.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 1
       },
       {
         "title": "usually affordable and scalable",
         "explanation": "Practicality matters for staple foods.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 1
       }
     ],
     "topCons": [
@@ -91,6 +157,8 @@
     ],
     "narrationNotes": [
       "Strongest section: Proteins.",
+      "Weakest section: Minerals.",
+      "Context improved the final tier case by 3 points.",
       "Final verdict: B tier."
     ]
   },
@@ -194,10 +262,10 @@
       "sectionKey": "carbs",
       "scoringMode": "arrow_bands",
       "value": 5,
-      "band": "↓",
-      "score": -1,
+      "band": "↑",
+      "score": 1,
       "weight": 3,
-      "weightedScore": -3
+      "weightedScore": 3
     },
     {
       "metricKey": "sugar_g",
@@ -214,10 +282,10 @@
       "sectionKey": "carbs",
       "scoringMode": "arrow_bands",
       "value": 65,
-      "band": "↑",
-      "score": -1,
+      "band": "↑↑",
+      "score": -2,
       "weight": 4,
-      "weightedScore": -4
+      "weightedScore": -8
     },
     {
       "metricKey": "essential_amino_acids_score",
@@ -250,24 +318,6 @@
       "weightedScore": 6
     },
     {
-      "metricKey": "vitamin_e_dv",
-      "sectionKey": "vitamins",
-      "scoringMode": "dv_points",
-      "dvPercent": 0,
-      "points": 0,
-      "weight": 1,
-      "weightedScore": 0
-    },
-    {
-      "metricKey": "iron_dv",
-      "sectionKey": "minerals",
-      "scoringMode": "dv_points",
-      "dvPercent": 6,
-      "points": 0,
-      "weight": 2,
-      "weightedScore": 0
-    },
-    {
       "metricKey": "magnesium_dv",
       "sectionKey": "minerals",
       "scoringMode": "dv_points",
@@ -275,15 +325,6 @@
       "points": 1,
       "weight": 2,
       "weightedScore": 2
-    },
-    {
-      "metricKey": "zinc_dv",
-      "sectionKey": "minerals",
-      "scoringMode": "dv_points",
-      "dvPercent": 8,
-      "points": 0,
-      "weight": 1,
-      "weightedScore": 0
     }
   ]
 }

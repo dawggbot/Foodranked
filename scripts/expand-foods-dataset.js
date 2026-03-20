@@ -223,7 +223,7 @@ const library = {
       cons: [
         { itemKey: 'meat_saturated_fat_risk', impactLevel: 'minor', scoreValue: -1, title: 'fat quality can go sideways fast', explanation: 'Some meats are strong until the fat profile shows up.' },
         { itemKey: 'meat_cost_or_storage', impactLevel: 'minor', scoreValue: -1, title: 'cost and storage can be a pain', explanation: 'Practical downsides still count.' },
-        { itemKey: 'meat_no_fibre', impactLevel: 'minor', scoreValue: -1, title: 'brings no fibre support', explanation: 'That leaves a nutrition gap the rest of the meal has to cover.' }
+        { itemKey: 'meat_cut_and_processing_variance', impactLevel: 'minor', scoreValue: -1, title: 'quality swings a lot by cut and processing', explanation: 'The category can look very different depending on what version you actually buy.' }
       ]
     },
     foods: [

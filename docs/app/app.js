@@ -84,6 +84,11 @@ const contextSpriteMap = {
     minor: './assets/minor-con.png'
   }
 };
+const submacroBulletSpriteMap = {
+  fats: './assets/fat-submacro-bullet.png',
+  carbs: './assets/carb-submacro-bullet.png',
+  proteins: './assets/protein-submacro-bullet.png'
+};
 const PRESET_KEY = 'foodranked-layout-presets-v1';
 const DEFAULT_CONTROLS = { bubbleScale: 100, bubbleOffsetX: 0, headlineScale: 100, stampScale: 100, subtitleLift: 0 };
 const macroRangeBlueprint = {
@@ -413,9 +418,10 @@ function renderMacroScene(food, scene, controls) {
   els.macroHeadline.style.transform = `scale(${controls.headlineScale / 100})`;
   els.macroHeadline.style.transformOrigin = 'left center';
   const items = macroSubmetrics(food, scene);
+  const submacroBullet = submacroBulletSpriteMap[scene] || '';
   els.macroSlots.innerHTML = items.map(item => `
     <div class="slot-row">
-      <div class="slot-bullet">•</div>
+      <div class="slot-bullet">${submacroBullet ? `<img class="slot-bullet-sprite" src="${submacroBullet}" alt="${scene} bullet" />` : '•'}</div>
       <div class="slot-main">
         <div class="slot-copy"><span class="slot-title">${item.title}</span><span class="slot-value">${item.value}</span></div>
       </div>

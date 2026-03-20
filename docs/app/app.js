@@ -63,7 +63,7 @@ const macroSpriteMap = {
   carbs:'./assets/macro-carbs-lightning.gif',
   proteins:'./assets/macro-protein-arm.gif',
   vitamins:'./assets/vitamin-icon.gif',
-  minerals:'./assets/mineral-sprite.svg'
+  minerals:'./assets/mineral-icon.gif'
 };
 const typeSpriteMap = {
   grains:'./assets/grains.png', meats:'./assets/meats.png', fruits:'./assets/fruit.png', vegetables:'./assets/veg.png', dairy:'./assets/dairy.png', legumes:'./assets/legumes.png', nuts:'./assets/nuts.png', seeds:'./assets/seeds.png', 'oils-and-fats':'./assets/oil and fat.png', misc:'./assets/misc.png', tubers:'./assets/tubers.png'
@@ -73,6 +73,16 @@ const arrowSpriteMap = {
   down_good: './assets/arrow-down-green.svg',
   up_bad: './assets/arrow-up-red.svg',
   down_bad: './assets/arrow-down-red.svg'
+};
+const contextSpriteMap = {
+  pros: {
+    major: './assets/major-pro.png',
+    minor: './assets/minor-pro.png'
+  },
+  cons: {
+    major: './assets/major-con.png',
+    minor: './assets/minor-con.png'
+  }
 };
 const PRESET_KEY = 'foodranked-layout-presets-v1';
 const DEFAULT_CONTROLS = { bubbleScale: 100, bubbleOffsetX: 0, headlineScale: 100, stampScale: 100, subtitleLift: 0 };
@@ -441,15 +451,20 @@ function renderMicroScene(food, scene, controls) {
 function renderBulletsScene(food, scene) {
   setVisible(els.bulletsLayout);
   const items = food.contextItems?.[scene] || [];
-  els.bulletsLayout.innerHTML = items.map(item => `
-    <div class="bullet-row ${scene === 'cons' ? 'cons' : 'pros'}">
-      <div class="bullet-glyph">•</div>
+  const accent = accentMap[food.foodType] || '#6b7280';
+  els.bulletsLayout.innerHTML = items.map(item => {
+    const level = impactLabel(item.impactLevel).toLowerCase();
+    const sprite = contextSpriteMap[scene]?.[level] || '';
+    return `
+    <div class="bullet-row ${scene === 'cons' ? 'cons' : 'pros'}" style="--context-accent:${accent};">
+      <div class="bullet-glyph">${sprite ? `<img class="bullet-sprite ${scene} ${level}" src="${sprite}" alt="${level} ${scene === 'pros' ? 'pro' : 'con'}" />` : '•'}</div>
       <div class="bullet-text-block">
-        <div class="bullet-meta-row"><span class="impact-chip ${impactLabel(item.impactLevel).toLowerCase()}">${impactLabel(item.impactLevel)} ${scene === 'pros' ? 'pro' : 'con'}</span></div>
+        <div class="bullet-meta-row"><span class="impact-chip ${level}">${impactLabel(item.impactLevel)} ${scene === 'pros' ? 'pro' : 'con'}</span></div>
         <div class="bullet-text">${item.title}</div>
         <div class="bullet-subtext">${item.explanation || ''}</div>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
   els.subtitleText.textContent = sceneSubtitle(food, scene);
 }
 

@@ -89,6 +89,30 @@ const submacroBulletSpriteMap = {
   carbs: './assets/carb-submacro-bullet.png',
   proteins: './assets/protein-submacro-bullet.png'
 };
+const macroSceneAccentMap = {
+  fats: '#8b4ea8',
+  carbs: '#d8a132',
+  proteins: '#3b7f93'
+};
+const macroSceneLabelMap = {
+  fats: 'FATS',
+  carbs: 'CARBS',
+  proteins: 'PROTEIN'
+};
+const metricLabelMap = {
+  saturated_fat_g: 'SAT FAT',
+  omega3_mg: 'OMEGA-3',
+  polyunsaturated_fat_g: 'PUFA',
+  cholesterol_mg: 'CHOLESTEROL',
+  starch_g: 'STARCH',
+  fibre_g: 'FIBRE',
+  sugar_g: 'SUGAR',
+  glycemic_index: 'GI',
+  collagen_g: 'COLLAGEN',
+  essential_amino_acids_score: 'EAAS',
+  nonessential_amino_acids_score: 'NEAAS',
+  bioavailability_percent: 'BIOAVAIL'
+};
 const PRESET_KEY = 'foodranked-layout-presets-v1';
 const DEFAULT_CONTROLS = { bubbleScale: 100, bubbleOffsetX: 0, headlineScale: 100, stampScale: 100, subtitleLift: 0 };
 const macroRangeBlueprint = {
@@ -108,7 +132,7 @@ const macroRangeBlueprint = {
 function fmtType(v){ return String(v||'').replace(/-/g,' '); }
 function fmtBasis(food){ return `Per ${food?.basis?.value ?? 100}${food?.basis?.unit ?? 'g'}`; }
 function escapeHtml(str){return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function titleizeMetric(key){ return String(key||'').replace(/_dv$/,'').replace(/_mg$/,'').replace(/_g$/,'').replace(/_percent$/,'').replace(/_/g,' ').replace(/\bgi\b/i,'glycemic index').replace(/\bomega3\b/i,'omega 3').replace(/\bvitamin b12\b/i,'vitamin B12').replace(/\bvitamin d\b/i,'vitamin D'); }
+function titleizeMetric(key){ return metricLabelMap[key] || String(key||'').replace(/_dv$/,'').replace(/_mg$/,'').replace(/_g$/,'').replace(/_percent$/,'').replace(/_/g,' ').replace(/\bgi\b/i,'glycemic index').replace(/\bomega3\b/i,'omega 3').replace(/\bvitamin b12\b/i,'vitamin B12').replace(/\bvitamin d\b/i,'vitamin D'); }
 function clamp(n,min,max){ return Math.max(min, Math.min(max, n)); }
 function alpha(hex,a){ const clean = String(hex||'#999').replace('#',''); const full = clean.length===3 ? clean.split('').map(x=>x+x).join('') : clean; const num = parseInt(full,16); const r=(num>>16)&255,g=(num>>8)&255,b=num&255; return `rgba(${r}, ${g}, ${b}, ${a})`; }
 
@@ -402,28 +426,30 @@ function renderMacroScene(food, scene, controls) {
   const headlineValue = macroHeaderValue(food, scene);
   const macroRange = derivedMacroRange(food, scene);
   const macroFill = normalizedPercent(Number(headlineValue), macroRange);
-  const accent = accentMap[food.foodType] || '#6b7280';
+  const accent = macroSceneAccentMap[scene] || accentMap[food.foodType] || '#6b7280';
   els.macroBubble.className = `macro-bubble ${scene}`;
   els.macroBubble.style.transform = `translateX(${controls.bubbleOffsetX}px) scale(${controls.bubbleScale / 100})`;
+  els.macroBubble.style.setProperty('--macro-scene-accent', accent);
   els.macroBubbleImg.src = macroSpriteMap[scene] || '';
   els.macroBubbleImg.alt = `${scene} sprite`;
   els.macroHeadline.innerHTML = `
     <div class="macro-headline-top">
-      <span class="macro-headline-label">${scene.toUpperCase()}</span>
+      <span class="macro-headline-label">${macroSceneLabelMap[scene] || scene.toUpperCase()}</span>
     </div>
     <div class="macro-bar-shell ${scene}" style="--macro-accent:${accent}; --macro-fill:${macroFill}%;">
       <div class="macro-bar-fill"></div>
+      <div class="macro-bar-cap"></div>
       <div class="macro-bar-value">${formatMacroAmount(headlineValue)}</div>
     </div>`;
   els.macroHeadline.style.transform = `scale(${controls.headlineScale / 100})`;
-  els.macroHeadline.style.transformOrigin = 'left center';
+  els.macroHeadline.style.transformOrigin = 'left top';
   const items = macroSubmetrics(food, scene);
   const submacroBullet = submacroBulletSpriteMap[scene] || '';
   els.macroSlots.innerHTML = items.map(item => `
-    <div class="slot-row">
+    <div class="slot-row ${scene}">
       <div class="slot-bullet">${submacroBullet ? `<img class="slot-bullet-sprite" src="${submacroBullet}" alt="${scene} bullet" />` : '•'}</div>
       <div class="slot-main">
-        <div class="slot-copy"><span class="slot-title">${item.title}</span><span class="slot-value">${item.value}</span></div>
+        <div class="slot-copy"><span class="slot-title">${item.title}</span><span class="slot-divider"></span><span class="slot-value">${item.value}</span></div>
       </div>
       <div class="slot-arrow-wrap">${item.arrowMarkup}</div>
     </div>`).join('');

@@ -22,6 +22,7 @@ const els = {
   previewKcal: document.getElementById('previewKcal'),
   previewScoreText: document.getElementById('previewScoreText'),
   previewSceneChip: document.getElementById('previewSceneChip'),
+  previewSceneChipText: document.getElementById('previewSceneChipText'),
   heroSprite: document.getElementById('heroSprite'),
   macroSprite: document.getElementById('macroSprite'),
   macroTitle: document.getElementById('macroTitle'),
@@ -53,10 +54,14 @@ const macroSpriteMap = {
   minerals:'./assets/mineral-icon.gif'
 };
 const arrowSpriteMap = {
-  up_good: './assets/arrow-up-green.svg',
-  down_good: './assets/arrow-down-green.svg',
-  up_bad: './assets/arrow-up-red.svg',
-  down_bad: './assets/arrow-down-red.svg'
+  up_good: './assets/green-arrow.png',
+  down_good: './assets/green-arrow.png',
+  up_bad: './assets/red-arrow.png',
+  down_bad: './assets/red-arrow.png'
+};
+const sectionIndicatorMap = {
+  idle: './assets/meat-section-indicator.png',
+  active: './assets/meat-highlighted-section-indicator.png'
 };
 const heroSpriteMap = {
   grains: './assets/grains.png',
@@ -183,6 +188,17 @@ function formatMacroAmount(value) {
   return `${Number.isInteger(num) ? num : Number(num.toFixed(1))}g`;
 }
 
+function rowIconForScene(scene, item = {}) {
+  if (scene === 'fats') return './assets/fat-submacro-row.png';
+  if (scene === 'carbs') return './assets/carb-submacro-bullet-point.png';
+  if (scene === 'proteins') return './assets/protein-submacro-bullet-point.png';
+  if (scene === 'vitamins') return './assets/vitamin-icon-raw.gif';
+  if (scene === 'minerals') return './assets/mineral-icon-raw.gif';
+  if (scene === 'pros') return item.impactLevel === 'major' ? './assets/major-pro-raw.png' : './assets/minor-pro-raw.png';
+  if (scene === 'cons') return item.impactLevel === 'major' ? './assets/major-con-raw.png' : './assets/minor-con-raw.png';
+  return './assets/carb-submacro-bullet-point.png';
+}
+
 function macroSubmetrics(food, scene) {
   const rules = rulesForSection(food, scene).filter(rule => rule.metricKey !== macroHeaderMetricKey(scene)).slice(0, 4);
   return rules.map(rule => {
@@ -190,7 +206,9 @@ function macroSubmetrics(food, scene) {
     return {
       title: titleizeMetric(rule.metricKey),
       value: formatMetricValue(rule.metricKey, value),
-      arrowMarkup: arrowMarkup(rule, value)
+      arrowMarkup: arrowMarkup(rule, value),
+      icon: rowIconForScene(scene),
+      useRowSprite: scene === 'fats'
     };
   });
 }
@@ -199,7 +217,9 @@ function microSubmetrics(food, scene) {
   return rulesForSection(food, scene).slice(0, 4).map(rule => ({
     title: titleizeMetric(rule.metricKey),
     value: formatMetricValue(rule.metricKey, valueForMetric(food, rule.metricKey)),
-    arrowMarkup: '<span>·</span>'
+    arrowMarkup: '<span>·</span>',
+    icon: rowIconForScene(scene),
+    useRowSprite: false
   }));
 }
 
@@ -207,7 +227,9 @@ function contextSubmetrics(food, scene) {
   return (food.contextItems?.[scene] || []).slice(0, 4).map(item => ({
     title: String(item.title || '').toUpperCase().replace(/[^A-Z0-9]+/g,' ').trim().slice(0, 14),
     value: item.impactLevel === 'major' ? 'HIGH' : 'LOW',
-    arrowMarkup: item.impactLevel === 'major' ? `<img src="./assets/arrow-up-red.svg" alt="" /><img src="./assets/arrow-up-red.svg" alt="" />` : `<img src="./assets/arrow-up-green.svg" alt="" />`
+    arrowMarkup: item.impactLevel === 'major' ? `<img src="./assets/red-arrow.png" alt="" /><img src="./assets/red-arrow.png" alt="" />` : `<img src="./assets/green-arrow.png" alt="" />`,
+    icon: rowIconForScene(scene, item),
+    useRowSprite: false
   }));
 }
 
@@ -344,7 +366,7 @@ function renderPreview() {
   els.previewBasis.textContent = compactBasis(food);
   els.previewKcal.textContent = food.header?.kcal ?? '—';
   els.previewScoreText.textContent = food.episode?.overallScore ?? '??';
-  els.previewSceneChip.textContent = sceneLabels[scene] || 'HEATS';
+  els.previewSceneChipText.textContent = sceneLabels[scene] || 'HEATS';
   els.heroSprite.src = heroSpriteForFood(food);
   els.heroSprite.alt = `${food.name} sprite`;
   els.macroSprite.src = macroSpriteMap[scene] || macroSpriteMap[macroScene];
@@ -354,8 +376,9 @@ function renderPreview() {
 
   els.submetricList.innerHTML = rows.map(row => `
     <div class="submetric-row">
-      <div class="submetric-dot"></div>
-      <div class="submetric-pill">
+      ${row.useRowSprite ? '' : `<img class="submetric-icon" src="${row.icon}" alt="" />`}
+      <div class="submetric-pill ${row.useRowSprite ? 'has-sprite' : ''}">
+        ${row.useRowSprite ? `<img class="submetric-row-sprite" src="${row.icon}" alt="" />` : ''}
         <div class="submetric-label">${escapeHtml(row.title)}</div>
         <div class="submetric-sep"></div>
         <div class="submetric-value">${escapeHtml(row.value)}</div>
@@ -363,7 +386,7 @@ function renderPreview() {
       <div class="submetric-arrows">${row.arrowMarkup}</div>
     </div>`).join('');
 
-  els.progressRow.innerHTML = sceneOrder.map((item, index) => `<div class="progress-node ${index === activeIndex ? 'active' : ''}"></div>`).join('');
+  els.progressRow.innerHTML = sceneOrder.map((item, index) => `<img class="progress-node ${index === activeIndex ? 'active' : ''}" src="${index === activeIndex ? sectionIndicatorMap.active : sectionIndicatorMap.idle}" alt="" />`).join('');
 }
 
 function initTabs() {

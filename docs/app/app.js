@@ -18,7 +18,7 @@ const els = {
   foodSummary: document.getElementById('foodSummary'),
   detailContent: document.getElementById('detailContent'),
   previewFoodName: document.getElementById('previewFoodName'),
-  previewBasis: document.getElementById('previewBasis'),
+  foodTypeSprite: document.getElementById('foodTypeSprite'),
   previewKcal: document.getElementById('previewKcal'),
   previewScoreText: document.getElementById('previewScoreText'),
   previewSceneChip: document.getElementById('previewSceneChip'),
@@ -108,7 +108,6 @@ const macroRangeBlueprint = {
 
 function fmtType(v){ return String(v||'').replace(/-/g,' '); }
 function fmtBasis(food){ return `Per ${food?.basis?.value ?? 100}${food?.basis?.unit ?? 'g'}`; }
-function compactBasis(food){ return `${food?.basis?.value ?? 100}${food?.basis?.unit ?? 'g'}`; }
 function escapeHtml(str){return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function clamp(n,min,max){ return Math.max(min, Math.min(max, n)); }
 function titleizeMetric(key){ return metricLabelMap[key] || String(key||'').replace(/_dv$/,'').replace(/_mg$/,'').replace(/_g$/,'').replace(/_percent$/,'').replace(/_/g,' ').toUpperCase(); }
@@ -200,6 +199,10 @@ function rowIconForScene(scene, item = {}) {
   return './assets/carb-submacro-bullet-point.png';
 }
 
+function useStandaloneRowSprite(scene) {
+  return ['fats','carbs','proteins'].includes(scene);
+}
+
 function macroSubmetrics(food, scene) {
   const rules = rulesForSection(food, scene).filter(rule => rule.metricKey !== macroHeaderMetricKey(scene)).slice(0, 3);
   return rules.map(rule => {
@@ -209,7 +212,7 @@ function macroSubmetrics(food, scene) {
       value: formatMetricValue(rule.metricKey, value),
       arrowMarkup: arrowMarkup(rule, value),
       icon: rowIconForScene(scene),
-      useRowSprite: scene === 'fats'
+      useRowSprite: useStandaloneRowSprite(scene)
     };
   });
 }
@@ -368,7 +371,8 @@ function renderPreview() {
 
   els.displayCanvas.dataset.scene = scene;
   els.previewFoodName.textContent = food.name.toUpperCase();
-  els.previewBasis.textContent = compactBasis(food);
+  els.foodTypeSprite.src = heroSpriteMap[food.foodType] || './assets/misc.png';
+  els.foodTypeSprite.alt = `${food.foodType} sprite`;
   els.previewKcal.textContent = food.header?.kcal ?? '—';
   els.previewScoreText.textContent = food.episode?.overallScore ?? '??';
   els.previewSceneChipText.textContent = sceneLabels[scene] || 'HEATS';

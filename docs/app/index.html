@@ -11,7 +11,7 @@
     <aside class="sidebar panel">
       <div class="sidebar-top">
         <h1>FoodRanked</h1>
-        <p class="muted">Browse foods, inspect scripts, and tune the display sandbox.</p>
+        <p class="muted">Browse foods, inspect scripts, and preview the rebuilt stat card layout.</p>
       </div>
 
       <div class="controls">
@@ -53,9 +53,9 @@
         <div class="panel quick-panel">
           <h3>Display controls</h3>
           <label>
-            Scene
+            Scene highlight
             <select id="sceneSelect">
-              <option value="hook">Hook</option>
+              <option value="overview">Overview</option>
               <option value="fats">Fats</option>
               <option value="carbs">Carbs</option>
               <option value="proteins">Proteins</option>
@@ -66,106 +66,63 @@
               <option value="final">Verdict</option>
             </select>
           </label>
-          <label>
-            Bubble size
-            <input id="bubbleScale" type="range" min="80" max="150" value="100" />
-          </label>
-          <label>
-            Bubble X offset
-            <input id="bubbleOffsetX" type="range" min="-60" max="60" value="0" />
-          </label>
-          <label>
-            Headline scale
-            <input id="headlineScale" type="range" min="85" max="130" value="100" />
-          </label>
-          <label>
-            Verdict stamp scale
-            <input id="stampScale" type="range" min="85" max="130" value="100" />
-          </label>
-          <label>
-            Subtitle lift
-            <input id="subtitleLift" type="range" min="0" max="220" value="0" />
-          </label>
-
-          <div class="preset-tools">
-            <input id="presetName" type="text" placeholder="Preset name..." />
-            <div class="preset-row">
-              <button id="savePresetBtn" type="button">Save preset</button>
-              <button id="resetPresetBtn" type="button">Reset controls</button>
-            </div>
-            <select id="presetSelect">
-              <option value="">Load saved preset</option>
-            </select>
-            <button id="deletePresetBtn" type="button" class="danger-btn">Delete selected preset</button>
-          </div>
-
-          <p class="muted small">Current direction: new pixel sprites are shown at integer-size rendering, macro bars are only used for the main macro scenes, submacros are arrow-only, vitamins use their own sprite header, and pros/cons are plain bullets with major or minor tags.</p>
+          <p class="muted small">This pass rebuilds the full 135 × 240 display card shape using the supplied sprite language and puts the existing food + macro sprites into fixed slots so the GitHub Pages preview shows a stable template.</p>
         </div>
       </section>
 
       <section class="content-grid">
         <div class="panel preview-panel">
           <div class="phone-preview" id="phonePreview">
-            <div class="phone-bg"></div>
-            <div class="shell-screw tl"></div>
-            <div class="shell-screw tr"></div>
-            <div class="shell-screw bl"></div>
-            <div class="shell-screw br"></div>
+            <div class="display-canvas">
+              <div class="display-top-row">
+                <div class="food-frame">
+                  <img id="heroSprite" alt="food sprite" />
+                </div>
 
-            <div class="top-hud">
-              <div class="hud-label">FOODRANKED</div>
-              <div class="header-card">
-                <div class="food-thumb" id="foodThumb">🍽️</div>
-                <div class="header-copy">
-                  <div class="header-title" id="previewFoodName">Food</div>
-                  <div class="header-type-row">
-                    <div class="food-type-sprite-wrap"><img id="foodTypeSprite" alt="food type sprite" /></div>
-                    <div class="basis-pill" id="previewBasis">Per 100g</div>
+                <div class="display-header">
+                  <div class="display-name-line">
+                    <div class="display-name" id="previewFoodName">BACON</div>
+                    <div class="display-per100g">
+                      <div class="display-per-label">PER</div>
+                      <div class="display-per-value" id="previewBasis">100g</div>
+                    </div>
+                  </div>
+
+                  <div class="display-score-row">
+                    <div class="kcal-orb" id="previewKcalOrb">
+                      <div class="kcal-value" id="previewKcal">417</div>
+                      <div class="kcal-label">KCAL</div>
+                    </div>
+                    <div class="score-pill">SCORE:<span id="previewScoreText">46</span></div>
+                    <div class="section-chip" id="previewSceneChip">HEATS</div>
                   </div>
                 </div>
-                <div class="kcal-box" id="previewKcalBox">
-                  <div class="kcal-value" id="previewKcal">000</div>
-                  <div class="kcal-label">kcal</div>
-                </div>
               </div>
-            </div>
 
-            <div class="section-chip hidden" id="previewSceneChip">HOOK</div>
-            <div class="section-chip-shadow hidden"></div>
+              <div class="divider-line"></div>
 
-            <div class="screen-shell">
-              <div class="screen-bezel"></div>
-              <div class="stage-card">
-                <div class="hook-layout" id="hookLayout">
-                  <div class="hero-art"><div class="hero-inner">HERO</div></div>
-                  <div class="hook-title" id="hookTitle">FOOD NAME</div>
-                  <div class="hook-ranked">RANKED</div>
-                </div>
-
-                <div class="macro-layout hidden" id="macroLayout">
-                  <div class="macro-head-row">
-                    <div class="macro-bubble fat" id="macroBubble"><img id="macroBubbleImg" alt="macro bubble" /></div>
-                    <div class="macro-headline" id="macroHeadline">42g FAT</div>
+              <div class="macro-section">
+                <div class="macro-main-row">
+                  <div class="macro-emblem">
+                    <img id="macroSprite" src="./assets/macro-fats-shield.gif" alt="macro sprite" />
                   </div>
-                  <div class="slot-list" id="macroSlots"></div>
+                  <div class="macro-copy-stack">
+                    <div class="macro-title" id="macroTitle">FATS</div>
+                    <div class="macro-pill">
+                      <div class="macro-fill" id="macroFill"></div>
+                      <div class="macro-value" id="macroValue">37.1g</div>
+                    </div>
+                  </div>
                 </div>
 
-                <div class="micro-layout hidden" id="microLayout"></div>
-
-                <div class="bullets-layout hidden" id="bulletsLayout"></div>
-
-                <div class="verdict-layout hidden" id="verdictLayout">
-                  <div class="tier-stamp" id="previewTierStamp">D</div>
-                  <div class="score-plate" id="previewScorePlate">39</div>
-                </div>
+                <div class="submetric-list" id="submetricList"></div>
               </div>
-            </div>
 
-            <div class="bottom-hud">
-              <div class="subtitle-box" id="subtitleBox">
-                <div id="subtitleText">Select a food to preview the display.</div>
-              </div>
-              <div class="progress-row" id="progressRow"></div>
+              <div class="divider-line spacer"></div>
+
+              <div class="progress-track" id="progressRow"></div>
+
+              <div class="divider-line footer"></div>
             </div>
           </div>
         </div>

@@ -51,8 +51,8 @@ const macroSpriteMap = {
   fats:'./assets/macro-fats-shield.gif',
   carbs:'./assets/macro-carbs-lightning.gif',
   proteins:'./assets/macro-protein-arm.gif',
-  vitamins:'./assets/vitamin-icon.gif',
-  minerals:'./assets/mineral-icon.gif'
+  vitamins:'./assets/vitamin-icon-raw.gif',
+  minerals:'./assets/mineral-icon-raw.gif'
 };
 const arrowSpriteMap = {
   up_good: './assets/green-arrow.png',

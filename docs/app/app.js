@@ -23,6 +23,7 @@ const els = {
   previewScoreText: document.getElementById('previewScoreText'),
   previewSceneChip: document.getElementById('previewSceneChip'),
   previewSceneChipText: document.getElementById('previewSceneChipText'),
+  displayCanvas: document.getElementById('displayCanvas'),
   heroSprite: document.getElementById('heroSprite'),
   macroSprite: document.getElementById('macroSprite'),
   macroTitle: document.getElementById('macroTitle'),
@@ -200,7 +201,7 @@ function rowIconForScene(scene, item = {}) {
 }
 
 function macroSubmetrics(food, scene) {
-  const rules = rulesForSection(food, scene).filter(rule => rule.metricKey !== macroHeaderMetricKey(scene)).slice(0, 4);
+  const rules = rulesForSection(food, scene).filter(rule => rule.metricKey !== macroHeaderMetricKey(scene)).slice(0, 3);
   return rules.map(rule => {
     const value = valueForMetric(food, rule.metricKey);
     return {
@@ -214,7 +215,7 @@ function macroSubmetrics(food, scene) {
 }
 
 function microSubmetrics(food, scene) {
-  return rulesForSection(food, scene).slice(0, 4).map(rule => ({
+  return rulesForSection(food, scene).slice(0, 3).map(rule => ({
     title: titleizeMetric(rule.metricKey),
     value: formatMetricValue(rule.metricKey, valueForMetric(food, rule.metricKey)),
     arrowMarkup: '<span>·</span>',
@@ -224,7 +225,7 @@ function microSubmetrics(food, scene) {
 }
 
 function contextSubmetrics(food, scene) {
-  return (food.contextItems?.[scene] || []).slice(0, 4).map(item => ({
+  return (food.contextItems?.[scene] || []).slice(0, 3).map(item => ({
     title: String(item.title || '').toUpperCase().replace(/[^A-Z0-9]+/g,' ').trim().slice(0, 14),
     value: item.impactLevel === 'major' ? 'HIGH' : 'LOW',
     arrowMarkup: item.impactLevel === 'major' ? `<img src="./assets/red-arrow.png" alt="" /><img src="./assets/red-arrow.png" alt="" />` : `<img src="./assets/green-arrow.png" alt="" />`,
@@ -348,7 +349,10 @@ function heroSpriteForFood(food) {
 }
 
 function macroSceneForDisplay(scene) {
-  return ['fats','carbs','proteins'].includes(scene) ? scene : 'fats';
+  if (['fats','carbs','proteins'].includes(scene)) return scene;
+  if (scene === 'carbs') return 'carbs';
+  if (scene === 'proteins') return 'proteins';
+  return 'fats';
 }
 
 function renderPreview() {
@@ -362,6 +366,7 @@ function renderPreview() {
   const rows = displayRows(food, scene);
   const activeIndex = sceneOrder.indexOf(scene) === -1 ? 0 : sceneOrder.indexOf(scene);
 
+  els.displayCanvas.dataset.scene = scene;
   els.previewFoodName.textContent = food.name.toUpperCase();
   els.previewBasis.textContent = compactBasis(food);
   els.previewKcal.textContent = food.header?.kcal ?? '—';

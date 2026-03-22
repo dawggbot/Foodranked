@@ -21,7 +21,6 @@ const els = {
   foodTypeSprite: document.getElementById('foodTypeSprite'),
   previewKcal: document.getElementById('previewKcal'),
   previewScoreText: document.getElementById('previewScoreText'),
-  previewSceneChip: document.getElementById('previewSceneChip'),
   previewSceneChipText: document.getElementById('previewSceneChipText'),
   displayCanvas: document.getElementById('displayCanvas'),
   heroSprite: document.getElementById('heroSprite'),
@@ -35,15 +34,15 @@ const els = {
 };
 
 const sceneLabels = {
-  overview: 'Heats',
-  fats: 'Heats',
-  carbs: 'Carbs',
-  proteins: 'Protein',
-  vitamins: 'Vitamins',
-  minerals: 'Minerals',
-  pros: 'Pros',
-  cons: 'Cons',
-  final: 'Verdict'
+  overview: 'FATS',
+  fats: 'FATS',
+  carbs: 'CARBS',
+  proteins: 'PROTEIN',
+  vitamins: 'VITAMINS',
+  minerals: 'MINERALS',
+  pros: 'PROS',
+  cons: 'CONS',
+  final: 'VERDICT'
 };
 
 const tierClassMap = { S:'tier-S', A:'tier-A', B:'tier-B', C:'tier-C', D:'tier-D' };
@@ -55,10 +54,10 @@ const macroSpriteMap = {
   minerals:'./assets/mineral-icon-raw.gif'
 };
 const arrowSpriteMap = {
-  up_good: './assets/green-arrow.png',
-  down_good: './assets/green-arrow.png',
-  up_bad: './assets/red-arrow.png',
-  down_bad: './assets/red-arrow.png'
+  up_good: './assets/arrow-up-green.svg',
+  down_good: './assets/arrow-down-green.svg',
+  up_bad: './assets/arrow-up-red.svg',
+  down_bad: './assets/arrow-down-red.svg'
 };
 const sectionIndicatorMap = {
   idle: './assets/meat-section-indicator.png',
@@ -78,20 +77,31 @@ const heroSpriteMap = {
   tubers: './assets/tubers.png'
 };
 const metricLabelMap = {
-  saturated_fat_g: 'SATFAT',
-  omega3_mg: 'OMEGA-3',
-  polyunsaturated_fat_g: 'PUFA',
+  saturated_fat_g: 'SAT FAT',
+  omega3_mg: 'OMEGA 3',
+  polyunsaturated_fat_g: 'POLY FAT',
   cholesterol_mg: 'CHOLESTEROL',
   starch_g: 'STARCH',
   fibre_g: 'FIBRE',
   sugar_g: 'SUGAR',
-  glycemic_index: 'GI',
+  glycemic_index: 'GLYCEMIC',
   collagen_g: 'COLLAGEN',
   essential_amino_acids_score: 'EAAS',
   nonessential_amino_acids_score: 'NEAAS',
-  bioavailability_percent: 'BIOAVAIL'
+  bioavailability_percent: 'BIOAVAIL',
+  vitamin_a_dv: 'VIT A',
+  vitamin_c_dv: 'VIT C',
+  vitamin_d_dv: 'VIT D',
+  vitamin_e_dv: 'VIT E',
+  vitamin_k_dv: 'VIT K',
+  vitamin_b12_dv: 'B12',
+  iron_dv: 'IRON',
+  magnesium_dv: 'MAG',
+  zinc_dv: 'ZINC',
+  calcium_dv: 'CAL',
+  potassium_dv: 'POT'
 };
-const sceneOrder = ['overview','fats','carbs','proteins','vitamins','minerals','final'];
+const sceneProgressOrder = ['fats','carbs','proteins','vitamins','minerals','pros','cons'];
 const macroRangeBlueprint = {
   nuts: { fats:{ min:30, max:75 }, carbs:{ min:5, max:30 }, proteins:{ min:10, max:30 } },
   seeds: { fats:{ min:25, max:70 }, carbs:{ min:5, max:35 }, proteins:{ min:10, max:30 } },
@@ -116,19 +126,11 @@ function rulesForSection(food, section) {
   return food.ruleset?.metricRulesBySection?.[section] || [];
 }
 
-function deriveBarRange(rule) {
-  const bands = Array.isArray(rule?.bands) ? rule.bands : [];
-  const mins = bands.map(b => typeof b.min === 'number' ? b.min : null).filter(v => v != null);
-  const maxs = bands.map(b => typeof b.max === 'number' ? b.max : null).filter(v => v != null);
-  const fallbackMax = rule?.scoringMode === 'dv_points' ? 100 : 10;
-  return { min: mins.length ? Math.min(...mins, 0) : 0, max: maxs.length ? Math.max(...maxs, fallbackMax) : fallbackMax };
-}
-
 function valueForMetric(food, metricKey) { return food.metrics?.[metricKey] ?? null; }
 
 function formatMetricValue(metricKey, value, hideUnits = false) {
   if (value == null) return '—';
-  if (/_dv$/.test(metricKey)) return `${value}% DV`;
+  if (/_dv$/.test(metricKey)) return hideUnits ? `${value}` : `${value}% DV`;
   if (hideUnits) return `${value}`;
   if (/_mg$/.test(metricKey)) return `${value}mg`;
   if (/_g$/.test(metricKey)) return `${value}g`;
@@ -153,7 +155,7 @@ function arrowMeta(rule, value) {
 
 function arrowMarkup(rule, value) {
   const meta = arrowMeta(rule, value);
-  if (!meta.magnitude || meta.direction === 'flat') return '<span>·</span>';
+  if (!meta.magnitude || meta.direction === 'flat') return '<span class="submetric-dot">·</span>';
   const key = `${meta.direction}_${meta.isGood ? 'good' : 'bad'}`;
   return Array.from({ length: meta.magnitude }).map(() => `<img src="${arrowSpriteMap[key]}" alt="" />`).join('');
 }
@@ -200,7 +202,7 @@ function rowIconForScene(scene, item = {}) {
 }
 
 function useStandaloneRowSprite(scene) {
-  return ['fats','carbs','proteins'].includes(scene);
+  return scene === 'fats';
 }
 
 function macroSubmetrics(food, scene) {
@@ -208,6 +210,7 @@ function macroSubmetrics(food, scene) {
   return rules.map(rule => {
     const value = valueForMetric(food, rule.metricKey);
     return {
+      kind: 'macro',
       title: titleizeMetric(rule.metricKey),
       value: formatMetricValue(rule.metricKey, value),
       arrowMarkup: arrowMarkup(rule, value),
@@ -217,23 +220,33 @@ function macroSubmetrics(food, scene) {
   });
 }
 
+function deriveBarMax(rules = []) {
+  const values = rules.flatMap(rule => Array.isArray(rule?.bands) ? rule.bands.map(band => band.max).filter(v => typeof v === 'number') : []);
+  return values.length ? Math.max(...values, 100) : 100;
+}
+
 function microSubmetrics(food, scene) {
-  return rulesForSection(food, scene).slice(0, 3).map(rule => ({
-    title: titleizeMetric(rule.metricKey),
-    value: formatMetricValue(rule.metricKey, valueForMetric(food, rule.metricKey)),
-    arrowMarkup: '<span>·</span>',
-    icon: rowIconForScene(scene),
-    useRowSprite: false
-  }));
+  const rules = rulesForSection(food, scene).slice(0, scene === 'vitamins' ? 4 : 3);
+  const max = deriveBarMax(rules);
+  return rules.map(rule => {
+    const value = Number(valueForMetric(food, rule.metricKey) || 0);
+    return {
+      kind: 'micro',
+      title: titleizeMetric(rule.metricKey),
+      valueText: `${value}% DV`,
+      percent: clamp((value / Math.max(max, 1)) * 100, 0, 100),
+      icon: rowIconForScene(scene)
+    };
+  });
 }
 
 function contextSubmetrics(food, scene) {
   return (food.contextItems?.[scene] || []).slice(0, 3).map(item => ({
-    title: String(item.title || '').toUpperCase().replace(/[^A-Z0-9]+/g,' ').trim().slice(0, 14),
-    value: item.impactLevel === 'major' ? 'HIGH' : 'LOW',
-    arrowMarkup: item.impactLevel === 'major' ? `<img src="./assets/red-arrow.png" alt="" /><img src="./assets/red-arrow.png" alt="" />` : `<img src="./assets/green-arrow.png" alt="" />`,
+    kind: 'context',
+    title: String(item.title || '').trim(),
+    label: item.impactLevel === 'major' ? 'MAJOR' : 'MINOR',
     icon: rowIconForScene(scene, item),
-    useRowSprite: false
+    tone: scene
   }));
 }
 
@@ -323,8 +336,8 @@ function renderDetails() {
     const vitamins = microSubmetrics(food, 'vitamins');
     const minerals = microSubmetrics(food, 'minerals');
     els.detailContent.innerHTML = `
-      <div class="detail-card"><h4>Vitamins</h4><div class="stat-grid">${vitamins.map(item => `<div class="stat-pill"><div class="k">${item.title}</div><div class="v">${item.value}</div></div>`).join('')}</div></div>
-      <div class="detail-card"><h4>Minerals</h4><div class="stat-grid">${minerals.map(item => `<div class="stat-pill"><div class="k">${item.title}</div><div class="v">${item.value}</div></div>`).join('')}</div></div>`;
+      <div class="detail-card"><h4>Vitamins</h4><div class="stat-grid">${vitamins.map(item => `<div class="stat-pill"><div class="k">${item.title}</div><div class="v">${item.valueText}</div></div>`).join('')}</div></div>
+      <div class="detail-card"><h4>Minerals</h4><div class="stat-grid">${minerals.map(item => `<div class="stat-pill"><div class="k">${item.title}</div><div class="v">${item.valueText}</div></div>`).join('')}</div></div>`;
     return;
   }
 
@@ -348,14 +361,46 @@ function renderDetails() {
 }
 
 function heroSpriteForFood(food) {
-  return food.id === 'bacon' ? '../../assets/bacon.png' : (heroSpriteMap[food.foodType] || './assets/misc.png');
+  return food.id === 'bacon' ? './assets/bacon.png' : (heroSpriteMap[food.foodType] || './assets/misc.png');
 }
 
 function macroSceneForDisplay(scene) {
   if (['fats','carbs','proteins'].includes(scene)) return scene;
-  if (scene === 'carbs') return 'carbs';
-  if (scene === 'proteins') return 'proteins';
+  if (scene === 'overview') return 'fats';
   return 'fats';
+}
+
+function renderRows(rows, scene) {
+  return rows.map(row => {
+    if (row.kind === 'micro') {
+      return `
+        <div class="submetric-row micro-row">
+          <img class="submetric-icon" src="${row.icon}" alt="" />
+          <div class="micro-copy">${escapeHtml(row.title)}</div>
+          <div class="micro-bar"><div class="micro-bar-fill" style="width:${row.percent}%"></div></div>
+          <div class="micro-value">${escapeHtml(row.valueText)}</div>
+        </div>`;
+    }
+    if (row.kind === 'context') {
+      return `
+        <div class="submetric-row context-row ${row.tone}">
+          <img class="context-icon" src="${row.icon}" alt="" />
+          <div class="context-copy">${escapeHtml(row.title)}</div>
+          <div class="context-tag">${row.label}</div>
+        </div>`;
+    }
+    return `
+      <div class="submetric-row macro-row ${row.useRowSprite ? 'row-sprite-mode' : ''}">
+        ${row.useRowSprite ? '<div class="submetric-icon-spacer"></div>' : `<img class="submetric-icon" src="${row.icon}" alt="" />`}
+        <div class="submetric-pill ${row.useRowSprite ? 'has-sprite' : ''}">
+          ${row.useRowSprite ? `<img class="submetric-row-sprite" src="${row.icon}" alt="" />` : ''}
+          <div class="submetric-label">${escapeHtml(row.title)}</div>
+          <div class="submetric-sep"></div>
+          <div class="submetric-value">${escapeHtml(row.value)}</div>
+        </div>
+        <div class="submetric-arrows">${row.arrowMarkup}</div>
+      </div>`;
+  }).join('');
 }
 
 function renderPreview() {
@@ -367,7 +412,8 @@ function renderPreview() {
   const macroValue = macroHeaderValue(food, macroScene);
   const macroRange = derivedMacroRange(food, macroScene);
   const rows = displayRows(food, scene);
-  const activeIndex = sceneOrder.indexOf(scene) === -1 ? 0 : sceneOrder.indexOf(scene);
+  const activeIndex = sceneProgressOrder.indexOf(scene);
+  const tier = food.episode?.tier || '—';
 
   els.displayCanvas.dataset.scene = scene;
   els.previewFoodName.textContent = food.name.toUpperCase();
@@ -375,27 +421,23 @@ function renderPreview() {
   els.foodTypeSprite.alt = `${food.foodType} sprite`;
   els.previewKcal.textContent = food.header?.kcal ?? '—';
   els.previewScoreText.textContent = food.episode?.overallScore ?? '??';
-  els.previewSceneChipText.textContent = sceneLabels[scene] || 'HEATS';
+  els.previewSceneChipText.textContent = sceneLabels[scene] || 'FATS';
   els.heroSprite.src = heroSpriteForFood(food);
   els.heroSprite.alt = `${food.name} sprite`;
   els.macroSprite.src = macroSpriteMap[scene] || macroSpriteMap[macroScene];
-  els.macroTitle.textContent = (sceneLabels[scene] || 'FATS').toUpperCase();
-  els.macroValue.textContent = ['vitamins','minerals'].includes(scene) ? 'DV' : ['pros','cons','final'].includes(scene) ? `${food.episode?.tier || '—'} TIER` : formatMacroAmount(macroValue);
-  els.macroFill.style.width = `${scene === 'final' ? 82 : scene === 'pros' ? 64 : scene === 'cons' ? 44 : normalizedPercent(Number(macroValue), macroRange)}%`;
+  els.macroTitle.textContent = scene === 'final' ? `${tier} TIER` : (sceneLabels[scene] || 'FATS').toUpperCase();
+  els.macroValue.textContent = ['vitamins','minerals'].includes(scene)
+    ? 'DAILY VALUE'
+    : ['pros','cons'].includes(scene)
+      ? '3 NOTES'
+      : scene === 'final'
+        ? `SCORE ${food.episode?.overallScore ?? '??'}`
+        : formatMacroAmount(macroValue);
+  els.macroFill.style.width = `${scene === 'final' ? 100 : scene === 'pros' ? 66 : scene === 'cons' ? 48 : ['vitamins','minerals'].includes(scene) ? 58 : normalizedPercent(Number(macroValue), macroRange)}%`;
+  els.submetricList.dataset.tier = tier;
+  els.submetricList.innerHTML = renderRows(rows, scene);
 
-  els.submetricList.innerHTML = rows.map(row => `
-    <div class="submetric-row">
-      ${row.useRowSprite ? '' : `<img class="submetric-icon" src="${row.icon}" alt="" />`}
-      <div class="submetric-pill ${row.useRowSprite ? 'has-sprite' : ''}">
-        ${row.useRowSprite ? `<img class="submetric-row-sprite" src="${row.icon}" alt="" />` : ''}
-        <div class="submetric-label">${escapeHtml(row.title)}</div>
-        <div class="submetric-sep"></div>
-        <div class="submetric-value">${escapeHtml(row.value)}</div>
-      </div>
-      <div class="submetric-arrows">${row.arrowMarkup}</div>
-    </div>`).join('');
-
-  els.progressRow.innerHTML = sceneOrder.map((item, index) => `<img class="progress-node ${index === activeIndex ? 'active' : ''}" src="${index === activeIndex ? sectionIndicatorMap.active : sectionIndicatorMap.idle}" alt="" />`).join('');
+  els.progressRow.innerHTML = sceneProgressOrder.map((item, index) => `<img class="progress-node ${index === activeIndex ? 'active' : ''}" src="${index === activeIndex ? sectionIndicatorMap.active : sectionIndicatorMap.idle}" alt="" />`).join('');
 }
 
 function initTabs() {

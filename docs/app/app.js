@@ -21,7 +21,6 @@ const els = {
   foodTypeSprite: document.getElementById('foodTypeSprite'),
   previewKcal: document.getElementById('previewKcal'),
   previewScoreText: document.getElementById('previewScoreText'),
-  previewSceneChipText: document.getElementById('previewSceneChipText'),
   displayCanvas: document.getElementById('displayCanvas'),
   heroSprite: document.getElementById('heroSprite'),
   macroSprite: document.getElementById('macroSprite'),
@@ -421,7 +420,6 @@ function renderPreview() {
   els.foodTypeSprite.alt = `${food.foodType} sprite`;
   els.previewKcal.textContent = food.header?.kcal ?? '—';
   els.previewScoreText.textContent = food.episode?.overallScore ?? '??';
-  els.previewSceneChipText.textContent = sceneLabels[scene] || 'FATS';
   els.heroSprite.src = heroSpriteForFood(food);
   els.heroSprite.alt = `${food.name} sprite`;
   els.macroSprite.src = macroSpriteMap[scene] || macroSpriteMap[macroScene];

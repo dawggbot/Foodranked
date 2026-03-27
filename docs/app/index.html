@@ -56,20 +56,7 @@
       transform: scale(calc(var(--preview-scale) * var(--asset-scale-down)));
     }
 
-    .header-text {
-      position: absolute;
-      z-index: 3;
-      margin: 0;
-      line-height: 1;
-      letter-spacing: 0;
-      white-space: nowrap;
-      font-weight: 700;
-      text-transform: uppercase;
-      color: #111;
-      transform-origin: top left;
-    }
-
-    /* reference-matched composition */
+    /* current sprite-only composition pass */
     .food-plate { left: calc(3px * var(--preview-scale)); top: calc(7px * var(--preview-scale)); z-index: 1; }
     .food-image { left: calc(15px * var(--preview-scale)); top: calc(11px * var(--preview-scale)); z-index: 2; }
     .food-name-line { left: calc(45px * var(--preview-scale)); top: calc(44px * var(--preview-scale)); z-index: 1; }
@@ -77,57 +64,6 @@
     .score-plate { left: calc(59px * var(--preview-scale)); top: calc(45px * var(--preview-scale)); z-index: 1; }
     .type-plate { left: calc(99px * var(--preview-scale)); top: calc(45px * var(--preview-scale)); z-index: 1; }
     .per-100g-line { left: calc(108px * var(--preview-scale)); top: calc(47px * var(--preview-scale)); z-index: 1; }
-
-    .food-name-text {
-      left: calc(45px * var(--preview-scale));
-      top: calc(10px * var(--preview-scale));
-      font-size: calc(14px * var(--preview-scale));
-      color: #111;
-    }
-
-    .kcal-value {
-      left: calc(33px * var(--preview-scale));
-      top: calc(36px * var(--preview-scale));
-      width: calc(19px * var(--preview-scale));
-      text-align: center;
-      font-size: calc(9px * var(--preview-scale));
-      font-weight: 800;
-      color: #111;
-    }
-
-    .kcal-label {
-      left: calc(35px * var(--preview-scale));
-      top: calc(48px * var(--preview-scale));
-      width: calc(15px * var(--preview-scale));
-      text-align: center;
-      font-size: calc(8px * var(--preview-scale));
-      color: #111;
-    }
-
-    .score-label-text {
-      left: calc(64px * var(--preview-scale));
-      top: calc(47px * var(--preview-scale));
-      font-size: calc(9px * var(--preview-scale));
-      color: #111;
-    }
-
-    .food-type-text {
-      left: calc(106px * var(--preview-scale));
-      top: calc(47px * var(--preview-scale));
-      font-size: calc(9px * var(--preview-scale));
-      color: #111;
-    }
-
-    .basis-text {
-      left: calc(109px * var(--preview-scale));
-      top: calc(14px * var(--preview-scale));
-      font-size: calc(10px * var(--preview-scale));
-      color: #111;
-      line-height: 0.9;
-      white-space: normal;
-      text-align: center;
-      width: calc(18px * var(--preview-scale));
-    }
 
     .note {
       max-width: 960px;
@@ -140,7 +76,7 @@
 </head>
 <body>
   <div class="header-stage">
-    <div class="header-canvas" aria-label="FoodRanked header preview">
+    <div class="header-canvas" aria-label="FoodRanked header sprite preview">
       <img class="sprite food-plate" src="./sprites/header/food_image_plate/meat_food_plate.png" alt="" />
       <img class="sprite food-image" src="./sprites/header/food_images/bacon.png" alt="Bacon pixel art" />
       <img class="sprite food-name-line" src="./sprites/header/header_ui/food_name_line.png" alt="" />
@@ -148,15 +84,8 @@
       <img class="sprite score-plate" src="./sprites/header/header_ui/score_plate.png" alt="" />
       <img class="sprite type-plate" src="./sprites/header/food_type_plate/meat_type_plate.png" alt="" />
       <img class="sprite per-100g-line" src="./sprites/header/header_ui/per_100g_line.png" alt="" />
-
-      <p class="header-text food-name-text">BACON</p>
-      <p class="header-text kcal-value">+17</p>
-      <p class="header-text kcal-label">KCAL</p>
-      <p class="header-text score-label-text">SCORE: ???</p>
-      <p class="header-text food-type-text">MEATS</p>
-      <p class="header-text basis-text">PER<br>100g</p>
     </div>
   </div>
-  <div class="note">Reference-matched header pass using the visible composition from the provided header reference image rather than the earlier guessed text offsets.</div>
+  <div class="note">Sprite-only header preview so we can lock the layout skeleton before reintroducing text.</div>
 </body>
 </html>

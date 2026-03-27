@@ -3,149 +3,211 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>FoodRanked Dashboard</title>
-  <link rel="stylesheet" href="./styles.css" />
+  <title>FoodRanked Header Preview</title>
+  <style>
+    :root {
+      --bg-top: #1b2030;
+      --bg-bottom: #121724;
+      --chrome: #2e3649;
+      --text: #f7f3e8;
+      --muted: #d0c6b8;
+      --header-scale: 3;
+      --header-width: calc(135px * var(--header-scale));
+      --header-height: calc(240px * var(--header-scale));
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 24px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(180deg, #1a1f2b 0%, #11151d 100%);
+      color: var(--text);
+      font-family: Inter, system-ui, sans-serif;
+    }
+
+    .wrap {
+      display: grid;
+      gap: 18px;
+      justify-items: center;
+    }
+
+    .phone {
+      width: 420px;
+      aspect-ratio: 9 / 16;
+      position: relative;
+      overflow: hidden;
+      border: 6px solid var(--chrome);
+      border-radius: 26px;
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+      background:
+        radial-gradient(circle at top, rgba(213, 90, 90, 0.16), transparent 35%),
+        linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+      display: grid;
+      place-items: start center;
+      padding-top: 18px;
+    }
+
+    .header-canvas {
+      position: relative;
+      width: var(--header-width);
+      height: var(--header-height);
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+
+    .sprite {
+      position: absolute;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .food-image {
+      left: calc(6px * var(--header-scale));
+      top: calc(18px * var(--header-scale));
+      width: calc(33px * var(--header-scale));
+      height: calc(33px * var(--header-scale));
+      z-index: 2;
+    }
+
+    .food-plate {
+      left: 0;
+      top: calc(10px * var(--header-scale));
+      width: calc(45px * var(--header-scale));
+      height: calc(50px * var(--header-scale));
+      z-index: 1;
+    }
+
+    .food-name-line {
+      left: calc(43px * var(--header-scale));
+      top: calc(18px * var(--header-scale));
+      width: calc(52px * var(--header-scale));
+      height: calc(12px * var(--header-scale));
+      z-index: 1;
+    }
+
+    .type-plate {
+      left: calc(45px * var(--header-scale));
+      top: calc(33px * var(--header-scale));
+      width: calc(38px * var(--header-scale));
+      height: calc(12px * var(--header-scale));
+      z-index: 1;
+    }
+
+    .per-100g-line {
+      left: calc(45px * var(--header-scale));
+      top: calc(47px * var(--header-scale));
+      width: calc(34px * var(--header-scale));
+      height: calc(10px * var(--header-scale));
+      z-index: 1;
+    }
+
+    .calorie-bubble {
+      right: 0;
+      top: calc(12px * var(--header-scale));
+      width: calc(40px * var(--header-scale));
+      height: calc(44px * var(--header-scale));
+      z-index: 1;
+    }
+
+    .score-plate {
+      right: calc(2px * var(--header-scale));
+      top: calc(60px * var(--header-scale));
+      width: calc(33px * var(--header-scale));
+      height: calc(10px * var(--header-scale));
+      z-index: 1;
+    }
+
+    .header-text {
+      position: absolute;
+      z-index: 3;
+      margin: 0;
+      color: #f7f3e8;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0;
+      text-shadow: 0 2px 0 rgba(18, 23, 36, 0.8);
+      white-space: nowrap;
+    }
+
+    .food-name-text {
+      left: calc(48px * var(--header-scale));
+      top: calc(21px * var(--header-scale));
+      font-size: calc(5px * var(--header-scale));
+      max-width: calc(42px * var(--header-scale));
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .food-type-text {
+      left: calc(51px * var(--header-scale));
+      top: calc(36px * var(--header-scale));
+      font-size: calc(4px * var(--header-scale));
+      color: #fff2df;
+      text-transform: capitalize;
+    }
+
+    .basis-text {
+      left: calc(50px * var(--header-scale));
+      top: calc(49px * var(--header-scale));
+      font-size: calc(3.5px * var(--header-scale));
+      color: var(--muted);
+      text-transform: lowercase;
+    }
+
+    .kcal-value {
+      right: calc(9px * var(--header-scale));
+      top: calc(22px * var(--header-scale));
+      width: calc(22px * var(--header-scale));
+      text-align: center;
+      font-size: calc(8px * var(--header-scale));
+      font-weight: 800;
+    }
+
+    .kcal-label {
+      right: calc(9px * var(--header-scale));
+      top: calc(31px * var(--header-scale));
+      width: calc(22px * var(--header-scale));
+      text-align: center;
+      font-size: calc(3px * var(--header-scale));
+      color: var(--muted);
+      text-transform: lowercase;
+    }
+
+    .note {
+      max-width: 720px;
+      text-align: center;
+      color: #b8b3a7;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+  </style>
 </head>
 <body>
-  <div class="app-shell">
-    <aside class="sidebar panel">
-      <div class="sidebar-top">
-        <h1>FoodRanked</h1>
-        <p class="muted">Browse foods, inspect scripts, and preview the rebuilt stat card layout.</p>
+  <div class="wrap">
+    <div class="phone">
+      <div class="header-canvas" aria-label="FoodRanked header preview">
+        <img class="sprite food-plate" src="./assets/meat-food-plate.png" alt="" />
+        <img class="sprite food-image" src="./assets/bacon.png" alt="Bacon pixel art" />
+        <img class="sprite food-name-line" src="./assets/food-name-line.png" alt="" />
+        <img class="sprite type-plate" src="./assets/meat-highlighted-section-indicator.png" alt="" />
+        <img class="sprite per-100g-line" src="./assets/per-100g.png" alt="" />
+        <img class="sprite calorie-bubble" src="./assets/meat-calorie-bubble.png" alt="" />
+        <img class="sprite score-plate" src="./assets/score-label.png" alt="" />
+
+        <p class="header-text food-name-text">Bacon</p>
+        <p class="header-text food-type-text">Meat</p>
+        <p class="header-text basis-text">per 100g</p>
+        <p class="header-text kcal-value">541</p>
+        <p class="header-text kcal-label">kcal</p>
       </div>
-
-      <div class="controls">
-        <input id="searchInput" type="search" placeholder="Search foods..." />
-        <select id="typeFilter">
-          <option value="all">All food types</option>
-        </select>
-        <select id="tierFilter">
-          <option value="all">All tiers</option>
-          <option value="S">S</option>
-          <option value="A">A</option>
-          <option value="B">B</option>
-          <option value="C">C</option>
-          <option value="D">D</option>
-          <option value="unscored">Unscored</option>
-        </select>
-      </div>
-
-      <div class="food-count muted"><span id="foodCount">0</span> foods</div>
-      <div id="foodList" class="food-list"></div>
-    </aside>
-
-    <main class="main-area">
-      <section class="top-grid">
-        <div class="panel summary-panel">
-          <div class="summary-head">
-            <div>
-              <h2 id="foodName">Select a food</h2>
-              <p id="foodMeta" class="muted">Food type, basis, kcal, score.</p>
-            </div>
-            <div class="badge-row">
-              <span id="tierBadge" class="tier-badge tier-none">—</span>
-              <span id="scoreBadge" class="score-badge">No score</span>
-            </div>
-          </div>
-          <p id="foodSummary" class="summary-text muted">Choose a food from the left to inspect its data and preview the display template.</p>
-        </div>
-
-        <div class="panel quick-panel">
-          <h3>Display controls</h3>
-          <label>
-            Scene highlight
-            <select id="sceneSelect">
-              <option value="overview">Overview</option>
-              <option value="fats">Fats</option>
-              <option value="carbs">Carbs</option>
-              <option value="proteins">Proteins</option>
-              <option value="vitamins">Vitamins</option>
-              <option value="minerals">Minerals</option>
-              <option value="pros">Pros</option>
-              <option value="cons">Cons</option>
-              <option value="final">Verdict</option>
-            </select>
-          </label>
-          <p class="muted small">This pass rebuilds the full 135 × 240 display card shape using the supplied sprite language and puts the existing food + macro sprites into fixed slots so the GitHub Pages preview shows a stable template.</p>
-        </div>
-      </section>
-
-      <section class="content-grid">
-        <div class="panel preview-panel">
-          <div class="phone-preview" id="phonePreview">
-            <div class="display-canvas" id="displayCanvas">
-              <div class="display-top-row">
-                <div class="food-frame">
-                  <img class="frame-plate" src="./assets/meat-food-plate.png" alt="" />
-                  <img id="heroSprite" alt="food sprite" />
-                </div>
-
-                <div class="display-header">
-                  <div class="display-name-line">
-                    <div class="display-name-wrap">
-                      <img class="name-line-sprite" src="./assets/food-name-line.png" alt="" />
-                      <div class="display-name" id="previewFoodName">BACON</div>
-                    </div>
-                    <div class="display-per100g">
-                      <img class="per100g-sprite" src="./assets/per-100g.png" alt="Per 100g" />
-                    </div>
-                  </div>
-
-                  <div class="display-score-row">
-                    <div class="kcal-orb" id="previewKcalOrb">
-                      <img class="kcal-bubble-sprite" src="./assets/meat-calorie-bubble.png" alt="" />
-                      <div class="kcal-value" id="previewKcal">417</div>
-                      <div class="kcal-label">KCAL</div>
-                    </div>
-                    <div class="score-pill"><img class="score-label-sprite" src="./assets/score-label.png" alt="Score" /><span id="previewScoreText">46</span></div>
-                    <div class="section-chip food-type-slot" id="previewSceneChip"><img class="section-chip-bg" src="./assets/meat-highlighted-section-indicator.png" alt="" /><img id="foodTypeSprite" alt="food type sprite" /></div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="divider-line"></div>
-
-              <div class="macro-section">
-                <div class="macro-main-row">
-                  <div class="macro-emblem">
-                    <img id="macroSprite" src="./assets/macro-fats-shield.gif" alt="macro sprite" />
-                  </div>
-                  <div class="macro-copy-stack">
-                    <div class="macro-title" id="macroTitle">FATS</div>
-                    <div class="macro-pill">
-                      <div class="macro-fill" id="macroFill"></div>
-                      <div class="macro-value" id="macroValue">37.1g</div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="submetric-list" id="submetricList"></div>
-              </div>
-
-              <div class="divider-line spacer"></div>
-
-              <div class="progress-track" id="progressRow"></div>
-
-              <div class="divider-line footer"></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="panel detail-panel">
-          <div class="detail-tabs">
-            <button class="tab active" data-tab="overview">Overview</button>
-            <button class="tab" data-tab="macros">Macros</button>
-            <button class="tab" data-tab="micros">Micros</button>
-            <button class="tab" data-tab="context">Pros / Cons</button>
-            <button class="tab" data-tab="script">Script</button>
-          </div>
-          <div id="detailContent" class="detail-content"></div>
-        </div>
-      </section>
-    </main>
+    </div>
+    <div class="note">Header-only preview in the main app entry, using the meat asset set on the 135×240 authored grid.</div>
   </div>
-
-  <script src="./data/foods-index.js"></script>
-  <script src="./app.js" type="module"></script>
 </body>
 </html>

@@ -95,9 +95,7 @@
       color: var(--ink);
     }
 
-    input[type="range"] {
-      width: 100%;
-    }
+    input[type="range"] { width: 100%; }
 
     textarea {
       min-height: 120px;
@@ -151,25 +149,24 @@
       user-select: none;
     }
 
-    .canvas.hide-grid {
-      background-image: none;
-    }
+    .canvas.hide-grid { background-image: none; }
 
-    .asset-layer {
-      position: absolute;
-      transform-origin: top left;
-      image-rendering: pixelated;
-      image-rendering: crisp-edges;
-      cursor: grab;
-      outline: none;
-    }
-
+    .asset-layer,
     .text-layer {
       position: absolute;
       transform-origin: top left;
+      outline: none;
+    }
+
+    .asset-layer {
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      cursor: grab;
+    }
+
+    .text-layer {
       cursor: grab;
       white-space: pre-line;
-      outline: none;
       font-family: var(--font);
     }
 
@@ -246,7 +243,18 @@
     <aside class="panel sidebar">
       <div class="stack">
         <h1>FoodRanked UI editor</h1>
-        <p class="muted">Edit the display visually. Drag sprites and text, nudge them, resize them, swap food data, and export the current layout config.</p>
+        <p class="muted">Edit the display visually. Switch scenes, drag sprites and text, nudge them, resize them, swap food data, and export the current layout config.</p>
+      </div>
+
+      <div class="stack">
+        <h2>Scene</h2>
+        <label>
+          Current scene
+          <select id="sceneSelect">
+            <option value="header">Header</option>
+            <option value="fats">Fats macro</option>
+          </select>
+        </label>
       </div>
 
       <div class="stack">
@@ -285,7 +293,7 @@
       <div class="stack">
         <h2>Actions</h2>
         <div class="row">
-          <button id="resetLayout">Reset header layout</button>
+          <button id="resetLayout">Reset current scene</button>
           <button id="saveLocal">Save locally</button>
           <button id="copyConfig" class="primary">Copy JSON</button>
         </div>
@@ -429,6 +437,68 @@
 
   <script src="./data/foods-index.js"></script>
   <script>
+    function createHeaderScene() {
+      return {
+        reference: {
+          enabled: false,
+          opacity: 0.45,
+          src: '../../sprites/references/header reference with text.png'
+        },
+        layers: [
+          { id: 'food_plate', kind: 'sprite', label: 'Food plate', src: './sprites/header/food_image_plate/meat_food_plate.png', x: 3, y: 7, scale: 1, visible: true, z: 1 },
+          { id: 'food_image', kind: 'sprite', label: 'Food image', src: './sprites/header/food_images/bacon.png', x: 15, y: 11, scale: 1, visible: true, z: 2, foodImageDriven: true },
+          { id: 'food_name_line', kind: 'sprite', label: 'Food name line', src: './sprites/header/header_ui/food_name_line.png', x: 45, y: 44, scale: 1, visible: true, z: 1 },
+          { id: 'calorie_bubble', kind: 'sprite', label: 'Calorie bubble', src: './sprites/header/calorie_bubble/meat_calorie_bubble.png', x: 28, y: 34, scale: 1, visible: true, z: 2 },
+          { id: 'score_plate', kind: 'sprite', label: 'Score plate', src: './sprites/header/header_ui/score_plate.png', x: 59, y: 45, scale: 1, visible: true, z: 1 },
+          { id: 'type_plate', kind: 'sprite', label: 'Type plate', src: './sprites/header/food_type_plate/meat_type_plate.png', x: 99, y: 45, scale: 1, visible: true, z: 1 },
+          { id: 'per_100g_line', kind: 'sprite', label: 'Per 100g line', src: './sprites/header/header_ui/per_100g_line.png', x: 108, y: 47, scale: 1, visible: true, z: 1 },
+          { id: 'food_name_text', kind: 'text', label: 'Food name text', x: 45, y: 10, scale: 1, visible: true, z: 3, text: 'BACON', fontSize: 14, fontWeight: 700, color: '#111111', textTransform: 'uppercase', align: 'left' },
+          { id: 'kcal_value_text', kind: 'text', label: 'Kcal value', x: 33, y: 36, width: 19, scale: 1, visible: true, z: 3, text: '541', fontSize: 9, fontWeight: 800, color: '#111111', textTransform: 'none', align: 'center' },
+          { id: 'kcal_label_text', kind: 'text', label: 'Kcal label', x: 35, y: 48, width: 15, scale: 1, visible: true, z: 3, text: 'KCAL', fontSize: 8, fontWeight: 700, color: '#111111', textTransform: 'uppercase', align: 'center' },
+          { id: 'score_label_text', kind: 'text', label: 'Score label', x: 64, y: 47, scale: 1, visible: true, z: 3, text: 'SCORE:', fontSize: 9, fontWeight: 700, color: '#111111', textTransform: 'uppercase', align: 'left' },
+          { id: 'food_type_text', kind: 'text', label: 'Food type text', x: 106, y: 47, scale: 1, visible: true, z: 3, text: 'MEATS', fontSize: 9, fontWeight: 700, color: '#111111', textTransform: 'uppercase', align: 'left' },
+          { id: 'basis_text', kind: 'text', label: 'Basis text', x: 109, y: 14, width: 18, scale: 1, visible: true, z: 3, text: 'PER\n100g', fontSize: 10, fontWeight: 700, color: '#111111', textTransform: 'none', align: 'center' }
+        ]
+      };
+    }
+
+    function createFatsScene() {
+      return {
+        reference: {
+          enabled: false,
+          opacity: 0.45,
+          src: '../../sprites/references/header + macros section with text.aseprite'
+        },
+        layers: [
+          { id: 'food_plate', kind: 'sprite', label: 'Food plate', src: './sprites/header/food_image_plate/meat_food_plate.png', x: 3, y: 7, scale: 1, visible: true, z: 1 },
+          { id: 'food_image', kind: 'sprite', label: 'Food image', src: './sprites/header/food_images/bacon.png', x: 15, y: 11, scale: 1, visible: true, z: 2, foodImageDriven: true },
+          { id: 'food_name_line', kind: 'sprite', label: 'Food name line', src: './sprites/header/header_ui/food_name_line.png', x: 45, y: 44, scale: 1, visible: true, z: 1 },
+          { id: 'calorie_bubble', kind: 'sprite', label: 'Calorie bubble', src: './sprites/header/calorie_bubble/meat_calorie_bubble.png', x: 28, y: 34, scale: 1, visible: true, z: 2 },
+          { id: 'score_plate', kind: 'sprite', label: 'Score plate', src: './sprites/header/header_ui/score_plate.png', x: 59, y: 45, scale: 1, visible: true, z: 1 },
+          { id: 'type_plate', kind: 'sprite', label: 'Type plate', src: './sprites/header/food_type_plate/meat_type_plate.png', x: 99, y: 45, scale: 1, visible: true, z: 1 },
+          { id: 'per_100g_line', kind: 'sprite', label: 'Per 100g line', src: './sprites/header/header_ui/per_100g_line.png', x: 108, y: 47, scale: 1, visible: true, z: 1 },
+          { id: 'fat_icon', kind: 'sprite', label: 'Fat icon', src: './sprites/macros/fats/fat_icon.gif', x: 18, y: 86, scale: 1, visible: true, z: 1 },
+          { id: 'fat_bullet_1', kind: 'sprite', label: 'Fat bullet 1', src: './sprites/macros/fats/fat_submacro_bullet_point.png', x: 33, y: 118, scale: 1, visible: true, z: 1 },
+          { id: 'fat_bullet_2', kind: 'sprite', label: 'Fat bullet 2', src: './sprites/macros/fats/fat_submacro_bullet_point.png', x: 33, y: 142, scale: 1, visible: true, z: 1 },
+          { id: 'fat_bullet_3', kind: 'sprite', label: 'Fat bullet 3', src: './sprites/macros/fats/fat_submacro_bullet_point.png', x: 33, y: 166, scale: 1, visible: true, z: 1 },
+          { id: 'green_arrow_1', kind: 'sprite', label: 'Green arrow 1', src: './sprites/macros/arrow_indicators/green_arrow.png', x: 104, y: 118, scale: 1, visible: true, z: 1 },
+          { id: 'green_arrow_2', kind: 'sprite', label: 'Green arrow 2', src: './sprites/macros/arrow_indicators/green_arrow.png', x: 104, y: 142, scale: 1, visible: true, z: 1 },
+          { id: 'red_arrow_3', kind: 'sprite', label: 'Red arrow 3', src: './sprites/macros/arrow_indicators/red_arrow.png', x: 104, y: 166, scale: 1, visible: true, z: 1 },
+          { id: 'food_name_text', kind: 'text', label: 'Food name text', x: 45, y: 10, scale: 1, visible: true, z: 3, text: 'BACON', fontSize: 14, fontWeight: 700, color: '#111111', textTransform: 'uppercase', align: 'left' },
+          { id: 'kcal_value_text', kind: 'text', label: 'Kcal value', x: 33, y: 36, width: 19, scale: 1, visible: true, z: 3, text: '541', fontSize: 9, fontWeight: 800, color: '#111111', textTransform: 'none', align: 'center' },
+          { id: 'kcal_label_text', kind: 'text', label: 'Kcal label', x: 35, y: 48, width: 15, scale: 1, visible: true, z: 3, text: 'KCAL', fontSize: 8, fontWeight: 700, color: '#111111', textTransform: 'uppercase', align: 'center' },
+          { id: 'score_label_text', kind: 'text', label: 'Score label', x: 64, y: 47, scale: 1, visible: true, z: 3, text: 'SCORE:', fontSize: 9, fontWeight: 700, color: '#111111', textTransform: 'uppercase', align: 'left' },
+          { id: 'food_type_text', kind: 'text', label: 'Food type text', x: 106, y: 47, scale: 1, visible: true, z: 3, text: 'MEATS', fontSize: 9, fontWeight: 700, color: '#111111', textTransform: 'uppercase', align: 'left' },
+          { id: 'basis_text', kind: 'text', label: 'Basis text', x: 109, y: 14, width: 18, scale: 1, visible: true, z: 3, text: 'PER\n100g', fontSize: 10, fontWeight: 700, color: '#111111', textTransform: 'none', align: 'center' },
+          { id: 'macro_title_text', kind: 'text', label: 'Macro title', x: 33, y: 86, scale: 1, visible: true, z: 3, text: 'FATS', fontSize: 10, fontWeight: 700, color: '#111111', textTransform: 'uppercase', align: 'left' },
+          { id: 'macro_value_text', kind: 'text', label: 'Macro value', x: 77, y: 86, scale: 1, visible: true, z: 3, text: '42.0g', fontSize: 10, fontWeight: 700, color: '#111111', textTransform: 'none', align: 'left' },
+          { id: 'submetric_1_text', kind: 'text', label: 'Submetric 1', x: 42, y: 118, scale: 1, visible: true, z: 3, text: 'Saturated fat', fontSize: 7, fontWeight: 700, color: '#111111', textTransform: 'none', align: 'left' },
+          { id: 'submetric_2_text', kind: 'text', label: 'Submetric 2', x: 42, y: 142, scale: 1, visible: true, z: 3, text: 'Monounsaturated fat', fontSize: 7, fontWeight: 700, color: '#111111', textTransform: 'none', align: 'left' },
+          { id: 'submetric_3_text', kind: 'text', label: 'Submetric 3', x: 42, y: 166, scale: 1, visible: true, z: 3, text: 'Polyunsaturated fat', fontSize: 7, fontWeight: 700, color: '#111111', textTransform: 'none', align: 'left' }
+        ]
+      };
+    }
+
     const DEFAULT_LAYOUT = {
       canvas: {
         width: 135,
@@ -436,200 +506,21 @@
         previewScale: 3,
         assetScaleDown: 0.1,
         background: '#d3d3d3',
-        showGrid: true,
-        reference: {
-          enabled: false,
-          opacity: 0.45,
-          src: '../../sprites/references/header reference with text.png'
-        }
+        showGrid: true
       },
+      selectedSceneId: 'header',
       selectedFoodId: 'bacon',
       textDefaults: {
         fontFamily: 'Inter, system-ui, sans-serif'
       },
-      layers: [
-        {
-          id: 'food_plate',
-          kind: 'sprite',
-          label: 'Food plate',
-          src: './sprites/header/food_image_plate/meat_food_plate.png',
-          x: 3,
-          y: 7,
-          scale: 1,
-          visible: true,
-          z: 1
-        },
-        {
-          id: 'food_image',
-          kind: 'sprite',
-          label: 'Food image',
-          src: './sprites/header/food_images/bacon.png',
-          x: 15,
-          y: 11,
-          scale: 1,
-          visible: true,
-          z: 2,
-          foodImageDriven: true
-        },
-        {
-          id: 'food_name_line',
-          kind: 'sprite',
-          label: 'Food name line',
-          src: './sprites/header/header_ui/food_name_line.png',
-          x: 45,
-          y: 44,
-          scale: 1,
-          visible: true,
-          z: 1
-        },
-        {
-          id: 'calorie_bubble',
-          kind: 'sprite',
-          label: 'Calorie bubble',
-          src: './sprites/header/calorie_bubble/meat_calorie_bubble.png',
-          x: 28,
-          y: 34,
-          scale: 1,
-          visible: true,
-          z: 2
-        },
-        {
-          id: 'score_plate',
-          kind: 'sprite',
-          label: 'Score plate',
-          src: './sprites/header/header_ui/score_plate.png',
-          x: 59,
-          y: 45,
-          scale: 1,
-          visible: true,
-          z: 1
-        },
-        {
-          id: 'type_plate',
-          kind: 'sprite',
-          label: 'Type plate',
-          src: './sprites/header/food_type_plate/meat_type_plate.png',
-          x: 99,
-          y: 45,
-          scale: 1,
-          visible: true,
-          z: 1
-        },
-        {
-          id: 'per_100g_line',
-          kind: 'sprite',
-          label: 'Per 100g line',
-          src: './sprites/header/header_ui/per_100g_line.png',
-          x: 108,
-          y: 47,
-          scale: 1,
-          visible: true,
-          z: 1
-        },
-        {
-          id: 'food_name_text',
-          kind: 'text',
-          label: 'Food name text',
-          x: 45,
-          y: 10,
-          scale: 1,
-          visible: true,
-          z: 3,
-          text: 'BACON',
-          fontSize: 14,
-          fontWeight: 700,
-          color: '#111111',
-          textTransform: 'uppercase',
-          align: 'left'
-        },
-        {
-          id: 'kcal_value_text',
-          kind: 'text',
-          label: 'Kcal value',
-          x: 33,
-          y: 36,
-          width: 19,
-          scale: 1,
-          visible: true,
-          z: 3,
-          text: '541',
-          fontSize: 9,
-          fontWeight: 800,
-          color: '#111111',
-          textTransform: 'none',
-          align: 'center'
-        },
-        {
-          id: 'kcal_label_text',
-          kind: 'text',
-          label: 'Kcal label',
-          x: 35,
-          y: 48,
-          width: 15,
-          scale: 1,
-          visible: true,
-          z: 3,
-          text: 'KCAL',
-          fontSize: 8,
-          fontWeight: 700,
-          color: '#111111',
-          textTransform: 'uppercase',
-          align: 'center'
-        },
-        {
-          id: 'score_label_text',
-          kind: 'text',
-          label: 'Score label',
-          x: 64,
-          y: 47,
-          scale: 1,
-          visible: true,
-          z: 3,
-          text: 'SCORE:',
-          fontSize: 9,
-          fontWeight: 700,
-          color: '#111111',
-          textTransform: 'uppercase',
-          align: 'left'
-        },
-        {
-          id: 'food_type_text',
-          kind: 'text',
-          label: 'Food type text',
-          x: 106,
-          y: 47,
-          scale: 1,
-          visible: true,
-          z: 3,
-          text: 'MEATS',
-          fontSize: 9,
-          fontWeight: 700,
-          color: '#111111',
-          textTransform: 'uppercase',
-          align: 'left'
-        },
-        {
-          id: 'basis_text',
-          kind: 'text',
-          label: 'Basis text',
-          x: 109,
-          y: 14,
-          width: 18,
-          scale: 1,
-          visible: true,
-          z: 3,
-          text: 'PER\n100g',
-          fontSize: 10,
-          fontWeight: 700,
-          color: '#111111',
-          textTransform: 'none',
-          align: 'center'
-        }
-      ]
+      scenes: {
+        header: createHeaderScene(),
+        fats: createFatsScene()
+      }
     };
 
-    const LOCAL_STORAGE_KEY = 'foodranked-ui-layout-v1';
-    const PRESET_STORAGE_KEY = 'foodranked-ui-layout-presets-v1';
+    const LOCAL_STORAGE_KEY = 'foodranked-ui-layout-v2';
+    const PRESET_STORAGE_KEY = 'foodranked-ui-layout-presets-v2';
 
     const state = {
       layout: JSON.parse(JSON.stringify(DEFAULT_LAYOUT)),
@@ -640,6 +531,7 @@
 
     const els = {
       canvas: document.getElementById('canvas'),
+      sceneSelect: document.getElementById('sceneSelect'),
       foodList: document.getElementById('foodList'),
       foodSearch: document.getElementById('foodSearch'),
       layerList: document.getElementById('layerList'),
@@ -681,42 +573,28 @@
       sendBackward: document.getElementById('sendBackward')
     };
 
-    function cloneDefault() {
-      return JSON.parse(JSON.stringify(DEFAULT_LAYOUT));
-    }
-
-    function saveLayoutToLocalStorage() {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state.layout));
-    }
-
+    function cloneDefault() { return JSON.parse(JSON.stringify(DEFAULT_LAYOUT)); }
+    function saveLayoutToLocalStorage() { localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state.layout)); }
     function loadLayoutFromLocalStorage() {
       const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
       if (!raw) return false;
       state.layout = JSON.parse(raw);
       return true;
     }
+    function getSavedPresets() { try { return JSON.parse(localStorage.getItem(PRESET_STORAGE_KEY) || '{}'); } catch { return {}; } }
+    function setSavedPresets(presets) { localStorage.setItem(PRESET_STORAGE_KEY, JSON.stringify(presets)); }
+    function slugToLabel(value) { return String(value || '').replace(/\.sample$/,'').replace(/[_-]+/g, ' ').replace(/\b\w/g, ch => ch.toUpperCase()); }
 
-    function getSavedPresets() {
-      try {
-        return JSON.parse(localStorage.getItem(PRESET_STORAGE_KEY) || '{}');
-      } catch {
-        return {};
-      }
+    function getCurrentScene() {
+      return state.layout.scenes[state.layout.selectedSceneId];
     }
 
-    function setSavedPresets(presets) {
-      localStorage.setItem(PRESET_STORAGE_KEY, JSON.stringify(presets));
-    }
-
-    function slugToLabel(value) {
-      return String(value || '')
-        .replace(/\.sample$/,'')
-        .replace(/[_-]+/g, ' ')
-        .replace(/\b\w/g, ch => ch.toUpperCase());
+    function getCurrentLayers() {
+      return getCurrentScene().layers;
     }
 
     function getSelectedLayer() {
-      return state.layout.layers.find(layer => layer.id === state.selectedLayerId) || null;
+      return getCurrentLayers().find(layer => layer.id === state.selectedLayerId) || null;
     }
 
     function getSelectedFood() {
@@ -726,19 +604,17 @@
     function updateFoodDrivenContent() {
       const food = getSelectedFood();
       if (!food) return;
-      const foodNameLayer = state.layout.layers.find(layer => layer.id === 'food_name_text');
-      const kcalValueLayer = state.layout.layers.find(layer => layer.id === 'kcal_value_text');
-      const typeTextLayer = state.layout.layers.find(layer => layer.id === 'food_type_text');
-      const basisTextLayer = state.layout.layers.find(layer => layer.id === 'basis_text');
-      const foodImageLayer = state.layout.layers.find(layer => layer.id === 'food_image');
-
-      if (foodNameLayer) foodNameLayer.text = String(food.name || slugToLabel(food.id)).toUpperCase();
-      if (kcalValueLayer && food.kcal !== undefined && food.kcal !== null && food.kcal !== '') kcalValueLayer.text = String(Math.round(Number(food.kcal)));
-      if (typeTextLayer) typeTextLayer.text = String(food.foodType || '').toUpperCase();
-      if (basisTextLayer) basisTextLayer.text = String(food.basis || 'per 100g').replace(/\s+/g, '\n');
-      if (foodImageLayer && food.id) {
-        const candidate = `./sprites/header/food_images/${food.id}.png`;
-        foodImageLayer.src = candidate;
+      for (const scene of Object.values(state.layout.scenes)) {
+        const foodNameLayer = scene.layers.find(layer => layer.id === 'food_name_text');
+        const kcalValueLayer = scene.layers.find(layer => layer.id === 'kcal_value_text');
+        const typeTextLayer = scene.layers.find(layer => layer.id === 'food_type_text');
+        const basisTextLayer = scene.layers.find(layer => layer.id === 'basis_text');
+        const foodImageLayer = scene.layers.find(layer => layer.id === 'food_image');
+        if (foodNameLayer) foodNameLayer.text = String(food.name || slugToLabel(food.id)).toUpperCase();
+        if (kcalValueLayer && food.kcal !== undefined && food.kcal !== null && food.kcal !== '') kcalValueLayer.text = String(Math.round(Number(food.kcal)));
+        if (typeTextLayer) typeTextLayer.text = String(food.foodType || '').toUpperCase();
+        if (basisTextLayer) basisTextLayer.text = String(food.basis || 'per 100g').replace(/\s+/g, '\n');
+        if (foodImageLayer && food.id) foodImageLayer.src = `./sprites/header/food_images/${food.id}.png`;
       }
     }
 
@@ -752,10 +628,7 @@
 
     function renderFoodList() {
       const filter = state.foodFilter.trim().toLowerCase();
-      const foods = state.foods.filter(food => {
-        if (!filter) return true;
-        return [food.id, food.name, food.foodType].filter(Boolean).some(v => String(v).toLowerCase().includes(filter));
-      });
+      const foods = state.foods.filter(food => !filter || [food.id, food.name, food.foodType].filter(Boolean).some(v => String(v).toLowerCase().includes(filter)));
       els.foodList.innerHTML = '';
       for (const food of foods) {
         const item = document.createElement('button');
@@ -774,27 +647,23 @@
     function renderReferenceOverlay() {
       const existing = els.canvas.querySelector('.reference-overlay');
       if (existing) existing.remove();
-      if (!state.layout.canvas.reference.enabled) return;
+      const scene = getCurrentScene();
+      if (!scene.reference?.enabled || !scene.reference?.src) return;
+      const isImage = /\.(png|jpg|jpeg|gif|webp)$/i.test(scene.reference.src);
+      if (!isImage) return;
       const img = document.createElement('img');
       img.className = 'reference-overlay';
-      img.src = state.layout.canvas.reference.src;
+      img.src = scene.reference.src;
       Object.assign(img.style, {
-        position: 'absolute',
-        inset: '0',
-        width: '100%',
-        height: '100%',
-        opacity: state.layout.canvas.reference.opacity,
-        pointerEvents: 'none',
-        imageRendering: 'pixelated',
-        zIndex: '999'
+        position: 'absolute', inset: '0', width: '100%', height: '100%', opacity: scene.reference.opacity ?? 0.45,
+        pointerEvents: 'none', imageRendering: 'pixelated', zIndex: '999'
       });
       els.canvas.appendChild(img);
     }
 
     function renderCanvas() {
       els.canvas.innerHTML = '';
-      const sortedLayers = [...state.layout.layers].sort((a,b) => (a.z ?? 0) - (b.z ?? 0));
-
+      const sortedLayers = [...getCurrentLayers()].sort((a,b) => (a.z ?? 0) - (b.z ?? 0));
       for (const layer of sortedLayers) {
         if (!layer.visible) continue;
         let node;
@@ -816,36 +685,27 @@
           node.style.fontFamily = state.layout.textDefaults.fontFamily;
           if (layer.width) node.style.width = `calc(${layer.width}px * var(--preview-scale))`;
         }
-
         node.dataset.layerId = layer.id;
         node.style.left = `calc(${layer.x}px * var(--preview-scale))`;
         node.style.top = `calc(${layer.y}px * var(--preview-scale))`;
         node.style.zIndex = String(layer.z ?? 0);
         if (state.selectedLayerId === layer.id) node.classList.add('selected');
         attachLayerPointer(node, layer.id);
-        node.addEventListener('click', (event) => {
-          event.stopPropagation();
-          state.selectedLayerId = layer.id;
-          renderAll();
-        });
+        node.addEventListener('click', (event) => { event.stopPropagation(); state.selectedLayerId = layer.id; renderAll(); });
         els.canvas.appendChild(node);
       }
-
       renderReferenceOverlay();
     }
 
     function renderLayerList() {
       els.layerList.innerHTML = '';
-      const sorted = [...state.layout.layers].sort((a,b) => (b.z ?? 0) - (a.z ?? 0));
+      const sorted = [...getCurrentLayers()].sort((a,b) => (b.z ?? 0) - (a.z ?? 0));
       for (const layer of sorted) {
         const item = document.createElement('button');
         item.type = 'button';
         item.className = 'layer-item' + (layer.id === state.selectedLayerId ? ' active' : '');
         item.innerHTML = `<span>${layer.kind === 'sprite' ? '🧩' : '🔤'}</span><span><strong>${layer.label}</strong><br><span class="small muted">${layer.id}</span></span><span class="small muted">z ${layer.z ?? 0}</span>`;
-        item.addEventListener('click', () => {
-          state.selectedLayerId = layer.id;
-          renderAll();
-        });
+        item.addEventListener('click', () => { state.selectedLayerId = layer.id; renderAll(); });
         els.layerList.appendChild(item);
       }
     }
@@ -856,7 +716,6 @@
       els.noSelection.hidden = !!layer;
       els.layerInspector.hidden = !layer;
       if (!layer) return;
-
       els.propX.value = layer.x;
       els.propY.value = layer.y;
       els.propScale.value = layer.scale ?? 1;
@@ -874,27 +733,20 @@
       }
     }
 
-    function updateJsonOutput() {
-      els.layoutJson.value = JSON.stringify(state.layout, null, 2);
-    }
-
+    function updateJsonOutput() { els.layoutJson.value = JSON.stringify(state.layout, null, 2); }
     function renderPresetList() {
       const presets = getSavedPresets();
       const current = els.presetList.value;
       els.presetList.innerHTML = '<option value="">No preset selected</option>';
       for (const name of Object.keys(presets).sort()) {
-        const option = document.createElement('option');
-        option.value = name;
-        option.textContent = name;
-        els.presetList.appendChild(option);
+        const option = document.createElement('option'); option.value = name; option.textContent = name; els.presetList.appendChild(option);
       }
-      if (current && presets[current]) {
-        els.presetList.value = current;
-      }
+      if (current && presets[current]) els.presetList.value = current;
     }
 
     function renderAll() {
       setCssVars();
+      els.sceneSelect.value = state.layout.selectedSceneId;
       renderFoodList();
       renderCanvas();
       renderLayerList();
@@ -907,46 +759,23 @@
     function attachLayerPointer(node, layerId) {
       let startX = 0, startY = 0, originX = 0, originY = 0;
       node.addEventListener('pointerdown', (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        node.setPointerCapture(event.pointerId);
-        state.selectedLayerId = layerId;
-        const layer = getSelectedLayer();
-        if (!layer) return;
-        startX = event.clientX;
-        startY = event.clientY;
-        originX = layer.x;
-        originY = layer.y;
-
+        event.preventDefault(); event.stopPropagation(); node.setPointerCapture(event.pointerId); state.selectedLayerId = layerId;
+        const layer = getSelectedLayer(); if (!layer) return;
+        startX = event.clientX; startY = event.clientY; originX = layer.x; originY = layer.y;
         const move = (e) => {
           const dx = (e.clientX - startX) / state.layout.canvas.previewScale;
           const dy = (e.clientY - startY) / state.layout.canvas.previewScale;
-          layer.x = Math.round(originX + dx);
-          layer.y = Math.round(originY + dy);
-          renderAll();
+          layer.x = Math.round(originX + dx); layer.y = Math.round(originY + dy); renderAll();
         };
-
-        const up = () => {
-          node.removeEventListener('pointermove', move);
-          node.removeEventListener('pointerup', up);
-          node.removeEventListener('pointercancel', up);
-        };
-
-        node.addEventListener('pointermove', move);
-        node.addEventListener('pointerup', up);
-        node.addEventListener('pointercancel', up);
-        renderAll();
+        const up = () => { node.removeEventListener('pointermove', move); node.removeEventListener('pointerup', up); node.removeEventListener('pointercancel', up); };
+        node.addEventListener('pointermove', move); node.addEventListener('pointerup', up); node.addEventListener('pointercancel', up); renderAll();
       });
     }
 
     function bindInspector() {
       function updateSelected(mutator) {
-        const layer = getSelectedLayer();
-        if (!layer) return;
-        mutator(layer);
-        renderAll();
+        const layer = getSelectedLayer(); if (!layer) return; mutator(layer); renderAll();
       }
-
       els.propX.addEventListener('input', () => updateSelected(layer => layer.x = Number(els.propX.value) || 0));
       els.propY.addEventListener('input', () => updateSelected(layer => layer.y = Number(els.propY.value) || 0));
       els.propScale.addEventListener('input', () => updateSelected(layer => layer.scale = Number(els.propScale.value) || 1));
@@ -958,208 +787,80 @@
       els.propTextTransform.addEventListener('change', () => updateSelected(layer => layer.textTransform = els.propTextTransform.value));
       els.propWidth.addEventListener('input', () => updateSelected(layer => layer.width = els.propWidth.value === '' ? undefined : Number(els.propWidth.value)));
       els.propAlign.addEventListener('change', () => updateSelected(layer => layer.align = els.propAlign.value));
-
       els.bringForward.addEventListener('click', () => updateSelected(layer => layer.z = (layer.z ?? 0) + 1));
       els.sendBackward.addEventListener('click', () => updateSelected(layer => layer.z = Math.max(0, (layer.z ?? 0) - 1)));
     }
 
     function bindGlobalControls() {
-      els.foodSearch.addEventListener('input', () => {
-        state.foodFilter = els.foodSearch.value;
-        renderFoodList();
-      });
-
-      els.previewScale.addEventListener('input', () => {
-        state.layout.canvas.previewScale = Number(els.previewScale.value) || 3;
-        renderAll();
-      });
-
-      els.bgColor.addEventListener('input', () => {
-        state.layout.canvas.background = els.bgColor.value || '#d3d3d3';
-        renderAll();
-      });
-
-      els.toggleGrid.addEventListener('change', () => {
-        state.layout.canvas.showGrid = els.toggleGrid.checked;
-        renderAll();
-      });
-
-      els.toggleReference.addEventListener('change', () => {
-        state.layout.canvas.reference.enabled = els.toggleReference.checked;
-        renderAll();
-      });
-
-      els.referenceOpacity.addEventListener('input', () => {
-        state.layout.canvas.reference.opacity = Number(els.referenceOpacity.value);
-        renderAll();
-      });
-
+      els.sceneSelect.addEventListener('change', () => { state.layout.selectedSceneId = els.sceneSelect.value; state.selectedLayerId = null; renderAll(); });
+      els.foodSearch.addEventListener('input', () => { state.foodFilter = els.foodSearch.value; renderFoodList(); });
+      els.previewScale.addEventListener('input', () => { state.layout.canvas.previewScale = Number(els.previewScale.value) || 3; renderAll(); });
+      els.bgColor.addEventListener('input', () => { state.layout.canvas.background = els.bgColor.value || '#d3d3d3'; renderAll(); });
+      els.toggleGrid.addEventListener('change', () => { state.layout.canvas.showGrid = els.toggleGrid.checked; renderAll(); });
+      els.toggleReference.addEventListener('change', () => { getCurrentScene().reference.enabled = els.toggleReference.checked; renderAll(); });
+      els.referenceOpacity.addEventListener('input', () => { getCurrentScene().reference.opacity = Number(els.referenceOpacity.value); renderAll(); });
       els.resetLayout.addEventListener('click', () => {
-        state.layout = cloneDefault();
-        state.selectedLayerId = null;
-        updateFoodDrivenContent();
-        syncControlsFromState();
-        renderAll();
+        state.layout.scenes[state.layout.selectedSceneId] = state.layout.selectedSceneId === 'header' ? createHeaderScene() : createFatsScene();
+        state.selectedLayerId = null; updateFoodDrivenContent(); syncControlsFromState(); renderAll();
       });
-
-      els.saveLocal.addEventListener('click', () => {
-        saveLayoutToLocalStorage();
-        els.saveLocal.textContent = 'Saved!';
-        setTimeout(() => els.saveLocal.textContent = 'Save locally', 1200);
-      });
-
+      els.saveLocal.addEventListener('click', () => { saveLayoutToLocalStorage(); els.saveLocal.textContent = 'Saved!'; setTimeout(() => els.saveLocal.textContent = 'Save locally', 1200); });
       els.loadLocal.addEventListener('click', () => {
-        if (!loadLayoutFromLocalStorage()) {
-          els.loadLocal.textContent = 'No save found';
-          setTimeout(() => els.loadLocal.textContent = 'Load local save', 1200);
-          return;
-        }
-        state.selectedLayerId = null;
-        syncControlsFromState();
-        renderAll();
-        els.loadLocal.textContent = 'Loaded!';
-        setTimeout(() => els.loadLocal.textContent = 'Load local save', 1200);
+        if (!loadLayoutFromLocalStorage()) { els.loadLocal.textContent = 'No save found'; setTimeout(() => els.loadLocal.textContent = 'Load local save', 1200); return; }
+        state.selectedLayerId = null; syncControlsFromState(); renderAll(); els.loadLocal.textContent = 'Loaded!'; setTimeout(() => els.loadLocal.textContent = 'Load local save', 1200);
       });
-
-      els.clearLocal.addEventListener('click', () => {
-        localStorage.removeItem(LOCAL_STORAGE_KEY);
-        els.clearLocal.textContent = 'Cleared';
-        setTimeout(() => els.clearLocal.textContent = 'Clear local save', 1200);
-      });
-
+      els.clearLocal.addEventListener('click', () => { localStorage.removeItem(LOCAL_STORAGE_KEY); els.clearLocal.textContent = 'Cleared'; setTimeout(() => els.clearLocal.textContent = 'Clear local save', 1200); });
       els.downloadJson.addEventListener('click', () => {
-        updateJsonOutput();
-        const blob = new Blob([els.layoutJson.value], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'foodranked-layout.json';
-        a.click();
-        URL.revokeObjectURL(url);
+        updateJsonOutput(); const blob = new Blob([els.layoutJson.value], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'foodranked-layout.json'; a.click(); URL.revokeObjectURL(url);
       });
-
       els.copyConfig.addEventListener('click', async () => {
-        updateJsonOutput();
-        try {
-          await navigator.clipboard.writeText(els.layoutJson.value);
-          els.copyConfig.textContent = 'Copied!';
-          setTimeout(() => els.copyConfig.textContent = 'Copy JSON', 1200);
-        } catch {
-          els.copyConfig.textContent = 'Copy failed';
-          setTimeout(() => els.copyConfig.textContent = 'Copy JSON', 1200);
-        }
+        updateJsonOutput(); try { await navigator.clipboard.writeText(els.layoutJson.value); els.copyConfig.textContent = 'Copied!'; setTimeout(() => els.copyConfig.textContent = 'Copy JSON', 1200); } catch { els.copyConfig.textContent = 'Copy failed'; setTimeout(() => els.copyConfig.textContent = 'Copy JSON', 1200); }
       });
-
       els.uploadJson.addEventListener('change', async () => {
-        const file = els.uploadJson.files?.[0];
-        if (!file) return;
-        try {
-          const text = await file.text();
-          const parsed = JSON.parse(text);
-          state.layout = parsed;
-          state.selectedLayerId = null;
-          syncControlsFromState();
-          renderAll();
-        } catch (error) {
-          alert('Invalid uploaded JSON: ' + error.message);
-        } finally {
-          els.uploadJson.value = '';
-        }
+        const file = els.uploadJson.files?.[0]; if (!file) return;
+        try { const text = await file.text(); state.layout = JSON.parse(text); state.selectedLayerId = null; syncControlsFromState(); renderAll(); }
+        catch (error) { alert('Invalid uploaded JSON: ' + error.message); }
+        finally { els.uploadJson.value = ''; }
       });
-
       els.savePreset.addEventListener('click', () => {
-        const name = els.presetName.value.trim();
-        if (!name) {
-          alert('Give the preset a name first.');
-          return;
-        }
-        const presets = getSavedPresets();
-        presets[name] = state.layout;
-        setSavedPresets(presets);
-        els.presetList.value = name;
-        renderPresetList();
+        const name = els.presetName.value.trim(); if (!name) { alert('Give the preset a name first.'); return; }
+        const presets = getSavedPresets(); presets[name] = state.layout; setSavedPresets(presets); els.presetList.value = name; renderPresetList();
       });
-
       els.loadPreset.addEventListener('click', () => {
-        const name = els.presetList.value || els.presetName.value.trim();
-        const presets = getSavedPresets();
-        if (!name || !presets[name]) {
-          alert('Pick a saved preset first.');
-          return;
-        }
-        state.layout = presets[name];
-        state.selectedLayerId = null;
-        els.presetName.value = name;
-        syncControlsFromState();
-        renderAll();
+        const name = els.presetList.value || els.presetName.value.trim(); const presets = getSavedPresets();
+        if (!name || !presets[name]) { alert('Pick a saved preset first.'); return; }
+        state.layout = presets[name]; state.selectedLayerId = null; els.presetName.value = name; syncControlsFromState(); renderAll();
       });
-
       els.deletePreset.addEventListener('click', () => {
-        const name = els.presetList.value || els.presetName.value.trim();
-        const presets = getSavedPresets();
-        if (!name || !presets[name]) {
-          alert('Pick a saved preset first.');
-          return;
-        }
-        delete presets[name];
-        setSavedPresets(presets);
-        els.presetName.value = '';
-        els.presetList.value = '';
-        renderPresetList();
+        const name = els.presetList.value || els.presetName.value.trim(); const presets = getSavedPresets();
+        if (!name || !presets[name]) { alert('Pick a saved preset first.'); return; }
+        delete presets[name]; setSavedPresets(presets); els.presetName.value = ''; els.presetList.value = ''; renderPresetList();
       });
-
-      els.presetList.addEventListener('change', () => {
-        if (els.presetList.value) els.presetName.value = els.presetList.value;
-      });
-
+      els.presetList.addEventListener('change', () => { if (els.presetList.value) els.presetName.value = els.presetList.value; });
       els.applyJson.addEventListener('click', () => {
-        try {
-          const parsed = JSON.parse(els.layoutJson.value);
-          state.layout = parsed;
-          state.selectedLayerId = null;
-          syncControlsFromState();
-          renderAll();
-        } catch (error) {
-          alert('Invalid JSON: ' + error.message);
-        }
+        try { state.layout = JSON.parse(els.layoutJson.value); state.selectedLayerId = null; syncControlsFromState(); renderAll(); }
+        catch (error) { alert('Invalid JSON: ' + error.message); }
       });
-
-      els.canvas.addEventListener('click', () => {
-        state.selectedLayerId = null;
-        renderAll();
-      });
-
+      els.canvas.addEventListener('click', () => { state.selectedLayerId = null; renderAll(); });
       window.addEventListener('keydown', (event) => {
-        const layer = getSelectedLayer();
-        if (!layer) return;
-        if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) return;
-        const step = event.shiftKey ? 10 : 1;
-        let handled = true;
-        if (event.key === 'ArrowLeft') layer.x -= step;
-        else if (event.key === 'ArrowRight') layer.x += step;
-        else if (event.key === 'ArrowUp') layer.y -= step;
-        else if (event.key === 'ArrowDown') layer.y += step;
-        else handled = false;
-        if (handled) {
-          event.preventDefault();
-          renderAll();
-        }
+        const layer = getSelectedLayer(); if (!layer) return; if (['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)) return;
+        const step = event.shiftKey ? 10 : 1; let handled = true;
+        if (event.key === 'ArrowLeft') layer.x -= step; else if (event.key === 'ArrowRight') layer.x += step; else if (event.key === 'ArrowUp') layer.y -= step; else if (event.key === 'ArrowDown') layer.y += step; else handled = false;
+        if (handled) { event.preventDefault(); renderAll(); }
       });
     }
 
     function syncControlsFromState() {
+      els.sceneSelect.value = state.layout.selectedSceneId;
       els.previewScale.value = String(state.layout.canvas.previewScale);
       els.bgColor.value = state.layout.canvas.background;
       els.toggleGrid.checked = !!state.layout.canvas.showGrid;
-      els.toggleReference.checked = !!state.layout.canvas.reference.enabled;
-      els.referenceOpacity.value = String(state.layout.canvas.reference.opacity);
+      els.toggleReference.checked = !!getCurrentScene().reference.enabled;
+      els.referenceOpacity.value = String(getCurrentScene().reference.opacity ?? 0.45);
     }
 
     bindInspector();
     bindGlobalControls();
-    if (!loadLayoutFromLocalStorage()) {
-      updateFoodDrivenContent();
-    }
+    if (!loadLayoutFromLocalStorage()) updateFoodDrivenContent();
     syncControlsFromState();
     renderAll();
   </script>

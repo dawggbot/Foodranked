@@ -286,7 +286,13 @@
         <h2>Actions</h2>
         <div class="row">
           <button id="resetLayout">Reset header layout</button>
+          <button id="saveLocal">Save locally</button>
           <button id="copyConfig" class="primary">Copy JSON</button>
+        </div>
+        <div class="row">
+          <button id="downloadJson">Download JSON</button>
+          <button id="loadLocal">Load local save</button>
+          <button id="clearLocal">Clear local save</button>
         </div>
         <label>
           Layout JSON
@@ -603,6 +609,8 @@
       ]
     };
 
+    const LOCAL_STORAGE_KEY = 'foodranked-ui-layout-v1';
+
     const state = {
       layout: JSON.parse(JSON.stringify(DEFAULT_LAYOUT)),
       selectedLayerId: null,
@@ -626,6 +634,10 @@
       referenceOpacity: document.getElementById('referenceOpacity'),
       layoutJson: document.getElementById('layoutJson'),
       resetLayout: document.getElementById('resetLayout'),
+      saveLocal: document.getElementById('saveLocal'),
+      loadLocal: document.getElementById('loadLocal'),
+      clearLocal: document.getElementById('clearLocal'),
+      downloadJson: document.getElementById('downloadJson'),
       copyConfig: document.getElementById('copyConfig'),
       applyJson: document.getElementById('applyJson'),
       propX: document.getElementById('propX'),
@@ -645,6 +657,17 @@
 
     function cloneDefault() {
       return JSON.parse(JSON.stringify(DEFAULT_LAYOUT));
+    }
+
+    function saveLayoutToLocalStorage() {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state.layout));
+    }
+
+    function loadLayoutFromLocalStorage() {
+      const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (!raw) return false;
+      state.layout = JSON.parse(raw);
+      return true;
     }
 
     function slugToLabel(value) {
@@ -924,6 +947,42 @@
         renderAll();
       });
 
+      els.saveLocal.addEventListener('click', () => {
+        saveLayoutToLocalStorage();
+        els.saveLocal.textContent = 'Saved!';
+        setTimeout(() => els.saveLocal.textContent = 'Save locally', 1200);
+      });
+
+      els.loadLocal.addEventListener('click', () => {
+        if (!loadLayoutFromLocalStorage()) {
+          els.loadLocal.textContent = 'No save found';
+          setTimeout(() => els.loadLocal.textContent = 'Load local save', 1200);
+          return;
+        }
+        state.selectedLayerId = null;
+        syncControlsFromState();
+        renderAll();
+        els.loadLocal.textContent = 'Loaded!';
+        setTimeout(() => els.loadLocal.textContent = 'Load local save', 1200);
+      });
+
+      els.clearLocal.addEventListener('click', () => {
+        localStorage.removeItem(LOCAL_STORAGE_KEY);
+        els.clearLocal.textContent = 'Cleared';
+        setTimeout(() => els.clearLocal.textContent = 'Clear local save', 1200);
+      });
+
+      els.downloadJson.addEventListener('click', () => {
+        updateJsonOutput();
+        const blob = new Blob([els.layoutJson.value], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'foodranked-layout.json';
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+
       els.copyConfig.addEventListener('click', async () => {
         updateJsonOutput();
         try {
@@ -981,7 +1040,9 @@
 
     bindInspector();
     bindGlobalControls();
-    updateFoodDrivenContent();
+    if (!loadLayoutFromLocalStorage()) {
+      updateFoodDrivenContent();
+    }
     syncControlsFromState();
     renderAll();
   </script>

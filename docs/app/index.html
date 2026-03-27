@@ -3,89 +3,987 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>FoodRanked Header Preview</title>
+  <title>FoodRanked UI Layout Editor</title>
   <style>
     :root {
-      --bg: #d3d3d3;
+      --bg: #e2e2e2;
+      --panel: #f5f5f5;
+      --panel-border: #c7c7c7;
+      --ink: #1f1f1f;
+      --muted: #666;
+      --accent: #7f5af0;
       --preview-scale: 3;
       --asset-scale-down: 0.1;
       --grid-width: 135px;
       --grid-height: 240px;
-      --header-width: calc(var(--grid-width) * var(--preview-scale));
-      --header-height: calc(var(--grid-height) * var(--preview-scale));
+      --canvas-width: calc(var(--grid-width) * var(--preview-scale));
+      --canvas-height: calc(var(--grid-height) * var(--preview-scale));
+      --font: Inter, system-ui, sans-serif;
     }
 
     * { box-sizing: border-box; }
-
     body {
       margin: 0;
-      min-height: 100vh;
-      padding: 24px;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--ink);
+    }
+
+    .app {
       display: grid;
-      justify-items: center;
+      grid-template-columns: 320px minmax(520px, 1fr) 360px;
+      min-height: 100vh;
+      gap: 16px;
+      padding: 16px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-radius: 14px;
+      padding: 14px;
+      box-shadow: 0 6px 18px rgba(0,0,0,.06);
+      min-height: 0;
+    }
+
+    .sidebar, .inspector {
+      display: grid;
+      gap: 12px;
       align-content: start;
-      gap: 18px;
-      background: var(--bg);
-      color: #2a2a2a;
-      font-family: Inter, system-ui, sans-serif;
+      overflow: auto;
     }
 
-    .header-stage {
-      width: calc(var(--header-width) + 48px);
-      min-height: calc(var(--header-height) + 48px);
-      padding: 24px;
-      background: var(--bg);
-      overflow: visible;
+    .editor {
+      display: grid;
+      gap: 12px;
+      align-content: start;
+      min-width: 0;
     }
 
-    .header-canvas {
+    h1, h2, h3 {
+      margin: 0;
+      line-height: 1.1;
+    }
+
+    h1 { font-size: 22px; }
+    h2 { font-size: 16px; }
+    h3 { font-size: 14px; }
+
+    .muted { color: var(--muted); }
+    .small { font-size: 12px; }
+
+    .stack { display: grid; gap: 10px; }
+    .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+    label {
+      display: grid;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    input, select, textarea, button {
+      font: inherit;
+    }
+
+    input[type="text"], input[type="number"], select, textarea {
+      width: 100%;
+      border: 1px solid #cfcfcf;
+      background: white;
+      border-radius: 10px;
+      padding: 9px 10px;
+      color: var(--ink);
+    }
+
+    input[type="range"] {
+      width: 100%;
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+    }
+
+    button {
+      border: 1px solid #cfcfcf;
+      background: white;
+      color: var(--ink);
+      padding: 9px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    button.primary {
+      background: var(--accent);
+      color: white;
+      border-color: transparent;
+    }
+
+    .preview-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .canvas-wrap {
+      background: #d7d7d7;
+      border: 1px solid var(--panel-border);
+      border-radius: 14px;
+      padding: 16px;
+      overflow: auto;
+    }
+
+    .canvas {
       position: relative;
-      width: var(--header-width);
-      height: var(--header-height);
+      width: var(--canvas-width);
+      height: var(--canvas-height);
+      background: #d3d3d3;
+      background-image:
+        linear-gradient(to right, rgba(0,0,0,.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0,0,0,.05) 1px, transparent 1px);
+      background-size: calc(1px * var(--preview-scale)) calc(1px * var(--preview-scale));
       image-rendering: pixelated;
       image-rendering: crisp-edges;
+      user-select: none;
     }
 
-    .sprite {
+    .canvas.hide-grid {
+      background-image: none;
+    }
+
+    .asset-layer {
       position: absolute;
       transform-origin: top left;
       image-rendering: pixelated;
       image-rendering: crisp-edges;
-      user-select: none;
-      -webkit-user-drag: none;
-      transform: scale(calc(var(--preview-scale) * var(--asset-scale-down)));
+      cursor: grab;
+      outline: none;
     }
 
-    /* current sprite-only composition pass */
-    .food-plate { left: calc(3px * var(--preview-scale)); top: calc(7px * var(--preview-scale)); z-index: 1; }
-    .food-image { left: calc(15px * var(--preview-scale)); top: calc(11px * var(--preview-scale)); z-index: 2; }
-    .food-name-line { left: calc(45px * var(--preview-scale)); top: calc(44px * var(--preview-scale)); z-index: 1; }
-    .calorie-bubble { left: calc(28px * var(--preview-scale)); top: calc(34px * var(--preview-scale)); z-index: 2; }
-    .score-plate { left: calc(59px * var(--preview-scale)); top: calc(45px * var(--preview-scale)); z-index: 1; }
-    .type-plate { left: calc(99px * var(--preview-scale)); top: calc(45px * var(--preview-scale)); z-index: 1; }
-    .per-100g-line { left: calc(108px * var(--preview-scale)); top: calc(47px * var(--preview-scale)); z-index: 1; }
+    .text-layer {
+      position: absolute;
+      transform-origin: top left;
+      cursor: grab;
+      white-space: pre-line;
+      outline: none;
+      font-family: var(--font);
+    }
 
-    .note {
-      max-width: 960px;
-      text-align: center;
-      color: #5b5b5b;
-      font-size: 14px;
-      line-height: 1.45;
+    .selected {
+      box-shadow: 0 0 0 2px rgba(127,90,240,.85);
+      border-radius: 2px;
+    }
+
+    .layer-list {
+      display: grid;
+      gap: 6px;
+      max-height: 280px;
+      overflow: auto;
+    }
+
+    .layer-item {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 8px;
+      align-items: center;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: #fff;
+      border: 1px solid #ddd;
+      cursor: pointer;
+    }
+
+    .layer-item.active {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(127,90,240,.18);
+    }
+
+    .food-list {
+      max-height: 260px;
+      overflow: auto;
+      display: grid;
+      gap: 6px;
+    }
+
+    .food-item {
+      padding: 8px 10px;
+      border: 1px solid #ddd;
+      background: #fff;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .food-item.active {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(127,90,240,.18);
+    }
+
+    .split-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid #d3d3d3;
+      background: white;
+      color: var(--muted);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
     }
   </style>
 </head>
 <body>
-  <div class="header-stage">
-    <div class="header-canvas" aria-label="FoodRanked header sprite preview">
-      <img class="sprite food-plate" src="./sprites/header/food_image_plate/meat_food_plate.png" alt="" />
-      <img class="sprite food-image" src="./sprites/header/food_images/bacon.png" alt="Bacon pixel art" />
-      <img class="sprite food-name-line" src="./sprites/header/header_ui/food_name_line.png" alt="" />
-      <img class="sprite calorie-bubble" src="./sprites/header/calorie_bubble/meat_calorie_bubble.png" alt="" />
-      <img class="sprite score-plate" src="./sprites/header/header_ui/score_plate.png" alt="" />
-      <img class="sprite type-plate" src="./sprites/header/food_type_plate/meat_type_plate.png" alt="" />
-      <img class="sprite per-100g-line" src="./sprites/header/header_ui/per_100g_line.png" alt="" />
-    </div>
+  <div class="app">
+    <aside class="panel sidebar">
+      <div class="stack">
+        <h1>FoodRanked UI editor</h1>
+        <p class="muted">Edit the display visually. Drag sprites and text, nudge them, resize them, swap food data, and export the current layout config.</p>
+      </div>
+
+      <div class="stack">
+        <h2>Food data</h2>
+        <label>
+          Search foods
+          <input id="foodSearch" type="text" placeholder="Search foods..." />
+        </label>
+        <div id="foodList" class="food-list"></div>
+      </div>
+
+      <div class="stack">
+        <h2>Canvas settings</h2>
+        <label>
+          Preview scale
+          <input id="previewScale" type="range" min="1" max="8" step="1" value="3" />
+        </label>
+        <label>
+          Background colour
+          <input id="bgColor" type="text" value="#d3d3d3" />
+        </label>
+        <label class="row">
+          <input id="toggleGrid" type="checkbox" checked />
+          <span>Show pixel grid</span>
+        </label>
+        <label class="row">
+          <input id="toggleReference" type="checkbox" />
+          <span>Show reference overlay</span>
+        </label>
+        <label>
+          Reference opacity
+          <input id="referenceOpacity" type="range" min="0" max="1" step="0.05" value="0.45" />
+        </label>
+      </div>
+
+      <div class="stack">
+        <h2>Actions</h2>
+        <div class="row">
+          <button id="resetLayout">Reset header layout</button>
+          <button id="copyConfig" class="primary">Copy JSON</button>
+        </div>
+        <label>
+          Layout JSON
+          <textarea id="layoutJson"></textarea>
+        </label>
+        <div class="row">
+          <button id="applyJson">Apply JSON</button>
+        </div>
+      </div>
+    </aside>
+
+    <main class="panel editor">
+      <div class="preview-toolbar">
+        <div>
+          <h2>Display canvas</h2>
+          <div class="muted small">Drag layers directly on the canvas. Arrow keys nudge selected layers by 1px. Shift+Arrow nudges by 10px.</div>
+        </div>
+        <div class="row">
+          <span class="chip">Grid: 135 × 240</span>
+          <span class="chip" id="selectedChip">Selected: none</span>
+        </div>
+      </div>
+
+      <div class="canvas-wrap">
+        <div id="canvas" class="canvas" tabindex="0"></div>
+      </div>
+    </main>
+
+    <aside class="panel inspector">
+      <div class="stack">
+        <h2>Layers</h2>
+        <div id="layerList" class="layer-list"></div>
+      </div>
+
+      <div class="stack">
+        <h2>Selected layer</h2>
+        <div id="noSelection" class="muted small">Select a layer to edit its properties.</div>
+        <div id="layerInspector" class="stack" hidden>
+          <div class="split-2">
+            <label>
+              X
+              <input id="propX" type="number" step="1" />
+            </label>
+            <label>
+              Y
+              <input id="propY" type="number" step="1" />
+            </label>
+          </div>
+          <div class="split-2">
+            <label>
+              Scale
+              <input id="propScale" type="number" step="0.1" />
+            </label>
+            <label>
+              Visible
+              <select id="propVisible">
+                <option value="true">true</option>
+                <option value="false">false</option>
+              </select>
+            </label>
+          </div>
+          <div id="textControls" class="stack" hidden>
+            <label>
+              Text
+              <textarea id="propText"></textarea>
+            </label>
+            <div class="split-2">
+              <label>
+                Font size
+                <input id="propFontSize" type="number" step="0.5" />
+              </label>
+              <label>
+                Font weight
+                <input id="propFontWeight" type="number" step="100" />
+              </label>
+            </div>
+            <div class="split-2">
+              <label>
+                Colour
+                <input id="propColor" type="text" />
+              </label>
+              <label>
+                Transform
+                <select id="propTextTransform">
+                  <option value="none">none</option>
+                  <option value="uppercase">uppercase</option>
+                  <option value="lowercase">lowercase</option>
+                  <option value="capitalize">capitalize</option>
+                </select>
+              </label>
+            </div>
+            <div class="split-2">
+              <label>
+                Width (optional)
+                <input id="propWidth" type="number" step="1" />
+              </label>
+              <label>
+                Align
+                <select id="propAlign">
+                  <option value="left">left</option>
+                  <option value="center">center</option>
+                  <option value="right">right</option>
+                </select>
+              </label>
+            </div>
+          </div>
+          <div class="row">
+            <button id="bringForward">Bring forward</button>
+            <button id="sendBackward">Send backward</button>
+          </div>
+        </div>
+      </div>
+    </aside>
   </div>
-  <div class="note">Sprite-only header preview so we can lock the layout skeleton before reintroducing text.</div>
+
+  <script src="./data/foods-index.js"></script>
+  <script>
+    const DEFAULT_LAYOUT = {
+      canvas: {
+        width: 135,
+        height: 240,
+        previewScale: 3,
+        assetScaleDown: 0.1,
+        background: '#d3d3d3',
+        showGrid: true,
+        reference: {
+          enabled: false,
+          opacity: 0.45,
+          src: '../../sprites/references/header reference with text.png'
+        }
+      },
+      selectedFoodId: 'bacon',
+      textDefaults: {
+        fontFamily: 'Inter, system-ui, sans-serif'
+      },
+      layers: [
+        {
+          id: 'food_plate',
+          kind: 'sprite',
+          label: 'Food plate',
+          src: './sprites/header/food_image_plate/meat_food_plate.png',
+          x: 3,
+          y: 7,
+          scale: 1,
+          visible: true,
+          z: 1
+        },
+        {
+          id: 'food_image',
+          kind: 'sprite',
+          label: 'Food image',
+          src: './sprites/header/food_images/bacon.png',
+          x: 15,
+          y: 11,
+          scale: 1,
+          visible: true,
+          z: 2,
+          foodImageDriven: true
+        },
+        {
+          id: 'food_name_line',
+          kind: 'sprite',
+          label: 'Food name line',
+          src: './sprites/header/header_ui/food_name_line.png',
+          x: 45,
+          y: 44,
+          scale: 1,
+          visible: true,
+          z: 1
+        },
+        {
+          id: 'calorie_bubble',
+          kind: 'sprite',
+          label: 'Calorie bubble',
+          src: './sprites/header/calorie_bubble/meat_calorie_bubble.png',
+          x: 28,
+          y: 34,
+          scale: 1,
+          visible: true,
+          z: 2
+        },
+        {
+          id: 'score_plate',
+          kind: 'sprite',
+          label: 'Score plate',
+          src: './sprites/header/header_ui/score_plate.png',
+          x: 59,
+          y: 45,
+          scale: 1,
+          visible: true,
+          z: 1
+        },
+        {
+          id: 'type_plate',
+          kind: 'sprite',
+          label: 'Type plate',
+          src: './sprites/header/food_type_plate/meat_type_plate.png',
+          x: 99,
+          y: 45,
+          scale: 1,
+          visible: true,
+          z: 1
+        },
+        {
+          id: 'per_100g_line',
+          kind: 'sprite',
+          label: 'Per 100g line',
+          src: './sprites/header/header_ui/per_100g_line.png',
+          x: 108,
+          y: 47,
+          scale: 1,
+          visible: true,
+          z: 1
+        },
+        {
+          id: 'food_name_text',
+          kind: 'text',
+          label: 'Food name text',
+          x: 45,
+          y: 10,
+          scale: 1,
+          visible: true,
+          z: 3,
+          text: 'BACON',
+          fontSize: 14,
+          fontWeight: 700,
+          color: '#111111',
+          textTransform: 'uppercase',
+          align: 'left'
+        },
+        {
+          id: 'kcal_value_text',
+          kind: 'text',
+          label: 'Kcal value',
+          x: 33,
+          y: 36,
+          width: 19,
+          scale: 1,
+          visible: true,
+          z: 3,
+          text: '541',
+          fontSize: 9,
+          fontWeight: 800,
+          color: '#111111',
+          textTransform: 'none',
+          align: 'center'
+        },
+        {
+          id: 'kcal_label_text',
+          kind: 'text',
+          label: 'Kcal label',
+          x: 35,
+          y: 48,
+          width: 15,
+          scale: 1,
+          visible: true,
+          z: 3,
+          text: 'KCAL',
+          fontSize: 8,
+          fontWeight: 700,
+          color: '#111111',
+          textTransform: 'uppercase',
+          align: 'center'
+        },
+        {
+          id: 'score_label_text',
+          kind: 'text',
+          label: 'Score label',
+          x: 64,
+          y: 47,
+          scale: 1,
+          visible: true,
+          z: 3,
+          text: 'SCORE:',
+          fontSize: 9,
+          fontWeight: 700,
+          color: '#111111',
+          textTransform: 'uppercase',
+          align: 'left'
+        },
+        {
+          id: 'food_type_text',
+          kind: 'text',
+          label: 'Food type text',
+          x: 106,
+          y: 47,
+          scale: 1,
+          visible: true,
+          z: 3,
+          text: 'MEATS',
+          fontSize: 9,
+          fontWeight: 700,
+          color: '#111111',
+          textTransform: 'uppercase',
+          align: 'left'
+        },
+        {
+          id: 'basis_text',
+          kind: 'text',
+          label: 'Basis text',
+          x: 109,
+          y: 14,
+          width: 18,
+          scale: 1,
+          visible: true,
+          z: 3,
+          text: 'PER\n100g',
+          fontSize: 10,
+          fontWeight: 700,
+          color: '#111111',
+          textTransform: 'none',
+          align: 'center'
+        }
+      ]
+    };
+
+    const state = {
+      layout: JSON.parse(JSON.stringify(DEFAULT_LAYOUT)),
+      selectedLayerId: null,
+      foods: Array.isArray(window.FOODS_INDEX) ? window.FOODS_INDEX : [],
+      foodFilter: ''
+    };
+
+    const els = {
+      canvas: document.getElementById('canvas'),
+      foodList: document.getElementById('foodList'),
+      foodSearch: document.getElementById('foodSearch'),
+      layerList: document.getElementById('layerList'),
+      selectedChip: document.getElementById('selectedChip'),
+      noSelection: document.getElementById('noSelection'),
+      layerInspector: document.getElementById('layerInspector'),
+      textControls: document.getElementById('textControls'),
+      previewScale: document.getElementById('previewScale'),
+      bgColor: document.getElementById('bgColor'),
+      toggleGrid: document.getElementById('toggleGrid'),
+      toggleReference: document.getElementById('toggleReference'),
+      referenceOpacity: document.getElementById('referenceOpacity'),
+      layoutJson: document.getElementById('layoutJson'),
+      resetLayout: document.getElementById('resetLayout'),
+      copyConfig: document.getElementById('copyConfig'),
+      applyJson: document.getElementById('applyJson'),
+      propX: document.getElementById('propX'),
+      propY: document.getElementById('propY'),
+      propScale: document.getElementById('propScale'),
+      propVisible: document.getElementById('propVisible'),
+      propText: document.getElementById('propText'),
+      propFontSize: document.getElementById('propFontSize'),
+      propFontWeight: document.getElementById('propFontWeight'),
+      propColor: document.getElementById('propColor'),
+      propTextTransform: document.getElementById('propTextTransform'),
+      propWidth: document.getElementById('propWidth'),
+      propAlign: document.getElementById('propAlign'),
+      bringForward: document.getElementById('bringForward'),
+      sendBackward: document.getElementById('sendBackward')
+    };
+
+    function cloneDefault() {
+      return JSON.parse(JSON.stringify(DEFAULT_LAYOUT));
+    }
+
+    function slugToLabel(value) {
+      return String(value || '')
+        .replace(/\.sample$/,'')
+        .replace(/[_-]+/g, ' ')
+        .replace(/\b\w/g, ch => ch.toUpperCase());
+    }
+
+    function getSelectedLayer() {
+      return state.layout.layers.find(layer => layer.id === state.selectedLayerId) || null;
+    }
+
+    function getSelectedFood() {
+      return state.foods.find(food => food.id === state.layout.selectedFoodId) || state.foods[0] || null;
+    }
+
+    function updateFoodDrivenContent() {
+      const food = getSelectedFood();
+      if (!food) return;
+      const foodNameLayer = state.layout.layers.find(layer => layer.id === 'food_name_text');
+      const kcalValueLayer = state.layout.layers.find(layer => layer.id === 'kcal_value_text');
+      const typeTextLayer = state.layout.layers.find(layer => layer.id === 'food_type_text');
+      const basisTextLayer = state.layout.layers.find(layer => layer.id === 'basis_text');
+      const foodImageLayer = state.layout.layers.find(layer => layer.id === 'food_image');
+
+      if (foodNameLayer) foodNameLayer.text = String(food.name || slugToLabel(food.id)).toUpperCase();
+      if (kcalValueLayer && food.kcal !== undefined && food.kcal !== null && food.kcal !== '') kcalValueLayer.text = String(Math.round(Number(food.kcal)));
+      if (typeTextLayer) typeTextLayer.text = String(food.foodType || '').toUpperCase();
+      if (basisTextLayer) basisTextLayer.text = String(food.basis || 'per 100g').replace(/\s+/g, '\n');
+      if (foodImageLayer && food.id) {
+        const candidate = `./sprites/header/food_images/${food.id}.png`;
+        foodImageLayer.src = candidate;
+      }
+    }
+
+    function setCssVars() {
+      const root = document.documentElement;
+      root.style.setProperty('--preview-scale', state.layout.canvas.previewScale);
+      root.style.setProperty('--bg', state.layout.canvas.background);
+      els.canvas.classList.toggle('hide-grid', !state.layout.canvas.showGrid);
+      els.canvas.style.backgroundColor = state.layout.canvas.background;
+    }
+
+    function renderFoodList() {
+      const filter = state.foodFilter.trim().toLowerCase();
+      const foods = state.foods.filter(food => {
+        if (!filter) return true;
+        return [food.id, food.name, food.foodType].filter(Boolean).some(v => String(v).toLowerCase().includes(filter));
+      });
+      els.foodList.innerHTML = '';
+      for (const food of foods) {
+        const item = document.createElement('button');
+        item.type = 'button';
+        item.className = 'food-item' + (food.id === state.layout.selectedFoodId ? ' active' : '');
+        item.innerHTML = `<strong>${food.name || slugToLabel(food.id)}</strong><div class="small muted">${food.foodType || 'Unknown'} · ${food.basis || 'per 100g'}${food.kcal !== undefined && food.kcal !== null ? ` · ${food.kcal} kcal` : ''}</div>`;
+        item.addEventListener('click', () => {
+          state.layout.selectedFoodId = food.id;
+          updateFoodDrivenContent();
+          renderAll();
+        });
+        els.foodList.appendChild(item);
+      }
+    }
+
+    function renderReferenceOverlay() {
+      const existing = els.canvas.querySelector('.reference-overlay');
+      if (existing) existing.remove();
+      if (!state.layout.canvas.reference.enabled) return;
+      const img = document.createElement('img');
+      img.className = 'reference-overlay';
+      img.src = state.layout.canvas.reference.src;
+      Object.assign(img.style, {
+        position: 'absolute',
+        inset: '0',
+        width: '100%',
+        height: '100%',
+        opacity: state.layout.canvas.reference.opacity,
+        pointerEvents: 'none',
+        imageRendering: 'pixelated',
+        zIndex: '999'
+      });
+      els.canvas.appendChild(img);
+    }
+
+    function renderCanvas() {
+      els.canvas.innerHTML = '';
+      const sortedLayers = [...state.layout.layers].sort((a,b) => (a.z ?? 0) - (b.z ?? 0));
+
+      for (const layer of sortedLayers) {
+        if (!layer.visible) continue;
+        let node;
+        if (layer.kind === 'sprite') {
+          node = document.createElement('img');
+          node.className = 'asset-layer';
+          node.src = layer.src;
+          node.alt = layer.label;
+          node.style.transform = `scale(calc(var(--preview-scale) * var(--asset-scale-down) * ${layer.scale || 1}))`;
+        } else {
+          node = document.createElement('div');
+          node.className = 'text-layer';
+          node.textContent = layer.text || '';
+          node.style.fontSize = `calc(${layer.fontSize || 8}px * var(--preview-scale) * ${layer.scale || 1})`;
+          node.style.fontWeight = layer.fontWeight || 700;
+          node.style.color = layer.color || '#111111';
+          node.style.textTransform = layer.textTransform || 'none';
+          node.style.textAlign = layer.align || 'left';
+          node.style.fontFamily = state.layout.textDefaults.fontFamily;
+          if (layer.width) node.style.width = `calc(${layer.width}px * var(--preview-scale))`;
+        }
+
+        node.dataset.layerId = layer.id;
+        node.style.left = `calc(${layer.x}px * var(--preview-scale))`;
+        node.style.top = `calc(${layer.y}px * var(--preview-scale))`;
+        node.style.zIndex = String(layer.z ?? 0);
+        if (state.selectedLayerId === layer.id) node.classList.add('selected');
+        attachLayerPointer(node, layer.id);
+        node.addEventListener('click', (event) => {
+          event.stopPropagation();
+          state.selectedLayerId = layer.id;
+          renderAll();
+        });
+        els.canvas.appendChild(node);
+      }
+
+      renderReferenceOverlay();
+    }
+
+    function renderLayerList() {
+      els.layerList.innerHTML = '';
+      const sorted = [...state.layout.layers].sort((a,b) => (b.z ?? 0) - (a.z ?? 0));
+      for (const layer of sorted) {
+        const item = document.createElement('button');
+        item.type = 'button';
+        item.className = 'layer-item' + (layer.id === state.selectedLayerId ? ' active' : '');
+        item.innerHTML = `<span>${layer.kind === 'sprite' ? '🧩' : '🔤'}</span><span><strong>${layer.label}</strong><br><span class="small muted">${layer.id}</span></span><span class="small muted">z ${layer.z ?? 0}</span>`;
+        item.addEventListener('click', () => {
+          state.selectedLayerId = layer.id;
+          renderAll();
+        });
+        els.layerList.appendChild(item);
+      }
+    }
+
+    function renderInspector() {
+      const layer = getSelectedLayer();
+      els.selectedChip.textContent = `Selected: ${layer ? layer.label : 'none'}`;
+      els.noSelection.hidden = !!layer;
+      els.layerInspector.hidden = !layer;
+      if (!layer) return;
+
+      els.propX.value = layer.x;
+      els.propY.value = layer.y;
+      els.propScale.value = layer.scale ?? 1;
+      els.propVisible.value = String(layer.visible !== false);
+      const isText = layer.kind === 'text';
+      els.textControls.hidden = !isText;
+      if (isText) {
+        els.propText.value = layer.text || '';
+        els.propFontSize.value = layer.fontSize || 8;
+        els.propFontWeight.value = layer.fontWeight || 700;
+        els.propColor.value = layer.color || '#111111';
+        els.propTextTransform.value = layer.textTransform || 'none';
+        els.propWidth.value = layer.width ?? '';
+        els.propAlign.value = layer.align || 'left';
+      }
+    }
+
+    function updateJsonOutput() {
+      els.layoutJson.value = JSON.stringify(state.layout, null, 2);
+    }
+
+    function renderAll() {
+      setCssVars();
+      renderFoodList();
+      renderCanvas();
+      renderLayerList();
+      renderInspector();
+      updateJsonOutput();
+    }
+
+    function attachLayerPointer(node, layerId) {
+      let startX = 0, startY = 0, originX = 0, originY = 0;
+      node.addEventListener('pointerdown', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        node.setPointerCapture(event.pointerId);
+        state.selectedLayerId = layerId;
+        const layer = getSelectedLayer();
+        if (!layer) return;
+        startX = event.clientX;
+        startY = event.clientY;
+        originX = layer.x;
+        originY = layer.y;
+
+        const move = (e) => {
+          const dx = (e.clientX - startX) / state.layout.canvas.previewScale;
+          const dy = (e.clientY - startY) / state.layout.canvas.previewScale;
+          layer.x = Math.round(originX + dx);
+          layer.y = Math.round(originY + dy);
+          renderAll();
+        };
+
+        const up = () => {
+          node.removeEventListener('pointermove', move);
+          node.removeEventListener('pointerup', up);
+          node.removeEventListener('pointercancel', up);
+        };
+
+        node.addEventListener('pointermove', move);
+        node.addEventListener('pointerup', up);
+        node.addEventListener('pointercancel', up);
+        renderAll();
+      });
+    }
+
+    function bindInspector() {
+      function updateSelected(mutator) {
+        const layer = getSelectedLayer();
+        if (!layer) return;
+        mutator(layer);
+        renderAll();
+      }
+
+      els.propX.addEventListener('input', () => updateSelected(layer => layer.x = Number(els.propX.value) || 0));
+      els.propY.addEventListener('input', () => updateSelected(layer => layer.y = Number(els.propY.value) || 0));
+      els.propScale.addEventListener('input', () => updateSelected(layer => layer.scale = Number(els.propScale.value) || 1));
+      els.propVisible.addEventListener('change', () => updateSelected(layer => layer.visible = els.propVisible.value === 'true'));
+      els.propText.addEventListener('input', () => updateSelected(layer => layer.text = els.propText.value));
+      els.propFontSize.addEventListener('input', () => updateSelected(layer => layer.fontSize = Number(els.propFontSize.value) || 8));
+      els.propFontWeight.addEventListener('input', () => updateSelected(layer => layer.fontWeight = Number(els.propFontWeight.value) || 700));
+      els.propColor.addEventListener('input', () => updateSelected(layer => layer.color = els.propColor.value || '#111111'));
+      els.propTextTransform.addEventListener('change', () => updateSelected(layer => layer.textTransform = els.propTextTransform.value));
+      els.propWidth.addEventListener('input', () => updateSelected(layer => layer.width = els.propWidth.value === '' ? undefined : Number(els.propWidth.value)));
+      els.propAlign.addEventListener('change', () => updateSelected(layer => layer.align = els.propAlign.value));
+
+      els.bringForward.addEventListener('click', () => updateSelected(layer => layer.z = (layer.z ?? 0) + 1));
+      els.sendBackward.addEventListener('click', () => updateSelected(layer => layer.z = Math.max(0, (layer.z ?? 0) - 1)));
+    }
+
+    function bindGlobalControls() {
+      els.foodSearch.addEventListener('input', () => {
+        state.foodFilter = els.foodSearch.value;
+        renderFoodList();
+      });
+
+      els.previewScale.addEventListener('input', () => {
+        state.layout.canvas.previewScale = Number(els.previewScale.value) || 3;
+        renderAll();
+      });
+
+      els.bgColor.addEventListener('input', () => {
+        state.layout.canvas.background = els.bgColor.value || '#d3d3d3';
+        renderAll();
+      });
+
+      els.toggleGrid.addEventListener('change', () => {
+        state.layout.canvas.showGrid = els.toggleGrid.checked;
+        renderAll();
+      });
+
+      els.toggleReference.addEventListener('change', () => {
+        state.layout.canvas.reference.enabled = els.toggleReference.checked;
+        renderAll();
+      });
+
+      els.referenceOpacity.addEventListener('input', () => {
+        state.layout.canvas.reference.opacity = Number(els.referenceOpacity.value);
+        renderAll();
+      });
+
+      els.resetLayout.addEventListener('click', () => {
+        state.layout = cloneDefault();
+        state.selectedLayerId = null;
+        updateFoodDrivenContent();
+        syncControlsFromState();
+        renderAll();
+      });
+
+      els.copyConfig.addEventListener('click', async () => {
+        updateJsonOutput();
+        try {
+          await navigator.clipboard.writeText(els.layoutJson.value);
+          els.copyConfig.textContent = 'Copied!';
+          setTimeout(() => els.copyConfig.textContent = 'Copy JSON', 1200);
+        } catch {
+          els.copyConfig.textContent = 'Copy failed';
+          setTimeout(() => els.copyConfig.textContent = 'Copy JSON', 1200);
+        }
+      });
+
+      els.applyJson.addEventListener('click', () => {
+        try {
+          const parsed = JSON.parse(els.layoutJson.value);
+          state.layout = parsed;
+          state.selectedLayerId = null;
+          syncControlsFromState();
+          renderAll();
+        } catch (error) {
+          alert('Invalid JSON: ' + error.message);
+        }
+      });
+
+      els.canvas.addEventListener('click', () => {
+        state.selectedLayerId = null;
+        renderAll();
+      });
+
+      window.addEventListener('keydown', (event) => {
+        const layer = getSelectedLayer();
+        if (!layer) return;
+        if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) return;
+        const step = event.shiftKey ? 10 : 1;
+        let handled = true;
+        if (event.key === 'ArrowLeft') layer.x -= step;
+        else if (event.key === 'ArrowRight') layer.x += step;
+        else if (event.key === 'ArrowUp') layer.y -= step;
+        else if (event.key === 'ArrowDown') layer.y += step;
+        else handled = false;
+        if (handled) {
+          event.preventDefault();
+          renderAll();
+        }
+      });
+    }
+
+    function syncControlsFromState() {
+      els.previewScale.value = String(state.layout.canvas.previewScale);
+      els.bgColor.value = state.layout.canvas.background;
+      els.toggleGrid.checked = !!state.layout.canvas.showGrid;
+      els.toggleReference.checked = !!state.layout.canvas.reference.enabled;
+      els.referenceOpacity.value = String(state.layout.canvas.reference.opacity);
+    }
+
+    bindInspector();
+    bindGlobalControls();
+    updateFoodDrivenContent();
+    syncControlsFromState();
+    renderAll();
+  </script>
 </body>
 </html>

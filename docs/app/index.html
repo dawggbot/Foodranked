@@ -11,11 +11,12 @@
       --chrome: #2e3649;
       --text: #f7f3e8;
       --muted: #d0c6b8;
-      --header-scale: 10;
+      --preview-scale: 3;
+      --asset-scale-down: 0.1;
       --grid-width: 135px;
       --grid-height: 240px;
-      --header-width: calc(var(--grid-width) * var(--header-scale));
-      --header-height: calc(var(--grid-height) * var(--header-scale));
+      --header-width: calc(var(--grid-width) * var(--preview-scale));
+      --header-height: calc(var(--grid-height) * var(--preview-scale));
     }
 
     * { box-sizing: border-box; }
@@ -59,7 +60,6 @@
     .header-text {
       position: absolute;
       transform-origin: top left;
-      transform: scale(var(--header-scale));
     }
 
     .sprite {
@@ -67,15 +67,16 @@
       image-rendering: crisp-edges;
       user-select: none;
       -webkit-user-drag: none;
+      transform: scale(calc(var(--preview-scale) * var(--asset-scale-down)));
     }
 
-    .food-plate { left: 3px; top: 7px; z-index: 1; }
-    .food-image { left: 15px; top: 11px; z-index: 2; }
-    .food-name-line { left: 22px; top: 45px; z-index: 1; }
-    .calorie-bubble { left: 28px; top: 34px; z-index: 1; }
-    .score-plate { left: 33px; top: 60px; z-index: 1; }
-    .type-plate { left: 30px; top: 96px; z-index: 1; }
-    .per-100g-line { left: 25px; top: 108px; z-index: 1; }
+    .food-plate { left: calc(3px * var(--preview-scale)); top: calc(7px * var(--preview-scale)); z-index: 1; }
+    .food-image { left: calc(15px * var(--preview-scale)); top: calc(11px * var(--preview-scale)); z-index: 2; }
+    .food-name-line { left: calc(22px * var(--preview-scale)); top: calc(45px * var(--preview-scale)); z-index: 1; }
+    .calorie-bubble { left: calc(28px * var(--preview-scale)); top: calc(34px * var(--preview-scale)); z-index: 1; }
+    .score-plate { left: calc(33px * var(--preview-scale)); top: calc(60px * var(--preview-scale)); z-index: 1; }
+    .type-plate { left: calc(30px * var(--preview-scale)); top: calc(96px * var(--preview-scale)); z-index: 1; }
+    .per-100g-line { left: calc(25px * var(--preview-scale)); top: calc(108px * var(--preview-scale)); z-index: 1; }
 
     .header-text {
       z-index: 3;
@@ -89,45 +90,45 @@
     }
 
     .food-name-text {
-      left: 27px;
-      top: 36px;
-      font-size: 7px;
-      max-width: 72px;
+      left: calc(27px * var(--preview-scale));
+      top: calc(36px * var(--preview-scale));
+      font-size: calc(7px * var(--preview-scale));
+      max-width: calc(72px * var(--preview-scale));
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
     .kcal-value {
-      left: 42px;
-      top: 44px;
-      width: 15px;
+      left: calc(42px * var(--preview-scale));
+      top: calc(44px * var(--preview-scale));
+      width: calc(15px * var(--preview-scale));
       text-align: center;
-      font-size: 7px;
+      font-size: calc(7px * var(--preview-scale));
       font-weight: 800;
     }
 
     .kcal-label {
-      left: 43px;
-      top: 52px;
-      width: 14px;
+      left: calc(43px * var(--preview-scale));
+      top: calc(52px * var(--preview-scale));
+      width: calc(14px * var(--preview-scale));
       text-align: center;
-      font-size: 3px;
+      font-size: calc(3px * var(--preview-scale));
       color: var(--muted);
       text-transform: lowercase;
     }
 
     .food-type-text {
-      left: 36px;
-      top: 100px;
-      font-size: 5px;
+      left: calc(36px * var(--preview-scale));
+      top: calc(100px * var(--preview-scale));
+      font-size: calc(5px * var(--preview-scale));
       color: #fff2df;
       text-transform: capitalize;
     }
 
     .basis-text {
-      left: 31px;
-      top: 103px;
-      font-size: 4px;
+      left: calc(31px * var(--preview-scale));
+      top: calc(103px * var(--preview-scale));
+      font-size: calc(4px * var(--preview-scale));
       color: var(--muted);
       text-transform: lowercase;
     }
@@ -159,6 +160,6 @@
       <p class="header-text basis-text">per 100g</p>
     </div>
   </div>
-  <div class="note">Header-only preview at a full 1000% canvas scale for inspection. The entire 135×240 grid is now visible without phone-frame clipping.</div>
+  <div class="note">Header-only preview with the canvas back at normal preview size and the 1000% exported sprites scaled back down to their intended native grid size.</div>
 </body>
 </html>

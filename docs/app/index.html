@@ -295,6 +295,25 @@
           <button id="clearLocal">Clear local save</button>
         </div>
         <label>
+          Upload layout JSON
+          <input id="uploadJson" type="file" accept="application/json,.json" />
+        </label>
+        <label>
+          Preset name
+          <input id="presetName" type="text" placeholder="header-v1" />
+        </label>
+        <div class="row">
+          <button id="savePreset">Save preset</button>
+          <button id="loadPreset">Load preset</button>
+          <button id="deletePreset">Delete preset</button>
+        </div>
+        <label>
+          Saved presets
+          <select id="presetList">
+            <option value="">No preset selected</option>
+          </select>
+        </label>
+        <label>
           Layout JSON
           <textarea id="layoutJson"></textarea>
         </label>
@@ -610,6 +629,7 @@
     };
 
     const LOCAL_STORAGE_KEY = 'foodranked-ui-layout-v1';
+    const PRESET_STORAGE_KEY = 'foodranked-ui-layout-presets-v1';
 
     const state = {
       layout: JSON.parse(JSON.stringify(DEFAULT_LAYOUT)),
@@ -638,6 +658,12 @@
       loadLocal: document.getElementById('loadLocal'),
       clearLocal: document.getElementById('clearLocal'),
       downloadJson: document.getElementById('downloadJson'),
+      uploadJson: document.getElementById('uploadJson'),
+      presetName: document.getElementById('presetName'),
+      presetList: document.getElementById('presetList'),
+      savePreset: document.getElementById('savePreset'),
+      loadPreset: document.getElementById('loadPreset'),
+      deletePreset: document.getElementById('deletePreset'),
       copyConfig: document.getElementById('copyConfig'),
       applyJson: document.getElementById('applyJson'),
       propX: document.getElementById('propX'),
@@ -668,6 +694,18 @@
       if (!raw) return false;
       state.layout = JSON.parse(raw);
       return true;
+    }
+
+    function getSavedPresets() {
+      try {
+        return JSON.parse(localStorage.getItem(PRESET_STORAGE_KEY) || '{}');
+      } catch {
+        return {};
+      }
+    }
+
+    function setSavedPresets(presets) {
+      localStorage.setItem(PRESET_STORAGE_KEY, JSON.stringify(presets));
     }
 
     function slugToLabel(value) {
@@ -840,6 +878,21 @@
       els.layoutJson.value = JSON.stringify(state.layout, null, 2);
     }
 
+    function renderPresetList() {
+      const presets = getSavedPresets();
+      const current = els.presetList.value;
+      els.presetList.innerHTML = '<option value="">No preset selected</option>';
+      for (const name of Object.keys(presets).sort()) {
+        const option = document.createElement('option');
+        option.value = name;
+        option.textContent = name;
+        els.presetList.appendChild(option);
+      }
+      if (current && presets[current]) {
+        els.presetList.value = current;
+      }
+    }
+
     function renderAll() {
       setCssVars();
       renderFoodList();
@@ -847,6 +900,8 @@
       renderLayerList();
       renderInspector();
       updateJsonOutput();
+      renderPresetList();
+      saveLayoutToLocalStorage();
     }
 
     function attachLayerPointer(node, layerId) {
@@ -993,6 +1048,68 @@
           els.copyConfig.textContent = 'Copy failed';
           setTimeout(() => els.copyConfig.textContent = 'Copy JSON', 1200);
         }
+      });
+
+      els.uploadJson.addEventListener('change', async () => {
+        const file = els.uploadJson.files?.[0];
+        if (!file) return;
+        try {
+          const text = await file.text();
+          const parsed = JSON.parse(text);
+          state.layout = parsed;
+          state.selectedLayerId = null;
+          syncControlsFromState();
+          renderAll();
+        } catch (error) {
+          alert('Invalid uploaded JSON: ' + error.message);
+        } finally {
+          els.uploadJson.value = '';
+        }
+      });
+
+      els.savePreset.addEventListener('click', () => {
+        const name = els.presetName.value.trim();
+        if (!name) {
+          alert('Give the preset a name first.');
+          return;
+        }
+        const presets = getSavedPresets();
+        presets[name] = state.layout;
+        setSavedPresets(presets);
+        els.presetList.value = name;
+        renderPresetList();
+      });
+
+      els.loadPreset.addEventListener('click', () => {
+        const name = els.presetList.value || els.presetName.value.trim();
+        const presets = getSavedPresets();
+        if (!name || !presets[name]) {
+          alert('Pick a saved preset first.');
+          return;
+        }
+        state.layout = presets[name];
+        state.selectedLayerId = null;
+        els.presetName.value = name;
+        syncControlsFromState();
+        renderAll();
+      });
+
+      els.deletePreset.addEventListener('click', () => {
+        const name = els.presetList.value || els.presetName.value.trim();
+        const presets = getSavedPresets();
+        if (!name || !presets[name]) {
+          alert('Pick a saved preset first.');
+          return;
+        }
+        delete presets[name];
+        setSavedPresets(presets);
+        els.presetName.value = '';
+        els.presetList.value = '';
+        renderPresetList();
+      });
+
+      els.presetList.addEventListener('change', () => {
+        if (els.presetList.value) els.presetName.value = els.presetList.value;
       });
 
       els.applyJson.addEventListener('click', () => {

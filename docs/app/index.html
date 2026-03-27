@@ -12,8 +12,10 @@
       --text: #f7f3e8;
       --muted: #d0c6b8;
       --header-scale: 3;
-      --header-width: calc(135px * var(--header-scale));
-      --header-height: calc(240px * var(--header-scale));
+      --grid-width: 135px;
+      --grid-height: 240px;
+      --header-width: calc(var(--grid-width) * var(--header-scale));
+      --header-height: calc(var(--grid-height) * var(--header-scale));
     }
 
     * { box-sizing: border-box; }
@@ -57,124 +59,82 @@
       height: var(--header-height);
       image-rendering: pixelated;
       image-rendering: crisp-edges;
+      transform-origin: top center;
+    }
+
+    .sprite,
+    .header-text {
+      position: absolute;
+      transform-origin: top left;
+      transform: scale(var(--header-scale));
     }
 
     .sprite {
-      position: absolute;
       image-rendering: pixelated;
       image-rendering: crisp-edges;
       user-select: none;
       -webkit-user-drag: none;
     }
 
-    .food-image {
-      left: calc(6px * var(--header-scale));
-      top: calc(18px * var(--header-scale));
-      width: calc(33px * var(--header-scale));
-      height: calc(33px * var(--header-scale));
-      z-index: 2;
-    }
-
-    .food-plate {
-      left: 0;
-      top: calc(10px * var(--header-scale));
-      width: calc(45px * var(--header-scale));
-      height: calc(50px * var(--header-scale));
-      z-index: 1;
-    }
-
-    .food-name-line {
-      left: calc(43px * var(--header-scale));
-      top: calc(18px * var(--header-scale));
-      width: calc(52px * var(--header-scale));
-      height: calc(12px * var(--header-scale));
-      z-index: 1;
-    }
-
-    .type-plate {
-      left: calc(45px * var(--header-scale));
-      top: calc(33px * var(--header-scale));
-      width: calc(38px * var(--header-scale));
-      height: calc(12px * var(--header-scale));
-      z-index: 1;
-    }
-
-    .per-100g-line {
-      left: calc(45px * var(--header-scale));
-      top: calc(47px * var(--header-scale));
-      width: calc(34px * var(--header-scale));
-      height: calc(10px * var(--header-scale));
-      z-index: 1;
-    }
-
-    .calorie-bubble {
-      right: 0;
-      top: calc(12px * var(--header-scale));
-      width: calc(40px * var(--header-scale));
-      height: calc(44px * var(--header-scale));
-      z-index: 1;
-    }
-
-    .score-plate {
-      right: calc(2px * var(--header-scale));
-      top: calc(60px * var(--header-scale));
-      width: calc(33px * var(--header-scale));
-      height: calc(10px * var(--header-scale));
-      z-index: 1;
-    }
+    .food-plate { left: 3px; top: 7px; z-index: 1; }
+    .food-image { left: 15px; top: 11px; z-index: 2; }
+    .food-name-line { left: 22px; top: 45px; z-index: 1; }
+    .calorie-bubble { left: 28px; top: 34px; z-index: 1; }
+    .score-plate { left: 33px; top: 60px; z-index: 1; }
+    .type-plate { left: 30px; top: 96px; z-index: 1; }
+    .per-100g-line { left: 25px; top: 108px; z-index: 1; }
 
     .header-text {
-      position: absolute;
       z-index: 3;
       margin: 0;
       color: #f7f3e8;
       font-weight: 700;
       line-height: 1;
       letter-spacing: 0;
-      text-shadow: 0 2px 0 rgba(18, 23, 36, 0.8);
       white-space: nowrap;
+      text-shadow: 0 1px 0 rgba(18, 23, 36, 0.85);
     }
 
     .food-name-text {
-      left: calc(48px * var(--header-scale));
-      top: calc(21px * var(--header-scale));
-      font-size: calc(5px * var(--header-scale));
-      max-width: calc(42px * var(--header-scale));
+      left: 27px;
+      top: 36px;
+      font-size: 7px;
+      max-width: 72px;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
+    .kcal-value {
+      left: 42px;
+      top: 44px;
+      width: 15px;
+      text-align: center;
+      font-size: 7px;
+      font-weight: 800;
+    }
+
+    .kcal-label {
+      left: 43px;
+      top: 52px;
+      width: 14px;
+      text-align: center;
+      font-size: 3px;
+      color: var(--muted);
+      text-transform: lowercase;
+    }
+
     .food-type-text {
-      left: calc(51px * var(--header-scale));
-      top: calc(36px * var(--header-scale));
-      font-size: calc(4px * var(--header-scale));
+      left: 36px;
+      top: 100px;
+      font-size: 5px;
       color: #fff2df;
       text-transform: capitalize;
     }
 
     .basis-text {
-      left: calc(50px * var(--header-scale));
-      top: calc(49px * var(--header-scale));
-      font-size: calc(3.5px * var(--header-scale));
-      color: var(--muted);
-      text-transform: lowercase;
-    }
-
-    .kcal-value {
-      right: calc(9px * var(--header-scale));
-      top: calc(22px * var(--header-scale));
-      width: calc(22px * var(--header-scale));
-      text-align: center;
-      font-size: calc(8px * var(--header-scale));
-      font-weight: 800;
-    }
-
-    .kcal-label {
-      right: calc(9px * var(--header-scale));
-      top: calc(31px * var(--header-scale));
-      width: calc(22px * var(--header-scale));
-      text-align: center;
-      font-size: calc(3px * var(--header-scale));
+      left: 31px;
+      top: 103px;
+      font-size: 4px;
       color: var(--muted);
       text-transform: lowercase;
     }
@@ -195,19 +155,19 @@
         <img class="sprite food-plate" src="./sprites/header/food_image_plate/meat_food_plate.png" alt="" />
         <img class="sprite food-image" src="./sprites/header/food_images/bacon.png" alt="Bacon pixel art" />
         <img class="sprite food-name-line" src="./sprites/header/header_ui/food_name_line.png" alt="" />
-        <img class="sprite type-plate" src="./sprites/header/food_type_plate/meat_type_plate.png" alt="" />
-        <img class="sprite per-100g-line" src="./sprites/header/header_ui/per_100g_line.png" alt="" />
         <img class="sprite calorie-bubble" src="./sprites/header/calorie_bubble/meat_calorie_bubble.png" alt="" />
         <img class="sprite score-plate" src="./sprites/header/header_ui/score_plate.png" alt="" />
+        <img class="sprite type-plate" src="./sprites/header/food_type_plate/meat_type_plate.png" alt="" />
+        <img class="sprite per-100g-line" src="./sprites/header/header_ui/per_100g_line.png" alt="" />
 
         <p class="header-text food-name-text">Bacon</p>
-        <p class="header-text food-type-text">Meat</p>
-        <p class="header-text basis-text">per 100g</p>
         <p class="header-text kcal-value">541</p>
         <p class="header-text kcal-label">kcal</p>
+        <p class="header-text food-type-text">Meat</p>
+        <p class="header-text basis-text">per 100g</p>
       </div>
     </div>
-    <div class="note">Header-only preview in the main app entry, using the meat asset set on the 135×240 authored grid.</div>
+    <div class="note">Header-only preview using exact native-grid sprite anchors and unscaled sprite dimensions, previewed at a uniform canvas scale.</div>
   </div>
 </body>
 </html>

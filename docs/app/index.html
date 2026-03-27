@@ -6,11 +6,7 @@
   <title>FoodRanked Header Preview</title>
   <style>
     :root {
-      --bg-top: #d8d8d8;
-      --bg-bottom: #c9c9c9;
-      --chrome: #9a9a9a;
-      --text: #f7f3e8;
-      --muted: #d0c6b8;
+      --bg: #d3d3d3;
       --preview-scale: 3;
       --asset-scale-down: 0.1;
       --grid-width: 135px;
@@ -29,8 +25,7 @@
       justify-items: center;
       align-content: start;
       gap: 18px;
-      overflow: auto;
-      background: #d3d3d3;
+      background: var(--bg);
       color: #2a2a2a;
       font-family: Inter, system-ui, sans-serif;
     }
@@ -39,10 +34,7 @@
       width: calc(var(--header-width) + 48px);
       min-height: calc(var(--header-height) + 48px);
       padding: 24px;
-      border: 2px solid var(--chrome);
-      border-radius: 12px;
-      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
-      background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+      background: var(--bg);
       overflow: visible;
     }
 
@@ -72,73 +64,69 @@
       letter-spacing: 0;
       white-space: nowrap;
       font-weight: 700;
+      text-transform: uppercase;
+      color: #111;
       transform-origin: top left;
     }
 
-    /* exact sprite anchors from the 135x240 grid */
+    /* reference-matched composition */
     .food-plate { left: calc(3px * var(--preview-scale)); top: calc(7px * var(--preview-scale)); z-index: 1; }
     .food-image { left: calc(15px * var(--preview-scale)); top: calc(11px * var(--preview-scale)); z-index: 2; }
-    .food-name-line { left: calc(22px * var(--preview-scale)); top: calc(45px * var(--preview-scale)); z-index: 1; }
-    .calorie-bubble { left: calc(28px * var(--preview-scale)); top: calc(34px * var(--preview-scale)); z-index: 1; }
-    .score-plate { left: calc(33px * var(--preview-scale)); top: calc(60px * var(--preview-scale)); z-index: 1; }
-    .type-plate { left: calc(30px * var(--preview-scale)); top: calc(96px * var(--preview-scale)); z-index: 1; }
-    .per-100g-line { left: calc(25px * var(--preview-scale)); top: calc(108px * var(--preview-scale)); z-index: 1; }
+    .food-name-line { left: calc(45px * var(--preview-scale)); top: calc(44px * var(--preview-scale)); z-index: 1; }
+    .calorie-bubble { left: calc(28px * var(--preview-scale)); top: calc(34px * var(--preview-scale)); z-index: 2; }
+    .score-plate { left: calc(59px * var(--preview-scale)); top: calc(45px * var(--preview-scale)); z-index: 1; }
+    .type-plate { left: calc(99px * var(--preview-scale)); top: calc(45px * var(--preview-scale)); z-index: 1; }
+    .per-100g-line { left: calc(108px * var(--preview-scale)); top: calc(47px * var(--preview-scale)); z-index: 1; }
 
-    /* text aligned relative to underline/chip intent, not centered inside fake boxes */
     .food-name-text {
-      left: calc(23px * var(--preview-scale));
-      top: calc(38px * var(--preview-scale));
-      font-size: calc(6px * var(--preview-scale));
-      color: #f5ead8;
-      text-shadow: 0 calc(1px * var(--preview-scale)) 0 rgba(54, 35, 25, 0.45);
-      text-transform: uppercase;
+      left: calc(45px * var(--preview-scale));
+      top: calc(10px * var(--preview-scale));
+      font-size: calc(14px * var(--preview-scale));
+      color: #111;
     }
 
     .kcal-value {
-      left: calc(34px * var(--preview-scale));
-      top: calc(40px * var(--preview-scale));
-      width: calc(11px * var(--preview-scale));
+      left: calc(33px * var(--preview-scale));
+      top: calc(36px * var(--preview-scale));
+      width: calc(19px * var(--preview-scale));
       text-align: center;
-      font-size: calc(6px * var(--preview-scale));
+      font-size: calc(9px * var(--preview-scale));
       font-weight: 800;
-      color: #fff2df;
-      text-shadow: 0 calc(1px * var(--preview-scale)) 0 rgba(54, 35, 25, 0.45);
+      color: #111;
     }
 
     .kcal-label {
-      left: calc(34px * var(--preview-scale));
-      top: calc(47px * var(--preview-scale));
-      width: calc(11px * var(--preview-scale));
+      left: calc(35px * var(--preview-scale));
+      top: calc(48px * var(--preview-scale));
+      width: calc(15px * var(--preview-scale));
       text-align: center;
-      font-size: calc(2.4px * var(--preview-scale));
-      color: #f3e0c7;
-      text-transform: lowercase;
+      font-size: calc(8px * var(--preview-scale));
+      color: #111;
     }
 
     .score-label-text {
-      left: calc(34px * var(--preview-scale));
-      top: calc(62px * var(--preview-scale));
-      font-size: calc(3.2px * var(--preview-scale));
-      color: #fff0d8;
-      text-transform: lowercase;
-      letter-spacing: 0;
+      left: calc(64px * var(--preview-scale));
+      top: calc(47px * var(--preview-scale));
+      font-size: calc(9px * var(--preview-scale));
+      color: #111;
     }
 
     .food-type-text {
-      left: calc(34px * var(--preview-scale));
-      top: calc(101px * var(--preview-scale));
-      font-size: calc(5px * var(--preview-scale));
-      color: #fff2df;
-      text-transform: capitalize;
-      text-shadow: 0 calc(1px * var(--preview-scale)) 0 rgba(54, 35, 25, 0.35);
+      left: calc(106px * var(--preview-scale));
+      top: calc(47px * var(--preview-scale));
+      font-size: calc(9px * var(--preview-scale));
+      color: #111;
     }
 
     .basis-text {
-      left: calc(26px * var(--preview-scale));
-      top: calc(101px * var(--preview-scale));
-      font-size: calc(3.6px * var(--preview-scale));
-      color: #6b6058;
-      text-transform: lowercase;
+      left: calc(109px * var(--preview-scale));
+      top: calc(14px * var(--preview-scale));
+      font-size: calc(10px * var(--preview-scale));
+      color: #111;
+      line-height: 0.9;
+      white-space: normal;
+      text-align: center;
+      width: calc(18px * var(--preview-scale));
     }
 
     .note {
@@ -162,13 +150,13 @@
       <img class="sprite per-100g-line" src="./sprites/header/header_ui/per_100g_line.png" alt="" />
 
       <p class="header-text food-name-text">BACON</p>
-      <p class="header-text kcal-value">541</p>
-      <p class="header-text kcal-label">kcal</p>
-      <p class="header-text score-label-text">score:</p>
-      <p class="header-text food-type-text">Meat</p>
-      <p class="header-text basis-text">per 100g</p>
+      <p class="header-text kcal-value">+17</p>
+      <p class="header-text kcal-label">KCAL</p>
+      <p class="header-text score-label-text">SCORE: ???</p>
+      <p class="header-text food-type-text">MEATS</p>
+      <p class="header-text basis-text">PER<br>100g</p>
     </div>
   </div>
-  <div class="note">Header-only preview with sprite anchors matched to the true 10x export sizes and text positioned relative to the underline/chip reference intent.</div>
+  <div class="note">Reference-matched header pass using the visible composition from the provided header reference image rather than the earlier guessed text offsets.</div>
 </body>
 </html>

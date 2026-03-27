@@ -8,7 +8,7 @@
     :root {
       --bg-top: #d8d8d8;
       --bg-bottom: #c9c9c9;
-      --chrome: #2e3649;
+      --chrome: #9a9a9a;
       --text: #f7f3e8;
       --muted: #d0c6b8;
       --preview-scale: 3;
@@ -30,8 +30,8 @@
       align-content: start;
       gap: 18px;
       overflow: auto;
-      background: linear-gradient(180deg, #1a1f2b 0%, #11151d 100%);
-      color: var(--text);
+      background: #d3d3d3;
+      color: #2a2a2a;
       font-family: Inter, system-ui, sans-serif;
     }
 
@@ -39,12 +39,10 @@
       width: calc(var(--header-width) + 48px);
       min-height: calc(var(--header-height) + 48px);
       padding: 24px;
-      border: 6px solid var(--chrome);
-      border-radius: 26px;
-      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
-      background:
-        radial-gradient(circle at top, rgba(213, 90, 90, 0.16), transparent 35%),
-        linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+      border: 2px solid var(--chrome);
+      border-radius: 12px;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
+      background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
       overflow: visible;
     }
 
@@ -56,13 +54,9 @@
       image-rendering: crisp-edges;
     }
 
-    .sprite,
-    .header-text {
+    .sprite {
       position: absolute;
       transform-origin: top left;
-    }
-
-    .sprite {
       image-rendering: pixelated;
       image-rendering: crisp-edges;
       user-select: none;
@@ -70,6 +64,18 @@
       transform: scale(calc(var(--preview-scale) * var(--asset-scale-down)));
     }
 
+    .header-text {
+      position: absolute;
+      z-index: 3;
+      margin: 0;
+      line-height: 1;
+      letter-spacing: 0;
+      white-space: nowrap;
+      font-weight: 700;
+      transform-origin: top left;
+    }
+
+    /* exact sprite anchors from the 135x240 grid */
     .food-plate { left: calc(3px * var(--preview-scale)); top: calc(7px * var(--preview-scale)); z-index: 1; }
     .food-image { left: calc(15px * var(--preview-scale)); top: calc(11px * var(--preview-scale)); z-index: 2; }
     .food-name-line { left: calc(22px * var(--preview-scale)); top: calc(45px * var(--preview-scale)); z-index: 1; }
@@ -78,65 +84,67 @@
     .type-plate { left: calc(30px * var(--preview-scale)); top: calc(96px * var(--preview-scale)); z-index: 1; }
     .per-100g-line { left: calc(25px * var(--preview-scale)); top: calc(108px * var(--preview-scale)); z-index: 1; }
 
-    .header-text {
-      z-index: 3;
-      margin: 0;
-      color: #f7f3e8;
-      font-weight: 700;
-      line-height: 1;
-      letter-spacing: 0;
-      white-space: nowrap;
-      text-shadow: 0 1px 0 rgba(18, 23, 36, 0.85);
-    }
-
+    /* text aligned relative to underline/chip intent, not centered inside fake boxes */
     .food-name-text {
-      left: calc(27px * var(--preview-scale));
-      top: calc(36px * var(--preview-scale));
-      font-size: calc(7px * var(--preview-scale));
-      max-width: calc(72px * var(--preview-scale));
-      overflow: hidden;
-      text-overflow: ellipsis;
+      left: calc(23px * var(--preview-scale));
+      top: calc(38px * var(--preview-scale));
+      font-size: calc(6px * var(--preview-scale));
+      color: #f5ead8;
+      text-shadow: 0 calc(1px * var(--preview-scale)) 0 rgba(54, 35, 25, 0.45);
+      text-transform: uppercase;
     }
 
     .kcal-value {
-      left: calc(42px * var(--preview-scale));
-      top: calc(44px * var(--preview-scale));
-      width: calc(15px * var(--preview-scale));
+      left: calc(34px * var(--preview-scale));
+      top: calc(40px * var(--preview-scale));
+      width: calc(11px * var(--preview-scale));
       text-align: center;
-      font-size: calc(7px * var(--preview-scale));
+      font-size: calc(6px * var(--preview-scale));
       font-weight: 800;
+      color: #fff2df;
+      text-shadow: 0 calc(1px * var(--preview-scale)) 0 rgba(54, 35, 25, 0.45);
     }
 
     .kcal-label {
-      left: calc(43px * var(--preview-scale));
-      top: calc(52px * var(--preview-scale));
-      width: calc(14px * var(--preview-scale));
+      left: calc(34px * var(--preview-scale));
+      top: calc(47px * var(--preview-scale));
+      width: calc(11px * var(--preview-scale));
       text-align: center;
-      font-size: calc(3px * var(--preview-scale));
-      color: var(--muted);
+      font-size: calc(2.4px * var(--preview-scale));
+      color: #f3e0c7;
       text-transform: lowercase;
     }
 
+    .score-label-text {
+      left: calc(34px * var(--preview-scale));
+      top: calc(62px * var(--preview-scale));
+      font-size: calc(3.2px * var(--preview-scale));
+      color: #fff0d8;
+      text-transform: lowercase;
+      letter-spacing: 0;
+    }
+
     .food-type-text {
-      left: calc(36px * var(--preview-scale));
-      top: calc(100px * var(--preview-scale));
+      left: calc(34px * var(--preview-scale));
+      top: calc(101px * var(--preview-scale));
       font-size: calc(5px * var(--preview-scale));
       color: #fff2df;
       text-transform: capitalize;
+      text-shadow: 0 calc(1px * var(--preview-scale)) 0 rgba(54, 35, 25, 0.35);
     }
 
     .basis-text {
-      left: calc(31px * var(--preview-scale));
-      top: calc(103px * var(--preview-scale));
-      font-size: calc(4px * var(--preview-scale));
-      color: var(--muted);
+      left: calc(26px * var(--preview-scale));
+      top: calc(101px * var(--preview-scale));
+      font-size: calc(3.6px * var(--preview-scale));
+      color: #6b6058;
       text-transform: lowercase;
     }
 
     .note {
       max-width: 960px;
       text-align: center;
-      color: #b8b3a7;
+      color: #5b5b5b;
       font-size: 14px;
       line-height: 1.45;
     }
@@ -153,13 +161,14 @@
       <img class="sprite type-plate" src="./sprites/header/food_type_plate/meat_type_plate.png" alt="" />
       <img class="sprite per-100g-line" src="./sprites/header/header_ui/per_100g_line.png" alt="" />
 
-      <p class="header-text food-name-text">Bacon</p>
+      <p class="header-text food-name-text">BACON</p>
       <p class="header-text kcal-value">541</p>
       <p class="header-text kcal-label">kcal</p>
+      <p class="header-text score-label-text">score:</p>
       <p class="header-text food-type-text">Meat</p>
       <p class="header-text basis-text">per 100g</p>
     </div>
   </div>
-  <div class="note">Header-only preview with the canvas back at normal preview size and the 1000% exported sprites scaled back down to their intended native grid size.</div>
+  <div class="note">Header-only preview with sprite anchors matched to the true 10x export sizes and text positioned relative to the underline/chip reference intent.</div>
 </body>
 </html>

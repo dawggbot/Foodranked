@@ -104,3 +104,26 @@ They should add context like:
 - processing burden
 - preparation traps
 - sourcing/authenticity when materially relevant
+
+For production use, the highest-value context items should also be classified by evidence strength:
+- `supported`
+- `plausible`
+- `editorial`
+- `contested`
+
+Scoring context should lean toward `supported`.
+Purely editorial lines should not quietly influence rank.
+
+## Highest-risk next audit targets
+
+### Foods
+1. **white rice** — first production-lane draft now exists as a locked dry, long-grain, unenriched form; exact source-row and GI sourcing still block promotion
+2. **tomato** — first production-lane raw tomato draft now exists; raw/cooked/sauce/paste separation is now enforced in-file but provenance is still incomplete
+3. **yam** — first production-lane draft now exists specifically to surface the species blocker honestly; still unresolved and not production-rankable
+4. **oats** — first production-lane rolled-oats draft now exists and is the best candidate to finish first among the grain hardening set
+5. **chicken thigh** — first production-lane draft now locks skinless roasted meat-only form, but exact source-row and a few proxy metrics still need cleanup
+
+### Categories
+1. **grains** — highest near-term calibration risk because common foods vary enormously by refinement and preparation
+2. **vegetables** — highest context-quality risk because phytonutrient claims are easy to overstate without source discipline
+3. **tubers** — strong need for identity cleanup before category calibration can be trusted

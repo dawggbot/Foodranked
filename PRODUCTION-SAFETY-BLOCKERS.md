@@ -4,15 +4,18 @@ This file lists what still blocks defensible "production-safe" nutrition claims.
 
 ## Still blocked
 
-1. **Canonical source provenance is not attached to live food files.**
+1. **Canonical source provenance is now partially attached, but not fully reconciled into production-safe finals.**
    - Current sample foods explicitly say they use approximate placeholder values.
-   - There is no immutable per-food provenance bundle in the inspected food JSONs.
+   - The target production-lane drafts under `foods/production/` for oats, white rice, tomato, yam, and chicken thigh now carry explicit USDA anchors where available.
+   - That is a real upgrade from pure docs work: each draft carries `identityLock`, `provenance`, `metricProvenance`, and `scoreReadiness`, and several now also include exact `fdcId`, `ndbNumber`/`foodCode`, and example `foodNutrientId` anchors.
+   - Remaining blocker: some files still contain numbers or identities that do not fully reconcile with the locked source row, so they are still not production-safe finals.
 
-2. **Food identity is still ambiguous for several high-impact examples.**
-   - Oats: raw oats vs groats vs rolled oats vs instant oats.
-   - White rice: rice variety, enriched vs unenriched, and preparation basis.
-   - Tomato: raw tomato must stay separate from cooked/paste/sauce forms.
-   - Yam: species confusion risk is still unresolved in the audit notes.
+2. **Food identity is still ambiguous or mismatched for several high-impact examples.**
+   - Oats: source row is now locked to generic `Oats, raw` (`fdcId 2708489`, `foodCode 57602100`), but that is still weaker than a rolled-oats-specific canonical row.
+   - White rice: source row is now locked to enriched long-grain raw white rice (`fdcId 168877`, `ndbNumber 20044`), which exposed that the existing draft/filename had claimed unenriched.
+   - Tomato: raw tomato row is locked (`fdcId 170457`, `ndbNumber 11529`), but lycopene support still needs a separate citation bundle and many nutrient rows are aggregated/calculated.
+   - Chicken thigh: candidate row found (`fdcId 172385`, `ndbNumber 5091`), but it conflicts with the current draft identity because it is raw meat-and-skin, not roasted skinless thigh meat.
+   - Yam: source row is locked (`fdcId 170071`, `ndbNumber 11601`), but species/market-label ambiguity is still unresolved enough that the file remains blocked from production ranking.
 
 3. **Tier thresholds are still starter thresholds, not category-calibrated production thresholds.**
    - Current thresholds may be acceptable for scaffolding.
@@ -34,6 +37,52 @@ This file lists what still blocks defensible "production-safe" nutrition claims.
 7. **No scorer regression run was possible from this subagent without command approval.**
    - The ruleset and doc changes are structurally consistent with the inspected scorer.
    - They were not execution-tested here.
+
+## Highest-risk next categories / foods
+
+### Highest-risk foods next
+1. **white rice**
+   - production-lane draft exists: `foods/production/white-rice-long-grain-unenriched-dry-draft.json`
+   - exact USDA row is now attached: `fdcId 168877` / `ndbNumber 20044`
+   - remaining blocker: the attached row is enriched, so the file name and earlier identity assumptions are wrong and need cleanup
+   - enriched/cooked/parboiled variants still need separate future entries
+
+2. **tomato**
+   - production-lane raw tomato draft exists: `foods/production/tomato-red-raw-draft.json`
+   - exact USDA row is now attached: `fdcId 170457` / `ndbNumber 11529`
+   - remaining blocker: form-specific lycopene citation bundling plus the fact that several nutrient derivations are aggregated/calculated rather than clean direct analytical rows
+   - sauce/paste/cooked variants must remain separate future files
+
+3. **yam**
+   - production-lane draft exists: `foods/production/yam-true-yam-raw-draft.json`
+   - exact USDA row is now attached: `fdcId 170071` / `ndbNumber 11601`
+   - still the weakest of the group because species identity is intentionally unresolved
+   - this one is blocked more by identity-class confidence than by missing numeric anchors
+
+4. **oats**
+   - production-lane draft exists: `foods/production/oats-rolled-dry-draft.json`
+   - exact USDA row is now attached: `fdcId 2708489` / `foodCode 57602100`
+   - remaining blocker: the locked row is generic raw oats rather than a cleaner rolled-oats-specific row, and several file numbers still need reconciliation to that row
+   - still one of the better near-finishable grain entries once numeric reconciliation is done
+
+5. **chicken thigh**
+   - production-lane draft exists: `foods/production/chicken-thigh-skinless-roasted-draft.json`
+   - candidate USDA row is now attached for audit purposes: `fdcId 172385` / `ndbNumber 5091`
+   - remaining blocker: the located row conflicts with the draft identity because it is raw meat-and-skin, not roasted skinless thigh meat
+   - proxy metrics like `collagen_g` and `bioavailability_percent` still need better sourcing or removal
+
+### Highest-risk categories next
+1. **grains**
+   - many familiar foods, but heavy refinement/preparation variance
+   - strong chance of quietly mixing incomparable forms
+
+2. **vegetables**
+   - context quality risk is high because phytonutrient claims can get hand-wavy fast
+   - tomato / kale / zucchini need very different treatment despite sharing the category
+
+3. **tubers**
+   - identity lock matters a lot and GI narratives are easy to oversimplify
+   - yam / sweet potato / white potato need cleaner separation
 
 ## Minimum bar before claiming production-safe nutrition output
 

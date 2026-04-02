@@ -271,3 +271,200 @@ See also `PRODUCTION-SAFETY-BLOCKERS.md`, but the short version is:
   - whether memory/personal notes must stay out of git
 - I still did not run `git add`, `git commit`, or `git push` here.
 - Exact blocker now stated more precisely: the repo appears to be mostly untracked from git's perspective, so creating a safe focused commit would require an intentional staging decision rather than an automatic commit.
+
+## 2026-04-02 — pass 4 production identity / provenance contract
+
+### Main finding
+The biggest remaining production-safety gap is no longer ruleset structure.
+It is the absence of a formal **food-entry contract** that locks:
+- exact food identity
+- exact preparation/state
+- exact source row
+- metric-level provenance exceptions
+- evidence strength for scoring context items
+- a clear gate for whether a file is allowed to count as production-safe
+
+Without that, the project can still accidentally rank the wrong form of a food with very confident-looking output.
+
+### Changes made in this pass
+- Added `docs/nutrition-audit/production-food-file-shape.md`
+  - defines a concrete production JSON shape
+  - introduces `identityLock`, `provenance`, `metricProvenance`, and `scoreReadiness`
+  - explains why these are required for foods like oats, white rice, tomato, yam, and chicken thigh
+- Added `foods/production/PRODUCTION-FOOD.template.json`
+  - practical template for future production entries
+  - keeps production data in a separate lane from `.sample.json` fixtures
+- Updated `RULESET-SCHEMA.md`
+  - added identity-lock and provenance-record concepts to the architecture model
+  - clarified that basis state must be stored, not implied
+- Updated `RULESET-JSON-SHAPE.md`
+  - connected ruleset docs to the new production food-entry contract
+  - added stronger guidance that provenance without identity lock is still insufficient
+- Updated `PRODUCTION-SAFETY-BLOCKERS.md`
+  - now points to the new contract and lists highest-risk next foods/categories
+- Updated `docs/nutrition-audit/category-audit-summary.md`
+  - added evidence-strength framing for context quality
+  - added explicit next audit targets
+
+### What this pass improves materially
+1. **Identity lock is now concrete instead of hand-wavy.**
+   - There is now a proposed file shape for handling raw/cooked, enriched/unenriched, skin-on/skinless, and similar high-impact distinctions.
+
+2. **Provenance is now separated into whole-food vs metric-level provenance.**
+   - This matters because GI, amino-acid proxies, bioavailability, and context claims often do not come cleanly from one nutrient row.
+
+3. **Production gating is now explicit.**
+   - `scoreReadiness.safeForProductionRanking` is proposed as a blunt honesty flag.
+   - A file can still be scored for internal testing without being allowed to masquerade as production truth.
+
+4. **The highest-risk next targets are clearer.**
+   - Foods: white rice, tomato, yam, oats, chicken thigh.
+   - Categories: grains, vegetables, tubers.
+
+### What still cannot be claimed honestly
+- Current sample food files are still not production-safe food entries.
+- The new schema/template is a production proposal, not a completed migration.
+- No live food file was promoted to production status in this pass.
+- No regression command was executed in this pass.
+- No git commit or push was performed because the repo staging boundary is still ambiguous.
+
+### Recommended next build order
+1. Create the first real identity-locked production food entry for **oats**.
+   - Best candidate because the distinctions matter and the food-specific context is genuinely strong.
+2. Build **white rice** as the first high-risk disambiguation stress test.
+   - Lock raw/cooked and enriched/unenriched explicitly.
+3. Build **tomato** with strict form separation.
+   - Raw whole tomato first; sauce/paste later as separate entries.
+4. Resolve **yam** identity before scoring policy hardens around it.
+5. Revisit **chicken thigh** with skin/cooking-state lock and cleaner non-editorial context standards.
+6. Only after a handful of identity-locked foods exist, recalibrate category thresholds using peer comparisons.
+
+### File change summary for pass 4
+#### Changed
+- `FOODRANKED-NUTRITION-AUDIT-2026-04-02.md`
+- `PRODUCTION-SAFETY-BLOCKERS.md`
+- `docs/nutrition-audit/category-audit-summary.md`
+- `RULESET-SCHEMA.md`
+- `RULESET-JSON-SHAPE.md`
+
+#### Added
+- `docs/nutrition-audit/production-food-file-shape.md`
+- `foods/production/PRODUCTION-FOOD.template.json`
+
+#### Removed
+- none
+
+## 2026-04-02 — pass 5 targeted food-file cleanup after approved inventory
+
+### Newly confirmed expanded sample set
+The approved file listing confirmed additional sample foods already exist in the repo:
+- `foods/kale.sample.json`
+- `foods/tomato.sample.json`
+- `foods/turnip.sample.json`
+- `foods/white-rice.sample.json`
+- `foods/whole-wheat.sample.json`
+- `foods/yam.sample.json`
+- `foods/zucchini.sample.json`
+
+That materially improved confidence in where the next production-risk work should focus.
+
+### Findings from the newly inspected food files
+1. **White rice, tomato, and yam are exactly as risky as the audit notes suggested.**
+   - Their current sample files are useful for pressure-testing.
+   - But each one has a strong identity/provenance failure mode that could produce false certainty if promoted casually.
+
+2. **Whole wheat had the weakest context quality relative to its importance.**
+   - Its previous pros/cons were mostly generic grain practicality lines.
+   - That is too vague for a food-specific ranking system.
+
+3. **Kale, zucchini, and turnip are directionally better than the high-risk identity cases.**
+   - They still need evidence-backed production work later.
+   - But their current main weakness is evidence/provenance quality, not catastrophic food-identity ambiguity.
+
+### Additional direct improvements made
+- Updated `foods/white-rice.sample.json`
+  - added explicit `identityNotes`
+  - added `provenanceStatus`
+  - added stronger source-note warning about preparation/enrichment drift
+- Updated `foods/tomato.sample.json`
+  - added explicit `identityNotes`
+  - added `provenanceStatus`
+  - added stronger source-note warning about raw vs cooked/sauce/paste drift
+- Updated `foods/yam.sample.json`
+  - added explicit `identityNotes`
+  - added `provenanceStatus`
+  - added stronger source-note warning about species confusion
+- Updated `foods/whole-wheat.sample.json`
+  - replaced generic grain-context filler with more food-specific context
+  - pros now focus on bran/germ retention, satiety advantage vs refined wheat, and staple value with real nutrient return
+  - cons now focus on phytates, processing-form drift, and gluten/tolerance limits
+
+### Judgment after pass 5
+These sample files are still not production-safe.
+But they are now more honest about where the danger is, and one important grain file is less generic and more category-relevant.
+
+## 2026-04-02 — pass 6 first production-lane food drafts
+
+### Main result
+This pass finally moved beyond contract docs and into real production-lane food files.
+
+Created first identity-locked draft entries under `foods/production/` for the highest-risk foods named in the prior audit:
+- oats
+- white rice
+- tomato
+- yam
+- chicken thigh
+
+### What changed materially
+1. **The production contract is now exercised against real foods.**
+   - Added concrete draft JSONs rather than leaving the contract as theory.
+   - Each file now includes:
+     - `status`
+     - `basis.state`
+     - `identityLock`
+     - `provenance`
+     - `metricProvenance`
+     - `scoreReadiness`
+
+2. **Identity ambiguity is now carried inside the files instead of hidden in docs.**
+   - Oats is explicitly rolled + dry + plain.
+   - White rice is explicitly long-grain + dry + unenriched.
+   - Tomato is explicitly raw red tomato.
+   - Chicken thigh is explicitly roasted + skinless + meat only.
+   - Yam is explicitly marked as still blocked on unresolved species identity.
+
+3. **Context evidence is handled more honestly.**
+   - Stronger food-specific lines such as oat beta-glucans, tomato lycopene, white-rice fibre/refinement penalties, and chicken-thigh protein-quality framing were preserved.
+   - Weaker practical/narrative lines were marked `editorial_but_non_scoring` instead of pretending they were hard scientific ranking evidence.
+
+4. **Production gating stayed honest.**
+   - None of the new files claim `safeForProductionRanking: true`.
+   - All still remain blocked by at least one of:
+     - exact canonical source-row lock
+     - external GI citation specificity
+     - proxy metrics that still need replacement or removal
+     - unresolved food identity in the case of yam
+
+### Files added in this pass
+- `foods/production/README.md`
+- `foods/production/oats-rolled-dry-draft.json`
+- `foods/production/white-rice-long-grain-unenriched-dry-draft.json`
+- `foods/production/tomato-red-raw-draft.json`
+- `foods/production/yam-true-yam-raw-draft.json`
+- `foods/production/chicken-thigh-skinless-roasted-draft.json`
+
+### Docs updated in this pass
+- `FOODRANKED-NUTRITION-AUDIT-2026-04-02.md`
+- `PRODUCTION-SAFETY-BLOCKERS.md`
+- `docs/nutrition-audit/category-audit-summary.md`
+
+### Remaining blockers after pass 6
+1. FoodData Central API lookups were attempted but the API required a key that was not configured in this environment.
+2. Because of that, exact canonical USDA row IDs are still null in the new production-lane drafts.
+3. GI values remain especially sensitive and should not be treated as locked until exact form-specific citations are attached.
+4. Yam is still the least mature draft because the species/source ambiguity is the blocker itself.
+5. Some proxy metrics like `bioavailability_percent` and `collagen_g` are still clearly scaffolding values and should either be sourced properly or removed before production promotion.
+
+### Commit status
+I did not create a git commit from this pass.
+Reason: earlier audit work already established that the workspace/repo staging boundary is ambiguous and dominated by broad untracked content, so an automatic commit would still be unsafe without an intentional staging decision.

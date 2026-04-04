@@ -355,10 +355,16 @@
             <label>Y <input id="propY" type="number" step="1" /></label>
           </div>
           <label>Visible <select id="propVisible"><option value="true">true</option><option value="false">false</option></select></label>
+          <div id="spriteControls" class="stack" hidden>
+            <div class="split-2">
+              <label>Width <input id="propSpriteWidth" type="number" step="1" /></label>
+              <label>Height <input id="propSpriteHeight" type="number" step="1" /></label>
+            </div>
+          </div>
           <div id="textControls" class="stack" hidden>
             <label>Text <textarea id="propText"></textarea></label>
             <div class="split-2">
-              <label>Font size <input id="propFontSize" type="number" step="1" /></label>
+              <label>Font size <input id="propFontSize" type="number" step="0.5" /></label>
               <label>Width <input id="propWidth" type="number" step="1" /></label>
             </div>
             <label>Align <select id="propAlign"><option value="left">left</option><option value="center">center</option><option value="right">right</option></select></label>
@@ -423,10 +429,13 @@
       selectionChip: document.getElementById('selectionChip'),
       noSelection: document.getElementById('noSelection'),
       inspectorPanel: document.getElementById('inspectorPanel'),
+      spriteControls: document.getElementById('spriteControls'),
       textControls: document.getElementById('textControls'),
       propX: document.getElementById('propX'),
       propY: document.getElementById('propY'),
       propVisible: document.getElementById('propVisible'),
+      propSpriteWidth: document.getElementById('propSpriteWidth'),
+      propSpriteHeight: document.getElementById('propSpriteHeight'),
       propText: document.getElementById('propText'),
       propFontSize: document.getElementById('propFontSize'),
       propWidth: document.getElementById('propWidth'),
@@ -464,21 +473,21 @@
 
     function createSectionLayers(sectionId) {
       const base = [
-        sprite('food_plate', 'Food plate', './sprites/header/food_image_plate/meat_food_plate.png', 3, 7, 2),
-        sprite('food_image', 'Food image', './sprites/header/food_images/bacon.png', 15, 11, 3, true),
-        sprite('food_name_line', 'Food name line', './sprites/header/header_ui/food_name_line.png', 45, 44, 2),
-        sprite('calorie_bubble', 'Calorie bubble', './sprites/header/calorie_bubble/meat_calorie_bubble.png', 28, 34, 2),
-        sprite('score_plate', 'Score plate', './sprites/header/header_ui/score_plate.png', 59, 45, 2),
-        sprite('type_plate', 'Type plate', './sprites/header/food_type_plate/meat_type_plate.png', 99, 45, 2),
-        sprite('per_100g_line', 'Per 100g line', './sprites/header/header_ui/per_100g_line.png', 108, 47, 2),
-        text('food_name_text', 'Food name', 46, 12, 13, 'BACON', 4, 80),
-        text('kcal_value_text', 'Kcal value', 33, 36, 9, '417', 4, 20, 'center'),
-        text('kcal_label_text', 'Kcal label', 35, 48, 7, 'KCAL', 4, 16, 'center'),
-        text('score_label_text', 'Score label', 63, 47, 7, 'TIER D', 4, 26),
-        text('food_type_text', 'Food type', 104, 47, 7, 'MEATS', 4, 28),
-        text('basis_text', 'Basis', 109, 14, 8, 'PER\n100G', 4, 18, 'center'),
-        text('section_chip_text', 'Section chip', 9, 73, 8, getSectionChip(sectionId), 4, 50),
-        sprite('macro_icon', 'Macro icon', getSectionIcon(sectionId), 12, 87, 2),
+        sprite('food_plate', 'Food plate', './sprites/header/food_image_plate/meat_food_plate.png', 0, 10, 2, 45, 50),
+        sprite('food_image', 'Food image', './sprites/header/food_images/bacon.png', 6, 18, 3, 33, 33, true),
+        sprite('food_name_line', 'Food name line', './sprites/header/header_ui/food_name_line.png', 43, 18, 2, 52, 12),
+        sprite('type_plate', 'Type plate', './sprites/header/food_type_plate/meat_type_plate.png', 45, 33, 2, 38, 12),
+        sprite('per_100g_line', 'Per 100g line', './sprites/header/header_ui/per_100g_line.png', 45, 47, 2, 34, 10),
+        sprite('calorie_bubble', 'Calorie bubble', './sprites/header/calorie_bubble/meat_calorie_bubble.png', 95, 12, 2, 40, 44),
+        sprite('score_plate', 'Score plate', './sprites/header/header_ui/score_plate.png', 100, 60, 2, 33, 10),
+        text('food_name_text', 'Food name', 48, 21, 5, 'BACON', 4, 42),
+        text('food_type_text', 'Food type', 51, 36, 4, 'MEAT', 4, 24),
+        text('basis_text', 'Basis', 50, 49, 3.5, 'per 100g', 4, 24),
+        text('kcal_value_text', 'Kcal value', 104, 22, 8, '541', 4, 22, 'center'),
+        text('kcal_label_text', 'Kcal label', 104, 31, 3, 'kcal', 4, 22, 'center'),
+        text('score_label_text', 'Score label', 103, 62, 3.5, 'TIER D', 4, 26, 'center'),
+        text('section_chip_text', 'Section chip', 9, 73, 6, getSectionChip(sectionId), 4, 46),
+        sprite('macro_icon', 'Macro icon', getSectionIcon(sectionId), 12, 87, 2, 18, 18),
         text('headline_text', 'Headline', 34, 88, 9, 'Headline', 4, 78),
         text('subline_a', 'Subline A', 18, 118, 6, 'First stat highlight', 4, 100),
         text('subline_b', 'Subline B', 18, 138, 6, 'Second stat highlight', 4, 100),
@@ -488,8 +497,8 @@
       return base;
     }
 
-    function sprite(id, label, src, x, y, z, foodDriven = false) {
-      return { id, kind: 'sprite', label, src, x, y, z, visible: true, foodDriven };
+    function sprite(id, label, src, x, y, z, width, height, foodDriven = false) {
+      return { id, kind: 'sprite', label, src, x, y, z, width, height, visible: true, foodDriven };
     }
     function text(id, label, x, y, fontSize, value, z, width, align = 'left') {
       return { id, kind: 'text', label, x, y, z, visible: true, text: value, fontSize, width, align };
@@ -708,6 +717,8 @@
         if (layer.kind === 'sprite') {
           node.src = layer.src;
           node.alt = layer.label;
+          if (layer.width) node.style.width = `calc(${layer.width}px * var(--asset-scale) * var(--preview-scale))`;
+          if (layer.height) node.style.height = `calc(${layer.height}px * var(--asset-scale) * var(--preview-scale))`;
           node.onerror = () => {
             node.onerror = null;
             node.src = `./sprites/header/food_images/${state.layout.selectedFoodId}.png`;
@@ -778,7 +789,13 @@
       els.propY.value = layer.y;
       els.propVisible.value = String(layer.visible !== false);
       const isText = layer.kind === 'text';
+      const isSprite = layer.kind === 'sprite';
+      els.spriteControls.hidden = !isSprite;
       els.textControls.hidden = !isText;
+      if (isSprite) {
+        els.propSpriteWidth.value = layer.width || '';
+        els.propSpriteHeight.value = layer.height || '';
+      }
       if (isText) {
         els.propText.value = layer.text || '';
         els.propFontSize.value = layer.fontSize || 6;
@@ -954,6 +971,8 @@
     els.propX.addEventListener('input', () => updateSelected(layer => layer.x = Number(els.propX.value) || 0));
     els.propY.addEventListener('input', () => updateSelected(layer => layer.y = Number(els.propY.value) || 0));
     els.propVisible.addEventListener('change', () => updateSelected(layer => layer.visible = els.propVisible.value === 'true'));
+    els.propSpriteWidth.addEventListener('input', () => updateSelected(layer => layer.width = Number(els.propSpriteWidth.value) || layer.width || 0));
+    els.propSpriteHeight.addEventListener('input', () => updateSelected(layer => layer.height = Number(els.propSpriteHeight.value) || layer.height || 0));
     els.propText.addEventListener('input', () => updateSelected(layer => layer.text = els.propText.value));
     els.propFontSize.addEventListener('input', () => updateSelected(layer => layer.fontSize = Number(els.propFontSize.value) || 6));
     els.propWidth.addEventListener('input', () => updateSelected(layer => layer.width = els.propWidth.value ? Number(els.propWidth.value) : undefined));

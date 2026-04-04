@@ -13,11 +13,12 @@
       --muted: #5e5e5e;
       --accent: #ff845d;
       --accent-2: #7bb1ff;
-      --preview-scale: 3;
+      --preview-scale: 1;
+      --asset-scale: 10;
       --grid-width: 135px;
       --grid-height: 240px;
-      --canvas-width: calc(var(--grid-width) * var(--preview-scale));
-      --canvas-height: calc(var(--grid-height) * var(--preview-scale));
+      --canvas-width: calc(var(--grid-width) * var(--asset-scale) * var(--preview-scale));
+      --canvas-height: calc(var(--grid-height) * var(--asset-scale) * var(--preview-scale));
       --pixel-font: "Press Start 2P", "VT323", "Courier New", monospace;
     }
 
@@ -142,7 +143,7 @@
       border-radius: 16px;
     }
     .phone-shell {
-      width: 420px;
+      width: min(420px, calc(var(--canvas-width) + 12px));
       aspect-ratio: 9 / 16;
       position: relative;
       overflow: hidden;
@@ -168,7 +169,7 @@
       background-image:
         linear-gradient(to right, rgba(0,0,0,.05) 1px, transparent 1px),
         linear-gradient(to bottom, rgba(0,0,0,.05) 1px, transparent 1px);
-      background-size: calc(1px * var(--preview-scale)) calc(1px * var(--preview-scale));
+      background-size: calc(var(--asset-scale) * var(--preview-scale)) calc(var(--asset-scale) * var(--preview-scale));
     }
     .canvas.hide-grid { background-image: none; }
 
@@ -197,14 +198,14 @@
       line-height: 1.25;
       letter-spacing: 0;
       text-shadow:
-        calc(1px * var(--preview-scale)) 0 0 #000,
-        calc(-1px * var(--preview-scale)) 0 0 #000,
-        0 calc(1px * var(--preview-scale)) 0 #000,
-        0 calc(-1px * var(--preview-scale)) 0 #000,
-        calc(1px * var(--preview-scale)) calc(1px * var(--preview-scale)) 0 #000,
-        calc(-1px * var(--preview-scale)) calc(1px * var(--preview-scale)) 0 #000,
-        calc(1px * var(--preview-scale)) calc(-1px * var(--preview-scale)) 0 #000,
-        calc(-1px * var(--preview-scale)) calc(-1px * var(--preview-scale)) 0 #000;
+        calc(1px * var(--asset-scale) * var(--preview-scale)) 0 0 #000,
+        calc(-1px * var(--asset-scale) * var(--preview-scale)) 0 0 #000,
+        0 calc(1px * var(--asset-scale) * var(--preview-scale)) 0 #000,
+        0 calc(-1px * var(--asset-scale) * var(--preview-scale)) 0 #000,
+        calc(1px * var(--asset-scale) * var(--preview-scale)) calc(1px * var(--asset-scale) * var(--preview-scale)) 0 #000,
+        calc(-1px * var(--asset-scale) * var(--preview-scale)) calc(1px * var(--asset-scale) * var(--preview-scale)) 0 #000,
+        calc(1px * var(--asset-scale) * var(--preview-scale)) calc(-1px * var(--asset-scale) * var(--preview-scale)) 0 #000,
+        calc(-1px * var(--asset-scale) * var(--preview-scale)) calc(-1px * var(--asset-scale) * var(--preview-scale)) 0 #000;
     }
 
     .layer-node {
@@ -221,18 +222,18 @@
 
     .progress-strip {
       position: absolute;
-      left: calc(27px * var(--preview-scale));
-      bottom: calc(18px * var(--preview-scale));
+      left: calc(27px * var(--asset-scale) * var(--preview-scale));
+      bottom: calc(18px * var(--asset-scale) * var(--preview-scale));
       display: flex;
-      gap: calc(4px * var(--preview-scale));
+      gap: calc(4px * var(--asset-scale) * var(--preview-scale));
       z-index: 30;
     }
     .progress-dot {
-      width: calc(8px * var(--preview-scale));
-      height: calc(8px * var(--preview-scale));
+      width: calc(8px * var(--asset-scale) * var(--preview-scale));
+      height: calc(8px * var(--asset-scale) * var(--preview-scale));
       border-radius: 999px;
       background: rgba(255,255,255,.32);
-      box-shadow: inset 0 0 0 calc(1px * var(--preview-scale)) rgba(0,0,0,.36);
+      box-shadow: inset 0 0 0 calc(1px * var(--asset-scale) * var(--preview-scale)) rgba(0,0,0,.36);
     }
     .progress-dot.active { background: #ff845d; }
     .progress-dot.done { background: #89d39a; }
@@ -294,7 +295,7 @@
         <h2>Preview</h2>
         <label>
           Preview scale
-          <input id="previewScale" type="range" min="1" max="6" step="1" value="3" />
+          <input id="previewScale" type="range" min="0.2" max="1" step="0.05" value="1" />
         </label>
         <label class="row"><input id="toggleGrid" type="checkbox" checked /> <span>Show pixel grid</span></label>
         <label>
@@ -318,7 +319,7 @@
       <div class="row" style="justify-content:space-between;align-items:flex-start;">
         <div class="stack" style="gap:4px;">
           <h2>Display canvas</h2>
-          <p class="small muted">Drag sprites or text directly. Arrow keys nudge by 1px. Shift + arrows nudge by 10px.</p>
+          <p class="small muted">Drag sprites or text directly. Arrow keys nudge by 1 grid pixel. Shift + arrows nudge by 10 grid pixels. The authored grid is 135×240 and renders against 1000% exported sprite scale.</p>
         </div>
         <div class="small muted" id="selectionChip">Selected: none</div>
       </div>
@@ -386,7 +387,7 @@
     const FOOD_JSON_CACHE = new Map();
 
     const DEFAULT_LAYOUT = {
-      canvas: { width: 135, height: 240, previewScale: 3, background: '#d6d6d6', showGrid: true },
+      canvas: { width: 135, height: 240, previewScale: 0.3, background: '#d6d6d6', showGrid: true },
       selectedFoodId: 'bacon',
       selectedSectionId: 'intro',
       sections: Object.fromEntries(SECTIONS.map(section => [section.id, { layers: createSectionLayers(section.id) }]))
@@ -701,8 +702,8 @@
         const node = document.createElement(layer.kind === 'sprite' ? 'img' : 'div');
         node.className = `layer-node ${layer.kind}${layer.kind === 'text' ? ' pixel-text' : ''}${state.selectedLayerId === layer.id ? ' selected' : ''}`;
         node.dataset.layerId = layer.id;
-        node.style.left = `calc(${layer.x}px * var(--preview-scale))`;
-        node.style.top = `calc(${layer.y}px * var(--preview-scale))`;
+        node.style.left = `calc(${layer.x}px * var(--asset-scale) * var(--preview-scale))`;
+        node.style.top = `calc(${layer.y}px * var(--asset-scale) * var(--preview-scale))`;
         node.style.zIndex = String(layer.z || 0);
         if (layer.kind === 'sprite') {
           node.src = layer.src;
@@ -713,8 +714,8 @@
           };
         } else {
           node.textContent = layer.text || '';
-          node.style.fontSize = `calc(${layer.fontSize || 6}px * var(--preview-scale))`;
-          if (layer.width) node.style.width = `calc(${layer.width}px * var(--preview-scale))`;
+          node.style.fontSize = `calc(${layer.fontSize || 6}px * var(--asset-scale) * var(--preview-scale))`;
+          if (layer.width) node.style.width = `calc(${layer.width}px * var(--asset-scale) * var(--preview-scale))`;
           node.style.textAlign = layer.align || 'left';
         }
         attachDrag(node, layer.id);
@@ -822,6 +823,7 @@
     function setCssVars() {
       const root = document.documentElement;
       root.style.setProperty('--preview-scale', state.layout.canvas.previewScale);
+      root.style.setProperty('--asset-scale', '10');
     }
 
     function attachDrag(node, layerId) {
@@ -838,8 +840,8 @@
         originX = layer.x;
         originY = layer.y;
         const move = e => {
-          layer.x = Math.round(originX + (e.clientX - startX) / state.layout.canvas.previewScale);
-          layer.y = Math.round(originY + (e.clientY - startY) / state.layout.canvas.previewScale);
+          layer.x = Math.round(originX + (e.clientX - startX) / (state.layout.canvas.previewScale * 10));
+          layer.y = Math.round(originY + (e.clientY - startY) / (state.layout.canvas.previewScale * 10));
           renderCanvas();
           renderInspector();
           renderLayerList();
@@ -918,7 +920,7 @@
       state.foodFilter = els.foodSearch.value;
       renderFoodList();
     });
-    els.previewScale.addEventListener('input', () => { state.layout.canvas.previewScale = Number(els.previewScale.value) || 3; renderAll(); });
+    els.previewScale.addEventListener('input', () => { state.layout.canvas.previewScale = Number(els.previewScale.value) || 0.3; renderAll(); });
     els.toggleGrid.addEventListener('change', () => { state.layout.canvas.showGrid = els.toggleGrid.checked; renderAll(); });
     els.bgColor.addEventListener('input', () => { state.layout.canvas.background = els.bgColor.value || '#d6d6d6'; renderAll(); });
     els.resetSection.addEventListener('click', () => {

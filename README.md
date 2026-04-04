@@ -2,6 +2,9 @@
 
 FoodRanked is a short-form nutrition content system for ranking foods into tiers using category-specific rulesets and presenting the results in a cozy pixel-art / RPG-style video format.
 
+> Note: the active workspace-level source of truth now lives at the workspace root.
+> Start with `../README.md`, `../LIVE-SYSTEM-MAP.md`, and `../FOODRANKED-ENTRY-RULEBOOK.md` for the cleaned current system view.
+
 ## Included
 
 - Project spec and format docs
@@ -60,4 +63,6 @@ See also:
 
 ## Notes
 
-This repo is the clean project mirror, separate from the broader OpenClaw workspace.
+This nested repo area should be treated carefully during cleanup because it contains useful project material, but some top-level docs previously duplicated/conflicted with the workspace-root copies.
+
+For the current cleaned source-of-truth view, prefer the workspace-root docs first.

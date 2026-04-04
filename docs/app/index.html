@@ -3,115 +3,265 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>FoodRanked UI Layout Editor</title>
+  <title>FoodRanked Display Builder</title>
   <style>
     :root {
-      --bg: #e2e2e2;
-      --panel: #f5f5f5;
-      --panel-border: #c7c7c7;
-      --ink: #1f1f1f;
-      --muted: #666;
-      --accent: #7f5af0;
+      --bg: #dcdcdc;
+      --panel: rgba(255,255,255,0.84);
+      --panel-border: rgba(0,0,0,0.14);
+      --ink: #101010;
+      --muted: #5e5e5e;
+      --accent: #ff845d;
+      --accent-2: #7bb1ff;
       --preview-scale: 3;
-      --asset-scale-down: 0.1;
       --grid-width: 135px;
       --grid-height: 240px;
       --canvas-width: calc(var(--grid-width) * var(--preview-scale));
       --canvas-height: calc(var(--grid-height) * var(--preview-scale));
-      --font: Inter, system-ui, sans-serif;
+      --pixel-font: "Press Start 2P", "VT323", "Courier New", monospace;
     }
 
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      font-family: var(--font);
-      background: var(--bg);
+      min-height: 100vh;
+      background: #dcdcdc;
       color: var(--ink);
+      font-family: Inter, system-ui, sans-serif;
+      overflow: hidden;
+    }
+
+    #bgField {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 20% 10%, rgba(255,255,255,.65), transparent 24%),
+        radial-gradient(circle at 80% 18%, rgba(255,255,255,.45), transparent 24%),
+        linear-gradient(180deg, #ececec 0%, #d7d7d7 100%);
+    }
+
+    .bg-sprite {
+      position: absolute;
+      width: 32px;
+      height: 32px;
+      image-rendering: pixelated;
+      opacity: 0.18;
+      animation: drift linear infinite;
+      filter: drop-shadow(0 2px 0 rgba(255,255,255,.35));
+    }
+
+    @keyframes drift {
+      0% { transform: translate3d(0, -10vh, 0); }
+      100% { transform: translate3d(var(--drift-x), 110vh, 0); }
     }
 
     .app {
-      display: grid;
-      grid-template-columns: 320px minmax(520px, 1fr) 360px;
+      position: relative;
+      z-index: 1;
       min-height: 100vh;
+      display: grid;
+      grid-template-columns: 300px minmax(540px, 1fr) 390px;
       gap: 16px;
       padding: 16px;
     }
 
     .panel {
       background: var(--panel);
+      backdrop-filter: blur(8px);
       border: 1px solid var(--panel-border);
-      border-radius: 14px;
+      border-radius: 18px;
+      box-shadow: 0 12px 36px rgba(0,0,0,.08);
       padding: 14px;
-      box-shadow: 0 6px 18px rgba(0,0,0,.06);
       min-height: 0;
+      overflow: auto;
     }
 
-    .sidebar, .inspector { display: grid; gap: 12px; align-content: start; overflow: auto; }
-    .editor { display: grid; gap: 12px; align-content: start; min-width: 0; }
-    h1, h2, h3 { margin: 0; line-height: 1.1; }
-    h1 { font-size: 22px; }
-    h2 { font-size: 16px; }
-    h3 { font-size: 14px; }
-    .muted { color: var(--muted); }
-    .small { font-size: 12px; }
     .stack { display: grid; gap: 10px; }
     .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .split-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    h1,h2,h3,p { margin: 0; }
+    h1 { font-size: 24px; }
+    h2 { font-size: 15px; }
+    .muted { color: var(--muted); }
+    .small { font-size: 12px; line-height: 1.45; }
+    .tiny { font-size: 11px; }
 
     label { display: grid; gap: 6px; font-size: 12px; color: var(--muted); }
     input, select, textarea, button { font: inherit; }
     input[type="text"], input[type="number"], select, textarea {
-      width: 100%; border: 1px solid #cfcfcf; background: white; border-radius: 10px; padding: 9px 10px; color: var(--ink);
+      width: 100%;
+      border: 1px solid rgba(0,0,0,.14);
+      background: rgba(255,255,255,.9);
+      border-radius: 12px;
+      padding: 10px 11px;
     }
     input[type="range"] { width: 100%; }
-    textarea { min-height: 120px; resize: vertical; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
-    button { border: 1px solid #cfcfcf; background: white; color: var(--ink); padding: 9px 12px; border-radius: 10px; cursor: pointer; }
-    button.primary { background: var(--accent); color: white; border-color: transparent; }
+    textarea {
+      resize: vertical;
+      min-height: 160px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    button {
+      border: 1px solid rgba(0,0,0,.12);
+      background: rgba(255,255,255,.92);
+      border-radius: 12px;
+      padding: 9px 12px;
+      cursor: pointer;
+    }
+    button.primary {
+      background: linear-gradient(180deg, var(--accent) 0%, #f16944 100%);
+      color: white;
+      border-color: transparent;
+    }
 
-    .preview-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
-    .canvas-wrap { background: #d7d7d7; border: 1px solid var(--panel-border); border-radius: 14px; padding: 16px; overflow: auto; }
+    .food-list, .section-list, .layer-list { display: grid; gap: 8px; }
+    .food-list { max-height: 320px; overflow: auto; }
+    .card-button {
+      width: 100%;
+      text-align: left;
+      border: 1px solid rgba(0,0,0,.11);
+      border-radius: 14px;
+      padding: 10px;
+      background: rgba(255,255,255,.88);
+      cursor: pointer;
+    }
+    .card-button.active {
+      border-color: rgba(123,177,255,.9);
+      box-shadow: 0 0 0 2px rgba(123,177,255,.16);
+      background: white;
+    }
+
+    .editor {
+      display: grid;
+      gap: 12px;
+      align-content: start;
+      min-width: 0;
+    }
+    .canvas-wrap {
+      display: grid;
+      place-items: center;
+      min-height: 0;
+      overflow: auto;
+      padding: 16px;
+      background: rgba(255,255,255,.42);
+      border: 1px solid rgba(0,0,0,.08);
+      border-radius: 16px;
+    }
     .canvas {
-      position: relative; width: var(--canvas-width); height: var(--canvas-height); background: #d3d3d3;
-      background-image: linear-gradient(to right, rgba(0,0,0,.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,.05) 1px, transparent 1px);
-      background-size: calc(1px * var(--preview-scale)) calc(1px * var(--preview-scale)); image-rendering: pixelated; image-rendering: crisp-edges; user-select: none;
+      position: relative;
+      width: var(--canvas-width);
+      height: var(--canvas-height);
+      background: #d6d6d6;
+      overflow: hidden;
+      border-radius: 14px;
+      image-rendering: pixelated;
+      box-shadow: 0 20px 40px rgba(0,0,0,.15);
+      outline: 6px solid rgba(0,0,0,.08);
+      background-image:
+        linear-gradient(to right, rgba(0,0,0,.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0,0,0,.05) 1px, transparent 1px);
+      background-size: calc(1px * var(--preview-scale)) calc(1px * var(--preview-scale));
     }
     .canvas.hide-grid { background-image: none; }
-    .asset-layer, .text-layer { position: absolute; transform-origin: top left; outline: none; }
-    .asset-layer { image-rendering: pixelated; image-rendering: crisp-edges; cursor: grab; }
-    .text-layer { cursor: grab; white-space: pre-line; font-family: var(--font); }
-    .selected { box-shadow: 0 0 0 2px rgba(127,90,240,.85); border-radius: 2px; }
-    .layer-list { display: grid; gap: 6px; max-height: 280px; overflow: auto; }
-    .layer-item {
-      display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: center; padding: 8px 10px; border-radius: 10px; background: #fff; border: 1px solid #ddd; cursor: pointer;
+
+    .phone-bg {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(0,0,0,.03));
     }
-    .layer-item.active { border-color: var(--accent); box-shadow: 0 0 0 1px rgba(127,90,240,.18); }
-    .food-list { max-height: 260px; overflow: auto; display: grid; gap: 6px; }
-    .food-item { padding: 8px 10px; border: 1px solid #ddd; background: #fff; border-radius: 10px; cursor: pointer; }
-    .food-item.active { border-color: var(--accent); box-shadow: 0 0 0 1px rgba(127,90,240,.18); }
-    .split-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .chip { display: inline-flex; align-items: center; gap: 6px; border: 1px solid #d3d3d3; background: white; color: var(--muted); padding: 6px 10px; border-radius: 999px; font-size: 12px; }
+
+    .pixel-text {
+      font-family: var(--pixel-font);
+      color: white;
+      line-height: 1.25;
+      letter-spacing: 0;
+      text-shadow:
+        calc(1px * var(--preview-scale)) 0 0 #000,
+        calc(-1px * var(--preview-scale)) 0 0 #000,
+        0 calc(1px * var(--preview-scale)) 0 #000,
+        0 calc(-1px * var(--preview-scale)) 0 #000,
+        calc(1px * var(--preview-scale)) calc(1px * var(--preview-scale)) 0 #000,
+        calc(-1px * var(--preview-scale)) calc(1px * var(--preview-scale)) 0 #000,
+        calc(1px * var(--preview-scale)) calc(-1px * var(--preview-scale)) 0 #000,
+        calc(-1px * var(--preview-scale)) calc(-1px * var(--preview-scale)) 0 #000;
+    }
+
+    .layer-node {
+      position: absolute;
+      transform-origin: top left;
+      user-select: none;
+      -webkit-user-drag: none;
+      cursor: grab;
+      image-rendering: pixelated;
+    }
+    .layer-node.selected { outline: 2px solid rgba(123,177,255,.95); outline-offset: 2px; }
+    .layer-node.sprite { image-rendering: pixelated; }
+    .layer-node.text { white-space: pre-line; }
+
+    .progress-strip {
+      position: absolute;
+      left: calc(27px * var(--preview-scale));
+      bottom: calc(18px * var(--preview-scale));
+      display: flex;
+      gap: calc(4px * var(--preview-scale));
+      z-index: 30;
+    }
+    .progress-dot {
+      width: calc(8px * var(--preview-scale));
+      height: calc(8px * var(--preview-scale));
+      border-radius: 999px;
+      background: rgba(255,255,255,.32);
+      box-shadow: inset 0 0 0 calc(1px * var(--preview-scale)) rgba(0,0,0,.36);
+    }
+    .progress-dot.active { background: #ff845d; }
+    .progress-dot.done { background: #89d39a; }
+
+    .script-box, .nutrition-box {
+      background: rgba(255,255,255,.82);
+      border: 1px solid rgba(0,0,0,.1);
+      border-radius: 14px;
+      padding: 12px;
+    }
+    .nutrition-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .metric-pill {
+      background: rgba(255,255,255,.9);
+      border: 1px solid rgba(0,0,0,.08);
+      border-radius: 12px;
+      padding: 8px 10px;
+    }
+    .metric-pill strong { display: block; font-size: 12px; }
+    .metric-pill span { font-size: 11px; color: var(--muted); }
+
+    @media (max-width: 1300px) {
+      .app { grid-template-columns: 280px minmax(420px, 1fr); }
+      .inspector { grid-column: 1 / -1; max-height: 42vh; }
+    }
+    @media (max-width: 920px) {
+      body { overflow: auto; }
+      .app { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
+  <div id="bgField"></div>
+
   <div class="app">
-    <aside class="panel sidebar">
+    <aside class="panel stack">
       <div class="stack">
-        <h1>FoodRanked UI editor</h1>
-        <p class="muted">Header is now persistent across scenes. Edit the permanent header once, then switch scenes to position section-specific UI like fats.</p>
+        <h1>FoodRanked builder</h1>
+        <p class="muted small">Seven display sections, editable sprite placement, script preview, and a food-type-aware falling sprite background.</p>
       </div>
 
       <div class="stack">
-        <h2>Scene</h2>
-        <label>
-          Current scene
-          <select id="sceneSelect">
-            <option value="header">Header only</option>
-            <option value="fats">Fats macro</option>
-          </select>
-        </label>
-      </div>
-
-      <div class="stack">
-        <h2>Food data</h2>
+        <h2>Foods</h2>
         <label>
           Search foods
           <input id="foodSearch" type="text" placeholder="Search foods..." />
@@ -120,104 +270,84 @@
       </div>
 
       <div class="stack">
-        <h2>Canvas settings</h2>
-        <label>
-          Preview scale
-          <input id="previewScale" type="range" min="1" max="8" step="1" value="3" />
-        </label>
-        <label>
-          Background colour
-          <input id="bgColor" type="text" value="#d3d3d3" />
-        </label>
-        <label class="row"><input id="toggleGrid" type="checkbox" checked /><span>Show pixel grid</span></label>
-        <label class="row"><input id="toggleReference" type="checkbox" /><span>Show current scene reference</span></label>
-        <label>
-          Reference opacity
-          <input id="referenceOpacity" type="range" min="0" max="1" step="0.05" value="0.45" />
-        </label>
+        <h2>Display sections</h2>
+        <div id="sectionList" class="section-list"></div>
+        <p class="small muted">Video flow now uses 9 steps total: intro blank, fats, carbs, protein, vitamins, minerals, pros, cons, outro blank/verdict. Only sections 2-8 appear in the 7-dot section indicator.</p>
       </div>
 
       <div class="stack">
-        <h2>Actions</h2>
+        <h2>Preview</h2>
+        <label>
+          Preview scale
+          <input id="previewScale" type="range" min="1" max="6" step="1" value="3" />
+        </label>
+        <label class="row"><input id="toggleGrid" type="checkbox" checked /> <span>Show pixel grid</span></label>
+        <label>
+          Background colour
+          <input id="bgColor" type="text" value="#d6d6d6" />
+        </label>
         <div class="row">
-          <button id="resetLayout">Reset current scene</button>
+          <button id="resetSection">Reset section</button>
           <button id="saveLocal">Save locally</button>
-          <button id="copyConfig" class="primary">Copy JSON</button>
+          <button id="copyJson" class="primary">Copy JSON</button>
         </div>
-        <div class="row">
-          <button id="downloadJson">Download JSON</button>
-          <button id="loadLocal">Load local save</button>
-          <button id="clearLocal">Clear local save</button>
-        </div>
-        <label>
-          Upload layout JSON
-          <input id="uploadJson" type="file" accept="application/json,.json" />
-        </label>
-        <label>
-          Preset name
-          <input id="presetName" type="text" placeholder="header-v1" />
-        </label>
-        <div class="row">
-          <button id="savePreset">Save preset</button>
-          <button id="loadPreset">Load preset</button>
-          <button id="deletePreset">Delete preset</button>
-        </div>
-        <label>
-          Saved presets
-          <select id="presetList"><option value="">No preset selected</option></select>
-        </label>
         <label>
           Layout JSON
           <textarea id="layoutJson"></textarea>
         </label>
-        <div class="row"><button id="applyJson">Apply JSON</button></div>
+        <button id="applyJson">Apply JSON</button>
       </div>
     </aside>
 
     <main class="panel editor">
-      <div class="preview-toolbar">
-        <div>
+      <div class="row" style="justify-content:space-between;align-items:flex-start;">
+        <div class="stack" style="gap:4px;">
           <h2>Display canvas</h2>
-          <div class="muted small">Drag layers directly on the canvas. Arrow keys nudge selected layers by 1px. Shift+Arrow nudges by 10px.</div>
+          <p class="small muted">Drag sprites or text directly. Arrow keys nudge by 1px. Shift + arrows nudge by 10px.</p>
         </div>
-        <div class="row">
-          <span class="chip">Grid: 135 × 240</span>
-          <span class="chip" id="selectedChip">Selected: none</span>
-        </div>
+        <div class="small muted" id="selectionChip">Selected: none</div>
       </div>
       <div class="canvas-wrap"><div id="canvas" class="canvas" tabindex="0"></div></div>
     </main>
 
-    <aside class="panel inspector">
-      <div class="stack"><h2>Layers</h2><div id="layerList" class="layer-list"></div></div>
+    <aside class="panel inspector stack">
       <div class="stack">
-        <h2>Selected layer</h2>
-        <div id="noSelection" class="muted small">Select a layer to edit its properties.</div>
-        <div id="layerInspector" class="stack" hidden>
+        <h2>Selected food script</h2>
+        <div class="script-box">
+          <div class="small muted" id="scriptMeta">Loading…</div>
+          <textarea id="scriptOutput" readonly></textarea>
+        </div>
+      </div>
+
+      <div class="stack">
+        <h2>Nutritional info</h2>
+        <div id="nutritionSummary" class="nutrition-grid"></div>
+        <div id="nutritionDetails" class="nutrition-box small"></div>
+      </div>
+
+      <div class="stack">
+        <h2>Layers</h2>
+        <div id="layerList" class="layer-list"></div>
+      </div>
+
+      <div class="stack">
+        <h2>Layer controls</h2>
+        <div id="noSelection" class="small muted">Select a sprite or text layer to edit it.</div>
+        <div id="inspectorPanel" hidden class="stack">
           <div class="split-2">
-            <label>X<input id="propX" type="number" step="1" /></label>
-            <label>Y<input id="propY" type="number" step="1" /></label>
+            <label>X <input id="propX" type="number" step="1" /></label>
+            <label>Y <input id="propY" type="number" step="1" /></label>
           </div>
-          <div class="split-2">
-            <label>Scale<input id="propScale" type="number" step="0.1" /></label>
-            <label>Visible<select id="propVisible"><option value="true">true</option><option value="false">false</option></select></label>
-          </div>
+          <label>Visible <select id="propVisible"><option value="true">true</option><option value="false">false</option></select></label>
           <div id="textControls" class="stack" hidden>
-            <label>Text<textarea id="propText"></textarea></label>
+            <label>Text <textarea id="propText"></textarea></label>
             <div class="split-2">
-              <label>Font size<input id="propFontSize" type="number" step="0.5" /></label>
-              <label>Font weight<input id="propFontWeight" type="number" step="100" /></label>
+              <label>Font size <input id="propFontSize" type="number" step="1" /></label>
+              <label>Width <input id="propWidth" type="number" step="1" /></label>
             </div>
-            <div class="split-2">
-              <label>Colour<input id="propColor" type="text" /></label>
-              <label>Transform<select id="propTextTransform"><option value="none">none</option><option value="uppercase">uppercase</option><option value="lowercase">lowercase</option><option value="capitalize">capitalize</option></select></label>
-            </div>
-            <div class="split-2">
-              <label>Width (optional)<input id="propWidth" type="number" step="1" /></label>
-              <label>Align<select id="propAlign"><option value="left">left</option><option value="center">center</option><option value="right">right</option></select></label>
-            </div>
+            <label>Align <select id="propAlign"><option value="left">left</option><option value="center">center</option><option value="right">right</option></select></label>
           </div>
-          <div class="row"><button id="bringForward">Bring forward</button><button id="sendBackward">Send backward</button></div>
+          <div class="small muted">Sprite controls are position-only on purpose to keep the art 1:1 with the authored canvas.</div>
         </div>
       </div>
     </aside>
@@ -225,256 +355,602 @@
 
   <script src="./data/foods-index.js"></script>
   <script>
-    function createPersistentHeaderLayers() {
-      return [
-        { id: 'food_plate', kind: 'sprite', label: 'Food plate', src: './sprites/header/food_image_plate/meat_food_plate.png', x: 3, y: 7, scale: 1, visible: true, z: 1 },
-        { id: 'food_image', kind: 'sprite', label: 'Food image', src: './sprites/header/food_images/bacon.png', x: 15, y: 11, scale: 1, visible: true, z: 2, foodImageDriven: true },
-        { id: 'food_name_line', kind: 'sprite', label: 'Food name line', src: './sprites/header/header_ui/food_name_line.png', x: 45, y: 44, scale: 1, visible: true, z: 1 },
-        { id: 'calorie_bubble', kind: 'sprite', label: 'Calorie bubble', src: './sprites/header/calorie_bubble/meat_calorie_bubble.png', x: 28, y: 34, scale: 1, visible: true, z: 2 },
-        { id: 'score_plate', kind: 'sprite', label: 'Score plate', src: './sprites/header/header_ui/score_plate.png', x: 59, y: 45, scale: 1, visible: true, z: 1 },
-        { id: 'type_plate', kind: 'sprite', label: 'Type plate', src: './sprites/header/food_type_plate/meat_type_plate.png', x: 99, y: 45, scale: 1, visible: true, z: 1 },
-        { id: 'per_100g_line', kind: 'sprite', label: 'Per 100g line', src: './sprites/header/header_ui/per_100g_line.png', x: 108, y: 47, scale: 1, visible: true, z: 1 },
-        { id: 'food_name_text', kind: 'text', label: 'Food name text', x: 45, y: 10, scale: 1, visible: true, z: 3, text: 'BACON', fontSize: 14, fontWeight: 700, color: '#111111', textTransform: 'uppercase', align: 'left' },
-        { id: 'kcal_value_text', kind: 'text', label: 'Kcal value', x: 33, y: 36, width: 19, scale: 1, visible: true, z: 3, text: '541', fontSize: 9, fontWeight: 800, color: '#111111', textTransform: 'none', align: 'center' },
-        { id: 'kcal_label_text', kind: 'text', label: 'Kcal label', x: 35, y: 48, width: 15, scale: 1, visible: true, z: 3, text: 'KCAL', fontSize: 8, fontWeight: 700, color: '#111111', textTransform: 'uppercase', align: 'center' },
-        { id: 'score_label_text', kind: 'text', label: 'Score label', x: 64, y: 47, scale: 1, visible: true, z: 3, text: 'SCORE:', fontSize: 9, fontWeight: 700, color: '#111111', textTransform: 'uppercase', align: 'left' },
-        { id: 'food_type_text', kind: 'text', label: 'Food type text', x: 106, y: 47, scale: 1, visible: true, z: 3, text: 'MEATS', fontSize: 9, fontWeight: 700, color: '#111111', textTransform: 'uppercase', align: 'left' },
-        { id: 'basis_text', kind: 'text', label: 'Basis text', x: 109, y: 14, width: 18, scale: 1, visible: true, z: 3, text: 'PER\n100g', fontSize: 10, fontWeight: 700, color: '#111111', textTransform: 'none', align: 'center' }
-      ];
-    }
+    const SECTIONS = [
+      { id: 'intro', label: '1. Intro blank', chip: null, indicator: false },
+      { id: 'fats', label: '2. Fats', chip: 'FATS', indicator: true },
+      { id: 'carbs', label: '3. Carbs', chip: 'CARBS', indicator: true },
+      { id: 'protein', label: '4. Protein', chip: 'PROTEIN', indicator: true },
+      { id: 'vitamins', label: '5. Vitamins', chip: 'VITAMINS', indicator: true },
+      { id: 'minerals', label: '6. Minerals', chip: 'MINERALS', indicator: true },
+      { id: 'pros', label: '7. Pros', chip: 'PROS', indicator: true },
+      { id: 'cons', label: '8. Cons', chip: 'CONS', indicator: true },
+      { id: 'outro', label: '9. Outro blank / verdict', chip: null, indicator: false }
+    ];
 
-    function createHeaderScene() {
-      return { reference: { enabled: false, opacity: 0.45, src: '../../sprites/references/header reference with text.png' }, layers: [] };
-    }
-
-    function createFatsScene() {
-      return {
-        reference: { enabled: false, opacity: 0.45, src: '' },
-        layers: [
-          { id: 'fat_icon', kind: 'sprite', label: 'Fat icon', src: './sprites/macros/fats/fat_icon.gif', x: 18, y: 86, scale: 1, visible: true, z: 1 },
-          { id: 'fat_bullet_1', kind: 'sprite', label: 'Fat bullet 1', src: './sprites/macros/fats/fat_submacro_bullet_point.png', x: 33, y: 118, scale: 1, visible: true, z: 1 },
-          { id: 'fat_bullet_2', kind: 'sprite', label: 'Fat bullet 2', src: './sprites/macros/fats/fat_submacro_bullet_point.png', x: 33, y: 142, scale: 1, visible: true, z: 1 },
-          { id: 'fat_bullet_3', kind: 'sprite', label: 'Fat bullet 3', src: './sprites/macros/fats/fat_submacro_bullet_point.png', x: 33, y: 166, scale: 1, visible: true, z: 1 },
-          { id: 'green_arrow_1', kind: 'sprite', label: 'Green arrow 1', src: './sprites/macros/arrow_indicators/green_arrow.png', x: 104, y: 118, scale: 1, visible: true, z: 1 },
-          { id: 'green_arrow_2', kind: 'sprite', label: 'Green arrow 2', src: './sprites/macros/arrow_indicators/green_arrow.png', x: 104, y: 142, scale: 1, visible: true, z: 1 },
-          { id: 'red_arrow_3', kind: 'sprite', label: 'Red arrow 3', src: './sprites/macros/arrow_indicators/red_arrow.png', x: 104, y: 166, scale: 1, visible: true, z: 1 },
-          { id: 'macro_title_text', kind: 'text', label: 'Macro title', x: 33, y: 86, scale: 1, visible: true, z: 3, text: 'FATS', fontSize: 10, fontWeight: 700, color: '#111111', textTransform: 'uppercase', align: 'left' },
-          { id: 'macro_value_text', kind: 'text', label: 'Macro value', x: 77, y: 86, scale: 1, visible: true, z: 3, text: '42.0g', fontSize: 10, fontWeight: 700, color: '#111111', textTransform: 'none', align: 'left' },
-          { id: 'submetric_1_text', kind: 'text', label: 'Submetric 1', x: 42, y: 118, scale: 1, visible: true, z: 3, text: 'Saturated fat', fontSize: 7, fontWeight: 700, color: '#111111', textTransform: 'none', align: 'left' },
-          { id: 'submetric_2_text', kind: 'text', label: 'Submetric 2', x: 42, y: 142, scale: 1, visible: true, z: 3, text: 'Monounsaturated fat', fontSize: 7, fontWeight: 700, color: '#111111', textTransform: 'none', align: 'left' },
-          { id: 'submetric_3_text', kind: 'text', label: 'Submetric 3', x: 42, y: 166, scale: 1, visible: true, z: 3, text: 'Polyunsaturated fat', fontSize: 7, fontWeight: 700, color: '#111111', textTransform: 'none', align: 'left' }
-        ]
-      };
-    }
+    const LOCAL_STORAGE_KEY = 'foodranked-display-builder-v4';
+    const FOOD_JSON_CACHE = new Map();
 
     const DEFAULT_LAYOUT = {
-      canvas: { width: 135, height: 240, previewScale: 3, assetScaleDown: 0.1, background: '#d3d3d3', showGrid: true },
-      selectedSceneId: 'header',
+      canvas: { width: 135, height: 240, previewScale: 3, background: '#d6d6d6', showGrid: true },
       selectedFoodId: 'bacon',
-      textDefaults: { fontFamily: 'Inter, system-ui, sans-serif' },
-      persistentLayers: createPersistentHeaderLayers(),
-      scenes: { header: createHeaderScene(), fats: createFatsScene() }
+      selectedSectionId: 'intro',
+      sections: Object.fromEntries(SECTIONS.map(section => [section.id, { layers: createSectionLayers(section.id) }]))
     };
 
-    const LOCAL_STORAGE_KEY = 'foodranked-ui-layout-v3';
-    const PRESET_STORAGE_KEY = 'foodranked-ui-layout-presets-v3';
-
-    const state = { layout: JSON.parse(JSON.stringify(DEFAULT_LAYOUT)), selectedLayerId: null, foods: Array.isArray(window.FOODS_INDEX) ? window.FOODS_INDEX : [], foodFilter: '' };
+    const state = {
+      foods: Array.isArray(window.FOODS_INDEX) ? window.FOODS_INDEX : [],
+      selectedLayerId: null,
+      foodFilter: '',
+      layout: loadLayout() || structuredClone(DEFAULT_LAYOUT),
+      fullFood: null,
+      bgTick: 0
+    };
 
     const els = {
-      canvas: document.getElementById('canvas'), sceneSelect: document.getElementById('sceneSelect'), foodList: document.getElementById('foodList'), foodSearch: document.getElementById('foodSearch'),
-      layerList: document.getElementById('layerList'), selectedChip: document.getElementById('selectedChip'), noSelection: document.getElementById('noSelection'), layerInspector: document.getElementById('layerInspector'),
-      textControls: document.getElementById('textControls'), previewScale: document.getElementById('previewScale'), bgColor: document.getElementById('bgColor'), toggleGrid: document.getElementById('toggleGrid'),
-      toggleReference: document.getElementById('toggleReference'), referenceOpacity: document.getElementById('referenceOpacity'), layoutJson: document.getElementById('layoutJson'), resetLayout: document.getElementById('resetLayout'),
-      saveLocal: document.getElementById('saveLocal'), loadLocal: document.getElementById('loadLocal'), clearLocal: document.getElementById('clearLocal'), downloadJson: document.getElementById('downloadJson'),
-      uploadJson: document.getElementById('uploadJson'), presetName: document.getElementById('presetName'), presetList: document.getElementById('presetList'), savePreset: document.getElementById('savePreset'),
-      loadPreset: document.getElementById('loadPreset'), deletePreset: document.getElementById('deletePreset'), copyConfig: document.getElementById('copyConfig'), applyJson: document.getElementById('applyJson'),
-      propX: document.getElementById('propX'), propY: document.getElementById('propY'), propScale: document.getElementById('propScale'), propVisible: document.getElementById('propVisible'), propText: document.getElementById('propText'),
-      propFontSize: document.getElementById('propFontSize'), propFontWeight: document.getElementById('propFontWeight'), propColor: document.getElementById('propColor'), propTextTransform: document.getElementById('propTextTransform'),
-      propWidth: document.getElementById('propWidth'), propAlign: document.getElementById('propAlign'), bringForward: document.getElementById('bringForward'), sendBackward: document.getElementById('sendBackward')
+      bgField: document.getElementById('bgField'),
+      canvas: document.getElementById('canvas'),
+      foodSearch: document.getElementById('foodSearch'),
+      foodList: document.getElementById('foodList'),
+      sectionList: document.getElementById('sectionList'),
+      previewScale: document.getElementById('previewScale'),
+      toggleGrid: document.getElementById('toggleGrid'),
+      bgColor: document.getElementById('bgColor'),
+      resetSection: document.getElementById('resetSection'),
+      saveLocal: document.getElementById('saveLocal'),
+      copyJson: document.getElementById('copyJson'),
+      layoutJson: document.getElementById('layoutJson'),
+      applyJson: document.getElementById('applyJson'),
+      scriptMeta: document.getElementById('scriptMeta'),
+      scriptOutput: document.getElementById('scriptOutput'),
+      nutritionSummary: document.getElementById('nutritionSummary'),
+      nutritionDetails: document.getElementById('nutritionDetails'),
+      layerList: document.getElementById('layerList'),
+      selectionChip: document.getElementById('selectionChip'),
+      noSelection: document.getElementById('noSelection'),
+      inspectorPanel: document.getElementById('inspectorPanel'),
+      textControls: document.getElementById('textControls'),
+      propX: document.getElementById('propX'),
+      propY: document.getElementById('propY'),
+      propVisible: document.getElementById('propVisible'),
+      propText: document.getElementById('propText'),
+      propFontSize: document.getElementById('propFontSize'),
+      propWidth: document.getElementById('propWidth'),
+      propAlign: document.getElementById('propAlign')
     };
 
-    function cloneDefault() { return JSON.parse(JSON.stringify(DEFAULT_LAYOUT)); }
-    function saveLayoutToLocalStorage() { localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state.layout)); }
-    function loadLayoutFromLocalStorage() { const raw = localStorage.getItem(LOCAL_STORAGE_KEY); if (!raw) return false; state.layout = JSON.parse(raw); return true; }
-    function getSavedPresets() { try { return JSON.parse(localStorage.getItem(PRESET_STORAGE_KEY) || '{}'); } catch { return {}; } }
-    function setSavedPresets(presets) { localStorage.setItem(PRESET_STORAGE_KEY, JSON.stringify(presets)); }
-    function slugToLabel(value) { return String(value || '').replace(/\.sample$/,'').replace(/[_-]+/g, ' ').replace(/\b\w/g, ch => ch.toUpperCase()); }
-    function getCurrentScene() { return state.layout.scenes[state.layout.selectedSceneId]; }
-    function getCurrentLayers() { return [...state.layout.persistentLayers, ...getCurrentScene().layers]; }
-    function getEditableCurrentLayers() { return state.layout.selectedSceneId === 'header' ? state.layout.persistentLayers : [...state.layout.persistentLayers, ...getCurrentScene().layers]; }
-    function findLayerById(id) { return getEditableCurrentLayers().find(layer => layer.id === id) || null; }
-    function getSelectedLayer() { return findLayerById(state.selectedLayerId); }
-    function getSelectedFood() { return state.foods.find(food => food.id === state.layout.selectedFoodId) || state.foods[0] || null; }
-
-    function updateFoodDrivenContent() {
-      const food = getSelectedFood(); if (!food) return;
-      const allLayerGroups = [state.layout.persistentLayers, ...Object.values(state.layout.scenes).map(scene => scene.layers)];
-      for (const layers of allLayerGroups) {
-        const foodNameLayer = layers.find(layer => layer.id === 'food_name_text');
-        const kcalValueLayer = layers.find(layer => layer.id === 'kcal_value_text');
-        const typeTextLayer = layers.find(layer => layer.id === 'food_type_text');
-        const basisTextLayer = layers.find(layer => layer.id === 'basis_text');
-        const foodImageLayer = layers.find(layer => layer.id === 'food_image');
-        if (foodNameLayer) foodNameLayer.text = String(food.name || slugToLabel(food.id)).toUpperCase();
-        if (kcalValueLayer && food.kcal !== undefined && food.kcal !== null && food.kcal !== '') kcalValueLayer.text = String(Math.round(Number(food.kcal)));
-        if (typeTextLayer) typeTextLayer.text = String(food.foodType || '').toUpperCase();
-        if (basisTextLayer) basisTextLayer.text = String(food.basis || 'per 100g').replace(/\s+/g, '\n');
-        if (foodImageLayer && food.id) foodImageLayer.src = `./sprites/header/food_images/${food.id}.png`;
+    function loadLayout() {
+      try {
+        const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch {
+        return null;
       }
+    }
+
+    function saveLayout() {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state.layout));
+    }
+
+    function getSelectedFoodStub() {
+      return state.foods.find(food => food.id === state.layout.selectedFoodId) || state.foods[0] || null;
+    }
+
+    function getSelectedSection() {
+      return SECTIONS.find(section => section.id === state.layout.selectedSectionId) || SECTIONS[0];
+    }
+
+    function getCurrentSectionLayers() {
+      return state.layout.sections[state.layout.selectedSectionId].layers;
+    }
+
+    function getLayerById(id) {
+      return getCurrentSectionLayers().find(layer => layer.id === id) || null;
+    }
+
+    function createSectionLayers(sectionId) {
+      const base = [
+        sprite('food_plate', 'Food plate', './sprites/header/food_image_plate/meat_food_plate.png', 3, 7, 2),
+        sprite('food_image', 'Food image', './sprites/header/food_images/bacon.png', 15, 11, 3, true),
+        sprite('food_name_line', 'Food name line', './sprites/header/header_ui/food_name_line.png', 45, 44, 2),
+        sprite('calorie_bubble', 'Calorie bubble', './sprites/header/calorie_bubble/meat_calorie_bubble.png', 28, 34, 2),
+        sprite('score_plate', 'Score plate', './sprites/header/header_ui/score_plate.png', 59, 45, 2),
+        sprite('type_plate', 'Type plate', './sprites/header/food_type_plate/meat_type_plate.png', 99, 45, 2),
+        sprite('per_100g_line', 'Per 100g line', './sprites/header/header_ui/per_100g_line.png', 108, 47, 2),
+        text('food_name_text', 'Food name', 46, 12, 13, 'BACON', 4, 80),
+        text('kcal_value_text', 'Kcal value', 33, 36, 9, '417', 4, 20, 'center'),
+        text('kcal_label_text', 'Kcal label', 35, 48, 7, 'KCAL', 4, 16, 'center'),
+        text('score_label_text', 'Score label', 63, 47, 7, 'TIER D', 4, 26),
+        text('food_type_text', 'Food type', 104, 47, 7, 'MEATS', 4, 28),
+        text('basis_text', 'Basis', 109, 14, 8, 'PER\n100G', 4, 18, 'center'),
+        text('section_chip_text', 'Section chip', 9, 73, 8, getSectionChip(sectionId), 4, 50),
+        sprite('macro_icon', 'Macro icon', getSectionIcon(sectionId), 12, 87, 2),
+        text('headline_text', 'Headline', 34, 88, 9, 'Headline', 4, 78),
+        text('subline_a', 'Subline A', 18, 118, 6, 'First stat highlight', 4, 100),
+        text('subline_b', 'Subline B', 18, 138, 6, 'Second stat highlight', 4, 100),
+        text('subline_c', 'Subline C', 18, 158, 6, 'Third stat highlight', 4, 100),
+        text('script_caption', 'Caption', 12, 193, 5, 'Generated script summary appears here.', 4, 110, 'center')
+      ];
+      return base;
+    }
+
+    function sprite(id, label, src, x, y, z, foodDriven = false) {
+      return { id, kind: 'sprite', label, src, x, y, z, visible: true, foodDriven };
+    }
+    function text(id, label, x, y, fontSize, value, z, width, align = 'left') {
+      return { id, kind: 'text', label, x, y, z, visible: true, text: value, fontSize, width, align };
+    }
+
+    function getSectionChip(sectionId) {
+      const chip = SECTIONS.find(section => section.id === sectionId)?.chip;
+      return chip ? chip.toUpperCase() : '';
+    }
+
+    function getSectionIcon(sectionId) {
+      if (sectionId === 'fats') return './sprites/macros/fats/fat_icon.gif';
+      return './sprites/macros/fats/fat_submacro_bullet_point.png';
+    }
+
+    function formatBasis(food) {
+      if (!food?.basis) return 'PER\n100G';
+      if (typeof food.basis === 'string') return food.basis.toUpperCase().replace(/\s+/g, '\n');
+      return `PER\n${food.basis.value || 100}${String(food.basis.unit || 'g').toUpperCase()}`;
+    }
+
+    function asNumber(value, fallback = null) {
+      return Number.isFinite(Number(value)) ? Number(value) : fallback;
+    }
+
+    async function loadFullFood(food) {
+      if (!food?.path) return null;
+      const cacheKey = food.path;
+      if (FOOD_JSON_CACHE.has(cacheKey)) return FOOD_JSON_CACHE.get(cacheKey);
+      try {
+        const response = await fetch(`../../${food.path}`);
+        const json = await response.json();
+        FOOD_JSON_CACHE.set(cacheKey, json);
+        return json;
+      } catch {
+        return null;
+      }
+    }
+
+    function scoreTier(food) {
+      return food?.expectedTier || '—';
+    }
+
+    function metricArrows(value, direction = 'up') {
+      if (value == null) return '—';
+      const safe = Number(value);
+      const count = safe >= 25 ? 3 : safe >= 10 ? 2 : safe > 0 ? 1 : 0;
+      return count ? `${direction === 'down' ? '↓' : '↑'} `.repeat(count).trim() : '·';
+    }
+
+    function getSectionCopy(food, sectionId) {
+      const header = food?.header || {};
+      const metrics = food?.metrics || {};
+      const pros = food?.contextItems?.pros || [];
+      const cons = food?.contextItems?.cons || [];
+      const fallbackName = getSelectedFoodStub()?.name || 'This food';
+      const map = {
+        intro: {
+          headline: ``,
+          lines: [``, ``, ``],
+          caption: `${fallbackName} ranked. This opening page is intentionally blank except for the permanent header so the intro animation can be added cleanly in CapCut or later in the site.`
+        },
+        fats: {
+          headline: `${header.fat_g ?? '—'}G FATS`,
+          lines: [
+            `Saturated fat ${metrics.saturated_fat_g ?? '—'}g ${metricArrows(metrics.saturated_fat_g, 'down')}`,
+            `Polyunsaturated ${metrics.polyunsaturated_fat_g ?? '—'}g ${metricArrows(metrics.polyunsaturated_fat_g, 'up')}`,
+            `Omega 3 ${metrics.omega3_mg ?? '—'}mg ${metricArrows(metrics.omega3_mg, 'up')}`
+          ],
+          caption: `The fats section shows whether the fat profile looks helpful, mixed, or rough once saturated fat is factored in.`
+        },
+        carbs: {
+          headline: `${header.carb_g ?? '—'}G CARBS`,
+          lines: [
+            `Sugar ${metrics.sugar_g ?? '—'}g ${metricArrows(metrics.sugar_g, 'down')}`,
+            `Fibre ${metrics.fibre_g ?? '—'}g ${metricArrows(metrics.fibre_g, 'up')}`,
+            `Glycemic index ${metrics.glycemic_index ?? '—'} ${metricArrows(metrics.glycemic_index, 'down')}`
+          ],
+          caption: `Carbs gets framed through sugar, fibre, and how hard this food tends to spike blood sugar.`
+        },
+        protein: {
+          headline: `${header.protein_g ?? '—'}G PROTEIN`,
+          lines: [
+            `Essential amino score ${metrics.essential_amino_acids_score ?? '—'}`,
+            `Bioavailability ${metrics.bioavailability_percent ?? '—'}%`,
+            `Collagen ${metrics.collagen_g ?? '—'}g`
+          ],
+          caption: `Protein is not just grams. This section calls out amino quality, usability, and whether the protein is actually meaningful.`
+        },
+        vitamins: {
+          headline: `VITAMINS`,
+          lines: [
+            `Vitamin C ${metrics.vitamin_c_dv ?? '—'}% DV`,
+            `Vitamin B12 ${metrics.vitamin_b12_dv ?? '—'}% DV`,
+            `Vitamin K ${metrics.vitamin_k_dv ?? '—'}% DV`
+          ],
+          caption: `Vitamins spotlights the standout wins instead of dumping a wall of numbers.`
+        },
+        minerals: {
+          headline: `MINERALS`,
+          lines: [
+            `Iron ${metrics.iron_dv ?? '—'}% DV`,
+            `Magnesium ${metrics.magnesium_dv ?? '—'}% DV`,
+            `Potassium ${metrics.potassium_dv ?? '—'}% DV`
+          ],
+          caption: `Minerals quickly answers whether the food brings practical micronutrient value with it.`
+        },
+        pros: {
+          headline: `PROS`,
+          lines: [
+            pros[0]?.title || 'Top positive point',
+            pros[1]?.title || 'Second positive point',
+            pros[2]?.title || 'Third positive point'
+          ],
+          caption: `${fallbackName} gets three strongest positive points here, separate from the numeric sections.`
+        },
+        cons: {
+          headline: `CONS`,
+          lines: [
+            cons[0]?.title || 'Top negative point',
+            cons[1]?.title || 'Second negative point',
+            cons[2]?.title || 'Third negative point'
+          ],
+          caption: `${fallbackName} gets three clearest drawbacks here, separate from the numeric sections.`
+        },
+        outro: {
+          headline: ``,
+          lines: [``, ``, ``],
+          caption: `${fallbackName} closes on a blank page so the spoken overview and final tier reveal can be handled cleanly in CapCut, or later turned into a built-in verdict sequence.`
+        }
+      };
+      return map[sectionId];
+    }
+
+    function buildScript(food) {
+      const stub = getSelectedFoodStub();
+      const name = food?.name || stub?.name || 'This food';
+      const basis = stub?.basis?.value ? `${stub.basis.value}${stub.basis.unit || 'g'}` : '100g';
+      const sections = SECTIONS.map(section => {
+        const copy = getSectionCopy(food, section.id);
+        return `${section.label}: ${copy.caption} ${copy.lines.join('. ')}.`;
+      });
+      return `${name} ranked per ${basis}. ${sections.join(' ')}`;
+    }
+
+    function syncFoodIntoLayout(food) {
+      const stub = getSelectedFoodStub();
+      for (const section of SECTIONS) {
+        const layers = state.layout.sections[section.id].layers;
+        const copy = getSectionCopy(food, section.id);
+        const byId = Object.fromEntries(layers.map(layer => [layer.id, layer]));
+        if (byId.food_image) byId.food_image.src = `./sprites/header/food_images/${stub.id}.png`;
+        if (byId.food_name_text) byId.food_name_text.text = String(stub.name || stub.id).toUpperCase();
+        if (byId.food_type_text) byId.food_type_text.text = String(stub.foodType || '').toUpperCase();
+        if (byId.basis_text) byId.basis_text.text = formatBasis(stub);
+        if (byId.kcal_value_text) byId.kcal_value_text.text = String(food?.header?.kcal ?? stub.kcal ?? '—');
+        if (byId.score_label_text) byId.score_label_text.text = `TIER ${scoreTier(food)}`;
+        if (byId.section_chip_text) byId.section_chip_text.text = getSectionChip(section.id);
+        if (byId.headline_text) byId.headline_text.text = copy.headline;
+        if (byId.subline_a) byId.subline_a.text = copy.lines[0] || '';
+        if (byId.subline_b) byId.subline_b.text = copy.lines[1] || '';
+        if (byId.subline_c) byId.subline_c.text = copy.lines[2] || '';
+        if (byId.script_caption) byId.script_caption.text = copy.caption;
+        if (byId.macro_icon) byId.macro_icon.src = getSectionIcon(section.id);
+      }
+    }
+
+    function renderFoodList() {
+      const q = state.foodFilter.trim().toLowerCase();
+      const foods = state.foods.filter(food => !q || [food.id, food.name, food.foodType].filter(Boolean).some(part => String(part).toLowerCase().includes(q)));
+      els.foodList.innerHTML = '';
+      for (const food of foods) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'card-button' + (food.id === state.layout.selectedFoodId ? ' active' : '');
+        button.innerHTML = `<strong>${food.name}</strong><div class="tiny muted">${food.foodType || 'Unknown'} · ${food.basis?.value || 100}${food.basis?.unit || 'g'}</div>`;
+        button.addEventListener('click', async () => {
+          state.layout.selectedFoodId = food.id;
+          state.selectedLayerId = null;
+          await refreshFoodData();
+        });
+        els.foodList.appendChild(button);
+      }
+    }
+
+    function renderSectionList() {
+      els.sectionList.innerHTML = '';
+      for (const section of SECTIONS) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'card-button' + (section.id === state.layout.selectedSectionId ? ' active' : '');
+        button.innerHTML = `<strong>${section.label}</strong><div class="tiny muted">Editable display section</div>`;
+        button.addEventListener('click', () => {
+          state.layout.selectedSectionId = section.id;
+          state.selectedLayerId = null;
+          renderAll();
+        });
+        els.sectionList.appendChild(button);
+      }
+    }
+
+    function renderCanvas() {
+      els.canvas.innerHTML = '<div class="phone-bg"></div>';
+      els.canvas.style.backgroundColor = state.layout.canvas.background;
+      els.canvas.classList.toggle('hide-grid', !state.layout.canvas.showGrid);
+
+      const layers = [...getCurrentSectionLayers()].sort((a,b) => (a.z || 0) - (b.z || 0));
+      for (const layer of layers) {
+        if (!layer.visible) continue;
+        const node = document.createElement(layer.kind === 'sprite' ? 'img' : 'div');
+        node.className = `layer-node ${layer.kind}${layer.kind === 'text' ? ' pixel-text' : ''}${state.selectedLayerId === layer.id ? ' selected' : ''}`;
+        node.dataset.layerId = layer.id;
+        node.style.left = `calc(${layer.x}px * var(--preview-scale))`;
+        node.style.top = `calc(${layer.y}px * var(--preview-scale))`;
+        node.style.zIndex = String(layer.z || 0);
+        if (layer.kind === 'sprite') {
+          node.src = layer.src;
+          node.alt = layer.label;
+          node.onerror = () => {
+            node.onerror = null;
+            node.src = `./sprites/header/food_images/${state.layout.selectedFoodId}.png`;
+          };
+        } else {
+          node.textContent = layer.text || '';
+          node.style.fontSize = `calc(${layer.fontSize || 6}px * var(--preview-scale))`;
+          if (layer.width) node.style.width = `calc(${layer.width}px * var(--preview-scale))`;
+          node.style.textAlign = layer.align || 'left';
+        }
+        attachDrag(node, layer.id);
+        node.addEventListener('click', event => {
+          event.stopPropagation();
+          state.selectedLayerId = layer.id;
+          renderInspector();
+          renderCanvas();
+          renderLayerList();
+        });
+        els.canvas.appendChild(node);
+      }
+
+      const indicatorSections = SECTIONS.filter(section => section.indicator);
+      if (indicatorSections.some(section => section.id === state.layout.selectedSectionId)) {
+        const progress = document.createElement('div');
+        progress.className = 'progress-strip';
+        const activeIndex = indicatorSections.findIndex(section => section.id === state.layout.selectedSectionId);
+        indicatorSections.forEach((section, index) => {
+          const dot = document.createElement('div');
+          dot.className = 'progress-dot' + (index < activeIndex ? ' done' : '') + (index === activeIndex ? ' active' : '');
+          progress.appendChild(dot);
+        });
+        els.canvas.appendChild(progress);
+      }
+    }
+
+    function renderLayerList() {
+      els.layerList.innerHTML = '';
+      [...getCurrentSectionLayers()].sort((a,b) => (b.z || 0) - (a.z || 0)).forEach(layer => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'card-button' + (layer.id === state.selectedLayerId ? ' active' : '');
+        button.innerHTML = `<strong>${layer.label}</strong><div class="tiny muted">${layer.kind} · z ${layer.z || 0}</div>`;
+        button.addEventListener('click', () => {
+          state.selectedLayerId = layer.id;
+          renderInspector();
+          renderCanvas();
+          renderLayerList();
+        });
+        els.layerList.appendChild(button);
+      });
+    }
+
+    function renderInspector() {
+      const layer = getLayerById(state.selectedLayerId);
+      els.selectionChip.textContent = `Selected: ${layer ? layer.label : 'none'}`;
+      els.noSelection.hidden = !!layer;
+      els.inspectorPanel.hidden = !layer;
+      if (!layer) return;
+      els.propX.value = layer.x;
+      els.propY.value = layer.y;
+      els.propVisible.value = String(layer.visible !== false);
+      const isText = layer.kind === 'text';
+      els.textControls.hidden = !isText;
+      if (isText) {
+        els.propText.value = layer.text || '';
+        els.propFontSize.value = layer.fontSize || 6;
+        els.propWidth.value = layer.width || '';
+        els.propAlign.value = layer.align || 'left';
+      }
+    }
+
+    function renderScriptAndNutrition() {
+      const stub = getSelectedFoodStub();
+      const food = state.fullFood || stub || {};
+      els.scriptMeta.textContent = `${stub?.name || 'Unknown'} · ${stub?.foodType || 'unknown'} · tier ${scoreTier(food)}`;
+      els.scriptOutput.value = buildScript(food);
+
+      const header = food.header || {};
+      const metrics = food.metrics || {};
+      const summaryItems = [
+        ['Calories', `${header.kcal ?? '—'} kcal`],
+        ['Fat', `${header.fat_g ?? '—'} g`],
+        ['Carbs', `${header.carb_g ?? '—'} g`],
+        ['Protein', `${header.protein_g ?? '—'} g`],
+        ['Fibre', `${metrics.fibre_g ?? '—'} g`],
+        ['Sugar', `${metrics.sugar_g ?? '—'} g`]
+      ];
+      els.nutritionSummary.innerHTML = summaryItems.map(([label, value]) => `<div class="metric-pill"><strong>${label}</strong><span>${value}</span></div>`).join('');
+      els.nutritionDetails.innerHTML = [
+        `Saturated fat: ${metrics.saturated_fat_g ?? '—'} g`,
+        `Omega 3: ${metrics.omega3_mg ?? '—'} mg`,
+        `Glycemic index: ${metrics.glycemic_index ?? '—'}`,
+        `Vitamin C: ${metrics.vitamin_c_dv ?? '—'}% DV`,
+        `Vitamin B12: ${metrics.vitamin_b12_dv ?? '—'}% DV`,
+        `Iron: ${metrics.iron_dv ?? '—'}% DV`,
+        `Potassium: ${metrics.potassium_dv ?? '—'}% DV`,
+        food.sourceNotes?.[0] ? `<br><br><strong>Note:</strong> ${food.sourceNotes[0]}` : ''
+      ].join('<br>');
+    }
+
+    function updateJsonOutput() {
+      els.layoutJson.value = JSON.stringify(state.layout, null, 2);
     }
 
     function setCssVars() {
       const root = document.documentElement;
       root.style.setProperty('--preview-scale', state.layout.canvas.previewScale);
-      root.style.setProperty('--bg', state.layout.canvas.background);
-      els.canvas.classList.toggle('hide-grid', !state.layout.canvas.showGrid);
-      els.canvas.style.backgroundColor = state.layout.canvas.background;
     }
 
-    function renderFoodList() {
-      const filter = state.foodFilter.trim().toLowerCase();
-      const foods = state.foods.filter(food => !filter || [food.id, food.name, food.foodType].filter(Boolean).some(v => String(v).toLowerCase().includes(filter)));
-      els.foodList.innerHTML = '';
-      for (const food of foods) {
-        const item = document.createElement('button');
-        item.type = 'button';
-        item.className = 'food-item' + (food.id === state.layout.selectedFoodId ? ' active' : '');
-        item.innerHTML = `<strong>${food.name || slugToLabel(food.id)}</strong><div class="small muted">${food.foodType || 'Unknown'} · ${food.basis || 'per 100g'}${food.kcal !== undefined && food.kcal !== null ? ` · ${food.kcal} kcal` : ''}</div>`;
-        item.addEventListener('click', () => { state.layout.selectedFoodId = food.id; updateFoodDrivenContent(); renderAll(); });
-        els.foodList.appendChild(item);
-      }
+    function attachDrag(node, layerId) {
+      let startX = 0, startY = 0, originX = 0, originY = 0;
+      node.addEventListener('pointerdown', event => {
+        event.preventDefault();
+        event.stopPropagation();
+        node.setPointerCapture(event.pointerId);
+        state.selectedLayerId = layerId;
+        const layer = getLayerById(layerId);
+        if (!layer) return;
+        startX = event.clientX;
+        startY = event.clientY;
+        originX = layer.x;
+        originY = layer.y;
+        const move = e => {
+          layer.x = Math.round(originX + (e.clientX - startX) / state.layout.canvas.previewScale);
+          layer.y = Math.round(originY + (e.clientY - startY) / state.layout.canvas.previewScale);
+          renderCanvas();
+          renderInspector();
+          renderLayerList();
+          updateJsonOutput();
+        };
+        const up = () => {
+          node.removeEventListener('pointermove', move);
+          node.removeEventListener('pointerup', up);
+          node.removeEventListener('pointercancel', up);
+          saveLayout();
+        };
+        node.addEventListener('pointermove', move);
+        node.addEventListener('pointerup', up);
+        node.addEventListener('pointercancel', up);
+        renderInspector();
+        renderLayerList();
+      });
     }
 
-    function renderReferenceOverlay() {
-      const existing = els.canvas.querySelector('.reference-overlay'); if (existing) existing.remove();
-      const scene = getCurrentScene();
-      if (!scene.reference?.enabled || !scene.reference?.src) return;
-      if (!/\.(png|jpg|jpeg|gif|webp)$/i.test(scene.reference.src)) return;
-      const img = document.createElement('img'); img.className = 'reference-overlay'; img.src = scene.reference.src;
-      Object.assign(img.style, { position: 'absolute', inset: '0', width: '100%', height: '100%', opacity: scene.reference.opacity ?? 0.45, pointerEvents: 'none', imageRendering: 'pixelated', zIndex: '999' });
-      els.canvas.appendChild(img);
+    function renderBackgroundSprites() {
+      const stub = getSelectedFoodStub();
+      if (!stub) return;
+      const pool = state.foods.filter(food => food.foodType === stub.foodType).slice(0, Math.min(18, Math.max(6, state.foods.filter(food => food.foodType === stub.foodType).length)));
+      els.bgField.innerHTML = '';
+      pool.forEach((food, index) => {
+        const img = document.createElement('img');
+        img.className = 'bg-sprite';
+        img.src = `./sprites/header/food_images/${food.id}.png`;
+        img.alt = '';
+        img.style.left = `${(index * 7 + 6) % 96}%`;
+        img.style.top = `${-15 - (index % 5) * 8}vh`;
+        img.style.animationDuration = `${12 + (index % 7) * 2}s`;
+        img.style.animationDelay = `${-(index * 1.7)}s`;
+        img.style.setProperty('--drift-x', `${(index % 2 === 0 ? 1 : -1) * (10 + (index % 4) * 4)}px`);
+        img.onerror = () => {
+          img.onerror = null;
+          img.src = `./sprites/header/food_images/${stub.id}.png`;
+        };
+        els.bgField.appendChild(img);
+      });
     }
 
-    function renderCanvas() {
-      els.canvas.innerHTML = '';
-      const sortedLayers = [...getCurrentLayers()].sort((a,b) => (a.z ?? 0) - (b.z ?? 0));
-      for (const layer of sortedLayers) {
-        if (!layer.visible) continue;
-        let node;
-        if (layer.kind === 'sprite') {
-          node = document.createElement('img'); node.className = 'asset-layer'; node.src = layer.src; node.alt = layer.label;
-          node.style.transform = `scale(calc(var(--preview-scale) * var(--asset-scale-down) * ${layer.scale || 1}))`;
-        } else {
-          node = document.createElement('div'); node.className = 'text-layer'; node.textContent = layer.text || '';
-          node.style.fontSize = `calc(${layer.fontSize || 8}px * var(--preview-scale) * ${layer.scale || 1})`;
-          node.style.fontWeight = layer.fontWeight || 700; node.style.color = layer.color || '#111111'; node.style.textTransform = layer.textTransform || 'none'; node.style.textAlign = layer.align || 'left';
-          node.style.fontFamily = state.layout.textDefaults.fontFamily; if (layer.width) node.style.width = `calc(${layer.width}px * var(--preview-scale))`;
-        }
-        node.dataset.layerId = layer.id; node.style.left = `calc(${layer.x}px * var(--preview-scale))`; node.style.top = `calc(${layer.y}px * var(--preview-scale))`; node.style.zIndex = String(layer.z ?? 0);
-        if (state.selectedLayerId === layer.id) node.classList.add('selected');
-        attachLayerPointer(node, layer.id);
-        node.addEventListener('click', (event) => { event.stopPropagation(); state.selectedLayerId = layer.id; renderAll(); });
-        els.canvas.appendChild(node);
-      }
-      renderReferenceOverlay();
-    }
-
-    function renderLayerList() {
-      els.layerList.innerHTML = '';
-      const sorted = [...getEditableCurrentLayers()].sort((a,b) => (b.z ?? 0) - (a.z ?? 0));
-      for (const layer of sorted) {
-        const item = document.createElement('button'); item.type = 'button'; item.className = 'layer-item' + (layer.id === state.selectedLayerId ? ' active' : '');
-        const scope = state.layout.persistentLayers.includes(layer) ? 'header' : state.layout.selectedSceneId;
-        item.innerHTML = `<span>${layer.kind === 'sprite' ? '🧩' : '🔤'}</span><span><strong>${layer.label}</strong><br><span class="small muted">${layer.id} · ${scope}</span></span><span class="small muted">z ${layer.z ?? 0}</span>`;
-        item.addEventListener('click', () => { state.selectedLayerId = layer.id; renderAll(); });
-        els.layerList.appendChild(item);
-      }
-    }
-
-    function renderInspector() {
-      const layer = getSelectedLayer(); els.selectedChip.textContent = `Selected: ${layer ? layer.label : 'none'}`; els.noSelection.hidden = !!layer; els.layerInspector.hidden = !layer; if (!layer) return;
-      els.propX.value = layer.x; els.propY.value = layer.y; els.propScale.value = layer.scale ?? 1; els.propVisible.value = String(layer.visible !== false);
-      const isText = layer.kind === 'text'; els.textControls.hidden = !isText;
-      if (isText) { els.propText.value = layer.text || ''; els.propFontSize.value = layer.fontSize || 8; els.propFontWeight.value = layer.fontWeight || 700; els.propColor.value = layer.color || '#111111'; els.propTextTransform.value = layer.textTransform || 'none'; els.propWidth.value = layer.width ?? ''; els.propAlign.value = layer.align || 'left'; }
-    }
-
-    function updateJsonOutput() { els.layoutJson.value = JSON.stringify(state.layout, null, 2); }
-    function renderPresetList() {
-      const presets = getSavedPresets(); const current = els.presetList.value; els.presetList.innerHTML = '<option value="">No preset selected</option>';
-      for (const name of Object.keys(presets).sort()) { const option = document.createElement('option'); option.value = name; option.textContent = name; els.presetList.appendChild(option); }
-      if (current && presets[current]) els.presetList.value = current;
+    async function refreshFoodData() {
+      const stub = getSelectedFoodStub();
+      state.fullFood = await loadFullFood(stub);
+      syncFoodIntoLayout(state.fullFood);
+      renderAll();
     }
 
     function renderAll() {
-      setCssVars(); els.sceneSelect.value = state.layout.selectedSceneId; renderFoodList(); renderCanvas(); renderLayerList(); renderInspector(); updateJsonOutput(); renderPresetList(); saveLayoutToLocalStorage();
+      setCssVars();
+      els.previewScale.value = String(state.layout.canvas.previewScale);
+      els.toggleGrid.checked = !!state.layout.canvas.showGrid;
+      els.bgColor.value = state.layout.canvas.background;
+      renderFoodList();
+      renderSectionList();
+      renderCanvas();
+      renderLayerList();
+      renderInspector();
+      renderScriptAndNutrition();
+      renderBackgroundSprites();
+      updateJsonOutput();
+      saveLayout();
     }
 
-    function attachLayerPointer(node, layerId) {
-      let startX = 0, startY = 0, originX = 0, originY = 0;
-      node.addEventListener('pointerdown', (event) => {
-        event.preventDefault(); event.stopPropagation(); node.setPointerCapture(event.pointerId); state.selectedLayerId = layerId;
-        const layer = getSelectedLayer(); if (!layer) return; startX = event.clientX; startY = event.clientY; originX = layer.x; originY = layer.y;
-        const move = (e) => { const dx = (e.clientX - startX) / state.layout.canvas.previewScale; const dy = (e.clientY - startY) / state.layout.canvas.previewScale; layer.x = Math.round(originX + dx); layer.y = Math.round(originY + dy); renderAll(); };
-        const up = () => { node.removeEventListener('pointermove', move); node.removeEventListener('pointerup', up); node.removeEventListener('pointercancel', up); };
-        node.addEventListener('pointermove', move); node.addEventListener('pointerup', up); node.addEventListener('pointercancel', up); renderAll();
-      });
+    function updateSelected(mutator) {
+      const layer = getLayerById(state.selectedLayerId);
+      if (!layer) return;
+      mutator(layer);
+      renderAll();
     }
 
-    function bindInspector() {
-      function updateSelected(mutator) { const layer = getSelectedLayer(); if (!layer) return; mutator(layer); renderAll(); }
-      els.propX.addEventListener('input', () => updateSelected(layer => layer.x = Number(els.propX.value) || 0));
-      els.propY.addEventListener('input', () => updateSelected(layer => layer.y = Number(els.propY.value) || 0));
-      els.propScale.addEventListener('input', () => updateSelected(layer => layer.scale = Number(els.propScale.value) || 1));
-      els.propVisible.addEventListener('change', () => updateSelected(layer => layer.visible = els.propVisible.value === 'true'));
-      els.propText.addEventListener('input', () => updateSelected(layer => layer.text = els.propText.value));
-      els.propFontSize.addEventListener('input', () => updateSelected(layer => layer.fontSize = Number(els.propFontSize.value) || 8));
-      els.propFontWeight.addEventListener('input', () => updateSelected(layer => layer.fontWeight = Number(els.propFontWeight.value) || 700));
-      els.propColor.addEventListener('input', () => updateSelected(layer => layer.color = els.propColor.value || '#111111'));
-      els.propTextTransform.addEventListener('change', () => updateSelected(layer => layer.textTransform = els.propTextTransform.value));
-      els.propWidth.addEventListener('input', () => updateSelected(layer => layer.width = els.propWidth.value === '' ? undefined : Number(els.propWidth.value)));
-      els.propAlign.addEventListener('change', () => updateSelected(layer => layer.align = els.propAlign.value));
-      els.bringForward.addEventListener('click', () => updateSelected(layer => layer.z = (layer.z ?? 0) + 1));
-      els.sendBackward.addEventListener('click', () => updateSelected(layer => layer.z = Math.max(0, (layer.z ?? 0) - 1)));
-    }
+    els.foodSearch.addEventListener('input', () => {
+      state.foodFilter = els.foodSearch.value;
+      renderFoodList();
+    });
+    els.previewScale.addEventListener('input', () => { state.layout.canvas.previewScale = Number(els.previewScale.value) || 3; renderAll(); });
+    els.toggleGrid.addEventListener('change', () => { state.layout.canvas.showGrid = els.toggleGrid.checked; renderAll(); });
+    els.bgColor.addEventListener('input', () => { state.layout.canvas.background = els.bgColor.value || '#d6d6d6'; renderAll(); });
+    els.resetSection.addEventListener('click', () => {
+      state.layout.sections[state.layout.selectedSectionId].layers = createSectionLayers(state.layout.selectedSectionId);
+      syncFoodIntoLayout(state.fullFood);
+      state.selectedLayerId = null;
+      renderAll();
+    });
+    els.saveLocal.addEventListener('click', () => { saveLayout(); els.saveLocal.textContent = 'Saved'; setTimeout(() => els.saveLocal.textContent = 'Save locally', 1200); });
+    els.copyJson.addEventListener('click', async () => {
+      updateJsonOutput();
+      try {
+        await navigator.clipboard.writeText(els.layoutJson.value);
+        els.copyJson.textContent = 'Copied';
+      } catch {
+        els.copyJson.textContent = 'Copy failed';
+      }
+      setTimeout(() => els.copyJson.textContent = 'Copy JSON', 1200);
+    });
+    els.applyJson.addEventListener('click', () => {
+      try {
+        state.layout = JSON.parse(els.layoutJson.value);
+        state.selectedLayerId = null;
+        renderAll();
+      } catch (error) {
+        alert('Invalid JSON: ' + error.message);
+      }
+    });
+    els.canvas.addEventListener('click', () => { state.selectedLayerId = null; renderInspector(); renderCanvas(); renderLayerList(); });
 
-    function bindGlobalControls() {
-      els.sceneSelect.addEventListener('change', () => { state.layout.selectedSceneId = els.sceneSelect.value; state.selectedLayerId = null; renderAll(); });
-      els.foodSearch.addEventListener('input', () => { state.foodFilter = els.foodSearch.value; renderFoodList(); });
-      els.previewScale.addEventListener('input', () => { state.layout.canvas.previewScale = Number(els.previewScale.value) || 3; renderAll(); });
-      els.bgColor.addEventListener('input', () => { state.layout.canvas.background = els.bgColor.value || '#d3d3d3'; renderAll(); });
-      els.toggleGrid.addEventListener('change', () => { state.layout.canvas.showGrid = els.toggleGrid.checked; renderAll(); });
-      els.toggleReference.addEventListener('change', () => { getCurrentScene().reference.enabled = els.toggleReference.checked; renderAll(); });
-      els.referenceOpacity.addEventListener('input', () => { getCurrentScene().reference.opacity = Number(els.referenceOpacity.value); renderAll(); });
-      els.resetLayout.addEventListener('click', () => {
-        if (state.layout.selectedSceneId === 'header') state.layout.persistentLayers = createPersistentHeaderLayers(); else state.layout.scenes[state.layout.selectedSceneId] = createFatsScene();
-        state.selectedLayerId = null; updateFoodDrivenContent(); syncControlsFromState(); renderAll();
-      });
-      els.saveLocal.addEventListener('click', () => { saveLayoutToLocalStorage(); els.saveLocal.textContent = 'Saved!'; setTimeout(() => els.saveLocal.textContent = 'Save locally', 1200); });
-      els.loadLocal.addEventListener('click', () => { if (!loadLayoutFromLocalStorage()) { els.loadLocal.textContent = 'No save found'; setTimeout(() => els.loadLocal.textContent = 'Load local save', 1200); return; } state.selectedLayerId = null; syncControlsFromState(); renderAll(); els.loadLocal.textContent = 'Loaded!'; setTimeout(() => els.loadLocal.textContent = 'Load local save', 1200); });
-      els.clearLocal.addEventListener('click', () => { localStorage.removeItem(LOCAL_STORAGE_KEY); els.clearLocal.textContent = 'Cleared'; setTimeout(() => els.clearLocal.textContent = 'Clear local save', 1200); });
-      els.downloadJson.addEventListener('click', () => { updateJsonOutput(); const blob = new Blob([els.layoutJson.value], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'foodranked-layout.json'; a.click(); URL.revokeObjectURL(url); });
-      els.copyConfig.addEventListener('click', async () => { updateJsonOutput(); try { await navigator.clipboard.writeText(els.layoutJson.value); els.copyConfig.textContent = 'Copied!'; setTimeout(() => els.copyConfig.textContent = 'Copy JSON', 1200); } catch { els.copyConfig.textContent = 'Copy failed'; setTimeout(() => els.copyConfig.textContent = 'Copy JSON', 1200); } });
-      els.uploadJson.addEventListener('change', async () => { const file = els.uploadJson.files?.[0]; if (!file) return; try { state.layout = JSON.parse(await file.text()); state.selectedLayerId = null; syncControlsFromState(); renderAll(); } catch (error) { alert('Invalid uploaded JSON: ' + error.message); } finally { els.uploadJson.value = ''; } });
-      els.savePreset.addEventListener('click', () => { const name = els.presetName.value.trim(); if (!name) { alert('Give the preset a name first.'); return; } const presets = getSavedPresets(); presets[name] = state.layout; setSavedPresets(presets); els.presetList.value = name; renderPresetList(); });
-      els.loadPreset.addEventListener('click', () => { const name = els.presetList.value || els.presetName.value.trim(); const presets = getSavedPresets(); if (!name || !presets[name]) { alert('Pick a saved preset first.'); return; } state.layout = presets[name]; state.selectedLayerId = null; els.presetName.value = name; syncControlsFromState(); renderAll(); });
-      els.deletePreset.addEventListener('click', () => { const name = els.presetList.value || els.presetName.value.trim(); const presets = getSavedPresets(); if (!name || !presets[name]) { alert('Pick a saved preset first.'); return; } delete presets[name]; setSavedPresets(presets); els.presetName.value = ''; els.presetList.value = ''; renderPresetList(); });
-      els.presetList.addEventListener('change', () => { if (els.presetList.value) els.presetName.value = els.presetList.value; });
-      els.applyJson.addEventListener('click', () => { try { state.layout = JSON.parse(els.layoutJson.value); state.selectedLayerId = null; syncControlsFromState(); renderAll(); } catch (error) { alert('Invalid JSON: ' + error.message); } });
-      els.canvas.addEventListener('click', () => { state.selectedLayerId = null; renderAll(); });
-      window.addEventListener('keydown', (event) => {
-        const layer = getSelectedLayer(); if (!layer) return; if (['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)) return; const step = event.shiftKey ? 10 : 1; let handled = true;
-        if (event.key === 'ArrowLeft') layer.x -= step; else if (event.key === 'ArrowRight') layer.x += step; else if (event.key === 'ArrowUp') layer.y -= step; else if (event.key === 'ArrowDown') layer.y += step; else handled = false;
-        if (handled) { event.preventDefault(); renderAll(); }
-      });
-    }
+    els.propX.addEventListener('input', () => updateSelected(layer => layer.x = Number(els.propX.value) || 0));
+    els.propY.addEventListener('input', () => updateSelected(layer => layer.y = Number(els.propY.value) || 0));
+    els.propVisible.addEventListener('change', () => updateSelected(layer => layer.visible = els.propVisible.value === 'true'));
+    els.propText.addEventListener('input', () => updateSelected(layer => layer.text = els.propText.value));
+    els.propFontSize.addEventListener('input', () => updateSelected(layer => layer.fontSize = Number(els.propFontSize.value) || 6));
+    els.propWidth.addEventListener('input', () => updateSelected(layer => layer.width = els.propWidth.value ? Number(els.propWidth.value) : undefined));
+    els.propAlign.addEventListener('change', () => updateSelected(layer => layer.align = els.propAlign.value));
 
-    function syncControlsFromState() {
-      els.sceneSelect.value = state.layout.selectedSceneId; els.previewScale.value = String(state.layout.canvas.previewScale); els.bgColor.value = state.layout.canvas.background; els.toggleGrid.checked = !!state.layout.canvas.showGrid;
-      els.toggleReference.checked = !!getCurrentScene().reference.enabled; els.referenceOpacity.value = String(getCurrentScene().reference.opacity ?? 0.45);
-    }
+    window.addEventListener('keydown', event => {
+      const layer = getLayerById(state.selectedLayerId);
+      if (!layer) return;
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) return;
+      const step = event.shiftKey ? 10 : 1;
+      let handled = true;
+      if (event.key === 'ArrowLeft') layer.x -= step;
+      else if (event.key === 'ArrowRight') layer.x += step;
+      else if (event.key === 'ArrowUp') layer.y -= step;
+      else if (event.key === 'ArrowDown') layer.y += step;
+      else handled = false;
+      if (handled) {
+        event.preventDefault();
+        renderAll();
+      }
+    });
 
-    bindInspector(); bindGlobalControls(); if (!loadLayoutFromLocalStorage()) updateFoodDrivenContent(); syncControlsFromState(); renderAll();
+    refreshFoodData();
   </script>
 </body>
 </html>

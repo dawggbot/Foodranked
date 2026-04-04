@@ -31,17 +31,6 @@
       overflow: hidden;
     }
 
-    #bgField {
-      position: fixed;
-      inset: 0;
-      overflow: hidden;
-      pointer-events: none;
-      background:
-        radial-gradient(circle at 20% 10%, rgba(255,255,255,.65), transparent 24%),
-        radial-gradient(circle at 80% 18%, rgba(255,255,255,.45), transparent 24%),
-        linear-gradient(180deg, #ececec 0%, #d7d7d7 100%);
-    }
-
     .bg-sprite {
       position: absolute;
       width: 32px;
@@ -50,11 +39,12 @@
       opacity: 0.18;
       animation: drift linear infinite;
       filter: drop-shadow(0 2px 0 rgba(255,255,255,.35));
+      pointer-events: none;
     }
 
     @keyframes drift {
-      0% { transform: translate3d(0, -10vh, 0); }
-      100% { transform: translate3d(var(--drift-x), 110vh, 0); }
+      0% { transform: translate3d(0, -140px, 0); }
+      100% { transform: translate3d(var(--drift-x), 860px, 0); }
     }
 
     .app {
@@ -174,6 +164,7 @@
       overflow: hidden;
       border-radius: 0;
       image-rendering: pixelated;
+      box-shadow: 0 10px 30px rgba(0,0,0,.08);
       background-image:
         linear-gradient(to right, rgba(0,0,0,.05) 1px, transparent 1px),
         linear-gradient(to bottom, rgba(0,0,0,.05) 1px, transparent 1px);
@@ -181,10 +172,23 @@
     }
     .canvas.hide-grid { background-image: none; }
 
+    .canvas-bg-field {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 20% 10%, rgba(255,255,255,.65), transparent 24%),
+        radial-gradient(circle at 80% 18%, rgba(255,255,255,.45), transparent 24%),
+        linear-gradient(180deg, #ececec 0%, #d7d7d7 100%);
+      z-index: 0;
+    }
+
     .phone-bg {
       position: absolute;
       inset: 0;
-      background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(0,0,0,.03));
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.03));
+      z-index: 1;
     }
 
     .pixel-text {
@@ -264,8 +268,6 @@
   </style>
 </head>
 <body>
-  <div id="bgField"></div>
-
   <div class="app">
     <aside class="panel stack">
       <div class="stack">
@@ -400,7 +402,6 @@
     };
 
     const els = {
-      bgField: document.getElementById('bgField'),
       canvas: document.getElementById('canvas'),
       foodSearch: document.getElementById('foodSearch'),
       foodList: document.getElementById('foodList'),
@@ -729,7 +730,15 @@
 
       const indicatorSections = SECTIONS.filter(section => section.indicator);
       if (indicatorSections.some(section => section.id === state.layout.selectedSectionId)) {
-        const progress = document.createElement('div');
+        const bgField = document.createElement('div');
+      bgField.className = 'canvas-bg-field';
+      els.canvas.appendChild(bgField);
+
+      const phoneBg = document.createElement('div');
+      phoneBg.className = 'phone-bg';
+      els.canvas.appendChild(phoneBg);
+
+      const progress = document.createElement('div');
         progress.className = 'progress-strip';
         const activeIndex = indicatorSections.findIndex(section => section.id === state.layout.selectedSectionId);
         indicatorSections.forEach((section, index) => {
@@ -854,22 +863,24 @@
       const stub = getSelectedFoodStub();
       if (!stub) return;
       const pool = state.foods.filter(food => food.foodType === stub.foodType).slice(0, Math.min(18, Math.max(6, state.foods.filter(food => food.foodType === stub.foodType).length)));
-      els.bgField.innerHTML = '';
+      const field = els.canvas.querySelector('.canvas-bg-field');
+      if (!field) return;
+      field.innerHTML = '';
       pool.forEach((food, index) => {
         const img = document.createElement('img');
         img.className = 'bg-sprite';
         img.src = `./sprites/header/food_images/${food.id}.png`;
         img.alt = '';
-        img.style.left = `${(index * 7 + 6) % 96}%`;
-        img.style.top = `${-15 - (index % 5) * 8}vh`;
+        img.style.left = `${(index * 11 + 8) % 82}%`;
+        img.style.top = `${-40 - (index % 5) * 26}px`;
         img.style.animationDuration = `${12 + (index % 7) * 2}s`;
         img.style.animationDelay = `${-(index * 1.7)}s`;
-        img.style.setProperty('--drift-x', `${(index % 2 === 0 ? 1 : -1) * (10 + (index % 4) * 4)}px`);
+        img.style.setProperty('--drift-x', `${(index % 2 === 0 ? 1 : -1) * (8 + (index % 4) * 3)}px`);
         img.onerror = () => {
           img.onerror = null;
           img.src = `./sprites/header/food_images/${stub.id}.png`;
         };
-        els.bgField.appendChild(img);
+        field.appendChild(img);
       });
     }
 

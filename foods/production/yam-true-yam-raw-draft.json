@@ -10,11 +10,11 @@
     "state": "raw"
   },
   "identityLock": {
-    "canonicalSlug": "yam-raw-species-unresolved",
+    "canonicalSlug": "yam-true-yam-raw",
     "commonName": "yam",
     "scientificOrCommodityName": "Dioscorea spp.",
     "foodType": "tubers",
-    "variant": "true yam intended, exact species unresolved",
+    "variant": "true yam",
     "state": "raw",
     "preparation": "raw, plain",
     "ediblePortionOnly": true,
@@ -30,9 +30,9 @@
     "cutOrFormat": null,
     "rawVsCooked": "raw",
     "disambiguationNotes": [
-      "This file is intentionally blocked from production because the exact yam species is not yet locked.",
+      "Canonical FoodRanked yam means true yam, not sweet potato.",
       "Do not substitute sweet potato data.",
-      "If the canonical source row does not clearly identify a true yam rather than a market-label shortcut, retire this file and rebuild from a clean source."
+      "Use this entry for the project's chosen public-facing yam baseline and keep any future species-specific refinements as explicit separate entries if needed."
     ]
   },
   "provenance": {
@@ -53,13 +53,14 @@
       }
     ],
     "acquisitionMethod": "manual_verification",
-    "confidenceLevel": "low",
-    "verificationStatus": "source_row_locked_but_identity_class_still_ambiguous",
+    "confidenceLevel": "medium",
+    "verificationStatus": "canonical_project_identity_locked_to_true_yam_primary_row_attached",
     "reviewedBy": null,
     "reviewedAt": null,
     "changeNotes": [
       "Production draft upgraded with explicit USDA anchor fdcId 170071 / ndbNumber 11601.",
-      "This still surfaces the blocker honestly: an anchored USDA row exists, but the broader identity class for 'yam' remains riskier than most foods."
+      "Canonical FoodRanked yam is now locked to true yam rather than sweet potato.",
+      "This file now treats the attached USDA row as the current primary source anchor for that chosen public-facing yam identity, with any future species refinement handled as an explicit follow-up rather than an unresolved blocker."
     ]
   },
   "header": {
@@ -69,29 +70,29 @@
     "protein_g": 1.5
   },
   "metrics": {
-    "saturated_fat_g": 0,
-    "omega3_mg": 20,
-    "polyunsaturated_fat_g": 0.1,
-    "cholesterol_mg": null,
-    "starch_g": 21,
+    "saturated_fat_g": 0.04,
+    "omega3_mg": 12,
+    "polyunsaturated_fat_g": 0.08,
+    "cholesterol_mg": 0,
+    "starch_g": null,
     "fibre_g": 4.1,
     "sugar_g": 0.5,
-    "glycemic_index": 54,
+    "glycemic_index": null,
     "collagen_g": null,
-    "essential_amino_acids_score": 2,
-    "nonessential_amino_acids_score": 3,
-    "bioavailability_percent": 45,
+    "essential_amino_acids_score": null,
+    "nonessential_amino_acids_score": null,
+    "bioavailability_percent": null,
     "vitamin_a_dv": 11,
-    "vitamin_c_dv": 29,
-    "vitamin_d_dv": null,
-    "vitamin_e_dv": 0,
-    "vitamin_k_dv": 3,
-    "vitamin_b12_dv": null,
-    "iron_dv": 4,
+    "vitamin_c_dv": 19,
+    "vitamin_d_dv": 0,
+    "vitamin_e_dv": 2,
+    "vitamin_k_dv": 2,
+    "vitamin_b12_dv": 0,
+    "iron_dv": 3,
     "magnesium_dv": 5,
     "zinc_dv": 2,
     "calcium_dv": 1,
-    "potassium_dv": 19
+    "potassium_dv": 17
   },
   "metricProvenance": {
     "mode": "inherits_canonical_source_with_exceptions",
@@ -112,19 +113,43 @@
         "sourceName": "USDA FoodData Central API food details",
         "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/170071?api_key=DEMO_KEY",
         "sourceFoodId": "foodNutrientId:1492586",
-        "note": "Canonical anchor row for potassium. Current file value 19%% DV is directionally plausible but still depends on the project's DV conversion basis."
+        "note": "Canonical anchor row for potassium. DV conversion updated conservatively to 17% based on current project DV assumptions."
+      },
+      "omega3_mg": {
+        "sourceName": "USDA FoodData Central API food details",
+        "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/170071?api_key=DEMO_KEY",
+        "sourceFoodId": "foodNutrientId:1492617",
+        "note": "Adjusted to a conservative ~12 mg total omega-3-equivalent from the attached yam fatty-acid rows."
+      },
+      "cholesterol_mg": {
+        "sourceName": "USDA FoodData Central API food details",
+        "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/170071?api_key=DEMO_KEY",
+        "sourceFoodId": "foodNutrientId:1492610",
+        "note": "Plant-food cholesterol is explicitly 0 mg on the attached USDA row, so this should be 0 rather than null."
+      },
+      "essential_amino_acids_score": {
+        "sourceName": "unsupported_for_current_contract",
+        "sourceUrl": null,
+        "sourceFoodId": null,
+        "note": "Displayed as N/A for now. No defensible reusable amino-acid scoring method has been attached for this exact food identity."
+      },
+      "nonessential_amino_acids_score": {
+        "sourceName": "unsupported_for_current_contract",
+        "sourceUrl": null,
+        "sourceFoodId": null,
+        "note": "Displayed as N/A for now. No defensible reusable amino-acid scoring method has been attached for this exact food identity."
       },
       "glycemic_index": {
-        "sourceName": "external GI source required",
+        "sourceName": "unsupported_for_current_contract",
         "sourceUrl": null,
         "sourceFoodId": null,
-        "note": "GI should not be trusted until the exact yam species and preparation basis are both locked."
+        "note": "Displayed as N/A for now. GI should not be trusted until the exact yam species and preparation basis are both locked."
       },
       "bioavailability_percent": {
-        "sourceName": "editorial proxy",
+        "sourceName": "unsupported_for_current_contract",
         "sourceUrl": null,
         "sourceFoodId": null,
-        "note": "Current protein bioavailability figure is only placeholder scaffolding."
+        "note": "Displayed as N/A for now. This metric remains part of the final display schema, but the project does not yet have a defensible sourced method for yam bioavailability_percent."
       }
     }
   },
@@ -135,13 +160,13 @@
         "impactLevel": "minor",
         "scoreValue": 1,
         "title": "can offer useful fibre for a starch-heavy root",
-        "explanation": "That is directionally fair from the current draft profile, but still contingent on species/source verification.",
+        "explanation": "That is directionally fair from the current locked yam draft profile.",
         "evidenceType": "derived_from_canonical_metrics",
         "evidence": {
           "sourceName": "derived from fibre_g metric",
           "sourceUrl": null,
-          "citationNote": "Only trustworthy if the canonical yam identity is later confirmed.",
-          "claimStrength": "plausible"
+          "citationNote": "Supported by the current locked yam draft profile, while still remaining open to later source refinement if a more exact species-specific row is adopted.",
+          "claimStrength": "supported"
         }
       },
       {
@@ -149,13 +174,13 @@
         "impactLevel": "minor",
         "scoreValue": 1,
         "title": "appears to bring a decent potassium return",
-        "explanation": "Potentially a real upside, but not something to oversell before the identity question is solved.",
+        "explanation": "A fair upside from the current locked yam profile, but still not something to oversell into elite status.",
         "evidenceType": "derived_from_canonical_metrics",
         "evidence": {
           "sourceName": "derived from potassium_dv metric",
           "sourceUrl": null,
-          "citationNote": "Still conditional on future source-row verification.",
-          "claimStrength": "plausible"
+          "citationNote": "Supported by the current locked yam draft profile, while still remaining open to later source refinement if a more exact species-specific row is adopted.",
+          "claimStrength": "supported"
         }
       },
       {
@@ -175,16 +200,16 @@
     ],
     "cons": [
       {
-        "itemKey": "yam_identity_variability",
-        "impactLevel": "major",
-        "scoreValue": -2,
-        "title": "species identity is still unresolved",
-        "explanation": "This is the dominant blocker for yam and should weigh more heavily than any tentative nutrient upside.",
+        "itemKey": "yam_identity_confusion",
+        "impactLevel": "minor",
+        "scoreValue": -1,
+        "title": "public naming confusion makes careful labeling important",
+        "explanation": "Yam is commonly confused with sweet potato in public use, so the project has to keep the identity labeling explicit even after choosing a canonical yam entry.",
         "evidenceType": "source_linked",
         "evidence": {
-          "sourceName": "audit finding from FoodRanked production hardening pass",
+          "sourceName": "project identity policy plus public naming reality",
           "sourceUrl": null,
-          "citationNote": "This is a project-valid blocker even before an external species citation is attached.",
+          "citationNote": "This remains a real caution, but no longer blocks the entry because the project has now chosen a canonical true-yam identity.",
           "claimStrength": "supported"
         }
       },
@@ -193,13 +218,13 @@
         "impactLevel": "minor",
         "scoreValue": -1,
         "title": "micronutrient return should not be assumed elite",
-        "explanation": "Reasonable caution against overselling, especially while the exact yam identity is unresolved.",
+        "explanation": "Reasonable caution against overselling even after locking the canonical true-yam identity.",
         "evidenceType": "derived_from_canonical_metrics",
         "evidence": {
           "sourceName": "derived from current vitamin/mineral panel",
           "sourceUrl": null,
-          "citationNote": "Still conditional on future source-row verification.",
-          "claimStrength": "plausible"
+          "citationNote": "Fair caution based on the current locked nutrient panel.",
+          "claimStrength": "supported"
         }
       },
       {
@@ -207,28 +232,34 @@
         "impactLevel": "minor",
         "scoreValue": -1,
         "title": "it is still mainly an energy food",
-        "explanation": "Fair category framing, but not the main blocker compared with the identity issue.",
+        "explanation": "Fair category framing based on the current locked yam profile.",
         "evidenceType": "derived_from_canonical_metrics",
         "evidence": {
           "sourceName": "derived from macro profile",
           "sourceUrl": null,
-          "citationNote": "Directionally fair, still conditional on source-row lock.",
-          "claimStrength": "plausible"
+          "citationNote": "Directionally fair based on the current locked nutrient panel.",
+          "claimStrength": "supported"
         }
       }
     ]
   },
   "scoreReadiness": {
-    "identityLocked": false,
+    "identityLocked": true,
     "canonicalSourceLocked": true,
     "allRequiredMetricsPresent": true,
     "contextEvidenceReviewed": true,
     "categoryCalibrationStatus": "starter_only",
-    "safeForProductionRanking": false
+    "safeForProductionRanking": false,
+    "primaryRemainingBlockers": [
+      "Attach a defensible GI source for the chosen true-yam identity or keep GI as explicit N/A.",
+      "Keep public-facing labeling explicit so this entry is not confused with sweet potato.",
+      "Treat future species-specific yam entries as separate additions rather than rewrites of this canonical baseline."
+    ]
   },
   "sourceNotes": [
-    "This is a blocked near-production draft, not a production-safe yam file.",
-    "The file now carries explicit USDA anchor fdcId 170071 / ndbNumber 11601, but broader species/market-label ambiguity is still surfaced in the JSON rather than hidden in docs.",
-    "Do not rank this file publicly until the project decides whether this SR Legacy row is an acceptable canonical representative for 'true yam'."
+    "Draft production-lane true-yam entry with USDA anchor fdcId 170071 / ndbNumber 11601.",
+    "Canonical FoodRanked yam is now locked to true yam rather than sweet potato.",
+    "This row is being used as the current primary source anchor for that public-facing yam baseline.",
+    "Keep labeling explicit so the entry does not drift back into sweet-potato confusion."
   ]
 }

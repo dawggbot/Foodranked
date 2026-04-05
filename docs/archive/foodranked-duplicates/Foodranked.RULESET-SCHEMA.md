@@ -22,7 +22,9 @@ Separate these layers:
    - What each metric means, how it is displayed, and its default polarity
 3. **Food-type ruleset**
    - Which metrics apply to a category, how much they matter, and which thresholds they use
-4. **Derived outputs**
+4. **Context rules**
+   - Which pros/cons can affect rank, how much they can move it, and where the caps are
+5. **Derived outputs**
    - section payloads, strengths, weaknesses, summary, and tier
 
 ## Important scoring distinction
@@ -35,12 +37,16 @@ These are shown prominently in the video but do **not** directly score the food:
 - kcal
 
 ### Score-bearing metrics
-These are the main numeric inputs for scoring:
+These are the main numeric inputs for the **base nutrition score**:
 - fat submetrics
 - carb submetrics
 - protein submetrics
 - vitamins
 - minerals
+
+### Context items
+Pros/cons can still influence rank, but only through major flags.
+They are not treated as normal weighted sections.
 
 ### Derived outputs
 These are generated from the scored evidence:
@@ -48,8 +54,6 @@ These are generated from the scored evidence:
 - cons
 - summary line
 - final explanation
-
-Pros/cons may later allow editorial override for narration, but v1 should treat them as **derived outputs**, not a separate scoring engine.
 
 ## Metric polarity model
 
@@ -60,8 +64,6 @@ Use this model instead:
 - `higher_worse`
 - `neutral_display_only`
 - `not_applicable`
-
-This avoids forced logic like pretending every metric matters equally in every category.
 
 ## Main entities
 
@@ -87,13 +89,6 @@ Suggested fields:
 - default_image_asset nullable
 - notes nullable
 - status
-- identity_lock_version nullable
-- canonical_source_id nullable
-- category_calibration_status nullable
-
-Production food entries should not just be name + type.
-They should also lock the exact ranked form and the exact canonical source row used.
-See `docs/nutrition-audit/production-food-file-shape.md` for the practical file shape.
 
 ### nutrient_profiles
 Canonical raw data for a food.
@@ -103,18 +98,10 @@ Suggested fields:
 - food_id
 - basis_value (`100`)
 - basis_unit (`g`)
-- basis_state nullable (`raw`, `dry`, `cooked`, etc.)
 - source_name
 - source_url nullable
-- source_row_id nullable
-- source_record_version nullable
 - collected_at
-- confidence_level (`high`, `medium`, `low`)
 - completeness_status (`complete`, `partial`, `incomplete`)
-- notes nullable
-
-For production work, basis state matters almost as much as the numeric value.
-A correct nutrient row attached to the wrong state is still a wrong food record.
 
 ### metrics
 Canonical metric registry.
@@ -170,7 +157,7 @@ Suggested fields:
 - explanation_template nullable
 
 ### section_weights
-Top-level score section weights.
+Top-level nutrition section weights.
 
 Suggested fields:
 - id
@@ -180,6 +167,21 @@ Suggested fields:
 - proteins_weight
 - vitamins_weight
 - minerals_weight
+
+### context_rules
+Context adjustment policy.
+
+Suggested fields:
+- id
+- ruleset_id
+- required_pros
+- required_cons
+- major_pro_score
+- minor_pro_score
+- minor_con_score
+- major_con_score
+- max_scoring_majors
+- max_score_adjustment
 
 ### tier_thresholds
 Versioned mapping from overall score to final tier.
@@ -191,68 +193,6 @@ Suggested fields:
 - min_score
 - max_score
 - notes nullable
-
-### food_identity_locks
-Versioned identity constraints for a food entry.
-
-Suggested fields:
-- id
-- food_id
-- canonical_slug
-- common_name
-- scientific_or_commodity_name nullable
-- variant
-- state
-- preparation
-- raw_vs_cooked
-- edible_portion_only boolean
-- includes_skin nullable
-- includes_bone nullable
-- includes_peel nullable
-- salted nullable
-- fortified nullable
-- enriched nullable
-- sweetened nullable
-- drained nullable
-- packing_medium nullable
-- cut_or_format nullable
-- disambiguation_notes nullable
-- created_at
-
-This layer is the main protection against silently mixing different food forms under one name.
-
-### provenance_records
-Versioned provenance bundle for a food or a specific metric override.
-
-Suggested fields:
-- id
-- food_id
-- metric_key nullable
-- source_name
-- source_url nullable
-- source_row_id nullable
-- source_record_version nullable
-- acquisition_method
-- verification_status
-- reviewed_by nullable
-- reviewed_at nullable
-- claim_strength nullable
-- notes nullable
-
-Use `metric_key = null` for the canonical whole-food source row.
-Use a specific metric key when a value such as glycemic index or a context claim comes from another source.
-
-### derived_output_rules
-Optional configuration for narrative output generation.
-
-Suggested fields:
-- id
-- ruleset_id
-- max_pros
-- max_cons
-- summary_template nullable
-- highlight_selection_rule
-- tie_break_rule nullable
 
 ## Default band scoring
 
@@ -276,11 +216,11 @@ There is no neutral zero band in v1. Each scored metric should lean clearly posi
 6. For each `scored` metric, resolve the matching threshold band.
 7. Convert the band to score value.
 8. Multiply by metric weight.
-9. Aggregate metric scores by section.
+9. Aggregate metric scores by nutrition section.
 10. Normalize each score-bearing section.
-11. Apply section weights to compute the overall score.
-12. Map overall score to final tier.
-13. Apply contextual score items for pros/cons where present.
+11. Apply nutrition section weights to compute the `baseScore`.
+12. Apply the capped context adjustment.
+13. Map the final score to the tier.
 14. Generate derived outputs:
    - summary
    - explanation notes
@@ -295,6 +235,8 @@ The ruleset system should generate:
 - strongest positives
 - strongest negatives
 - short summary
+- base score
+- applied context adjustment
 - final tier
 - explanation snapshot referencing the ruleset version used
 
@@ -323,7 +265,9 @@ The ruleset system should generate:
     "proteins": 63,
     "vitamins": 58,
     "minerals": 81,
-    "overall": 74
+    "baseScore": 74,
+    "contextAdjustment": 3,
+    "overall": 77
   },
   "finalTier": "B",
   "summary": "Strong fat quality and mineral density carry this food, but protein usefulness is more moderate for the category."
@@ -339,10 +283,7 @@ Published videos should always be explainable using:
 - the exact ruleset version
 - the tier threshold version
 
-## Open questions
-- Should section weights be globally fixed in v1, or stored per ruleset version for future flexibility?
-- Should explanation templates live at metric level, ruleset level, or both?
-- Which editorial overrides are allowed without changing the score?
-- Should score runs be stored as immutable computation snapshots?
-- Should production gating reject any file whose `identityLock` is incomplete even if the nutrient row itself is present?
-- Should context items be split into `scoring` vs `editorial_non_scoring` arrays to stop soft claims from affecting rank?
+## Calibration note
+
+Tier tuning should be driven by anchor foods.
+If obviously bad in-category foods are not landing in D, or elite in-category foods are not landing in S, the answer is to recalibrate the ruleset — not to hide the problem with arbitrary editorial adjustments.

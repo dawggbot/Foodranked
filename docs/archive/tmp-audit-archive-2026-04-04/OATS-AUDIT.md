@@ -57,8 +57,11 @@ Working confidence:
 3. common add-ons can ruin the clean baseline
 
 ## 7. What still needs verification before numeric changes
-- exact oat form to standardize against
-- GI source for that exact form
+- USDA anchor identified: `fdcId 2708489` (`Oats, raw`, Survey/FNDDS) with `foodCode 57602100`
+- useful nutrient-row anchors confirmed: energy `foodNutrientId 34337987`, protein `34337984`, fibre `34337993`
+- blocker: the located row is generic raw oats, not a rolled-oats-specific commodity row
+- blocker: current production draft numbers still do not fully reconcile to that row (for example kcal/protein/fibre drift)
+- GI source still needs a form-specific citation before it should be treated as locked
 - whether to explicitly name avenanthramides in the food JSON now or wait until the evidence note is documented
 
 ## 8. System takeaway for future foods

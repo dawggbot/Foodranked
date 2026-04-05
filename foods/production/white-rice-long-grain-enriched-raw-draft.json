@@ -1,5 +1,5 @@
 {
-  "id": "white-rice-long-grain-unenriched-dry-draft",
+  "id": "white-rice-long-grain-enriched-raw-draft",
   "name": "White Rice",
   "displayName": "Long-Grain White Rice",
   "foodType": "grains",
@@ -31,7 +31,7 @@
     "rawVsCooked": "raw",
     "disambiguationNotes": [
       "Do not substitute cooked rice values.",
-      "This file is now explicitly locked to the located enriched SR Legacy row, even though the filename still says unenriched and should be renamed later.",
+      "This file is explicitly locked to the located enriched SR Legacy row; do not drift back to unenriched values without changing the identity lock and source row together.",
       "Do not substitute parboiled, instant, jasmine, basmati, or short-grain values unless the identity lock is intentionally changed."
     ]
   },
@@ -49,18 +49,18 @@
         "sourceName": "USDA FoodData Central API search",
         "sourceUrl": "https://api.nal.usda.gov/fdc/v1/foods/search?query=%22Rice%2C%20white%2C%20long-grain%2C%20regular%2C%20raw%2C%20enriched%22&pageSize=10&api_key=DEMO_KEY",
         "sourceFoodId": "fdc:168877",
-        "note": "Exact row identified in this pass. Remaining issue is identity/file-name drift: the confirmed row is enriched, not unenriched."
+        "note": "Exact row identified in this pass. This is the current primary source anchor for the canonical uncooked white-rice entry and should remain explicit about being enriched rather than silently mixed with unenriched values."
       }
     ],
     "acquisitionMethod": "manual_verification",
     "confidenceLevel": "medium",
-    "verificationStatus": "source_row_locked_but_filename_and_prior_identity_were_wrong",
+    "verificationStatus": "canonical_project_identity_locked_to_enriched_long_grain_raw_white_rice_primary_row_attached",
     "reviewedBy": null,
     "reviewedAt": null,
     "changeNotes": [
       "Production draft upgraded with explicit USDA anchor fdcId 168877 / ndbNumber 20044.",
-      "Identity lock was corrected to enriched because that is what the confirmed canonical row actually represents.",
-      "Filename still says unenriched and should be renamed in a later cleanup pass to avoid silent confusion."
+      "Canonical FoodRanked white rice is now locked to uncooked long-grain white rice using this enriched raw row as the current primary source anchor.",
+      "The file no longer treats enriched-vs-unenriched as unresolved debate inside the JSON; any future change should be an intentional source/identity replacement, not drift."
     ]
   },
   "header": {
@@ -70,28 +70,28 @@
     "protein_g": 7.1
   },
   "metrics": {
-    "saturated_fat_g": 0.2,
-    "omega3_mg": 20,
-    "polyunsaturated_fat_g": 0.2,
-    "cholesterol_mg": null,
-    "starch_g": 63,
+    "saturated_fat_g": 0.18,
+    "omega3_mg": 31,
+    "polyunsaturated_fat_g": 0.18,
+    "cholesterol_mg": 0,
+    "starch_g": null,
     "fibre_g": 1.3,
-    "sugar_g": 0.1,
+    "sugar_g": 0.12,
     "glycemic_index": 73,
     "collagen_g": null,
-    "essential_amino_acids_score": 3,
-    "nonessential_amino_acids_score": 4,
-    "bioavailability_percent": 60,
+    "essential_amino_acids_score": null,
+    "nonessential_amino_acids_score": null,
+    "bioavailability_percent": null,
     "vitamin_a_dv": 0,
     "vitamin_c_dv": 0,
-    "vitamin_d_dv": null,
-    "vitamin_e_dv": 0,
+    "vitamin_d_dv": 0,
+    "vitamin_e_dv": 1,
     "vitamin_k_dv": 0,
-    "vitamin_b12_dv": null,
-    "iron_dv": 1,
+    "vitamin_b12_dv": 0,
+    "iron_dv": 24,
     "magnesium_dv": 6,
     "zinc_dv": 10,
-    "calcium_dv": 1,
+    "calcium_dv": 2,
     "potassium_dv": 2
   },
   "metricProvenance": {
@@ -115,6 +115,30 @@
         "sourceFoodId": "foodNutrientId:1395696",
         "note": "Canonical anchor row for carbohydrate by difference. Current file value 80 is aligned with the located row value 79.95."
       },
+      "omega3_mg": {
+        "sourceName": "USDA FoodData Central API food details",
+        "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/168877?api_key=DEMO_KEY",
+        "sourceFoodId": "foodNutrientId:1395762",
+        "note": "Adjusted to a conservative ~31 mg total omega-3-equivalent from the attached enriched white-rice fatty-acid rows."
+      },
+      "cholesterol_mg": {
+        "sourceName": "USDA FoodData Central API food details",
+        "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/168877?api_key=DEMO_KEY",
+        "sourceFoodId": "foodNutrientId:1395714",
+        "note": "Plant-food cholesterol is explicitly 0 mg on the attached USDA row, so this should be 0 rather than null."
+      },
+      "essential_amino_acids_score": {
+        "sourceName": "unsupported_for_current_contract",
+        "sourceUrl": null,
+        "sourceFoodId": null,
+        "note": "Displayed as N/A for now. No defensible reusable amino-acid scoring method has been attached for this exact food identity."
+      },
+      "nonessential_amino_acids_score": {
+        "sourceName": "unsupported_for_current_contract",
+        "sourceUrl": null,
+        "sourceFoodId": null,
+        "note": "Displayed as N/A for now. No defensible reusable amino-acid scoring method has been attached for this exact food identity."
+      },
       "glycemic_index": {
         "sourceName": "external GI source required",
         "sourceUrl": null,
@@ -122,10 +146,10 @@
         "note": "GI is still unresolved because the attached USDA row is raw enriched rice and GI depends strongly on variety and preparation."
       },
       "bioavailability_percent": {
-        "sourceName": "editorial proxy",
+        "sourceName": "unsupported_for_current_contract",
         "sourceUrl": null,
         "sourceFoodId": null,
-        "note": "Current protein bioavailability estimate is a scoring placeholder and should not be treated as a finalized source-backed metric."
+        "note": "Displayed as N/A for now. This metric remains part of the final display schema, but the project does not yet have a defensible sourced method for this white-rice identity."
       }
     }
   },
@@ -225,11 +249,16 @@
     "allRequiredMetricsPresent": true,
     "contextEvidenceReviewed": true,
     "categoryCalibrationStatus": "starter_only",
-    "safeForProductionRanking": false
+    "safeForProductionRanking": false,
+    "primaryRemainingBlockers": [
+      "Attach a form-specific GI citation for uncooked long-grain white rice or document the display value as explicit N/A if not defensibly sourceable for this exact identity.",
+      "Keep enriched status explicit in all future white-rice data handling unless the canonical source row is intentionally replaced.",
+      "Treat other white-rice forms such as cooked, parboiled, basmati, jasmine, or unenriched as separate future entries rather than variants of this one."
+    ]
   },
   "sourceNotes": [
     "Draft production-lane entry now carries explicit USDA anchor fdcId 168877 / ndbNumber 20044.",
-    "Canonical source row is attached, but the resolved row is enriched and therefore exposed a filename/identity mismatch that still needs cleanup.",
+    "Canonical FoodRanked white rice is now locked to uncooked long-grain white rice using this enriched raw row as the current primary source anchor.",
     "GI remains unresolved because the attached USDA row is raw enriched rice while GI depends strongly on variety and preparation."
   ]
 }

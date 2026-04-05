@@ -9,12 +9,13 @@ Current status:
 
 Current draft set:
 - `oats-rolled-dry-draft.json`
-- `white-rice-long-grain-unenriched-dry-draft.json`
+- `white-rice-long-grain-enriched-raw-draft.json`
 - `tomato-red-raw-draft.json`
 - `yam-true-yam-raw-draft.json`
-- `chicken-thigh-skinless-roasted-draft.json`
+- `chicken-thigh-raw-draft.json`
 
 Important:
-- `yam-true-yam-raw-draft.json` is intentionally blocked until species identity is explicit
-- several drafts still need exact USDA FoodData Central row IDs and any GI-specific citations
+- wholefoods in this lane should use raw / uncooked values only
+- cooked wholefood variations are not active canonical entries in this folder
+- several drafts still need stronger citation hardening and some still need better primary source-row fit
 - none of the drafts here should be presented as production-safe ranking truth yet

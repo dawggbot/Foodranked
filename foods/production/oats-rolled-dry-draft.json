@@ -1,21 +1,21 @@
 {
-  "id": "oats-raw-draft",
+  "id": "oats-rolled-dry-draft",
   "name": "Oats",
-  "displayName": "Raw Oats",
+  "displayName": "Rolled Oats",
   "foodType": "grains",
   "status": "draft",
   "basis": {
     "value": 100,
     "unit": "g",
-    "state": "raw"
+    "state": "dry"
   },
   "identityLock": {
-    "canonicalSlug": "oats-raw",
+    "canonicalSlug": "oats-rolled-dry",
     "commonName": "oats",
     "scientificOrCommodityName": "Avena sativa",
     "foodType": "grains",
-    "variant": "generic oats",
-    "state": "raw",
+    "variant": "rolled oats",
+    "state": "dry",
     "preparation": "plain, uncooked",
     "ediblePortionOnly": true,
     "includesSkin": null,
@@ -27,12 +27,12 @@
     "sweetened": false,
     "drained": null,
     "packingMedium": null,
-    "cutOrFormat": null,
+    "cutOrFormat": "rolled",
     "rawVsCooked": "raw",
     "disambiguationNotes": [
-      "Locked to USDA FNDDS generic 'Oats, raw' record rather than a more specific rolled-oats record.",
+      "Canonical FoodRanked oats means uncooked rolled oats.",
       "Do not substitute steel-cut oats, oat groats, instant oats, or cooked oatmeal values.",
-      "If production specifically wants rolled oats, this file should be replaced by a better-matching canonical row rather than silently reused."
+      "Current USDA anchor is the closest acceptable plain-oats row in hand, but future upgrades should prefer an equally trustworthy rolled-oats-specific canonical row if one materially improves identity fit."
     ]
   },
   "provenance": {
@@ -49,50 +49,51 @@
         "sourceName": "USDA FoodData Central API search",
         "sourceUrl": "https://api.nal.usda.gov/fdc/v1/foods/search?query=Oats%2C%20raw&pageSize=10&api_key=DEMO_KEY",
         "sourceFoodId": "fdc:2708489",
-        "note": "Exact FDC row identified in this pass. This is still only a medium-confidence anchor because the row is generic raw oats, not a rolled-oats-specific commodity record."
+        "note": "Exact FDC row identified in this pass. It remains the current best available primary anchor in hand, but it is still weaker than a rolled-oats-specific commodity record and should be upgraded later if a clearly better trustworthy match is adopted."
       }
     ],
     "acquisitionMethod": "manual_verification",
     "confidenceLevel": "medium",
-    "verificationStatus": "source_row_locked_but_form_still_generic",
+    "verificationStatus": "canonical_project_identity_locked_to_rolled_oats_best_available_primary_row_attached",
     "reviewedBy": null,
     "reviewedAt": null,
     "changeNotes": [
       "Production draft upgraded with explicit USDA anchor fdcId 2708489 and foodCode 57602100.",
-      "File identity was narrowed to generic raw oats because that is what the confirmed source row actually represents.",
-      "A future rolled-oats-specific source row would still be preferable if the scoring system wants rolled oats rather than generic oats."
+      "Project canonical identity is now locked to uncooked rolled oats for future FoodRanked entries.",
+      "Current source row is retained as the best available plain-oats primary row in hand for the production draft, with the identity caveat documented rather than hidden.",
+      "Future source improvements should prefer a clearly rolled-oats-specific canonical row without changing the user-facing identity of this entry."
     ]
   },
   "header": {
-    "kcal": 389,
-    "fat_g": 6.9,
-    "carb_g": 66.3,
-    "protein_g": 16.9
+    "kcal": 379,
+    "fat_g": 6.52,
+    "carb_g": 67.7,
+    "protein_g": 13.2
   },
   "metrics": {
-    "saturated_fat_g": 1.2,
-    "omega3_mg": 111,
-    "polyunsaturated_fat_g": 2.5,
+    "saturated_fat_g": 1.11,
+    "omega3_mg": 100,
+    "polyunsaturated_fat_g": 2.54,
     "cholesterol_mg": 0,
-    "starch_g": 55,
-    "fibre_g": 10.6,
-    "sugar_g": 1,
+    "starch_g": null,
+    "fibre_g": 10.1,
+    "sugar_g": 0.99,
     "glycemic_index": 55,
     "collagen_g": null,
-    "essential_amino_acids_score": 5,
-    "nonessential_amino_acids_score": 7,
-    "bioavailability_percent": 55,
+    "essential_amino_acids_score": null,
+    "nonessential_amino_acids_score": null,
+    "bioavailability_percent": null,
     "vitamin_a_dv": 0,
     "vitamin_c_dv": 0,
     "vitamin_d_dv": 0,
     "vitamin_e_dv": 3,
     "vitamin_k_dv": 2,
     "vitamin_b12_dv": 0,
-    "iron_dv": 26,
-    "magnesium_dv": 44,
-    "zinc_dv": 36,
-    "calcium_dv": 5,
-    "potassium_dv": 12
+    "iron_dv": 24,
+    "magnesium_dv": 33,
+    "zinc_dv": 33,
+    "calcium_dv": 4,
+    "potassium_dv": 8
   },
   "metricProvenance": {
     "mode": "inherits_canonical_source_with_exceptions",
@@ -101,31 +102,49 @@
         "sourceName": "USDA FoodData Central API food details",
         "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/2708489?api_key=DEMO_KEY",
         "sourceFoodId": "foodNutrientId:34337984",
-        "note": "Canonical anchor row for protein on the locked generic raw-oats record. API amount was ~13.2 g, so current file value 16.9 still needs numeric reconciliation."
+        "note": "Canonical anchor row for protein on the currently attached plain-oats source row. Current file value 13.2 is aligned to the attached source row, which is being used as the best currently attached primary source for the rolled-oats canonical entry."
       },
       "kcal": {
         "sourceName": "USDA FoodData Central API food details",
         "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/2708489?api_key=DEMO_KEY",
         "sourceFoodId": "foodNutrientId:34337987",
-        "note": "Canonical anchor row for energy on the locked raw-oats record. Current file value 389 does not match the located FNDDS row value 379."
+        "note": "Canonical anchor row for energy on the currently attached plain-oats source row. Current file value 379 is aligned to the attached source row, which is being used as the best currently attached primary source for the rolled-oats canonical entry."
       },
       "fibre_g": {
         "sourceName": "USDA FoodData Central API food details",
         "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/2708489?api_key=DEMO_KEY",
         "sourceFoodId": "foodNutrientId:34337993",
-        "note": "Canonical anchor row for fibre. Current file value 10.6 is close but not identical to the located row value 10.1."
+        "note": "Canonical anchor row for fibre. Updated to the attached USDA value 10.1 g for the current generic raw-oats identity."
+      },
+      "omega3_mg": {
+        "sourceName": "USDA FoodData Central API food details",
+        "sourceUrl": "https://api.nal.usda.gov/fdc/v1/food/2708489?api_key=DEMO_KEY",
+        "sourceFoodId": "foodNutrientId:34338038",
+        "note": "Adjusted to a conservative ~100 mg total omega-3-equivalent from the attached raw-oats fatty-acid rows, replacing the earlier loose 111 mg placeholder."
+      },
+      "essential_amino_acids_score": {
+        "sourceName": "unsupported_for_current_contract",
+        "sourceUrl": null,
+        "sourceFoodId": null,
+        "note": "Displayed as N/A for now. No defensible reusable amino-acid scoring method has been attached for this exact food identity."
+      },
+      "nonessential_amino_acids_score": {
+        "sourceName": "unsupported_for_current_contract",
+        "sourceUrl": null,
+        "sourceFoodId": null,
+        "note": "Displayed as N/A for now. No defensible reusable amino-acid scoring method has been attached for this exact food identity."
       },
       "glycemic_index": {
         "sourceName": "external low-GI reference required",
         "sourceUrl": null,
         "sourceFoodId": null,
-        "note": "GI for oats remains unresolved because the identified USDA row is generic raw oats and GI is strongly form-sensitive."
+        "note": "GI for oats remains unresolved because GI is strongly form-sensitive and the currently attached primary row is still only an approximate identity fit for rolled oats. Keep displayed as draft-grade until a form-specific GI source is attached."
       },
       "bioavailability_percent": {
-        "sourceName": "editorial proxy",
+        "sourceName": "unsupported_for_current_contract",
         "sourceUrl": null,
         "sourceFoodId": null,
-        "note": "Current bioavailability figure is a scoring placeholder and should be replaced with a more defensible protein-quality proxy or cited method."
+        "note": "Displayed as N/A for now. This metric remains part of the final display schema, but the project does not yet have a defensible sourced method for the canonical rolled-oats entry."
       }
     }
   },
@@ -225,11 +244,17 @@
     "allRequiredMetricsPresent": true,
     "contextEvidenceReviewed": true,
     "categoryCalibrationStatus": "starter_only",
-    "safeForProductionRanking": false
+    "safeForProductionRanking": false,
+    "primaryRemainingBlockers": [
+      "Attach a form-specific GI citation for uncooked rolled oats.",
+      "Upgrade the primary source row later if a clearly better rolled-oats-specific trustworthy row is adopted.",
+      "Keep all future oats variants as separate entries rather than drifting this canonical rolled-oats entry."
+    ]
   },
   "sourceNotes": [
     "Draft production-lane entry upgraded with USDA anchor fdcId 2708489 / foodCode 57602100.",
-    "Canonical source row is now attached, but some numeric values in this file still do not match the locked source row and need reconciliation.",
-    "GI remains unresolved because the attached USDA row is generic raw oats rather than a rolled-oats-specific GI anchor."
+    "Canonical FoodRanked oats is now locked to uncooked rolled oats.",
+    "Current numeric panel is aligned to the best currently attached plain-oats primary row in hand, with the remaining identity caveat documented explicitly instead of silently drifting the entry.",
+    "GI remains unresolved until a form-specific rolled-oats GI source is attached."
   ]
 }

@@ -55,10 +55,11 @@ Working confidence:
 3. refinement strips away much of the grain's upside
 
 ## 7. What still needs verification before numeric changes
-- exact rice type
-- enriched vs unenriched choice
-- GI source for the chosen standard form
-- whether zinc/iron values are still the best chosen anchors after form lock
+- USDA anchor identified: `fdcId 168877` / `ndbNumber 20044` for `Rice, white, long-grain, regular, raw, enriched`
+- useful nutrient-row anchors confirmed: energy `foodNutrientId 1395697`, protein `1395721`, carbohydrate `1395696`, selenium `1395750`
+- blocker: the confirmed canonical row is enriched, which conflicts with the earlier unenriched framing and even the current production filename
+- GI source for the chosen standard form still needs an exact citation because USDA does not solve the variety/preparation GI question
+- enriched/cooked/parboiled/jasmine/basmati variants still need separate files rather than being collapsed into one white-rice entry
 
 ## 8. Tier sanity view
 Current expected tier: D

@@ -56,7 +56,9 @@ Working confidence:
 3. acidity can be annoying for some people
 
 ## 7. What still needs verification before numeric changes
-- confirm raw tomato source row
+- USDA anchor identified: `fdcId 170457` / `ndbNumber 11529` for `Tomatoes, red, ripe, raw, year round average`
+- useful nutrient-row anchors confirmed: energy `foodNutrientId 1525334`, protein `1525376`, fibre `1525369`
+- blocker: several tomato nutrient rows are aggregated or calculated (`JO` / `JA` / `NC`) rather than simple direct analytical rows, so provenance is better but not perfectly clean
 - decide whether lycopene gets a generic mention or a more precise evidence-backed note
 - keep cooked tomato products clearly separate from raw tomato in future database work
 

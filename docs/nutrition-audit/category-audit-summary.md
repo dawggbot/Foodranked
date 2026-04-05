@@ -49,7 +49,7 @@ Penalize:
 - needless energy-density inflation
 
 ### Current watchouts
-- yam identity must be locked before strong claims
+- yam labeling must stay explicit so it does not drift back into sweet-potato confusion
 - sweet potato deserves carotenoid/provitamin A priority
 - white potato should be judged as respectable, not magically elite
 - turnip needs more specific treatment and may sit closer to a lighter root-vegetable framing than a classic staple tuber framing
@@ -117,11 +117,11 @@ Purely editorial lines should not quietly influence rank.
 ## Highest-risk next audit targets
 
 ### Foods
-1. **white rice** — first production-lane draft now exists as a locked dry, long-grain, unenriched form; exact source-row and GI sourcing still block promotion
-2. **tomato** — first production-lane raw tomato draft now exists; raw/cooked/sauce/paste separation is now enforced in-file but provenance is still incomplete
-3. **yam** — first production-lane draft now exists specifically to surface the species blocker honestly; still unresolved and not production-rankable
-4. **oats** — first production-lane rolled-oats draft now exists and is the best candidate to finish first among the grain hardening set
-5. **chicken thigh** — first production-lane draft now locks skinless roasted meat-only form, but exact source-row and a few proxy metrics still need cleanup
+1. **tomato** — cleanest near-finish candidate; raw/cooked/sauce/paste separation is enforced in-file, and the next real need is citation hardening rather than identity rescue
+2. **oats** — strong near-finish candidate, but still wants a better rolled-oats-specific primary source if available
+3. **white rice** — current canonical direction is cleaner now, but GI/citation hardening still matters because rice behaviour is preparation-sensitive
+4. **chicken thigh** — canonical wholefood entry should now be raw, and the main remaining work is locking a trustworthy raw source row
+5. **yam** — canonical direction is now true yam, but citation hardening still matters and labeling must stay explicit
 
 ### Categories
 1. **grains** — highest near-term calibration risk because common foods vary enormously by refinement and preparation

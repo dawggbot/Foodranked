@@ -74,6 +74,8 @@ Possible stronger nuance:
 Needs rewrite.
 Current pros/cons are too category-generic.
 Need to clarify exactly which yam nutrient profile is intended because yam vs sweet potato confusion is common.
+USDA anchor identified in this pass: `fdcId 170071` / `ndbNumber 11601` for `Yam, raw` (`Dioscorea spp.`), with useful nutrient-row anchors like energy `foodNutrientId 1492573`, protein `1492608`, potassium `1492586`.
+That improves auditability a lot, but does not fully solve the broader species/market-label ambiguity.
 Potential notable positives if supported by canonical sources:
 - fibre
 - potassium

@@ -21,6 +21,9 @@ Keep the JSON split into:
 
 ## Recommended v1 JSON shape
 
+This file still describes **ruleset JSON** rather than food-entry JSON.
+For the production food-entry contract, see `docs/nutrition-audit/production-food-file-shape.md`.
+
 ```json
 {
   "id": "nuts-v1",
@@ -106,6 +109,24 @@ Production food files should carry explicit source metadata for canonical values
 - `sourceFoodId` or equivalent row identifier when available
 - `collectedAt`
 - `confidenceLevel`
+- a locked food identity/form description
+
+That means provenance is not enough by itself.
+The file must also say exactly what was sourced.
+
+### 6. Add identity lock before promoting any sample into production
+Production food files should include a dedicated identity block that resolves questions like:
+- raw vs cooked
+- dry vs prepared
+- skin-on vs skinless
+- enriched vs unenriched
+- fortified vs not fortified
+- instant/refined/rolled/whole format differences
+
+Recommended location:
+- `identityLock` in the food JSON
+- `provenance` for source-row lock
+- `scoreReadiness` for production gating
 
 ## Recommended starter files
 
@@ -116,6 +137,9 @@ rulesets/
   nuts.v1.json
   seeds.v1.json
   grains.v1.json
+foods/
+  production/
+    PRODUCTION-FOOD.template.json
 contexts/
   context-items.catalog.json
 ```

@@ -5,7 +5,7 @@ Foodranked sprite assets are organized into the following structure:
 - `header/`
   - `header_ui/`
   - `food_images/`
-  - `food_image_plate/`
+  - `food_plate/`
   - `food_type_plate/`
   - `calorie_bubble/`
 - `macros_section/`

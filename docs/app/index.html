@@ -376,7 +376,7 @@
     </aside>
   </div>
 
-  <script src="./data/foods-index.js"></script>
+  <script src="../data/foods-index.js"></script>
   <script>
     const SECTIONS = [
       { id: 'intro', label: '1. Intro blank', chip: null, indicator: false },
@@ -530,7 +530,7 @@
       const cacheKey = food.path;
       if (FOOD_JSON_CACHE.has(cacheKey)) return FOOD_JSON_CACHE.get(cacheKey);
       try {
-        const response = await fetch(`../../${food.path}`);
+        const response = await fetch(`../${food.path}`);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const json = await response.json();
         FOOD_JSON_CACHE.set(cacheKey, json);

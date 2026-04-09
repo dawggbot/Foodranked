@@ -52,8 +52,8 @@ async function safeJsonFetch(path, fallback) {
 
 async function loadData() {
   const [foods, batch] = await Promise.all([
-    safeJsonFetch('../app/data/foods-index.json', []),
-    safeJsonFetch('../../batch-results.json', { summary: [], details: [] })
+    safeJsonFetch('../data/foods-index.json', []),
+    safeJsonFetch('../data/batch-results.json', { summary: [], details: [] })
   ]);
   state.foods = Array.isArray(foods) ? foods : [];
   state.results = Array.isArray(batch.summary) ? batch.summary : [];

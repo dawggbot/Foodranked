@@ -494,11 +494,13 @@ function foodDetailTab(food, result, featured, tab) {
 function rulesView() {
   const tierSummary = [['S','90–100'],['A','78–89'],['B','64–77'],['C','45–63'],['D','0–44']];
   const sectionWeights = [
-    ['Fats', '22%'],
-    ['Carbs', '22%'],
-    ['Proteins', '22%'],
-    ['Vitamins', '17%'],
-    ['Minerals', '17%']
+    ['Fats', '22%', 'Primary score-bearing section'],
+    ['Carbs', '22%', 'Primary score-bearing section'],
+    ['Proteins', '22%', 'Primary score-bearing section'],
+    ['Vitamins', '17%', 'Primary score-bearing section'],
+    ['Minerals', '17%', 'Primary score-bearing section'],
+    ['Pros', 'Derived output', 'Used as explanatory context, not a separate core weighted score in this build'],
+    ['Cons', 'Derived output', 'Used as explanatory context, not a separate core weighted score in this build']
   ];
   const foodTypeWeightingNotes = [
     ['Meats', 'Protein quality and micronutrients usually do more of the heavy lifting, while carb relevance often drops or disappears.'],
@@ -538,7 +540,7 @@ function rulesView() {
       <div class="panel">
         <h3>Default section weighting</h3>
         <div class="mini-list" style="margin-top:14px;">
-          ${sectionWeights.map(([label, value]) => `<div class="feature-item"><div class="title-row"><strong>${label}</strong><span class="pill">${value}</span></div></div>`).join('')}
+          ${sectionWeights.map(([label, value, note]) => `<div class="feature-item"><div class="title-row"><strong>${label}</strong><span class="pill">${value}</span></div><div class="copy">${note}</div></div>`).join('')}
         </div>
       </div>
     </section>

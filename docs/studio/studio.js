@@ -493,6 +493,22 @@ function foodDetailTab(food, result, featured, tab) {
 
 function rulesView() {
   const tierSummary = [['S','90–100'],['A','78–89'],['B','64–77'],['C','45–63'],['D','0–44']];
+  const sectionWeights = [
+    ['Fats', '22%'],
+    ['Carbs', '22%'],
+    ['Proteins', '22%'],
+    ['Vitamins', '17%'],
+    ['Minerals', '17%']
+  ];
+  const foodTypeWeightingNotes = [
+    ['Meats', 'Protein quality and micronutrients usually do more of the heavy lifting, while carb relevance often drops or disappears.'],
+    ['Grains', 'Carb quality becomes a major driver, especially fibre, glycemic behaviour, and whether the grain still gives real nutrient return.'],
+    ['Vegetables', 'Vitamin and mineral contribution matter more, because macro totals are usually low and the value case is micronutrient density.'],
+    ['Fruits', 'Sugar context, fibre, and useful micronutrients matter more than raw macro quantity alone.'],
+    ['Oils and fats', 'Fat quality dominates. The score should mostly reflect what kind of fat the food is actually delivering, not just the fact that it is calorie-dense.'],
+    ['Legumes / dairy / seeds / nuts', 'The same top-level section weights stay broadly consistent, but internal metric weighting shifts by category so the right signals matter more.']
+  ];
+
   return appShell(`
     <section class="topbar">
       <div>
@@ -520,8 +536,23 @@ function rulesView() {
         <div class="rules-box" style="margin-top:12px;">Display-only metrics: total fat, total carbs, total protein, kcal.\n\nScore-bearing sections: fats, carbs, proteins, vitamins, minerals.\n\nPros and cons stay visible in every result, but act as context outputs the user can review before script-writing.\n\nVitamin/mineral scoring uses DV bands. Submacros use arrow ladders. Outputs stay explainable enough to reference on-video or inside the studio tool.</div>
       </div>
       <div class="panel">
+        <h3>Default section weighting</h3>
+        <div class="mini-list" style="margin-top:14px;">
+          ${sectionWeights.map(([label, value]) => `<div class="feature-item"><div class="title-row"><strong>${label}</strong><span class="pill">${value}</span></div></div>`).join('')}
+        </div>
+      </div>
+    </section>
+    <section class="grid cols-main">
+      <div class="panel">
+        <h3>Food type weighting notes</h3>
+        <div class="feature-list" style="margin-top:14px;">
+          ${foodTypeWeightingNotes.map(([type, note]) => `<div class="feature-item"><div class="title-row"><strong>${type}</strong></div><div class="copy">${note}</div></div>`).join('')}
+        </div>
+      </div>
+      <div class="panel">
         <h3>Why this page matters</h3>
         <div class="copy" style="margin-top:12px;">The internal app needs a place where James can sanity-check what the system is rewarding before turning results into scripts. This page is the “why does this score exist?” buffer between raw JSON and creative output.</div>
+        <div class="copy" style="margin-top:12px;">The important rule is that food types should usually differ more through metric applicability and internal metric weighting than by inventing a totally different top-level formula every time.</div>
       </div>
     </section>
   `, '/rules');

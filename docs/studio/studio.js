@@ -40,15 +40,25 @@ const state = {
   route: location.hash || '#/'
 };
 
+async function safeJsonFetch(path, fallback) {
+  try {
+    const response = await fetch(path);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return await response.json();
+  } catch {
+    return fallback;
+  }
+}
+
 async function loadData() {
   const [foods, batch] = await Promise.all([
-    fetch('../app/data/foods-index.json').then(r => r.json()),
-    fetch('../../batch-results.json').then(r => r.json())
+    safeJsonFetch('../app/data/foods-index.json', []),
+    safeJsonFetch('../../batch-results.json', { summary: [], details: [] })
   ]);
-  state.foods = foods;
-  state.results = batch.summary || [];
-  state.foodsById = new Map(foods.map(food => [food.id, food]));
-  state.resultsById = new Map((batch.details || []).map(item => [item.result?.food?.id, item.result]));
+  state.foods = Array.isArray(foods) ? foods : [];
+  state.results = Array.isArray(batch.summary) ? batch.summary : [];
+  state.foodsById = new Map(state.foods.map(food => [food.id, food]));
+  state.resultsById = new Map((Array.isArray(batch.details) ? batch.details : []).map(item => [item.result?.food?.id, item.result]));
 }
 
 function navigate(hash) { location.hash = hash; }
@@ -627,4 +637,9 @@ function escapeHtml(text = '') {
     .replace(/'/g, '&#39;');
 }
 
-loadData().then(render);
+loadData().then(render).catch(() => {
+  const app = document.getElementById('app');
+  if (app) {
+    app.innerHTML = `<div class="app-shell"><main class="main"><section class="panel"><h2>Studio failed to load</h2><p class="copy">The published site could not load one or more data files. The shell is working, but the data bundle is missing or stale.</p></section></main></div>`;
+  }
+});

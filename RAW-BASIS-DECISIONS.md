@@ -4,6 +4,34 @@ Rule being applied:
 - use **raw per-100g values** by default for base foods
 - keep cooked / prepared / processed values only when that prepared state is the real thing being ranked
 
+## Production-lane decisions from the focused cleanup pass
+
+### Locked now
+- `foods/tomato.sample.json`
+  - **Decision:** keep and treat as production-safe.
+  - **Locked identity:** tomatoes, red, ripe, raw, year round average.
+  - **Reason:** identity and basis are specific enough, and the remaining metrics are defensible without fake proxy protein scoring.
+
+- `foods/oats.sample.json`
+  - **Decision:** keep, but only as near-production-safe for now.
+  - **Locked identity:** plain rolled oats, dry.
+  - **Reason:** the raw dry basis is coherent, but glycemic index is too preparation-dependent to lock cleanly from the dry record.
+
+- `foods/white-rice.sample.json`
+  - **Decision:** keep, but only as near-production-safe for now.
+  - **Locked identity:** plain unenriched long-grain white rice, dry.
+  - **Reason:** the raw dry basis is coherent, but glycemic index is too rice-type and preparation dependent to lock as a single canonical number.
+
+- `foods/chicken-thigh.sample.json`
+  - **Decision:** keep, but only as near-production-safe for now.
+  - **Locked identity:** chicken thigh, meat only, raw.
+  - **Reason:** basis is now honest, but the old protein-quality proxy fields were not strong enough to keep as canonical production facts.
+
+### Explicitly blocked
+- `foods/yam.sample.json`
+  - **Decision:** block for production until identity is resolved.
+  - **Reason:** "yam" can point to materially different foods depending on region and marketplace usage, so the current record is too ambiguous.
+
 ## Keep as prepared / format-specific episode
 These should stay as they are, because the prepared or format-specific version is meaningfully different from the raw ingredient and is plausibly the real subject viewers care about.
 
@@ -43,16 +71,9 @@ These are probably fine to keep conceptually, but should be clearer in the datas
 ## Notes
 - The real mistake is not having prepared-food entries.
 - The real mistake is letting a prepared state quietly stand in for the base food by default.
+- The other real mistake is letting approximate proxy metrics sneak through as if they were canonical source-backed facts.
 - So the safest approach is:
   - base ingredient -> raw values
   - prepared product / snack / dish -> prepared values
+  - weak proxy metric -> remove or explicitly block
 - `foods/bacon.sample.json` has been switched back to a raw-bacon basis so the published numbers reflect what people actually buy and what package labels usually show, rather than cooked concentration.
-
-## Recommended next actions
-1. create a raw cassava default entry
-2. rename or replace the soy milk powder-basis entry
-3. leave the other flagged files as prepared/product-specific episodes
-4. continue auditing future files with the same rule
- with the same rule
-odes
-4. continue auditing future files with the same rule

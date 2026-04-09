@@ -493,22 +493,24 @@ function foodDetailTab(food, result, featured, tab) {
 
 function rulesView() {
   const tierSummary = [['S','90–100'],['A','78–89'],['B','64–77'],['C','45–63'],['D','0–44']];
+  const evenSplit = '1/7 each (about 14.3%)';
   const sectionWeights = [
-    ['Fats', '22%', 'Primary score-bearing section'],
-    ['Carbs', '22%', 'Primary score-bearing section'],
-    ['Proteins', '22%', 'Primary score-bearing section'],
-    ['Vitamins', '17%', 'Primary score-bearing section'],
-    ['Minerals', '17%', 'Primary score-bearing section'],
-    ['Pros', 'Derived output', 'Used as explanatory context, not a separate core weighted score in this build'],
-    ['Cons', 'Derived output', 'Used as explanatory context, not a separate core weighted score in this build']
+    ['Fats', evenSplit, 'Core score section'],
+    ['Carbs', evenSplit, 'Core score section'],
+    ['Proteins', evenSplit, 'Core score section'],
+    ['Vitamins', evenSplit, 'Core score section'],
+    ['Minerals', evenSplit, 'Core score section'],
+    ['Pros', evenSplit, 'Core score section'],
+    ['Cons', evenSplit, 'Core score section']
   ];
   const foodTypeWeightingNotes = [
-    ['Meats', 'Protein quality and micronutrients usually do more of the heavy lifting, while carb relevance often drops or disappears.'],
+    ['Meats', 'Protein quality, minerals, vitamins, and context usually carry more importance, while carb-related scoring may matter far less.'],
     ['Grains', 'Carb quality becomes a major driver, especially fibre, glycemic behaviour, and whether the grain still gives real nutrient return.'],
     ['Vegetables', 'Vitamin and mineral contribution matter more, because macro totals are usually low and the value case is micronutrient density.'],
-    ['Fruits', 'Sugar context, fibre, and useful micronutrients matter more than raw macro quantity alone.'],
+    ['Fruits', 'Sugar context, fibre, vitamin support, and context notes matter more than raw macro quantity alone.'],
     ['Oils and fats', 'Fat quality dominates. The score should mostly reflect what kind of fat the food is actually delivering, not just the fact that it is calorie-dense.'],
-    ['Legumes / dairy / seeds / nuts', 'The same top-level section weights stay broadly consistent, but internal metric weighting shifts by category so the right signals matter more.']
+    ['Misc', 'Submacros may matter less or be ignored, while vitamins, minerals, pros, and cons can carry more of the score.'],
+    ['Legumes / dairy / seeds / nuts', 'The seven top-level sections stay evenly split, but internal food-type weighting shifts the real emphasis toward the signals that define the category best.']
   ];
 
   return appShell(`
@@ -535,7 +537,7 @@ function rulesView() {
     <section class="grid cols-main">
       <div class="panel">
         <h3>How scores work in this build</h3>
-        <div class="rules-box" style="margin-top:12px;">Display-only metrics: total fat, total carbs, total protein, kcal.\n\nScore-bearing sections: fats, carbs, proteins, vitamins, minerals.\n\nPros and cons stay visible in every result, but act as context outputs the user can review before script-writing.\n\nVitamin/mineral scoring uses DV bands. Submacros use arrow ladders. Outputs stay explainable enough to reference on-video or inside the studio tool.</div>
+        <div class="rules-box" style="margin-top:12px;">All 7 visible sections contribute toward the score: fats, carbs, proteins, vitamins, minerals, pros, and cons.\n\nThe top-level split is intended to stay even across those 7 sections. What changes the feel of the system is food-type weighting, which decides which signals matter more inside a category.\n\nVitamin/mineral scoring uses DV-style logic. Submacros use arrow ladders. Pros and cons are also part of the core scoring model here, not just narration extras.</div>
       </div>
       <div class="panel">
         <h3>Default section weighting</h3>
@@ -554,7 +556,7 @@ function rulesView() {
       <div class="panel">
         <h3>Why this page matters</h3>
         <div class="copy" style="margin-top:12px;">The internal app needs a place where James can sanity-check what the system is rewarding before turning results into scripts. This page is the “why does this score exist?” buffer between raw JSON and creative output.</div>
-        <div class="copy" style="margin-top:12px;">The important rule is that food types should usually differ more through metric applicability and internal metric weighting than by inventing a totally different top-level formula every time.</div>
+        <div class="copy" style="margin-top:12px;">The important rule is that the 7 top-level sections stay evenly split, while food-type weighting changes which kinds of wins and losses matter more inside each category.</div>
       </div>
     </section>
   `, '/rules');

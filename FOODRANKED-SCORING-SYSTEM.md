@@ -148,33 +148,32 @@ Metric weights still apply at the section level.
 
 ## Step 4: score-bearing sections
 
-The nutrition engine aggregates into 5 score-bearing sections:
+The scoring engine aggregates across all 7 visible video sections:
 - fats
 - carbs
 - proteins
 - vitamins
 - minerals
+- pros
+- cons
 
-The video still has 7 sections, but:
-- `pros` is a context/explanation section
-- `cons` is a context/explanation section
+That means the on-video structure and the score structure are aligned.
 
 ## Step 5: section weighting
 
-Top-level weights should exist only for the 5 nutrition sections.
-Food types can still differ here, but the differences should stay explainable.
+Top-level section weighting should default to an even split across all 7 sections.
 
 Recommended rule:
-- all 5 section weights must sum to `1.0`
-- `pros` and `cons` must not appear in `sectionWeights`
+- all 7 section weights must sum to `1.0`
+- default weighting is `1/7` each (about `14.3%` per section)
 
-Category differences should mostly come from:
+Category differences should mostly come from food-type weighting, especially through:
 - metric applicability
 - metric weights
 - threshold bands
-- modest section-weight shifts where needed
+- section emphasis rules at the food-type layer when needed
 
-Not from turning pros/cons into a second hidden scoring engine.
+The important design idea is that every visible section contributes fairly, while food-type weighting changes which kinds of wins and losses matter most inside each category.
 
 ## Step 6: metric weighting
 
@@ -213,44 +212,24 @@ section_normalized = (section_raw_score / section_max_score) × 100
 Metrics marked `not_applicable` are excluded.
 Metrics marked `display_only` are ignored by scoring.
 
-## Step 8: base score calculation
+## Step 8: overall score calculation
 
 ```text
-base_score =
+overall_score =
   fats_score × fats_weight +
   carbs_score × carbs_weight +
   proteins_score × proteins_weight +
   vitamins_score × vitamins_weight +
-  minerals_score × minerals_weight
+  minerals_score × minerals_weight +
+  pros_score × pros_weight +
+  cons_score × cons_weight
 ```
+
+With the default even split model, each section weight starts at `1/7`.
 
 Round to nearest whole number for display.
 
-## Step 9: contextual adjustment
-
-Pros and cons can still affect ranking, but only through **major** items.
-
-### Scoring rule
-- `major_pro = +3`
-- `minor_pro = 0`
-- `minor_con = 0`
-- `major_con = -3`
-
-### Caps
-- max `3` scoring majors total
-- max total context adjustment = `±9`
-
-### Design intent
-This keeps context meaningful without letting editorial judgment overpower the nutrition core.
-Minor items are still valuable for narration and explanation, but they should not farm points.
-
-## Step 10: final score calculation
-
-```text
-overall_score = clamp(base_score + context_adjustment, 0, 100)
-```
-
-## Step 11: tier mapping
+## Step 9: tier mapping
 
 Recommended v1 tier thresholds:
 
@@ -262,7 +241,7 @@ Recommended v1 tier thresholds:
 
 These can be tuned later if calibration data proves they are too strict or too lenient, but category-specific tier maps should be avoided unless clearly justified.
 
-## Step 12: narration-friendly explanation rules
+## Step 10: narration-friendly explanation rules
 
 Every scored food should produce:
 - 1 short overall summary
@@ -279,7 +258,7 @@ Example summary shape:
 Strong fat quality and fibre carry this food, but weaker protein usefulness keeps it out of S tier.
 ```
 
-## Step 13: missing-data policy
+## Step 11: missing-data policy
 
 Missing values must not silently break fairness.
 

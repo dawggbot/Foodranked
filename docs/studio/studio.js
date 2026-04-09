@@ -32,7 +32,13 @@ const SCORING_SECTIONS = [
   ['cons', 'Cons context layer']
 ];
 
-const state = { foods: [], results: [], foodsById: new Map(), resultsById: new Map(), route: location.hash || '#/' };
+const state = {
+  foods: [],
+  results: [],
+  foodsById: new Map(),
+  resultsById: new Map(),
+  route: location.hash || '#/'
+};
 
 async function loadData() {
   const [foods, batch] = await Promise.all([
@@ -68,9 +74,9 @@ function appShell(content, current = '') {
     <div class="app-shell">
       <aside class="sidebar">
         <div class="brand">
-          <div class="pixel-tag">INTERNAL STUDIO BUILD V1</div>
+          <div class="pixel-tag">INTERNAL STUDIO BUILD V2</div>
           <h1>FoodRanked Studio</h1>
-          <p>Cozy pixel-nutrition control room. Built for tomorrow’s production pass, not public polish.</p>
+          <p>Cozy pixel-nutrition control room for browsing foods, checking scores, reviewing scripts, and handing off into the display builder.</p>
         </div>
         <nav class="nav">
           ${navLink('#/', 'Dashboard', current === '/')}
@@ -80,12 +86,12 @@ function appShell(content, current = '') {
           ${navLink('#/builder', 'Display builder', current === '/builder')}
         </nav>
         <div class="sidebar-card">
-          <h3>Tonight’s state</h3>
+          <h3>Studio state</h3>
           <ul>
             <li>${stats.totalFoods} foods surfaced from repo samples</li>
             <li>${stats.scoredFoods} foods with score outputs available</li>
             <li>${stats.featuredScripts} launch scripts ready to inspect</li>
-            <li>Sprite slots are placeholders until tomorrow’s uploads land</li>
+            <li>${stats.coverage}% of indexed foods currently have score cards</li>
           </ul>
         </div>
         <div class="sidebar-card">
@@ -107,16 +113,70 @@ function buildDashboardStats() {
   const results = state.results;
   const featuredScripts = Object.keys(FEATURED_EPISODES).length;
   const topReady = results.filter(r => ['A', 'S'].includes(r.tier)).length;
-  return { totalFoods: foods.length, scoredFoods: results.length, featuredScripts, topReady };
+  const coverage = foods.length ? Math.round((results.length / foods.length) * 100) : 0;
+  return { totalFoods: foods.length, scoredFoods: results.length, featuredScripts, topReady, coverage };
+}
+
+function getFoodResult(foodId) {
+  return state.resultsById.get(foodId) || null;
+}
+
+function buildFoodsWithResults() {
+  return state.foods.map(food => ({ food, result: getFoodResult(food.id), featured: FEATURED_EPISODES[food.id] || null }));
+}
+
+function findFoodIdByName(name) {
+  const match = state.foods.find(food => food.name === name);
+  return match?.id || '';
+}
+
+function formatSectionLabel(key) {
+  const match = SCORING_SECTIONS.find(([id]) => id === key);
+  return match ? match[1] : cap(key);
+}
+
+function formatScore(valueIn) {
+  if (valueIn == null || Number.isNaN(Number(valueIn))) return '—';
+  const n = Number(valueIn);
+  return Number.isInteger(n) ? String(n) : n.toFixed(1);
 }
 
 function scoreSummary(result) {
   if (!result) return '<div class="empty">No score breakdown yet.</div>';
   return `<div class="score-bars">${Object.entries(result.sectionScores || {}).map(([key, val]) => `
     <div class="score-bar">
-      <label><span>${cap(key)}</span><strong>${value(val, '')}</strong></label>
+      <label><span>${formatSectionLabel(key)}</span><strong>${formatScore(val)}</strong></label>
       <div class="meter"><span style="width:${Math.max(0, Math.min(100, Number(val) || 0))}%"></span></div>
     </div>`).join('')}</div>`;
+}
+
+function metricCard(label, val) {
+  return `<div class="metric-card"><strong>${label}</strong><span>${val}</span></div>`;
+}
+
+function topSection(result) {
+  if (!result?.sectionScores) return null;
+  const entries = Object.entries(result.sectionScores).filter(([, val]) => val != null && !Number.isNaN(Number(val)));
+  if (!entries.length) return null;
+  entries.sort((a, b) => Number(b[1]) - Number(a[1]));
+  return { key: entries[0][0], value: entries[0][1] };
+}
+
+function bottomSection(result) {
+  if (!result?.sectionScores) return null;
+  const entries = Object.entries(result.sectionScores).filter(([, val]) => val != null && !Number.isNaN(Number(val)));
+  if (!entries.length) return null;
+  entries.sort((a, b) => Number(a[1]) - Number(b[1]));
+  return { key: entries[0][0], value: entries[0][1] };
+}
+
+function groupedCounts(items, keyFn) {
+  const map = new Map();
+  for (const item of items) {
+    const key = keyFn(item);
+    map.set(key, (map.get(key) || 0) + 1);
+  }
+  return [...map.entries()].sort((a, b) => a[0].localeCompare(b[0]));
 }
 
 function foodCard(food, result) {
@@ -128,7 +188,7 @@ function foodCard(food, result) {
       </div>
       <div>
         <div class="title-row"><strong>${food.name}</strong><span class="pill ${tierClass(result?.tier || food.expectedTier || '—')}">Tier ${result?.tier || food.expectedTier || '—'}</span></div>
-        <div class="copy">${cap(typeLabel(food.foodType))} · ${value(result?.header?.kcal || food.kcal, ' kcal')} · ${featured ? 'featured launch script ready' : 'sample food data loaded'}</div>
+        <div class="copy">${cap(typeLabel(food.foodType))} · ${value(result?.header?.kcal || food.kcal, ' kcal')} · ${featured ? 'featured launch script ready' : result ? 'scored batch result available' : 'sample food data loaded'}</div>
       </div>
       <div class="kicker">OPEN →</div>
     </a>`;
@@ -137,14 +197,16 @@ function foodCard(food, result) {
 function dashboardView() {
   const stats = buildDashboardStats();
   const featuredFoods = Object.keys(FEATURED_EPISODES).map(id => state.foodsById.get(id)).filter(Boolean);
-  const topScored = [...state.results].sort((a,b) => (b.overallScore || 0) - (a.overallScore || 0)).slice(0, 6);
+  const topScored = [...state.results].sort((a, b) => (b.overallScore || 0) - (a.overallScore || 0)).slice(0, 6);
+  const typeCounts = groupedCounts(state.foods, item => typeLabel(item.foodType));
+  const recentScored = buildFoodsWithResults().filter(item => item.result).slice(0, 8);
   return appShell(`
     <section class="topbar">
       <div>
         <h2>Studio dashboard</h2>
-        <p>Internal overview for food library, score visibility, script readiness, and placeholder art coverage.</p>
+        <p>Internal overview for food library, score visibility, script readiness, and production handoff into the builder.</p>
       </div>
-      <input class="search" placeholder="Jump to a food by editing the URL hash for now…" disabled />
+      <a class="pill" href="#/foods">Browse all foods</a>
     </section>
 
     <section class="grid cols-4">
@@ -178,20 +240,38 @@ function dashboardView() {
 
     <section class="grid cols-main">
       <div class="panel">
-        <div class="title-row"><h3>Production status board</h3><span class="pill">Tonight view</span></div>
+        <div class="title-row"><h3>Production status board</h3><span class="pill">Coverage ${stats.coverage}%</span></div>
         <div class="section-list" style="margin-top:16px;">
           ${[
             ['Data foundation', `${stats.totalFoods} food records indexed and browseable.`],
             ['Score visibility', `${stats.scoredFoods} foods have surfaced batch results for studio review.`],
             ['Script review', `${stats.featuredScripts} polished launch scripts wired into episode view.`],
-            ['Sprite handoff', 'All core screens have placeholder art slots ready for swap-in tomorrow.']
+            ['Builder handoff', 'The studio now acts as the browse/control layer above the existing display builder.']
           ].map((row, i) => `<div class="section-step"><div class="num">${i+1}</div><div><strong>${row[0]}</strong><div class="copy">${row[1]}</div></div></div>`).join('')}
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Food types currently indexed</h3>
+        <div class="chip-grid" style="margin-top:14px;">
+          ${typeCounts.map(([type, count]) => `<span class="chip"><strong>${cap(type)}</strong><em>${count}</em></span>`).join('')}
+        </div>
+      </div>
+    </section>
+
+    <section class="grid cols-main">
+      <div class="panel">
+        <h3>Scored foods available right now</h3>
+        <div class="mini-list" style="margin-top:14px;">
+          ${recentScored.map(({ food, result }) => {
+            const top = topSection(result);
+            return `<a class="feature-item" href="#/foods/${food.id}?tab=scores"><div class="title-row"><strong>${food.name}</strong><span class="pill ${tierClass(result?.tier || '—')}">${result?.tier || '—'}</span></div><div class="copy">${value(result?.overallScore, ' overall')} · strongest section: ${top ? `${formatSectionLabel(top.key)} (${formatScore(top.value)})` : '—'}</div></a>`;
+          }).join('')}
         </div>
       </div>
       <div class="panel">
         <h3>What is still blocked?</h3>
         <div class="copy" style="margin-top:12px;">
-          Final food hero sprites, category-specific icon polish, and any pixel-art header assets not yet exported. The layout already expects them; tomorrow should mostly be a replace-assets pass rather than structural rebuild.
+          Final food hero sprites, category-specific icon polish, and any pixel-art header assets not yet exported. The layout already expects them; this phase is now mostly about making the site more useful while the art catches up.
         </div>
       </div>
     </section>
@@ -199,18 +279,52 @@ function dashboardView() {
 }
 
 function foodsView() {
-  const query = (qs().get('q') || '').toLowerCase();
-  const foods = state.foods.filter(food => !query || [food.name, food.id, food.foodType].some(part => String(part).toLowerCase().includes(query)));
+  const qRaw = qs().get('q') || '';
+  const query = qRaw.toLowerCase();
+  const typeFilter = qs().get('type') || 'all';
+  const scoreFilter = qs().get('score') || 'all';
+
+  const foods = buildFoodsWithResults().filter(({ food, result }) => {
+    const matchesQuery = !query || [food.name, food.id, food.foodType].some(part => String(part).toLowerCase().includes(query));
+    const matchesType = typeFilter === 'all' || food.foodType === typeFilter;
+    const matchesScore = scoreFilter === 'all'
+      || (scoreFilter === 'scored' && !!result)
+      || (scoreFilter === 'unscored' && !result)
+      || (scoreFilter === 'featured' && !!FEATURED_EPISODES[food.id]);
+    return matchesQuery && matchesType && matchesScore;
+  });
+
+  const availableTypes = [...new Set(state.foods.map(food => food.foodType))].sort();
+
   return appShell(`
     <section class="topbar">
       <div>
         <h2>Foods index</h2>
-        <p>Repo-backed browse view for sample foods, tiers, and art placeholders.</p>
+        <p>Repo-backed browse view for sample foods, tiers, score availability, and art placeholders.</p>
       </div>
-      <input id="foodSearch" class="search" placeholder="Search foods, ids, or types" value="${escapeHtml(qs().get('q') || '')}" />
+      <div class="toolbar-actions">
+        <a class="pill" href="#/foods?score=scored">Scored only</a>
+        <a class="pill" href="#/foods?score=featured">Featured only</a>
+      </div>
     </section>
     <section class="panel">
-      <div class="food-list">${foods.map(food => foodCard(food, state.resultsById.get(food.id))).join('')}</div>
+      <div class="filters">
+        <input id="foodSearch" class="search" placeholder="Search foods, ids, or types" value="${escapeHtml(qRaw)}" />
+        <select id="typeFilter" class="search filter-select">
+          <option value="all">All food types</option>
+          ${availableTypes.map(type => `<option value="${type}" ${type === typeFilter ? 'selected' : ''}>${cap(typeLabel(type))}</option>`).join('')}
+        </select>
+        <select id="scoreFilter" class="search filter-select">
+          ${[
+            ['all', 'All states'],
+            ['scored', 'Scored only'],
+            ['unscored', 'Unscored only'],
+            ['featured', 'Featured only']
+          ].map(([val, label]) => `<option value="${val}" ${val === scoreFilter ? 'selected' : ''}>${label}</option>`).join('')}
+        </select>
+      </div>
+      <div class="list-meta">Showing <strong>${foods.length}</strong> of <strong>${state.foods.length}</strong> foods.</div>
+      <div class="food-list">${foods.map(({ food, result }) => foodCard(food, result)).join('')}</div>
     </section>
   `, '/foods');
 }
@@ -221,6 +335,9 @@ function foodDetailView(id) {
   const result = state.resultsById.get(id);
   const featured = FEATURED_EPISODES[id];
   const routeTab = qs().get('tab') || 'overview';
+  const top = topSection(result);
+  const bottom = bottomSection(result);
+
   return appShell(`
     <section class="topbar">
       <div>
@@ -236,7 +353,7 @@ function foodDetailView(id) {
           <div class="hero-slot">
             <img src="${spritePath(food.id)}" alt="${food.name}" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'slot-label',innerHTML:'HERO / SPRITE SLOT<br>DROP FINAL ART TOMORROW'}))">
           </div>
-          <div style="margin-top:12px;" class="copy">Placeholder art box is already wired. Swap in final sprite/export tomorrow without changing page structure.</div>
+          <div style="margin-top:12px;" class="copy">This slot is already wired for the final hero sprite. Once the asset exists, the page upgrades automatically without structural changes.</div>
         </div>
         <div class="panel">
           <h3>Header stats</h3>
@@ -248,7 +365,12 @@ function foodDetailView(id) {
               ['Protein', value(result?.header?.protein_g, ' g')],
               ['Tier', result?.tier || food.expectedTier || '—'],
               ['Overall', value(result?.overallScore, '')]
-            ].map(([k,v]) => `<div class="metric-card"><strong>${k}</strong><span>${v}</span></div>`).join('')}
+            ].map(([k,v]) => metricCard(k, v)).join('')}
+          </div>
+          <div class="metric-grid" style="margin-top:10px;">
+            ${metricCard('Scored batch', result ? 'available' : 'not yet')}
+            ${metricCard('Featured episode', featured ? 'yes' : 'no')}
+            ${metricCard('Source file', `<code>${food.path}</code>`)}
           </div>
         </div>
       </div>
@@ -262,6 +384,14 @@ function foodDetailView(id) {
           </div>
           <div style="margin-top:16px;">${foodDetailTab(food, result, featured, routeTab)}</div>
         </div>
+        <div class="panel">
+          <h3>Quick read</h3>
+          <div class="mini-list" style="margin-top:12px;">
+            <div class="feature-item"><div class="title-row"><strong>Strongest section</strong><span class="pill">${top ? formatScore(top.value) : '—'}</span></div><div class="copy">${top ? formatSectionLabel(top.key) : 'No scored section yet.'}</div></div>
+            <div class="feature-item"><div class="title-row"><strong>Weakest section</strong><span class="pill">${bottom ? formatScore(bottom.value) : '—'}</span></div><div class="copy">${bottom ? formatSectionLabel(bottom.key) : 'No scored section yet.'}</div></div>
+            <div class="feature-item"><div class="title-row"><strong>Builder handoff</strong><a class="pill" href="#/builder">Open</a></div><div class="copy">Use the studio for browse/explainability, then jump into the exact-layer builder for composition work.</div></div>
+          </div>
+        </div>
       </div>
     </section>
   `, '/foods');
@@ -272,7 +402,22 @@ function tabLink(id, tab, current) {
 }
 
 function foodDetailTab(food, result, featured, tab) {
-  if (tab === 'scores') return scoreSummary(result);
+  if (tab === 'scores') {
+    if (!result) return '<div class="empty">No scored batch output exists for this food yet.</div>';
+    const top = topSection(result);
+    const bottom = bottomSection(result);
+    return `
+      <div class="grid cols-3">
+        <div class="panel"><h4>Overall</h4><div class="copy" style="margin-top:8px;">${formatScore(result.overallScore)} overall · ${result.tier} tier.</div></div>
+        <div class="panel"><h4>Strongest section</h4><div class="copy" style="margin-top:8px;">${top ? `${formatSectionLabel(top.key)} at ${formatScore(top.value)}` : '—'}</div></div>
+        <div class="panel"><h4>Weakest section</h4><div class="copy" style="margin-top:8px;">${bottom ? `${formatSectionLabel(bottom.key)} at ${formatScore(bottom.value)}` : '—'}</div></div>
+      </div>
+      <div class="panel" style="margin-top:16px;">
+        <h4>Section breakdown</h4>
+        <div style="margin-top:12px;">${scoreSummary(result)}</div>
+      </div>`;
+  }
+
   if (tab === 'context') {
     const pros = result?.contextItems?.pros || [];
     const cons = result?.contextItems?.cons || [];
@@ -283,29 +428,32 @@ function foodDetailTab(food, result, featured, tab) {
         <div class="panel"><h4>Cons</h4><div class="copy" style="margin-top:8px;">${cons.map(item => `• ${item.title}`).join('<br>') || '<span class="empty">No cons loaded.</span>'}</div></div>
       </div>`;
   }
+
   if (tab === 'episode') {
     return featured
       ? `<div class="script-box">${escapeHtml(featured.script)}</div>`
       : `<div class="empty">No polished episode script embedded for this food yet.</div>`;
   }
+
   return `
     <div class="grid cols-3">
-      <div class="panel"><h4>Current score read</h4><div class="copy" style="margin-top:8px;">${result ? `${result.overallScore} overall · ${result.tier} tier.` : 'Awaiting scored batch output.'}</div></div>
+      <div class="panel"><h4>Current score read</h4><div class="copy" style="margin-top:8px;">${result ? `${formatScore(result.overallScore)} overall · ${result.tier} tier.` : 'Awaiting scored batch output.'}</div></div>
       <div class="panel"><h4>Source file</h4><div class="copy" style="margin-top:8px;"><code>${food.path}</code></div></div>
       <div class="panel"><h4>Episode status</h4><div class="copy" style="margin-top:8px;">${featured ? featured.status.replace('-', ' ') : 'not in launch top 5 yet'}</div></div>
     </div>
     <div class="panel" style="margin-top:16px;">
       <h4>Studio note</h4>
-      <div class="copy" style="margin-top:8px;">This screen is tuned for explainability first: permanent header facts, score breakdown access, and direct path to script view. Public-facing fluff can come later.</div>
+      <div class="copy" style="margin-top:8px;">This screen is tuned for explainability first: permanent header facts, score breakdown access, context review, and a direct path to script view. Public polish can come later.</div>
     </div>`;
 }
 
 function rulesView() {
+  const tierSummary = [['S','90–100'],['A','78–89'],['B','64–77'],['C','45–63'],['D','0–44']];
   return appShell(`
     <section class="topbar">
       <div>
         <h2>Scoring + ruleset explainer</h2>
-        <p>Internal explainability page grounded in the current scoring docs.</p>
+        <p>Internal explainability page grounded in the current scoring docs and visible score outputs.</p>
       </div>
     </section>
     <section class="grid cols-main">
@@ -318,14 +466,14 @@ function rulesView() {
       <div class="panel">
         <h3>Tier mapping</h3>
         <div class="mini-list" style="margin-top:14px;">
-          ${[['S','90–100'],['A','78–89'],['B','64–77'],['C','45–63'],['D','0–44']].map(([tier, range]) => `<div class="feature-item"><div class="title-row"><strong>${tier} tier</strong><span class="pill ${tierClass(tier)}">${range}</span></div></div>`).join('')}
+          ${tierSummary.map(([tier, range]) => `<div class="feature-item"><div class="title-row"><strong>${tier} tier</strong><span class="pill ${tierClass(tier)}">${range}</span></div></div>`).join('')}
         </div>
       </div>
     </section>
     <section class="grid cols-main">
       <div class="panel">
         <h3>How scores work in this build</h3>
-        <div class="rules-box" style="margin-top:12px;">Display-only metrics: total fat, total carbs, total protein, kcal.\n\nScore-bearing sections: fats, carbs, proteins, vitamins, minerals.\n\nPros and cons stay visible in every result, but act as capped context modifiers rather than hidden full sections.\n\nVitamin/mineral scoring uses DV bands. Submacros use arrow ladders. Outputs stay explainable enough to reference on-video or inside the studio tool.</div>
+        <div class="rules-box" style="margin-top:12px;">Display-only metrics: total fat, total carbs, total protein, kcal.\n\nScore-bearing sections: fats, carbs, proteins, vitamins, minerals.\n\nPros and cons stay visible in every result, but act as context outputs the user can review before script-writing.\n\nVitamin/mineral scoring uses DV bands. Submacros use arrow ladders. Outputs stay explainable enough to reference on-video or inside the studio tool.</div>
       </div>
       <div class="panel">
         <h3>Why this page matters</h3>
@@ -340,7 +488,11 @@ function episodesView() {
   const food = state.foodsById.get(selected);
   const episode = FEATURED_EPISODES[selected];
   const result = state.resultsById.get(selected);
-  const available = Object.keys(FEATURED_EPISODES).map(id => ({ food: state.foodsById.get(id), episode: FEATURED_EPISODES[id], result: state.resultsById.get(id) })).filter(x => x.food);
+  const available = Object.keys(FEATURED_EPISODES)
+    .map(id => ({ food: state.foodsById.get(id), episode: FEATURED_EPISODES[id], result: state.resultsById.get(id) }))
+    .filter(x => x.food)
+    .sort((a, b) => a.episode.publishOrder - b.episode.publishOrder);
+
   return appShell(`
     <section class="topbar">
       <div>
@@ -375,18 +527,18 @@ function builderView() {
     <section class="topbar">
       <div>
         <h2>Display builder handoff</h2>
-        <p>The existing builder is still the right place for exact layer nudging. This studio app links into it instead of replacing it.</p>
+        <p>The existing builder is still the right place for exact layer nudging. The studio app now acts as the browse/control layer above it.</p>
       </div>
     </section>
     <section class="grid cols-main">
       <div class="panel">
         <h3>What lives there</h3>
-        <div class="copy" style="margin-top:12px;">Drag-and-drop layer editing, section-by-section display composition, background sprite field, and JSON export already existed in <code>docs/app/index.html</code>. Tonight’s work wraps that with studio navigation, browse flows, and score/script visibility.</div>
+        <div class="copy" style="margin-top:12px;">Drag-and-drop layer editing, section-by-section display composition, background sprite field, and JSON export already existed in <code>docs/app/index.html</code>. The studio wraps that with food browsing, score visibility, and script review.</div>
         <p style="margin-top:14px;"><a class="pill" href="../app/index.html">Open display builder</a></p>
       </div>
       <div class="panel">
-        <h3>Tomorrow’s asset swap checklist</h3>
-        <div class="copy" style="margin-top:12px;">1. Drop final food sprites into the existing sprite paths.\n2. Replace placeholder hero slots with real exports.\n3. Re-check 5 featured episodes inside builder + studio.\n4. Only then consider polish passes.</div>
+        <h3>Asset swap checklist</h3>
+        <div class="copy" style="margin-top:12px;">1. Drop final food sprites into the existing sprite paths.\n2. Replace placeholder hero slots with real exports.\n3. Re-check the 5 featured episodes inside builder + studio.\n4. Only then do the cosmetic polish pass.</div>
       </div>
     </section>
   `, '/builder');
@@ -394,11 +546,6 @@ function builderView() {
 
 function notFoundView() {
   return appShell(`<section class="panel"><h2>Not found</h2><p class="copy">That route does not exist in the studio build yet.</p></section>`);
-}
-
-function findFoodIdByName(name) {
-  const match = state.foods.find(food => food.name === name);
-  return match?.id || '';
 }
 
 function render() {
@@ -414,12 +561,23 @@ function render() {
   document.getElementById('app').innerHTML = html;
 
   const search = document.getElementById('foodSearch');
-  if (search) {
-    search.addEventListener('input', e => {
-      const q = e.target.value.trim();
-      navigate(`#/${'foods'}${q ? `?q=${encodeURIComponent(q)}` : ''}`);
-    });
-  }
+  const typeFilter = document.getElementById('typeFilter');
+  const scoreFilter = document.getElementById('scoreFilter');
+
+  const syncFoodFilters = () => {
+    const q = document.getElementById('foodSearch')?.value.trim() || '';
+    const type = document.getElementById('typeFilter')?.value || 'all';
+    const score = document.getElementById('scoreFilter')?.value || 'all';
+    const params = new URLSearchParams();
+    if (q) params.set('q', q);
+    if (type !== 'all') params.set('type', type);
+    if (score !== 'all') params.set('score', score);
+    navigate(`#/foods${params.toString() ? `?${params.toString()}` : ''}`);
+  };
+
+  if (search) search.addEventListener('input', syncFoodFilters);
+  if (typeFilter) typeFilter.addEventListener('change', syncFoodFilters);
+  if (scoreFilter) scoreFilter.addEventListener('change', syncFoodFilters);
 }
 
 function escapeHtml(text = '') {

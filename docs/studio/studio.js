@@ -181,14 +181,23 @@ function groupedCounts(items, keyFn) {
 
 function foodCard(food, result) {
   const featured = FEATURED_EPISODES[food.id];
+  const top = topSection(result);
+  const badges = [
+    `<span class="pill ${tierClass(result?.tier || food.expectedTier || '—')}">Tier ${result?.tier || food.expectedTier || '—'}</span>`,
+    `<span class="pill subtle-pill">${cap(typeLabel(food.foodType))}</span>`,
+    featured ? '<span class="pill subtle-pill">Featured</span>' : '',
+    result ? '<span class="pill subtle-pill">Scored</span>' : '<span class="pill subtle-pill">Unscored</span>'
+  ].filter(Boolean).join('');
+
   return `
     <a class="food-row" href="#/foods/${food.id}">
       <div class="sprite-slot">
         <img src="${spritePath(food.id)}" alt="${food.name}" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'slot-label',innerHTML:'SPRITE SLOT<br>${food.id.toUpperCase()}'}))">
       </div>
       <div>
-        <div class="title-row"><strong>${food.name}</strong><span class="pill ${tierClass(result?.tier || food.expectedTier || '—')}">Tier ${result?.tier || food.expectedTier || '—'}</span></div>
-        <div class="copy">${cap(typeLabel(food.foodType))} · ${value(result?.header?.kcal || food.kcal, ' kcal')} · ${featured ? 'featured launch script ready' : result ? 'scored batch result available' : 'sample food data loaded'}</div>
+        <div class="title-row title-row-start"><strong>${food.name}</strong></div>
+        <div class="badge-row">${badges}</div>
+        <div class="copy">${value(result?.header?.kcal || food.kcal, ' kcal')} · ${featured ? 'featured launch script ready' : result ? 'scored batch result available' : 'sample food data loaded'}${top ? ` · strongest: ${formatSectionLabel(top.key)} ${formatScore(top.value)}` : ''}</div>
       </div>
       <div class="kicker">OPEN →</div>
     </a>`;
@@ -283,8 +292,9 @@ function foodsView() {
   const query = qRaw.toLowerCase();
   const typeFilter = qs().get('type') || 'all';
   const scoreFilter = qs().get('score') || 'all';
+  const sort = qs().get('sort') || 'name';
 
-  const foods = buildFoodsWithResults().filter(({ food, result }) => {
+  let foods = buildFoodsWithResults().filter(({ food, result }) => {
     const matchesQuery = !query || [food.name, food.id, food.foodType].some(part => String(part).toLowerCase().includes(query));
     const matchesType = typeFilter === 'all' || food.foodType === typeFilter;
     const matchesScore = scoreFilter === 'all'
@@ -294,7 +304,17 @@ function foodsView() {
     return matchesQuery && matchesType && matchesScore;
   });
 
+  foods.sort((a, b) => {
+    if (sort === 'score-desc') return (Number(b.result?.overallScore) || -1) - (Number(a.result?.overallScore) || -1) || a.food.name.localeCompare(b.food.name);
+    if (sort === 'score-asc') return (Number(a.result?.overallScore) || 999) - (Number(b.result?.overallScore) || 999) || a.food.name.localeCompare(b.food.name);
+    if (sort === 'tier') return String(a.result?.tier || 'Z').localeCompare(String(b.result?.tier || 'Z')) || ((Number(b.result?.overallScore) || -1) - (Number(a.result?.overallScore) || -1));
+    if (sort === 'type') return String(a.food.foodType).localeCompare(String(b.food.foodType)) || a.food.name.localeCompare(b.food.name);
+    return a.food.name.localeCompare(b.food.name);
+  });
+
   const availableTypes = [...new Set(state.foods.map(food => food.foodType))].sort();
+  const scoredCount = foods.filter(item => item.result).length;
+  const featuredCount = foods.filter(item => FEATURED_EPISODES[item.food.id]).length;
 
   return appShell(`
     <section class="topbar">
@@ -322,8 +342,17 @@ function foodsView() {
             ['featured', 'Featured only']
           ].map(([val, label]) => `<option value="${val}" ${val === scoreFilter ? 'selected' : ''}>${label}</option>`).join('')}
         </select>
+        <select id="sortFilter" class="search filter-select">
+          ${[
+            ['name', 'Sort: name'],
+            ['score-desc', 'Sort: highest score'],
+            ['score-asc', 'Sort: lowest score'],
+            ['tier', 'Sort: tier'],
+            ['type', 'Sort: type']
+          ].map(([val, label]) => `<option value="${val}" ${val === sort ? 'selected' : ''}>${label}</option>`).join('')}
+        </select>
       </div>
-      <div class="list-meta">Showing <strong>${foods.length}</strong> of <strong>${state.foods.length}</strong> foods.</div>
+      <div class="list-meta">Showing <strong>${foods.length}</strong> of <strong>${state.foods.length}</strong> foods · <strong>${scoredCount}</strong> scored · <strong>${featuredCount}</strong> featured.</div>
       <div class="food-list">${foods.map(({ food, result }) => foodCard(food, result)).join('')}</div>
     </section>
   `, '/foods');
@@ -440,6 +469,11 @@ function foodDetailTab(food, result, featured, tab) {
       <div class="panel"><h4>Current score read</h4><div class="copy" style="margin-top:8px;">${result ? `${formatScore(result.overallScore)} overall · ${result.tier} tier.` : 'Awaiting scored batch output.'}</div></div>
       <div class="panel"><h4>Source file</h4><div class="copy" style="margin-top:8px;"><code>${food.path}</code></div></div>
       <div class="panel"><h4>Episode status</h4><div class="copy" style="margin-top:8px;">${featured ? featured.status.replace('-', ' ') : 'not in launch top 5 yet'}</div></div>
+    </div>
+    <div class="grid cols-3" style="margin-top:16px;">
+      <div class="panel"><h4>Food id</h4><div class="copy" style="margin-top:8px;"><code>${food.id}</code></div></div>
+      <div class="panel"><h4>Food type</h4><div class="copy" style="margin-top:8px;">${cap(typeLabel(food.foodType))}</div></div>
+      <div class="panel"><h4>Basis</h4><div class="copy" style="margin-top:8px;">per ${food.basis?.value || 100}${food.basis?.unit || 'g'}</div></div>
     </div>
     <div class="panel" style="margin-top:16px;">
       <h4>Studio note</h4>
@@ -563,21 +597,25 @@ function render() {
   const search = document.getElementById('foodSearch');
   const typeFilter = document.getElementById('typeFilter');
   const scoreFilter = document.getElementById('scoreFilter');
+  const sortFilter = document.getElementById('sortFilter');
 
   const syncFoodFilters = () => {
     const q = document.getElementById('foodSearch')?.value.trim() || '';
     const type = document.getElementById('typeFilter')?.value || 'all';
     const score = document.getElementById('scoreFilter')?.value || 'all';
+    const sort = document.getElementById('sortFilter')?.value || 'name';
     const params = new URLSearchParams();
     if (q) params.set('q', q);
     if (type !== 'all') params.set('type', type);
     if (score !== 'all') params.set('score', score);
+    if (sort !== 'name') params.set('sort', sort);
     navigate(`#/foods${params.toString() ? `?${params.toString()}` : ''}`);
   };
 
   if (search) search.addEventListener('input', syncFoodFilters);
   if (typeFilter) typeFilter.addEventListener('change', syncFoodFilters);
   if (scoreFilter) scoreFilter.addEventListener('change', syncFoodFilters);
+  if (sortFilter) sortFilter.addEventListener('change', syncFoodFilters);
 }
 
 function escapeHtml(text = '') {

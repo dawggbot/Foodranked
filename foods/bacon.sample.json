@@ -2,6 +2,23 @@
   "id": "bacon",
   "name": "Bacon",
   "foodType": "meats",
+  "identity": {
+    "canonicalName": "Pork bacon, cured, unprepared",
+    "commonName": "Bacon",
+    "form": "streaky cured bacon slices",
+    "state": "raw / unprepared",
+    "ediblePortion": "as sold",
+    "basisReason": "Raw per-100g as-sold basis matches package-label style nutrition and avoids cooked-water-loss distortion.",
+    "includes": [
+      "plain cured sliced bacon as sold"
+    ],
+    "excludes": [
+      "cooked bacon values",
+      "turkey bacon",
+      "reduced-fat bacon variants",
+      "bacon-flavored products"
+    ]
+  },
   "basis": {
     "value": 100,
     "unit": "g"
@@ -36,6 +53,32 @@
     "zinc_dv": 10,
     "calcium_dv": 1,
     "potassium_dv": 4
+  },
+  "metricProvenance": {
+    "header": "USDA SR Legacy style pork bacon cured unprepared entry, normalized to per 100 g as sold",
+    "saturated_fat_g": "same canonical source family as header",
+    "omega3_mg": "derived fatty-acid field from the same source family; useful as supporting context, not the main story",
+    "polyunsaturated_fat_g": "same canonical source family as header",
+    "cholesterol_mg": "same canonical source family as header",
+    "starch_g": "not applicable for this food",
+    "fibre_g": "not applicable for this food",
+    "sugar_g": "not applicable for this food",
+    "glycemic_index": "not applicable for this food",
+    "collagen_g": "current value is still a rough calibration-era proxy, not a locked source-backed bacon-specific fact",
+    "essential_amino_acids_score": "current value is still a calibration proxy rather than an exact-source amino-acid profile for this chosen bacon form",
+    "nonessential_amino_acids_score": "current value is still a calibration proxy rather than an exact-source amino-acid profile for this chosen bacon form",
+    "bioavailability_percent": "current value is still a proxy estimate, not a locked canonical percent for this exact bacon entry",
+    "vitamin_a_dv": "same canonical source family as header",
+    "vitamin_c_dv": "same canonical source family as header",
+    "vitamin_d_dv": "same canonical source family as header",
+    "vitamin_e_dv": "same canonical source family as header",
+    "vitamin_k_dv": "same canonical source family as header",
+    "vitamin_b12_dv": "same canonical source family as header",
+    "iron_dv": "same canonical source family as header",
+    "magnesium_dv": "same canonical source family as header",
+    "zinc_dv": "same canonical source family as header",
+    "calcium_dv": "same canonical source family as header",
+    "potassium_dv": "same canonical source family as header"
   },
   "processingPenalty": 25,
   "contextItems": {
@@ -86,11 +129,19 @@
       }
     ]
   },
+  "scoreReadiness": {
+    "status": "near-production-safe",
+    "summary": "Core raw bacon nutrition is coherent enough for launch scripting, but a few protein-quality style fields are still older calibration proxies rather than locked source facts.",
+    "blockers": [
+      "collagen and protein-quality proxy metrics still need either exact-source backing or deliberate removal",
+      "cured bacon product variability means exact sodium-forward real-world burden is broader than this simplified nutrition record captures"
+    ]
+  },
   "expectedTier": "D",
   "sourceNotes": [
-    "Calibration benchmark sample for FoodRanked.",
-    "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database.",
-    "Values aligned to USDA SR Legacy pork, cured, bacon, unprepared (per 100g raw) for core nutrition fields.",
-    "Raw basis, not cooked values."
+    "Production-lane cleanup pass.",
+    "Identity locked to cured pork bacon, unprepared, per 100 g as sold.",
+    "Core nutrient values align with USDA SR Legacy style pork bacon cured unprepared entries.",
+    "Raw basis kept intentionally, not cooked bacon values."
   ]
 }

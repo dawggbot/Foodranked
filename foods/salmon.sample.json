@@ -2,6 +2,23 @@
   "id": "salmon",
   "name": "Salmon",
   "foodType": "meats",
+  "identity": {
+    "canonicalName": "Atlantic salmon, raw",
+    "commonName": "Salmon",
+    "form": "plain salmon flesh",
+    "state": "raw",
+    "ediblePortion": "edible flesh",
+    "basisReason": "Raw per-100g edible-flesh basis keeps the entry aligned with a base whole-food ingredient rather than a cooked preparation.",
+    "includes": [
+      "plain raw salmon fillet"
+    ],
+    "excludes": [
+      "smoked salmon",
+      "canned salmon",
+      "breaded salmon products",
+      "cooked salmon values"
+    ]
+  },
   "basis": {
     "value": 100,
     "unit": "g"
@@ -36,6 +53,32 @@
     "zinc_dv": 4,
     "calcium_dv": 1,
     "potassium_dv": 8
+  },
+  "metricProvenance": {
+    "header": "USDA FoodData Central style raw Atlantic-salmon entry, normalized to per 100 g edible portion",
+    "saturated_fat_g": "same canonical source family as header",
+    "omega3_mg": "derived fatty-acid field from the same source family and directionally central to why salmon scores well",
+    "polyunsaturated_fat_g": "same canonical source family as header",
+    "cholesterol_mg": "same canonical source family as header",
+    "starch_g": "not applicable for this food",
+    "fibre_g": "not applicable for this food",
+    "sugar_g": "not applicable for this food",
+    "glycemic_index": "not applicable for this food",
+    "collagen_g": "current value is still a rough calibration-era proxy, not a locked salmon-cut-specific source field",
+    "essential_amino_acids_score": "current value is still a calibration proxy rather than an exact-source amino-acid profile for this chosen salmon form",
+    "nonessential_amino_acids_score": "current value is still a calibration proxy rather than an exact-source amino-acid profile for this chosen salmon form",
+    "bioavailability_percent": "current value is still a proxy estimate, not a locked canonical percent for this exact salmon entry",
+    "vitamin_a_dv": "same canonical source family as header",
+    "vitamin_c_dv": "same canonical source family as header",
+    "vitamin_d_dv": "same canonical source family as header",
+    "vitamin_e_dv": "same canonical source family as header",
+    "vitamin_k_dv": "same canonical source family as header",
+    "vitamin_b12_dv": "same canonical source family as header",
+    "iron_dv": "same canonical source family as header",
+    "magnesium_dv": "same canonical source family as header",
+    "zinc_dv": "same canonical source family as header",
+    "calcium_dv": "same canonical source family as header",
+    "potassium_dv": "same canonical source family as header"
   },
   "contextItems": {
     "pros": [
@@ -85,9 +128,19 @@
       }
     ]
   },
+  "scoreReadiness": {
+    "status": "near-production-safe",
+    "summary": "Strong enough for launch scripting as a raw salmon baseline, but a few protein-quality style fields are still legacy calibration proxies and salmon source variation can move the fat profile.",
+    "blockers": [
+      "collagen and protein-quality proxy metrics still need either exact-source backing or deliberate removal",
+      "wild-versus-farmed and species variation can shift the exact fat and omega-3 profile meaningfully"
+    ]
+  },
   "expectedTier": "S",
   "sourceNotes": [
-    "Calibration benchmark sample for FoodRanked.",
-    "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
+    "Production-lane cleanup pass.",
+    "Identity locked to raw salmon flesh, using Atlantic salmon style per-100 g baseline values.",
+    "Core nutrient values align with USDA FoodData Central style raw Atlantic salmon entries.",
+    "Raw basis kept intentionally, not cooked salmon values."
   ]
 }

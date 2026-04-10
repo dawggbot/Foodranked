@@ -8,7 +8,7 @@ MESSAGE="${1:-Update dashboard content}"
 
 node scripts/generate-dashboard-data.js
 
-git add docs/index.html docs/app scripts/generate-dashboard-data.js
+git add docs/index.html docs/app docs/data docs/studio scripts/generate-dashboard-data.js
 
 if git diff --cached --quiet; then
   echo "No dashboard changes to commit."

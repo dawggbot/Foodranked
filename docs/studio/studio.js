@@ -1,25 +1,9 @@
 const FEATURED_EPISODES = {
-  bacon: {
-    status: 'script-polished',
-    publishOrder: 1,
-    script: `Bacon ranked.\n\nToday we’re ranking Bacon as a meat, per 100g, so let’s see where it actually lands.\n\nFat is 42g, and this is where things start going wrong fast.\n\nCarbs are basically irrelevant here.\n\nProtein is 37g, and yes, the protein quality is strong.\n\nB12 helps a bit, but the micronutrient case is nowhere near enough to save it.\n\nThe pros are obvious: it tastes great, it makes food more addictive, and people love it.\n\nBut the downsides are rough: the sodium is bad, the processing is bad, and the fat profile is bad for the category.\n\nOverall, Bacon lands in D tier.\n\nBacon gets a 39 overall.`
-  },
-  'rice-cakes': {
-    status: 'script-polished', publishOrder: 2,
-    script: `Rice Cakes ranked.\n\nToday we’re ranking Rice Cakes as a grain, per 100g, so let’s see where they actually land.\n\nFat is only 3g, so this was never going to be a fat story.\n\nCarbs are 81.5g, and this is where the problem shows up: high glycemic impact, not much payoff, and weak staying power.\n\nProtein is only 7g, so that’s not rescuing anything either.\n\nThe pros are mostly practical: they’re portable, easy to carry, and easy to throw toppings on.\n\nBut the downsides are exactly why people argue about them: weak grain payoff, harsh glycemic impact, and not very filling for the calories.\n\nOverall, Rice Cakes land in D tier.\n\nRice Cakes get a 21 overall.`
-  },
-  'extra-virgin-olive-oil': {
-    status: 'script-polished', publishOrder: 3,
-    script: `Extra Virgin Olive Oil ranked.\n\nToday we’re ranking Extra Virgin Olive Oil as a fat, per 100g, so let’s see where it actually lands.\n\nFat is 100g, obviously, so this whole verdict comes down to fat quality.\n\nAnd that’s exactly why olive oil scores so well here.\n\nThe vitamin support is stronger than most people expect, and the overall category fit is excellent.\n\nThe biggest pros are clear: strong fat profile, useful polyphenols, and a very clean ingredient identity.\n\nThe cons are still real: it’s extremely calorie-dense, quality varies a lot, and it’s not magic just because it has a health halo.\n\nOverall, Extra Virgin Olive Oil lands in S tier.\n\nIt gets a 78 overall.`
-  },
-  'cola-regular': {
-    status: 'script-polished', publishOrder: 4,
-    script: `Regular Cola ranked.\n\nToday we’re ranking Regular Cola as a misc item, per 100g, so let’s see where it actually lands.\n\nThis one is simple.\n\nThere is basically no meaningful nutrition story here.\n\nWhat matters is the context: it’s cheap, common, and easy to drink way too much of.\n\nAnd the big problem is obvious — liquid sugar is one of the worst forms this can come in.\n\nSo even if it’s convenient and everywhere, the downside is doing almost all the talking.\n\nOverall, Regular Cola lands in D tier.\n\nIt gets a 0 overall.`
-  },
-  salmon: {
-    status: 'script-polished', publishOrder: 5,
-    script: `Salmon ranked.\n\nToday we’re ranking Salmon as a meat, per 100g, so let’s see where it actually lands.\n\nFat is 13g, and in this case that is a very good thing, because the omega-3 support is doing serious work.\n\nCarbs are zero, which doesn’t matter much here.\n\nProtein is 20.4g, and the protein quality is excellent.\n\nThen the micros push it even higher: B12 is huge, vitamin D is huge, and the overall package is just strong.\n\nThe pros are exactly what people expect: salmon has a great omega-3 reputation, it’s satisfying, and it brings real nutrient density.\n\nThe downsides are mostly practical: it can be expensive, sourcing matters, and storage matters.\n\nOverall, Salmon lands in S tier.\n\nIt gets an 81 overall.`
-  }
+  bacon: { status: 'script-polished', publishOrder: 1 },
+  'rice-cakes': { status: 'script-polished', publishOrder: 2 },
+  'extra-virgin-olive-oil': { status: 'script-polished', publishOrder: 3 },
+  'cola-regular': { status: 'script-polished', publishOrder: 4 },
+  salmon: { status: 'script-polished', publishOrder: 5 }
 };
 
 const SCORING_SECTIONS = [
@@ -55,7 +39,7 @@ async function loadData() {
     safeJsonFetch('../data/foods-index.json', []),
     safeJsonFetch('../data/batch-results.json', { summary: [], details: [] })
   ]);
-  state.foods = Array.isArray(foods) ? foods : [];
+  state.foods = Array.isArray(foods) ? foods : Array.isArray(foods?.foods) ? foods.foods : [];
   state.results = Array.isArray(batch.summary) ? batch.summary : [];
   state.foodsById = new Map(state.foods.map(food => [food.id, food]));
   state.resultsById = new Map((Array.isArray(batch.details) ? batch.details : []).map(item => [item.result?.food?.id, item.result]));
@@ -128,11 +112,31 @@ function buildDashboardStats() {
 }
 
 function getFoodResult(foodId) {
-  return state.resultsById.get(foodId) || null;
+  const liveResult = state.resultsById.get(foodId);
+  if (liveResult) return liveResult;
+  return state.foodsById.get(foodId)?.episode || null;
+}
+
+function getFeaturedEpisodeMeta(foodId) {
+  return FEATURED_EPISODES[foodId] || null;
+}
+
+function getEpisodeScriptText(food) {
+  if (!food?.episode) return '';
+
+  const narrationText = String(food.episode.narrationText || '').trim();
+  if (narrationText) return narrationText;
+
+  const blocks = food.episode.script?.narrationBlocks;
+  if (Array.isArray(blocks) && blocks.length) {
+    return blocks.map(block => block.text).filter(Boolean).join('\n\n-\n\n');
+  }
+
+  return '';
 }
 
 function buildFoodsWithResults() {
-  return state.foods.map(food => ({ food, result: getFoodResult(food.id), featured: FEATURED_EPISODES[food.id] || null }));
+  return state.foods.map(food => ({ food, result: getFoodResult(food.id), featured: getFeaturedEpisodeMeta(food.id) }));
 }
 
 function findFoodIdByName(name) {
@@ -190,7 +194,7 @@ function groupedCounts(items, keyFn) {
 }
 
 function foodCard(food, result) {
-  const featured = FEATURED_EPISODES[food.id];
+  const featured = getFeaturedEpisodeMeta(food.id);
   const top = topSection(result);
   const badges = [
     `<span class="pill ${tierClass(result?.tier || food.expectedTier || '—')}">Tier ${result?.tier || food.expectedTier || '—'}</span>`,
@@ -240,8 +244,8 @@ function dashboardView() {
         <div class="title-row"><h3>Launch episode queue</h3><a class="pill" href="#/episodes">Open full episode view</a></div>
         <div class="feature-list" style="margin-top:14px;">
           ${featuredFoods.map(food => {
-            const result = state.resultsById.get(food.id);
-            const episode = FEATURED_EPISODES[food.id];
+            const result = getFoodResult(food.id);
+            const episode = getFeaturedEpisodeMeta(food.id);
             return `<a class="feature-item" href="#/episodes?food=${food.id}">
               <div class="title-row"><strong>#${episode.publishOrder} ${food.name}</strong><span class="pill ${tierClass(result?.tier || '—')}">${result?.tier || '—'} tier</span></div>
               <div class="copy">${episode.status.replace('-', ' ')} · ${typeLabel(food.foodType)} · ${value(result?.overallScore, ' overall')}</div>
@@ -371,8 +375,8 @@ function foodsView() {
 function foodDetailView(id) {
   const food = state.foodsById.get(id);
   if (!food) return notFoundView();
-  const result = state.resultsById.get(id);
-  const featured = FEATURED_EPISODES[id];
+  const result = getFoodResult(id);
+  const featured = getFeaturedEpisodeMeta(id);
   const routeTab = qs().get('tab') || 'overview';
   const top = topSection(result);
   const bottom = bottomSection(result);
@@ -409,7 +413,7 @@ function foodDetailView(id) {
           <div class="metric-grid" style="margin-top:10px;">
             ${metricCard('Scored batch', result ? 'available' : 'not yet')}
             ${metricCard('Featured episode', featured ? 'yes' : 'no')}
-            ${metricCard('Source file', `<code>${food.path}</code>`)}
+            ${metricCard('Source file', `<code>${food.sourceFile || food.path}</code>`)}
           </div>
         </div>
       </div>
@@ -469,15 +473,16 @@ function foodDetailTab(food, result, featured, tab) {
   }
 
   if (tab === 'episode') {
+    const scriptText = getEpisodeScriptText(food);
     return featured
-      ? `<div class="script-box">${escapeHtml(featured.script)}</div>`
+      ? `<div class="script-box">${escapeHtml(scriptText || 'No generated narration text found for this episode yet.')}</div>`
       : `<div class="empty">No polished episode script embedded for this food yet.</div>`;
   }
 
   return `
     <div class="grid cols-3">
       <div class="panel"><h4>Current score read</h4><div class="copy" style="margin-top:8px;">${result ? `${formatScore(result.overallScore)} overall · ${result.tier} tier.` : 'Awaiting scored batch output.'}</div></div>
-      <div class="panel"><h4>Source file</h4><div class="copy" style="margin-top:8px;"><code>${food.path}</code></div></div>
+      <div class="panel"><h4>Source file</h4><div class="copy" style="margin-top:8px;"><code>${food.sourceFile || food.path}</code></div></div>
       <div class="panel"><h4>Episode status</h4><div class="copy" style="margin-top:8px;">${featured ? featured.status.replace('-', ' ') : 'not in launch top 5 yet'}</div></div>
     </div>
     <div class="grid cols-3" style="margin-top:16px;">
@@ -565,10 +570,10 @@ function rulesView() {
 function episodesView() {
   const selected = qs().get('food') || 'bacon';
   const food = state.foodsById.get(selected);
-  const episode = FEATURED_EPISODES[selected];
-  const result = state.resultsById.get(selected);
+  const episode = getFeaturedEpisodeMeta(selected);
+  const result = getFoodResult(selected);
   const available = Object.keys(FEATURED_EPISODES)
-    .map(id => ({ food: state.foodsById.get(id), episode: FEATURED_EPISODES[id], result: state.resultsById.get(id) }))
+    .map(id => ({ food: state.foodsById.get(id), episode: getFeaturedEpisodeMeta(id), result: getFoodResult(id) }))
     .filter(x => x.food)
     .sort((a, b) => a.episode.publishOrder - b.episode.publishOrder);
 
@@ -594,7 +599,7 @@ function episodesView() {
             <div class="metric-card"><strong>Current score</strong><span>${value(result?.overallScore, '')}</span></div>
           </div>
           <h4 style="margin-top:16px;">Narration draft</h4>
-          <div class="script-box" style="margin-top:10px;">${escapeHtml(episode.script)}</div>
+          <div class="script-box" style="margin-top:10px;">${escapeHtml(getEpisodeScriptText(food) || 'No generated narration text found for this episode yet.')}</div>
         ` : '<div class="empty">Select an episode from the queue.</div>'}
       </div>
     </section>

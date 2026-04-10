@@ -6,9 +6,10 @@ const repoRoot = path.resolve(__dirname, '..');
 const foodsDir = path.join(repoRoot, 'foods');
 const rulesetsDir = path.join(repoRoot, 'rulesets');
 const outputsDir = path.join(repoRoot, 'outputs', 'episodes');
-const outDir = path.join(repoRoot, 'docs', 'app', 'data');
-const outFile = path.join(outDir, 'foods-index.json');
-const outJsFile = path.join(outDir, 'foods-index.js');
+const outDirs = [
+  path.join(repoRoot, 'docs', 'data'),
+  path.join(repoRoot, 'docs', 'app', 'data')
+];
 
 function ensureDir(dir) { fs.mkdirSync(dir, { recursive: true }); }
 function readJson(file) { return JSON.parse(fs.readFileSync(file, 'utf8')); }
@@ -62,9 +63,11 @@ const foods = fs.readdirSync(foodsDir)
       foodType: food.foodType,
       foodTypeLabel: titleCase(food.foodType),
       basis: food.basis,
+      kcal: food.header?.kcal ?? null,
       header: food.header || {},
       metrics: food.metrics || {},
       contextItems: food.contextItems || { pros: [], cons: [] },
+      path: `data/foods/${name}`,
       sourceFile: path.relative(repoRoot, file),
       ruleset: ruleset ? {
         id: ruleset.id,
@@ -101,7 +104,14 @@ const payload = {
   foods
 };
 
-ensureDir(outDir);
-fs.writeFileSync(outFile, JSON.stringify(payload, null, 2) + '\n');
-fs.writeFileSync(outJsFile, `window.FOODRANKED_DATA = ${JSON.stringify(payload, null, 2)};\n`);
-console.log(`Wrote ${outFile} and ${outJsFile} with ${foods.length} foods.`);
+for (const outDir of outDirs) {
+  const outFile = path.join(outDir, 'foods-index.json');
+  const outJsFile = path.join(outDir, 'foods-index.js');
+  ensureDir(outDir);
+  fs.writeFileSync(outFile, JSON.stringify(foods, null, 2) + '\n');
+  fs.writeFileSync(
+    outJsFile,
+    `window.FOODS_INDEX = ${JSON.stringify(foods, null, 2)};\nwindow.FOODRANKED_DATA = ${JSON.stringify(payload, null, 2)};\n`
+  );
+  console.log(`Wrote ${outFile} and ${outJsFile} with ${foods.length} foods.`);
+}

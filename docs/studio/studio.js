@@ -195,9 +195,10 @@ function groupedCounts(items, keyFn) {
 
 function foodCard(food, result) {
   const featured = getFeaturedEpisodeMeta(food.id);
+  const resolvedTier = result?.tier || food?.episode?.tier || '—';
   const top = topSection(result);
   const badges = [
-    `<span class="pill ${tierClass(result?.tier || food.expectedTier || '—')}">Tier ${result?.tier || food.expectedTier || '—'}</span>`,
+    `<span class="pill ${tierClass(resolvedTier)}">Tier ${resolvedTier}</span>`,
     `<span class="pill subtle-pill">${cap(typeLabel(food.foodType))}</span>`,
     featured ? '<span class="pill subtle-pill">Featured</span>' : '',
     result ? '<span class="pill subtle-pill">Scored</span>' : '<span class="pill subtle-pill">Unscored</span>'
@@ -406,7 +407,7 @@ function foodDetailView(id) {
               ['Fat', value(result?.header?.fat_g, ' g')],
               ['Carbs', value(result?.header?.carb_g, ' g')],
               ['Protein', value(result?.header?.protein_g, ' g')],
-              ['Tier', result?.tier || food.expectedTier || '—'],
+              ['Tier', result?.tier || food?.episode?.tier || '—'],
               ['Overall', value(result?.overallScore, '')]
             ].map(([k,v]) => metricCard(k, v)).join('')}
           </div>

@@ -34,6 +34,8 @@ That means the scoring system has 4 layers:
   6. pros
   7. cons
 - the on-video section order and the score structure should stay aligned
+- overall score is for display/review/header context, not something the narration has to say out loud
+- once a scored result reaches the script generator, website/script review surfaces should inherit from that generated output rather than from separate hand-written copies
 
 ## Important scoring distinction
 

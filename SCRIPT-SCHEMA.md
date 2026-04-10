@@ -27,6 +27,7 @@ It is the bridge between:
 - food identity and score-readiness context travel with the script payload
 - pros/cons should stay explanation-led, not raw-score-led
 - dead legacy fields like context-item `scoreValue` should not be treated as script truth
+- this file plus `scripts/foodranked-generate-script.js` are the source of truth for narration behavior, not stale website copies or one-off production rewrites
 
 ## Top-level shape
 
@@ -134,9 +135,19 @@ For pros/cons, keep:
 
 Do not treat deleted food-file `scoreValue` fields as active script inputs.
 
+## Lock-in status
+
+Current locked behavior:
+- 7 section order stays fixed and matched to the score structure
+- compact narration uses the `FOOD!` / `RANKED!` / section blocks / short overview / final tier reveal flow
+- the overview comes immediately before the final tier reveal
+- the final spoken block is always the tier reveal
+- overall score is display-only and should not be narrated
+
 ## Success condition
 
 The schema is correct when one generator pass can create:
 - readable section narration
 - an ElevenLabs-ready block script
 - episode packaging that stays aligned with the latest scorer output
+- website/script surfaces that stay matched to the same generated narration text

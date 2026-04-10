@@ -124,6 +124,7 @@ Each scene includes:
 - keep timing estimated rather than fake-precise
 - keep a human review step before publish
 - make the compact narration path match the ElevenLabs block layout exactly
+- treat `outputs/episodes/<food>-compact/` as the reusable source for published website script review, rather than maintaining separate hand-copied website narration text
 
 ## Success condition
 

@@ -68,8 +68,14 @@ See also:
 - `PRODUCTION-FOLDER-STRUCTURE.md`
 - `templates/visual-template.v1.json`
 
-## Notes
+## Locked source of truth
 
-This nested repo area should be treated carefully during cleanup because it contains useful project material, but some top-level docs previously duplicated/conflicted with the workspace-root copies.
+For the current FoodRanked engine, treat these as the locked implementation/docs set:
+- scoring rules + architecture: `FOODRANKED-SCORING-SYSTEM.md`, `RULESET-SCHEMA.md`, `RULESET-JSON-SHAPE.md`
+- reusable narration system: `scripts/foodranked-generate-script.js`, `SCRIPT-SCHEMA.md`
+- episode packaging: `scripts/foodranked-generate-episode.js`, `EPISODE-MANIFEST-SCHEMA.md`
+- published website data bundle: `docs/data/foods-index.json`, `docs/data/foods-index.js`
 
-For the current cleaned source-of-truth view, prefer the workspace-root docs first.
+Design rule:
+- avoid duplicate published data bundles unless two distinct surfaces genuinely require them
+- website/studio/builder views should read from the same generated source whenever possible

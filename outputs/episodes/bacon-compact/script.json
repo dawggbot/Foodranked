@@ -1,9 +1,46 @@
 {
   "status": "ok",
+  "schemaVersion": "foodranked-script.v2",
+  "narrationFormat": "elevenlabs-blocks-v1",
   "food": {
     "id": "bacon",
     "name": "Bacon",
-    "foodType": "meats"
+    "foodType": "meats",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "identity": {
+      "canonicalName": "Pork bacon, cured, unprepared",
+      "commonName": "Bacon",
+      "form": "streaky cured bacon slices",
+      "state": "raw / unprepared",
+      "ediblePortion": "as sold",
+      "basisReason": "Raw per-100g as-sold basis matches package-label style nutrition and avoids cooked-water-loss distortion.",
+      "includes": [
+        "plain cured sliced bacon as sold"
+      ],
+      "excludes": [
+        "cooked bacon values",
+        "turkey bacon",
+        "reduced-fat bacon variants",
+        "bacon-flavored products"
+      ]
+    },
+    "scoreReadiness": {
+      "status": "near-production-safe",
+      "summary": "Core raw bacon nutrition is coherent enough for launch scripting, but a few protein-quality style fields are still older calibration proxies rather than locked source facts.",
+      "blockers": [
+        "collagen and protein-quality proxy metrics still need either exact-source backing or deliberate removal",
+        "cured bacon product variability means exact sodium-forward real-world burden is broader than this simplified nutrition record captures"
+      ]
+    },
+    "sourceNotes": [
+      "Production-lane cleanup pass.",
+      "Identity locked to cured pork bacon, unprepared, per 100 g as sold.",
+      "Core nutrient values align with USDA SR Legacy style pork bacon cured unprepared entries.",
+      "Raw basis kept intentionally, not cooked bacon values."
+    ]
   },
   "ruleset": {
     "id": "meats.v1",
@@ -16,230 +53,292 @@
     "protein_g": 13.7
   },
   "hook": "Bacon ranked.",
-  "intro": "",
   "sections": [
     {
       "key": "fats",
       "title": "Fats",
-      "narration": "37.1g of fat. saturated fat is a major pressure point. for meats, fat quality matters a lot once the protein is already there.",
+      "narration": "37.1g of fat. Saturated fat is a major pressure point. For meats, fat quality matters a lot once the protein is already there.",
       "displayItems": [
         {
-          "metricKey": "saturated_fat_g",
-          "text": "saturated fat at 12.6",
-          "weightedScore": -4,
+          "metricKey": "omega3_mg",
+          "text": "omega3 at 275",
+          "weightedScore": 180,
           "scoringMode": "arrow_bands",
-          "band": "↑↑",
+          "band": "1_green",
           "dvPercent": null,
-          "value": 12.6
-        },
-        {
-          "metricKey": "polyunsaturated_fat_g",
-          "text": "polyunsaturated fat at 5.8",
-          "weightedScore": 3,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
-          "dvPercent": null,
-          "value": 5.8
+          "value": 275
         },
         {
           "metricKey": "cholesterol_mg",
           "text": "cholesterol at 66",
-          "weightedScore": 2,
+          "weightedScore": 160,
           "scoringMode": "arrow_bands",
-          "band": "↓",
+          "band": "2_green",
           "dvPercent": null,
           "value": 66
         },
         {
-          "metricKey": "omega3_mg",
-          "text": "omega3 at 275",
-          "weightedScore": 1,
+          "metricKey": "polyunsaturated_fat_g",
+          "text": "polyunsaturated fat at 5.8",
+          "weightedScore": 100,
           "scoringMode": "arrow_bands",
-          "band": "↑",
+          "band": "3_green",
           "dvPercent": null,
-          "value": 275
+          "value": 5.8
+        },
+        {
+          "metricKey": "saturated_fat_g",
+          "text": "saturated fat at 12.6",
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
+          "band": "3_red",
+          "dvPercent": null,
+          "value": 12.6
         }
       ],
-      "subtitleText": "37.1g of fat. saturated fat is a major pressure point. for meats, fat quality matters a lot once the protein is already there.",
+      "subtitleText": "37.1g of fat. Saturated fat is a major pressure point. For meats, fat quality matters a lot once the protein is already there.",
       "timingHint": "short-medium",
-      "score": 55.6
+      "score": 48.9
     },
     {
       "key": "carbs",
       "title": "Carbs",
-      "narration": "0g of carbs. everything else is lackluster. in this category, carbs barely matter.",
+      "narration": "0g of carbs. Everything else is lackluster. In this category, carbs barely matter.",
       "displayItems": [],
-      "subtitleText": "0g of carbs. everything else is lackluster. in this category, carbs barely matter.",
+      "subtitleText": "0g of carbs. Everything else is lackluster. In this category, carbs barely matter.",
       "timingHint": "short-medium",
       "score": null
     },
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "13.7g of protein. bioavailability and amino acid quality are both strong. strong protein is expected here, so the rest of the profile decides how high it climbs.",
+      "narration": "13.7g of protein. Protein quantity is doing most of the work. Strong protein is expected here, so the rest of the profile decides how high it climbs.",
       "displayItems": [
         {
-          "metricKey": "essential_amino_acids_score",
-          "text": "essential amino acids score at 8",
-          "weightedScore": 6,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑",
+          "metricKey": "protein_g_fallback",
+          "text": "protein g fallback at 13.7",
+          "weightedScore": 80,
+          "scoringMode": "protein_fallback",
+          "band": "2_red",
           "dvPercent": null,
-          "value": 8
-        },
-        {
-          "metricKey": "bioavailability_percent",
-          "text": "bioavailability at 90",
-          "weightedScore": 6,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑",
-          "dvPercent": null,
-          "value": 90
-        },
-        {
-          "metricKey": "nonessential_amino_acids_score",
-          "text": "nonessential amino acids score at 10",
-          "weightedScore": 4,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑",
-          "dvPercent": null,
-          "value": 10
-        },
-        {
-          "metricKey": "collagen_g",
-          "text": "collagen at 1",
-          "weightedScore": -3,
-          "scoringMode": "arrow_bands",
-          "band": "↓↓↓",
-          "dvPercent": null,
-          "value": 1
+          "value": 13.7
         }
       ],
-      "subtitleText": "13.7g of protein. bioavailability and amino acid quality are both strong. strong protein is expected here, so the rest of the profile decides how high it climbs.",
-      "timingHint": "short-medium",
-      "score": 74.1
-    },
-    {
-      "key": "vitamins",
-      "title": "Vitamins",
-      "narration": "vitamin b12 at 21% daily value stands out most. that is only mild support overall.",
-      "displayItems": [
-        {
-          "metricKey": "vitamin_b12_dv",
-          "text": "vitamin b12 at 21% daily value",
-          "weightedScore": 4,
-          "scoringMode": "dv_points",
-          "band": null,
-          "dvPercent": 21,
-          "value": null
-        }
-      ],
-      "subtitleText": "vitamin b12 at 21% daily value stands out most. that is only mild support overall.",
+      "subtitleText": "13.7g of protein. Protein quantity is doing most of the work. Strong protein is expected here, so the rest of the profile decides how high it climbs.",
       "timingHint": "short-medium",
       "score": 20
     },
     {
+      "key": "vitamins",
+      "title": "Vitamins",
+      "narration": "Vitamin b12 at 21% daily value stands out most. That is barely moving the needle.",
+      "displayItems": [
+        {
+          "metricKey": "vitamin_b12_dv",
+          "text": "vitamin b12 at 21% daily value",
+          "weightedScore": 60,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 21,
+          "value": null
+        },
+        {
+          "metricKey": "vitamin_d_dv",
+          "text": "vitamin d at 1% daily value",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 1,
+          "value": null
+        }
+      ],
+      "subtitleText": "Vitamin b12 at 21% daily value stands out most. That is barely moving the needle.",
+      "timingHint": "short-medium",
+      "score": 12
+    },
+    {
       "key": "minerals",
       "title": "Minerals",
-      "narration": "zinc at 10% daily value stands out most. useful, but still pretty limited.",
+      "narration": "Zinc at 10% daily value stands out most. Useful, but still pretty limited.",
       "displayItems": [
         {
           "metricKey": "zinc_dv",
           "text": "zinc at 10% daily value",
-          "weightedScore": 2,
+          "weightedScore": 30,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 10,
           "value": null
+        },
+        {
+          "metricKey": "iron_dv",
+          "text": "iron at 2% daily value",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 2,
+          "value": null
+        },
+        {
+          "metricKey": "potassium_dv",
+          "text": "potassium at 4% daily value",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 4,
+          "value": null
         }
       ],
-      "subtitleText": "zinc at 10% daily value stands out most. useful, but still pretty limited.",
+      "subtitleText": "Zinc at 10% daily value stands out most. Useful, but still pretty limited.",
       "timingHint": "short-medium",
-      "score": 10
+      "score": 3.8
     },
     {
       "key": "pros",
       "title": "Pros",
-      "narration": "pros first: highly palatable and appealing. a real-world reason people love it. works as a strong flavour booster. useful in meals even in smaller amounts. has strong comfort-food appeal. popular and instantly legible for content packaging.",
+      "narration": "Pros first: highly palatable and appealing. A real-world reason people love it. Works as a strong flavour booster. Useful in meals even in smaller amounts. Has strong comfort-food appeal. Popular and instantly legible for content packaging.",
       "displayItems": [
         {
           "type": "pro",
           "title": "highly palatable and appealing",
           "explanation": "A real-world reason people love it.",
           "impactLevel": "minor",
-          "scoreValue": 0
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "works as a strong flavour booster",
           "explanation": "Useful in meals even in smaller amounts.",
           "impactLevel": "minor",
-          "scoreValue": 0
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "has strong comfort-food appeal",
           "explanation": "Popular and instantly legible for content packaging.",
           "impactLevel": "minor",
-          "scoreValue": 0
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "pros first: highly palatable and appealing. a real-world reason people love it. works as a strong flavour booster. useful in meals even in smaller amounts. has strong comfort-food appeal. popular and instantly legible for content packaging.",
+      "subtitleText": "Pros first: highly palatable and appealing. A real-world reason people love it. Works as a strong flavour booster. Useful in meals even in smaller amounts. Has strong comfort-food appeal. Popular and instantly legible for content packaging.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     },
     {
       "key": "cons",
       "title": "Cons",
-      "narration": "the drawbacks next: sodium is a major drawback. a central practical health issue for bacon. processing is a major negative. a key downside now that more processed foods are in scope. rarely improves a meal much on its own. usually works more as a flavour add-on than a genuinely strong meat choice.",
+      "narration": "The drawbacks next: sodium is a major drawback. A central practical health issue for bacon. Processing is a major negative. A key downside now that more processed foods are in scope. Rarely improves a meal much on its own. Usually works more as a flavour add-on than a genuinely strong meat choice.",
       "displayItems": [
         {
           "type": "con",
           "title": "sodium is a major drawback",
           "explanation": "A central practical health issue for bacon.",
           "impactLevel": "major",
-          "scoreValue": -3
+          "resolvedScoreValue": 100
         },
         {
           "type": "con",
           "title": "processing is a major negative",
           "explanation": "A key downside now that more processed foods are in scope.",
           "impactLevel": "major",
-          "scoreValue": -3
+          "resolvedScoreValue": 100
         },
         {
           "type": "con",
           "title": "rarely improves a meal much on its own",
           "explanation": "Usually works more as a flavour add-on than a genuinely strong meat choice.",
           "impactLevel": "major",
-          "scoreValue": -3
+          "resolvedScoreValue": 100
         }
       ],
-      "subtitleText": "the drawbacks next: sodium is a major drawback. a central practical health issue for bacon. processing is a major negative. a key downside now that more processed foods are in scope. rarely improves a meal much on its own. usually works more as a flavour add-on than a genuinely strong meat choice.",
+      "subtitleText": "The drawbacks next: sodium is a major drawback. A central practical health issue for bacon. Processing is a major negative. A key downside now that more processed foods are in scope. Rarely improves a meal much on its own. Usually works more as a flavour add-on than a genuinely strong meat choice.",
       "timingHint": "medium",
-      "score": 100
+      "score": 0
     }
   ],
   "closing": {
-    "summary": "Bacon does have a few real-world upsides. but the nutrition case is still weak and the downsides drag it down hard. best only if convenience, budget, or taste matters more than getting the cleanest meat option.",
-    "finalReveal": "C tier.",
+    "summary": "Bacon does have a few real-world upsides. But the nutrition case is still weak and the downsides drag it down hard. Best only if convenience, budget, or taste matters more than getting the cleanest meat option.",
+    "finalReveal": "D tier.",
     "useCaseNote": "Best only if convenience, budget, or taste matters more than getting the cleanest meat option.",
     "cta": "Would you rank it the same, or nah?"
   },
-  "tier": "C",
-  "overallScore": 46,
+  "tier": "D",
+  "overallScore": 22.4,
+  "overallScoreExact": 22.4398,
+  "sectionOrder": [
+    "fats",
+    "carbs",
+    "proteins",
+    "vitamins",
+    "minerals",
+    "pros",
+    "cons"
+  ],
+  "narrationBlocks": [
+    {
+      "kind": "hook_food",
+      "text": "Bacon!"
+    },
+    {
+      "kind": "hook_ranked",
+      "text": "Ranked!"
+    },
+    {
+      "kind": "section",
+      "sectionKey": "fats",
+      "text": "37.1g of fat. Saturated fat is a major pressure point. For meats, fat quality matters a lot once the protein is already there."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "carbs",
+      "text": "0g of carbs. Everything else is lackluster. In this category, carbs barely matter."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "proteins",
+      "text": "13.7g of protein. Protein quantity is doing most of the work. Strong protein is expected here, so the rest of the profile decides how high it climbs."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "vitamins",
+      "text": "Vitamin b12 at 21% daily value stands out most. That is barely moving the needle."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "minerals",
+      "text": "Zinc at 10% daily value stands out most. Useful, but still pretty limited."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "pros",
+      "text": "Pros first: highly palatable and appealing. A real-world reason people love it. Works as a strong flavour booster. Useful in meals even in smaller amounts. Has strong comfort-food appeal. Popular and instantly legible for content packaging."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "cons",
+      "text": "The drawbacks next: sodium is a major drawback. A central practical health issue for bacon. Processing is a major negative. A key downside now that more processed foods are in scope. Rarely improves a meal much on its own. Usually works more as a flavour add-on than a genuinely strong meat choice."
+    },
+    {
+      "kind": "closing_summary",
+      "text": "Bacon does have a few real-world upsides. But the nutrition case is still weak and the downsides drag it down hard. Best only if convenience, budget, or taste matters more than getting the cleanest meat option."
+    },
+    {
+      "kind": "final_reveal",
+      "text": "D tier."
+    }
+  ],
   "explanation": {
-    "summary": "Proteins are carrying this food most, while minerals are the biggest drag. It lands in C tier.",
-    "whyThisTier": "This food lands in C tier with an overall score of 46 from a base nutrition score of 55. Context dragged it down by 9 points.",
+    "summary": "Pros are carrying this food most, while cons are holding it back most. It lands in D tier.",
+    "whyThisTier": "This food lands in D tier with an overall score of 22.4. Section scores: fats 48.9, proteins 20, vitamins 12, minerals 3.8, pros 50, cons 0.",
     "strongestSection": {
-      "key": "proteins",
-      "label": "Proteins",
-      "score": 74.1
+      "key": "pros",
+      "label": "Pros",
+      "score": 50
     },
     "weakestSection": {
-      "key": "minerals",
-      "label": "Minerals",
-      "score": 10
+      "key": "cons",
+      "label": "Cons",
+      "score": 0
     },
     "topPros": [
       {
@@ -247,21 +346,21 @@
         "explanation": "A real-world reason people love it.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "works as a strong flavour booster",
         "explanation": "Useful in meals even in smaller amounts.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "has strong comfort-food appeal",
         "explanation": "Popular and instantly legible for content packaging.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -270,28 +369,27 @@
         "explanation": "A central practical health issue for bacon.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -3
+        "resolvedScoreValue": 100
       },
       {
         "title": "processing is a major negative",
         "explanation": "A key downside now that more processed foods are in scope.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -3
+        "resolvedScoreValue": 100
       },
       {
         "title": "rarely improves a meal much on its own",
         "explanation": "Usually works more as a flavour add-on than a genuinely strong meat choice.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -3
+        "resolvedScoreValue": 100
       }
     ],
     "narrationNotes": [
-      "Strongest section: Proteins.",
-      "Weakest section: Minerals.",
-      "Context weakened the final tier case by 9 points.",
-      "Final verdict: C tier."
+      "Strongest section: Pros.",
+      "Weakest section: Cons.",
+      "Final verdict: D tier."
     ]
   }
 }

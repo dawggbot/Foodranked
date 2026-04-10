@@ -20,9 +20,13 @@ This file describes the current FoodRanked video structure.
 Sequence:
 1. blurred background
 2. big food image / food pixel art
-3. text: `SUBJECT ranked`
-4. `RANKED` animates in
+3. spoken block: `SUBJECT!`
+4. spoken block: `RANKED!`
 5. transition into section 1
+
+For narration-ready compact exports, the opening should be emitted as two separate ElevenLabs blocks:
+- `SUBJECT!`
+- `RANKED!`
 
 ## Permanent header
 
@@ -65,7 +69,7 @@ There are 7 sections in order:
 
 Ending should include:
 - brief summary of strengths, weaknesses, and uses
-- final `S-D tier` reveal
+- final `S-D tier` reveal as its own spoken block (for example `C tier.`)
 - big stamped-in letter under the header on an emptier background
 
 ## Visual language
@@ -108,8 +112,38 @@ Potential asset classes:
 - keep reveals satisfying and rhythmic
 - let the final tier reveal feel like a payoff
 
+## Narration packaging
+
+Compact narration exports should use the locked ElevenLabs block layout:
+
+```text
+FOOD!
+
+-
+
+RANKED!
+
+-
+
+<one spoken block per section>
+
+-
+
+<closing summary>
+
+-
+
+<X tier.>
+```
+
+Rules:
+- one spoken block per section
+- abbreviations like `DV` should be spoken as `daily value`
+- pros/cons should keep all 3 items each when possible
+- on-screen body text should remain subtitle-driven
+
 ## Open questions
 - How locked are the exact timings for each section?
 - Which visual elements are permanent versus category-specific?
 - Which vitamins/minerals are always shown versus selectively shown?
-- Do pros/cons use fully generated text or curated short bullet phrases?
+- How much of the final closing wording should stay formulaic versus food-specific?

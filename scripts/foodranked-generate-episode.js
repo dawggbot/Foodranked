@@ -42,10 +42,23 @@ function runJsonScript(scriptPath, args) {
   return JSON.parse(res.stdout);
 }
 
+function spokenBlocks(script, options = {}) {
+  if (Array.isArray(script.narrationBlocks) && script.narrationBlocks.length) {
+    return script.narrationBlocks.filter(block => options.includeCta || block.kind !== 'cta');
+  }
+
+  return [
+    { kind: 'hook', text: script.hook },
+    ...script.sections.map(section => ({ kind: 'section', sectionKey: section.key, text: section.narration })),
+    { kind: 'closing_summary', text: script.closing.summary },
+    ...(options.includeCta ? [{ kind: 'cta', text: script.closing.cta }] : []),
+    { kind: 'final_reveal', text: script.closing.finalReveal }
+  ].filter(block => block.text);
+}
+
 function sentenceParts(script, options = {}) {
   return [
     script.hook,
-    script.intro,
     ...script.sections.map(section => section.narration),
     script.closing.summary,
     options.includeCta ? script.closing.cta : null,
@@ -61,21 +74,14 @@ function capitalizeSentenceStarts(text) {
     .replace(/^([a-z])/, (_, char) => char.toUpperCase());
 }
 
-function narrationHookParts(script) {
-  return [`${script.food.name}!`, 'ranked!'];
-}
-
 function buildNarrationText(script, options = {}) {
   const compact = options.mode === 'compact';
   if (!compact) return sentenceParts(script, options).map(capitalizeSentenceStarts).join('\n\n');
 
-  const parts = [
-    ...narrationHookParts(script),
-    ...script.sections.map(section => compactSectionNarration(section, options)),
-    script.closing.summary,
-    options.includeCta ? script.closing.cta : null,
-    script.closing.finalReveal
-  ].filter(Boolean).map(capitalizeSentenceStarts);
+  const parts = spokenBlocks(script, options)
+    .map(block => block.text)
+    .filter(Boolean)
+    .map(capitalizeSentenceStarts);
 
   return parts.join('\n\n-\n\n');
 }
@@ -197,6 +203,9 @@ function buildManifest({ food, rulesetPath, foodPath, score, script, template, s
       name: food.name,
       foodType: food.foodType,
       basis: food.basis || null,
+      identity: food.identity || null,
+      scoreReadiness: food.scoreReadiness || null,
+      sourceNotes: food.sourceNotes || [],
       sourceFile: path.relative(repoRoot, foodPath)
     },
     sourceOfTruth: {
@@ -215,17 +224,22 @@ function buildManifest({ food, rulesetPath, foodPath, score, script, template, s
     },
     scoreSnapshot: {
       overallScore: score.overallScore,
+      overallScoreExact: score.overallScoreExact ?? score.overallScore,
       tier: score.tier,
-      baseScore: score.baseScore,
-      contextAdjustment: score.contextAdjustment?.appliedAdjustment ?? 0,
       sectionScores: score.sectionScores,
+      strongestSection: score.explanation?.strongestSection || null,
+      weakestSection: score.explanation?.weakestSection || null,
+      topPros: score.explanation?.topPros || [],
+      topCons: score.explanation?.topCons || [],
       explanation: score.explanation
     },
     scriptSnapshot: {
+      schemaVersion: script.schemaVersion || 'foodranked-script.v1',
+      narrationFormat: script.narrationFormat || (compact ? 'elevenlabs-blocks-v1' : 'standard-paragraphs-v1'),
       hook: script.hook,
-      intro: compact ? null : script.intro,
       closing: script.closing,
-      sectionOrder: script.sections.map(section => section.key)
+      sectionOrder: script.sectionOrder || script.sections.map(section => section.key),
+      narrationBlockCount: Array.isArray(script.narrationBlocks) ? script.narrationBlocks.length : sentenceParts(script, options).length
     },
     visualBinding: {
       templateId: template.id,

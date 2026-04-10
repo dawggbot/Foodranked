@@ -1,9 +1,47 @@
 {
   "status": "ok",
+  "schemaVersion": "foodranked-script.v2",
+  "narrationFormat": "elevenlabs-blocks-v1",
   "food": {
     "id": "rice-cakes",
     "name": "Rice Cakes",
-    "foodType": "grains"
+    "foodType": "grains",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "identity": {
+      "canonicalName": "Plain puffed rice cakes",
+      "commonName": "Rice Cakes",
+      "form": "plain unsweetened puffed rice cakes",
+      "state": "ready to eat",
+      "ediblePortion": "as sold",
+      "basisReason": "Per-100g as-sold basis matches packaged snack labeling and avoids serving-size confusion from very light individual cakes.",
+      "includes": [
+        "plain rice cakes without sweet coatings"
+      ],
+      "excludes": [
+        "chocolate-coated rice cakes",
+        "flavored rice cakes",
+        "rice crackers with oil seasoning",
+        "rice cooked from dry grain"
+      ]
+    },
+    "scoreReadiness": {
+      "status": "near-production-safe",
+      "summary": "Good enough for launch scripting as a generic plain-rice-cakes record, but GI and protein-quality style fields are still generic rather than tightly source-locked.",
+      "blockers": [
+        "exact GI varies by rice-cake product and rice processing method",
+        "protein-quality proxy metrics are still calibration leftovers rather than exact-source facts",
+        "micronutrient values can vary somewhat by brand and fortification status"
+      ]
+    },
+    "sourceNotes": [
+      "Production-lane cleanup pass.",
+      "Identity locked to plain unsweetened puffed rice cakes, per 100 g as sold.",
+      "Core nutrient values align with generic packaged plain rice-cake nutrition profiles rather than flavored variants.",
+      "This remains a generic product-style record, not a brand-specific SKU."
+    ]
   },
   "ruleset": {
     "id": "grains.v1",
@@ -16,239 +54,320 @@
     "protein_g": 7
   },
   "hook": "Rice Cakes ranked.",
-  "intro": "",
   "sections": [
     {
       "key": "fats",
       "title": "Fats",
-      "narration": "3g of fat. omega 3 is doing a lot of the work here. fat is basically not the story here.",
+      "narration": "3g of fat. Saturated fat is a major pressure point. Fat is basically not the story here.",
       "displayItems": [
         {
           "metricKey": "saturated_fat_g",
           "text": "saturated fat at 0.6",
-          "weightedScore": 3,
+          "weightedScore": 80,
           "scoringMode": "arrow_bands",
-          "band": "↓↓↓",
+          "band": "2_green",
           "dvPercent": null,
           "value": 0.6
         },
         {
-          "metricKey": "omega3_mg",
-          "text": "omega3 at 20",
-          "weightedScore": 3,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
-          "dvPercent": null,
-          "value": 20
-        },
-        {
           "metricKey": "polyunsaturated_fat_g",
           "text": "polyunsaturated fat at 1.1",
-          "weightedScore": -2,
+          "weightedScore": 40,
           "scoringMode": "arrow_bands",
-          "band": "↓↓",
+          "band": "1_red",
           "dvPercent": null,
           "value": 1.1
+        },
+        {
+          "metricKey": "omega3_mg",
+          "text": "omega3 at 20",
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
+          "band": "3_red",
+          "dvPercent": null,
+          "value": 20
         }
       ],
-      "subtitleText": "3g of fat. omega 3 is doing a lot of the work here. fat is basically not the story here.",
+      "subtitleText": "3g of fat. Saturated fat is a major pressure point. Fat is basically not the story here.",
       "timingHint": "short-medium",
-      "score": 72.2
+      "score": 40
     },
     {
       "key": "carbs",
       "title": "Carbs",
-      "narration": "81.5g of carbs. glycemic index is where this starts to get messy. for grains, the carb quality matters much more than the raw number.",
+      "narration": "81.5g of carbs. Fibre is doing a lot of the work here. For grains, the carb quality matters much more than the raw number.",
       "displayItems": [
-        {
-          "metricKey": "glycemic_index",
-          "text": "glycemic index at 82",
-          "weightedScore": -12,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
-          "dvPercent": null,
-          "value": 82
-        },
-        {
-          "metricKey": "starch_g",
-          "text": "starch at 77",
-          "weightedScore": 3,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
-          "dvPercent": null,
-          "value": 77
-        },
         {
           "metricKey": "fibre_g",
           "text": "fibre at 4.3",
-          "weightedScore": -3,
+          "weightedScore": 200,
           "scoringMode": "arrow_bands",
-          "band": "↓",
+          "band": "1_red",
           "dvPercent": null,
           "value": 4.3
         },
         {
           "metricKey": "sugar_g",
           "text": "sugar at 0.7",
-          "weightedScore": 2,
+          "weightedScore": 160,
           "scoringMode": "arrow_bands",
-          "band": "↓↓",
+          "band": "2_green",
           "dvPercent": null,
           "value": 0.7
+        },
+        {
+          "metricKey": "starch_g",
+          "text": "starch at 77",
+          "weightedScore": 100,
+          "scoringMode": "arrow_bands",
+          "band": "3_green",
+          "dvPercent": null,
+          "value": 77
+        },
+        {
+          "metricKey": "glycemic_index",
+          "text": "glycemic index at 82",
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
+          "band": "3_red",
+          "dvPercent": null,
+          "value": 82
         }
       ],
-      "subtitleText": "81.5g of carbs. glycemic index is where this starts to get messy. for grains, the carb quality matters much more than the raw number.",
+      "subtitleText": "81.5g of carbs. Fibre is doing a lot of the work here. For grains, the carb quality matters much more than the raw number.",
       "timingHint": "short-medium",
-      "score": 31.5
+      "score": 35.4
     },
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "7g of protein. bioavailability and amino acid quality are both strong. protein helps, but not enough if the carb side is weak.",
+      "narration": "7g of protein. Protein amount is doing most of the work here. Protein helps, but not enough if the carb side is weak.",
       "displayItems": [
         {
-          "metricKey": "bioavailability_percent",
-          "text": "bioavailability at 50",
-          "weightedScore": 6,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
+          "metricKey": "protein_g_fallback",
+          "text": "protein g fallback at 7",
+          "weightedScore": 40,
+          "scoringMode": "protein_fallback",
+          "band": "2_red",
           "dvPercent": null,
-          "value": 50
-        },
-        {
-          "metricKey": "nonessential_amino_acids_score",
-          "text": "nonessential amino acids score at 6",
-          "weightedScore": 3,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
-          "dvPercent": null,
-          "value": 6
-        },
-        {
-          "metricKey": "essential_amino_acids_score",
-          "text": "essential amino acids score at 4",
-          "weightedScore": 2,
-          "scoringMode": "arrow_bands",
-          "band": "↑",
-          "dvPercent": null,
-          "value": 4
+          "value": 7
         }
       ],
-      "subtitleText": "7g of protein. bioavailability and amino acid quality are both strong. protein helps, but not enough if the carb side is weak.",
+      "subtitleText": "7g of protein. Protein amount is doing most of the work here. Protein helps, but not enough if the carb side is weak.",
       "timingHint": "short-medium",
-      "score": 86.7
+      "score": 20
     },
     {
       "key": "vitamins",
       "title": "Vitamins",
-      "narration": "outside of that, the profile is pretty quiet.",
-      "displayItems": [],
-      "subtitleText": "outside of that, the profile is pretty quiet.",
+      "narration": "Outside of that, the profile is pretty quiet.",
+      "displayItems": [
+        {
+          "metricKey": "vitamin_e_dv",
+          "text": "vitamin e at 1% daily value",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 1,
+          "value": null
+        }
+      ],
+      "subtitleText": "Outside of that, the profile is pretty quiet.",
       "timingHint": "short-medium",
-      "score": null
+      "score": 0
     },
     {
       "key": "minerals",
       "title": "Minerals",
-      "narration": "magnesium at 13% daily value stands out most. useful, but still pretty limited.",
+      "narration": "Magnesium at 13% daily value, iron at 7% daily value, zinc at 8% daily value stand out most. Useful, but still pretty limited.",
       "displayItems": [
         {
           "metricKey": "magnesium_dv",
           "text": "magnesium at 13% daily value",
-          "weightedScore": 2,
+          "weightedScore": 50,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 13,
           "value": null
+        },
+        {
+          "metricKey": "iron_dv",
+          "text": "iron at 7% daily value",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 7,
+          "value": null
+        },
+        {
+          "metricKey": "zinc_dv",
+          "text": "zinc at 8% daily value",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 8,
+          "value": null
+        },
+        {
+          "metricKey": "potassium_dv",
+          "text": "potassium at 3% daily value",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 3,
+          "value": null
         }
       ],
-      "subtitleText": "magnesium at 13% daily value stands out most. useful, but still pretty limited.",
+      "subtitleText": "Magnesium at 13% daily value, iron at 7% daily value, zinc at 8% daily value stand out most. Useful, but still pretty limited.",
       "timingHint": "short-medium",
-      "score": 10
+      "score": 3.3
     },
     {
       "key": "pros",
       "title": "Pros",
-      "narration": "the upsides first: portable and convenient. very easy to use as a quick snack base. easy to portion and carry. simple packaging advantage. works with many toppings. practical flexibility for snack content.",
+      "narration": "The upsides first: portable and convenient. Very easy to use as a quick snack base. Easy to portion and carry. Simple packaging advantage. Works with many toppings. Practical flexibility for snack content.",
       "displayItems": [
         {
           "type": "pro",
           "title": "portable and convenient",
           "explanation": "Very easy to use as a quick snack base.",
           "impactLevel": "minor",
-          "scoreValue": 0
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "easy to portion and carry",
           "explanation": "Simple packaging advantage.",
           "impactLevel": "minor",
-          "scoreValue": 0
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "works with many toppings",
           "explanation": "Practical flexibility for snack content.",
           "impactLevel": "minor",
-          "scoreValue": 0
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "the upsides first: portable and convenient. very easy to use as a quick snack base. easy to portion and carry. simple packaging advantage. works with many toppings. practical flexibility for snack content.",
+      "subtitleText": "The upsides first: portable and convenient. Very easy to use as a quick snack base. Easy to portion and carry. Simple packaging advantage. Works with many toppings. Practical flexibility for snack content.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     },
     {
       "key": "cons",
       "title": "Cons",
-      "narration": "on the weaker side: does not justify taking up your grain slot. other grain foods usually bring much more actual nutritional value. usually needs help to feel worthwhile. it often relies on toppings or pairings to become a decent snack. not very filling for the calories. can be unsatisfying unless built up with other foods.",
+      "narration": "On the weaker side: does not justify taking up your grain slot. Other grain foods usually bring much more actual nutritional value. Usually needs help to feel worthwhile. It often relies on toppings or pairings to become a decent snack. Not very filling for the calories. Can be unsatisfying unless built up with other foods.",
       "displayItems": [
         {
           "type": "con",
           "title": "does not justify taking up your grain slot",
           "explanation": "Other grain foods usually bring much more actual nutritional value.",
           "impactLevel": "major",
-          "scoreValue": -3
+          "resolvedScoreValue": 100
         },
         {
           "type": "con",
           "title": "usually needs help to feel worthwhile",
           "explanation": "It often relies on toppings or pairings to become a decent snack.",
           "impactLevel": "major",
-          "scoreValue": -3
+          "resolvedScoreValue": 100
         },
         {
           "type": "con",
           "title": "not very filling for the calories",
           "explanation": "Can be unsatisfying unless built up with other foods.",
           "impactLevel": "major",
-          "scoreValue": -3
+          "resolvedScoreValue": 100
         }
       ],
-      "subtitleText": "on the weaker side: does not justify taking up your grain slot. other grain foods usually bring much more actual nutritional value. usually needs help to feel worthwhile. it often relies on toppings or pairings to become a decent snack. not very filling for the calories. can be unsatisfying unless built up with other foods.",
+      "subtitleText": "On the weaker side: does not justify taking up your grain slot. Other grain foods usually bring much more actual nutritional value. Usually needs help to feel worthwhile. It often relies on toppings or pairings to become a decent snack. Not very filling for the calories. Can be unsatisfying unless built up with other foods.",
       "timingHint": "medium",
-      "score": 100
+      "score": 0
     }
   ],
   "closing": {
-    "summary": "Rice Cakes does have a few real-world upsides. but the nutrition case is still weak and the downsides drag it down hard. best only as a light snack base or texture food, not as a strong staple by itself.",
-    "finalReveal": "C tier.",
+    "summary": "Rice Cakes does have a few real-world upsides. But the nutrition case is still weak and the downsides drag it down hard. Best only as a light snack base or texture food, not as a strong staple by itself.",
+    "finalReveal": "D tier.",
     "useCaseNote": "Best only as a light snack base or texture food, not as a strong staple by itself.",
     "cta": "Would you rank it the same, or nah?"
   },
-  "tier": "C",
-  "overallScore": 22,
+  "tier": "D",
+  "overallScore": 21.2,
+  "overallScoreExact": 21.2454,
+  "sectionOrder": [
+    "fats",
+    "carbs",
+    "proteins",
+    "vitamins",
+    "minerals",
+    "pros",
+    "cons"
+  ],
+  "narrationBlocks": [
+    {
+      "kind": "hook_food",
+      "text": "Rice Cakes!"
+    },
+    {
+      "kind": "hook_ranked",
+      "text": "Ranked!"
+    },
+    {
+      "kind": "section",
+      "sectionKey": "fats",
+      "text": "3g of fat. Saturated fat is a major pressure point. Fat is basically not the story here."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "carbs",
+      "text": "81.5g of carbs. Fibre is doing a lot of the work here. For grains, the carb quality matters much more than the raw number."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "proteins",
+      "text": "7g of protein. Protein amount is doing most of the work here. Protein helps, but not enough if the carb side is weak."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "vitamins",
+      "text": "Outside of that, the profile is pretty quiet."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "minerals",
+      "text": "Magnesium at 13% daily value, iron at 7% daily value, zinc at 8% daily value stand out most. Useful, but still pretty limited."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "pros",
+      "text": "The upsides first: portable and convenient. Very easy to use as a quick snack base. Easy to portion and carry. Simple packaging advantage. Works with many toppings. Practical flexibility for snack content."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "cons",
+      "text": "On the weaker side: does not justify taking up your grain slot. Other grain foods usually bring much more actual nutritional value. Usually needs help to feel worthwhile. It often relies on toppings or pairings to become a decent snack. Not very filling for the calories. Can be unsatisfying unless built up with other foods."
+    },
+    {
+      "kind": "closing_summary",
+      "text": "Rice Cakes does have a few real-world upsides. But the nutrition case is still weak and the downsides drag it down hard. Best only as a light snack base or texture food, not as a strong staple by itself."
+    },
+    {
+      "kind": "final_reveal",
+      "text": "D tier."
+    }
+  ],
   "explanation": {
-    "summary": "Proteins are carrying this food most, while minerals are the biggest drag. It lands in C tier.",
-    "whyThisTier": "This food lands in C tier with an overall score of 22 from a base nutrition score of 31. Context dragged it down by 9 points.",
+    "summary": "Pros are carrying this food most, while cons are holding it back most. It lands in D tier.",
+    "whyThisTier": "This food lands in D tier with an overall score of 21.2. Section scores: fats 40, carbs 35.4, proteins 20, vitamins 0, minerals 3.3, pros 50, cons 0.",
     "strongestSection": {
-      "key": "proteins",
-      "label": "Proteins",
-      "score": 86.7
+      "key": "pros",
+      "label": "Pros",
+      "score": 50
     },
     "weakestSection": {
-      "key": "minerals",
-      "label": "Minerals",
-      "score": 10
+      "key": "cons",
+      "label": "Cons",
+      "score": 0
     },
     "topPros": [
       {
@@ -256,21 +375,21 @@
         "explanation": "Very easy to use as a quick snack base.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "easy to portion and carry",
         "explanation": "Simple packaging advantage.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "works with many toppings",
         "explanation": "Practical flexibility for snack content.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -279,28 +398,27 @@
         "explanation": "Other grain foods usually bring much more actual nutritional value.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -3
+        "resolvedScoreValue": 100
       },
       {
         "title": "usually needs help to feel worthwhile",
         "explanation": "It often relies on toppings or pairings to become a decent snack.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -3
+        "resolvedScoreValue": 100
       },
       {
         "title": "not very filling for the calories",
         "explanation": "Can be unsatisfying unless built up with other foods.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -3
+        "resolvedScoreValue": 100
       }
     ],
     "narrationNotes": [
-      "Strongest section: Proteins.",
-      "Weakest section: Minerals.",
-      "Context weakened the final tier case by 9 points.",
-      "Final verdict: C tier."
+      "Strongest section: Pros.",
+      "Weakest section: Cons.",
+      "Final verdict: D tier."
     ]
   }
 }

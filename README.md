@@ -26,13 +26,19 @@ FoodRanked is a short-form nutrition content system for ranking foods into tiers
 
 ## Quick commands
 
+Generate a structured script payload for one food:
+
+```bash
+node scripts/foodranked-generate-script.js foods/oats.sample.json
+```
+
 Generate a scored episode package for one food:
 
 ```bash
 node scripts/foodranked-generate-episode.js oats
 ```
 
-Generate a shorter-form draft package:
+Generate a shorter-form ElevenLabs-ready draft package:
 
 ```bash
 node scripts/foodranked-generate-episode.js oats --compact --no-cta
@@ -52,6 +58,7 @@ node scripts/foodranked-generate-episode-batch.js config/launch-batch.v1.json
 ```
 
 See also:
+- `SCRIPT-SCHEMA.md`
 - `EPISODE-MANIFEST-SCHEMA.md`
 - `BATCH-WORKFLOW.md`
 - `FIRST-LAUNCH-SHORTLIST.md`

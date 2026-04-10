@@ -127,6 +127,18 @@ function joinShort(parts) {
   return valid.join('. ') + (valid.length ? '.' : '');
 }
 
+function capitalizeSentenceStarts(text) {
+  const input = String(text || '').trim();
+  if (!input) return '';
+  return input
+    .replace(/(^|[.!?]\s+)([a-z])/g, (_, prefix, char) => `${prefix}${char.toUpperCase()}`)
+    .replace(/^([a-z])/, (_, char) => char.toUpperCase());
+}
+
+function polishNarration(text) {
+  return capitalizeSentenceStarts(String(text || '').trim());
+}
+
 function naturalList(items) {
   const valid = (items || []).filter(Boolean).map(item => String(item).trim()).filter(Boolean);
   if (!valid.length) return '';
@@ -140,30 +152,48 @@ function sectionContextLine(foodType, seed = '') {
 }
 
 function strongestMetricLine(result, sectionKey) {
-  const metrics = topMetricsForSection(result, sectionKey, 3);
+  const metrics = topMetricsForSection(result, sectionKey, 4);
   if (!metrics.length) return pick(corePhrases.lackluster, 'everything else is lackluster', `${result.food.id}:${sectionKey}:lackluster`);
 
   const bestMetric = metrics[0];
   const strongestScore = bestMetric?.weightedScore ?? 0;
   const isPositive = strongestScore > 0;
+  const sectionScore = result.sectionScores?.[sectionKey] ?? null;
+  const foodType = result.food.foodType;
 
   if (sectionKey === 'fats') {
     const omega3 = metrics.find(metric => metric.metricKey === 'omega3_mg' && (metric.value || 0) > 0 && metric.weightedScore > 0);
-    const saturatedFat = metrics.find(metric => metric.metricKey === 'saturated_fat_g' && metric.weightedScore < 0);
-    const cholesterol = metrics.find(metric => metric.metricKey === 'cholesterol_mg' && metric.weightedScore < 0);
+    const saturatedFat = metrics.find(metric => metric.metricKey === 'saturated_fat_g' && (metric.value || 0) > 0);
+    const cholesterol = metrics.find(metric => metric.metricKey === 'cholesterol_mg');
     const polyunsaturatedFat = metrics.find(metric => metric.metricKey === 'polyunsaturated_fat_g' && metric.weightedScore > 0);
-    if (omega3) return result.food.foodType === 'meats'
+
+    if (foodType === 'meats') {
+      if (saturatedFat && (saturatedFat.value || 0) >= 8) return 'saturated fat is a major pressure point';
+      if (omega3 && (omega3.value || 0) >= 1000 && (!saturatedFat || (saturatedFat.value || 0) < 4)) {
+        return 'omega 3 is exactly the kind of fat support you want from a meat';
+      }
+      if (saturatedFat && sectionScore !== null && sectionScore < 65) return 'saturated fat is a major pressure point';
+      if (omega3 && (omega3.value || 0) >= 300) return 'omega 3 is exactly the kind of fat support you want from a meat';
+    }
+
+    if (foodType === 'oils-and-fats') {
+      if (saturatedFat && (saturatedFat.value || 0) >= 20) return 'saturated fat is a major pressure point';
+      if (polyunsaturatedFat && (!saturatedFat || (saturatedFat.value || 0) <= 15)) return 'the fat profile is doing most of the work here';
+    }
+
+    if (saturatedFat && sectionScore !== null && sectionScore < 60) return 'saturated fat is a major pressure point';
+    if (omega3) return foodType === 'meats'
       ? 'omega 3 is exactly the kind of fat support you want from a meat'
       : 'omega 3 is doing a lot of the work here';
     if (saturatedFat) return 'saturated fat is a major pressure point';
-    if (cholesterol) return 'cholesterol adds to the tradeoff';
+    if (cholesterol && (cholesterol.value || 0) >= 100) return 'cholesterol adds to the tradeoff';
     if (polyunsaturatedFat) return 'polyunsaturated fat is one of the better parts of the profile';
   }
 
   if (sectionKey === 'carbs') {
-    const fibre = metrics.find(metric => metric.metricKey === 'fibre_g' && (metric.value || 0) > 0 && metric.weightedScore > 0);
-    const glycemicIndex = metrics.find(metric => metric.metricKey === 'glycemic_index' && metric.weightedScore < 0);
-    const sugar = metrics.find(metric => metric.metricKey === 'sugar_g' && (metric.value || 0) > 0 && metric.weightedScore < 0);
+    const fibre = metrics.find(metric => metric.metricKey === 'fibre_g' && (metric.value || 0) >= 3);
+    const glycemicIndex = metrics.find(metric => metric.metricKey === 'glycemic_index' && (metric.value || 0) >= 55);
+    const sugar = metrics.find(metric => metric.metricKey === 'sugar_g' && (metric.value || 0) >= 8);
     const starch = metrics.find(metric => metric.metricKey === 'starch_g' && (metric.value || 0) > 0);
     if (fibre) return 'fibre is doing a lot of the work here';
     if (glycemicIndex) return 'glycemic index is where this starts to get messy';
@@ -174,9 +204,13 @@ function strongestMetricLine(result, sectionKey) {
   if (sectionKey === 'proteins') {
     const bioavailability = metrics.find(metric => metric.metricKey === 'bioavailability_percent' && metric.weightedScore > 0);
     const essentialAmino = metrics.find(metric => metric.metricKey === 'essential_amino_acids_score' && metric.weightedScore > 0);
+    const proteinFallback = metrics.find(metric => metric.metricKey === 'protein_g_fallback');
     if (bioavailability && essentialAmino) return 'bioavailability and amino acid quality are both strong';
     if (bioavailability) return 'bioavailability is one of the best parts of the protein story';
     if (essentialAmino) return 'essential amino acid support is one of the better parts here';
+    if (proteinFallback) return result.food.foodType === 'meats'
+      ? 'protein quantity is doing most of the work'
+      : 'protein amount is doing most of the work here';
   }
 
   const names = metrics.map(m => formatMetricKey(m.metricKey));
@@ -252,7 +286,9 @@ function buildMacroSection(result, key) {
 }
 
 function buildMicrosSection(result, sectionKey) {
-  const top = topMetricsForSection(result, sectionKey, 3, { speakDailyValue: true });
+  const top = topMetricsForSection(result, sectionKey, 4, { speakDailyValue: true })
+    .filter(metric => (metric.weightedScore ?? 0) > 0 || (metric.dvPercent ?? 0) >= 5)
+    .slice(0, 3);
   if (!top.length) {
     if (result.food.foodType === 'misc') {
       return sectionKey === 'vitamins' ? 'no real vitamin story here.' : 'no real mineral story here.';
@@ -267,9 +303,6 @@ function buildMicrosSection(result, sectionKey) {
   }
 
   const score = result.sectionScores?.[sectionKey] || 0;
-  if (sectionKey === 'minerals' && score <= 5) {
-    return 'minerals are basically not part of the case here.';
-  }
 
   const names = top.map(m => metricDisplayText(m)).join(', ');
   const context = sectionKey === 'vitamins'
@@ -403,7 +436,7 @@ function buildClosing(result) {
   }
 
   return {
-    summary,
+    summary: polishNarration(summary),
     finalReveal: `${tier} tier.`,
     useCaseNote: bestUsesLine(result) + '.',
     cta: 'Would you rank it the same, or nah?'
@@ -430,7 +463,7 @@ function displayItemsForSection(result, sectionKey) {
       title: item.title,
       explanation: item.explanation,
       impactLevel: item.impactLevel,
-      scoreValue: item.scoreValue ?? null
+      resolvedScoreValue: item.resolvedScoreValue ?? null
     }));
   }
   if (sectionKey === 'cons') {
@@ -439,7 +472,7 @@ function displayItemsForSection(result, sectionKey) {
       title: item.title,
       explanation: item.explanation,
       impactLevel: item.impactLevel,
-      scoreValue: item.scoreValue ?? null
+      resolvedScoreValue: item.resolvedScoreValue ?? null
     }));
   }
   return topMetricsForSection(result, sectionKey, 4);
@@ -450,11 +483,28 @@ function buildSections(result) {
   return order.map(key => ({
     key,
     title: titleForSection(key),
-    narration: sectionNarration(result, key),
+    narration: polishNarration(sectionNarration(result, key)),
     displayItems: displayItemsForSection(result, key),
-    subtitleText: sectionNarration(result, key),
+    subtitleText: polishNarration(sectionNarration(result, key)),
     timingHint: timingHintForSection(key),
     score: result.sectionScores?.[key] ?? null
+  }));
+}
+
+function buildNarrationBlocks(script, options = {}) {
+  const includeCta = options.includeCta === true;
+  const blocks = [
+    { kind: 'hook_food', text: `${script.food.name}!` },
+    { kind: 'hook_ranked', text: 'Ranked!' },
+    ...script.sections.map(section => ({ kind: 'section', sectionKey: section.key, text: section.narration })),
+    { kind: 'closing_summary', text: script.closing.summary },
+    ...(includeCta && script.closing.cta ? [{ kind: 'cta', text: script.closing.cta }] : []),
+    { kind: 'final_reveal', text: script.closing.finalReveal }
+  ];
+
+  return blocks.map(block => ({
+    ...block,
+    text: polishNarration(block.text)
   }));
 }
 
@@ -469,20 +519,33 @@ function main() {
   const food = readJson(foodPath);
   const rulesetPath = rulesetPathArg ? path.resolve(rulesetPathArg) : inferRulesetPath(food);
   const result = scoreFood(foodPath, rulesetPath);
+  const sections = buildSections(result);
 
   const script = {
     status: 'ok',
-    food: result.food,
+    schemaVersion: 'foodranked-script.v2',
+    narrationFormat: 'elevenlabs-blocks-v1',
+    food: {
+      ...result.food,
+      basis: food.basis || null,
+      identity: food.identity || null,
+      scoreReadiness: food.scoreReadiness || null,
+      sourceNotes: food.sourceNotes || []
+    },
     ruleset: result.ruleset,
     header: result.header,
-    hook: buildHook(result),
-    intro: buildIntro(result),
-    sections: buildSections(result),
+    hook: polishNarration(buildHook(result)),
+    sections,
     closing: buildClosing(result),
     tier: result.tier,
     overallScore: result.overallScore,
+    overallScoreExact: result.overallScoreExact,
+    sectionOrder: sections.map(section => section.key),
+    narrationBlocks: [],
     explanation: result.explanation
   };
+
+  script.narrationBlocks = buildNarrationBlocks(script, { includeCta: false });
 
   console.log(JSON.stringify(script, null, 2));
 }

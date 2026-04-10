@@ -1,9 +1,46 @@
 {
   "status": "ok",
+  "schemaVersion": "foodranked-script.v2",
+  "narrationFormat": "elevenlabs-blocks-v1",
   "food": {
     "id": "extra-virgin-olive-oil",
     "name": "Extra Virgin Olive Oil",
-    "foodType": "oils-and-fats"
+    "foodType": "oils-and-fats",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "identity": {
+      "canonicalName": "Extra virgin olive oil",
+      "commonName": "Extra Virgin Olive Oil",
+      "form": "unblended extra virgin olive oil",
+      "state": "as sold",
+      "ediblePortion": "as sold",
+      "basisReason": "Per-100g as-sold basis matches oil labeling and avoids recipe dilution.",
+      "includes": [
+        "plain extra virgin olive oil"
+      ],
+      "excludes": [
+        "olive-oil blends",
+        "pomace oil",
+        "flavored infused oils",
+        "cooking sprays"
+      ]
+    },
+    "scoreReadiness": {
+      "status": "near-production-safe",
+      "summary": "Core oil nutrition is clean enough for launch scripting, but the entry still treats quality and polyphenol strength generically rather than tying them to a specific bottle or harvest profile.",
+      "blockers": [
+        "polyphenol-rich reputation is real but not quantified in the current schema",
+        "authenticity and storage quality vary meaningfully across real-world extra virgin olive oils"
+      ]
+    },
+    "sourceNotes": [
+      "Production-lane cleanup pass.",
+      "Identity locked to plain extra virgin olive oil, per 100 g as sold.",
+      "Core nutrient values align with USDA FoodData Central style extra virgin olive oil entries.",
+      "Polyphenol/quality discussion is intentionally treated as context rather than a locked nutrient metric."
+    ]
   },
   "ruleset": {
     "id": "oils-and-fats.v1",
@@ -16,17 +53,16 @@
     "protein_g": 0
   },
   "hook": "Extra Virgin Olive Oil ranked.",
-  "intro": "",
   "sections": [
     {
       "key": "fats",
       "title": "Fats",
-      "narration": "100g of fat. omega 3 is doing a lot of the work here. for this category, the real question is fat quality.",
+      "narration": "100g of fat. The fat profile is doing most of the work here. For this category, the real question is fat quality.",
       "displayItems": [
         {
           "metricKey": "saturated_fat_g",
           "text": "saturated fat at 13.8",
-          "weightedScore": 14,
+          "weightedScore": 560,
           "scoringMode": "arrow_bands",
           "band": "↓↓",
           "dvPercent": null,
@@ -35,16 +71,16 @@
         {
           "metricKey": "cholesterol_mg",
           "text": "cholesterol at 0",
-          "weightedScore": 10,
+          "weightedScore": 500,
           "scoringMode": "arrow_bands",
-          "band": "↓↓",
+          "band": "↓↓↓",
           "dvPercent": null,
           "value": 0
         },
         {
           "metricKey": "omega3_mg",
           "text": "omega3 at 760",
-          "weightedScore": 1,
+          "weightedScore": 60,
           "scoringMode": "arrow_bands",
           "band": "↑",
           "dvPercent": null,
@@ -53,44 +89,44 @@
         {
           "metricKey": "polyunsaturated_fat_g",
           "text": "polyunsaturated fat at 10.5",
-          "weightedScore": 1,
+          "weightedScore": 60,
           "scoringMode": "arrow_bands",
           "band": "↑",
           "dvPercent": null,
           "value": 10.5
         }
       ],
-      "subtitleText": "100g of fat. omega 3 is doing a lot of the work here. for this category, the real question is fat quality.",
+      "subtitleText": "100g of fat. The fat profile is doing most of the work here. For this category, the real question is fat quality.",
       "timingHint": "short-medium",
-      "score": 81
+      "score": 84.3
     },
     {
       "key": "carbs",
       "title": "Carbs",
-      "narration": "0g of carbs. everything else is kind of whatever. not relevant here.",
+      "narration": "0g of carbs. Everything else is kind of whatever. Not relevant here.",
       "displayItems": [],
-      "subtitleText": "0g of carbs. everything else is kind of whatever. not relevant here.",
+      "subtitleText": "0g of carbs. Everything else is kind of whatever. Not relevant here.",
       "timingHint": "short-medium",
       "score": null
     },
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "0g of protein. everything else here is pretty flat. also not relevant here.",
+      "narration": "0g of protein. Everything else here is pretty flat. Also not relevant here.",
       "displayItems": [],
-      "subtitleText": "0g of protein. everything else here is pretty flat. also not relevant here.",
+      "subtitleText": "0g of protein. Everything else here is pretty flat. Also not relevant here.",
       "timingHint": "short-medium",
       "score": null
     },
     {
       "key": "vitamins",
       "title": "Vitamins",
-      "narration": "vitamin e at 93% daily value, vitamin k at 50% daily value stand out most. that is major vitamin support.",
+      "narration": "Vitamin e at 93% daily value, vitamin k at 50% daily value stand out most. That gives this food real vitamin support.",
       "displayItems": [
         {
           "metricKey": "vitamin_e_dv",
           "text": "vitamin e at 93% daily value",
-          "weightedScore": 18,
+          "weightedScore": 180,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 93,
@@ -99,109 +135,209 @@
         {
           "metricKey": "vitamin_k_dv",
           "text": "vitamin k at 50% daily value",
-          "weightedScore": 10,
+          "weightedScore": 100,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 50,
           "value": null
+        },
+        {
+          "metricKey": "vitamin_a_dv",
+          "text": "vitamin a at 0% daily value",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
         }
       ],
-      "subtitleText": "vitamin e at 93% daily value, vitamin k at 50% daily value stand out most. that is major vitamin support.",
+      "subtitleText": "Vitamin e at 93% daily value, vitamin k at 50% daily value stand out most. That gives this food real vitamin support.",
       "timingHint": "short-medium",
-      "score": 70
+      "score": 56
     },
     {
       "key": "minerals",
       "title": "Minerals",
-      "narration": "minerals are basically not adding much here.",
-      "displayItems": [],
-      "subtitleText": "minerals are basically not adding much here.",
+      "narration": "Minerals are basically not adding much here.",
+      "displayItems": [
+        {
+          "metricKey": "iron_dv",
+          "text": "iron at 3% daily value",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 3,
+          "value": null
+        },
+        {
+          "metricKey": "magnesium_dv",
+          "text": "magnesium at 0% daily value",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
+        },
+        {
+          "metricKey": "calcium_dv",
+          "text": "calcium at 0% daily value",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
+        }
+      ],
+      "subtitleText": "Minerals are basically not adding much here.",
       "timingHint": "short-medium",
-      "score": null
+      "score": 0
     },
     {
       "key": "pros",
       "title": "Pros",
-      "narration": "the upsides first: polyphenol reputation is a real plus. it brings a widely recognised antioxidant angle beyond the visible macro profile. contains useful polyphenols. adds value beyond the core fat chemistry alone. very simple ingredient identity. a clear wholefood-adjacent advantage over more industrial fat products.",
+      "narration": "The upsides first: polyphenol reputation is a real plus. It brings a widely recognised antioxidant angle beyond the visible macro profile. Contains useful polyphenols. Adds value beyond the core fat chemistry alone. Very simple ingredient identity. A clear wholefood-adjacent advantage over more industrial fat products.",
       "displayItems": [
         {
           "type": "pro",
           "title": "polyphenol reputation is a real plus",
           "explanation": "It brings a widely recognised antioxidant angle beyond the visible macro profile.",
           "impactLevel": "major",
-          "scoreValue": 4
+          "resolvedScoreValue": 100
         },
         {
           "type": "pro",
           "title": "contains useful polyphenols",
           "explanation": "Adds extra value beyond the core fat chemistry alone.",
           "impactLevel": "minor",
-          "scoreValue": 0
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "very simple ingredient identity",
           "explanation": "A clear wholefood-adjacent advantage over more industrial fat products.",
           "impactLevel": "minor",
-          "scoreValue": 0
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "the upsides first: polyphenol reputation is a real plus. it brings a widely recognised antioxidant angle beyond the visible macro profile. contains useful polyphenols. adds value beyond the core fat chemistry alone. very simple ingredient identity. a clear wholefood-adjacent advantage over more industrial fat products.",
+      "subtitleText": "The upsides first: polyphenol reputation is a real plus. It brings a widely recognised antioxidant angle beyond the visible macro profile. Contains useful polyphenols. Adds value beyond the core fat chemistry alone. Very simple ingredient identity. A clear wholefood-adjacent advantage over more industrial fat products.",
       "timingHint": "medium",
-      "score": 44.4
+      "score": 66.7
     },
     {
       "key": "cons",
       "title": "Cons",
-      "narration": "on the weaker side: extremely energy dense. still pure fat, so calories accumulate fast. quality varies a lot. source and authenticity matter in practice. easy to overpour without noticing. a healthy image can make portion creep happen fast in practice.",
+      "narration": "On the weaker side: extremely energy dense. Still pure fat, so calories accumulate fast. Quality varies a lot. Source and authenticity matter in practice. Easy to overpour without noticing. A healthy image can make portion creep happen fast in practice.",
       "displayItems": [
         {
           "type": "con",
           "title": "extremely energy dense",
           "explanation": "Still pure fat, so calories accumulate fast.",
           "impactLevel": "minor",
-          "scoreValue": 0
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "quality varies a lot",
           "explanation": "Source and authenticity matter in practice.",
           "impactLevel": "minor",
-          "scoreValue": 0
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "easy to overpour without noticing",
           "explanation": "A healthy image can make portion creep happen fast in practice.",
           "impactLevel": "minor",
-          "scoreValue": 0
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "on the weaker side: extremely energy dense. still pure fat, so calories accumulate fast. quality varies a lot. source and authenticity matter in practice. easy to overpour without noticing. a healthy image can make portion creep happen fast in practice.",
+      "subtitleText": "On the weaker side: extremely energy dense. Still pure fat, so calories accumulate fast. Quality varies a lot. Source and authenticity matter in practice. Easy to overpour without noticing. A healthy image can make portion creep happen fast in practice.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     }
   ],
   "closing": {
-    "summary": "Extra Virgin Olive Oil has a genuinely strong overall case. the practical downsides are real, but they do not outweigh the upside. best in controlled amounts where fat quality is the main reason to use it.",
+    "summary": "Extra Virgin Olive Oil has a genuinely strong overall case. The practical downsides are real, but they do not outweigh the upside. Best in controlled amounts where fat quality is the main reason to use it.",
     "finalReveal": "S tier.",
     "useCaseNote": "Best in controlled amounts where fat quality is the main reason to use it.",
     "cta": "Would you rank it the same, or nah?"
   },
   "tier": "S",
-  "overallScore": 75,
+  "overallScore": 51.4,
+  "overallScoreExact": 51.3905,
+  "sectionOrder": [
+    "fats",
+    "carbs",
+    "proteins",
+    "vitamins",
+    "minerals",
+    "pros",
+    "cons"
+  ],
+  "narrationBlocks": [
+    {
+      "kind": "hook_food",
+      "text": "Extra Virgin Olive Oil!"
+    },
+    {
+      "kind": "hook_ranked",
+      "text": "Ranked!"
+    },
+    {
+      "kind": "section",
+      "sectionKey": "fats",
+      "text": "100g of fat. The fat profile is doing most of the work here. For this category, the real question is fat quality."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "carbs",
+      "text": "0g of carbs. Everything else is kind of whatever. Not relevant here."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "proteins",
+      "text": "0g of protein. Everything else here is pretty flat. Also not relevant here."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "vitamins",
+      "text": "Vitamin e at 93% daily value, vitamin k at 50% daily value stand out most. That gives this food real vitamin support."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "minerals",
+      "text": "Minerals are basically not adding much here."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "pros",
+      "text": "The upsides first: polyphenol reputation is a real plus. It brings a widely recognised antioxidant angle beyond the visible macro profile. Contains useful polyphenols. Adds value beyond the core fat chemistry alone. Very simple ingredient identity. A clear wholefood-adjacent advantage over more industrial fat products."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "cons",
+      "text": "On the weaker side: extremely energy dense. Still pure fat, so calories accumulate fast. Quality varies a lot. Source and authenticity matter in practice. Easy to overpour without noticing. A healthy image can make portion creep happen fast in practice."
+    },
+    {
+      "kind": "closing_summary",
+      "text": "Extra Virgin Olive Oil has a genuinely strong overall case. The practical downsides are real, but they do not outweigh the upside. Best in controlled amounts where fat quality is the main reason to use it."
+    },
+    {
+      "kind": "final_reveal",
+      "text": "S tier."
+    }
+  ],
   "explanation": {
-    "summary": "Fats are carrying this food most, while vitamins are the biggest drag. It lands in S tier.",
-    "whyThisTier": "This food lands in S tier with an overall score of 75 from a base nutrition score of 71. Context lifted it by 4 points.",
+    "summary": "Fats are carrying this food most, while minerals are holding it back most. It lands in S tier.",
+    "whyThisTier": "This food lands in S tier with an overall score of 51.4. Section scores: fats 84.3, vitamins 56, minerals 0, pros 66.7, cons 50.",
     "strongestSection": {
       "key": "fats",
       "label": "Fats",
-      "score": 81
+      "score": 84.3
     },
     "weakestSection": {
-      "key": "vitamins",
-      "label": "Vitamins",
-      "score": 70
+      "key": "minerals",
+      "label": "Minerals",
+      "score": 0
     },
     "topPros": [
       {
@@ -209,7 +345,21 @@
         "explanation": "It brings a widely recognised antioxidant angle beyond the visible macro profile.",
         "impactLevel": "major",
         "side": "pro",
-        "resolvedScoreValue": 4
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "contains useful polyphenols",
+        "explanation": "Adds extra value beyond the core fat chemistry alone.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "very simple ingredient identity",
+        "explanation": "A clear wholefood-adjacent advantage over more industrial fat products.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -218,27 +368,26 @@
         "explanation": "Still pure fat, so calories accumulate fast.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "quality varies a lot",
         "explanation": "Source and authenticity matter in practice.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "easy to overpour without noticing",
         "explanation": "A healthy image can make portion creep happen fast in practice.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
       "Strongest section: Fats.",
-      "Weakest section: Vitamins.",
-      "Context improved the final tier case by 4 points.",
+      "Weakest section: Minerals.",
       "Final verdict: S tier."
     ]
   }

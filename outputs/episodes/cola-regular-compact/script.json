@@ -1,9 +1,43 @@
 {
   "status": "ok",
+  "schemaVersion": "foodranked-script.v2",
+  "narrationFormat": "elevenlabs-blocks-v1",
   "food": {
     "id": "cola-regular",
     "name": "Regular Cola",
-    "foodType": "misc"
+    "foodType": "misc",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "identity": {
+      "canonicalName": "Regular cola soft drink",
+      "commonName": "Regular Cola",
+      "form": "sugar-sweetened cola beverage",
+      "state": "ready to drink",
+      "ediblePortion": "as sold",
+      "basisReason": "Per-100g basis matches beverage-label conventions and keeps comparisons clean against other drinks.",
+      "includes": [
+        "standard sugar-sweetened cola"
+      ],
+      "excludes": [
+        "diet cola",
+        "energy drinks",
+        "cola slush products",
+        "cola with added juice or dairy"
+      ]
+    },
+    "scoreReadiness": {
+      "status": "production-safe",
+      "summary": "This generic regular-cola record is simple and stable enough for launch scripting because the core story is just sugar delivery plus minimal nutrition.",
+      "blockers": []
+    },
+    "sourceNotes": [
+      "Production-lane cleanup pass.",
+      "Identity locked to standard sugar-sweetened regular cola, per 100 g as sold.",
+      "Core nutrient values align with generic beverage nutrition-label style cola entries.",
+      "This is intentionally a generic regular-cola record rather than a specific brand SKU."
+    ]
   },
   "ruleset": {
     "id": "misc.v1",
@@ -16,150 +50,285 @@
     "protein_g": 0
   },
   "hook": "Regular Cola ranked.",
-  "intro": "",
   "sections": [
     {
       "key": "fats",
       "title": "Fats",
-      "narration": "simple one.",
+      "narration": "Simple one.",
       "displayItems": [],
-      "subtitleText": "simple one.",
+      "subtitleText": "Simple one.",
       "timingHint": "short-medium",
       "score": null
     },
     {
       "key": "carbs",
       "title": "Carbs",
-      "narration": "10.6g of carbs. and that is basically the whole nutrition story.",
+      "narration": "10.6g of carbs. And that is basically the whole nutrition story.",
       "displayItems": [],
-      "subtitleText": "10.6g of carbs. and that is basically the whole nutrition story.",
+      "subtitleText": "10.6g of carbs. And that is basically the whole nutrition story.",
       "timingHint": "short-medium",
       "score": null
     },
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "no real protein story here.",
+      "narration": "No real protein story here.",
       "displayItems": [],
-      "subtitleText": "no real protein story here.",
+      "subtitleText": "No real protein story here.",
       "timingHint": "short-medium",
       "score": null
     },
     {
       "key": "vitamins",
       "title": "Vitamins",
-      "narration": "no real vitamin story here.",
-      "displayItems": [],
-      "subtitleText": "no real vitamin story here.",
+      "narration": "No real vitamin story here.",
+      "displayItems": [
+        {
+          "metricKey": "vitamin_c_dv",
+          "text": "vitamin c at 0% daily value",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
+        },
+        {
+          "metricKey": "vitamin_e_dv",
+          "text": "vitamin e at 0% daily value",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
+        },
+        {
+          "metricKey": "vitamin_k_dv",
+          "text": "vitamin k at 0% daily value",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
+        }
+      ],
+      "subtitleText": "No real vitamin story here.",
       "timingHint": "short-medium",
-      "score": null
+      "score": 0
     },
     {
       "key": "minerals",
       "title": "Minerals",
-      "narration": "no real mineral story here.",
-      "displayItems": [],
-      "subtitleText": "no real mineral story here.",
+      "narration": "No real mineral story here.",
+      "displayItems": [
+        {
+          "metricKey": "magnesium_dv",
+          "text": "magnesium at 0% daily value",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
+        },
+        {
+          "metricKey": "potassium_dv",
+          "text": "potassium at 0% daily value",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
+        },
+        {
+          "metricKey": "iron_dv",
+          "text": "iron at 0% daily value",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
+        },
+        {
+          "metricKey": "zinc_dv",
+          "text": "zinc at 0% daily value",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
+        }
+      ],
+      "subtitleText": "No real mineral story here.",
       "timingHint": "short-medium",
-      "score": null
+      "score": 0
     },
     {
       "key": "pros",
       "title": "Pros",
-      "narration": "the upsides first: very available and cheap. that is about the only practical argument it has. use case can matter more than macros. this category is really about function and trade-offs. sometimes makes sense in a narrow use case. context matters more here than raw nutrient purity.",
+      "narration": "The upsides first: very available and cheap. That is about the only practical argument it has. Use case can matter more than macros. This category is really about function and trade-offs. Sometimes makes sense in a narrow use case. Context matters more here than raw nutrient purity.",
       "displayItems": [
         {
           "type": "pro",
           "title": "very available and cheap",
           "explanation": "That is about the only practical argument it has.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "use case can matter more than macros",
           "explanation": "This category is really about function and trade-offs.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "sometimes makes sense in a narrow use case",
           "explanation": "Context matters more here than raw nutrient purity.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "the upsides first: very available and cheap. that is about the only practical argument it has. use case can matter more than macros. this category is really about function and trade-offs. sometimes makes sense in a narrow use case. context matters more here than raw nutrient purity.",
+      "subtitleText": "The upsides first: very available and cheap. That is about the only practical argument it has. Use case can matter more than macros. This category is really about function and trade-offs. Sometimes makes sense in a narrow use case. Context matters more here than raw nutrient purity.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     },
     {
       "key": "cons",
       "title": "Cons",
-      "narration": "on the weaker side: liquid sugar is a brutal downside. this is almost the exact kind of misc item the category should bury. basically no useful nutrition. it gives up nutritional value while still costing calories. easy to oversell beyond what the numbers support. misc items often attract exaggerated narratives.",
+      "narration": "On the weaker side: liquid sugar is a brutal downside. This is almost the exact kind of misc item the category should bury. Basically no useful nutrition. It gives up nutritional value while still costing calories. Easy to oversell beyond what the numbers support. Misc items often attract exaggerated narratives.",
       "displayItems": [
         {
           "type": "con",
           "title": "liquid sugar is a brutal downside",
           "explanation": "This is almost the exact kind of misc item the category should bury.",
           "impactLevel": "major",
-          "scoreValue": -2
+          "resolvedScoreValue": 100
         },
         {
           "type": "con",
           "title": "basically no useful nutrition",
           "explanation": "It gives up nutritional value while still costing calories.",
           "impactLevel": "major",
-          "scoreValue": -2
+          "resolvedScoreValue": 100
         },
         {
           "type": "con",
           "title": "easy to oversell beyond what the numbers support",
           "explanation": "Misc items often attract exaggerated narratives.",
-          "impactLevel": "minor",
-          "scoreValue": -1
+          "impactLevel": "major",
+          "resolvedScoreValue": 100
         }
       ],
-      "subtitleText": "on the weaker side: liquid sugar is a brutal downside. this is almost the exact kind of misc item the category should bury. basically no useful nutrition. it gives up nutritional value while still costing calories. easy to oversell beyond what the numbers support. misc items often attract exaggerated narratives.",
+      "subtitleText": "On the weaker side: liquid sugar is a brutal downside. This is almost the exact kind of misc item the category should bury. Basically no useful nutrition. It gives up nutritional value while still costing calories. Easy to oversell beyond what the numbers support. Misc items often attract exaggerated narratives.",
       "timingHint": "medium",
-      "score": 100
+      "score": 0
     }
   ],
   "closing": {
-    "summary": "Regular Cola does have a few real-world upsides. but the nutrition case is still weak and the downsides drag it down hard. best treated as an occasional context item, not a nutritional base.",
+    "summary": "Regular Cola does have a few real-world upsides. But the nutrition case is still weak and the downsides drag it down hard. Best treated as an occasional context item, not a nutritional base.",
     "finalReveal": "D tier.",
     "useCaseNote": "Best treated as an occasional context item, not a nutritional base.",
     "cta": "Would you rank it the same, or nah?"
   },
   "tier": "D",
-  "overallScore": 0,
+  "overallScore": 12.5,
+  "overallScoreExact": 12.5,
+  "sectionOrder": [
+    "fats",
+    "carbs",
+    "proteins",
+    "vitamins",
+    "minerals",
+    "pros",
+    "cons"
+  ],
+  "narrationBlocks": [
+    {
+      "kind": "hook_food",
+      "text": "Regular Cola!"
+    },
+    {
+      "kind": "hook_ranked",
+      "text": "Ranked!"
+    },
+    {
+      "kind": "section",
+      "sectionKey": "fats",
+      "text": "Simple one."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "carbs",
+      "text": "10.6g of carbs. And that is basically the whole nutrition story."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "proteins",
+      "text": "No real protein story here."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "vitamins",
+      "text": "No real vitamin story here."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "minerals",
+      "text": "No real mineral story here."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "pros",
+      "text": "The upsides first: very available and cheap. That is about the only practical argument it has. Use case can matter more than macros. This category is really about function and trade-offs. Sometimes makes sense in a narrow use case. Context matters more here than raw nutrient purity."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "cons",
+      "text": "On the weaker side: liquid sugar is a brutal downside. This is almost the exact kind of misc item the category should bury. Basically no useful nutrition. It gives up nutritional value while still costing calories. Easy to oversell beyond what the numbers support. Misc items often attract exaggerated narratives."
+    },
+    {
+      "kind": "closing_summary",
+      "text": "Regular Cola does have a few real-world upsides. But the nutrition case is still weak and the downsides drag it down hard. Best treated as an occasional context item, not a nutritional base."
+    },
+    {
+      "kind": "final_reveal",
+      "text": "D tier."
+    }
+  ],
   "explanation": {
-    "summary": "This food is being judged mostly by contextual strengths and weaknesses rather than nutrient sections. It lands in D tier.",
-    "whyThisTier": "This food lands in D tier with an overall score of 0 from a base nutrition score of 0. Context dragged it down by 16 points.",
-    "strongestSection": null,
-    "weakestSection": null,
+    "summary": "Pros are carrying this food most, while cons are holding it back most. It lands in D tier.",
+    "whyThisTier": "This food lands in D tier with an overall score of 12.5. Section scores: vitamins 0, minerals 0, pros 50, cons 0.",
+    "strongestSection": {
+      "key": "pros",
+      "label": "Pros",
+      "score": 50
+    },
+    "weakestSection": {
+      "key": "cons",
+      "label": "Cons",
+      "score": 0
+    },
     "topPros": [
       {
         "title": "very available and cheap",
         "explanation": "That is about the only practical argument it has.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "use case can matter more than macros",
         "explanation": "This category is really about function and trade-offs.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "sometimes makes sense in a narrow use case",
         "explanation": "Context matters more here than raw nutrient purity.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -168,18 +337,26 @@
         "explanation": "This is almost the exact kind of misc item the category should bury.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -8
+        "resolvedScoreValue": 100
       },
       {
         "title": "basically no useful nutrition",
         "explanation": "It gives up nutritional value while still costing calories.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -8
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "easy to oversell beyond what the numbers support",
+        "explanation": "Misc items often attract exaggerated narratives.",
+        "impactLevel": "major",
+        "side": "con",
+        "resolvedScoreValue": 100
       }
     ],
     "narrationNotes": [
-      "Context weakened the final tier case by 16 points.",
+      "Strongest section: Pros.",
+      "Weakest section: Cons.",
       "Final verdict: D tier."
     ]
   }

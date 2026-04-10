@@ -32,11 +32,13 @@ config/launch-batch.v1.json
 
 ## Outputs
 
-Per-food episode packages still land in:
+Per-food compact episode packages still land in:
 
 ```text
 outputs/episodes/<food-id>-compact/
 ```
+
+In this workflow, `compact` means the narration file uses the locked ElevenLabs block layout with `-` separators between spoken blocks.
 
 The batch runner also writes:
 

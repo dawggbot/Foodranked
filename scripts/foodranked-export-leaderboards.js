@@ -105,10 +105,9 @@ function buildRichDetails() {
       type: scored.result.food.foodType,
       tier: scored.result.tier,
       overallScore: scored.result.overallScore,
+      overallScoreExact: scored.result.overallScoreExact,
       explanation: scored.result.explanation,
-      sectionScores: scored.result.sectionScores,
-      baseScore: scored.result.baseScore,
-      contextAdjustment: scored.result.contextAdjustment.appliedAdjustment
+      sectionScores: scored.result.sectionScores
     });
   }
 

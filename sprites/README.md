@@ -26,3 +26,10 @@ Foodranked sprite assets are organized into the following structure:
 - `references/`
 
 This structure is intended to stay stable so freshly exported sprite files can be dropped back into the correct folders.
+
+## Asset usage contract
+
+- Treat the exported `.png` and `.gif` files here as the runtime and edit-ready assets.
+- Treat adjacent `.aseprite` files as the fidelity reference and re-export source.
+- Builder manifests should point directly at `sprites/...` paths rather than inventing mirror asset folders.
+- When both exist, prefer PNG/GIF first, then keep the `.aseprite` path alongside it for art tweaks.

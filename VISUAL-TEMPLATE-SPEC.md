@@ -11,6 +11,7 @@ This spec is for:
 - section templates
 - subtitle safe areas
 - sync assumptions
+- sprite binding rules and builder configuration
 
 It is **not** the final renderer.
 It is the blueprint the renderer, timing planner, and animation system will follow.
@@ -105,6 +106,7 @@ The header should feel like a stat-card identity bar.
 - static position throughout video
 - can pulse subtly when new section starts
 - should not animate heavily after initial settle-in
+- builder should expose profile-level controls for hook style, subtitle lift, and macro density without changing this locked structure
 
 ## Header background
 - translucent dark pixel panel
@@ -186,6 +188,7 @@ Each section uses the same overall frame, but different widgets.
 - top of section title band: y ~ 330
 - main content area: y ~ 410–1250
 - subtitle safe floor starts below
+- macro sections can switch between `stacked`, `compact-stack`, and `hero-sprite` builder profiles, but slot order stays the same
 
 ## Section title chip
 - small pixel plaque near upper-left of main stat stage
@@ -400,6 +403,12 @@ Palette should guide identity, not overwhelm readability.
 
 # 16. Asset classes required
 
+## Asset path strategy
+- use exported PNG and GIF files as the primary edit/runtime assets
+- keep `.aseprite` sources alongside them as the fidelity reference and re-export source
+- manifests and builders should point to both, with PNG/GIF first and `.aseprite` second
+- do not invent parallel `app/assets` paths, bind directly to the real `sprites/` inventory
+
 ## Core universal assets
 - panel corners / borders
 - section title chips
@@ -474,6 +483,7 @@ Timing engine should sync to:
 - section count
 - slot count
 - narration chunks
+- locked narration-story roles (`opening-promise`, `macro-foundation`, `micronutrient-proof`, `real-world-upside`, `real-world-downside`, `verdict-payoff`)
 
 Not to arbitrary fixed timestamps.
 
@@ -502,6 +512,23 @@ Not to arbitrary fixed timestamps.
 2. create a **timing/reveal planner** that targets the slots
 3. create a **subtitle chunker** that respects the safe area
 4. only then move to renderer automation
+
+---
+
+# 21. Builder profiles
+
+The builder can expose a small set of named profiles as long as they do not break the locked flow.
+
+## Allowed profiles
+- `balanced` = default launch profile
+- `tight` = denser macro handling, raised subtitles, reduced visible submetric count
+- `showcase` = sprite-forward presentation with more breathing room
+
+## Non-negotiables
+- header remains stable
+- scene stack remains hook → fats → carbs → proteins → vitamins → minerals → pros → cons → final
+- subtitle safe area still wins over decorative motion
+- no profile may hide the final tier stamp or reorder reveal slots
 
 ---
 

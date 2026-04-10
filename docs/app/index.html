@@ -302,6 +302,35 @@
           Background colour
           <input id="bgColor" type="text" value="#d6d6d6" />
         </label>
+        <div class="stack" style="padding:10px;border:1px solid rgba(0,0,0,.08);border-radius:14px;background:rgba(255,255,255,.56);">
+          <h3>Background motion</h3>
+          <label class="row"><input id="bgMotionEnabled" type="checkbox" checked /> <span>Enable falling food sprites</span></label>
+          <label>
+            Sprite pool
+            <select id="bgMotionMode">
+              <option value="foodType">Same food type</option>
+              <option value="selectedFood">Only selected food</option>
+              <option value="allFoods">All foods</option>
+            </select>
+          </label>
+          <div class="split-2">
+            <label>Density <input id="bgMotionDensity" type="range" min="4" max="24" step="1" value="12" /></label>
+            <label>Opacity <input id="bgMotionOpacity" type="range" min="0.05" max="0.4" step="0.01" value="0.18" /></label>
+          </div>
+          <div class="split-2">
+            <label>Min fall seconds <input id="bgMotionMinDuration" type="number" min="4" max="60" step="1" value="14" /></label>
+            <label>Max fall seconds <input id="bgMotionMaxDuration" type="number" min="4" max="80" step="1" value="24" /></label>
+          </div>
+          <div class="split-2">
+            <label>Min sprite px <input id="bgMotionMinSize" type="number" min="12" max="80" step="1" value="24" /></label>
+            <label>Max sprite px <input id="bgMotionMaxSize" type="number" min="12" max="120" step="1" value="40" /></label>
+          </div>
+          <label>
+            Horizontal drift
+            <input id="bgMotionDrift" type="range" min="0" max="48" step="1" value="16" />
+          </label>
+          <p class="tiny muted">This now drives the whole phone background, not just one section, and defaults to the current food type so the mood stays coherent.</p>
+        </div>
         <div class="row">
           <button id="resetSection">Reset section</button>
           <button id="saveLocal">Save locally</button>
@@ -319,7 +348,7 @@
       <div class="row" style="justify-content:space-between;align-items:flex-start;">
         <div class="stack" style="gap:4px;">
           <h2>Display canvas</h2>
-          <p class="small muted">Drag sprites or text directly. Arrow keys nudge by 1 grid pixel. Shift + arrows nudge by 10 grid pixels. The authored grid is 135×240 and renders against 10000% exported sprite scale.</p>
+          <p class="small muted">Drag sprites or text directly. Arrow keys nudge by 1 grid pixel. Shift + arrows nudge by 10 grid pixels. The authored grid is 135×240 and previews the 100% exported sprite set directly.</p>
         </div>
         <div class="small muted" id="selectionChip">Selected: none</div>
       </div>
@@ -392,9 +421,39 @@
 
     const LOCAL_STORAGE_KEY = 'foodranked-display-builder-v4';
     const FOOD_JSON_CACHE = new Map();
+    const BACKDROP_PALETTES = {
+      vegetables: { top: '#dff4cf', bottom: '#bfd8b0', glowA: 'rgba(219,255,183,.78)', glowB: 'rgba(108,169,104,.38)' },
+      fruits: { top: '#ffe0dc', bottom: '#e7b8b5', glowA: 'rgba(255,173,165,.78)', glowB: 'rgba(219,109,101,.34)' },
+      grains: { top: '#f6e7bf', bottom: '#dbc48a', glowA: 'rgba(255,235,163,.78)', glowB: 'rgba(199,151,66,.30)' },
+      legumes: { top: '#e5d8c9', bottom: '#c0a78a', glowA: 'rgba(234,204,163,.76)', glowB: 'rgba(142,102,62,.28)' },
+      tubers: { top: '#f5d7bf', bottom: '#d2a17d', glowA: 'rgba(255,196,144,.74)', glowB: 'rgba(182,106,58,.28)' },
+      nuts: { top: '#ead8c8', bottom: '#c39b7f', glowA: 'rgba(243,207,175,.76)', glowB: 'rgba(128,77,47,.28)' },
+      seeds: { top: '#f2e2c8', bottom: '#cfb48f', glowA: 'rgba(255,231,188,.76)', glowB: 'rgba(162,128,80,.26)' },
+      meats: { top: '#f2d0d3', bottom: '#c08a90', glowA: 'rgba(255,188,196,.72)', glowB: 'rgba(146,61,73,.28)' },
+      dairy: { top: '#f4f0e8', bottom: '#d9d2c2', glowA: 'rgba(255,255,255,.68)', glowB: 'rgba(214,196,155,.22)' },
+      'oils-and-fats': { top: '#f6e7a9', bottom: '#d1b851', glowA: 'rgba(255,235,135,.74)', glowB: 'rgba(175,138,28,.28)' },
+      misc: { top: '#ece7e2', bottom: '#cfc5bc', glowA: 'rgba(255,255,255,.66)', glowB: 'rgba(140,120,108,.22)' }
+    };
 
     const DEFAULT_LAYOUT = {
-      canvas: { width: 135, height: 240, previewScale: 0.3, background: '#d6d6d6', showGrid: true },
+      canvas: {
+        width: 135,
+        height: 240,
+        previewScale: 0.3,
+        background: '#d6d6d6',
+        showGrid: true,
+        backgroundMotion: {
+          enabled: true,
+          mode: 'foodType',
+          density: 12,
+          opacity: 0.18,
+          minDuration: 14,
+          maxDuration: 24,
+          minSize: 24,
+          maxSize: 40,
+          drift: 16
+        }
+      },
       selectedFoodId: 'bacon',
       selectedSectionId: 'intro',
       sections: Object.fromEntries(SECTIONS.map(section => [section.id, { layers: createSectionLayers(section.id) }]))
@@ -404,7 +463,7 @@
       foods: Array.isArray(window.FOODS_INDEX) ? window.FOODS_INDEX : [],
       selectedLayerId: null,
       foodFilter: '',
-      layout: loadLayout() || structuredClone(DEFAULT_LAYOUT),
+      layout: hydrateLayout(loadLayout()),
       fullFood: null,
       bgTick: 0
     };
@@ -417,6 +476,15 @@
       previewScale: document.getElementById('previewScale'),
       toggleGrid: document.getElementById('toggleGrid'),
       bgColor: document.getElementById('bgColor'),
+      bgMotionEnabled: document.getElementById('bgMotionEnabled'),
+      bgMotionMode: document.getElementById('bgMotionMode'),
+      bgMotionDensity: document.getElementById('bgMotionDensity'),
+      bgMotionOpacity: document.getElementById('bgMotionOpacity'),
+      bgMotionMinDuration: document.getElementById('bgMotionMinDuration'),
+      bgMotionMaxDuration: document.getElementById('bgMotionMaxDuration'),
+      bgMotionMinSize: document.getElementById('bgMotionMinSize'),
+      bgMotionMaxSize: document.getElementById('bgMotionMaxSize'),
+      bgMotionDrift: document.getElementById('bgMotionDrift'),
       resetSection: document.getElementById('resetSection'),
       saveLocal: document.getElementById('saveLocal'),
       copyJson: document.getElementById('copyJson'),
@@ -450,6 +518,29 @@
       } catch {
         return null;
       }
+    }
+
+    function hydrateLayout(layout) {
+      if (!layout) return structuredClone(DEFAULT_LAYOUT);
+      const merged = structuredClone(DEFAULT_LAYOUT);
+      merged.selectedFoodId = layout.selectedFoodId || merged.selectedFoodId;
+      merged.selectedSectionId = layout.selectedSectionId || merged.selectedSectionId;
+      merged.canvas = {
+        ...merged.canvas,
+        ...(layout.canvas || {}),
+        backgroundMotion: {
+          ...merged.canvas.backgroundMotion,
+          ...((layout.canvas && layout.canvas.backgroundMotion) || {})
+        }
+      };
+      if (layout.sections && typeof layout.sections === 'object') {
+        for (const section of SECTIONS) {
+          if (layout.sections[section.id]?.layers) {
+            merged.sections[section.id] = { layers: layout.sections[section.id].layers };
+          }
+        }
+      }
+      return merged;
     }
 
     function saveLayout() {
@@ -542,6 +633,54 @@
 
     function safeSpritePath(primaryPath, fallbackSvgLabel = 'MISSING') {
       return primaryPath || `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96"><rect width="96" height="96" fill="#2a2335"/><rect x="4" y="4" width="88" height="88" rx="8" fill="#1d1a25" stroke="#8ec6ff" stroke-width="4" stroke-dasharray="6 4"/><text x="48" y="44" text-anchor="middle" font-family="monospace" font-size="12" fill="#f6f0e8">${fallbackSvgLabel}</text><text x="48" y="60" text-anchor="middle" font-family="monospace" font-size="10" fill="#c8b8a5">ASSET</text></svg>`)}`;
+    }
+
+    function normalizeFoodType(foodType) {
+      const raw = String(foodType || '').trim().toLowerCase();
+      const aliases = {
+        vegetable: 'vegetables', vegetables: 'vegetables',
+        fruit: 'fruits', fruits: 'fruits',
+        grain: 'grains', grains: 'grains',
+        legume: 'legumes', legumes: 'legumes',
+        tuber: 'tubers', tubers: 'tubers',
+        nut: 'nuts', nuts: 'nuts',
+        seed: 'seeds', seeds: 'seeds',
+        meat: 'meats', meats: 'meats',
+        dairy: 'dairy',
+        oil: 'oils-and-fats', oils: 'oils-and-fats', fat: 'oils-and-fats', fats: 'oils-and-fats', 'oil-fat': 'oils-and-fats', 'oils-and-fats': 'oils-and-fats',
+        misc: 'misc', miscellaneous: 'misc'
+      };
+      return aliases[raw] || raw;
+    }
+
+    function backdropPalette(stub = getSelectedFoodStub()) {
+      return BACKDROP_PALETTES[normalizeFoodType(stub?.foodType)] || BACKDROP_PALETTES.misc;
+    }
+
+    function typeSpriteSlug(foodType) {
+      const normalized = normalizeFoodType(foodType);
+      const slugs = {
+        vegetables: 'vegetable',
+        fruits: 'fruit',
+        grains: 'grain',
+        legumes: 'legume',
+        tubers: 'tuber',
+        nuts: 'nut',
+        seeds: 'seed',
+        meats: 'meat',
+        dairy: 'dairy',
+        'oils-and-fats': 'oil_fat',
+        misc: 'misc'
+      };
+      return slugs[normalized] || 'misc';
+    }
+
+    function foodSpriteCandidates(food = getSelectedFoodStub()) {
+      const slug = typeSpriteSlug(food?.foodType);
+      return {
+        primary: `./sprites/header/food_images/${food?.id}.png`,
+        fallback: `./sprites/header/food_plate/${slug}_food_plate.png`
+      };
     }
 
     function currentEpisode(stub = getSelectedFoodStub()) {
@@ -671,11 +810,15 @@
 
     function syncFoodIntoLayout(food) {
       const stub = getSelectedFoodStub();
+      const spriteCandidates = foodSpriteCandidates(stub);
       for (const section of SECTIONS) {
         const layers = state.layout.sections[section.id].layers;
         const copy = getSectionCopy(food, section.id);
         const byId = Object.fromEntries(layers.map(layer => [layer.id, layer]));
-        if (byId.food_image) byId.food_image.src = safeSpritePath(`./sprites/header/food_images/${stub.id}.png`, stub.id.toUpperCase().slice(0, 8));
+        if (byId.food_image) {
+          byId.food_image.src = spriteCandidates.primary;
+          byId.food_image.fallbackSrc = spriteCandidates.fallback;
+        }
         if (byId.food_name_text) byId.food_name_text.text = String(stub.name || stub.id).toUpperCase();
         if (byId.food_type_text) byId.food_type_text.text = String(stub.foodType || '').toUpperCase();
         if (byId.basis_text) byId.basis_text.text = formatBasis(stub);
@@ -726,9 +869,19 @@
     }
 
     function renderCanvas() {
-      els.canvas.innerHTML = '<div class="phone-bg"></div>';
+      els.canvas.innerHTML = '';
       els.canvas.style.backgroundColor = state.layout.canvas.background;
       els.canvas.classList.toggle('hide-grid', !state.layout.canvas.showGrid);
+
+      const bgField = document.createElement('div');
+      bgField.className = 'canvas-bg-field';
+      const palette = backdropPalette();
+      bgField.style.background = `radial-gradient(circle at 18% 12%, ${palette.glowA}, transparent 24%), radial-gradient(circle at 82% 16%, ${palette.glowB}, transparent 28%), linear-gradient(180deg, ${palette.top} 0%, ${palette.bottom} 100%)`;
+      els.canvas.appendChild(bgField);
+
+      const phoneBg = document.createElement('div');
+      phoneBg.className = 'phone-bg';
+      els.canvas.appendChild(phoneBg);
 
       const layers = [...getCurrentSectionLayers()].sort((a,b) => (a.z || 0) - (b.z || 0));
       for (const layer of layers) {
@@ -745,6 +898,10 @@
           if (layer.width) node.style.width = `calc(${layer.width}px * var(--asset-scale) * var(--preview-scale))`;
           if (layer.height) node.style.height = `calc(${layer.height}px * var(--asset-scale) * var(--preview-scale))`;
           node.onerror = () => {
+            if (layer.fallbackSrc && node.src !== new URL(layer.fallbackSrc, window.location.href).href) {
+              node.src = layer.fallbackSrc;
+              return;
+            }
             node.onerror = null;
             node.src = safeSpritePath('', state.layout.selectedFoodId.toUpperCase().slice(0, 8));
           };
@@ -767,15 +924,7 @@
 
       const indicatorSections = SECTIONS.filter(section => section.indicator);
       if (indicatorSections.some(section => section.id === state.layout.selectedSectionId)) {
-        const bgField = document.createElement('div');
-      bgField.className = 'canvas-bg-field';
-      els.canvas.appendChild(bgField);
-
-      const phoneBg = document.createElement('div');
-      phoneBg.className = 'phone-bg';
-      els.canvas.appendChild(phoneBg);
-
-      const progress = document.createElement('div');
+        const progress = document.createElement('div');
         progress.className = 'progress-strip';
         const activeIndex = indicatorSections.findIndex(section => section.id === state.layout.selectedSectionId);
         indicatorSections.forEach((section, index) => {
@@ -906,21 +1055,53 @@
     function renderBackgroundSprites() {
       const stub = getSelectedFoodStub();
       if (!stub) return;
-      const pool = state.foods.filter(food => food.foodType === stub.foodType).slice(0, Math.min(18, Math.max(6, state.foods.filter(food => food.foodType === stub.foodType).length)));
       const field = els.canvas.querySelector('.canvas-bg-field');
       if (!field) return;
       field.innerHTML = '';
-      pool.forEach((food, index) => {
+      const motion = state.layout.canvas.backgroundMotion || DEFAULT_LAYOUT.canvas.backgroundMotion;
+      if (!motion.enabled) return;
+
+      let sourcePool = [];
+      if (motion.mode === 'allFoods') {
+        sourcePool = [...state.foods];
+      } else if (motion.mode === 'selectedFood') {
+        sourcePool = [stub];
+      } else {
+        sourcePool = state.foods.filter(food => normalizeFoodType(food.foodType) === normalizeFoodType(stub.foodType));
+      }
+      if (!sourcePool.length) sourcePool = [stub];
+
+      const density = Math.max(1, Number(motion.density) || DEFAULT_LAYOUT.canvas.backgroundMotion.density);
+      const minDuration = Math.max(4, Number(motion.minDuration) || DEFAULT_LAYOUT.canvas.backgroundMotion.minDuration);
+      const maxDuration = Math.max(minDuration, Number(motion.maxDuration) || DEFAULT_LAYOUT.canvas.backgroundMotion.maxDuration);
+      const minSize = Math.max(12, Number(motion.minSize) || DEFAULT_LAYOUT.canvas.backgroundMotion.minSize);
+      const maxSize = Math.max(minSize, Number(motion.maxSize) || DEFAULT_LAYOUT.canvas.backgroundMotion.maxSize);
+      const drift = Math.max(0, Number(motion.drift) || 0);
+      const opacity = Math.min(0.5, Math.max(0.04, Number(motion.opacity) || DEFAULT_LAYOUT.canvas.backgroundMotion.opacity));
+
+      Array.from({ length: density }).forEach((_, index) => {
+        const food = sourcePool[index % sourcePool.length] || stub;
+        const spriteCandidates = foodSpriteCandidates(food);
         const img = document.createElement('img');
         img.className = 'bg-sprite';
-        img.src = safeSpritePath(`./sprites/header/food_images/${food.id}.png`, food.id.toUpperCase().slice(0, 8));
+        img.src = spriteCandidates.primary;
         img.alt = '';
-        img.style.left = `${(index * 11 + 8) % 82}%`;
+        const progress = density <= 1 ? 0.5 : index / (density - 1);
+        const size = Math.round(minSize + (maxSize - minSize) * ((index % 5) / 4 || 0));
+        const duration = Math.round(minDuration + (maxDuration - minDuration) * ((index % 7) / 6 || 0));
+        img.style.left = `${8 + progress * 76}%`;
         img.style.top = `${-40 - (index % 5) * 26}px`;
-        img.style.animationDuration = `${12 + (index % 7) * 2}s`;
+        img.style.width = `${size}px`;
+        img.style.height = `${size}px`;
+        img.style.opacity = String(opacity);
+        img.style.animationDuration = `${duration}s`;
         img.style.animationDelay = `${-(index * 1.7)}s`;
-        img.style.setProperty('--drift-x', `${(index % 2 === 0 ? 1 : -1) * (8 + (index % 4) * 3)}px`);
+        img.style.setProperty('--drift-x', `${(index % 2 === 0 ? 1 : -1) * Math.max(2, drift - (index % 4) * 2)}px`);
         img.onerror = () => {
+          if (img.src !== new URL(spriteCandidates.fallback, window.location.href).href) {
+            img.src = spriteCandidates.fallback;
+            return;
+          }
           img.onerror = null;
           img.src = safeSpritePath('', stub.id.toUpperCase().slice(0, 8));
         };
@@ -937,9 +1118,19 @@
 
     function renderAll() {
       setCssVars();
+      const motion = state.layout.canvas.backgroundMotion || DEFAULT_LAYOUT.canvas.backgroundMotion;
       els.previewScale.value = String(state.layout.canvas.previewScale);
       els.toggleGrid.checked = !!state.layout.canvas.showGrid;
       els.bgColor.value = state.layout.canvas.background;
+      els.bgMotionEnabled.checked = motion.enabled !== false;
+      els.bgMotionMode.value = motion.mode || 'foodType';
+      els.bgMotionDensity.value = String(motion.density ?? DEFAULT_LAYOUT.canvas.backgroundMotion.density);
+      els.bgMotionOpacity.value = String(motion.opacity ?? DEFAULT_LAYOUT.canvas.backgroundMotion.opacity);
+      els.bgMotionMinDuration.value = String(motion.minDuration ?? DEFAULT_LAYOUT.canvas.backgroundMotion.minDuration);
+      els.bgMotionMaxDuration.value = String(motion.maxDuration ?? DEFAULT_LAYOUT.canvas.backgroundMotion.maxDuration);
+      els.bgMotionMinSize.value = String(motion.minSize ?? DEFAULT_LAYOUT.canvas.backgroundMotion.minSize);
+      els.bgMotionMaxSize.value = String(motion.maxSize ?? DEFAULT_LAYOUT.canvas.backgroundMotion.maxSize);
+      els.bgMotionDrift.value = String(motion.drift ?? DEFAULT_LAYOUT.canvas.backgroundMotion.drift);
       renderFoodList();
       renderSectionList();
       renderCanvas();
@@ -965,6 +1156,15 @@
     els.previewScale.addEventListener('input', () => { state.layout.canvas.previewScale = Number(els.previewScale.value) || 0.3; renderAll(); });
     els.toggleGrid.addEventListener('change', () => { state.layout.canvas.showGrid = els.toggleGrid.checked; renderAll(); });
     els.bgColor.addEventListener('input', () => { state.layout.canvas.background = els.bgColor.value || '#d6d6d6'; renderAll(); });
+    els.bgMotionEnabled.addEventListener('change', () => { state.layout.canvas.backgroundMotion.enabled = !!els.bgMotionEnabled.checked; renderAll(); });
+    els.bgMotionMode.addEventListener('change', () => { state.layout.canvas.backgroundMotion.mode = els.bgMotionMode.value || 'foodType'; renderAll(); });
+    els.bgMotionDensity.addEventListener('input', () => { state.layout.canvas.backgroundMotion.density = Number(els.bgMotionDensity.value) || DEFAULT_LAYOUT.canvas.backgroundMotion.density; renderAll(); });
+    els.bgMotionOpacity.addEventListener('input', () => { state.layout.canvas.backgroundMotion.opacity = Number(els.bgMotionOpacity.value) || DEFAULT_LAYOUT.canvas.backgroundMotion.opacity; renderAll(); });
+    els.bgMotionMinDuration.addEventListener('input', () => { state.layout.canvas.backgroundMotion.minDuration = Number(els.bgMotionMinDuration.value) || DEFAULT_LAYOUT.canvas.backgroundMotion.minDuration; renderAll(); });
+    els.bgMotionMaxDuration.addEventListener('input', () => { state.layout.canvas.backgroundMotion.maxDuration = Number(els.bgMotionMaxDuration.value) || DEFAULT_LAYOUT.canvas.backgroundMotion.maxDuration; renderAll(); });
+    els.bgMotionMinSize.addEventListener('input', () => { state.layout.canvas.backgroundMotion.minSize = Number(els.bgMotionMinSize.value) || DEFAULT_LAYOUT.canvas.backgroundMotion.minSize; renderAll(); });
+    els.bgMotionMaxSize.addEventListener('input', () => { state.layout.canvas.backgroundMotion.maxSize = Number(els.bgMotionMaxSize.value) || DEFAULT_LAYOUT.canvas.backgroundMotion.maxSize; renderAll(); });
+    els.bgMotionDrift.addEventListener('input', () => { state.layout.canvas.backgroundMotion.drift = Number(els.bgMotionDrift.value) || DEFAULT_LAYOUT.canvas.backgroundMotion.drift; renderAll(); });
     els.resetSection.addEventListener('click', () => {
       state.layout.sections[state.layout.selectedSectionId].layers = createSectionLayers(state.layout.selectedSectionId);
       syncFoodIntoLayout(state.fullFood);

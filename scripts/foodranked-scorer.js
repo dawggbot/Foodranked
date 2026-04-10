@@ -10,6 +10,10 @@ function clamp(n, min, max) {
   return Math.max(min, Math.min(max, n));
 }
 
+function round1(n) {
+  return Number(n.toFixed(1));
+}
+
 function scoreFromBands(value, bands) {
   if (value === null || value === undefined || !Array.isArray(bands) || bands.length === 0) return null;
   for (const band of bands) {
@@ -25,20 +29,20 @@ function scoreFromBands(value, bands) {
 function metricBandFallback(value, polarity) {
   if (value === null || value === undefined) return null;
   if (polarity === 'higher_better') {
-    if (value <= 1) return { label: '↓↓↓', score: -3 };
-    if (value <= 2) return { label: '↓↓', score: -2 };
-    if (value <= 3) return { label: '↓', score: -1 };
-    if (value <= 4) return { label: '↑', score: 1 };
-    if (value <= 5) return { label: '↑↑', score: 2 };
-    return { label: '↑↑↑', score: 3 };
+    if (value <= 1) return { label: '3_red', score: 0 };
+    if (value <= 2) return { label: '2_red', score: 20 };
+    if (value <= 3) return { label: '1_red', score: 40 };
+    if (value <= 4) return { label: '1_green', score: 60 };
+    if (value <= 5) return { label: '2_green', score: 80 };
+    return { label: '3_green', score: 100 };
   }
   if (polarity === 'higher_worse') {
-    if (value <= 1) return { label: '↓↓↓', score: 3 };
-    if (value <= 2) return { label: '↓↓', score: 2 };
-    if (value <= 3) return { label: '↓', score: 1 };
-    if (value <= 4) return { label: '↑', score: -1 };
-    if (value <= 5) return { label: '↑↑', score: -2 };
-    return { label: '↑↑↑', score: -3 };
+    if (value <= 1) return { label: '3_green', score: 100 };
+    if (value <= 2) return { label: '2_green', score: 80 };
+    if (value <= 3) return { label: '1_green', score: 60 };
+    if (value <= 4) return { label: '1_red', score: 40 };
+    if (value <= 5) return { label: '2_red', score: 20 };
+    return { label: '3_red', score: 0 };
   }
   return null;
 }
@@ -47,65 +51,59 @@ function dvPoints(dvPercent) {
   return Math.min(Math.floor(dvPercent / 10), 10);
 }
 
-function normalizeArrowSection(items) {
-  if (!items.length) return null;
-  const raw = items.reduce((sum, i) => sum + i.weightedScore, 0);
-  const max = items.reduce((sum, i) => sum + 3 * i.weight, 0);
-  if (max === 0) return null;
-  return clamp(((raw + max) / (2 * max)) * 100, 0, 100);
-}
-
-function normalizeDvSection(items) {
-  if (!items.length) return null;
-  const raw = items.reduce((sum, i) => sum + i.weightedScore, 0);
-  const max = items.reduce((sum, i) => sum + 10 * i.weight, 0);
-  if (max === 0) return null;
-  return clamp((raw / max) * 100, 0, 100);
-}
-
-function normalizeContextSection(items, positive) {
-  const raw = items.reduce((sum, i) => sum + (Number(i.scoreValue) || 0), 0);
-  const max = items.length * 3;
-  if (max === 0) return null;
-  if (positive) return clamp((raw / max) * 100, 0, 100);
-  return clamp((Math.abs(raw) / max) * 100, 0, 100);
-}
-
 function resolveContextScoreValue(item, scoreMap) {
   const impactLevel = String(item.impactLevel || '').toLowerCase();
   const side = item.side || item.kind || null;
   if (side && scoreMap?.[`${impactLevel}_${side}`] !== undefined) return scoreMap[`${impactLevel}_${side}`];
   if (item.scoreKey && scoreMap?.[item.scoreKey] !== undefined) return scoreMap[item.scoreKey];
+  if (typeof item.scoreValue === 'number') return item.scoreValue;
   return 0;
 }
 
-function computeContextAdjustment(contextItems, contextRules) {
+function weightedAverage(items, valueKey = 'score') {
+  if (!items.length) return null;
+  const totalWeight = items.reduce((sum, item) => sum + (item.weight ?? 1), 0);
+  if (!totalWeight) return null;
+  const weightedSum = items.reduce((sum, item) => sum + (item[valueKey] * (item.weight ?? 1)), 0);
+  return clamp(weightedSum / totalWeight, 0, 100);
+}
+
+function computeContextSections(contextItems, contextRules, food) {
   const scoreMap = contextRules?.scoreMap || {};
-  const maxScoringMajors = contextRules?.maxScoringMajors ?? 3;
-  const maxScoreAdjustment = contextRules?.maxScoreAdjustment ?? 9;
+  const processingPenaltyKeys = new Set(contextRules?.processingPenaltyKeys || []);
+  const processingPenalty = Number(food?.processingPenalty || 0);
 
-  const flattened = [
-    ...((contextItems?.pros || []).map(item => ({ ...item, side: 'pro' }))),
-    ...((contextItems?.cons || []).map(item => ({ ...item, side: 'con' })))
-  ].map(item => ({
+  const pros = (contextItems?.pros || []).map(item => ({
     ...item,
-    resolvedScoreValue: resolveContextScoreValue(item, scoreMap)
+    side: 'pro',
+    resolvedScoreValue: resolveContextScoreValue({ ...item, side: 'pro' }, scoreMap)
   }));
+  const cons = (contextItems?.cons || []).map(item => {
+    const baseScore = resolveContextScoreValue({ ...item, side: 'con' }, scoreMap);
+    const extraPenalty = processingPenaltyKeys.has(item.itemKey) ? processingPenalty : 0;
+    return {
+      ...item,
+      side: 'con',
+      resolvedScoreValue: clamp(baseScore + extraPenalty, 0, 100)
+    };
+  });
 
-  const scoringMajors = flattened.filter(item => item.resolvedScoreValue !== 0);
-  const appliedItems = scoringMajors.slice(0, maxScoringMajors);
-  const rawAdjustment = appliedItems.reduce((sum, item) => sum + item.resolvedScoreValue, 0);
-  const appliedAdjustment = clamp(rawAdjustment, -maxScoreAdjustment, maxScoreAdjustment);
+  const prosScore = pros.length
+    ? clamp(pros.reduce((sum, item) => sum + item.resolvedScoreValue, 0) / pros.length, 0, 100)
+    : null;
+
+  const consSeverity = cons.length
+    ? clamp(cons.reduce((sum, item) => sum + item.resolvedScoreValue, 0) / cons.length, 0, 100)
+    : null;
+
+  const consScore = consSeverity === null ? null : clamp(100 - consSeverity, 0, 100);
 
   return {
-    contextDisplayScores: {
-      pros: normalizeContextSection(flattened.filter(item => item.side === 'pro').map(item => ({ scoreValue: item.resolvedScoreValue })), true),
-      cons: normalizeContextSection(flattened.filter(item => item.side === 'con').map(item => ({ scoreValue: item.resolvedScoreValue })), false)
-    },
-    appliedItems,
-    ignoredItems: scoringMajors.slice(maxScoringMajors),
-    rawAdjustment,
-    appliedAdjustment
+    pros,
+    cons,
+    prosScore,
+    consSeverity,
+    consScore
   };
 }
 
@@ -134,50 +132,39 @@ function prettySectionName(section) {
 }
 
 function buildSummary(sectionScores, tier) {
-  const nutritionEntries = ['fats', 'carbs', 'proteins', 'vitamins', 'minerals']
-    .map(section => [section, sectionScores[section]])
-    .filter(([, v]) => typeof v === 'number')
+  const entries = Object.entries(sectionScores)
+    .filter(([, score]) => typeof score === 'number')
     .sort((a, b) => b[1] - a[1]);
 
-  const best = nutritionEntries[0]?.[0] || null;
-  const worst = nutritionEntries[nutritionEntries.length - 1]?.[0] || null;
-  const bestScore = nutritionEntries[0]?.[1] ?? null;
-
-  if (bestScore === null || bestScore === 0) {
-    return `This food is being judged mostly by contextual strengths and weaknesses rather than nutrient sections. It lands in ${tier} tier.`;
-  }
-
-  return `${capitalize(prettySectionName(best))} are carrying this food most, while ${prettySectionName(worst)} are the biggest drag. It lands in ${tier} tier.`;
+  const best = entries[0];
+  const worst = entries[entries.length - 1];
+  if (!best || !worst) return `This food lands in ${tier} tier.`;
+  return `${capitalize(prettySectionName(best[0]))} are carrying this food most, while ${prettySectionName(worst[0])} are holding it back most. It lands in ${tier} tier.`;
 }
 
-function buildTierReason(tier, overallScore, baseScore, contextAdjustment) {
-  const contextBit = contextAdjustment === 0
-    ? 'Context barely changed the result.'
-    : contextAdjustment > 0
-      ? `Context lifted it by ${contextAdjustment} point${contextAdjustment === 1 ? '' : 's'}.`
-      : `Context dragged it down by ${Math.abs(contextAdjustment)} point${Math.abs(contextAdjustment) === 1 ? '' : 's'}.`;
-  return `This food lands in ${tier} tier with an overall score of ${overallScore} from a base nutrition score of ${baseScore}. ${contextBit}`;
+function buildTierReason(tier, overallScore, sectionScores) {
+  const scoreList = Object.entries(sectionScores)
+    .filter(([, score]) => typeof score === 'number')
+    .map(([section, score]) => `${prettySectionName(section)} ${round1(score)}`)
+    .join(', ');
+  return `This food lands in ${tier} tier with an overall score of ${overallScore}. Section scores: ${scoreList}.`;
 }
 
 function pickSectionExtremes(sectionScores) {
-  const nutritionSections = ['fats', 'carbs', 'proteins', 'vitamins', 'minerals'];
-  const entries = nutritionSections
-    .map(section => ({ section, score: sectionScores[section] }))
-    .filter(entry => typeof entry.score === 'number')
+  const entries = Object.entries(sectionScores)
+    .filter(([, score]) => typeof score === 'number')
+    .map(([section, score]) => ({ section, score }))
     .sort((a, b) => b.score - a.score);
-
-  const strongest = entries[0] && entries[0].score > 0 ? entries[0] : null;
-  const weakest = entries.length && entries[entries.length - 1].score > 0 ? entries[entries.length - 1] : null;
-
-  return { strongest, weakest };
+  return {
+    strongest: entries[0] || null,
+    weakest: entries[entries.length - 1] || null
+  };
 }
 
-function buildNarrationNotes(extremes, tier, contextAdjustment) {
+function buildNarrationNotes(extremes, tier) {
   const notes = [];
   if (extremes.strongest) notes.push(`Strongest section: ${capitalize(prettySectionName(extremes.strongest.section))}.`);
   if (extremes.weakest) notes.push(`Weakest section: ${capitalize(prettySectionName(extremes.weakest.section))}.`);
-  if (contextAdjustment > 0) notes.push(`Context improved the final tier case by ${contextAdjustment} point${contextAdjustment === 1 ? '' : 's'}.`);
-  if (contextAdjustment < 0) notes.push(`Context weakened the final tier case by ${Math.abs(contextAdjustment)} point${Math.abs(contextAdjustment) === 1 ? '' : 's'}.`);
   notes.push(`Final verdict: ${tier} tier.`);
   return notes;
 }
@@ -204,6 +191,33 @@ function validateExactContextCount(food, ruleset) {
   if (pros.length !== requiredPros) errors.push(`Expected exactly ${requiredPros} pros, got ${pros.length}`);
   if (cons.length !== requiredCons) errors.push(`Expected exactly ${requiredCons} cons, got ${cons.length}`);
   return errors;
+}
+
+function maybeApplyProteinFallback(food, ruleset, sectionMetricScores, metricBreakdown) {
+  const fallback = ruleset.proteinFallback;
+  if (!fallback) return;
+  if ((sectionMetricScores.proteins || []).length) return;
+
+  const proteinGrams = food.header?.protein_g;
+  if (proteinGrams === null || proteinGrams === undefined) return;
+
+  const bandResult = scoreFromBands(proteinGrams, fallback.bands || []);
+  if (!bandResult) return;
+
+  const row = {
+    metricKey: fallback.metricKey || 'protein_g_fallback',
+    sectionKey: 'proteins',
+    scoringMode: 'protein_fallback',
+    value: proteinGrams,
+    band: bandResult.label,
+    score: bandResult.score,
+    weight: fallback.weight ?? 1,
+    weightedScore: bandResult.score * (fallback.weight ?? 1),
+    fallbackApplied: true
+  };
+
+  metricBreakdown.push(row);
+  sectionMetricScores.proteins.push(row);
 }
 
 function main() {
@@ -239,15 +253,16 @@ function main() {
 
     if (rule.scoringMode === 'dv_points') {
       const points = dvPoints(value);
-      const weightedScore = points * (rule.weight || 1);
+      const score = points * 10;
       const row = {
         metricKey: rule.metricKey,
         sectionKey: rule.sectionKey,
         scoringMode: 'dv_points',
         dvPercent: value,
         points,
-        weight: rule.weight || 1,
-        weightedScore
+        score,
+        weight: rule.weight ?? 1,
+        weightedScore: score * (rule.weight ?? 1)
       };
       metricBreakdown.push(row);
       sectionMetricScores[rule.sectionKey].push(row);
@@ -256,7 +271,6 @@ function main() {
 
     const bandResult = scoreFromBands(value, rule.bands) || metricBandFallback(value, rule.polarity);
     if (!bandResult) continue;
-    const weightedScore = bandResult.score * (rule.weight || 1);
     const row = {
       metricKey: rule.metricKey,
       sectionKey: rule.sectionKey,
@@ -264,8 +278,8 @@ function main() {
       value,
       band: bandResult.label,
       score: bandResult.score,
-      weight: rule.weight || 1,
-      weightedScore
+      weight: rule.weight ?? 1,
+      weightedScore: bandResult.score * (rule.weight ?? 1)
     };
     metricBreakdown.push(row);
     sectionMetricScores[rule.sectionKey].push(row);
@@ -276,51 +290,49 @@ function main() {
     process.exit(2);
   }
 
-  const contextComputation = computeContextAdjustment(food.contextItems || {}, ruleset.contextRules || {});
+  maybeApplyProteinFallback(food, ruleset, sectionMetricScores, metricBreakdown);
+
+  const contextComputation = computeContextSections(food.contextItems || {}, ruleset.contextRules || {}, food);
 
   const sectionScores = {
-    fats: normalizeArrowSection(sectionMetricScores.fats),
-    carbs: normalizeArrowSection(sectionMetricScores.carbs),
-    proteins: normalizeArrowSection(sectionMetricScores.proteins),
-    vitamins: normalizeDvSection(sectionMetricScores.vitamins),
-    minerals: normalizeDvSection(sectionMetricScores.minerals),
-    pros: contextComputation.contextDisplayScores.pros,
-    cons: contextComputation.contextDisplayScores.cons
+    fats: weightedAverage(sectionMetricScores.fats),
+    carbs: weightedAverage(sectionMetricScores.carbs),
+    proteins: weightedAverage(sectionMetricScores.proteins),
+    vitamins: weightedAverage(sectionMetricScores.vitamins),
+    minerals: weightedAverage(sectionMetricScores.minerals),
+    pros: contextComputation.prosScore,
+    cons: contextComputation.consScore
   };
 
-  const weights = ruleset.sectionWeights || {};
-  let baseScore = 0;
-  for (const section of ['fats', 'carbs', 'proteins', 'vitamins', 'minerals']) {
-    const score = sectionScores[section];
-    if (typeof score === 'number' && typeof weights[section] === 'number') baseScore += score * weights[section];
-  }
-  baseScore = Math.round(baseScore);
+  const sectionWeights = ruleset.sectionWeights || {};
+  const scoredSections = Object.entries(sectionScores).filter(([, score]) => typeof score === 'number');
+  const weightedDenominator = scoredSections.reduce((sum, [section]) => sum + (typeof sectionWeights[section] === 'number' ? sectionWeights[section] : 0), 0);
+  const overallScore = scoredSections.length
+    ? Math.round(scoredSections.reduce((sum, [section, score]) => sum + (score * (typeof sectionWeights[section] === 'number' ? sectionWeights[section] : 0)), 0) / (weightedDenominator || 1))
+    : 0;
 
-  const overallScore = clamp(baseScore + contextComputation.appliedAdjustment, 0, 100);
   const tier = getTier(overallScore, ruleset.tierThresholds);
   const summary = buildSummary(sectionScores, tier);
   const extremes = pickSectionExtremes(sectionScores);
-  const topPros = trimContextItems(contextComputation.appliedItems.filter(item => item.side === 'pro'), 'pro');
-  const topCons = trimContextItems(contextComputation.appliedItems.filter(item => item.side === 'con'), 'con');
-  const fallbackPros = topPros.length ? topPros : trimContextItems((food.contextItems?.pros || []).map(item => ({ ...item, resolvedScoreValue: 0 })), 'pro');
-  const fallbackCons = topCons.length ? topCons : trimContextItems((food.contextItems?.cons || []).map(item => ({ ...item, resolvedScoreValue: 0 })), 'con');
+  const topPros = trimContextItems(contextComputation.pros, 'pro');
+  const topCons = trimContextItems(contextComputation.cons, 'con');
 
   const explanation = {
     summary,
-    whyThisTier: buildTierReason(tier, overallScore, baseScore, contextComputation.appliedAdjustment),
+    whyThisTier: buildTierReason(tier, overallScore, sectionScores),
     strongestSection: extremes.strongest ? {
       key: extremes.strongest.section,
       label: capitalize(prettySectionName(extremes.strongest.section)),
-      score: Number(extremes.strongest.score.toFixed(1))
+      score: round1(extremes.strongest.score)
     } : null,
     weakestSection: extremes.weakest ? {
       key: extremes.weakest.section,
       label: capitalize(prettySectionName(extremes.weakest.section)),
-      score: Number(extremes.weakest.score.toFixed(1))
+      score: round1(extremes.weakest.score)
     } : null,
-    topPros: fallbackPros,
-    topCons: fallbackCons,
-    narrationNotes: buildNarrationNotes(extremes, tier, contextComputation.appliedAdjustment)
+    topPros,
+    topCons,
+    narrationNotes: buildNarrationNotes(extremes, tier)
   };
 
   const output = {
@@ -328,19 +340,15 @@ function main() {
     food: { id: food.id, name: food.name, foodType: food.foodType },
     ruleset: { id: ruleset.id, version: ruleset.version },
     header: food.header,
-    sectionScores: Object.fromEntries(Object.entries(sectionScores).map(([k, v]) => [k, v === null ? null : Number(v.toFixed(1))])),
-    baseScore,
-    contextAdjustment: {
-      rawAdjustment: contextComputation.rawAdjustment,
-      appliedAdjustment: contextComputation.appliedAdjustment,
-      appliedItems: contextComputation.appliedItems,
-      ignoredItems: contextComputation.ignoredItems
-    },
+    sectionScores: Object.fromEntries(Object.entries(sectionScores).map(([k, v]) => [k, v === null ? null : round1(v)])),
     overallScore,
     tier,
     summary,
     explanation,
-    contextItems: food.contextItems,
+    contextItems: {
+      pros: contextComputation.pros,
+      cons: contextComputation.cons
+    },
     metricBreakdown
   };
 

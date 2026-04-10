@@ -8,7 +8,7 @@ Create a JSON structure that is:
 - simple enough to build quickly
 - explicit enough to audit
 - versionable
-- aligned with the current repo logic
+- aligned with the current target scoring model
 
 ## Design principle
 
@@ -23,20 +23,22 @@ Keep the JSON split into:
 
 ```json
 {
-  "id": "nuts-v1",
+  "id": "nuts-v2",
   "foodType": "nuts",
-  "version": 1,
+  "version": 2,
   "status": "draft",
   "basis": {
     "value": 100,
     "unit": "g"
   },
   "sectionWeights": {
-    "fats": 0.51,
-    "carbs": 0.20,
-    "proteins": 0.07,
-    "vitamins": 0.07,
-    "minerals": 0.15
+    "fats": 0.142857,
+    "carbs": 0.142857,
+    "proteins": 0.142857,
+    "vitamins": 0.142857,
+    "minerals": 0.142857,
+    "pros": 0.142857,
+    "cons": 0.142857
   },
   "metricRules": [
     {
@@ -44,30 +46,40 @@ Keep the JSON split into:
       "sectionKey": "fats",
       "scoringRole": "scored",
       "applicability": "required",
-      "weight": 2,
+      "weight": 3,
       "polarity": "higher_worse",
       "bands": [
-        { "label": "↓↓↓", "max": 3, "score": 3 },
-        { "label": "↓↓", "min": 3, "max": 6, "score": 2 },
-        { "label": "↓", "min": 6, "max": 9, "score": 1 },
-        { "label": "↑", "min": 9, "max": 12, "score": -1 },
-        { "label": "↑↑", "min": 12, "max": 18, "score": -2 },
-        { "label": "↑↑↑", "min": 18, "score": -3 }
+        { "label": "3_green", "max": 2, "score": 100 },
+        { "label": "2_green", "min": 2, "max": 4, "score": 80 },
+        { "label": "1_green", "min": 4, "max": 6, "score": 60 },
+        { "label": "1_red", "min": 6, "max": 9, "score": 40 },
+        { "label": "2_red", "min": 9, "max": 12, "score": 20 },
+        { "label": "3_red", "min": 12, "score": 0 }
       ]
     }
   ],
   "contextRules": {
     "requiredPros": 3,
     "requiredCons": 3,
-    "allowedItemKeys": [],
     "scoreMap": {
-      "major_pro": 3,
-      "minor_pro": 0,
-      "minor_con": 0,
-      "major_con": -3
+      "minor_pro": 50,
+      "major_pro": 100,
+      "minor_con": 50,
+      "major_con": 100
     },
-    "maxScoringMajors": 3,
-    "maxScoreAdjustment": 9
+    "processingPenaltyKeys": ["processing_penalty"]
+  },
+  "proteinFallback": {
+    "metricKey": "protein_g_fallback",
+    "weight": 2,
+    "bands": [
+      { "label": "3_red", "max": 6, "score": 0 },
+      { "label": "2_red", "min": 6, "max": 8, "score": 20 },
+      { "label": "1_red", "min": 8, "max": 10, "score": 40 },
+      { "label": "1_green", "min": 10, "max": 12.5, "score": 60 },
+      { "label": "2_green", "min": 12.5, "max": 15.5, "score": 80 },
+      { "label": "3_green", "min": 15.5, "score": 100 }
+    ]
   },
   "tierThresholds": [
     { "tier": "S", "min": 90, "max": 100 },
@@ -81,9 +93,17 @@ Keep the JSON split into:
 
 ## Practical rules
 
-### 1. Use signed scores in bands
-Even if the label arrow looks positive or negative on-screen, the stored `score` should be explicit.
-That keeps implementation simple.
+### 1. Use resolved color-band scores for submacros
+Store the final scoring outcome explicitly.
+That keeps implementation simple and avoids confusing arrow direction with score direction.
+
+Use:
+- `3_red = 0`
+- `2_red = 20`
+- `1_red = 40`
+- `1_green = 60`
+- `2_green = 80`
+- `3_green = 100`
 
 ### 2. Keep macro totals out of `metricRules` scoring
 If included, they should be:
@@ -96,27 +116,40 @@ Use:
 - `optional`
 - `not_applicable`
 
+If a metric is parked for future use but should not score today, keep `weight: 0` or move it to `not_applicable`.
+A zero weight must mean zero contribution.
+
 ### 4. Keep context items separate from nutrient metrics
-Do not force antioxidants, pesticide risk, sodium concerns, etc. into the same metric array as nutrient data.
+Do not force antioxidants, pesticide risk, sodium concerns, convenience tradeoffs, and similar contextual notes into the same metric array as nutrient data.
 
-### 5. Keep section weights limited to nutrition sections
-Use `sectionWeights` only for:
-- fats
-- carbs
-- proteins
-- vitamins
-- minerals
+### 5. Keep top-level section weights equal by default
+Use `sectionWeights` for all 7 sections.
 
-Do **not** include `pros` or `cons` in `sectionWeights`.
-Those are handled later through the capped context adjustment layer.
+Recommended default:
+- fats = `1/7`
+- carbs = `1/7`
+- proteins = `1/7`
+- vitamins = `1/7`
+- minerals = `1/7`
+- pros = `1/7`
+- cons = `1/7`
+
+Food-type weighting should usually happen through:
+- metric applicability
+- metric weight
+- band thresholds
+- category-specific protein fallback bands where protein-quality proxies are not trusted yet
+
+not by changing the final top-level split.
 
 ## Implementation note
 
 The scorer should:
-1. compute 5 nutrition section scores
-2. combine them into a `baseScore`
-3. apply only major contextual modifiers
-4. cap context adjustment at `±9`
-5. map the final score to the tier
+1. compute submacro section scores from resolved color bands
+2. compute vitamin/mineral section scores from DV% tiers
+3. compute pros/cons as first-class sections from major/minor levels
+4. use `proteinFallback` when direct protein-quality metrics are intentionally unavailable
+5. average all 7 section scores into the final overall score
+6. map the final score to the tier
 
-That keeps the math explainable while still allowing a few genuinely important pros/cons to matter.
+That keeps the math explainable while matching the visible video structure.

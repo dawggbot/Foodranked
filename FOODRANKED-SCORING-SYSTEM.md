@@ -8,6 +8,7 @@ Design a scoring model that is:
 - stable enough to be trusted
 - flexible enough to refine later
 - simple enough to maintain
+- calibratable against real benchmark foods
 
 ## Core philosophy
 
@@ -17,7 +18,7 @@ It should judge foods by **how well they perform within their category**.
 That means the scoring system has 4 layers:
 1. **Canonical facts** — raw per-100g nutrition data with explicit units
 2. **Category ruleset** — thresholds, applicability, polarity, and weights for that food type
-3. **Score computation** — section scores, contextual adjustment, and overall tier
+3. **Score computation** — 7 section scores and one final overall score
 4. **Narrative derivation** — pros, cons, summary, and explanation payloads
 
 ## Locked assumptions
@@ -32,8 +33,9 @@ That means the scoring system has 4 layers:
   5. minerals
   6. pros
   7. cons
+- the on-video section order and the score structure should stay aligned
 
-## Important scoring rule
+## Important scoring distinction
 
 ### Display-only metrics
 These are important for the viewer but do **not** directly affect the score:
@@ -45,7 +47,7 @@ These are important for the viewer but do **not** directly affect the score:
 These are header / macro-context values.
 
 ### Score-bearing metrics
-The base nutrition score comes from:
+These are the real inputs used to build the section scores:
 - fat submetrics
   - saturated fat
   - omega 3
@@ -63,17 +65,8 @@ The base nutrition score comes from:
   - bioavailability
 - vitamins
 - minerals
-
-### Context items
-Pros and cons are still present in every result, but they are **not section-weighted like fats/carbs/proteins**.
-They act as a capped modifier layer after the 5 nutrition sections are scored.
-
-### Derived outputs
-These are generated from the score breakdown and explanation rules:
-- pros
-- cons
-- summary line
-- final explanation
+- contextual pros
+- contextual cons
 
 ## Step 1: metric polarity and applicability
 
@@ -93,35 +86,39 @@ Examples:
 - cholesterol: often `not_applicable` for plant categories
 - macro grams: usually `neutral_display_only`
 
-## Step 2: submacro threshold system
+## Step 2: submacro band system
 
-Only **submacros** use the 6-band arrow ladder.
+Only **submacros** use the 6-band arrow-color ladder.
 This applies to:
 - fat submetrics
 - carb submetrics
 - protein submetrics
 
-Each scored submacro in a category-specific ruleset stores thresholds using:
+Important clarification:
+- submacro scoring is based on the **resolved good/bad color outcome**
+- it is **not** based on literal arrow direction
+- so a lower-is-better metric like saturated fat can still resolve to a green result when low
 
-- `↓↓↓`
-- `↓↓`
-- `↓`
-- `↑`
-- `↑↑`
-- `↑↑↑`
+Each scored submacro in a category-specific ruleset stores thresholds that resolve to one of these 6 outcomes:
+- 3 red
+- 2 red
+- 1 red
+- 1 green
+- 2 green
+- 3 green
 
-Recommended numeric mapping:
+Numeric mapping:
+- `3_red = 0`
+- `2_red = 20`
+- `1_red = 40`
+- `1_green = 60`
+- `2_green = 80`
+- `3_green = 100`
 
-- `↓↓↓ = -3`
-- `↓↓ = -2`
-- `↓ = -1`
-- `↑ = +1`
-- `↑↑ = +2`
-- `↑↑↑ = +3`
+There is no neutral middle band on purpose.
+Every scored submacro should land in a clearly good or clearly bad visual state for its category.
 
-There is no zero band on purpose. Every tracked submacro should lean clearly positive or negative for the category.
-
-## Step 3: vitamin/mineral DV scoring
+## Step 3: vitamin and mineral DV scoring
 
 Vitamins and minerals must be scored from **DV% bar fill**, not arrow bands.
 
@@ -129,24 +126,68 @@ Use this rule:
 
 ```text
 metric_points = min(floor(DV_percent / 10), 10)
+metric_score = metric_points × 10
 ```
 
 Examples:
-- 9% DV = 0 points
-- 10% DV = 1 point
-- 47% DV = 4 points
-- 90% DV = 9 points
-- 100%+ DV = 10 points
-
-For normalization, convert DV points to a 0–100 metric score:
-
-```text
-metric_normalized = metric_points × 10
-```
+- 0 to 9% DV = 0
+- 10 to 19% DV = 10
+- 20 to 29% DV = 20
+- 47% DV = 40
+- 90 to 99% DV = 90
+- 100%+ DV = 100
 
 Metric weights still apply at the section level.
 
-## Step 4: score-bearing sections
+## Step 4: pros and cons scoring
+
+Pros and cons are not a post-score adjustment layer.
+They are real score-bearing sections.
+
+Required default structure:
+- exactly 3 pros
+- exactly 3 cons
+
+Each item has a 2-tier classification:
+- `minor`
+- `major`
+
+Recommended default score values:
+- `minor_pro = 50`
+- `major_pro = 100`
+- `minor_con = 50`
+- `major_con = 100`
+
+### Pros section
+
+```text
+pros_section_score = average(pro_item_scores)
+```
+
+Examples:
+- 3 major pros = 100
+- 2 major + 1 minor = 83.3
+- 1 major + 2 minor = 66.7
+- 3 minor pros = 50
+
+### Cons section
+
+Cons should still behave like a negative force while remaining a normal 0 to 100 section.
+
+```text
+cons_severity_score = average(con_item_scores)
+cons_section_score = 100 - cons_severity_score
+```
+
+Examples:
+- 3 major cons = 0
+- 2 major + 1 minor = 16.7
+- 1 major + 2 minor = 33.3
+- 3 minor cons = 50
+
+This keeps cons as a first-class section while still making worse cons reduce the final average.
+
+## Step 5: score-bearing sections
 
 The scoring engine aggregates across all 7 visible video sections:
 - fats
@@ -159,7 +200,7 @@ The scoring engine aggregates across all 7 visible video sections:
 
 That means the on-video structure and the score structure are aligned.
 
-## Step 5: section weighting
+## Step 6: top-level section weighting
 
 Top-level section weighting should default to an even split across all 7 sections.
 
@@ -167,15 +208,34 @@ Recommended rule:
 - all 7 section weights must sum to `1.0`
 - default weighting is `1/7` each (about `14.3%` per section)
 
-Category differences should mostly come from food-type weighting, especially through:
+Final score:
+
+```text
+overall_score =
+  (fats_score + carbs_score + proteins_score + vitamins_score + minerals_score + pros_score + cons_score) / 7
+```
+
+Round to nearest whole number for display.
+
+## Step 7: where food-type weighting belongs
+
+Food-type weighting should happen **inside the section logic**, not by changing the final top-level 7-way split.
+
+Category differences should come from:
 - metric applicability
 - metric weights
 - threshold bands
-- section emphasis rules at the food-type layer when needed
+- threshold harshness or generosity
+- ruleset-specific interpretation of what counts as exceptional or poor in-category performance
 
-The important design idea is that every visible section contributes fairly, while food-type weighting changes which kinds of wins and losses matter most inside each category.
+Example:
+- a grain with unusually strong protein for a grain should be rewarded accordingly
+- that same protein amount might score much less impressively for a meat
+- this is correct, because the thresholds are category-relative
 
-## Step 6: metric weighting
+This is the intended architecture.
+
+## Step 8: metric weighting
 
 Each scored metric gets a weight from 1 to 4.
 
@@ -185,63 +245,93 @@ Suggested meaning:
 - **3** = major category-defining signal
 - **4** = dominant category-defining signal, use sparingly
 
-## Step 7: section score calculation
+Important implementation rule:
+- `weight: 0` means the metric is fully ignored for scoring
+- it must not quietly fall back to a weight of `1`
 
-For each scored arrow-band metric:
+That matters for metrics kept in the schema for display, future use, or category-specific overrides.
+
+## Step 9: protein fallback policy
+
+Protein-quality proxies are still uneven across the current food library.
+When amino-acid or bioavailability fields are missing, weak, or intentionally withheld, the ruleset may use a `proteinFallback` based on plain `protein_g` from the header.
+
+This is the intended bridge rule for v1:
+- prefer direct protein submetrics when they are genuinely source-backed and trusted
+- otherwise mark those protein-quality metrics `not_applicable`
+- let a category-specific `proteinFallback` keep the proteins section alive in a stable, auditable way
+
+That is stronger than forcing fake precision from shaky proxy fields.
+
+## Step 10: section score calculation
+
+## Step 10: section score calculation
+
+### Arrow-color sections
+
+For each scored submacro:
 
 ```text
 weighted_metric_score = band_score × metric_weight
 ```
 
-For each arrow-band section:
+For each arrow-color section:
 
 ```text
-section_raw_score = sum(weighted_metric_scores)
-section_max_score = sum(3 × metric_weight for each scored metric in section)
-section_normalized = ((section_raw_score + section_max_score) / (2 × section_max_score)) × 100
+section_score = sum(weighted_metric_scores) / sum(metric_weights)
 ```
 
-For DV sections:
+Because each band score already resolves to 0 to 100, the section score also lands on a 0 to 100 scale.
+
+### DV sections
+
+For each scored vitamin or mineral:
 
 ```text
-section_raw_score = sum(dv_points × metric_weight)
-section_max_score = sum(10 × metric_weight for each scored metric in section)
-section_normalized = (section_raw_score / section_max_score) × 100
+weighted_metric_score = metric_score × metric_weight
 ```
 
-Metrics marked `not_applicable` are excluded.
-Metrics marked `display_only` are ignored by scoring.
-
-## Step 8: overall score calculation
+For each DV section:
 
 ```text
-overall_score =
-  fats_score × fats_weight +
-  carbs_score × carbs_weight +
-  proteins_score × proteins_weight +
-  vitamins_score × vitamins_weight +
-  minerals_score × minerals_weight +
-  pros_score × pros_weight +
-  cons_score × cons_weight
+section_score = sum(weighted_metric_scores) / sum(metric_weights)
 ```
 
-With the default even split model, each section weight starts at `1/7`.
+Again, the section score lands on a 0 to 100 scale.
 
-Round to nearest whole number for display.
+### Missing-data policy inside sections
 
-## Step 9: tier mapping
+- if a metric is `not_applicable`, exclude it fully
+- if a metric is `optional` and missing, exclude it from the denominator
+- if a metric is `required` and missing, mark the food as `incomplete` and block final scoring
 
-Recommended v1 tier thresholds:
+This prevents fake precision.
 
-- **S** = 90–100
-- **A** = 78–89
-- **B** = 64–77
-- **C** = 45–63
-- **D** = 0–44
+## Step 11: tier mapping
 
-These can be tuned later if calibration data proves they are too strict or too lenient, but category-specific tier maps should be avoided unless clearly justified.
+Tier thresholds should be calibrated per category against benchmark foods.
+A universal threshold map can be a starting point, but the real production rule is category-relative calibration.
 
-## Step 10: narration-friendly explanation rules
+That means:
+- use stable thresholds inside each category once tuned
+- do not force every category to share the same raw score cutoffs
+- re-check thresholds whenever the ruleset architecture changes materially
+
+## Step 12: benchmark calibration
+
+The scoring system should not be trusted purely because the math looks tidy.
+It should be checked against benchmark foods with real data.
+
+Recommended calibration method:
+1. pull trustworthy nutrient data, preferably USDA-backed where possible
+2. score anchor foods in each category
+3. check whether they land in the intuitively correct tier
+4. check whether the section breakdown looks defensible
+5. adjust ruleset thresholds and metric weights when needed
+
+Calibration should be done repeatedly during ruleset development, not only after the system is fully built.
+
+## Step 13: narration-friendly explanation rules
 
 Every scored food should produce:
 - 1 short overall summary
@@ -255,30 +345,17 @@ The summary should synthesize what the earlier sections and contextual flags mea
 Example summary shape:
 
 ```text
-Strong fat quality and fibre carry this food, but weaker protein usefulness keeps it out of S tier.
+Strong fat quality and fibre carry this food, while harsher cons and weaker vitamin density keep it out of S tier.
 ```
-
-## Step 11: missing-data policy
-
-Missing values must not silently break fairness.
-
-Recommended v1 rule:
-- if a metric is `not_applicable`, exclude it fully
-- if a metric is `optional` and missing, exclude it from that section denominator
-- if a metric is `required` and missing, mark the food as `incomplete` and block final scoring
-
-This prevents fake precision.
 
 ## Step 14: score outputs needed by the tool
 
 The scoring engine should output:
 - header-ready values
 - section-ready metric payloads
-- raw band results
-- weighted contributions
-- section scores
-- base score
-- applied context adjustment
+- resolved submacro band outcomes
+- weighted metric contributions
+- section scores for all 7 sections
 - overall score
 - final tier
 - generated pros
@@ -292,5 +369,6 @@ When tuning rulesets, the practical target is:
 - D-tier foods should land in D
 - S-tier foods should land in S
 - middle tiers should feel stable and believable
+- section scores should feel relatively balanced before category-specific weighting is applied
 
 That means every category should eventually be tuned against anchor foods rather than only abstract philosophy.

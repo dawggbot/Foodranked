@@ -22,8 +22,8 @@ Separate these layers:
    - What each metric means, how it is displayed, and its default polarity
 3. **Food-type ruleset**
    - Which metrics apply to a category, how much they matter, and which thresholds they use
-4. **Context rules**
-   - Which pros/cons can affect rank, how much they can move it, and where the caps are
+4. **Context item rules**
+   - How pros/cons are classified and scored
 5. **Derived outputs**
    - section payloads, strengths, weaknesses, summary, and tier
 
@@ -37,23 +37,18 @@ These are shown prominently in the video but do **not** directly score the food:
 - kcal
 
 ### Score-bearing metrics
-These are the main numeric inputs for the **base nutrition score**:
+These are the main numeric inputs for the section scores:
 - fat submetrics
 - carb submetrics
 - protein submetrics
 - vitamins
 - minerals
-
-### Context items
-Pros/cons can still influence rank, but only through major flags.
-They are not treated as normal weighted sections.
-
-### Derived outputs
-These are generated from the scored evidence:
 - pros
 - cons
-- summary line
-- final explanation
+
+### Architecture note
+Pros and cons are real score-bearing sections in the current target system.
+They are not a later capped modifier layer.
 
 ## Metric polarity model
 
@@ -142,13 +137,16 @@ Suggested fields:
 - narration_priority (`low`, `medium`, `high`)
 - notes
 
+Important implementation note:
+- `weight = 0` means zero scoring contribution, not a fallback to `1`
+
 ### rule_bands
-Threshold ladder for a scored metric.
+Threshold ladder for a scored submacro.
 
 Suggested fields:
 - id
 - ruleset_metric_id
-- band_label (`↓↓↓`, `↓↓`, `↓`, `↑`, `↑↑`, `↑↑↑`)
+- band_label (`3_red`, `2_red`, `1_red`, `1_green`, `2_green`, `3_green`)
 - min_value nullable
 - max_value nullable
 - unit
@@ -156,8 +154,18 @@ Suggested fields:
 - display_order
 - explanation_template nullable
 
+### context_item_rules
+Rules for scoring pros and cons.
+
+Suggested fields:
+- id
+- ruleset_id
+- side (`pro`, `con`)
+- impact_level (`minor`, `major`)
+- score_value
+
 ### section_weights
-Top-level nutrition section weights.
+Top-level section weights.
 
 Suggested fields:
 - id
@@ -167,21 +175,23 @@ Suggested fields:
 - proteins_weight
 - vitamins_weight
 - minerals_weight
+- pros_weight
+- cons_weight
 
-### context_rules
-Context adjustment policy.
+Recommended default:
+- all 7 sections use equal weights of `1/7`
+- category differentiation should happen inside the ruleset, not by warping the final 7-way split
+
+### protein_fallbacks
+Bridge policy for the proteins section when amino-acid or bioavailability fields are weak, missing, or intentionally withheld.
 
 Suggested fields:
 - id
 - ruleset_id
-- required_pros
-- required_cons
-- major_pro_score
-- minor_pro_score
-- minor_con_score
-- major_con_score
-- max_scoring_majors
-- max_score_adjustment
+- metric_key (`protein_g_fallback`)
+- weight
+- bands
+- notes nullable
 
 ### tier_thresholds
 Versioned mapping from overall score to final tier.
@@ -194,17 +204,39 @@ Suggested fields:
 - max_score
 - notes nullable
 
+Important note:
+- thresholds should be calibrated per category after the ruleset architecture is stable enough to test against benchmark foods
+
 ## Default band scoring
 
-Suggested default mapping:
-- `↓↓↓` = -3
-- `↓↓` = -2
-- `↓` = -1
-- `↑` = +1
-- `↑↑` = +2
-- `↑↑↑` = +3
+Suggested default mapping for scored submacros:
+- `3_red` = 0
+- `2_red` = 20
+- `1_red` = 40
+- `1_green` = 60
+- `2_green` = 80
+- `3_green` = 100
 
-There is no neutral zero band in v1. Each scored metric should lean clearly positive or negative inside its category context.
+Important:
+- this is a resolved **good/bad color outcome** scale
+- it is not a literal arrow-direction scale
+- lower-is-better metrics can still resolve to green when low
+
+## Default context scoring
+
+Suggested default mapping:
+- `minor_pro` = 50
+- `major_pro` = 100
+- `minor_con` = 50
+- `major_con` = 100
+
+Recommended section formulas:
+
+```text
+pros_section_score = average(pro_item_scores)
+cons_severity_score = average(con_item_scores)
+cons_section_score = 100 - cons_severity_score
+```
 
 ## Score flow
 
@@ -213,19 +245,20 @@ There is no neutral zero band in v1. Each scored metric should lean clearly posi
 3. Load the active ruleset for that type.
 4. Load metric applicability, roles, weights, and thresholds.
 5. Ignore `display_only` metrics for scoring.
-6. For each `scored` metric, resolve the matching threshold band.
-7. Convert the band to score value.
-8. Multiply by metric weight.
-9. Aggregate metric scores by nutrition section.
-10. Normalize each score-bearing section.
-11. Apply nutrition section weights to compute the `baseScore`.
-12. Apply the capped context adjustment.
-13. Map the final score to the tier.
-14. Generate derived outputs:
+6. For each scored submacro, resolve the matching category-specific band.
+7. Convert the resolved band to a 0 to 100 score.
+8. Apply metric weights.
+9. Aggregate metric scores by section.
+10. Score vitamins/minerals from DV% tiers.
+11. Score pros and cons from major/minor item levels.
+12. Apply `proteinFallback` when the proteins section would otherwise depend on weak proxy fields.
+13. Average the 7 section scores using equal top-level weights.
+14. Map the final score to the tier.
+15. Generate derived outputs:
    - summary
    - explanation notes
    - final tier
-15. Generate video payloads.
+16. Generate video payloads.
 
 ## Required output payloads
 
@@ -235,8 +268,8 @@ The ruleset system should generate:
 - strongest positives
 - strongest negatives
 - short summary
-- base score
-- applied context adjustment
+- all 7 section scores
+- overall score
 - final tier
 - explanation snapshot referencing the ruleset version used
 
@@ -265,12 +298,12 @@ The ruleset system should generate:
     "proteins": 63,
     "vitamins": 58,
     "minerals": 81,
-    "baseScore": 74,
-    "contextAdjustment": 3,
-    "overall": 77
+    "pros": 83,
+    "cons": 50,
+    "overall": 71
   },
   "finalTier": "B",
-  "summary": "Strong fat quality and mineral density carry this food, but protein usefulness is more moderate for the category."
+  "summary": "Strong fat quality and mineral density carry this food, while moderate cons keep it out of A tier."
 }
 ```
 
@@ -286,4 +319,4 @@ Published videos should always be explainable using:
 ## Calibration note
 
 Tier tuning should be driven by anchor foods.
-If obviously bad in-category foods are not landing in D, or elite in-category foods are not landing in S, the answer is to recalibrate the ruleset — not to hide the problem with arbitrary editorial adjustments.
+If obviously bad in-category foods are not landing in D, or elite in-category foods are not landing in S, the answer is to recalibrate the ruleset, not to hide the problem with arbitrary editorial adjustments.

@@ -45,11 +45,11 @@ That means calibration can now include more processed foods where useful.
 ## Tuning rule
 
 When the actual output differs from the expected tier, prefer to adjust:
-1. section weights
-2. metric weights
-3. threshold harshness
+1. metric applicability
+2. metric weights or band harshness
+3. category-specific tier thresholds
 
-Avoid moving tier thresholds too early unless many foods are consistently off.
+Do not solve category problems by warping the final top-level 7-section split.
 
 ## Notes
 - Expected tiers are calibration targets, not final truth.

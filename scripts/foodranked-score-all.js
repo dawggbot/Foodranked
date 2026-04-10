@@ -65,7 +65,7 @@ function main() {
     if (scored.ok) {
       rows.push({
         food: scored.result.food.name,
-        type: scored.result.food.foodType,
+        foodType: scored.result.food.foodType,
         tier: scored.result.tier,
         overallScore: scored.result.overallScore,
         fats: scored.result.sectionScores.fats,
@@ -73,8 +73,10 @@ function main() {
         proteins: scored.result.sectionScores.proteins,
         vitamins: scored.result.sectionScores.vitamins,
         minerals: scored.result.sectionScores.minerals,
-        baseScore: scored.result.baseScore,
-        contextAdjustment: scored.result.contextAdjustment.appliedAdjustment
+        pros: scored.result.sectionScores.pros,
+        cons: scored.result.sectionScores.cons,
+        strongestSection: scored.result.explanation?.strongestSection?.key || null,
+        weakestSection: scored.result.explanation?.weakestSection?.key || null
       });
     }
   }

@@ -1,42 +1,15 @@
 # MEATS-CALIBRATION
 
-## Target anchors
-- Salmon → S
-- Chicken Thigh → C / low B
-- Bacon → D
+This first-pass meats note has been superseded.
 
-## Current calibration strategy
-- keep the current meat metric logic intact for now
-- keep the major-only context adjustment model intact
-- use a meats-specific tier map to match the current score spread
+## Current source of truth
 
-## Why this pass is threshold-first
+Use:
+- `CALIBRATION-MATRIX.md#meats`
+- `config/calibration-matrix.v1.json`
+- `CALIBRATION-MATRIX-RESULTS.md`
 
-The current meat anchors already separate in the right order:
-- salmon highest
-- chicken thigh middle
-- bacon lowest
+## Current meat benchmark shape
 
-So the first clean move is to calibrate the meat tier map rather than immediately changing fat/protein weights again.
-
-## Active meats thresholds
-
-```json
-[
-  { "tier": "S", "min": 80, "max": 100 },
-  { "tier": "A", "min": 68, "max": 79 },
-  { "tier": "B", "min": 54, "max": 67 },
-  { "tier": "C", "min": 42, "max": 53 },
-  { "tier": "D", "min": 0, "max": 41 }
-]
-```
-
-## Interpretation
-- salmon at `81` now lands in **S**
-- chicken thigh at `53` stays in **C**, right on the edge of B
-- bacon at `39` stays in **D**
-
-## Likely second-pass refinements later
-- decide whether minerals are underpowered for meats
-- decide whether cholesterol is hitting some otherwise-solid meats too hard
-- add more anchors like sardines, sirloin, liver, turkey breast, and processed deli meats before changing weights
+Meats now calibrate against a full 25-food matrix with 5 anchors per tier instead of the old 3-anchor threshold pass.
+That broader matrix is the maintained source for expected meat tier outcomes.

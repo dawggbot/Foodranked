@@ -307,11 +307,12 @@ function main() {
   const sectionWeights = ruleset.sectionWeights || {};
   const scoredSections = Object.entries(sectionScores).filter(([, score]) => typeof score === 'number');
   const weightedDenominator = scoredSections.reduce((sum, [section]) => sum + (typeof sectionWeights[section] === 'number' ? sectionWeights[section] : 0), 0);
-  const overallScore = scoredSections.length
-    ? Math.round(scoredSections.reduce((sum, [section, score]) => sum + (score * (typeof sectionWeights[section] === 'number' ? sectionWeights[section] : 0)), 0) / (weightedDenominator || 1))
+  const rawOverallScore = scoredSections.length
+    ? (scoredSections.reduce((sum, [section, score]) => sum + (score * (typeof sectionWeights[section] === 'number' ? sectionWeights[section] : 0)), 0) / (weightedDenominator || 1))
     : 0;
+  const overallScore = round1(rawOverallScore);
 
-  const tier = getTier(overallScore, ruleset.tierThresholds);
+  const tier = getTier(rawOverallScore, ruleset.tierThresholds);
   const summary = buildSummary(sectionScores, tier);
   const extremes = pickSectionExtremes(sectionScores);
   const topPros = trimContextItems(contextComputation.pros, 'pro');
@@ -342,6 +343,7 @@ function main() {
     header: food.header,
     sectionScores: Object.fromEntries(Object.entries(sectionScores).map(([k, v]) => [k, v === null ? null : round1(v)])),
     overallScore,
+    overallScoreExact: Number(rawOverallScore.toFixed(4)),
     tier,
     summary,
     explanation,

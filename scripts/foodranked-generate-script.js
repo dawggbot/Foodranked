@@ -458,7 +458,10 @@ function buildOverview(result) {
 
 function buildProsConsSection(result, side) {
   const items = side === 'pros' ? (result.contextItems?.pros || []) : (result.contextItems?.cons || []);
-  const intro = side === 'pros' ? 'pros first:' : 'the drawbacks next:';
+  const introOptions = side === 'pros'
+    ? ['pros first:', 'the upsides first:', 'positives first:']
+    : ['cons next:', 'the drawbacks next:', 'downsides next:'];
+  const intro = pick(introOptions, side === 'pros' ? 'pros first:' : 'cons next:', `${result.food.id}:${side}:intro`);
   const body = items.map(mergeContextItem).filter(Boolean).join('. ');
   return body ? `${intro} ${body}.` : intro;
 }

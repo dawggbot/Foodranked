@@ -98,6 +98,7 @@ Typical compact order:
 
 Narration rules:
 - pros and cons should read like the narrator is directly reading the on-screen items in order
+- simple opener variation is allowed for pros/cons sections, for example `Pros first:`, `The upsides first:`, `Cons next:`, or `The drawbacks next:`
 - do not narrate the overall score
 - the last spoken block must always be the tier reveal, for example `D tier.`
 

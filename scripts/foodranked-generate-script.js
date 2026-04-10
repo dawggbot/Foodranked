@@ -366,12 +366,99 @@ function mergeContextItem(item) {
   return `${title}. ${explanation}`;
 }
 
+function shortContextTitle(item) {
+  return lowerFirst(trimSentence(item?.title || ''))
+    .replace(/ is a major drawback$/i, '')
+    .replace(/ is a major negative$/i, '')
+    .replace(/ is a brutal downside$/i, '')
+    .replace(/^works as a /i, '')
+    .replace(/^has /i, '')
+    .replace(/^highly /i, '')
+    .replace(/^very /i, '')
+    .replace(/^can be /i, '');
+}
+
+function shortMetricLabel(metricKey) {
+  return formatMetricKey(metricKey)
+    .replace(/polyunsaturated fat/i, 'fat quality')
+    .replace(/protein g fallback/i, 'protein')
+    .replace(/essential amino acids score/i, 'protein quality')
+    .replace(/bioavailability/i, 'protein quality');
+}
+
+function positiveSectionHighlight(result, sectionKey) {
+  const score = result.sectionScores?.[sectionKey] ?? null;
+  const metrics = topMetricsForSection(result, sectionKey, 4, { speakDailyValue: false });
+  if (score === null || !metrics.length) return null;
+
+  if (sectionKey === 'proteins') {
+    const proteinGrams = headerMacro(result, 'protein_g') ?? 0;
+    const hasQualitySignal = metrics.some(metric => ['bioavailability_percent', 'essential_amino_acids_score'].includes(metric.metricKey));
+    if (hasQualitySignal || proteinGrams >= 12 || score >= 35) return 'protein';
+    return null;
+  }
+
+  if (sectionKey === 'fats' && score >= 55) {
+    if (result.food.foodType === 'oils-and-fats') return 'fat quality';
+    if (metrics.find(metric => metric.metricKey === 'omega3_mg' && (metric.value || 0) > 0)) return 'omega 3';
+    if (metrics.find(metric => metric.metricKey === 'polyunsaturated_fat_g' && (metric.value || 0) > 0)) return 'fat quality';
+  }
+
+  if (sectionKey === 'carbs' && score >= 55) {
+    if (metrics.find(metric => metric.metricKey === 'fibre_g' && (metric.value || 0) >= 3)) return 'fibre';
+    return 'carb quality';
+  }
+
+  if (sectionKey === 'vitamins' && score >= 15) return shortMetricLabel(metrics[0].metricKey);
+  if (sectionKey === 'minerals' && score >= 15) return shortMetricLabel(metrics[0].metricKey);
+
+  return null;
+}
+
+function uniqueHighlights(items, limit = 2) {
+  const out = [];
+  const seen = new Set();
+  for (const item of items) {
+    const value = lowerFirst(trimSentence(item || ''));
+    if (!value || seen.has(value)) continue;
+    seen.add(value);
+    out.push(value);
+    if (out.length >= limit) break;
+  }
+  return out;
+}
+
+function buildOverview(result) {
+  const nutritionStrengths = [
+    { key: 'fats', phrase: positiveSectionHighlight(result, 'fats'), score: result.sectionScores?.fats ?? -1 },
+    { key: 'proteins', phrase: positiveSectionHighlight(result, 'proteins'), score: result.sectionScores?.proteins ?? -1 },
+    { key: 'carbs', phrase: positiveSectionHighlight(result, 'carbs'), score: result.sectionScores?.carbs ?? -1 },
+    { key: 'vitamins', phrase: positiveSectionHighlight(result, 'vitamins'), score: result.sectionScores?.vitamins ?? -1 },
+    { key: 'minerals', phrase: positiveSectionHighlight(result, 'minerals'), score: result.sectionScores?.minerals ?? -1 }
+  ]
+    .filter(item => item.phrase)
+    .map(item => item.phrase);
+
+  const strengths = uniqueHighlights([
+    ...nutritionStrengths,
+    ...(result.contextItems?.pros || []).map(shortContextTitle)
+  ], 2);
+
+  const weaknesses = uniqueHighlights([
+    ...(result.contextItems?.cons || []).map(shortContextTitle)
+  ], 2);
+
+  if (strengths.length && weaknesses.length) {
+    return `big strengths are ${naturalList(strengths)}, but the biggest weaknesses are ${naturalList(weaknesses)}`;
+  }
+  if (strengths.length) return `big strengths here are ${naturalList(strengths)}`;
+  if (weaknesses.length) return `the biggest weaknesses are ${naturalList(weaknesses)}`;
+  return `${result.food.name} is pretty mixed overall`;
+}
+
 function buildProsConsSection(result, side) {
   const items = side === 'pros' ? (result.contextItems?.pros || []) : (result.contextItems?.cons || []);
-  const openers = side === 'pros'
-    ? ['pros first:', 'on the plus side:', 'the upsides first:']
-    : ['now the downsides:', 'the drawbacks next:', 'on the weaker side:'];
-  const intro = pick(openers, side === 'pros' ? 'pros first:' : 'now the downsides:', `${result.food.id}:${side}:intro`);
+  const intro = side === 'pros' ? 'pros first:' : 'the drawbacks next:';
   const body = items.map(mergeContextItem).filter(Boolean).join('. ');
   return body ? `${intro} ${body}.` : intro;
 }
@@ -410,33 +497,12 @@ function bestUsesLine(result) {
 }
 
 function buildClosing(result) {
-  const subject = result.food.name;
   const tier = result.tier;
-  const useCase = lowerFirst(bestUsesLine(result));
-
-  let summary;
-  if (tier === 'S' || tier === 'A') {
-    summary = [
-      `${subject} has a genuinely strong overall case`,
-      'the practical downsides are real, but they do not outweigh the upside',
-      useCase
-    ].join('. ') + '.';
-  } else if (tier === 'D' || tier === 'C') {
-    summary = [
-      `${subject} does have a few real-world upsides`,
-      'but the nutrition case is still weak and the downsides drag it down hard',
-      useCase
-    ].join('. ') + '.';
-  } else {
-    summary = [
-      `${subject} does have some solid upside`,
-      'but the tradeoffs keep it from climbing higher',
-      useCase
-    ].join('. ') + '.';
-  }
+  const overview = polishNarration(buildOverview(result) + '.');
 
   return {
-    summary: polishNarration(summary),
+    summary: overview,
+    overview,
     finalReveal: `${tier} tier.`,
     useCaseNote: bestUsesLine(result) + '.',
     cta: 'Would you rank it the same, or nah?'

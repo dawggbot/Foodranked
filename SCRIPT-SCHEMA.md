@@ -92,9 +92,14 @@ Typical compact order:
 1. `hook_food` → `Bacon!`
 2. `hook_ranked` → `Ranked!`
 3. 7 section blocks
-4. `closing_summary`
+4. `closing_summary` → very short strengths/weaknesses overview
 5. optional `cta`
 6. `final_reveal`
+
+Narration rules:
+- pros and cons should read like the narrator is directly reading the on-screen items in order
+- do not narrate the overall score
+- the last spoken block must always be the tier reveal, for example `D tier.`
 
 The plain-text compact narration file is created by joining these spoken blocks with:
 

@@ -68,7 +68,8 @@ There are 7 sections in order:
 ## Closing structure
 
 Ending should include:
-- brief summary of strengths, weaknesses, and uses
+- a super short overview of the best strengths and worst weaknesses
+- no narrated overall score
 - final `S-D tier` reveal as its own spoken block (for example `C tier.`)
 - big stamped-in letter under the header on an emptier background
 

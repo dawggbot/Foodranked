@@ -6,13 +6,13 @@
   <title>FoodRanked Display Builder</title>
   <style>
     :root {
-      --bg: #dcdcdc;
-      --panel: rgba(255,255,255,0.84);
-      --panel-border: rgba(0,0,0,0.14);
-      --ink: #101010;
-      --muted: #5e5e5e;
-      --accent: #ff845d;
-      --accent-2: #7bb1ff;
+      --bg: #10141d;
+      --panel: rgba(22,26,35,0.88);
+      --panel-border: rgba(138,151,181,0.22);
+      --ink: #f5f0e6;
+      --muted: #b8b3a7;
+      --accent: #d75a5a;
+      --accent-2: #90b3ff;
       --preview-scale: 1;
       --asset-scale: 4;
       --grid-width: 135px;
@@ -26,7 +26,7 @@
     body {
       margin: 0;
       min-height: 100vh;
-      background: #dcdcdc;
+      background: radial-gradient(circle at top, rgba(213,90,90,.10), transparent 30%), linear-gradient(180deg, #171c27 0%, #0f131b 100%);
       color: var(--ink);
       font-family: Inter, system-ui, sans-serif;
       overflow: hidden;
@@ -37,9 +37,9 @@
       width: 32px;
       height: 32px;
       image-rendering: pixelated;
-      opacity: 0.18;
+      opacity: 0.16;
       animation: drift linear infinite;
-      filter: drop-shadow(0 2px 0 rgba(255,255,255,.35));
+      filter: drop-shadow(0 3px 0 rgba(0,0,0,.18));
       pointer-events: none;
     }
 
@@ -138,8 +138,8 @@
       min-height: 0;
       overflow: auto;
       padding: 16px;
-      background: rgba(255,255,255,.42);
-      border: 1px solid rgba(0,0,0,.08);
+      background: rgba(11,13,18,.44);
+      border: 1px solid rgba(255,255,255,.06);
       border-radius: 16px;
     }
     .phone-shell {
@@ -151,8 +151,8 @@
       border-radius: 26px;
       box-shadow: 0 18px 50px rgba(0,0,0,.28);
       background:
-        radial-gradient(circle at top, rgba(255,255,255,.55), transparent 35%),
-        linear-gradient(180deg, #e7e7e7 0%, #d3d3d3 100%);
+        radial-gradient(circle at top, rgba(213,90,90,.14), transparent 35%),
+        linear-gradient(180deg, #1b2030 0%, #121724 100%);
       display: grid;
       place-items: center;
       padding: 0;
@@ -161,14 +161,14 @@
       position: relative;
       width: var(--canvas-width);
       height: var(--canvas-height);
-      background: #d6d6d6;
+      background: #141923;
       overflow: hidden;
       border-radius: 0;
       image-rendering: pixelated;
       box-shadow: 0 10px 30px rgba(0,0,0,.08);
       background-image:
-        linear-gradient(to right, rgba(0,0,0,.05) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(0,0,0,.05) 1px, transparent 1px);
+        linear-gradient(to right, rgba(255,255,255,.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,.04) 1px, transparent 1px);
       background-size: calc(10px * var(--preview-scale)) calc(10px * var(--preview-scale));
     }
     .canvas.hide-grid { background-image: none; }
@@ -179,17 +179,54 @@
       overflow: hidden;
       pointer-events: none;
       background:
-        radial-gradient(circle at 20% 10%, rgba(255,255,255,.65), transparent 24%),
-        radial-gradient(circle at 80% 18%, rgba(255,255,255,.45), transparent 24%),
-        linear-gradient(180deg, #ececec 0%, #d7d7d7 100%);
+        radial-gradient(circle at 18% 12%, rgba(255,255,255,.12), transparent 24%),
+        radial-gradient(circle at 82% 16%, rgba(0,0,0,.10), transparent 28%),
+        linear-gradient(180deg, #232b3d 0%, #151a26 100%);
       z-index: 0;
     }
 
     .phone-bg {
       position: absolute;
       inset: 0;
-      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.03));
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.10));
       z-index: 1;
+    }
+
+    .header-frame,
+    .stage-frame,
+    .subtitle-frame {
+      position: absolute;
+      border: calc(3px * var(--asset-scale) * var(--preview-scale)) solid #46506a;
+      box-shadow: inset 0 0 0 calc(2px * var(--asset-scale) * var(--preview-scale)) rgba(20,24,36,.92);
+      border-radius: calc(4px * var(--asset-scale) * var(--preview-scale));
+      pointer-events: none;
+    }
+
+    .header-frame {
+      left: calc(3px * var(--asset-scale) * var(--preview-scale));
+      top: calc(5px * var(--asset-scale) * var(--preview-scale));
+      width: calc(129px * var(--asset-scale) * var(--preview-scale));
+      height: calc(68px * var(--asset-scale) * var(--preview-scale));
+      background: rgba(19,23,33,.82);
+      z-index: 2;
+    }
+
+    .stage-frame {
+      left: calc(5px * var(--asset-scale) * var(--preview-scale));
+      top: calc(79px * var(--asset-scale) * var(--preview-scale));
+      width: calc(125px * var(--asset-scale) * var(--preview-scale));
+      height: calc(100px * var(--asset-scale) * var(--preview-scale));
+      background: linear-gradient(180deg, rgba(34,40,54,.80), rgba(20,24,34,.84));
+      z-index: 2;
+    }
+
+    .subtitle-frame {
+      left: calc(7px * var(--asset-scale) * var(--preview-scale));
+      top: calc(182px * var(--asset-scale) * var(--preview-scale));
+      width: calc(121px * var(--asset-scale) * var(--preview-scale));
+      min-height: calc(18px * var(--asset-scale) * var(--preview-scale));
+      background: rgba(12,14,20,.74);
+      z-index: 2;
     }
 
     .pixel-text {
@@ -216,7 +253,7 @@
       cursor: grab;
       image-rendering: pixelated;
     }
-    .layer-node.selected { outline: 2px solid rgba(123,177,255,.95); outline-offset: 2px; }
+    .layer-node.selected { outline: 2px solid rgba(144,179,255,.95); outline-offset: 2px; }
     .layer-node.sprite { image-rendering: pixelated; }
     .layer-node.text { white-space: pre-line; }
 
@@ -232,15 +269,15 @@
       width: calc(8px * var(--asset-scale) * var(--preview-scale));
       height: calc(8px * var(--asset-scale) * var(--preview-scale));
       border-radius: 999px;
-      background: rgba(255,255,255,.32);
-      box-shadow: inset 0 0 0 calc(1px * var(--asset-scale) * var(--preview-scale)) rgba(0,0,0,.36);
+      background: #4a5266;
+      box-shadow: inset 0 0 0 calc(1px * var(--asset-scale) * var(--preview-scale)) #2a3140;
     }
-    .progress-dot.active { background: #ff845d; }
-    .progress-dot.done { background: #89d39a; }
+    .progress-dot.active { background: var(--accent); box-shadow: 0 0 0 calc(1px * var(--asset-scale) * var(--preview-scale)) rgba(213,90,90,.22); }
+    .progress-dot.done { background: #799b82; }
 
     .script-box, .nutrition-box {
-      background: rgba(255,255,255,.82);
-      border: 1px solid rgba(0,0,0,.1);
+      background: rgba(12,14,20,.74);
+      border: 1px solid rgba(255,255,255,.08);
       border-radius: 14px;
       padding: 12px;
     }
@@ -250,8 +287,8 @@
       gap: 8px;
     }
     .metric-pill {
-      background: rgba(255,255,255,.9);
-      border: 1px solid rgba(0,0,0,.08);
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.08);
       border-radius: 12px;
       padding: 8px 10px;
     }
@@ -421,6 +458,7 @@
 
     const LOCAL_STORAGE_KEY = 'foodranked-display-builder-v4';
     const FOOD_JSON_CACHE = new Map();
+    const SPRITE_EXISTENCE_CACHE = new Map();
     const BACKDROP_PALETTES = {
       vegetables: { top: '#dff4cf', bottom: '#bfd8b0', glowA: 'rgba(219,255,183,.78)', glowB: 'rgba(108,169,104,.38)' },
       fruits: { top: '#ffe0dc', bottom: '#e7b8b5', glowA: 'rgba(255,173,165,.78)', glowB: 'rgba(219,109,101,.34)' },
@@ -440,7 +478,7 @@
         width: 135,
         height: 240,
         previewScale: 0.3,
-        background: '#d6d6d6',
+        background: '#141923',
         showGrid: true,
         backgroundMotion: {
           enabled: true,
@@ -565,26 +603,26 @@
 
     function createSectionLayers(sectionId) {
       const base = [
-        sprite('food_plate', 'Food plate', safeSpritePath('./sprites/header/food_image_plate/meat_food_plate.png', 'PLATE'), 1, 8, 2, 48, 54),
-        sprite('food_image', 'Food image', safeSpritePath('./sprites/header/food_images/bacon.png', 'FOOD'), 5, 17, 3, 40, 36, true),
-        sprite('food_name_line', 'Food name line', safeSpritePath('./sprites/header/header_ui/food_name_line.png', 'NAME'), 46, 16, 2, 56, 14),
-        sprite('type_plate', 'Type plate', safeSpritePath('./sprites/header/food_type_plate/meat_type_plate.png', 'TYPE'), 48, 32, 2, 40, 13),
-        sprite('per_100g_line', 'Per 100g line', safeSpritePath('./sprites/header/header_ui/per_100g_line.png', '100G'), 48, 47, 2, 38, 11),
-        sprite('calorie_bubble', 'Calorie bubble', safeSpritePath('./sprites/header/calorie_bubble/meat_calorie_bubble.png', 'KCAL'), 92, 10, 2, 42, 46),
-        sprite('score_plate', 'Score plate', safeSpritePath('./sprites/header/header_ui/score_plate.png', 'TIER'), 90, 59, 2, 44, 13),
-        text('food_name_text', 'Food name', 51, 20, 5.5, 'BACON', 4, 45),
-        text('food_type_text', 'Food type', 54, 35, 4, 'MEAT', 4, 26),
-        text('basis_text', 'Basis', 53, 48, 3.5, 'per 100g', 4, 28),
-        text('kcal_value_text', 'Kcal value', 113, 21, 8.5, '541', 4, 20, 'center'),
-        text('kcal_label_text', 'Kcal label', 113, 31, 3.2, 'kcal', 4, 20, 'center'),
-        text('score_label_text', 'Score label', 112, 63, 4, 'TIER D', 4, 22, 'center'),
-        text('section_chip_text', 'Section chip', 9, 73, 6, getSectionChip(sectionId), 4, 46),
-        sprite('macro_icon', 'Macro icon', getSectionIcon(sectionId), 12, 87, 2, 18, 18),
-        text('headline_text', 'Headline', 34, 88, 9, 'Headline', 4, 78),
-        text('subline_a', 'Subline A', 18, 118, 6, 'First stat highlight', 4, 100),
-        text('subline_b', 'Subline B', 18, 138, 6, 'Second stat highlight', 4, 100),
-        text('subline_c', 'Subline C', 18, 158, 6, 'Third stat highlight', 4, 100),
-        text('script_caption', 'Caption', 12, 193, 5, 'Generated script summary appears here.', 4, 110, 'center')
+        sprite('food_plate', 'Food plate', safeSpritePath('./sprites/header/food_image_plate/meat_food_plate.png', 'PLATE'), 1, 8, 3, 48, 54),
+        sprite('food_image', 'Food image', safeSpritePath('./sprites/header/food_images/bacon.png', 'FOOD'), 6, 18, 4, 33, 33, true),
+        sprite('food_name_line', 'Food name line', safeSpritePath('./sprites/header/header_ui/food_name_line.png', 'NAME'), 43, 18, 3, 52, 12),
+        sprite('type_plate', 'Type plate', safeSpritePath('./sprites/header/food_type_plate/meat_type_plate.png', 'TYPE'), 45, 33, 3, 38, 12),
+        sprite('per_100g_line', 'Per 100g line', safeSpritePath('./sprites/header/header_ui/per_100g_line.png', '100G'), 45, 47, 3, 34, 10),
+        sprite('calorie_bubble', 'Calorie bubble', safeSpritePath('./sprites/header/calorie_bubble/meat_calorie_bubble.png', 'KCAL'), 95, 12, 3, 40, 44),
+        sprite('score_plate', 'Score plate', safeSpritePath('./sprites/header/header_ui/score_plate.png', 'TIER'), 100, 60, 3, 33, 10),
+        text('food_name_text', 'Food name', 48, 21, 5, 'BACON', 5, 42),
+        text('food_type_text', 'Food type', 51, 36, 4, 'MEAT', 5, 24),
+        text('basis_text', 'Basis', 50, 49, 3.5, 'per 100g', 5, 22),
+        text('kcal_value_text', 'Kcal value', 115, 22, 8, '541', 5, 22, 'center'),
+        text('kcal_label_text', 'Kcal label', 115, 31, 3, 'kcal', 5, 22, 'center'),
+        text('score_label_text', 'Score label', 116, 62, 4, 'TIER D', 5, 24, 'center'),
+        text('section_chip_text', 'Section chip', 10, 74, 5.5, getSectionChip(sectionId), 5, 32),
+        sprite('macro_icon', 'Macro icon', getSectionIcon(sectionId), 14, 92, 4, 20, 20),
+        text('headline_text', 'Headline', 38, 91, 8.5, 'Headline', 5, 78),
+        text('subline_a', 'Subline A', 18, 122, 5.5, 'First stat highlight', 5, 100),
+        text('subline_b', 'Subline B', 18, 143, 5.5, 'Second stat highlight', 5, 100),
+        text('subline_c', 'Subline C', 18, 164, 5.5, 'Third stat highlight', 5, 100),
+        text('script_caption', 'Caption', 12, 192, 4.5, 'Generated script summary appears here.', 5, 110, 'center')
       ];
       return base;
     }
@@ -689,6 +727,24 @@
         primary: `./sprites/header/food_images/${food?.id}.png`,
         fallback: `./sprites/header/food_image_plate/${slug}_food_plate.png`
       };
+    }
+
+    function probeSpriteExists(src) {
+      if (!src) return Promise.resolve(false);
+      if (SPRITE_EXISTENCE_CACHE.has(src)) return SPRITE_EXISTENCE_CACHE.get(src);
+      const probe = new Promise(resolve => {
+        const img = new Image();
+        img.onload = () => resolve(true);
+        img.onerror = () => resolve(false);
+        img.src = src;
+      });
+      SPRITE_EXISTENCE_CACHE.set(src, probe);
+      return probe;
+    }
+
+    async function chooseExistingFoodSprite(food = getSelectedFoodStub()) {
+      const candidates = foodSpriteCandidates(food);
+      return (await probeSpriteExists(candidates.primary)) ? candidates.primary : candidates.fallback;
     }
 
     function currentEpisode(stub = getSelectedFoodStub()) {
@@ -870,13 +926,13 @@
         button.addEventListener('click', () => {
           state.layout.selectedSectionId = section.id;
           state.selectedLayerId = null;
-          renderAll();
+          void renderAll();
         });
         els.sectionList.appendChild(button);
       }
     }
 
-    function renderCanvas() {
+    async function renderCanvas() {
       els.canvas.innerHTML = '';
       els.canvas.style.backgroundColor = state.layout.canvas.background;
       els.canvas.classList.toggle('hide-grid', !state.layout.canvas.showGrid);
@@ -890,6 +946,20 @@
       const phoneBg = document.createElement('div');
       phoneBg.className = 'phone-bg';
       els.canvas.appendChild(phoneBg);
+
+      const headerFrame = document.createElement('div');
+      headerFrame.className = 'header-frame';
+      els.canvas.appendChild(headerFrame);
+
+      if (!['intro', 'outro'].includes(state.layout.selectedSectionId)) {
+        const stageFrame = document.createElement('div');
+        stageFrame.className = 'stage-frame';
+        els.canvas.appendChild(stageFrame);
+      }
+
+      const subtitleFrame = document.createElement('div');
+      subtitleFrame.className = 'subtitle-frame';
+      els.canvas.appendChild(subtitleFrame);
 
       const layers = [...getCurrentSectionLayers()].sort((a,b) => (a.z || 0) - (b.z || 0));
       for (const layer of layers) {
@@ -924,7 +994,7 @@
           event.stopPropagation();
           state.selectedLayerId = layer.id;
           renderInspector();
-          renderCanvas();
+          void renderCanvas();
           renderLayerList();
         });
         els.canvas.appendChild(node);
@@ -954,7 +1024,7 @@
         button.addEventListener('click', () => {
           state.selectedLayerId = layer.id;
           renderInspector();
-          renderCanvas();
+          void renderCanvas();
           renderLayerList();
         });
         els.layerList.appendChild(button);
@@ -1041,7 +1111,7 @@
         const move = e => {
           layer.x = Math.round(originX + (e.clientX - startX) / (state.layout.canvas.previewScale * 10));
           layer.y = Math.round(originY + (e.clientY - startY) / (state.layout.canvas.previewScale * 10));
-          renderCanvas();
+          void renderCanvas();
           renderInspector();
           renderLayerList();
           updateJsonOutput();
@@ -1060,7 +1130,7 @@
       });
     }
 
-    function renderBackgroundSprites() {
+async function renderBackgroundSprites() {
       const stub = getSelectedFoodStub();
       if (!stub) return;
       const field = els.canvas.querySelector('.canvas-bg-field');
@@ -1079,6 +1149,15 @@
       }
       if (!sourcePool.length) sourcePool = [stub];
 
+      const enrichedPool = await Promise.all(sourcePool.map(async food => {
+        const candidates = foodSpriteCandidates(food);
+        const hasPrimary = await probeSpriteExists(candidates.primary);
+        return { food, src: hasPrimary ? candidates.primary : candidates.fallback, usedFallback: !hasPrimary, fallback: candidates.fallback };
+      }));
+      const primaryPool = enrichedPool.filter(item => !item.usedFallback);
+      const renderPool = primaryPool.length ? primaryPool : enrichedPool;
+      const onlyFallbacks = !primaryPool.length;
+
       const density = Math.max(1, Number(motion.density) || DEFAULT_LAYOUT.canvas.backgroundMotion.density);
       const minDuration = Math.max(4, Number(motion.minDuration) || DEFAULT_LAYOUT.canvas.backgroundMotion.minDuration);
       const maxDuration = Math.max(minDuration, Number(motion.maxDuration) || DEFAULT_LAYOUT.canvas.backgroundMotion.maxDuration);
@@ -1088,26 +1167,26 @@
       const opacity = Math.min(0.5, Math.max(0.04, Number(motion.opacity) || DEFAULT_LAYOUT.canvas.backgroundMotion.opacity));
 
       Array.from({ length: density }).forEach((_, index) => {
-        const food = sourcePool[index % sourcePool.length] || stub;
-        const spriteCandidates = foodSpriteCandidates(food);
+        const choice = renderPool[index % renderPool.length] || renderPool[0];
         const img = document.createElement('img');
         img.className = 'bg-sprite';
-        img.src = spriteCandidates.primary;
+        img.src = choice?.src || choice?.fallback;
         img.alt = '';
         const progress = density <= 1 ? 0.5 : index / (density - 1);
-        const size = Math.round(minSize + (maxSize - minSize) * ((index % 5) / 4 || 0));
-        const duration = Math.round(minDuration + (maxDuration - minDuration) * ((index % 7) / 6 || 0));
+        const sizeBias = onlyFallbacks ? 0.72 : 1;
+        const size = Math.round((minSize + (maxSize - minSize) * ((index % 5) / 4 || 0)) * sizeBias);
+        const duration = Math.round(minDuration + (maxDuration - minDuration) * ((index % 7) / 6 || 0) + (onlyFallbacks ? 4 : 0));
         img.style.left = `${8 + progress * 76}%`;
         img.style.top = `${-40 - (index % 5) * 26}px`;
         img.style.width = `${size}px`;
         img.style.height = `${size}px`;
-        img.style.opacity = String(opacity);
+        img.style.opacity = String(onlyFallbacks ? Math.min(opacity, 0.12) : opacity);
         img.style.animationDuration = `${duration}s`;
         img.style.animationDelay = `${-(index * 1.7)}s`;
         img.style.setProperty('--drift-x', `${(index % 2 === 0 ? 1 : -1) * Math.max(2, drift - (index % 4) * 2)}px`);
         img.onerror = () => {
-          if (img.src !== new URL(spriteCandidates.fallback, window.location.href).href) {
-            img.src = spriteCandidates.fallback;
+          if (choice?.fallback && img.src !== new URL(choice.fallback, window.location.href).href) {
+            img.src = choice.fallback;
             return;
           }
           img.onerror = null;
@@ -1121,10 +1200,10 @@
       const stub = getSelectedFoodStub();
       state.fullFood = await loadFullFood(stub) || stub || null;
       syncFoodIntoLayout(state.fullFood);
-      renderAll();
+      void renderAll();
     }
 
-    function renderAll() {
+async function renderAll() {
       setCssVars();
       const motion = state.layout.canvas.backgroundMotion || DEFAULT_LAYOUT.canvas.backgroundMotion;
       els.previewScale.value = String(state.layout.canvas.previewScale);
@@ -1141,11 +1220,11 @@
       els.bgMotionDrift.value = String(motion.drift ?? DEFAULT_LAYOUT.canvas.backgroundMotion.drift);
       renderFoodList();
       renderSectionList();
-      renderCanvas();
+      await renderCanvas();
       renderLayerList();
       renderInspector();
       renderScriptAndNutrition();
-      renderBackgroundSprites();
+      await renderBackgroundSprites();
       updateJsonOutput();
       saveLayout();
     }
@@ -1154,30 +1233,30 @@
       const layer = getLayerById(state.selectedLayerId);
       if (!layer) return;
       mutator(layer);
-      renderAll();
+      void renderAll();
     }
 
     els.foodSearch.addEventListener('input', () => {
       state.foodFilter = els.foodSearch.value;
       renderFoodList();
     });
-    els.previewScale.addEventListener('input', () => { state.layout.canvas.previewScale = Number(els.previewScale.value) || 0.3; renderAll(); });
-    els.toggleGrid.addEventListener('change', () => { state.layout.canvas.showGrid = els.toggleGrid.checked; renderAll(); });
-    els.bgColor.addEventListener('input', () => { state.layout.canvas.background = els.bgColor.value || '#d6d6d6'; renderAll(); });
-    els.bgMotionEnabled.addEventListener('change', () => { state.layout.canvas.backgroundMotion.enabled = !!els.bgMotionEnabled.checked; renderAll(); });
-    els.bgMotionMode.addEventListener('change', () => { state.layout.canvas.backgroundMotion.mode = els.bgMotionMode.value || 'foodType'; renderAll(); });
-    els.bgMotionDensity.addEventListener('input', () => { state.layout.canvas.backgroundMotion.density = Number(els.bgMotionDensity.value) || DEFAULT_LAYOUT.canvas.backgroundMotion.density; renderAll(); });
-    els.bgMotionOpacity.addEventListener('input', () => { state.layout.canvas.backgroundMotion.opacity = Number(els.bgMotionOpacity.value) || DEFAULT_LAYOUT.canvas.backgroundMotion.opacity; renderAll(); });
-    els.bgMotionMinDuration.addEventListener('input', () => { state.layout.canvas.backgroundMotion.minDuration = Number(els.bgMotionMinDuration.value) || DEFAULT_LAYOUT.canvas.backgroundMotion.minDuration; renderAll(); });
-    els.bgMotionMaxDuration.addEventListener('input', () => { state.layout.canvas.backgroundMotion.maxDuration = Number(els.bgMotionMaxDuration.value) || DEFAULT_LAYOUT.canvas.backgroundMotion.maxDuration; renderAll(); });
-    els.bgMotionMinSize.addEventListener('input', () => { state.layout.canvas.backgroundMotion.minSize = Number(els.bgMotionMinSize.value) || DEFAULT_LAYOUT.canvas.backgroundMotion.minSize; renderAll(); });
-    els.bgMotionMaxSize.addEventListener('input', () => { state.layout.canvas.backgroundMotion.maxSize = Number(els.bgMotionMaxSize.value) || DEFAULT_LAYOUT.canvas.backgroundMotion.maxSize; renderAll(); });
-    els.bgMotionDrift.addEventListener('input', () => { state.layout.canvas.backgroundMotion.drift = Number(els.bgMotionDrift.value) || DEFAULT_LAYOUT.canvas.backgroundMotion.drift; renderAll(); });
+    els.previewScale.addEventListener('input', () => { state.layout.canvas.previewScale = Number(els.previewScale.value) || 0.3; void renderAll(); });
+    els.toggleGrid.addEventListener('change', () => { state.layout.canvas.showGrid = els.toggleGrid.checked; void renderAll(); });
+    els.bgColor.addEventListener('input', () => { state.layout.canvas.background = els.bgColor.value || '#141923'; void renderAll(); });
+    els.bgMotionEnabled.addEventListener('change', () => { state.layout.canvas.backgroundMotion.enabled = !!els.bgMotionEnabled.checked; void renderAll(); });
+    els.bgMotionMode.addEventListener('change', () => { state.layout.canvas.backgroundMotion.mode = els.bgMotionMode.value || 'foodType'; void renderAll(); });
+    els.bgMotionDensity.addEventListener('input', () => { state.layout.canvas.backgroundMotion.density = Number(els.bgMotionDensity.value) || DEFAULT_LAYOUT.canvas.backgroundMotion.density; void renderAll(); });
+    els.bgMotionOpacity.addEventListener('input', () => { state.layout.canvas.backgroundMotion.opacity = Number(els.bgMotionOpacity.value) || DEFAULT_LAYOUT.canvas.backgroundMotion.opacity; void renderAll(); });
+    els.bgMotionMinDuration.addEventListener('input', () => { state.layout.canvas.backgroundMotion.minDuration = Number(els.bgMotionMinDuration.value) || DEFAULT_LAYOUT.canvas.backgroundMotion.minDuration; void renderAll(); });
+    els.bgMotionMaxDuration.addEventListener('input', () => { state.layout.canvas.backgroundMotion.maxDuration = Number(els.bgMotionMaxDuration.value) || DEFAULT_LAYOUT.canvas.backgroundMotion.maxDuration; void renderAll(); });
+    els.bgMotionMinSize.addEventListener('input', () => { state.layout.canvas.backgroundMotion.minSize = Number(els.bgMotionMinSize.value) || DEFAULT_LAYOUT.canvas.backgroundMotion.minSize; void renderAll(); });
+    els.bgMotionMaxSize.addEventListener('input', () => { state.layout.canvas.backgroundMotion.maxSize = Number(els.bgMotionMaxSize.value) || DEFAULT_LAYOUT.canvas.backgroundMotion.maxSize; void renderAll(); });
+    els.bgMotionDrift.addEventListener('input', () => { state.layout.canvas.backgroundMotion.drift = Number(els.bgMotionDrift.value) || DEFAULT_LAYOUT.canvas.backgroundMotion.drift; void renderAll(); });
     els.resetSection.addEventListener('click', () => {
       state.layout.sections[state.layout.selectedSectionId].layers = createSectionLayers(state.layout.selectedSectionId);
       syncFoodIntoLayout(state.fullFood);
       state.selectedLayerId = null;
-      renderAll();
+      void renderAll();
     });
     els.saveLocal.addEventListener('click', () => { saveLayout(); els.saveLocal.textContent = 'Saved'; setTimeout(() => els.saveLocal.textContent = 'Save locally', 1200); });
     els.copyJson.addEventListener('click', async () => {
@@ -1194,12 +1273,12 @@
       try {
         state.layout = JSON.parse(els.layoutJson.value);
         state.selectedLayerId = null;
-        renderAll();
+        void renderAll();
       } catch (error) {
         alert('Invalid JSON: ' + error.message);
       }
     });
-    els.canvas.addEventListener('click', () => { state.selectedLayerId = null; renderInspector(); renderCanvas(); renderLayerList(); });
+    els.canvas.addEventListener('click', () => { state.selectedLayerId = null; renderInspector(); void renderCanvas(); renderLayerList(); });
 
     els.propX.addEventListener('input', () => updateSelected(layer => layer.x = Number(els.propX.value) || 0));
     els.propY.addEventListener('input', () => updateSelected(layer => layer.y = Number(els.propY.value) || 0));
@@ -1224,7 +1303,7 @@
       else handled = false;
       if (handled) {
         event.preventDefault();
-        renderAll();
+        void renderAll();
       }
     });
 

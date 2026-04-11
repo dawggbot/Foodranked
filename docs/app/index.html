@@ -743,6 +743,7 @@
 
     function spriteLibraryItems() {
       const selectedFood = getSelectedFoodStub();
+      const slug = typeSpriteSlug(selectedFood?.foodType);
       const foodCandidates = selectedFood ? [
         ['selected food image', `./sprites/header/food_images/${selectedFood.id}.png`]
       ] : [];
@@ -757,42 +758,12 @@
         ['con bullet', './sprites/pros-cons/cons/con_bullet_point.png'],
         ['green arrow', './sprites/macros/arrow_indicators/green_arrow.png'],
         ['red arrow', './sprites/macros/arrow_indicators/red_arrow.png'],
-        ['food image plate meat', './sprites/header/food_image_plate/meat_food_plate.png'],
-        ['food image plate fruit', './sprites/header/food_image_plate/fruit_food_plate.png'],
-        ['food image plate grain', './sprites/header/food_image_plate/grain_food_plate.png'],
-        ['food image plate vegetable', './sprites/header/food_image_plate/vegetable_food_plate.png'],
-        ['food image plate dairy', './sprites/header/food_image_plate/dairy_food_plate.png'],
-        ['food image plate legume', './sprites/header/food_image_plate/legume_food_plate.png'],
-        ['food image plate nut', './sprites/header/food_image_plate/nut_food_plate.png'],
-        ['food image plate seed', './sprites/header/food_image_plate/seed_food_plate.png'],
-        ['food image plate tuber', './sprites/header/food_image_plate/tuber_food_plate.png'],
-        ['food image plate misc', './sprites/header/food_image_plate/misc_food_plate.png'],
-        ['food image plate oil fat', './sprites/header/food_image_plate/oil_fat_food_plate.png'],
-        ['food type plate meat', './sprites/header/food_type_plate/meat_type_plate.png'],
-        ['food type plate fruit', './sprites/header/food_type_plate/fruit_type_plate.png'],
-        ['food type plate grain', './sprites/header/food_type_plate/grain_type_plate.png'],
-        ['food type plate vegetable', './sprites/header/food_type_plate/vegetable_type_plate.png'],
-        ['food type plate dairy', './sprites/header/food_type_plate/dairy_type_plate.png'],
-        ['food type plate legume', './sprites/header/food_type_plate/legume_type_plate.png'],
-        ['food type plate nut', './sprites/header/food_type_plate/nut_type_plate.png'],
-        ['food type plate seed', './sprites/header/food_type_plate/seed_type_plate.png'],
-        ['food type plate tuber', './sprites/header/food_type_plate/tuber_type_plate.png'],
-        ['food type plate misc', './sprites/header/food_type_plate/misc_type_plate.png'],
-        ['food type plate oil fat', './sprites/header/food_type_plate/oil_fat_type_plate.png'],
+        [`food image plate ${slug.replace('_', ' ')}`, `./sprites/header/food_image_plate/${slug}_food_plate.png`],
+        [`food type plate ${slug.replace('_', ' ')}`, `./sprites/header/food_type_plate/${slug}_type_plate.png`],
         ['food name line', './sprites/header/header_ui/food_name_line.png'],
         ['per 100g line', './sprites/header/header_ui/per_100g_line.png'],
         ['score plate', './sprites/header/header_ui/score_plate.png'],
-        ['calorie bubble meat', './sprites/header/calorie_bubble/meat_calorie_bubble.png'],
-        ['calorie bubble fruit', './sprites/header/calorie_bubble/fruit_calorie_bubble.png'],
-        ['calorie bubble grain', './sprites/header/calorie_bubble/grain_calorie_bubble.png'],
-        ['calorie bubble vegetable', './sprites/header/calorie_bubble/vegetable_calorie_bubble.png'],
-        ['calorie bubble dairy', './sprites/header/calorie_bubble/dairy_calorie_bubble.png'],
-        ['calorie bubble legume', './sprites/header/calorie_bubble/legume_calorie_bubble.png'],
-        ['calorie bubble nut', './sprites/header/calorie_bubble/nut_calorie_bubble.png'],
-        ['calorie bubble seed', './sprites/header/calorie_bubble/seed_calorie_bubble.png'],
-        ['calorie bubble tuber', './sprites/header/calorie_bubble/tuber_calorie_bubble.png'],
-        ['calorie bubble misc', './sprites/header/calorie_bubble/misc_calorie_bubble.png'],
-        ['calorie bubble oil fat', './sprites/header/calorie_bubble/oil_fat_calorie_bubble.png']
+        [`calorie bubble ${slug.replace('_', ' ')}`, `./sprites/header/calorie_bubble/${slug}_calorie_bubble.png`]
       ].map(([label, src]) => ({ label, src, kind: 'library' }));
     }
 

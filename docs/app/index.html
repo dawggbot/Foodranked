@@ -14,7 +14,7 @@
       --accent: #ff845d;
       --accent-2: #7bb1ff;
       --preview-scale: 1;
-      --asset-scale: 100;
+      --asset-scale: 4;
       --grid-width: 135px;
       --grid-height: 240px;
       --canvas-width: calc(var(--grid-width) * var(--asset-scale) * var(--preview-scale));
@@ -154,8 +154,8 @@
         radial-gradient(circle at top, rgba(255,255,255,.55), transparent 35%),
         linear-gradient(180deg, #e7e7e7 0%, #d3d3d3 100%);
       display: grid;
-      place-items: start center;
-      padding-top: 18px;
+      place-items: center;
+      padding: 0;
     }
     .canvas {
       position: relative;
@@ -169,7 +169,7 @@
       background-image:
         linear-gradient(to right, rgba(0,0,0,.05) 1px, transparent 1px),
         linear-gradient(to bottom, rgba(0,0,0,.05) 1px, transparent 1px);
-      background-size: calc(var(--asset-scale) * var(--preview-scale)) calc(var(--asset-scale) * var(--preview-scale));
+      background-size: calc(10px * var(--preview-scale)) calc(10px * var(--preview-scale));
     }
     .canvas.hide-grid { background-image: none; }
 
@@ -1022,7 +1022,7 @@
     function setCssVars() {
       const root = document.documentElement;
       root.style.setProperty('--preview-scale', state.layout.canvas.previewScale);
-      root.style.setProperty('--asset-scale', '10');
+      root.style.setProperty('--asset-scale', '4');
     }
 
     function attachDrag(node, layerId) {

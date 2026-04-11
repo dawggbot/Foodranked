@@ -602,8 +602,16 @@
     }
 
     function getSectionIcon(sectionId) {
-      if (sectionId === 'fats') return safeSpritePath('./sprites/macros/fats/fat_icon.gif', 'FAT');
-      return safeSpritePath('./sprites/macros/fats/fat_submacro_bullet_point.png', 'ICON');
+      const iconMap = {
+        fats: './sprites/macros/fats/fat_icon.gif',
+        carbs: './sprites/macros/carbs/carb_icon.gif',
+        protein: './sprites/macros/protein/protein_icon.gif',
+        vitamins: './sprites/micros/vitamins/vitamin_icon.gif',
+        minerals: './sprites/micros/minerals/mineral_icon.gif',
+        pros: './sprites/pros-cons/pros/pro_bullet_point.png',
+        cons: './sprites/pros-cons/cons/con_bullet_point.png'
+      };
+      return safeSpritePath(iconMap[sectionId] || '', sectionId.toUpperCase());
     }
 
     function formatBasis(food) {
@@ -679,7 +687,7 @@
       const slug = typeSpriteSlug(food?.foodType);
       return {
         primary: `./sprites/header/food_images/${food?.id}.png`,
-        fallback: `./sprites/header/food_plate/${slug}_food_plate.png`
+        fallback: `./sprites/header/food_image_plate/${slug}_food_plate.png`
       };
     }
 

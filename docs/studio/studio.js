@@ -62,6 +62,10 @@ function value(v, suffix = '') { return v == null ? '—' : `${v}${suffix}`; }
 function cap(s) { return String(s || '').replace(/(^|\s)\S/g, m => m.toUpperCase()); }
 function spritePath(id) { return `../app/sprites/header/food_images/${id}.png`; }
 
+function normalizeSectionKey(key = '') {
+  return key === 'proteins' ? 'protein' : key;
+}
+
 function appShell(content, current = '') {
   const stats = buildDashboardStats();
   return `
@@ -157,28 +161,40 @@ function formatScore(valueIn) {
 
 function scoreSummary(result) {
   if (!result) return '<div class="empty">No score breakdown yet.</div>';
-  return `<div class="score-bars">${Object.entries(result.sectionScores || {}).map(([key, val]) => `
+  const sectionScores = result.sectionScores || {};
+  return `<div class="score-bars">${SCORING_SECTIONS.map(([key]) => {
+    const normalizedKey = normalizeSectionKey(key);
+    const val = sectionScores[key] ?? sectionScores[normalizedKey] ?? null;
+    return `
     <div class="score-bar">
       <label><span>${formatSectionLabel(key)}</span><strong>${formatScore(val)}</strong></label>
       <div class="meter"><span style="width:${Math.max(0, Math.min(100, Number(val) || 0))}%"></span></div>
-    </div>`).join('')}</div>`;
+    </div>`;
+  }).join('')}</div>`;
 }
 
 function metricCard(label, val) {
   return `<div class="metric-card"><strong>${label}</strong><span>${val}</span></div>`;
 }
 
+function rankedSections(result) {
+  if (!result?.sectionScores) return [];
+  return SCORING_SECTIONS.map(([key]) => {
+    const normalizedKey = normalizeSectionKey(key);
+    const value = result.sectionScores[key] ?? result.sectionScores[normalizedKey] ?? null;
+    return [key, value];
+  }).filter(([, val]) => val != null && !Number.isNaN(Number(val)));
+}
+
 function topSection(result) {
-  if (!result?.sectionScores) return null;
-  const entries = Object.entries(result.sectionScores).filter(([, val]) => val != null && !Number.isNaN(Number(val)));
+  const entries = rankedSections(result);
   if (!entries.length) return null;
   entries.sort((a, b) => Number(b[1]) - Number(a[1]));
   return { key: entries[0][0], value: entries[0][1] };
 }
 
 function bottomSection(result) {
-  if (!result?.sectionScores) return null;
-  const entries = Object.entries(result.sectionScores).filter(([, val]) => val != null && !Number.isNaN(Number(val)));
+  const entries = rankedSections(result);
   if (!entries.length) return null;
   entries.sort((a, b) => Number(a[1]) - Number(b[1]));
   return { key: entries[0][0], value: entries[0][1] };

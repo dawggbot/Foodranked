@@ -744,11 +744,20 @@
     function spriteLibraryItems() {
       const selectedFood = getSelectedFoodStub();
       const slug = typeSpriteSlug(selectedFood?.foodType);
+      const sectionSpecific = [
+        [`section separator ${slug.replace('_', ' ')}`, `./sprites/ui/section_separator/${slug}_section_separator.png`],
+        [`section indicator ${slug.replace('_', ' ')}`, `./sprites/ui/section_indicator/${slug}_section_indicator.png`],
+        [`section indicator ${slug.replace('_', ' ')} highlighted`, `./sprites/ui/section_indicator/${slug}_highlighted_section_indicator.png`],
+        [`food image plate ${slug.replace('_', ' ')}`, `./sprites/header/food_image_plate/${slug}_food_plate.png`],
+        [`food type plate ${slug.replace('_', ' ')}`, `./sprites/header/food_type_plate/${slug}_type_plate.png`],
+        [`calorie bubble ${slug.replace('_', ' ')}`, `./sprites/header/calorie_bubble/${slug}_calorie_bubble.png`]
+      ];
       const foodCandidates = selectedFood ? [
         ['selected food image', `./sprites/header/food_images/${selectedFood.id}.png`]
       ] : [];
       return [
         ...foodCandidates,
+        ...sectionSpecific,
         ['fat icon', './sprites/macros/fats/fat_icon.gif'],
         ['carb icon', './sprites/macros/carbs/carb_icon.gif'],
         ['protein icon', './sprites/macros/protein/protein_icon.gif'],
@@ -758,12 +767,9 @@
         ['con bullet', './sprites/pros-cons/cons/con_bullet_point.png'],
         ['green arrow', './sprites/macros/arrow_indicators/green_arrow.png'],
         ['red arrow', './sprites/macros/arrow_indicators/red_arrow.png'],
-        [`food image plate ${slug.replace('_', ' ')}`, `./sprites/header/food_image_plate/${slug}_food_plate.png`],
-        [`food type plate ${slug.replace('_', ' ')}`, `./sprites/header/food_type_plate/${slug}_type_plate.png`],
         ['food name line', './sprites/header/header_ui/food_name_line.png'],
         ['per 100g line', './sprites/header/header_ui/per_100g_line.png'],
-        ['score plate', './sprites/header/header_ui/score_plate.png'],
-        [`calorie bubble ${slug.replace('_', ' ')}`, `./sprites/header/calorie_bubble/${slug}_calorie_bubble.png`]
+        ['score plate', './sprites/header/header_ui/score_plate.png']
       ].map(([label, src]) => ({ label, src, kind: 'library' }));
     }
 
@@ -1185,7 +1191,7 @@ async function renderBackgroundSprites() {
       } else if (motion.mode === 'selectedFood') {
         sourcePool = [stub];
       } else {
-        sourcePool = state.foods.filter(food => normalizeFoodType(food.foodType) === normalizeFoodType(stub.foodType));
+        sourcePool = [stub, ...state.foods.filter(food => food.id !== stub.id && normalizeFoodType(food.foodType) === normalizeFoodType(stub.foodType))];
       }
       if (!sourcePool.length) sourcePool = [stub];
 
@@ -1194,8 +1200,9 @@ async function renderBackgroundSprites() {
         const hasPrimary = await probeSpriteExists(candidates.primary);
         return { food, src: hasPrimary ? candidates.primary : candidates.fallback, usedFallback: !hasPrimary, fallback: candidates.fallback };
       }));
+      const selectedPrimary = enrichedPool.find(item => item.food?.id === stub.id && !item.usedFallback);
       const primaryPool = enrichedPool.filter(item => !item.usedFallback);
-      const renderPool = primaryPool.length ? primaryPool : enrichedPool;
+      const renderPool = selectedPrimary ? [selectedPrimary, ...primaryPool.filter(item => item.food?.id !== stub.id)] : (primaryPool.length ? primaryPool : enrichedPool);
       const onlyFallbacks = !primaryPool.length;
 
       const density = Math.max(1, Number(motion.density) || DEFAULT_LAYOUT.canvas.backgroundMotion.density);

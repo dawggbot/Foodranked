@@ -451,12 +451,18 @@
           </div>
           <label>Visible <select id="propVisible"><option value="true">true</option><option value="false">false</option></select></label>
           <div id="spriteControls" class="stack" hidden>
+            <label class="row"><input id="propPreserveAspect" type="checkbox" /> <span>Lock aspect ratio while resizing</span></label>
             <div class="split-2">
-              <label>Width <input id="propSpriteWidth" type="number" step="1" /></label>
-              <label>Height <input id="propSpriteHeight" type="number" step="1" /></label>
+              <label>Width <input id="propSpriteWidth" type="number" step="1" min="1" /></label>
+              <label>Height <input id="propSpriteHeight" type="number" step="1" min="1" /></label>
+            </div>
+            <div class="row">
+              <button id="spriteNudgeSmaller" type="button">-1 px both</button>
+              <button id="spriteNudgeLarger" type="button">+1 px both</button>
+              <button id="spriteResetNatural" type="button">Reset to source</button>
             </div>
             <button id="deleteLayer" type="button">Delete selected layer</button>
-            <div class="small muted">Placed sprites can be resized, moved, or deleted here.</div>
+            <div class="small muted">Lock ratio keeps food images, header lines, and other library sprites feeling predictable, but you can still turn it off for manual stretching.</div>
           </div>
           <div id="textControls" class="stack" hidden>
             <label>Text <textarea id="propText"></textarea></label>
@@ -489,6 +495,7 @@
     const LOCAL_STORAGE_KEY = 'foodranked-display-builder-v4';
     const FOOD_JSON_CACHE = new Map();
     const SPRITE_EXISTENCE_CACHE = new Map();
+    const SPRITE_METADATA_CACHE = new Map();
     const BACKDROP_PALETTES = {
       vegetables: { top: '#dff4cf', bottom: '#bfd8b0', glowA: 'rgba(219,255,183,.78)', glowB: 'rgba(108,169,104,.38)' },
       fruits: { top: '#ffe0dc', bottom: '#e7b8b5', glowA: 'rgba(255,173,165,.78)', glowB: 'rgba(219,109,101,.34)' },
@@ -574,6 +581,10 @@
       propVisible: document.getElementById('propVisible'),
       propSpriteWidth: document.getElementById('propSpriteWidth'),
       propSpriteHeight: document.getElementById('propSpriteHeight'),
+      propPreserveAspect: document.getElementById('propPreserveAspect'),
+      spriteNudgeSmaller: document.getElementById('spriteNudgeSmaller'),
+      spriteNudgeLarger: document.getElementById('spriteNudgeLarger'),
+      spriteResetNatural: document.getElementById('spriteResetNatural'),
       deleteLayer: document.getElementById('deleteLayer'),
       propText: document.getElementById('propText'),
       propFontSize: document.getElementById('propFontSize'),
@@ -640,7 +651,7 @@
     }
 
     function sprite(id, label, src, x, y, z, width, height, foodDriven = false) {
-      return { id, kind: 'sprite', label, src, x, y, z, width, height, visible: true, foodDriven, preserveAspect: false };
+      return { id, kind: 'sprite', label, src, x, y, z, width, height, visible: true, foodDriven, preserveAspect: false, aspectRatio: null, naturalWidth: null, naturalHeight: null };
     }
     function text(id, label, x, y, fontSize, value, z, width, align = 'left') {
       return { id, kind: 'text', label, x, y, z, visible: true, text: value, fontSize, width, align };
@@ -773,14 +784,20 @@
       ].map(([label, src]) => ({ label, src, kind: 'library' }));
     }
 
-    function addLibrarySpriteToCanvas(item, clientX, clientY) {
+    async function addLibrarySpriteToCanvas(item, clientX, clientY) {
       const rect = els.canvas.getBoundingClientRect();
       const unit = state.layout.canvas.previewScale * 10;
       const x = Math.max(0, Math.round((clientX - rect.left) / unit));
       const y = Math.max(0, Math.round((clientY - rect.top) / unit));
       const idBase = item.label.toLowerCase().replace(/[^a-z0-9]+/g, '_');
-      const newLayer = sprite(`lib_${idBase}_${Date.now()}`, `Library: ${item.label}`, item.src, x, y, 6, 18, 18, false);
+      const metadata = await loadSpriteMetadata(item.src);
+      const naturalWidth = metadata?.width || 18;
+      const naturalHeight = metadata?.height || 18;
+      const newLayer = sprite(`lib_${idBase}_${Date.now()}`, `Library: ${item.label}`, item.src, x, y, 6, naturalWidth, naturalHeight, false);
       newLayer.preserveAspect = true;
+      newLayer.naturalWidth = naturalWidth;
+      newLayer.naturalHeight = naturalHeight;
+      newLayer.aspectRatio = naturalHeight ? naturalWidth / naturalHeight : null;
       getCurrentSectionLayers().push(newLayer);
       state.selectedLayerId = newLayer.id;
       void renderAll();
@@ -814,6 +831,45 @@
       });
       SPRITE_EXISTENCE_CACHE.set(src, probe);
       return probe;
+    }
+
+    function loadSpriteMetadata(src) {
+      if (!src) return Promise.resolve(null);
+      if (SPRITE_METADATA_CACHE.has(src)) return SPRITE_METADATA_CACHE.get(src);
+      const probe = new Promise(resolve => {
+        const img = new Image();
+        img.onload = () => resolve({ width: img.naturalWidth || null, height: img.naturalHeight || null });
+        img.onerror = () => resolve(null);
+        img.src = src;
+      });
+      SPRITE_METADATA_CACHE.set(src, probe);
+      return probe;
+    }
+
+    function ensureSpriteAspect(layer, metadata) {
+      const width = metadata?.width || layer.naturalWidth || layer.width || null;
+      const height = metadata?.height || layer.naturalHeight || layer.height || null;
+      if (!width || !height) return;
+      layer.naturalWidth = width;
+      layer.naturalHeight = height;
+      layer.aspectRatio = width / height;
+    }
+
+    function resizeSpriteLayer(layer, nextWidth, nextHeight, changed = 'width') {
+      const width = Math.max(1, Math.round(Number(nextWidth) || 1));
+      const height = Math.max(1, Math.round(Number(nextHeight) || 1));
+      if (!layer.preserveAspect || !layer.aspectRatio) {
+        layer.width = width;
+        layer.height = height;
+        return;
+      }
+      if (changed === 'height') {
+        layer.height = height;
+        layer.width = Math.max(1, Math.round(height * layer.aspectRatio));
+      } else {
+        layer.width = width;
+        layer.height = Math.max(1, Math.round(width / layer.aspectRatio));
+      }
     }
 
     async function chooseExistingFoodSprite(food = getSelectedFoodStub()) {
@@ -1020,12 +1076,23 @@
           node.alt = layer.label;
           if (layer.width) node.style.width = `calc(${layer.width}px * var(--asset-scale) * var(--preview-scale))`;
           if (layer.height) node.style.height = `calc(${layer.height}px * var(--asset-scale) * var(--preview-scale))`;
+          if (layer.preserveAspect && layer.aspectRatio) node.style.aspectRatio = String(layer.aspectRatio);
           if (layer.preserveAspect) {
             node.style.objectFit = 'contain';
             node.style.objectPosition = 'center';
           } else {
             node.style.objectFit = 'fill';
           }
+          node.addEventListener('load', () => {
+            const beforeRatio = layer.aspectRatio;
+            ensureSpriteAspect(layer, { width: node.naturalWidth, height: node.naturalHeight });
+            if (layer.preserveAspect && layer.aspectRatio && (!layer.height || !beforeRatio)) {
+              layer.height = Math.max(1, Math.round((layer.width || layer.naturalWidth || 1) / layer.aspectRatio));
+              renderInspector();
+              updateJsonOutput();
+              void renderCanvas();
+            }
+          }, { once: true });
           node.onerror = () => {
             if (layer.fallbackSrc && node.src !== new URL(layer.fallbackSrc, window.location.href).href) {
               node.src = layer.fallbackSrc;
@@ -1098,6 +1165,7 @@
       if (isSprite) {
         els.propSpriteWidth.value = layer.width || '';
         els.propSpriteHeight.value = layer.height || '';
+        els.propPreserveAspect.checked = !!layer.preserveAspect;
       }
       if (isText) {
         els.propText.value = layer.text || '';
@@ -1356,8 +1424,33 @@ async function renderAll() {
     els.propX.addEventListener('input', () => updateSelected(layer => layer.x = Number(els.propX.value) || 0));
     els.propY.addEventListener('input', () => updateSelected(layer => layer.y = Number(els.propY.value) || 0));
     els.propVisible.addEventListener('change', () => updateSelected(layer => layer.visible = els.propVisible.value === 'true'));
-    els.propSpriteWidth.addEventListener('input', () => updateSelected(layer => layer.width = Number(els.propSpriteWidth.value) || layer.width || 0));
-    els.propSpriteHeight.addEventListener('input', () => updateSelected(layer => layer.height = Number(els.propSpriteHeight.value) || layer.height || 0));
+    els.propSpriteWidth.addEventListener('input', () => updateSelected(layer => resizeSpriteLayer(layer, els.propSpriteWidth.value || layer.width || 1, layer.height || 1, 'width')));
+    els.propSpriteHeight.addEventListener('input', () => updateSelected(layer => resizeSpriteLayer(layer, layer.width || 1, els.propSpriteHeight.value || layer.height || 1, 'height')));
+    els.propPreserveAspect.addEventListener('change', async () => {
+      const layer = getLayerById(state.selectedLayerId);
+      if (!layer || layer.kind !== 'sprite') return;
+      const metadata = await loadSpriteMetadata(layer.src);
+      updateSelected(current => {
+        ensureSpriteAspect(current, metadata);
+        current.preserveAspect = !!els.propPreserveAspect.checked;
+        if (current.preserveAspect && current.aspectRatio) {
+          current.height = Math.max(1, Math.round((current.width || current.naturalWidth || 1) / current.aspectRatio));
+        }
+      });
+    });
+    els.spriteNudgeSmaller.addEventListener('click', () => updateSelected(layer => resizeSpriteLayer(layer, (layer.width || 1) - 1, (layer.height || 1) - 1, 'width')));
+    els.spriteNudgeLarger.addEventListener('click', () => updateSelected(layer => resizeSpriteLayer(layer, (layer.width || 1) + 1, (layer.height || 1) + 1, 'width')));
+    els.spriteResetNatural.addEventListener('click', async () => {
+      const layer = getLayerById(state.selectedLayerId);
+      if (!layer || layer.kind !== 'sprite') return;
+      const metadata = await loadSpriteMetadata(layer.src);
+      if (!metadata) return;
+      updateSelected(current => {
+        ensureSpriteAspect(current, metadata);
+        current.width = current.naturalWidth || current.width || 1;
+        current.height = current.naturalHeight || current.height || 1;
+      });
+    });
     els.propText.addEventListener('input', () => updateSelected(layer => layer.text = els.propText.value));
     els.propFontSize.addEventListener('input', () => updateSelected(layer => layer.fontSize = Number(els.propFontSize.value) || 6));
     els.propWidth.addEventListener('input', () => updateSelected(layer => layer.width = els.propWidth.value ? Number(els.propWidth.value) : undefined));

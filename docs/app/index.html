@@ -52,8 +52,9 @@
       position: relative;
       z-index: 1;
       min-height: 100vh;
+      height: 100vh;
       display: grid;
-      grid-template-columns: 300px minmax(540px, 1fr) 390px;
+      grid-template-columns: 340px minmax(540px, 1fr) 390px;
       gap: 16px;
       padding: 16px;
     }
@@ -67,6 +68,22 @@
       padding: 14px;
       min-height: 0;
       overflow: auto;
+    }
+
+    .sidebar-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow: hidden;
+    }
+
+    .sidebar-scroll {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      display: grid;
+      gap: 12px;
+      padding-right: 4px;
     }
 
     .stack { display: grid; gap: 10px; }
@@ -109,8 +126,9 @@
       border-color: transparent;
     }
 
-    .food-list, .section-list, .layer-list { display: grid; gap: 8px; }
-    .food-list { max-height: 320px; overflow: auto; }
+    .food-list, .section-list, .layer-list, .sprite-library-grid { display: grid; gap: 8px; }
+    .food-list { max-height: 220px; overflow: auto; }
+    .section-list { max-height: 260px; overflow: auto; }
     .card-button {
       width: 100%;
       text-align: left;
@@ -124,6 +142,43 @@
       border-color: rgba(123,177,255,.9);
       box-shadow: 0 0 0 2px rgba(123,177,255,.16);
       background: white;
+    }
+
+    .sprite-library-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      max-height: 260px;
+      overflow: auto;
+    }
+
+    .sprite-chip {
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 14px;
+      background: rgba(255,255,255,.06);
+      padding: 8px;
+      display: grid;
+      gap: 6px;
+      cursor: grab;
+      color: var(--ink);
+    }
+
+    .sprite-chip img {
+      width: 100%;
+      height: 56px;
+      object-fit: contain;
+      image-rendering: pixelated;
+      border-radius: 8px;
+      background: rgba(0,0,0,.14);
+    }
+
+    .sprite-chip strong {
+      font-size: 11px;
+      line-height: 1.3;
+    }
+
+    .sprite-chip .tiny { color: var(--muted); }
+
+    .canvas.drop-target {
+      box-shadow: 0 0 0 3px rgba(144,179,255,.45), 0 10px 30px rgba(0,0,0,.08);
     }
 
     .editor {
@@ -307,77 +362,87 @@
 </head>
 <body>
   <div class="app">
-    <aside class="panel stack">
+    <aside class="panel sidebar-panel">
       <div class="stack">
         <h1>FoodRanked builder</h1>
         <p class="muted small">Seven display sections, editable sprite placement, script preview, and a food-type-aware falling sprite background.</p>
       </div>
 
-      <div class="stack">
-        <h2>Foods</h2>
-        <label>
-          Search foods
-          <input id="foodSearch" type="text" placeholder="Search foods..." />
-        </label>
-        <div id="foodList" class="food-list"></div>
-      </div>
-
-      <div class="stack">
-        <h2>Display sections</h2>
-        <div id="sectionList" class="section-list"></div>
-        <p class="small muted">Video flow now uses 9 steps total: intro blank, fats, carbs, protein, vitamins, minerals, pros, cons, outro blank/verdict. Only sections 2-8 appear in the 7-dot section indicator.</p>
-      </div>
-
-      <div class="stack">
-        <h2>Preview</h2>
-        <label>
-          Preview scale
-          <input id="previewScale" type="range" min="0.2" max="1" step="0.05" value="1" />
-        </label>
-        <label class="row"><input id="toggleGrid" type="checkbox" checked /> <span>Show pixel grid</span></label>
-        <label>
-          Background colour
-          <input id="bgColor" type="text" value="#d6d6d6" />
-        </label>
-        <div class="stack" style="padding:10px;border:1px solid rgba(0,0,0,.08);border-radius:14px;background:rgba(255,255,255,.56);">
-          <h3>Background motion</h3>
-          <label class="row"><input id="bgMotionEnabled" type="checkbox" checked /> <span>Enable falling food sprites</span></label>
+      <div class="sidebar-scroll">
+        <div class="stack">
+          <h2>Foods</h2>
           <label>
-            Sprite pool
-            <select id="bgMotionMode">
-              <option value="foodType">Same food type</option>
-              <option value="selectedFood">Only selected food</option>
-              <option value="allFoods">All foods</option>
-            </select>
+            Search foods
+            <input id="foodSearch" type="text" placeholder="Search foods..." />
           </label>
-          <div class="split-2">
-            <label>Density <input id="bgMotionDensity" type="range" min="4" max="24" step="1" value="12" /></label>
-            <label>Opacity <input id="bgMotionOpacity" type="range" min="0.05" max="0.4" step="0.01" value="0.18" /></label>
+          <div id="foodList" class="food-list"></div>
+        </div>
+
+        <div class="stack">
+          <h2>Display sections</h2>
+          <div id="sectionList" class="section-list"></div>
+          <p class="small muted">Video flow now uses 9 steps total: intro blank, fats, carbs, protein, vitamins, minerals, pros, cons, outro blank/verdict. Only sections 2-8 appear in the 7-dot section indicator.</p>
+        </div>
+
+        <div class="stack">
+          <div class="row" style="justify-content:space-between;align-items:center;">
+            <h2>Sprite library</h2>
+            <span class="tiny muted">Drag onto canvas</span>
           </div>
-          <div class="split-2">
-            <label>Min fall seconds <input id="bgMotionMinDuration" type="number" min="4" max="60" step="1" value="14" /></label>
-            <label>Max fall seconds <input id="bgMotionMaxDuration" type="number" min="4" max="80" step="1" value="24" /></label>
+          <div id="spriteLibrary" class="sprite-library-grid"></div>
+        </div>
+
+        <div class="stack">
+          <h2>Preview</h2>
+          <label>
+            Preview scale
+            <input id="previewScale" type="range" min="0.2" max="1" step="0.05" value="1" />
+          </label>
+          <label class="row"><input id="toggleGrid" type="checkbox" checked /> <span>Show pixel grid</span></label>
+          <label>
+            Background colour
+            <input id="bgColor" type="text" value="#d6d6d6" />
+          </label>
+          <div class="stack" style="padding:10px;border:1px solid rgba(255,255,255,.08);border-radius:14px;background:rgba(255,255,255,.06);">
+            <h3>Background motion</h3>
+            <label class="row"><input id="bgMotionEnabled" type="checkbox" checked /> <span>Enable falling food sprites</span></label>
+            <label>
+              Sprite pool
+              <select id="bgMotionMode">
+                <option value="foodType">Same food type</option>
+                <option value="selectedFood">Only selected food</option>
+                <option value="allFoods">All foods</option>
+              </select>
+            </label>
+            <div class="split-2">
+              <label>Density <input id="bgMotionDensity" type="range" min="4" max="24" step="1" value="12" /></label>
+              <label>Opacity <input id="bgMotionOpacity" type="range" min="0.05" max="0.4" step="0.01" value="0.18" /></label>
+            </div>
+            <div class="split-2">
+              <label>Min fall seconds <input id="bgMotionMinDuration" type="number" min="4" max="60" step="1" value="14" /></label>
+              <label>Max fall seconds <input id="bgMotionMaxDuration" type="number" min="4" max="80" step="1" value="24" /></label>
+            </div>
+            <div class="split-2">
+              <label>Min sprite px <input id="bgMotionMinSize" type="number" min="12" max="80" step="1" value="24" /></label>
+              <label>Max sprite px <input id="bgMotionMaxSize" type="number" min="12" max="120" step="1" value="40" /></label>
+            </div>
+            <label>
+              Horizontal drift
+              <input id="bgMotionDrift" type="range" min="0" max="48" step="1" value="16" />
+            </label>
+            <p class="tiny muted">This drives the whole phone background and now prefers real food sprites when available.</p>
           </div>
-          <div class="split-2">
-            <label>Min sprite px <input id="bgMotionMinSize" type="number" min="12" max="80" step="1" value="24" /></label>
-            <label>Max sprite px <input id="bgMotionMaxSize" type="number" min="12" max="120" step="1" value="40" /></label>
+          <div class="row">
+            <button id="resetSection">Reset section</button>
+            <button id="saveLocal">Save locally</button>
+            <button id="copyJson" class="primary">Copy JSON</button>
           </div>
           <label>
-            Horizontal drift
-            <input id="bgMotionDrift" type="range" min="0" max="48" step="1" value="16" />
+            Layout JSON
+            <textarea id="layoutJson"></textarea>
           </label>
-          <p class="tiny muted">This now drives the whole phone background, not just one section, and defaults to the current food type so the mood stays coherent.</p>
+          <button id="applyJson">Apply JSON</button>
         </div>
-        <div class="row">
-          <button id="resetSection">Reset section</button>
-          <button id="saveLocal">Save locally</button>
-          <button id="copyJson" class="primary">Copy JSON</button>
-        </div>
-        <label>
-          Layout JSON
-          <textarea id="layoutJson"></textarea>
-        </label>
-        <button id="applyJson">Apply JSON</button>
       </div>
     </aside>
 
@@ -511,6 +576,7 @@
       foodSearch: document.getElementById('foodSearch'),
       foodList: document.getElementById('foodList'),
       sectionList: document.getElementById('sectionList'),
+      spriteLibrary: document.getElementById('spriteLibrary'),
       previewScale: document.getElementById('previewScale'),
       toggleGrid: document.getElementById('toggleGrid'),
       bgColor: document.getElementById('bgColor'),
@@ -727,6 +793,52 @@
         primary: `./sprites/header/food_images/${food?.id}.png`,
         fallback: `./sprites/header/food_image_plate/${slug}_food_plate.png`
       };
+    }
+
+    function spriteLibraryItems() {
+      return [
+        ['fat icon', './sprites/macros/fats/fat_icon.gif'],
+        ['carb icon', './sprites/macros/carbs/carb_icon.gif'],
+        ['protein icon', './sprites/macros/protein/protein_icon.gif'],
+        ['vitamin icon', './sprites/micros/vitamins/vitamin_icon.gif'],
+        ['mineral icon', './sprites/micros/minerals/mineral_icon.gif'],
+        ['pro bullet', './sprites/pros-cons/pros/pro_bullet_point.png'],
+        ['con bullet', './sprites/pros-cons/cons/con_bullet_point.png'],
+        ['green arrow', './sprites/macros/arrow_indicators/green_arrow.png'],
+        ['red arrow', './sprites/macros/arrow_indicators/red_arrow.png'],
+        ['food name line', './sprites/header/header_ui/food_name_line.png'],
+        ['per 100g line', './sprites/header/header_ui/per_100g_line.png'],
+        ['score plate', './sprites/header/header_ui/score_plate.png']
+      ].map(([label, src]) => ({ label, src, kind: 'library' }));
+    }
+
+    function addLibrarySpriteToCanvas(item, clientX, clientY) {
+      const rect = els.canvas.getBoundingClientRect();
+      const unit = state.layout.canvas.previewScale * 10;
+      const x = Math.max(0, Math.round((clientX - rect.left) / unit));
+      const y = Math.max(0, Math.round((clientY - rect.top) / unit));
+      const idBase = item.label.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+      const newLayer = sprite(`lib_${idBase}_${Date.now()}`, `Library: ${item.label}`, item.src, x, y, 6, 18, 18, false);
+      getCurrentSectionLayers().push(newLayer);
+      state.selectedLayerId = newLayer.id;
+      void renderAll();
+    }
+
+    function renderSpriteLibrary() {
+      els.spriteLibrary.innerHTML = '';
+      for (const item of spriteLibraryItems()) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'sprite-chip';
+        button.draggable = true;
+        button.innerHTML = `<img src="${item.src}" alt="${item.label}" /><strong>${item.label}</strong><span class="tiny">drag into display</span>`;
+        button.addEventListener('dragstart', event => {
+          event.dataTransfer.setData('application/json', JSON.stringify(item));
+          event.dataTransfer.effectAllowed = 'copy';
+        });
+        button.addEventListener('click', () => addLibrarySpriteToCanvas(item, els.canvas.getBoundingClientRect().left + 40, els.canvas.getBoundingClientRect().top + 40));
+        els.spriteLibrary.appendChild(button);
+      }
     }
 
     function probeSpriteExists(src) {
@@ -1220,6 +1332,7 @@ async function renderAll() {
       els.bgMotionDrift.value = String(motion.drift ?? DEFAULT_LAYOUT.canvas.backgroundMotion.drift);
       renderFoodList();
       renderSectionList();
+      renderSpriteLibrary();
       await renderCanvas();
       renderLayerList();
       renderInspector();
@@ -1279,6 +1392,24 @@ async function renderAll() {
       }
     });
     els.canvas.addEventListener('click', () => { state.selectedLayerId = null; renderInspector(); void renderCanvas(); renderLayerList(); });
+    els.canvas.addEventListener('dragover', event => {
+      event.preventDefault();
+      els.canvas.classList.add('drop-target');
+      event.dataTransfer.dropEffect = 'copy';
+    });
+    els.canvas.addEventListener('dragleave', () => {
+      els.canvas.classList.remove('drop-target');
+    });
+    els.canvas.addEventListener('drop', event => {
+      event.preventDefault();
+      els.canvas.classList.remove('drop-target');
+      try {
+        const raw = event.dataTransfer.getData('application/json');
+        if (!raw) return;
+        const item = JSON.parse(raw);
+        addLibrarySpriteToCanvas(item, event.clientX, event.clientY);
+      } catch {}
+    });
 
     els.propX.addEventListener('input', () => updateSelected(layer => layer.x = Number(els.propX.value) || 0));
     els.propY.addEventListener('input', () => updateSelected(layer => layer.y = Number(els.propY.value) || 0));

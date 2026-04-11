@@ -640,7 +640,7 @@
     }
 
     function sprite(id, label, src, x, y, z, width, height, foodDriven = false) {
-      return { id, kind: 'sprite', label, src, x, y, z, width, height, visible: true, foodDriven };
+      return { id, kind: 'sprite', label, src, x, y, z, width, height, visible: true, foodDriven, preserveAspect: false };
     }
     function text(id, label, x, y, fontSize, value, z, width, align = 'left') {
       return { id, kind: 'text', label, x, y, z, visible: true, text: value, fontSize, width, align };
@@ -1020,7 +1020,12 @@
           node.alt = layer.label;
           if (layer.width) node.style.width = `calc(${layer.width}px * var(--asset-scale) * var(--preview-scale))`;
           if (layer.height) node.style.height = `calc(${layer.height}px * var(--asset-scale) * var(--preview-scale))`;
-          if (layer.preserveAspect) node.style.objectFit = 'contain';
+          if (layer.preserveAspect) {
+            node.style.objectFit = 'contain';
+            node.style.objectPosition = 'center';
+          } else {
+            node.style.objectFit = 'fill';
+          }
           node.onerror = () => {
             if (layer.fallbackSrc && node.src !== new URL(layer.fallbackSrc, window.location.href).href) {
               node.src = layer.fallbackSrc;
@@ -1227,6 +1232,8 @@ async function renderBackgroundSprites() {
         img.style.top = `${-40 - (index % 5) * 26}px`;
         img.style.width = `${size}px`;
         img.style.height = `${size}px`;
+        img.style.objectFit = 'contain';
+        img.style.objectPosition = 'center';
         img.style.opacity = String(onlyFallbacks ? Math.min(opacity, 0.12) : opacity);
         img.style.animationDuration = `${duration}s`;
         img.style.animationDelay = `${-(index * 1.7)}s`;

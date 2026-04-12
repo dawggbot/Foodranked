@@ -530,9 +530,13 @@ function rulesView() {
     ['Grains', 'Carb quality becomes a major driver, especially fibre, glycemic behaviour, and whether the grain still gives real nutrient return.'],
     ['Vegetables', 'Vitamin and mineral contribution matter more, because macro totals are usually low and the value case is micronutrient density.'],
     ['Fruits', 'Sugar context, fibre, vitamin support, and context notes matter more than raw macro quantity alone.'],
+    ['Legumes', 'Fibre, slower-carb behaviour, satiety, and useful protein all matter a lot here, with processing and sugar dragging harder when a legume stops acting like a stable staple.'],
+    ['Dairy', 'Protein support, calcium identity, convenience, and processing/tolerance tradeoffs matter more here than they would in most other categories.'],
+    ['Nuts', 'Whole-food identity, fat quality, snack practicality, and satiety matter a lot, but calorie density and easy overeating stay important penalties.'],
+    ['Seeds', 'Mineral density, fat quality, fibre, and concentrated support-food value matter more here, while practicality and overuse limits still need to be reflected.'],
+    ['Tubers', 'Energy delivery, satiety, fibre retention, and preparation burden shape the score more than micronutrient density alone.'],
     ['Oils and fats', 'Fat quality dominates. The score should mostly reflect what kind of fat the food is actually delivering, not just the fact that it is calorie-dense.'],
-    ['Misc', 'Submacros may matter less or be ignored, while vitamins, minerals, pros, and cons can carry more of the score.'],
-    ['Legumes / dairy / seeds / nuts', 'The seven top-level sections stay evenly split, but internal food-type weighting shifts the real emphasis toward the signals that define the category best.']
+    ['Misc', 'Submacros may matter less or be ignored, while vitamins, minerals, pros, and cons can carry more of the score.']
   ];
 
   return appShell(`

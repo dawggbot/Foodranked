@@ -563,7 +563,7 @@ function rulesView() {
     <section class="grid cols-main">
       <div class="panel">
         <h3>How scores work in this build</h3>
-        <div class="rules-box" style="margin-top:12px;">All 7 visible sections contribute toward the score: fats, carbs, proteins, vitamins, minerals, pros, and cons.\n\nThe top-level split is intended to stay even across those 7 sections. What changes the feel of the system is food-type weighting, which decides which signals matter more inside a category.\n\nVitamin/mineral scoring uses DV-style logic. Submacros use arrow ladders. Pros and cons are also part of the core scoring model here, not just narration extras.</div>
+        <div class="rules-box" style="margin-top:12px;">All 7 visible sections contribute toward the score: fats, carbs, proteins, vitamins, minerals, pros, and cons.\n\nThe top-level split is intended to stay even across those 7 sections. What changes the feel of the system is food-type weighting, which decides which signals matter more inside a category.\n\nVitamin/mineral scoring uses DV-style logic. Submacros use arrow ladders. Pros and cons are also part of the core scoring model here, not just narration extras. Processing penalties are now treated as a universal ruleset hook across every food type, applied through category-specific context penalty keys rather than one generic label.</div>
       </div>
       <div class="panel">
         <h3>Default section weighting</h3>

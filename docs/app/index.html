@@ -461,6 +461,16 @@
               <button id="spriteNudgeLarger" type="button">+1 px both</button>
               <button id="spriteResetNatural" type="button">Reset to source</button>
             </div>
+            <div class="split-2">
+              <label>Z index <input id="propZ" type="number" step="1" /></label>
+              <div class="stack">
+                <span class="tiny muted">Layer order</span>
+                <div class="row">
+                  <button id="layerBringForward" type="button">Bring forward</button>
+                  <button id="layerSendBackward" type="button">Send backward</button>
+                </div>
+              </div>
+            </div>
             <button id="deleteLayer" type="button">Delete selected layer</button>
             <div class="small muted">Lock ratio keeps food images, header lines, and other library sprites feeling predictable, but you can still turn it off for manual stretching.</div>
           </div>
@@ -582,9 +592,12 @@
       propSpriteWidth: document.getElementById('propSpriteWidth'),
       propSpriteHeight: document.getElementById('propSpriteHeight'),
       propPreserveAspect: document.getElementById('propPreserveAspect'),
+      propZ: document.getElementById('propZ'),
       spriteNudgeSmaller: document.getElementById('spriteNudgeSmaller'),
       spriteNudgeLarger: document.getElementById('spriteNudgeLarger'),
       spriteResetNatural: document.getElementById('spriteResetNatural'),
+      layerBringForward: document.getElementById('layerBringForward'),
+      layerSendBackward: document.getElementById('layerSendBackward'),
       deleteLayer: document.getElementById('deleteLayer'),
       propText: document.getElementById('propText'),
       propFontSize: document.getElementById('propFontSize'),
@@ -793,7 +806,7 @@
       const metadata = await loadSpriteMetadata(item.src);
       const naturalWidth = metadata?.width || 18;
       const naturalHeight = metadata?.height || 18;
-      const defaultScale = 1.15;
+      const defaultScale = 1.05;
       const newLayer = sprite(
         `lib_${idBase}_${Date.now()}`,
         `Library: ${item.label}`,
@@ -1177,6 +1190,7 @@
         els.propSpriteWidth.value = layer.width || '';
         els.propSpriteHeight.value = layer.height || '';
         els.propPreserveAspect.checked = !!layer.preserveAspect;
+        els.propZ.value = layer.z || 0;
       }
       if (isText) {
         els.propText.value = layer.text || '';
@@ -1437,6 +1451,9 @@ async function renderAll() {
     els.propVisible.addEventListener('change', () => updateSelected(layer => layer.visible = els.propVisible.value === 'true'));
     els.propSpriteWidth.addEventListener('input', () => updateSelected(layer => resizeSpriteLayer(layer, els.propSpriteWidth.value || layer.width || 1, layer.height || 1, 'width')));
     els.propSpriteHeight.addEventListener('input', () => updateSelected(layer => resizeSpriteLayer(layer, layer.width || 1, els.propSpriteHeight.value || layer.height || 1, 'height')));
+    els.propZ.addEventListener('input', () => updateSelected(layer => layer.z = Number(els.propZ.value) || 0));
+    els.layerBringForward.addEventListener('click', () => updateSelected(layer => layer.z = (Number(layer.z) || 0) + 1));
+    els.layerSendBackward.addEventListener('click', () => updateSelected(layer => layer.z = (Number(layer.z) || 0) - 1));
     els.propPreserveAspect.addEventListener('change', async () => {
       const layer = getLayerById(state.selectedLayerId);
       if (!layer || layer.kind !== 'sprite') return;

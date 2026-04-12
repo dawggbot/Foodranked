@@ -805,7 +805,7 @@
 
     async function addLibrarySpriteToCanvas(item, clientX, clientY) {
       const rect = els.canvas.getBoundingClientRect();
-      const unit = state.layout.canvas.previewScale * 10;
+      const unit = state.layout.canvas.previewScale * 4;
       const x = Math.max(0, Math.round((clientX - rect.left) / unit));
       const y = Math.max(0, Math.round((clientY - rect.top) / unit));
       const idBase = item.label.toLowerCase().replace(/[^a-z0-9]+/g, '_');
@@ -1259,8 +1259,9 @@
         originX = layer.x;
         originY = layer.y;
         const move = e => {
-          layer.x = Math.round(originX + (e.clientX - startX) / (state.layout.canvas.previewScale * 10));
-          layer.y = Math.round(originY + (e.clientY - startY) / (state.layout.canvas.previewScale * 10));
+          const pixelStep = state.layout.canvas.previewScale * 4;
+          layer.x = Math.round(originX + (e.clientX - startX) / pixelStep);
+          layer.y = Math.round(originY + (e.clientY - startY) / pixelStep);
           void renderCanvas();
           renderInspector();
           renderLayerList();

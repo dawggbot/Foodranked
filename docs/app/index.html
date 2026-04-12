@@ -793,7 +793,18 @@
       const metadata = await loadSpriteMetadata(item.src);
       const naturalWidth = metadata?.width || 18;
       const naturalHeight = metadata?.height || 18;
-      const newLayer = sprite(`lib_${idBase}_${Date.now()}`, `Library: ${item.label}`, item.src, x, y, 6, naturalWidth, naturalHeight, false);
+      const defaultScale = 2;
+      const newLayer = sprite(
+        `lib_${idBase}_${Date.now()}`,
+        `Library: ${item.label}`,
+        item.src,
+        x,
+        y,
+        6,
+        naturalWidth * defaultScale,
+        naturalHeight * defaultScale,
+        false
+      );
       newLayer.preserveAspect = true;
       newLayer.naturalWidth = naturalWidth;
       newLayer.naturalHeight = naturalHeight;

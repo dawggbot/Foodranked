@@ -927,6 +927,15 @@
       return String(layer.src).toLowerCase().includes('/sprites/header/');
     }
 
+    function isUiSpriteLayer(layer) {
+      if (!isSpriteLayer(layer)) return false;
+      return String(layer.src).toLowerCase().includes('/sprites/ui/');
+    }
+
+    function isLockedUiSpriteLayer(layer) {
+      return isHeaderSpriteLayer(layer) || isUiSpriteLayer(layer);
+    }
+
     function macroAssetRole(src = '') {
       const value = String(src).toLowerCase();
       if (value.endsWith('_icon.gif')) return 'icon';
@@ -995,21 +1004,21 @@
       return cloned;
     }
 
-    function syncHeaderSpritesFromOutro(layout) {
+    function syncLockedUiSpritesFromOutro(layout) {
       const outroLayers = getSectionLayersFromLayout(layout, 'outro');
-      const lockedHeaderLayers = outroLayers.filter(isHeaderSpriteLayer);
-      if (!lockedHeaderLayers.length) return;
+      const lockedUiLayers = outroLayers.filter(isLockedUiSpriteLayer);
+      if (!lockedUiLayers.length) return;
       for (const section of SECTIONS) {
         if (section.id === 'outro') continue;
         const currentLayers = getSectionLayersFromLayout(layout, section.id);
-        const preserved = currentLayers.filter(layer => !isHeaderSpriteLayer(layer));
-        layout.sections[section.id].layers = [...preserved, ...lockedHeaderLayers.map(cloneLayer)];
+        const preserved = currentLayers.filter(layer => !isLockedUiSpriteLayer(layer));
+        layout.sections[section.id].layers = [...preserved, ...lockedUiLayers.map(cloneLayer)];
       }
     }
 
     function migrateMacroLayoutFromOutro(layout) {
       layout.meta = layout.meta || {};
-      if (layout.meta.macroLayoutFromOutroV1) return;
+      if (layout.meta.macroLayoutFromOutroV2) return;
 
       const outroLayers = getSectionLayersFromLayout(layout, 'outro');
       const fatsLayers = getSectionLayersFromLayout(layout, 'fats');
@@ -1026,20 +1035,24 @@
       if (fatTemplateLayers.length) {
         for (const targetKind of ['carbs', 'protein']) {
           const targetLayers = getSectionLayersFromLayout(layout, targetKind);
-          const preserved = targetLayers.filter(layer => !detectMacroSpriteKind(layer));
+          const preserved = targetLayers.filter(layer => {
+            if (!isSpriteLayer(layer)) return true;
+            if (isLockedUiSpriteLayer(layer)) return true;
+            return false;
+          });
           const mapped = fatTemplateLayers.map(layer => cloneMacroLayerForKind(layer, targetKind));
           layout.sections[targetKind].layers = [...preserved, ...mapped];
         }
       }
 
-      layout.meta.macroLayoutFromOutroV1 = true;
+      layout.meta.macroLayoutFromOutroV2 = true;
     }
 
     function normalizeLayout(layout) {
       const normalized = layout || structuredClone(DEFAULT_LAYOUT);
       normalized.meta = normalized.meta || {};
       migrateMacroLayoutFromOutro(normalized);
-      syncHeaderSpritesFromOutro(normalized);
+      syncLockedUiSpritesFromOutro(normalized);
       return normalized;
     }
 

@@ -1061,12 +1061,14 @@
       layout.meta.macroSectionSpritesFromFatsV2 = true;
     }
 
-    const FATS_SUBMACRO_TEXT_SPECS = [
-      { key: 'sat_fat', label: 'SAT FAT', value: metrics => formatMetricText(metrics?.saturated_fat_g, 'g') },
-      { key: 'poly_fat', label: 'POLY FAT', value: metrics => formatMetricText(metrics?.polyunsaturated_fat_g, 'g') },
-      { key: 'omega3', label: 'OMEGA 3', value: metrics => formatMetricText(metrics?.omega3_mg, 'mg') },
-      { key: 'cholesterol', label: 'CHOLEST.', value: metrics => formatMetricText(metrics?.cholesterol_mg, 'mg') }
-    ];
+    function getFatsSubmacroTextSpecs() {
+      return [
+        { key: 'sat_fat', label: 'SAT FAT', value: metrics => formatMetricText(metrics?.saturated_fat_g, 'g') },
+        { key: 'poly_fat', label: 'POLY FAT', value: metrics => formatMetricText(metrics?.polyunsaturated_fat_g, 'g') },
+        { key: 'omega3', label: 'OMEGA 3', value: metrics => formatMetricText(metrics?.omega3_mg, 'mg') },
+        { key: 'cholesterol', label: 'CHOLEST.', value: metrics => formatMetricText(metrics?.cholesterol_mg, 'mg') }
+      ];
+    }
 
     function clampValue(value, min, max) {
       return Math.max(min, Math.min(max, value));
@@ -1144,7 +1146,7 @@
       const anchors = deriveFatsSubmacroAnchors(layout);
       const topZ = fatsLayers.reduce((max, layer) => Math.max(max, Number(layer.z) || 0), 0) + 2;
 
-      FATS_SUBMACRO_TEXT_SPECS.forEach((spec, index) => {
+      getFatsSubmacroTextSpecs().forEach((spec, index) => {
         const anchor = anchors[index];
         const labelId = `fats_submacro_label_${index + 1}`;
         const valueId = `fats_submacro_value_${index + 1}`;
@@ -1766,7 +1768,7 @@
       normalizeLayout(state.layout);
       const metrics = food?.metrics || {};
       const fatsLayers = getSectionLayersFromLayout(state.layout, 'fats');
-      FATS_SUBMACRO_TEXT_SPECS.forEach((spec, index) => {
+      getFatsSubmacroTextSpecs().forEach((spec, index) => {
         const labelLayer = fatsLayers.find(layer => layer.id === `fats_submacro_label_${index + 1}`);
         const valueLayer = fatsLayers.find(layer => layer.id === `fats_submacro_value_${index + 1}`);
         if (labelLayer) {

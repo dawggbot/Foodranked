@@ -1070,25 +1070,6 @@
       ];
     }
 
-    function getMacroSubmacroTextSpecs(sectionId) {
-      const map = {
-        fats: getFatsSubmacroTextSpecs(),
-        carbs: [
-          { key: 'sugar', label: 'SUGAR', value: metrics => formatMetricText(metrics?.sugar_g, 'g') },
-          { key: 'fibre', label: 'FIBRE', value: metrics => formatMetricText(metrics?.fibre_g, 'g') },
-          { key: 'starch', label: 'STARCH', value: metrics => formatMetricText(metrics?.starch_g, 'g') },
-          { key: 'glycemic_index', label: 'GLYC. IDX', value: metrics => formatMetricText(metrics?.glycemic_index, '') }
-        ],
-        protein: [
-          { key: 'essential_amino', label: 'ESS. AA', value: metrics => formatMetricText(metrics?.essential_amino_acids_score, '') },
-          { key: 'nonessential_amino', label: 'NONESS. AA', value: metrics => formatMetricText(metrics?.nonessential_amino_acids_score, '') },
-          { key: 'bioavailability', label: 'BIOAVAIL.', value: metrics => formatMetricText(metrics?.bioavailability_percent, '%') },
-          { key: 'collagen', label: 'COLLAGEN', value: metrics => formatMetricText(metrics?.collagen_g, 'g') }
-        ]
-      };
-      return map[sectionId] || [];
-    }
-
     function clampValue(value, min, max) {
       return Math.max(min, Math.min(max, value));
     }
@@ -1163,7 +1144,7 @@
 
     function getFatsSubmacroRowBindings(layout) {
       const anchors = deriveFatsSubmacroAnchors(layout);
-      const specs = getMacroSubmacroTextSpecs('fats');
+      const specs = getFatsSubmacroTextSpecs();
       const byKey = Object.fromEntries(specs.map(spec => [spec.key, spec]));
       const defaultOrder = ['sat_fat', 'poly_fat', 'omega3', 'cholesterol'];
       const remaining = [...defaultOrder];
@@ -1203,96 +1184,22 @@
         if (!labelLayer) {
           labelLayer = text(labelId, `Fats label ${index + 1}`, anchor.labelX, anchor.y, 4, spec.label, topZ, anchor.labelWidth, 'left');
           fatsLayers.push(labelLayer);
+        } else {
+          labelLayer.text = spec.label;
         }
         if (!valueLayer) {
           valueLayer = text(valueId, `Fats value ${index + 1}`, anchor.valueX, anchor.y, 4, 'N/A', topZ, anchor.valueWidth, 'right');
           fatsLayers.push(valueLayer);
         }
-        labelLayer.x = anchor.labelX;
-        labelLayer.y = anchor.y;
-        labelLayer.width = anchor.labelWidth;
-        labelLayer.text = spec.label;
-        labelLayer.align = 'left';
-        labelLayer.fontSize = labelLayer.fontSize || 4;
-        labelLayer.z = Math.max(Number(labelLayer.z) || 0, topZ);
-        valueLayer.x = anchor.valueX;
-        valueLayer.y = anchor.y;
-        valueLayer.width = anchor.valueWidth;
-        valueLayer.align = 'right';
-        valueLayer.fontSize = valueLayer.fontSize || 4;
-        valueLayer.z = Math.max(Number(valueLayer.z) || 0, topZ);
+        if (!labelLayer.align) labelLayer.align = 'left';
+        if (!labelLayer.fontSize) labelLayer.fontSize = 4;
+        if (!labelLayer.z) labelLayer.z = topZ;
+        if (!valueLayer.align) valueLayer.align = 'right';
+        if (!valueLayer.fontSize) valueLayer.fontSize = 4;
+        if (!valueLayer.z) valueLayer.z = topZ;
       });
 
       layout.meta.fatsSubmacroTextV2 = true;
-    }
-
-    function getMacroTextLayoutTemplate(layout) {
-      const fatsLayers = getSectionLayersFromLayout(layout, 'fats');
-      const template = [];
-      for (let index = 0; index < 4; index += 1) {
-        const labelLayer = fatsLayers.find(layer => layer.id === `fats_submacro_label_${index + 1}`);
-        const valueLayer = fatsLayers.find(layer => layer.id === `fats_submacro_value_${index + 1}`);
-        if (labelLayer && valueLayer) {
-          template.push({
-            label: {
-              x: labelLayer.x,
-              y: labelLayer.y,
-              width: labelLayer.width,
-              fontSize: labelLayer.fontSize,
-              z: labelLayer.z,
-              align: labelLayer.align || 'left'
-            },
-            value: {
-              x: valueLayer.x,
-              y: valueLayer.y,
-              width: valueLayer.width,
-              fontSize: valueLayer.fontSize,
-              z: valueLayer.z,
-              align: valueLayer.align || 'right'
-            }
-          });
-        }
-      }
-      return template;
-    }
-
-    function syncMacroSubmacroTextLayoutsFromFats(layout) {
-      const template = getMacroTextLayoutTemplate(layout);
-      if (!template.length) return;
-
-      for (const sectionId of ['carbs', 'protein']) {
-        const specs = getMacroSubmacroTextSpecs(sectionId);
-        const layers = getSectionLayersFromLayout(layout, sectionId);
-        specs.forEach((spec, index) => {
-          const anchor = template[index] || template[template.length - 1];
-          if (!anchor) return;
-          const labelId = `${sectionId}_submacro_label_${index + 1}`;
-          const valueId = `${sectionId}_submacro_value_${index + 1}`;
-          let labelLayer = layers.find(layer => layer.id === labelId);
-          let valueLayer = layers.find(layer => layer.id === valueId);
-          if (!labelLayer) {
-            labelLayer = text(labelId, `${sectionId} label ${index + 1}`, anchor.label.x, anchor.label.y, anchor.label.fontSize || 4, spec.label, anchor.label.z || 0, anchor.label.width, anchor.label.align || 'left');
-            layers.push(labelLayer);
-          }
-          if (!valueLayer) {
-            valueLayer = text(valueId, `${sectionId} value ${index + 1}`, anchor.value.x, anchor.value.y, anchor.value.fontSize || 4, 'N/A', anchor.value.z || 0, anchor.value.width, anchor.value.align || 'right');
-            layers.push(valueLayer);
-          }
-          labelLayer.x = anchor.label.x;
-          labelLayer.y = anchor.label.y;
-          labelLayer.width = anchor.label.width;
-          labelLayer.fontSize = anchor.label.fontSize || labelLayer.fontSize || 4;
-          labelLayer.z = anchor.label.z || labelLayer.z || 0;
-          labelLayer.align = anchor.label.align || 'left';
-          labelLayer.text = spec.label;
-          valueLayer.x = anchor.value.x;
-          valueLayer.y = anchor.value.y;
-          valueLayer.width = anchor.value.width;
-          valueLayer.fontSize = anchor.value.fontSize || valueLayer.fontSize || 4;
-          valueLayer.z = anchor.value.z || valueLayer.z || 0;
-          valueLayer.align = anchor.value.align || 'right';
-        });
-      }
     }
 
     function migrateMacroLayoutFromOutro(layout) {
@@ -1333,7 +1240,6 @@
       migrateMacroLayoutFromOutro(normalized);
       syncMacroSectionSpritesFromFats(normalized);
       ensureFatsSubmacroTextLayers(normalized);
-      syncMacroSubmacroTextLayoutsFromFats(normalized);
       syncLockedGlobalLayersFromOutro(normalized);
       return normalized;
     }
@@ -1902,28 +1808,21 @@
     function syncFoodIntoLayout(food) {
       normalizeLayout(state.layout);
       const metrics = food?.metrics || {};
-      const sectionBindings = {
-        fats: getFatsSubmacroRowBindings(state.layout).map(binding => binding.spec),
-        carbs: getMacroSubmacroTextSpecs('carbs'),
-        protein: getMacroSubmacroTextSpecs('protein')
-      };
-
-      Object.entries(sectionBindings).forEach(([sectionId, specs]) => {
-        const layers = getSectionLayersFromLayout(state.layout, sectionId);
-        specs.forEach((spec, index) => {
-          const labelLayer = layers.find(layer => layer.id === `${sectionId}_submacro_label_${index + 1}`);
-          const valueLayer = layers.find(layer => layer.id === `${sectionId}_submacro_value_${index + 1}`);
-          if (labelLayer) {
-            labelLayer.text = spec.label;
-            labelLayer.align = 'left';
-            labelLayer.fontSize = labelLayer.fontSize || 4;
-          }
-          if (valueLayer) {
-            valueLayer.text = spec.value(metrics);
-            valueLayer.align = 'right';
-            valueLayer.fontSize = valueLayer.fontSize || 4;
-          }
-        });
+      const fatsLayers = getSectionLayersFromLayout(state.layout, 'fats');
+      getFatsSubmacroRowBindings(state.layout).forEach((binding, index) => {
+        const spec = binding.spec;
+        const labelLayer = fatsLayers.find(layer => layer.id === `fats_submacro_label_${index + 1}`);
+        const valueLayer = fatsLayers.find(layer => layer.id === `fats_submacro_value_${index + 1}`);
+        if (labelLayer) {
+          labelLayer.text = spec.label;
+          labelLayer.align = 'left';
+          labelLayer.fontSize = labelLayer.fontSize || 4;
+        }
+        if (valueLayer) {
+          valueLayer.text = spec.value(metrics);
+          valueLayer.align = 'right';
+          valueLayer.fontSize = valueLayer.fontSize || 4;
+        }
       });
     }
 

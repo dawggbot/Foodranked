@@ -805,6 +805,10 @@
       protein: [0, 35]
     };
 
+    const AUTO_SECTION_PLACEHOLDERS = {
+      macroDisplay: false
+    };
+
     const DEFAULT_LAYOUT = {
       canvas: {
         width: 135,
@@ -1670,7 +1674,9 @@
       phoneBg.className = 'phone-bg';
       els.canvas.appendChild(phoneBg);
 
-      const macroSection = renderMacroSection(state.fullFood || getSelectedFoodStub(), state.layout.selectedSectionId);
+      const macroSection = AUTO_SECTION_PLACEHOLDERS.macroDisplay
+        ? renderMacroSection(state.fullFood || getSelectedFoodStub(), state.layout.selectedSectionId)
+        : null;
       if (macroSection) {
         els.canvas.appendChild(macroSection);
       }

@@ -944,7 +944,7 @@
       return isHeaderSpriteLayer(layer) || isUiSpriteLayer(layer);
     }
 
-    function isLockedGlobalLayer(layer) {
+    function isLockedGlobalSourceLayer(layer) {
       return isLockedUiSpriteLayer(layer) || isTextLayer(layer);
     }
 
@@ -1018,14 +1018,135 @@
 
     function syncLockedGlobalLayersFromOutro(layout) {
       const outroLayers = getSectionLayersFromLayout(layout, 'outro');
-      const lockedGlobalLayers = outroLayers.filter(isLockedGlobalLayer);
+      const lockedGlobalLayers = outroLayers.filter(isLockedGlobalSourceLayer);
       if (!lockedGlobalLayers.length) return;
+      const lockedTextIds = new Set(lockedGlobalLayers.filter(isTextLayer).map(layer => layer.id).filter(Boolean));
       for (const section of SECTIONS) {
         if (section.id === 'outro') continue;
         const currentLayers = getSectionLayersFromLayout(layout, section.id);
-        const preserved = currentLayers.filter(layer => !isLockedGlobalLayer(layer));
+        const preserved = currentLayers.filter(layer => {
+          if (isLockedUiSpriteLayer(layer)) return false;
+          if (isTextLayer(layer) && lockedTextIds.has(layer.id)) return false;
+          return true;
+        });
         layout.sections[section.id].layers = [...preserved, ...lockedGlobalLayers.map(cloneLayer)];
       }
+    }
+
+    function syncMacroSectionSpritesFromFats(layout) {
+      layout.meta = layout.meta || {};
+      if (layout.meta.macroSectionSpritesFromFatsV1) return;
+
+      const fatsLayers = getSectionLayersFromLayout(layout, 'fats');
+      const fatSpriteTemplate = fatsLayers.filter(layer => isSpriteLayer(layer) && !isLockedUiSpriteLayer(layer));
+      if (!fatSpriteTemplate.length) return;
+
+      for (const targetKind of ['carbs', 'protein']) {
+        const targetLayers = getSectionLayersFromLayout(layout, targetKind);
+        const preserved = targetLayers.filter(layer => !isSpriteLayer(layer) || isLockedUiSpriteLayer(layer));
+        const mapped = fatSpriteTemplate.map(layer => cloneMacroLayerForKind(layer, targetKind));
+        layout.sections[targetKind].layers = [...preserved, ...mapped];
+      }
+
+      layout.meta.macroSectionSpritesFromFatsV1 = true;
+    }
+
+    const FATS_SUBMACRO_TEXT_SPECS = [
+      { key: 'sat_fat', label: 'SAT FAT', value: metrics => formatMetricText(metrics?.saturated_fat_g, 'g') },
+      { key: 'poly_fat', label: 'POLY FAT', value: metrics => formatMetricText(metrics?.polyunsaturated_fat_g, 'g') },
+      { key: 'omega3', label: 'OMEGA 3', value: metrics => formatMetricText(metrics?.omega3_mg, 'mg') },
+      { key: 'cholesterol', label: 'CHOLEST.', value: metrics => formatMetricText(metrics?.cholesterol_mg, 'mg') }
+    ];
+
+    function clampValue(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function clusterFatsSpriteRows(layout) {
+      const fatsLayers = getSectionLayersFromLayout(layout, 'fats');
+      const candidates = fatsLayers
+        .filter(layer => isSpriteLayer(layer) && !isLockedUiSpriteLayer(layer))
+        .filter(layer => (layer.height || 0) <= 40 && (layer.width || 0) <= 130)
+        .map(layer => ({
+          x: Number(layer.x) || 0,
+          y: Number(layer.y) || 0,
+          width: Number(layer.width) || 0,
+          height: Number(layer.height) || 0
+        }))
+        .sort((a, b) => a.y - b.y || a.x - b.x);
+
+      const rows = [];
+      for (const item of candidates) {
+        const centerY = item.y + ((item.height || 0) / 2);
+        const existing = rows.find(row => Math.abs(centerY - row.centerY) <= 9);
+        if (existing) {
+          existing.items.push(item);
+          existing.minX = Math.min(existing.minX, item.x);
+          existing.maxX = Math.max(existing.maxX, item.x + item.width);
+          existing.minY = Math.min(existing.minY, item.y);
+          existing.maxY = Math.max(existing.maxY, item.y + item.height);
+          existing.centerY = (existing.minY + existing.maxY) / 2;
+        } else {
+          rows.push({
+            items: [item],
+            minX: item.x,
+            maxX: item.x + item.width,
+            minY: item.y,
+            maxY: item.y + item.height,
+            centerY
+          });
+        }
+      }
+
+      return rows.sort((a, b) => a.minY - b.minY).slice(0, 4);
+    }
+
+    function deriveFatsSubmacroAnchors(layout) {
+      const rows = clusterFatsSpriteRows(layout);
+      if (rows.length === 4) {
+        return rows.map(row => {
+          const labelX = clampValue(Math.round(row.minX + 12), 4, 96);
+          const valueX = clampValue(Math.round(Math.max(labelX + 24, row.maxX - 30)), 34, 124);
+          const y = clampValue(Math.round(row.minY + 3), 42, 220);
+          return {
+            labelX,
+            valueX,
+            y,
+            labelWidth: Math.max(26, valueX - labelX - 4),
+            valueWidth: 24
+          };
+        });
+      }
+
+      return [
+        { labelX: 20, valueX: 104, y: 84, labelWidth: 78, valueWidth: 20 },
+        { labelX: 20, valueX: 104, y: 106, labelWidth: 78, valueWidth: 20 },
+        { labelX: 20, valueX: 104, y: 128, labelWidth: 78, valueWidth: 20 },
+        { labelX: 20, valueX: 104, y: 150, labelWidth: 78, valueWidth: 20 }
+      ];
+    }
+
+    function ensureFatsSubmacroTextLayers(layout) {
+      layout.meta = layout.meta || {};
+      if (layout.meta.fatsSubmacroTextV1) return;
+
+      const fatsLayers = getSectionLayersFromLayout(layout, 'fats');
+      const anchors = deriveFatsSubmacroAnchors(layout);
+      const topZ = fatsLayers.reduce((max, layer) => Math.max(max, Number(layer.z) || 0), 0) + 2;
+
+      FATS_SUBMACRO_TEXT_SPECS.forEach((spec, index) => {
+        const anchor = anchors[index];
+        const labelId = `fats_submacro_label_${index + 1}`;
+        const valueId = `fats_submacro_value_${index + 1}`;
+        if (!fatsLayers.find(layer => layer.id === labelId)) {
+          fatsLayers.push(text(labelId, `Fats label ${index + 1}`, anchor.labelX, anchor.y, 4, spec.label, topZ, anchor.labelWidth, 'left'));
+        }
+        if (!fatsLayers.find(layer => layer.id === valueId)) {
+          fatsLayers.push(text(valueId, `Fats value ${index + 1}`, anchor.valueX, anchor.y, 4, 'N/A', topZ, anchor.valueWidth, 'right'));
+        }
+      });
+
+      layout.meta.fatsSubmacroTextV1 = true;
     }
 
     function migrateMacroLayoutFromOutro(layout) {
@@ -1064,6 +1185,8 @@
       const normalized = layout || structuredClone(DEFAULT_LAYOUT);
       normalized.meta = normalized.meta || {};
       migrateMacroLayoutFromOutro(normalized);
+      syncMacroSectionSpritesFromFats(normalized);
+      ensureFatsSubmacroTextLayers(normalized);
       syncLockedGlobalLayersFromOutro(normalized);
       return normalized;
     }
@@ -1433,6 +1556,12 @@
       return safe.toFixed(decimals).replace(/\.0+$/, '').replace(/(\.\d*[1-9])0+$/, '$1');
     }
 
+    function formatMetricText(value, unit = '') {
+      const safe = asNumber(value, null);
+      if (safe == null) return 'N/A';
+      return `${formatCompactNumber(safe)}${unit}`;
+    }
+
     function prettyFoodType(foodType) {
       const normalized = normalizeFoodType(foodType) || 'misc';
       return normalized.replace(/-/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
@@ -1624,13 +1753,23 @@
     }
 
     function syncFoodIntoLayout(food) {
-      const stub = getSelectedFoodStub();
-      const spriteCandidates = foodSpriteCandidates(stub);
-      for (const section of SECTIONS) {
-        const layers = state.layout.sections[section.id].layers;
-        const copy = getSectionCopy(food, section.id);
-        const byId = Object.fromEntries(layers.map(layer => [layer.id, layer]));
-      }
+      normalizeLayout(state.layout);
+      const metrics = food?.metrics || {};
+      const fatsLayers = getSectionLayersFromLayout(state.layout, 'fats');
+      FATS_SUBMACRO_TEXT_SPECS.forEach((spec, index) => {
+        const labelLayer = fatsLayers.find(layer => layer.id === `fats_submacro_label_${index + 1}`);
+        const valueLayer = fatsLayers.find(layer => layer.id === `fats_submacro_value_${index + 1}`);
+        if (labelLayer) {
+          labelLayer.text = spec.label;
+          labelLayer.align = 'left';
+          labelLayer.fontSize = labelLayer.fontSize || 4;
+        }
+        if (valueLayer) {
+          valueLayer.text = spec.value(metrics);
+          valueLayer.align = 'right';
+          valueLayer.fontSize = valueLayer.fontSize || 4;
+        }
+      });
     }
 
     function renderFoodList() {

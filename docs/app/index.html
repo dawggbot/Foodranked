@@ -899,6 +899,150 @@
       }
     }
 
+    function cloneLayer(layer) {
+      return structuredClone(layer);
+    }
+
+    function getSectionLayersFromLayout(layout, sectionId) {
+      if (!layout.sections[sectionId]) layout.sections[sectionId] = { layers: [] };
+      if (!Array.isArray(layout.sections[sectionId].layers)) layout.sections[sectionId].layers = [];
+      return layout.sections[sectionId].layers;
+    }
+
+    function isSpriteLayer(layer) {
+      return layer && layer.kind === 'sprite' && typeof layer.src === 'string';
+    }
+
+    function detectMacroSpriteKind(layer) {
+      if (!isSpriteLayer(layer)) return null;
+      const src = String(layer.src).toLowerCase();
+      if (src.includes('/sprites/macros/fats/')) return 'fats';
+      if (src.includes('/sprites/macros/carbs/')) return 'carbs';
+      if (src.includes('/sprites/macros/protein/')) return 'protein';
+      return null;
+    }
+
+    function isHeaderSpriteLayer(layer) {
+      if (!isSpriteLayer(layer)) return false;
+      return String(layer.src).toLowerCase().includes('/sprites/header/');
+    }
+
+    function macroAssetRole(src = '') {
+      const value = String(src).toLowerCase();
+      if (value.endsWith('_icon.gif')) return 'icon';
+      if (value.endsWith('_bar_frame.svg')) return 'frame';
+      if (value.endsWith('_bar_fill.svg')) return 'fill';
+      if (value.endsWith('_submacro_bullet_point.png')) return 'bullet';
+      return null;
+    }
+
+    function macroSpritePath(kind, role) {
+      const paths = {
+        fats: {
+          icon: './sprites/macros/fats/fat_icon.gif',
+          frame: './sprites/macros/fats/fat_bar_frame.svg',
+          fill: './sprites/macros/fats/fat_bar_fill.svg',
+          bullet: './sprites/macros/fats/fat_submacro_bullet_point.png'
+        },
+        carbs: {
+          icon: './sprites/macros/carbs/carb_icon.gif',
+          frame: './sprites/macros/carbs/carb_bar_frame.svg',
+          fill: './sprites/macros/carbs/carb_bar_fill.svg',
+          bullet: './sprites/macros/carbs/carb_submacro_bullet_point.png'
+        },
+        protein: {
+          icon: './sprites/macros/protein/protein_icon.gif',
+          frame: './sprites/macros/protein/protein_bar_frame.svg',
+          fill: './sprites/macros/protein/protein_bar_fill.svg',
+          bullet: './sprites/macros/protein/protein_submacro_bullet_point.png'
+        }
+      };
+      return paths[kind]?.[role] || '';
+    }
+
+    function mapMacroToken(value, targetKind) {
+      if (typeof value !== 'string') return value;
+      const replacements = {
+        fats: [['protein', 'fat'], ['carb', 'fat'], ['carbs', 'fats']],
+        carbs: [['protein', 'carb'], ['fat', 'carb'], ['fats', 'carbs']],
+        protein: [['carb', 'protein'], ['fat', 'protein'], ['fats', 'protein']]
+      };
+      let next = value;
+      for (const [from, to] of replacements[targetKind] || []) {
+        next = next.replace(new RegExp(from, 'gi'), match => {
+          if (match === match.toUpperCase()) return to.toUpperCase();
+          if (match[0] === match[0].toUpperCase()) return to[0].toUpperCase() + to.slice(1);
+          return to;
+        });
+      }
+      return next;
+    }
+
+    function cloneMacroLayerForKind(layer, targetKind) {
+      const cloned = cloneLayer(layer);
+      if (typeof cloned.id === 'string') cloned.id = mapMacroToken(cloned.id, targetKind);
+      if (typeof cloned.label === 'string') cloned.label = mapMacroToken(cloned.label, targetKind);
+      if (typeof cloned.src === 'string') {
+        const role = macroAssetRole(cloned.src);
+        const mappedSrc = role ? macroSpritePath(targetKind, role) : cloned.src;
+        if (mappedSrc) cloned.src = mappedSrc;
+      }
+      if (typeof cloned.fallbackSrc === 'string') {
+        const role = macroAssetRole(cloned.fallbackSrc);
+        const mappedFallback = role ? macroSpritePath(targetKind, role) : cloned.fallbackSrc;
+        if (mappedFallback) cloned.fallbackSrc = mappedFallback;
+      }
+      return cloned;
+    }
+
+    function syncHeaderSpritesFromOutro(layout) {
+      const outroLayers = getSectionLayersFromLayout(layout, 'outro');
+      const lockedHeaderLayers = outroLayers.filter(isHeaderSpriteLayer);
+      if (!lockedHeaderLayers.length) return;
+      for (const section of SECTIONS) {
+        if (section.id === 'outro') continue;
+        const currentLayers = getSectionLayersFromLayout(layout, section.id);
+        const preserved = currentLayers.filter(layer => !isHeaderSpriteLayer(layer));
+        layout.sections[section.id].layers = [...preserved, ...lockedHeaderLayers.map(cloneLayer)];
+      }
+    }
+
+    function migrateMacroLayoutFromOutro(layout) {
+      layout.meta = layout.meta || {};
+      if (layout.meta.macroLayoutFromOutroV1) return;
+
+      const outroLayers = getSectionLayersFromLayout(layout, 'outro');
+      const fatsLayers = getSectionLayersFromLayout(layout, 'fats');
+      const outroFatLayers = outroLayers.filter(layer => detectMacroSpriteKind(layer) === 'fats');
+      let fatTemplateLayers = fatsLayers.filter(layer => detectMacroSpriteKind(layer) === 'fats');
+
+      if (outroFatLayers.length) {
+        layout.sections.outro.layers = outroLayers.filter(layer => detectMacroSpriteKind(layer) !== 'fats');
+        const preservedFatsLayers = fatsLayers.filter(layer => detectMacroSpriteKind(layer) !== 'fats');
+        fatTemplateLayers = outroFatLayers.map(cloneLayer);
+        layout.sections.fats.layers = [...preservedFatsLayers, ...fatTemplateLayers.map(cloneLayer)];
+      }
+
+      if (fatTemplateLayers.length) {
+        for (const targetKind of ['carbs', 'protein']) {
+          const targetLayers = getSectionLayersFromLayout(layout, targetKind);
+          const preserved = targetLayers.filter(layer => !detectMacroSpriteKind(layer));
+          const mapped = fatTemplateLayers.map(layer => cloneMacroLayerForKind(layer, targetKind));
+          layout.sections[targetKind].layers = [...preserved, ...mapped];
+        }
+      }
+
+      layout.meta.macroLayoutFromOutroV1 = true;
+    }
+
+    function normalizeLayout(layout) {
+      const normalized = layout || structuredClone(DEFAULT_LAYOUT);
+      normalized.meta = normalized.meta || {};
+      migrateMacroLayoutFromOutro(normalized);
+      syncHeaderSpritesFromOutro(normalized);
+      return normalized;
+    }
+
     function hydrateLayout(layout) {
       if (!layout) return structuredClone(DEFAULT_LAYOUT);
       const merged = structuredClone(DEFAULT_LAYOUT);
@@ -919,10 +1063,12 @@
           }
         }
       }
-      return merged;
+      merged.meta = { ...(layout.meta || {}) };
+      return normalizeLayout(merged);
     }
 
     function saveLayout() {
+      normalizeLayout(state.layout);
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state.layout));
     }
 
@@ -1783,6 +1929,7 @@ async function renderBackgroundSprites() {
     }
 
 async function renderAll() {
+      normalizeLayout(state.layout);
       setCssVars();
       const motion = state.layout.canvas.backgroundMotion || DEFAULT_LAYOUT.canvas.backgroundMotion;
       els.previewScale.value = String(state.layout.canvas.previewScale);
@@ -1851,7 +1998,7 @@ async function renderAll() {
     });
     els.applyJson.addEventListener('click', () => {
       try {
-        state.layout = JSON.parse(els.layoutJson.value);
+        state.layout = normalizeLayout(JSON.parse(els.layoutJson.value));
         state.selectedLayerId = null;
         void renderAll();
       } catch (error) {

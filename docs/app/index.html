@@ -1050,6 +1050,19 @@
       };
     }
 
+    function makeSpriteLibraryItem(label, src) {
+      const normalized = `${label} ${src}`.toLowerCase();
+      const isBarFrame = normalized.includes('bar frame');
+      const isBarFill = normalized.includes('bar fill');
+      return {
+        label,
+        src,
+        kind: 'library',
+        previewScale: isBarFrame ? 0.5 : (isBarFill ? 0.72 : 1),
+        dropScale: isBarFrame ? 0.3 : (isBarFill ? 0.5 : 0.75)
+      };
+    }
+
     function spriteLibraryItems() {
       const selectedFood = getSelectedFoodStub();
       const slug = typeSpriteSlug(selectedFood?.foodType);
@@ -1090,7 +1103,7 @@
         ['food name line', './sprites/header/header_ui/food_name_line.png'],
         ['per 100g line', './sprites/header/header_ui/per_100g_line.png'],
         ['score plate', './sprites/header/header_ui/score_plate.png']
-      ].map(([label, src]) => ({ label, src, kind: 'library' }));
+      ].map(([label, src]) => makeSpriteLibraryItem(label, src));
     }
 
     async function addLibrarySpriteToCanvas(item, clientX, clientY) {
@@ -1102,7 +1115,7 @@
       const metadata = await loadSpriteMetadata(item.src);
       const naturalWidth = metadata?.width || 18;
       const naturalHeight = metadata?.height || 18;
-      const defaultScale = 0.75;
+      const defaultScale = Number.isFinite(item.dropScale) ? item.dropScale : 0.75;
       const newLayer = sprite(
         `lib_${idBase}_${Date.now()}`,
         `Library: ${item.label}`,
@@ -1130,7 +1143,21 @@
         button.type = 'button';
         button.className = 'sprite-chip';
         button.draggable = true;
-        button.innerHTML = `<img src="${item.src}" alt="${item.label}" /><strong>${item.label}</strong><span class="tiny">drag into display</span>`;
+        const img = document.createElement('img');
+        img.src = item.src;
+        img.alt = item.label;
+        if (item.previewScale && item.previewScale !== 1) {
+          img.style.transform = `scale(${item.previewScale})`;
+          img.style.transformOrigin = 'center';
+        }
+        const title = document.createElement('strong');
+        title.textContent = item.label;
+        const hint = document.createElement('span');
+        hint.className = 'tiny';
+        hint.textContent = 'drag into display';
+        button.appendChild(img);
+        button.appendChild(title);
+        button.appendChild(hint);
         button.addEventListener('dragstart', event => {
           event.dataTransfer.setData('application/json', JSON.stringify(item));
           event.dataTransfer.effectAllowed = 'copy';

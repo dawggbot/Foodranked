@@ -981,6 +981,16 @@
       return paths[kind]?.[role] || '';
     }
 
+    function remapMacroFolderPath(value, targetKind) {
+      if (typeof value !== 'string') return value;
+      const targetFolder = targetKind;
+      let next = value.replace(/\/sprites\/macros\/(fats|carbs|protein)\//i, `/sprites/macros/${targetFolder}/`);
+      next = next.replace(/(^|[\/._-])fat(s)?(?=[._/-])/gi, (match, prefix, plural) => `${prefix}${targetKind}${plural && targetKind !== 'protein' ? 's' : ''}`);
+      next = next.replace(/(^|[\/._-])carb(s)?(?=[._/-])/gi, (match, prefix, plural) => `${prefix}${targetKind}${plural && targetKind !== 'protein' ? 's' : ''}`);
+      next = next.replace(/(^|[\/._-])protein(s)?(?=[._/-])/gi, (match, prefix, plural) => `${prefix}${targetKind}${plural && targetKind !== 'protein' ? 's' : ''}`);
+      return next;
+    }
+
     function mapMacroToken(value, targetKind) {
       if (typeof value !== 'string') return value;
       const replacements = {
@@ -1005,12 +1015,12 @@
       if (typeof cloned.label === 'string') cloned.label = mapMacroToken(cloned.label, targetKind);
       if (typeof cloned.src === 'string') {
         const role = macroAssetRole(cloned.src);
-        const mappedSrc = role ? macroSpritePath(targetKind, role) : cloned.src;
+        const mappedSrc = role ? macroSpritePath(targetKind, role) : remapMacroFolderPath(cloned.src, targetKind);
         if (mappedSrc) cloned.src = mappedSrc;
       }
       if (typeof cloned.fallbackSrc === 'string') {
         const role = macroAssetRole(cloned.fallbackSrc);
-        const mappedFallback = role ? macroSpritePath(targetKind, role) : cloned.fallbackSrc;
+        const mappedFallback = role ? macroSpritePath(targetKind, role) : remapMacroFolderPath(cloned.fallbackSrc, targetKind);
         if (mappedFallback) cloned.fallbackSrc = mappedFallback;
       }
       return cloned;
@@ -1035,7 +1045,7 @@
 
     function syncMacroSectionSpritesFromFats(layout) {
       layout.meta = layout.meta || {};
-      if (layout.meta.macroSectionSpritesFromFatsV1) return;
+      if (layout.meta.macroSectionSpritesFromFatsV2) return;
 
       const fatsLayers = getSectionLayersFromLayout(layout, 'fats');
       const fatSpriteTemplate = fatsLayers.filter(layer => isSpriteLayer(layer) && !isLockedUiSpriteLayer(layer));
@@ -1048,7 +1058,7 @@
         layout.sections[targetKind].layers = [...preserved, ...mapped];
       }
 
-      layout.meta.macroSectionSpritesFromFatsV1 = true;
+      layout.meta.macroSectionSpritesFromFatsV2 = true;
     }
 
     const FATS_SUBMACRO_TEXT_SPECS = [

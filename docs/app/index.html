@@ -296,6 +296,231 @@
     .progress-dot.active { background: var(--accent); box-shadow: 0 0 0 calc(1px * var(--asset-scale) * var(--preview-scale)) rgba(213,90,90,.22); }
     .progress-dot.done { background: #799b82; }
 
+    .macro-display {
+      position: absolute;
+      inset: 0;
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    .macro-stage {
+      position: absolute;
+      left: calc(8px * var(--pixel-unit));
+      top: calc(10px * var(--pixel-unit));
+      width: calc(119px * var(--pixel-unit));
+      display: grid;
+      gap: calc(4px * var(--pixel-unit));
+    }
+
+    .macro-stage-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: calc(4px * var(--pixel-unit));
+    }
+
+    .macro-chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: calc(10px * var(--pixel-unit));
+      padding: 0 calc(4px * var(--pixel-unit));
+      border: calc(1px * var(--pixel-unit)) solid rgba(18, 14, 28, 0.92);
+      background: linear-gradient(180deg, rgba(255,255,255,.26), rgba(255,255,255,.06)), var(--macro-chip-bg, #4d4066);
+      box-shadow: 0 calc(1px * var(--pixel-unit)) 0 rgba(0,0,0,.28);
+      color: #fff;
+      font-size: calc(4.2px * var(--pixel-unit));
+      line-height: 1;
+    }
+
+    .macro-scale-note {
+      max-width: calc(58px * var(--pixel-unit));
+      color: rgba(255,255,255,.76);
+      font-size: calc(2.8px * var(--pixel-unit));
+      line-height: 1.2;
+      text-align: right;
+      text-shadow: 0 calc(1px * var(--pixel-unit)) 0 rgba(0,0,0,.22);
+    }
+
+    .macro-hero {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 0;
+      min-height: calc(30px * var(--pixel-unit));
+      margin-top: calc(1px * var(--pixel-unit));
+    }
+
+    .macro-bubble {
+      position: relative;
+      z-index: 2;
+      width: calc(24px * var(--pixel-unit));
+      height: calc(24px * var(--pixel-unit));
+      display: grid;
+      place-items: center;
+      border: calc(1px * var(--pixel-unit)) solid var(--macro-bubble-shell, #21182c);
+      background: linear-gradient(180deg, var(--macro-bubble-top, #efe7ff) 0%, var(--macro-bubble-bottom, #8a73d8) 100%);
+      box-shadow:
+        inset 0 calc(1px * var(--pixel-unit)) 0 rgba(255,255,255,.3),
+        0 calc(1px * var(--pixel-unit)) 0 var(--macro-bubble-shadow, rgba(0,0,0,.3)),
+        0 calc(2px * var(--pixel-unit)) 0 rgba(0,0,0,.18);
+      overflow: hidden;
+    }
+
+    .macro-bubble img {
+      width: 82%;
+      height: 82%;
+      object-fit: contain;
+      image-rendering: pixelated;
+      filter: drop-shadow(0 calc(1px * var(--pixel-unit)) 0 rgba(0,0,0,.16));
+      animation: macro-bubble-bob 2600ms steps(6, end) infinite;
+    }
+
+    .macro-bar-stack {
+      flex: 1;
+      min-width: 0;
+      margin-left: calc(-4px * var(--pixel-unit));
+    }
+
+    .macro-title-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: calc(4px * var(--pixel-unit));
+      padding-left: calc(7px * var(--pixel-unit));
+      margin-bottom: calc(2px * var(--pixel-unit));
+    }
+
+    .macro-amount {
+      font-size: calc(7px * var(--pixel-unit));
+      line-height: .9;
+      color: #fff;
+    }
+
+    .macro-label {
+      color: rgba(255,255,255,.74);
+      font-size: calc(2.9px * var(--pixel-unit));
+      line-height: 1.15;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      text-align: right;
+      text-shadow: 0 calc(1px * var(--pixel-unit)) 0 rgba(0,0,0,.22);
+    }
+
+    .macro-bar-frame {
+      position: relative;
+      width: 100%;
+      height: calc(12px * var(--pixel-unit));
+      padding: calc(3px * var(--pixel-unit));
+      background: center / 100% 100% no-repeat var(--macro-frame);
+      overflow: hidden;
+      filter: drop-shadow(0 calc(1px * var(--pixel-unit)) 0 rgba(0,0,0,.26));
+    }
+
+    .macro-bar-fill-clip {
+      position: relative;
+      width: calc(var(--fill-pct, 0) * 1%);
+      max-width: 100%;
+      height: 100%;
+      overflow: hidden;
+      transform-origin: left center;
+      animation: macro-fill-grow 820ms steps(var(--fill-steps, 18), end) both;
+    }
+
+    .macro-bar-fill {
+      width: 100%;
+      height: 100%;
+      background: left center / auto 100% repeat-x var(--macro-fill);
+      animation: macro-fill-scroll 1800ms steps(8, end) infinite;
+      box-shadow:
+        inset 0 calc(1px * var(--pixel-unit)) 0 rgba(255,255,255,.16),
+        inset 0 calc(-1px * var(--pixel-unit)) 0 rgba(0,0,0,.22);
+    }
+
+    .macro-bar-sheen {
+      position: absolute;
+      top: calc(3px * var(--pixel-unit));
+      bottom: calc(3px * var(--pixel-unit));
+      width: calc(18px * var(--pixel-unit));
+      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.34) 50%, transparent 100%);
+      mix-blend-mode: screen;
+      opacity: .7;
+      transform: translateX(-130%);
+      animation: macro-fill-sheen 2200ms linear infinite;
+    }
+
+    .macro-bar-meter {
+      display: flex;
+      justify-content: space-between;
+      gap: calc(4px * var(--pixel-unit));
+      margin-top: calc(2px * var(--pixel-unit));
+      padding-left: calc(7px * var(--pixel-unit));
+      color: rgba(255,255,255,.72);
+      font-size: calc(2.6px * var(--pixel-unit));
+      line-height: 1.15;
+      text-shadow: 0 calc(1px * var(--pixel-unit)) 0 rgba(0,0,0,.2);
+    }
+
+    .macro-lines {
+      display: grid;
+      gap: calc(3px * var(--pixel-unit));
+      margin-top: calc(2px * var(--pixel-unit));
+    }
+
+    .macro-line {
+      display: grid;
+      grid-template-columns: calc(8px * var(--pixel-unit)) 1fr;
+      align-items: start;
+      gap: calc(3px * var(--pixel-unit));
+      min-height: calc(16px * var(--pixel-unit));
+      padding: calc(3px * var(--pixel-unit));
+      border: calc(1px * var(--pixel-unit)) solid rgba(17, 13, 22, 0.9);
+      background: linear-gradient(180deg, rgba(31,40,58,.9) 0%, rgba(20,26,39,.92) 100%);
+      box-shadow: 0 calc(1px * var(--pixel-unit)) 0 rgba(0,0,0,.24);
+    }
+
+    .macro-line img {
+      width: calc(8px * var(--pixel-unit));
+      height: calc(8px * var(--pixel-unit));
+      margin-top: calc(1px * var(--pixel-unit));
+      object-fit: contain;
+      image-rendering: pixelated;
+    }
+
+    .macro-line span {
+      color: #f6f3eb;
+      font-size: calc(3.15px * var(--pixel-unit));
+      line-height: 1.2;
+      text-shadow: 0 calc(1px * var(--pixel-unit)) 0 rgba(0,0,0,.18);
+    }
+
+    .macro-caption {
+      color: rgba(255,255,255,.72);
+      font-size: calc(2.85px * var(--pixel-unit));
+      line-height: 1.25;
+      padding: calc(1px * var(--pixel-unit)) calc(1px * var(--pixel-unit)) 0;
+      text-shadow: 0 calc(1px * var(--pixel-unit)) 0 rgba(0,0,0,.18);
+    }
+
+    @keyframes macro-fill-grow {
+      0% { transform: scaleX(0); filter: brightness(1.12); }
+      100% { transform: scaleX(1); filter: brightness(1); }
+    }
+
+    @keyframes macro-fill-scroll {
+      0% { background-position: 0 0; }
+      100% { background-position: calc(24px * var(--pixel-unit)) 0; }
+    }
+
+    @keyframes macro-fill-sheen {
+      0% { transform: translateX(-130%); }
+      100% { transform: translateX(650%); }
+    }
+
+    @keyframes macro-bubble-bob {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(calc(-1px * var(--pixel-unit))); }
+    }
+
     .script-box, .nutrition-box {
       background: rgba(12,14,20,.74);
       border: 1px solid rgba(255,255,255,.08);
@@ -520,6 +745,64 @@
       dairy: { top: '#f4f0e8', bottom: '#d9d2c2', glowA: 'rgba(255,255,255,.68)', glowB: 'rgba(214,196,155,.22)' },
       'oils-and-fats': { top: '#f6e7a9', bottom: '#d1b851', glowA: 'rgba(255,235,135,.74)', glowB: 'rgba(175,138,28,.28)' },
       misc: { top: '#ece7e2', bottom: '#cfc5bc', glowA: 'rgba(255,255,255,.66)', glowB: 'rgba(140,120,108,.22)' }
+    };
+
+    const MACRO_VISUALS = {
+      fats: {
+        label: 'FATS',
+        icon: './sprites/macros/fats/fat_icon.gif',
+        bullet: './sprites/macros/fats/fat_submacro_bullet_point.png',
+        frame: './sprites/macros/fats/fat_bar_frame.svg',
+        fill: './sprites/macros/fats/fat_bar_fill.svg',
+        bubbleTop: '#e6deff',
+        bubbleBottom: '#7d6ac9',
+        bubbleShell: '#2a2137',
+        bubbleShadow: '#4c3a72',
+        chip: '#5d4d7d'
+      },
+      carbs: {
+        label: 'CARBS',
+        icon: './sprites/macros/carbs/carb_icon.gif',
+        bullet: './sprites/macros/carbs/carb_submacro_bullet_point.png',
+        frame: './sprites/macros/carbs/carb_bar_frame.svg',
+        fill: './sprites/macros/carbs/carb_bar_fill.svg',
+        bubbleTop: '#ffe4a9',
+        bubbleBottom: '#cd8a26',
+        bubbleShell: '#402a12',
+        bubbleShadow: '#7a5118',
+        chip: '#7c5218'
+      },
+      protein: {
+        label: 'PROTEIN',
+        icon: './sprites/macros/protein/protein_icon.gif',
+        bullet: './sprites/macros/protein/protein_submacro_bullet_point.png',
+        frame: './sprites/macros/protein/protein_bar_frame.svg',
+        fill: './sprites/macros/protein/protein_bar_fill.svg',
+        bubbleTop: '#ffd2da',
+        bubbleBottom: '#d45d74',
+        bubbleShell: '#3a1821',
+        bubbleShadow: '#702d3c',
+        chip: '#7d3142'
+      }
+    };
+
+    const MACRO_FILL_RANGES = {
+      nuts: { fats: [30, 75], carbs: [5, 30], protein: [10, 30] },
+      seeds: { fats: [25, 70], carbs: [5, 35], protein: [10, 30] },
+      grains: { fats: [1, 10], carbs: [50, 85], protein: [5, 18] },
+      legumes: { fats: [1, 10], carbs: [40, 65], protein: [15, 30] },
+      tubers: { fats: [0, 2], carbs: [15, 35], protein: [1, 5] },
+      fruits: { fats: [0, 5], carbs: [8, 25], protein: [0, 4] },
+      vegetables: { fats: [0, 3], carbs: [3, 15], protein: [1, 6] },
+      meats: { fats: [2, 35], carbs: [0, 0], protein: [15, 30] },
+      dairy: { fats: [0, 35], carbs: [3, 10], protein: [3, 25] },
+      'oils-and-fats': { fats: [80, 100], carbs: [0, 0], protein: [0, 0] }
+    };
+
+    const DEFAULT_MACRO_FILL_RANGES = {
+      fats: [0, 40],
+      carbs: [0, 50],
+      protein: [0, 35]
     };
 
     const DEFAULT_LAYOUT = {
@@ -785,10 +1068,16 @@
         ...foodCandidates,
         ...sectionSpecific,
         ['fat icon', './sprites/macros/fats/fat_icon.gif'],
+        ['fat bar frame', './sprites/macros/fats/fat_bar_frame.svg'],
+        ['fat bar fill', './sprites/macros/fats/fat_bar_fill.svg'],
         ['fat submacro bullet', './sprites/macros/fats/fat_submacro_bullet_point.png'],
         ['carb icon', './sprites/macros/carbs/carb_icon.gif'],
+        ['carb bar frame', './sprites/macros/carbs/carb_bar_frame.svg'],
+        ['carb bar fill', './sprites/macros/carbs/carb_bar_fill.svg'],
         ['carb submacro bullet', './sprites/macros/carbs/carb_submacro_bullet_point.png'],
         ['protein icon', './sprites/macros/protein/protein_icon.gif'],
+        ['protein bar frame', './sprites/macros/protein/protein_bar_frame.svg'],
+        ['protein bar fill', './sprites/macros/protein/protein_bar_fill.svg'],
         ['protein submacro bullet', './sprites/macros/protein/protein_submacro_bullet_point.png'],
         ['vitamin icon', './sprites/micros/vitamins/vitamin_icon.gif'],
         ['vitamin micro icon', './sprites/micros/vitamins/vitamin_micro_icon.png'],
@@ -933,6 +1222,109 @@
       const safe = Number(value);
       const count = safe >= 25 ? 3 : safe >= 10 ? 2 : safe > 0 ? 1 : 0;
       return count ? `${direction === 'down' ? '↓' : '↑'} `.repeat(count).trim() : '·';
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+    }
+
+    function formatCompactNumber(value, decimals = 1) {
+      const safe = asNumber(value, null);
+      if (safe == null) return '—';
+      if (Number.isInteger(safe)) return String(safe);
+      return safe.toFixed(decimals).replace(/\.0+$/, '').replace(/(\.\d*[1-9])0+$/, '$1');
+    }
+
+    function prettyFoodType(foodType) {
+      const normalized = normalizeFoodType(foodType) || 'misc';
+      return normalized.replace(/-/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
+    }
+
+    function getMacroFillRange(foodType, sectionId) {
+      const normalized = normalizeFoodType(foodType);
+      return MACRO_FILL_RANGES[normalized]?.[sectionId] || DEFAULT_MACRO_FILL_RANGES[sectionId] || [0, 30];
+    }
+
+    function getMacroValue(food, sectionId) {
+      const header = food?.header || {};
+      if (sectionId === 'fats') return asNumber(header.fat_g, null);
+      if (sectionId === 'carbs') return asNumber(header.carb_g, null);
+      if (sectionId === 'protein') return asNumber(header.protein_g, null);
+      return null;
+    }
+
+    function getMacroFillPercent(value, range = [0, 30]) {
+      const safe = asNumber(value, null);
+      if (safe == null || safe <= 0) return 0;
+      const [, max] = range;
+      if (!Number.isFinite(max) || max <= 0) {
+        return Math.max(0, Math.min(1, safe / 10));
+      }
+      return Math.max(0, Math.min(1, safe / max));
+    }
+
+    function macroRangeNote(food, sectionId, range) {
+      const [min, max] = range;
+      const typeLabel = prettyFoodType(food?.foodType || getSelectedFoodStub()?.foodType);
+      if (max <= 0) return `${typeLabel} band, usually 0g`;
+      return `${typeLabel} band ${formatCompactNumber(min)} to ${formatCompactNumber(max)}g`;
+    }
+
+    function renderMacroSection(food, sectionId) {
+      const spec = MACRO_VISUALS[sectionId];
+      if (!spec) return null;
+
+      const value = getMacroValue(food, sectionId);
+      const range = getMacroFillRange(food?.foodType || getSelectedFoodStub()?.foodType, sectionId);
+      const fillPercent = getMacroFillPercent(value, range);
+      const fillSteps = Math.max(8, Math.round(fillPercent * 18) || 8);
+      const copy = getSectionCopy(food, sectionId);
+
+      const wrapper = document.createElement('section');
+      wrapper.className = 'macro-display';
+
+      const stage = document.createElement('div');
+      stage.className = 'macro-stage';
+      stage.style.setProperty('--macro-frame', `url("${spec.frame}")`);
+      stage.style.setProperty('--macro-fill', `url("${spec.fill}")`);
+      stage.style.setProperty('--macro-bubble-top', spec.bubbleTop);
+      stage.style.setProperty('--macro-bubble-bottom', spec.bubbleBottom);
+      stage.style.setProperty('--macro-bubble-shell', spec.bubbleShell);
+      stage.style.setProperty('--macro-bubble-shadow', spec.bubbleShadow);
+      stage.style.setProperty('--macro-chip-bg', spec.chip);
+
+      stage.innerHTML = `
+        <div class="macro-stage-header">
+          <div class="macro-chip pixel-text">${escapeHtml(spec.label)}</div>
+          <div class="macro-scale-note">${escapeHtml(macroRangeNote(food, sectionId, range))}</div>
+        </div>
+        <div class="macro-hero">
+          <div class="macro-bubble"><img src="${spec.icon}" alt="${escapeHtml(spec.label)} icon" /></div>
+          <div class="macro-bar-stack">
+            <div class="macro-title-row">
+              <div class="macro-amount pixel-text">${escapeHtml(formatCompactNumber(value))}g</div>
+              <div class="macro-label">animated<br>macro fill</div>
+            </div>
+            <div class="macro-bar-frame">
+              <div class="macro-bar-fill-clip" style="--fill-pct:${(fillPercent * 100).toFixed(2)}; --fill-steps:${fillSteps};">
+                <div class="macro-bar-fill"></div>
+              </div>
+              <div class="macro-bar-sheen"></div>
+            </div>
+            <div class="macro-bar-meter">
+              <span>0g</span>
+              <span>caps at ${escapeHtml(formatCompactNumber(range[1]))}g</span>
+            </div>
+          </div>
+        </div>
+        <div class="macro-lines">
+          ${copy.lines.filter(Boolean).map(line => `<div class="macro-line"><img src="${spec.bullet}" alt="" /><span>${escapeHtml(line)}</span></div>`).join('')}
+        </div>
+        <div class="macro-caption">${escapeHtml(copy.caption)}</div>
+      `;
+
+      wrapper.appendChild(stage);
+      return wrapper;
     }
 
     function getSectionCopy(food, sectionId) {
@@ -1091,6 +1483,11 @@
       const phoneBg = document.createElement('div');
       phoneBg.className = 'phone-bg';
       els.canvas.appendChild(phoneBg);
+
+      const macroSection = renderMacroSection(state.fullFood || getSelectedFoodStub(), state.layout.selectedSectionId);
+      if (macroSection) {
+        els.canvas.appendChild(macroSection);
+      }
 
 
       const layers = [...getCurrentSectionLayers()].sort((a,b) => (a.z || 0) - (b.z || 0));

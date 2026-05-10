@@ -1144,12 +1144,13 @@
       const lockedSpriteLayers = outroLayers.filter(isLockedUiSpriteLayer);
       const lockedTextLayers = outroLayers.filter(isTextLayer);
       if (!lockedSpriteLayers.length && !lockedTextLayers.length) return;
+      const lockedSpriteIds = new Set(lockedSpriteLayers.map(layer => layer.id).filter(Boolean));
       const lockedTextIds = new Set(lockedTextLayers.map(layer => layer.id).filter(Boolean));
       for (const section of SECTIONS) {
         if (section.id === 'outro') continue;
         const currentLayers = getSectionLayersFromLayout(layout, section.id);
         const preserved = currentLayers.filter(layer => {
-          if (isLockedUiSpriteLayer(layer)) return false;
+          if (isLockedUiSpriteLayer(layer) && layer.id && lockedSpriteIds.has(layer.id)) return false;
           if (section.id !== 'fats' && isTextLayer(layer) && lockedTextIds.has(layer.id)) return false;
           return true;
         });
@@ -1405,6 +1406,30 @@
 
     function getLayerById(id) {
       return getCurrentSectionLayers().find(layer => layer.id === id) || null;
+    }
+
+    function getSyncedGlobalSourceLayer(layer) {
+      if (!layer || state.layout.selectedSectionId === 'outro') return null;
+      if (!isLockedGlobalSourceLayer(layer)) return null;
+      return getSectionLayersFromLayout(state.layout, 'outro').find(source => source.id && source.id === layer.id) || null;
+    }
+
+    function mirrorLayerValues(fromLayer, toLayer) {
+      if (!fromLayer || !toLayer || fromLayer === toLayer) return;
+      const keepId = toLayer.id;
+      Object.assign(toLayer, cloneLayer(fromLayer));
+      toLayer.id = keepId;
+    }
+
+    function mutateEditableLayer(layer, mutator, { clamp = false } = {}) {
+      if (!layer) return null;
+      const sourceLayer = getSyncedGlobalSourceLayer(layer);
+      const targetLayer = sourceLayer || layer;
+      mutator(targetLayer);
+      snapLayerToPixel(targetLayer);
+      if (clamp) clampLayerToCanvas(targetLayer);
+      if (sourceLayer) mirrorLayerValues(sourceLayer, layer);
+      return targetLayer;
     }
 
     function createSectionLayers(sectionId) {
@@ -1717,9 +1742,7 @@
     function mutateSelectedLayer(mutator, { clamp = false } = {}) {
       const layer = getLayerById(state.selectedLayerId);
       if (!layer) return;
-      mutator(layer);
-      snapLayerToPixel(layer);
-      if (clamp) clampLayerToCanvas(layer);
+      mutateEditableLayer(layer, mutator, { clamp });
       void renderAll();
     }
 
@@ -2270,14 +2293,18 @@
         state.selectedLayerId = layerId;
         const layer = getLayerById(layerId);
         if (!layer) return;
+        const sourceLayer = getSyncedGlobalSourceLayer(layer);
+        const dragLayer = sourceLayer || layer;
         startX = event.clientX;
         startY = event.clientY;
-        originX = layer.x;
-        originY = layer.y;
+        originX = dragLayer.x;
+        originY = dragLayer.y;
         const move = e => {
           const pixelStep = state.layout.canvas.previewScale * 4;
-          layer.x = Math.round(originX + (e.clientX - startX) / pixelStep);
-          layer.y = Math.round(originY + (e.clientY - startY) / pixelStep);
+          dragLayer.x = Math.round(originX + (e.clientX - startX) / pixelStep);
+          dragLayer.y = Math.round(originY + (e.clientY - startY) / pixelStep);
+          snapLayerToPixel(dragLayer);
+          if (sourceLayer) mirrorLayerValues(sourceLayer, layer);
           void renderCanvas();
           renderInspector();
           renderLayerList();
@@ -2404,8 +2431,7 @@ async function renderAll() {
     function updateSelected(mutator) {
       const layer = getLayerById(state.selectedLayerId);
       if (!layer) return;
-      mutator(layer);
-      snapLayerToPixel(layer);
+      mutateEditableLayer(layer, mutator);
       void renderAll();
     }
 
@@ -2530,8 +2556,16 @@ async function renderAll() {
     els.propWidth.addEventListener('input', () => updateSelected(layer => layer.width = els.propWidth.value ? Number(els.propWidth.value) : undefined));
     els.propAlign.addEventListener('change', () => updateSelected(layer => layer.align = els.propAlign.value));
     els.deleteLayer.addEventListener('click', () => {
+      const layer = getLayerById(state.selectedLayerId);
+      if (!layer) return;
+      const sourceLayer = getSyncedGlobalSourceLayer(layer);
+      if (sourceLayer) {
+        const outroLayers = getSectionLayersFromLayout(state.layout, 'outro');
+        const sourceIndex = outroLayers.findIndex(item => item.id === sourceLayer.id);
+        if (sourceIndex !== -1) outroLayers.splice(sourceIndex, 1);
+      }
       const layers = getCurrentSectionLayers();
-      const index = layers.findIndex(layer => layer.id === state.selectedLayerId);
+      const index = layers.findIndex(item => item.id === state.selectedLayerId);
       if (index === -1) return;
       layers.splice(index, 1);
       state.selectedLayerId = null;
@@ -2544,10 +2578,10 @@ async function renderAll() {
       if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) return;
       const step = event.shiftKey ? 10 : 1;
       let handled = true;
-      if (event.key === 'ArrowLeft') layer.x -= step;
-      else if (event.key === 'ArrowRight') layer.x += step;
-      else if (event.key === 'ArrowUp') layer.y -= step;
-      else if (event.key === 'ArrowDown') layer.y += step;
+      if (event.key === 'ArrowLeft') mutateEditableLayer(layer, current => current.x -= step);
+      else if (event.key === 'ArrowRight') mutateEditableLayer(layer, current => current.x += step);
+      else if (event.key === 'ArrowUp') mutateEditableLayer(layer, current => current.y -= step);
+      else if (event.key === 'ArrowDown') mutateEditableLayer(layer, current => current.y += step);
       else handled = false;
       if (handled) {
         event.preventDefault();

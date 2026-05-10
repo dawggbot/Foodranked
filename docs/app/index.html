@@ -258,8 +258,7 @@
       border-radius: 16px;
     }
     .phone-shell {
-      width: calc(var(--canvas-width) + 12px);
-      min-width: calc(var(--canvas-width) + 12px);
+      width: min(420px, calc(var(--canvas-width) + 12px));
       aspect-ratio: 9 / 16;
       position: relative;
       overflow: hidden;
@@ -799,7 +798,7 @@
     ];
 
     const SECTION_INDICATOR_COUNT = SECTIONS.length;
-    const SECTION_INDICATOR_LAYOUT = { startX: 7, y: 210, stepX: 14, normalSize: 10, highlightedSize: 12 };
+    const SECTION_INDICATOR_LAYOUT = { startX: 4, y: 173, stepX: 11, normalSize: 10, highlightedSize: 12 };
 
     const LOCAL_STORAGE_KEY = 'foodranked-display-builder-v4';
     const AUTHOR_GRID = { width: 135, height: 240 };
@@ -2981,24 +2980,6 @@
         els.canvas.appendChild(node);
       }
 
-      const displayIndicatorSections = indicatorSections();
-      if (displayIndicatorSections.some(section => section.id === state.layout.selectedSectionId)) {
-        const progress = document.createElement('div');
-        progress.className = 'progress-strip';
-        const activeIndex = indicatorSectionIndex(state.layout.selectedSectionId);
-        displayIndicatorSections.forEach((section, index) => {
-          const slot = document.createElement('div');
-          slot.className = 'progress-indicator-slot';
-          const indicator = document.createElement('img');
-          indicator.className = 'progress-indicator' + (index === activeIndex ? ' active' : '');
-          indicator.src = sectionIndicatorSpritePath(state.fullFood || getSelectedFoodStub(), index === activeIndex);
-          indicator.alt = `${section.label} ${index === activeIndex ? 'active' : 'inactive'} indicator`;
-          indicator.decoding = 'async';
-          slot.appendChild(indicator);
-          progress.appendChild(slot);
-        });
-        els.canvas.appendChild(progress);
-      }
     }
 
     function renderLayerList() {

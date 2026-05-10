@@ -2083,12 +2083,13 @@
     }
 
     function createSectionIndicatorLayer(sectionId, index) {
+      const position = defaultSectionIndicatorPosition(index);
       return sprite(
         `${sectionId}_indicator_${index + 1}`,
         'Section indicator',
         './sprites/ui/section_indicator/meat_section_indicator.png',
-        SECTION_INDICATOR_LAYOUT.startX + (index * SECTION_INDICATOR_LAYOUT.stepX),
-        SECTION_INDICATOR_LAYOUT.y,
+        position.x,
+        position.y,
         25,
         SECTION_INDICATOR_LAYOUT.normalSize,
         SECTION_INDICATOR_LAYOUT.normalSize,
@@ -2204,17 +2205,36 @@
     function sectionIndicatorLayersForSection(layout, sectionId) {
       return getSectionLayersFromLayout(layout, sectionId)
         .filter(isSectionIndicatorSpriteLayer)
-        .sort((a, b) => (Number(a.x) || 0) - (Number(b.x) || 0) || (Number(a.y) || 0) - (Number(b.y) || 0));
+        .sort((a, b) => sectionIndicatorLayerIndex(a) - sectionIndicatorLayerIndex(b));
     }
 
-    function normalizeSectionIndicatorLayerPositions(layers) {
+    function sectionIndicatorLayerIndex(layer) {
+      const match = String(layer?.id || '').match(/_indicator_(\d+)$/);
+      return match ? Number(match[1]) - 1 : 999;
+    }
+
+    function defaultSectionIndicatorPosition(index) {
+      return {
+        x: SECTION_INDICATOR_LAYOUT.startX + (index * SECTION_INDICATOR_LAYOUT.stepX),
+        y: SECTION_INDICATOR_LAYOUT.y
+      };
+    }
+
+    function applyDefaultSectionIndicatorLayerPositions(layers) {
       layers.forEach((layer, index) => {
-        layer.x = SECTION_INDICATOR_LAYOUT.startX + (index * SECTION_INDICATOR_LAYOUT.stepX);
-        layer.y = SECTION_INDICATOR_LAYOUT.y;
+        const position = defaultSectionIndicatorPosition(index);
+        layer.x = position.x;
+        layer.y = position.y;
         layer.width = SECTION_INDICATOR_LAYOUT.normalSize;
         layer.height = SECTION_INDICATOR_LAYOUT.normalSize;
         layer.z = layer.z || 25;
       });
+    }
+
+    function shouldResetSectionIndicatorPositions(indicators) {
+      if (indicators.length < SECTION_INDICATOR_COUNT) return true;
+      const visibleBottomLimit = 185;
+      return indicators.every(layer => (Number(layer.y) || 0) > visibleBottomLimit);
     }
 
     function ensureSectionIndicatorLayers(layout) {
@@ -2228,7 +2248,15 @@
             indicators.push(layer);
           }
         }
-        normalizeSectionIndicatorLayerPositions(indicators);
+        if (shouldResetSectionIndicatorPositions(indicators)) {
+          applyDefaultSectionIndicatorLayerPositions(indicators);
+        } else {
+          indicators.forEach(layer => {
+            layer.width = SECTION_INDICATOR_LAYOUT.normalSize;
+            layer.height = SECTION_INDICATOR_LAYOUT.normalSize;
+            layer.z = layer.z || 25;
+          });
+        }
       }
     }
 
@@ -2255,10 +2283,12 @@
           ensureSectionIndicatorLayers(layout);
           indicators = sectionIndicatorLayersForSection(layout, section.id);
         }
-        normalizeSectionIndicatorLayerPositions(indicators);
         indicators.forEach((layer, index) => {
           layer.src = sectionIndicatorSpritePath(food, index === activeIndex);
           layer.label = index === activeIndex ? 'Highlighted section indicator' : 'Section indicator';
+          layer.width = SECTION_INDICATOR_LAYOUT.normalSize;
+          layer.height = SECTION_INDICATOR_LAYOUT.normalSize;
+          layer.z = layer.z || 25;
         });
       }
     }

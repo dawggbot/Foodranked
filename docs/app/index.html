@@ -1045,6 +1045,13 @@
       return isTextLayer(layer) && /^(outro_score_label|outro_tier_label|outro_tier_value)$/.test(String(layer.id || '').toLowerCase());
     }
 
+    function isEmptyCaptionTextLayer(layer) {
+      if (!isTextLayer(layer)) return false;
+      if (String(layer.text || '').trim()) return false;
+      const fingerprint = `${layer.id || ''} ${layer.label || ''}`.toLowerCase();
+      return /caption|empty|blank|text layer|text_box|textbox/.test(fingerprint);
+    }
+
     function macroAssetRole(src = '') {
       const value = String(src).toLowerCase();
       if (value.endsWith('_icon.gif')) return 'icon';
@@ -1815,8 +1822,8 @@
       const prefix = existing.startsWith('Library: ') ? 'Library: ' : '';
 
       if (src.includes('/header/food_images/')) return `${prefix}Header food image`;
-      if (src.includes('/header/food_plate/') || src.includes('/header/food_image_plate/')) return `${prefix}Header food plate`;
-      if (src.includes('/header/food_type_plate/')) return `${prefix}Header food type plate`;
+      if (src.includes('/header/food_plate/') || src.includes('/header/food_image_plate/')) return `${prefix}Header food image plate`;
+      if (src.includes('/header/food_type_plate/')) return `${prefix}Header food type`;
       if (src.includes('/header/calorie_bubble/')) return `${prefix}Header calorie bubble`;
       if (src.includes('/header/header_ui/food_name_line')) return `${prefix}Header food name underline`;
       if (src.includes('/header/header_ui/per_100g_line')) return `${prefix}Header per-100g underline`;
@@ -1867,6 +1874,8 @@
       if (id === 'outro_score_value') return 'OUTRO numerical score';
       if (isObsoleteOutroScoreDisplayLayer(layer)) return 'Obsolete outro score display';
 
+      if (/food.*type/.test(id) || /food.*type/.test(String(layer.label || '').toLowerCase())) return 'Header food type';
+      if (/food.*plate|image.*plate/.test(id) || /food.*plate|image.*plate/.test(String(layer.label || '').toLowerCase())) return 'Header food image plate';
       if (/score|tier/.test(id) || (/^[SABCD]$/.test(textValue) && (Number(layer.x) || 0) >= 80)) return 'Header score card text';
       if (/food.*name|title/.test(id)) return 'Header food name text';
       if (/basis|100g|per/.test(id)) return 'Header per-100g text';
@@ -1891,6 +1900,7 @@
         normalized.sections[section.id].layers = getSectionLayersFromLayout(normalized, section.id).filter(layer => {
           if (isMacroBarFrameOrFillSpriteLayer(layer)) return false;
           if (isObsoleteOutroScoreDisplayLayer(layer)) return false;
+          if (isEmptyCaptionTextLayer(layer)) return false;
           if (section.id !== 'outro' && isOutroScoreDisplayLayer(layer)) return false;
           return true;
         });
@@ -2159,8 +2169,8 @@
         [`section separator ${slug.replace('_', ' ')}`, `./sprites/ui/section_separator/${slug}_section_separator.png`],
         [`section indicator ${slug.replace('_', ' ')}`, `./sprites/ui/section_indicator/${slug}_section_indicator.png`],
         [`section indicator ${slug.replace('_', ' ')} highlighted`, `./sprites/ui/section_indicator/${slug}_highlighted_section_indicator.png`],
-        [`food plate ${slug.replace('_', ' ')}`, `${ROOT_SPRITE_BASE}/header/food_plate/${slug}_food_plate.png`],
-        [`food type plate ${slug.replace('_', ' ')}`, `${ROOT_SPRITE_BASE}/header/food_type_plate/${slug}_type_plate.png`],
+        [`food image plate ${slug.replace('_', ' ')}`, `${ROOT_SPRITE_BASE}/header/food_plate/${slug}_food_plate.png`],
+        [`food type ${slug.replace('_', ' ')}`, `${ROOT_SPRITE_BASE}/header/food_type_plate/${slug}_type_plate.png`],
         [`calorie bubble ${slug.replace('_', ' ')}`, `${ROOT_SPRITE_BASE}/header/calorie_bubble/${slug}_calorie_bubble.png`]
       ];
       const foodCandidates = selectedFood ? [

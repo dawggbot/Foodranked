@@ -1890,7 +1890,7 @@
 
       if (/food.*type/.test(id) || /food.*type/.test(String(layer.label || '').toLowerCase()) || looksLikeLegacyFoodTypeLabel(layer)) return 'Header food type';
       if (/food.*plate|image.*plate/.test(id) || /food.*plate|image.*plate/.test(String(layer.label || '').toLowerCase())) return 'Header food image plate';
-      if (/score|tier/.test(id) || (/^[SABCD]$/.test(textValue) && (Number(layer.x) || 0) >= 80)) return 'Header score card text';
+      if (/score|tier/.test(id) || /score|tier|subline\s*c/.test(String(layer.label || '').toLowerCase()) || (/^[SABCD]$/.test(textValue) && (Number(layer.x) || 0) >= 80)) return 'Header score card text';
       if (/food.*name|title/.test(id)) return 'Header food name text';
       if (/basis|100g|per/.test(id)) return 'Header per-100g text';
       if (/calorie|kcal/.test(id)) return 'Header calorie text';

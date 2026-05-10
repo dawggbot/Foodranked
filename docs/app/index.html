@@ -1132,9 +1132,7 @@
     function isMacroLayoutTemplateLayer(layer) {
       if (!layer) return false;
       if (isLockedUiSpriteLayer(layer) || isHeaderSpriteLayer(layer)) return false;
-      if (isSpriteLayer(layer)) return true;
-      if (!isTextLayer(layer)) return false;
-      return /^(fats|carbs|protein)_submacro_(label|value)_\d+$/i.test(String(layer.id || ''));
+      return isSpriteLayer(layer) || isTextLayer(layer);
     }
 
     function syncMacroSectionLayoutFromFats(layout) {
@@ -1146,9 +1144,28 @@
 
       for (const targetKind of ['carbs', 'protein']) {
         const targetLayers = getSectionLayersFromLayout(layout, targetKind);
-        const preserved = targetLayers.filter(layer => !isMacroLayoutTemplateLayer(layer));
         const mapped = templateLayers.map(layer => cloneMacroLayerForKind(layer, targetKind));
-        layout.sections[targetKind].layers = [...preserved, ...mapped];
+        const mappedIds = new Set(mapped.map(layer => layer.id).filter(Boolean));
+        const existingById = new Map(targetLayers.filter(layer => layer.id).map(layer => [layer.id, layer]));
+        const merged = mapped.map(mappedLayer => {
+          const existing = mappedLayer.id ? existingById.get(mappedLayer.id) : null;
+          if (!existing) return mappedLayer;
+          const keepManualText = isTextLayer(existing) && existing.manualText;
+          const textValue = existing.text;
+          Object.assign(existing, mappedLayer);
+          if (keepManualText) {
+            existing.text = textValue;
+            existing.manualText = true;
+          }
+          return existing;
+        });
+        const preserved = targetLayers.filter(layer => {
+          if (layer.id && mappedIds.has(layer.id)) return false;
+          if (isSpriteLayer(layer) && detectMacroSpriteKind(layer) === targetKind) return false;
+          if (isTextLayer(layer) && new RegExp(`^${targetKind}_submacro_(label|value)_\\d+$`, 'i').test(String(layer.id || ''))) return false;
+          return true;
+        });
+        layout.sections[targetKind].layers = [...preserved, ...merged];
         ensureMacroSubmetricTextLayers(layout, targetKind);
       }
 
@@ -1490,9 +1507,11 @@
       return normalizeLayout(merged);
     }
 
-    function saveLayout() {
-      normalizeLayout(state.layout);
-      if (state.fullFood) syncFoodIntoLayout(state.fullFood, { normalize: false });
+    function saveLayout({ normalize = true } = {}) {
+      if (normalize) {
+        normalizeLayout(state.layout);
+        if (state.fullFood) syncFoodIntoLayout(state.fullFood, { normalize: false });
+      }
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state.layout));
     }
 
@@ -2539,11 +2558,33 @@ async function renderAll() {
     function updateSelectedWithoutInspectorReset(mutator) {
       const layer = getLayerById(state.selectedLayerId);
       if (!layer) return;
-      mutateEditableLayer(layer, mutator);
-      void renderCanvas();
+      const updatedLayer = mutateEditableLayer(layer, mutator);
+      updateLiveLayerNode(layer);
+      if (updatedLayer && updatedLayer !== layer) updateLiveLayerNode(updatedLayer);
       renderLayerList();
-      saveLayout();
+      saveLayout({ normalize: false });
       updateJsonOutput();
+    }
+
+    function updateLiveLayerNode(layer) {
+      if (!layer?.id) return;
+      const node = els.canvas.querySelector(`.layer-node[data-layer-id="${CSS.escape(layer.id)}"]`);
+      if (!node) return;
+      node.style.left = `calc(${layer.x}px * var(--pixel-unit))`;
+      node.style.top = `calc(${layer.y}px * var(--pixel-unit))`;
+      node.style.zIndex = String(layer.z || 0);
+      if (layer.kind === 'text') {
+        node.textContent = layer.text || '';
+        node.style.fontSize = `calc(${layer.fontSize || 6}px * var(--pixel-unit))`;
+        if (layer.width) node.style.width = `calc(${layer.width}px * var(--pixel-unit))`;
+        else node.style.removeProperty('width');
+        node.style.textAlign = layer.align || 'left';
+      }
+      if (layer.kind === 'sprite') {
+        const { width, height } = spriteSize(layer);
+        node.style.width = `calc(${width}px * var(--pixel-unit))`;
+        node.style.height = `calc(${height}px * var(--pixel-unit))`;
+      }
     }
 
     els.foodSearch.addEventListener('input', () => {

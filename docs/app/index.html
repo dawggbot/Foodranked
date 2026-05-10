@@ -1151,9 +1151,10 @@
           const existing = mappedLayer.id ? existingById.get(mappedLayer.id) : null;
           if (!existing) return mappedLayer;
           const keepManualText = isTextLayer(existing) && existing.manualText;
+          const keepLocalCaptionText = isTextLayer(existing) && !/^(fats|carbs|protein)_submacro_(label|value)_\d+$/i.test(String(existing.id || ''));
           const textValue = existing.text;
           Object.assign(existing, mappedLayer);
-          if (keepManualText) {
+          if (keepManualText || keepLocalCaptionText) {
             existing.text = textValue;
             existing.manualText = true;
           }
@@ -2270,6 +2271,15 @@
           node.style.fontSize = `calc(${layer.fontSize || 6}px * var(--pixel-unit))`;
           if (layer.width) node.style.width = `calc(${layer.width}px * var(--pixel-unit))`;
           node.style.textAlign = layer.align || 'left';
+          node.title = 'Double-click to edit this text in the inspector';
+          node.addEventListener('dblclick', event => {
+            event.preventDefault();
+            event.stopPropagation();
+            state.selectedLayerId = layer.id;
+            renderInspector();
+            els.propText.focus();
+            els.propText.select();
+          });
         }
         attachDrag(node, layer.id);
         node.addEventListener('click', event => {
@@ -2357,9 +2367,9 @@
         els.spriteInfo.textContent = `${layer.label || 'Sprite'} · natural ${layer.naturalWidth || '?'}×${layer.naturalHeight || '?'} · canvas ${width}×${height} · ${layer.src || ''}`;
       }
       if (isText) {
-        els.propText.value = layer.text || '';
-        els.propFontSize.value = layer.fontSize || 6;
-        els.propWidth.value = layer.width || '';
+        if (document.activeElement !== els.propText) els.propText.value = layer.text || '';
+        if (document.activeElement !== els.propFontSize) els.propFontSize.value = layer.fontSize || 6;
+        if (document.activeElement !== els.propWidth) els.propWidth.value = layer.width || '';
         els.propAlign.value = layer.align || 'left';
       }
     }

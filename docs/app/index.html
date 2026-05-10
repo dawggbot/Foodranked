@@ -1674,6 +1674,23 @@
       return getDefaultImpactTextAnchors(sectionId);
     }
 
+    function getDefaultProsConsItemTextAnchors(sectionId) {
+      return getDefaultImpactTextAnchors(sectionId).map(anchor => ({
+        x: 38,
+        y: anchor.y - 1,
+        width: 88
+      }));
+    }
+
+    function getProsConsItemTextAnchors(layout, sectionId) {
+      const impactAnchors = getImpactTextAnchors(layout, sectionId);
+      return impactAnchors.map(anchor => ({
+        x: clampValue(Math.round(anchor.x + anchor.width + 5), 0, AUTHOR_GRID.width - 18),
+        y: clampValue(Math.round(anchor.y - 1), 0, AUTHOR_GRID.height - 8),
+        width: Math.max(28, AUTHOR_GRID.width - Math.round(anchor.x + anchor.width + 5) - 6)
+      }));
+    }
+
     function formatImpactLevelLabel(value) {
       const normalized = String(value || '').trim().toLowerCase();
       if (normalized === 'major') return 'MAJOR';
@@ -1700,6 +1717,23 @@
         }
         layer.fontSize = layer.fontSize || 3.2;
         layer.align = layer.align || 'center';
+        layer.width = layer.width || anchor.width;
+        layer.z = layer.z || topZ;
+      }
+
+      const itemAnchors = getProsConsItemTextAnchors(layout, sectionId);
+      for (let index = 0; index < PRO_CON_IMPACT_COUNT; index += 1) {
+        const anchor = itemAnchors[index] || getDefaultProsConsItemTextAnchors(sectionId)[index];
+        const id = `${sectionId}_item_${index + 1}`;
+        let layer = sectionLayers.find(item => item.id === id);
+        if (!layer) {
+          layer = text(id, `${sectionLabel} item text ${index + 1}`, anchor.x, anchor.y, 3.6, `${sectionLabel.toLowerCase()} point ${index + 1}`, topZ, anchor.width, 'left');
+          sectionLayers.push(layer);
+        } else {
+          layer.label = `${sectionLabel} item text ${index + 1}`;
+        }
+        layer.fontSize = layer.fontSize || 3.6;
+        layer.align = layer.align || 'left';
         layer.width = layer.width || anchor.width;
         layer.z = layer.z || topZ;
       }
@@ -1800,6 +1834,8 @@
       if (id === 'minerals_title') return 'MINERALS title';
       const impactMatch = id.match(/^(pros|cons)_impact_(\d+)$/);
       if (impactMatch) return `${getSectionChip(impactMatch[1]) || titleCaseWords(impactMatch[1])} impact label ${impactMatch[2]}`;
+      const itemMatch = id.match(/^(pros|cons)_item_(\d+)$/);
+      if (itemMatch) return `${getSectionChip(itemMatch[1]) || titleCaseWords(itemMatch[1])} item text ${itemMatch[2]}`;
 
       if (/score|tier/.test(id) || (/^[SABCD]$/.test(textValue) && (Number(layer.x) || 0) >= 80)) return 'Header score card text';
       if (/food.*name|title/.test(id)) return 'Header food name text';
@@ -1948,6 +1984,9 @@
         const sectionLabel = getSectionChip(sectionId) || sectionId.toUpperCase();
         base.push(...getDefaultImpactTextAnchors(sectionId).map((anchor, index) =>
           text(`${sectionId}_impact_${index + 1}`, `${sectionLabel} impact label ${index + 1}`, anchor.x, anchor.y, 3.2, 'MINOR', 40, anchor.width, 'center')
+        ));
+        base.push(...getDefaultProsConsItemTextAnchors(sectionId).map((anchor, index) =>
+          text(`${sectionId}_item_${index + 1}`, `${sectionLabel} item text ${index + 1}`, anchor.x, anchor.y, 3.6, `${sectionLabel.toLowerCase()} point ${index + 1}`, 40, anchor.width, 'left')
         ));
       }
       return base;
@@ -2593,12 +2632,20 @@
         const sectionLayers = getSectionLayersFromLayout(state.layout, sectionId);
         const items = food?.contextItems?.[sectionId] || [];
         for (let index = 0; index < PRO_CON_IMPACT_COUNT; index += 1) {
-          const layer = sectionLayers.find(item => item.id === `${sectionId}_impact_${index + 1}`);
-          if (!layer) continue;
-          layer.label = `${getSectionChip(sectionId) || sectionId.toUpperCase()} impact label ${index + 1}`;
-          if (!layer.manualText) layer.text = formatImpactLevelLabel(items[index]?.impactLevel);
-          layer.align = layer.align || 'center';
-          layer.fontSize = layer.fontSize || 3.2;
+          const impactLayer = sectionLayers.find(item => item.id === `${sectionId}_impact_${index + 1}`);
+          if (impactLayer) {
+            impactLayer.label = `${getSectionChip(sectionId) || sectionId.toUpperCase()} impact label ${index + 1}`;
+            if (!impactLayer.manualText) impactLayer.text = formatImpactLevelLabel(items[index]?.impactLevel);
+            impactLayer.align = impactLayer.align || 'center';
+            impactLayer.fontSize = impactLayer.fontSize || 3.2;
+          }
+          const itemLayer = sectionLayers.find(item => item.id === `${sectionId}_item_${index + 1}`);
+          if (itemLayer) {
+            itemLayer.label = `${getSectionChip(sectionId) || sectionId.toUpperCase()} item text ${index + 1}`;
+            if (!itemLayer.manualText) itemLayer.text = items[index]?.title || `${sectionId === 'pros' ? 'Positive' : 'Negative'} point ${index + 1}`;
+            itemLayer.align = itemLayer.align || 'left';
+            itemLayer.fontSize = itemLayer.fontSize || 3.6;
+          }
         }
       }
     }

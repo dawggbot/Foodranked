@@ -1045,11 +1045,25 @@
       return isTextLayer(layer) && /^(outro_score_label|outro_tier_label|outro_tier_value)$/.test(String(layer.id || '').toLowerCase());
     }
 
-    function isEmptyCaptionTextLayer(layer) {
-      if (!isTextLayer(layer)) return false;
-      if (String(layer.text || '').trim()) return false;
+    function isEmptyJunkLayer(layer) {
+      if (isTextLayer(layer)) {
+        if (String(layer.text || '').trim()) return false;
+        return true;
+      }
+      if (!isSpriteLayer(layer)) return false;
+      if (!String(layer.src || '').trim()) return true;
+      if ((Number(layer.width) || 0) <= 0 || (Number(layer.height) || 0) <= 0) return true;
       const fingerprint = `${layer.id || ''} ${layer.label || ''}`.toLowerCase();
-      return /caption|empty|blank|text layer|text_box|textbox/.test(fingerprint);
+      return /empty|blank|placeholder|caption box|text box|textbox/.test(fingerprint);
+    }
+
+    function foodTypeWordsPattern() {
+      return /(meat|meats|dairy|fruit|fruits|grain|grains|legume|legumes|nut|nuts|seed|seeds|tuber|tubers|vegetable|vegetables|oil|oils|fat|fats|misc)/;
+    }
+
+    function looksLikeLegacyFoodTypeLabel(layer) {
+      const fingerprint = `${layer.id || ''} ${layer.label || ''} ${layer.text || ''}`.toLowerCase();
+      return foodTypeWordsPattern().test(fingerprint) && /caption|food[ _-]?type|type[ _-]?plate/.test(fingerprint);
     }
 
     function macroAssetRole(src = '') {
@@ -1823,7 +1837,7 @@
 
       if (src.includes('/header/food_images/')) return `${prefix}Header food image`;
       if (src.includes('/header/food_plate/') || src.includes('/header/food_image_plate/')) return `${prefix}Header food image plate`;
-      if (src.includes('/header/food_type_plate/')) return `${prefix}Header food type`;
+      if (src.includes('/header/food_type_plate/') || looksLikeLegacyFoodTypeLabel(layer)) return `${prefix}Header food type`;
       if (src.includes('/header/calorie_bubble/')) return `${prefix}Header calorie bubble`;
       if (src.includes('/header/header_ui/food_name_line')) return `${prefix}Header food name underline`;
       if (src.includes('/header/header_ui/per_100g_line')) return `${prefix}Header per-100g underline`;
@@ -1874,7 +1888,7 @@
       if (id === 'outro_score_value') return 'OUTRO numerical score';
       if (isObsoleteOutroScoreDisplayLayer(layer)) return 'Obsolete outro score display';
 
-      if (/food.*type/.test(id) || /food.*type/.test(String(layer.label || '').toLowerCase())) return 'Header food type';
+      if (/food.*type/.test(id) || /food.*type/.test(String(layer.label || '').toLowerCase()) || looksLikeLegacyFoodTypeLabel(layer)) return 'Header food type';
       if (/food.*plate|image.*plate/.test(id) || /food.*plate|image.*plate/.test(String(layer.label || '').toLowerCase())) return 'Header food image plate';
       if (/score|tier/.test(id) || (/^[SABCD]$/.test(textValue) && (Number(layer.x) || 0) >= 80)) return 'Header score card text';
       if (/food.*name|title/.test(id)) return 'Header food name text';
@@ -1900,7 +1914,7 @@
         normalized.sections[section.id].layers = getSectionLayersFromLayout(normalized, section.id).filter(layer => {
           if (isMacroBarFrameOrFillSpriteLayer(layer)) return false;
           if (isObsoleteOutroScoreDisplayLayer(layer)) return false;
-          if (isEmptyCaptionTextLayer(layer)) return false;
+          if (isEmptyJunkLayer(layer)) return false;
           if (section.id !== 'outro' && isOutroScoreDisplayLayer(layer)) return false;
           return true;
         });

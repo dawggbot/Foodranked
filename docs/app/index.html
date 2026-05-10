@@ -1050,9 +1050,9 @@
     function mapMacroToken(value, targetKind) {
       if (typeof value !== 'string') return value;
       const replacements = {
-        fats: [['protein', 'fat'], ['carb', 'fat'], ['carbs', 'fats']],
-        carbs: [['protein', 'carb'], ['fat', 'carb'], ['fats', 'carbs']],
-        protein: [['carb', 'protein'], ['fat', 'protein'], ['fats', 'protein']]
+        fats: [['proteins', 'fats'], ['protein', 'fat'], ['carbs', 'fats'], ['carb', 'fat']],
+        carbs: [['proteins', 'carbs'], ['protein', 'carb'], ['fats', 'carbs'], ['fat', 'carb']],
+        protein: [['carbs', 'protein'], ['carb', 'protein'], ['fats', 'protein'], ['fat', 'protein']]
       };
       let next = value;
       for (const [from, to] of replacements[targetKind] || []) {
@@ -1079,6 +1079,8 @@
         const mappedFallback = role ? macroSpritePath(targetKind, role) : remapMacroFolderPath(cloned.fallbackSrc, targetKind);
         if (mappedFallback) cloned.fallbackSrc = mappedFallback;
       }
+      if (typeof cloned.text === 'string') cloned.text = mapMacroToken(cloned.text, targetKind);
+      if (cloned.kind === 'text') delete cloned.manualText;
       return cloned;
     }
 
@@ -1127,40 +1129,66 @@
       }
     }
 
-    function syncMacroSectionSpritesFromFats(layout) {
-      layout.meta = layout.meta || {};
-      if (layout.meta.macroSectionSpritesFromFatsV2) return;
+    function isMacroLayoutTemplateLayer(layer) {
+      if (!layer) return false;
+      if (isLockedUiSpriteLayer(layer) || isHeaderSpriteLayer(layer)) return false;
+      return isSpriteLayer(layer) || isTextLayer(layer);
+    }
+
+    function syncMacroSectionLayoutFromFats(layout) {
+      ensureMacroSubmetricTextLayers(layout, 'fats');
 
       const fatsLayers = getSectionLayersFromLayout(layout, 'fats');
-      const fatSpriteTemplate = fatsLayers.filter(layer => isSpriteLayer(layer) && !isLockedUiSpriteLayer(layer));
-      if (!fatSpriteTemplate.length) return;
+      const templateLayers = fatsLayers.filter(isMacroLayoutTemplateLayer);
+      if (!templateLayers.length) return;
 
       for (const targetKind of ['carbs', 'protein']) {
         const targetLayers = getSectionLayersFromLayout(layout, targetKind);
-        const preserved = targetLayers.filter(layer => !isSpriteLayer(layer) || isLockedUiSpriteLayer(layer));
-        const mapped = fatSpriteTemplate.map(layer => cloneMacroLayerForKind(layer, targetKind));
+        const preserved = targetLayers.filter(layer => !isMacroLayoutTemplateLayer(layer));
+        const mapped = templateLayers.map(layer => cloneMacroLayerForKind(layer, targetKind));
         layout.sections[targetKind].layers = [...preserved, ...mapped];
+        ensureMacroSubmetricTextLayers(layout, targetKind);
       }
 
-      layout.meta.macroSectionSpritesFromFatsV2 = true;
+      layout.meta = layout.meta || {};
+      layout.meta.macroSectionLayoutFromFatsV3 = true;
+    }
+
+    function getMacroSubmetricTextSpecs(sectionId) {
+      const specs = {
+        fats: [
+          { key: 'sat_fat', label: 'SAT FAT', value: food => formatMetricText(food?.metrics?.saturated_fat_g, 'g') },
+          { key: 'poly_fat', label: 'POLY FAT', value: food => formatMetricText(food?.metrics?.polyunsaturated_fat_g, 'g') },
+          { key: 'omega3', label: 'OMEGA 3', value: food => formatMetricText(food?.metrics?.omega3_mg, 'mg') },
+          { key: 'cholesterol', label: 'CHOLEST.', value: food => formatMetricText(food?.metrics?.cholesterol_mg, 'mg') }
+        ],
+        carbs: [
+          { key: 'fibre', label: 'FIBRE', value: food => formatMetricText(food?.metrics?.fibre_g, 'g') },
+          { key: 'sugar', label: 'SUGAR', value: food => formatMetricText(food?.metrics?.sugar_g, 'g') },
+          { key: 'starch', label: 'STARCH', value: food => formatMetricText(food?.metrics?.starch_g, 'g') },
+          { key: 'glycemic_index', label: 'GI', value: food => formatMetricText(food?.metrics?.glycemic_index, '') }
+        ],
+        protein: [
+          { key: 'protein_total', label: 'PROTEIN', value: food => formatMetricText(food?.header?.protein_g, 'g') },
+          { key: 'eaa', label: 'EAA', value: food => formatMetricText(food?.metrics?.essential_amino_acids_score, '') },
+          { key: 'non_eaa', label: 'N-EAA', value: food => formatMetricText(food?.metrics?.nonessential_amino_acids_score, '') },
+          { key: 'bioavailability', label: 'BIOAVAIL.', value: food => formatMetricText(food?.metrics?.bioavailability_percent, '%') }
+        ]
+      };
+      return specs[sectionId] || [];
     }
 
     function getFatsSubmacroTextSpecs() {
-      return [
-        { key: 'sat_fat', label: 'SAT FAT', value: metrics => formatMetricText(metrics?.saturated_fat_g, 'g') },
-        { key: 'poly_fat', label: 'POLY FAT', value: metrics => formatMetricText(metrics?.polyunsaturated_fat_g, 'g') },
-        { key: 'omega3', label: 'OMEGA 3', value: metrics => formatMetricText(metrics?.omega3_mg, 'mg') },
-        { key: 'cholesterol', label: 'CHOLEST.', value: metrics => formatMetricText(metrics?.cholesterol_mg, 'mg') }
-      ];
+      return getMacroSubmetricTextSpecs('fats');
     }
 
     function clampValue(value, min, max) {
       return Math.max(min, Math.min(max, value));
     }
 
-    function clusterFatsSpriteRows(layout) {
-      const fatsLayers = getSectionLayersFromLayout(layout, 'fats');
-      const candidates = fatsLayers
+    function clusterMacroSpriteRows(layout, sectionId = 'fats') {
+      const sectionLayers = getSectionLayersFromLayout(layout, sectionId);
+      const candidates = sectionLayers
         .filter(layer => isSpriteLayer(layer) && !isLockedUiSpriteLayer(layer))
         .filter(layer => (layer.height || 0) <= 40 && (layer.width || 0) <= 130)
         .map(layer => ({
@@ -1200,8 +1228,12 @@
       return rows.sort((a, b) => a.minY - b.minY).slice(0, 4);
     }
 
-    function deriveFatsSubmacroAnchors(layout) {
-      const rows = clusterFatsSpriteRows(layout);
+    function clusterFatsSpriteRows(layout) {
+      return clusterMacroSpriteRows(layout, 'fats');
+    }
+
+    function deriveMacroSubmetricAnchors(layout, sectionId = 'fats') {
+      const rows = clusterMacroSpriteRows(layout, sectionId);
       if (rows.length === 4) {
         return rows.map(row => {
           const labelX = clampValue(Math.round(row.minX + 12), 4, 96);
@@ -1226,11 +1258,20 @@
       ];
     }
 
-    function getFatsSubmacroRowBindings(layout) {
-      const anchors = deriveFatsSubmacroAnchors(layout);
-      const specs = getFatsSubmacroTextSpecs();
+    function deriveFatsSubmacroAnchors(layout) {
+      return deriveMacroSubmetricAnchors(layout, 'fats');
+    }
+
+    function getMacroSubmetricRowBindings(layout, sectionId = 'fats') {
+      const anchors = deriveMacroSubmetricAnchors(layout, sectionId);
+      const specs = getMacroSubmetricTextSpecs(sectionId);
       const byKey = Object.fromEntries(specs.map(spec => [spec.key, spec]));
-      const defaultOrder = ['sat_fat', 'poly_fat', 'omega3', 'cholesterol'];
+      const defaultOrders = {
+        fats: ['sat_fat', 'poly_fat', 'omega3', 'cholesterol'],
+        carbs: ['fibre', 'sugar', 'starch', 'glycemic_index'],
+        protein: ['protein_total', 'eaa', 'non_eaa', 'bioavailability']
+      };
+      const defaultOrder = defaultOrders[sectionId] || specs.map(spec => spec.key);
       const remaining = [...defaultOrder];
 
       return anchors.map(anchor => {
@@ -1240,6 +1281,14 @@
         else if (/chol|cholesterol/.test(fingerprint)) key = 'cholesterol';
         else if (/poly|polyunsaturated|pufa/.test(fingerprint)) key = 'poly_fat';
         else if (/sat|saturated/.test(fingerprint)) key = 'sat_fat';
+        else if (/fibre|fiber/.test(fingerprint)) key = 'fibre';
+        else if (/sugar/.test(fingerprint)) key = 'sugar';
+        else if (/starch/.test(fingerprint)) key = 'starch';
+        else if (/glycemic|\bgi\b/.test(fingerprint)) key = 'glycemic_index';
+        else if (/bioavail/.test(fingerprint)) key = 'bioavailability';
+        else if (/non[ _-]?eaa|nonessential/.test(fingerprint)) key = 'non_eaa';
+        else if (/\beaa\b|essential/.test(fingerprint)) key = 'eaa';
+        else if (/protein/.test(fingerprint)) key = 'protein_total';
 
         if (!key || !remaining.includes(key)) key = remaining[0];
         remaining.splice(remaining.indexOf(key), 1);
@@ -1251,29 +1300,36 @@
       });
     }
 
-    function ensureFatsSubmacroTextLayers(layout) {
+    function getFatsSubmacroRowBindings(layout) {
+      return getMacroSubmetricRowBindings(layout, 'fats');
+    }
+
+    function ensureMacroSubmetricTextLayers(layout, sectionId = 'fats') {
       layout.meta = layout.meta || {};
 
-      const fatsLayers = getSectionLayersFromLayout(layout, 'fats');
-      const bindings = getFatsSubmacroRowBindings(layout);
-      const topZ = fatsLayers.reduce((max, layer) => Math.max(max, Number(layer.z) || 0), 0) + 2;
+      const sectionLayers = getSectionLayersFromLayout(layout, sectionId);
+      const bindings = getMacroSubmetricRowBindings(layout, sectionId);
+      const topZ = sectionLayers.reduce((max, layer) => Math.max(max, Number(layer.z) || 0), 0) + 2;
 
       bindings.forEach((binding, index) => {
         const anchor = binding;
         const spec = binding.spec;
-        const labelId = `fats_submacro_label_${index + 1}`;
-        const valueId = `fats_submacro_value_${index + 1}`;
-        let labelLayer = fatsLayers.find(layer => layer.id === labelId);
-        let valueLayer = fatsLayers.find(layer => layer.id === valueId);
+        const labelId = `${sectionId}_submacro_label_${index + 1}`;
+        const valueId = `${sectionId}_submacro_value_${index + 1}`;
+        let labelLayer = sectionLayers.find(layer => layer.id === labelId);
+        let valueLayer = sectionLayers.find(layer => layer.id === valueId);
         if (!labelLayer) {
-          labelLayer = text(labelId, `Fats label ${index + 1}`, anchor.labelX, anchor.y, 4, spec.label, topZ, anchor.labelWidth, 'left');
-          fatsLayers.push(labelLayer);
+          labelLayer = text(labelId, `${getSectionChip(sectionId) || sectionId} score card label ${index + 1}`, anchor.labelX, anchor.y, 4, spec.label, topZ, anchor.labelWidth, 'left');
+          sectionLayers.push(labelLayer);
         } else {
+          labelLayer.label = `${getSectionChip(sectionId) || sectionId} score card label ${index + 1}`;
           labelLayer.text = spec.label;
         }
         if (!valueLayer) {
-          valueLayer = text(valueId, `Fats value ${index + 1}`, anchor.valueX, anchor.y, 4, 'N/A', topZ, anchor.valueWidth, 'right');
-          fatsLayers.push(valueLayer);
+          valueLayer = text(valueId, `${getSectionChip(sectionId) || sectionId} score card value ${index + 1}`, anchor.valueX, anchor.y, 4, 'N/A', topZ, anchor.valueWidth, 'right');
+          sectionLayers.push(valueLayer);
+        } else {
+          valueLayer.label = `${getSectionChip(sectionId) || sectionId} score card value ${index + 1}`;
         }
         if (!labelLayer.align) labelLayer.align = 'left';
         if (!labelLayer.fontSize) labelLayer.fontSize = 4;
@@ -1283,7 +1339,11 @@
         if (!valueLayer.z) valueLayer.z = topZ;
       });
 
-      layout.meta.fatsSubmacroTextV2 = true;
+      layout.meta[`${sectionId}SubmetricTextV3`] = true;
+    }
+
+    function ensureFatsSubmacroTextLayers(layout) {
+      ensureMacroSubmetricTextLayers(layout, 'fats');
     }
 
     function migrateMacroLayoutFromOutro(layout) {
@@ -1318,6 +1378,75 @@
       layout.meta.macroLayoutFromOutroV2 = true;
     }
 
+    function titleCaseWords(value = '') {
+      return String(value)
+        .replace(/[-_]+/g, ' ')
+        .replace(/\b\w/g, char => char.toUpperCase())
+        .trim();
+    }
+
+    function labelForSpriteLayer(layer) {
+      const src = String(layer.src || '').toLowerCase();
+      const existing = String(layer.label || '');
+      const prefix = existing.startsWith('Library: ') ? 'Library: ' : '';
+
+      if (src.includes('/header/food_images/')) return `${prefix}Header food image`;
+      if (src.includes('/header/food_plate/') || src.includes('/header/food_image_plate/')) return `${prefix}Header food plate`;
+      if (src.includes('/header/food_type_plate/')) return `${prefix}Header food type plate`;
+      if (src.includes('/header/calorie_bubble/')) return `${prefix}Header calorie bubble`;
+      if (src.includes('/header/header_ui/food_name_line')) return `${prefix}Header food name underline`;
+      if (src.includes('/header/header_ui/per_100g_line')) return `${prefix}Header per-100g underline`;
+      if (src.includes('/header/header_ui/score_plate')) return `${prefix}Header score card`;
+      if (src.includes('/ui/section_separator/')) return `${prefix}Section separator`;
+      if (src.includes('/ui/section_indicator/') && src.includes('highlighted')) return `${prefix}Highlighted section indicator`;
+      if (src.includes('/ui/section_indicator/')) return `${prefix}Section indicator`;
+      if (src.includes('/arrow_indicators/green_arrow')) return `${prefix}Green arrow indicator`;
+      if (src.includes('/arrow_indicators/red_arrow')) return `${prefix}Red arrow indicator`;
+
+      const macroKind = detectMacroSpriteKind(layer);
+      if (macroKind) {
+        const sectionName = getSectionChip(macroKind) || titleCaseWords(macroKind);
+        if (src.includes('_icon')) return `${prefix}${sectionName} icon`;
+        if (src.includes('submacro_bullet')) return `${prefix}${sectionName} score card sprite`;
+      }
+
+      if (src.includes('/micros_section/vitamins/') || src.includes('/micros/vitamins/')) return `${prefix}Vitamins sprite`;
+      if (src.includes('/micros_section/minerals/') || src.includes('/micros/minerals/')) return `${prefix}Minerals sprite`;
+      if (src.includes('/micros_section/bars/bar_line')) return `${prefix}Micros bar line`;
+      if (src.includes('/micros_section/bars/')) return `${prefix}Micros DV bar`;
+      if (src.includes('/pros_and_cons/pros/') || src.includes('/pros-cons/pros/')) return `${prefix}Pros bullet sprite`;
+      if (src.includes('/pros_and_cons/cons/') || src.includes('/pros-cons/cons/')) return `${prefix}Cons bullet sprite`;
+      return existing || `${prefix}Sprite layer`;
+    }
+
+    function labelForTextLayer(layer, sectionId) {
+      const id = String(layer.id || '').toLowerCase();
+      const textValue = String(layer.text || '').trim();
+      const sectionName = getSectionChip(sectionId) || titleCaseWords(sectionId);
+
+      const submetricMatch = id.match(/^(fats|carbs|protein)_submacro_(label|value)_(\d+)$/);
+      if (submetricMatch) {
+        const [, macroSection, kind, index] = submetricMatch;
+        return `${getSectionChip(macroSection) || titleCaseWords(macroSection)} score card ${kind} ${index}`;
+      }
+
+      if (/score|tier/.test(id) || (/^[SABCD]$/.test(textValue) && (Number(layer.x) || 0) >= 80)) return 'Header score card text';
+      if (/food.*name|title/.test(id)) return 'Header food name text';
+      if (/basis|100g|per/.test(id)) return 'Header per-100g text';
+      if (/calorie|kcal/.test(id)) return 'Header calorie text';
+      if (/headline|section/.test(id)) return `${sectionName} heading text`;
+      return layer.label || `${sectionName} text layer`;
+    }
+
+    function relabelLayoutLayers(layout) {
+      for (const section of SECTIONS) {
+        for (const layer of getSectionLayersFromLayout(layout, section.id)) {
+          if (isSpriteLayer(layer)) layer.label = labelForSpriteLayer(layer);
+          else if (isTextLayer(layer)) layer.label = labelForTextLayer(layer, section.id);
+        }
+      }
+    }
+
     function normalizeLayout(layout) {
       const normalized = layout || structuredClone(DEFAULT_LAYOUT);
       normalized.meta = normalized.meta || {};
@@ -1325,10 +1454,13 @@
         normalized.sections[section.id].layers = getSectionLayersFromLayout(normalized, section.id).filter(layer => !isMacroBarFrameOrFillSpriteLayer(layer));
       }
       migrateMacroLayoutFromOutro(normalized);
-      syncMacroSectionSpritesFromFats(normalized);
-      ensureFatsSubmacroTextLayers(normalized);
+      syncMacroSectionLayoutFromFats(normalized);
+      ensureMacroSubmetricTextLayers(normalized, 'fats');
+      ensureMacroSubmetricTextLayers(normalized, 'carbs');
+      ensureMacroSubmetricTextLayers(normalized, 'protein');
       syncLockedGlobalLayersFromOutro(normalized);
       syncHeaderSpritesFromIntro(normalized);
+      relabelLayoutLayers(normalized);
       return normalized;
     }
 
@@ -1358,6 +1490,7 @@
 
     function saveLayout() {
       normalizeLayout(state.layout);
+      if (state.fullFood) syncFoodIntoLayout(state.fullFood, { normalize: false });
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state.layout));
     }
 
@@ -1446,6 +1579,7 @@
     }
 
     function asNumber(value, fallback = null) {
+      if (value == null || value === '') return fallback;
       return Number.isFinite(Number(value)) ? Number(value) : fallback;
     }
 
@@ -1990,25 +2124,28 @@
       return `${name} ranked per ${basis}. ${sections.join(' ')}`;
     }
 
-    function syncFoodIntoLayout(food) {
-      normalizeLayout(state.layout);
-      const metrics = food?.metrics || {};
-      const fatsLayers = getSectionLayersFromLayout(state.layout, 'fats');
-      getFatsSubmacroRowBindings(state.layout).forEach((binding, index) => {
-        const spec = binding.spec;
-        const labelLayer = fatsLayers.find(layer => layer.id === `fats_submacro_label_${index + 1}`);
-        const valueLayer = fatsLayers.find(layer => layer.id === `fats_submacro_value_${index + 1}`);
-        if (labelLayer) {
-          if (!labelLayer.manualText) labelLayer.text = spec.label;
-          labelLayer.align = 'left';
-          labelLayer.fontSize = labelLayer.fontSize || 4;
-        }
-        if (valueLayer) {
-          if (!valueLayer.manualText) valueLayer.text = spec.value(metrics);
-          valueLayer.align = 'right';
-          valueLayer.fontSize = valueLayer.fontSize || 4;
-        }
-      });
+    function syncFoodIntoLayout(food, { normalize = true } = {}) {
+      if (normalize) normalizeLayout(state.layout);
+      for (const sectionId of ['fats', 'carbs', 'protein']) {
+        const sectionLayers = getSectionLayersFromLayout(state.layout, sectionId);
+        getMacroSubmetricRowBindings(state.layout, sectionId).forEach((binding, index) => {
+          const spec = binding.spec;
+          const labelLayer = sectionLayers.find(layer => layer.id === `${sectionId}_submacro_label_${index + 1}`);
+          const valueLayer = sectionLayers.find(layer => layer.id === `${sectionId}_submacro_value_${index + 1}`);
+          if (labelLayer) {
+            if (!labelLayer.manualText) labelLayer.text = spec.label;
+            labelLayer.label = `${getSectionChip(sectionId) || sectionId} score card label ${index + 1}`;
+            labelLayer.align = 'left';
+            labelLayer.fontSize = labelLayer.fontSize || 4;
+          }
+          if (valueLayer) {
+            if (!valueLayer.manualText) valueLayer.text = spec.value(food || {});
+            valueLayer.label = `${getSectionChip(sectionId) || sectionId} score card value ${index + 1}`;
+            valueLayer.align = 'right';
+            valueLayer.fontSize = valueLayer.fontSize || 4;
+          }
+        });
+      }
     }
 
     function renderFoodList() {
@@ -2363,6 +2500,7 @@ async function renderBackgroundSprites() {
 
 async function renderAll() {
       normalizeLayout(state.layout);
+      if (state.fullFood) syncFoodIntoLayout(state.fullFood, { normalize: false });
       setCssVars();
       const motion = state.layout.canvas.backgroundMotion || DEFAULT_LAYOUT.canvas.backgroundMotion;
       els.previewScale.value = String(state.layout.canvas.previewScale);
@@ -2385,8 +2523,8 @@ async function renderAll() {
       renderInspector();
       renderScriptAndNutrition();
       await renderBackgroundSprites();
-      updateJsonOutput();
       saveLayout();
+      updateJsonOutput();
     }
 
     function updateSelected(mutator) {
@@ -2521,9 +2659,10 @@ async function renderAll() {
       if (!layer) return;
       const sourceLayer = getSyncedGlobalSourceLayer(layer);
       if (sourceLayer) {
-        const outroLayers = getSectionLayersFromLayout(state.layout, 'outro');
-        const sourceIndex = outroLayers.findIndex(item => item.id === sourceLayer.id);
-        if (sourceIndex !== -1) outroLayers.splice(sourceIndex, 1);
+        const sourceSectionId = isHeaderSpriteLayer(sourceLayer) ? 'intro' : 'outro';
+        const sourceLayers = getSectionLayersFromLayout(state.layout, sourceSectionId);
+        const sourceIndex = sourceLayers.findIndex(item => item.id === sourceLayer.id);
+        if (sourceIndex !== -1) sourceLayers.splice(sourceIndex, 1);
       }
       const layers = getCurrentSectionLayers();
       const index = layers.findIndex(item => item.id === state.selectedLayerId);

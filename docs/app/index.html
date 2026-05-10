@@ -341,13 +341,19 @@
 
     .progress-strip {
       position: absolute;
-      left: calc(27px * var(--asset-scale) * var(--preview-scale));
-      bottom: calc(18px * var(--asset-scale) * var(--preview-scale));
+      left: calc(6px * var(--asset-scale) * var(--preview-scale));
+      bottom: calc(17px * var(--asset-scale) * var(--preview-scale));
       display: flex;
       align-items: center;
-      gap: calc(4px * var(--asset-scale) * var(--preview-scale));
+      gap: calc(2px * var(--asset-scale) * var(--preview-scale));
       pointer-events: none;
       z-index: 30;
+    }
+    .progress-indicator-slot {
+      width: calc(12px * var(--asset-scale) * var(--preview-scale));
+      height: calc(12px * var(--asset-scale) * var(--preview-scale));
+      display: grid;
+      place-items: center;
     }
     .progress-indicator {
       display: block;
@@ -582,7 +588,7 @@
         <div class="stack">
           <h2>Display sections</h2>
           <div id="sectionList" class="section-list"></div>
-          <p class="small muted">Video flow now uses 9 steps total: intro blank, fats, carbs, protein, vitamins, minerals, pros, cons, outro blank/verdict. Only sections 2-8 appear in the 7-dot section indicator.</p>
+          <p class="small muted">Video flow now uses 9 steps total: intro blank, fats, carbs, protein, vitamins, minerals, pros, cons, outro blank/verdict. The 9 section indicators highlight exactly the current section.</p>
         </div>
 
         <div class="stack">
@@ -780,7 +786,7 @@
   <script src="../data/foods-index.js"></script>
   <script>
     const SECTIONS = [
-      { id: 'intro', label: '1. Intro blank', chip: null, indicator: false },
+      { id: 'intro', label: '1. Intro blank', chip: null, indicator: true },
       { id: 'fats', label: '2. Fats', chip: 'FATS', indicator: true },
       { id: 'carbs', label: '3. Carbs', chip: 'CARBS', indicator: true },
       { id: 'protein', label: '4. Protein', chip: 'PROTEIN', indicator: true },
@@ -788,8 +794,11 @@
       { id: 'minerals', label: '6. Minerals', chip: 'MINERALS', indicator: true },
       { id: 'pros', label: '7. Pros', chip: 'PROS', indicator: true },
       { id: 'cons', label: '8. Cons', chip: 'CONS', indicator: true },
-      { id: 'outro', label: '9. Outro blank / verdict', chip: null, indicator: false }
+      { id: 'outro', label: '9. Outro blank / verdict', chip: null, indicator: true }
     ];
+
+    const SECTION_INDICATOR_COUNT = SECTIONS.length;
+    const SECTION_INDICATOR_LAYOUT = { startX: 7, y: 210, stepX: 14, normalSize: 10, highlightedSize: 12 };
 
     const LOCAL_STORAGE_KEY = 'foodranked-display-builder-v4';
     const AUTHOR_GRID = { width: 135, height: 240 };
@@ -1173,7 +1182,7 @@
 
     function syncLockedGlobalLayersFromOutro(layout) {
       const outroLayers = getSectionLayersFromLayout(layout, 'outro');
-      const lockedSpriteLayers = outroLayers.filter(layer => isLockedUiSpriteLayer(layer) && !isHeaderSpriteLayer(layer));
+      const lockedSpriteLayers = outroLayers.filter(layer => isLockedUiSpriteLayer(layer) && !isHeaderSpriteLayer(layer) && !isSectionIndicatorSpriteLayer(layer));
       const lockedTextLayers = outroLayers.filter(layer => isTextLayer(layer) && !isOutroScoreDisplayLayer(layer));
       if (!lockedSpriteLayers.length && !lockedTextLayers.length) return;
       const lockedSpriteIds = new Set(lockedSpriteLayers.map(layer => layer.id).filter(Boolean));
@@ -2164,14 +2173,28 @@
       return `./sprites/ui/section_indicator/${slug}_${highlighted ? 'highlighted_' : ''}section_indicator.png`;
     }
 
+    function indicatorSections() {
+      return SECTIONS.filter(section => section.indicator);
+    }
+
     function indicatorSectionIndex(sectionId) {
-      return SECTIONS.filter(section => section.indicator).findIndex(section => section.id === sectionId);
+      return indicatorSections().findIndex(section => section.id === sectionId);
     }
 
     function sectionIndicatorLayersForSection(layout, sectionId) {
       return getSectionLayersFromLayout(layout, sectionId)
         .filter(isSectionIndicatorSpriteLayer)
         .sort((a, b) => (Number(a.x) || 0) - (Number(b.x) || 0) || (Number(a.y) || 0) - (Number(b.y) || 0));
+    }
+
+    function normalizeSectionIndicatorLayerPositions(layers) {
+      layers.forEach((layer, index) => {
+        layer.x = SECTION_INDICATOR_LAYOUT.startX + (index * SECTION_INDICATOR_LAYOUT.stepX);
+        layer.y = SECTION_INDICATOR_LAYOUT.y;
+        layer.width = SECTION_INDICATOR_LAYOUT.normalSize;
+        layer.height = SECTION_INDICATOR_LAYOUT.normalSize;
+        layer.z = layer.z || 25;
+      });
     }
 
     function renderedSectionIndicatorSrc(layer, sectionId, food = getSelectedFoodStub()) {
@@ -2182,10 +2205,28 @@
       return sectionIndicatorSpritePath(food, layerIndex === activeIndex);
     }
 
+    function isActiveSectionIndicatorLayer(layer, sectionId) {
+      if (!isSectionIndicatorSpriteLayer(layer)) return false;
+      const indicators = sectionIndicatorLayersForSection(state.layout, sectionId);
+      const layerIndex = indicators.findIndex(item => item === layer || (item.id && item.id === layer.id));
+      return layerIndex === indicatorSectionIndex(sectionId);
+    }
+
     function syncSectionIndicatorSprites(layout, food = getSelectedFoodStub()) {
       for (const section of SECTIONS) {
         const activeIndex = indicatorSectionIndex(section.id);
         const indicators = sectionIndicatorLayersForSection(layout, section.id);
+        if (indicators.length > 0 && indicators.length < SECTION_INDICATOR_COUNT) {
+          const template = cloneLayer(indicators[0]);
+          const sectionLayers = getSectionLayersFromLayout(layout, section.id);
+          for (let index = indicators.length; index < SECTION_INDICATOR_COUNT; index += 1) {
+            const layer = cloneLayer(template);
+            layer.id = `${section.id}_indicator_${index + 1}`;
+            sectionLayers.push(layer);
+            indicators.push(layer);
+          }
+        }
+        normalizeSectionIndicatorLayerPositions(indicators);
         indicators.forEach((layer, index) => {
           layer.src = sectionIndicatorSpritePath(food, index === activeIndex);
           layer.label = index === activeIndex ? 'Highlighted section indicator' : 'Section indicator';
@@ -2836,15 +2877,23 @@
         const node = document.createElement(layer.kind === 'sprite' ? 'img' : 'div');
         node.className = `layer-node ${layer.kind}${layer.kind === 'text' ? ' pixel-text' : ''}${state.selectedLayerId === layer.id ? ' selected' : ''}`;
         node.dataset.layerId = layer.id;
-        node.style.left = `calc(${layer.x}px * var(--pixel-unit))`;
-        node.style.top = `calc(${layer.y}px * var(--pixel-unit))`;
         node.style.zIndex = String(layer.z || 0);
         if (layer.kind === 'sprite') {
+          const isIndicatorLayer = isSectionIndicatorSpriteLayer(layer);
+          const isActiveIndicator = isActiveSectionIndicatorLayer(layer, state.layout.selectedSectionId);
+          const indicatorOffset = isIndicatorLayer && isActiveIndicator ? -1 : 0;
+          node.style.left = `calc(${Number(layer.x || 0) + indicatorOffset}px * var(--pixel-unit))`;
+          node.style.top = `calc(${Number(layer.y || 0) + indicatorOffset}px * var(--pixel-unit))`;
           const renderedSrc = renderedSectionIndicatorSrc(layer, state.layout.selectedSectionId, state.fullFood || getSelectedFoodStub());
           node.src = renderedSrc;
           node.alt = layer.label;
-          if (layer.width) node.style.width = `calc(${layer.width}px * var(--pixel-unit))`;
-          if (layer.height) node.style.height = `calc(${layer.height}px * var(--pixel-unit))`;
+          if (isIndicatorLayer) {
+            node.style.width = `calc(${isActiveIndicator ? 12 : 10}px * var(--pixel-unit))`;
+            node.style.height = `calc(${isActiveIndicator ? 12 : 10}px * var(--pixel-unit))`;
+          } else {
+            if (layer.width) node.style.width = `calc(${layer.width}px * var(--pixel-unit))`;
+            if (layer.height) node.style.height = `calc(${layer.height}px * var(--pixel-unit))`;
+          }
           if (layer.preserveAspect && layer.aspectRatio) node.style.aspectRatio = String(layer.aspectRatio);
           if (layer.preserveAspect) {
             node.style.objectFit = 'contain';
@@ -2852,6 +2901,11 @@
           } else {
             node.style.objectFit = 'fill';
           }
+        } else {
+          node.style.left = `calc(${layer.x}px * var(--pixel-unit))`;
+          node.style.top = `calc(${layer.y}px * var(--pixel-unit))`;
+        }
+        if (layer.kind === 'sprite') {
           node.addEventListener('load', () => {
             const beforeRatio = layer.aspectRatio;
             ensureSpriteAspect(layer, { width: node.naturalWidth, height: node.naturalHeight });
@@ -2897,18 +2951,21 @@
         els.canvas.appendChild(node);
       }
 
-      const indicatorSections = SECTIONS.filter(section => section.indicator);
-      if (indicatorSections.some(section => section.id === state.layout.selectedSectionId)) {
+      const displayIndicatorSections = indicatorSections();
+      if (displayIndicatorSections.some(section => section.id === state.layout.selectedSectionId)) {
         const progress = document.createElement('div');
         progress.className = 'progress-strip';
         const activeIndex = indicatorSectionIndex(state.layout.selectedSectionId);
-        indicatorSections.forEach((section, index) => {
+        displayIndicatorSections.forEach((section, index) => {
+          const slot = document.createElement('div');
+          slot.className = 'progress-indicator-slot';
           const indicator = document.createElement('img');
           indicator.className = 'progress-indicator' + (index === activeIndex ? ' active' : '');
           indicator.src = sectionIndicatorSpritePath(state.fullFood || getSelectedFoodStub(), index === activeIndex);
           indicator.alt = `${section.label} ${index === activeIndex ? 'active' : 'inactive'} indicator`;
           indicator.decoding = 'async';
-          progress.appendChild(indicator);
+          slot.appendChild(indicator);
+          progress.appendChild(slot);
         });
         els.canvas.appendChild(progress);
       }

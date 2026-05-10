@@ -864,6 +864,15 @@
       macroDisplay: false
     };
 
+    const VITAMIN_TEXT_SPECS = [
+      { key: 'vitamin_a_dv', shortLabel: 'A' },
+      { key: 'vitamin_c_dv', shortLabel: 'C' },
+      { key: 'vitamin_d_dv', shortLabel: 'D' },
+      { key: 'vitamin_e_dv', shortLabel: 'E' },
+      { key: 'vitamin_k_dv', shortLabel: 'K' },
+      { key: 'vitamin_b12_dv', shortLabel: 'B12' }
+    ];
+
     const DEFAULT_LAYOUT = {
       canvas: {
         width: 135,
@@ -1376,6 +1385,128 @@
       ensureMacroSubmetricTextLayers(layout, 'fats');
     }
 
+    function isMicrosBarSpriteLayer(layer) {
+      const src = String(layer?.src || '').toLowerCase();
+      return isSpriteLayer(layer) && src.includes('/micros_section/bars/');
+    }
+
+    function getDefaultVitaminTextAnchors() {
+      return VITAMIN_TEXT_SPECS.map((_, index) => ({
+        labelX: 16,
+        valueX: 102,
+        y: 82 + (index * 14),
+        labelWidth: 18,
+        valueWidth: 28
+      }));
+    }
+
+    function getVitaminTextAnchors(layout) {
+      const sectionLayers = getSectionLayersFromLayout(layout, 'vitamins');
+      const rows = [];
+      const barLayers = sectionLayers
+        .filter(isMicrosBarSpriteLayer)
+        .map(layer => ({
+          x: Number(layer.x) || 0,
+          y: Number(layer.y) || 0,
+          width: Number(layer.width) || 0,
+          height: Number(layer.height) || 0
+        }))
+        .sort((a, b) => a.y - b.y || a.x - b.x);
+
+      for (const item of barLayers) {
+        const centerY = item.y + ((item.height || 0) / 2);
+        const row = rows.find(candidate => Math.abs(candidate.centerY - centerY) <= 5);
+        if (row) {
+          row.minX = Math.min(row.minX, item.x);
+          row.maxX = Math.max(row.maxX, item.x + item.width);
+          row.minY = Math.min(row.minY, item.y);
+          row.maxY = Math.max(row.maxY, item.y + item.height);
+          row.centerY = (row.minY + row.maxY) / 2;
+        } else {
+          rows.push({
+            minX: item.x,
+            maxX: item.x + item.width,
+            minY: item.y,
+            maxY: item.y + item.height,
+            centerY
+          });
+        }
+      }
+
+      if (rows.length >= VITAMIN_TEXT_SPECS.length) {
+        return rows.slice(0, VITAMIN_TEXT_SPECS.length).map(row => {
+          const y = clampValue(Math.round(row.centerY - 3), 44, 220);
+          const labelX = clampValue(Math.round(row.minX - 20), 4, 50);
+          const valueX = clampValue(Math.round(row.maxX + 3), 70, 112);
+          return {
+            labelX,
+            valueX,
+            y,
+            labelWidth: Math.max(12, Math.min(24, row.minX - labelX - 2)),
+            valueWidth: Math.min(28, AUTHOR_GRID.width - valueX - 2)
+          };
+        });
+      }
+
+      return getDefaultVitaminTextAnchors();
+    }
+
+    function formatVitaminPercent(food, metricKey) {
+      const value = asNumber(food?.metrics?.[metricKey], null);
+      return value == null ? 'N/A' : `${formatCompactNumber(value, 0)}%`;
+    }
+
+    function ensureVitaminTextLayers(layout) {
+      const sectionLayers = getSectionLayersFromLayout(layout, 'vitamins');
+      const anchors = getVitaminTextAnchors(layout);
+      const topZ = sectionLayers.reduce((max, layer) => Math.max(max, Number(layer.z) || 0), 0) + 2;
+
+      let titleLayer = sectionLayers.find(layer => layer.id === 'vitamins_title');
+      if (!titleLayer) {
+        titleLayer = text('vitamins_title', 'VITAMINS title', 27, 58, 7, 'VITAMINS', topZ, 82, 'center');
+        sectionLayers.push(titleLayer);
+      } else {
+        titleLayer.label = 'VITAMINS title';
+        if (!titleLayer.manualText) titleLayer.text = 'VITAMINS';
+      }
+      titleLayer.fontSize = titleLayer.fontSize || 7;
+      titleLayer.align = titleLayer.align || 'center';
+      titleLayer.width = titleLayer.width || 82;
+      titleLayer.z = titleLayer.z || topZ;
+
+      VITAMIN_TEXT_SPECS.forEach((spec, index) => {
+        const anchor = anchors[index] || getDefaultVitaminTextAnchors()[index];
+        const labelId = `vitamins_label_${index + 1}`;
+        const valueId = `vitamins_percent_${index + 1}`;
+        let labelLayer = sectionLayers.find(layer => layer.id === labelId);
+        let valueLayer = sectionLayers.find(layer => layer.id === valueId);
+        if (!labelLayer) {
+          labelLayer = text(labelId, `VITAMINS label ${index + 1}`, anchor.labelX, anchor.y, 4.5, spec.shortLabel, topZ, anchor.labelWidth, 'left');
+          sectionLayers.push(labelLayer);
+        } else {
+          labelLayer.label = `VITAMINS label ${index + 1}`;
+          if (!labelLayer.manualText) labelLayer.text = spec.shortLabel;
+        }
+        if (!valueLayer) {
+          valueLayer = text(valueId, `VITAMINS percent ${index + 1}`, anchor.valueX, anchor.y, 4.5, 'N/A', topZ, anchor.valueWidth, 'right');
+          sectionLayers.push(valueLayer);
+        } else {
+          valueLayer.label = `VITAMINS percent ${index + 1}`;
+        }
+        labelLayer.fontSize = labelLayer.fontSize || 4.5;
+        labelLayer.align = labelLayer.align || 'left';
+        labelLayer.width = labelLayer.width || anchor.labelWidth;
+        labelLayer.z = labelLayer.z || topZ;
+        valueLayer.fontSize = valueLayer.fontSize || 4.5;
+        valueLayer.align = valueLayer.align || 'right';
+        valueLayer.width = valueLayer.width || anchor.valueWidth;
+        valueLayer.z = valueLayer.z || topZ;
+      });
+
+      layout.meta = layout.meta || {};
+      layout.meta.vitaminTextLayersV1 = true;
+    }
+
     function migrateMacroLayoutFromOutro(layout) {
       layout.meta = layout.meta || {};
       if (layout.meta.macroLayoutFromOutroV2) return;
@@ -1460,6 +1591,10 @@
         return `${getSectionChip(macroSection) || titleCaseWords(macroSection)} score card ${kind} ${index}`;
       }
 
+      const vitaminMatch = id.match(/^vitamins_(label|percent)_(\d+)$/);
+      if (vitaminMatch) return `VITAMINS ${vitaminMatch[1] === 'label' ? 'label' : 'percent'} ${vitaminMatch[2]}`;
+      if (id === 'vitamins_title') return 'VITAMINS title';
+
       if (/score|tier/.test(id) || (/^[SABCD]$/.test(textValue) && (Number(layer.x) || 0) >= 80)) return 'Header score card text';
       if (/food.*name|title/.test(id)) return 'Header food name text';
       if (/basis|100g|per/.test(id)) return 'Header per-100g text';
@@ -1488,6 +1623,7 @@
       ensureMacroSubmetricTextLayers(normalized, 'fats');
       ensureMacroSubmetricTextLayers(normalized, 'carbs');
       ensureMacroSubmetricTextLayers(normalized, 'protein');
+      ensureVitaminTextLayers(normalized);
       syncLockedGlobalLayersFromOutro(normalized);
       syncHeaderSpritesFromIntro(normalized);
       relabelLayoutLayers(normalized);
@@ -1574,8 +1710,19 @@
     }
 
     function createSectionLayers(sectionId) {
-      const base = [
-      ];
+      const base = [];
+      if (sectionId === 'vitamins') {
+        base.push(
+          text('vitamins_title', 'VITAMINS title', 27, 58, 7, 'VITAMINS', 40, 82, 'center'),
+          ...VITAMIN_TEXT_SPECS.flatMap((spec, index) => {
+            const anchor = getDefaultVitaminTextAnchors()[index];
+            return [
+              text(`vitamins_label_${index + 1}`, `VITAMINS label ${index + 1}`, anchor.labelX, anchor.y, 4.5, spec.shortLabel, 40, anchor.labelWidth, 'left'),
+              text(`vitamins_percent_${index + 1}`, `VITAMINS percent ${index + 1}`, anchor.valueX, anchor.y, 4.5, 'N/A', 40, anchor.valueWidth, 'right')
+            ];
+          })
+        );
+      }
       return base;
     }
 
@@ -2178,6 +2325,24 @@
           }
         });
       }
+
+      const vitaminLayers = getSectionLayersFromLayout(state.layout, 'vitamins');
+      VITAMIN_TEXT_SPECS.forEach((spec, index) => {
+        const labelLayer = vitaminLayers.find(layer => layer.id === `vitamins_label_${index + 1}`);
+        const valueLayer = vitaminLayers.find(layer => layer.id === `vitamins_percent_${index + 1}`);
+        if (labelLayer) {
+          labelLayer.label = `VITAMINS label ${index + 1}`;
+          if (!labelLayer.manualText) labelLayer.text = spec.shortLabel;
+          labelLayer.align = labelLayer.align || 'left';
+          labelLayer.fontSize = labelLayer.fontSize || 4.5;
+        }
+        if (valueLayer) {
+          valueLayer.label = `VITAMINS percent ${index + 1}`;
+          if (!valueLayer.manualText) valueLayer.text = formatVitaminPercent(food || {}, spec.key);
+          valueLayer.align = valueLayer.align || 'right';
+          valueLayer.fontSize = valueLayer.fontSize || 4.5;
+        }
+      });
     }
 
     function renderFoodList() {

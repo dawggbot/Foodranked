@@ -1517,14 +1517,12 @@
     }
 
     function makeSpriteLibraryItem(label, src) {
-      const normalized = `${label} ${src}`.toLowerCase();
-      const isMicroBar = normalized.includes('/micros_section/bars/') || /\b\d+% bar\b/.test(normalized) || normalized.includes('bar line');
       return {
         label,
         src,
         kind: 'library',
-        previewScale: isMicroBar ? 0.62 : 1,
-        dropScale: isMicroBar ? 0.45 : 0.75
+        previewScale: 1,
+        dropScale: 0.75
       };
     }
 
@@ -1570,10 +1568,7 @@
         ['red arrow', `${ROOT_SPRITE_BASE}/macros_section/arrow_indicators/red_arrow.png`],
         ['food name line', `${ROOT_SPRITE_BASE}/header/header_ui/food_name_line.png`],
         ['per 100g line', `${ROOT_SPRITE_BASE}/header/header_ui/per_100g_line.png`],
-        ['score plate', `${ROOT_SPRITE_BASE}/header/header_ui/score_plate.png`],
-        ['macros section reference', `${ROOT_SPRITE_BASE}/references/macros_section.png`],
-        ['micros section reference', `${ROOT_SPRITE_BASE}/references/micros_section.png`],
-        ['pros cons section reference', `${ROOT_SPRITE_BASE}/references/pros_cons_section.png`]
+        ['score plate', `${ROOT_SPRITE_BASE}/header/header_ui/score_plate.png`]
       ].map(([label, src]) => makeSpriteLibraryItem(label, src));
     }
 

@@ -1947,6 +1947,7 @@
       ensureImpactTextLayers(normalized, 'pros');
       ensureImpactTextLayers(normalized, 'cons');
       ensureOutroScoreDisplayLayers(normalized);
+      ensureSectionIndicatorLayers(normalized);
       syncLockedGlobalLayersFromOutro(normalized);
       syncHeaderSpritesFromIntro(normalized);
       relabelLayoutLayers(normalized);
@@ -2034,6 +2035,7 @@
 
     function createSectionLayers(sectionId) {
       const base = [];
+      base.push(...createSectionIndicatorLayers(sectionId));
       if (sectionId === 'vitamins') {
         base.push(
           text('vitamins_title', 'VITAMINS title', 27, 58, 7, 'VITAMINS', 40, 82, 'center'),
@@ -2078,6 +2080,24 @@
     }
     function text(id, label, x, y, fontSize, value, z, width, align = 'left') {
       return { id, kind: 'text', label, x, y, z, visible: true, text: value, fontSize, width, align };
+    }
+
+    function createSectionIndicatorLayer(sectionId, index) {
+      return sprite(
+        `${sectionId}_indicator_${index + 1}`,
+        'Section indicator',
+        './sprites/ui/section_indicator/meat_section_indicator.png',
+        SECTION_INDICATOR_LAYOUT.startX + (index * SECTION_INDICATOR_LAYOUT.stepX),
+        SECTION_INDICATOR_LAYOUT.y,
+        25,
+        SECTION_INDICATOR_LAYOUT.normalSize,
+        SECTION_INDICATOR_LAYOUT.normalSize,
+        true
+      );
+    }
+
+    function createSectionIndicatorLayers(sectionId) {
+      return Array.from({ length: SECTION_INDICATOR_COUNT }, (_, index) => createSectionIndicatorLayer(sectionId, index));
     }
 
     function getSectionChip(sectionId) {
@@ -2197,6 +2217,21 @@
       });
     }
 
+    function ensureSectionIndicatorLayers(layout) {
+      for (const section of SECTIONS) {
+        const sectionLayers = getSectionLayersFromLayout(layout, section.id);
+        const indicators = sectionIndicatorLayersForSection(layout, section.id);
+        if (indicators.length < SECTION_INDICATOR_COUNT) {
+          for (let index = indicators.length; index < SECTION_INDICATOR_COUNT; index += 1) {
+            const layer = createSectionIndicatorLayer(section.id, index);
+            sectionLayers.push(layer);
+            indicators.push(layer);
+          }
+        }
+        normalizeSectionIndicatorLayerPositions(indicators);
+      }
+    }
+
     function renderedSectionIndicatorSrc(layer, sectionId, food = getSelectedFoodStub()) {
       if (!isSectionIndicatorSpriteLayer(layer)) return layer?.src || '';
       const indicators = sectionIndicatorLayersForSection(state.layout, sectionId);
@@ -2215,16 +2250,10 @@
     function syncSectionIndicatorSprites(layout, food = getSelectedFoodStub()) {
       for (const section of SECTIONS) {
         const activeIndex = indicatorSectionIndex(section.id);
-        const indicators = sectionIndicatorLayersForSection(layout, section.id);
-        if (indicators.length > 0 && indicators.length < SECTION_INDICATOR_COUNT) {
-          const template = cloneLayer(indicators[0]);
-          const sectionLayers = getSectionLayersFromLayout(layout, section.id);
-          for (let index = indicators.length; index < SECTION_INDICATOR_COUNT; index += 1) {
-            const layer = cloneLayer(template);
-            layer.id = `${section.id}_indicator_${index + 1}`;
-            sectionLayers.push(layer);
-            indicators.push(layer);
-          }
+        let indicators = sectionIndicatorLayersForSection(layout, section.id);
+        if (indicators.length < SECTION_INDICATOR_COUNT) {
+          ensureSectionIndicatorLayers(layout);
+          indicators = sectionIndicatorLayersForSection(layout, section.id);
         }
         normalizeSectionIndicatorLayerPositions(indicators);
         indicators.forEach((layer, index) => {

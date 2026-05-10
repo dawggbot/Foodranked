@@ -468,47 +468,6 @@
       text-shadow: 0 calc(1px * var(--pixel-unit)) 0 rgba(0,0,0,.22);
     }
 
-    .macro-bar-frame {
-      position: relative;
-      width: 100%;
-      height: calc(12px * var(--pixel-unit));
-      padding: calc(3px * var(--pixel-unit));
-      background: center / 100% 100% no-repeat var(--macro-frame);
-      overflow: hidden;
-      filter: drop-shadow(0 calc(1px * var(--pixel-unit)) 0 rgba(0,0,0,.26));
-    }
-
-    .macro-bar-fill-clip {
-      position: relative;
-      width: calc(var(--fill-pct, 0) * 1%);
-      max-width: 100%;
-      height: 100%;
-      overflow: hidden;
-      transform-origin: left center;
-      animation: macro-fill-grow 820ms steps(var(--fill-steps, 18), end) both;
-    }
-
-    .macro-bar-fill {
-      width: 100%;
-      height: 100%;
-      background: left center / auto 100% repeat-x var(--macro-fill);
-      animation: macro-fill-scroll 1800ms steps(8, end) infinite;
-      box-shadow:
-        inset 0 calc(1px * var(--pixel-unit)) 0 rgba(255,255,255,.16),
-        inset 0 calc(-1px * var(--pixel-unit)) 0 rgba(0,0,0,.22);
-    }
-
-    .macro-bar-sheen {
-      position: absolute;
-      top: calc(3px * var(--pixel-unit));
-      bottom: calc(3px * var(--pixel-unit));
-      width: calc(18px * var(--pixel-unit));
-      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.34) 50%, transparent 100%);
-      mix-blend-mode: screen;
-      opacity: .7;
-      transform: translateX(-130%);
-      animation: macro-fill-sheen 2200ms linear infinite;
-    }
 
     .macro-bar-meter {
       display: flex;
@@ -563,20 +522,6 @@
       text-shadow: 0 calc(1px * var(--pixel-unit)) 0 rgba(0,0,0,.18);
     }
 
-    @keyframes macro-fill-grow {
-      0% { transform: scaleX(0); filter: brightness(1.12); }
-      100% { transform: scaleX(1); filter: brightness(1); }
-    }
-
-    @keyframes macro-fill-scroll {
-      0% { background-position: 0 0; }
-      100% { background-position: calc(24px * var(--pixel-unit)) 0; }
-    }
-
-    @keyframes macro-fill-sheen {
-      0% { transform: translateX(-130%); }
-      100% { transform: translateX(650%); }
-    }
 
     @keyframes macro-bubble-bob {
       0%, 100% { transform: translateY(0); }
@@ -839,6 +784,7 @@
 
     const LOCAL_STORAGE_KEY = 'foodranked-display-builder-v4';
     const AUTHOR_GRID = { width: 135, height: 240 };
+    const ROOT_SPRITE_BASE = '../../sprites';
     const FOOD_JSON_CACHE = new Map();
     const SPRITE_EXISTENCE_CACHE = new Map();
     const SPRITE_METADATA_CACHE = new Map();
@@ -859,10 +805,8 @@
     const MACRO_VISUALS = {
       fats: {
         label: 'FATS',
-        icon: './sprites/macros/fats/fat_icon.gif',
-        bullet: './sprites/macros/fats/fat_submacro_bullet_point.png',
-        frame: './sprites/macros/fats/fat_bar_frame.svg',
-        fill: './sprites/macros/fats/fat_bar_fill.svg',
+        icon: `${ROOT_SPRITE_BASE}/macros_section/section_1_fats/fat_icon.gif`,
+        bullet: `${ROOT_SPRITE_BASE}/macros_section/section_1_fats/fat_submacro_bullet_point.png`,
         bubbleTop: '#e6deff',
         bubbleBottom: '#7d6ac9',
         bubbleShell: '#2a2137',
@@ -871,10 +815,8 @@
       },
       carbs: {
         label: 'CARBS',
-        icon: './sprites/macros/carbs/carb_icon.gif',
-        bullet: './sprites/macros/carbs/carb_submacro_bullet_point.png',
-        frame: './sprites/macros/carbs/carb_bar_frame.svg',
-        fill: './sprites/macros/carbs/carb_bar_fill.svg',
+        icon: `${ROOT_SPRITE_BASE}/macros_section/section_2_carbs/carb_icon.gif`,
+        bullet: `${ROOT_SPRITE_BASE}/macros_section/section_2_carbs/carb_submacro_bullet_point.png`,
         bubbleTop: '#ffe4a9',
         bubbleBottom: '#cd8a26',
         bubbleShell: '#402a12',
@@ -883,10 +825,8 @@
       },
       protein: {
         label: 'PROTEIN',
-        icon: './sprites/macros/protein/protein_icon.gif',
-        bullet: './sprites/macros/protein/protein_submacro_bullet_point.png',
-        frame: './sprites/macros/protein/protein_bar_frame.svg',
-        fill: './sprites/macros/protein/protein_bar_fill.svg',
+        icon: `${ROOT_SPRITE_BASE}/macros_section/section_3_protein/protein_icon.gif`,
+        bullet: `${ROOT_SPRITE_BASE}/macros_section/section_3_protein/protein_submacro_bullet_point.png`,
         bubbleTop: '#ffd2da',
         bubbleBottom: '#d45d74',
         bubbleShell: '#3a1821',
@@ -1036,7 +976,16 @@
       if (src.includes('/sprites/macros/fats/')) return 'fats';
       if (src.includes('/sprites/macros/carbs/')) return 'carbs';
       if (src.includes('/sprites/macros/protein/')) return 'protein';
+      if (src.includes('/sprites/macros_section/section_1_fats/')) return 'fats';
+      if (src.includes('/sprites/macros_section/section_2_carbs/')) return 'carbs';
+      if (src.includes('/sprites/macros_section/section_3_protein/')) return 'protein';
       return null;
+    }
+
+    function isMacroBarFrameOrFillSpriteLayer(layer) {
+      if (!isSpriteLayer(layer)) return false;
+      const src = String(layer.src).toLowerCase();
+      return /_bar_(frame|fill)\.(svg|png|gif|webp)$/.test(src);
     }
 
     function isHeaderSpriteLayer(layer) {
@@ -1064,8 +1013,6 @@
     function macroAssetRole(src = '') {
       const value = String(src).toLowerCase();
       if (value.endsWith('_icon.gif')) return 'icon';
-      if (value.endsWith('_bar_frame.svg')) return 'frame';
-      if (value.endsWith('_bar_fill.svg')) return 'fill';
       if (value.endsWith('_submacro_bullet_point.png')) return 'bullet';
       return null;
     }
@@ -1073,22 +1020,16 @@
     function macroSpritePath(kind, role) {
       const paths = {
         fats: {
-          icon: './sprites/macros/fats/fat_icon.gif',
-          frame: './sprites/macros/fats/fat_bar_frame.svg',
-          fill: './sprites/macros/fats/fat_bar_fill.svg',
-          bullet: './sprites/macros/fats/fat_submacro_bullet_point.png'
+          icon: `${ROOT_SPRITE_BASE}/macros_section/section_1_fats/fat_icon.gif`,
+          bullet: `${ROOT_SPRITE_BASE}/macros_section/section_1_fats/fat_submacro_bullet_point.png`
         },
         carbs: {
-          icon: './sprites/macros/carbs/carb_icon.gif',
-          frame: './sprites/macros/carbs/carb_bar_frame.svg',
-          fill: './sprites/macros/carbs/carb_bar_fill.svg',
-          bullet: './sprites/macros/carbs/carb_submacro_bullet_point.png'
+          icon: `${ROOT_SPRITE_BASE}/macros_section/section_2_carbs/carb_icon.gif`,
+          bullet: `${ROOT_SPRITE_BASE}/macros_section/section_2_carbs/carb_submacro_bullet_point.png`
         },
         protein: {
-          icon: './sprites/macros/protein/protein_icon.gif',
-          frame: './sprites/macros/protein/protein_bar_frame.svg',
-          fill: './sprites/macros/protein/protein_bar_fill.svg',
-          bullet: './sprites/macros/protein/protein_submacro_bullet_point.png'
+          icon: `${ROOT_SPRITE_BASE}/macros_section/section_3_protein/protein_icon.gif`,
+          bullet: `${ROOT_SPRITE_BASE}/macros_section/section_3_protein/protein_submacro_bullet_point.png`
         }
       };
       return paths[kind]?.[role] || '';
@@ -1098,6 +1039,8 @@
       if (typeof value !== 'string') return value;
       const targetFolder = targetKind;
       let next = value.replace(/\/sprites\/macros\/(fats|carbs|protein)\//i, `/sprites/macros/${targetFolder}/`);
+      const sectionFolders = { fats: 'section_1_fats', carbs: 'section_2_carbs', protein: 'section_3_protein' };
+      next = next.replace(/\/sprites\/macros_section\/section_[123]_(fats|carbs|protein)\//i, `/sprites/macros_section/${sectionFolders[targetKind]}/`);
       next = next.replace(/(^|[\/._-])fat(s)?(?=[._/-])/gi, (match, prefix, plural) => `${prefix}${targetKind}${plural && targetKind !== 'protein' ? 's' : ''}`);
       next = next.replace(/(^|[\/._-])carb(s)?(?=[._/-])/gi, (match, prefix, plural) => `${prefix}${targetKind}${plural && targetKind !== 'protein' ? 's' : ''}`);
       next = next.replace(/(^|[\/._-])protein(s)?(?=[._/-])/gi, (match, prefix, plural) => `${prefix}${targetKind}${plural && targetKind !== 'protein' ? 's' : ''}`);
@@ -1356,6 +1299,9 @@
     function normalizeLayout(layout) {
       const normalized = layout || structuredClone(DEFAULT_LAYOUT);
       normalized.meta = normalized.meta || {};
+      for (const section of SECTIONS) {
+        normalized.sections[section.id].layers = getSectionLayersFromLayout(normalized, section.id).filter(layer => !isMacroBarFrameOrFillSpriteLayer(layer));
+      }
       migrateMacroLayoutFromOutro(normalized);
       syncMacroSectionSpritesFromFats(normalized);
       ensureFatsSubmacroTextLayers(normalized);
@@ -1452,13 +1398,13 @@
 
     function getSectionIcon(sectionId) {
       const iconMap = {
-        fats: './sprites/macros/fats/fat_icon.gif',
-        carbs: './sprites/macros/carbs/carb_icon.gif',
-        protein: './sprites/macros/protein/protein_icon.gif',
-        vitamins: './sprites/micros/vitamins/vitamin_icon.gif',
-        minerals: './sprites/micros/minerals/mineral_icon.gif',
-        pros: './sprites/pros-cons/pros/pro_bullet_point.png',
-        cons: './sprites/pros-cons/cons/con_bullet_point.png'
+        fats: `${ROOT_SPRITE_BASE}/macros_section/section_1_fats/fat_icon.gif`,
+        carbs: `${ROOT_SPRITE_BASE}/macros_section/section_2_carbs/carb_icon.gif`,
+        protein: `${ROOT_SPRITE_BASE}/macros_section/section_3_protein/protein_icon.gif`,
+        vitamins: `${ROOT_SPRITE_BASE}/micros_section/vitamins/vitamin_icon.gif`,
+        minerals: `${ROOT_SPRITE_BASE}/micros_section/minerals/mineral_icon.gif`,
+        pros: `${ROOT_SPRITE_BASE}/pros_and_cons/pros/pro_bullet_point.png`,
+        cons: `${ROOT_SPRITE_BASE}/pros_and_cons/cons/con_bullet_point.png`
       };
       return safeSpritePath(iconMap[sectionId] || '', sectionId.toUpperCase());
     }
@@ -1536,21 +1482,28 @@
       const slug = typeSpriteSlug(food?.foodType);
       return {
         primary: `./sprites/header/food_images/${food?.id}.png`,
-        fallback: `./sprites/header/food_image_plate/${slug}_food_plate.png`
+        fallback: `${ROOT_SPRITE_BASE}/header/food_plate/${slug}_food_plate.png`
       };
     }
 
     function makeSpriteLibraryItem(label, src) {
       const normalized = `${label} ${src}`.toLowerCase();
-      const isBarFrame = normalized.includes('bar frame');
-      const isBarFill = normalized.includes('bar fill');
+      const isMicroBar = normalized.includes('/micros_section/bars/') || /\b\d+% bar\b/.test(normalized) || normalized.includes('bar line');
       return {
         label,
         src,
         kind: 'library',
-        previewScale: isBarFrame ? 0.5 : (isBarFill ? 0.72 : 1),
-        dropScale: isBarFrame ? 0.3 : (isBarFill ? 0.5 : 0.75)
+        previewScale: isMicroBar ? 0.62 : 1,
+        dropScale: isMicroBar ? 0.45 : 0.75
       };
+    }
+
+    function microsBarSpriteItems() {
+      const values = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+      return [
+        ['micro bar line', `${ROOT_SPRITE_BASE}/micros_section/bars/bar_line.png`],
+        ...values.map(value => [`micro ${value}% bar`, `${ROOT_SPRITE_BASE}/micros_section/bars/${value}%25_bar.png`])
+      ];
     }
 
     function spriteLibraryItems() {
@@ -1560,9 +1513,9 @@
         [`section separator ${slug.replace('_', ' ')}`, `./sprites/ui/section_separator/${slug}_section_separator.png`],
         [`section indicator ${slug.replace('_', ' ')}`, `./sprites/ui/section_indicator/${slug}_section_indicator.png`],
         [`section indicator ${slug.replace('_', ' ')} highlighted`, `./sprites/ui/section_indicator/${slug}_highlighted_section_indicator.png`],
-        [`food image plate ${slug.replace('_', ' ')}`, `./sprites/header/food_image_plate/${slug}_food_plate.png`],
-        [`food type plate ${slug.replace('_', ' ')}`, `./sprites/header/food_type_plate/${slug}_type_plate.png`],
-        [`calorie bubble ${slug.replace('_', ' ')}`, `./sprites/header/calorie_bubble/${slug}_calorie_bubble.png`]
+        [`food plate ${slug.replace('_', ' ')}`, `${ROOT_SPRITE_BASE}/header/food_plate/${slug}_food_plate.png`],
+        [`food type plate ${slug.replace('_', ' ')}`, `${ROOT_SPRITE_BASE}/header/food_type_plate/${slug}_type_plate.png`],
+        [`calorie bubble ${slug.replace('_', ' ')}`, `${ROOT_SPRITE_BASE}/header/calorie_bubble/${slug}_calorie_bubble.png`]
       ];
       const foodCandidates = selectedFood ? [
         ['selected food image', `./sprites/header/food_images/${selectedFood.id}.png`]
@@ -1570,29 +1523,27 @@
       return [
         ...foodCandidates,
         ...sectionSpecific,
-        ['fat icon', './sprites/macros/fats/fat_icon.gif'],
-        ['fat bar frame', './sprites/macros/fats/fat_bar_frame.svg'],
-        ['fat bar fill', './sprites/macros/fats/fat_bar_fill.svg'],
-        ['fat submacro bullet', './sprites/macros/fats/fat_submacro_bullet_point.png'],
-        ['carb icon', './sprites/macros/carbs/carb_icon.gif'],
-        ['carb bar frame', './sprites/macros/carbs/carb_bar_frame.svg'],
-        ['carb bar fill', './sprites/macros/carbs/carb_bar_fill.svg'],
-        ['carb submacro bullet', './sprites/macros/carbs/carb_submacro_bullet_point.png'],
-        ['protein icon', './sprites/macros/protein/protein_icon.gif'],
-        ['protein bar frame', './sprites/macros/protein/protein_bar_frame.svg'],
-        ['protein bar fill', './sprites/macros/protein/protein_bar_fill.svg'],
-        ['protein submacro bullet', './sprites/macros/protein/protein_submacro_bullet_point.png'],
-        ['vitamin icon', './sprites/micros/vitamins/vitamin_icon.gif'],
-        ['vitamin micro icon', './sprites/micros/vitamins/vitamin_micro_icon.png'],
-        ['mineral icon', './sprites/micros/minerals/mineral_icon.gif'],
-        ['mineral micro icon', './sprites/micros/minerals/mineral_micro_icon.png'],
-        ['pro bullet', './sprites/pros-cons/pros/pro_bullet_point.png'],
-        ['con bullet', './sprites/pros-cons/cons/con_bullet_point.png'],
-        ['green arrow', './sprites/macros/arrow_indicators/green_arrow.png'],
-        ['red arrow', './sprites/macros/arrow_indicators/red_arrow.png'],
-        ['food name line', './sprites/header/header_ui/food_name_line.png'],
-        ['per 100g line', './sprites/header/header_ui/per_100g_line.png'],
-        ['score plate', './sprites/header/header_ui/score_plate.png']
+        ['fat icon', `${ROOT_SPRITE_BASE}/macros_section/section_1_fats/fat_icon.gif`],
+        ['fat submacro bullet', `${ROOT_SPRITE_BASE}/macros_section/section_1_fats/fat_submacro_bullet_point.png`],
+        ['carb icon', `${ROOT_SPRITE_BASE}/macros_section/section_2_carbs/carb_icon.gif`],
+        ['carb submacro bullet', `${ROOT_SPRITE_BASE}/macros_section/section_2_carbs/carb_submacro_bullet_point.png`],
+        ['protein icon', `${ROOT_SPRITE_BASE}/macros_section/section_3_protein/protein_icon.gif`],
+        ['protein submacro bullet', `${ROOT_SPRITE_BASE}/macros_section/section_3_protein/protein_submacro_bullet_point.png`],
+        ['vitamin icon', `${ROOT_SPRITE_BASE}/micros_section/vitamins/vitamin_icon.gif`],
+        ['vitamin micro icon', `${ROOT_SPRITE_BASE}/micros_section/vitamins/vitamin_micro_icon.png`],
+        ['mineral icon', `${ROOT_SPRITE_BASE}/micros_section/minerals/mineral_icon.gif`],
+        ['mineral micro icon', `${ROOT_SPRITE_BASE}/micros_section/minerals/mineral_micro_icon.png`],
+        ...microsBarSpriteItems(),
+        ['pro bullet', `${ROOT_SPRITE_BASE}/pros_and_cons/pros/pro_bullet_point.png`],
+        ['con bullet', `${ROOT_SPRITE_BASE}/pros_and_cons/cons/con_bullet_point.png`],
+        ['green arrow', `${ROOT_SPRITE_BASE}/macros_section/arrow_indicators/green_arrow.png`],
+        ['red arrow', `${ROOT_SPRITE_BASE}/macros_section/arrow_indicators/red_arrow.png`],
+        ['food name line', `${ROOT_SPRITE_BASE}/header/header_ui/food_name_line.png`],
+        ['per 100g line', `${ROOT_SPRITE_BASE}/header/header_ui/per_100g_line.png`],
+        ['score plate', `${ROOT_SPRITE_BASE}/header/header_ui/score_plate.png`],
+        ['macros section reference', `${ROOT_SPRITE_BASE}/references/macros_section.png`],
+        ['micros section reference', `${ROOT_SPRITE_BASE}/references/micros_section.png`],
+        ['pros cons section reference', `${ROOT_SPRITE_BASE}/references/pros_cons_section.png`]
       ].map(([label, src]) => makeSpriteLibraryItem(label, src));
     }
 
@@ -1857,15 +1808,6 @@
       return null;
     }
 
-    function getMacroFillPercent(value, range = [0, 30]) {
-      const safe = asNumber(value, null);
-      if (safe == null || safe <= 0) return 0;
-      const [, max] = range;
-      if (!Number.isFinite(max) || max <= 0) {
-        return Math.max(0, Math.min(1, safe / 10));
-      }
-      return Math.max(0, Math.min(1, safe / max));
-    }
 
     function macroRangeNote(food, sectionId, range) {
       const [min, max] = range;
@@ -1880,8 +1822,6 @@
 
       const value = getMacroValue(food, sectionId);
       const range = getMacroFillRange(food?.foodType || getSelectedFoodStub()?.foodType, sectionId);
-      const fillPercent = getMacroFillPercent(value, range);
-      const fillSteps = Math.max(8, Math.round(fillPercent * 18) || 8);
       const copy = getSectionCopy(food, sectionId);
 
       const wrapper = document.createElement('section');
@@ -1889,8 +1829,6 @@
 
       const stage = document.createElement('div');
       stage.className = 'macro-stage';
-      stage.style.setProperty('--macro-frame', `url("${spec.frame}")`);
-      stage.style.setProperty('--macro-fill', `url("${spec.fill}")`);
       stage.style.setProperty('--macro-bubble-top', spec.bubbleTop);
       stage.style.setProperty('--macro-bubble-bottom', spec.bubbleBottom);
       stage.style.setProperty('--macro-bubble-shell', spec.bubbleShell);
@@ -1907,13 +1845,7 @@
           <div class="macro-bar-stack">
             <div class="macro-title-row">
               <div class="macro-amount pixel-text">${escapeHtml(formatCompactNumber(value))}g</div>
-              <div class="macro-label">animated<br>macro fill</div>
-            </div>
-            <div class="macro-bar-frame">
-              <div class="macro-bar-fill-clip" style="--fill-pct:${(fillPercent * 100).toFixed(2)}; --fill-steps:${fillSteps};">
-                <div class="macro-bar-fill"></div>
-              </div>
-              <div class="macro-bar-sheen"></div>
+              <div class="macro-label">macro<br>total</div>
             </div>
             <div class="macro-bar-meter">
               <span>0g</span>

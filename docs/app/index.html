@@ -881,6 +881,8 @@
       { key: 'zinc_dv', shortLabel: 'Zn' }
     ];
 
+    const PRO_CON_IMPACT_COUNT = 3;
+
     const DEFAULT_LAYOUT = {
       canvas: {
         width: 135,
@@ -1632,6 +1634,80 @@
       layout.meta.mineralTextLayersV1 = true;
     }
 
+    function isProsConsBulletSpriteLayer(layer, sectionId) {
+      const src = String(layer?.src || '').toLowerCase();
+      if (!isSpriteLayer(layer)) return false;
+      if (sectionId === 'pros') return src.includes('/pros_and_cons/pros/') || src.includes('/pros-cons/pros/');
+      if (sectionId === 'cons') return src.includes('/pros_and_cons/cons/') || src.includes('/pros-cons/cons/');
+      return false;
+    }
+
+    function getDefaultImpactTextAnchors(sectionId) {
+      const x = sectionId === 'cons' ? 9 : 9;
+      return Array.from({ length: PRO_CON_IMPACT_COUNT }, (_, index) => ({
+        x,
+        y: 86 + (index * 28),
+        width: 23
+      }));
+    }
+
+    function getImpactTextAnchors(layout, sectionId) {
+      const sectionLayers = getSectionLayersFromLayout(layout, sectionId);
+      const bullets = sectionLayers
+        .filter(layer => isProsConsBulletSpriteLayer(layer, sectionId))
+        .map(layer => ({
+          x: Number(layer.x) || 0,
+          y: Number(layer.y) || 0,
+          width: Number(layer.width) || 23,
+          height: Number(layer.height) || 11
+        }))
+        .sort((a, b) => a.y - b.y || a.x - b.x);
+
+      if (bullets.length >= PRO_CON_IMPACT_COUNT) {
+        return bullets.slice(0, PRO_CON_IMPACT_COUNT).map(bullet => ({
+          x: clampValue(Math.round(bullet.x + 1), 0, AUTHOR_GRID.width - 8),
+          y: clampValue(Math.round(bullet.y + Math.max(1, (bullet.height - 5) / 2)), 0, AUTHOR_GRID.height - 5),
+          width: Math.max(12, Math.round(bullet.width - 2))
+        }));
+      }
+
+      return getDefaultImpactTextAnchors(sectionId);
+    }
+
+    function formatImpactLevelLabel(value) {
+      const normalized = String(value || '').trim().toLowerCase();
+      if (normalized === 'major') return 'MAJOR';
+      if (normalized === 'minor') return 'MINOR';
+      return 'MINOR';
+    }
+
+    function ensureImpactTextLayers(layout, sectionId) {
+      if (!['pros', 'cons'].includes(sectionId)) return;
+      const sectionLayers = getSectionLayersFromLayout(layout, sectionId);
+      const anchors = getImpactTextAnchors(layout, sectionId);
+      const topZ = sectionLayers.reduce((max, layer) => Math.max(max, Number(layer.z) || 0), 0) + 2;
+      const sectionLabel = getSectionChip(sectionId) || sectionId.toUpperCase();
+
+      for (let index = 0; index < PRO_CON_IMPACT_COUNT; index += 1) {
+        const anchor = anchors[index] || getDefaultImpactTextAnchors(sectionId)[index];
+        const id = `${sectionId}_impact_${index + 1}`;
+        let layer = sectionLayers.find(item => item.id === id);
+        if (!layer) {
+          layer = text(id, `${sectionLabel} impact label ${index + 1}`, anchor.x, anchor.y, 3.2, 'MINOR', topZ, anchor.width, 'center');
+          sectionLayers.push(layer);
+        } else {
+          layer.label = `${sectionLabel} impact label ${index + 1}`;
+        }
+        layer.fontSize = layer.fontSize || 3.2;
+        layer.align = layer.align || 'center';
+        layer.width = layer.width || anchor.width;
+        layer.z = layer.z || topZ;
+      }
+
+      layout.meta = layout.meta || {};
+      layout.meta[`${sectionId}ImpactTextLayersV1`] = true;
+    }
+
     function migrateMacroLayoutFromOutro(layout) {
       layout.meta = layout.meta || {};
       if (layout.meta.macroLayoutFromOutroV2) return;
@@ -1722,6 +1798,8 @@
       const mineralMatch = id.match(/^minerals_(label|percent)_(\d+)$/);
       if (mineralMatch) return `MINERALS ${mineralMatch[1] === 'label' ? 'label' : 'percent'} ${mineralMatch[2]}`;
       if (id === 'minerals_title') return 'MINERALS title';
+      const impactMatch = id.match(/^(pros|cons)_impact_(\d+)$/);
+      if (impactMatch) return `${getSectionChip(impactMatch[1]) || titleCaseWords(impactMatch[1])} impact label ${impactMatch[2]}`;
 
       if (/score|tier/.test(id) || (/^[SABCD]$/.test(textValue) && (Number(layer.x) || 0) >= 80)) return 'Header score card text';
       if (/food.*name|title/.test(id)) return 'Header food name text';
@@ -1753,6 +1831,8 @@
       ensureMacroSubmetricTextLayers(normalized, 'protein');
       ensureVitaminTextLayers(normalized);
       ensureMineralTextLayers(normalized);
+      ensureImpactTextLayers(normalized, 'pros');
+      ensureImpactTextLayers(normalized, 'cons');
       syncLockedGlobalLayersFromOutro(normalized);
       syncHeaderSpritesFromIntro(normalized);
       relabelLayoutLayers(normalized);
@@ -1863,6 +1943,12 @@
             ];
           })
         );
+      }
+      if (['pros', 'cons'].includes(sectionId)) {
+        const sectionLabel = getSectionChip(sectionId) || sectionId.toUpperCase();
+        base.push(...getDefaultImpactTextAnchors(sectionId).map((anchor, index) =>
+          text(`${sectionId}_impact_${index + 1}`, `${sectionLabel} impact label ${index + 1}`, anchor.x, anchor.y, 3.2, 'MINOR', 40, anchor.width, 'center')
+        ));
       }
       return base;
     }
@@ -2502,6 +2588,19 @@
           valueLayer.fontSize = valueLayer.fontSize || 4.5;
         }
       });
+
+      for (const sectionId of ['pros', 'cons']) {
+        const sectionLayers = getSectionLayersFromLayout(state.layout, sectionId);
+        const items = food?.contextItems?.[sectionId] || [];
+        for (let index = 0; index < PRO_CON_IMPACT_COUNT; index += 1) {
+          const layer = sectionLayers.find(item => item.id === `${sectionId}_impact_${index + 1}`);
+          if (!layer) continue;
+          layer.label = `${getSectionChip(sectionId) || sectionId.toUpperCase()} impact label ${index + 1}`;
+          if (!layer.manualText) layer.text = formatImpactLevelLabel(items[index]?.impactLevel);
+          layer.align = layer.align || 'center';
+          layer.fontSize = layer.fontSize || 3.2;
+        }
+      }
     }
 
     function renderFoodList() {

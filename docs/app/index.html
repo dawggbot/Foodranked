@@ -1034,7 +1034,11 @@
     }
 
     function isLockedGlobalSourceLayer(layer) {
-      return isLockedUiSpriteLayer(layer) || isTextLayer(layer);
+      return isLockedUiSpriteLayer(layer) || (isTextLayer(layer) && !isOutroScoreDisplayLayer(layer));
+    }
+
+    function isOutroScoreDisplayLayer(layer) {
+      return isTextLayer(layer) && /^outro_(score|tier)_/.test(String(layer.id || '').toLowerCase());
     }
 
     function macroAssetRole(src = '') {
@@ -1136,7 +1140,7 @@
     function syncLockedGlobalLayersFromOutro(layout) {
       const outroLayers = getSectionLayersFromLayout(layout, 'outro');
       const lockedSpriteLayers = outroLayers.filter(layer => isLockedUiSpriteLayer(layer) && !isHeaderSpriteLayer(layer));
-      const lockedTextLayers = outroLayers.filter(isTextLayer);
+      const lockedTextLayers = outroLayers.filter(layer => isTextLayer(layer) && !isOutroScoreDisplayLayer(layer));
       if (!lockedSpriteLayers.length && !lockedTextLayers.length) return;
       const lockedSpriteIds = new Set(lockedSpriteLayers.map(layer => layer.id).filter(Boolean));
       const lockedTextIds = new Set(lockedTextLayers.map(layer => layer.id).filter(Boolean));
@@ -1742,6 +1746,34 @@
       layout.meta[`${sectionId}ImpactTextLayersV1`] = true;
     }
 
+    function ensureOutroScoreDisplayLayers(layout) {
+      const sectionLayers = getSectionLayersFromLayout(layout, 'outro');
+      const topZ = sectionLayers.reduce((max, layer) => Math.max(max, Number(layer.z) || 0), 0) + 2;
+      const specs = [
+        { id: 'outro_score_label', label: 'OUTRO score label', x: 18, y: 88, fontSize: 5, text: 'SCORE', z: topZ, width: 44, align: 'center' },
+        { id: 'outro_score_value', label: 'OUTRO score value', x: 65, y: 82, fontSize: 12, text: '—', z: topZ, width: 48, align: 'center' },
+        { id: 'outro_tier_label', label: 'OUTRO tier label', x: 18, y: 125, fontSize: 5, text: 'TIER', z: topZ, width: 44, align: 'center' },
+        { id: 'outro_tier_value', label: 'OUTRO tier value', x: 65, y: 116, fontSize: 18, text: '—', z: topZ, width: 48, align: 'center' }
+      ];
+
+      for (const spec of specs) {
+        let layer = sectionLayers.find(item => item.id === spec.id);
+        if (!layer) {
+          layer = text(spec.id, spec.label, spec.x, spec.y, spec.fontSize, spec.text, spec.z, spec.width, spec.align);
+          sectionLayers.push(layer);
+        } else {
+          layer.label = spec.label;
+        }
+        layer.fontSize = layer.fontSize || spec.fontSize;
+        layer.align = layer.align || spec.align;
+        layer.width = layer.width || spec.width;
+        layer.z = layer.z || spec.z;
+      }
+
+      layout.meta = layout.meta || {};
+      layout.meta.outroScoreDisplayLayersV1 = true;
+    }
+
     function migrateMacroLayoutFromOutro(layout) {
       layout.meta = layout.meta || {};
       if (layout.meta.macroLayoutFromOutroV2) return;
@@ -1836,6 +1868,8 @@
       if (impactMatch) return `${getSectionChip(impactMatch[1]) || titleCaseWords(impactMatch[1])} impact label ${impactMatch[2]}`;
       const itemMatch = id.match(/^(pros|cons)_item_(\d+)$/);
       if (itemMatch) return `${getSectionChip(itemMatch[1]) || titleCaseWords(itemMatch[1])} item text ${itemMatch[2]}`;
+      if (/^outro_score_/.test(id)) return id.endsWith('_value') ? 'OUTRO score value' : 'OUTRO score label';
+      if (/^outro_tier_/.test(id)) return id.endsWith('_value') ? 'OUTRO tier value' : 'OUTRO tier label';
 
       if (/score|tier/.test(id) || (/^[SABCD]$/.test(textValue) && (Number(layer.x) || 0) >= 80)) return 'Header score card text';
       if (/food.*name|title/.test(id)) return 'Header food name text';
@@ -1858,7 +1892,11 @@
       const normalized = layout || structuredClone(DEFAULT_LAYOUT);
       normalized.meta = normalized.meta || {};
       for (const section of SECTIONS) {
-        normalized.sections[section.id].layers = getSectionLayersFromLayout(normalized, section.id).filter(layer => !isMacroBarFrameOrFillSpriteLayer(layer));
+        normalized.sections[section.id].layers = getSectionLayersFromLayout(normalized, section.id).filter(layer => {
+          if (isMacroBarFrameOrFillSpriteLayer(layer)) return false;
+          if (section.id !== 'outro' && isOutroScoreDisplayLayer(layer)) return false;
+          return true;
+        });
       }
       migrateMacroLayoutFromOutro(normalized);
       syncMacroSectionLayoutFromFats(normalized);
@@ -1869,6 +1907,7 @@
       ensureMineralTextLayers(normalized);
       ensureImpactTextLayers(normalized, 'pros');
       ensureImpactTextLayers(normalized, 'cons');
+      ensureOutroScoreDisplayLayers(normalized);
       syncLockedGlobalLayersFromOutro(normalized);
       syncHeaderSpritesFromIntro(normalized);
       relabelLayoutLayers(normalized);
@@ -1988,6 +2027,14 @@
         base.push(...getDefaultProsConsItemTextAnchors(sectionId).map((anchor, index) =>
           text(`${sectionId}_item_${index + 1}`, `${sectionLabel} item text ${index + 1}`, anchor.x, anchor.y, 3.6, `${sectionLabel.toLowerCase()} point ${index + 1}`, 40, anchor.width, 'left')
         ));
+      }
+      if (sectionId === 'outro') {
+        base.push(
+          text('outro_score_label', 'OUTRO score label', 18, 88, 5, 'SCORE', 40, 44, 'center'),
+          text('outro_score_value', 'OUTRO score value', 65, 82, 12, '—', 40, 48, 'center'),
+          text('outro_tier_label', 'OUTRO tier label', 18, 125, 5, 'TIER', 40, 44, 'center'),
+          text('outro_tier_value', 'OUTRO tier value', 65, 116, 18, '—', 40, 48, 'center')
+        );
       }
       return base;
     }
@@ -2362,6 +2409,15 @@
       return food?.episode?.tier || stub?.episode?.tier || food?.expectedTier || '—';
     }
 
+    function overallScoreValue(food, stub = getSelectedFoodStub()) {
+      return food?.episode?.overallScore ?? stub?.episode?.overallScore ?? food?.overallScore ?? null;
+    }
+
+    function formatOverallScore(food, stub = getSelectedFoodStub()) {
+      const score = asNumber(overallScoreValue(food, stub), null);
+      return score == null ? 'N/A' : formatCompactNumber(score, 0);
+    }
+
     function episodeNarrationText(stub = getSelectedFoodStub()) {
       const narrationText = String(stub?.episode?.narrationText || '').trim();
       if (narrationText) return narrationText;
@@ -2647,6 +2703,28 @@
             itemLayer.fontSize = itemLayer.fontSize || 3.6;
           }
         }
+      }
+
+      const outroLayers = getSectionLayersFromLayout(state.layout, 'outro');
+      const outroScoreLabel = outroLayers.find(layer => layer.id === 'outro_score_label');
+      const outroScoreValue = outroLayers.find(layer => layer.id === 'outro_score_value');
+      const outroTierLabel = outroLayers.find(layer => layer.id === 'outro_tier_label');
+      const outroTierValue = outroLayers.find(layer => layer.id === 'outro_tier_value');
+      if (outroScoreLabel) {
+        outroScoreLabel.label = 'OUTRO score label';
+        if (!outroScoreLabel.manualText) outroScoreLabel.text = 'SCORE';
+      }
+      if (outroScoreValue) {
+        outroScoreValue.label = 'OUTRO score value';
+        if (!outroScoreValue.manualText) outroScoreValue.text = formatOverallScore(food || {});
+      }
+      if (outroTierLabel) {
+        outroTierLabel.label = 'OUTRO tier label';
+        if (!outroTierLabel.manualText) outroTierLabel.text = 'TIER';
+      }
+      if (outroTierValue) {
+        outroTierValue.label = 'OUTRO tier value';
+        if (!outroTierValue.manualText) outroTierValue.text = scoreTier(food || {});
       }
     }
 

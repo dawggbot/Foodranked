@@ -1132,7 +1132,9 @@
     function isMacroLayoutTemplateLayer(layer) {
       if (!layer) return false;
       if (isLockedUiSpriteLayer(layer) || isHeaderSpriteLayer(layer)) return false;
-      return isSpriteLayer(layer) || isTextLayer(layer);
+      if (isSpriteLayer(layer)) return true;
+      if (!isTextLayer(layer)) return false;
+      return /^(fats|carbs|protein)_submacro_(label|value)_\d+$/i.test(String(layer.id || ''));
     }
 
     function syncMacroSectionLayoutFromFats(layout) {
@@ -1323,7 +1325,7 @@
           sectionLayers.push(labelLayer);
         } else {
           labelLayer.label = `${getSectionChip(sectionId) || sectionId} score card label ${index + 1}`;
-          labelLayer.text = spec.label;
+          if (!labelLayer.manualText) labelLayer.text = spec.label;
         }
         if (!valueLayer) {
           valueLayer = text(valueId, `${getSectionChip(sectionId) || sectionId} score card value ${index + 1}`, anchor.valueX, anchor.y, 4, 'N/A', topZ, anchor.valueWidth, 'right');
@@ -2534,6 +2536,16 @@ async function renderAll() {
       void renderAll();
     }
 
+    function updateSelectedWithoutInspectorReset(mutator) {
+      const layer = getLayerById(state.selectedLayerId);
+      if (!layer) return;
+      mutateEditableLayer(layer, mutator);
+      void renderCanvas();
+      renderLayerList();
+      saveLayout();
+      updateJsonOutput();
+    }
+
     els.foodSearch.addEventListener('input', () => {
       state.foodFilter = els.foodSearch.value;
       renderFoodList();
@@ -2647,13 +2659,13 @@ async function renderAll() {
     document.querySelectorAll('[data-align]').forEach(button => {
       button.addEventListener('click', () => alignSelectedSprite(button.dataset.align));
     });
-    els.propText.addEventListener('input', () => updateSelected(layer => {
+    els.propText.addEventListener('input', () => updateSelectedWithoutInspectorReset(layer => {
       layer.text = els.propText.value;
       layer.manualText = true;
     }));
-    els.propFontSize.addEventListener('input', () => updateSelected(layer => layer.fontSize = Number(els.propFontSize.value) || 6));
-    els.propWidth.addEventListener('input', () => updateSelected(layer => layer.width = els.propWidth.value ? Number(els.propWidth.value) : undefined));
-    els.propAlign.addEventListener('change', () => updateSelected(layer => layer.align = els.propAlign.value));
+    els.propFontSize.addEventListener('input', () => updateSelectedWithoutInspectorReset(layer => layer.fontSize = Number(els.propFontSize.value) || 6));
+    els.propWidth.addEventListener('input', () => updateSelectedWithoutInspectorReset(layer => layer.width = els.propWidth.value ? Number(els.propWidth.value) : undefined));
+    els.propAlign.addEventListener('change', () => updateSelectedWithoutInspectorReset(layer => layer.align = els.propAlign.value));
     els.deleteLayer.addEventListener('click', () => {
       const layer = getLayerById(state.selectedLayerId);
       if (!layer) return;

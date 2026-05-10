@@ -632,6 +632,7 @@
           </div>
           <div class="row">
             <button id="resetSection">Reset section</button>
+            <button id="applyMacroTemplate" type="button">Apply fats layout to macros</button>
             <button id="saveLocal">Save locally</button>
             <button id="copyJson" class="primary">Copy JSON</button>
           </div>
@@ -750,6 +751,11 @@
           </div>
           <div class="small muted">Tip: click a sprite in the library to add it centered on the canvas, or drag it to an exact spot.</div>
         </div>
+      </div>
+
+      <div class="stack">
+        <h2>Text boxes in this section</h2>
+        <div id="sectionTextList" class="stack"></div>
       </div>
 
       <div class="stack">
@@ -910,6 +916,7 @@
       bgMotionMaxSize: document.getElementById('bgMotionMaxSize'),
       bgMotionDrift: document.getElementById('bgMotionDrift'),
       resetSection: document.getElementById('resetSection'),
+      applyMacroTemplate: document.getElementById('applyMacroTemplate'),
       saveLocal: document.getElementById('saveLocal'),
       copyJson: document.getElementById('copyJson'),
       layoutJson: document.getElementById('layoutJson'),
@@ -919,6 +926,7 @@
       nutritionSummary: document.getElementById('nutritionSummary'),
       nutritionDetails: document.getElementById('nutritionDetails'),
       layerList: document.getElementById('layerList'),
+      sectionTextList: document.getElementById('sectionTextList'),
       selectionChip: document.getElementById('selectionChip'),
       canvasMeta: document.getElementById('canvasMeta'),
       noSelection: document.getElementById('noSelection'),
@@ -1135,7 +1143,9 @@
       return isSpriteLayer(layer) || isTextLayer(layer);
     }
 
-    function syncMacroSectionLayoutFromFats(layout) {
+    function syncMacroSectionLayoutFromFats(layout, { force = false } = {}) {
+      layout.meta = layout.meta || {};
+      if (!force && layout.meta.macroSectionLayoutFromFatsV4) return;
       ensureMacroSubmetricTextLayers(layout, 'fats');
 
       const fatsLayers = getSectionLayersFromLayout(layout, 'fats');
@@ -1171,7 +1181,7 @@
       }
 
       layout.meta = layout.meta || {};
-      layout.meta.macroSectionLayoutFromFatsV3 = true;
+      layout.meta.macroSectionLayoutFromFatsV4 = true;
     }
 
     function getMacroSubmetricTextSpecs(sectionId) {
@@ -2288,6 +2298,7 @@
           renderInspector();
           void renderCanvas();
           renderLayerList();
+          renderSectionTextList();
         });
         els.canvas.appendChild(node);
       }
@@ -2337,9 +2348,60 @@
           renderInspector();
           void renderCanvas();
           renderLayerList();
+          renderSectionTextList();
         });
         els.layerList.appendChild(button);
       });
+    }
+
+    function renderSectionTextList() {
+      els.sectionTextList.innerHTML = '';
+      const textLayers = getCurrentSectionLayers()
+        .filter(isTextLayer)
+        .sort((a, b) => (Number(a.y) || 0) - (Number(b.y) || 0) || (Number(a.x) || 0) - (Number(b.x) || 0));
+
+      if (!textLayers.length) {
+        const empty = document.createElement('div');
+        empty.className = 'small muted';
+        empty.textContent = 'No editable text layers in this section yet.';
+        els.sectionTextList.appendChild(empty);
+        return;
+      }
+
+      for (const layer of textLayers) {
+        const card = document.createElement('div');
+        card.className = 'tool-card stack';
+
+        const header = document.createElement('button');
+        header.type = 'button';
+        header.className = 'card-button' + (state.selectedLayerId === layer.id ? ' active' : '');
+        header.innerHTML = `<strong>${escapeHtml(layer.label || layer.id || 'Text layer')}</strong><div class="tiny muted">x ${Math.round(layer.x || 0)}, y ${Math.round(layer.y || 0)} · z ${layer.z || 0}</div>`;
+        header.addEventListener('click', () => {
+          state.selectedLayerId = layer.id;
+          renderInspector();
+          void renderCanvas();
+          renderLayerList();
+          renderSectionTextList();
+        });
+
+        const textarea = document.createElement('textarea');
+        textarea.value = layer.text || '';
+        textarea.rows = Math.max(2, Math.min(5, String(layer.text || '').split('\n').length + 1));
+        textarea.addEventListener('input', () => {
+          const current = getCurrentSectionLayers().find(item => item.id === layer.id);
+          if (!current) return;
+          current.text = textarea.value;
+          current.manualText = true;
+          state.selectedLayerId = current.id;
+          updateLiveLayerNode(current);
+          saveLayout({ normalize: false });
+          updateJsonOutput();
+        });
+
+        card.appendChild(header);
+        card.appendChild(textarea);
+        els.sectionTextList.appendChild(card);
+      }
     }
 
     function renderInspector() {
@@ -2551,6 +2613,7 @@ async function renderAll() {
       renderSpriteLibrary();
       await renderCanvas();
       renderLayerList();
+      renderSectionTextList();
       renderInspector();
       renderScriptAndNutrition();
       await renderBackgroundSprites();
@@ -2572,6 +2635,7 @@ async function renderAll() {
       updateLiveLayerNode(layer);
       if (updatedLayer && updatedLayer !== layer) updateLiveLayerNode(updatedLayer);
       renderLayerList();
+      renderSectionTextList();
       saveLayout({ normalize: false });
       updateJsonOutput();
     }
@@ -2619,6 +2683,12 @@ async function renderAll() {
       state.selectedLayerId = null;
       void renderAll();
     });
+    els.applyMacroTemplate.addEventListener('click', () => {
+      syncMacroSectionLayoutFromFats(state.layout, { force: true });
+      syncFoodIntoLayout(state.fullFood, { normalize: false });
+      state.selectedLayerId = null;
+      void renderAll();
+    });
     els.saveLocal.addEventListener('click', () => { saveLayout(); els.saveLocal.textContent = 'Saved'; setTimeout(() => els.saveLocal.textContent = 'Save locally', 1200); });
     els.copyJson.addEventListener('click', async () => {
       updateJsonOutput();
@@ -2639,7 +2709,7 @@ async function renderAll() {
         alert('Invalid JSON: ' + error.message);
       }
     });
-    els.canvas.addEventListener('click', () => { state.selectedLayerId = null; renderInspector(); void renderCanvas(); renderLayerList(); });
+    els.canvas.addEventListener('click', () => { state.selectedLayerId = null; renderInspector(); void renderCanvas(); renderLayerList(); renderSectionTextList(); });
     els.canvas.addEventListener('dragover', event => {
       event.preventDefault();
       els.canvas.classList.add('drop-target');

@@ -249,7 +249,7 @@
     }
     .canvas-wrap {
       display: grid;
-      place-items: start center;
+      place-items: center;
       min-height: 0;
       overflow: auto;
       padding: 16px;
@@ -258,11 +258,10 @@
       border-radius: 16px;
     }
     .phone-shell {
-      width: var(--canvas-width);
-      height: var(--canvas-height);
-      box-sizing: content-box;
+      width: min(420px, calc(var(--canvas-width) + 12px));
+      aspect-ratio: 9 / 16;
       position: relative;
-      overflow: visible;
+      overflow: hidden;
       border: 6px solid #2e3649;
       border-radius: 26px;
       box-shadow: 0 18px 50px rgba(0,0,0,.28);
@@ -712,6 +711,11 @@
 
     <aside class="panel inspector stack">
       <div class="stack">
+        <h2>Layers</h2>
+        <div id="layerList" class="layer-list"></div>
+      </div>
+
+      <div class="stack">
         <h2>Layer controls</h2>
         <div id="noSelection" class="small muted">Select a sprite or text layer to edit it.</div>
         <div id="inspectorPanel" hidden class="stack">
@@ -799,11 +803,6 @@
           </div>
           <div class="small muted">Tip: click a sprite in the library to add it centered on the canvas, or drag it to an exact spot.</div>
         </div>
-      </div>
-
-      <div class="stack">
-        <h2>Layers</h2>
-        <div id="layerList" class="layer-list"></div>
       </div>
 
       <div class="stack">
@@ -2155,11 +2154,30 @@
 
     function renderLayerList() {
       els.layerList.innerHTML = '';
-      [...getCurrentSectionLayers()].sort((a,b) => (b.z || 0) - (a.z || 0)).forEach(layer => {
+      const layers = [...getCurrentSectionLayers()].sort((a,b) => (b.z || 0) - (a.z || 0));
+      if (!layers.length) {
+        const empty = document.createElement('div');
+        empty.className = 'sprite-info';
+        empty.textContent = 'No editable layers in this section yet. Add a sprite, then select it here or directly on the canvas.';
+        const addButton = document.createElement('button');
+        addButton.type = 'button';
+        addButton.className = 'card-button';
+        addButton.innerHTML = '<strong>Add selected food sprite</strong><div class="tiny muted">Creates an editable sprite in the centre of the canvas</div>';
+        addButton.addEventListener('click', () => {
+          const item = spriteLibraryItems()[0];
+          if (!item) return;
+          const rect = els.canvas.getBoundingClientRect();
+          addLibrarySpriteToCanvas(item, rect.left + rect.width / 2, rect.top + rect.height / 2);
+        });
+        els.layerList.appendChild(empty);
+        els.layerList.appendChild(addButton);
+        return;
+      }
+      layers.forEach(layer => {
         const button = document.createElement('button');
         button.type = 'button';
         button.className = 'card-button' + (layer.id === state.selectedLayerId ? ' active' : '');
-        button.innerHTML = `<strong>${layer.label}</strong><div class="tiny muted">${layer.kind} · z ${layer.z || 0}</div>`;
+        button.innerHTML = `<strong>${layer.label}</strong><div class="tiny muted">${layer.kind} · x ${Math.round(layer.x || 0)}, y ${Math.round(layer.y || 0)} · z ${layer.z || 0}</div>`;
         button.addEventListener('click', () => {
           state.selectedLayerId = layer.id;
           renderInspector();

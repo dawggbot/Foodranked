@@ -1948,6 +1948,7 @@
       ensureImpactTextLayers(normalized, 'cons');
       ensureOutroScoreDisplayLayers(normalized);
       ensureSectionIndicatorLayers(normalized);
+      syncSectionIndicatorLayoutFromIntro(normalized);
       syncLockedGlobalLayersFromOutro(normalized);
       syncHeaderSpritesFromIntro(normalized);
       relabelLayoutLayers(normalized);
@@ -2008,6 +2009,12 @@
       if (isHeaderSpriteLayer(layer)) {
         if (state.layout.selectedSectionId === 'intro') return null;
         return getSectionLayersFromLayout(state.layout, 'intro').find(source => source.id && source.id === layer.id) || null;
+      }
+
+      if (isSectionIndicatorSpriteLayer(layer)) {
+        if (state.layout.selectedSectionId === 'intro') return null;
+        const sourceIndex = sectionIndicatorLayerIndex(layer);
+        return sectionIndicatorLayersForSection(state.layout, 'intro')[sourceIndex] || null;
       }
 
       if (state.layout.selectedSectionId === 'outro') return null;
@@ -2260,6 +2267,25 @@
       }
     }
 
+    function syncSectionIndicatorLayoutFromIntro(layout) {
+      const sourceIndicators = sectionIndicatorLayersForSection(layout, 'intro');
+      if (sourceIndicators.length < SECTION_INDICATOR_COUNT) return;
+      for (const section of SECTIONS) {
+        if (section.id === 'intro') continue;
+        const indicators = sectionIndicatorLayersForSection(layout, section.id);
+        indicators.forEach((layer, index) => {
+          const source = sourceIndicators[index];
+          if (!source) return;
+          layer.x = source.x;
+          layer.y = source.y;
+          layer.z = source.z || 25;
+          layer.visible = source.visible !== false;
+          layer.width = SECTION_INDICATOR_LAYOUT.normalSize;
+          layer.height = SECTION_INDICATOR_LAYOUT.normalSize;
+        });
+      }
+    }
+
     function renderedSectionIndicatorSrc(layer, sectionId, food = getSelectedFoodStub()) {
       if (!isSectionIndicatorSpriteLayer(layer)) return layer?.src || '';
       const indicators = sectionIndicatorLayersForSection(state.layout, sectionId);
@@ -2281,6 +2307,7 @@
         let indicators = sectionIndicatorLayersForSection(layout, section.id);
         if (indicators.length < SECTION_INDICATOR_COUNT) {
           ensureSectionIndicatorLayers(layout);
+          syncSectionIndicatorLayoutFromIntro(layout);
           indicators = sectionIndicatorLayersForSection(layout, section.id);
         }
         indicators.forEach((layer, index) => {

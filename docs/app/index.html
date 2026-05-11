@@ -588,7 +588,7 @@
         <div class="stack">
           <h2>Display sections</h2>
           <div id="sectionList" class="section-list"></div>
-          <p class="small muted">Video flow now uses 9 steps total: intro blank, fats, carbs, protein, vitamins, minerals, pros, cons, outro blank/verdict. The 9 section indicators highlight exactly the current section.</p>
+          <p class="small muted">Video flow now uses 9 steps total: intro blank, fats, carbs, protein, vitamins, minerals, pros, cons, outro blank/verdict. The 9 section indicators highlight the current content section, while the outro stays clean for the final verdict.</p>
         </div>
 
         <div class="stack">
@@ -1933,6 +1933,7 @@
           if (isMacroBarFrameOrFillSpriteLayer(layer)) return false;
           if (isObsoleteOutroScoreDisplayLayer(layer)) return false;
           if (isEmptyJunkLayer(layer)) return false;
+          if (section.id === 'outro' && isSectionIndicatorSpriteLayer(layer)) return false;
           if (section.id !== 'outro' && isOutroScoreDisplayLayer(layer)) return false;
           return true;
         });
@@ -2042,7 +2043,7 @@
 
     function createSectionLayers(sectionId) {
       const base = [];
-      base.push(...createSectionIndicatorLayers(sectionId));
+      if (sectionId !== 'outro') base.push(...createSectionIndicatorLayers(sectionId));
       if (sectionId === 'vitamins') {
         base.push(
           text('vitamins_title', 'VITAMINS title', 27, 58, 7, 'VITAMINS', 40, 82, 'center'),
@@ -2247,6 +2248,10 @@
     function ensureSectionIndicatorLayers(layout) {
       for (const section of SECTIONS) {
         const sectionLayers = getSectionLayersFromLayout(layout, section.id);
+        if (section.id === 'outro') {
+          layout.sections[section.id].layers = sectionLayers.filter(layer => !isSectionIndicatorSpriteLayer(layer));
+          continue;
+        }
         const indicators = sectionIndicatorLayersForSection(layout, section.id);
         if (indicators.length < SECTION_INDICATOR_COUNT) {
           for (let index = indicators.length; index < SECTION_INDICATOR_COUNT; index += 1) {
@@ -2271,7 +2276,7 @@
       const sourceIndicators = sectionIndicatorLayersForSection(layout, 'intro');
       if (sourceIndicators.length < SECTION_INDICATOR_COUNT) return;
       for (const section of SECTIONS) {
-        if (section.id === 'intro') continue;
+        if (section.id === 'intro' || section.id === 'outro') continue;
         const indicators = sectionIndicatorLayersForSection(layout, section.id);
         indicators.forEach((layer, index) => {
           const source = sourceIndicators[index];
@@ -2303,6 +2308,7 @@
 
     function syncSectionIndicatorSprites(layout, food = getSelectedFoodStub()) {
       for (const section of SECTIONS) {
+        if (section.id === 'outro') continue;
         const activeIndex = indicatorSectionIndex(section.id);
         let indicators = sectionIndicatorLayersForSection(layout, section.id);
         if (indicators.length < SECTION_INDICATOR_COUNT) {

@@ -2343,11 +2343,12 @@
           indicators = sectionIndicatorLayersForSection(layout, section.id);
         }
         indicators.forEach((layer, index) => {
-          layer.src = sectionIndicatorSpritePath(food, index === activeIndex);
-          layer.label = index === activeIndex ? 'Highlighted section indicator' : 'Section indicator';
+          const isActive = index === activeIndex;
+          layer.src = sectionIndicatorSpritePath(food, isActive);
+          layer.label = isActive ? 'Highlighted section indicator' : 'Section indicator';
           layer.visible = true;
-          layer.width = SECTION_INDICATOR_LAYOUT.normalSize;
-          layer.height = SECTION_INDICATOR_LAYOUT.normalSize;
+          layer.width = isActive ? SECTION_INDICATOR_LAYOUT.highlightedSize : SECTION_INDICATOR_LAYOUT.normalSize;
+          layer.height = isActive ? SECTION_INDICATOR_LAYOUT.highlightedSize : SECTION_INDICATOR_LAYOUT.normalSize;
           layer.z = layer.z || 25;
         });
       }
@@ -3015,8 +3016,11 @@
           node.src = renderedSrc;
           node.alt = layer.label;
           if (isIndicatorLayer) {
-            node.style.width = `calc(${isActiveIndicator ? 12 : 10}px * var(--pixel-unit))`;
-            node.style.height = `calc(${isActiveIndicator ? 12 : 10}px * var(--pixel-unit))`;
+            const indicatorSize = isActiveIndicator || isHighlightedSectionIndicatorSrc(renderedSrc)
+              ? SECTION_INDICATOR_LAYOUT.highlightedSize
+              : SECTION_INDICATOR_LAYOUT.normalSize;
+            node.style.width = `calc(${indicatorSize}px * var(--pixel-unit))`;
+            node.style.height = `calc(${indicatorSize}px * var(--pixel-unit))`;
           } else {
             if (layer.width) node.style.width = `calc(${layer.width}px * var(--pixel-unit))`;
             if (layer.height) node.style.height = `calc(${layer.height}px * var(--pixel-unit))`;

@@ -3008,15 +3008,15 @@
         if (layer.kind === 'sprite') {
           const isIndicatorLayer = isSectionIndicatorSpriteLayer(layer);
           const isActiveIndicator = isActiveSectionIndicatorLayer(layer, state.layout.selectedSectionId);
-          const indicatorOffset = isIndicatorLayer && isActiveIndicator ? -1 : 0;
-          node.style.left = `calc(${Number(layer.x || 0) + indicatorOffset}px * var(--pixel-unit))`;
-          node.style.top = `calc(${Number(layer.y || 0) + indicatorOffset}px * var(--pixel-unit))`;
-          if (isIndicatorLayer && isActiveIndicator) node.style.zIndex = String((Number(layer.z) || 0) + 10);
           const renderedSrc = renderedSectionIndicatorSrc(layer, state.layout.selectedSectionId, state.fullFood || getSelectedFoodStub());
+          const isHighlightedIndicator = isIndicatorLayer && (isActiveIndicator || isHighlightedSectionIndicatorSrc(renderedSrc));
+          node.style.left = `calc(${Number(layer.x || 0)}px * var(--pixel-unit))`;
+          node.style.top = `calc(${Number(layer.y || 0) + (isHighlightedIndicator ? -1 : 0)}px * var(--pixel-unit))`;
+          if (isHighlightedIndicator) node.style.zIndex = String((Number(layer.z) || 0) + 10);
           node.src = renderedSrc;
           node.alt = layer.label;
           if (isIndicatorLayer) {
-            const indicatorSize = isActiveIndicator || isHighlightedSectionIndicatorSrc(renderedSrc)
+            const indicatorSize = isHighlightedIndicator
               ? SECTION_INDICATOR_LAYOUT.highlightedSize
               : SECTION_INDICATOR_LAYOUT.normalSize;
             node.style.width = `calc(${indicatorSize}px * var(--pixel-unit))`;

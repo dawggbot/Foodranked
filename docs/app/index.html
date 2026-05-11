@@ -2201,6 +2201,36 @@
       return `./sprites/ui/section_indicator/${slug}_${highlighted ? 'highlighted_' : ''}section_indicator.png`;
     }
 
+    function isHighlightedSectionIndicatorSrc(src = '') {
+      return /\/ui\/section_indicator\/[^/]+_highlighted_section_indicator\.png$/i.test(String(src));
+    }
+
+    function isNormalSectionIndicatorSrc(src = '') {
+      return /\/ui\/section_indicator\/[^/]+_section_indicator\.png$/i.test(String(src)) && !isHighlightedSectionIndicatorSrc(src);
+    }
+
+    function highlightedSectionIndicatorSrcFor(src = '', food = getSelectedFoodStub()) {
+      if (isHighlightedSectionIndicatorSrc(src)) return src;
+      if (isNormalSectionIndicatorSrc(src)) return String(src).replace(/_section_indicator\.png$/i, '_highlighted_section_indicator.png');
+      return sectionIndicatorSpritePath(food, true);
+    }
+
+    function syncManualOutroHighlightedIndicators(layout, food = getSelectedFoodStub()) {
+      const outroLayers = getSectionLayersFromLayout(layout, 'outro');
+      outroLayers.forEach(layer => {
+        if (!isSectionIndicatorSpriteLayer(layer)) return;
+        const label = String(layer.label || '').toLowerCase();
+        const id = String(layer.id || '').toLowerCase();
+        const isManualLibraryIndicator = label.startsWith('library:') || id.startsWith('lib_section_indicator_');
+        if (!isManualLibraryIndicator) return;
+        layer.src = highlightedSectionIndicatorSrcFor(layer.src, food);
+        if (layer.fallbackSrc) layer.fallbackSrc = highlightedSectionIndicatorSrcFor(layer.fallbackSrc, food);
+        if ((Number(layer.width) || 0) <= SECTION_INDICATOR_LAYOUT.normalSize) layer.width = SECTION_INDICATOR_LAYOUT.highlightedSize;
+        if ((Number(layer.height) || 0) <= SECTION_INDICATOR_LAYOUT.normalSize) layer.height = SECTION_INDICATOR_LAYOUT.highlightedSize;
+        layer.label = layer.label || 'Library: section indicator highlighted';
+      });
+    }
+
     function indicatorSections() {
       return SECTIONS.filter(section => section.indicator);
     }
@@ -2288,6 +2318,7 @@
 
     function renderedSectionIndicatorSrc(layer, sectionId, food = getSelectedFoodStub()) {
       if (!isSectionIndicatorSpriteLayer(layer)) return layer?.src || '';
+      if (!new RegExp(`^${sectionId}_indicator_\\d+$`, 'i').test(String(layer?.id || ''))) return layer?.src || sectionIndicatorSpritePath(food, false);
       const indicators = sectionIndicatorLayersForSection(state.layout, sectionId);
       const layerIndex = indicators.findIndex(item => item === layer || (item.id && item.id === layer.id));
       const activeIndex = indicatorSectionIndex(sectionId);
@@ -2296,6 +2327,7 @@
 
     function isActiveSectionIndicatorLayer(layer, sectionId) {
       if (!isSectionIndicatorSpriteLayer(layer)) return false;
+      if (!new RegExp(`^${sectionId}_indicator_\\d+$`, 'i').test(String(layer?.id || ''))) return false;
       const indicators = sectionIndicatorLayersForSection(state.layout, sectionId);
       const layerIndex = indicators.findIndex(item => item === layer || (item.id && item.id === layer.id));
       return layerIndex === indicatorSectionIndex(sectionId);
@@ -2389,7 +2421,13 @@
       const rect = els.canvas.getBoundingClientRect();
       const unit = state.layout.canvas.previewScale * 4;
       const idBase = item.label.toLowerCase().replace(/[^a-z0-9]+/g, '_');
-      const metadata = await loadSpriteMetadata(item.src);
+      const itemSrc = state.layout.selectedSectionId === 'outro' && isNormalSectionIndicatorSrc(item.src)
+        ? highlightedSectionIndicatorSrcFor(item.src, getSelectedFoodStub())
+        : item.src;
+      const itemLabel = itemSrc !== item.src && /section indicator/i.test(item.label)
+        ? `${item.label} highlighted`
+        : item.label;
+      const metadata = await loadSpriteMetadata(itemSrc);
       const naturalWidth = metadata?.width || 18;
       const naturalHeight = metadata?.height || 18;
       const defaultScale = Number.isFinite(item.dropScale) ? item.dropScale : 0.75;
@@ -2399,8 +2437,8 @@
       const pointerY = Math.round((clientY - rect.top) / unit);
       const newLayer = sprite(
         `lib_${idBase}_${Date.now()}`,
-        `Library: ${item.label}`,
-        item.src,
+        `Library: ${itemLabel}`,
+        itemSrc,
         pointerX - Math.round(width / 2),
         pointerY - Math.round(height / 2),
         6,
@@ -2815,6 +2853,7 @@
     function syncFoodIntoLayout(food, { normalize = true } = {}) {
       if (normalize) normalizeLayout(state.layout);
       syncSectionIndicatorSprites(state.layout, food || getSelectedFoodStub());
+      syncManualOutroHighlightedIndicators(state.layout, food || getSelectedFoodStub());
       for (const sectionId of ['fats', 'carbs', 'protein']) {
         const sectionLayers = getSectionLayersFromLayout(state.layout, sectionId);
         getMacroSubmetricRowBindings(state.layout, sectionId).forEach((binding, index) => {

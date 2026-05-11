@@ -557,10 +557,34 @@
     .metric-pill strong { display: block; font-size: 12px; }
     .metric-pill span { font-size: 11px; color: var(--muted); }
 
-    @media (max-width: 1300px) {
-      .app { grid-template-columns: 280px minmax(420px, 1fr); }
-      .inspector { grid-column: 1 / -1; max-height: 42vh; }
+    @media (max-width: 1500px), (max-height: 850px) {
+      .app {
+        grid-template-columns: 300px minmax(360px, 1fr) 330px;
+        gap: 12px;
+        padding: 12px;
+      }
+      .panel { padding: 12px; border-radius: 16px; }
+      .sidebar-scroll { gap: 10px; }
+      .food-list { max-height: 150px; }
+      .section-list { max-height: 210px; }
+      .sprite-library-grid { max-height: 180px; }
+      textarea { min-height: 110px; }
+      .canvas-wrap { padding: 12px; overflow: hidden; }
+      .toolbar-grid button { padding: 7px 5px; }
+      button { padding: 8px 10px; }
+      input[type="text"], input[type="number"], select, textarea { padding: 8px 9px; }
     }
+
+    @media (max-width: 1180px) {
+      body { overflow: auto; }
+      .app {
+        height: auto;
+        min-height: 100vh;
+        grid-template-columns: minmax(260px, 320px) minmax(420px, 1fr);
+      }
+      .inspector { grid-column: 1 / -1; max-height: none; }
+    }
+
     @media (max-width: 920px) {
       body { overflow: auto; }
       .app { grid-template-columns: 1fr; }
@@ -2420,7 +2444,7 @@
 
     async function addLibrarySpriteToCanvas(item, clientX, clientY) {
       const rect = els.canvas.getBoundingClientRect();
-      const unit = state.layout.canvas.previewScale * 4;
+      const unit = getPixelUnit();
       const idBase = item.label.toLowerCase().replace(/[^a-z0-9]+/g, '_');
       const itemSrc = state.layout.selectedSectionId === 'outro' && isNormalSectionIndicatorSrc(item.src)
         ? highlightedSectionIndicatorSrcFor(item.src, getSelectedFoodStub())
@@ -3236,10 +3260,25 @@
       els.layoutJson.value = JSON.stringify(state.layout, null, 2);
     }
 
+    function getResponsiveAssetScale() {
+      const desktopComfortable = window.innerWidth >= 1600 && window.innerHeight >= 900;
+      if (desktopComfortable) return 4;
+      const verticalRoom = Math.max(360, window.innerHeight - 210);
+      const scaleFromHeight = (((verticalRoom * 9) / 16) - 12) / AUTHOR_GRID.width;
+      const scaleFromWidth = (Math.max(300, window.innerWidth - 690) - 36) / AUTHOR_GRID.width;
+      return Math.max(1.55, Math.min(4, scaleFromHeight, scaleFromWidth));
+    }
+
+    function getPixelUnit() {
+      const raw = getComputedStyle(document.documentElement).getPropertyValue('--pixel-unit');
+      const parsed = Number.parseFloat(raw);
+      return Number.isFinite(parsed) && parsed > 0 ? parsed : 4;
+    }
+
     function setCssVars() {
       const root = document.documentElement;
       root.style.setProperty('--preview-scale', '1');
-      root.style.setProperty('--asset-scale', '4');
+      root.style.setProperty('--asset-scale', String(getResponsiveAssetScale()));
     }
 
     function attachDrag(node, layerId) {
@@ -3258,7 +3297,7 @@
         originX = dragLayer.x;
         originY = dragLayer.y;
         const move = e => {
-          const pixelStep = state.layout.canvas.previewScale * 4;
+          const pixelStep = getPixelUnit();
           dragLayer.x = Math.round(originX + (e.clientX - startX) / pixelStep);
           dragLayer.y = Math.round(originY + (e.clientY - startY) / pixelStep);
           snapLayerToPixel(dragLayer);
@@ -3570,6 +3609,11 @@ async function renderAll() {
       layers.splice(index, 1);
       state.selectedLayerId = null;
       void renderAll();
+    });
+
+    window.addEventListener('resize', () => {
+      setCssVars();
+      void renderCanvas();
     });
 
     window.addEventListener('keydown', event => {

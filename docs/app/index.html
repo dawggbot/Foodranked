@@ -337,9 +337,6 @@
       image-rendering: pixelated;
       image-rendering: crisp-edges;
     }
-    .layer-node.section-indicator-active {
-      filter: drop-shadow(0 0 calc(1px * var(--pixel-unit)) rgba(255,255,255,.8));
-    }
     .layer-node.text { white-space: pre-line; }
 
     .progress-strip {
@@ -2971,11 +2968,10 @@
         if (layer.kind === 'sprite') {
           const isIndicatorLayer = isSectionIndicatorSpriteLayer(layer);
           const isActiveIndicator = isActiveSectionIndicatorLayer(layer, state.layout.selectedSectionId);
-          if (isActiveIndicator) node.classList.add('section-indicator-active');
           const indicatorOffset = isIndicatorLayer && isActiveIndicator ? -1 : 0;
           node.style.left = `calc(${Number(layer.x || 0) + indicatorOffset}px * var(--pixel-unit))`;
           node.style.top = `calc(${Number(layer.y || 0) + indicatorOffset}px * var(--pixel-unit))`;
-          if (isActiveIndicator) node.style.zIndex = String((Number(layer.z) || 0) + 10);
+          if (isIndicatorLayer && isActiveIndicator) node.style.zIndex = String((Number(layer.z) || 0) + 10);
           const renderedSrc = renderedSectionIndicatorSrc(layer, state.layout.selectedSectionId, state.fullFood || getSelectedFoodStub());
           node.src = renderedSrc;
           node.alt = layer.label;

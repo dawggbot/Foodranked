@@ -576,18 +576,64 @@
     }
 
     @media (max-width: 1180px) {
-      body { overflow: auto; }
+      body { overflow: hidden; }
       .app {
-        height: auto;
-        min-height: 100vh;
-        grid-template-columns: minmax(260px, 320px) minmax(420px, 1fr);
+        height: 100vh;
+        min-height: 0;
+        grid-template-columns: 228px minmax(300px, 1fr) 252px;
+        gap: 8px;
+        padding: 8px;
       }
-      .inspector { grid-column: 1 / -1; max-height: none; }
+      .panel { padding: 10px; border-radius: 14px; }
+      .sidebar-panel,
+      .editor,
+      .inspector {
+        min-height: 0;
+        max-height: calc(100vh - 16px);
+      }
+      .editor {
+        grid-template-rows: auto minmax(0, 1fr) auto;
+        gap: 8px;
+        overflow: hidden;
+      }
+      .canvas-wrap { padding: 8px; min-height: 0; }
+      h1 { font-size: 20px; }
+      h2 { font-size: 13px; }
+      .small { font-size: 11px; }
+      .tiny { font-size: 10px; }
+      .food-list { max-height: 110px; }
+      .section-list { max-height: 150px; }
+      .sprite-library-grid {
+        grid-template-columns: 1fr;
+        max-height: 120px;
+      }
+      .sprite-chip img { height: 44px; }
+      .card-button { padding: 8px; border-radius: 12px; }
+      .tool-card { padding: 8px; }
+      .toolbar-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .nudge-pad {
+        grid-template-columns: repeat(3, 36px);
+        grid-template-rows: repeat(3, 30px);
+      }
+      .nudge-pad button { height: 30px; }
+      textarea { min-height: 80px; }
     }
 
     @media (max-width: 920px) {
       body { overflow: auto; }
-      .app { grid-template-columns: 1fr; }
+      .app {
+        height: auto;
+        min-height: 100vh;
+        grid-template-columns: 1fr;
+      }
+      .sidebar-panel,
+      .editor,
+      .inspector {
+        max-height: none;
+        overflow: visible;
+      }
+      .editor { overflow: visible; }
+      .canvas-wrap { overflow: auto; }
     }
   </style>
 </head>
@@ -3263,10 +3309,15 @@
     function getResponsiveAssetScale() {
       const desktopComfortable = window.innerWidth >= 1600 && window.innerHeight >= 900;
       if (desktopComfortable) return 4;
-      const verticalRoom = Math.max(360, window.innerHeight - 210);
+
+      const laptopCompact = window.innerWidth <= 1180 && window.innerWidth > 920;
+      const reservedWidth = laptopCompact ? 520 : 690;
+      const reservedHeight = laptopCompact ? 174 : 210;
+      const minimumScale = laptopCompact ? 1.25 : 1.45;
+      const verticalRoom = Math.max(300, window.innerHeight - reservedHeight);
       const scaleFromHeight = (((verticalRoom * 9) / 16) - 12) / AUTHOR_GRID.width;
-      const scaleFromWidth = (Math.max(300, window.innerWidth - 690) - 36) / AUTHOR_GRID.width;
-      return Math.max(1.55, Math.min(4, scaleFromHeight, scaleFromWidth));
+      const scaleFromWidth = (Math.max(280, window.innerWidth - reservedWidth) - 24) / AUTHOR_GRID.width;
+      return Math.max(minimumScale, Math.min(4, scaleFromHeight, scaleFromWidth));
     }
 
     function getPixelUnit() {

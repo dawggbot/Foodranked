@@ -571,7 +571,7 @@
         height: 100vh;
         height: 100dvh;
         min-height: 0;
-        grid-template-columns: clamp(250px, 20vw, 290px) minmax(390px, 1fr) clamp(260px, 22vw, 310px);
+        grid-template-columns: clamp(280px, 22vw, 330px) minmax(320px, 1fr) clamp(300px, 24vw, 350px);
         gap: 10px;
         padding: 10px;
       }
@@ -600,6 +600,9 @@
       .section-list { max-height: 164px; overflow-x: hidden; overflow-y: auto; }
       .sprite-library-grid { max-height: 138px; overflow-x: hidden; overflow-y: auto; }
       .sprite-chip img { height: 46px; }
+      .saved-layout-card { gap: 8px; }
+      .saved-layout-card .row { gap: 6px; }
+      .saved-layout-card button { padding: 7px 8px; }
       .card-button { padding: 8px; border-radius: 12px; }
       .food-list .card-button,
       .section-list .card-button,
@@ -684,7 +687,7 @@
         height: 100vh;
         height: 100dvh;
         min-height: 0;
-        grid-template-columns: 216px minmax(300px, 1fr) 236px;
+        grid-template-columns: 236px minmax(260px, 1fr) 252px;
         gap: 8px;
         padding: 8px;
       }
@@ -756,6 +759,20 @@
       </div>
 
       <div class="sidebar-scroll">
+        <div class="stack saved-layout-card">
+          <h2>Saved sprite layouts</h2>
+          <label>
+            Choose layout
+            <select id="savedLayoutSelect"></select>
+          </label>
+          <div class="row">
+            <button id="saveSpriteLayout" type="button">Save current layout</button>
+            <button id="loadSpriteLayout" type="button">Load selected</button>
+            <button id="deleteSpriteLayout" type="button">Delete</button>
+          </div>
+          <p class="tiny muted">Saves section layers only. Food choice and falling-food background settings stay untouched.</p>
+        </div>
+
         <div class="stack">
           <h2>Foods</h2>
           <label>
@@ -981,6 +998,7 @@
     const SECTION_INDICATOR_LAYOUT = { startX: 4, y: 173, stepX: 11, normalSize: 10, highlightedSize: 12 };
 
     const LOCAL_STORAGE_KEY = 'foodranked-display-builder-v4';
+    const SAVED_SPRITE_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
     const AUTHOR_GRID = { width: 135, height: 240 };
     const ROOT_SPRITE_BASE = './sprites';
     const FOOD_JSON_CACHE = new Map();
@@ -1104,6 +1122,7 @@
       selectedLayerId: null,
       foodFilter: '',
       layout: hydrateLayout(loadLayout()),
+      savedSpriteLayouts: loadSavedSpriteLayouts(),
       fullFood: null,
       bgTick: 0
     };
@@ -1128,6 +1147,10 @@
       bgMotionDrift: document.getElementById('bgMotionDrift'),
       resetSection: document.getElementById('resetSection'),
       applyMacroTemplate: document.getElementById('applyMacroTemplate'),
+      savedLayoutSelect: document.getElementById('savedLayoutSelect'),
+      saveSpriteLayout: document.getElementById('saveSpriteLayout'),
+      loadSpriteLayout: document.getElementById('loadSpriteLayout'),
+      deleteSpriteLayout: document.getElementById('deleteSpriteLayout'),
       saveLocal: document.getElementById('saveLocal'),
       copyJson: document.getElementById('copyJson'),
       layoutJson: document.getElementById('layoutJson'),
@@ -1173,6 +1196,31 @@
       } catch {
         return null;
       }
+    }
+
+    function loadSavedSpriteLayouts() {
+      try {
+        const raw = localStorage.getItem(SAVED_SPRITE_LAYOUTS_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        const entries = Array.isArray(parsed) ? parsed : Object.values(parsed || {});
+        return entries
+          .filter(entry => entry && entry.id && entry.sections && typeof entry.sections === 'object')
+          .map(entry => ({
+            id: String(entry.id),
+            name: String(entry.name || 'Untitled layout'),
+            createdAt: entry.createdAt || new Date().toISOString(),
+            updatedAt: entry.updatedAt || entry.createdAt || new Date().toISOString(),
+            selectedSectionId: entry.selectedSectionId || 'intro',
+            sections: structuredClone(entry.sections)
+          }))
+          .sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)) || a.name.localeCompare(b.name));
+      } catch {
+        return [];
+      }
+    }
+
+    function persistSavedSpriteLayouts() {
+      localStorage.setItem(SAVED_SPRITE_LAYOUTS_KEY, JSON.stringify(state.savedSpriteLayouts));
     }
 
     function cloneLayer(layer) {
@@ -2165,6 +2213,98 @@
         if (state.fullFood) syncFoodIntoLayout(state.fullFood, { normalize: false });
       }
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state.layout));
+    }
+
+    function currentSpriteLayoutSnapshot() {
+      const normalized = normalizeLayout(structuredClone(state.layout));
+      return {
+        selectedSectionId: normalized.selectedSectionId,
+        sections: Object.fromEntries(SECTIONS.map(section => [
+          section.id,
+          { layers: structuredClone(getSectionLayersFromLayout(normalized, section.id)) }
+        ]))
+      };
+    }
+
+    function defaultSavedLayoutName() {
+      const food = getSelectedFoodStub();
+      const section = getSelectedSection();
+      const date = new Date().toISOString().slice(0, 10);
+      return `${food?.name || 'FoodRanked'} ${section?.chip || section?.id || 'layout'} ${date}`;
+    }
+
+    function renderSavedSpriteLayouts() {
+      if (!els.savedLayoutSelect) return;
+      const selectedId = els.savedLayoutSelect.value;
+      els.savedLayoutSelect.innerHTML = '';
+      if (!state.savedSpriteLayouts.length) {
+        const option = document.createElement('option');
+        option.value = '';
+        option.textContent = 'No saved layouts yet';
+        els.savedLayoutSelect.appendChild(option);
+      } else {
+        state.savedSpriteLayouts.forEach(layout => {
+          const option = document.createElement('option');
+          option.value = layout.id;
+          option.textContent = `${layout.name} · ${new Date(layout.updatedAt).toLocaleDateString()}`;
+          els.savedLayoutSelect.appendChild(option);
+        });
+        if (state.savedSpriteLayouts.some(layout => layout.id === selectedId)) els.savedLayoutSelect.value = selectedId;
+      }
+      const hasSelection = !!els.savedLayoutSelect.value;
+      els.loadSpriteLayout.disabled = !hasSelection;
+      els.deleteSpriteLayout.disabled = !hasSelection;
+    }
+
+    function saveCurrentSpriteLayoutPreset() {
+      const name = window.prompt('Name this sprite layout', defaultSavedLayoutName());
+      if (!name) return;
+      const trimmedName = name.trim();
+      if (!trimmedName) return;
+      const now = new Date().toISOString();
+      const existing = state.savedSpriteLayouts.find(layout => layout.name.toLowerCase() === trimmedName.toLowerCase());
+      const snapshot = currentSpriteLayoutSnapshot();
+      if (existing && !window.confirm(`Replace saved layout “${existing.name}”?`)) return;
+      const entry = {
+        id: existing?.id || `sprite-layout-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`,
+        name: trimmedName,
+        createdAt: existing?.createdAt || now,
+        updatedAt: now,
+        selectedSectionId: snapshot.selectedSectionId,
+        sections: snapshot.sections
+      };
+      state.savedSpriteLayouts = [entry, ...state.savedSpriteLayouts.filter(layout => layout.id !== entry.id)]
+        .sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)) || a.name.localeCompare(b.name));
+      persistSavedSpriteLayouts();
+      renderSavedSpriteLayouts();
+      els.savedLayoutSelect.value = entry.id;
+      els.saveSpriteLayout.textContent = 'Saved';
+      setTimeout(() => els.saveSpriteLayout.textContent = 'Save current layout', 1200);
+    }
+
+    function loadSelectedSpriteLayoutPreset() {
+      const entry = state.savedSpriteLayouts.find(layout => layout.id === els.savedLayoutSelect.value);
+      if (!entry) return;
+      const currentCanvas = structuredClone(state.layout.canvas);
+      const currentFoodId = state.layout.selectedFoodId;
+      state.layout = hydrateLayout({
+        ...state.layout,
+        selectedFoodId: currentFoodId,
+        selectedSectionId: entry.selectedSectionId || state.layout.selectedSectionId,
+        canvas: currentCanvas,
+        sections: structuredClone(entry.sections)
+      });
+      state.selectedLayerId = null;
+      void renderAll();
+    }
+
+    function deleteSelectedSpriteLayoutPreset() {
+      const entry = state.savedSpriteLayouts.find(layout => layout.id === els.savedLayoutSelect.value);
+      if (!entry) return;
+      if (!window.confirm(`Delete saved layout “${entry.name}”?`)) return;
+      state.savedSpriteLayouts = state.savedSpriteLayouts.filter(layout => layout.id !== entry.id);
+      persistSavedSpriteLayouts();
+      renderSavedSpriteLayouts();
     }
 
     function getSelectedFoodStub() {
@@ -3423,7 +3563,7 @@
       const compactLaptop = (window.innerWidth <= 1500 || window.innerHeight <= 850) && window.innerWidth > 920;
       const laptopCanvasCrop = window.innerWidth <= 1500 && window.innerWidth > 920;
       const tightLaptop = window.innerWidth <= 1180 && window.innerWidth > 920;
-      const reservedWidth = tightLaptop ? 480 : (compactLaptop ? 570 : 690);
+      const reservedWidth = tightLaptop ? 530 : (compactLaptop ? 660 : 690);
       const reservedHeight = tightLaptop ? 154 : (compactLaptop ? 150 : 210);
       const minimumScale = tightLaptop ? 1.12 : (compactLaptop ? 1.30 : 1.45);
       const verticalRoom = Math.max(300, window.innerHeight - reservedHeight);
@@ -3584,6 +3724,7 @@ async function renderAll() {
       renderFoodList();
       renderSectionList();
       renderSpriteLibrary();
+      renderSavedSpriteLayouts();
       await renderCanvas();
       renderLayerList();
       renderSectionTextList();
@@ -3662,6 +3803,10 @@ async function renderAll() {
       state.selectedLayerId = null;
       void renderAll();
     });
+    els.saveSpriteLayout.addEventListener('click', saveCurrentSpriteLayoutPreset);
+    els.loadSpriteLayout.addEventListener('click', loadSelectedSpriteLayoutPreset);
+    els.deleteSpriteLayout.addEventListener('click', deleteSelectedSpriteLayoutPreset);
+    els.savedLayoutSelect.addEventListener('change', renderSavedSpriteLayouts);
     els.saveLocal.addEventListener('click', () => { saveLayout(); els.saveLocal.textContent = 'Saved'; setTimeout(() => els.saveLocal.textContent = 'Save locally', 1200); });
     els.copyJson.addEventListener('click', async () => {
       updateJsonOutput();

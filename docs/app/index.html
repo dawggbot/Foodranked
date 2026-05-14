@@ -671,6 +671,12 @@
       }
     }
 
+    @media (max-width: 1500px) and (min-width: 921px) {
+      .phone-shell {
+        width: min(420px, calc(var(--canvas-width) * 0.7777778));
+      }
+    }
+
     @media (max-width: 1180px) {
       :root { --asset-scale: 1.4; }
       body { overflow: hidden; }
@@ -3415,13 +3421,18 @@
       if (desktopComfortable) return 4;
 
       const compactLaptop = (window.innerWidth <= 1500 || window.innerHeight <= 850) && window.innerWidth > 920;
+      const laptopCanvasCrop = window.innerWidth <= 1500 && window.innerWidth > 920;
       const tightLaptop = window.innerWidth <= 1180 && window.innerWidth > 920;
       const reservedWidth = tightLaptop ? 480 : (compactLaptop ? 570 : 690);
       const reservedHeight = tightLaptop ? 154 : (compactLaptop ? 150 : 210);
       const minimumScale = tightLaptop ? 1.12 : (compactLaptop ? 1.30 : 1.45);
       const verticalRoom = Math.max(300, window.innerHeight - reservedHeight);
-      const scaleFromHeight = (((verticalRoom * 9) / 16) - 12) / AUTHOR_GRID.width;
-      const scaleFromWidth = (Math.max(280, window.innerWidth - reservedWidth) - 24) / AUTHOR_GRID.width;
+      const scaleFromHeight = laptopCanvasCrop
+        ? (verticalRoom - 12) / (AUTHOR_GRID.height * (7 / 9))
+        : (((verticalRoom * 9) / 16) - 12) / AUTHOR_GRID.width;
+      const scaleFromWidth = laptopCanvasCrop
+        ? (Math.max(280, window.innerWidth - reservedWidth) - 24) / (AUTHOR_GRID.width * (7 / 9))
+        : (Math.max(280, window.innerWidth - reservedWidth) - 24) / AUTHOR_GRID.width;
       return Math.max(minimumScale, Math.min(4, scaleFromHeight, scaleFromWidth));
     }
 

@@ -5,6 +5,8 @@ description: Design the data model, rulesets, scoring formulas, and ranking logi
 
 # Nutrition Scoring Engineer
 
+FoodRanked scoring is locked around defensible per-100g comparisons, 7 sections, and reproducible source-backed outputs.
+
 Adapt the spirit of Backend Architect and Database Optimizer for this project's nutrition engine.
 
 ## Mission
@@ -29,11 +31,25 @@ Separate these concerns:
 
 ## Non-negotiables
 
+- Score all foods per 100g.
 - Never mix raw nutrient facts with derived scoring fields.
 - Make every score reproducible from stored inputs.
 - Keep units explicit.
 - Record assumptions like serving basis, source, and missing-data policy.
 - Make rule changes versioned so old videos can still be explained later.
+- Use `N/A` rather than inventing exact values that cannot be defensibly sourced for the food identity.
+- Keep pros and cons as exactly 3 items each and as first-class score-bearing sections.
+- Remember `weight = 0` is a real zero contribution, not a fallback to `1`.
+
+## Locked FoodRanked scoring rules
+
+- Main macros (`fat_g`, `carbs_g`, `protein_g`, `kcal`) are display-first; submacros carry arrow-style scoring.
+- Only submacros use arrow indicators.
+- Vitamins and minerals score from DV% using `floor(DV% / 10)`, capped at 10.
+- Top-level structure is 7 sections: fats, carbs, proteins, vitamins, minerals, pros, cons.
+- Whole foods usually use raw values; meats usually use raw forms; prepared foods are ranked as they come.
+- Oats are uncooked rolled oats; white rice is uncooked white rice; yam and sweet potato are separate uncooked entries.
+- Use USDA FoodData Central first for whole foods and raw ingredients. Use Open Food Facts for packaged, processed, or branded foods when it is the better identity match.
 
 ## Recommended scoring pattern
 

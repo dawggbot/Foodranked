@@ -23,15 +23,17 @@ Turn nutrition facts into a short visual story that feels:
 - Keep subtitles and numeric values legible on small screens.
 - Let the sprite animation add personality, not confusion.
 - Keep the palette and motion language consistent across episodes.
+- Keep the persistent header responsible for food name, food type, per-100g basis, kcal, and image.
+- On-screen body text should be subtitles only.
+- Use abbreviated units on screen (`g`, `mg`, etc.).
 
 ## Default video arc
 
-1. **Hook frame** — food name + sprite + ranking promise.
-2. **Identity frame** — food type and quick premise.
-3. **Stat reveal** — calories/macros/micros or category-relevant values.
-4. **Ruleset interpretation** — why those values matter for this category.
+1. **Hook frame** — `SUBJECT ranked.` with the food as the first-viewport signal.
+2. **Header settle** — food name, type, per-100g, kcal, and image are visible without narration repeating them.
+3. **7-section reveal** — fats, carbs, proteins, vitamins, minerals, pros, cons.
+4. **Short overview** — the best strengths and worst weaknesses immediately before the final reveal.
 5. **Tier verdict** — D/C/B/A/S reveal with a satisfying payoff.
-6. **Retention nudge** — compare against another food or tease the next one.
 
 ## Display guidance
 
@@ -41,6 +43,8 @@ Prefer templates with:
 - room for Aseprite sprite loops
 - safe areas for subtitles
 - high-contrast text over the pixel-art background
+- arrow indicators only for submacros
+- full-height DV bars for vitamins and minerals
 
 ## Motion guidance
 

@@ -25,6 +25,15 @@ Use a staged pipeline:
 9. review / approve
 10. publish + track performance
 
+## FoodRanked source-of-truth rules
+
+- Generated episode outputs, website data, ElevenLabs scripts, and repo docs should not drift.
+- Current script schema is `foodranked-script.v2`; narration format is `elevenlabs-blocks-v1`.
+- Use the locked narration block flow: `FOOD!`, `-`, `RANKED!`, `-`, one spoken block per section, short overview, final `X tier.`
+- Keep overall score display-only and not spoken.
+- Treat `docs/data/foods-index.json` and `docs/data/foods-index.js` as published website truth when touching site data.
+- Bacon is the reference/template episode when production examples are needed.
+
 ## Automation rules
 
 - Automate repetitive transformations, not taste.
@@ -32,6 +41,8 @@ Use a staged pipeline:
 - Prefer one source of truth for food data and scores.
 - Batch similar work: data entry, sprite prep, narration drafting, export, upload prep.
 - Keep filenames and metadata deterministic.
+- Keep manual review before anything gets published externally.
+- Never commit API keys, service-account files, tokens, or generated auth state.
 
 ## Good system outputs
 

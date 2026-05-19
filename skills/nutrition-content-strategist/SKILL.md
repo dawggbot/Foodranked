@@ -18,6 +18,11 @@ Turn the scoring engine into a repeatable series people can instantly recognize.
 - Keep each episode focused on one food or one tight comparison.
 - Use the tier reveal as the emotional payoff.
 - Build recurring formats so viewers know what they are getting.
+- Keep the locked opener shape: `SUBJECT ranked.`
+- Do not waste narration on basics already visible in the header.
+- Prefer informative shorts over ultra-short ones.
+- Keep all 3 pros and all 3 cons.
+- Pros/cons should add food-specific context, not repeat macro, submacro, vitamin, or mineral points already shown.
 
 ## Content formats to prefer
 

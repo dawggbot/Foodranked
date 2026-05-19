@@ -5,6 +5,8 @@ description: End-to-end planning, building, and operating of a short-form nutrit
 
 # Nutrition Content Studio
 
+FoodRanked is a repeatable nutrition short-form content engine, not a one-off video project. Keep scoring data, script output, website data, production assets, and GitHub-facing docs aligned.
+
 Treat the project as a **content engine**, not just an app.
 
 ## Core framing
@@ -15,6 +17,16 @@ Break work into these layers:
 3. **Presentation layer** — cozy pixel-art stat sheet / pokedex / RPG reveal UI with sprites, subtitles, narration timing, and export templates.
 4. **Operations layer** — batching, review, publishing, analytics, and iteration across YouTube, TikTok, Instagram, and Facebook.
 
+## FoodRanked locks
+
+- Score every food per 100g.
+- Preserve the 7 sections: fats, carbs, proteins, vitamins, minerals, pros, cons.
+- Keep exactly 3 pros and exactly 3 cons.
+- Use USDA FoodData Central first for whole foods and Open Food Facts second for packaged/branded foods.
+- Use `N/A` when an exact metric is not defensibly sourceable.
+- Website scripts, ElevenLabs scripts, generated episode outputs, and repo data should match.
+- Do not casually change locked scoring, food identity, or narration rules.
+
 ## Default workflow
 
 When helping on this project:
@@ -23,6 +35,7 @@ When helping on this project:
 3. Keep the first version small enough to ship.
 4. Preserve the channel's identity: cozy, pixel-art, playful, but still methodical and fair.
 5. Make scoring auditable: every food score should be explainable from stored rules.
+6. Check the relevant source-of-truth doc before changing behavior.
 
 ## Design rules
 

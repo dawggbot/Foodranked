@@ -17,6 +17,6 @@ if git diff --cached --quiet; then
 fi
 
 git commit -m "$MSG"
-GIT_SSH_COMMAND='ssh -i ~/.ssh/openclaw-foodranked-github_ed25519 -o IdentitiesOnly=yes' git push
+GIT_SSH_COMMAND='ssh -i ~/.ssh/id_ed25519_github_foodranked -o IdentitiesOnly=yes' git push
 
 echo "Pushed to GitHub." 

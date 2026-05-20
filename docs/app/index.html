@@ -2565,9 +2565,59 @@
         .sort((a, b) => sectionIndicatorLayerIndex(a) - sectionIndicatorLayerIndex(b));
     }
 
+    function sectionIndicatorLayersInSectionOrder(layout, sectionId) {
+      return getSectionLayersFromLayout(layout, sectionId).filter(isSectionIndicatorSpriteLayer);
+    }
+
     function sectionIndicatorLayerIndex(layer) {
       const match = String(layer?.id || '').match(/_indicator_(\d+)$/);
       return match ? Number(match[1]) - 1 : 999;
+    }
+
+    function isManagedSectionIndicatorLayer(layer, sectionId) {
+      return new RegExp(`^${sectionId}_indicator_\\d+$`, 'i').test(String(layer?.id || ''));
+    }
+
+    function isManualSectionIndicatorLayer(layer, sectionId) {
+      if (!isSectionIndicatorSpriteLayer(layer)) return false;
+      const label = String(layer.label || '').toLowerCase();
+      const id = String(layer.id || '').toLowerCase();
+      return label.startsWith('library:') || id.startsWith('lib_section_indicator_') || !isManagedSectionIndicatorLayer(layer, sectionId);
+    }
+
+    function sectionIndicatorsOverlap(a, b) {
+      return Math.abs((Number(a?.x) || 0) - (Number(b?.x) || 0)) <= 2
+        && Math.abs((Number(a?.y) || 0) - (Number(b?.y) || 0)) <= 2;
+    }
+
+    function pruneSectionIndicatorLayers(layout, sectionId) {
+      const sectionLayers = getSectionLayersFromLayout(layout, sectionId);
+      const indicators = sectionLayers.filter(isSectionIndicatorSpriteLayer);
+      if (indicators.length <= SECTION_INDICATOR_COUNT) return;
+
+      const manualIndicators = indicators.filter(layer => isManualSectionIndicatorLayer(layer, sectionId));
+      const managedIndicators = indicators.filter(layer => isManagedSectionIndicatorLayer(layer, sectionId));
+      const preferredIndicators = manualIndicators.length >= SECTION_INDICATOR_COUNT - 1
+        ? manualIndicators
+        : managedIndicators.length >= SECTION_INDICATOR_COUNT
+          ? managedIndicators
+          : indicators;
+      const kept = [];
+
+      for (const layer of preferredIndicators) {
+        if (kept.length >= SECTION_INDICATOR_COUNT) break;
+        if (kept.some(existing => sectionIndicatorsOverlap(existing, layer))) continue;
+        kept.push(layer);
+      }
+      for (const layer of preferredIndicators) {
+        if (kept.length >= SECTION_INDICATOR_COUNT) break;
+        if (!kept.includes(layer)) kept.push(layer);
+      }
+
+      const keepSet = new Set(kept);
+      layout.sections[sectionId].layers = sectionLayers.filter(layer => {
+        return !isSectionIndicatorSpriteLayer(layer) || keepSet.has(layer);
+      });
     }
 
     function defaultSectionIndicatorPosition(index) {
@@ -2594,16 +2644,49 @@
       return indicators.every(layer => (Number(layer.y) || 0) > visibleBottomLimit);
     }
 
+    function nextSectionIndicatorPosition(indicators, index) {
+      if (!indicators.length) return defaultSectionIndicatorPosition(index);
+      const ordered = [...indicators].sort((a, b) => {
+        return (Number(a.x) || 0) - (Number(b.x) || 0) || (Number(a.y) || 0) - (Number(b.y) || 0);
+      });
+      const last = ordered[ordered.length - 1];
+      const previous = ordered[ordered.length - 2];
+      const rawStep = previous ? (Number(last.x) || 0) - (Number(previous.x) || 0) : SECTION_INDICATOR_LAYOUT.stepX;
+      const step = clampValue(Math.round(rawStep || SECTION_INDICATOR_LAYOUT.stepX), 4, 30);
+      return {
+        x: clampValue((Number(last.x) || 0) + step, 0, AUTHOR_GRID.width - SECTION_INDICATOR_LAYOUT.normalSize),
+        y: Number(last.y) || SECTION_INDICATOR_LAYOUT.y
+      };
+    }
+
+    function createRecoveredSectionIndicatorLayer(sectionId, index, indicators, sectionLayers) {
+      const layer = createSectionIndicatorLayer(sectionId, index);
+      const position = nextSectionIndicatorPosition(indicators, index);
+      const shouldUseManualId = indicators.some(item => isManualSectionIndicatorLayer(item, sectionId));
+      let baseId = shouldUseManualId
+        ? `${sectionId}_recovered_section_indicator_slot_${index + 1}`
+        : `${sectionId}_indicator_${index + 1}`;
+      let id = baseId;
+      let suffix = 2;
+      while (sectionLayers.some(item => String(item.id || '') === id)) {
+        id = `${baseId}_${suffix}`;
+        suffix += 1;
+      }
+      layer.id = id;
+      layer.x = position.x;
+      layer.y = position.y;
+      return layer;
+    }
+
     function ensureSectionIndicatorLayers(layout) {
       for (const section of SECTIONS) {
+        pruneSectionIndicatorLayers(layout, section.id);
         const sectionLayers = getSectionLayersFromLayout(layout, section.id);
-        let indicators = sectionIndicatorLayersForSection(layout, section.id);
-        for (let index = 0; index < SECTION_INDICATOR_COUNT; index += 1) {
-          const expectedId = `${section.id}_indicator_${index + 1}`;
-          if (!sectionLayers.some(layer => String(layer.id || '') === expectedId)) {
-            const layer = createSectionIndicatorLayer(section.id, index);
-            sectionLayers.push(layer);
-          }
+        let indicators = sectionIndicatorLayersInSectionOrder(layout, section.id);
+        while (indicators.length < SECTION_INDICATOR_COUNT) {
+          const layer = createRecoveredSectionIndicatorLayer(section.id, indicators.length, indicators, sectionLayers);
+          sectionLayers.push(layer);
+          indicators = sectionIndicatorLayersInSectionOrder(layout, section.id);
         }
         indicators = sectionIndicatorLayersForSection(layout, section.id);
         if (shouldResetSectionIndicatorPositions(indicators)) {

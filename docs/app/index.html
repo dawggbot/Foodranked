@@ -1074,19 +1074,6 @@
       macroDisplay: false
     };
 
-    function clearSavedBuilderStateFromUrl() {
-      const params = new URLSearchParams(window.location.search);
-      if (!params.has('resetLayout')) return;
-      localStorage.removeItem(LOCAL_STORAGE_KEY);
-      localStorage.removeItem(SAVED_SPRITE_LAYOUTS_KEY);
-      params.delete('resetLayout');
-      const nextSearch = params.toString();
-      const nextUrl = `${window.location.pathname}${nextSearch ? `?${nextSearch}` : ''}${window.location.hash}`;
-      window.history.replaceState({}, '', nextUrl);
-    }
-
-    clearSavedBuilderStateFromUrl();
-
     const VITAMIN_TEXT_SPECS = [
       { key: 'vitamin_a_dv', shortLabel: 'A' },
       { key: 'vitamin_c_dv', shortLabel: 'C' },

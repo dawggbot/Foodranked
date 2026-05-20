@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reset FoodRanked Builder Layout</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #10141d;
+      color: #f5f0e6;
+      font-family: Inter, system-ui, sans-serif;
+    }
+    main {
+      max-width: 520px;
+      padding: 24px;
+      line-height: 1.5;
+    }
+    code { color: #90b3ff; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Resetting builder layout…</h1>
+    <p>This clears saved local sprite placements and returns the display builder to the repo default layout.</p>
+    <p><a href="./index.html">Open builder manually</a></p>
+  </main>
+  <script>
+    [
+      'foodranked-display-builder-v4',
+      'foodranked-display-builder-v5',
+      'foodranked-display-builder-sprite-layouts-v1',
+      'foodranked-display-builder-sprite-layouts-v2'
+    ].forEach(key => localStorage.removeItem(key));
+
+    window.location.replace(`./index.html?resetLayout=1&resetAt=${Date.now()}`);
+  </script>
+</body>
+</html>

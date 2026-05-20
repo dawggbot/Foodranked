@@ -2616,14 +2616,33 @@
       });
     }
 
+    function dominantSectionIndicatorRow(indicators) {
+      const rows = [];
+      for (const layer of indicators) {
+        const y = Number(layer.y) || 0;
+        let row = rows.find(candidate => Math.abs(candidate.y - y) <= 4);
+        if (!row) {
+          row = { y, layers: [] };
+          rows.push(row);
+        }
+        row.layers.push(layer);
+        row.y = row.layers.reduce((sum, item) => sum + (Number(item.y) || 0), 0) / row.layers.length;
+      }
+      return rows.sort((a, b) => b.layers.length - a.layers.length)[0]?.layers || indicators;
+    }
+
     function pruneSectionIndicatorLayers(layout, sectionId) {
       const sectionLayers = getSectionLayersFromLayout(layout, sectionId);
       const indicators = sectionLayers.filter(isSectionIndicatorSpriteLayer);
-      if (indicators.length <= SECTION_INDICATOR_COUNT && !hasOverlappingSectionIndicators(indicators)) return;
+      const dominantRow = dominantSectionIndicatorRow(indicators);
+      const hasOffRowExtra = dominantRow.length >= SECTION_INDICATOR_COUNT - 1 && dominantRow.length < indicators.length;
+      if (indicators.length <= SECTION_INDICATOR_COUNT && !hasOverlappingSectionIndicators(indicators) && !hasOffRowExtra) return;
 
       const manualIndicators = indicators.filter(layer => isManualSectionIndicatorLayer(layer, sectionId));
       const managedIndicators = indicators.filter(layer => isManagedSectionIndicatorLayer(layer, sectionId));
-      const preferredIndicators = manualIndicators.length >= SECTION_INDICATOR_COUNT - 1
+      const preferredIndicators = hasOffRowExtra
+        ? dominantRow
+        : manualIndicators.length >= SECTION_INDICATOR_COUNT - 1
         ? manualIndicators
         : managedIndicators.length >= SECTION_INDICATOR_COUNT
           ? managedIndicators

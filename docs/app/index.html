@@ -997,10 +997,8 @@
     const SECTION_INDICATOR_COUNT = SECTIONS.length;
     const SECTION_INDICATOR_LAYOUT = { startX: 4, y: 173, stepX: 11, normalSize: 10, highlightedSize: 12 };
 
-    const LEGACY_LOCAL_STORAGE_KEYS = ['foodranked-display-builder-v4'];
-    const LEGACY_SAVED_SPRITE_LAYOUTS_KEYS = ['foodranked-display-builder-sprite-layouts-v1'];
-    const LOCAL_STORAGE_KEY = 'foodranked-display-builder-v5';
-    const SAVED_SPRITE_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v2';
+    const LOCAL_STORAGE_KEY = 'foodranked-display-builder-v4';
+    const SAVED_SPRITE_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
     const AUTHOR_GRID = { width: 135, height: 240 };
     const ROOT_SPRITE_BASE = './sprites';
     const FOOD_JSON_CACHE = new Map();
@@ -1079,8 +1077,8 @@
     function clearSavedBuilderStateFromUrl() {
       const params = new URLSearchParams(window.location.search);
       if (!params.has('resetLayout')) return;
-      [LOCAL_STORAGE_KEY, ...LEGACY_LOCAL_STORAGE_KEYS].forEach(key => localStorage.removeItem(key));
-      [SAVED_SPRITE_LAYOUTS_KEY, ...LEGACY_SAVED_SPRITE_LAYOUTS_KEYS].forEach(key => localStorage.removeItem(key));
+      localStorage.removeItem(LOCAL_STORAGE_KEY);
+      localStorage.removeItem(SAVED_SPRITE_LAYOUTS_KEY);
       params.delete('resetLayout');
       const nextSearch = params.toString();
       const nextUrl = `${window.location.pathname}${nextSearch ? `?${nextSearch}` : ''}${window.location.hash}`;

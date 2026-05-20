@@ -2835,6 +2835,11 @@
       return `${ROOT_SPRITE_BASE}/header/food_plate/${slug}_food_plate.png`;
     }
 
+    function sectionSeparatorSpritePath(food = getSelectedFoodStub()) {
+      const slug = typeSpriteSlug(food?.foodType);
+      return `${ROOT_SPRITE_BASE}/ui/section_separator/${slug}_section_separator.png`;
+    }
+
     function makeSpriteLibraryItem(label, src) {
       return {
         label,
@@ -3200,6 +3205,19 @@
       syncHeaderTextForFood(layout, food);
     }
 
+    function syncSectionSeparatorsForFood(layout, food = getSelectedFoodStub()) {
+      for (const section of SECTIONS) {
+        for (const layer of getSectionLayersFromLayout(layout, section.id)) {
+          if (!isSpriteLayer(layer)) continue;
+          const src = String(layer.src || '').toLowerCase();
+          const label = String(layer.label || '').toLowerCase().replace(/^library:\s*/, '');
+          if (src.includes('/ui/section_separator/') || /^section separator$/.test(label)) {
+            layer.src = sectionSeparatorSpritePath(food);
+          }
+        }
+      }
+    }
+
     function getMacroFillRange(foodType, sectionId) {
       const normalized = normalizeFoodType(foodType);
       return MACRO_FILL_RANGES[normalized]?.[sectionId] || DEFAULT_MACRO_FILL_RANGES[sectionId] || [0, 30];
@@ -3369,6 +3387,7 @@
     function syncFoodIntoLayout(food, { normalize = true } = {}) {
       if (normalize) normalizeLayout(state.layout);
       syncHeaderForFood(state.layout, food || getSelectedFoodStub());
+      syncSectionSeparatorsForFood(state.layout, food || getSelectedFoodStub());
       syncSectionIndicatorSprites(state.layout, food || getSelectedFoodStub());
       syncManualOutroHighlightedIndicators(state.layout, food || getSelectedFoodStub());
       for (const sectionId of ['fats', 'carbs', 'protein']) {

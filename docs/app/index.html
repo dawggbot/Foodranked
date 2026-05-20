@@ -2597,14 +2597,15 @@
     function ensureSectionIndicatorLayers(layout) {
       for (const section of SECTIONS) {
         const sectionLayers = getSectionLayersFromLayout(layout, section.id);
-        const indicators = sectionIndicatorLayersForSection(layout, section.id);
-        if (indicators.length < SECTION_INDICATOR_COUNT) {
-          for (let index = indicators.length; index < SECTION_INDICATOR_COUNT; index += 1) {
+        let indicators = sectionIndicatorLayersForSection(layout, section.id);
+        for (let index = 0; index < SECTION_INDICATOR_COUNT; index += 1) {
+          const expectedId = `${section.id}_indicator_${index + 1}`;
+          if (!sectionLayers.some(layer => String(layer.id || '') === expectedId)) {
             const layer = createSectionIndicatorLayer(section.id, index);
             sectionLayers.push(layer);
-            indicators.push(layer);
           }
         }
+        indicators = sectionIndicatorLayersForSection(layout, section.id);
         if (shouldResetSectionIndicatorPositions(indicators)) {
           applyDefaultSectionIndicatorLayerPositions(indicators);
         } else {

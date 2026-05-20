@@ -1092,13 +1092,6 @@
     ];
 
     const PRO_CON_IMPACT_COUNT = 3;
-    const HEADER_TEXT_ROLES = {
-      foodName: 'foodName',
-      foodType: 'foodType',
-      basis: 'basis',
-      calories: 'calories',
-      score: 'score'
-    };
 
     const DEFAULT_LAYOUT = {
       canvas: {
@@ -1292,27 +1285,6 @@
 
     function isOutroScoreDisplayLayer(layer) {
       return isTextLayer(layer) && String(layer.id || '').toLowerCase() === 'outro_score_value';
-    }
-
-    function headerSpriteRole(layer) {
-      if (!isHeaderSpriteLayer(layer)) return null;
-      const fingerprint = `${layer.id || ''} ${layer.label || ''} ${layer.src || ''}`.toLowerCase();
-      if (fingerprint.includes('/header/food_images/') || /header food image\b/.test(fingerprint) || /selected food image/.test(fingerprint)) return 'foodImage';
-      if (fingerprint.includes('/header/food_plate/') || fingerprint.includes('/header/food_image_plate/') || /food image plate|food plate/.test(fingerprint)) return 'foodPlate';
-      if (fingerprint.includes('/header/food_type_plate/') || /food type/.test(fingerprint) || looksLikeLegacyFoodTypeLabel(layer)) return 'foodTypePlate';
-      if (fingerprint.includes('/header/calorie_bubble/') || /calorie|kcal/.test(fingerprint)) return 'calorieBubble';
-      return null;
-    }
-
-    function headerTextRole(layer) {
-      if (!isTextLayer(layer) || isOutroScoreDisplayLayer(layer)) return null;
-      const fingerprint = `${layer.id || ''} ${layer.label || ''}`.toLowerCase();
-      if (/food.*name|title/.test(fingerprint)) return HEADER_TEXT_ROLES.foodName;
-      if (/food.*type|type.*label/.test(fingerprint) || looksLikeLegacyFoodTypeLabel(layer)) return HEADER_TEXT_ROLES.foodType;
-      if (/basis|100g|per/.test(fingerprint)) return HEADER_TEXT_ROLES.basis;
-      if (/calorie|kcal/.test(fingerprint)) return HEADER_TEXT_ROLES.calories;
-      if (/score|tier/.test(fingerprint)) return HEADER_TEXT_ROLES.score;
-      return null;
     }
 
     function isObsoleteOutroScoreDisplayLayer(layer) {
@@ -2480,16 +2452,6 @@
       return `PER\n${food.basis.value || 100}${String(food.basis.unit || 'g').toUpperCase()}`;
     }
 
-    function formatFoodTypeHeader(food) {
-      const type = normalizeFoodType(food?.foodType || getSelectedFoodStub()?.foodType || 'misc');
-      return titleCaseWords(type);
-    }
-
-    function formatCaloriesHeader(food) {
-      const kcal = food?.header?.kcal ?? food?.kcal ?? getSelectedFoodStub()?.kcal ?? null;
-      return kcal == null ? 'N/A\nKCAL' : `${formatCompactNumber(kcal, 0)}\nKCAL`;
-    }
-
     function asNumber(value, fallback = null) {
       if (value == null || value === '') return fallback;
       return Number.isFinite(Number(value)) ? Number(value) : fallback;
@@ -2985,49 +2947,6 @@
       return (await probeSpriteExists(candidates.primary)) ? candidates.primary : candidates.fallback;
     }
 
-    function syncHeaderSpritesForFood(layout, food = getSelectedFoodStub()) {
-      const slug = typeSpriteSlug(food?.foodType);
-      const foodSprites = foodSpriteCandidates(food);
-      const spriteByRole = {
-        foodImage: foodSprites.primary,
-        foodPlate: `${ROOT_SPRITE_BASE}/header/food_plate/${slug}_food_plate.png`,
-        foodTypePlate: `${ROOT_SPRITE_BASE}/header/food_type_plate/${slug}_type_plate.png`,
-        calorieBubble: `${ROOT_SPRITE_BASE}/header/calorie_bubble/${slug}_calorie_bubble.png`
-      };
-
-      for (const section of SECTIONS) {
-        for (const layer of getSectionLayersFromLayout(layout, section.id)) {
-          const role = headerSpriteRole(layer);
-          if (!role || !spriteByRole[role]) continue;
-          layer.src = spriteByRole[role];
-          if (role === 'foodImage') layer.fallbackSrc = foodSprites.fallback;
-          else delete layer.fallbackSrc;
-          layer.foodDriven = true;
-          layer.label = labelForSpriteLayer(layer);
-        }
-      }
-    }
-
-    function syncHeaderTextForFood(layout, food = getSelectedFoodStub()) {
-      const headerValues = {
-        [HEADER_TEXT_ROLES.foodName]: food?.name || getSelectedFoodStub()?.name || 'FoodRanked',
-        [HEADER_TEXT_ROLES.foodType]: formatFoodTypeHeader(food),
-        [HEADER_TEXT_ROLES.basis]: formatBasis(food),
-        [HEADER_TEXT_ROLES.calories]: formatCaloriesHeader(food),
-        [HEADER_TEXT_ROLES.score]: scoreTier(food)
-      };
-
-      for (const section of SECTIONS) {
-        for (const layer of getSectionLayersFromLayout(layout, section.id)) {
-          const role = headerTextRole(layer);
-          if (!role) continue;
-          layer.text = headerValues[role];
-          layer.manualText = false;
-          layer.label = labelForTextLayer(layer, section.id);
-        }
-      }
-    }
-
     function currentEpisode(stub = getSelectedFoodStub()) {
       return stub?.episode || null;
     }
@@ -3256,8 +3175,6 @@
       if (normalize) normalizeLayout(state.layout);
       syncSectionIndicatorSprites(state.layout, food || getSelectedFoodStub());
       syncManualOutroHighlightedIndicators(state.layout, food || getSelectedFoodStub());
-      syncHeaderSpritesForFood(state.layout, food || getSelectedFoodStub());
-      syncHeaderTextForFood(state.layout, food || getSelectedFoodStub());
       for (const sectionId of ['fats', 'carbs', 'protein']) {
         const sectionLayers = getSectionLayersFromLayout(state.layout, sectionId);
         getMacroSubmetricRowBindings(state.layout, sectionId).forEach((binding, index) => {

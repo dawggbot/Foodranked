@@ -981,6 +981,7 @@
   </div>
 
   <script src="../data/foods-index.js"></script>
+  <script src="./default-layout.js"></script>
   <script>
     const SECTIONS = [
       { id: 'intro', label: '1. Intro blank', chip: null, indicator: true },
@@ -1093,7 +1094,9 @@
 
     const PRO_CON_IMPACT_COUNT = 3;
 
-    const DEFAULT_LAYOUT = {
+    const DEFAULT_LAYOUT = window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT?.sections
+      ? structuredClone(window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT)
+      : {
       canvas: {
         width: 135,
         height: 240,

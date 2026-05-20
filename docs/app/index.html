@@ -676,7 +676,7 @@
 
     @media (max-width: 1500px) and (min-width: 921px) {
       .phone-shell {
-        width: min(420px, calc(var(--canvas-width) * 0.7777778));
+        width: min(420px, calc(var(--canvas-width) + 12px));
       }
     }
 
@@ -855,7 +855,7 @@
       <div class="row" style="justify-content:space-between;align-items:flex-start;">
         <div class="stack" style="gap:4px;">
           <h2>Display canvas</h2>
-          <p class="small muted">Drag sprites or text directly. Arrow keys nudge by 1 grid pixel. Shift + arrows nudge by 10 grid pixels. The authored grid is 135×240 and previews the 100% exported sprite set directly.</p>
+          <p class="small muted">Drag sprites or text directly. Arrow keys nudge by 1 grid pixel. Shift + arrows nudge by 10 grid pixels. The authored grid stays 135×240 while the preview scales to fit the screen.</p>
         </div>
         <div class="small muted" id="selectionChip">Selected: none</div>
       </div>
@@ -3561,18 +3561,15 @@
       if (desktopComfortable) return 4;
 
       const compactLaptop = (window.innerWidth <= 1500 || window.innerHeight <= 850) && window.innerWidth > 920;
-      const laptopCanvasCrop = window.innerWidth <= 1500 && window.innerWidth > 920;
       const tightLaptop = window.innerWidth <= 1180 && window.innerWidth > 920;
       const reservedWidth = tightLaptop ? 530 : (compactLaptop ? 660 : 690);
-      const reservedHeight = tightLaptop ? 154 : (compactLaptop ? 150 : 210);
-      const minimumScale = tightLaptop ? 1.12 : (compactLaptop ? 1.30 : 1.45);
+      const reservedHeight = tightLaptop ? 150 : (compactLaptop ? 152 : 210);
+      const minimumScale = tightLaptop ? 1.05 : (compactLaptop ? 1.18 : 1.45);
       const verticalRoom = Math.max(300, window.innerHeight - reservedHeight);
-      const scaleFromHeight = laptopCanvasCrop
-        ? (verticalRoom - 12) / (AUTHOR_GRID.height * (7 / 9))
-        : (((verticalRoom * 9) / 16) - 12) / AUTHOR_GRID.width;
-      const scaleFromWidth = laptopCanvasCrop
-        ? (Math.max(280, window.innerWidth - reservedWidth) - 24) / (AUTHOR_GRID.width * (7 / 9))
-        : (Math.max(280, window.innerWidth - reservedWidth) - 24) / AUTHOR_GRID.width;
+      const horizontalRoom = Math.max(280, window.innerWidth - reservedWidth);
+      const shellChrome = 28;
+      const scaleFromHeight = (verticalRoom - shellChrome) / AUTHOR_GRID.height;
+      const scaleFromWidth = (horizontalRoom - shellChrome) / AUTHOR_GRID.width;
       return Math.max(minimumScale, Math.min(4, scaleFromHeight, scaleFromWidth));
     }
 

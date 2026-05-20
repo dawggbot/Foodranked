@@ -2820,6 +2820,21 @@
       };
     }
 
+    function headerFoodTypeSpritePath(food = getSelectedFoodStub()) {
+      const slug = typeSpriteSlug(food?.foodType);
+      return `${ROOT_SPRITE_BASE}/header/food_type_plate/${slug}_type_plate.png`;
+    }
+
+    function headerCalorieBubbleSpritePath(food = getSelectedFoodStub()) {
+      const slug = typeSpriteSlug(food?.foodType);
+      return `${ROOT_SPRITE_BASE}/header/calorie_bubble/${slug}_calorie_bubble.png`;
+    }
+
+    function headerFoodPlateSpritePath(food = getSelectedFoodStub()) {
+      const slug = typeSpriteSlug(food?.foodType);
+      return `${ROOT_SPRITE_BASE}/header/food_plate/${slug}_food_plate.png`;
+    }
+
     function makeSpriteLibraryItem(label, src) {
       return {
         label,
@@ -3143,6 +3158,48 @@
       return normalized.replace(/-/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
     }
 
+    function syncHeaderSpritesForFood(layout, food = getSelectedFoodStub()) {
+      const imageCandidates = foodSpriteCandidates(food);
+      for (const section of SECTIONS) {
+        for (const layer of getSectionLayersFromLayout(layout, section.id)) {
+          if (!isHeaderSpriteLayer(layer)) continue;
+          const src = String(layer.src || '').toLowerCase();
+          const label = String(layer.label || '').toLowerCase().replace(/^library:\s*/, '');
+          if (src.includes('/header/food_type_plate/') || /header food type/.test(label)) {
+            layer.src = headerFoodTypeSpritePath(food);
+          } else if (src.includes('/header/calorie_bubble/') || /header calorie bubble/.test(label)) {
+            layer.src = headerCalorieBubbleSpritePath(food);
+          } else if (src.includes('/header/food_plate/') || src.includes('/header/food_image_plate/') || /header food image plate/.test(label)) {
+            layer.src = headerFoodPlateSpritePath(food);
+          } else if (src.includes('/header/food_images/') || /^header food image$/.test(label)) {
+            layer.src = imageCandidates.primary;
+            layer.fallbackSrc = imageCandidates.fallback;
+          }
+        }
+      }
+    }
+
+    function syncHeaderTextForFood(layout, food = getSelectedFoodStub()) {
+      const header = food?.header || {};
+      const values = {
+        food_name_text: food?.name || 'Unknown',
+        kcal_value_text: String(header.kcal ?? food?.kcal ?? 'N/A'),
+        basis_text: formatBasis(food),
+        script_caption: prettyFoodType(food?.foodType || getSelectedFoodStub()?.foodType).toUpperCase()
+      };
+      for (const section of SECTIONS) {
+        for (const layer of getSectionLayersFromLayout(layout, section.id)) {
+          if (!isTextLayer(layer) || !(layer.id in values)) continue;
+          layer.text = values[layer.id];
+        }
+      }
+    }
+
+    function syncHeaderForFood(layout, food = getSelectedFoodStub()) {
+      syncHeaderSpritesForFood(layout, food);
+      syncHeaderTextForFood(layout, food);
+    }
+
     function getMacroFillRange(foodType, sectionId) {
       const normalized = normalizeFoodType(foodType);
       return MACRO_FILL_RANGES[normalized]?.[sectionId] || DEFAULT_MACRO_FILL_RANGES[sectionId] || [0, 30];
@@ -3311,6 +3368,7 @@
 
     function syncFoodIntoLayout(food, { normalize = true } = {}) {
       if (normalize) normalizeLayout(state.layout);
+      syncHeaderForFood(state.layout, food || getSelectedFoodStub());
       syncSectionIndicatorSprites(state.layout, food || getSelectedFoodStub());
       syncManualOutroHighlightedIndicators(state.layout, food || getSelectedFoodStub());
       for (const sectionId of ['fats', 'carbs', 'protein']) {

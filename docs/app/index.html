@@ -1258,6 +1258,12 @@
       return /_bar_(frame|fill)\.(svg|png|gif|webp)$/.test(src);
     }
 
+    function isArrowIndicatorSpriteLayer(layer) {
+      if (!isSpriteLayer(layer)) return false;
+      const fingerprint = `${layer.src || ''} ${layer.label || ''}`.toLowerCase();
+      return fingerprint.includes('/arrow_indicators/') || /arrow indicator/.test(fingerprint);
+    }
+
     function isHeaderSpriteLayer(layer) {
       if (!isSpriteLayer(layer)) return false;
       return String(layer.src).toLowerCase().includes('/sprites/header/');
@@ -1268,8 +1274,9 @@
       const id = String(layer.id || '').toLowerCase();
       const label = String(layer.label || '').toLowerCase();
       const fingerprint = `${id} ${label}`;
+      if (['food_name_text', 'kcal_label_text', 'kcal_value_text', 'basis_text', 'script_caption', 'subline_c'].includes(id)) return true;
       if (/header/.test(fingerprint) && /(food|name|type|basis|100g|per|calorie|kcal|score|tier)/.test(fingerprint)) return true;
-      if (/food[ _-]?name|food[ _-]?type|per[ _-]?100g|calorie|kcal|score[ _-]?card|tier/.test(fingerprint)) return true;
+      if (/food[ _-]?name|food[ _-]?type|per[ _-]?100g|calorie|kcal/.test(fingerprint)) return true;
       return looksLikeLegacyFoodTypeLabel(layer);
     }
 
@@ -1498,22 +1505,22 @@
     function getMacroSubmetricTextSpecs(sectionId) {
       const specs = {
         fats: [
-          { key: 'sat_fat', label: 'SAT FAT', value: food => formatMetricText(food?.metrics?.saturated_fat_g, 'g') },
-          { key: 'poly_fat', label: 'POLY FAT', value: food => formatMetricText(food?.metrics?.polyunsaturated_fat_g, 'g') },
-          { key: 'omega3', label: 'OMEGA 3', value: food => formatMetricText(food?.metrics?.omega3_mg, 'mg') },
-          { key: 'cholesterol', label: 'CHOLEST.', value: food => formatMetricText(food?.metrics?.cholesterol_mg, 'mg') }
+          { key: 'sat_fat', metricKey: 'saturated_fat_g', label: 'SAT FAT', value: food => formatMetricText(food?.metrics?.saturated_fat_g, 'g') },
+          { key: 'poly_fat', metricKey: 'polyunsaturated_fat_g', label: 'POLY FAT', value: food => formatMetricText(food?.metrics?.polyunsaturated_fat_g, 'g') },
+          { key: 'omega3', metricKey: 'omega3_mg', label: 'OMEGA 3', value: food => formatMetricText(food?.metrics?.omega3_mg, 'mg') },
+          { key: 'cholesterol', metricKey: 'cholesterol_mg', label: 'CHOLEST.', value: food => formatMetricText(food?.metrics?.cholesterol_mg, 'mg') }
         ],
         carbs: [
-          { key: 'fibre', label: 'FIBRE', value: food => formatMetricText(food?.metrics?.fibre_g, 'g') },
-          { key: 'sugar', label: 'SUGAR', value: food => formatMetricText(food?.metrics?.sugar_g, 'g') },
-          { key: 'starch', label: 'STARCH', value: food => formatMetricText(food?.metrics?.starch_g, 'g') },
-          { key: 'glycemic_index', label: 'GI', value: food => formatMetricText(food?.metrics?.glycemic_index, '') }
+          { key: 'fibre', metricKey: 'fibre_g', label: 'FIBRE', value: food => formatMetricText(food?.metrics?.fibre_g, 'g') },
+          { key: 'sugar', metricKey: 'sugar_g', label: 'SUGAR', value: food => formatMetricText(food?.metrics?.sugar_g, 'g') },
+          { key: 'starch', metricKey: 'starch_g', label: 'STARCH', value: food => formatMetricText(food?.metrics?.starch_g, 'g') },
+          { key: 'glycemic_index', metricKey: 'glycemic_index', label: 'GI', value: food => formatMetricText(food?.metrics?.glycemic_index, '') }
         ],
         protein: [
-          { key: 'protein_total', label: 'PROTEIN', value: food => formatMetricText(food?.header?.protein_g, 'g') },
-          { key: 'eaa', label: 'EAA', value: food => formatMetricText(food?.metrics?.essential_amino_acids_score, '') },
-          { key: 'non_eaa', label: 'N-EAA', value: food => formatMetricText(food?.metrics?.nonessential_amino_acids_score, '') },
-          { key: 'bioavailability', label: 'BIOAVAIL.', value: food => formatMetricText(food?.metrics?.bioavailability_percent, '%') }
+          { key: 'protein_total', metricKey: 'protein_g', label: 'PROTEIN', value: food => formatMetricText(food?.header?.protein_g, 'g') },
+          { key: 'eaa', metricKey: 'essential_amino_acids_score', label: 'EAA', value: food => formatMetricText(food?.metrics?.essential_amino_acids_score, '') },
+          { key: 'non_eaa', metricKey: 'nonessential_amino_acids_score', label: 'N-EAA', value: food => formatMetricText(food?.metrics?.nonessential_amino_acids_score, '') },
+          { key: 'bioavailability', metricKey: 'bioavailability_percent', label: 'BIOAVAIL.', value: food => formatMetricText(food?.metrics?.bioavailability_percent, '%') }
         ]
       };
       return specs[sectionId] || [];
@@ -1531,6 +1538,7 @@
       const sectionLayers = getSectionLayersFromLayout(layout, sectionId);
       const candidates = sectionLayers
         .filter(layer => isSpriteLayer(layer) && !isLockedUiSpriteLayer(layer))
+        .filter(layer => macroAssetRole(layer.src) !== 'icon')
         .filter(layer => (layer.height || 0) <= 40 && (layer.width || 0) <= 130)
         .map(layer => ({
           id: layer.id || '',
@@ -2840,6 +2848,11 @@
       return `${ROOT_SPRITE_BASE}/ui/section_separator/${slug}_section_separator.png`;
     }
 
+    function arrowIndicatorSpritePath(color = 'green') {
+      const safeColor = color === 'red' ? 'red' : 'green';
+      return `${ROOT_SPRITE_BASE}/macros_section/arrow_indicators/${safeColor}_arrow.png`;
+    }
+
     function makeSpriteLibraryItem(label, src) {
       return {
         label,
@@ -3205,6 +3218,18 @@
       syncHeaderTextForFood(layout, food);
     }
 
+    function mergedFoodForScoring(food = getSelectedFoodStub()) {
+      const stub = getSelectedFoodStub() || {};
+      return {
+        ...stub,
+        ...(food || {}),
+        header: { ...(stub.header || {}), ...((food || {}).header || {}) },
+        metrics: { ...(stub.metrics || {}), ...((food || {}).metrics || {}) },
+        episode: (food || {}).episode || stub.episode,
+        ruleset: (food || {}).ruleset || stub.ruleset
+      };
+    }
+
     function syncSectionSeparatorsForFood(layout, food = getSelectedFoodStub()) {
       for (const section of SECTIONS) {
         for (const layer of getSectionLayersFromLayout(layout, section.id)) {
@@ -3216,6 +3241,96 @@
           }
         }
       }
+    }
+
+    function ruleSectionKey(sectionId) {
+      return sectionId === 'protein' ? 'proteins' : sectionId;
+    }
+
+    function getEpisodeDisplayItemForSpec(food, sectionId, spec) {
+      const sectionKey = ruleSectionKey(sectionId);
+      const sections = food?.episode?.script?.sections || [];
+      const section = sections.find(item => item.key === sectionId || item.key === sectionKey);
+      return (section?.displayItems || []).find(item => item.metricKey === spec.metricKey) || null;
+    }
+
+    function getMetricRuleForSpec(food, sectionId, spec) {
+      const sectionKey = ruleSectionKey(sectionId);
+      const bySection = food?.ruleset?.metricRulesBySection?.[sectionKey] || food?.ruleset?.metricRulesBySection?.[sectionId] || [];
+      const fromSection = bySection.find(rule => rule.metricKey === spec.metricKey);
+      if (fromSection) return fromSection;
+      return (food?.ruleset?.metricRules || []).find(rule => {
+        return rule.metricKey === spec.metricKey && (!rule.sectionKey || rule.sectionKey === sectionKey || rule.sectionKey === sectionId);
+      }) || null;
+    }
+
+    function rawMetricValueForSpec(food, spec) {
+      if (spec.metricKey === 'protein_g') return asNumber(food?.header?.protein_g, null);
+      return asNumber(food?.metrics?.[spec.metricKey], null);
+    }
+
+    function ruleBandForValue(rule, value) {
+      if (!rule || value == null) return null;
+      return (rule.bands || []).find(band => {
+        const aboveMin = band.min == null || value >= Number(band.min);
+        const belowMax = band.max == null || value < Number(band.max);
+        return aboveMin && belowMax;
+      }) || null;
+    }
+
+    function arrowBandForSpec(food, sectionId, spec) {
+      const displayItem = getEpisodeDisplayItemForSpec(food, sectionId, spec);
+      if (displayItem?.band) return displayItem.band;
+      const rule = getMetricRuleForSpec(food, sectionId, spec);
+      return ruleBandForValue(rule, rawMetricValueForSpec(food, spec))?.label || null;
+    }
+
+    function parseArrowBand(band) {
+      const normalized = String(band || '').trim().toLowerCase();
+      const named = normalized.match(/^([123])_(green|red)$/);
+      if (named) return { count: Number(named[1]), color: named[2] };
+      const upCount = (normalized.match(/↑/g) || []).length;
+      if (upCount) return { count: clampValue(upCount, 1, 3), color: 'green' };
+      const downCount = (normalized.match(/↓/g) || []).length;
+      if (downCount) return { count: clampValue(downCount, 1, 3), color: 'red' };
+      return { count: 0, color: 'green' };
+    }
+
+    function visibleArrowIndexes(count, total) {
+      if (count >= total) return new Set(Array.from({ length: total }, (_, index) => index));
+      if (count === 1) return new Set([Math.floor(total / 2)]);
+      if (count === 2 && total >= 3) return new Set([0, total - 1]);
+      return new Set(Array.from({ length: Math.max(0, count) }, (_, index) => index));
+    }
+
+    function syncArrowLayersToBand(arrowLayers, band) {
+      const parsed = parseArrowBand(band);
+      const sorted = [...arrowLayers].sort((a, b) => (Number(a.x) || 0) - (Number(b.x) || 0));
+      const visibleIndexes = visibleArrowIndexes(parsed.count, sorted.length);
+      sorted.forEach((layer, index) => {
+        layer.src = arrowIndicatorSpritePath(parsed.color);
+        layer.label = `${parsed.color === 'red' ? 'Red' : 'Green'} arrow indicator`;
+        layer.visible = visibleIndexes.has(index);
+      });
+    }
+
+    function arrowLayersForMacroBinding(sectionLayers, binding) {
+      const rowIds = new Set((binding.items || []).map(item => item.id).filter(Boolean));
+      const fromRow = sectionLayers.filter(layer => rowIds.has(layer.id) && isArrowIndicatorSpriteLayer(layer));
+      if (fromRow.length) return fromRow;
+      return sectionLayers.filter(layer => {
+        return isArrowIndicatorSpriteLayer(layer) && Math.abs((Number(layer.y) || 0) - ((Number(binding.y) || 0) - 3)) <= 5;
+      });
+    }
+
+    function syncFatsSubmacroArrowsForFood(layout, food = getSelectedFoodStub()) {
+      const scoringFood = mergedFoodForScoring(food);
+      const sectionLayers = getSectionLayersFromLayout(layout, 'fats');
+      getMacroSubmetricRowBindings(layout, 'fats').forEach(binding => {
+        const arrows = arrowLayersForMacroBinding(sectionLayers, binding);
+        if (!arrows.length) return;
+        syncArrowLayersToBand(arrows, arrowBandForSpec(scoringFood, 'fats', binding.spec));
+      });
     }
 
     function getMacroFillRange(foodType, sectionId) {
@@ -3389,6 +3504,7 @@
       syncHeaderForFood(state.layout, food || getSelectedFoodStub());
       syncSectionSeparatorsForFood(state.layout, food || getSelectedFoodStub());
       syncSectionIndicatorSprites(state.layout, food || getSelectedFoodStub());
+      syncFatsSubmacroArrowsForFood(state.layout, food || getSelectedFoodStub());
       syncManualOutroHighlightedIndicators(state.layout, food || getSelectedFoodStub());
       for (const sectionId of ['fats', 'carbs', 'protein']) {
         const sectionLayers = getSectionLayersFromLayout(state.layout, sectionId);

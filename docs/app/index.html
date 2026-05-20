@@ -1260,6 +1260,20 @@
       return String(layer.src).toLowerCase().includes('/sprites/header/');
     }
 
+    function isHeaderTextLayer(layer) {
+      if (!isTextLayer(layer)) return false;
+      const id = String(layer.id || '').toLowerCase();
+      const label = String(layer.label || '').toLowerCase();
+      const fingerprint = `${id} ${label}`;
+      if (/header/.test(fingerprint) && /(food|name|type|basis|100g|per|calorie|kcal|score|tier)/.test(fingerprint)) return true;
+      if (/food[ _-]?name|food[ _-]?type|per[ _-]?100g|calorie|kcal|score[ _-]?card|tier/.test(fingerprint)) return true;
+      return looksLikeLegacyFoodTypeLabel(layer);
+    }
+
+    function isHeaderLayoutLayer(layer) {
+      return isHeaderSpriteLayer(layer) || isHeaderTextLayer(layer);
+    }
+
     function isUiSpriteLayer(layer) {
       if (!isSpriteLayer(layer)) return false;
       return String(layer.src).toLowerCase().includes('/sprites/ui/');
@@ -1386,24 +1400,24 @@
       return cloned;
     }
 
-    function getHeaderSpriteSourceLayers(layout) {
-      const introHeaderLayers = getSectionLayersFromLayout(layout, 'intro').filter(isHeaderSpriteLayer);
+    function getHeaderLayoutSourceLayers(layout) {
+      const introHeaderLayers = getSectionLayersFromLayout(layout, 'intro').filter(isHeaderLayoutLayer);
       if (introHeaderLayers.length) return { sectionId: 'intro', layers: introHeaderLayers };
 
-      const outroHeaderLayers = getSectionLayersFromLayout(layout, 'outro').filter(isHeaderSpriteLayer);
+      const outroHeaderLayers = getSectionLayersFromLayout(layout, 'outro').filter(isHeaderLayoutLayer);
       if (outroHeaderLayers.length) return { sectionId: 'outro', layers: outroHeaderLayers };
 
       return { sectionId: null, layers: [] };
     }
 
-    function syncHeaderSpritesFromIntro(layout) {
-      const source = getHeaderSpriteSourceLayers(layout);
+    function syncHeaderLayoutFromIntro(layout) {
+      const source = getHeaderLayoutSourceLayers(layout);
       if (!source.layers.length) return;
 
       for (const section of SECTIONS) {
         if (section.id === source.sectionId) continue;
         const currentLayers = getSectionLayersFromLayout(layout, section.id);
-        const preserved = currentLayers.filter(layer => !isHeaderSpriteLayer(layer));
+        const preserved = currentLayers.filter(layer => !isHeaderLayoutLayer(layer));
         layout.sections[section.id].layers = [...preserved, ...source.layers.map(cloneLayer)];
       }
     }
@@ -1411,7 +1425,7 @@
     function syncLockedGlobalLayersFromOutro(layout) {
       const outroLayers = getSectionLayersFromLayout(layout, 'outro');
       const lockedSpriteLayers = outroLayers.filter(layer => isLockedUiSpriteLayer(layer) && !isHeaderSpriteLayer(layer) && !isSectionIndicatorSpriteLayer(layer));
-      const lockedTextLayers = outroLayers.filter(layer => isTextLayer(layer) && !isOutroScoreDisplayLayer(layer));
+      const lockedTextLayers = outroLayers.filter(layer => isTextLayer(layer) && !isHeaderTextLayer(layer) && !isOutroScoreDisplayLayer(layer));
       if (!lockedSpriteLayers.length && !lockedTextLayers.length) return;
       const lockedSpriteIds = new Set(lockedSpriteLayers.map(layer => layer.id).filter(Boolean));
       const lockedTextIds = new Set(lockedTextLayers.map(layer => layer.id).filter(Boolean));
@@ -1433,7 +1447,7 @@
 
     function isMacroLayoutTemplateLayer(layer) {
       if (!layer) return false;
-      if (isLockedUiSpriteLayer(layer) || isHeaderSpriteLayer(layer)) return false;
+      if (isLockedUiSpriteLayer(layer) || isHeaderLayoutLayer(layer)) return false;
       return isSpriteLayer(layer) || isTextLayer(layer);
     }
 
@@ -2178,7 +2192,7 @@
       ensureSectionIndicatorLayers(normalized);
       syncSectionIndicatorLayoutFromIntro(normalized);
       syncLockedGlobalLayersFromOutro(normalized);
-      syncHeaderSpritesFromIntro(normalized);
+      syncHeaderLayoutFromIntro(normalized);
       relabelLayoutLayers(normalized);
       return normalized;
     }
@@ -2326,14 +2340,15 @@
     function getSyncedGlobalSourceLayer(layer) {
       if (!layer) return null;
 
-      if (isHeaderSpriteLayer(layer)) {
+      if (isHeaderLayoutLayer(layer)) {
         if (state.layout.selectedSectionId === 'intro') return null;
         return getSectionLayersFromLayout(state.layout, 'intro').find(source => source.id && source.id === layer.id) || null;
       }
 
       if (isSectionIndicatorSpriteLayer(layer)) {
         if (state.layout.selectedSectionId === 'intro') return null;
-        const sourceIndex = sectionIndicatorLayerIndex(layer);
+        const sourceIndex = sectionIndicatorLayersForSection(state.layout, state.layout.selectedSectionId)
+          .findIndex(item => item === layer || (item.id && item.id === layer.id));
         return sectionIndicatorLayersForSection(state.layout, 'intro')[sourceIndex] || null;
       }
 
@@ -2560,9 +2575,10 @@
     }
 
     function sectionIndicatorLayersForSection(layout, sectionId) {
-      return getSectionLayersFromLayout(layout, sectionId)
-        .filter(isSectionIndicatorSpriteLayer)
-        .sort((a, b) => sectionIndicatorLayerIndex(a) - sectionIndicatorLayerIndex(b));
+      const indicators = getSectionLayersFromLayout(layout, sectionId).filter(isSectionIndicatorSpriteLayer);
+      const hasManualIndicators = indicators.some(layer => isManualSectionIndicatorLayer(layer, sectionId));
+      if (hasManualIndicators) return indicators.sort(compareSectionIndicatorsByPosition);
+      return indicators.sort((a, b) => sectionIndicatorLayerIndex(a) - sectionIndicatorLayerIndex(b));
     }
 
     function sectionIndicatorLayersInSectionOrder(layout, sectionId) {
@@ -2590,10 +2606,20 @@
         && Math.abs((Number(a?.y) || 0) - (Number(b?.y) || 0)) <= 2;
     }
 
+    function compareSectionIndicatorsByPosition(a, b) {
+      return (Number(a.x) || 0) - (Number(b.x) || 0) || (Number(a.y) || 0) - (Number(b.y) || 0);
+    }
+
+    function hasOverlappingSectionIndicators(indicators) {
+      return indicators.some((layer, index) => {
+        return indicators.slice(0, index).some(previous => sectionIndicatorsOverlap(previous, layer));
+      });
+    }
+
     function pruneSectionIndicatorLayers(layout, sectionId) {
       const sectionLayers = getSectionLayersFromLayout(layout, sectionId);
       const indicators = sectionLayers.filter(isSectionIndicatorSpriteLayer);
-      if (indicators.length <= SECTION_INDICATOR_COUNT) return;
+      if (indicators.length <= SECTION_INDICATOR_COUNT && !hasOverlappingSectionIndicators(indicators)) return;
 
       const manualIndicators = indicators.filter(layer => isManualSectionIndicatorLayer(layer, sectionId));
       const managedIndicators = indicators.filter(layer => isManagedSectionIndicatorLayer(layer, sectionId));
@@ -2608,10 +2634,6 @@
         if (kept.length >= SECTION_INDICATOR_COUNT) break;
         if (kept.some(existing => sectionIndicatorsOverlap(existing, layer))) continue;
         kept.push(layer);
-      }
-      for (const layer of preferredIndicators) {
-        if (kept.length >= SECTION_INDICATOR_COUNT) break;
-        if (!kept.includes(layer)) kept.push(layer);
       }
 
       const keepSet = new Set(kept);
@@ -2653,8 +2675,18 @@
       const previous = ordered[ordered.length - 2];
       const rawStep = previous ? (Number(last.x) || 0) - (Number(previous.x) || 0) : SECTION_INDICATOR_LAYOUT.stepX;
       const step = clampValue(Math.round(rawStep || SECTION_INDICATOR_LAYOUT.stepX), 4, 30);
+      const maxX = AUTHOR_GRID.width - SECTION_INDICATOR_LAYOUT.normalSize;
+      let x = (Number(last.x) || 0) + step;
+      if (x > maxX) {
+        const minX = Math.min(...ordered.map(layer => Number(layer.x) || 0));
+        const shift = Math.min(x - maxX, Math.max(0, minX));
+        if (shift > 0) {
+          for (const layer of indicators) layer.x = (Number(layer.x) || 0) - shift;
+          x -= shift;
+        }
+      }
       return {
-        x: clampValue((Number(last.x) || 0) + step, 0, AUTHOR_GRID.width - SECTION_INDICATOR_LAYOUT.normalSize),
+        x: clampValue(x, 0, maxX),
         y: Number(last.y) || SECTION_INDICATOR_LAYOUT.y
       };
     }
@@ -3994,7 +4026,7 @@ async function renderAll() {
       if (!layer) return;
       const sourceLayer = getSyncedGlobalSourceLayer(layer);
       if (sourceLayer) {
-        const sourceSectionId = isHeaderSpriteLayer(sourceLayer) ? 'intro' : 'outro';
+        const sourceSectionId = isHeaderLayoutLayer(sourceLayer) ? 'intro' : 'outro';
         const sourceLayers = getSectionLayersFromLayout(state.layout, sourceSectionId);
         const sourceIndex = sourceLayers.findIndex(item => item.id === sourceLayer.id);
         if (sourceIndex !== -1) sourceLayers.splice(sourceIndex, 1);

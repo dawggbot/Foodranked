@@ -1004,6 +1004,7 @@
     const AUTHOR_GRID = { width: 135, height: 240 };
     const ROOT_SPRITE_BASE = './sprites';
     const FOOD_JSON_CACHE = new Map();
+    const BATCH_RESULTS_CACHE = new Map();
     const SPRITE_EXISTENCE_CACHE = new Map();
     const SPRITE_METADATA_CACHE = new Map();
     const BACKDROP_PALETTES = {
@@ -1133,6 +1134,7 @@
       layout: hydrateLayout(loadLayout()),
       savedSpriteLayouts: loadSavedSpriteLayouts(),
       fullFood: null,
+      batchResultsLoaded: false,
       bgTick: 0
     };
 
@@ -1523,7 +1525,7 @@
           { key: 'glycemic_index', metricKey: 'glycemic_index', label: 'GI', value: food => formatMetricText(food?.metrics?.glycemic_index, '') }
         ],
         protein: [
-          { key: 'protein_total', metricKey: 'protein_g', displayMetricKeys: ['protein_g', 'protein_g_fallback'], label: 'PROTEIN', value: food => formatMetricText(food?.header?.protein_g, 'g') },
+          { key: 'collagen', metricKey: 'collagen_g', label: 'COLLAGEN', value: food => formatMetricText(food?.metrics?.collagen_g, 'g') },
           { key: 'eaa', metricKey: 'essential_amino_acids_score', label: 'EAA', value: food => formatMetricText(food?.metrics?.essential_amino_acids_score, '') },
           { key: 'non_eaa', metricKey: 'nonessential_amino_acids_score', label: 'N-EAA', value: food => formatMetricText(food?.metrics?.nonessential_amino_acids_score, '') },
           { key: 'bioavailability', metricKey: 'bioavailability_percent', label: 'BIOAVAIL.', value: food => formatMetricText(food?.metrics?.bioavailability_percent, '%') }
@@ -1624,7 +1626,7 @@
       const defaultOrders = {
         fats: ['sat_fat', 'poly_fat', 'omega3', 'cholesterol'],
         carbs: ['fibre', 'sugar', 'starch', 'glycemic_index'],
-        protein: ['protein_total', 'eaa', 'non_eaa', 'bioavailability']
+        protein: ['collagen', 'eaa', 'non_eaa', 'bioavailability']
       };
       const defaultOrder = defaultOrders[sectionId] || specs.map(spec => spec.key);
       const remaining = [...defaultOrder];
@@ -1640,10 +1642,11 @@
         else if (/sugar/.test(fingerprint)) key = 'sugar';
         else if (/starch/.test(fingerprint)) key = 'starch';
         else if (/glycemic|\bgi\b/.test(fingerprint)) key = 'glycemic_index';
+        else if (/collagen/.test(fingerprint)) key = 'collagen';
         else if (/bioavail/.test(fingerprint)) key = 'bioavailability';
         else if (/non[ _-]?eaa|nonessential/.test(fingerprint)) key = 'non_eaa';
         else if (/\beaa\b|essential/.test(fingerprint)) key = 'eaa';
-        else if (/protein/.test(fingerprint)) key = 'protein_total';
+        else if (/protein/.test(fingerprint)) key = 'collagen';
 
         if (!key || !remaining.includes(key)) key = remaining[0];
         remaining.splice(remaining.indexOf(key), 1);
@@ -2504,6 +2507,30 @@
       }
     }
 
+    async function loadBatchResults() {
+      if (state.batchResultsLoaded) return;
+      state.batchResultsLoaded = true;
+      try {
+        const response = await fetch('../data/batch-results.json');
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const json = await response.json();
+        const details = Array.isArray(json?.details) ? json.details : [];
+        details.forEach(item => {
+          const result = item?.result;
+          const id = result?.food?.id;
+          if (id) BATCH_RESULTS_CACHE.set(id, result);
+        });
+      } catch {
+        // Batch results are a helpful score fallback, not required for layout editing.
+      }
+    }
+
+    function attachBatchResult(food) {
+      if (!food?.id) return food;
+      const batchResult = BATCH_RESULTS_CACHE.get(food.id);
+      return batchResult ? { ...food, batchResult } : food;
+    }
+
     function safeSpritePath(primaryPath, fallbackSvgLabel = 'MISSING') {
       return primaryPath || `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96"><rect width="96" height="96" fill="#2a2335"/><rect x="4" y="4" width="88" height="88" rx="8" fill="#1d1a25" stroke="#8ec6ff" stroke-width="4" stroke-dasharray="6 4"/><text x="48" y="44" text-anchor="middle" font-family="monospace" font-size="12" fill="#f6f0e8">${fallbackSvgLabel}</text><text x="48" y="60" text-anchor="middle" font-family="monospace" font-size="10" fill="#c8b8a5">ASSET</text></svg>`)}`;
     }
@@ -3261,6 +3288,15 @@
       return (section?.displayItems || []).find(item => metricKeys.includes(item.metricKey)) || null;
     }
 
+    function getBatchMetricBreakdownItemForSpec(food, sectionId, spec) {
+      const sectionKey = ruleSectionKey(sectionId);
+      const metricKeys = [spec.metricKey, ...(spec.displayMetricKeys || [])];
+      const breakdown = food?.batchResult?.metricBreakdown || [];
+      return breakdown.find(item => {
+        return metricKeys.includes(item.metricKey) && (!item.sectionKey || item.sectionKey === sectionId || item.sectionKey === sectionKey);
+      }) || null;
+    }
+
     function getMetricRuleForSpec(food, sectionId, spec) {
       if (spec.metricKey === 'protein_g' && food?.ruleset?.proteinFallback) {
         return {
@@ -3297,6 +3333,8 @@
     function arrowBandForSpec(food, sectionId, spec) {
       const displayItem = getEpisodeDisplayItemForSpec(food, sectionId, spec);
       if (displayItem?.band) return displayItem.band;
+      const batchBreakdownItem = getBatchMetricBreakdownItemForSpec(food, sectionId, spec);
+      if (batchBreakdownItem?.band) return batchBreakdownItem.band;
       const rule = getMetricRuleForSpec(food, sectionId, spec);
       return ruleBandForValue(rule, rawMetricValueForSpec(food, spec))?.label || null;
     }
@@ -4095,7 +4133,9 @@ async function renderBackgroundSprites() {
 
     async function refreshFoodData() {
       const stub = getSelectedFoodStub();
-      state.fullFood = await loadFullFood(stub) || stub || null;
+      await loadBatchResults();
+      const fullFood = await loadFullFood(stub) || stub || null;
+      state.fullFood = attachBatchResult(fullFood);
       syncFoodIntoLayout(state.fullFood);
       void renderAll();
     }

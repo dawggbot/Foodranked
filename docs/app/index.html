@@ -1093,6 +1093,11 @@
     ];
 
     const PRO_CON_IMPACT_COUNT = 3;
+    const SUBMACRO_VALUE_COLORS = {
+      green: '#7cf2a7',
+      red: '#ff6f6f',
+      neutral: '#ffffff'
+    };
 
     const DEFAULT_LAYOUT = window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT?.sections
       ? structuredClone(window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT)
@@ -3285,6 +3290,18 @@
       return ruleBandForValue(rule, rawMetricValueForSpec(food, spec))?.label || null;
     }
 
+    function arrowPresentationForSpec(food, sectionId, spec) {
+      const rule = getMetricRuleForSpec(food, sectionId, spec);
+      const parsed = parseArrowBand(arrowBandForSpec(food, sectionId, spec));
+      const higherWorse = rule?.polarity === 'higher_worse';
+      const pointsDown = parsed.color === 'green' ? higherWorse : !higherWorse;
+      return {
+        ...parsed,
+        flipY: !!parsed.count && pointsDown,
+        textColor: parsed.count ? (SUBMACRO_VALUE_COLORS[parsed.color] || SUBMACRO_VALUE_COLORS.neutral) : SUBMACRO_VALUE_COLORS.neutral
+      };
+    }
+
     function parseArrowBand(band) {
       const normalized = String(band || '').trim().toLowerCase();
       const named = normalized.match(/^([123])_(green|red)$/);
@@ -3303,13 +3320,14 @@
       return new Set(Array.from({ length: Math.max(0, count) }, (_, index) => index));
     }
 
-    function syncArrowLayersToBand(arrowLayers, band) {
-      const parsed = parseArrowBand(band);
+    function syncArrowLayersToPresentation(arrowLayers, presentation) {
       const sorted = [...arrowLayers].sort((a, b) => (Number(a.x) || 0) - (Number(b.x) || 0));
-      const visibleIndexes = visibleArrowIndexes(parsed.count, sorted.length);
+      const visibleIndexes = visibleArrowIndexes(presentation.count, sorted.length);
+      const directionLabel = presentation.flipY ? 'down' : 'up';
       sorted.forEach((layer, index) => {
-        layer.src = arrowIndicatorSpritePath(parsed.color);
-        layer.label = `${parsed.color === 'red' ? 'Red' : 'Green'} arrow indicator`;
+        layer.src = arrowIndicatorSpritePath(presentation.color);
+        layer.label = `${presentation.color === 'red' ? 'Red' : 'Green'} ${directionLabel} arrow indicator`;
+        layer.flipY = !!presentation.flipY;
         layer.visible = visibleIndexes.has(index);
       });
     }
@@ -3323,14 +3341,46 @@
       });
     }
 
-    function syncFatsSubmacroArrowsForFood(layout, food = getSelectedFoodStub()) {
+    function syncMacroSubmacroArrowsForFood(layout, food = getSelectedFoodStub()) {
       const scoringFood = mergedFoodForScoring(food);
-      const sectionLayers = getSectionLayersFromLayout(layout, 'fats');
-      getMacroSubmetricRowBindings(layout, 'fats').forEach(binding => {
-        const arrows = arrowLayersForMacroBinding(sectionLayers, binding);
-        if (!arrows.length) return;
-        syncArrowLayersToBand(arrows, arrowBandForSpec(scoringFood, 'fats', binding.spec));
-      });
+      for (const sectionId of ['fats', 'carbs', 'protein']) {
+        const sectionLayers = getSectionLayersFromLayout(layout, sectionId);
+        getMacroSubmetricRowBindings(layout, sectionId).forEach(binding => {
+          const arrows = arrowLayersForMacroBinding(sectionLayers, binding);
+          if (!arrows.length) return;
+          syncArrowLayersToPresentation(arrows, arrowPresentationForSpec(scoringFood, sectionId, binding.spec));
+        });
+      }
+    }
+
+    function syncFatsSubmacroArrowsForFood(layout, food = getSelectedFoodStub()) {
+      syncMacroSubmacroArrowsForFood(layout, food);
+    }
+
+    function syncMacroSubmetricValueColors(layout, food = getSelectedFoodStub()) {
+      const scoringFood = mergedFoodForScoring(food);
+      for (const sectionId of ['fats', 'carbs', 'protein']) {
+        const sectionLayers = getSectionLayersFromLayout(layout, sectionId);
+        getMacroSubmetricRowBindings(layout, sectionId).forEach((binding, index) => {
+          const valueLayer = sectionLayers.find(layer => layer.id === `${sectionId}_submacro_value_${index + 1}`);
+          if (!valueLayer) return;
+          valueLayer.color = arrowPresentationForSpec(scoringFood, sectionId, binding.spec).textColor;
+        });
+      }
+    }
+
+    function applyLayerRenderStyle(node, layer) {
+      if (layer.kind === 'text') {
+        node.style.color = layer.color || '';
+        return;
+      }
+      if (layer.kind === 'sprite' && layer.flipY) {
+        node.style.transform = 'scaleY(-1)';
+        node.style.transformOrigin = 'center';
+        return;
+      }
+      node.style.removeProperty('transform');
+      node.style.removeProperty('transform-origin');
     }
 
     function getMacroFillRange(foodType, sectionId) {
@@ -3504,7 +3554,8 @@
       syncHeaderForFood(state.layout, food || getSelectedFoodStub());
       syncSectionSeparatorsForFood(state.layout, food || getSelectedFoodStub());
       syncSectionIndicatorSprites(state.layout, food || getSelectedFoodStub());
-      syncFatsSubmacroArrowsForFood(state.layout, food || getSelectedFoodStub());
+      syncMacroSubmacroArrowsForFood(state.layout, food || getSelectedFoodStub());
+      syncMacroSubmetricValueColors(state.layout, food || getSelectedFoodStub());
       syncManualOutroHighlightedIndicators(state.layout, food || getSelectedFoodStub());
       for (const sectionId of ['fats', 'carbs', 'protein']) {
         const sectionLayers = getSectionLayersFromLayout(state.layout, sectionId);
@@ -3523,6 +3574,7 @@
             valueLayer.label = `${getSectionChip(sectionId) || sectionId} score card value ${index + 1}`;
             valueLayer.align = 'right';
             valueLayer.fontSize = valueLayer.fontSize || 4;
+            valueLayer.color = arrowPresentationForSpec(mergedFoodForScoring(food || getSelectedFoodStub()), sectionId, spec).textColor;
           }
         });
       }
@@ -3656,6 +3708,7 @@
         node.className = `layer-node ${layer.kind}${layer.kind === 'text' ? ' pixel-text' : ''}${state.selectedLayerId === layer.id ? ' selected' : ''}`;
         node.dataset.layerId = layer.id;
         node.style.zIndex = String(layer.z || 0);
+        applyLayerRenderStyle(node, layer);
         if (layer.kind === 'sprite') {
           const isIndicatorLayer = isSectionIndicatorSpriteLayer(layer);
           const isActiveIndicator = isActiveSectionIndicatorLayer(layer, state.layout.selectedSectionId);
@@ -4104,6 +4157,7 @@ async function renderAll() {
         node.style.width = `calc(${width}px * var(--pixel-unit))`;
         node.style.height = `calc(${height}px * var(--pixel-unit))`;
       }
+      applyLayerRenderStyle(node, layer);
     }
 
     els.foodSearch.addEventListener('input', () => {

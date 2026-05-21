@@ -1523,7 +1523,7 @@
           { key: 'glycemic_index', metricKey: 'glycemic_index', label: 'GI', value: food => formatMetricText(food?.metrics?.glycemic_index, '') }
         ],
         protein: [
-          { key: 'protein_total', metricKey: 'protein_g', label: 'PROTEIN', value: food => formatMetricText(food?.header?.protein_g, 'g') },
+          { key: 'protein_total', metricKey: 'protein_g', displayMetricKeys: ['protein_g', 'protein_g_fallback'], label: 'PROTEIN', value: food => formatMetricText(food?.header?.protein_g, 'g') },
           { key: 'eaa', metricKey: 'essential_amino_acids_score', label: 'EAA', value: food => formatMetricText(food?.metrics?.essential_amino_acids_score, '') },
           { key: 'non_eaa', metricKey: 'nonessential_amino_acids_score', label: 'N-EAA', value: food => formatMetricText(food?.metrics?.nonessential_amino_acids_score, '') },
           { key: 'bioavailability', metricKey: 'bioavailability_percent', label: 'BIOAVAIL.', value: food => formatMetricText(food?.metrics?.bioavailability_percent, '%') }
@@ -3257,10 +3257,20 @@
       const sectionKey = ruleSectionKey(sectionId);
       const sections = food?.episode?.script?.sections || [];
       const section = sections.find(item => item.key === sectionId || item.key === sectionKey);
-      return (section?.displayItems || []).find(item => item.metricKey === spec.metricKey) || null;
+      const metricKeys = [spec.metricKey, ...(spec.displayMetricKeys || [])];
+      return (section?.displayItems || []).find(item => metricKeys.includes(item.metricKey)) || null;
     }
 
     function getMetricRuleForSpec(food, sectionId, spec) {
+      if (spec.metricKey === 'protein_g' && food?.ruleset?.proteinFallback) {
+        return {
+          metricKey: 'protein_g',
+          sectionKey: 'proteins',
+          scoringMode: 'arrow_bands',
+          polarity: 'higher_better',
+          bands: food.ruleset.proteinFallback.bands || []
+        };
+      }
       const sectionKey = ruleSectionKey(sectionId);
       const bySection = food?.ruleset?.metricRulesBySection?.[sectionKey] || food?.ruleset?.metricRulesBySection?.[sectionId] || [];
       const fromSection = bySection.find(rule => rule.metricKey === spec.metricKey);

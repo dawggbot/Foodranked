@@ -68,7 +68,6 @@
     timeReadout: document.getElementById('timeReadout'),
     timeScrub: document.getElementById('timeScrub'),
     timelineStrip: document.getElementById('timelineStrip'),
-    phoneShell: document.querySelector('.phone-shell'),
     activeSceneTitle: document.getElementById('activeSceneTitle'),
     sceneStatus: document.getElementById('sceneStatus'),
     sceneDuration: document.getElementById('sceneDuration'),
@@ -840,6 +839,30 @@
     };
   }
 
+  function getResponsiveAssetScale() {
+    const desktopComfortable = window.innerWidth >= 1600 && window.innerHeight >= 900;
+    if (desktopComfortable) return 4;
+
+    const compactLaptop = (window.innerWidth <= 1500 || window.innerHeight <= 850) && window.innerWidth > 920;
+    const laptopCanvasCrop = window.innerWidth <= 1500 && window.innerWidth > 920;
+    const tightLaptop = window.innerWidth <= 1180 && window.innerWidth > 920;
+    const reservedWidth = tightLaptop ? 530 : (compactLaptop ? 660 : 690);
+    const reservedHeight = tightLaptop ? 154 : (compactLaptop ? 150 : 210);
+    const minimumScale = tightLaptop ? 1.12 : (compactLaptop ? 1.30 : 1.45);
+    const verticalRoom = Math.max(300, window.innerHeight - reservedHeight);
+    const scaleFromHeight = laptopCanvasCrop
+      ? (verticalRoom - 12) / (AUTHOR_GRID.height * (7 / 9))
+      : (((verticalRoom * 9) / 16) - 12) / AUTHOR_GRID.width;
+    const scaleFromWidth = laptopCanvasCrop
+      ? (Math.max(280, window.innerWidth - reservedWidth) - 24) / (AUTHOR_GRID.width * (7 / 9))
+      : (Math.max(280, window.innerWidth - reservedWidth) - 24) / AUTHOR_GRID.width;
+    return Math.max(minimumScale, Math.min(4, scaleFromHeight, scaleFromWidth));
+  }
+
+  function setCanvasScale() {
+    els.videoStage.style.setProperty('--pixel-unit', String(getResponsiveAssetScale()));
+  }
+
   async function renderDynamicBackground(field, food) {
     const motion = { ...defaultBackgroundMotion(), ...((state.layout?.canvas?.backgroundMotion) || {}) };
     const key = JSON.stringify({
@@ -920,13 +943,6 @@
       };
       field.appendChild(img);
     });
-  }
-
-  function fitStage() {
-    const rect = els.phoneShell?.getBoundingClientRect();
-    if (!rect?.width || !rect?.height) return;
-    const scale = clamp(Math.min(rect.width / AUTHOR_GRID.width, rect.height / AUTHOR_GRID.height, 4), 1.6, 4);
-    els.videoStage.style.setProperty('--pixel-unit', String(scale));
   }
 
   function captionChunk(text, progress) {
@@ -1046,7 +1062,7 @@
 
   function renderAll() {
     state.currentTime = clamp(state.currentTime, 0, totalDuration());
-    fitStage();
+    setCanvasScale();
     renderLayoutSourceOptions();
     renderFoodList();
     renderSceneList();
@@ -1140,7 +1156,7 @@
   });
 
   window.addEventListener('resize', () => {
-    fitStage();
+    setCanvasScale();
     renderStage();
   });
 
@@ -1151,7 +1167,7 @@
     hydrateLayoutForFood();
     renderAll();
     requestAnimationFrame(() => {
-      fitStage();
+      setCanvasScale();
       renderStage();
     });
   }

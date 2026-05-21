@@ -7212,6 +7212,7 @@ window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT = {
     "proteinSubmetricTextV3": true,
     "macroSectionLayoutFromFatsV3": true,
     "macroSectionLayoutFromFatsV4": true,
+    "macroSectionLayoutFromFatsV5": true,
     "vitaminTextLayersV1": true,
     "mineralTextLayersV1": true,
     "prosImpactTextLayersV1": true,

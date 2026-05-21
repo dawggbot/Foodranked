@@ -1000,6 +1000,7 @@
 
     const LOCAL_STORAGE_KEY = 'foodranked-display-builder-v4';
     const SAVED_SPRITE_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
+    const MACRO_SECTION_LAYOUT_SYNC_KEY = 'macroSectionLayoutFromFatsV5';
     const AUTHOR_GRID = { width: 135, height: 240 };
     const ROOT_SPRITE_BASE = './sprites';
     const FOOD_JSON_CACHE = new Map();
@@ -1468,7 +1469,7 @@
 
     function syncMacroSectionLayoutFromFats(layout, { force = false } = {}) {
       layout.meta = layout.meta || {};
-      if (!force && layout.meta.macroSectionLayoutFromFatsV4) return;
+      if (!force && layout.meta[MACRO_SECTION_LAYOUT_SYNC_KEY]) return;
       ensureMacroSubmetricTextLayers(layout, 'fats');
 
       const fatsLayers = getSectionLayersFromLayout(layout, 'fats');
@@ -1504,7 +1505,7 @@
       }
 
       layout.meta = layout.meta || {};
-      layout.meta.macroSectionLayoutFromFatsV4 = true;
+      layout.meta[MACRO_SECTION_LAYOUT_SYNC_KEY] = true;
     }
 
     function getMacroSubmetricTextSpecs(sectionId) {
@@ -3292,9 +3293,9 @@
 
     function arrowPresentationForSpec(food, sectionId, spec) {
       const rule = getMetricRuleForSpec(food, sectionId, spec);
-      const parsed = parseArrowBand(arrowBandForSpec(food, sectionId, spec));
+      const parsed = parseArrowBand(arrowBandForSpec(food, sectionId, spec), rule?.polarity);
       const higherWorse = rule?.polarity === 'higher_worse';
-      const pointsDown = parsed.color === 'green' ? higherWorse : !higherWorse;
+      const pointsDown = parsed.direction ? parsed.direction === 'down' : parsed.color === 'green' ? higherWorse : !higherWorse;
       return {
         ...parsed,
         flipY: !!parsed.count && pointsDown,
@@ -3302,15 +3303,16 @@
       };
     }
 
-    function parseArrowBand(band) {
+    function parseArrowBand(band, polarity = null) {
       const normalized = String(band || '').trim().toLowerCase();
       const named = normalized.match(/^([123])_(green|red)$/);
-      if (named) return { count: Number(named[1]), color: named[2] };
+      if (named) return { count: Number(named[1]), color: named[2], direction: null };
+      const higherWorse = polarity === 'higher_worse';
       const upCount = (normalized.match(/↑/g) || []).length;
-      if (upCount) return { count: clampValue(upCount, 1, 3), color: 'green' };
+      if (upCount) return { count: clampValue(upCount, 1, 3), color: higherWorse ? 'red' : 'green', direction: 'up' };
       const downCount = (normalized.match(/↓/g) || []).length;
-      if (downCount) return { count: clampValue(downCount, 1, 3), color: 'red' };
-      return { count: 0, color: 'green' };
+      if (downCount) return { count: clampValue(downCount, 1, 3), color: higherWorse ? 'green' : 'red', direction: 'down' };
+      return { count: 0, color: 'green', direction: null };
     }
 
     function visibleArrowIndexes(count, total) {

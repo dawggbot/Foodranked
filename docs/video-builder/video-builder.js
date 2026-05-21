@@ -95,6 +95,8 @@
     scenes: [],
     layout: null,
     savedLayouts: loadSavedLayouts(),
+    backgroundKey: '',
+    backgroundToken: 0,
     lastFrameAt: performance.now()
   };
 
@@ -210,12 +212,15 @@
     return appSpritePath(`header/food_images/${food?.id || 'bacon'}.png`);
   }
 
-  function backgroundFoodSpritePath(food) {
-    return CUSTOM_FOOD_IMAGE_IDS.has(String(food?.id || '')) ? foodImagePath(food) : foodPlatePath(food);
-  }
-
   function foodPlatePath(food) {
     return appSpritePath(`header/food_plate/${typeSpriteSlug(food?.foodType)}_food_plate.png`);
+  }
+
+  function foodSpriteCandidates(food) {
+    return {
+      primary: foodImagePath(food),
+      fallback: foodPlatePath(food)
+    };
   }
 
   function typePlatePath(food) {
@@ -696,6 +701,28 @@
     };
   }
 
+  function backdropPalette(food = selectedFood()) {
+    const palettes = {
+      vegetables: { top: '#dff4cf', bottom: '#bfd8b0', glowA: 'rgba(219,255,183,.78)', glowB: 'rgba(108,169,104,.38)' },
+      fruits: { top: '#ffe0dc', bottom: '#e7b8b5', glowA: 'rgba(255,173,165,.78)', glowB: 'rgba(219,109,101,.34)' },
+      grains: { top: '#f6e7bf', bottom: '#dbc48a', glowA: 'rgba(255,235,163,.78)', glowB: 'rgba(199,151,66,.30)' },
+      legumes: { top: '#e5d8c9', bottom: '#c0a78a', glowA: 'rgba(234,204,163,.76)', glowB: 'rgba(142,102,62,.28)' },
+      tubers: { top: '#f5d7bf', bottom: '#d2a17d', glowA: 'rgba(255,196,144,.74)', glowB: 'rgba(182,106,58,.28)' },
+      nuts: { top: '#ead8c8', bottom: '#c39b7f', glowA: 'rgba(243,207,175,.76)', glowB: 'rgba(128,77,47,.28)' },
+      seeds: { top: '#f2e2c8', bottom: '#cfb48f', glowA: 'rgba(255,231,188,.76)', glowB: 'rgba(162,128,80,.26)' },
+      meats: { top: '#f2d0d3', bottom: '#c08a90', glowA: 'rgba(255,188,196,.72)', glowB: 'rgba(146,61,73,.28)' },
+      dairy: { top: '#f4f0e8', bottom: '#d9d2c2', glowA: 'rgba(255,255,255,.68)', glowB: 'rgba(214,196,155,.22)' },
+      'oils-and-fats': { top: '#f6e7a9', bottom: '#d1b851', glowA: 'rgba(255,235,135,.74)', glowB: 'rgba(175,138,28,.28)' },
+      misc: { top: '#ece7e2', bottom: '#cfc5bc', glowA: 'rgba(255,255,255,.66)', glowB: 'rgba(140,120,108,.22)' }
+    };
+    return palettes[normalizeFoodType(food?.foodType)] || palettes.misc;
+  }
+
+  function backgroundFieldGradient(food = selectedFood()) {
+    const palette = backdropPalette(food);
+    return `radial-gradient(circle at 18% 12%, ${palette.glowA}, transparent 24%), radial-gradient(circle at 82% 16%, ${palette.glowB}, transparent 28%), linear-gradient(180deg, ${palette.top} 0%, ${palette.bottom} 100%)`;
+  }
+
   function persistentChromeLayers(sectionId, food) {
     const sourceLayers = getSectionLayers(state.layout, 'intro');
     const fallbackLayers = getSectionLayers(state.layout, sectionId);
@@ -724,11 +751,37 @@
       .filter(layer => !isPersistentChrome(layer) && !isSectionIndicator(layer));
   }
 
+  function ensureStageRoots() {
+    let bg = els.videoStage.querySelector('.stage-bg');
+    let phoneBg = els.videoStage.querySelector('.stage-phone-bg');
+    let layerRoot = els.videoStage.querySelector('.stage-layer-root');
+    let vignette = els.videoStage.querySelector('.stage-vignette');
+    let caption = els.videoStage.querySelector('.caption-box');
+    if (bg && phoneBg && layerRoot && vignette && caption) {
+      return { bg, phoneBg, layerRoot, vignette, caption };
+    }
+
+    els.videoStage.innerHTML = '';
+    bg = document.createElement('div');
+    bg.className = 'stage-bg';
+    phoneBg = document.createElement('div');
+    phoneBg.className = 'stage-phone-bg';
+    layerRoot = document.createElement('div');
+    layerRoot.className = 'stage-layer-root';
+    vignette = document.createElement('div');
+    vignette.className = 'stage-vignette';
+    caption = document.createElement('div');
+    caption.className = 'caption-box';
+    els.videoStage.append(bg, phoneBg, layerRoot, vignette, caption);
+    return { bg, phoneBg, layerRoot, vignette, caption };
+  }
+
   function renderStage() {
     const food = selectedFood();
     const scene = activeSceneAt();
     if (!state.layout || !scene) return;
 
+    const roots = ensureStageRoots();
     const sceneProgress = clamp((state.currentTime - scene.start) / scene.duration, 0, 1);
     const content = sceneContentLayers(scene.id).map((layer, index) => ({ layer, index, persistent: false }));
     const chrome = persistentChromeLayers(scene.id, food).map((layer, index) => ({ layer, index, persistent: true }));
@@ -736,14 +789,10 @@
       return (Number(a.layer.z) || 0) - (Number(b.layer.z) || 0)
         || (a.persistent === b.persistent ? 0 : a.persistent ? 1 : -1);
     });
-    els.videoStage.innerHTML = '';
-    els.videoStage.style.background = state.layout?.canvas?.background || '#d6d6d6';
-
-    const bg = document.createElement('div');
-    bg.className = 'stage-bg';
-    bg.style.background = backdropForFood(food);
-    renderFallingBackground(bg, food);
-    els.videoStage.appendChild(bg);
+    els.videoStage.style.backgroundColor = state.layout?.canvas?.background || '#d6d6d6';
+    roots.bg.style.background = backgroundFieldGradient(food);
+    void renderDynamicBackground(roots.bg, food);
+    roots.layerRoot.innerHTML = '';
 
     layers.forEach(({ layer, index, persistent }) => {
       if (layer.visible === false) return;
@@ -769,60 +818,108 @@
         if (layer.width) node.style.width = `calc(${Number(layer.width)}px * var(--pixel-unit))`;
         node.style.textAlign = layer.align || 'left';
       }
-      els.videoStage.appendChild(node);
+      roots.layerRoot.appendChild(node);
     });
 
-    const vignette = document.createElement('div');
-    vignette.className = 'stage-vignette';
-    els.videoStage.appendChild(vignette);
-
-    const caption = document.createElement('div');
-    caption.className = 'caption-box';
-    caption.style.fontSize = `calc(${Number(scene.captionSize) || 22}px * 0.25 * var(--pixel-unit))`;
-    caption.textContent = captionChunk(scene.caption, sceneProgress);
-    caption.style.opacity = String(easeOutCubic((sceneProgress + 0.05) * 4));
-    els.videoStage.appendChild(caption);
+    roots.caption.style.fontSize = `calc(${Number(scene.captionSize) || 22}px * 0.25 * var(--pixel-unit))`;
+    roots.caption.textContent = captionChunk(scene.caption, sceneProgress);
+    roots.caption.style.opacity = String(easeOutCubic((sceneProgress + 0.05) * 4));
   }
 
-  function renderFallingBackground(container, food) {
-    const motion = state.layout?.canvas?.backgroundMotion || {};
+  function defaultBackgroundMotion() {
+    return window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT?.canvas?.backgroundMotion || {
+      enabled: true,
+      mode: 'foodType',
+      density: 12,
+      opacity: 0.18,
+      minDuration: 14,
+      maxDuration: 24,
+      minSize: 24,
+      maxSize: 40,
+      drift: 16
+    };
+  }
+
+  async function renderDynamicBackground(field, food) {
+    const motion = { ...defaultBackgroundMotion(), ...((state.layout?.canvas?.backgroundMotion) || {}) };
+    const key = JSON.stringify({
+      foodId: food?.id || '',
+      foodType: normalizeFoodType(food?.foodType),
+      motion
+    });
+    if (state.backgroundKey === key && field.childElementCount) return;
+    state.backgroundKey = key;
+    const token = state.backgroundToken + 1;
+    state.backgroundToken = token;
+    field.innerHTML = '';
     if (motion.enabled === false) return;
-    const sameTypeFoods = foods.filter(item => item.id !== food?.id && normalizeFoodType(item.foodType) === normalizeFoodType(food?.foodType));
-    const pool = [food, ...sameTypeFoods].filter(Boolean);
-    if (!pool.length) return;
 
-    const density = clamp(Math.round(asNumber(motion.density, 20)), 1, 36);
-    const minSize = clamp(asNumber(motion.minSize, 28), 16, 140);
-    const maxSize = clamp(asNumber(motion.maxSize, 72), minSize, 160);
-    const minDuration = Math.max(5, asNumber(motion.minDuration, 16));
-    const maxDuration = Math.max(minDuration, asNumber(motion.maxDuration, 34));
-    const drift = Math.max(0, asNumber(motion.drift, 36));
-    const opacity = clamp(asNumber(motion.opacity, 0.18), 0.04, 0.42);
+    let sourcePool = [];
+    if (motion.mode === 'allFoods') {
+      sourcePool = [...foods];
+    } else if (motion.mode === 'selectedFood') {
+      sourcePool = [food];
+    } else {
+      sourcePool = [food, ...foods.filter(item => item.id !== food?.id && normalizeFoodType(item.foodType) === normalizeFoodType(food?.foodType))];
+    }
+    sourcePool = sourcePool.filter(Boolean);
+    if (!sourcePool.length && food) sourcePool = [food];
+    if (!sourcePool.length) return;
 
-    for (let index = 0; index < density; index += 1) {
-      const choice = pool[index % pool.length];
+    const enrichedPool = sourcePool.map(item => {
+      const candidates = foodSpriteCandidates(item);
+      const hasPrimary = CUSTOM_FOOD_IMAGE_IDS.has(String(item?.id || ''));
+      return {
+        food: item,
+        src: spritePath(hasPrimary ? candidates.primary : candidates.fallback),
+        usedFallback: !hasPrimary,
+        fallback: spritePath(candidates.fallback)
+      };
+    });
+    if (token !== state.backgroundToken) return;
+
+    const selectedPrimary = enrichedPool.find(item => item.food?.id === food?.id && !item.usedFallback);
+    const primaryPool = enrichedPool.filter(item => !item.usedFallback);
+    const renderPool = selectedPrimary
+      ? [selectedPrimary, ...primaryPool.filter(item => item.food?.id !== food?.id)]
+      : (primaryPool.length ? primaryPool : enrichedPool);
+    const onlyFallbacks = !primaryPool.length;
+
+    const density = Math.max(1, Number(motion.density) || defaultBackgroundMotion().density);
+    const minDuration = Math.max(4, Number(motion.minDuration) || defaultBackgroundMotion().minDuration);
+    const maxDuration = Math.max(minDuration, Number(motion.maxDuration) || defaultBackgroundMotion().maxDuration);
+    const minSize = Math.max(12, Number(motion.minSize) || defaultBackgroundMotion().minSize);
+    const maxSize = Math.max(minSize, Number(motion.maxSize) || defaultBackgroundMotion().maxSize);
+    const drift = Math.max(0, Number(motion.drift) || 0);
+    const opacity = Math.min(0.5, Math.max(0.04, Number(motion.opacity) || defaultBackgroundMotion().opacity));
+
+    Array.from({ length: density }).forEach((_, index) => {
+      const choice = renderPool[index % renderPool.length] || renderPool[0];
       const img = document.createElement('img');
       const progress = density <= 1 ? 0.5 : index / (density - 1);
-      const size = minSize + ((maxSize - minSize) * ((index % 5) / 4));
-      const duration = minDuration + ((maxDuration - minDuration) * ((index % 7) / 6));
-      const cycle = ((state.currentTime / duration) + (index * 0.137)) % 1;
-      const wave = Math.sin((cycle * Math.PI * 2) + index);
-      img.className = 'stage-bg-sprite';
-      img.src = spritePath(backgroundFoodSpritePath(choice));
+      const sizeBias = onlyFallbacks ? 0.72 : 1;
+      const size = Math.round((minSize + (maxSize - minSize) * ((index % 5) / 4 || 0)) * sizeBias);
+      const duration = Math.round(minDuration + (maxDuration - minDuration) * ((index % 7) / 6 || 0) + (onlyFallbacks ? 4 : 0));
+      img.className = 'bg-sprite';
+      img.src = choice?.src || choice?.fallback;
       img.alt = '';
-      img.style.width = `${Math.round(size)}px`;
-      img.style.height = `${Math.round(size)}px`;
-      img.style.left = `${6 + (progress * 88)}%`;
-      img.style.top = `${-20 + (cycle * 122)}%`;
-      img.style.opacity = String(opacity);
-      img.style.transform = `translate3d(${Math.round(wave * drift)}px, 0, 0)`;
+      img.style.left = `${8 + progress * 76}%`;
+      img.style.top = `${-40 - (index % 5) * 26}px`;
+      img.style.width = `${size}px`;
+      img.style.height = `${size}px`;
+      img.style.objectFit = 'contain';
+      img.style.objectPosition = 'center';
+      img.style.opacity = String(onlyFallbacks ? Math.min(opacity, 0.12) : opacity);
+      img.style.animationDuration = `${duration}s`;
+      img.style.animationDelay = `${-(index * 1.7)}s`;
+      img.style.setProperty('--drift-x', `${(index % 2 === 0 ? 1 : -1) * Math.max(2, drift - (index % 4) * 2)}px`);
       img.onerror = () => {
-        if (img.dataset.fallbackApplied === 'true') return;
-        img.dataset.fallbackApplied = 'true';
-        img.src = spritePath(foodPlatePath(choice));
+        if (choice?.fallback && img.src !== new URL(choice.fallback, window.location.href).href) {
+          img.src = choice.fallback;
+        }
       };
-      container.appendChild(img);
-    }
+      field.appendChild(img);
+    });
   }
 
   function fitStage() {
@@ -830,24 +927,6 @@
     if (!rect?.width || !rect?.height) return;
     const scale = clamp(Math.min(rect.width / AUTHOR_GRID.width, rect.height / AUTHOR_GRID.height, 4), 1.6, 4);
     els.videoStage.style.setProperty('--pixel-unit', String(scale));
-  }
-
-  function backdropForFood(food) {
-    const palettes = {
-      meats: ['#dde0dc', '#cbc3b6', '#8d6659'],
-      vegetables: ['#d9e6d5', '#b7d0b3', '#587e69'],
-      fruits: ['#f0dfcf', '#e6b887', '#a56456'],
-      grains: ['#efe4cd', '#d5b984', '#7d6755'],
-      legumes: ['#dfe0d0', '#c2be8c', '#6f7357'],
-      tubers: ['#eadcc8', '#cfa67e', '#7b6556'],
-      nuts: ['#e7dcc6', '#c9a86c', '#75583d'],
-      seeds: ['#e2dcc9', '#b9a875', '#675f48'],
-      dairy: ['#e9eef0', '#bfd5de', '#607786'],
-      'oils-and-fats': ['#f0e3bc', '#d7b85c', '#806734'],
-      misc: ['#d7d8dd', '#aeb6c0', '#626b7a']
-    };
-    const [top, mid, bottom] = palettes[normalizeFoodType(food?.foodType)] || palettes.misc;
-    return `linear-gradient(180deg, ${top} 0%, ${mid} 48%, ${bottom} 100%)`;
   }
 
   function captionChunk(text, progress) {

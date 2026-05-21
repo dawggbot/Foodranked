@@ -104,6 +104,22 @@ h2 {
   font-size: 16px;
 }
 
+.bg-sprite {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  image-rendering: pixelated;
+  opacity: 0.16;
+  animation: drift linear infinite;
+  filter: drop-shadow(0 3px 0 rgba(0,0,0,0.18));
+  pointer-events: none;
+}
+
+@keyframes drift {
+  0% { transform: translate3d(0, -140px, 0); }
+  100% { transform: translate3d(var(--drift-x), 860px, 0); }
+}
+
 .app-shell {
   min-height: 100vh;
   min-height: 100dvh;
@@ -268,21 +284,31 @@ h2 {
   inset: 0;
   z-index: 0;
   overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(255,255,255,.12), transparent 24%),
+    radial-gradient(circle at 82% 16%, rgba(0,0,0,.10), transparent 28%),
+    linear-gradient(180deg, #232b3d 0%, #151a26 100%);
 }
 
-.stage-bg-sprite {
+.stage-phone-bg {
   position: absolute;
-  image-rendering: pixelated;
-  object-fit: contain;
-  object-position: center;
+  inset: 0;
+  z-index: 1;
   pointer-events: none;
-  filter: drop-shadow(0 3px 0 rgba(0,0,0,0.18));
+  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.10));
+}
+
+.stage-layer-root {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
 }
 
 .stage-vignette {
   position: absolute;
   inset: 0;
-  z-index: 1;
+  z-index: 3;
   pointer-events: none;
   box-shadow: inset 0 0 0 calc(1px * var(--pixel-unit)) rgba(20,25,35,0.36);
 }

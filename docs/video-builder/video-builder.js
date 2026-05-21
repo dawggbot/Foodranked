@@ -5,6 +5,7 @@
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SECTION_INDICATOR_LAYOUT = { normalSize: 10, highlightedSize: 12 };
+  const CUSTOM_FOOD_IMAGE_IDS = new Set(['bacon']);
 
   const SECTIONS = [
     { id: 'intro', label: 'Hook', duration: 2.4, reveal: 'pop', motion: 'bob' },
@@ -209,6 +210,10 @@
     return appSpritePath(`header/food_images/${food?.id || 'bacon'}.png`);
   }
 
+  function backgroundFoodSpritePath(food) {
+    return CUSTOM_FOOD_IMAGE_IDS.has(String(food?.id || '')) ? foodImagePath(food) : foodPlatePath(food);
+  }
+
   function foodPlatePath(food) {
     return appSpritePath(`header/food_plate/${typeSpriteSlug(food?.foodType)}_food_plate.png`);
   }
@@ -287,9 +292,38 @@
     return layer?.kind === 'text';
   }
 
+  function isHeaderSprite(layer) {
+    const fingerprint = `${layer?.src || ''} ${layer?.label || ''}`.toLowerCase();
+    return isSpriteLayer(layer) && fingerprint.includes('/header/');
+  }
+
+  function isHeaderText(layer) {
+    if (!isTextLayer(layer)) return false;
+    const id = String(layer.id || '').toLowerCase();
+    const fingerprint = `${layer.id || ''} ${layer.label || ''}`.toLowerCase();
+    if (['food_name_text', 'kcal_label_text', 'kcal_value_text', 'basis_text', 'script_caption', 'subline_c'].includes(id)) return true;
+    return /header/.test(fingerprint) && /(food|name|type|basis|100g|per|calorie|kcal|score|tier)/.test(fingerprint);
+  }
+
+  function isUiSprite(layer) {
+    return isSpriteLayer(layer) && String(layer.src || '').toLowerCase().includes('/ui/');
+  }
+
   function isSectionIndicator(layer) {
     const fingerprint = `${layer?.src || ''} ${layer?.label || ''} ${layer?.id || ''}`.toLowerCase();
     return isSpriteLayer(layer) && (fingerprint.includes('/ui/section_indicator/') || fingerprint.includes('section indicator'));
+  }
+
+  function isPersistentChrome(layer) {
+    return isHeaderSprite(layer) || isHeaderText(layer) || (isUiSprite(layer) && !isSectionIndicator(layer));
+  }
+
+  function indicatorSectionIndex(sectionId) {
+    return SECTIONS.findIndex(section => section.id === sectionId);
+  }
+
+  function compareIndicatorsByPosition(a, b) {
+    return (Number(a.x) || 0) - (Number(b.x) || 0) || (Number(a.y) || 0) - (Number(b.y) || 0);
   }
 
   function isMicrosBar(layer) {
@@ -375,8 +409,8 @@
   function syncSectionIndicators(layout, food) {
     for (const section of SECTIONS) {
       const layers = getSectionLayers(layout, section.id).filter(isSectionIndicator)
-        .sort((a, b) => (Number(a.x) || 0) - (Number(b.x) || 0) || (Number(a.y) || 0) - (Number(b.y) || 0));
-      const activeIndex = SECTIONS.findIndex(item => item.id === section.id);
+        .sort(compareIndicatorsByPosition);
+      const activeIndex = indicatorSectionIndex(section.id);
       layers.forEach((layer, index) => {
         const highlighted = index === activeIndex;
         layer.src = indicatorPath(food, highlighted);
@@ -662,28 +696,64 @@
     };
   }
 
+  function persistentChromeLayers(sectionId, food) {
+    const sourceLayers = getSectionLayers(state.layout, 'intro');
+    const fallbackLayers = getSectionLayers(state.layout, sectionId);
+    const sourceChrome = sourceLayers.filter(layer => isPersistentChrome(layer) || isSectionIndicator(layer));
+    const fallbackChrome = fallbackLayers.filter(layer => isPersistentChrome(layer) || isSectionIndicator(layer));
+    const layers = (sourceChrome.length ? sourceChrome : fallbackChrome).map(clone);
+    const indicators = layers.filter(isSectionIndicator).sort(compareIndicatorsByPosition);
+    const activeIndex = indicatorSectionIndex(sectionId);
+    indicators.forEach((layer, index) => {
+      const highlighted = index === activeIndex;
+      layer.src = indicatorPath(food, highlighted);
+      layer.label = highlighted ? 'Highlighted section indicator' : 'Section indicator';
+      layer.width = highlighted ? SECTION_INDICATOR_LAYOUT.highlightedSize : SECTION_INDICATOR_LAYOUT.normalSize;
+      layer.height = highlighted ? SECTION_INDICATOR_LAYOUT.highlightedSize : SECTION_INDICATOR_LAYOUT.normalSize;
+      layer.z = Math.max(Number(layer.z) || 0, highlighted ? 36 : 25);
+      if (highlighted) {
+        layer.x = (Number(layer.x) || 0) - 1;
+        layer.y = (Number(layer.y) || 0) - 1;
+      }
+    });
+    return layers;
+  }
+
+  function sceneContentLayers(sectionId) {
+    return getSectionLayers(state.layout, sectionId)
+      .filter(layer => !isPersistentChrome(layer) && !isSectionIndicator(layer));
+  }
+
   function renderStage() {
     const food = selectedFood();
     const scene = activeSceneAt();
     if (!state.layout || !scene) return;
 
     const sceneProgress = clamp((state.currentTime - scene.start) / scene.duration, 0, 1);
-    const layers = [...getSectionLayers(state.layout, scene.id)].sort((a, b) => (Number(a.z) || 0) - (Number(b.z) || 0));
+    const content = sceneContentLayers(scene.id).map((layer, index) => ({ layer, index, persistent: false }));
+    const chrome = persistentChromeLayers(scene.id, food).map((layer, index) => ({ layer, index, persistent: true }));
+    const layers = [...content, ...chrome].sort((a, b) => {
+      return (Number(a.layer.z) || 0) - (Number(b.layer.z) || 0)
+        || (a.persistent === b.persistent ? 0 : a.persistent ? 1 : -1);
+    });
     els.videoStage.innerHTML = '';
     els.videoStage.style.background = state.layout?.canvas?.background || '#d6d6d6';
 
     const bg = document.createElement('div');
     bg.className = 'stage-bg';
     bg.style.background = backdropForFood(food);
+    renderFallingBackground(bg, food);
     els.videoStage.appendChild(bg);
 
-    layers.forEach((layer, index) => {
+    layers.forEach(({ layer, index, persistent }) => {
       if (layer.visible === false) return;
       const node = document.createElement(layer.kind === 'sprite' ? 'img' : 'div');
       node.className = `layer-node ${layer.kind}${layer.kind === 'text' ? ' pixel-text' : ''}`;
+      node.dataset.layerId = layer.id || '';
+      node.dataset.persistent = persistent ? 'true' : 'false';
       node.style.zIndex = String(Number(layer.z) || 0);
       applyLayerBox(node, layer);
-      applyLayerAnimation(node, layer, scene, sceneProgress, index);
+      applyLayerAnimation(node, layer, scene, sceneProgress, index, persistent);
       if (layer.kind === 'sprite') {
         node.src = spritePath(layer.src);
         node.alt = layer.label || '';
@@ -712,6 +782,47 @@
     caption.textContent = captionChunk(scene.caption, sceneProgress);
     caption.style.opacity = String(easeOutCubic((sceneProgress + 0.05) * 4));
     els.videoStage.appendChild(caption);
+  }
+
+  function renderFallingBackground(container, food) {
+    const motion = state.layout?.canvas?.backgroundMotion || {};
+    if (motion.enabled === false) return;
+    const sameTypeFoods = foods.filter(item => item.id !== food?.id && normalizeFoodType(item.foodType) === normalizeFoodType(food?.foodType));
+    const pool = [food, ...sameTypeFoods].filter(Boolean);
+    if (!pool.length) return;
+
+    const density = clamp(Math.round(asNumber(motion.density, 20)), 1, 36);
+    const minSize = clamp(asNumber(motion.minSize, 28), 16, 140);
+    const maxSize = clamp(asNumber(motion.maxSize, 72), minSize, 160);
+    const minDuration = Math.max(5, asNumber(motion.minDuration, 16));
+    const maxDuration = Math.max(minDuration, asNumber(motion.maxDuration, 34));
+    const drift = Math.max(0, asNumber(motion.drift, 36));
+    const opacity = clamp(asNumber(motion.opacity, 0.18), 0.04, 0.42);
+
+    for (let index = 0; index < density; index += 1) {
+      const choice = pool[index % pool.length];
+      const img = document.createElement('img');
+      const progress = density <= 1 ? 0.5 : index / (density - 1);
+      const size = minSize + ((maxSize - minSize) * ((index % 5) / 4));
+      const duration = minDuration + ((maxDuration - minDuration) * ((index % 7) / 6));
+      const cycle = ((state.currentTime / duration) + (index * 0.137)) % 1;
+      const wave = Math.sin((cycle * Math.PI * 2) + index);
+      img.className = 'stage-bg-sprite';
+      img.src = spritePath(backgroundFoodSpritePath(choice));
+      img.alt = '';
+      img.style.width = `${Math.round(size)}px`;
+      img.style.height = `${Math.round(size)}px`;
+      img.style.left = `${6 + (progress * 88)}%`;
+      img.style.top = `${-20 + (cycle * 122)}%`;
+      img.style.opacity = String(opacity);
+      img.style.transform = `translate3d(${Math.round(wave * drift)}px, 0, 0)`;
+      img.onerror = () => {
+        if (img.dataset.fallbackApplied === 'true') return;
+        img.dataset.fallbackApplied = 'true';
+        img.src = spritePath(foodPlatePath(choice));
+      };
+      container.appendChild(img);
+    }
   }
 
   function fitStage() {
@@ -776,7 +887,15 @@
     return 0.12 + (row * 0.42) + ((index % 4) * 0.035);
   }
 
-  function applyLayerAnimation(node, layer, scene, sceneProgress, index) {
+  function applyLayerAnimation(node, layer, scene, sceneProgress, index, persistent = false) {
+    if (persistent) {
+      node.style.opacity = '1';
+      if (layer.flipY) {
+        node.style.transform = 'scaleY(-1)';
+      }
+      return;
+    }
+
     const delay = layerRevealDelay(layer, index);
     const revealWindow = scene.reveal === 'cascade' ? 0.28 : 0.22;
     const revealProgress = easeOutCubic((sceneProgress + 0.05 - delay) / revealWindow);

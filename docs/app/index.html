@@ -1762,10 +1762,10 @@
       }, columns[0]);
     }
 
-    function vitaminBarStep(value) {
+    function micronutrientBarStep(value) {
       const safe = asNumber(value, null);
-      if (safe == null) return 0;
-      return clampValue(Math.floor(safe / 10), 0, 10);
+      if (safe == null) return null;
+      return clampValue(Math.max(1, Math.floor(safe / 10)), 1, 10);
     }
 
     function getDefaultVitaminTextAnchors() {
@@ -1885,27 +1885,27 @@
       layout.meta.vitaminTextLayersV1 = true;
     }
 
-    function syncVitaminBarsForFood(layout, food = getSelectedFoodStub()) {
-      const sectionLayers = getSectionLayersFromLayout(layout, 'vitamins');
+    function syncMicronutrientBarsForFood(layout, food, { sectionId, specs, labelPrefix, valuePrefix, formatter }) {
+      const sectionLayers = getSectionLayersFromLayout(layout, sectionId);
       const columns = getMicrosDvBarColumns(sectionLayers);
       if (!columns.length) return;
 
-      VITAMIN_TEXT_SPECS.forEach((spec, index) => {
-        const labelLayer = sectionLayers.find(layer => layer.id === `vitamins_label_${index + 1}`);
-        const valueLayer = sectionLayers.find(layer => layer.id === `vitamins_percent_${index + 1}`);
+      specs.forEach((spec, index) => {
+        const labelLayer = sectionLayers.find(layer => layer.id === `${labelPrefix}_${index + 1}`);
+        const valueLayer = sectionLayers.find(layer => layer.id === `${valuePrefix}_${index + 1}`);
         const anchorLayer = valueLayer || labelLayer;
         const column = nearestMicrosDvBarColumn(columns, anchorLayer, index);
         if (!column) return;
 
         const value = asNumber(food?.metrics?.[spec.key], null);
-        const visibleStep = vitaminBarStep(value);
-        const visiblePercent = visibleStep * 10;
+        const visibleStep = micronutrientBarStep(value);
+        const visiblePercent = visibleStep == null ? 0 : visibleStep * 10;
         column.items.forEach(item => {
-          item.layer.visible = item.percent <= visiblePercent && visibleStep > 0;
+          item.layer.visible = visibleStep != null && item.percent <= visiblePercent;
         });
 
         if (!valueLayer) return;
-        if (!valueLayer.manualText) valueLayer.text = formatVitaminPercent(food || {}, spec.key);
+        if (!valueLayer.manualText) valueLayer.text = formatter(food || {}, spec.key);
         const anchorPercent = Math.max(10, visiblePercent);
         const anchorBar = column.items.find(item => item.percent === anchorPercent) || column.items[0];
         if (!anchorBar) return;
@@ -1918,6 +1918,16 @@
         valueLayer.align = 'center';
         valueLayer.fontSize = 2.5;
         valueLayer.z = Math.max(Number(valueLayer.z) || 0, (Number(bar.z) || 0) + 5);
+      });
+    }
+
+    function syncVitaminBarsForFood(layout, food = getSelectedFoodStub()) {
+      syncMicronutrientBarsForFood(layout, food, {
+        sectionId: 'vitamins',
+        specs: VITAMIN_TEXT_SPECS,
+        labelPrefix: 'vitamins_label',
+        valuePrefix: 'vitamins_percent',
+        formatter: formatVitaminPercent
       });
     }
 
@@ -2036,6 +2046,16 @@
 
       layout.meta = layout.meta || {};
       layout.meta.mineralTextLayersV1 = true;
+    }
+
+    function syncMineralBarsForFood(layout, food = getSelectedFoodStub()) {
+      syncMicronutrientBarsForFood(layout, food, {
+        sectionId: 'minerals',
+        specs: MINERAL_TEXT_SPECS,
+        labelPrefix: 'minerals_label',
+        valuePrefix: 'minerals_percent',
+        formatter: formatMineralPercent
+      });
     }
 
     function isProsConsBulletSpriteLayer(layer, sectionId) {
@@ -3766,6 +3786,7 @@
           valueLayer.fontSize = valueLayer.fontSize || 4.5;
         }
       });
+      syncMineralBarsForFood(state.layout, food || getSelectedFoodStub());
 
       for (const sectionId of ['pros', 'cons']) {
         const sectionLayers = getSectionLayersFromLayout(state.layout, sectionId);

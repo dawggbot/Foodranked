@@ -1526,8 +1526,8 @@
         ],
         protein: [
           { key: 'collagen', metricKey: 'collagen_g', label: 'COLLAGEN', value: food => formatMetricText(food?.metrics?.collagen_g, 'g') },
-          { key: 'eaa', metricKey: 'essential_amino_acids_score', label: 'EAA', value: food => formatMetricText(food?.metrics?.essential_amino_acids_score, '') },
-          { key: 'non_eaa', metricKey: 'nonessential_amino_acids_score', label: 'N-EAA', value: food => formatMetricText(food?.metrics?.nonessential_amino_acids_score, '') },
+          { key: 'eaa', metricKey: 'essential_amino_acids_score', label: 'EAA', value: food => formatRatioMetricText(food?.metrics?.essential_amino_acids_score, 9) },
+          { key: 'non_eaa', metricKey: 'nonessential_amino_acids_score', label: 'N-EAA', value: food => formatRatioMetricText(food?.metrics?.nonessential_amino_acids_score, 11) },
           { key: 'bioavailability', metricKey: 'bioavailability_percent', label: 'BIOAVAIL.', value: food => formatMetricText(food?.metrics?.bioavailability_percent, '%') }
         ]
       };
@@ -1709,6 +1709,65 @@
       return isSpriteLayer(layer) && src.includes('/micros_section/bars/');
     }
 
+    function microsDvBarPercent(layer) {
+      const src = String(layer?.src || '').toLowerCase();
+      const match = src.match(/\/(\d+)(?:%25|%)_bar\./);
+      return match ? Number(match[1]) : null;
+    }
+
+    function isMicrosDvBarSpriteLayer(layer) {
+      return isMicrosBarSpriteLayer(layer) && microsDvBarPercent(layer) != null;
+    }
+
+    function getMicrosDvBarColumns(sectionLayers) {
+      const columns = [];
+      const barItems = sectionLayers
+        .filter(isMicrosDvBarSpriteLayer)
+        .map(layer => ({
+          layer,
+          percent: microsDvBarPercent(layer),
+          centerX: (Number(layer.x) || 0) + ((Number(layer.width) || 0) / 2)
+        }))
+        .sort((a, b) => a.centerX - b.centerX || a.percent - b.percent);
+
+      for (const item of barItems) {
+        const column = columns.find(candidate => Math.abs(candidate.centerX - item.centerX) <= 4);
+        if (column) {
+          column.items.push(item);
+          column.centerX = column.items.reduce((sum, current) => sum + current.centerX, 0) / column.items.length;
+        } else {
+          columns.push({ centerX: item.centerX, items: [item] });
+        }
+      }
+
+      return columns
+        .map(column => ({
+          ...column,
+          items: column.items.sort((a, b) => a.percent - b.percent)
+        }))
+        .sort((a, b) => a.centerX - b.centerX);
+    }
+
+    function layerCenterX(layer) {
+      if (!layer) return null;
+      return (Number(layer.x) || 0) + ((Number(layer.width) || 0) / 2);
+    }
+
+    function nearestMicrosDvBarColumn(columns, layer, fallbackIndex) {
+      if (!columns.length) return null;
+      const targetX = layerCenterX(layer);
+      if (targetX == null) return columns[fallbackIndex] || columns[0];
+      return columns.reduce((closest, column) => {
+        return Math.abs(column.centerX - targetX) < Math.abs(closest.centerX - targetX) ? column : closest;
+      }, columns[0]);
+    }
+
+    function vitaminBarStep(value) {
+      const safe = asNumber(value, null);
+      if (safe == null) return 0;
+      return clampValue(Math.floor(safe / 10), 0, 10);
+    }
+
     function getDefaultVitaminTextAnchors() {
       return VITAMIN_TEXT_SPECS.map((_, index) => ({
         labelX: 16,
@@ -1824,6 +1883,42 @@
 
       layout.meta = layout.meta || {};
       layout.meta.vitaminTextLayersV1 = true;
+    }
+
+    function syncVitaminBarsForFood(layout, food = getSelectedFoodStub()) {
+      const sectionLayers = getSectionLayersFromLayout(layout, 'vitamins');
+      const columns = getMicrosDvBarColumns(sectionLayers);
+      if (!columns.length) return;
+
+      VITAMIN_TEXT_SPECS.forEach((spec, index) => {
+        const labelLayer = sectionLayers.find(layer => layer.id === `vitamins_label_${index + 1}`);
+        const valueLayer = sectionLayers.find(layer => layer.id === `vitamins_percent_${index + 1}`);
+        const anchorLayer = valueLayer || labelLayer;
+        const column = nearestMicrosDvBarColumn(columns, anchorLayer, index);
+        if (!column) return;
+
+        const value = asNumber(food?.metrics?.[spec.key], null);
+        const visibleStep = vitaminBarStep(value);
+        const visiblePercent = visibleStep * 10;
+        column.items.forEach(item => {
+          item.layer.visible = item.percent <= visiblePercent && visibleStep > 0;
+        });
+
+        if (!valueLayer) return;
+        if (!valueLayer.manualText) valueLayer.text = formatVitaminPercent(food || {}, spec.key);
+        const anchorPercent = Math.max(10, visiblePercent);
+        const anchorBar = column.items.find(item => item.percent === anchorPercent) || column.items[0];
+        if (!anchorBar) return;
+
+        const bar = anchorBar.layer;
+        const barWidth = Number(bar.width) || 11;
+        valueLayer.width = Math.max(6, Math.min(10, barWidth));
+        valueLayer.x = Math.round((Number(bar.x) || 0) + ((barWidth - valueLayer.width) / 2));
+        valueLayer.y = clampValue(Math.round((Number(bar.y) || 0) + 1), 44, 220);
+        valueLayer.align = 'center';
+        valueLayer.fontSize = 2.5;
+        valueLayer.z = Math.max(Number(valueLayer.z) || 0, (Number(bar.z) || 0) + 5);
+      });
     }
 
     function getDefaultMineralTextAnchors() {
@@ -3204,6 +3299,12 @@
       return `${formatCompactNumber(safe)}${unit}`;
     }
 
+    function formatRatioMetricText(value, denominator) {
+      const safe = asNumber(value, null);
+      if (safe == null) return 'N/A';
+      return `${formatCompactNumber(safe, 0)}/${denominator}`;
+    }
+
     function prettyFoodType(foodType) {
       const normalized = normalizeFoodType(foodType) || 'misc';
       return normalized.replace(/-/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
@@ -3646,6 +3747,7 @@
           valueLayer.fontSize = valueLayer.fontSize || 4.5;
         }
       });
+      syncVitaminBarsForFood(state.layout, food || getSelectedFoodStub());
 
       const mineralLayers = getSectionLayersFromLayout(state.layout, 'minerals');
       MINERAL_TEXT_SPECS.forEach((spec, index) => {

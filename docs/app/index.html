@@ -1764,7 +1764,7 @@
 
     function micronutrientBarStep(value) {
       const safe = asNumber(value, null);
-      if (safe == null) return null;
+      if (safe == null || safe <= 0) return null;
       return clampValue(Math.max(1, Math.floor(safe / 10)), 1, 10);
     }
 
@@ -1831,7 +1831,7 @@
 
     function formatVitaminPercent(food, metricKey) {
       const value = asNumber(food?.metrics?.[metricKey], null);
-      return value == null ? 'N/A' : `${formatCompactNumber(value, 0)}%`;
+      return value == null || value <= 0 ? 'N/A' : `${formatCompactNumber(value, 0)}%`;
     }
 
     function ensureVitaminTextLayers(layout) {
@@ -1994,7 +1994,7 @@
 
     function formatMineralPercent(food, metricKey) {
       const value = asNumber(food?.metrics?.[metricKey], null);
-      return value == null ? 'N/A' : `${formatCompactNumber(value, 0)}%`;
+      return value == null || value <= 0 ? 'N/A' : `${formatCompactNumber(value, 0)}%`;
     }
 
     function ensureMineralTextLayers(layout) {

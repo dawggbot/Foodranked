@@ -853,7 +853,7 @@
     });
 
     roots.caption.style.fontSize = `calc(${Number(scene.captionSize) || 22}px * 0.25 * var(--pixel-unit))`;
-    roots.caption.textContent = captionChunk(scene.caption, sceneProgress);
+    renderCaption(roots.caption, scene.caption, sceneProgress);
     roots.caption.style.opacity = String(easeOutCubic((sceneProgress + 0.05) * 4));
   }
 
@@ -977,9 +977,9 @@
     });
   }
 
-  function captionChunk(text, progress) {
+  function captionChunks(text) {
     const source = String(text || '').replace(/\s+/g, ' ').trim();
-    if (!source) return '';
+    if (!source) return [];
     const chunks = [];
     let current = '';
     source.split(/(?<=[.!?])\s+/).forEach(sentence => {
@@ -991,16 +991,46 @@
       }
     });
     if (current) chunks.push(current.trim());
+    return chunks;
+  }
+
+  function captionFrame(text, progress) {
+    const chunks = captionChunks(text);
+    if (!chunks.length) return { chunk: '', words: [], activeWordIndex: -1 };
     const index = clamp(Math.floor(progress * chunks.length), 0, chunks.length - 1);
-    return chunks[index] || source;
+    const chunk = chunks[index] || '';
+    const words = chunk.split(/\s+/).filter(Boolean);
+    const chunkStart = index / chunks.length;
+    const chunkEnd = (index + 1) / chunks.length;
+    const localProgress = chunks.length > 1
+      ? clamp((progress - chunkStart) / Math.max(0.001, chunkEnd - chunkStart), 0, 1)
+      : clamp(progress, 0, 1);
+    const activeWordIndex = words.length
+      ? clamp(Math.floor(localProgress * words.length), 0, words.length - 1)
+      : -1;
+    return { chunk, words, activeWordIndex };
+  }
+
+  function renderCaption(container, text, progress) {
+    const frame = captionFrame(text, progress);
+    const key = `${frame.chunk}::${frame.activeWordIndex}`;
+    if (container.dataset.captionKey === key) return;
+    container.dataset.captionKey = key;
+    container.setAttribute('aria-label', frame.chunk);
+    container.replaceChildren(...frame.words.map((word, index) => {
+      const node = document.createElement('span');
+      node.className = `caption-word${index === frame.activeWordIndex ? ' active' : ''}`;
+      node.textContent = word;
+      return node;
+    }));
   }
 
   function applyLayerBox(node, layer) {
     node.style.left = `calc(${Number(layer.x) || 0}px * var(--pixel-unit))`;
     node.style.top = `calc(${Number(layer.y) || 0}px * var(--pixel-unit))`;
     if (layer.width) node.style.width = `calc(${Number(layer.width)}px * var(--pixel-unit))`;
-    if (layer.height) node.style.height = `calc(${Number(layer.height)}px * var(--pixel-unit))`;
     if (layer.kind === 'sprite') {
+      if (layer.height) node.style.height = `calc(${Number(layer.height)}px * var(--pixel-unit))`;
       node.style.objectFit = layer.preserveAspect ? 'contain' : 'fill';
       if (layer.preserveAspect && layer.aspectRatio) node.style.aspectRatio = String(layer.aspectRatio);
     }
@@ -1030,7 +1060,7 @@
     const phase = state.currentTime * Math.PI * 2;
     let x = 0;
     let y = 0;
-    let scale = 0.96 + (visible * 0.04);
+    let scale = layer.kind === 'text' ? 1 : 0.96 + (visible * 0.04);
     let clip = '';
 
     if (scene.reveal === 'slide') {
@@ -1038,7 +1068,7 @@
     } else if (scene.reveal === 'wipe') {
       clip = `inset(0 ${Math.round((1 - visible) * 100)}% 0 0)`;
     } else if (scene.reveal === 'pop') {
-      scale = 0.8 + (visible * 0.2);
+      scale = layer.kind === 'text' ? 1 : 0.8 + (visible * 0.2);
     } else {
       y += (1 - visible) * 7;
     }

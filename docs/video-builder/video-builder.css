@@ -333,7 +333,7 @@ h2 {
 .layer-node {
   position: absolute;
   image-rendering: pixelated;
-  transform-origin: center;
+  transform-origin: top left;
   will-change: opacity, transform, clip-path;
 }
 
@@ -352,8 +352,9 @@ h2 {
   text-rendering: optimizeSpeed;
   -webkit-text-stroke: calc(1.3px * var(--pixel-unit)) #000;
   paint-order: stroke fill;
+  text-shadow: 0 0 0 #000;
   white-space: pre-line;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
 }
 
 .caption-box {
@@ -363,8 +364,13 @@ h2 {
   top: calc(140px * var(--pixel-unit));
   z-index: 200;
   min-height: calc(18px * var(--pixel-unit));
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+  column-gap: calc(1.4px * var(--pixel-unit));
+  row-gap: 0;
   padding: 0;
   color: #ffffff;
   font-family: var(--pixel-font);
@@ -378,8 +384,20 @@ h2 {
   -webkit-text-stroke: calc(1.3px * var(--pixel-unit)) #000;
   paint-order: stroke fill;
   text-shadow: 0 0 0 #000;
-  white-space: pre-line;
-  overflow-wrap: anywhere;
+  white-space: normal;
+  overflow-wrap: normal;
+}
+
+.caption-word {
+  display: inline-block;
+  color: #ffffff;
+  -webkit-text-stroke: calc(1.3px * var(--pixel-unit)) #000;
+  paint-order: stroke fill;
+  text-shadow: 0 0 0 #000;
+}
+
+.caption-word.active {
+  color: #ffd84a;
 }
 
 .timeline-strip {

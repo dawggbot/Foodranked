@@ -9,7 +9,7 @@
   --accent-2: #6fc6b8;
   --warn: #f3c65d;
   --good: #7ce0a1;
-  --pixel-font: "Tiny5", "Courier New", monospace;
+  --pixel-font: "Tiny5", "Press Start 2P", "VT323", "Courier New", monospace;
   --grid-width: 135;
   --grid-height: 240;
   --pixel-unit: 4;
@@ -261,12 +261,20 @@ h2 {
 }
 
 .phone-shell {
+  width: min(420px, calc(var(--grid-width) * 1px * var(--pixel-unit) + 12px));
+  aspect-ratio: 9 / 16;
+  position: relative;
+  overflow: hidden;
+  border: 6px solid #2e3649;
+  border-radius: 26px;
+  box-shadow: 0 18px 50px rgba(0,0,0,.28);
+  background:
+    radial-gradient(circle at top, rgba(213,90,90,.14), transparent 35%),
+    linear-gradient(180deg, #1b2030 0%, #121724 100%);
   display: grid;
   place-items: center;
+  padding: 0;
   min-height: 0;
-  min-width: calc(var(--grid-width) * 1px * var(--pixel-unit));
-  min-height: calc(var(--grid-height) * 1px * var(--pixel-unit));
-  height: 100%;
 }
 
 .video-stage {
@@ -276,8 +284,8 @@ h2 {
   aspect-ratio: 9 / 16;
   overflow: hidden;
   background: #d6d6d6;
-  border: 1px solid #05070a;
-  box-shadow: 0 18px 44px rgba(0,0,0,0.38);
+  border-radius: 0;
+  box-shadow: 0 10px 30px rgba(0,0,0,.08);
   image-rendering: pixelated;
 }
 
@@ -352,12 +360,19 @@ h2 {
   place-items: center;
   padding: 0;
   color: #ffffff;
-  font-family: Inter, system-ui, sans-serif;
-  font-weight: 800;
-  line-height: 1.12;
+  font-family: var(--pixel-font);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: 0;
   text-align: center;
-  -webkit-text-stroke: calc(0.55px * var(--pixel-unit)) #000;
+  -webkit-font-smoothing: none;
+  font-smooth: never;
+  text-rendering: optimizeSpeed;
+  -webkit-text-stroke: calc(1.3px * var(--pixel-unit)) #000;
   paint-order: stroke fill;
+  text-shadow: 0 0 0 #000;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
 }
 
 .timeline-strip {
@@ -446,4 +461,10 @@ h2 {
     grid-column: 1 / -1;
   }
 
+}
+
+@media (max-width: 1500px) and (min-width: 921px) {
+  .phone-shell {
+    width: min(420px, calc(var(--grid-width) * 1px * var(--pixel-unit) * 0.7777778));
+  }
 }

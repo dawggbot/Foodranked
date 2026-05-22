@@ -860,7 +860,7 @@
   }
 
   function setCanvasScale() {
-    els.videoStage.style.setProperty('--pixel-unit', String(getResponsiveAssetScale()));
+    document.documentElement.style.setProperty('--pixel-unit', String(getResponsiveAssetScale()));
   }
 
   async function renderDynamicBackground(field, food) {

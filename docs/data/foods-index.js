@@ -5966,7 +5966,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "pickled_vegetable_processing",
+          "vegetable_processing_penalty",
+          "ultra_processed_vegetable_identity"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -8519,6 +8524,13 @@ window.FOODS_INDEX = [
     },
     "path": "data/foods/bacon.sample.json",
     "sourceFile": "foods/bacon.sample.json",
+    "assets": {
+      "customFoodImage": {
+        "path": "app/sprites/header/food_images/bacon.png",
+        "sourcePath": "sprites/header/food_images/bacon.png",
+        "docsPath": "app/sprites/header/food_images/bacon.png"
+      }
+    },
     "ruleset": {
       "id": "meats.v1",
       "version": 1,
@@ -8850,8 +8862,83 @@ window.FOODS_INDEX = [
       },
       "summary": "Pros are carrying this food most, while cons are holding it back most. It lands in D tier.",
       "whyThisTier": "This food lands in D tier with an overall score of 22.4. Section scores: fats 48.9, proteins 20, vitamins 12, minerals 3.8, pros 50, cons 0.",
-      "durationSeconds": 71.21,
+      "durationSeconds": 73.85,
       "outputDir": "outputs/episodes/bacon-compact",
+      "audio": {
+        "take": "voice-v2",
+        "path": "audio/episodes/bacon/voice-v2.mp3",
+        "metadataPath": "audio/episodes/bacon/voice-v2.json",
+        "productionPath": "production/episodes/bacon/voice/voice-v2.mp3",
+        "profileId": "eryn_measured_v1",
+        "voiceLabel": "Eryn - Informative, Neutral and Measured",
+        "modelId": "eleven_multilingual_v2",
+        "generatedAt": "2026-05-22T10:38:09.531Z"
+      },
+      "sceneTimings": [
+        {
+          "id": "hook",
+          "kind": "hook",
+          "startSeconds": 0,
+          "endSeconds": 2.1,
+          "durationSeconds": 2.1
+        },
+        {
+          "id": "fats",
+          "kind": "section",
+          "startSeconds": 2.1,
+          "endSeconds": 10.22,
+          "durationSeconds": 8.12
+        },
+        {
+          "id": "carbs",
+          "kind": "section",
+          "startSeconds": 10.22,
+          "endSeconds": 14.81,
+          "durationSeconds": 4.59
+        },
+        {
+          "id": "proteins",
+          "kind": "section",
+          "startSeconds": 14.81,
+          "endSeconds": 24.34,
+          "durationSeconds": 9.53
+        },
+        {
+          "id": "vitamins",
+          "kind": "section",
+          "startSeconds": 24.34,
+          "endSeconds": 29.63,
+          "durationSeconds": 5.29
+        },
+        {
+          "id": "minerals",
+          "kind": "section",
+          "startSeconds": 29.63,
+          "endSeconds": 34.22,
+          "durationSeconds": 4.59
+        },
+        {
+          "id": "pros",
+          "kind": "section",
+          "startSeconds": 34.22,
+          "endSeconds": 46.93,
+          "durationSeconds": 12.71
+        },
+        {
+          "id": "cons",
+          "kind": "section",
+          "startSeconds": 46.93,
+          "endSeconds": 65.28,
+          "durationSeconds": 18.35
+        },
+        {
+          "id": "final",
+          "kind": "closing",
+          "startSeconds": 65.28,
+          "endSeconds": 73.85,
+          "durationSeconds": 8.57
+        }
+      ],
       "sceneCount": 9,
       "accent": "Deep Red",
       "tierColor": "purple",
@@ -13690,7 +13777,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "instant_tuber_processing",
+          "fried_tuber_processing",
+          "tuber_processing_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -17335,7 +17427,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "pickled_vegetable_processing",
+          "vegetable_processing_penalty",
+          "ultra_processed_vegetable_identity"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -18631,7 +18728,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "pickled_vegetable_processing",
+          "vegetable_processing_penalty",
+          "ultra_processed_vegetable_identity"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -20226,7 +20328,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "pickled_vegetable_processing",
+          "vegetable_processing_penalty",
+          "ultra_processed_vegetable_identity"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -23397,7 +23504,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "pickled_vegetable_processing",
+          "vegetable_processing_penalty",
+          "ultra_processed_vegetable_identity"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -25880,7 +25992,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "cracker_processing_penalty",
+          "seed_processing_penalty",
+          "seed_dilution_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -26787,7 +26904,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "pickled_vegetable_processing",
+          "vegetable_processing_penalty",
+          "ultra_processed_vegetable_identity"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -28948,7 +29070,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "instant_tuber_processing",
+          "fried_tuber_processing",
+          "tuber_processing_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -29745,7 +29872,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "instant_tuber_processing",
+          "fried_tuber_processing",
+          "tuber_processing_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -30208,7 +30340,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "instant_tuber_processing",
+          "fried_tuber_processing",
+          "tuber_processing_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -30985,7 +31122,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "pickled_vegetable_processing",
+          "vegetable_processing_penalty",
+          "ultra_processed_vegetable_identity"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -31728,7 +31870,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "instant_tuber_processing",
+          "fried_tuber_processing",
+          "tuber_processing_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -32194,7 +32341,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "pickled_vegetable_processing",
+          "vegetable_processing_penalty",
+          "ultra_processed_vegetable_identity"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -34675,7 +34827,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "cracker_processing_penalty",
+          "seed_processing_penalty",
+          "seed_dilution_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -42103,7 +42260,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "pickled_vegetable_processing",
+          "vegetable_processing_penalty",
+          "ultra_processed_vegetable_identity"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -42515,7 +42677,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "cracker_processing_penalty",
+          "seed_processing_penalty",
+          "seed_dilution_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -47713,7 +47880,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "pickled_vegetable_processing",
+          "vegetable_processing_penalty",
+          "ultra_processed_vegetable_identity"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -48125,7 +48297,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "cracker_processing_penalty",
+          "seed_processing_penalty",
+          "seed_dilution_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -49032,7 +49209,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "instant_tuber_processing",
+          "fried_tuber_processing",
+          "tuber_processing_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -53772,7 +53954,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "pickled_vegetable_processing",
+          "vegetable_processing_penalty",
+          "ultra_processed_vegetable_identity"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -57007,7 +57194,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "cracker_processing_penalty",
+          "seed_processing_penalty",
+          "seed_dilution_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -58366,7 +58558,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "cracker_processing_penalty",
+          "seed_processing_penalty",
+          "seed_dilution_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -58904,7 +59101,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "cracker_processing_penalty",
+          "seed_processing_penalty",
+          "seed_dilution_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -60468,7 +60670,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "instant_tuber_processing",
+          "fried_tuber_processing",
+          "tuber_processing_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -64745,7 +64952,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "pickled_vegetable_processing",
+          "vegetable_processing_penalty",
+          "ultra_processed_vegetable_identity"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -66511,7 +66723,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "cracker_processing_penalty",
+          "seed_processing_penalty",
+          "seed_dilution_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -68278,7 +68495,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "instant_tuber_processing",
+          "fried_tuber_processing",
+          "tuber_processing_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -69628,7 +69850,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "cracker_processing_penalty",
+          "seed_processing_penalty",
+          "seed_dilution_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -73991,7 +74218,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "pickled_vegetable_processing",
+          "vegetable_processing_penalty",
+          "ultra_processed_vegetable_identity"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -74717,7 +74949,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "instant_tuber_processing",
+          "fried_tuber_processing",
+          "tuber_processing_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -76198,7 +76435,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "instant_tuber_processing",
+          "fried_tuber_processing",
+          "tuber_processing_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -76976,7 +77218,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "instant_tuber_processing",
+          "fried_tuber_processing",
+          "tuber_processing_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -77442,7 +77689,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "pickled_vegetable_processing",
+          "vegetable_processing_penalty",
+          "ultra_processed_vegetable_identity"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -97783,7 +98035,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "pickled_vegetable_processing",
+          "vegetable_processing_penalty",
+          "ultra_processed_vegetable_identity"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -98507,7 +98764,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "cracker_processing_penalty",
+          "seed_processing_penalty",
+          "seed_dilution_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -100282,7 +100544,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "cracker_processing_penalty",
+          "seed_processing_penalty",
+          "seed_dilution_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -102465,7 +102732,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "pickled_vegetable_processing",
+          "vegetable_processing_penalty",
+          "ultra_processed_vegetable_identity"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -105790,7 +106062,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "instant_tuber_processing",
+          "fried_tuber_processing",
+          "tuber_processing_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -110369,7 +110646,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "pickled_vegetable_processing",
+          "vegetable_processing_penalty",
+          "ultra_processed_vegetable_identity"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -116543,7 +116825,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "instant_tuber_processing",
+          "fried_tuber_processing",
+          "tuber_processing_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -118941,7 +119228,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "cracker_processing_penalty",
+          "seed_processing_penalty",
+          "seed_dilution_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -120574,7 +120866,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "instant_tuber_processing",
+          "fried_tuber_processing",
+          "tuber_processing_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -122526,7 +122823,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "cracker_processing_penalty",
+          "seed_processing_penalty",
+          "seed_dilution_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -123070,7 +123372,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "cracker_processing_penalty",
+          "seed_processing_penalty",
+          "seed_dilution_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -123614,7 +123921,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "cracker_processing_penalty",
+          "seed_processing_penalty",
+          "seed_dilution_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -124512,7 +124824,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "instant_tuber_processing",
+          "fried_tuber_processing",
+          "tuber_processing_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -126640,7 +126957,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "pickled_vegetable_processing",
+          "vegetable_processing_penalty",
+          "ultra_processed_vegetable_identity"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -128644,7 +128966,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "pickled_vegetable_processing",
+          "vegetable_processing_penalty",
+          "ultra_processed_vegetable_identity"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -131684,7 +132011,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "pickled_vegetable_processing",
+          "vegetable_processing_penalty",
+          "ultra_processed_vegetable_identity"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -132096,7 +132428,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "instant_tuber_processing",
+          "fried_tuber_processing",
+          "tuber_processing_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -137754,7 +138091,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "cracker_processing_penalty",
+          "seed_processing_penalty",
+          "seed_dilution_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -138647,7 +138989,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "cracker_processing_penalty",
+          "seed_processing_penalty",
+          "seed_dilution_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -144801,7 +145148,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "pickled_vegetable_processing",
+          "vegetable_processing_penalty",
+          "ultra_processed_vegetable_identity"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -148026,7 +148378,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "cracker_processing_penalty",
+          "seed_processing_penalty",
+          "seed_dilution_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -148570,7 +148927,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "cracker_processing_penalty",
+          "seed_processing_penalty",
+          "seed_dilution_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -149114,7 +149476,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "cracker_processing_penalty",
+          "seed_processing_penalty",
+          "seed_dilution_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -150012,7 +150379,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "instant_tuber_processing",
+          "fried_tuber_processing",
+          "tuber_processing_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -150792,7 +151164,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "cracker_processing_penalty",
+          "seed_processing_penalty",
+          "seed_dilution_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -152091,7 +152468,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "cracker_processing_penalty",
+          "seed_processing_penalty",
+          "seed_dilution_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -152635,7 +153017,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "pickled_vegetable_processing",
+          "vegetable_processing_penalty",
+          "ultra_processed_vegetable_identity"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -153517,7 +153904,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "cracker_processing_penalty",
+          "seed_processing_penalty",
+          "seed_dilution_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -154061,7 +154453,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "instant_tuber_processing",
+          "fried_tuber_processing",
+          "tuber_processing_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -154527,7 +154924,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "instant_tuber_processing",
+          "fried_tuber_processing",
+          "tuber_processing_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -154993,7 +155395,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "instant_tuber_processing",
+          "fried_tuber_processing",
+          "tuber_processing_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -155785,7 +156192,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "instant_tuber_processing",
+          "fried_tuber_processing",
+          "tuber_processing_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -158302,7 +158714,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "pickled_vegetable_processing",
+          "vegetable_processing_penalty",
+          "ultra_processed_vegetable_identity"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -161835,7 +162252,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "instant_tuber_processing",
+          "fried_tuber_processing",
+          "tuber_processing_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -162623,7 +163045,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "instant_tuber_processing",
+          "fried_tuber_processing",
+          "tuber_processing_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -165204,7 +165631,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "pickled_vegetable_processing",
+          "vegetable_processing_penalty",
+          "ultra_processed_vegetable_identity"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -165616,7 +166048,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "cracker_processing_penalty",
+          "seed_processing_penalty",
+          "seed_dilution_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -166514,7 +166951,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "cracker_processing_penalty",
+          "seed_processing_penalty",
+          "seed_dilution_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -169106,7 +169548,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "instant_tuber_processing",
+          "fried_tuber_processing",
+          "tuber_processing_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -172681,7 +173128,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "instant_tuber_processing",
+          "fried_tuber_processing",
+          "tuber_processing_penalty"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -173492,7 +173944,12 @@ window.FOODS_INDEX = [
           "major_pro": 100,
           "minor_con": 50,
           "major_con": 100
-        }
+        },
+        "processingPenaltyKeys": [
+          "pickled_vegetable_processing",
+          "vegetable_processing_penalty",
+          "ultra_processed_vegetable_identity"
+        ]
       },
       "metricRulesBySection": {
         "fats": [
@@ -174117,7 +174574,7 @@ window.FOODS_INDEX = [
   }
 ];
 window.FOODRANKED_DATA = {
-  "generatedAt": "2026-04-10T21:15:30.625Z",
+  "generatedAt": "2026-05-22T10:45:59.331Z",
   "count": 275,
   "foods": [
     {
@@ -180087,7 +180544,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "pickled_vegetable_processing",
+            "vegetable_processing_penalty",
+            "ultra_processed_vegetable_identity"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -182640,6 +183102,13 @@ window.FOODRANKED_DATA = {
       },
       "path": "data/foods/bacon.sample.json",
       "sourceFile": "foods/bacon.sample.json",
+      "assets": {
+        "customFoodImage": {
+          "path": "app/sprites/header/food_images/bacon.png",
+          "sourcePath": "sprites/header/food_images/bacon.png",
+          "docsPath": "app/sprites/header/food_images/bacon.png"
+        }
+      },
       "ruleset": {
         "id": "meats.v1",
         "version": 1,
@@ -182971,8 +183440,83 @@ window.FOODRANKED_DATA = {
         },
         "summary": "Pros are carrying this food most, while cons are holding it back most. It lands in D tier.",
         "whyThisTier": "This food lands in D tier with an overall score of 22.4. Section scores: fats 48.9, proteins 20, vitamins 12, minerals 3.8, pros 50, cons 0.",
-        "durationSeconds": 71.21,
+        "durationSeconds": 73.85,
         "outputDir": "outputs/episodes/bacon-compact",
+        "audio": {
+          "take": "voice-v2",
+          "path": "audio/episodes/bacon/voice-v2.mp3",
+          "metadataPath": "audio/episodes/bacon/voice-v2.json",
+          "productionPath": "production/episodes/bacon/voice/voice-v2.mp3",
+          "profileId": "eryn_measured_v1",
+          "voiceLabel": "Eryn - Informative, Neutral and Measured",
+          "modelId": "eleven_multilingual_v2",
+          "generatedAt": "2026-05-22T10:38:09.531Z"
+        },
+        "sceneTimings": [
+          {
+            "id": "hook",
+            "kind": "hook",
+            "startSeconds": 0,
+            "endSeconds": 2.1,
+            "durationSeconds": 2.1
+          },
+          {
+            "id": "fats",
+            "kind": "section",
+            "startSeconds": 2.1,
+            "endSeconds": 10.22,
+            "durationSeconds": 8.12
+          },
+          {
+            "id": "carbs",
+            "kind": "section",
+            "startSeconds": 10.22,
+            "endSeconds": 14.81,
+            "durationSeconds": 4.59
+          },
+          {
+            "id": "proteins",
+            "kind": "section",
+            "startSeconds": 14.81,
+            "endSeconds": 24.34,
+            "durationSeconds": 9.53
+          },
+          {
+            "id": "vitamins",
+            "kind": "section",
+            "startSeconds": 24.34,
+            "endSeconds": 29.63,
+            "durationSeconds": 5.29
+          },
+          {
+            "id": "minerals",
+            "kind": "section",
+            "startSeconds": 29.63,
+            "endSeconds": 34.22,
+            "durationSeconds": 4.59
+          },
+          {
+            "id": "pros",
+            "kind": "section",
+            "startSeconds": 34.22,
+            "endSeconds": 46.93,
+            "durationSeconds": 12.71
+          },
+          {
+            "id": "cons",
+            "kind": "section",
+            "startSeconds": 46.93,
+            "endSeconds": 65.28,
+            "durationSeconds": 18.35
+          },
+          {
+            "id": "final",
+            "kind": "closing",
+            "startSeconds": 65.28,
+            "endSeconds": 73.85,
+            "durationSeconds": 8.57
+          }
+        ],
         "sceneCount": 9,
         "accent": "Deep Red",
         "tierColor": "purple",
@@ -187811,7 +188355,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "instant_tuber_processing",
+            "fried_tuber_processing",
+            "tuber_processing_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -191456,7 +192005,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "pickled_vegetable_processing",
+            "vegetable_processing_penalty",
+            "ultra_processed_vegetable_identity"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -192752,7 +193306,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "pickled_vegetable_processing",
+            "vegetable_processing_penalty",
+            "ultra_processed_vegetable_identity"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -194347,7 +194906,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "pickled_vegetable_processing",
+            "vegetable_processing_penalty",
+            "ultra_processed_vegetable_identity"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -197518,7 +198082,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "pickled_vegetable_processing",
+            "vegetable_processing_penalty",
+            "ultra_processed_vegetable_identity"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -200001,7 +200570,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "cracker_processing_penalty",
+            "seed_processing_penalty",
+            "seed_dilution_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -200908,7 +201482,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "pickled_vegetable_processing",
+            "vegetable_processing_penalty",
+            "ultra_processed_vegetable_identity"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -203069,7 +203648,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "instant_tuber_processing",
+            "fried_tuber_processing",
+            "tuber_processing_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -203866,7 +204450,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "instant_tuber_processing",
+            "fried_tuber_processing",
+            "tuber_processing_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -204329,7 +204918,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "instant_tuber_processing",
+            "fried_tuber_processing",
+            "tuber_processing_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -205106,7 +205700,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "pickled_vegetable_processing",
+            "vegetable_processing_penalty",
+            "ultra_processed_vegetable_identity"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -205849,7 +206448,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "instant_tuber_processing",
+            "fried_tuber_processing",
+            "tuber_processing_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -206315,7 +206919,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "pickled_vegetable_processing",
+            "vegetable_processing_penalty",
+            "ultra_processed_vegetable_identity"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -208796,7 +209405,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "cracker_processing_penalty",
+            "seed_processing_penalty",
+            "seed_dilution_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -216224,7 +216838,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "pickled_vegetable_processing",
+            "vegetable_processing_penalty",
+            "ultra_processed_vegetable_identity"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -216636,7 +217255,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "cracker_processing_penalty",
+            "seed_processing_penalty",
+            "seed_dilution_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -221834,7 +222458,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "pickled_vegetable_processing",
+            "vegetable_processing_penalty",
+            "ultra_processed_vegetable_identity"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -222246,7 +222875,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "cracker_processing_penalty",
+            "seed_processing_penalty",
+            "seed_dilution_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -223153,7 +223787,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "instant_tuber_processing",
+            "fried_tuber_processing",
+            "tuber_processing_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -227893,7 +228532,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "pickled_vegetable_processing",
+            "vegetable_processing_penalty",
+            "ultra_processed_vegetable_identity"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -231128,7 +231772,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "cracker_processing_penalty",
+            "seed_processing_penalty",
+            "seed_dilution_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -232487,7 +233136,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "cracker_processing_penalty",
+            "seed_processing_penalty",
+            "seed_dilution_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -233025,7 +233679,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "cracker_processing_penalty",
+            "seed_processing_penalty",
+            "seed_dilution_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -234589,7 +235248,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "instant_tuber_processing",
+            "fried_tuber_processing",
+            "tuber_processing_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -238866,7 +239530,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "pickled_vegetable_processing",
+            "vegetable_processing_penalty",
+            "ultra_processed_vegetable_identity"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -240632,7 +241301,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "cracker_processing_penalty",
+            "seed_processing_penalty",
+            "seed_dilution_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -242399,7 +243073,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "instant_tuber_processing",
+            "fried_tuber_processing",
+            "tuber_processing_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -243749,7 +244428,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "cracker_processing_penalty",
+            "seed_processing_penalty",
+            "seed_dilution_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -248112,7 +248796,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "pickled_vegetable_processing",
+            "vegetable_processing_penalty",
+            "ultra_processed_vegetable_identity"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -248838,7 +249527,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "instant_tuber_processing",
+            "fried_tuber_processing",
+            "tuber_processing_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -250319,7 +251013,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "instant_tuber_processing",
+            "fried_tuber_processing",
+            "tuber_processing_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -251097,7 +251796,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "instant_tuber_processing",
+            "fried_tuber_processing",
+            "tuber_processing_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -251563,7 +252267,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "pickled_vegetable_processing",
+            "vegetable_processing_penalty",
+            "ultra_processed_vegetable_identity"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -271904,7 +272613,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "pickled_vegetable_processing",
+            "vegetable_processing_penalty",
+            "ultra_processed_vegetable_identity"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -272628,7 +273342,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "cracker_processing_penalty",
+            "seed_processing_penalty",
+            "seed_dilution_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -274403,7 +275122,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "cracker_processing_penalty",
+            "seed_processing_penalty",
+            "seed_dilution_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -276586,7 +277310,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "pickled_vegetable_processing",
+            "vegetable_processing_penalty",
+            "ultra_processed_vegetable_identity"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -279911,7 +280640,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "instant_tuber_processing",
+            "fried_tuber_processing",
+            "tuber_processing_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -284490,7 +285224,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "pickled_vegetable_processing",
+            "vegetable_processing_penalty",
+            "ultra_processed_vegetable_identity"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -290664,7 +291403,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "instant_tuber_processing",
+            "fried_tuber_processing",
+            "tuber_processing_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -293062,7 +293806,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "cracker_processing_penalty",
+            "seed_processing_penalty",
+            "seed_dilution_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -294695,7 +295444,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "instant_tuber_processing",
+            "fried_tuber_processing",
+            "tuber_processing_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -296647,7 +297401,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "cracker_processing_penalty",
+            "seed_processing_penalty",
+            "seed_dilution_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -297191,7 +297950,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "cracker_processing_penalty",
+            "seed_processing_penalty",
+            "seed_dilution_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -297735,7 +298499,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "cracker_processing_penalty",
+            "seed_processing_penalty",
+            "seed_dilution_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -298633,7 +299402,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "instant_tuber_processing",
+            "fried_tuber_processing",
+            "tuber_processing_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -300761,7 +301535,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "pickled_vegetable_processing",
+            "vegetable_processing_penalty",
+            "ultra_processed_vegetable_identity"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -302765,7 +303544,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "pickled_vegetable_processing",
+            "vegetable_processing_penalty",
+            "ultra_processed_vegetable_identity"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -305805,7 +306589,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "pickled_vegetable_processing",
+            "vegetable_processing_penalty",
+            "ultra_processed_vegetable_identity"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -306217,7 +307006,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "instant_tuber_processing",
+            "fried_tuber_processing",
+            "tuber_processing_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -311875,7 +312669,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "cracker_processing_penalty",
+            "seed_processing_penalty",
+            "seed_dilution_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -312768,7 +313567,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "cracker_processing_penalty",
+            "seed_processing_penalty",
+            "seed_dilution_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -318922,7 +319726,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "pickled_vegetable_processing",
+            "vegetable_processing_penalty",
+            "ultra_processed_vegetable_identity"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -322147,7 +322956,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "cracker_processing_penalty",
+            "seed_processing_penalty",
+            "seed_dilution_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -322691,7 +323505,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "cracker_processing_penalty",
+            "seed_processing_penalty",
+            "seed_dilution_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -323235,7 +324054,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "cracker_processing_penalty",
+            "seed_processing_penalty",
+            "seed_dilution_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -324133,7 +324957,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "instant_tuber_processing",
+            "fried_tuber_processing",
+            "tuber_processing_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -324913,7 +325742,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "cracker_processing_penalty",
+            "seed_processing_penalty",
+            "seed_dilution_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -326212,7 +327046,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "cracker_processing_penalty",
+            "seed_processing_penalty",
+            "seed_dilution_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -326756,7 +327595,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "pickled_vegetable_processing",
+            "vegetable_processing_penalty",
+            "ultra_processed_vegetable_identity"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -327638,7 +328482,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "cracker_processing_penalty",
+            "seed_processing_penalty",
+            "seed_dilution_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -328182,7 +329031,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "instant_tuber_processing",
+            "fried_tuber_processing",
+            "tuber_processing_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -328648,7 +329502,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "instant_tuber_processing",
+            "fried_tuber_processing",
+            "tuber_processing_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -329114,7 +329973,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "instant_tuber_processing",
+            "fried_tuber_processing",
+            "tuber_processing_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -329906,7 +330770,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "instant_tuber_processing",
+            "fried_tuber_processing",
+            "tuber_processing_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -332423,7 +333292,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "pickled_vegetable_processing",
+            "vegetable_processing_penalty",
+            "ultra_processed_vegetable_identity"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -335956,7 +336830,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "instant_tuber_processing",
+            "fried_tuber_processing",
+            "tuber_processing_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -336744,7 +337623,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "instant_tuber_processing",
+            "fried_tuber_processing",
+            "tuber_processing_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -339325,7 +340209,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "pickled_vegetable_processing",
+            "vegetable_processing_penalty",
+            "ultra_processed_vegetable_identity"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -339737,7 +340626,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "cracker_processing_penalty",
+            "seed_processing_penalty",
+            "seed_dilution_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -340635,7 +341529,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "cracker_processing_penalty",
+            "seed_processing_penalty",
+            "seed_dilution_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -343227,7 +344126,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "instant_tuber_processing",
+            "fried_tuber_processing",
+            "tuber_processing_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -346802,7 +347706,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "instant_tuber_processing",
+            "fried_tuber_processing",
+            "tuber_processing_penalty"
+          ]
         },
         "metricRulesBySection": {
           "fats": [
@@ -347613,7 +348522,12 @@ window.FOODRANKED_DATA = {
             "major_pro": 100,
             "minor_con": 50,
             "major_con": 100
-          }
+          },
+          "processingPenaltyKeys": [
+            "pickled_vegetable_processing",
+            "vegetable_processing_penalty",
+            "ultra_processed_vegetable_identity"
+          ]
         },
         "metricRulesBySection": {
           "fats": [

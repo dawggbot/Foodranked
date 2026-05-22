@@ -1,0 +1,99 @@
+name: Food Image Upload Trigger
+
+on:
+  push:
+    paths:
+      - 'production/inbox/food-image-uploads/**'
+      - 'config/elevenlabs-voice-settings.v1.json'
+      - 'scripts/foodranked-food-image-trigger.js'
+      - 'scripts/foodranked-generate-voice.js'
+  workflow_dispatch:
+    inputs:
+      food_id:
+        description: 'Food id to process from production/inbox/food-image-uploads/<food-id>.png'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build-draft-video-assets:
+    runs-on: ubuntu-latest
+    env:
+      ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Check ElevenLabs secret
+        shell: bash
+        run: |
+          if [ -z "$ELEVENLABS_API_KEY" ]; then
+            echo "Missing GitHub Actions secret: ELEVENLABS_API_KEY" >&2
+            exit 1
+          fi
+
+      - name: Resolve uploaded sprites
+        id: uploads
+        shell: bash
+        run: |
+          set -euo pipefail
+          : > /tmp/foodranked-upload-files.txt
+
+          if [ -n "${{ github.event.inputs.food_id }}" ]; then
+            printf 'production/inbox/food-image-uploads/%s.png\n' "${{ github.event.inputs.food_id }}" > /tmp/foodranked-upload-files.txt
+          elif [ "${{ github.event_name }}" = "push" ]; then
+            BEFORE="${{ github.event.before }}"
+            if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+              git ls-files 'production/inbox/food-image-uploads/*.png' > /tmp/foodranked-upload-files.txt
+            else
+              git diff --name-only "$BEFORE" "${{ github.sha }}" -- production/inbox/food-image-uploads \
+                | grep -E '\.png$' > /tmp/foodranked-upload-files.txt || true
+            fi
+          else
+            git ls-files 'production/inbox/food-image-uploads/*.png' > /tmp/foodranked-upload-files.txt
+          fi
+
+          if [ -s /tmp/foodranked-upload-files.txt ]; then
+            echo "has_uploads=true" >> "$GITHUB_OUTPUT"
+            cat /tmp/foodranked-upload-files.txt
+          else
+            echo "has_uploads=false" >> "$GITHUB_OUTPUT"
+            echo "No PNG uploads to process."
+          fi
+
+      - name: Build triggered assets
+        if: steps.uploads.outputs.has_uploads == 'true'
+        shell: bash
+        run: |
+          node scripts/foodranked-food-image-trigger.js $(cat /tmp/foodranked-upload-files.txt)
+
+      - name: Commit generated assets
+        if: steps.uploads.outputs.has_uploads == 'true'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            production/inbox/food-image-uploads \
+            sprites/header/food_images \
+            docs/app/sprites/header/food_images \
+            production/episodes \
+            outputs/episodes \
+            docs/audio/episodes \
+            docs/data
+          if git diff --cached --quiet; then
+            echo "No generated changes to commit."
+          else
+            git commit -m "Build FoodRanked assets from food image upload"
+            git push
+          fi

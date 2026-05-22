@@ -249,15 +249,22 @@ h2 {
 
 .preview-toolbar {
   display: grid;
-  grid-template-columns: 76px 96px minmax(0, 1fr);
+  grid-template-columns: 76px 88px 96px minmax(92px, auto) minmax(0, 1fr);
   width: 100%;
 }
 
-.time-readout {
+.time-readout,
+.audio-status {
   color: var(--muted);
   font-variant-numeric: tabular-nums;
   font-size: 12px;
   text-align: center;
+}
+
+.audio-status {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .phone-shell {
@@ -450,11 +457,16 @@ h2 {
   }
 
   .preview-toolbar {
-    grid-template-columns: 76px 1fr;
+    grid-template-columns: 76px 88px 1fr;
   }
 
   .time-readout {
     text-align: right;
+  }
+
+  .audio-status {
+    grid-column: 1 / -1;
+    text-align: left;
   }
 
   #timeScrub {

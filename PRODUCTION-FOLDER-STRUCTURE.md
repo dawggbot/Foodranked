@@ -6,7 +6,11 @@ FoodRanked now has a dedicated production-side folder structure so generated out
 
 - `outputs/episodes/` — machine-generated episode packages
 - `outputs/batches/` — machine-generated batch results
-- `assets/` — reusable visual assets
+- `sprites/` — reusable source/runtime sprite assets
+- `docs/app/sprites/` — browser-served sprite mirror for builders
+- `docs/audio/episodes/` — browser-served audio mirror for builders
+- `config/elevenlabs-voice-settings.v1.json` — non-secret voice-generation settings
+- `production/inbox/food-image-uploads/` — GitHub upload trigger folder for food sprites
 - `production/episodes/` — human production workspaces per episode
 - `production/templates/` — reusable production templates/checklists
 - `production/queues/` — queue and status docs
@@ -53,5 +57,7 @@ Each has folders for:
 - put icon outputs in `assets/icons/...`
 - copy episode-specific notes into `production/episodes/<food-id>/briefs/`
 - place voice outputs in `production/episodes/<food-id>/voice/`
+- upload trigger sprites as `production/inbox/food-image-uploads/<food-id>.png`
+- keep browser preview audio in `docs/audio/episodes/<food-id>/`, mirrored from production voice files
 - place NLE/project files in `production/episodes/<food-id>/edits/`
 - place final masters in both `production/episodes/<food-id>/exports/` and platform-specific `exports/` folders

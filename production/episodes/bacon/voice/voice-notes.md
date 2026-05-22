@@ -1,16 +1,17 @@
 # Bacon Voice Notes
 
 ## Export
-- file: `voice-v1.mp3` *(expected)*
-- status: waiting for repo-visible audio file
+- current file: `voice-v2.mp3`
+- builder mirror: `docs/audio/episodes/bacon/voice-v2.mp3`
+- status: generated and wired into the video builder data index
 
 ## ElevenLabs settings used
 - voice: **Eryn - Informative, Neutral and Measured**
 - model: **Eleven Multilingual v2**
 - speed: **1.15**
-- stability: **medium-low / slightly left of center**
-- similarity: **high / slightly right of center**
-- style exaggeration: **very low**
+- stability: **50%**
+- similarity: **75%**
+- style exaggeration: **10%**
 - language override: **off**
 - output format: **MP3 (128kbps)**
 

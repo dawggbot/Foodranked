@@ -5,7 +5,6 @@
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SECTION_INDICATOR_LAYOUT = { normalSize: 10, highlightedSize: 12 };
-  const CUSTOM_FOOD_IMAGE_IDS = new Set(['bacon']);
 
   const SECTIONS = [
     { id: 'intro', label: 'Hook', duration: 2.4, reveal: 'pop', motion: 'bob' },
@@ -64,7 +63,10 @@
     layoutStatus: document.getElementById('layoutStatus'),
     sceneList: document.getElementById('sceneList'),
     videoStage: document.getElementById('videoStage'),
+    narrationAudio: document.getElementById('narrationAudio'),
     playPause: document.getElementById('playPause'),
+    audioToggle: document.getElementById('audioToggle'),
+    audioStatus: document.getElementById('audioStatus'),
     timeReadout: document.getElementById('timeReadout'),
     timeScrub: document.getElementById('timeScrub'),
     timelineStrip: document.getElementById('timelineStrip'),
@@ -87,6 +89,7 @@
     selectedFoodId: savedState.selectedFoodId || 'bacon',
     layoutSourceId: savedState.layoutSourceId || 'display-builder',
     selectedSceneId: savedState.selectedSceneId || 'intro',
+    audioEnabled: savedState.audioEnabled !== false,
     currentTime: 0,
     playing: false,
     startedAt: 0,
@@ -199,8 +202,17 @@
     if (/^(data:|https?:|blob:)/i.test(path)) return path;
     if (path.startsWith('./sprites/')) return `../app/${path.slice(2)}`;
     if (path.startsWith('sprites/')) return `../app/${path}`;
+    if (path.startsWith('./app/')) return `../${path.slice(2)}`;
+    if (path.startsWith('app/')) return `../${path}`;
     if (path.startsWith('../app/')) return path;
     return path;
+  }
+
+  function docsAssetPath(path) {
+    if (!path) return '';
+    if (/^(data:|https?:|blob:)/i.test(path)) return path;
+    if (path.startsWith('../') || path.startsWith('./')) return path;
+    return `../${path}`;
   }
 
   function appSpritePath(path) {
@@ -208,7 +220,13 @@
   }
 
   function foodImagePath(food) {
+    const customPath = food?.assets?.customFoodImage?.path || food?.customFoodImage?.path;
+    if (customPath) return customPath;
     return appSpritePath(`header/food_images/${food?.id || 'bacon'}.png`);
+  }
+
+  function hasCustomFoodImage(food) {
+    return Boolean(food?.assets?.customFoodImage?.path || food?.customFoodImage?.path);
   }
 
   function foodPlatePath(food) {
@@ -543,13 +561,23 @@
     return fallbacks[sectionId] || `${name} ranked.`;
   }
 
+  function episodeSceneTiming(food, sectionId) {
+    const episodeId = {
+      intro: 'hook',
+      protein: 'proteins',
+      outro: 'final'
+    }[sectionId] || sectionId;
+    return food?.episode?.sceneTimings?.find(scene => scene.id === episodeId) || null;
+  }
+
   function buildScenes(food, previous = []) {
     return SECTIONS.map(section => {
       const existing = previous.find(scene => scene.id === section.id);
+      const episodeTiming = episodeSceneTiming(food, section.id);
       return {
         id: section.id,
         label: section.label,
-        duration: existing?.duration || section.duration,
+        duration: existing?.duration || episodeTiming?.durationSeconds || section.duration,
         reveal: existing?.reveal || section.reveal,
         motion: existing?.motion || section.motion,
         captionSize: existing?.captionSize || 22,
@@ -580,7 +608,8 @@
     localStorage.setItem(VIDEO_STATE_KEY, JSON.stringify({
       selectedFoodId: state.selectedFoodId,
       layoutSourceId: state.layoutSourceId,
-      selectedSceneId: state.selectedSceneId
+      selectedSceneId: state.selectedSceneId,
+      audioEnabled: state.audioEnabled
     }));
   }
 
@@ -610,6 +639,7 @@
         state.selectedSceneId = 'intro';
         state.scenes = buildScenes(food);
         hydrateLayoutForFood();
+        syncAudioForFood();
         persist();
         renderAll();
       });
@@ -666,6 +696,7 @@
     els.captionSize.value = selected?.captionSize || 22;
     els.captionText.value = selected?.caption || '';
     els.playPause.textContent = state.playing ? 'Pause' : 'Play';
+    updateAudioControls();
 
     const total = totalDuration();
     els.timeScrub.max = String(Math.max(1, Math.round(total * 100)));
@@ -685,6 +716,7 @@
       foodName: food?.name || null,
       layoutSource: state.layoutSourceId,
       canvas: { width: AUTHOR_GRID.width, height: AUTHOR_GRID.height, aspect: '9:16' },
+      audio: audioForFood(food),
       duration: Number(totalDuration().toFixed(2)),
       scenes: sceneStarts().map(scene => ({
         id: scene.id,
@@ -891,7 +923,7 @@
 
     const enrichedPool = sourcePool.map(item => {
       const candidates = foodSpriteCandidates(item);
-      const hasPrimary = CUSTOM_FOOD_IMAGE_IDS.has(String(item?.id || ''));
+      const hasPrimary = hasCustomFoodImage(item);
       return {
         food: item,
         src: spritePath(hasPrimary ? candidates.primary : candidates.fallback),
@@ -1030,6 +1062,7 @@
   function stopPlayback() {
     state.playing = false;
     els.playPause.textContent = 'Play';
+    if (els.narrationAudio) els.narrationAudio.pause();
   }
 
   function startPlayback() {
@@ -1038,13 +1071,18 @@
     state.playheadStart = state.currentTime;
     state.lastFrameAt = performance.now();
     els.playPause.textContent = 'Pause';
+    playAudioFromCurrentTime();
     requestAnimationFrame(tick);
   }
 
   function tick(now) {
     if (!state.playing) return;
-    const elapsed = (now - state.startedAt) / 1000;
-    state.currentTime = state.playheadStart + elapsed;
+    if (state.audioEnabled && els.narrationAudio?.src && !els.narrationAudio.paused) {
+      state.currentTime = els.narrationAudio.currentTime;
+    } else {
+      const elapsed = (now - state.startedAt) / 1000;
+      state.currentTime = state.playheadStart + elapsed;
+    }
     if (state.currentTime >= totalDuration()) {
       state.currentTime = totalDuration();
       stopPlayback();
@@ -1063,6 +1101,7 @@
   function renderAll() {
     state.currentTime = clamp(state.currentTime, 0, totalDuration());
     setCanvasScale();
+    syncAudioForFood();
     renderLayoutSourceOptions();
     renderFoodList();
     renderSceneList();
@@ -1103,7 +1142,17 @@
   els.timeScrub.addEventListener('input', () => {
     state.currentTime = Number(els.timeScrub.value) / 100;
     stopPlayback();
+    syncAudioTime();
     renderDynamic();
+  });
+
+  els.audioToggle.addEventListener('click', () => {
+    if (!audioForFood(selectedFood())) return;
+    state.audioEnabled = !state.audioEnabled;
+    if (!state.audioEnabled) els.narrationAudio.pause();
+    else if (state.playing) playAudioFromCurrentTime();
+    persist();
+    updateAudioControls();
   });
 
   els.sceneDuration.addEventListener('input', () => {
@@ -1165,11 +1214,73 @@
     if (!foods.some(item => item.id === state.selectedFoodId) && foods[0]) state.selectedFoodId = foods[0].id;
     state.scenes = buildScenes(food);
     hydrateLayoutForFood();
+    syncAudioForFood();
     renderAll();
     requestAnimationFrame(() => {
       setCanvasScale();
       renderStage();
     });
+  }
+
+  function audioForFood(food) {
+    const audio = food?.episode?.audio || food?.audio || null;
+    if (!audio?.path) return null;
+    return {
+      take: audio.take || null,
+      path: audio.path,
+      metadataPath: audio.metadataPath || null,
+      productionPath: audio.productionPath || null,
+      profileId: audio.profileId || null,
+      voiceLabel: audio.voiceLabel || null,
+      modelId: audio.modelId || null,
+      generatedAt: audio.generatedAt || null
+    };
+  }
+
+  function syncAudioForFood() {
+    const audio = audioForFood(selectedFood());
+    if (!els.narrationAudio) return;
+    if (!audio) {
+      els.narrationAudio.removeAttribute('src');
+      els.narrationAudio.load();
+      updateAudioControls();
+      return;
+    }
+    const nextSrc = new URL(docsAssetPath(audio.path), window.location.href).href;
+    if (els.narrationAudio.src !== nextSrc) {
+      els.narrationAudio.src = nextSrc;
+      els.narrationAudio.load();
+    }
+    syncAudioTime();
+    updateAudioControls();
+  }
+
+  function syncAudioTime() {
+    if (!els.narrationAudio?.src) return;
+    const safeTime = clamp(state.currentTime, 0, Math.max(0, totalDuration() - 0.01));
+    try {
+      els.narrationAudio.currentTime = safeTime;
+    } catch {}
+  }
+
+  function playAudioFromCurrentTime() {
+    if (!state.audioEnabled || !els.narrationAudio?.src) return;
+    syncAudioTime();
+    const playPromise = els.narrationAudio.play();
+    if (playPromise?.catch) {
+      playPromise.catch(() => {
+        state.audioEnabled = false;
+        updateAudioControls('Audio blocked');
+      });
+    }
+  }
+
+  function updateAudioControls(overrideStatus) {
+    const audio = audioForFood(selectedFood());
+    if (!els.audioToggle || !els.audioStatus) return;
+    els.audioToggle.disabled = !audio;
+    els.audioToggle.textContent = state.audioEnabled && audio ? 'Audio on' : 'Audio off';
+    els.audioStatus.textContent = overrideStatus || (audio ? `${audio.take || 'Audio'} ready` : 'No audio');
   }
 
   init();

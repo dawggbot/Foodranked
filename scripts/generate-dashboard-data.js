@@ -7,6 +7,9 @@ const foodsDir = path.join(repoRoot, 'foods');
 const rulesetsDir = path.join(repoRoot, 'rulesets');
 const outputsDir = path.join(repoRoot, 'outputs', 'episodes');
 const outDir = path.join(repoRoot, 'docs', 'data');
+const docsAppDir = path.join(repoRoot, 'docs', 'app');
+const docsAudioDir = path.join(repoRoot, 'docs', 'audio', 'episodes');
+const sourceSpritesDir = path.join(repoRoot, 'sprites');
 
 function ensureDir(dir) { fs.mkdirSync(dir, { recursive: true }); }
 function readJson(file) { return JSON.parse(fs.readFileSync(file, 'utf8')); }
@@ -22,6 +25,46 @@ function findEpisode(foodId) {
   if (exists(compactDir)) return readJson(compactDir);
   if (exists(standardDir)) return readJson(standardDir);
   return null;
+}
+
+function findCustomFoodImage(foodId) {
+  const docsPath = path.join(docsAppDir, 'sprites', 'header', 'food_images', `${foodId}.png`);
+  const sourcePath = path.join(sourceSpritesDir, 'header', 'food_images', `${foodId}.png`);
+  if (!exists(docsPath) && !exists(sourcePath)) return null;
+  return {
+    path: `app/sprites/header/food_images/${foodId}.png`,
+    sourcePath: `sprites/header/food_images/${foodId}.png`,
+    docsPath: `app/sprites/header/food_images/${foodId}.png`
+  };
+}
+
+function takeRank(fileName) {
+  const match = String(fileName || '').match(/voice-v(\d+)\.mp3$/i);
+  return match ? Number(match[1]) : 0;
+}
+
+function findEpisodeAudio(foodId) {
+  const dir = path.join(docsAudioDir, foodId);
+  if (!exists(dir)) return null;
+  const audioFiles = fs.readdirSync(dir)
+    .filter(name => name.toLowerCase().endsWith('.mp3'))
+    .sort((a, b) => takeRank(b) - takeRank(a) || a.localeCompare(b));
+  const fileName = audioFiles[0];
+  if (!fileName) return null;
+  const take = fileName.replace(/\.mp3$/i, '');
+  const metadataName = `${take}.json`;
+  const metadataPath = path.join(dir, metadataName);
+  const metadata = exists(metadataPath) ? readJson(metadataPath) : null;
+  return {
+    take,
+    path: `audio/episodes/${foodId}/${fileName}`,
+    metadataPath: exists(metadataPath) ? `audio/episodes/${foodId}/${metadataName}` : null,
+    productionPath: metadata?.productionAudioFile || `production/episodes/${foodId}/voice/${fileName}`,
+    profileId: metadata?.profileId || null,
+    voiceLabel: metadata?.voice?.label || null,
+    modelId: metadata?.modelId || null,
+    generatedAt: metadata?.generatedAt || null
+  };
 }
 
 function ruleSummary(ruleset) {
@@ -53,6 +96,8 @@ const foods = fs.readdirSync(foodsDir)
     const scenes = episode?.scenePlan?.scenes || [];
     const rulesetPath = path.join(rulesetsDir, `${food.foodType}.v1.json`);
     const ruleset = exists(rulesetPath) ? readJson(rulesetPath) : null;
+    const customFoodImage = findCustomFoodImage(food.id);
+    const episodeAudio = findEpisodeAudio(food.id);
 
     return {
       id: food.id,
@@ -66,6 +111,7 @@ const foods = fs.readdirSync(foodsDir)
       contextItems: food.contextItems || { pros: [], cons: [] },
       path: `data/foods/${name}`,
       sourceFile: path.relative(repoRoot, file),
+      ...(customFoodImage ? { assets: { customFoodImage } } : {}),
       ruleset: ruleset ? {
         id: ruleset.id,
         version: ruleset.version,
@@ -82,6 +128,16 @@ const foods = fs.readdirSync(foodsDir)
         whyThisTier: score?.explanation?.whyThisTier ?? null,
         durationSeconds: episode.scenePlan?.totalEstimatedDurationSeconds ?? null,
         outputDir: episode.outputs?.directory ?? null,
+        ...(episodeAudio ? {
+          audio: episodeAudio,
+          sceneTimings: scenes.map(scene => ({
+            id: scene.id,
+            kind: scene.kind,
+            startSeconds: scene.startSeconds,
+            endSeconds: scene.endSeconds,
+            durationSeconds: scene.durationSeconds
+          }))
+        } : {}),
         sceneCount: scenes.length,
         accent: episode.visualBinding?.categoryAccent ?? null,
         tierColor: episode.visualBinding?.tierColor ?? null,

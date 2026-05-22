@@ -7,6 +7,8 @@
   const SECTION_INDICATOR_LAYOUT = { normalSize: 10, highlightedSize: 12 };
   const CAPTION_SAFE_X = 7;
   const CAPTION_WORD_LOOKAHEAD = 0.012;
+  const AUDIO_REVEAL_LEAD_SECONDS = 0.08;
+  const AUDIO_REVEAL_WINDOW_SECONDS = 0.44;
 
   const SECTIONS = [
     { id: 'intro', label: 'Hook', duration: 2.4, reveal: 'pop', motion: 'bob' },
@@ -56,6 +58,32 @@
       { key: 'nonessential_amino_acids_score', label: 'N-EAA', value: food => formatRatio(food?.metrics?.nonessential_amino_acids_score, 11) },
       { key: 'bioavailability_percent', label: 'BIOAVAIL.', value: food => formatMetric(food?.metrics?.bioavailability_percent, '%') }
     ]
+  };
+
+  const METRIC_SPEECH_TERMS = {
+    saturated_fat_g: ['saturated fat', 'sat fat'],
+    polyunsaturated_fat_g: ['polyunsaturated fat', 'polyunsaturated', 'poly fat'],
+    omega3_mg: ['omega 3', 'omega3'],
+    cholesterol_mg: ['cholesterol'],
+    fibre_g: ['fibre', 'fiber'],
+    sugar_g: ['sugar'],
+    starch_g: ['starch'],
+    glycemic_index: ['glycemic index', 'gi'],
+    collagen_g: ['collagen'],
+    essential_amino_acids_score: ['essential amino', 'eaa'],
+    nonessential_amino_acids_score: ['nonessential amino', 'non essential amino', 'n eaa'],
+    bioavailability_percent: ['bioavailability'],
+    vitamin_a_dv: ['vitamin a'],
+    vitamin_c_dv: ['vitamin c'],
+    vitamin_d_dv: ['vitamin d'],
+    vitamin_e_dv: ['vitamin e'],
+    vitamin_k_dv: ['vitamin k'],
+    vitamin_b12_dv: ['vitamin b12', 'b12'],
+    calcium_dv: ['calcium'],
+    iron_dv: ['iron'],
+    magnesium_dv: ['magnesium'],
+    potassium_dv: ['potassium'],
+    zinc_dv: ['zinc']
   };
 
   const els = {
@@ -734,7 +762,12 @@
         reveal: scene.reveal,
         spriteMotion: scene.motion,
         captionSize: scene.captionSize,
-        caption: scene.caption
+        caption: scene.caption,
+        revealBeats: sceneTimedSentences(scene).map(segment => ({
+          start: Number(segment.start.toFixed(3)),
+          end: Number(segment.end.toFixed(3)),
+          text: segment.text
+        }))
       }))
     };
   }
@@ -832,15 +865,18 @@
     void renderDynamicBackground(roots.bg, food);
     roots.layerRoot.innerHTML = '';
 
+    const layerList = layers.map(item => item.layer);
     layers.forEach(({ layer, index, persistent }) => {
       if (layer.visible === false) return;
       const node = document.createElement(layer.kind === 'sprite' ? 'img' : 'div');
       node.className = `layer-node ${layer.kind}${layer.kind === 'text' ? ' pixel-text' : ''}`;
       node.dataset.layerId = layer.id || '';
       node.dataset.persistent = persistent ? 'true' : 'false';
+      const revealDelay = audioRevealDelayForLayer(layer, scene, index, persistent, layerList);
+      node.dataset.revealDelay = revealDelay.toFixed(3);
       node.style.zIndex = String(Number(layer.z) || 0);
       applyLayerBox(node, layer);
-      applyLayerAnimation(node, layer, scene, sceneProgress, index, persistent);
+      applyLayerAnimation(node, layer, scene, sceneProgress, index, persistent, revealDelay);
       if (layer.kind === 'sprite') {
         node.src = spritePath(layer.src);
         node.alt = layer.label || '';
@@ -1021,6 +1057,30 @@
     return { chunks, totalWeight };
   }
 
+  function captionSentences(text) {
+    const source = String(text || '').replace(/\s+/g, ' ').trim();
+    if (!source) return [];
+    return source.split(/(?<=[.!?])\s+/).map(item => item.trim()).filter(Boolean);
+  }
+
+  function sceneTimedSentences(scene) {
+    const sentences = captionSentences(scene?.caption);
+    if (!sentences.length) return [{ text: '', start: 0, end: 1 }];
+    const weights = sentences.map(sentence => sentence.split(/\s+/).filter(Boolean)
+      .reduce((sum, word) => sum + captionWordWeight(word), 0));
+    const totalWeight = weights.reduce((sum, weight) => sum + weight, 0) || sentences.length;
+    let cursor = 0;
+    return sentences.map((sentence, index) => {
+      const start = cursor / totalWeight;
+      cursor += weights[index] || 1;
+      return {
+        text: sentence,
+        start,
+        end: cursor / totalWeight
+      };
+    });
+  }
+
   function captionFrame(text, progress) {
     const timing = captionTimingModel(text);
     if (!timing.chunks.length || timing.totalWeight <= 0) return { chunk: '', words: [], activeWordIndex: -1 };
@@ -1086,6 +1146,137 @@
     caption.style.setProperty('--caption-safe-right', `${rightInset.toFixed(2)}px`);
   }
 
+  function normalizeSpeechSearch(value) {
+    return String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  }
+
+  function segmentStartForTerms(segments, terms) {
+    const normalized = terms.map(normalizeSpeechSearch).filter(Boolean);
+    if (!normalized.length) return null;
+    for (const segment of segments) {
+      const haystack = normalizeSpeechSearch(segment.text);
+      if (normalized.some(term => haystack.includes(term))) return segment.start;
+      if (normalized.some(term => {
+        const tokens = term.split(' ').filter(token => token.length > 1);
+        return tokens.length > 1 && tokens.every(token => haystack.includes(token));
+      })) return segment.start;
+    }
+    return null;
+  }
+
+  function metricTerms(metricKey, fallbackLabel = '') {
+    const fallback = normalizeSpeechSearch(fallbackLabel);
+    return [
+      ...(METRIC_SPEECH_TERMS[metricKey] || []),
+      ...(fallback.length > 1 ? [fallbackLabel] : [])
+    ].filter(Boolean);
+  }
+
+  function rowIndexFromY(layer, startY, stepY, maxIndex) {
+    const y = asNumber(layer?.y, null);
+    if (y == null) return null;
+    return clamp(Math.round((y - startY) / stepY), 0, maxIndex);
+  }
+
+  function macroRowIndex(layer) {
+    const fingerprint = `${layer.id || ''} ${layer.label || ''} ${layer.src || ''}`.toLowerCase();
+    if (!/(submacro|arrow indicator|green_arrow|red_arrow|yellow_arrow)/.test(fingerprint)) return null;
+    return rowIndexFromY(layer, 73, 18, 3);
+  }
+
+  function proConRowIndex(layer, sectionId) {
+    const id = String(layer?.id || '').toLowerCase();
+    const idMatch = id.match(new RegExp(`^${sectionId}_(?:impact|item)_(\\d+)$`));
+    if (idMatch) return clamp(Number(idMatch[1]) - 1, 0, 2);
+    const fingerprint = `${layer?.label || ''} ${layer?.src || ''}`.toLowerCase();
+    if (!fingerprint.includes(sectionId === 'pros' ? 'pro' : 'con')) return null;
+    return rowIndexFromY(layer, 47, 28, 2);
+  }
+
+  function micronTextIndex(layer, sectionId) {
+    const id = String(layer?.id || '').toLowerCase();
+    const match = id.match(new RegExp(`^${sectionId}_(?:label|percent)_(\\d+)$`));
+    return match ? Number(match[1]) - 1 : null;
+  }
+
+  function micronColumnIndex(layer, sectionId, allLayers) {
+    const textIndex = micronTextIndex(layer, sectionId);
+    if (textIndex != null) return textIndex;
+    const fingerprint = `${layer?.label || ''} ${layer?.src || ''}`.toLowerCase();
+    if (fingerprint.includes('bar_line')) return null;
+    if (!/(micro|micros|dv bar|bar_line|bar)/.test(fingerprint)) return null;
+    const labels = allLayers
+      .filter(candidate => micronTextIndex(candidate, sectionId) != null)
+      .map(candidate => ({ index: micronTextIndex(candidate, sectionId), centerX: layerCenterX(candidate) }));
+    if (!labels.length) return null;
+    const centerX = layerCenterX(layer);
+    return labels.reduce((closest, item) => (
+      Math.abs(item.centerX - centerX) < Math.abs(closest.centerX - centerX) ? item : closest
+    ), labels[0]).index;
+  }
+
+  function layerTextTerms(layer) {
+    const text = String(layer?.text || '').trim();
+    if (!text || /^n\/a$/i.test(text)) return [];
+    const words = normalizeSpeechSearch(text).split(' ').filter(word => word.length > 2);
+    return [text, words.slice(0, 4).join(' ')].filter(Boolean);
+  }
+
+  function distributedRevealDelay(order, count, segments, { start = 0.05, end = 0.82 } = {}) {
+    if (segments[order]) return segments[order].start;
+    if (count <= 1) return start;
+    return clamp(start + ((order / Math.max(1, count - 1)) * (end - start)), start, end);
+  }
+
+  function audioRevealDelayForLayer(layer, scene, index, persistent, allLayers = []) {
+    if (persistent) return 0;
+    const segments = sceneTimedSentences(scene);
+    const sectionId = scene?.id || '';
+    const fingerprint = `${layer?.id || ''} ${layer?.label || ''} ${layer?.src || ''}`.toLowerCase();
+
+    if (sectionId === 'intro') return Math.min(0.12, index * 0.025);
+    if (layer?.id === 'outro_score_value') {
+      return segmentStartForTerms(segments, ['tier']) ?? segments[Math.max(0, segments.length - 1)].start;
+    }
+
+    if (['fats', 'carbs', 'protein'].includes(sectionId)) {
+      if (/icon/.test(fingerprint)) return 0;
+      const rowIndex = macroRowIndex(layer);
+      if (rowIndex != null) {
+        const specs = MACRO_SUBMETRIC_SPECS[sectionId] || [];
+        const spec = specs[rowIndex];
+        return segmentStartForTerms(segments, metricTerms(spec?.key, spec?.label))
+          ?? distributedRevealDelay(rowIndex + 1, Math.max(4, segments.length), segments, { start: 0.16, end: 0.72 });
+      }
+    }
+
+    if (sectionId === 'vitamins' || sectionId === 'minerals') {
+      if (/title/.test(fingerprint) || (/icon/.test(fingerprint) && (Number(layer?.y) || 0) < 70)) return 0;
+      const specs = sectionId === 'vitamins' ? VITAMIN_TEXT_SPECS : MINERAL_TEXT_SPECS;
+      const columnIndex = micronColumnIndex(layer, sectionId, allLayers);
+      if (columnIndex != null) {
+        const spec = specs[columnIndex];
+        return segmentStartForTerms(segments, metricTerms(spec?.key, spec?.shortLabel))
+          ?? distributedRevealDelay(columnIndex + 1, Math.max(specs.length + 1, segments.length), segments, { start: 0.12, end: 0.74 });
+      }
+      return 0.08;
+    }
+
+    if (sectionId === 'pros' || sectionId === 'cons') {
+      const rowIndex = proConRowIndex(layer, sectionId);
+      if (rowIndex != null) {
+        const itemTerms = new RegExp(`^${sectionId}_item_\\d+$`).test(String(layer?.id || '').toLowerCase())
+          ? layerTextTerms(layer)
+          : [];
+        return segmentStartForTerms(segments, itemTerms)
+          ?? distributedRevealDelay(rowIndex * 2, 5, segments, { start: 0.04, end: 0.68 });
+      }
+    }
+
+    const row = clamp(((Number(layer?.y) || 0) - 42) / 120, 0, 1);
+    return 0.08 + (row * 0.48) + ((index % 3) * 0.025);
+  }
+
   function applyLayerBox(node, layer) {
     node.style.left = `calc(${Number(layer.x) || 0}px * var(--pixel-unit))`;
     node.style.top = `calc(${Number(layer.y) || 0}px * var(--pixel-unit))`;
@@ -1105,7 +1296,7 @@
     return 0.12 + (row * 0.42) + ((index % 4) * 0.035);
   }
 
-  function applyLayerAnimation(node, layer, scene, sceneProgress, index, persistent = false) {
+  function applyLayerAnimation(node, layer, scene, sceneProgress, index, persistent = false, revealDelay = null) {
     if (persistent) {
       node.style.opacity = '1';
       if (layer.flipY) {
@@ -1114,9 +1305,11 @@
       return;
     }
 
-    const delay = layerRevealDelay(layer, index);
-    const revealWindow = scene.reveal === 'cascade' ? 0.28 : 0.22;
-    const revealProgress = easeOutCubic((sceneProgress + 0.05 - delay) / revealWindow);
+    const delay = revealDelay == null ? layerRevealDelay(layer, index) : revealDelay;
+    const sceneDuration = Math.max(1, asNumber(scene?.duration, 1));
+    const revealLead = Math.min(0.035, AUDIO_REVEAL_LEAD_SECONDS / sceneDuration);
+    const revealWindow = Math.min(0.14, Math.max(0.045, AUDIO_REVEAL_WINDOW_SECONDS / sceneDuration));
+    const revealProgress = easeOutCubic((sceneProgress + revealLead - delay) / revealWindow);
     const visible = clamp(revealProgress, 0, 1);
     const phase = state.currentTime * Math.PI * 2;
     let x = 0;

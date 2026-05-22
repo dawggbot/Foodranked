@@ -5,6 +5,8 @@
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SECTION_INDICATOR_LAYOUT = { normalSize: 10, highlightedSize: 12 };
+  const CAPTION_SAFE_X = 7;
+  const CAPTION_WORD_LOOKAHEAD = 0.012;
 
   const SECTIONS = [
     { id: 'intro', label: 'Hook', duration: 2.4, reveal: 'pop', motion: 'bob' },
@@ -126,6 +128,11 @@
 
   function clamp(value, min, max) {
     return Math.min(max, Math.max(min, value));
+  }
+
+  function cssPixels(value, fallback = 0) {
+    const number = parseFloat(value);
+    return Number.isFinite(number) ? number : fallback;
   }
 
   function easeOutCubic(value) {
@@ -852,6 +859,7 @@
       roots.layerRoot.appendChild(node);
     });
 
+    syncCaptionSafeArea(roots.caption);
     roots.caption.style.fontSize = `calc(${Number(scene.captionSize) || 22}px * 0.25 * var(--pixel-unit))`;
     renderCaption(roots.caption, scene.caption, sceneProgress);
     roots.caption.style.opacity = String(easeOutCubic((sceneProgress + 0.05) * 4));
@@ -994,21 +1002,51 @@
     return chunks;
   }
 
+  function captionWordWeight(word) {
+    const text = String(word || '');
+    const coreLength = text.replace(/[^a-z0-9]/gi, '').length;
+    const punctuationPause = /[.!?]$/.test(text) ? 0.45 : /[,;:]$/.test(text) ? 0.18 : 0;
+    const numericExpansion = /\d/.test(text) ? 1.15 : 0;
+    return Math.max(0.7, 0.58 + (coreLength * 0.16) + numericExpansion + punctuationPause);
+  }
+
+  function captionTimingModel(text) {
+    const chunks = captionChunks(text).map(chunk => {
+      const words = chunk.split(/\s+/).filter(Boolean);
+      const wordWeights = words.map(captionWordWeight);
+      const weight = wordWeights.reduce((sum, value) => sum + value, 0);
+      return { chunk, words, wordWeights, weight };
+    });
+    const totalWeight = chunks.reduce((sum, chunk) => sum + chunk.weight, 0);
+    return { chunks, totalWeight };
+  }
+
   function captionFrame(text, progress) {
-    const chunks = captionChunks(text);
-    if (!chunks.length) return { chunk: '', words: [], activeWordIndex: -1 };
-    const index = clamp(Math.floor(progress * chunks.length), 0, chunks.length - 1);
-    const chunk = chunks[index] || '';
-    const words = chunk.split(/\s+/).filter(Boolean);
-    const chunkStart = index / chunks.length;
-    const chunkEnd = (index + 1) / chunks.length;
-    const localProgress = chunks.length > 1
-      ? clamp((progress - chunkStart) / Math.max(0.001, chunkEnd - chunkStart), 0, 1)
-      : clamp(progress, 0, 1);
-    const activeWordIndex = words.length
-      ? clamp(Math.floor(localProgress * words.length), 0, words.length - 1)
+    const timing = captionTimingModel(text);
+    if (!timing.chunks.length || timing.totalWeight <= 0) return { chunk: '', words: [], activeWordIndex: -1 };
+
+    const target = clamp(progress + CAPTION_WORD_LOOKAHEAD, 0, 0.999) * timing.totalWeight;
+    let cursor = 0;
+    let activeChunk = timing.chunks[0];
+    for (const chunk of timing.chunks) {
+      if (target < cursor + chunk.weight) {
+        activeChunk = chunk;
+        break;
+      }
+      cursor += chunk.weight;
+    }
+
+    const localTarget = Math.max(0, target - cursor);
+    let wordCursor = 0;
+    let activeWordIndex = 0;
+    activeChunk.wordWeights.forEach((weight, index) => {
+      if (localTarget >= wordCursor) activeWordIndex = index;
+      wordCursor += weight;
+    });
+    activeWordIndex = activeChunk.words.length
+      ? clamp(activeWordIndex, 0, activeChunk.words.length - 1)
       : -1;
-    return { chunk, words, activeWordIndex };
+    return { chunk: activeChunk.chunk, words: activeChunk.words, activeWordIndex };
   }
 
   function renderCaption(container, text, progress) {
@@ -1023,6 +1061,29 @@
       node.textContent = word;
       return node;
     }));
+  }
+
+  function syncCaptionSafeArea(caption) {
+    const shell = els.videoStage.closest('.phone-shell');
+    if (!shell) return;
+
+    const pixelUnit = cssPixels(getComputedStyle(document.documentElement).getPropertyValue('--pixel-unit'), 4);
+    const safe = CAPTION_SAFE_X * pixelUnit;
+    const stageRect = els.videoStage.getBoundingClientRect();
+    const shellRect = shell.getBoundingClientRect();
+    const shellStyle = getComputedStyle(shell);
+    const contentLeft = shellRect.left
+      + cssPixels(shellStyle.borderLeftWidth)
+      + cssPixels(shellStyle.paddingLeft);
+    const contentRight = shellRect.right
+      - cssPixels(shellStyle.borderRightWidth)
+      - cssPixels(shellStyle.paddingRight);
+    const visibleLeft = Math.max(stageRect.left, contentLeft);
+    const visibleRight = Math.min(stageRect.right, contentRight);
+    const leftInset = Math.max(0, visibleLeft - stageRect.left) + safe;
+    const rightInset = Math.max(0, stageRect.right - visibleRight) + safe;
+    caption.style.setProperty('--caption-safe-left', `${leftInset.toFixed(2)}px`);
+    caption.style.setProperty('--caption-safe-right', `${rightInset.toFixed(2)}px`);
   }
 
   function applyLayerBox(node, layer) {

@@ -1475,7 +1475,7 @@
     return clamp(start + ((order / Math.max(1, count - 1)) * (end - start)), start, end);
   }
 
-  function revealAnchorForLayer(layer, scene, classification, timing) {
+  function revealAnchorForLayer(layer, scene, classification, timing, index = 0) {
     const sectionId = scene?.id || '';
     const segments = timing.sentences || sceneTimedSentences(scene);
 
@@ -1524,7 +1524,7 @@
   function layerRevealSchedule(layer, scene, index, persistent, allLayers = []) {
     const timing = sceneTimingModel(scene);
     const classification = layerRevealClassification(layer, scene, persistent, allLayers);
-    let anchor = persistent ? 0 : revealAnchorForLayer(layer, scene, classification, timing);
+    let anchor = persistent ? 0 : revealAnchorForLayer(layer, scene, classification, timing, index);
     let offset = 0;
 
     if (classification.family === 'intro') offset = Math.min(0.12, index * 0.025);

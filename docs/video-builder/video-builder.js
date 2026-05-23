@@ -7,8 +7,9 @@
   const SECTION_INDICATOR_LAYOUT = { normalSize: 10, highlightedSize: 12 };
   const CAPTION_SAFE_X = 7;
   const CAPTION_MAX_LINES = 2;
-  const CAPTION_MAX_LINE_CHARS = 20;
-  const CAPTION_WORD_LOOKAHEAD_SECONDS = 0.015;
+  const CAPTION_MAX_LINE_CHARS = 18;
+  const CAPTION_WIDE_LINE_CHARS = 34;
+  const CAPTION_WORD_LOOKAHEAD_SECONDS = 0.006;
   const AUDIO_REVEAL_LEAD_SECONDS = 0.11;
   const AUDIO_REVEAL_WINDOW_SECONDS = 0.36;
 
@@ -98,6 +99,7 @@
     cons: ['drawbacks next', 'drawbacks'],
     outro: ['tier']
   };
+  const TIER_REVEAL_RE = /^[SDCBA]\s+tier\.?$/i;
 
   const els = {
     foodSearch: document.getElementById('foodSearch'),
@@ -635,15 +637,32 @@
       ? cue.lines
       : String(cue?.text || '').split(/\r?\n/);
     const text = subtitleOnlyCaptionText(rawLines.join(' '));
-    const chunks = captionChunks(text);
+    const placement = captionPlacementForCue(cue, text);
+    const chunks = captionChunks(text, captionLineCharsForPlacement(placement));
     const firstChunk = chunks[0] || { lines: [text].filter(Boolean), text };
     const lines = firstChunk.lines.slice(0, CAPTION_MAX_LINES);
     return {
       ...cue,
+      placement,
       maxLines: CAPTION_MAX_LINES,
+      maxCharactersPerLine: captionLineCharsForPlacement(placement),
       lines,
       text: lines.join('\n')
     };
+  }
+
+  function captionPlacementForCue(cue, text) {
+    const normalizedText = subtitleOnlyCaptionText(text || cue?.text || (cue?.lines || []).join(' '));
+    if (cue?.placement) return cue.placement;
+    if (cue?.sceneId === 'final' && TIER_REVEAL_RE.test(normalizedText)) return 'tier-center';
+    if (cue?.sceneId === 'final') return 'summary-full';
+    return 'lower-third';
+  }
+
+  function captionLineCharsForPlacement(placement) {
+    return placement === 'summary-full' || placement === 'tier-center'
+      ? CAPTION_WIDE_LINE_CHARS
+      : CAPTION_MAX_LINE_CHARS;
   }
 
   function fallbackCaption(food, sectionId) {
@@ -1011,9 +1030,16 @@
     });
 
     syncCaptionSafeArea(roots.caption);
-    roots.caption.style.fontSize = `calc(${Number(scene.captionSize) || 22}px * 0.25 * var(--pixel-unit))`;
-    renderCaption(roots.caption, scene, sceneProgress);
+    const frame = captionFrame(scene, sceneProgress);
+    roots.caption.style.fontSize = captionFontSize(scene, frame);
+    renderCaption(roots.caption, scene, sceneProgress, frame);
     roots.caption.style.opacity = String(easeOutCubic((sceneProgress + 0.05) * 4));
+  }
+
+  function captionFontSize(scene, frame) {
+    if (frame.placement === 'tier-center') return 'calc(36px * 0.25 * var(--pixel-unit))';
+    if (frame.placement === 'summary-full') return 'calc(21px * 0.25 * var(--pixel-unit))';
+    return `calc(${Number(scene.captionSize) || 22}px * 0.25 * var(--pixel-unit))`;
   }
 
   function defaultBackgroundMotion() {
@@ -1136,13 +1162,13 @@
     });
   }
 
-  function captionChunks(text) {
+  function captionChunks(text, maxLineChars = CAPTION_MAX_LINE_CHARS) {
     const source = subtitleOnlyCaptionText(text);
     if (!source) return [];
     const chunks = [];
     let current = '';
     source.split(/(?<=[.!?])\s+/).forEach(sentence => {
-      if ((current + ' ' + sentence).trim().length > CAPTION_MAX_LINE_CHARS * CAPTION_MAX_LINES && current) {
+      if ((current + ' ' + sentence).trim().length > maxLineChars * CAPTION_MAX_LINES && current) {
         chunks.push(current.trim());
         current = sentence;
       } else {
@@ -1155,7 +1181,7 @@
     chunks.forEach(chunk => {
       let remaining = chunk;
       while (remaining) {
-        const result = wrapCaptionLines(remaining);
+        const result = wrapCaptionLines(remaining, maxLineChars);
         wrapped.push({
           text: result.lines.join(' '),
           lines: result.lines
@@ -1351,6 +1377,8 @@
       chunks.push({
         text: cueText,
         lines: cue.lines.slice(0, CAPTION_MAX_LINES),
+        placement: cue.placement || captionPlacementForCue(cue, cueText),
+        role: cue.role || null,
         cueId: cue.id,
         startWordIndex,
         endWordIndex: Math.max(startWordIndex, words.length - 1),
@@ -1403,6 +1431,7 @@
     return {
       chunk: activeChunk.text,
       lines,
+      placement: activeChunk.placement || 'lower-third',
       words: chunkWords.map(word => word.text),
       activeWordIndex: activeWordIndex >= 0 ? activeWordIndex : 0,
       activeWord: activeWord.text,
@@ -1412,7 +1441,8 @@
   }
 
   function captionFrameLines(chunk, words, activeGlobalIndex) {
-    const chunkLines = (chunk.lines?.length ? chunk.lines : wrapCaptionLines(chunk.text).lines).slice(0, CAPTION_MAX_LINES);
+    const maxLineChars = captionLineCharsForPlacement(chunk.placement || 'lower-third');
+    const chunkLines = (chunk.lines?.length ? chunk.lines : wrapCaptionLines(chunk.text, maxLineChars).lines).slice(0, CAPTION_MAX_LINES);
     let cursor = chunk.startWordIndex;
     return chunkLines.map(line => {
       const lineWords = line.split(/\s+/).filter(Boolean);
@@ -1427,9 +1457,12 @@
     });
   }
 
-  function renderCaption(container, scene, progress) {
-    const frame = captionFrame(scene, progress);
-    const key = `${frame.chunk}::${frame.activeWord}`;
+  function renderCaption(container, scene, progress, precomputedFrame = null) {
+    const frame = precomputedFrame || captionFrame(scene, progress);
+    container.classList.toggle('summary-full', frame.placement === 'summary-full');
+    container.classList.toggle('tier-center', frame.placement === 'tier-center');
+    container.classList.toggle('lower-third', !['summary-full', 'tier-center'].includes(frame.placement));
+    const key = `${frame.placement}::${frame.chunk}::${frame.activeWord}`;
     if (container.dataset.captionKey === key) return;
     container.dataset.captionKey = key;
     container.setAttribute('aria-label', frame.chunk);

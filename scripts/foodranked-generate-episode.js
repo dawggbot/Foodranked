@@ -12,7 +12,8 @@ const scriptGeneratorPath = path.join(__dirname, 'foodranked-generate-script.js'
 const visualTemplatePath = path.join(repoRoot, 'templates', 'visual-template.v1.json');
 const spritesRoot = path.join(repoRoot, 'sprites');
 const SUBTITLE_MAX_LINES = 2;
-const SUBTITLE_MAX_CHARACTERS_PER_LINE = 20;
+const SUBTITLE_MAX_CHARACTERS_PER_LINE = 18;
+const SUMMARY_SUBTITLE_MAX_CHARACTERS_PER_LINE = 34;
 
 const HEADER_CATEGORY_KEYS = {
   vegetables: 'vegetable',
@@ -444,6 +445,8 @@ function buildScenePlan(script, score, template, options = {}) {
 
   const hookText = compact ? script.hook : [script.hook, script.intro].filter(Boolean).join(' ');
   const hookDuration = estimateDurationSeconds(hookText, compact ? 188 : 180, compact ? 2.1 : 2.4);
+  const closingSummarySubtitle = subtitleOnlyText(script.closing.summary);
+  const finalRevealSubtitle = subtitleOnlyText(script.closing.finalReveal);
   scenes.push({
     id: 'hook',
     kind: 'hook',
@@ -511,7 +514,21 @@ function buildScenePlan(script, score, template, options = {}) {
     durationSeconds: closingDuration,
     endSeconds: Number((cursor + closingDuration).toFixed(2)),
     narrationText: closingText,
-    subtitleText: [script.closing.finalReveal, script.closing.useCaseNote].filter(Boolean).join(' '),
+    subtitleText: [closingSummarySubtitle, finalRevealSubtitle].filter(Boolean).join(' '),
+    subtitleSequence: [
+      {
+        role: 'conclusion-summary',
+        text: closingSummarySubtitle,
+        placement: 'summary-full',
+        maxCharactersPerLine: SUMMARY_SUBTITLE_MAX_CHARACTERS_PER_LINE
+      },
+      {
+        role: 'tier-reveal',
+        text: finalRevealSubtitle,
+        placement: 'tier-center',
+        maxCharactersPerLine: SUMMARY_SUBTITLE_MAX_CHARACTERS_PER_LINE
+      }
+    ].filter(item => item.text),
     subtitlePlacement: sceneSubtitlePlacement('final', profile.name),
     visualBinding: {
       tier: script.tier,
@@ -619,30 +636,67 @@ function subtitleChunks(text, maxLineChars = SUBTITLE_MAX_CHARACTERS_PER_LINE, m
   return wrapped.length ? wrapped : [['']];
 }
 
+function subtitleCueWeight(lines) {
+  const text = lines.join(' ');
+  const words = text.split(/\s+/).filter(Boolean);
+  const punctuationPause = /[.!?]$/.test(text.trim()) ? 0.8 : 0.2;
+  const numberWeight = words.filter(word => /\d/.test(word)).length * 0.45;
+  return Math.max(1, words.length + punctuationPause + numberWeight);
+}
+
+function subtitleChunkObjectsForScene(scene, maxLineChars, maxLines) {
+  if (Array.isArray(scene.subtitleSequence) && scene.subtitleSequence.length) {
+    return scene.subtitleSequence.flatMap(part => {
+      const partMaxLineChars = part.maxCharactersPerLine || maxLineChars;
+      return subtitleChunks(part.text, partMaxLineChars, maxLines).map(lines => ({
+        lines,
+        role: part.role || null,
+        placement: part.placement || scene.subtitlePlacement || 'lower-third',
+        maxLines,
+        maxCharactersPerLine: partMaxLineChars,
+        weight: subtitleCueWeight(lines)
+      }));
+    });
+  }
+
+  return subtitleChunks(scene.subtitleText || scene.narrationText, maxLineChars, maxLines).map(lines => ({
+    lines,
+    role: null,
+    placement: scene.subtitlePlacement || 'lower-third',
+    maxLines,
+    maxCharactersPerLine: maxLineChars,
+    weight: subtitleCueWeight(lines)
+  }));
+}
+
 function buildSubtitleCues(scenePlan) {
   const maxLines = scenePlan.subtitleRules?.maxLines || SUBTITLE_MAX_LINES;
   const maxLineChars = scenePlan.subtitleRules?.maxCharactersPerLine || SUBTITLE_MAX_CHARACTERS_PER_LINE;
   const cues = [];
 
   for (const scene of scenePlan.scenes) {
-    const chunks = subtitleChunks(scene.subtitleText || scene.narrationText, maxLineChars, maxLines);
-    const chunkDuration = scene.durationSeconds / chunks.length;
+    const chunks = subtitleChunkObjectsForScene(scene, maxLineChars, maxLines);
+    const totalWeight = chunks.reduce((sum, chunk) => sum + chunk.weight, 0) || 1;
+    let cursor = scene.startSeconds;
     scene.subtitleCues = [];
-    chunks.forEach((lines, chunkIndex) => {
-      const startSeconds = Number((scene.startSeconds + (chunkDuration * chunkIndex)).toFixed(2));
+    chunks.forEach((chunk, chunkIndex) => {
+      const startSeconds = Number(cursor.toFixed(2));
+      cursor += scene.durationSeconds * (chunk.weight / totalWeight);
       const endSeconds = chunkIndex === chunks.length - 1
         ? scene.endSeconds
-        : Number((scene.startSeconds + (chunkDuration * (chunkIndex + 1))).toFixed(2));
+        : Number(cursor.toFixed(2));
       const cue = {
         id: `${String(cues.length + 1).padStart(2, '0')}-${scene.id}${chunks.length > 1 ? `-${chunkIndex + 1}` : ''}`,
         sceneId: scene.id,
         startSeconds,
         endSeconds,
-        placement: scene.subtitlePlacement || 'lower-third',
-        maxLines,
-        lines,
-        text: lines.join('\n')
+        placement: chunk.placement,
+        maxLines: chunk.maxLines,
+        maxCharactersPerLine: chunk.maxCharactersPerLine,
+        lines: chunk.lines,
+        text: chunk.lines.join('\n')
       };
+      if (chunk.role) cue.role = chunk.role;
       cues.push(cue);
       scene.subtitleCues.push(cue);
     });

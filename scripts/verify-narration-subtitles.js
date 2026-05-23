@@ -7,12 +7,14 @@ const episodesDir = path.join(repoRoot, 'outputs', 'episodes');
 const docsIndexPath = path.join(repoRoot, 'docs', 'data', 'foods-index.json');
 
 const MAX_SUBTITLE_LINES = 2;
-const MAX_SUBTITLE_LINE_CHARS = 20;
+const MAX_SUBTITLE_LINE_CHARS = 18;
+const MAX_SUMMARY_SUBTITLE_LINE_CHARS = 34;
 const MACRO_SECTION_KEYS = new Set(['fats', 'carbs', 'proteins']);
 
 const COMPACT_UNIT_RE = /\b\d+(?:\.\d+)?\s*(?:mcg|mg|kg|kcal|g)\b/i;
 const EXPANDED_UNIT_RE = /\b\d+(?:\.\d+)?\s+(?:micrograms?|milligrams?|kilograms?|grams?|calories?)\b/i;
 const SUBTITLE_UNIT_WORD_RE = /\b(?:micrograms?|milligrams?|kilograms?|grams?)\b/i;
+const TIER_REVEAL_RE = /^[SDCBA]\s+tier\.?$/i;
 
 function readJson(file) {
   return JSON.parse(fs.readFileSync(file, 'utf8'));
@@ -107,12 +109,18 @@ function sectionHasSubmacroValueMention(section) {
 function checkSubtitleCue(failures, file, cue) {
   const lines = Array.isArray(cue.lines) ? cue.lines : String(cue.text || '').split(/\r?\n/);
   const text = String(cue.text || '');
+  const maxLineChars = cue.placement === 'summary-full'
+    ? MAX_SUMMARY_SUBTITLE_LINE_CHARS
+    : MAX_SUBTITLE_LINE_CHARS;
   if (lines.length > MAX_SUBTITLE_LINES) {
     addFailure(failures, file, `${cue.id || 'cue'} has ${lines.length} subtitle lines`);
   }
-  const longLine = lines.find(line => String(line).length > MAX_SUBTITLE_LINE_CHARS);
+  const longLine = lines.find(line => String(line).length > maxLineChars);
   if (longLine) {
-    addFailure(failures, file, `${cue.id || 'cue'} line exceeds ${MAX_SUBTITLE_LINE_CHARS} chars: "${longLine}"`);
+    addFailure(failures, file, `${cue.id || 'cue'} line exceeds ${maxLineChars} chars: "${longLine}"`);
+  }
+  if (cue.placement === 'tier-center' && !TIER_REVEAL_RE.test(text.replace(/\s+/g, ' ').trim())) {
+    addFailure(failures, file, `${cue.id || 'cue'} tier-center cue is not a tier reveal`);
   }
   if (EXPANDED_UNIT_RE.test(text)) {
     addFailure(failures, file, `${cue.id || 'cue'} subtitle text contains expanded spoken unit`);
@@ -169,6 +177,16 @@ function checkManifest(failures, file, manifest) {
       addFailure(failures, file, `${scene.id || 'scene'} subtitleText contains unit word`);
     }
     for (const cue of scene.subtitleCues || []) checkSubtitleCue(failures, file, cue);
+    if (scene.id === 'final') {
+      const finalCues = scene.subtitleCues || [];
+      const tierIndex = finalCues.findIndex(cue => cue.placement === 'tier-center');
+      if (tierIndex >= 0 && tierIndex !== finalCues.length - 1) {
+        addFailure(failures, file, 'final tier reveal cue is not last');
+      }
+      if (finalCues.length > 1 && !finalCues.slice(0, -1).every(cue => cue.placement === 'summary-full')) {
+        addFailure(failures, file, 'final summary cues are not using summary-full placement');
+      }
+    }
   }
   for (const cue of manifest.scenePlan?.subtitleCues || []) checkSubtitleCue(failures, file, cue);
 }

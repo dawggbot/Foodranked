@@ -142,7 +142,8 @@ Rules:
 - abbreviations like `DV` should be spoken as `daily value`
 - measurement abbreviations in audio should be expanded to full unit words, for example `3g` becomes `3 grams`; on-screen subtitles and stat values should keep short units and avoid full unit words like `grams`
 - fats, carbs, and proteins narration should include at least one displayed submacro value from that section, such as `saturated fat is 12.6 grams` in audio and `saturated fat is 12.6g` in subtitles
-- generated subtitle cues should be wrapped to a maximum of 2 lines, with conservative line length so editor/import wrapping does not create a third line
+- generated subtitle cues should be wrapped to a maximum of 2 lines, with a tight default line length so editor/import wrapping does not create a third line
+- the closing summary should use a wider `summary-full` subtitle placement across the page, then the final `X tier.` cue should use centered `tier-center` placement until a tier sprite replaces it
 - the video builder preview should render from generated subtitle cues, not spoken narration blocks, so the visible captions keep `g` while audio says `grams`
 - pros/cons should keep all 3 items each when possible
 - on-screen body text should remain subtitle-driven

@@ -187,11 +187,17 @@ function audioOnlyText(text) {
 
 function subtitleOnlyText(text) {
   return String(text || '')
+    .replace(/\braw grams display\b/gi, 'raw values display')
+    .replace(/\b([a-z]+) grams already shown\b/gi, '$1 numbers already shown')
     .replace(/\b(\d+(?:\.\d+)?)\s+micrograms?\b/gi, '$1mcg')
     .replace(/\b(\d+(?:\.\d+)?)\s+milligrams?\b/gi, '$1mg')
     .replace(/\b(\d+(?:\.\d+)?)\s+kilograms?\b/gi, '$1kg')
     .replace(/\b(\d+(?:\.\d+)?)\s+grams?\b/gi, '$1g')
-    .replace(/\b(\d+(?:\.\d+)?)\s+calories?\b/gi, '$1kcal');
+    .replace(/\b(\d+(?:\.\d+)?)\s+calories?\b/gi, '$1kcal')
+    .replace(/\bmicrograms?\b/gi, 'mcg')
+    .replace(/\bmilligrams?\b/gi, 'mg')
+    .replace(/\bkilograms?\b/gi, 'kg')
+    .replace(/\bgrams?\b/gi, 'g');
 }
 
 function naturalList(items) {
@@ -606,11 +612,12 @@ function displayItemsForSection(result, sectionKey) {
 function buildSections(result) {
   const order = ['fats', 'carbs', 'proteins', 'vitamins', 'minerals', 'pros', 'cons'];
   return order.map(key => {
-    const subtitleText = polishNarration(subtitleOnlyText(sectionNarration(result, key)));
+    const sourceText = polishNarration(sectionNarration(result, key));
+    const subtitleText = polishNarration(subtitleOnlyText(sourceText));
     return {
       key,
       title: titleForSection(key),
-      narration: polishNarration(audioOnlyText(subtitleText)),
+      narration: polishNarration(audioOnlyText(sourceText)),
       displayItems: displayItemsForSection(result, key),
       subtitleText,
       timingHint: timingHintForSection(key),

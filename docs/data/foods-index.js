@@ -14542,7 +14542,7 @@ window.FOODS_INDEX = [
         "profileId": "eryn_measured_v1",
         "voiceLabel": "Eryn - Informative, Neutral and Measured",
         "modelId": "eleven_multilingual_v2",
-        "generatedAt": "2026-05-22T10:38:09.531Z"
+        "generatedAt": "2026-05-23T12:39:07.371Z"
       },
       "sceneTimings": [
         {
@@ -156466,7 +156466,7 @@ window.FOODS_INDEX = [
                 "scoreValue": 0
               }
             ],
-            "subtitleText": "Pros first: contains useful beta-glucans. Adds cardiovascular and satiety context beyond the base nutrient display. Easy to build meals around. Works well as a simple staple in many eating patterns. Can support digestive regularity. The fibre profile can be practically useful beyond the raw grams display.",
+            "subtitleText": "Pros first: contains useful beta-glucans. Adds cardiovascular and satiety context beyond the base nutrient display. Easy to build meals around. Works well as a simple staple in many eating patterns. Can support digestive regularity. The fibre profile can be practically useful beyond the raw values display.",
             "timingHint": "medium",
             "score": 33.3
           },
@@ -156965,9 +156965,9 @@ window.FOODS_INDEX = [
           "maxLines": 2,
           "lines": [
             "useful beyond the",
-            "raw grams display."
+            "raw values display."
           ],
-          "text": "useful beyond the\nraw grams display."
+          "text": "useful beyond the\nraw values display."
         },
         {
           "id": "33-cons-1",
@@ -262375,7 +262375,7 @@ window.FOODS_INDEX = [
   }
 ];
 window.FOODRANKED_DATA = {
-  "generatedAt": "2026-05-23T12:17:18.674Z",
+  "generatedAt": "2026-05-23T12:39:19.636Z",
   "count": 275,
   "foods": [
     {
@@ -276921,7 +276921,7 @@ window.FOODRANKED_DATA = {
           "profileId": "eryn_measured_v1",
           "voiceLabel": "Eryn - Informative, Neutral and Measured",
           "modelId": "eleven_multilingual_v2",
-          "generatedAt": "2026-05-22T10:38:09.531Z"
+          "generatedAt": "2026-05-23T12:39:07.371Z"
         },
         "sceneTimings": [
           {
@@ -418845,7 +418845,7 @@ window.FOODRANKED_DATA = {
                   "scoreValue": 0
                 }
               ],
-              "subtitleText": "Pros first: contains useful beta-glucans. Adds cardiovascular and satiety context beyond the base nutrient display. Easy to build meals around. Works well as a simple staple in many eating patterns. Can support digestive regularity. The fibre profile can be practically useful beyond the raw grams display.",
+              "subtitleText": "Pros first: contains useful beta-glucans. Adds cardiovascular and satiety context beyond the base nutrient display. Easy to build meals around. Works well as a simple staple in many eating patterns. Can support digestive regularity. The fibre profile can be practically useful beyond the raw values display.",
               "timingHint": "medium",
               "score": 33.3
             },
@@ -419344,9 +419344,9 @@ window.FOODRANKED_DATA = {
             "maxLines": 2,
             "lines": [
               "useful beyond the",
-              "raw grams display."
+              "raw values display."
             ],
-            "text": "useful beyond the\nraw grams display."
+            "text": "useful beyond the\nraw values display."
           },
           {
             "id": "33-cons-1",

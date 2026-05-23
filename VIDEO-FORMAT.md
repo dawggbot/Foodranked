@@ -140,7 +140,7 @@ RANKED!
 Rules:
 - one spoken block per section
 - abbreviations like `DV` should be spoken as `daily value`
-- measurement abbreviations in audio should be expanded to full unit words, for example `3g` becomes `3 grams`; on-screen subtitles and stat values should keep short units
+- measurement abbreviations in audio should be expanded to full unit words, for example `3g` becomes `3 grams`; on-screen subtitles and stat values should keep short units and avoid full unit words like `grams`
 - fats, carbs, and proteins narration should include at least one displayed submacro value from that section, such as `saturated fat is 12.6 grams` in audio and `saturated fat is 12.6g` in subtitles
 - generated subtitle cues should be wrapped to a maximum of 2 lines, with conservative line length so editor/import wrapping does not create a third line
 - pros/cons should keep all 3 items each when possible

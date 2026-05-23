@@ -156,11 +156,17 @@ function audioOnlyText(text) {
 
 function subtitleOnlyText(text) {
   return String(text || '')
+    .replace(/\braw grams display\b/gi, 'raw values display')
+    .replace(/\b([a-z]+) grams already shown\b/gi, '$1 numbers already shown')
     .replace(/\b(\d+(?:\.\d+)?)\s+micrograms?\b/gi, '$1mcg')
     .replace(/\b(\d+(?:\.\d+)?)\s+milligrams?\b/gi, '$1mg')
     .replace(/\b(\d+(?:\.\d+)?)\s+kilograms?\b/gi, '$1kg')
     .replace(/\b(\d+(?:\.\d+)?)\s+grams?\b/gi, '$1g')
-    .replace(/\b(\d+(?:\.\d+)?)\s+calories?\b/gi, '$1kcal');
+    .replace(/\b(\d+(?:\.\d+)?)\s+calories?\b/gi, '$1kcal')
+    .replace(/\bmicrograms?\b/gi, 'mcg')
+    .replace(/\bmilligrams?\b/gi, 'mg')
+    .replace(/\bkilograms?\b/gi, 'kg')
+    .replace(/\bgrams?\b/gi, 'g');
 }
 
 function buildNarrationText(script, options = {}) {
@@ -642,6 +648,7 @@ function buildSubtitleCues(scenePlan) {
     });
   }
 
+  scenePlan.subtitleCues = cues;
   return cues;
 }
 

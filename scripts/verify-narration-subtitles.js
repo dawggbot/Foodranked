@@ -12,6 +12,7 @@ const MACRO_SECTION_KEYS = new Set(['fats', 'carbs', 'proteins']);
 
 const COMPACT_UNIT_RE = /\b\d+(?:\.\d+)?\s*(?:mcg|mg|kg|kcal|g)\b/i;
 const EXPANDED_UNIT_RE = /\b\d+(?:\.\d+)?\s+(?:micrograms?|milligrams?|kilograms?|grams?|calories?)\b/i;
+const SUBTITLE_UNIT_WORD_RE = /\b(?:micrograms?|milligrams?|kilograms?|grams?)\b/i;
 
 function readJson(file) {
   return JSON.parse(fs.readFileSync(file, 'utf8'));
@@ -105,6 +106,7 @@ function sectionHasSubmacroValueMention(section) {
 
 function checkSubtitleCue(failures, file, cue) {
   const lines = Array.isArray(cue.lines) ? cue.lines : String(cue.text || '').split(/\r?\n/);
+  const text = String(cue.text || '');
   if (lines.length > MAX_SUBTITLE_LINES) {
     addFailure(failures, file, `${cue.id || 'cue'} has ${lines.length} subtitle lines`);
   }
@@ -112,8 +114,11 @@ function checkSubtitleCue(failures, file, cue) {
   if (longLine) {
     addFailure(failures, file, `${cue.id || 'cue'} line exceeds ${MAX_SUBTITLE_LINE_CHARS} chars: "${longLine}"`);
   }
-  if (EXPANDED_UNIT_RE.test(String(cue.text || ''))) {
+  if (EXPANDED_UNIT_RE.test(text)) {
     addFailure(failures, file, `${cue.id || 'cue'} subtitle text contains expanded spoken unit`);
+  }
+  if (SUBTITLE_UNIT_WORD_RE.test(text)) {
+    addFailure(failures, file, `${cue.id || 'cue'} subtitle text contains unit word`);
   }
 }
 
@@ -124,6 +129,9 @@ function checkScript(failures, file, script) {
     }
     if (EXPANDED_UNIT_RE.test(String(section.subtitleText || ''))) {
       addFailure(failures, file, `${section.key} subtitleText contains expanded spoken unit`);
+    }
+    if (SUBTITLE_UNIT_WORD_RE.test(String(section.subtitleText || ''))) {
+      addFailure(failures, file, `${section.key} subtitleText contains unit word`);
     }
     if (MACRO_SECTION_KEYS.has(section.key)) {
       const displayedValues = (section.displayItems || [])
@@ -157,8 +165,12 @@ function checkManifest(failures, file, manifest) {
     if (EXPANDED_UNIT_RE.test(String(scene.subtitleText || ''))) {
       addFailure(failures, file, `${scene.id || 'scene'} subtitleText contains expanded spoken unit`);
     }
+    if (SUBTITLE_UNIT_WORD_RE.test(String(scene.subtitleText || ''))) {
+      addFailure(failures, file, `${scene.id || 'scene'} subtitleText contains unit word`);
+    }
     for (const cue of scene.subtitleCues || []) checkSubtitleCue(failures, file, cue);
   }
+  for (const cue of manifest.scenePlan?.subtitleCues || []) checkSubtitleCue(failures, file, cue);
 }
 
 function checkEpisodeDir(failures, episodeDir) {

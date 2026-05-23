@@ -899,9 +899,11 @@
         id: cue.id,
         startSeconds: cue.startSeconds,
         endSeconds: cue.endSeconds,
+        placement: cue.placement || null,
         maxLines: CAPTION_MAX_LINES,
         lines: cue.lines,
-        text: cue.text
+        text: cue.text,
+        wordTimings: Array.isArray(cue.wordTimings) ? clone(cue.wordTimings) : undefined
       })),
       timingModel: {
         source: timing.source || 'weighted-caption-v3',
@@ -1387,39 +1389,81 @@
     if (!cues.length) return null;
 
     const duration = Math.max(1, asNumber(scene?.duration, 1) || 1);
-    const sourceStart = Math.min(...cues.map(cue => asNumber(cue.startSeconds, 0)));
-    const sourceEnd = Math.max(...cues.map(cue => asNumber(cue.endSeconds, sourceStart + duration)));
+    const sourceTimes = cues.flatMap(cue => {
+      const values = [asNumber(cue.startSeconds, null), asNumber(cue.endSeconds, null)];
+      if (Array.isArray(cue.wordTimings)) {
+        cue.wordTimings.forEach(word => {
+          values.push(asNumber(word.startSeconds, null), asNumber(word.endSeconds, null));
+        });
+      }
+      return values.filter(value => Number.isFinite(value));
+    });
+    const sourceStart = sourceTimes.length ? Math.min(...sourceTimes) : 0;
+    const sourceEnd = sourceTimes.length ? Math.max(...sourceTimes) : sourceStart + duration;
     const sourceDuration = Math.max(0.001, sourceEnd - sourceStart);
     const words = [];
     const chunks = [];
+    let hasAlignedWords = false;
 
     cues.forEach(cue => {
       const cueText = subtitleOnlyCaptionText((cue.lines || []).join(' '));
-      const cueWords = cueText.split(/\s+/).filter(Boolean);
+      const timedCueWords = Array.isArray(cue.wordTimings)
+        ? cue.wordTimings.filter(word => (
+          word?.text
+          && Number.isFinite(asNumber(word.startSeconds, null))
+          && Number.isFinite(asNumber(word.endSeconds, null))
+        ))
+        : [];
+      const cueWords = timedCueWords.length ? timedCueWords.map(word => word.text) : cueText.split(/\s+/).filter(Boolean);
       const relativeStart = clamp((asNumber(cue.startSeconds, sourceStart) - sourceStart) / sourceDuration, 0, 1);
       const relativeEnd = clamp((asNumber(cue.endSeconds, sourceEnd) - sourceStart) / sourceDuration, relativeStart + 0.001, 1);
       const span = Math.max(0.001, relativeEnd - relativeStart);
       const totalWeight = cueWords.reduce((sum, word) => sum + captionWordWeight(word), 0) || 1;
       let cursor = 0;
       const startWordIndex = words.length;
-      cueWords.forEach((word, index) => {
-        const weight = captionWordWeight(word);
-        const start = relativeStart + ((cursor / totalWeight) * span);
-        cursor += weight;
-        const end = relativeStart + ((cursor / totalWeight) * span);
-        words.push({
-          text: word,
-          clean: normalizeSpeechSearch(word),
-          tokens: speechTokens(word),
-          sentenceIndex: chunks.length,
-          index,
-          weight,
-          start,
-          end,
-          startSeconds: start * duration,
-          endSeconds: end * duration
+
+      if (timedCueWords.length) {
+        hasAlignedWords = true;
+        timedCueWords.forEach((wordTiming, index) => {
+          const word = wordTiming.text;
+          const absoluteStart = asNumber(wordTiming.startSeconds, asNumber(cue.startSeconds, sourceStart));
+          const absoluteEnd = Math.max(absoluteStart + 0.001, asNumber(wordTiming.endSeconds, absoluteStart + 0.001));
+          const start = clamp((absoluteStart - sourceStart) / sourceDuration, 0, 1);
+          const end = clamp((absoluteEnd - sourceStart) / sourceDuration, start + 0.001, 1);
+          const weight = captionWordWeight(word);
+          words.push({
+            text: word,
+            clean: normalizeSpeechSearch(word),
+            tokens: speechTokens(word),
+            sentenceIndex: chunks.length,
+            index,
+            weight,
+            start,
+            end,
+            startSeconds: start * duration,
+            endSeconds: end * duration
+          });
         });
-      });
+      } else {
+        cueWords.forEach((word, index) => {
+          const weight = captionWordWeight(word);
+          const start = relativeStart + ((cursor / totalWeight) * span);
+          cursor += weight;
+          const end = relativeStart + ((cursor / totalWeight) * span);
+          words.push({
+            text: word,
+            clean: normalizeSpeechSearch(word),
+            tokens: speechTokens(word),
+            sentenceIndex: chunks.length,
+            index,
+            weight,
+            start,
+            end,
+            startSeconds: start * duration,
+            endSeconds: end * duration
+          });
+        });
+      }
       chunks.push({
         text: cueText,
         lines: cue.lines.slice(0, CAPTION_MAX_LINES),
@@ -1442,7 +1486,7 @@
     });
 
     return {
-      source: 'subtitle-cues-v3',
+      source: hasAlignedWords ? 'subtitle-forced-alignment-v1' : 'subtitle-cues-v3',
       text: cues.map(cue => cue.lines.join(' ')).join(' '),
       duration,
       totalWeight: words.reduce((sum, word) => sum + word.weight, 0) || 1,
@@ -1467,8 +1511,16 @@
 
     const lookahead = CAPTION_WORD_LOOKAHEAD_SECONDS / timing.duration;
     const target = clamp(progress + lookahead, 0, 0.999);
-    const activeWord = timing.words.find(word => target >= word.start && target < word.end) || timing.words[timing.words.length - 1];
-    const activeChunk = timing.chunks.find(chunk => activeWord.globalIndex >= chunk.startWordIndex && activeWord.globalIndex <= chunk.endWordIndex)
+    const timeChunk = timing.chunks.find(chunk => target >= chunk.start && target < chunk.end);
+    const candidateWords = timeChunk
+      ? timing.words.slice(timeChunk.startWordIndex, timeChunk.endWordIndex + 1)
+      : timing.words;
+    const activeWord = candidateWords.find(word => target >= word.start && target < word.end)
+      || [...candidateWords].reverse().find(word => target >= word.end)
+      || candidateWords.find(word => target < word.start)
+      || timing.words[timing.words.length - 1];
+    const activeChunk = timeChunk
+      || timing.chunks.find(chunk => activeWord.globalIndex >= chunk.startWordIndex && activeWord.globalIndex <= chunk.endWordIndex)
       || timing.chunks[0]
       || { text: timing.text, startWordIndex: 0, endWordIndex: timing.words.length - 1 };
     const chunkWords = timing.words.slice(activeChunk.startWordIndex, activeChunk.endWordIndex + 1);

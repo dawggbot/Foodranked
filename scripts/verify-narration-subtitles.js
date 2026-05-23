@@ -126,6 +126,7 @@ function sectionHasSubmacroValueMention(section) {
 function checkSubtitleCue(failures, file, cue) {
   const lines = Array.isArray(cue.lines) ? cue.lines : String(cue.text || '').split(/\r?\n/);
   const text = String(cue.text || '');
+  const textWords = text.replace(/\s+/g, ' ').trim().split(' ').filter(Boolean);
   const maxLineChars = cue.placement === 'summary-full'
     ? MAX_SUMMARY_SUBTITLE_LINE_CHARS
     : MAX_SUBTITLE_LINE_CHARS;
@@ -150,6 +151,38 @@ function checkSubtitleCue(failures, file, cue) {
   }
   if (EAA_TEN_RATIO_RE.test(text)) {
     addFailure(failures, file, `${cue.id || 'cue'} subtitle text uses /10 for essential amino acids`);
+  }
+  if (cue.wordTimings != null) {
+    const wordTimings = Array.isArray(cue.wordTimings) ? cue.wordTimings : [];
+    if (!wordTimings.length) {
+      addFailure(failures, file, `${cue.id || 'cue'} has empty wordTimings`);
+    }
+    if (wordTimings.length !== textWords.length) {
+      addFailure(failures, file, `${cue.id || 'cue'} has ${wordTimings.length} word timings for ${textWords.length} subtitle words`);
+    }
+    let previousStart = -Infinity;
+    wordTimings.forEach((word, index) => {
+      const start = Number(word.startSeconds);
+      const end = Number(word.endSeconds);
+      if (word.text !== textWords[index]) {
+        addFailure(failures, file, `${cue.id || 'cue'} wordTiming ${index + 1} text does not match subtitle word`);
+      }
+      if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) {
+        addFailure(failures, file, `${cue.id || 'cue'} wordTiming ${index + 1} has invalid timing`);
+      }
+      if (Number.isFinite(start) && start < previousStart) {
+        addFailure(failures, file, `${cue.id || 'cue'} wordTimings are not monotonic`);
+      }
+      previousStart = start;
+    });
+    const firstStart = Number(wordTimings[0]?.startSeconds);
+    const lastEnd = Number(wordTimings[wordTimings.length - 1]?.endSeconds);
+    if (Number.isFinite(firstStart) && Number(cue.startSeconds) - firstStart > 0.02) {
+      addFailure(failures, file, `${cue.id || 'cue'} starts after its first aligned word`);
+    }
+    if (Number.isFinite(lastEnd) && lastEnd - Number(cue.endSeconds) > 0.02) {
+      addFailure(failures, file, `${cue.id || 'cue'} ends before its last aligned word`);
+    }
   }
 }
 

@@ -148,6 +148,7 @@ Rules:
 - the closing summary should use a wider-but-safe centered `summary-full` subtitle placement across the page, then the final `X tier.` cue should use centered `tier-center` placement until a tier sprite replaces it
 - the video builder preview should render from generated subtitle cues, not spoken narration blocks, so the visible captions keep `g` while audio says `grams`
 - the video builder preview should calibrate scene timing to the loaded narration audio duration when audio metadata is available
+- when forced-alignment metadata exists for a narration take, generated subtitles should carry per-word timing data and preview/export tools should use those timings for highlighted-word sync instead of estimated word weights
 - pros/cons should keep all 3 items each when possible
 - on-screen body text should remain subtitle-driven
 

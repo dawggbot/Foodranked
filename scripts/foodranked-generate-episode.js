@@ -151,6 +151,7 @@ function unitWord(unit, value) {
 
 function audioOnlyText(text) {
   return String(text || '')
+    .replace(/\b(\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)\b/g, (_, value, denominator) => `${value} out of ${denominator}`)
     .replace(/\b(\d+(?:\.\d+)?)\s*(mcg|µg|mg|kg|kcal|g)\b/gi, (_, value, unit) => `${value} ${unitWord(unit, value)}`)
     .replace(/\bDV\b/g, 'daily value');
 }
@@ -213,6 +214,10 @@ function metricDisplayValue(item) {
   const key = String(item.metricKey || '');
   if (key.endsWith('_mg')) return `${item.value}mg`;
   if (key.endsWith('_g')) return `${item.value}g`;
+  if (key.endsWith('_percent')) return `${item.value}%`;
+  if (key === 'essential_amino_acids_score') return `${item.value}/9`;
+  if (key === 'nonessential_amino_acids_score') return `${item.value}/11`;
+  if (key.endsWith('_score')) return `${item.value}/10`;
   if (/glycemic/i.test(key)) return `${item.value} GI`;
   return String(item.value);
 }
@@ -503,9 +508,14 @@ function buildScenePlan(script, score, template, options = {}) {
     cursor += duration;
   }
 
-  const closingText = [script.closing.summary, options.includeCta ? script.closing.cta : null, script.closing.finalReveal]
-    .filter(Boolean)
-    .join(' ');
+  const compactClosingBlocks = Array.isArray(script.narrationBlocks)
+    ? script.narrationBlocks.filter(block => ['closing_summary', 'cta', 'final_reveal'].includes(block.kind))
+    : [];
+  const closingText = compact && compactClosingBlocks.length
+    ? compactClosingBlocks.map(block => block.text).filter(Boolean).join(' ')
+    : [script.closing.summary, options.includeCta ? script.closing.cta : null, script.closing.finalReveal]
+      .filter(Boolean)
+      .join(' ');
   const closingDuration = estimateDurationSeconds(closingText, compact ? 182 : 170, compact ? 2.2 : 2.6);
   scenes.push({
     id: 'final',

@@ -4,6 +4,7 @@ const path = require('path');
 
 const repoRoot = path.resolve(__dirname, '..');
 const episodesDir = path.join(repoRoot, 'outputs', 'episodes');
+const productionEpisodesDir = path.join(repoRoot, 'production', 'episodes');
 const docsIndexPath = path.join(repoRoot, 'docs', 'data', 'foods-index.json');
 
 const MAX_SUBTITLE_LINES = 2;
@@ -14,6 +15,9 @@ const MACRO_SECTION_KEYS = new Set(['fats', 'carbs', 'proteins']);
 const COMPACT_UNIT_RE = /\b\d+(?:\.\d+)?\s*(?:mcg|mg|kg|kcal|g)\b/i;
 const EXPANDED_UNIT_RE = /\b\d+(?:\.\d+)?\s+(?:micrograms?|milligrams?|kilograms?|grams?|calories?)\b/i;
 const SUBTITLE_UNIT_WORD_RE = /\b(?:micrograms?|milligrams?|kilograms?|grams?)\b/i;
+const COMPACT_RATIO_RE = /\b\d+(?:\.\d+)?\/\d+(?:\.\d+)?\b/i;
+const SPOKEN_RATIO_RE = /\b\d+(?:\.\d+)?\s+out of\s+\d+(?:\.\d+)?\b/i;
+const EAA_TEN_RATIO_RE = /\bessential amino acids? score(?: is| at)? \d+(?:\.\d+)?(?:\/10|\s+out of\s+10)\b/i;
 const TIER_REVEAL_RE = /^[SDCBA]\s+tier\.?$/i;
 const PROTEIN_FALLBACK_RE = /\bprotein amount is\b/i;
 
@@ -44,6 +48,8 @@ function compactMetricValue(item) {
   if (key.endsWith('_mcg')) return `${item.value}mcg`;
   if (key.endsWith('_kg')) return `${item.value}kg`;
   if (key.endsWith('_percent')) return `${item.value}%`;
+  if (key === 'essential_amino_acids_score') return `${item.value}/9`;
+  if (key === 'nonessential_amino_acids_score') return `${item.value}/11`;
   if (key.endsWith('_score')) return `${item.value}/10`;
   if (/glycemic/i.test(key)) return `${item.value} GI`;
   return String(item.value);
@@ -139,12 +145,30 @@ function checkSubtitleCue(failures, file, cue) {
   if (SUBTITLE_UNIT_WORD_RE.test(text)) {
     addFailure(failures, file, `${cue.id || 'cue'} subtitle text contains unit word`);
   }
+  if (SPOKEN_RATIO_RE.test(text)) {
+    addFailure(failures, file, `${cue.id || 'cue'} subtitle text contains spoken ratio`);
+  }
+  if (EAA_TEN_RATIO_RE.test(text)) {
+    addFailure(failures, file, `${cue.id || 'cue'} subtitle text uses /10 for essential amino acids`);
+  }
 }
 
 function checkScript(failures, file, script) {
   for (const section of script.sections || []) {
     if (COMPACT_UNIT_RE.test(String(section.narration || ''))) {
       addFailure(failures, file, `${section.key} narration contains compact unit`);
+    }
+    if (COMPACT_RATIO_RE.test(String(section.narration || ''))) {
+      addFailure(failures, file, `${section.key} narration contains compact ratio`);
+    }
+    if (EAA_TEN_RATIO_RE.test(String(section.narration || ''))) {
+      addFailure(failures, file, `${section.key} narration uses out of 10 for essential amino acids`);
+    }
+    if (SPOKEN_RATIO_RE.test(String(section.subtitleText || ''))) {
+      addFailure(failures, file, `${section.key} subtitleText contains spoken ratio`);
+    }
+    if (EAA_TEN_RATIO_RE.test(String(section.subtitleText || ''))) {
+      addFailure(failures, file, `${section.key} subtitleText uses /10 for essential amino acids`);
     }
     if (EXPANDED_UNIT_RE.test(String(section.subtitleText || ''))) {
       addFailure(failures, file, `${section.key} subtitleText contains expanded spoken unit`);
@@ -157,6 +181,11 @@ function checkScript(failures, file, script) {
       if (hasProteinFallbackItem) addFailure(failures, file, 'proteins section displays protein amount fallback instead of a submacro');
       if (PROTEIN_FALLBACK_RE.test(String(section.narration || '')) || PROTEIN_FALLBACK_RE.test(String(section.subtitleText || ''))) {
         addFailure(failures, file, 'proteins section repeats protein amount fallback instead of a submacro');
+      }
+    }
+    for (const item of section.displayItems || []) {
+      if (EAA_TEN_RATIO_RE.test(String(item.text || ''))) {
+        addFailure(failures, file, `${section.key} display item uses /10 for essential amino acids`);
       }
     }
     if (MACRO_SECTION_KEYS.has(section.key)) {
@@ -173,6 +202,12 @@ function checkScript(failures, file, script) {
     if (COMPACT_UNIT_RE.test(String(block.text || ''))) {
       addFailure(failures, file, `${block.kind || 'block'} narration block contains compact unit`);
     }
+    if (COMPACT_RATIO_RE.test(String(block.text || ''))) {
+      addFailure(failures, file, `${block.kind || 'block'} narration block contains compact ratio`);
+    }
+    if (EAA_TEN_RATIO_RE.test(String(block.text || ''))) {
+      addFailure(failures, file, `${block.kind || 'block'} narration block uses out of 10 for essential amino acids`);
+    }
   }
 }
 
@@ -188,6 +223,18 @@ function checkManifest(failures, file, manifest) {
   for (const scene of manifest.scenePlan?.scenes || []) {
     if (COMPACT_UNIT_RE.test(String(scene.narrationText || ''))) {
       addFailure(failures, file, `${scene.id || 'scene'} narrationText contains compact unit`);
+    }
+    if (COMPACT_RATIO_RE.test(String(scene.narrationText || ''))) {
+      addFailure(failures, file, `${scene.id || 'scene'} narrationText contains compact ratio`);
+    }
+    if (EAA_TEN_RATIO_RE.test(String(scene.narrationText || ''))) {
+      addFailure(failures, file, `${scene.id || 'scene'} narrationText uses out of 10 for essential amino acids`);
+    }
+    if (SPOKEN_RATIO_RE.test(String(scene.subtitleText || ''))) {
+      addFailure(failures, file, `${scene.id || 'scene'} subtitleText contains spoken ratio`);
+    }
+    if (EAA_TEN_RATIO_RE.test(String(scene.subtitleText || ''))) {
+      addFailure(failures, file, `${scene.id || 'scene'} subtitleText uses /10 for essential amino acids`);
     }
     if (EXPANDED_UNIT_RE.test(String(scene.subtitleText || ''))) {
       addFailure(failures, file, `${scene.id || 'scene'} subtitleText contains expanded spoken unit`);
@@ -221,8 +268,22 @@ function checkEpisodeDir(failures, episodeDir) {
   if (exists(subtitlesFile)) {
     for (const cue of readJson(subtitlesFile)) checkSubtitleCue(failures, subtitlesFile, cue);
   }
-  if (exists(narrationFile) && COMPACT_UNIT_RE.test(fs.readFileSync(narrationFile, 'utf8'))) {
-    addFailure(failures, narrationFile, 'narration text contains compact unit');
+  if (exists(narrationFile)) {
+    const narrationText = fs.readFileSync(narrationFile, 'utf8');
+    if (COMPACT_UNIT_RE.test(narrationText)) addFailure(failures, narrationFile, 'narration text contains compact unit');
+    if (COMPACT_RATIO_RE.test(narrationText)) addFailure(failures, narrationFile, 'narration text contains compact ratio');
+    if (EAA_TEN_RATIO_RE.test(narrationText)) addFailure(failures, narrationFile, 'narration text uses out of 10 for essential amino acids');
+  }
+}
+
+function checkProductionNarration(failures) {
+  if (!exists(productionEpisodesDir)) return;
+  for (const foodId of fs.readdirSync(productionEpisodesDir).sort()) {
+    const file = path.join(productionEpisodesDir, foodId, 'voice', 'final-narration.txt');
+    if (!exists(file)) continue;
+    const text = fs.readFileSync(file, 'utf8');
+    if (COMPACT_RATIO_RE.test(text)) addFailure(failures, file, 'production narration contains compact ratio');
+    if (EAA_TEN_RATIO_RE.test(text)) addFailure(failures, file, 'production narration uses out of 10 for essential amino acids');
   }
 }
 
@@ -248,6 +309,7 @@ function main() {
       if (fs.statSync(episodeDir).isDirectory()) checkEpisodeDir(failures, episodeDir);
     }
   }
+  checkProductionNarration(failures);
   checkDocsIndex(failures);
 
   if (failures.length) {

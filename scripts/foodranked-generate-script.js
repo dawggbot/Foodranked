@@ -110,6 +110,8 @@ function metricValueText(metric) {
   if (key.endsWith('_mcg')) return `${metric.value}mcg`;
   if (key.endsWith('_kg')) return `${metric.value}kg`;
   if (key.endsWith('_percent')) return `${metric.value}%`;
+  if (key === 'essential_amino_acids_score') return `${metric.value}/9`;
+  if (key === 'nonessential_amino_acids_score') return `${metric.value}/11`;
   if (key.endsWith('_score')) return `${metric.value}/10`;
   if (/glycemic/i.test(key)) return `${metric.value} GI`;
   return String(metric.value);
@@ -226,6 +228,7 @@ function unitWord(unit, value) {
 
 function audioOnlyText(text) {
   return String(text || '')
+    .replace(/\b(\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)\b/g, (_, value, denominator) => `${value} out of ${denominator}`)
     .replace(/\b(\d+(?:\.\d+)?)\s*(mcg|µg|mg|kg|kcal|g)\b/gi, (_, value, unit) => `${value} ${unitWord(unit, value)}`)
     .replace(/\bDV\b/g, 'daily value');
 }
@@ -394,7 +397,8 @@ function buildMacroSection(result, key) {
       proteins: 'protein is usually limited here, so the other sections have to carry more'
     },
     misc: {
-      carbs: 'and that is basically the whole nutrition story'
+      carbs: 'and that is basically the whole nutrition story',
+      proteins: 'no real protein story here'
     }
   };
 
@@ -632,7 +636,6 @@ function buildClosing(result) {
 function sectionNarration(result, sectionKey) {
   if (result.food.foodType === 'misc' && sectionKey === 'fats') return 'simple one.';
   if (result.food.foodType === 'misc' && sectionKey === 'carbs') return joinShort([macroLine(result, sectionKey), 'and that is basically the whole nutrition story']);
-  if (result.food.foodType === 'misc' && sectionKey === 'proteins') return 'no real protein story here.';
 
   if (['fats', 'carbs', 'proteins'].includes(sectionKey)) return buildMacroSection(result, sectionKey);
   if (sectionKey === 'vitamins') return buildMicrosSection(result, 'vitamins');

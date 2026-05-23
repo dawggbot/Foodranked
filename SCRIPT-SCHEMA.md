@@ -67,9 +67,9 @@ Each of the 7 video sections includes:
 
 - `key`
 - `title`
-- `narration`
+- `narration` — audio-ready spoken text with full unit words
 - `displayItems`
-- `subtitleText`
+- `subtitleText` — on-screen subtitle copy with abbreviated units
 - `timingHint`
 - `score`
 

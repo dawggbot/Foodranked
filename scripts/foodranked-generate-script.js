@@ -571,15 +571,18 @@ function displayItemsForSection(result, sectionKey) {
 
 function buildSections(result) {
   const order = ['fats', 'carbs', 'proteins', 'vitamins', 'minerals', 'pros', 'cons'];
-  return order.map(key => ({
-    key,
-    title: titleForSection(key),
-    narration: polishNarration(sectionNarration(result, key)),
-    displayItems: displayItemsForSection(result, key),
-    subtitleText: polishNarration(sectionNarration(result, key)),
-    timingHint: timingHintForSection(key),
-    score: result.sectionScores?.[key] ?? null
-  }));
+  return order.map(key => {
+    const subtitleText = polishNarration(sectionNarration(result, key));
+    return {
+      key,
+      title: titleForSection(key),
+      narration: polishNarration(audioOnlyText(subtitleText)),
+      displayItems: displayItemsForSection(result, key),
+      subtitleText,
+      timingHint: timingHintForSection(key),
+      score: result.sectionScores?.[key] ?? null
+    };
+  });
 }
 
 function buildNarrationBlocks(script, options = {}) {

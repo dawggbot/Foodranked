@@ -141,7 +141,7 @@ Rules:
 - one spoken block per section
 - abbreviations like `DV` should be spoken as `daily value`
 - measurement abbreviations in audio should be expanded to full unit words, for example `3g` becomes `3 grams`; on-screen subtitles and stat values should keep short units
-- generated subtitle cues should be wrapped to a maximum of 2 lines
+- generated subtitle cues should be wrapped to a maximum of 2 lines, with conservative line length so editor/import wrapping does not create a third line
 - pros/cons should keep all 3 items each when possible
 - on-screen body text should remain subtitle-driven
 

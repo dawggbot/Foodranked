@@ -11,6 +11,8 @@ const scorerPath = path.join(__dirname, 'foodranked-scorer.js');
 const scriptGeneratorPath = path.join(__dirname, 'foodranked-generate-script.js');
 const visualTemplatePath = path.join(repoRoot, 'templates', 'visual-template.v1.json');
 const spritesRoot = path.join(repoRoot, 'sprites');
+const SUBTITLE_MAX_LINES = 2;
+const SUBTITLE_MAX_CHARACTERS_PER_LINE = 26;
 
 const HEADER_CATEGORY_KEYS = {
   vegetables: 'vegetable',
@@ -150,6 +152,15 @@ function audioOnlyText(text) {
   return String(text || '')
     .replace(/\b(\d+(?:\.\d+)?)\s*(mcg|µg|mg|kg|kcal|g)\b/gi, (_, value, unit) => `${value} ${unitWord(unit, value)}`)
     .replace(/\bDV\b/g, 'daily value');
+}
+
+function subtitleOnlyText(text) {
+  return String(text || '')
+    .replace(/\b(\d+(?:\.\d+)?)\s+micrograms?\b/gi, '$1mcg')
+    .replace(/\b(\d+(?:\.\d+)?)\s+milligrams?\b/gi, '$1mg')
+    .replace(/\b(\d+(?:\.\d+)?)\s+kilograms?\b/gi, '$1kg')
+    .replace(/\b(\d+(?:\.\d+)?)\s+grams?\b/gi, '$1g')
+    .replace(/\b(\d+(?:\.\d+)?)\s+calories?\b/gi, '$1kcal');
 }
 
 function buildNarrationText(script, options = {}) {
@@ -412,7 +423,7 @@ function narrationTextForSection(script, section) {
   const block = Array.isArray(script.narrationBlocks)
     ? script.narrationBlocks.find(item => item.kind === 'section' && item.sectionKey === section.key)
     : null;
-  return block?.text || section.narration;
+  return audioOnlyText(block?.text || section.narration);
 }
 
 function buildScenePlan(script, score, template, options = {}) {
@@ -455,7 +466,7 @@ function buildScenePlan(script, score, template, options = {}) {
 
   for (const section of script.sections) {
     const narrationText = compact ? narrationTextForSection(script, section) : audioOnlyText(compactSectionNarration(section, options));
-    const subtitleText = section.subtitleText || section.narration;
+    const subtitleText = subtitleOnlyText(section.subtitleText || section.narration);
     const duration = estimateDurationSeconds(narrationText, compact ? 170 : 168, compact ? 2.1 : 2.1);
     const visualBinding = sectionVisualBinding(section, template, spriteBindings, { ...options, foodType: script.food.foodType });
     scenes.push({
@@ -514,8 +525,8 @@ function buildScenePlan(script, score, template, options = {}) {
     mode: compact ? 'compact' : 'standard',
     visualProfile: profile.name,
     subtitleRules: {
-      maxLines: 2,
-      maxCharactersPerLine: 34
+      maxLines: SUBTITLE_MAX_LINES,
+      maxCharactersPerLine: SUBTITLE_MAX_CHARACTERS_PER_LINE
     },
     totalEstimatedDurationSeconds: Number(cursor.toFixed(2)),
     scenes
@@ -538,7 +549,7 @@ function splitSubtitleSentences(text) {
     .filter(Boolean);
 }
 
-function wrapSubtitleLines(text, maxLineChars = 34, maxLines = 2) {
+function wrapSubtitleLines(text, maxLineChars = SUBTITLE_MAX_CHARACTERS_PER_LINE, maxLines = SUBTITLE_MAX_LINES) {
   const words = String(text || '').replace(/\s+/g, ' ').trim().split(' ').filter(Boolean);
   const lines = [];
   let current = '';
@@ -564,7 +575,7 @@ function wrapSubtitleLines(text, maxLineChars = 34, maxLines = 2) {
   return { lines: lines.slice(0, maxLines), overflow: lines.slice(maxLines).join(' ') };
 }
 
-function subtitleChunks(text, maxLineChars = 34, maxLines = 2) {
+function subtitleChunks(text, maxLineChars = SUBTITLE_MAX_CHARACTERS_PER_LINE, maxLines = SUBTITLE_MAX_LINES) {
   const maxChars = maxLineChars * maxLines;
   const sentences = splitSubtitleSentences(text);
   const chunks = [];
@@ -594,19 +605,20 @@ function subtitleChunks(text, maxLineChars = 34, maxLines = 2) {
 }
 
 function buildSubtitleCues(scenePlan) {
-  const maxLines = scenePlan.subtitleRules?.maxLines || 2;
-  const maxLineChars = scenePlan.subtitleRules?.maxCharactersPerLine || 34;
+  const maxLines = scenePlan.subtitleRules?.maxLines || SUBTITLE_MAX_LINES;
+  const maxLineChars = scenePlan.subtitleRules?.maxCharactersPerLine || SUBTITLE_MAX_CHARACTERS_PER_LINE;
   const cues = [];
 
   for (const scene of scenePlan.scenes) {
     const chunks = subtitleChunks(scene.subtitleText || scene.narrationText, maxLineChars, maxLines);
     const chunkDuration = scene.durationSeconds / chunks.length;
+    scene.subtitleCues = [];
     chunks.forEach((lines, chunkIndex) => {
       const startSeconds = Number((scene.startSeconds + (chunkDuration * chunkIndex)).toFixed(2));
       const endSeconds = chunkIndex === chunks.length - 1
         ? scene.endSeconds
         : Number((scene.startSeconds + (chunkDuration * (chunkIndex + 1))).toFixed(2));
-      cues.push({
+      const cue = {
         id: `${String(cues.length + 1).padStart(2, '0')}-${scene.id}${chunks.length > 1 ? `-${chunkIndex + 1}` : ''}`,
         sceneId: scene.id,
         startSeconds,
@@ -615,7 +627,9 @@ function buildSubtitleCues(scenePlan) {
         maxLines,
         lines,
         text: lines.join('\n')
-      });
+      };
+      cues.push(cue);
+      scene.subtitleCues.push(cue);
     });
   }
 

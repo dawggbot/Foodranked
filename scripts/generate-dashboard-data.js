@@ -144,6 +144,9 @@ const foods = fs.readdirSync(foodsDir)
         script: exists(path.join(repoRoot, episode.outputs?.directory || '', 'script.json'))
           ? readJson(path.join(repoRoot, episode.outputs.directory, 'script.json'))
           : null,
+        subtitles: exists(path.join(repoRoot, episode.outputs?.directory || '', 'subtitles.json'))
+          ? readJson(path.join(repoRoot, episode.outputs.directory, 'subtitles.json'))
+          : [],
         narrationText: exists(path.join(repoRoot, episode.outputs?.directory || '', 'narration.txt'))
           ? fs.readFileSync(path.join(repoRoot, episode.outputs.directory, 'narration.txt'), 'utf8')
           : null

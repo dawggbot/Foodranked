@@ -8,10 +8,12 @@
   const CAPTION_SAFE_X = 7;
   const CAPTION_MAX_LINES = 2;
   const CAPTION_MAX_LINE_CHARS = 18;
-  const CAPTION_WIDE_LINE_CHARS = 28;
+  const CAPTION_SUMMARY_LINE_CHARS = 24;
+  const CAPTION_TIER_LINE_CHARS = 28;
   const CAPTION_WORD_LOOKAHEAD_SECONDS = 0.002;
   const AUDIO_REVEAL_LEAD_SECONDS = 0.11;
   const AUDIO_REVEAL_WINDOW_SECONDS = 0.36;
+  const AUDIO_TIMELINE_SYNC_TOLERANCE_SECONDS = 0.12;
 
   const SECTIONS = [
     { id: 'intro', label: 'Hook', duration: 2.4, reveal: 'pop', motion: 'bob' },
@@ -144,7 +146,9 @@
     savedLayouts: loadSavedLayouts(),
     backgroundKey: '',
     backgroundToken: 0,
-    lastFrameAt: performance.now()
+    lastFrameAt: performance.now(),
+    audioTimelineKey: '',
+    audioDurationSeconds: null
   };
 
   function readJson(raw, fallback) {
@@ -620,6 +624,7 @@
       .replace(/\bmilligrams?\b/gi, 'mg')
       .replace(/\bkilograms?\b/gi, 'kg')
       .replace(/\bgrams?\b/gi, 'g')
+      .replace(/\b(\d+)\.\s+(\d+)(?=\s*(?:mcg|mg|kg|kcal|g|%|\b))/gi, '$1.$2')
       .replace(/\s+/g, ' ')
       .trim();
   }
@@ -661,9 +666,9 @@
   }
 
   function captionLineCharsForPlacement(placement) {
-    return placement === 'summary-full' || placement === 'tier-center'
-      ? CAPTION_WIDE_LINE_CHARS
-      : CAPTION_MAX_LINE_CHARS;
+    if (placement === 'summary-full') return CAPTION_SUMMARY_LINE_CHARS;
+    if (placement === 'tier-center') return CAPTION_TIER_LINE_CHARS;
+    return CAPTION_MAX_LINE_CHARS;
   }
 
   function fallbackCaption(food, sectionId) {
@@ -717,6 +722,41 @@
     return state.scenes.reduce((sum, scene) => sum + scene.duration, 0);
   }
 
+  function audioTimelineKey(food = selectedFood(), duration = null) {
+    const audio = audioForFood(food);
+    return [
+      food?.id || '',
+      audio?.take || '',
+      audio?.path || '',
+      audio?.generatedAt || '',
+      Number.isFinite(duration) ? duration.toFixed(3) : ''
+    ].join('|');
+  }
+
+  function calibrateSceneDurationsToAudio(duration) {
+    const audioDuration = asNumber(duration, null);
+    if (audioDuration == null || audioDuration <= 0 || !state.scenes.length) return false;
+
+    const key = audioTimelineKey(selectedFood(), audioDuration);
+    if (state.audioTimelineKey === key) return false;
+
+    state.audioTimelineKey = key;
+    state.audioDurationSeconds = audioDuration;
+    const currentTotal = totalDuration();
+    if (currentTotal <= 0 || Math.abs(currentTotal - audioDuration) <= AUDIO_TIMELINE_SYNC_TOLERANCE_SECONDS) {
+      return false;
+    }
+
+    const ratio = audioDuration / currentTotal;
+    const playheadRatio = currentTotal > 0 ? state.currentTime / currentTotal : 0;
+    state.scenes = state.scenes.map(scene => ({
+      ...scene,
+      duration: Number(Math.max(0.4, scene.duration * ratio).toFixed(3))
+    }));
+    state.currentTime = clamp(playheadRatio * totalDuration(), 0, totalDuration());
+    return true;
+  }
+
   function activeSceneAt(time = state.currentTime) {
     const scenes = sceneStarts();
     return scenes.find(scene => time >= scene.start && time < scene.end) || scenes[scenes.length - 1];
@@ -755,6 +795,8 @@
         state.selectedFoodId = food.id;
         state.currentTime = 0;
         state.selectedSceneId = 'intro';
+        state.audioTimelineKey = '';
+        state.audioDurationSeconds = null;
         state.scenes = buildScenes(food);
         hydrateLayoutForFood();
         syncAudioForFood();
@@ -1039,7 +1081,7 @@
 
   function captionFontSize(scene, frame) {
     if (frame.placement === 'tier-center') return 'calc(36px * 0.25 * var(--pixel-unit))';
-    if (frame.placement === 'summary-full') return 'calc(21px * 0.25 * var(--pixel-unit))';
+    if (frame.placement === 'summary-full') return 'calc(18px * 0.25 * var(--pixel-unit))';
     return `calc(${Number(scene.captionSize) || 22}px * 0.25 * var(--pixel-unit))`;
   }
 
@@ -1194,7 +1236,10 @@
   }
 
   function wrapCaptionLines(text, maxLineChars = CAPTION_MAX_LINE_CHARS, maxLines = CAPTION_MAX_LINES) {
-    const words = subtitleOnlyCaptionText(text).split(/\s+/).filter(Boolean);
+    const words = subtitleOnlyCaptionText(text)
+      .replace(/\b(\d+)\.\s+(\d+)(?=\s*(?:mcg|mg|kg|kcal|g|%|\b))/gi, '$1.$2')
+      .split(/\s+/)
+      .filter(Boolean);
     const lines = [];
     let current = '';
 
@@ -1837,8 +1882,11 @@
     let y = 0;
     let scale = layer.kind === 'text' ? 1 : 0.96 + (visible * 0.04);
     let clip = '';
+    const lockSpriteLayout = layer.kind === 'sprite' && !persistent;
 
-    if (scene.reveal === 'slide') {
+    if (lockSpriteLayout) {
+      scale = 1;
+    } else if (scene.reveal === 'slide') {
       x -= (1 - visible) * 10;
     } else if (scene.reveal === 'wipe') {
       clip = `inset(0 ${Math.round((1 - visible) * 100)}% 0 0)`;
@@ -1848,7 +1896,7 @@
       y += (1 - visible) * 7;
     }
 
-    if (layer.kind === 'sprite') {
+    if (layer.kind === 'sprite' && !lockSpriteLayout) {
       if (scene.motion === 'bob') y += Math.sin(phase + index) * 0.7;
       if (scene.motion === 'pulse') scale += Math.sin(phase * 0.8 + index) * 0.018;
       if (scene.motion === 'drift') x += Math.sin(phase * 0.45 + index) * 0.55;
@@ -1961,6 +2009,8 @@
   });
 
   els.sceneDuration.addEventListener('input', () => {
+    state.audioTimelineKey = '';
+    state.audioDurationSeconds = null;
     updateSelectedScene(scene => {
       scene.duration = clamp(asNumber(els.sceneDuration.value, scene.duration), 1, 12);
     });
@@ -1994,6 +2044,8 @@
     state.scenes = buildScenes(selectedFood());
     state.currentTime = 0;
     state.selectedSceneId = 'intro';
+    state.audioTimelineKey = '';
+    state.audioDurationSeconds = null;
     renderAll();
   });
 
@@ -2053,6 +2105,8 @@
     }
     const nextSrc = new URL(docsAssetPath(audio.path), window.location.href).href;
     if (els.narrationAudio.src !== nextSrc) {
+      state.audioTimelineKey = '';
+      state.audioDurationSeconds = null;
       els.narrationAudio.src = nextSrc;
       els.narrationAudio.load();
     }
@@ -2085,8 +2139,20 @@
     if (!els.audioToggle || !els.audioStatus) return;
     els.audioToggle.disabled = !audio;
     els.audioToggle.textContent = state.audioEnabled && audio ? 'Audio on' : 'Audio off';
-    els.audioStatus.textContent = overrideStatus || (audio ? `${audio.take || 'Audio'} ready` : 'No audio');
+    const syncLabel = state.audioDurationSeconds
+      ? ` · synced ${state.audioDurationSeconds.toFixed(1)}s`
+      : '';
+    els.audioStatus.textContent = overrideStatus || (audio ? `${audio.take || 'Audio'} ready${syncLabel}` : 'No audio');
   }
+
+  els.narrationAudio.addEventListener('loadedmetadata', () => {
+    if (calibrateSceneDurationsToAudio(els.narrationAudio.duration)) {
+      syncAudioTime();
+      renderAll();
+      return;
+    }
+    updateAudioControls();
+  });
 
   init();
 }());

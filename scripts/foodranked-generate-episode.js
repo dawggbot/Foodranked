@@ -13,7 +13,7 @@ const visualTemplatePath = path.join(repoRoot, 'templates', 'visual-template.v1.
 const spritesRoot = path.join(repoRoot, 'sprites');
 const SUBTITLE_MAX_LINES = 2;
 const SUBTITLE_MAX_CHARACTERS_PER_LINE = 18;
-const SUMMARY_SUBTITLE_MAX_CHARACTERS_PER_LINE = 28;
+const SUMMARY_SUBTITLE_MAX_CHARACTERS_PER_LINE = 24;
 
 const HEADER_CATEGORY_KEYS = {
   vegetables: 'vegetable',
@@ -576,24 +576,33 @@ function subtitleCueText(text, maxLineChars = SUBTITLE_MAX_CHARACTERS_PER_LINE) 
   ));
 }
 
-function splitSubtitleSentences(text) {
-  const normalized = subtitleCueText(text).replace(/\s+/g, ' ').trim();
-  if (!normalized) return [];
+function protectSubtitleDecimals(text) {
   const decimals = [];
-  const protectedText = normalized.replace(/\d+\.\d+/g, match => {
+  const protectedText = String(text || '').replace(/\d+\.\d+/g, match => {
     const token = `__DECIMAL_${decimals.length}__`;
     decimals.push(match);
     return token;
   });
+  return {
+    protectedText,
+    restore: value => String(value || '').replace(/__DECIMAL_(\d+)__/g, (_, index) => decimals[Number(index)] || '')
+  };
+}
+
+function splitSubtitleSentences(text) {
+  const normalized = subtitleCueText(text).replace(/\s+/g, ' ').trim();
+  if (!normalized) return [];
+  const { protectedText, restore } = protectSubtitleDecimals(normalized);
   const sentences = protectedText.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [protectedText];
   return sentences
-    .map(sentence => sentence.replace(/__DECIMAL_(\d+)__/g, (_, index) => decimals[Number(index)] || ''))
+    .map(restore)
     .map(sentence => sentence.trim())
     .filter(Boolean);
 }
 
 function wrapSubtitleLines(text, maxLineChars = SUBTITLE_MAX_CHARACTERS_PER_LINE, maxLines = SUBTITLE_MAX_LINES) {
-  const words = String(text || '').replace(/\s+/g, ' ').trim().split(' ').filter(Boolean);
+  const { protectedText, restore } = protectSubtitleDecimals(text);
+  const words = protectedText.replace(/\s+/g, ' ').trim().split(' ').filter(Boolean);
   const lines = [];
   let current = '';
 
@@ -608,14 +617,17 @@ function wrapSubtitleLines(text, maxLineChars = SUBTITLE_MAX_CHARACTERS_PER_LINE
     current = word;
     if (lines.length === maxLines) {
       return {
-        lines,
-        overflow: [current, ...words.slice(index + 1)].join(' ')
+        lines: lines.map(restore),
+        overflow: restore([current, ...words.slice(index + 1)].join(' '))
       };
     }
   }
 
   if (current) lines.push(current);
-  return { lines: lines.slice(0, maxLines), overflow: lines.slice(maxLines).join(' ') };
+  return {
+    lines: lines.slice(0, maxLines).map(restore),
+    overflow: restore(lines.slice(maxLines).join(' '))
+  };
 }
 
 function subtitleChunks(text, maxLineChars = SUBTITLE_MAX_CHARACTERS_PER_LINE, maxLines = SUBTITLE_MAX_LINES) {

@@ -144,8 +144,10 @@ Rules:
 - score-style ratios in audio should be expanded as spoken ratios, for example `8/9` becomes `8 out of 9`; subtitles and stat values should keep compact ratios like `8/9`
 - fats, carbs, and proteins narration should include at least one displayed submacro value from that section, such as `saturated fat is 12.6 grams` in audio and `saturated fat is 12.6g` in subtitles; protein fallback amount is not a valid protein submacro because the headline protein grams already cover it
 - generated subtitle cues should be wrapped to a maximum of 2 lines, with a tight default line length so editor/import wrapping does not create a third line
+- generated subtitle wrapping must keep decimal values intact, for example `37.1g` and `12.6g` must not become `37. 1g` or split across cue boundaries
 - the closing summary should use a wider-but-safe centered `summary-full` subtitle placement across the page, then the final `X tier.` cue should use centered `tier-center` placement until a tier sprite replaces it
 - the video builder preview should render from generated subtitle cues, not spoken narration blocks, so the visible captions keep `g` while audio says `grams`
+- the video builder preview should calibrate scene timing to the loaded narration audio duration when audio metadata is available
 - pros/cons should keep all 3 items each when possible
 - on-screen body text should remain subtitle-driven
 

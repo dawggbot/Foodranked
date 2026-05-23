@@ -15941,7 +15941,7 @@ window.FOODS_INDEX = [
       },
       "summary": "Pros are carrying this food most, while cons are holding it back most. It lands in D tier.",
       "whyThisTier": "This food lands in D tier with an overall score of 22.4. Section scores: fats 48.9, proteins 20, vitamins 12, minerals 3.8, pros 50, cons 0.",
-      "durationSeconds": 73.33,
+      "durationSeconds": 73.89,
       "outputDir": "outputs/episodes/bacon-compact",
       "audio": {
         "take": "voice-v4",
@@ -15958,64 +15958,64 @@ window.FOODS_INDEX = [
           "id": "hook",
           "kind": "hook",
           "startSeconds": 0,
-          "endSeconds": 2.1,
-          "durationSeconds": 2.1
+          "endSeconds": 2.12,
+          "durationSeconds": 2.12
         },
         {
           "id": "fats",
           "kind": "section",
-          "startSeconds": 2.1,
-          "endSeconds": 11.28,
-          "durationSeconds": 9.18
+          "startSeconds": 2.12,
+          "endSeconds": 11.37,
+          "durationSeconds": 9.25
         },
         {
           "id": "carbs",
           "kind": "section",
-          "startSeconds": 11.28,
-          "endSeconds": 16.22,
-          "durationSeconds": 4.94
+          "startSeconds": 11.37,
+          "endSeconds": 16.34,
+          "durationSeconds": 4.98
         },
         {
           "id": "proteins",
           "kind": "section",
-          "startSeconds": 16.22,
-          "endSeconds": 26.46,
-          "durationSeconds": 10.24
+          "startSeconds": 16.34,
+          "endSeconds": 26.66,
+          "durationSeconds": 10.32
         },
         {
           "id": "vitamins",
           "kind": "section",
-          "startSeconds": 26.46,
-          "endSeconds": 31.75,
-          "durationSeconds": 5.29
+          "startSeconds": 26.66,
+          "endSeconds": 31.99,
+          "durationSeconds": 5.33
         },
         {
           "id": "minerals",
           "kind": "section",
-          "startSeconds": 31.75,
-          "endSeconds": 36.34,
-          "durationSeconds": 4.59
+          "startSeconds": 31.99,
+          "endSeconds": 36.62,
+          "durationSeconds": 4.62
         },
         {
           "id": "pros",
           "kind": "section",
-          "startSeconds": 36.34,
-          "endSeconds": 49.05,
-          "durationSeconds": 12.71
+          "startSeconds": 36.62,
+          "endSeconds": 49.42,
+          "durationSeconds": 12.81
         },
         {
           "id": "cons",
           "kind": "section",
-          "startSeconds": 49.05,
-          "endSeconds": 67.4,
-          "durationSeconds": 18.35
+          "startSeconds": 49.42,
+          "endSeconds": 67.91,
+          "durationSeconds": 18.49
         },
         {
           "id": "final",
           "kind": "closing",
-          "startSeconds": 67.4,
-          "endSeconds": 73.33,
-          "durationSeconds": 5.93
+          "startSeconds": 67.91,
+          "endSeconds": 73.89,
+          "durationSeconds": 5.97
         }
       ],
       "sceneCount": 9,
@@ -16453,7 +16453,7 @@ window.FOODS_INDEX = [
           "id": "01-hook",
           "sceneId": "hook",
           "startSeconds": 0,
-          "endSeconds": 2.1,
+          "endSeconds": 2.12,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -16465,50 +16465,63 @@ window.FOODS_INDEX = [
         {
           "id": "02-fats-1",
           "sceneId": "fats",
-          "startSeconds": 2.1,
-          "endSeconds": 4.76,
+          "startSeconds": 2.12,
+          "endSeconds": 4.13,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
           "lines": [
-            "37. 1g of fat.",
-            "Omega 3 is 275mg."
+            "37.1g of",
+            "fat. Omega 3 is"
           ],
-          "text": "37. 1g of fat.\nOmega 3 is 275mg."
+          "text": "37.1g of\nfat. Omega 3 is"
         },
         {
           "id": "03-fats-2",
           "sceneId": "fats",
-          "startSeconds": 4.76,
-          "endSeconds": 6.07,
+          "startSeconds": 4.13,
+          "endSeconds": 4.7,
+          "placement": "lower-third",
+          "maxLines": 2,
+          "maxCharactersPerLine": 18,
+          "lines": [
+            "275mg."
+          ],
+          "text": "275mg."
+        },
+        {
+          "id": "04-fats-3",
+          "sceneId": "fats",
+          "startSeconds": 4.7,
+          "endSeconds": 6.3,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
           "lines": [
             "Saturated fat is",
-            "12."
+            "12.6g, a"
           ],
-          "text": "Saturated fat is\n12."
-        },
-        {
-          "id": "04-fats-3",
-          "sceneId": "fats",
-          "startSeconds": 6.07,
-          "endSeconds": 7.63,
-          "placement": "lower-third",
-          "maxLines": 2,
-          "maxCharactersPerLine": 18,
-          "lines": [
-            "6g, a major",
-            "pressure point."
-          ],
-          "text": "6g, a major\npressure point."
+          "text": "Saturated fat is\n12.6g, a"
         },
         {
           "id": "05-fats-4",
           "sceneId": "fats",
-          "startSeconds": 7.63,
-          "endSeconds": 9.25,
+          "startSeconds": 6.3,
+          "endSeconds": 7.34,
+          "placement": "lower-third",
+          "maxLines": 2,
+          "maxCharactersPerLine": 18,
+          "lines": [
+            "major pressure",
+            "point."
+          ],
+          "text": "major pressure\npoint."
+        },
+        {
+          "id": "06-fats-5",
+          "sceneId": "fats",
+          "startSeconds": 7.34,
+          "endSeconds": 9.13,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -16519,10 +16532,10 @@ window.FOODS_INDEX = [
           "text": "For meats, fat\nquality matters a"
         },
         {
-          "id": "06-fats-5",
+          "id": "07-fats-6",
           "sceneId": "fats",
-          "startSeconds": 9.25,
-          "endSeconds": 10.87,
+          "startSeconds": 9.13,
+          "endSeconds": 10.91,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -16533,10 +16546,10 @@ window.FOODS_INDEX = [
           "text": "lot once the\nprotein is already"
         },
         {
-          "id": "07-fats-6",
+          "id": "08-fats-7",
           "sceneId": "fats",
-          "startSeconds": 10.87,
-          "endSeconds": 11.28,
+          "startSeconds": 10.91,
+          "endSeconds": 11.37,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -16546,10 +16559,10 @@ window.FOODS_INDEX = [
           "text": "there."
         },
         {
-          "id": "08-carbs-1",
+          "id": "09-carbs-1",
           "sceneId": "carbs",
-          "startSeconds": 11.28,
-          "endSeconds": 12.56,
+          "startSeconds": 11.37,
+          "endSeconds": 12.66,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -16559,10 +16572,10 @@ window.FOODS_INDEX = [
           "text": "0g of carbs."
         },
         {
-          "id": "09-carbs-2",
+          "id": "10-carbs-2",
           "sceneId": "carbs",
-          "startSeconds": 12.56,
-          "endSeconds": 14.05,
+          "startSeconds": 12.66,
+          "endSeconds": 14.16,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -16573,10 +16586,10 @@ window.FOODS_INDEX = [
           "text": "Everything else is\nlackluster."
         },
         {
-          "id": "10-carbs-3",
+          "id": "11-carbs-3",
           "sceneId": "carbs",
-          "startSeconds": 14.05,
-          "endSeconds": 15.71,
+          "startSeconds": 14.16,
+          "endSeconds": 15.83,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -16587,10 +16600,10 @@ window.FOODS_INDEX = [
           "text": "In this category,\ncarbs barely"
         },
         {
-          "id": "11-carbs-4",
+          "id": "12-carbs-4",
           "sceneId": "carbs",
-          "startSeconds": 15.71,
-          "endSeconds": 16.22,
+          "startSeconds": 15.83,
+          "endSeconds": 16.34,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -16600,23 +16613,24 @@ window.FOODS_INDEX = [
           "text": "matter."
         },
         {
-          "id": "12-proteins-1",
+          "id": "13-proteins-1",
           "sceneId": "proteins",
-          "startSeconds": 16.22,
-          "endSeconds": 17.89,
+          "startSeconds": 16.34,
+          "endSeconds": 17.64,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
           "lines": [
-            "13. 7g of protein."
+            "13.7g of",
+            "protein."
           ],
-          "text": "13. 7g of protein."
+          "text": "13.7g of\nprotein."
         },
         {
-          "id": "13-proteins-2",
+          "id": "14-proteins-2",
           "sceneId": "proteins",
-          "startSeconds": 17.89,
-          "endSeconds": 19.5,
+          "startSeconds": 17.64,
+          "endSeconds": 19.35,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -16627,10 +16641,10 @@ window.FOODS_INDEX = [
           "text": "Essential amino\nacids score is"
         },
         {
-          "id": "14-proteins-3",
+          "id": "15-proteins-3",
           "sceneId": "proteins",
-          "startSeconds": 19.5,
-          "endSeconds": 21.17,
+          "startSeconds": 19.35,
+          "endSeconds": 21.1,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -16641,10 +16655,10 @@ window.FOODS_INDEX = [
           "text": "8/9, with 90%\nbioavailability."
         },
         {
-          "id": "15-proteins-4",
+          "id": "16-proteins-4",
           "sceneId": "proteins",
-          "startSeconds": 21.17,
-          "endSeconds": 23.1,
+          "startSeconds": 21.1,
+          "endSeconds": 23.12,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -16655,10 +16669,10 @@ window.FOODS_INDEX = [
           "text": "Strong protein is\nexpected here, so"
         },
         {
-          "id": "16-proteins-5",
+          "id": "17-proteins-5",
           "sceneId": "proteins",
-          "startSeconds": 23.1,
-          "endSeconds": 25.03,
+          "startSeconds": 23.12,
+          "endSeconds": 25.15,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -16669,10 +16683,10 @@ window.FOODS_INDEX = [
           "text": "the rest of the\nprofile decides"
         },
         {
-          "id": "17-proteins-6",
+          "id": "18-proteins-6",
           "sceneId": "proteins",
-          "startSeconds": 25.03,
-          "endSeconds": 26.46,
+          "startSeconds": 25.15,
+          "endSeconds": 26.66,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -16683,10 +16697,10 @@ window.FOODS_INDEX = [
           "text": "how high it\nclimbs."
         },
         {
-          "id": "18-vitamins-1",
+          "id": "19-vitamins-1",
           "sceneId": "vitamins",
-          "startSeconds": 26.46,
-          "endSeconds": 28.91,
+          "startSeconds": 26.66,
+          "endSeconds": 29.13,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -16697,10 +16711,10 @@ window.FOODS_INDEX = [
           "text": "Vitamin b12 at 21%\ndaily value stands"
         },
         {
-          "id": "19-vitamins-2",
+          "id": "20-vitamins-2",
           "sceneId": "vitamins",
-          "startSeconds": 28.91,
-          "endSeconds": 29.71,
+          "startSeconds": 29.13,
+          "endSeconds": 29.94,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -16710,10 +16724,10 @@ window.FOODS_INDEX = [
           "text": "out most."
         },
         {
-          "id": "20-vitamins-3",
+          "id": "21-vitamins-3",
           "sceneId": "vitamins",
-          "startSeconds": 29.71,
-          "endSeconds": 31.75,
+          "startSeconds": 29.94,
+          "endSeconds": 31.99,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -16724,10 +16738,10 @@ window.FOODS_INDEX = [
           "text": "That is barely\nmoving the needle."
         },
         {
-          "id": "21-minerals-1",
+          "id": "22-minerals-1",
           "sceneId": "minerals",
-          "startSeconds": 31.75,
-          "endSeconds": 34.11,
+          "startSeconds": 31.99,
+          "endSeconds": 34.37,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -16738,10 +16752,10 @@ window.FOODS_INDEX = [
           "text": "Zinc at 10% daily\nvalue stands out"
         },
         {
-          "id": "22-minerals-2",
+          "id": "23-minerals-2",
           "sceneId": "minerals",
-          "startSeconds": 34.11,
-          "endSeconds": 34.6,
+          "startSeconds": 34.37,
+          "endSeconds": 34.86,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -16751,10 +16765,10 @@ window.FOODS_INDEX = [
           "text": "most."
         },
         {
-          "id": "23-minerals-3",
+          "id": "24-minerals-3",
           "sceneId": "minerals",
-          "startSeconds": 34.6,
-          "endSeconds": 36.34,
+          "startSeconds": 34.86,
+          "endSeconds": 36.62,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -16765,10 +16779,10 @@ window.FOODS_INDEX = [
           "text": "Useful, but still\npretty limited."
         },
         {
-          "id": "24-pros-1",
+          "id": "25-pros-1",
           "sceneId": "pros",
-          "startSeconds": 36.34,
-          "endSeconds": 37.97,
+          "startSeconds": 36.62,
+          "endSeconds": 38.26,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -16779,10 +16793,10 @@ window.FOODS_INDEX = [
           "text": "Pros first: highly\npalatable and"
         },
         {
-          "id": "25-pros-2",
+          "id": "26-pros-2",
           "sceneId": "pros",
-          "startSeconds": 37.97,
-          "endSeconds": 38.46,
+          "startSeconds": 38.26,
+          "endSeconds": 38.75,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -16792,10 +16806,10 @@ window.FOODS_INDEX = [
           "text": "appealing."
         },
         {
-          "id": "26-pros-3",
+          "id": "27-pros-3",
           "sceneId": "pros",
-          "startSeconds": 38.46,
-          "endSeconds": 40.1,
+          "startSeconds": 38.75,
+          "endSeconds": 40.4,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -16806,10 +16820,10 @@ window.FOODS_INDEX = [
           "text": "A real-world\nreason people love"
         },
         {
-          "id": "27-pros-4",
+          "id": "28-pros-4",
           "sceneId": "pros",
-          "startSeconds": 40.1,
-          "endSeconds": 40.59,
+          "startSeconds": 40.4,
+          "endSeconds": 40.9,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -16819,10 +16833,10 @@ window.FOODS_INDEX = [
           "text": "it."
         },
         {
-          "id": "28-pros-5",
+          "id": "29-pros-5",
           "sceneId": "pros",
-          "startSeconds": 40.59,
-          "endSeconds": 42.68,
+          "startSeconds": 40.9,
+          "endSeconds": 43,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -16833,10 +16847,10 @@ window.FOODS_INDEX = [
           "text": "Works as a strong\nflavour booster."
         },
         {
-          "id": "29-pros-6",
+          "id": "30-pros-6",
           "sceneId": "pros",
-          "startSeconds": 42.68,
-          "endSeconds": 44.63,
+          "startSeconds": 43,
+          "endSeconds": 44.97,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -16847,10 +16861,10 @@ window.FOODS_INDEX = [
           "text": "Useful in meals\neven in smaller"
         },
         {
-          "id": "30-pros-7",
+          "id": "31-pros-7",
           "sceneId": "pros",
-          "startSeconds": 44.63,
-          "endSeconds": 45.12,
+          "startSeconds": 44.97,
+          "endSeconds": 45.46,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -16860,10 +16874,10 @@ window.FOODS_INDEX = [
           "text": "amounts."
         },
         {
-          "id": "31-pros-8",
+          "id": "32-pros-8",
           "sceneId": "pros",
-          "startSeconds": 45.12,
-          "endSeconds": 46.11,
+          "startSeconds": 45.46,
+          "endSeconds": 46.46,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -16874,10 +16888,10 @@ window.FOODS_INDEX = [
           "text": "Has strong\ncomfort-food"
         },
         {
-          "id": "32-pros-9",
+          "id": "33-pros-9",
           "sceneId": "pros",
-          "startSeconds": 46.11,
-          "endSeconds": 46.61,
+          "startSeconds": 46.46,
+          "endSeconds": 46.96,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -16887,10 +16901,10 @@ window.FOODS_INDEX = [
           "text": "appeal."
         },
         {
-          "id": "33-pros-10",
+          "id": "34-pros-10",
           "sceneId": "pros",
-          "startSeconds": 46.61,
-          "endSeconds": 47.92,
+          "startSeconds": 46.96,
+          "endSeconds": 48.28,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -16901,10 +16915,10 @@ window.FOODS_INDEX = [
           "text": "Popular and\ninstantly legible"
         },
         {
-          "id": "34-pros-11",
+          "id": "35-pros-11",
           "sceneId": "pros",
-          "startSeconds": 47.92,
-          "endSeconds": 49.05,
+          "startSeconds": 48.28,
+          "endSeconds": 49.42,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -16915,10 +16929,10 @@ window.FOODS_INDEX = [
           "text": "for content\npackaging."
         },
         {
-          "id": "35-cons-1",
+          "id": "36-cons-1",
           "sceneId": "cons",
-          "startSeconds": 49.05,
-          "endSeconds": 51.05,
+          "startSeconds": 49.42,
+          "endSeconds": 51.44,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -16929,10 +16943,10 @@ window.FOODS_INDEX = [
           "text": "The drawbacks\nnext: sodium is a"
         },
         {
-          "id": "36-cons-2",
+          "id": "37-cons-2",
           "sceneId": "cons",
-          "startSeconds": 51.05,
-          "endSeconds": 51.89,
+          "startSeconds": 51.44,
+          "endSeconds": 52.28,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -16942,10 +16956,10 @@ window.FOODS_INDEX = [
           "text": "major drawback."
         },
         {
-          "id": "37-cons-3",
+          "id": "38-cons-3",
           "sceneId": "cons",
-          "startSeconds": 51.89,
-          "endSeconds": 53.24,
+          "startSeconds": 52.28,
+          "endSeconds": 53.64,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -16956,10 +16970,10 @@ window.FOODS_INDEX = [
           "text": "A central\npractical health"
         },
         {
-          "id": "38-cons-4",
+          "id": "39-cons-4",
           "sceneId": "cons",
-          "startSeconds": 53.24,
-          "endSeconds": 54.4,
+          "startSeconds": 53.64,
+          "endSeconds": 54.81,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -16969,10 +16983,10 @@ window.FOODS_INDEX = [
           "text": "issue for bacon."
         },
         {
-          "id": "39-cons-5",
+          "id": "40-cons-5",
           "sceneId": "cons",
-          "startSeconds": 54.4,
-          "endSeconds": 56.22,
+          "startSeconds": 54.81,
+          "endSeconds": 56.65,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -16983,10 +16997,10 @@ window.FOODS_INDEX = [
           "text": "Processing is a\nmajor negative."
         },
         {
-          "id": "40-cons-6",
+          "id": "41-cons-6",
           "sceneId": "cons",
-          "startSeconds": 56.22,
-          "endSeconds": 58.23,
+          "startSeconds": 56.65,
+          "endSeconds": 58.67,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -16997,10 +17011,10 @@ window.FOODS_INDEX = [
           "text": "A key downside now\nthat more"
         },
         {
-          "id": "41-cons-7",
+          "id": "42-cons-7",
           "sceneId": "cons",
-          "startSeconds": 58.23,
-          "endSeconds": 60.04,
+          "startSeconds": 58.67,
+          "endSeconds": 60.5,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -17011,10 +17025,10 @@ window.FOODS_INDEX = [
           "text": "processed foods\nare in scope."
         },
         {
-          "id": "42-cons-8",
+          "id": "43-cons-8",
           "sceneId": "cons",
-          "startSeconds": 60.04,
-          "endSeconds": 62.38,
+          "startSeconds": 60.5,
+          "endSeconds": 62.85,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -17025,10 +17039,10 @@ window.FOODS_INDEX = [
           "text": "Rarely improves a\nmeal much on its"
         },
         {
-          "id": "43-cons-9",
+          "id": "44-cons-9",
           "sceneId": "cons",
-          "startSeconds": 62.38,
-          "endSeconds": 62.88,
+          "startSeconds": 62.85,
+          "endSeconds": 63.36,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -17038,10 +17052,10 @@ window.FOODS_INDEX = [
           "text": "own."
         },
         {
-          "id": "44-cons-10",
+          "id": "45-cons-10",
           "sceneId": "cons",
-          "startSeconds": 62.88,
-          "endSeconds": 64.89,
+          "startSeconds": 63.36,
+          "endSeconds": 65.38,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -17052,10 +17066,10 @@ window.FOODS_INDEX = [
           "text": "Usually works more\nas a flavour"
         },
         {
-          "id": "45-cons-11",
+          "id": "46-cons-11",
           "sceneId": "cons",
-          "startSeconds": 64.89,
-          "endSeconds": 66.56,
+          "startSeconds": 65.38,
+          "endSeconds": 67.06,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -17066,10 +17080,10 @@ window.FOODS_INDEX = [
           "text": "add-on than a\ngenuinely strong"
         },
         {
-          "id": "46-cons-12",
+          "id": "47-cons-12",
           "sceneId": "cons",
-          "startSeconds": 66.56,
-          "endSeconds": 67.4,
+          "startSeconds": 67.06,
+          "endSeconds": 67.91,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -17079,40 +17093,54 @@ window.FOODS_INDEX = [
           "text": "meat choice."
         },
         {
-          "id": "47-final-1",
+          "id": "48-final-1",
           "sceneId": "final",
-          "startSeconds": 67.4,
-          "endSeconds": 69.91,
+          "startSeconds": 67.91,
+          "endSeconds": 69.81,
           "placement": "summary-full",
           "maxLines": 2,
-          "maxCharactersPerLine": 28,
+          "maxCharactersPerLine": 24,
           "lines": [
-            "Big strengths are protein",
-            "and palatable and appealing,"
+            "Big strengths are",
+            "protein and palatable"
           ],
-          "text": "Big strengths are protein\nand palatable and appealing,",
+          "text": "Big strengths are\nprotein and palatable",
           "role": "conclusion-summary"
         },
         {
-          "id": "48-final-2",
+          "id": "49-final-2",
           "sceneId": "final",
-          "startSeconds": 69.91,
-          "endSeconds": 72.54,
+          "startSeconds": 69.81,
+          "endSeconds": 72,
           "placement": "summary-full",
           "maxLines": 2,
-          "maxCharactersPerLine": 28,
+          "maxCharactersPerLine": 24,
           "lines": [
-            "but the biggest weaknesses",
-            "are sodium and processing."
+            "and appealing, but the",
+            "biggest weaknesses are"
           ],
-          "text": "but the biggest weaknesses\nare sodium and processing.",
+          "text": "and appealing, but the\nbiggest weaknesses are",
           "role": "conclusion-summary"
         },
         {
-          "id": "49-final-3",
+          "id": "50-final-3",
           "sceneId": "final",
-          "startSeconds": 72.54,
-          "endSeconds": 73.33,
+          "startSeconds": 72,
+          "endSeconds": 73.1,
+          "placement": "summary-full",
+          "maxLines": 2,
+          "maxCharactersPerLine": 24,
+          "lines": [
+            "sodium and processing."
+          ],
+          "text": "sodium and processing.",
+          "role": "conclusion-summary"
+        },
+        {
+          "id": "51-final-4",
+          "sceneId": "final",
+          "startSeconds": 73.1,
+          "endSeconds": 73.89,
           "placement": "tier-center",
           "maxLines": 2,
           "maxCharactersPerLine": 28,
@@ -285128,7 +285156,7 @@ window.FOODS_INDEX = [
   }
 ];
 window.FOODRANKED_DATA = {
-  "generatedAt": "2026-05-23T16:02:04.520Z",
+  "generatedAt": "2026-05-23T17:15:28.071Z",
   "count": 275,
   "foods": [
     {
@@ -301073,7 +301101,7 @@ window.FOODRANKED_DATA = {
         },
         "summary": "Pros are carrying this food most, while cons are holding it back most. It lands in D tier.",
         "whyThisTier": "This food lands in D tier with an overall score of 22.4. Section scores: fats 48.9, proteins 20, vitamins 12, minerals 3.8, pros 50, cons 0.",
-        "durationSeconds": 73.33,
+        "durationSeconds": 73.89,
         "outputDir": "outputs/episodes/bacon-compact",
         "audio": {
           "take": "voice-v4",
@@ -301090,64 +301118,64 @@ window.FOODRANKED_DATA = {
             "id": "hook",
             "kind": "hook",
             "startSeconds": 0,
-            "endSeconds": 2.1,
-            "durationSeconds": 2.1
+            "endSeconds": 2.12,
+            "durationSeconds": 2.12
           },
           {
             "id": "fats",
             "kind": "section",
-            "startSeconds": 2.1,
-            "endSeconds": 11.28,
-            "durationSeconds": 9.18
+            "startSeconds": 2.12,
+            "endSeconds": 11.37,
+            "durationSeconds": 9.25
           },
           {
             "id": "carbs",
             "kind": "section",
-            "startSeconds": 11.28,
-            "endSeconds": 16.22,
-            "durationSeconds": 4.94
+            "startSeconds": 11.37,
+            "endSeconds": 16.34,
+            "durationSeconds": 4.98
           },
           {
             "id": "proteins",
             "kind": "section",
-            "startSeconds": 16.22,
-            "endSeconds": 26.46,
-            "durationSeconds": 10.24
+            "startSeconds": 16.34,
+            "endSeconds": 26.66,
+            "durationSeconds": 10.32
           },
           {
             "id": "vitamins",
             "kind": "section",
-            "startSeconds": 26.46,
-            "endSeconds": 31.75,
-            "durationSeconds": 5.29
+            "startSeconds": 26.66,
+            "endSeconds": 31.99,
+            "durationSeconds": 5.33
           },
           {
             "id": "minerals",
             "kind": "section",
-            "startSeconds": 31.75,
-            "endSeconds": 36.34,
-            "durationSeconds": 4.59
+            "startSeconds": 31.99,
+            "endSeconds": 36.62,
+            "durationSeconds": 4.62
           },
           {
             "id": "pros",
             "kind": "section",
-            "startSeconds": 36.34,
-            "endSeconds": 49.05,
-            "durationSeconds": 12.71
+            "startSeconds": 36.62,
+            "endSeconds": 49.42,
+            "durationSeconds": 12.81
           },
           {
             "id": "cons",
             "kind": "section",
-            "startSeconds": 49.05,
-            "endSeconds": 67.4,
-            "durationSeconds": 18.35
+            "startSeconds": 49.42,
+            "endSeconds": 67.91,
+            "durationSeconds": 18.49
           },
           {
             "id": "final",
             "kind": "closing",
-            "startSeconds": 67.4,
-            "endSeconds": 73.33,
-            "durationSeconds": 5.93
+            "startSeconds": 67.91,
+            "endSeconds": 73.89,
+            "durationSeconds": 5.97
           }
         ],
         "sceneCount": 9,
@@ -301585,7 +301613,7 @@ window.FOODRANKED_DATA = {
             "id": "01-hook",
             "sceneId": "hook",
             "startSeconds": 0,
-            "endSeconds": 2.1,
+            "endSeconds": 2.12,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -301597,50 +301625,63 @@ window.FOODRANKED_DATA = {
           {
             "id": "02-fats-1",
             "sceneId": "fats",
-            "startSeconds": 2.1,
-            "endSeconds": 4.76,
+            "startSeconds": 2.12,
+            "endSeconds": 4.13,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "37. 1g of fat.",
-              "Omega 3 is 275mg."
+              "37.1g of",
+              "fat. Omega 3 is"
             ],
-            "text": "37. 1g of fat.\nOmega 3 is 275mg."
+            "text": "37.1g of\nfat. Omega 3 is"
           },
           {
             "id": "03-fats-2",
             "sceneId": "fats",
-            "startSeconds": 4.76,
-            "endSeconds": 6.07,
+            "startSeconds": 4.13,
+            "endSeconds": 4.7,
+            "placement": "lower-third",
+            "maxLines": 2,
+            "maxCharactersPerLine": 18,
+            "lines": [
+              "275mg."
+            ],
+            "text": "275mg."
+          },
+          {
+            "id": "04-fats-3",
+            "sceneId": "fats",
+            "startSeconds": 4.7,
+            "endSeconds": 6.3,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
               "Saturated fat is",
-              "12."
+              "12.6g, a"
             ],
-            "text": "Saturated fat is\n12."
-          },
-          {
-            "id": "04-fats-3",
-            "sceneId": "fats",
-            "startSeconds": 6.07,
-            "endSeconds": 7.63,
-            "placement": "lower-third",
-            "maxLines": 2,
-            "maxCharactersPerLine": 18,
-            "lines": [
-              "6g, a major",
-              "pressure point."
-            ],
-            "text": "6g, a major\npressure point."
+            "text": "Saturated fat is\n12.6g, a"
           },
           {
             "id": "05-fats-4",
             "sceneId": "fats",
-            "startSeconds": 7.63,
-            "endSeconds": 9.25,
+            "startSeconds": 6.3,
+            "endSeconds": 7.34,
+            "placement": "lower-third",
+            "maxLines": 2,
+            "maxCharactersPerLine": 18,
+            "lines": [
+              "major pressure",
+              "point."
+            ],
+            "text": "major pressure\npoint."
+          },
+          {
+            "id": "06-fats-5",
+            "sceneId": "fats",
+            "startSeconds": 7.34,
+            "endSeconds": 9.13,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -301651,10 +301692,10 @@ window.FOODRANKED_DATA = {
             "text": "For meats, fat\nquality matters a"
           },
           {
-            "id": "06-fats-5",
+            "id": "07-fats-6",
             "sceneId": "fats",
-            "startSeconds": 9.25,
-            "endSeconds": 10.87,
+            "startSeconds": 9.13,
+            "endSeconds": 10.91,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -301665,10 +301706,10 @@ window.FOODRANKED_DATA = {
             "text": "lot once the\nprotein is already"
           },
           {
-            "id": "07-fats-6",
+            "id": "08-fats-7",
             "sceneId": "fats",
-            "startSeconds": 10.87,
-            "endSeconds": 11.28,
+            "startSeconds": 10.91,
+            "endSeconds": 11.37,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -301678,10 +301719,10 @@ window.FOODRANKED_DATA = {
             "text": "there."
           },
           {
-            "id": "08-carbs-1",
+            "id": "09-carbs-1",
             "sceneId": "carbs",
-            "startSeconds": 11.28,
-            "endSeconds": 12.56,
+            "startSeconds": 11.37,
+            "endSeconds": 12.66,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -301691,10 +301732,10 @@ window.FOODRANKED_DATA = {
             "text": "0g of carbs."
           },
           {
-            "id": "09-carbs-2",
+            "id": "10-carbs-2",
             "sceneId": "carbs",
-            "startSeconds": 12.56,
-            "endSeconds": 14.05,
+            "startSeconds": 12.66,
+            "endSeconds": 14.16,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -301705,10 +301746,10 @@ window.FOODRANKED_DATA = {
             "text": "Everything else is\nlackluster."
           },
           {
-            "id": "10-carbs-3",
+            "id": "11-carbs-3",
             "sceneId": "carbs",
-            "startSeconds": 14.05,
-            "endSeconds": 15.71,
+            "startSeconds": 14.16,
+            "endSeconds": 15.83,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -301719,10 +301760,10 @@ window.FOODRANKED_DATA = {
             "text": "In this category,\ncarbs barely"
           },
           {
-            "id": "11-carbs-4",
+            "id": "12-carbs-4",
             "sceneId": "carbs",
-            "startSeconds": 15.71,
-            "endSeconds": 16.22,
+            "startSeconds": 15.83,
+            "endSeconds": 16.34,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -301732,23 +301773,24 @@ window.FOODRANKED_DATA = {
             "text": "matter."
           },
           {
-            "id": "12-proteins-1",
+            "id": "13-proteins-1",
             "sceneId": "proteins",
-            "startSeconds": 16.22,
-            "endSeconds": 17.89,
+            "startSeconds": 16.34,
+            "endSeconds": 17.64,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "13. 7g of protein."
+              "13.7g of",
+              "protein."
             ],
-            "text": "13. 7g of protein."
+            "text": "13.7g of\nprotein."
           },
           {
-            "id": "13-proteins-2",
+            "id": "14-proteins-2",
             "sceneId": "proteins",
-            "startSeconds": 17.89,
-            "endSeconds": 19.5,
+            "startSeconds": 17.64,
+            "endSeconds": 19.35,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -301759,10 +301801,10 @@ window.FOODRANKED_DATA = {
             "text": "Essential amino\nacids score is"
           },
           {
-            "id": "14-proteins-3",
+            "id": "15-proteins-3",
             "sceneId": "proteins",
-            "startSeconds": 19.5,
-            "endSeconds": 21.17,
+            "startSeconds": 19.35,
+            "endSeconds": 21.1,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -301773,10 +301815,10 @@ window.FOODRANKED_DATA = {
             "text": "8/9, with 90%\nbioavailability."
           },
           {
-            "id": "15-proteins-4",
+            "id": "16-proteins-4",
             "sceneId": "proteins",
-            "startSeconds": 21.17,
-            "endSeconds": 23.1,
+            "startSeconds": 21.1,
+            "endSeconds": 23.12,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -301787,10 +301829,10 @@ window.FOODRANKED_DATA = {
             "text": "Strong protein is\nexpected here, so"
           },
           {
-            "id": "16-proteins-5",
+            "id": "17-proteins-5",
             "sceneId": "proteins",
-            "startSeconds": 23.1,
-            "endSeconds": 25.03,
+            "startSeconds": 23.12,
+            "endSeconds": 25.15,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -301801,10 +301843,10 @@ window.FOODRANKED_DATA = {
             "text": "the rest of the\nprofile decides"
           },
           {
-            "id": "17-proteins-6",
+            "id": "18-proteins-6",
             "sceneId": "proteins",
-            "startSeconds": 25.03,
-            "endSeconds": 26.46,
+            "startSeconds": 25.15,
+            "endSeconds": 26.66,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -301815,10 +301857,10 @@ window.FOODRANKED_DATA = {
             "text": "how high it\nclimbs."
           },
           {
-            "id": "18-vitamins-1",
+            "id": "19-vitamins-1",
             "sceneId": "vitamins",
-            "startSeconds": 26.46,
-            "endSeconds": 28.91,
+            "startSeconds": 26.66,
+            "endSeconds": 29.13,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -301829,10 +301871,10 @@ window.FOODRANKED_DATA = {
             "text": "Vitamin b12 at 21%\ndaily value stands"
           },
           {
-            "id": "19-vitamins-2",
+            "id": "20-vitamins-2",
             "sceneId": "vitamins",
-            "startSeconds": 28.91,
-            "endSeconds": 29.71,
+            "startSeconds": 29.13,
+            "endSeconds": 29.94,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -301842,10 +301884,10 @@ window.FOODRANKED_DATA = {
             "text": "out most."
           },
           {
-            "id": "20-vitamins-3",
+            "id": "21-vitamins-3",
             "sceneId": "vitamins",
-            "startSeconds": 29.71,
-            "endSeconds": 31.75,
+            "startSeconds": 29.94,
+            "endSeconds": 31.99,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -301856,10 +301898,10 @@ window.FOODRANKED_DATA = {
             "text": "That is barely\nmoving the needle."
           },
           {
-            "id": "21-minerals-1",
+            "id": "22-minerals-1",
             "sceneId": "minerals",
-            "startSeconds": 31.75,
-            "endSeconds": 34.11,
+            "startSeconds": 31.99,
+            "endSeconds": 34.37,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -301870,10 +301912,10 @@ window.FOODRANKED_DATA = {
             "text": "Zinc at 10% daily\nvalue stands out"
           },
           {
-            "id": "22-minerals-2",
+            "id": "23-minerals-2",
             "sceneId": "minerals",
-            "startSeconds": 34.11,
-            "endSeconds": 34.6,
+            "startSeconds": 34.37,
+            "endSeconds": 34.86,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -301883,10 +301925,10 @@ window.FOODRANKED_DATA = {
             "text": "most."
           },
           {
-            "id": "23-minerals-3",
+            "id": "24-minerals-3",
             "sceneId": "minerals",
-            "startSeconds": 34.6,
-            "endSeconds": 36.34,
+            "startSeconds": 34.86,
+            "endSeconds": 36.62,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -301897,10 +301939,10 @@ window.FOODRANKED_DATA = {
             "text": "Useful, but still\npretty limited."
           },
           {
-            "id": "24-pros-1",
+            "id": "25-pros-1",
             "sceneId": "pros",
-            "startSeconds": 36.34,
-            "endSeconds": 37.97,
+            "startSeconds": 36.62,
+            "endSeconds": 38.26,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -301911,10 +301953,10 @@ window.FOODRANKED_DATA = {
             "text": "Pros first: highly\npalatable and"
           },
           {
-            "id": "25-pros-2",
+            "id": "26-pros-2",
             "sceneId": "pros",
-            "startSeconds": 37.97,
-            "endSeconds": 38.46,
+            "startSeconds": 38.26,
+            "endSeconds": 38.75,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -301924,10 +301966,10 @@ window.FOODRANKED_DATA = {
             "text": "appealing."
           },
           {
-            "id": "26-pros-3",
+            "id": "27-pros-3",
             "sceneId": "pros",
-            "startSeconds": 38.46,
-            "endSeconds": 40.1,
+            "startSeconds": 38.75,
+            "endSeconds": 40.4,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -301938,10 +301980,10 @@ window.FOODRANKED_DATA = {
             "text": "A real-world\nreason people love"
           },
           {
-            "id": "27-pros-4",
+            "id": "28-pros-4",
             "sceneId": "pros",
-            "startSeconds": 40.1,
-            "endSeconds": 40.59,
+            "startSeconds": 40.4,
+            "endSeconds": 40.9,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -301951,10 +301993,10 @@ window.FOODRANKED_DATA = {
             "text": "it."
           },
           {
-            "id": "28-pros-5",
+            "id": "29-pros-5",
             "sceneId": "pros",
-            "startSeconds": 40.59,
-            "endSeconds": 42.68,
+            "startSeconds": 40.9,
+            "endSeconds": 43,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -301965,10 +302007,10 @@ window.FOODRANKED_DATA = {
             "text": "Works as a strong\nflavour booster."
           },
           {
-            "id": "29-pros-6",
+            "id": "30-pros-6",
             "sceneId": "pros",
-            "startSeconds": 42.68,
-            "endSeconds": 44.63,
+            "startSeconds": 43,
+            "endSeconds": 44.97,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -301979,10 +302021,10 @@ window.FOODRANKED_DATA = {
             "text": "Useful in meals\neven in smaller"
           },
           {
-            "id": "30-pros-7",
+            "id": "31-pros-7",
             "sceneId": "pros",
-            "startSeconds": 44.63,
-            "endSeconds": 45.12,
+            "startSeconds": 44.97,
+            "endSeconds": 45.46,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -301992,10 +302034,10 @@ window.FOODRANKED_DATA = {
             "text": "amounts."
           },
           {
-            "id": "31-pros-8",
+            "id": "32-pros-8",
             "sceneId": "pros",
-            "startSeconds": 45.12,
-            "endSeconds": 46.11,
+            "startSeconds": 45.46,
+            "endSeconds": 46.46,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -302006,10 +302048,10 @@ window.FOODRANKED_DATA = {
             "text": "Has strong\ncomfort-food"
           },
           {
-            "id": "32-pros-9",
+            "id": "33-pros-9",
             "sceneId": "pros",
-            "startSeconds": 46.11,
-            "endSeconds": 46.61,
+            "startSeconds": 46.46,
+            "endSeconds": 46.96,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -302019,10 +302061,10 @@ window.FOODRANKED_DATA = {
             "text": "appeal."
           },
           {
-            "id": "33-pros-10",
+            "id": "34-pros-10",
             "sceneId": "pros",
-            "startSeconds": 46.61,
-            "endSeconds": 47.92,
+            "startSeconds": 46.96,
+            "endSeconds": 48.28,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -302033,10 +302075,10 @@ window.FOODRANKED_DATA = {
             "text": "Popular and\ninstantly legible"
           },
           {
-            "id": "34-pros-11",
+            "id": "35-pros-11",
             "sceneId": "pros",
-            "startSeconds": 47.92,
-            "endSeconds": 49.05,
+            "startSeconds": 48.28,
+            "endSeconds": 49.42,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -302047,10 +302089,10 @@ window.FOODRANKED_DATA = {
             "text": "for content\npackaging."
           },
           {
-            "id": "35-cons-1",
+            "id": "36-cons-1",
             "sceneId": "cons",
-            "startSeconds": 49.05,
-            "endSeconds": 51.05,
+            "startSeconds": 49.42,
+            "endSeconds": 51.44,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -302061,10 +302103,10 @@ window.FOODRANKED_DATA = {
             "text": "The drawbacks\nnext: sodium is a"
           },
           {
-            "id": "36-cons-2",
+            "id": "37-cons-2",
             "sceneId": "cons",
-            "startSeconds": 51.05,
-            "endSeconds": 51.89,
+            "startSeconds": 51.44,
+            "endSeconds": 52.28,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -302074,10 +302116,10 @@ window.FOODRANKED_DATA = {
             "text": "major drawback."
           },
           {
-            "id": "37-cons-3",
+            "id": "38-cons-3",
             "sceneId": "cons",
-            "startSeconds": 51.89,
-            "endSeconds": 53.24,
+            "startSeconds": 52.28,
+            "endSeconds": 53.64,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -302088,10 +302130,10 @@ window.FOODRANKED_DATA = {
             "text": "A central\npractical health"
           },
           {
-            "id": "38-cons-4",
+            "id": "39-cons-4",
             "sceneId": "cons",
-            "startSeconds": 53.24,
-            "endSeconds": 54.4,
+            "startSeconds": 53.64,
+            "endSeconds": 54.81,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -302101,10 +302143,10 @@ window.FOODRANKED_DATA = {
             "text": "issue for bacon."
           },
           {
-            "id": "39-cons-5",
+            "id": "40-cons-5",
             "sceneId": "cons",
-            "startSeconds": 54.4,
-            "endSeconds": 56.22,
+            "startSeconds": 54.81,
+            "endSeconds": 56.65,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -302115,10 +302157,10 @@ window.FOODRANKED_DATA = {
             "text": "Processing is a\nmajor negative."
           },
           {
-            "id": "40-cons-6",
+            "id": "41-cons-6",
             "sceneId": "cons",
-            "startSeconds": 56.22,
-            "endSeconds": 58.23,
+            "startSeconds": 56.65,
+            "endSeconds": 58.67,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -302129,10 +302171,10 @@ window.FOODRANKED_DATA = {
             "text": "A key downside now\nthat more"
           },
           {
-            "id": "41-cons-7",
+            "id": "42-cons-7",
             "sceneId": "cons",
-            "startSeconds": 58.23,
-            "endSeconds": 60.04,
+            "startSeconds": 58.67,
+            "endSeconds": 60.5,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -302143,10 +302185,10 @@ window.FOODRANKED_DATA = {
             "text": "processed foods\nare in scope."
           },
           {
-            "id": "42-cons-8",
+            "id": "43-cons-8",
             "sceneId": "cons",
-            "startSeconds": 60.04,
-            "endSeconds": 62.38,
+            "startSeconds": 60.5,
+            "endSeconds": 62.85,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -302157,10 +302199,10 @@ window.FOODRANKED_DATA = {
             "text": "Rarely improves a\nmeal much on its"
           },
           {
-            "id": "43-cons-9",
+            "id": "44-cons-9",
             "sceneId": "cons",
-            "startSeconds": 62.38,
-            "endSeconds": 62.88,
+            "startSeconds": 62.85,
+            "endSeconds": 63.36,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -302170,10 +302212,10 @@ window.FOODRANKED_DATA = {
             "text": "own."
           },
           {
-            "id": "44-cons-10",
+            "id": "45-cons-10",
             "sceneId": "cons",
-            "startSeconds": 62.88,
-            "endSeconds": 64.89,
+            "startSeconds": 63.36,
+            "endSeconds": 65.38,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -302184,10 +302226,10 @@ window.FOODRANKED_DATA = {
             "text": "Usually works more\nas a flavour"
           },
           {
-            "id": "45-cons-11",
+            "id": "46-cons-11",
             "sceneId": "cons",
-            "startSeconds": 64.89,
-            "endSeconds": 66.56,
+            "startSeconds": 65.38,
+            "endSeconds": 67.06,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -302198,10 +302240,10 @@ window.FOODRANKED_DATA = {
             "text": "add-on than a\ngenuinely strong"
           },
           {
-            "id": "46-cons-12",
+            "id": "47-cons-12",
             "sceneId": "cons",
-            "startSeconds": 66.56,
-            "endSeconds": 67.4,
+            "startSeconds": 67.06,
+            "endSeconds": 67.91,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -302211,40 +302253,54 @@ window.FOODRANKED_DATA = {
             "text": "meat choice."
           },
           {
-            "id": "47-final-1",
+            "id": "48-final-1",
             "sceneId": "final",
-            "startSeconds": 67.4,
-            "endSeconds": 69.91,
+            "startSeconds": 67.91,
+            "endSeconds": 69.81,
             "placement": "summary-full",
             "maxLines": 2,
-            "maxCharactersPerLine": 28,
+            "maxCharactersPerLine": 24,
             "lines": [
-              "Big strengths are protein",
-              "and palatable and appealing,"
+              "Big strengths are",
+              "protein and palatable"
             ],
-            "text": "Big strengths are protein\nand palatable and appealing,",
+            "text": "Big strengths are\nprotein and palatable",
             "role": "conclusion-summary"
           },
           {
-            "id": "48-final-2",
+            "id": "49-final-2",
             "sceneId": "final",
-            "startSeconds": 69.91,
-            "endSeconds": 72.54,
+            "startSeconds": 69.81,
+            "endSeconds": 72,
             "placement": "summary-full",
             "maxLines": 2,
-            "maxCharactersPerLine": 28,
+            "maxCharactersPerLine": 24,
             "lines": [
-              "but the biggest weaknesses",
-              "are sodium and processing."
+              "and appealing, but the",
+              "biggest weaknesses are"
             ],
-            "text": "but the biggest weaknesses\nare sodium and processing.",
+            "text": "and appealing, but the\nbiggest weaknesses are",
             "role": "conclusion-summary"
           },
           {
-            "id": "49-final-3",
+            "id": "50-final-3",
             "sceneId": "final",
-            "startSeconds": 72.54,
-            "endSeconds": 73.33,
+            "startSeconds": 72,
+            "endSeconds": 73.1,
+            "placement": "summary-full",
+            "maxLines": 2,
+            "maxCharactersPerLine": 24,
+            "lines": [
+              "sodium and processing."
+            ],
+            "text": "sodium and processing.",
+            "role": "conclusion-summary"
+          },
+          {
+            "id": "51-final-4",
+            "sceneId": "final",
+            "startSeconds": 73.1,
+            "endSeconds": 73.89,
             "placement": "tier-center",
             "maxLines": 2,
             "maxCharactersPerLine": 28,

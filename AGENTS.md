@@ -38,6 +38,8 @@ Work in sympathy with the existing repo. Read the relevant source-of-truth docs 
 - The header already carries food name, food type, per-100g, kcal, and image; narration should not reintroduce those basics.
 - On-screen body text should be subtitles only.
 - On-screen units are abbreviated: `g`, `mg`, etc.
+- Spoken audio expands measurement units to full words, for example `3g` is spoken as `3 grams`; keep this audio-only.
+- Generated subtitles should be no more than 2 lines per cue.
 - Prefer informative shorts over ultra-short ones.
 - Keep all 3 pros and all 3 cons.
 - ElevenLabs narration around 1.15x speed is acceptable.
@@ -73,4 +75,3 @@ Use the local FoodRanked skills when they fit:
 - `nutrition-pixel-ui-director`: cozy pixel stat-sheet visuals, reveal pacing, sprites, subtitles, production layout.
 - `nutrition-workflow-automator`: batch pipelines, episode generation, narration/subtitle prep, review queues, exports.
 - `nutrition-content-strategist`: hooks, episode packaging, platform variants, retention and growth loops.
-

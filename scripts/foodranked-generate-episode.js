@@ -130,13 +130,36 @@ function capitalizeSentenceStarts(text) {
     .replace(/^([a-z])/, (_, char) => char.toUpperCase());
 }
 
+function unitWord(unit, value) {
+  const normalized = String(unit || '').toLowerCase();
+  const numeric = Number(value);
+  const singular = Number.isFinite(numeric) && numeric === 1;
+  const words = {
+    g: ['gram', 'grams'],
+    mg: ['milligram', 'milligrams'],
+    mcg: ['microgram', 'micrograms'],
+    'µg': ['microgram', 'micrograms'],
+    kg: ['kilogram', 'kilograms'],
+    kcal: ['calorie', 'calories']
+  }[normalized];
+  if (!words) return unit;
+  return singular ? words[0] : words[1];
+}
+
+function audioOnlyText(text) {
+  return String(text || '')
+    .replace(/\b(\d+(?:\.\d+)?)\s*(mcg|µg|mg|kg|kcal|g)\b/gi, (_, value, unit) => `${value} ${unitWord(unit, value)}`)
+    .replace(/\bDV\b/g, 'daily value');
+}
+
 function buildNarrationText(script, options = {}) {
   const compact = options.mode === 'compact';
-  if (!compact) return sentenceParts(script, options).map(capitalizeSentenceStarts).join('\n\n');
+  if (!compact) return sentenceParts(script, options).map(audioOnlyText).map(capitalizeSentenceStarts).join('\n\n');
 
   const parts = spokenBlocks(script, options)
     .map(block => block.text)
     .filter(Boolean)
+    .map(audioOnlyText)
     .map(capitalizeSentenceStarts);
 
   return parts.join('\n\n-\n\n');
@@ -385,6 +408,13 @@ function compactSectionNarration(section) {
   return section.narration;
 }
 
+function narrationTextForSection(script, section) {
+  const block = Array.isArray(script.narrationBlocks)
+    ? script.narrationBlocks.find(item => item.kind === 'section' && item.sectionKey === section.key)
+    : null;
+  return block?.text || section.narration;
+}
+
 function buildScenePlan(script, score, template, options = {}) {
   const compact = options.mode === 'compact';
   const profile = visualProfileFor(options.visualProfile);
@@ -424,7 +454,8 @@ function buildScenePlan(script, score, template, options = {}) {
   cursor += hookDuration;
 
   for (const section of script.sections) {
-    const narrationText = compact ? compactSectionNarration(section, options) : section.narration;
+    const narrationText = compact ? narrationTextForSection(script, section) : audioOnlyText(compactSectionNarration(section, options));
+    const subtitleText = section.subtitleText || section.narration;
     const duration = estimateDurationSeconds(narrationText, compact ? 170 : 168, compact ? 2.1 : 2.1);
     const visualBinding = sectionVisualBinding(section, template, spriteBindings, { ...options, foodType: script.food.foodType });
     scenes.push({
@@ -435,7 +466,7 @@ function buildScenePlan(script, score, template, options = {}) {
       durationSeconds: duration,
       endSeconds: Number((cursor + duration).toFixed(2)),
       narrationText,
-      subtitleText: narrationText,
+      subtitleText,
       subtitlePlacement: visualBinding.subtitlePlacement,
       visualBinding,
       revealPlan: template.sectionTemplates?.[section.key]?.revealSlots || [],
@@ -482,19 +513,113 @@ function buildScenePlan(script, score, template, options = {}) {
   return {
     mode: compact ? 'compact' : 'standard',
     visualProfile: profile.name,
+    subtitleRules: {
+      maxLines: 2,
+      maxCharactersPerLine: 34
+    },
     totalEstimatedDurationSeconds: Number(cursor.toFixed(2)),
     scenes
   };
 }
 
+function splitSubtitleSentences(text) {
+  const normalized = String(text || '').replace(/\s+/g, ' ').trim();
+  if (!normalized) return [];
+  const decimals = [];
+  const protectedText = normalized.replace(/\d+\.\d+/g, match => {
+    const token = `__DECIMAL_${decimals.length}__`;
+    decimals.push(match);
+    return token;
+  });
+  const sentences = protectedText.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [protectedText];
+  return sentences
+    .map(sentence => sentence.replace(/__DECIMAL_(\d+)__/g, (_, index) => decimals[Number(index)] || ''))
+    .map(sentence => sentence.trim())
+    .filter(Boolean);
+}
+
+function wrapSubtitleLines(text, maxLineChars = 34, maxLines = 2) {
+  const words = String(text || '').replace(/\s+/g, ' ').trim().split(' ').filter(Boolean);
+  const lines = [];
+  let current = '';
+
+  for (let index = 0; index < words.length; index += 1) {
+    const word = words[index];
+    const candidate = current ? `${current} ${word}` : word;
+    if (candidate.length <= maxLineChars || !current) {
+      current = candidate;
+      continue;
+    }
+    lines.push(current);
+    current = word;
+    if (lines.length === maxLines) {
+      return {
+        lines,
+        overflow: [current, ...words.slice(index + 1)].join(' ')
+      };
+    }
+  }
+
+  if (current) lines.push(current);
+  return { lines: lines.slice(0, maxLines), overflow: lines.slice(maxLines).join(' ') };
+}
+
+function subtitleChunks(text, maxLineChars = 34, maxLines = 2) {
+  const maxChars = maxLineChars * maxLines;
+  const sentences = splitSubtitleSentences(text);
+  const chunks = [];
+  let current = '';
+
+  for (const sentence of sentences) {
+    const candidate = current ? `${current} ${sentence}` : sentence;
+    if (candidate.length <= maxChars || !current) {
+      current = candidate;
+      continue;
+    }
+    chunks.push(current);
+    current = sentence;
+  }
+  if (current) chunks.push(current);
+
+  const wrapped = [];
+  for (const chunk of chunks) {
+    let remaining = chunk;
+    while (remaining) {
+      const result = wrapSubtitleLines(remaining, maxLineChars, maxLines);
+      wrapped.push(result.lines);
+      remaining = result.overflow.trim();
+    }
+  }
+  return wrapped.length ? wrapped : [['']];
+}
+
 function buildSubtitleCues(scenePlan) {
-  return scenePlan.scenes.map((scene, index) => ({
-    id: `${String(index + 1).padStart(2, '0')}-${scene.id}`,
-    startSeconds: scene.startSeconds,
-    endSeconds: scene.endSeconds,
-    placement: scene.subtitlePlacement || 'lower-third',
-    text: scene.subtitleText || scene.narrationText
-  }));
+  const maxLines = scenePlan.subtitleRules?.maxLines || 2;
+  const maxLineChars = scenePlan.subtitleRules?.maxCharactersPerLine || 34;
+  const cues = [];
+
+  for (const scene of scenePlan.scenes) {
+    const chunks = subtitleChunks(scene.subtitleText || scene.narrationText, maxLineChars, maxLines);
+    const chunkDuration = scene.durationSeconds / chunks.length;
+    chunks.forEach((lines, chunkIndex) => {
+      const startSeconds = Number((scene.startSeconds + (chunkDuration * chunkIndex)).toFixed(2));
+      const endSeconds = chunkIndex === chunks.length - 1
+        ? scene.endSeconds
+        : Number((scene.startSeconds + (chunkDuration * (chunkIndex + 1))).toFixed(2));
+      cues.push({
+        id: `${String(cues.length + 1).padStart(2, '0')}-${scene.id}${chunks.length > 1 ? `-${chunkIndex + 1}` : ''}`,
+        sceneId: scene.id,
+        startSeconds,
+        endSeconds,
+        placement: scene.subtitlePlacement || 'lower-third',
+        maxLines,
+        lines,
+        text: lines.join('\n')
+      });
+    });
+  }
+
+  return cues;
 }
 
 function buildManifest({ food, rulesetPath, foodPath, score, script, template, scenePlan, outputDir, options }) {

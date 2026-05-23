@@ -139,6 +139,28 @@ function polishNarration(text) {
   return capitalizeSentenceStarts(String(text || '').trim());
 }
 
+function unitWord(unit, value) {
+  const normalized = String(unit || '').toLowerCase();
+  const numeric = Number(value);
+  const singular = Number.isFinite(numeric) && numeric === 1;
+  const words = {
+    g: ['gram', 'grams'],
+    mg: ['milligram', 'milligrams'],
+    mcg: ['microgram', 'micrograms'],
+    'µg': ['microgram', 'micrograms'],
+    kg: ['kilogram', 'kilograms'],
+    kcal: ['calorie', 'calories']
+  }[normalized];
+  if (!words) return unit;
+  return singular ? words[0] : words[1];
+}
+
+function audioOnlyText(text) {
+  return String(text || '')
+    .replace(/\b(\d+(?:\.\d+)?)\s*(mcg|µg|mg|kg|kcal|g)\b/gi, (_, value, unit) => `${value} ${unitWord(unit, value)}`)
+    .replace(/\bDV\b/g, 'daily value');
+}
+
 function naturalList(items) {
   const valid = (items || []).filter(Boolean).map(item => String(item).trim()).filter(Boolean);
   if (!valid.length) return '';
@@ -573,7 +595,7 @@ function buildNarrationBlocks(script, options = {}) {
 
   return blocks.map(block => ({
     ...block,
-    text: polishNarration(block.text)
+    text: polishNarration(audioOnlyText(block.text))
   }));
 }
 

@@ -6,7 +6,9 @@
   const ROOT_SPRITE_BASE = './sprites';
   const SECTION_INDICATOR_LAYOUT = { normalSize: 10, highlightedSize: 12 };
   const CAPTION_SAFE_X = 7;
-  const CAPTION_WORD_LOOKAHEAD_SECONDS = 0.045;
+  const CAPTION_MAX_LINES = 2;
+  const CAPTION_MAX_LINE_CHARS = 20;
+  const CAPTION_WORD_LOOKAHEAD_SECONDS = 0.015;
   const AUDIO_REVEAL_LEAD_SECONDS = 0.11;
   const AUDIO_REVEAL_WINDOW_SECONDS = 0.36;
 
@@ -578,17 +580,70 @@
   }
 
   function captionFromEpisode(food, sectionId) {
+    const subtitleCues = subtitleCuesForScene(food, sectionId);
+    if (subtitleCues.length) return subtitleCues.map(cue => cue.lines.join(' ')).join(' ');
+
     const blocks = food?.episode?.script?.narrationBlocks || [];
     if (sectionId === 'intro') return `${food?.name || 'This food'} ranked.`;
     if (sectionId === 'outro') {
       const summary = blocks.find(block => block.kind === 'closing_summary')?.text || food?.episode?.summary || '';
       const final = blocks.find(block => block.kind === 'final_reveal')?.text || `${food?.episode?.tier || food?.expectedTier || '—'} tier.`;
-      return [summary, final].filter(Boolean).join(' ');
+      return subtitleOnlyCaptionText([summary, final].filter(Boolean).join(' '));
     }
     const episodeKey = sectionId === 'protein' ? 'proteins' : sectionId;
-    return blocks.find(block => block.kind === 'section' && (block.sectionKey === sectionId || block.sectionKey === episodeKey))?.text
-      || food?.episode?.script?.sections?.find(section => section.key === sectionId || section.key === episodeKey)?.subtitleText
-      || fallbackCaption(food, sectionId);
+    const sectionSubtitle = food?.episode?.script?.sections?.find(section => section.key === sectionId || section.key === episodeKey)?.subtitleText;
+    const narrationFallback = blocks.find(block => block.kind === 'section' && (block.sectionKey === sectionId || block.sectionKey === episodeKey))?.text;
+    return subtitleOnlyCaptionText(sectionSubtitle || narrationFallback || fallbackCaption(food, sectionId));
+  }
+
+  function episodeSceneId(sectionId) {
+    return {
+      intro: 'hook',
+      protein: 'proteins',
+      outro: 'final'
+    }[sectionId] || sectionId;
+  }
+
+  function subtitleOnlyCaptionText(text) {
+    return String(text || '')
+      .replace(/\braw grams display\b/gi, 'raw values display')
+      .replace(/\b([a-z]+) grams already shown\b/gi, '$1 numbers already shown')
+      .replace(/\b(\d+(?:\.\d+)?)\s+micrograms?\b/gi, '$1mcg')
+      .replace(/\b(\d+(?:\.\d+)?)\s+milligrams?\b/gi, '$1mg')
+      .replace(/\b(\d+(?:\.\d+)?)\s+kilograms?\b/gi, '$1kg')
+      .replace(/\b(\d+(?:\.\d+)?)\s+grams?\b/gi, '$1g')
+      .replace(/\b(\d+(?:\.\d+)?)\s+calories?\b/gi, '$1kcal')
+      .replace(/\bmicrograms?\b/gi, 'mcg')
+      .replace(/\bmilligrams?\b/gi, 'mg')
+      .replace(/\bkilograms?\b/gi, 'kg')
+      .replace(/\bgrams?\b/gi, 'g')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function subtitleCuesForScene(food, sectionId) {
+    const sceneId = episodeSceneId(sectionId);
+    const cues = food?.episode?.subtitles || [];
+    if (!Array.isArray(cues)) return [];
+    return cues
+      .filter(cue => cue.sceneId === sceneId)
+      .map(normalizeSubtitleCue);
+  }
+
+  function normalizeSubtitleCue(cue) {
+    const rawLines = Array.isArray(cue?.lines) && cue.lines.length
+      ? cue.lines
+      : String(cue?.text || '').split(/\r?\n/);
+    const text = subtitleOnlyCaptionText(rawLines.join(' '));
+    const chunks = captionChunks(text);
+    const firstChunk = chunks[0] || { lines: [text].filter(Boolean), text };
+    const lines = firstChunk.lines.slice(0, CAPTION_MAX_LINES);
+    return {
+      ...cue,
+      maxLines: CAPTION_MAX_LINES,
+      lines,
+      text: lines.join('\n')
+    };
   }
 
   function fallbackCaption(food, sectionId) {
@@ -608,11 +663,7 @@
   }
 
   function episodeSceneTiming(food, sectionId) {
-    const episodeId = {
-      intro: 'hook',
-      protein: 'proteins',
-      outro: 'final'
-    }[sectionId] || sectionId;
+    const episodeId = episodeSceneId(sectionId);
     return food?.episode?.sceneTimings?.find(scene => scene.id === episodeId) || null;
   }
 
@@ -627,7 +678,8 @@
         reveal: existing?.reveal || section.reveal,
         motion: existing?.motion || section.motion,
         captionSize: existing?.captionSize || 22,
-        caption: existing?.caption || captionFromEpisode(food, section.id)
+        caption: existing?.caption || captionFromEpisode(food, section.id),
+        subtitleCues: existing?.subtitleCues || subtitleCuesForScene(food, section.id)
       };
     });
   }
@@ -781,8 +833,16 @@
       spriteMotion: scene.motion,
       captionSize: scene.captionSize,
       caption: scene.caption,
+      subtitleCues: (scene.subtitleCues || []).map(cue => ({
+        id: cue.id,
+        startSeconds: cue.startSeconds,
+        endSeconds: cue.endSeconds,
+        maxLines: CAPTION_MAX_LINES,
+        lines: cue.lines,
+        text: cue.text
+      })),
       timingModel: {
-        source: 'weighted-caption-v2',
+        source: timing.source || 'weighted-caption-v3',
         sceneStartSeconds: Number(scene.start.toFixed(3)),
         sceneDurationSeconds: Number(scene.duration.toFixed(3)),
         revealLeadSeconds: AUDIO_REVEAL_LEAD_SECONDS,
@@ -1077,12 +1137,12 @@
   }
 
   function captionChunks(text) {
-    const source = String(text || '').replace(/\s+/g, ' ').trim();
+    const source = subtitleOnlyCaptionText(text);
     if (!source) return [];
     const chunks = [];
     let current = '';
     source.split(/(?<=[.!?])\s+/).forEach(sentence => {
-      if ((current + ' ' + sentence).trim().length > 92 && current) {
+      if ((current + ' ' + sentence).trim().length > CAPTION_MAX_LINE_CHARS * CAPTION_MAX_LINES && current) {
         chunks.push(current.trim());
         current = sentence;
       } else {
@@ -1090,7 +1150,46 @@
       }
     });
     if (current) chunks.push(current.trim());
-    return chunks;
+
+    const wrapped = [];
+    chunks.forEach(chunk => {
+      let remaining = chunk;
+      while (remaining) {
+        const result = wrapCaptionLines(remaining);
+        wrapped.push({
+          text: result.lines.join(' '),
+          lines: result.lines
+        });
+        remaining = result.overflow.trim();
+      }
+    });
+    return wrapped;
+  }
+
+  function wrapCaptionLines(text, maxLineChars = CAPTION_MAX_LINE_CHARS, maxLines = CAPTION_MAX_LINES) {
+    const words = subtitleOnlyCaptionText(text).split(/\s+/).filter(Boolean);
+    const lines = [];
+    let current = '';
+
+    for (let index = 0; index < words.length; index += 1) {
+      const word = words[index];
+      const candidate = current ? `${current} ${word}` : word;
+      if (candidate.length <= maxLineChars || !current) {
+        current = candidate;
+        continue;
+      }
+      lines.push(current);
+      current = word;
+      if (lines.length === maxLines) {
+        return {
+          lines,
+          overflow: [current, ...words.slice(index + 1)].join(' ')
+        };
+      }
+    }
+
+    if (current) lines.push(current);
+    return { lines: lines.slice(0, maxLines), overflow: lines.slice(maxLines).join(' ') };
   }
 
   function captionWordWeight(word) {
@@ -1121,10 +1220,14 @@
   }
 
   function sceneTimingModel(scene) {
+    const cueTiming = sceneCueTimingModel(scene);
+    if (cueTiming) return cueTiming;
+
     const source = String(scene?.caption || '').replace(/\s+/g, ' ').trim();
     const rawSentences = captionSentences(source);
     if (!rawSentences.length) {
       return {
+        source: 'weighted-caption-v3',
         text: '',
         duration: asNumber(scene?.duration, 1) || 1,
         totalWeight: 0,
@@ -1173,14 +1276,15 @@
 
     const words = timedSentences.flatMap(sentence => sentence.words);
     const chunks = captionChunks(source).map(chunk => {
-      const chunkTokens = chunk.split(/\s+/).filter(Boolean);
+      const chunkTokens = chunk.text.split(/\s+/).filter(Boolean);
       const chunkStartIndex = words.findIndex((word, index) => (
         chunkTokens.every((token, offset) => words[index + offset]?.text === token)
       ));
       const startIndex = chunkStartIndex >= 0 ? chunkStartIndex : 0;
       const endIndex = chunkStartIndex >= 0 ? startIndex + chunkTokens.length - 1 : Math.max(0, words.length - 1);
       return {
-        text: chunk,
+        text: chunk.text,
+        lines: chunk.lines,
         startWordIndex: startIndex,
         endWordIndex: endIndex,
         start: words[startIndex]?.start || 0,
@@ -1195,12 +1299,82 @@
     });
 
     return {
+      source: 'weighted-caption-v3',
       text: source,
       duration,
       totalWeight,
       sentences: timedSentences,
       chunks,
       words: words.map((word, globalIndex) => ({ ...word, globalIndex })),
+      anchors
+    };
+  }
+
+  function sceneCueTimingModel(scene) {
+    const cues = (scene?.subtitleCues || []).filter(cue => cue?.lines?.length);
+    if (!cues.length) return null;
+
+    const duration = Math.max(1, asNumber(scene?.duration, 1) || 1);
+    const sourceStart = Math.min(...cues.map(cue => asNumber(cue.startSeconds, 0)));
+    const sourceEnd = Math.max(...cues.map(cue => asNumber(cue.endSeconds, sourceStart + duration)));
+    const sourceDuration = Math.max(0.001, sourceEnd - sourceStart);
+    const words = [];
+    const chunks = [];
+
+    cues.forEach(cue => {
+      const cueText = subtitleOnlyCaptionText((cue.lines || []).join(' '));
+      const cueWords = cueText.split(/\s+/).filter(Boolean);
+      const relativeStart = clamp((asNumber(cue.startSeconds, sourceStart) - sourceStart) / sourceDuration, 0, 1);
+      const relativeEnd = clamp((asNumber(cue.endSeconds, sourceEnd) - sourceStart) / sourceDuration, relativeStart + 0.001, 1);
+      const span = Math.max(0.001, relativeEnd - relativeStart);
+      const totalWeight = cueWords.reduce((sum, word) => sum + captionWordWeight(word), 0) || 1;
+      let cursor = 0;
+      const startWordIndex = words.length;
+      cueWords.forEach((word, index) => {
+        const weight = captionWordWeight(word);
+        const start = relativeStart + ((cursor / totalWeight) * span);
+        cursor += weight;
+        const end = relativeStart + ((cursor / totalWeight) * span);
+        words.push({
+          text: word,
+          clean: normalizeSpeechSearch(word),
+          tokens: speechTokens(word),
+          sentenceIndex: chunks.length,
+          index,
+          weight,
+          start,
+          end,
+          startSeconds: start * duration,
+          endSeconds: end * duration
+        });
+      });
+      chunks.push({
+        text: cueText,
+        lines: cue.lines.slice(0, CAPTION_MAX_LINES),
+        cueId: cue.id,
+        startWordIndex,
+        endWordIndex: Math.max(startWordIndex, words.length - 1),
+        start: relativeStart,
+        end: relativeEnd,
+        wordEnd: words[words.length - 1]?.end || relativeEnd
+      });
+    });
+
+    const timedWords = words.map((word, globalIndex) => ({ ...word, globalIndex }));
+    const anchors = {};
+    sectionAnchorSeed(scene).forEach(term => {
+      const start = termStartForTiming({ words: timedWords, sentences: chunks }, [term]);
+      if (start != null) anchors[normalizeSpeechSearch(term)] = start;
+    });
+
+    return {
+      source: 'subtitle-cues-v3',
+      text: cues.map(cue => cue.lines.join(' ')).join(' '),
+      duration,
+      totalWeight: words.reduce((sum, word) => sum + word.weight, 0) || 1,
+      sentences: chunks.map((chunk, sentenceIndex) => ({ ...chunk, sentenceIndex })),
+      chunks,
+      words: timedWords,
       anchors
     };
   }
@@ -1215,7 +1389,7 @@
 
   function captionFrame(scene, progress) {
     const timing = sceneTimingModel(scene);
-    if (!timing.words.length) return { chunk: '', words: [], activeWordIndex: -1 };
+    if (!timing.words.length) return { chunk: '', lines: [], words: [], activeWordIndex: -1 };
 
     const lookahead = CAPTION_WORD_LOOKAHEAD_SECONDS / timing.duration;
     const target = clamp(progress + lookahead, 0, 0.999);
@@ -1225,8 +1399,10 @@
       || { text: timing.text, startWordIndex: 0, endWordIndex: timing.words.length - 1 };
     const chunkWords = timing.words.slice(activeChunk.startWordIndex, activeChunk.endWordIndex + 1);
     const activeWordIndex = chunkWords.findIndex(word => word.globalIndex === activeWord.globalIndex);
+    const lines = captionFrameLines(activeChunk, timing.words, activeWord.globalIndex);
     return {
       chunk: activeChunk.text,
+      lines,
       words: chunkWords.map(word => word.text),
       activeWordIndex: activeWordIndex >= 0 ? activeWordIndex : 0,
       activeWord: activeWord.text,
@@ -1235,17 +1411,38 @@
     };
   }
 
+  function captionFrameLines(chunk, words, activeGlobalIndex) {
+    const chunkLines = (chunk.lines?.length ? chunk.lines : wrapCaptionLines(chunk.text).lines).slice(0, CAPTION_MAX_LINES);
+    let cursor = chunk.startWordIndex;
+    return chunkLines.map(line => {
+      const lineWords = line.split(/\s+/).filter(Boolean);
+      return lineWords.map(text => {
+        const word = words[cursor];
+        cursor += 1;
+        return {
+          text,
+          active: word?.globalIndex === activeGlobalIndex
+        };
+      });
+    });
+  }
+
   function renderCaption(container, scene, progress) {
     const frame = captionFrame(scene, progress);
-    const key = `${frame.chunk}::${frame.activeWordIndex}`;
+    const key = `${frame.chunk}::${frame.activeWord}`;
     if (container.dataset.captionKey === key) return;
     container.dataset.captionKey = key;
     container.setAttribute('aria-label', frame.chunk);
-    container.replaceChildren(...frame.words.map((word, index) => {
-      const node = document.createElement('span');
-      node.className = `caption-word${index === frame.activeWordIndex ? ' active' : ''}`;
-      node.textContent = word;
-      return node;
+    container.replaceChildren(...frame.lines.map(line => {
+      const lineNode = document.createElement('div');
+      lineNode.className = 'caption-line';
+      line.forEach(word => {
+        const node = document.createElement('span');
+        node.className = `caption-word${word.active ? ' active' : ''}`;
+        node.textContent = word.text;
+        lineNode.appendChild(node);
+      });
+      return lineNode;
     }));
   }
 

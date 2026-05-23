@@ -8,8 +8,8 @@
   const CAPTION_SAFE_X = 7;
   const CAPTION_MAX_LINES = 2;
   const CAPTION_MAX_LINE_CHARS = 18;
-  const CAPTION_WIDE_LINE_CHARS = 34;
-  const CAPTION_WORD_LOOKAHEAD_SECONDS = 0.006;
+  const CAPTION_WIDE_LINE_CHARS = 28;
+  const CAPTION_WORD_LOOKAHEAD_SECONDS = 0.002;
   const AUDIO_REVEAL_LEAD_SECONDS = 0.11;
   const AUDIO_REVEAL_WINDOW_SECONDS = 0.36;
 
@@ -610,6 +610,7 @@
     return String(text || '')
       .replace(/\braw grams display\b/gi, 'raw values display')
       .replace(/\b([a-z]+) grams already shown\b/gi, '$1 numbers already shown')
+      .replace(/\bmaintenance-and-repair\b/gi, 'maintenance repair')
       .replace(/\b(\d+(?:\.\d+)?)\s+micrograms?\b/gi, '$1mcg')
       .replace(/\b(\d+(?:\.\d+)?)\s+milligrams?\b/gi, '$1mg')
       .replace(/\b(\d+(?:\.\d+)?)\s+kilograms?\b/gi, '$1kg')
@@ -1221,9 +1222,9 @@
   function captionWordWeight(word) {
     const text = String(word || '');
     const coreLength = text.replace(/[^a-z0-9]/gi, '').length;
-    const punctuationPause = /[.!?]$/.test(text) ? 0.72 : /[,;:]$/.test(text) ? 0.28 : 0;
-    const numericExpansion = /\d/.test(text) ? 1.28 : 0;
-    const acronymExpansion = /^[A-Z0-9]{2,}$/.test(text.replace(/[^a-z0-9]/gi, '')) ? 0.42 : 0;
+    const punctuationPause = /[.!?]$/.test(text) ? 0.55 : /[,;:]$/.test(text) ? 0.2 : 0;
+    const numericExpansion = /\d/.test(text) ? 1.12 : 0;
+    const acronymExpansion = /^[A-Z0-9]{2,}$/.test(text.replace(/[^a-z0-9]/gi, '')) ? 0.36 : 0;
     return Math.max(0.68, 0.54 + (coreLength * 0.155) + numericExpansion + acronymExpansion + punctuationPause);
   }
 

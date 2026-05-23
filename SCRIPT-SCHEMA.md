@@ -26,7 +26,7 @@ It is the bridge between:
 - the ElevenLabs-ready block layout is first-class, not an afterthought
 - audio-only narration expands measurement abbreviations, so `3g`, `24g`, `15mg`, and similar values are spoken as full unit words
 - subtitle and display text keep abbreviated units such as `g`, `mg`, and `DV`; subtitle copy must not use full unit words like `grams`
-- macro section narration/subtitles must name at least one displayed submacro with its numeric value, for example `saturated fat is 12.6g`
+- macro section narration/subtitles must name at least one displayed submacro with its numeric value, for example `saturated fat is 12.6g`; the protein headline grams must not be repeated as the protein submacro
 - food identity and score-readiness context travel with the script payload
 - pros/cons should stay explanation-led, not raw-score-led
 - dead legacy fields like context-item `scoreValue` should not be treated as script truth

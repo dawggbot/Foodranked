@@ -8,13 +8,14 @@ const docsIndexPath = path.join(repoRoot, 'docs', 'data', 'foods-index.json');
 
 const MAX_SUBTITLE_LINES = 2;
 const MAX_SUBTITLE_LINE_CHARS = 18;
-const MAX_SUMMARY_SUBTITLE_LINE_CHARS = 34;
+const MAX_SUMMARY_SUBTITLE_LINE_CHARS = 28;
 const MACRO_SECTION_KEYS = new Set(['fats', 'carbs', 'proteins']);
 
 const COMPACT_UNIT_RE = /\b\d+(?:\.\d+)?\s*(?:mcg|mg|kg|kcal|g)\b/i;
 const EXPANDED_UNIT_RE = /\b\d+(?:\.\d+)?\s+(?:micrograms?|milligrams?|kilograms?|grams?|calories?)\b/i;
 const SUBTITLE_UNIT_WORD_RE = /\b(?:micrograms?|milligrams?|kilograms?|grams?)\b/i;
 const TIER_REVEAL_RE = /^[SDCBA]\s+tier\.?$/i;
+const PROTEIN_FALLBACK_RE = /\bprotein amount is\b/i;
 
 function readJson(file) {
   return JSON.parse(fs.readFileSync(file, 'utf8'));
@@ -70,10 +71,18 @@ function metricMentionLabels(metricKey) {
   }
   if (metricKey === 'essential_amino_acids_score') {
     labels.add('essential amino acid score');
+    labels.add('essential amino acids score');
     labels.add('essential amino acid support');
     labels.add('essential amino acid quality');
     labels.add('amino acid quality');
   }
+  if (metricKey === 'nonessential_amino_acids_score') {
+    labels.add('nonessential amino acid score');
+    labels.add('nonessential amino acids score');
+    labels.add('amino acid quality');
+  }
+  if (metricKey === 'bioavailability_percent') labels.add('bioavailability');
+  if (metricKey === 'collagen_g') labels.add('collagen');
   return [...labels].filter(Boolean);
 }
 
@@ -95,7 +104,9 @@ function splitSentences(text) {
 
 function sectionHasSubmacroValueMention(section) {
   const sentences = splitSentences(section.subtitleText);
-  return (section.displayItems || []).some(item => {
+  return (section.displayItems || [])
+    .filter(item => !(section.key === 'proteins' && item.metricKey === 'protein_g_fallback'))
+    .some(item => {
     const value = compactMetricValue(item);
     if (!value) return false;
     const labels = metricMentionLabels(item.metricKey);
@@ -141,8 +152,16 @@ function checkScript(failures, file, script) {
     if (SUBTITLE_UNIT_WORD_RE.test(String(section.subtitleText || ''))) {
       addFailure(failures, file, `${section.key} subtitleText contains unit word`);
     }
+    if (section.key === 'proteins') {
+      const hasProteinFallbackItem = (section.displayItems || []).some(item => item.metricKey === 'protein_g_fallback');
+      if (hasProteinFallbackItem) addFailure(failures, file, 'proteins section displays protein amount fallback instead of a submacro');
+      if (PROTEIN_FALLBACK_RE.test(String(section.narration || '')) || PROTEIN_FALLBACK_RE.test(String(section.subtitleText || ''))) {
+        addFailure(failures, file, 'proteins section repeats protein amount fallback instead of a submacro');
+      }
+    }
     if (MACRO_SECTION_KEYS.has(section.key)) {
       const displayedValues = (section.displayItems || [])
+        .filter(item => !(section.key === 'proteins' && item.metricKey === 'protein_g_fallback'))
         .map(compactMetricValue)
         .filter(Boolean);
       if (displayedValues.length && !sectionHasSubmacroValueMention(section)) {

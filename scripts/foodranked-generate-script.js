@@ -13,6 +13,12 @@ function readJson(p) {
 
 const corePhrases = readJson(path.join(phraseBanksDir, 'narration-core.json'));
 const categoryContext = readJson(path.join(phraseBanksDir, 'category-context.json'));
+const PROTEIN_SUBMACRO_KEYS = [
+  'essential_amino_acids_score',
+  'bioavailability_percent',
+  'nonessential_amino_acids_score',
+  'collagen_g'
+];
 
 function scoreFood(foodPath, rulesetPath) {
   const res = spawnSync(process.execPath, [scorerPath, foodPath, rulesetPath], {
@@ -86,6 +92,9 @@ function metricDisplayText(metric, options = {}) {
   if (metric.scoringMode === 'dv_points') {
     return `${formatMetricKey(metric.metricKey)} at ${metric.dvPercent}% ${speakDailyValue ? 'daily value' : 'DV'}`;
   }
+  if (metric.value !== null && metric.value !== undefined) {
+    return `${formatMetricKey(metric.metricKey)} at ${metricValueText(metric)}`;
+  }
   if (metric.band) return `${formatMetricKey(metric.metricKey)} at ${metric.value}`;
   return formatMetricKey(metric.metricKey);
 }
@@ -112,11 +121,33 @@ function metricValuePhrase(metric) {
   return `${formatMetricKey(metric.metricKey)} is ${value}`;
 }
 
+function rawProteinSubmetrics(result, limit = 4) {
+  const rawMetrics = result.foodMetrics || {};
+  const scoredMetrics = new Map((result.metricBreakdown || []).map(metric => [metric.metricKey, metric]));
+  return PROTEIN_SUBMACRO_KEYS
+    .map(metricKey => {
+      const value = rawMetrics[metricKey];
+      if (value === null || value === undefined) return null;
+      const scored = scoredMetrics.get(metricKey);
+      return {
+        metricKey,
+        text: metricDisplayText({ metricKey, value, scoringMode: scored?.scoringMode || 'reference_submacro' }),
+        weightedScore: scored?.weightedScore ?? null,
+        scoringMode: scored?.scoringMode || 'reference_submacro',
+        band: scored?.band || null,
+        dvPercent: scored?.dvPercent ?? null,
+        value,
+        referenceOnly: !scored
+      };
+    })
+    .filter(Boolean)
+    .slice(0, limit);
+}
+
 function topMetricsForSection(result, sectionKey, limit = 3, options = {}) {
-  return (result.metricBreakdown || [])
+  const scoredMetrics = (result.metricBreakdown || [])
     .filter(item => item.sectionKey === sectionKey)
     .sort((a, b) => Math.abs(b.weightedScore) - Math.abs(a.weightedScore))
-    .slice(0, limit)
     .map(metric => ({
       metricKey: metric.metricKey,
       text: metricDisplayText(metric, options),
@@ -126,6 +157,20 @@ function topMetricsForSection(result, sectionKey, limit = 3, options = {}) {
       dvPercent: metric.dvPercent ?? null,
       value: metric.value ?? null
     }));
+
+  if (sectionKey === 'proteins') {
+    const nonFallbackMetrics = scoredMetrics.filter(metric => metric.metricKey !== 'protein_g_fallback');
+    const referenceMetrics = rawProteinSubmetrics(result, limit);
+    const referenceKeys = new Set(referenceMetrics.map(metric => metric.metricKey));
+    const merged = [
+      ...nonFallbackMetrics,
+      ...referenceMetrics.filter(metric => !nonFallbackMetrics.some(item => item.metricKey === metric.metricKey))
+    ];
+    if (merged.length) return merged.slice(0, limit);
+    return scoredMetrics.filter(metric => !referenceKeys.has(metric.metricKey) && metric.metricKey !== 'protein_g_fallback').slice(0, limit);
+  }
+
+  return scoredMetrics.slice(0, limit);
 }
 
 function headerMacro(result, key) {
@@ -189,6 +234,7 @@ function subtitleOnlyText(text) {
   return String(text || '')
     .replace(/\braw grams display\b/gi, 'raw values display')
     .replace(/\b([a-z]+) grams already shown\b/gi, '$1 numbers already shown')
+    .replace(/\bmaintenance-and-repair\b/gi, 'maintenance repair')
     .replace(/\b(\d+(?:\.\d+)?)\s+micrograms?\b/gi, '$1mcg')
     .replace(/\b(\d+(?:\.\d+)?)\s+milligrams?\b/gi, '$1mg')
     .replace(/\b(\d+(?:\.\d+)?)\s+kilograms?\b/gi, '$1kg')
@@ -263,15 +309,24 @@ function strongestMetricLine(result, sectionKey) {
   }
 
   if (sectionKey === 'proteins') {
-    const bioavailability = metrics.find(metric => metric.metricKey === 'bioavailability_percent' && metric.weightedScore > 0);
-    const essentialAmino = metrics.find(metric => metric.metricKey === 'essential_amino_acids_score' && metric.weightedScore > 0);
-    const proteinFallback = metrics.find(metric => metric.metricKey === 'protein_g_fallback');
-    if (bioavailability && essentialAmino) return `${metricValuePhrase(bioavailability)}, and amino acid quality is strong`;
+    const proteinSubmetrics = rawProteinSubmetrics(result, 4);
+    const bioavailability = proteinSubmetrics.find(metric => metric.metricKey === 'bioavailability_percent');
+    const essentialAmino = proteinSubmetrics.find(metric => metric.metricKey === 'essential_amino_acids_score');
+    const nonessentialAmino = proteinSubmetrics.find(metric => metric.metricKey === 'nonessential_amino_acids_score');
+    const collagen = proteinSubmetrics.find(metric => metric.metricKey === 'collagen_g');
+    if (essentialAmino && bioavailability) {
+      return `${metricValuePhrase(essentialAmino)}, with ${metricValueText(bioavailability)} bioavailability`;
+    }
     if (bioavailability) return `${metricValuePhrase(bioavailability)}, one of the best parts of the protein story`;
     if (essentialAmino) return `${metricValuePhrase(essentialAmino)}, one of the better parts here`;
-    if (proteinFallback) return result.food.foodType === 'meats'
-      ? `${metricValuePhrase(proteinFallback)}, doing most of the work`
-      : `${metricValuePhrase(proteinFallback)}, doing most of the work here`;
+    if (nonessentialAmino) return `${metricValuePhrase(nonessentialAmino)}, adding supporting amino acid quality`;
+    if (collagen) return `${metricValuePhrase(collagen)}, a specific protein-side detail`;
+
+    const scoredBioavailability = metrics.find(metric => metric.metricKey === 'bioavailability_percent' && metric.weightedScore > 0);
+    const scoredEssentialAmino = metrics.find(metric => metric.metricKey === 'essential_amino_acids_score' && metric.weightedScore > 0);
+    if (scoredBioavailability && scoredEssentialAmino) return `${metricValuePhrase(scoredBioavailability)}, and amino acid quality is strong`;
+    if (scoredBioavailability) return `${metricValuePhrase(scoredBioavailability)}, one of the best parts of the protein story`;
+    if (scoredEssentialAmino) return `${metricValuePhrase(scoredEssentialAmino)}, one of the better parts here`;
   }
 
   const names = metrics.map(m => formatMetricKey(m.metricKey));
@@ -654,6 +709,8 @@ function main() {
   const food = readJson(foodPath);
   const rulesetPath = rulesetPathArg ? path.resolve(rulesetPathArg) : inferRulesetPath(food);
   const result = scoreFood(foodPath, rulesetPath);
+  result.foodMetrics = food.metrics || {};
+  result.metricProvenance = food.metricProvenance || {};
   const sections = buildSections(result);
 
   const script = {

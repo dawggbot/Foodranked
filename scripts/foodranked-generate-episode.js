@@ -13,7 +13,7 @@ const visualTemplatePath = path.join(repoRoot, 'templates', 'visual-template.v1.
 const spritesRoot = path.join(repoRoot, 'sprites');
 const SUBTITLE_MAX_LINES = 2;
 const SUBTITLE_MAX_CHARACTERS_PER_LINE = 18;
-const SUMMARY_SUBTITLE_MAX_CHARACTERS_PER_LINE = 34;
+const SUMMARY_SUBTITLE_MAX_CHARACTERS_PER_LINE = 28;
 
 const HEADER_CATEGORY_KEYS = {
   vegetables: 'vegetable',
@@ -159,6 +159,7 @@ function subtitleOnlyText(text) {
   return String(text || '')
     .replace(/\braw grams display\b/gi, 'raw values display')
     .replace(/\b([a-z]+) grams already shown\b/gi, '$1 numbers already shown')
+    .replace(/\bmaintenance-and-repair\b/gi, 'maintenance repair')
     .replace(/\b(\d+(?:\.\d+)?)\s+micrograms?\b/gi, '$1mcg')
     .replace(/\b(\d+(?:\.\d+)?)\s+milligrams?\b/gi, '$1mg')
     .replace(/\b(\d+(?:\.\d+)?)\s+kilograms?\b/gi, '$1kg')
@@ -639,8 +640,8 @@ function subtitleChunks(text, maxLineChars = SUBTITLE_MAX_CHARACTERS_PER_LINE, m
 function subtitleCueWeight(lines) {
   const text = lines.join(' ');
   const words = text.split(/\s+/).filter(Boolean);
-  const punctuationPause = /[.!?]$/.test(text.trim()) ? 0.8 : 0.2;
-  const numberWeight = words.filter(word => /\d/.test(word)).length * 0.45;
+  const punctuationPause = /[.!?]$/.test(text.trim()) ? 0.55 : 0.12;
+  const numberWeight = words.filter(word => /\d/.test(word)).length * 0.38;
   return Math.max(1, words.length + punctuationPause + numberWeight);
 }
 

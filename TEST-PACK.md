@@ -22,6 +22,7 @@ It is meant to validate:
 - threshold band structure
 - context item scoring
 - sample input structure for foods
+- narration/subtitle packaging rules: subtitles stay at 2 lines max, subtitles keep compact units, spoken narration expands units, and macro sections include at least one displayed submacro value
 
 ## Important note
 

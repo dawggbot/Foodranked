@@ -12,7 +12,7 @@ const scriptGeneratorPath = path.join(__dirname, 'foodranked-generate-script.js'
 const visualTemplatePath = path.join(repoRoot, 'templates', 'visual-template.v1.json');
 const spritesRoot = path.join(repoRoot, 'sprites');
 const SUBTITLE_MAX_LINES = 2;
-const SUBTITLE_MAX_CHARACTERS_PER_LINE = 26;
+const SUBTITLE_MAX_CHARACTERS_PER_LINE = 20;
 
 const HEADER_CATEGORY_KEYS = {
   vegetables: 'vegetable',
@@ -188,11 +188,14 @@ function categorySpriteKey(foodType) { return HEADER_CATEGORY_KEYS[foodType] || 
 function visualProfileFor(name) { return VISUAL_PROFILES[name] || VISUAL_PROFILES.balanced; }
 
 function metricLabel(metricKey) {
+  if (metricKey === 'protein_g_fallback') return 'protein amount';
   return String(metricKey || '')
     .replace(/_dv$/i, '')
     .replace(/_g$/i, '')
     .replace(/_mg$/i, '')
+    .replace(/_percent$/i, '')
     .replace(/_/g, ' ')
+    .replace(/\bomega3\b/i, 'omega 3')
     .trim();
 }
 
@@ -533,8 +536,14 @@ function buildScenePlan(script, score, template, options = {}) {
   };
 }
 
+function subtitleCueText(text, maxLineChars = SUBTITLE_MAX_CHARACTERS_PER_LINE) {
+  return String(text || '').replace(/\b[\w]+(?:-[\w]+)+\b/g, word => (
+    word.length > maxLineChars ? word.replace(/-/g, ' ') : word
+  ));
+}
+
 function splitSubtitleSentences(text) {
-  const normalized = String(text || '').replace(/\s+/g, ' ').trim();
+  const normalized = subtitleCueText(text).replace(/\s+/g, ' ').trim();
   if (!normalized) return [];
   const decimals = [];
   const protectedText = normalized.replace(/\d+\.\d+/g, match => {

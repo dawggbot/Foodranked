@@ -13,6 +13,7 @@ It tests:
 - threshold band handling
 - context-item scoring
 - tier assignment flow
+- narration/subtitle packaging rules for compact units, expanded spoken units, two-line subtitle cues, and macro sections with at least one displayed submacro value
 
 ## Included files
 

@@ -68,12 +68,14 @@ function timingHintForSection(key) {
 }
 
 function formatMetricKey(metricKey) {
+  if (metricKey === 'protein_g_fallback') return 'protein amount';
   return metricKey
     .replace(/_dv$/, '')
     .replace(/_mg$/, '')
     .replace(/_g$/, '')
     .replace(/_percent$/, '')
     .replace(/_/g, ' ')
+    .replace(/\bomega3\b/i, 'omega 3')
     .replace(/\bgi\b/i, 'glycemic index')
     .replace(/\bea\b/i, 'essential amino acids')
     .replace(/\bdv\b/i, 'daily value');
@@ -86,6 +88,28 @@ function metricDisplayText(metric, options = {}) {
   }
   if (metric.band) return `${formatMetricKey(metric.metricKey)} at ${metric.value}`;
   return formatMetricKey(metric.metricKey);
+}
+
+function metricValueText(metric) {
+  if (!metric) return null;
+  if (metric.scoringMode === 'dv_points' && metric.dvPercent != null) return `${metric.dvPercent}% DV`;
+  if (metric.value === null || metric.value === undefined) return null;
+
+  const key = String(metric.metricKey || '');
+  if (key === 'protein_g_fallback' || key.endsWith('_g')) return `${metric.value}g`;
+  if (key.endsWith('_mg')) return `${metric.value}mg`;
+  if (key.endsWith('_mcg')) return `${metric.value}mcg`;
+  if (key.endsWith('_kg')) return `${metric.value}kg`;
+  if (key.endsWith('_percent')) return `${metric.value}%`;
+  if (key.endsWith('_score')) return `${metric.value}/10`;
+  if (/glycemic/i.test(key)) return `${metric.value} GI`;
+  return String(metric.value);
+}
+
+function metricValuePhrase(metric) {
+  const value = metricValueText(metric);
+  if (!value) return formatMetricKey(metric?.metricKey);
+  return `${formatMetricKey(metric.metricKey)} is ${value}`;
 }
 
 function topMetricsForSection(result, sectionKey, limit = 3, options = {}) {
@@ -161,6 +185,15 @@ function audioOnlyText(text) {
     .replace(/\bDV\b/g, 'daily value');
 }
 
+function subtitleOnlyText(text) {
+  return String(text || '')
+    .replace(/\b(\d+(?:\.\d+)?)\s+micrograms?\b/gi, '$1mcg')
+    .replace(/\b(\d+(?:\.\d+)?)\s+milligrams?\b/gi, '$1mg')
+    .replace(/\b(\d+(?:\.\d+)?)\s+kilograms?\b/gi, '$1kg')
+    .replace(/\b(\d+(?:\.\d+)?)\s+grams?\b/gi, '$1g')
+    .replace(/\b(\d+(?:\.\d+)?)\s+calories?\b/gi, '$1kcal');
+}
+
 function naturalList(items) {
   const valid = (items || []).filter(Boolean).map(item => String(item).trim()).filter(Boolean);
   if (!valid.length) return '';
@@ -190,26 +223,26 @@ function strongestMetricLine(result, sectionKey) {
     const polyunsaturatedFat = metrics.find(metric => metric.metricKey === 'polyunsaturated_fat_g' && metric.weightedScore > 0);
 
     if (foodType === 'meats') {
-      if (saturatedFat && (saturatedFat.value || 0) >= 8) return 'saturated fat is a major pressure point';
+      if (saturatedFat && (saturatedFat.value || 0) >= 8) return `${metricValuePhrase(saturatedFat)}, a major pressure point`;
       if (omega3 && (omega3.value || 0) >= 1000 && (!saturatedFat || (saturatedFat.value || 0) < 4)) {
-        return 'omega 3 is exactly the kind of fat support you want from a meat';
+        return `${metricValuePhrase(omega3)}, exactly the kind of fat support you want from a meat`;
       }
-      if (saturatedFat && sectionScore !== null && sectionScore < 65) return 'saturated fat is a major pressure point';
-      if (omega3 && (omega3.value || 0) >= 300) return 'omega 3 is exactly the kind of fat support you want from a meat';
+      if (saturatedFat && sectionScore !== null && sectionScore < 65) return `${metricValuePhrase(saturatedFat)}, a major pressure point`;
+      if (omega3 && (omega3.value || 0) >= 300) return `${metricValuePhrase(omega3)}, exactly the kind of fat support you want from a meat`;
     }
 
     if (foodType === 'oils-and-fats') {
-      if (saturatedFat && (saturatedFat.value || 0) >= 20) return 'saturated fat is a major pressure point';
-      if (polyunsaturatedFat && (!saturatedFat || (saturatedFat.value || 0) <= 15)) return 'the fat profile is doing most of the work here';
+      if (saturatedFat && (saturatedFat.value || 0) >= 20) return `${metricValuePhrase(saturatedFat)}, a major pressure point`;
+      if (polyunsaturatedFat && (!saturatedFat || (saturatedFat.value || 0) <= 15)) return `${metricValuePhrase(polyunsaturatedFat)}, doing most of the work here`;
     }
 
-    if (saturatedFat && sectionScore !== null && sectionScore < 60) return 'saturated fat is a major pressure point';
+    if (saturatedFat && sectionScore !== null && sectionScore < 60) return `${metricValuePhrase(saturatedFat)}, a major pressure point`;
     if (omega3) return foodType === 'meats'
-      ? 'omega 3 is exactly the kind of fat support you want from a meat'
-      : 'omega 3 is doing a lot of the work here';
-    if (saturatedFat) return 'saturated fat is a major pressure point';
-    if (cholesterol && (cholesterol.value || 0) >= 100) return 'cholesterol adds to the tradeoff';
-    if (polyunsaturatedFat) return 'polyunsaturated fat is one of the better parts of the profile';
+      ? `${metricValuePhrase(omega3)}, exactly the kind of fat support you want from a meat`
+      : `${metricValuePhrase(omega3)}, doing a lot of the work here`;
+    if (saturatedFat) return `${metricValuePhrase(saturatedFat)}, a major pressure point`;
+    if (cholesterol && (cholesterol.value || 0) >= 100) return `${metricValuePhrase(cholesterol)}, adding to the tradeoff`;
+    if (polyunsaturatedFat) return `${metricValuePhrase(polyunsaturatedFat)}, one of the better parts of the profile`;
   }
 
   if (sectionKey === 'carbs') {
@@ -217,29 +250,30 @@ function strongestMetricLine(result, sectionKey) {
     const glycemicIndex = metrics.find(metric => metric.metricKey === 'glycemic_index' && (metric.value || 0) >= 55);
     const sugar = metrics.find(metric => metric.metricKey === 'sugar_g' && (metric.value || 0) >= 8);
     const starch = metrics.find(metric => metric.metricKey === 'starch_g' && (metric.value || 0) > 0);
-    if (fibre) return 'fibre is doing a lot of the work here';
-    if (glycemicIndex) return 'glycemic index is where this starts to get messy';
-    if (sugar) return 'the sugar load matters more than you would want';
-    if (starch) return 'starch is doing most of the heavy lifting here';
+    if (fibre) return `${metricValuePhrase(fibre)}, doing a lot of the work here`;
+    if (glycemicIndex) return `${metricValuePhrase(glycemicIndex)}, where this starts to get messy`;
+    if (sugar) return `${metricValuePhrase(sugar)}, and the load matters more than you would want`;
+    if (starch) return `${metricValuePhrase(starch)}, doing most of the heavy lifting here`;
   }
 
   if (sectionKey === 'proteins') {
     const bioavailability = metrics.find(metric => metric.metricKey === 'bioavailability_percent' && metric.weightedScore > 0);
     const essentialAmino = metrics.find(metric => metric.metricKey === 'essential_amino_acids_score' && metric.weightedScore > 0);
     const proteinFallback = metrics.find(metric => metric.metricKey === 'protein_g_fallback');
-    if (bioavailability && essentialAmino) return 'bioavailability and amino acid quality are both strong';
-    if (bioavailability) return 'bioavailability is one of the best parts of the protein story';
-    if (essentialAmino) return 'essential amino acid support is one of the better parts here';
+    if (bioavailability && essentialAmino) return `${metricValuePhrase(bioavailability)}, and amino acid quality is strong`;
+    if (bioavailability) return `${metricValuePhrase(bioavailability)}, one of the best parts of the protein story`;
+    if (essentialAmino) return `${metricValuePhrase(essentialAmino)}, one of the better parts here`;
     if (proteinFallback) return result.food.foodType === 'meats'
-      ? 'protein quantity is doing most of the work'
-      : 'protein amount is doing most of the work here';
+      ? `${metricValuePhrase(proteinFallback)}, doing most of the work`
+      : `${metricValuePhrase(proteinFallback)}, doing most of the work here`;
   }
 
   const names = metrics.map(m => formatMetricKey(m.metricKey));
-  if (!isPositive) return `${names[0]} is where things start to fall off`;
-  if (names.length === 1) return `${names[0]} is doing most of the work`;
-  if (names.length === 2) return `${names[0]} and ${names[1]} matter most here`;
-  return `${names[0]}, ${names[1]}, and ${names[2]} are doing most of the work`;
+  const lead = metricValuePhrase(metrics[0]);
+  if (!isPositive) return `${lead}, where things start to fall off`;
+  if (names.length === 1) return `${lead}, doing most of the work`;
+  if (names.length === 2) return `${lead}, while ${names[1]} also matters here`;
+  return `${lead}, with ${names[1]} and ${names[2]} doing more of the work`;
 }
 
 function buildHook(result) {
@@ -572,7 +606,7 @@ function displayItemsForSection(result, sectionKey) {
 function buildSections(result) {
   const order = ['fats', 'carbs', 'proteins', 'vitamins', 'minerals', 'pros', 'cons'];
   return order.map(key => {
-    const subtitleText = polishNarration(sectionNarration(result, key));
+    const subtitleText = polishNarration(subtitleOnlyText(sectionNarration(result, key)));
     return {
       key,
       title: titleForSection(key),

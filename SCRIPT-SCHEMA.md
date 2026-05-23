@@ -26,6 +26,7 @@ It is the bridge between:
 - the ElevenLabs-ready block layout is first-class, not an afterthought
 - audio-only narration expands measurement abbreviations, so `3g`, `24g`, `15mg`, and similar values are spoken as full unit words
 - subtitle and display text keep abbreviated units such as `g`, `mg`, and `DV`
+- macro section narration/subtitles must name at least one displayed submacro with its numeric value, for example `saturated fat is 12.6g`
 - food identity and score-readiness context travel with the script payload
 - pros/cons should stay explanation-led, not raw-score-led
 - dead legacy fields like context-item `scoreValue` should not be treated as script truth
@@ -102,7 +103,7 @@ Typical compact order:
 Narration rules:
 - pros and cons should read like the narrator is directly reading the on-screen items in order
 - simple opener variation is allowed for pros/cons sections, for example `Pros first:`, `The upsides first:`, `Cons next:`, or `The drawbacks next:`
-- measurement units in spoken blocks use full words, for example `37.1 grams of fat`, while the matching subtitle/display text may still use `37.1g`
+- measurement units in spoken blocks use full words, for example `37.1 grams of fat` and `saturated fat is 12.6 grams`, while the matching subtitle/display text uses `37.1g` and `12.6g`
 - do not narrate the overall score
 - the last spoken block must always be the tier reveal, for example `D tier.`
 
@@ -125,7 +126,7 @@ Ranked!
 
 -
 
-37.1 grams of fat. Saturated fat is a major pressure point. For meats, fat quality matters a lot once the protein is already there.
+37.1 grams of fat. Saturated fat is 12.6 grams, a major pressure point. For meats, fat quality matters a lot once the protein is already there.
 ```
 
 ## Pros/cons display items

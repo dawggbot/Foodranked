@@ -7,7 +7,8 @@ const episodesDir = path.join(repoRoot, 'outputs', 'episodes');
 const docsIndexPath = path.join(repoRoot, 'docs', 'data', 'foods-index.json');
 
 const MAX_SUBTITLE_LINES = 2;
-const MAX_SUBTITLE_LINE_CHARS = 26;
+const MAX_SUBTITLE_LINE_CHARS = 20;
+const MACRO_SECTION_KEYS = new Set(['fats', 'carbs', 'proteins']);
 
 const COMPACT_UNIT_RE = /\b\d+(?:\.\d+)?\s*(?:mcg|mg|kg|kcal|g)\b/i;
 const EXPANDED_UNIT_RE = /\b\d+(?:\.\d+)?\s+(?:micrograms?|milligrams?|kilograms?|grams?|calories?)\b/i;
@@ -26,6 +27,80 @@ function relative(file) {
 
 function addFailure(failures, file, message) {
   failures.push(`${relative(file)}: ${message}`);
+}
+
+function compactMetricValue(item) {
+  if (!item) return null;
+  if (item.dvPercent != null) return `${item.dvPercent}% DV`;
+  if (item.value === null || item.value === undefined) return null;
+
+  const key = String(item.metricKey || '');
+  if (key === 'protein_g_fallback' || key.endsWith('_g')) return `${item.value}g`;
+  if (key.endsWith('_mg')) return `${item.value}mg`;
+  if (key.endsWith('_mcg')) return `${item.value}mcg`;
+  if (key.endsWith('_kg')) return `${item.value}kg`;
+  if (key.endsWith('_percent')) return `${item.value}%`;
+  if (key.endsWith('_score')) return `${item.value}/10`;
+  if (/glycemic/i.test(key)) return `${item.value} GI`;
+  return String(item.value);
+}
+
+function formatMetricKey(metricKey) {
+  if (metricKey === 'protein_g_fallback') return 'protein amount';
+  return String(metricKey || '')
+    .replace(/_dv$/i, '')
+    .replace(/_mg$/i, '')
+    .replace(/_g$/i, '')
+    .replace(/_percent$/i, '')
+    .replace(/_/g, ' ')
+    .replace(/\bomega3\b/i, 'omega 3')
+    .replace(/\bgi\b/i, 'glycemic index')
+    .trim();
+}
+
+function metricMentionLabels(metricKey) {
+  const label = formatMetricKey(metricKey);
+  const labels = new Set([label]);
+  if (metricKey === 'protein_g_fallback') {
+    labels.add('protein quantity');
+    labels.add('protein amount');
+  }
+  if (metricKey === 'essential_amino_acids_score') {
+    labels.add('essential amino acid score');
+    labels.add('essential amino acid support');
+    labels.add('essential amino acid quality');
+    labels.add('amino acid quality');
+  }
+  return [...labels].filter(Boolean);
+}
+
+function splitSentences(text) {
+  const normalized = String(text || '').replace(/\s+/g, ' ').trim();
+  if (!normalized) return [];
+  const decimals = [];
+  const protectedText = normalized.replace(/\d+\.\d+/g, match => {
+    const token = `__DECIMAL_${decimals.length}__`;
+    decimals.push(match);
+    return token;
+  });
+  const sentences = protectedText.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [protectedText];
+  return sentences
+    .map(sentence => sentence.replace(/__DECIMAL_(\d+)__/g, (_, index) => decimals[Number(index)] || ''))
+    .map(sentence => sentence.trim())
+    .filter(Boolean);
+}
+
+function sectionHasSubmacroValueMention(section) {
+  const sentences = splitSentences(section.subtitleText);
+  return (section.displayItems || []).some(item => {
+    const value = compactMetricValue(item);
+    if (!value) return false;
+    const labels = metricMentionLabels(item.metricKey);
+    return sentences.some(sentence => (
+      sentence.includes(value) &&
+      labels.some(label => new RegExp(`\\b${label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(sentence))
+    ));
+  });
 }
 
 function checkSubtitleCue(failures, file, cue) {
@@ -49,6 +124,14 @@ function checkScript(failures, file, script) {
     }
     if (EXPANDED_UNIT_RE.test(String(section.subtitleText || ''))) {
       addFailure(failures, file, `${section.key} subtitleText contains expanded spoken unit`);
+    }
+    if (MACRO_SECTION_KEYS.has(section.key)) {
+      const displayedValues = (section.displayItems || [])
+        .map(compactMetricValue)
+        .filter(Boolean);
+      if (displayedValues.length && !sectionHasSubmacroValueMention(section)) {
+        addFailure(failures, file, `${section.key} subtitleText is missing a displayed submacro value`);
+      }
     }
   }
   for (const block of script.narrationBlocks || []) {

@@ -16,6 +16,11 @@
   const AUDIO_TIMELINE_SYNC_TOLERANCE_SECONDS = 0.12;
   const SECTION_HOLD_SECONDS = 2;
   const SECTION_HOLD_IDS = new Set(['fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons']);
+  const INTRO_RANKED_SPRITE_PATH = './sprites/ui/intro_&_outro/ranked.png';
+  const INTRO_HERO_LAYOUT = {
+    ranked: { x: 42.5, y: 58, width: 50, height: 50 },
+    food: { x: 52.5, y: 71, width: 30, height: 15 }
+  };
   const SUBMACRO_VALUE_COLORS = {
     green: '#7cf2a7',
     red: '#ff6f6f',
@@ -324,6 +329,68 @@
       primary: foodImagePath(food),
       fallback: foodPlatePath(food)
     };
+  }
+
+  function introHookLayers(food) {
+    const foodBox = INTRO_HERO_LAYOUT.food;
+    const rankedBox = INTRO_HERO_LAYOUT.ranked;
+    return [
+      {
+        id: 'intro_food_hero',
+        kind: 'sprite',
+        label: 'Hook food image',
+        src: foodImagePath(food),
+        fallbackSrc: foodPlatePath(food),
+        x: foodBox.x,
+        y: foodBox.y,
+        z: 56,
+        width: foodBox.width,
+        height: foodBox.height,
+        visible: true,
+        foodDriven: true,
+        preserveAspect: true
+      },
+      {
+        id: 'intro_ranked_sprite',
+        kind: 'sprite',
+        label: 'Hook ranked sprite',
+        src: INTRO_RANKED_SPRITE_PATH,
+        x: rankedBox.x,
+        y: rankedBox.y,
+        z: 55,
+        width: rankedBox.width,
+        height: rankedBox.height,
+        visible: true,
+        preserveAspect: true,
+        aspectRatio: 1,
+        effect: 'ranked-shine'
+      },
+      ...introSparkleLayers(rankedBox)
+    ];
+  }
+
+  function introSparkleLayers(rankedBox) {
+    return [
+      { x: rankedBox.x + 4, y: rankedBox.y + 4, delay: 0.02 },
+      { x: rankedBox.x + 40, y: rankedBox.y + 8, delay: 0.09 },
+      { x: rankedBox.x + 1, y: rankedBox.y + 33, delay: 0.16 },
+      { x: rankedBox.x + 45, y: rankedBox.y + 36, delay: 0.23 }
+    ].map((sparkle, index) => ({
+      id: `intro_ranked_sparkle_${index + 1}`,
+      kind: 'text',
+      label: 'Hook ranked sparkle',
+      text: '*',
+      x: sparkle.x,
+      y: sparkle.y,
+      z: 61 + index,
+      width: 5,
+      fontSize: 8,
+      align: 'center',
+      visible: true,
+      color: '#fff4b8',
+      effect: 'sparkle-twinkle',
+      sparkleDelay: sparkle.delay
+    }));
   }
 
   function typePlatePath(food) {
@@ -1414,8 +1481,10 @@
   }
 
   function sceneContentLayers(sectionId) {
-    return getSectionLayers(state.layout, sectionId)
+    const layers = getSectionLayers(state.layout, sectionId)
       .filter(layer => !isPersistentChrome(layer) && !isSectionIndicator(layer));
+    if (sectionId === 'intro') return [...layers, ...introHookLayers(selectedFood())];
+    return layers;
   }
 
   function sceneLayerRevealSchedule(scene, food = selectedFood()) {
@@ -1482,7 +1551,8 @@
     layers.forEach(({ layer, index, persistent }) => {
       if (layer.visible === false) return;
       const node = document.createElement(layer.kind === 'sprite' ? 'img' : 'div');
-      node.className = `layer-node ${layer.kind}${layer.kind === 'text' ? ' pixel-text' : ''}`;
+      const effectClass = layer.effect ? ` ${String(layer.effect).replace(/[^a-z0-9_-]+/gi, '-')}` : '';
+      node.className = `layer-node ${layer.kind}${layer.kind === 'text' ? ' pixel-text' : ''}${effectClass}`;
       node.dataset.layerId = layer.id || '';
       node.dataset.persistent = persistent ? 'true' : 'false';
       const revealSchedule = layerRevealSchedule(layer, scene, index, persistent, layerList);
@@ -2192,11 +2262,19 @@
     return null;
   }
 
+  function introHookLayerKind(layer) {
+    const id = String(layer?.id || '').toLowerCase();
+    if (id === 'intro_food_hero') return 'food-hero';
+    if (id === 'intro_ranked_sprite') return 'ranked-sprite';
+    if (id.startsWith('intro_ranked_sparkle_')) return 'sparkle';
+    return null;
+  }
+
   function layerRevealClassification(layer, scene, persistent, allLayers = []) {
     const sectionId = scene?.id || '';
     const fingerprint = `${layer?.id || ''} ${layer?.label || ''} ${layer?.src || ''}`.toLowerCase();
     if (persistent) return { family: 'chrome', kind: 'persistent' };
-    if (sectionId === 'intro') return { family: 'intro', kind: isSpriteLayer(layer) ? 'sprite' : 'text' };
+    if (sectionId === 'intro') return { family: 'intro', kind: introHookLayerKind(layer) || (isSpriteLayer(layer) ? 'sprite' : 'text') };
     if (sectionId === 'outro') {
       if (String(layer?.id || '').toLowerCase() === 'outro_score_value' || /score|tier|verdict/.test(fingerprint)) {
         return { family: 'outro', kind: 'tier' };
@@ -2249,6 +2327,20 @@
   function revealAnchorForLayer(layer, scene, classification, timing, index = 0) {
     const sectionId = scene?.id || '';
     const segments = timing.sentences || sceneTimedSentences(scene);
+
+    if (sectionId === 'intro') {
+      const food = selectedFood();
+      const foodName = String(food?.name || '').trim();
+      const firstFoodWord = foodName.split(/\s+/).find(Boolean);
+      const rankedAnchor = termStartForTiming(timing, ['ranked']) ?? 0.54;
+      if (classification.kind === 'food-hero') {
+        return termStartForTiming(timing, [foodName, firstFoodWord, 'bacon'].filter(Boolean)) ?? 0.04;
+      }
+      if (classification.kind === 'ranked-sprite') return rankedAnchor;
+      if (classification.kind === 'sparkle') return clamp(rankedAnchor + (asNumber(layer?.sparkleDelay, 0) || 0), 0.02, 0.9);
+      return termStartForTiming(timing, [foodName, 'ranked'].filter(Boolean))
+        ?? distributedRevealDelay(index, 3, segments, { start: 0.05, end: 0.58 });
+    }
 
     if (sectionId === 'outro' && classification.kind === 'tier') {
       return termStartForTiming(timing, ['tier', `${selectedFood()?.episode?.tier || selectedFood()?.expectedTier || ''} tier`])
@@ -2314,7 +2406,9 @@
     let anchor = persistent ? 0 : revealAnchorForLayer(layer, scene, classification, timing, index);
     let offset = 0;
 
-    if (classification.family === 'intro') offset = Math.min(0.12, index * 0.025);
+    if (classification.family === 'intro') {
+      offset = ['food-hero', 'ranked-sprite', 'sparkle'].includes(classification.kind) ? 0 : Math.min(0.12, index * 0.025);
+    }
     if (classification.family === 'macro') {
       if (classification.kind === 'score-card') offset = -0.035;
       if (classification.kind === 'label') offset = -0.008;

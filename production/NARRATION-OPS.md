@@ -30,7 +30,7 @@ For spoken nutrition abbreviations:
 5. salmon
 
 ## Suggested ElevenLabs defaults
-- speed: **1.15x**
+- speed: **1.10x**
 - style: clear, confident, lightly punchy
 - tone: fair, not preachy
 - pauses: keep section breaks audible, but do not over-pause

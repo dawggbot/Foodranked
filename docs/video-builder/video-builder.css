@@ -341,6 +341,35 @@ h2 {
   object-fit: fill;
 }
 
+.layer-node.sprite.ranked-shine {
+  animation: ranked-glint 1.35s steps(4, end) infinite;
+  filter: brightness(1.08) saturate(1.08) drop-shadow(0 0 calc(1px * var(--pixel-unit)) rgba(255, 244, 184, 0.9));
+}
+
+.layer-node.sparkle-twinkle {
+  animation: sparkle-twinkle 0.95s steps(2, end) infinite;
+  text-shadow:
+    0 0 calc(1px * var(--pixel-unit)) #fff4b8,
+    0 0 calc(2px * var(--pixel-unit)) rgba(255, 244, 184, 0.65);
+}
+
+@keyframes ranked-glint {
+  0%, 100% {
+    filter: brightness(1.04) saturate(1.04) drop-shadow(0 0 0 rgba(255, 244, 184, 0));
+  }
+  45% {
+    filter: brightness(1.24) saturate(1.18) drop-shadow(0 0 calc(2px * var(--pixel-unit)) rgba(255, 244, 184, 0.88));
+  }
+  60% {
+    filter: brightness(1.12) saturate(1.1) drop-shadow(0 0 calc(1px * var(--pixel-unit)) rgba(255, 255, 255, 0.72));
+  }
+}
+
+@keyframes sparkle-twinkle {
+  0%, 100% { filter: brightness(0.85); }
+  50% { filter: brightness(1.45); }
+}
+
 .layer-node.text {
   font-family: var(--pixel-font);
   color: #ffffff;

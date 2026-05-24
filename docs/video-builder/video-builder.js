@@ -18,10 +18,8 @@
   const SECTION_HOLD_IDS = new Set(['fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons']);
   const HIDDEN_CAPTION_SECTION_IDS = new Set(['intro']);
   const INTRO_RANKED_SPRITE_PATH = './sprites/ui/intro_&_outro/ranked.png';
-  const INTRO_HERO_LAYOUT = {
-    ranked: { x: 27.5, y: 82.5, width: 80, height: 80 },
-    food: { x: 43.5, y: 103.25, width: 48, height: 24 }
-  };
+  const INTRO_RANKED_VISIBLE_CENTER = { x: 0.5, y: 0.47 };
+  const INTRO_HERO_SIZE = { ranked: 80, foodWidth: 48, foodHeight: 24 };
   const SUBMACRO_VALUE_COLORS = {
     green: '#7cf2a7',
     red: '#ff6f6f',
@@ -332,9 +330,62 @@
     };
   }
 
+  function visibleCanvasGridBounds() {
+    const shell = els.videoStage?.closest('.phone-shell');
+    if (!shell) {
+      return { left: 0, top: 0, right: AUTHOR_GRID.width, bottom: AUTHOR_GRID.height };
+    }
+
+    const pixelUnit = cssPixels(getComputedStyle(document.documentElement).getPropertyValue('--pixel-unit'), 4);
+    const stageRect = els.videoStage.getBoundingClientRect();
+    const shellRect = shell.getBoundingClientRect();
+    const shellStyle = getComputedStyle(shell);
+    const contentLeft = shellRect.left
+      + cssPixels(shellStyle.borderLeftWidth)
+      + cssPixels(shellStyle.paddingLeft);
+    const contentRight = shellRect.right
+      - cssPixels(shellStyle.borderRightWidth)
+      - cssPixels(shellStyle.paddingRight);
+    const contentTop = shellRect.top
+      + cssPixels(shellStyle.borderTopWidth)
+      + cssPixels(shellStyle.paddingTop);
+    const contentBottom = shellRect.bottom
+      - cssPixels(shellStyle.borderBottomWidth)
+      - cssPixels(shellStyle.paddingBottom);
+    return {
+      left: Math.max(0, (Math.max(stageRect.left, contentLeft) - stageRect.left) / pixelUnit),
+      right: Math.min(AUTHOR_GRID.width, (Math.min(stageRect.right, contentRight) - stageRect.left) / pixelUnit),
+      top: Math.max(0, (Math.max(stageRect.top, contentTop) - stageRect.top) / pixelUnit),
+      bottom: Math.min(AUTHOR_GRID.height, (Math.min(stageRect.bottom, contentBottom) - stageRect.top) / pixelUnit)
+    };
+  }
+
+  function introHeroLayout() {
+    const visible = visibleCanvasGridBounds();
+    const centerX = (visible.left + visible.right) / 2;
+    const centerY = (visible.top + visible.bottom) / 2;
+    const rankedSize = INTRO_HERO_SIZE.ranked;
+    const ranked = {
+      x: centerX - (rankedSize * INTRO_RANKED_VISIBLE_CENTER.x),
+      y: centerY - (rankedSize * INTRO_RANKED_VISIBLE_CENTER.y),
+      width: rankedSize,
+      height: rankedSize
+    };
+    return {
+      ranked,
+      food: {
+        x: ranked.x + 16,
+        y: ranked.y + 20.75,
+        width: INTRO_HERO_SIZE.foodWidth,
+        height: INTRO_HERO_SIZE.foodHeight
+      }
+    };
+  }
+
   function introHookLayers(food) {
-    const foodBox = INTRO_HERO_LAYOUT.food;
-    const rankedBox = INTRO_HERO_LAYOUT.ranked;
+    const layout = introHeroLayout();
+    const foodBox = layout.food;
+    const rankedBox = layout.ranked;
     return [
       {
         id: 'intro_food_hero',

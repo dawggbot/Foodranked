@@ -659,8 +659,16 @@
 
   function captionPlacementForCue(cue, text) {
     const normalizedText = subtitleOnlyCaptionText(text || cue?.text || (cue?.lines || []).join(' '));
-    if (cue?.placement) return cue.placement;
     if (cue?.sceneId === 'final' && TIER_REVEAL_RE.test(normalizedText)) return 'tier-center';
+    if (cue?.placement) {
+      const placement = String(cue.placement);
+      if (placement === 'tier-center') return 'tier-center';
+      if (placement === 'summary-full') return 'summary-full';
+      if (cue?.sceneId === 'final' && ['subtitle-floor', 'verdict-payoff', 'outro-center', 'center', 'center-stage'].includes(placement)) {
+        return 'summary-full';
+      }
+      return placement;
+    }
     if (cue?.sceneId === 'final') return 'summary-full';
     return 'lower-third';
   }
@@ -957,11 +965,11 @@
   }
 
   function persistentChromeLayers(sectionId, food) {
-    const sourceLayers = getSectionLayers(state.layout, 'intro');
-    const fallbackLayers = getSectionLayers(state.layout, sectionId);
-    const sourceChrome = sourceLayers.filter(layer => isPersistentChrome(layer) || isSectionIndicator(layer));
-    const fallbackChrome = fallbackLayers.filter(layer => isPersistentChrome(layer) || isSectionIndicator(layer));
-    const layers = (sourceChrome.length ? sourceChrome : fallbackChrome).map(clone);
+    const sectionLayers = getSectionLayers(state.layout, sectionId);
+    const introLayers = getSectionLayers(state.layout, 'intro');
+    const sectionChrome = sectionLayers.filter(layer => isPersistentChrome(layer) || isSectionIndicator(layer));
+    const introChrome = introLayers.filter(layer => isPersistentChrome(layer) || isSectionIndicator(layer));
+    const layers = (sectionChrome.length ? sectionChrome : introChrome).map(clone);
     const indicators = layers.filter(isSectionIndicator).sort(compareIndicatorsByPosition);
     const activeIndex = indicatorSectionIndex(sectionId);
     indicators.forEach((layer, index) => {

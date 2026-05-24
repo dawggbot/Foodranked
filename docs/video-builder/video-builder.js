@@ -19,8 +19,8 @@
   const HIDDEN_CAPTION_SECTION_IDS = new Set(['intro']);
   const INTRO_RANKED_SPRITE_PATH = './sprites/ui/intro_&_outro/ranked.png';
   const INTRO_HERO_LAYOUT = {
-    ranked: { x: 21.5, y: 57.25, width: 92, height: 92 },
-    food: { x: 40, y: 81.25, width: 55, height: 28 }
+    ranked: { x: 27.5, y: 82.5, width: 80, height: 80 },
+    food: { x: 43.5, y: 103.25, width: 48, height: 24 }
   };
   const SUBMACRO_VALUE_COLORS = {
     green: '#7cf2a7',
@@ -371,11 +371,13 @@
   }
 
   function introRankedGlimmerLayers(rankedBox) {
+    const scaleX = rankedBox.width / 92;
+    const scaleY = rankedBox.height / 92;
     return [
-      { x: rankedBox.x + 10, y: rankedBox.y + 6, delay: 0.02 },
-      { x: rankedBox.x + 74, y: rankedBox.y + 12, delay: 0.16 },
-      { x: rankedBox.x + 5, y: rankedBox.y + 66, delay: 0.3 },
-      { x: rankedBox.x + 78, y: rankedBox.y + 61, delay: 0.44 }
+      { x: rankedBox.x + (10 * scaleX), y: rankedBox.y + (6 * scaleY), delay: 0.02 },
+      { x: rankedBox.x + (74 * scaleX), y: rankedBox.y + (12 * scaleY), delay: 0.16 },
+      { x: rankedBox.x + (5 * scaleX), y: rankedBox.y + (66 * scaleY), delay: 0.3 },
+      { x: rankedBox.x + (78 * scaleX), y: rankedBox.y + (61 * scaleY), delay: 0.44 }
     ].map((glimmer, index) => ({
       id: `intro_ranked_glimmer_${index + 1}`,
       kind: 'text',

@@ -700,14 +700,23 @@
     const rule = metricRuleForSpec(food, sectionId, spec);
     const parsed = parseArrowBand(arrowBandForSpec(food, sectionId, spec), rule?.polarity);
     const higherWorse = rule?.polarity === 'higher_worse';
-    const pointsDown = parsed.direction ? parsed.direction === 'down' : parsed.color === 'green' ? higherWorse : !higherWorse;
     const proteinReferenceValue = sectionId === 'protein' ? rawMetricValueForSpec(food, sectionId, spec) : null;
     const proteinReferenceColor = proteinReferenceTextColor(spec.key, proteinReferenceValue);
+    const proteinReferenceArrow = sectionId === 'protein'
+      ? proteinReferenceArrowPresentation(spec.key, proteinReferenceValue)
+      : null;
+    const count = parsed.count || proteinReferenceArrow?.count || 0;
+    const color = parsed.count ? parsed.color : proteinReferenceArrow?.color || parsed.color;
+    const direction = parsed.count ? parsed.direction : proteinReferenceArrow?.direction || parsed.direction;
+    const pointsDown = direction ? direction === 'down' : color === 'green' ? higherWorse : !higherWorse;
     return {
       ...parsed,
-      flipY: !!parsed.count && pointsDown,
+      count,
+      color,
+      direction,
+      flipY: !!count && pointsDown,
       textColor: parsed.count
-        ? (SUBMACRO_VALUE_COLORS[parsed.color] || SUBMACRO_VALUE_COLORS.neutral)
+        ? (SUBMACRO_VALUE_COLORS[color] || SUBMACRO_VALUE_COLORS.neutral)
         : proteinReferenceValue != null
           ? proteinReferenceColor
           : SUBMACRO_VALUE_COLORS.neutral
@@ -722,6 +731,33 @@
     if (metricKey === 'nonessential_amino_acids_score') return safe >= 8 ? SUBMACRO_VALUE_COLORS.green : safe >= 4 ? SUBMACRO_VALUE_COLORS.neutral : SUBMACRO_VALUE_COLORS.red;
     if (metricKey === 'bioavailability_percent') return safe >= 60 ? SUBMACRO_VALUE_COLORS.green : safe >= 40 ? SUBMACRO_VALUE_COLORS.neutral : SUBMACRO_VALUE_COLORS.red;
     return SUBMACRO_VALUE_COLORS.green;
+  }
+
+  function proteinReferenceArrowPresentation(metricKey, value) {
+    const safe = asNumber(value, null);
+    if (safe == null) return null;
+    if (metricKey === 'collagen_g') return safe >= 3
+      ? { count: 2, color: 'green', direction: null }
+      : { count: 1, color: 'red', direction: null };
+    if (metricKey === 'essential_amino_acids_score') {
+      if (safe >= 8) return { count: 3, color: 'green', direction: null };
+      if (safe >= 6) return { count: 2, color: 'green', direction: null };
+      if (safe >= 3) return { count: 1, color: 'green', direction: null };
+      return { count: 3, color: 'red', direction: null };
+    }
+    if (metricKey === 'nonessential_amino_acids_score') {
+      if (safe >= 10) return { count: 3, color: 'green', direction: null };
+      if (safe >= 8) return { count: 2, color: 'green', direction: null };
+      if (safe >= 4) return { count: 1, color: 'green', direction: null };
+      return { count: 3, color: 'red', direction: null };
+    }
+    if (metricKey === 'bioavailability_percent') {
+      if (safe >= 85) return { count: 3, color: 'green', direction: null };
+      if (safe >= 60) return { count: 2, color: 'green', direction: null };
+      if (safe >= 40) return { count: 1, color: 'green', direction: null };
+      return { count: 3, color: 'red', direction: null };
+    }
+    return { count: 1, color: 'green', direction: null };
   }
 
   function visibleArrowIndexes(count, total) {

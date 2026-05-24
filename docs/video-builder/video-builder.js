@@ -638,7 +638,7 @@
         value.z = value.z || topZ;
         const valueRight = (Number(value.x) || 0) + (Number(value.width) || binding.valueWidth);
         const overlapsArrowSlot = binding.arrowMinX != null && valueRight > binding.arrowMinX - 2;
-        if (overlapsArrowSlot) {
+        if (overlapsArrowSlot && !value.manualPosition) {
           value.x = binding.valueX;
           value.y = binding.y;
           value.width = binding.valueWidth;
@@ -801,6 +801,7 @@
         item.layer.visible = step != null && item.percent <= visiblePercent;
       });
       if (value) {
+        if (value.manualPosition) return;
         const anchorPercent = Math.max(10, visiblePercent);
         const anchor = column.items.find(item => item.percent === anchorPercent) || column.items[0];
         if (anchor) {
@@ -2336,6 +2337,12 @@
     state.layoutSourceId = els.layoutSource.value;
     hydrateLayoutForFood();
     persist();
+    renderAll();
+  });
+
+  window.addEventListener('storage', event => {
+    if (event.key !== DISPLAY_LAYOUT_KEY || state.layoutSourceId !== 'display-builder') return;
+    hydrateLayoutForFood();
     renderAll();
   });
 

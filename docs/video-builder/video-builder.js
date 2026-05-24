@@ -156,7 +156,8 @@
     backgroundToken: 0,
     lastFrameAt: performance.now(),
     audioTimelineKey: '',
-    audioDurationSeconds: null
+    audioDurationSeconds: null,
+    audioInHold: false
   };
 
   function readJson(raw, fallback) {
@@ -1031,24 +1032,18 @@
       const existing = previous.find(scene => scene.id === section.id);
       const episodeTiming = episodeSceneTiming(food, section.id);
       const holdSeconds = sectionHoldSeconds(section.id);
-      const duration = Math.max(
-        0.4 + holdSeconds,
-        asNumber(existing?.duration, null)
-          ?? episodeTiming?.durationSeconds
-          ?? section.duration
-      );
+      const existingHold = asNumber(existing?.holdSeconds, holdSeconds);
       const contentDuration = Math.max(
         0.4,
-        Math.min(
-          duration,
-          asNumber(existing?.contentDurationSeconds, null)
-            ?? (duration - holdSeconds)
-        )
+        asNumber(existing?.contentDurationSeconds, null)
+          ?? (asNumber(existing?.duration, null) != null ? Math.max(0.4, asNumber(existing.duration, 0) - existingHold) : null)
+          ?? episodeTiming?.durationSeconds
+          ?? section.duration
       );
       return {
         id: section.id,
         label: section.label,
-        duration: Number(duration.toFixed(3)),
+        duration: Number((contentDuration + holdSeconds).toFixed(3)),
         contentDurationSeconds: Number(contentDuration.toFixed(3)),
         holdSeconds,
         reveal: existing?.reveal || section.reveal,
@@ -1095,19 +1090,46 @@
   }
 
   function totalNarrationDuration() {
-    return totalDuration();
+    return state.scenes.reduce((sum, scene) => sum + sceneContentDuration(scene), 0);
   }
 
   function totalHoldDuration() {
     return state.scenes.reduce((sum, scene) => sum + sceneHoldSeconds(scene), 0);
   }
 
+  function isSceneHoldAt(time = state.currentTime) {
+    const scene = activeSceneAt(time);
+    if (!scene) return false;
+    const elapsed = clamp(time - scene.start, 0, scene.duration);
+    return sceneHoldSeconds(scene) > 0 && elapsed >= sceneContentDuration(scene);
+  }
+
   function videoTimeToAudioTime(time = state.currentTime) {
-    return clamp(time, 0, totalDuration());
+    const scenes = sceneStarts();
+    let audioCursor = 0;
+    for (const scene of scenes) {
+      const contentDuration = sceneContentDuration(scene);
+      if (time < scene.start) return audioCursor;
+      if (time <= scene.end) {
+        const elapsed = clamp(time - scene.start, 0, scene.duration);
+        return audioCursor + Math.min(elapsed, contentDuration);
+      }
+      audioCursor += contentDuration;
+    }
+    return audioCursor;
   }
 
   function audioTimeToVideoTime(audioTime = 0) {
-    return clamp(audioTime, 0, totalDuration());
+    const scenes = sceneStarts();
+    let audioCursor = 0;
+    for (const scene of scenes) {
+      const contentDuration = sceneContentDuration(scene);
+      if (audioTime <= audioCursor + contentDuration) {
+        return scene.start + clamp(audioTime - audioCursor, 0, contentDuration);
+      }
+      audioCursor += contentDuration;
+    }
+    return totalDuration();
   }
 
   function audioTimelineKey(food = selectedFood(), duration = null) {
@@ -1130,23 +1152,19 @@
 
     state.audioTimelineKey = key;
     state.audioDurationSeconds = audioDuration;
-    const currentTotal = totalDuration();
-    if (currentTotal <= 0 || Math.abs(currentTotal - audioDuration) <= AUDIO_TIMELINE_SYNC_TOLERANCE_SECONDS) {
+    const currentNarrationTotal = totalNarrationDuration();
+    if (currentNarrationTotal <= 0 || Math.abs(currentNarrationTotal - audioDuration) <= AUDIO_TIMELINE_SYNC_TOLERANCE_SECONDS) {
       return false;
     }
 
-    const ratio = audioDuration / currentTotal;
+    const ratio = audioDuration / currentNarrationTotal;
     const playheadAudioTime = videoTimeToAudioTime(state.currentTime);
-    state.scenes = state.scenes.map(scene => {
-      const holdSeconds = sceneHoldSeconds(scene);
-      const duration = Math.max(0.4 + holdSeconds, (asNumber(scene.duration, 1) || 1) * ratio);
-      return {
-        ...scene,
-        duration: Number(duration.toFixed(3)),
-        contentDurationSeconds: Number(Math.max(0.4, duration - holdSeconds).toFixed(3)),
-        holdSeconds
-      };
-    });
+    state.scenes = state.scenes.map(scene => ({
+      ...scene,
+      contentDurationSeconds: Number(Math.max(0.4, sceneContentDuration(scene) * ratio).toFixed(3)),
+      holdSeconds: sceneHoldSeconds(scene),
+      duration: Number((Math.max(0.4, sceneContentDuration(scene) * ratio) + sceneHoldSeconds(scene)).toFixed(3))
+    }));
     state.currentTime = clamp(audioTimeToVideoTime(playheadAudioTime * ratio), 0, totalDuration());
     return true;
   }
@@ -1277,8 +1295,8 @@
       duration: Number(totalDuration().toFixed(2)),
       narrationDuration: Number(totalNarrationDuration().toFixed(2)),
       totalHoldSeconds: Number(totalHoldDuration().toFixed(2)),
-      holdMode: 'visual-only',
-      audioHoldSeconds: 0,
+      holdMode: 'post-section-dwell',
+      audioHoldSeconds: Number(totalHoldDuration().toFixed(2)),
       scenes: sceneStarts().map(scene => sceneManifestEntry(scene, food))
     };
   }
@@ -1294,10 +1312,9 @@
       start: Number(scene.start.toFixed(2)),
       end: Number(scene.end.toFixed(2)),
       duration: Number(scene.duration.toFixed(2)),
-      narrationDuration: Number(scene.duration.toFixed(2)),
-      revealDuration: Number(contentDuration.toFixed(2)),
+      narrationDuration: Number(contentDuration.toFixed(2)),
       holdSeconds: Number(holdSeconds.toFixed(2)),
-      holdMode: holdSeconds ? 'visual-only' : null,
+      holdMode: holdSeconds ? 'post-section-dwell' : null,
       holdStart: holdSeconds ? Number((scene.start + contentDuration).toFixed(2)) : null,
       holdEnd: holdSeconds ? Number(scene.end.toFixed(2)) : null,
       reveal: scene.reveal,
@@ -1310,8 +1327,8 @@
           id: cue.id,
           startSeconds: cue.startSeconds,
           endSeconds: cue.endSeconds,
-          videoStartSeconds: chunk ? Number((scene.start + (chunk.start * scene.duration)).toFixed(3)) : null,
-          videoEndSeconds: chunk ? Number((scene.start + (chunk.end * scene.duration)).toFixed(3)) : null,
+          videoStartSeconds: chunk ? Number((scene.start + (chunk.start * contentDuration)).toFixed(3)) : null,
+          videoEndSeconds: chunk ? Number((scene.start + (chunk.end * contentDuration)).toFixed(3)) : null,
           placement: cue.placement || null,
           maxLines: CAPTION_MAX_LINES,
           lines: cue.lines,
@@ -1323,26 +1340,25 @@
         source: timing.source || 'weighted-caption-v3',
         sceneStartSeconds: Number(scene.start.toFixed(3)),
         sceneDurationSeconds: Number(scene.duration.toFixed(3)),
-        narrationDurationSeconds: Number(scene.duration.toFixed(3)),
-        revealDurationSeconds: Number(contentDuration.toFixed(3)),
+        narrationDurationSeconds: Number(contentDuration.toFixed(3)),
         holdSeconds: Number(holdSeconds.toFixed(3)),
-        holdMode: holdSeconds ? 'visual-only' : null,
+        holdMode: holdSeconds ? 'post-section-dwell' : null,
         revealLeadSeconds: AUDIO_REVEAL_LEAD_SECONDS,
         revealWindowSeconds: AUDIO_REVEAL_WINDOW_SECONDS
       },
       revealBeats: timing.sentences.map(segment => ({
         start: Number(segment.start.toFixed(3)),
         end: Number(segment.end.toFixed(3)),
-        absoluteStart: Number((scene.start + (segment.start * scene.duration)).toFixed(3)),
-        absoluteEnd: Number((scene.start + (segment.end * scene.duration)).toFixed(3)),
+        absoluteStart: Number((scene.start + (segment.start * contentDuration)).toFixed(3)),
+        absoluteEnd: Number((scene.start + (segment.end * contentDuration)).toFixed(3)),
         text: segment.text
       })),
       activeWords: timing.words.map(word => ({
         text: word.text,
         start: Number(word.start.toFixed(4)),
         end: Number(word.end.toFixed(4)),
-        absoluteStart: Number((scene.start + (word.start * scene.duration)).toFixed(3)),
-        absoluteEnd: Number((scene.start + (word.end * scene.duration)).toFixed(3))
+        absoluteStart: Number((scene.start + (word.start * contentDuration)).toFixed(3)),
+        absoluteEnd: Number((scene.start + (word.end * contentDuration)).toFixed(3))
       })),
       layerRevealSchedule: layerSchedule.map(entry => ({
         ...entry,
@@ -1450,7 +1466,7 @@
     const contentDuration = sceneContentDuration(scene);
     const sceneElapsed = clamp(state.currentTime - scene.start, 0, scene.duration);
     const sceneProgress = clamp(sceneElapsed / contentDuration, 0, 1);
-    const captionProgress = clamp(sceneElapsed / Math.max(0.4, scene.duration), 0, 1);
+    const inHold = sceneHoldSeconds(scene) > 0 && sceneElapsed >= contentDuration;
     const content = sceneContentLayers(scene.id).map((layer, index) => ({ layer, index, persistent: false }));
     const chrome = persistentChromeLayers(scene.id, food).map((layer, index) => ({ layer, index, persistent: true }));
     const layers = [...content, ...chrome].sort((a, b) => {
@@ -1496,10 +1512,10 @@
     });
 
     syncCaptionSafeArea(roots.caption);
-    const frame = captionFrame(scene, captionProgress);
+    const frame = captionFrame(scene, sceneProgress);
     roots.caption.style.fontSize = captionFontSize(scene, frame);
-    renderCaption(roots.caption, scene, captionProgress, frame);
-    roots.caption.style.opacity = String(easeOutCubic((captionProgress + 0.05) * 4));
+    renderCaption(roots.caption, scene, sceneProgress, frame);
+    roots.caption.style.opacity = inHold ? '0' : String(easeOutCubic((sceneProgress + 0.05) * 4));
   }
 
   function captionFontSize(scene, frame) {
@@ -1724,7 +1740,7 @@
       return {
         source: 'weighted-caption-v3',
         text: '',
-        duration: Math.max(1, asNumber(scene?.duration, 1) || 1),
+        duration: sceneContentDuration(scene),
         totalWeight: 0,
         sentences: [],
         chunks: [],
@@ -1733,7 +1749,7 @@
       };
     }
 
-    const duration = Math.max(1, asNumber(scene?.duration, 1) || 1);
+    const duration = Math.max(1, sceneContentDuration(scene));
     const sentences = rawSentences.map((sentence, sentenceIndex) => {
       const words = sentence.split(/\s+/).filter(Boolean).map((word, index) => ({
         text: word,
@@ -1809,7 +1825,7 @@
     const cues = (scene?.subtitleCues || []).filter(cue => cue?.lines?.length);
     if (!cues.length) return null;
 
-    const duration = Math.max(1, asNumber(scene?.duration, 1) || 1);
+    const duration = Math.max(1, sceneContentDuration(scene));
     const sourceTimes = cues.flatMap(cue => {
       const values = [asNumber(cue.startSeconds, null), asNumber(cue.endSeconds, null)];
       if (Array.isArray(cue.wordTimings)) {
@@ -2411,6 +2427,7 @@
 
   function stopPlayback() {
     state.playing = false;
+    state.audioInHold = false;
     els.playPause.textContent = 'Play';
     if (els.narrationAudio) els.narrationAudio.pause();
   }
@@ -2420,8 +2437,9 @@
     state.startedAt = performance.now();
     state.playheadStart = state.currentTime;
     state.lastFrameAt = performance.now();
+    state.audioInHold = false;
     els.playPause.textContent = 'Pause';
-    playAudioFromCurrentTime();
+    syncAudioPlaybackState();
     requestAnimationFrame(tick);
   }
 
@@ -2433,10 +2451,7 @@
       state.currentTime = totalDuration();
       stopPlayback();
     }
-    syncAudioTime();
-    if (state.playing && state.audioEnabled && els.narrationAudio?.src && els.narrationAudio.paused) {
-      playAudioFromCurrentTime();
-    }
+    syncAudioPlaybackState();
     renderDynamic();
     if (state.playing) requestAnimationFrame(tick);
   }
@@ -2498,7 +2513,7 @@
   els.timeScrub.addEventListener('input', () => {
     state.currentTime = Number(els.timeScrub.value) / 100;
     stopPlayback();
-    syncAudioTime();
+    syncAudioTime({ force: true });
     renderDynamic();
   });
 
@@ -2506,7 +2521,7 @@
     if (!audioForFood(selectedFood())) return;
     state.audioEnabled = !state.audioEnabled;
     if (!state.audioEnabled) els.narrationAudio.pause();
-    else if (state.playing) playAudioFromCurrentTime();
+    else if (state.playing) syncAudioPlaybackState();
     persist();
     updateAudioControls();
   });
@@ -2614,23 +2629,44 @@
       els.narrationAudio.src = nextSrc;
       els.narrationAudio.load();
     }
-    syncAudioTime();
+    syncAudioTime({ force: true });
     updateAudioControls();
   }
 
-  function syncAudioTime() {
+  function syncAudioPlaybackState() {
+    if (!state.audioEnabled || !els.narrationAudio?.src) return;
+    if (isSceneHoldAt(state.currentTime)) {
+      if (!state.audioInHold) {
+        syncAudioTime({ force: true });
+        state.audioInHold = true;
+      }
+      if (!els.narrationAudio.paused) els.narrationAudio.pause();
+      return;
+    }
+
+    const wasInHold = state.audioInHold;
+    state.audioInHold = false;
+    if (state.playing && els.narrationAudio.paused) {
+      playAudioFromCurrentTime({ forceSync: true });
+      return;
+    }
+    if (wasInHold) syncAudioTime({ force: true });
+  }
+
+  function syncAudioTime({ force = false } = {}) {
     if (!els.narrationAudio?.src) return;
     const safeTime = clamp(videoTimeToAudioTime(state.currentTime), 0, Math.max(0, totalNarrationDuration() - 0.01));
     try {
-      if (Math.abs((els.narrationAudio.currentTime || 0) - safeTime) > 0.08) {
+      if (force) {
         els.narrationAudio.currentTime = safeTime;
       }
     } catch {}
   }
 
-  function playAudioFromCurrentTime() {
+  function playAudioFromCurrentTime({ forceSync = true } = {}) {
     if (!state.audioEnabled || !els.narrationAudio?.src) return;
-    syncAudioTime();
+    if (isSceneHoldAt(state.currentTime)) return;
+    syncAudioTime({ force: forceSync });
     const playPromise = els.narrationAudio.play();
     if (playPromise?.catch) {
       playPromise.catch(() => {
@@ -2646,14 +2682,14 @@
     els.audioToggle.disabled = !audio;
     els.audioToggle.textContent = state.audioEnabled && audio ? 'Audio on' : 'Audio off';
     const syncLabel = state.audioDurationSeconds
-      ? ` · synced ${state.audioDurationSeconds.toFixed(1)}s · ${totalHoldDuration().toFixed(1)}s visual holds`
+      ? ` · synced ${state.audioDurationSeconds.toFixed(1)}s + ${totalHoldDuration().toFixed(1)}s dwell`
       : '';
     els.audioStatus.textContent = overrideStatus || (audio ? `${audio.take || 'Audio'} ready${syncLabel}` : 'No audio');
   }
 
   els.narrationAudio.addEventListener('loadedmetadata', () => {
     if (calibrateSceneDurationsToAudio(els.narrationAudio.duration)) {
-      syncAudioTime();
+      syncAudioTime({ force: true });
       renderAll();
       return;
     }

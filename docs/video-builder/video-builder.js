@@ -19,8 +19,8 @@
   const HIDDEN_CAPTION_SECTION_IDS = new Set(['intro']);
   const INTRO_RANKED_SPRITE_PATH = './sprites/ui/intro_&_outro/ranked.png';
   const INTRO_HERO_LAYOUT = {
-    ranked: { x: 21.5, y: 74, width: 92, height: 92 },
-    food: { x: 40, y: 98, width: 55, height: 28 }
+    ranked: { x: 21.5, y: 77, width: 92, height: 92 },
+    food: { x: 40, y: 101, width: 55, height: 28 }
   };
   const SUBMACRO_VALUE_COLORS = {
     green: '#7cf2a7',
@@ -1440,7 +1440,6 @@
   }
 
   function persistentChromeLayers(sectionId, food) {
-    if (sectionId === 'intro') return [];
     const sectionLayers = getSectionLayers(state.layout, sectionId);
     const introLayers = getSectionLayers(state.layout, 'intro');
     const sectionChrome = sectionLayers.filter(layer => isPersistentChrome(layer) || isSectionIndicator(layer));
@@ -1464,9 +1463,9 @@
   }
 
   function sceneContentLayers(sectionId) {
-    if (sectionId === 'intro') return introHookLayers(selectedFood());
     const layers = getSectionLayers(state.layout, sectionId)
       .filter(layer => !isPersistentChrome(layer) && !isSectionIndicator(layer));
+    if (sectionId === 'intro') return [...layers, ...introHookLayers(selectedFood())];
     return layers;
   }
 

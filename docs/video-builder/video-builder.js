@@ -135,6 +135,7 @@
   };
 
   const foods = Array.isArray(window.FOODS_INDEX) ? window.FOODS_INDEX : [];
+  const BATCH_RESULTS_CACHE = new Map();
   const savedState = readJson(localStorage.getItem(VIDEO_STATE_KEY), {});
   const state = {
     foodFilter: '',
@@ -169,7 +170,30 @@
   }
 
   function selectedFood() {
-    return foods.find(food => food.id === state.selectedFoodId) || foods[0] || null;
+    return attachBatchResult(foods.find(food => food.id === state.selectedFoodId) || foods[0] || null);
+  }
+
+  async function loadBatchResults() {
+    if (BATCH_RESULTS_CACHE.size) return;
+    try {
+      const response = await fetch('../data/batch-results.json');
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const json = await response.json();
+      const details = Array.isArray(json?.details) ? json.details : [];
+      details.forEach(item => {
+        const result = item?.result;
+        const id = result?.food?.id;
+        if (id) BATCH_RESULTS_CACHE.set(id, result);
+      });
+    } catch {
+      // Batch results refine arrow presentation; the builder can still render from food data alone.
+    }
+  }
+
+  function attachBatchResult(food) {
+    if (!food?.id) return food;
+    const batchResult = BATCH_RESULTS_CACHE.get(food.id);
+    return batchResult ? { ...food, batchResult } : food;
   }
 
   function asNumber(value, fallback = null) {
@@ -677,9 +701,20 @@
     }) || null;
   }
 
+  function batchMetricBreakdownItemForSpec(food, sectionId, spec) {
+    const sectionKey = ruleSectionKey(sectionId);
+    const metricKeys = [spec.key, ...(spec.displayMetricKeys || [])];
+    const breakdown = food?.batchResult?.metricBreakdown || [];
+    return breakdown.find(item => {
+      return metricKeys.includes(item.metricKey) && (!item.sectionKey || item.sectionKey === sectionId || item.sectionKey === sectionKey);
+    }) || null;
+  }
+
   function arrowBandForSpec(food, sectionId, spec) {
     const displayItem = episodeDisplayItemForSpec(food, sectionId, spec);
     if (displayItem?.band) return displayItem.band;
+    const batchBreakdownItem = batchMetricBreakdownItemForSpec(food, sectionId, spec);
+    if (batchBreakdownItem?.band) return batchBreakdownItem.band;
     const rule = metricRuleForSpec(food, sectionId, spec);
     return ruleBandForValue(rule, rawMetricValueForSpec(food, sectionId, spec))?.label || null;
   }
@@ -2122,6 +2157,7 @@
       if (rowIndex != null) {
         const specs = MACRO_SUBMETRIC_SPECS[sectionId] || [];
         const spec = specs[rowIndex];
+        if (sectionId === 'protein') return proteinRowRevealAnchor(timing, rowIndex);
         return termStartForTiming(timing, [...metricTerms(spec?.key, spec?.label), ...layerTextTerms(layer)])
           ?? distributedRevealDelay(rowIndex + 1, Math.max(4, segments.length), segments, { start: 0.16, end: 0.72 });
       }
@@ -2150,6 +2186,21 @@
 
     const row = clamp(((Number(layer?.y) || 0) - 42) / 120, 0, 1);
     return 0.08 + (row * 0.48) + ((index % 3) * 0.025);
+  }
+
+  function proteinRowRevealAnchor(timing, rowIndex) {
+    const eaaAnchor = termStartForTiming(timing, ['essential amino', 'eaa', '8/9'])
+      ?? distributedRevealDelay(1, 5, timing.sentences || [], { start: 0.16, end: 0.56 });
+    const bioAnchor = termStartForTiming(timing, ['bioavailability', '90%'])
+      ?? distributedRevealDelay(3, 5, timing.sentences || [], { start: 0.16, end: 0.56 });
+    const nEaaAnchor = eaaAnchor + ((bioAnchor - eaaAnchor) * 0.5);
+    const anchors = [
+      Math.max(0.14, eaaAnchor - 0.04),
+      eaaAnchor,
+      nEaaAnchor,
+      bioAnchor
+    ];
+    return clamp(anchors[rowIndex] ?? distributedRevealDelay(rowIndex + 1, 5, timing.sentences || [], { start: 0.16, end: 0.56 }), 0.12, 0.72);
   }
 
   function layerRevealSchedule(layer, scene, index, persistent, allLayers = []) {
@@ -2429,7 +2480,8 @@
     renderStage();
   });
 
-  function init() {
+  async function init() {
+    await loadBatchResults();
     const food = selectedFood();
     if (!foods.some(item => item.id === state.selectedFoodId) && foods[0]) state.selectedFoodId = foods[0].id;
     state.scenes = buildScenes(food);
@@ -2517,5 +2569,5 @@
     updateAudioControls();
   });
 
-  init();
+  void init();
 }());

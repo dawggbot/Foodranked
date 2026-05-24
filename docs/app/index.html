@@ -1593,8 +1593,13 @@
       const rows = clusterMacroSpriteRows(layout, sectionId);
       if (rows.length === 4) {
         return rows.map(row => {
+          const arrowItems = row.items.filter(item => /arrow indicator|green_arrow|red_arrow|yellow_arrow|\/arrow_indicators\//i.test(`${item.id} ${item.label} ${item.src}`));
+          const arrowMinX = arrowItems.length ? Math.min(...arrowItems.map(item => item.x)) : null;
+          const valueWidth = 22;
           const labelX = clampValue(Math.round(row.minX + 12), 4, 96);
-          const valueX = clampValue(Math.round(Math.max(labelX + 24, row.maxX - 30)), 34, 124);
+          const valueX = arrowMinX == null
+            ? clampValue(Math.round(Math.max(labelX + 24, row.maxX - 30)), 34, 124)
+            : clampValue(Math.round(arrowMinX - valueWidth - 3), 34, 124);
           const y = clampValue(Math.round(row.minY + 3), 42, 220);
           return {
             items: row.items,
@@ -1602,7 +1607,8 @@
             valueX,
             y,
             labelWidth: Math.max(26, valueX - labelX - 4),
-            valueWidth: 24
+            valueWidth,
+            arrowMinX
           };
         });
       }
@@ -1695,6 +1701,13 @@
         if (!valueLayer.align) valueLayer.align = 'right';
         if (!valueLayer.fontSize) valueLayer.fontSize = 4;
         if (!valueLayer.z) valueLayer.z = topZ;
+        const valueRight = (Number(valueLayer.x) || 0) + (Number(valueLayer.width) || anchor.valueWidth);
+        const overlapsArrowSlot = anchor.arrowMinX != null && valueRight > anchor.arrowMinX - 2;
+        if (overlapsArrowSlot) {
+          valueLayer.x = anchor.valueX;
+          valueLayer.width = anchor.valueWidth;
+          valueLayer.y = anchor.y;
+        }
       });
 
       layout.meta[`${sectionId}SubmetricTextV3`] = true;

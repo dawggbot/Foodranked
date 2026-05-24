@@ -14,6 +14,11 @@
   const AUDIO_REVEAL_LEAD_SECONDS = 0.11;
   const AUDIO_REVEAL_WINDOW_SECONDS = 0.36;
   const AUDIO_TIMELINE_SYNC_TOLERANCE_SECONDS = 0.12;
+  const SUBMACRO_VALUE_COLORS = {
+    green: '#7cf2a7',
+    red: '#ff6f6f',
+    neutral: '#ffffff'
+  };
 
   const SECTIONS = [
     { id: 'intro', label: 'Hook', duration: 2.4, reveal: 'pop', motion: 'bob' },
@@ -190,8 +195,8 @@
   function formatCompactNumber(value, decimals = 1) {
     const safe = asNumber(value, null);
     if (safe == null) return 'N/A';
-    const fixed = Number.isInteger(safe) || Math.abs(safe) >= 10 ? 0 : decimals;
-    return safe.toLocaleString(undefined, { maximumFractionDigits: fixed });
+    if (Number.isInteger(safe)) return String(safe);
+    return safe.toFixed(decimals).replace(/\.0+$/, '').replace(/(\.\d*[1-9])0+$/, '$1');
   }
 
   function formatMetric(value, unit) {
@@ -500,12 +505,229 @@
   function syncMacroText(layout, food) {
     for (const sectionId of ['fats', 'carbs', 'protein']) {
       const layers = getSectionLayers(layout, sectionId);
-      const specs = MACRO_SUBMETRIC_SPECS[sectionId] || [];
-      specs.forEach((spec, index) => {
+      macroSubmetricBindings(layout, sectionId).forEach((binding, index) => {
+        const spec = binding.spec;
         const label = layers.find(layer => layer.id === `${sectionId}_submacro_label_${index + 1}`);
         const value = layers.find(layer => layer.id === `${sectionId}_submacro_value_${index + 1}`);
         if (label && !label.manualText) label.text = spec.label;
-        if (value && !value.manualText) value.text = spec.value(food);
+        if (value) {
+          if (!value.manualText) value.text = spec.value(food);
+          value.color = macroArrowPresentation(food, sectionId, spec).textColor;
+        }
+      });
+    }
+  }
+
+  function macroScoreRows(layers) {
+    const candidates = layers
+      .filter(layer => isMacroScoreCard(layer) || isMacroArrow(layer))
+      .map(layer => ({
+        layer,
+        id: layer.id || '',
+        label: layer.label || '',
+        src: layer.src || '',
+        x: Number(layer.x) || 0,
+        y: Number(layer.y) || 0,
+        width: Number(layer.width) || 0,
+        height: Number(layer.height) || 0
+      }))
+      .sort((a, b) => a.y - b.y || a.x - b.x);
+
+    const rows = [];
+    for (const item of candidates) {
+      const centerY = item.y + ((item.height || 0) / 2);
+      const existing = rows.find(row => Math.abs(centerY - row.centerY) <= 9);
+      if (existing) {
+        existing.items.push(item);
+        existing.minX = Math.min(existing.minX, item.x);
+        existing.maxX = Math.max(existing.maxX, item.x + item.width);
+        existing.minY = Math.min(existing.minY, item.y);
+        existing.maxY = Math.max(existing.maxY, item.y + item.height);
+        existing.centerY = (existing.minY + existing.maxY) / 2;
+      } else {
+        rows.push({
+          items: [item],
+          minX: item.x,
+          maxX: item.x + item.width,
+          minY: item.y,
+          maxY: item.y + item.height,
+          centerY
+        });
+      }
+    }
+    return rows.sort((a, b) => a.minY - b.minY).slice(0, 4);
+  }
+
+  function macroSubmetricBindings(layout, sectionId) {
+    const layers = getSectionLayers(layout, sectionId);
+    const rows = macroScoreRows(layers);
+    const specs = MACRO_SUBMETRIC_SPECS[sectionId] || [];
+    return specs.map((spec, index) => {
+      const row = rows[index] || { items: [], minX: 8, maxX: 91, minY: 74 + (index * 18) };
+      const arrowLayers = row.items.filter(item => isMacroArrow(item.layer)).map(item => item.layer);
+      const arrowMinX = arrowLayers.length ? Math.min(...arrowLayers.map(layer => Number(layer.x) || 0)) : null;
+      const valueWidth = 22;
+      const labelX = clamp(Math.round(row.minX + 12), 4, 96);
+      const valueX = arrowMinX == null
+        ? clamp(Math.round(Math.max(labelX + 24, row.maxX - 30)), 34, 124)
+        : clamp(Math.round(arrowMinX - valueWidth - 3), 34, 124);
+      const y = clamp(Math.round(row.minY + 3), 42, 220);
+      return {
+        spec,
+        row,
+        arrowLayers,
+        arrowMinX,
+        labelX,
+        valueX,
+        y,
+        labelWidth: Math.max(26, valueX - labelX - 4),
+        valueWidth
+      };
+    });
+  }
+
+  function ensureMacroTextLayers(layout) {
+    for (const sectionId of ['fats', 'carbs', 'protein']) {
+      const layers = getSectionLayers(layout, sectionId);
+      const topZ = layers.reduce((max, layer) => Math.max(max, Number(layer.z) || 0), 0) + 2;
+      macroSubmetricBindings(layout, sectionId).forEach((binding, index) => {
+        const labelId = `${sectionId}_submacro_label_${index + 1}`;
+        const valueId = `${sectionId}_submacro_value_${index + 1}`;
+        let label = layers.find(layer => layer.id === labelId);
+        let value = layers.find(layer => layer.id === valueId);
+        if (!label) {
+          label = {
+            id: labelId,
+            kind: 'text',
+            label: `${sectionId.toUpperCase()} score card label ${index + 1}`,
+            x: binding.labelX,
+            y: binding.y,
+            z: topZ,
+            visible: true,
+            text: binding.spec.label,
+            fontSize: 4,
+            width: binding.labelWidth,
+            align: 'left'
+          };
+          layers.push(label);
+        }
+        if (!value) {
+          value = {
+            id: valueId,
+            kind: 'text',
+            label: `${sectionId.toUpperCase()} score card value ${index + 1}`,
+            x: binding.valueX,
+            y: binding.y,
+            z: topZ,
+            visible: true,
+            text: 'N/A',
+            fontSize: 4,
+            width: binding.valueWidth,
+            align: 'right'
+          };
+          layers.push(value);
+        }
+        label.label = `${sectionId.toUpperCase()} score card label ${index + 1}`;
+        label.fontSize = label.fontSize || 4;
+        label.align = label.align || 'left';
+        label.width = label.width || binding.labelWidth;
+        label.z = label.z || topZ;
+        value.label = `${sectionId.toUpperCase()} score card value ${index + 1}`;
+        value.fontSize = value.fontSize || 4;
+        value.align = value.align || 'right';
+        value.z = value.z || topZ;
+        const valueRight = (Number(value.x) || 0) + (Number(value.width) || binding.valueWidth);
+        const overlapsArrowSlot = binding.arrowMinX != null && valueRight > binding.arrowMinX - 2;
+        if (overlapsArrowSlot) {
+          value.x = binding.valueX;
+          value.y = binding.y;
+          value.width = binding.valueWidth;
+        }
+      });
+    }
+  }
+
+  function ruleSectionKey(sectionId) {
+    return sectionId === 'protein' ? 'proteins' : sectionId;
+  }
+
+  function episodeDisplayItemForSpec(food, sectionId, spec) {
+    const sectionKey = ruleSectionKey(sectionId);
+    const section = food?.episode?.script?.sections?.find(item => item.key === sectionId || item.key === sectionKey);
+    return (section?.displayItems || []).find(item => item.metricKey === spec.key) || null;
+  }
+
+  function metricRuleForSpec(food, sectionId, spec) {
+    const sectionKey = ruleSectionKey(sectionId);
+    const bySection = food?.ruleset?.metricRulesBySection?.[sectionKey] || food?.ruleset?.metricRulesBySection?.[sectionId] || [];
+    return bySection.find(rule => rule.metricKey === spec.key) || null;
+  }
+
+  function rawMetricValueForSpec(food, sectionId, spec) {
+    if (sectionId === 'protein' && spec.key === 'protein_g') return asNumber(food?.header?.protein_g, null);
+    return asNumber(food?.metrics?.[spec.key], null);
+  }
+
+  function ruleBandForValue(rule, value) {
+    if (!rule || value == null) return null;
+    return (rule.bands || []).find(band => {
+      const aboveMin = band.min == null || value >= Number(band.min);
+      const belowMax = band.max == null || value < Number(band.max);
+      return aboveMin && belowMax;
+    }) || null;
+  }
+
+  function arrowBandForSpec(food, sectionId, spec) {
+    const displayItem = episodeDisplayItemForSpec(food, sectionId, spec);
+    if (displayItem?.band) return displayItem.band;
+    const rule = metricRuleForSpec(food, sectionId, spec);
+    return ruleBandForValue(rule, rawMetricValueForSpec(food, sectionId, spec))?.label || null;
+  }
+
+  function parseArrowBand(band, polarity = null) {
+    const normalized = String(band || '').trim().toLowerCase();
+    const named = normalized.match(/^([123])_(green|red)$/);
+    if (named) return { count: Number(named[1]), color: named[2], direction: null };
+    const higherWorse = polarity === 'higher_worse';
+    const upCount = (normalized.match(/↑/g) || []).length;
+    if (upCount) return { count: clamp(upCount, 1, 3), color: higherWorse ? 'red' : 'green', direction: 'up' };
+    const downCount = (normalized.match(/↓/g) || []).length;
+    if (downCount) return { count: clamp(downCount, 1, 3), color: higherWorse ? 'green' : 'red', direction: 'down' };
+    return { count: 0, color: 'green', direction: null };
+  }
+
+  function macroArrowPresentation(food, sectionId, spec) {
+    const rule = metricRuleForSpec(food, sectionId, spec);
+    const parsed = parseArrowBand(arrowBandForSpec(food, sectionId, spec), rule?.polarity);
+    const higherWorse = rule?.polarity === 'higher_worse';
+    const pointsDown = parsed.direction ? parsed.direction === 'down' : parsed.color === 'green' ? higherWorse : !higherWorse;
+    return {
+      ...parsed,
+      flipY: !!parsed.count && pointsDown,
+      textColor: parsed.count ? (SUBMACRO_VALUE_COLORS[parsed.color] || SUBMACRO_VALUE_COLORS.neutral) : SUBMACRO_VALUE_COLORS.neutral
+    };
+  }
+
+  function visibleArrowIndexes(count, total) {
+    if (count >= total) return new Set(Array.from({ length: total }, (_, index) => index));
+    if (count === 1) return new Set([Math.floor(total / 2)]);
+    if (count === 2 && total >= 3) return new Set([0, total - 1]);
+    return new Set(Array.from({ length: Math.max(0, count) }, (_, index) => index));
+  }
+
+  function syncMacroArrows(layout, food) {
+    for (const sectionId of ['fats', 'carbs', 'protein']) {
+      macroSubmetricBindings(layout, sectionId).forEach(binding => {
+        const arrows = binding.arrowLayers.sort((a, b) => (Number(a.x) || 0) - (Number(b.x) || 0));
+        if (!arrows.length) return;
+        const presentation = macroArrowPresentation(food, sectionId, binding.spec);
+        const visibleIndexes = visibleArrowIndexes(presentation.count, arrows.length);
+        arrows.forEach((layer, index) => {
+          layer.src = appSpritePath(`macros_section/arrow_indicators/${presentation.color === 'red' ? 'red' : 'green'}_arrow.png`);
+          layer.label = `${presentation.color === 'red' ? 'Red' : 'Green'} ${presentation.flipY ? 'down' : 'up'} arrow indicator`;
+          layer.flipY = !!presentation.flipY;
+          layer.visible = visibleIndexes.has(index);
+        });
       });
     }
   }
@@ -591,9 +813,11 @@
     const food = selectedFood();
     const layout = selectedLayoutBase();
     normalizeOutroScoreLayout(layout);
+    ensureMacroTextLayers(layout);
     syncHeader(layout, food);
     syncSectionIndicators(layout, food);
     syncMacroText(layout, food);
+    syncMacroArrows(layout, food);
     syncMicros(layout, food, 'vitamins', VITAMIN_TEXT_SPECS, 'vitamins_label', 'vitamins_percent');
     syncMicros(layout, food, 'minerals', MINERAL_TEXT_SPECS, 'minerals_label', 'minerals_percent');
     syncProsCons(layout, food);
@@ -1618,10 +1842,16 @@
       - cssPixels(shellStyle.paddingRight);
     const visibleLeft = Math.max(stageRect.left, contentLeft);
     const visibleRight = Math.min(stageRect.right, contentRight);
+    const visibleTop = Math.max(stageRect.top, shellRect.top + cssPixels(shellStyle.borderTopWidth) + cssPixels(shellStyle.paddingTop));
+    const visibleBottom = Math.min(stageRect.bottom, shellRect.bottom - cssPixels(shellStyle.borderBottomWidth) - cssPixels(shellStyle.paddingBottom));
     const leftInset = Math.max(0, visibleLeft - stageRect.left) + safe;
     const rightInset = Math.max(0, stageRect.right - visibleRight) + safe;
+    const topInset = Math.max(0, visibleTop - stageRect.top);
+    const bottomInset = Math.max(0, stageRect.bottom - visibleBottom);
     caption.style.setProperty('--caption-safe-left', `${leftInset.toFixed(2)}px`);
     caption.style.setProperty('--caption-safe-right', `${rightInset.toFixed(2)}px`);
+    caption.style.setProperty('--caption-safe-top', `${topInset.toFixed(2)}px`);
+    caption.style.setProperty('--caption-safe-bottom', `${bottomInset.toFixed(2)}px`);
   }
 
   function normalizeSpeechSearch(value) {
@@ -1942,6 +2172,7 @@
     if (persistent) {
       node.style.opacity = '1';
       if (layer.flipY) {
+        node.style.transformOrigin = 'center';
         node.style.transform = 'scaleY(-1)';
       }
       return;
@@ -1979,6 +2210,7 @@
     }
 
     const flip = layer.flipY ? ' scaleY(-1)' : '';
+    node.style.transformOrigin = layer.flipY ? 'center' : 'top left';
     node.style.opacity = String(visible);
     node.style.transform = `translate3d(calc(${x}px * var(--pixel-unit)), calc(${y}px * var(--pixel-unit)), 0) scale(${scale})${flip}`;
     if (clip) node.style.clipPath = clip;

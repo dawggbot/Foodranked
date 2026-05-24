@@ -2177,13 +2177,25 @@
       } else {
         layer.label = spec.label;
       }
-      layer.fontSize = layer.fontSize || spec.fontSize;
-      layer.align = layer.align || spec.align;
-      layer.width = layer.width || spec.width;
-      layer.z = layer.z || spec.z;
+      const isLegacyHeaderScore = (Number(layer.y) || 0) < 50
+        || (Number(layer.fontSize) || 0) <= 8
+        || (Number(layer.width) || 0) <= 12;
+      if (isLegacyHeaderScore) {
+        layer.x = spec.x;
+        layer.y = spec.y;
+        layer.fontSize = spec.fontSize;
+        layer.width = spec.width;
+        layer.align = spec.align;
+        layer.z = Math.max(Number(layer.z) || 0, 40);
+      } else {
+        layer.fontSize = layer.fontSize || spec.fontSize;
+        layer.align = layer.align || spec.align;
+        layer.width = layer.width || spec.width;
+        layer.z = layer.z || spec.z;
+      }
 
       layout.meta = layout.meta || {};
-      layout.meta.outroScoreDisplayLayersV2 = true;
+      layout.meta.outroScoreDisplayLayersV3 = true;
     }
 
     function migrateMacroLayoutFromOutro(layout) {

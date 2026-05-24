@@ -572,9 +572,25 @@
     return score == null ? 'N/A' : formatCompactNumber(score, 0);
   }
 
+  function normalizeOutroScoreLayout(layout) {
+    const layer = getSectionLayers(layout, 'outro').find(item => item.id === 'outro_score_value');
+    if (!layer) return;
+    const isLegacyHeaderScore = (Number(layer.y) || 0) < 50
+      || (Number(layer.fontSize) || 0) <= 8
+      || (Number(layer.width) || 0) <= 12;
+    if (!isLegacyHeaderScore) return;
+    layer.x = 48;
+    layer.y = 94;
+    layer.fontSize = 22;
+    layer.width = 40;
+    layer.align = 'center';
+    layer.z = Math.max(Number(layer.z) || 0, 40);
+  }
+
   function hydrateLayoutForFood() {
     const food = selectedFood();
     const layout = selectedLayoutBase();
+    normalizeOutroScoreLayout(layout);
     syncHeader(layout, food);
     syncSectionIndicators(layout, food);
     syncMacroText(layout, food);
@@ -1475,7 +1491,7 @@
       chunks.push({
         text: cueText,
         lines: cue.lines.slice(0, CAPTION_MAX_LINES),
-        placement: cue.placement || captionPlacementForCue(cue, cueText),
+        placement: captionPlacementForCue(cue, cueText),
         role: cue.role || null,
         cueId: cue.id,
         startWordIndex,

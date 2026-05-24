@@ -19,8 +19,8 @@
   const HIDDEN_CAPTION_SECTION_IDS = new Set(['intro']);
   const INTRO_RANKED_SPRITE_PATH = './sprites/ui/intro_&_outro/ranked.png';
   const INTRO_HERO_LAYOUT = {
-    ranked: { x: 21.5, y: 77, width: 92, height: 92 },
-    food: { x: 40, y: 101, width: 55, height: 28 }
+    ranked: { x: 21.5, y: 57.25, width: 92, height: 92 },
+    food: { x: 40, y: 81.25, width: 55, height: 28 }
   };
   const SUBMACRO_VALUE_COLORS = {
     green: '#7cf2a7',
@@ -365,8 +365,34 @@
         preserveAspect: true,
         aspectRatio: 1,
         effect: 'ranked-shine'
-      }
+      },
+      ...introRankedGlimmerLayers(rankedBox)
     ];
+  }
+
+  function introRankedGlimmerLayers(rankedBox) {
+    return [
+      { x: rankedBox.x + 10, y: rankedBox.y + 6, delay: 0.02 },
+      { x: rankedBox.x + 74, y: rankedBox.y + 12, delay: 0.16 },
+      { x: rankedBox.x + 5, y: rankedBox.y + 66, delay: 0.3 },
+      { x: rankedBox.x + 78, y: rankedBox.y + 61, delay: 0.44 }
+    ].map((glimmer, index) => ({
+      id: `intro_ranked_glimmer_${index + 1}`,
+      kind: 'text',
+      label: 'Hook ranked glimmer',
+      text: index % 2 ? '+' : '*',
+      x: glimmer.x,
+      y: glimmer.y,
+      z: 64 + index,
+      width: 6,
+      fontSize: 10,
+      align: 'center',
+      visible: true,
+      color: '#fff8c9',
+      effect: 'ranked-glimmer',
+      animationDelay: `${glimmer.delay}s`,
+      sparkleDelay: glimmer.delay
+    }));
   }
 
   function typePlatePath(food) {
@@ -1535,6 +1561,7 @@
       const node = document.createElement(layer.kind === 'sprite' ? 'img' : 'div');
       const effectClass = layer.effect ? ` ${String(layer.effect).replace(/[^a-z0-9_-]+/gi, '-')}` : '';
       node.className = `layer-node ${layer.kind}${layer.kind === 'text' ? ' pixel-text' : ''}${effectClass}`;
+      if (layer.animationDelay != null) node.style.animationDelay = String(layer.animationDelay);
       node.dataset.layerId = layer.id || '';
       node.dataset.persistent = persistent ? 'true' : 'false';
       const revealSchedule = layerRevealSchedule(layer, scene, index, persistent, layerList);
@@ -2255,6 +2282,7 @@
     const id = String(layer?.id || '').toLowerCase();
     if (id === 'intro_food_hero') return 'food-hero';
     if (id === 'intro_ranked_sprite') return 'ranked-sprite';
+    if (id.startsWith('intro_ranked_glimmer_')) return 'glimmer';
     return null;
   }
 
@@ -2325,6 +2353,7 @@
         return termStartForTiming(timing, [foodName, firstFoodWord, 'bacon'].filter(Boolean)) ?? 0.04;
       }
       if (classification.kind === 'ranked-sprite') return rankedAnchor;
+      if (classification.kind === 'glimmer') return clamp(rankedAnchor + (asNumber(layer?.sparkleDelay, 0) || 0), 0.02, 0.9);
       return termStartForTiming(timing, [foodName, 'ranked'].filter(Boolean))
         ?? distributedRevealDelay(index, 3, segments, { start: 0.05, end: 0.58 });
     }
@@ -2394,7 +2423,7 @@
     let offset = 0;
 
     if (classification.family === 'intro') {
-      offset = ['food-hero', 'ranked-sprite'].includes(classification.kind) ? 0 : Math.min(0.12, index * 0.025);
+      offset = ['food-hero', 'ranked-sprite', 'glimmer'].includes(classification.kind) ? 0 : Math.min(0.12, index * 0.025);
     }
     if (classification.family === 'macro') {
       if (classification.kind === 'score-card') offset = -0.035;

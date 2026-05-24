@@ -334,7 +334,7 @@ h2 {
   position: absolute;
   image-rendering: pixelated;
   transform-origin: top left;
-  will-change: opacity, transform, clip-path;
+  will-change: opacity, transform, clip-path, filter;
 }
 
 .layer-node.sprite {
@@ -342,19 +342,54 @@ h2 {
 }
 
 .layer-node.sprite.ranked-shine {
-  animation: ranked-glint 1.35s steps(4, end) infinite;
-  filter: brightness(1.08) saturate(1.08) drop-shadow(0 0 calc(1px * var(--pixel-unit)) rgba(255, 244, 184, 0.9));
+  animation: ranked-glint 1.08s steps(4, end) infinite;
+  filter:
+    brightness(1.1)
+    saturate(1.12)
+    drop-shadow(0 0 calc(1px * var(--pixel-unit)) rgba(255, 244, 184, 0.9))
+    drop-shadow(0 0 calc(2px * var(--pixel-unit)) rgba(255, 255, 255, 0.44));
+}
+
+.layer-node.text.ranked-glimmer {
+  animation: ranked-glimmer 0.86s steps(2, end) infinite;
+  -webkit-text-stroke: 0 transparent;
+  filter: drop-shadow(0 0 calc(1px * var(--pixel-unit)) rgba(255, 244, 184, 0.95));
+  text-shadow:
+    0 0 calc(1px * var(--pixel-unit)) #fff8c9,
+    0 0 calc(2px * var(--pixel-unit)) rgba(255, 244, 184, 0.7);
 }
 
 @keyframes ranked-glint {
   0%, 100% {
-    filter: brightness(1.04) saturate(1.04) drop-shadow(0 0 0 rgba(255, 244, 184, 0));
+    filter:
+      brightness(1.04)
+      saturate(1.05)
+      drop-shadow(0 0 0 rgba(255, 244, 184, 0));
   }
-  45% {
-    filter: brightness(1.24) saturate(1.18) drop-shadow(0 0 calc(2px * var(--pixel-unit)) rgba(255, 244, 184, 0.88));
+  35% {
+    filter:
+      brightness(1.34)
+      saturate(1.24)
+      drop-shadow(0 0 calc(2px * var(--pixel-unit)) rgba(255, 244, 184, 0.9))
+      drop-shadow(0 0 calc(4px * var(--pixel-unit)) rgba(255, 255, 255, 0.45));
   }
   60% {
-    filter: brightness(1.12) saturate(1.1) drop-shadow(0 0 calc(1px * var(--pixel-unit)) rgba(255, 255, 255, 0.72));
+    filter:
+      brightness(1.16)
+      saturate(1.12)
+      drop-shadow(0 0 calc(1px * var(--pixel-unit)) rgba(255, 255, 255, 0.74));
+  }
+}
+
+@keyframes ranked-glimmer {
+  0%, 100% {
+    filter: brightness(0.78) drop-shadow(0 0 0 rgba(255, 244, 184, 0));
+  }
+  50% {
+    filter:
+      brightness(1.65)
+      drop-shadow(0 0 calc(1px * var(--pixel-unit)) rgba(255, 244, 184, 0.98))
+      drop-shadow(0 0 calc(2px * var(--pixel-unit)) rgba(255, 255, 255, 0.7));
   }
 }
 

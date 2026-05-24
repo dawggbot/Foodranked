@@ -6828,13 +6828,13 @@ window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT = {
           "id": "outro_score_value",
           "kind": "text",
           "label": "OUTRO numerical score",
-          "x": 48,
-          "y": 94,
+          "x": 64,
+          "y": 24,
           "z": 11,
           "visible": true,
           "text": "22",
-          "fontSize": 22,
-          "width": 40,
+          "fontSize": 5,
+          "width": 5,
           "align": "center"
         },
         {
@@ -7219,6 +7219,7 @@ window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT = {
     "consImpactTextLayersV1": true,
     "outroScoreDisplayLayersV1": true,
     "outroScoreDisplayLayersV2": true,
-    "outroScoreDisplayLayersV3": true
+    "outroScoreDisplayLayersV3": true,
+    "outroScoreDisplayLayersV4": true
   }
 };

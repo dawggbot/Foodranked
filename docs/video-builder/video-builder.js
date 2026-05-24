@@ -701,11 +701,27 @@
     const parsed = parseArrowBand(arrowBandForSpec(food, sectionId, spec), rule?.polarity);
     const higherWorse = rule?.polarity === 'higher_worse';
     const pointsDown = parsed.direction ? parsed.direction === 'down' : parsed.color === 'green' ? higherWorse : !higherWorse;
+    const proteinReferenceValue = sectionId === 'protein' ? rawMetricValueForSpec(food, sectionId, spec) : null;
+    const proteinReferenceColor = proteinReferenceTextColor(spec.key, proteinReferenceValue);
     return {
       ...parsed,
       flipY: !!parsed.count && pointsDown,
-      textColor: parsed.count ? (SUBMACRO_VALUE_COLORS[parsed.color] || SUBMACRO_VALUE_COLORS.neutral) : SUBMACRO_VALUE_COLORS.neutral
+      textColor: parsed.count
+        ? (SUBMACRO_VALUE_COLORS[parsed.color] || SUBMACRO_VALUE_COLORS.neutral)
+        : proteinReferenceValue != null
+          ? proteinReferenceColor
+          : SUBMACRO_VALUE_COLORS.neutral
     };
+  }
+
+  function proteinReferenceTextColor(metricKey, value) {
+    const safe = asNumber(value, null);
+    if (safe == null) return SUBMACRO_VALUE_COLORS.neutral;
+    if (metricKey === 'collagen_g') return safe >= 3 ? SUBMACRO_VALUE_COLORS.green : SUBMACRO_VALUE_COLORS.red;
+    if (metricKey === 'essential_amino_acids_score') return safe >= 6 ? SUBMACRO_VALUE_COLORS.green : safe >= 3 ? SUBMACRO_VALUE_COLORS.neutral : SUBMACRO_VALUE_COLORS.red;
+    if (metricKey === 'nonessential_amino_acids_score') return safe >= 8 ? SUBMACRO_VALUE_COLORS.green : safe >= 4 ? SUBMACRO_VALUE_COLORS.neutral : SUBMACRO_VALUE_COLORS.red;
+    if (metricKey === 'bioavailability_percent') return safe >= 60 ? SUBMACRO_VALUE_COLORS.green : safe >= 40 ? SUBMACRO_VALUE_COLORS.neutral : SUBMACRO_VALUE_COLORS.red;
+    return SUBMACRO_VALUE_COLORS.green;
   }
 
   function visibleArrowIndexes(count, total) {
@@ -797,16 +813,12 @@
   function normalizeOutroScoreLayout(layout) {
     const layer = getSectionLayers(layout, 'outro').find(item => item.id === 'outro_score_value');
     if (!layer) return;
-    const isLegacyHeaderScore = (Number(layer.y) || 0) < 50
-      || (Number(layer.fontSize) || 0) <= 8
-      || (Number(layer.width) || 0) <= 12;
-    if (!isLegacyHeaderScore) return;
-    layer.x = 48;
-    layer.y = 94;
-    layer.fontSize = 22;
-    layer.width = 40;
+    layer.x = 64;
+    layer.y = 24;
+    layer.fontSize = 5;
+    layer.width = 5;
     layer.align = 'center';
-    layer.z = Math.max(Number(layer.z) || 0, 40);
+    layer.z = 11;
   }
 
   function hydrateLayoutForFood() {
@@ -1330,8 +1342,8 @@
   }
 
   function captionFontSize(scene, frame) {
-    if (frame.placement === 'tier-center') return 'calc(36px * 0.25 * var(--pixel-unit))';
-    if (frame.placement === 'summary-full') return 'calc(18px * 0.25 * var(--pixel-unit))';
+    if (frame.placement === 'tier-center') return 'calc(44px * 0.25 * var(--pixel-unit))';
+    if (frame.placement === 'summary-full') return 'calc(22px * 0.25 * var(--pixel-unit))';
     return `calc(${Number(scene.captionSize) || 22}px * 0.25 * var(--pixel-unit))`;
   }
 

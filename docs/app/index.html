@@ -1435,8 +1435,12 @@
       for (const section of SECTIONS) {
         if (section.id === source.sectionId) continue;
         const currentLayers = getSectionLayersFromLayout(layout, section.id);
-        const preserved = currentLayers.filter(layer => !isHeaderLayoutLayer(layer));
-        layout.sections[section.id].layers = [...preserved, ...source.layers.map(cloneLayer)];
+        const preserved = currentLayers.filter(layer => !isHeaderLayoutLayer(layer) || layer.manualPosition);
+        const preservedIds = new Set(preserved.map(layer => layer.id).filter(Boolean));
+        layout.sections[section.id].layers = [
+          ...preserved,
+          ...source.layers.filter(layer => !preservedIds.has(layer.id)).map(cloneLayer)
+        ];
       }
     }
 
@@ -1451,13 +1455,15 @@
         if (section.id === 'outro') continue;
         const currentLayers = getSectionLayersFromLayout(layout, section.id);
         const preserved = currentLayers.filter(layer => {
+          if (layer.manualPosition) return true;
           if (isLockedUiSpriteLayer(layer) && layer.id && lockedSpriteIds.has(layer.id)) return false;
           if (section.id !== 'fats' && isTextLayer(layer) && lockedTextIds.has(layer.id)) return false;
           return true;
         });
+        const preservedIds = new Set(preserved.map(layer => layer.id).filter(Boolean));
         const layersToClone = [
-          ...lockedSpriteLayers.map(cloneLayer),
-          ...(section.id === 'fats' ? [] : lockedTextLayers.map(cloneLayer))
+          ...lockedSpriteLayers.filter(layer => !preservedIds.has(layer.id)).map(cloneLayer),
+          ...(section.id === 'fats' ? [] : lockedTextLayers.filter(layer => !preservedIds.has(layer.id)).map(cloneLayer))
         ];
         layout.sections[section.id].layers = [...preserved, ...layersToClone];
       }
@@ -2181,8 +2187,7 @@
 
     function ensureOutroScoreDisplayLayers(layout) {
       const sectionLayers = getSectionLayersFromLayout(layout, 'outro');
-      const topZ = sectionLayers.reduce((max, layer) => Math.max(max, Number(layer.z) || 0), 0) + 2;
-      const spec = { id: 'outro_score_value', label: 'OUTRO numerical score', x: 48, y: 94, fontSize: 22, text: '—', z: topZ, width: 40, align: 'center' };
+      const spec = { id: 'outro_score_value', label: 'OUTRO numerical score', x: 64, y: 24, fontSize: 5, text: '—', z: 11, width: 5, align: 'center' };
       let layer = sectionLayers.find(item => item.id === spec.id);
       if (!layer) {
         layer = text(spec.id, spec.label, spec.x, spec.y, spec.fontSize, spec.text, spec.z, spec.width, spec.align);
@@ -2190,25 +2195,15 @@
       } else {
         layer.label = spec.label;
       }
-      const isLegacyHeaderScore = (Number(layer.y) || 0) < 50
-        || (Number(layer.fontSize) || 0) <= 8
-        || (Number(layer.width) || 0) <= 12;
-      if (isLegacyHeaderScore) {
-        layer.x = spec.x;
-        layer.y = spec.y;
-        layer.fontSize = spec.fontSize;
-        layer.width = spec.width;
-        layer.align = spec.align;
-        layer.z = Math.max(Number(layer.z) || 0, 40);
-      } else {
-        layer.fontSize = layer.fontSize || spec.fontSize;
-        layer.align = layer.align || spec.align;
-        layer.width = layer.width || spec.width;
-        layer.z = layer.z || spec.z;
-      }
+      layer.x = spec.x;
+      layer.y = spec.y;
+      layer.fontSize = spec.fontSize;
+      layer.width = spec.width;
+      layer.align = spec.align;
+      layer.z = spec.z;
 
       layout.meta = layout.meta || {};
-      layout.meta.outroScoreDisplayLayersV3 = true;
+      layout.meta.outroScoreDisplayLayersV4 = true;
     }
 
     function migrateMacroLayoutFromOutro(layout) {
@@ -2499,6 +2494,7 @@
 
     function getSyncedGlobalSourceLayer(layer) {
       if (!layer) return null;
+      if (isSpriteLayer(layer)) return null;
 
       if (isHeaderLayoutLayer(layer)) {
         if (state.layout.selectedSectionId === 'intro') return null;
@@ -2529,6 +2525,7 @@
       const sourceLayer = getSyncedGlobalSourceLayer(layer);
       const targetLayer = sourceLayer || layer;
       mutator(targetLayer);
+      if (isSpriteLayer(targetLayer)) targetLayer.manualPosition = true;
       snapLayerToPixel(targetLayer);
       if (clamp) clampLayerToCanvas(targetLayer);
       if (sourceLayer) mirrorLayerValues(sourceLayer, layer);
@@ -2572,7 +2569,7 @@
         ));
       }
       if (sectionId === 'outro') {
-        base.push(text('outro_score_value', 'OUTRO numerical score', 48, 94, 22, '—', 40, 40, 'center'));
+        base.push(text('outro_score_value', 'OUTRO numerical score', 64, 24, 5, '—', 11, 5, 'center'));
       }
       return base;
     }
@@ -2943,6 +2940,7 @@
         if (section.id === 'intro') continue;
         const indicators = sectionIndicatorLayersForSection(layout, section.id);
         indicators.forEach((layer, index) => {
+          if (layer.manualPosition) return;
           const source = sourceIndicators[index];
           if (!source) return;
           layer.x = source.x;
@@ -3490,11 +3488,27 @@
       const parsed = parseArrowBand(arrowBandForSpec(food, sectionId, spec), rule?.polarity);
       const higherWorse = rule?.polarity === 'higher_worse';
       const pointsDown = parsed.direction ? parsed.direction === 'down' : parsed.color === 'green' ? higherWorse : !higherWorse;
+      const proteinReferenceValue = sectionId === 'protein' ? rawMetricValueForSpec(food, spec) : null;
+      const proteinReferenceColor = proteinReferenceTextColor(spec.metricKey, proteinReferenceValue);
       return {
         ...parsed,
         flipY: !!parsed.count && pointsDown,
-        textColor: parsed.count ? (SUBMACRO_VALUE_COLORS[parsed.color] || SUBMACRO_VALUE_COLORS.neutral) : SUBMACRO_VALUE_COLORS.neutral
+        textColor: parsed.count
+          ? (SUBMACRO_VALUE_COLORS[parsed.color] || SUBMACRO_VALUE_COLORS.neutral)
+          : proteinReferenceValue != null
+            ? proteinReferenceColor
+            : SUBMACRO_VALUE_COLORS.neutral
       };
+    }
+
+    function proteinReferenceTextColor(metricKey, value) {
+      const safe = asNumber(value, null);
+      if (safe == null) return SUBMACRO_VALUE_COLORS.neutral;
+      if (metricKey === 'collagen_g') return safe >= 3 ? SUBMACRO_VALUE_COLORS.green : SUBMACRO_VALUE_COLORS.red;
+      if (metricKey === 'essential_amino_acids_score') return safe >= 6 ? SUBMACRO_VALUE_COLORS.green : safe >= 3 ? SUBMACRO_VALUE_COLORS.neutral : SUBMACRO_VALUE_COLORS.red;
+      if (metricKey === 'nonessential_amino_acids_score') return safe >= 8 ? SUBMACRO_VALUE_COLORS.green : safe >= 4 ? SUBMACRO_VALUE_COLORS.neutral : SUBMACRO_VALUE_COLORS.red;
+      if (metricKey === 'bioavailability_percent') return safe >= 60 ? SUBMACRO_VALUE_COLORS.green : safe >= 40 ? SUBMACRO_VALUE_COLORS.neutral : SUBMACRO_VALUE_COLORS.red;
+      return SUBMACRO_VALUE_COLORS.green;
     }
 
     function parseArrowBand(band, polarity = null) {
@@ -4189,6 +4203,7 @@
           const pixelStep = getPixelUnit();
           dragLayer.x = Math.round(originX + (e.clientX - startX) / pixelStep);
           dragLayer.y = Math.round(originY + (e.clientY - startY) / pixelStep);
+          dragLayer.manualPosition = true;
           snapLayerToPixel(dragLayer);
           if (sourceLayer) mirrorLayerValues(sourceLayer, layer);
           void renderCanvas();

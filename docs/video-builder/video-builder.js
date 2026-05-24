@@ -16,10 +16,11 @@
   const AUDIO_TIMELINE_SYNC_TOLERANCE_SECONDS = 0.12;
   const SECTION_HOLD_SECONDS = 2;
   const SECTION_HOLD_IDS = new Set(['fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons']);
+  const HIDDEN_CAPTION_SECTION_IDS = new Set(['intro']);
   const INTRO_RANKED_SPRITE_PATH = './sprites/ui/intro_&_outro/ranked.png';
   const INTRO_HERO_LAYOUT = {
-    ranked: { x: 42.5, y: 58, width: 50, height: 50 },
-    food: { x: 52.5, y: 71, width: 30, height: 15 }
+    ranked: { x: 21.5, y: 74, width: 92, height: 92 },
+    food: { x: 40, y: 98, width: 55, height: 28 }
   };
   const SUBMACRO_VALUE_COLORS = {
     green: '#7cf2a7',
@@ -364,33 +365,8 @@
         preserveAspect: true,
         aspectRatio: 1,
         effect: 'ranked-shine'
-      },
-      ...introSparkleLayers(rankedBox)
+      }
     ];
-  }
-
-  function introSparkleLayers(rankedBox) {
-    return [
-      { x: rankedBox.x + 4, y: rankedBox.y + 4, delay: 0.02 },
-      { x: rankedBox.x + 40, y: rankedBox.y + 8, delay: 0.09 },
-      { x: rankedBox.x + 1, y: rankedBox.y + 33, delay: 0.16 },
-      { x: rankedBox.x + 45, y: rankedBox.y + 36, delay: 0.23 }
-    ].map((sparkle, index) => ({
-      id: `intro_ranked_sparkle_${index + 1}`,
-      kind: 'text',
-      label: 'Hook ranked sparkle',
-      text: '*',
-      x: sparkle.x,
-      y: sparkle.y,
-      z: 61 + index,
-      width: 5,
-      fontSize: 8,
-      align: 'center',
-      visible: true,
-      color: '#fff4b8',
-      effect: 'sparkle-twinkle',
-      sparkleDelay: sparkle.delay
-    }));
   }
 
   function typePlatePath(food) {
@@ -1126,6 +1102,10 @@
     return SECTION_HOLD_IDS.has(sectionId) ? SECTION_HOLD_SECONDS : 0;
   }
 
+  function hideSceneCaptions(scene) {
+    return HIDDEN_CAPTION_SECTION_IDS.has(scene?.id);
+  }
+
   function sceneHoldSeconds(scene) {
     return Math.max(0, asNumber(scene?.holdSeconds, sectionHoldSeconds(scene?.id)) || 0);
   }
@@ -1373,6 +1353,7 @@
     const layerSchedule = sceneLayerRevealSchedule(scene, food);
     const contentDuration = sceneContentDuration(scene);
     const holdSeconds = sceneHoldSeconds(scene);
+    const captionsHidden = hideSceneCaptions(scene);
     return {
       id: scene.id,
       label: scene.label,
@@ -1388,7 +1369,8 @@
       spriteMotion: scene.motion,
       captionSize: scene.captionSize,
       caption: scene.caption,
-      subtitleCues: (scene.subtitleCues || []).map(cue => {
+      captionsHidden,
+      subtitleCues: captionsHidden ? [] : (scene.subtitleCues || []).map(cue => {
         const chunk = timing.chunks.find(item => item.cueId && item.cueId === cue.id);
         return {
           id: cue.id,
@@ -1458,6 +1440,7 @@
   }
 
   function persistentChromeLayers(sectionId, food) {
+    if (sectionId === 'intro') return [];
     const sectionLayers = getSectionLayers(state.layout, sectionId);
     const introLayers = getSectionLayers(state.layout, 'intro');
     const sectionChrome = sectionLayers.filter(layer => isPersistentChrome(layer) || isSectionIndicator(layer));
@@ -1481,9 +1464,9 @@
   }
 
   function sceneContentLayers(sectionId) {
+    if (sectionId === 'intro') return introHookLayers(selectedFood());
     const layers = getSectionLayers(state.layout, sectionId)
       .filter(layer => !isPersistentChrome(layer) && !isSectionIndicator(layer));
-    if (sectionId === 'intro') return [...layers, ...introHookLayers(selectedFood())];
     return layers;
   }
 
@@ -1582,10 +1565,17 @@
     });
 
     syncCaptionSafeArea(roots.caption);
-    const frame = captionFrame(scene, sceneProgress);
-    roots.caption.style.fontSize = captionFontSize(scene, frame);
-    renderCaption(roots.caption, scene, sceneProgress, frame);
-    roots.caption.style.opacity = inHold ? '0' : String(easeOutCubic((sceneProgress + 0.05) * 4));
+    if (hideSceneCaptions(scene)) {
+      roots.caption.dataset.captionKey = '';
+      roots.caption.removeAttribute('aria-label');
+      roots.caption.replaceChildren();
+      roots.caption.style.opacity = '0';
+    } else {
+      const frame = captionFrame(scene, sceneProgress);
+      roots.caption.style.fontSize = captionFontSize(scene, frame);
+      renderCaption(roots.caption, scene, sceneProgress, frame);
+      roots.caption.style.opacity = inHold ? '0' : String(easeOutCubic((sceneProgress + 0.05) * 4));
+    }
   }
 
   function captionFontSize(scene, frame) {
@@ -2266,7 +2256,6 @@
     const id = String(layer?.id || '').toLowerCase();
     if (id === 'intro_food_hero') return 'food-hero';
     if (id === 'intro_ranked_sprite') return 'ranked-sprite';
-    if (id.startsWith('intro_ranked_sparkle_')) return 'sparkle';
     return null;
   }
 
@@ -2337,7 +2326,6 @@
         return termStartForTiming(timing, [foodName, firstFoodWord, 'bacon'].filter(Boolean)) ?? 0.04;
       }
       if (classification.kind === 'ranked-sprite') return rankedAnchor;
-      if (classification.kind === 'sparkle') return clamp(rankedAnchor + (asNumber(layer?.sparkleDelay, 0) || 0), 0.02, 0.9);
       return termStartForTiming(timing, [foodName, 'ranked'].filter(Boolean))
         ?? distributedRevealDelay(index, 3, segments, { start: 0.05, end: 0.58 });
     }
@@ -2407,7 +2395,7 @@
     let offset = 0;
 
     if (classification.family === 'intro') {
-      offset = ['food-hero', 'ranked-sprite', 'sparkle'].includes(classification.kind) ? 0 : Math.min(0.12, index * 0.025);
+      offset = ['food-hero', 'ranked-sprite'].includes(classification.kind) ? 0 : Math.min(0.12, index * 0.025);
     }
     if (classification.family === 'macro') {
       if (classification.kind === 'score-card') offset = -0.035;

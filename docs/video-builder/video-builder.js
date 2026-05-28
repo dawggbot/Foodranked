@@ -1681,9 +1681,9 @@
     const desktopComfortable = window.innerWidth >= 1600 && window.innerHeight >= 900;
     if (desktopComfortable) return 4;
 
-    const compactLaptop = (window.innerWidth <= 1500 || window.innerHeight <= 850) && window.innerWidth > 920;
+    const compactLaptop = (window.innerWidth <= 1500 || window.innerHeight <= 850) && window.innerWidth > 760;
     const laptopCanvasCrop = compactLaptop;
-    const tightLaptop = window.innerWidth <= 1180 && window.innerWidth > 920;
+    const tightLaptop = window.innerWidth <= 1180 && window.innerWidth > 760;
     const reservedWidth = tightLaptop ? 530 : (compactLaptop ? 660 : 690);
     const reservedHeight = tightLaptop ? 154 : (compactLaptop ? 150 : 210);
     const minimumScale = tightLaptop ? 1.12 : (compactLaptop ? 1.30 : 1.45);

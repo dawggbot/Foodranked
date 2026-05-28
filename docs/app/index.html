@@ -1025,10 +1025,10 @@
     </aside>
   </div>
 
-  <script src="../data/foods-index.js?v=20260528-stale-layout-v5"></script>
-  <script src="./default-layout.js?v=20260528-stale-layout-v5"></script>
+  <script src="../data/foods-index.js?v=20260528-trusted-layout-v6"></script>
+  <script src="./default-layout.js?v=20260528-trusted-layout-v6"></script>
   <script>
-    const BUILDER_BUILD_ID = '20260528-stale-layout-v5';
+    const BUILDER_BUILD_ID = '20260528-trusted-layout-v6';
     const SECTIONS = [
       { id: 'intro', label: '1. Intro blank', chip: null, indicator: true },
       { id: 'fats', label: '2. Fats', chip: 'FATS', indicator: true },
@@ -1282,6 +1282,7 @@
     }
 
     function shouldIgnoreSavedLayoutOnThisDevice(layout) {
+      if (layout?.meta?.trustedLaptopLayoutV1) return false;
       if (!layout?.sections || !compactBuilderViewport()) return false;
       return layoutHealth(layout).stale;
     }
@@ -2473,8 +2474,14 @@
       return normalizeLayout(merged);
     }
 
+    function markLayoutTrustedForLaptop(layout) {
+      layout.meta = { ...(layout.meta || {}), trustedLaptopLayoutV1: true };
+      return layout;
+    }
+
     function saveLayout({ normalize = true, allowIgnoredReplacement = false } = {}) {
       if (state.ignoredSavedLayout && !allowIgnoredReplacement) return;
+      if (allowIgnoredReplacement) markLayoutTrustedForLaptop(state.layout);
       if (normalize) {
         normalizeLayout(state.layout);
         if (state.fullFood) syncFoodIntoLayout(state.fullFood, { normalize: false });
@@ -2562,6 +2569,7 @@
         canvas: currentCanvas,
         sections: structuredClone(entry.sections)
       });
+      markLayoutTrustedForLaptop(state.layout);
       state.ignoredSavedLayout = null;
       state.selectedLayerId = null;
       void renderAll();
@@ -4685,7 +4693,7 @@ async function renderAll() {
     });
     els.applyJson.addEventListener('click', () => {
       try {
-        state.layout = normalizeLayout(JSON.parse(els.layoutJson.value));
+        state.layout = markLayoutTrustedForLaptop(normalizeLayout(JSON.parse(els.layoutJson.value)));
         state.ignoredSavedLayout = null;
         state.selectedLayerId = null;
         void renderAll();

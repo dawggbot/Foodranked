@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260528-stale-layout-v5';
+  const BUILDER_BUILD_ID = '20260528-trusted-layout-v6';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SECTION_INDICATOR_LAYOUT = { normalSize: 10, highlightedSize: 12 };
@@ -216,6 +216,7 @@
   }
 
   function shouldIgnoreSavedLayoutOnThisDevice(layout) {
+    if (layout?.meta?.trustedLaptopLayoutV1) return false;
     if (!layout?.sections || !compactBuilderViewport()) return false;
     return layoutHealth(layout).stale;
   }

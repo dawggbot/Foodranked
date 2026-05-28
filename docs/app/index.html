@@ -1012,6 +1012,7 @@
     const BATCH_RESULTS_CACHE = new Map();
     const SPRITE_EXISTENCE_CACHE = new Map();
     const SPRITE_METADATA_CACHE = new Map();
+    const AVAILABLE_FOOD_IMAGE_IDS = new Set(['bacon']);
     const BACKDROP_PALETTES = {
       vegetables: { top: '#dff4cf', bottom: '#bfd8b0', glowA: 'rgba(219,255,183,.78)', glowB: 'rgba(108,169,104,.38)' },
       fruits: { top: '#ffe0dc', bottom: '#e7b8b5', glowA: 'rgba(255,173,165,.78)', glowB: 'rgba(219,109,101,.34)' },
@@ -3002,9 +3003,11 @@
 
     function foodSpriteCandidates(food = getSelectedFoodStub()) {
       const slug = typeSpriteSlug(food?.foodType);
+      const hasFoodImage = AVAILABLE_FOOD_IMAGE_IDS.has(String(food?.id || '').toLowerCase());
+      const fallback = `${ROOT_SPRITE_BASE}/header/food_plate/${slug}_food_plate.png`;
       return {
-        primary: `./sprites/header/food_images/${food?.id}.png`,
-        fallback: `${ROOT_SPRITE_BASE}/header/food_plate/${slug}_food_plate.png`
+        primary: hasFoodImage ? `./sprites/header/food_images/${food?.id}.png` : fallback,
+        fallback
       };
     }
 
@@ -3064,7 +3067,7 @@
       ];
       const foodCandidates = selectedFood ? [
         ['selected food image', `./sprites/header/food_images/${selectedFood.id}.png`]
-      ] : [];
+      ].filter(([, src]) => AVAILABLE_FOOD_IMAGE_IDS.has(String(selectedFood.id || '').toLowerCase())) : [];
       return [
         ...foodCandidates,
         ...sectionSpecific,

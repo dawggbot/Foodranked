@@ -20,6 +20,7 @@
   const INTRO_RANKED_SPRITE_PATH = './sprites/ui/intro_&_outro/ranked.png';
   const INTRO_RANKED_VISIBLE_CENTER = { x: 0.5, y: 0.47 };
   const INTRO_HERO_SIZE = { ranked: 80, foodWidth: 48, foodHeight: 24 };
+  const AVAILABLE_FOOD_IMAGE_IDS = new Set(['bacon']);
   const SUBMACRO_VALUE_COLORS = {
     green: '#7cf2a7',
     red: '#ff6f6f',
@@ -312,6 +313,7 @@
   function foodImagePath(food) {
     const customPath = food?.assets?.customFoodImage?.path || food?.customFoodImage?.path;
     if (customPath) return customPath;
+    if (!AVAILABLE_FOOD_IMAGE_IDS.has(String(food?.id || '').toLowerCase())) return foodPlatePath(food);
     return appSpritePath(`header/food_images/${food?.id || 'bacon'}.png`);
   }
 

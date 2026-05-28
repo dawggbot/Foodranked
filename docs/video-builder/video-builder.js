@@ -1682,7 +1682,7 @@
     if (desktopComfortable) return 4;
 
     const compactLaptop = (window.innerWidth <= 1500 || window.innerHeight <= 850) && window.innerWidth > 920;
-    const laptopCanvasCrop = window.innerWidth <= 1500 && window.innerWidth > 920;
+    const laptopCanvasCrop = compactLaptop;
     const tightLaptop = window.innerWidth <= 1180 && window.innerWidth > 920;
     const reservedWidth = tightLaptop ? 530 : (compactLaptop ? 660 : 690);
     const reservedHeight = tightLaptop ? 154 : (compactLaptop ? 150 : 210);

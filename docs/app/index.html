@@ -988,10 +988,10 @@
     </aside>
   </div>
 
-  <script src="../data/foods-index.js?v=20260528-sprite-cache-v1"></script>
-  <script src="./default-layout.js?v=20260528-sprite-cache-v1"></script>
+  <script src="../data/foods-index.js?v=20260528-sprite-fallback-v2"></script>
+  <script src="./default-layout.js?v=20260528-sprite-fallback-v2"></script>
   <script>
-    const BUILDER_BUILD_ID = '20260528-sprite-cache-v1';
+    const BUILDER_BUILD_ID = '20260528-sprite-fallback-v2';
     const SECTIONS = [
       { id: 'intro', label: '1. Intro blank', chip: null, indicator: true },
       { id: 'fats', label: '2. Fats', chip: 'FATS', indicator: true },
@@ -3087,8 +3087,8 @@
         [`calorie bubble ${slug.replace('_', ' ')}`, `${ROOT_SPRITE_BASE}/header/calorie_bubble/${slug}_calorie_bubble.png`]
       ];
       const foodCandidates = selectedFood ? [
-        ['selected food image', `./sprites/header/food_images/${selectedFood.id}.png`]
-      ].filter(([, src]) => AVAILABLE_FOOD_IMAGE_IDS.has(String(selectedFood.id || '').toLowerCase())) : [];
+        ['selected food image', foodSpriteCandidates(selectedFood).primary]
+      ] : [];
       return [
         ...foodCandidates,
         ...sectionSpecific,

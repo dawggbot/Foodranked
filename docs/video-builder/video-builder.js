@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260528-sprite-report-v3';
+  const BUILDER_BUILD_ID = '20260528-layout-report-v4';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SECTION_INDICATOR_LAYOUT = { normalSize: 10, highlightedSize: 12 };
@@ -224,10 +224,25 @@
   function spriteDiagnosticsLines(limit = 8) {
     const broken = currentBrokenImages();
     const failures = [...state.spriteFailures.values()].slice(-limit);
+    const food = selectedFood();
+    const foodImageIds = [...AVAILABLE_FOOD_IMAGE_IDS].sort();
+    const displayLayout = loadDisplayBuilderLayout();
+    const sourceLabel = state.layoutSourceId === 'display-builder'
+      ? (displayLayout ? 'display builder local browser layout' : 'repo default fallback')
+      : state.layoutSourceId === 'default'
+        ? 'repo default layout'
+        : `saved layout ${state.layoutSourceId.replace(/^saved:/, '')}`;
+    const allLayerCount = SECTIONS.reduce((total, section) => total + getSectionLayers(state.layout || {}, section.id).length, 0);
     const lines = [
       'FoodRanked sprite report',
       `build: ${BUILDER_BUILD_ID}`,
       `page: ${window.location.href}`,
+      `layout source: ${sourceLabel}`,
+      `display-builder local layout present: ${displayLayout ? 'yes' : 'no'}`,
+      `selected food: ${food?.id || 'none'} (${food?.name || 'unknown'})`,
+      `layout layers: ${allLayerCount}`,
+      `committed custom food images: ${foodImageIds.join(', ') || 'none'}`,
+      `selected food has committed image: ${AVAILABLE_FOOD_IMAGE_IDS.has(String(food?.id || '').toLowerCase()) ? 'yes' : 'no, using food-type plate fallback'}`,
       `remembered failures: ${state.spriteFailures.size}`,
       `currently broken images: ${broken.length}`
     ];
@@ -250,7 +265,7 @@
       els.spriteDiagnostics.textContent = `Sprite check OK - ${BUILDER_BUILD_ID}`;
       return;
     }
-    const details = spriteDiagnosticsLines(6).slice(3);
+    const details = spriteDiagnosticsLines(6).slice(9);
     els.spriteDiagnostics.textContent = `Sprite issues ${issueCount} - ${BUILDER_BUILD_ID}\n${details.join('\n')}`;
   }
 
@@ -418,7 +433,8 @@
   }
 
   function hasCustomFoodImage(food) {
-    return Boolean(food?.assets?.customFoodImage?.path || food?.customFoodImage?.path);
+    return Boolean(food?.assets?.customFoodImage?.path || food?.customFoodImage?.path)
+      || AVAILABLE_FOOD_IMAGE_IDS.has(String(food?.id || '').toLowerCase());
   }
 
   function foodPlatePath(food) {

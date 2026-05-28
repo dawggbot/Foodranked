@@ -1025,10 +1025,10 @@
     </aside>
   </div>
 
-  <script src="../data/foods-index.js?v=20260528-sprite-report-v3"></script>
-  <script src="./default-layout.js?v=20260528-sprite-report-v3"></script>
+  <script src="../data/foods-index.js?v=20260528-layout-report-v4"></script>
+  <script src="./default-layout.js?v=20260528-layout-report-v4"></script>
   <script>
-    const BUILDER_BUILD_ID = '20260528-sprite-report-v3';
+    const BUILDER_BUILD_ID = '20260528-layout-report-v4';
     const SECTIONS = [
       { id: 'intro', label: '1. Intro blank', chip: null, indicator: true },
       { id: 'fats', label: '2. Fats', chip: 'FATS', indicator: true },
@@ -3447,10 +3447,19 @@
     function spriteDiagnosticsLines(limit = 8) {
       const broken = currentBrokenImages();
       const failures = [...state.spriteFailures.values()].slice(-limit);
+      const selectedFood = getSelectedFoodStub();
+      const foodImageIds = [...AVAILABLE_FOOD_IMAGE_IDS].sort();
+      const allLayerCount = SECTIONS.reduce((total, section) => total + getSectionLayersFromLayout(state.layout, section.id).length, 0);
       const lines = [
         `FoodRanked sprite report`,
         `build: ${BUILDER_BUILD_ID}`,
         `page: ${window.location.href}`,
+        `layout storage: display builder local browser layout`,
+        `selected food: ${selectedFood?.id || 'none'} (${selectedFood?.name || 'unknown'})`,
+        `selected section: ${state.layout.selectedSectionId}`,
+        `layout layers: ${allLayerCount}`,
+        `committed custom food images: ${foodImageIds.join(', ') || 'none'}`,
+        `selected food has committed image: ${AVAILABLE_FOOD_IMAGE_IDS.has(String(selectedFood?.id || '').toLowerCase()) ? 'yes' : 'no, using food-type plate fallback'}`,
         `remembered failures: ${state.spriteFailures.size}`,
         `currently broken images: ${broken.length}`
       ];
@@ -3473,7 +3482,7 @@
         els.spriteDiagnostics.textContent = `Sprite check OK - ${BUILDER_BUILD_ID}`;
         return;
       }
-      const details = spriteDiagnosticsLines(6).slice(3);
+      const details = spriteDiagnosticsLines(6).slice(8);
       els.spriteDiagnostics.textContent = `Sprite issues ${issueCount} - ${BUILDER_BUILD_ID}\n${details.join('\n')}`;
     }
 

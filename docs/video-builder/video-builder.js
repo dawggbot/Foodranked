@@ -2,6 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
+  const BUILDER_BUILD_ID = '20260528-sprite-cache-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SECTION_INDICATOR_LAYOUT = { normalSize: 10, highlightedSize: 12 };
@@ -1052,7 +1053,8 @@
     syncMicros(layout, food, 'minerals', MINERAL_TEXT_SPECS, 'minerals_label', 'minerals_percent');
     syncProsCons(layout, food);
     state.layout = layout;
-    els.layoutStatus.textContent = state.layoutSourceId === 'display-builder' && loadDisplayBuilderLayout() ? 'Saved layout' : 'Default layout';
+    const layoutLabel = state.layoutSourceId === 'display-builder' && loadDisplayBuilderLayout() ? 'Saved layout' : 'Default layout';
+    els.layoutStatus.textContent = `${layoutLabel} · ${BUILDER_BUILD_ID}`;
   }
 
   function captionFromEpisode(food, sectionId) {

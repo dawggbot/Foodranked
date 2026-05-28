@@ -3,6 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <title>FoodRanked Display Builder</title>
   <style>
     @font-face {
@@ -985,9 +988,10 @@
     </aside>
   </div>
 
-  <script src="../data/foods-index.js"></script>
-  <script src="./default-layout.js"></script>
+  <script src="../data/foods-index.js?v=20260528-sprite-cache-v1"></script>
+  <script src="./default-layout.js?v=20260528-sprite-cache-v1"></script>
   <script>
+    const BUILDER_BUILD_ID = '20260528-sprite-cache-v1';
     const SECTIONS = [
       { id: 'intro', label: '1. Intro blank', chip: null, indicator: true },
       { id: 'fats', label: '2. Fats', chip: 'FATS', indicator: true },
@@ -4157,8 +4161,8 @@
       const layer = getLayerById(state.selectedLayerId);
       els.selectionChip.textContent = `Selected: ${layer ? layer.label : 'none'}`;
       els.canvasMeta.innerHTML = layer
-        ? `<span>${layer.kind}</span><span>x ${Math.round(layer.x || 0)}, y ${Math.round(layer.y || 0)}</span>${layer.kind === 'sprite' ? `<span>${spriteSize(layer).width}×${spriteSize(layer).height}px</span>` : ''}<span>z ${layer.z || 0}</span>`
-        : `<span>Canvas ${AUTHOR_GRID.width}×${AUTHOR_GRID.height}px</span><span>No layer selected</span>`;
+        ? `<span>${layer.kind}</span><span>x ${Math.round(layer.x || 0)}, y ${Math.round(layer.y || 0)}</span>${layer.kind === 'sprite' ? `<span>${spriteSize(layer).width}×${spriteSize(layer).height}px</span>` : ''}<span>z ${layer.z || 0}</span><span>${BUILDER_BUILD_ID}</span>`
+        : `<span>Canvas ${AUTHOR_GRID.width}×${AUTHOR_GRID.height}px</span><span>No layer selected</span><span>${BUILDER_BUILD_ID}</span>`;
       els.noSelection.hidden = !!layer;
       els.inspectorPanel.hidden = !layer;
       if (!layer) return;

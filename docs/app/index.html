@@ -252,6 +252,39 @@
       background: rgba(255,255,255,.05);
       font-size: 11px;
     }
+    .diagnostics-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: start;
+    }
+    .sprite-diagnostics {
+      min-height: 31px;
+      max-height: 92px;
+      overflow: auto;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 10px;
+      background: rgba(255,255,255,.05);
+      color: var(--muted);
+      padding: 7px 8px;
+      font-size: 11px;
+      line-height: 1.4;
+      white-space: pre-wrap;
+    }
+    .sprite-diagnostics.ok {
+      border-color: rgba(124,224,161,.34);
+      color: #a5e9ba;
+    }
+    .sprite-diagnostics.warn {
+      border-color: rgba(243,198,93,.42);
+      color: #f4d684;
+    }
+    .diagnostics-row button {
+      min-height: 31px;
+      padding: 6px 9px;
+      font-size: 11px;
+      white-space: nowrap;
+    }
 
     .canvas.drop-target {
       box-shadow: 0 0 0 3px rgba(144,179,255,.45), 0 10px 30px rgba(0,0,0,.08);
@@ -869,6 +902,10 @@
       </div>
       <div class="canvas-wrap"><div class="phone-shell"><div id="canvas" class="canvas" tabindex="0"></div></div></div>
       <div id="canvasMeta" class="canvas-meta" aria-live="polite"></div>
+      <div class="diagnostics-row">
+        <div id="spriteDiagnostics" class="sprite-diagnostics" aria-live="polite">Sprite check loading...</div>
+        <button id="copySpriteReport" type="button">Copy sprite report</button>
+      </div>
     </main>
 
     <aside class="panel inspector stack">
@@ -988,10 +1025,10 @@
     </aside>
   </div>
 
-  <script src="../data/foods-index.js?v=20260528-sprite-fallback-v2"></script>
-  <script src="./default-layout.js?v=20260528-sprite-fallback-v2"></script>
+  <script src="../data/foods-index.js?v=20260528-sprite-report-v3"></script>
+  <script src="./default-layout.js?v=20260528-sprite-report-v3"></script>
   <script>
-    const BUILDER_BUILD_ID = '20260528-sprite-fallback-v2';
+    const BUILDER_BUILD_ID = '20260528-sprite-report-v3';
     const SECTIONS = [
       { id: 'intro', label: '1. Intro blank', chip: null, indicator: true },
       { id: 'fats', label: '2. Fats', chip: 'FATS', indicator: true },
@@ -1145,7 +1182,9 @@
       savedSpriteLayouts: loadSavedSpriteLayouts(),
       fullFood: null,
       batchResultsLoaded: false,
-      bgTick: 0
+      bgTick: 0,
+      spriteFailures: new Map(),
+      diagnosticsTimer: 0
     };
 
     const els = {
@@ -1184,6 +1223,8 @@
       sectionTextList: document.getElementById('sectionTextList'),
       selectionChip: document.getElementById('selectionChip'),
       canvasMeta: document.getElementById('canvasMeta'),
+      spriteDiagnostics: document.getElementById('spriteDiagnostics'),
+      copySpriteReport: document.getElementById('copySpriteReport'),
       noSelection: document.getElementById('noSelection'),
       inspectorPanel: document.getElementById('inspectorPanel'),
       spriteControls: document.getElementById('spriteControls'),
@@ -3164,6 +3205,7 @@
         img.src = item.src;
         img.alt = item.label;
         img.onerror = () => {
+          recordSpriteFailure(img.currentSrc || img.src || item.src, '', item.label);
           img.onerror = null;
           img.src = safeSpritePath('', item.label.toUpperCase().slice(0, 8));
         };
@@ -3361,6 +3403,87 @@
 
     function escapeHtml(value) {
       return String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+    }
+
+    function spriteReportUrl(src) {
+      if (!src) return '';
+      const raw = String(src);
+      if (raw.startsWith('data:')) return 'inline fallback image';
+      try {
+        const url = new URL(raw, window.location.href);
+        const repoMarker = '/Foodranked/';
+        const markerIndex = url.pathname.indexOf(repoMarker);
+        const path = markerIndex === -1
+          ? url.pathname.replace(/^\//, '')
+          : url.pathname.slice(markerIndex + repoMarker.length);
+        return `${path}${url.search}`;
+      } catch {
+        return raw;
+      }
+    }
+
+    function recordSpriteFailure(src, fallbackSrc = '', label = '') {
+      const source = spriteReportUrl(src);
+      if (!source || source === 'inline fallback image') return;
+      const fallback = spriteReportUrl(fallbackSrc);
+      const key = `${source}|${fallback}`;
+      const existing = state.spriteFailures.get(key);
+      state.spriteFailures.set(key, {
+        source,
+        fallback,
+        label: label || existing?.label || '',
+        count: (existing?.count || 0) + 1
+      });
+      scheduleSpriteDiagnostics();
+    }
+
+    function currentBrokenImages() {
+      return [...document.images]
+        .filter(img => img.src && (!img.complete || img.naturalWidth === 0))
+        .map(img => spriteReportUrl(img.currentSrc || img.src))
+        .filter(Boolean);
+    }
+
+    function spriteDiagnosticsLines(limit = 8) {
+      const broken = currentBrokenImages();
+      const failures = [...state.spriteFailures.values()].slice(-limit);
+      const lines = [
+        `FoodRanked sprite report`,
+        `build: ${BUILDER_BUILD_ID}`,
+        `page: ${window.location.href}`,
+        `remembered failures: ${state.spriteFailures.size}`,
+        `currently broken images: ${broken.length}`
+      ];
+      failures.forEach(item => {
+        const fallback = item.fallback ? ` -> fallback ${item.fallback}` : '';
+        const label = item.label ? ` (${item.label})` : '';
+        lines.push(`failed ${item.source}${fallback}${label}`);
+      });
+      broken.slice(0, limit).forEach(src => lines.push(`broken now ${src}`));
+      return lines;
+    }
+
+    function updateSpriteDiagnostics() {
+      if (!els.spriteDiagnostics) return;
+      const broken = currentBrokenImages();
+      const issueCount = state.spriteFailures.size + broken.length;
+      els.spriteDiagnostics.classList.toggle('ok', issueCount === 0);
+      els.spriteDiagnostics.classList.toggle('warn', issueCount > 0);
+      if (!issueCount) {
+        els.spriteDiagnostics.textContent = `Sprite check OK - ${BUILDER_BUILD_ID}`;
+        return;
+      }
+      const details = spriteDiagnosticsLines(6).slice(3);
+      els.spriteDiagnostics.textContent = `Sprite issues ${issueCount} - ${BUILDER_BUILD_ID}\n${details.join('\n')}`;
+    }
+
+    function scheduleSpriteDiagnostics(delay = 300) {
+      window.clearTimeout(state.diagnosticsTimer);
+      state.diagnosticsTimer = window.setTimeout(updateSpriteDiagnostics, delay);
+    }
+
+    function spriteDiagnosticsReport() {
+      return spriteDiagnosticsLines(20).join('\n');
     }
 
     function formatCompactNumber(value, decimals = 1) {
@@ -4034,10 +4157,13 @@
             }
           }, { once: true });
           node.onerror = () => {
+            const failedSrc = node.currentSrc || node.src || renderedSrc;
             if (layer.fallbackSrc && node.src !== new URL(layer.fallbackSrc, window.location.href).href) {
+              recordSpriteFailure(failedSrc, layer.fallbackSrc, layer.label);
               node.src = layer.fallbackSrc;
               return;
             }
+            recordSpriteFailure(failedSrc, '', layer.label);
             node.onerror = null;
             node.src = safeSpritePath('', state.layout.selectedFoodId.toUpperCase().slice(0, 8));
           };
@@ -4357,10 +4483,13 @@ async function renderBackgroundSprites() {
         img.style.animationDelay = `${-(index * 1.7)}s`;
         img.style.setProperty('--drift-x', `${(index % 2 === 0 ? 1 : -1) * Math.max(2, drift - (index % 4) * 2)}px`);
         img.onerror = () => {
+          const failedSrc = img.currentSrc || img.src || choice?.src;
           if (choice?.fallback && img.src !== new URL(choice.fallback, window.location.href).href) {
+            recordSpriteFailure(failedSrc, choice.fallback, choice?.food?.name || '');
             img.src = choice.fallback;
             return;
           }
+          recordSpriteFailure(failedSrc, '', choice?.food?.name || '');
           img.onerror = null;
           img.src = safeSpritePath('', stub.id.toUpperCase().slice(0, 8));
         };
@@ -4406,6 +4535,7 @@ async function renderAll() {
       await renderBackgroundSprites();
       saveLayout();
       updateJsonOutput();
+      scheduleSpriteDiagnostics(650);
     }
 
     function updateSelected(mutator) {
@@ -4596,10 +4726,21 @@ async function renderAll() {
       state.selectedLayerId = null;
       void renderAll();
     });
+    els.copySpriteReport.addEventListener('click', async () => {
+      const text = spriteDiagnosticsReport();
+      try {
+        await navigator.clipboard.writeText(text);
+        els.copySpriteReport.textContent = 'Copied';
+        window.setTimeout(() => { els.copySpriteReport.textContent = 'Copy sprite report'; }, 1000);
+      } catch {
+        els.spriteDiagnostics.textContent = text;
+      }
+    });
 
     window.addEventListener('resize', () => {
       setCssVars();
       void renderCanvas();
+      scheduleSpriteDiagnostics(450);
     });
 
     window.addEventListener('keydown', event => {

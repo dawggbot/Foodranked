@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260528-sprite-fallback-v2';
+  const BUILDER_BUILD_ID = '20260528-sprite-report-v3';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SECTION_INDICATOR_LAYOUT = { normalSize: 10, highlightedSize: 12 };
@@ -139,7 +139,9 @@
     captionText: document.getElementById('captionText'),
     resetCaptions: document.getElementById('resetCaptions'),
     copyManifest: document.getElementById('copyManifest'),
-    manifestOutput: document.getElementById('manifestOutput')
+    manifestOutput: document.getElementById('manifestOutput'),
+    spriteDiagnostics: document.getElementById('spriteDiagnostics'),
+    copySpriteReport: document.getElementById('copySpriteReport')
   };
 
   const foods = Array.isArray(window.FOODS_INDEX) ? window.FOODS_INDEX : [];
@@ -163,7 +165,9 @@
     lastFrameAt: performance.now(),
     audioTimelineKey: '',
     audioDurationSeconds: null,
-    audioInHold: false
+    audioInHold: false,
+    spriteFailures: new Map(),
+    diagnosticsTimer: 0
   };
 
   function readJson(raw, fallback) {
@@ -176,6 +180,87 @@
 
   function clone(value) {
     return structuredClone(value);
+  }
+
+  function spriteReportUrl(src) {
+    if (!src) return '';
+    const raw = String(src);
+    if (raw.startsWith('data:')) return 'inline fallback image';
+    try {
+      const url = new URL(raw, window.location.href);
+      const repoMarker = '/Foodranked/';
+      const markerIndex = url.pathname.indexOf(repoMarker);
+      const path = markerIndex === -1
+        ? url.pathname.replace(/^\//, '')
+        : url.pathname.slice(markerIndex + repoMarker.length);
+      return `${path}${url.search}`;
+    } catch {
+      return raw;
+    }
+  }
+
+  function recordSpriteFailure(src, fallbackSrc = '', label = '') {
+    const source = spriteReportUrl(src);
+    if (!source || source === 'inline fallback image') return;
+    const fallback = spriteReportUrl(fallbackSrc);
+    const key = `${source}|${fallback}`;
+    const existing = state.spriteFailures.get(key);
+    state.spriteFailures.set(key, {
+      source,
+      fallback,
+      label: label || existing?.label || '',
+      count: (existing?.count || 0) + 1
+    });
+    scheduleSpriteDiagnostics();
+  }
+
+  function currentBrokenImages() {
+    return [...document.images]
+      .filter(img => img.src && (!img.complete || img.naturalWidth === 0))
+      .map(img => spriteReportUrl(img.currentSrc || img.src))
+      .filter(Boolean);
+  }
+
+  function spriteDiagnosticsLines(limit = 8) {
+    const broken = currentBrokenImages();
+    const failures = [...state.spriteFailures.values()].slice(-limit);
+    const lines = [
+      'FoodRanked sprite report',
+      `build: ${BUILDER_BUILD_ID}`,
+      `page: ${window.location.href}`,
+      `remembered failures: ${state.spriteFailures.size}`,
+      `currently broken images: ${broken.length}`
+    ];
+    failures.forEach(item => {
+      const fallback = item.fallback ? ` -> fallback ${item.fallback}` : '';
+      const label = item.label ? ` (${item.label})` : '';
+      lines.push(`failed ${item.source}${fallback}${label}`);
+    });
+    broken.slice(0, limit).forEach(src => lines.push(`broken now ${src}`));
+    return lines;
+  }
+
+  function updateSpriteDiagnostics() {
+    if (!els.spriteDiagnostics) return;
+    const broken = currentBrokenImages();
+    const issueCount = state.spriteFailures.size + broken.length;
+    els.spriteDiagnostics.classList.toggle('ok', issueCount === 0);
+    els.spriteDiagnostics.classList.toggle('warn', issueCount > 0);
+    if (!issueCount) {
+      els.spriteDiagnostics.textContent = `Sprite check OK - ${BUILDER_BUILD_ID}`;
+      return;
+    }
+    const details = spriteDiagnosticsLines(6).slice(3);
+    els.spriteDiagnostics.textContent = `Sprite issues ${issueCount} - ${BUILDER_BUILD_ID}\n${details.join('\n')}`;
+  }
+
+  function scheduleSpriteDiagnostics(delay = 300) {
+    window.clearTimeout(state.diagnosticsTimer);
+    state.diagnosticsTimer = window.setTimeout(updateSpriteDiagnostics, delay);
+  }
+
+  function spriteDiagnosticsReport() {
+    return spriteDiagnosticsLines(20).join('\n');
   }
 
   function selectedFood() {
@@ -1652,9 +1737,13 @@
         node.src = spritePath(layer.src);
         node.alt = layer.label || '';
         node.onerror = () => {
+          const failedSrc = node.currentSrc || node.src || spritePath(layer.src);
           if (layer.fallbackSrc && node.src !== new URL(spritePath(layer.fallbackSrc), window.location.href).href) {
+            recordSpriteFailure(failedSrc, spritePath(layer.fallbackSrc), layer.label || '');
             node.src = spritePath(layer.fallbackSrc);
+            return;
           }
+          recordSpriteFailure(failedSrc, '', layer.label || '');
         };
       } else {
         node.textContent = layer.text || '';
@@ -1798,9 +1887,13 @@
       img.style.animationDelay = `${-(index * 1.7)}s`;
       img.style.setProperty('--drift-x', `${(index % 2 === 0 ? 1 : -1) * Math.max(2, drift - (index % 4) * 2)}px`);
       img.onerror = () => {
+        const failedSrc = img.currentSrc || img.src || choice?.src;
         if (choice?.fallback && img.src !== new URL(choice.fallback, window.location.href).href) {
+          recordSpriteFailure(failedSrc, choice.fallback, choice?.food?.name || '');
           img.src = choice.fallback;
+          return;
         }
+        recordSpriteFailure(failedSrc, '', choice?.food?.name || '');
       };
       field.appendChild(img);
     });
@@ -2660,6 +2753,7 @@
     renderControls();
     renderManifest();
     renderStage();
+    scheduleSpriteDiagnostics(650);
   }
 
   function updateSelectedScene(mutator) {
@@ -2765,9 +2859,21 @@
     }
   });
 
+  els.copySpriteReport.addEventListener('click', async () => {
+    const text = spriteDiagnosticsReport();
+    try {
+      await navigator.clipboard.writeText(text);
+      els.copySpriteReport.textContent = 'Copied';
+      setTimeout(() => { els.copySpriteReport.textContent = 'Copy sprite report'; }, 1000);
+    } catch {
+      els.spriteDiagnostics.textContent = text;
+    }
+  });
+
   window.addEventListener('resize', () => {
     setCanvasScale();
     renderStage();
+    scheduleSpriteDiagnostics(450);
   });
 
   async function init() {

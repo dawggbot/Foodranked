@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260528-layout-report-v4';
+  const BUILDER_BUILD_ID = '20260528-stale-layout-v5';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SECTION_INDICATOR_LAYOUT = { normalSize: 10, highlightedSize: 12 };
@@ -22,6 +22,8 @@
   const INTRO_RANKED_VISIBLE_CENTER = { x: 0.5, y: 0.47 };
   const INTRO_HERO_SIZE = { ranked: 80, foodWidth: 48, foodHeight: 24 };
   const AVAILABLE_FOOD_IMAGE_IDS = new Set(['bacon']);
+  const STALE_LAYOUT_MIN_LAYER_RATIO = 0.72;
+  let ignoredDisplayBuilderLayoutInfo = null;
   const SUBMACRO_VALUE_COLORS = {
     green: '#7cf2a7',
     red: '#ff6f6f',
@@ -182,6 +184,42 @@
     return structuredClone(value);
   }
 
+  function countLayoutLayers(layout) {
+    return SECTIONS.reduce((total, section) => {
+      const layers = layout?.sections?.[section.id]?.layers;
+      return total + (Array.isArray(layers) ? layers.length : 0);
+    }, 0);
+  }
+
+  function compactBuilderViewport() {
+    return window.innerWidth > 760 && (window.innerWidth <= 1500 || window.innerHeight <= 850);
+  }
+
+  function defaultLayoutLayerCount() {
+    return countLayoutLayers(window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT || {});
+  }
+
+  function layoutHealth(layout) {
+    const defaultCount = defaultLayoutLayerCount();
+    const layerCount = countLayoutLayers(layout);
+    const threshold = Math.floor(defaultCount * STALE_LAYOUT_MIN_LAYER_RATIO);
+    const missingSections = SECTIONS
+      .filter(section => !Array.isArray(layout?.sections?.[section.id]?.layers))
+      .map(section => section.id);
+    return {
+      layerCount,
+      defaultLayerCount: defaultCount,
+      threshold,
+      missingSections,
+      stale: !!layout?.sections && (layerCount < threshold || missingSections.length > 0)
+    };
+  }
+
+  function shouldIgnoreSavedLayoutOnThisDevice(layout) {
+    if (!layout?.sections || !compactBuilderViewport()) return false;
+    return layoutHealth(layout).stale;
+  }
+
   function spriteReportUrl(src) {
     if (!src) return '';
     const raw = String(src);
@@ -226,21 +264,29 @@
     const failures = [...state.spriteFailures.values()].slice(-limit);
     const food = selectedFood();
     const foodImageIds = [...AVAILABLE_FOOD_IMAGE_IDS].sort();
+    const rawDisplayLayout = rawDisplayBuilderLayout();
     const displayLayout = loadDisplayBuilderLayout();
     const sourceLabel = state.layoutSourceId === 'display-builder'
-      ? (displayLayout ? 'display builder local browser layout' : 'repo default fallback')
+      ? displayLayout
+        ? 'display builder local browser layout'
+        : ignoredDisplayBuilderLayoutInfo
+          ? 'repo default fallback; stale local browser layout ignored on compact laptop'
+          : 'repo default fallback'
       : state.layoutSourceId === 'default'
         ? 'repo default layout'
         : `saved layout ${state.layoutSourceId.replace(/^saved:/, '')}`;
-    const allLayerCount = SECTIONS.reduce((total, section) => total + getSectionLayers(state.layout || {}, section.id).length, 0);
+    const ignored = ignoredDisplayBuilderLayoutInfo;
+    const allLayerCount = countLayoutLayers(state.layout);
     const lines = [
       'FoodRanked sprite report',
       `build: ${BUILDER_BUILD_ID}`,
       `page: ${window.location.href}`,
       `layout source: ${sourceLabel}`,
-      `display-builder local layout present: ${displayLayout ? 'yes' : 'no'}`,
+      `display-builder local layout present: ${rawDisplayLayout ? 'yes' : 'no'}`,
       `selected food: ${food?.id || 'none'} (${food?.name || 'unknown'})`,
       `layout layers: ${allLayerCount}`,
+      `repo default layers: ${defaultLayoutLayerCount()}`,
+      `ignored local layout layers: ${ignored ? ignored.layerCount : 'none'}`,
       `committed custom food images: ${foodImageIds.join(', ') || 'none'}`,
       `selected food has committed image: ${AVAILABLE_FOOD_IMAGE_IDS.has(String(food?.id || '').toLowerCase()) ? 'yes' : 'no, using food-type plate fallback'}`,
       `remembered failures: ${state.spriteFailures.size}`,
@@ -262,10 +308,11 @@
     els.spriteDiagnostics.classList.toggle('ok', issueCount === 0);
     els.spriteDiagnostics.classList.toggle('warn', issueCount > 0);
     if (!issueCount) {
-      els.spriteDiagnostics.textContent = `Sprite check OK - ${BUILDER_BUILD_ID}`;
+      const layoutNote = ignoredDisplayBuilderLayoutInfo ? ' - using repo default; ignored stale local layout' : '';
+      els.spriteDiagnostics.textContent = `Sprite check OK - ${BUILDER_BUILD_ID}${layoutNote}`;
       return;
     }
-    const details = spriteDiagnosticsLines(6).slice(9);
+    const details = spriteDiagnosticsLines(6).slice(11);
     els.spriteDiagnostics.textContent = `Sprite issues ${issueCount} - ${BUILDER_BUILD_ID}\n${details.join('\n')}`;
   }
 
@@ -595,14 +642,33 @@
     return entries.filter(entry => entry?.sections && entry.id);
   }
 
-  function loadDisplayBuilderLayout() {
+  function rawDisplayBuilderLayout() {
     const saved = readJson(localStorage.getItem(DISPLAY_LAYOUT_KEY), null);
     return saved?.sections ? saved : null;
   }
 
+  function loadDisplayBuilderLayout() {
+    const saved = rawDisplayBuilderLayout();
+    ignoredDisplayBuilderLayoutInfo = null;
+    if (shouldIgnoreSavedLayoutOnThisDevice(saved)) {
+      ignoredDisplayBuilderLayoutInfo = layoutHealth(saved);
+      return null;
+    }
+    return saved;
+  }
+
   function layoutSourceOptions() {
+    const rawDisplayLayout = rawDisplayBuilderLayout();
+    const displayLayout = loadDisplayBuilderLayout();
+    const displayLabel = ignoredDisplayBuilderLayoutInfo
+      ? 'Display builder saved layout (stale on laptop; using repo default)'
+      : displayLayout
+        ? 'Display builder saved layout'
+        : rawDisplayLayout
+          ? 'Display builder saved layout (unavailable)'
+          : 'Display builder saved layout (empty)';
     const options = [
-      { id: 'display-builder', label: loadDisplayBuilderLayout() ? 'Display builder saved layout' : 'Display builder saved layout (empty)' },
+      { id: 'display-builder', label: displayLabel },
       { id: 'default', label: 'Repo default layout' },
       ...state.savedLayouts.map(layout => ({ id: `saved:${layout.id}`, label: layout.name || 'Saved layout' }))
     ];
@@ -1154,7 +1220,16 @@
     syncMicros(layout, food, 'minerals', MINERAL_TEXT_SPECS, 'minerals_label', 'minerals_percent');
     syncProsCons(layout, food);
     state.layout = layout;
-    const layoutLabel = state.layoutSourceId === 'display-builder' && loadDisplayBuilderLayout() ? 'Saved layout' : 'Default layout';
+    const displayLayout = loadDisplayBuilderLayout();
+    const layoutLabel = state.layoutSourceId === 'display-builder'
+      ? displayLayout
+        ? 'Saved layout'
+        : ignoredDisplayBuilderLayoutInfo
+          ? 'Default layout (ignored stale saved layout)'
+          : 'Default layout'
+      : state.layoutSourceId === 'default'
+        ? 'Default layout'
+        : 'Saved layout preset';
     els.layoutStatus.textContent = `${layoutLabel} · ${BUILDER_BUILD_ID}`;
   }
 

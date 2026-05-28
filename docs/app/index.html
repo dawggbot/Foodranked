@@ -1025,10 +1025,10 @@
     </aside>
   </div>
 
-  <script src="../data/foods-index.js?v=20260528-layout-report-v4"></script>
-  <script src="./default-layout.js?v=20260528-layout-report-v4"></script>
+  <script src="../data/foods-index.js?v=20260528-stale-layout-v5"></script>
+  <script src="./default-layout.js?v=20260528-stale-layout-v5"></script>
   <script>
-    const BUILDER_BUILD_ID = '20260528-layout-report-v4';
+    const BUILDER_BUILD_ID = '20260528-stale-layout-v5';
     const SECTIONS = [
       { id: 'intro', label: '1. Intro blank', chip: null, indicator: true },
       { id: 'fats', label: '2. Fats', chip: 'FATS', indicator: true },
@@ -1173,6 +1173,9 @@
       selectedSectionId: 'intro',
       sections: Object.fromEntries(SECTIONS.map(section => [section.id, { layers: createSectionLayers(section.id) }]))
     };
+    const DEFAULT_LAYOUT_LAYER_COUNT = countLayoutLayers(DEFAULT_LAYOUT);
+    const STALE_LAYOUT_MIN_LAYER_RATIO = 0.72;
+    let ignoredSavedLayoutInfo = null;
 
     const state = {
       foods: Array.isArray(window.FOODS_INDEX) ? window.FOODS_INDEX : [],
@@ -1184,7 +1187,8 @@
       batchResultsLoaded: false,
       bgTick: 0,
       spriteFailures: new Map(),
-      diagnosticsTimer: 0
+      diagnosticsTimer: 0,
+      ignoredSavedLayout: ignoredSavedLayoutInfo
     };
 
     const els = {
@@ -1251,10 +1255,47 @@
       propAlign: document.getElementById('propAlign')
     };
 
+    function countLayoutLayers(layout) {
+      return SECTIONS.reduce((total, section) => {
+        const layers = layout?.sections?.[section.id]?.layers;
+        return total + (Array.isArray(layers) ? layers.length : 0);
+      }, 0);
+    }
+
+    function compactBuilderViewport() {
+      return window.innerWidth > 760 && (window.innerWidth <= 1500 || window.innerHeight <= 850);
+    }
+
+    function layoutHealth(layout) {
+      const layerCount = countLayoutLayers(layout);
+      const threshold = Math.floor(DEFAULT_LAYOUT_LAYER_COUNT * STALE_LAYOUT_MIN_LAYER_RATIO);
+      const missingSections = SECTIONS
+        .filter(section => !Array.isArray(layout?.sections?.[section.id]?.layers))
+        .map(section => section.id);
+      return {
+        layerCount,
+        defaultLayerCount: DEFAULT_LAYOUT_LAYER_COUNT,
+        threshold,
+        missingSections,
+        stale: !!layout?.sections && (layerCount < threshold || missingSections.length > 0)
+      };
+    }
+
+    function shouldIgnoreSavedLayoutOnThisDevice(layout) {
+      if (!layout?.sections || !compactBuilderViewport()) return false;
+      return layoutHealth(layout).stale;
+    }
+
     function loadLayout() {
       try {
         const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
-        return raw ? JSON.parse(raw) : null;
+        const parsed = raw ? JSON.parse(raw) : null;
+        ignoredSavedLayoutInfo = null;
+        if (shouldIgnoreSavedLayoutOnThisDevice(parsed)) {
+          ignoredSavedLayoutInfo = layoutHealth(parsed);
+          return null;
+        }
+        return parsed;
       } catch {
         return null;
       }
@@ -2432,12 +2473,14 @@
       return normalizeLayout(merged);
     }
 
-    function saveLayout({ normalize = true } = {}) {
+    function saveLayout({ normalize = true, allowIgnoredReplacement = false } = {}) {
+      if (state.ignoredSavedLayout && !allowIgnoredReplacement) return;
       if (normalize) {
         normalizeLayout(state.layout);
         if (state.fullFood) syncFoodIntoLayout(state.fullFood, { normalize: false });
       }
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state.layout));
+      if (allowIgnoredReplacement) state.ignoredSavedLayout = null;
     }
 
     function currentSpriteLayoutSnapshot() {
@@ -2519,6 +2562,7 @@
         canvas: currentCanvas,
         sections: structuredClone(entry.sections)
       });
+      state.ignoredSavedLayout = null;
       state.selectedLayerId = null;
       void renderAll();
     }
@@ -3449,15 +3493,18 @@
       const failures = [...state.spriteFailures.values()].slice(-limit);
       const selectedFood = getSelectedFoodStub();
       const foodImageIds = [...AVAILABLE_FOOD_IMAGE_IDS].sort();
-      const allLayerCount = SECTIONS.reduce((total, section) => total + getSectionLayersFromLayout(state.layout, section.id).length, 0);
+      const allLayerCount = countLayoutLayers(state.layout);
+      const ignored = state.ignoredSavedLayout;
       const lines = [
         `FoodRanked sprite report`,
         `build: ${BUILDER_BUILD_ID}`,
         `page: ${window.location.href}`,
-        `layout storage: display builder local browser layout`,
+        `layout storage: ${ignored ? 'repo default fallback; stale local browser layout ignored on compact laptop' : 'display builder local browser layout'}`,
         `selected food: ${selectedFood?.id || 'none'} (${selectedFood?.name || 'unknown'})`,
         `selected section: ${state.layout.selectedSectionId}`,
         `layout layers: ${allLayerCount}`,
+        `repo default layers: ${DEFAULT_LAYOUT_LAYER_COUNT}`,
+        `ignored local layout layers: ${ignored ? ignored.layerCount : 'none'}`,
         `committed custom food images: ${foodImageIds.join(', ') || 'none'}`,
         `selected food has committed image: ${AVAILABLE_FOOD_IMAGE_IDS.has(String(selectedFood?.id || '').toLowerCase()) ? 'yes' : 'no, using food-type plate fallback'}`,
         `remembered failures: ${state.spriteFailures.size}`,
@@ -3479,10 +3526,11 @@
       els.spriteDiagnostics.classList.toggle('ok', issueCount === 0);
       els.spriteDiagnostics.classList.toggle('warn', issueCount > 0);
       if (!issueCount) {
-        els.spriteDiagnostics.textContent = `Sprite check OK - ${BUILDER_BUILD_ID}`;
+        const layoutNote = state.ignoredSavedLayout ? ' - using repo default; ignored stale local layout' : '';
+        els.spriteDiagnostics.textContent = `Sprite check OK - ${BUILDER_BUILD_ID}${layoutNote}`;
         return;
       }
-      const details = spriteDiagnosticsLines(6).slice(8);
+      const details = spriteDiagnosticsLines(6).slice(10);
       els.spriteDiagnostics.textContent = `Sprite issues ${issueCount} - ${BUILDER_BUILD_ID}\n${details.join('\n')}`;
     }
 
@@ -4620,7 +4668,11 @@ async function renderAll() {
     els.loadSpriteLayout.addEventListener('click', loadSelectedSpriteLayoutPreset);
     els.deleteSpriteLayout.addEventListener('click', deleteSelectedSpriteLayoutPreset);
     els.savedLayoutSelect.addEventListener('change', renderSavedSpriteLayouts);
-    els.saveLocal.addEventListener('click', () => { saveLayout(); els.saveLocal.textContent = 'Saved'; setTimeout(() => els.saveLocal.textContent = 'Save locally', 1200); });
+    els.saveLocal.addEventListener('click', () => {
+      saveLayout({ allowIgnoredReplacement: true });
+      els.saveLocal.textContent = 'Saved';
+      setTimeout(() => els.saveLocal.textContent = 'Save locally', 1200);
+    });
     els.copyJson.addEventListener('click', async () => {
       updateJsonOutput();
       try {
@@ -4634,6 +4686,7 @@ async function renderAll() {
     els.applyJson.addEventListener('click', () => {
       try {
         state.layout = normalizeLayout(JSON.parse(els.layoutJson.value));
+        state.ignoredSavedLayout = null;
         state.selectedLayerId = null;
         void renderAll();
       } catch (error) {

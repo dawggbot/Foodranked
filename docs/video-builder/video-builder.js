@@ -290,6 +290,7 @@
 
   function spritePath(path) {
     if (!path) return '';
+    path = canonicalSpritePath(path);
     if (/^(data:|https?:|blob:)/i.test(path)) return path;
     if (path.startsWith('./sprites/')) return `../app/${path.slice(2)}`;
     if (path.startsWith('sprites/')) return `../app/${path}`;
@@ -297,6 +298,19 @@
     if (path.startsWith('app/')) return `../${path}`;
     if (path.startsWith('../app/')) return path;
     return path;
+  }
+
+  function canonicalSpritePath(src) {
+    if (!src || /^(data:|https?:|blob:)/i.test(src)) return src;
+    return String(src)
+      .replace('/header/food_image_plate/', '/header/food_plate/')
+      .replace('/macros/arrow_indicators/', '/macros_section/arrow_indicators/')
+      .replace('/macros/fats/', '/macros_section/section_1_fats/')
+      .replace('/macros/carbs/', '/macros_section/section_2_carbs/')
+      .replace('/macros/protein/', '/macros_section/section_3_protein/')
+      .replace('/micros/vitamins/', '/micros_section/vitamins/')
+      .replace('/micros/minerals/', '/micros_section/minerals/')
+      .replace('/pros-cons/', '/pros_and_cons/');
   }
 
   function docsAssetPath(path) {
@@ -513,6 +527,11 @@
     if (!layout.sections) layout.sections = {};
     if (!layout.sections[sectionId]) layout.sections[sectionId] = { layers: [] };
     if (!Array.isArray(layout.sections[sectionId].layers)) layout.sections[sectionId].layers = [];
+    layout.sections[sectionId].layers.forEach(layer => {
+      if (!isSpriteLayer(layer)) return;
+      layer.src = canonicalSpritePath(layer.src);
+      if (layer.fallbackSrc) layer.fallbackSrc = canonicalSpritePath(layer.fallbackSrc);
+    });
     return layout.sections[sectionId].layers;
   }
 

@@ -2334,6 +2334,10 @@
       normalized.meta = normalized.meta || {};
       for (const section of SECTIONS) {
         normalized.sections[section.id].layers = getSectionLayersFromLayout(normalized, section.id).filter(layer => {
+          if (isSpriteLayer(layer)) {
+            layer.src = canonicalSpritePath(layer.src);
+            if (layer.fallbackSrc) layer.fallbackSrc = canonicalSpritePath(layer.fallbackSrc);
+          }
           if (isMacroBarFrameOrFillSpriteLayer(layer)) return false;
           if (isObsoleteOutroScoreDisplayLayer(layer)) return false;
           if (isEmptyJunkLayer(layer)) return false;
@@ -2680,6 +2684,19 @@
 
     function safeSpritePath(primaryPath, fallbackSvgLabel = 'MISSING') {
       return primaryPath || `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96"><rect width="96" height="96" fill="#2a2335"/><rect x="4" y="4" width="88" height="88" rx="8" fill="#1d1a25" stroke="#8ec6ff" stroke-width="4" stroke-dasharray="6 4"/><text x="48" y="44" text-anchor="middle" font-family="monospace" font-size="12" fill="#f6f0e8">${fallbackSvgLabel}</text><text x="48" y="60" text-anchor="middle" font-family="monospace" font-size="10" fill="#c8b8a5">ASSET</text></svg>`)}`;
+    }
+
+    function canonicalSpritePath(src) {
+      if (!src || /^(data:|https?:|blob:)/i.test(src)) return src;
+      return String(src)
+        .replace('/header/food_image_plate/', '/header/food_plate/')
+        .replace('/macros/arrow_indicators/', '/macros_section/arrow_indicators/')
+        .replace('/macros/fats/', '/macros_section/section_1_fats/')
+        .replace('/macros/carbs/', '/macros_section/section_2_carbs/')
+        .replace('/macros/protein/', '/macros_section/section_3_protein/')
+        .replace('/micros/vitamins/', '/micros_section/vitamins/')
+        .replace('/micros/minerals/', '/micros_section/minerals/')
+        .replace('/pros-cons/', '/pros_and_cons/');
     }
 
     function normalizeFoodType(foodType) {
@@ -4222,6 +4239,8 @@
     }
 
     function getPixelUnit() {
+      const canvasWidth = els.canvas?.getBoundingClientRect?.().width;
+      if (Number.isFinite(canvasWidth) && canvasWidth > 0) return canvasWidth / AUTHOR_GRID.width;
       const raw = getComputedStyle(document.documentElement).getPropertyValue('--pixel-unit');
       const parsed = Number.parseFloat(raw);
       return Number.isFinite(parsed) && parsed > 0 ? parsed : 4;
@@ -4229,8 +4248,10 @@
 
     function setCssVars() {
       const root = document.documentElement;
+      const assetScale = getResponsiveAssetScale();
       root.style.setProperty('--preview-scale', '1');
-      root.style.setProperty('--asset-scale', String(getResponsiveAssetScale()));
+      root.style.setProperty('--asset-scale', String(assetScale));
+      root.style.setProperty('--pixel-unit', String(assetScale));
     }
 
     function attachDrag(node, layerId) {

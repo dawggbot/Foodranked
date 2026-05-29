@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260529-macro-reveal-v1';
+  const BUILDER_BUILD_ID = '20260529-macro-timing-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -16,11 +16,12 @@
   const AUDIO_REVEAL_LEAD_SECONDS = 0.11;
   const AUDIO_REVEAL_WINDOW_SECONDS = 0.36;
   const AUDIO_TIMELINE_SYNC_TOLERANCE_SECONDS = 0.12;
-  const SECTION_HOLD_SECONDS = 2;
+  const SECTION_HOLD_SECONDS = 1;
   const SECTION_HOLD_IDS = new Set(['fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons']);
   const HIDDEN_CAPTION_SECTION_IDS = new Set(['intro']);
   const MACRO_REVEAL_SECONDS = 0.2;
   const SUBMACRO_GROUP_REVEAL_SECONDS = 0.85;
+  const SUBMACRO_AFTER_MAIN_MACRO_SECONDS = 0.08;
   const INTRO_RANKED_SPRITE_PATH = './sprites/ui/intro_&_outro/ranked.png';
   const INTRO_RANKED_VISIBLE_CENTER = { x: 0.5, y: 0.47 };
   const INTRO_HERO_SIZE = { ranked: 80, foodWidth: 48, foodHeight: 24 };
@@ -2455,6 +2456,47 @@
     ].filter(Boolean);
   }
 
+  function macroMainSentence(scene, sectionId) {
+    const sentences = captionSentences(subtitleOnlyCaptionText(scene?.caption || ''));
+    if (!sentences.length) return '';
+    const patterns = {
+      fats: /\b\d+(?:\.\d+)?\s*g\s+of\s+fat\b/i,
+      carbs: /\b\d+(?:\.\d+)?\s*g\s+of\s+carbs?\b/i,
+      protein: /\b\d+(?:\.\d+)?\s*g\s+of\s+protein\b/i
+    };
+    const pattern = patterns[sectionId];
+    return sentences.find(sentence => pattern?.test(sentence))
+      || sentences.find(sentence => normalizeSpeechSearch(sentence).includes(sectionId === 'fats' ? 'fat' : sectionId))
+      || sentences[0];
+  }
+
+  function timingEndForText(timing, text) {
+    const targetTokens = speechTokens(text);
+    if (!targetTokens.length || !timing?.words?.length) return null;
+    const flatTokens = [];
+    timing.words.forEach((word, wordIndex) => {
+      const tokens = word.tokens?.length ? word.tokens : speechTokens(word.text);
+      tokens.forEach(token => flatTokens.push({ token, wordIndex }));
+    });
+    for (let start = 0; start <= flatTokens.length - targetTokens.length; start += 1) {
+      const matches = targetTokens.every((token, offset) => flatTokens[start + offset]?.token === token);
+      if (matches) {
+        const endWordIndex = flatTokens[start + targetTokens.length - 1].wordIndex;
+        return timing.words[endWordIndex]?.end ?? null;
+      }
+    }
+    return null;
+  }
+
+  function macroMainNarrationEndAnchor(scene, timing) {
+    const mainSentence = macroMainSentence(scene, scene?.id || '');
+    const matchedEnd = timingEndForText(timing, mainSentence);
+    const fallback = seconds => clamp(seconds / sceneContentDuration(scene), 0.015, 0.94);
+    const pad = SUBMACRO_AFTER_MAIN_MACRO_SECONDS / sceneContentDuration(scene);
+    if (matchedEnd != null) return clamp(matchedEnd + pad, 0.015, 0.94);
+    return fallback(SUBMACRO_GROUP_REVEAL_SECONDS);
+  }
+
   function rowIndexFromY(layer, startY, stepY, maxIndex) {
     const y = asNumber(layer?.y, null);
     if (y == null) return null;
@@ -2647,7 +2689,7 @@
 
     if (['fats', 'carbs', 'protein'].includes(sectionId)) {
       if (classification.kind === 'icon' || classification.kind === 'decor') return secondsAnchor(MACRO_REVEAL_SECONDS);
-      if (classification.rowIndex != null) return secondsAnchor(SUBMACRO_GROUP_REVEAL_SECONDS);
+      if (classification.rowIndex != null) return macroMainNarrationEndAnchor(scene, timing);
     }
 
     if (sectionId === 'vitamins' || sectionId === 'minerals') {

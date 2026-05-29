@@ -2,8 +2,8 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260529-layout-sync-v1';
-  const REPO_LAYOUT_VERSION = BUILDER_BUILD_ID;
+  const BUILDER_BUILD_ID = '20260529-macro-reveal-v1';
+  const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SECTION_INDICATOR_LAYOUT = { normalSize: 10, highlightedSize: 12 };
@@ -19,6 +19,8 @@
   const SECTION_HOLD_SECONDS = 2;
   const SECTION_HOLD_IDS = new Set(['fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons']);
   const HIDDEN_CAPTION_SECTION_IDS = new Set(['intro']);
+  const MACRO_REVEAL_SECONDS = 0.2;
+  const SUBMACRO_GROUP_REVEAL_SECONDS = 0.85;
   const INTRO_RANKED_SPRITE_PATH = './sprites/ui/intro_&_outro/ranked.png';
   const INTRO_RANKED_VISIBLE_CENTER = { x: 0.5, y: 0.47 };
   const INTRO_HERO_SIZE = { ranked: 80, foodWidth: 48, foodHeight: 24 };
@@ -2621,6 +2623,7 @@
   function revealAnchorForLayer(layer, scene, classification, timing, index = 0) {
     const sectionId = scene?.id || '';
     const segments = timing.sentences || sceneTimedSentences(scene);
+    const secondsAnchor = seconds => clamp(seconds / sceneContentDuration(scene), 0.015, 0.94);
 
     if (sectionId === 'intro') {
       const food = selectedFood();
@@ -2643,15 +2646,8 @@
     }
 
     if (['fats', 'carbs', 'protein'].includes(sectionId)) {
-      if (classification.kind === 'icon') return 0.025;
-      const rowIndex = classification.rowIndex;
-      if (rowIndex != null) {
-        const specs = MACRO_SUBMETRIC_SPECS[sectionId] || [];
-        const spec = specs[rowIndex];
-        if (sectionId === 'protein') return proteinRowRevealAnchor(timing, rowIndex);
-        return termStartForTiming(timing, [...metricTerms(spec?.key, spec?.label), ...layerTextTerms(layer)])
-          ?? distributedRevealDelay(rowIndex + 1, Math.max(4, segments.length), segments, { start: 0.16, end: 0.72 });
-      }
+      if (classification.kind === 'icon' || classification.kind === 'decor') return secondsAnchor(MACRO_REVEAL_SECONDS);
+      if (classification.rowIndex != null) return secondsAnchor(SUBMACRO_GROUP_REVEAL_SECONDS);
     }
 
     if (sectionId === 'vitamins' || sectionId === 'minerals') {
@@ -2679,21 +2675,6 @@
     return 0.08 + (row * 0.48) + ((index % 3) * 0.025);
   }
 
-  function proteinRowRevealAnchor(timing, rowIndex) {
-    const eaaAnchor = termStartForTiming(timing, ['essential amino', 'eaa', '8/9'])
-      ?? distributedRevealDelay(1, 5, timing.sentences || [], { start: 0.16, end: 0.56 });
-    const bioAnchor = termStartForTiming(timing, ['bioavailability', '90%'])
-      ?? distributedRevealDelay(3, 5, timing.sentences || [], { start: 0.16, end: 0.56 });
-    const nEaaAnchor = eaaAnchor + ((bioAnchor - eaaAnchor) * 0.5);
-    const anchors = [
-      Math.max(0.14, eaaAnchor - 0.04),
-      eaaAnchor,
-      nEaaAnchor,
-      bioAnchor
-    ];
-    return clamp(anchors[rowIndex] ?? distributedRevealDelay(rowIndex + 1, 5, timing.sentences || [], { start: 0.16, end: 0.56 }), 0.12, 0.72);
-  }
-
   function layerRevealSchedule(layer, scene, index, persistent, allLayers = []) {
     const timing = sceneTimingModel(scene);
     const classification = layerRevealClassification(layer, scene, persistent, allLayers);
@@ -2704,10 +2685,7 @@
       offset = ['food-hero', 'ranked-sprite', 'glimmer'].includes(classification.kind) ? 0 : Math.min(0.12, index * 0.025);
     }
     if (classification.family === 'macro') {
-      if (classification.kind === 'score-card') offset = -0.035;
-      if (classification.kind === 'label') offset = -0.008;
-      if (classification.kind === 'value') offset = 0.018;
-      if (classification.kind === 'arrow') offset = 0.035;
+      offset = 0;
     }
     if (classification.family === 'micron') {
       if (classification.kind === 'bar-line') offset = -0.045;

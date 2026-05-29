@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260529-macro-timing-v1';
+  const BUILDER_BUILD_ID = '20260529-submacro-ease-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -15,6 +15,7 @@
   const CAPTION_WORD_LOOKAHEAD_SECONDS = 0.002;
   const AUDIO_REVEAL_LEAD_SECONDS = 0.11;
   const AUDIO_REVEAL_WINDOW_SECONDS = 0.36;
+  const SUBMACRO_REVEAL_WINDOW_SECONDS = 1.15;
   const AUDIO_TIMELINE_SYNC_TOLERANCE_SECONDS = 0.12;
   const SECTION_HOLD_SECONDS = 1;
   const SECTION_HOLD_IDS = new Set(['fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons']);
@@ -1844,7 +1845,7 @@
       node.dataset.revealKind = revealSchedule.kind;
       node.style.zIndex = String(Number(layer.z) || 0);
       applyLayerBox(node, layer);
-      applyLayerAnimation(node, layer, scene, sceneProgress, index, persistent, revealDelay);
+      applyLayerAnimation(node, layer, scene, sceneProgress, index, persistent, revealSchedule);
       if (layer.kind === 'sprite') {
         node.src = spritePath(layer.src);
         node.alt = layer.label || '';
@@ -2781,7 +2782,7 @@
     return 0.12 + (row * 0.42) + ((index % 4) * 0.035);
   }
 
-  function applyLayerAnimation(node, layer, scene, sceneProgress, index, persistent = false, revealDelay = null) {
+  function applyLayerAnimation(node, layer, scene, sceneProgress, index, persistent = false, revealSchedule = null) {
     if (persistent) {
       node.style.opacity = '1';
       if (layer.flipY) {
@@ -2791,10 +2792,14 @@
       return;
     }
 
-    const delay = revealDelay == null ? layerRevealDelay(layer, index) : revealDelay;
+    const delay = revealSchedule?.start ?? layerRevealDelay(layer, index);
     const sceneDuration = Math.max(1, sceneContentDuration(scene));
-    const revealLead = Math.min(0.035, AUDIO_REVEAL_LEAD_SECONDS / sceneDuration);
-    const revealWindow = Math.min(0.14, Math.max(0.045, AUDIO_REVEAL_WINDOW_SECONDS / sceneDuration));
+    const isGroupedSubmacroReveal = revealSchedule?.family === 'macro' && revealSchedule.rowIndex != null;
+    const revealWindowSeconds = isGroupedSubmacroReveal
+      ? SUBMACRO_REVEAL_WINDOW_SECONDS
+      : AUDIO_REVEAL_WINDOW_SECONDS;
+    const revealLead = isGroupedSubmacroReveal ? 0 : Math.min(0.035, AUDIO_REVEAL_LEAD_SECONDS / sceneDuration);
+    const revealWindow = Math.min(0.18, Math.max(0.045, revealWindowSeconds / sceneDuration));
     const revealProgress = easeOutCubic((sceneProgress + revealLead - delay) / revealWindow);
     const visible = clamp(revealProgress, 0, 1);
     const phase = state.currentTime * Math.PI * 2;

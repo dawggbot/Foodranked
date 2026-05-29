@@ -1025,10 +1025,10 @@
     </aside>
   </div>
 
-  <script src="../data/foods-index.js?v=20260528-trusted-layout-v6"></script>
-  <script src="./default-layout.js?v=20260528-trusted-layout-v6"></script>
+  <script src="../data/foods-index.js?v=20260529-bg-sprites-v1"></script>
+  <script src="./default-layout.js?v=20260529-bg-sprites-v1"></script>
   <script>
-    const BUILDER_BUILD_ID = '20260528-trusted-layout-v6';
+    const BUILDER_BUILD_ID = '20260529-bg-sprites-v1';
     const SECTIONS = [
       { id: 'intro', label: '1. Intro blank', chip: null, indicator: true },
       { id: 'fats', label: '2. Fats', chip: 'FATS', indicator: true },
@@ -4511,13 +4511,20 @@ async function renderBackgroundSprites() {
 
       const enrichedPool = await Promise.all(sourcePool.map(async food => {
         const candidates = foodSpriteCandidates(food);
-        const hasPrimary = await probeSpriteExists(candidates.primary);
-        return { food, src: hasPrimary ? candidates.primary : candidates.fallback, usedFallback: !hasPrimary, fallback: candidates.fallback };
+        const hasRealFoodImage = candidates.primary && candidates.primary !== candidates.fallback;
+        const hasPrimary = hasRealFoodImage && await probeSpriteExists(candidates.primary);
+        return {
+          food,
+          src: hasPrimary ? candidates.primary : candidates.fallback,
+          usedFallback: !hasPrimary,
+          hasRealFoodImage: hasPrimary,
+          fallback: candidates.fallback
+        };
       }));
-      const selectedPrimary = enrichedPool.find(item => item.food?.id === stub.id && !item.usedFallback);
-      const primaryPool = enrichedPool.filter(item => !item.usedFallback);
-      const renderPool = selectedPrimary ? [selectedPrimary, ...primaryPool.filter(item => item.food?.id !== stub.id)] : (primaryPool.length ? primaryPool : enrichedPool);
-      const onlyFallbacks = !primaryPool.length;
+      const selectedPrimary = enrichedPool.find(item => item.food?.id === stub.id && item.hasRealFoodImage);
+      const realFoodPool = enrichedPool.filter(item => item.hasRealFoodImage);
+      const renderPool = selectedPrimary ? [selectedPrimary, ...realFoodPool.filter(item => item.food?.id !== stub.id)] : (realFoodPool.length ? realFoodPool : enrichedPool);
+      const onlyFallbacks = !realFoodPool.length;
 
       const density = Math.max(1, Number(motion.density) || DEFAULT_LAYOUT.canvas.backgroundMotion.density);
       const minDuration = Math.max(4, Number(motion.minDuration) || DEFAULT_LAYOUT.canvas.backgroundMotion.minDuration);

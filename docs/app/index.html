@@ -1025,10 +1025,11 @@
     </aside>
   </div>
 
-  <script src="../data/foods-index.js?v=20260529-bg-sprites-v1"></script>
-  <script src="./default-layout.js?v=20260529-bg-sprites-v1"></script>
+  <script src="../data/foods-index.js?v=20260529-layout-sync-v1"></script>
+  <script src="./default-layout.js?v=20260529-layout-sync-v1"></script>
   <script>
-    const BUILDER_BUILD_ID = '20260529-bg-sprites-v1';
+    const BUILDER_BUILD_ID = '20260529-layout-sync-v1';
+    const REPO_LAYOUT_VERSION = BUILDER_BUILD_ID;
     const SECTIONS = [
       { id: 'intro', label: '1. Intro blank', chip: null, indicator: true },
       { id: 'fats', label: '2. Fats', chip: 'FATS', indicator: true },
@@ -1262,10 +1263,6 @@
       }, 0);
     }
 
-    function compactBuilderViewport() {
-      return window.innerWidth > 760 && (window.innerWidth <= 1500 || window.innerHeight <= 850);
-    }
-
     function layoutHealth(layout) {
       const layerCount = countLayoutLayers(layout);
       const threshold = Math.floor(DEFAULT_LAYOUT_LAYER_COUNT * STALE_LAYOUT_MIN_LAYER_RATIO);
@@ -1281,10 +1278,27 @@
       };
     }
 
-    function shouldIgnoreSavedLayoutOnThisDevice(layout) {
-      if (layout?.meta?.trustedLaptopLayoutV1) return false;
-      if (!layout?.sections || !compactBuilderViewport()) return false;
-      return layoutHealth(layout).stale;
+    function layoutSyncIssue(layout) {
+      if (!layout?.sections) return null;
+      const health = layoutHealth(layout);
+      const savedVersion = layout?.meta?.repoLayoutVersion || 'unversioned';
+      if (savedVersion !== REPO_LAYOUT_VERSION) {
+        return {
+          ...health,
+          reason: 'repo layout version changed',
+          savedVersion,
+          repoVersion: REPO_LAYOUT_VERSION
+        };
+      }
+      if (health.stale) {
+        return {
+          ...health,
+          reason: 'stale or incomplete local layout',
+          savedVersion,
+          repoVersion: REPO_LAYOUT_VERSION
+        };
+      }
+      return null;
     }
 
     function loadLayout() {
@@ -1292,8 +1306,9 @@
         const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
         const parsed = raw ? JSON.parse(raw) : null;
         ignoredSavedLayoutInfo = null;
-        if (shouldIgnoreSavedLayoutOnThisDevice(parsed)) {
-          ignoredSavedLayoutInfo = layoutHealth(parsed);
+        const syncIssue = layoutSyncIssue(parsed);
+        if (syncIssue) {
+          ignoredSavedLayoutInfo = syncIssue;
           return null;
         }
         return parsed;
@@ -2451,7 +2466,7 @@
     }
 
     function hydrateLayout(layout) {
-      if (!layout) return structuredClone(DEFAULT_LAYOUT);
+      if (!layout) return markLayoutSyncedToRepo(normalizeLayout(structuredClone(DEFAULT_LAYOUT)));
       const merged = structuredClone(DEFAULT_LAYOUT);
       merged.selectedFoodId = layout.selectedFoodId || merged.selectedFoodId;
       merged.selectedSectionId = layout.selectedSectionId || merged.selectedSectionId;
@@ -2470,18 +2485,18 @@
           }
         }
       }
-      merged.meta = { ...(layout.meta || {}) };
+      merged.meta = { ...(layout.meta || {}), repoLayoutVersion: REPO_LAYOUT_VERSION };
       return normalizeLayout(merged);
     }
 
-    function markLayoutTrustedForLaptop(layout) {
-      layout.meta = { ...(layout.meta || {}), trustedLaptopLayoutV1: true };
+    function markLayoutSyncedToRepo(layout) {
+      layout.meta = { ...(layout.meta || {}), repoLayoutVersion: REPO_LAYOUT_VERSION };
       return layout;
     }
 
     function saveLayout({ normalize = true, allowIgnoredReplacement = false } = {}) {
       if (state.ignoredSavedLayout && !allowIgnoredReplacement) return;
-      if (allowIgnoredReplacement) markLayoutTrustedForLaptop(state.layout);
+      markLayoutSyncedToRepo(state.layout);
       if (normalize) {
         normalizeLayout(state.layout);
         if (state.fullFood) syncFoodIntoLayout(state.fullFood, { normalize: false });
@@ -2569,7 +2584,7 @@
         canvas: currentCanvas,
         sections: structuredClone(entry.sections)
       });
-      markLayoutTrustedForLaptop(state.layout);
+      markLayoutSyncedToRepo(state.layout);
       state.ignoredSavedLayout = null;
       state.selectedLayerId = null;
       void renderAll();
@@ -3507,12 +3522,14 @@
         `FoodRanked sprite report`,
         `build: ${BUILDER_BUILD_ID}`,
         `page: ${window.location.href}`,
-        `layout storage: ${ignored ? 'repo default fallback; stale local browser layout ignored on compact laptop' : 'display builder local browser layout'}`,
+        `layout storage: ${ignored ? `repo default; ignored local layout (${ignored.reason})` : `synced local layout (${REPO_LAYOUT_VERSION})`}`,
         `selected food: ${selectedFood?.id || 'none'} (${selectedFood?.name || 'unknown'})`,
         `selected section: ${state.layout.selectedSectionId}`,
         `layout layers: ${allLayerCount}`,
         `repo default layers: ${DEFAULT_LAYOUT_LAYER_COUNT}`,
         `ignored local layout layers: ${ignored ? ignored.layerCount : 'none'}`,
+        `ignored local layout version: ${ignored ? ignored.savedVersion : 'none'}`,
+        `repo layout version: ${REPO_LAYOUT_VERSION}`,
         `committed custom food images: ${foodImageIds.join(', ') || 'none'}`,
         `selected food has committed image: ${AVAILABLE_FOOD_IMAGE_IDS.has(String(selectedFood?.id || '').toLowerCase()) ? 'yes' : 'no, using food-type plate fallback'}`,
         `remembered failures: ${state.spriteFailures.size}`,
@@ -3534,7 +3551,7 @@
       els.spriteDiagnostics.classList.toggle('ok', issueCount === 0);
       els.spriteDiagnostics.classList.toggle('warn', issueCount > 0);
       if (!issueCount) {
-        const layoutNote = state.ignoredSavedLayout ? ' - using repo default; ignored stale local layout' : '';
+        const layoutNote = state.ignoredSavedLayout ? ` - using repo default; ignored ${state.ignoredSavedLayout.reason}` : '';
         els.spriteDiagnostics.textContent = `Sprite check OK - ${BUILDER_BUILD_ID}${layoutNote}`;
         return;
       }
@@ -4700,7 +4717,7 @@ async function renderAll() {
     });
     els.applyJson.addEventListener('click', () => {
       try {
-        state.layout = markLayoutTrustedForLaptop(normalizeLayout(JSON.parse(els.layoutJson.value)));
+        state.layout = markLayoutSyncedToRepo(normalizeLayout(JSON.parse(els.layoutJson.value)));
         state.ignoredSavedLayout = null;
         state.selectedLayerId = null;
         void renderAll();

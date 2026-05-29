@@ -2,7 +2,8 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260528-trusted-layout-v6';
+  const BUILDER_BUILD_ID = '20260529-layout-sync-v1';
+  const REPO_LAYOUT_VERSION = BUILDER_BUILD_ID;
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SECTION_INDICATOR_LAYOUT = { normalSize: 10, highlightedSize: 12 };
@@ -191,10 +192,6 @@
     }, 0);
   }
 
-  function compactBuilderViewport() {
-    return window.innerWidth > 760 && (window.innerWidth <= 1500 || window.innerHeight <= 850);
-  }
-
   function defaultLayoutLayerCount() {
     return countLayoutLayers(window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT || {});
   }
@@ -215,10 +212,27 @@
     };
   }
 
-  function shouldIgnoreSavedLayoutOnThisDevice(layout) {
-    if (layout?.meta?.trustedLaptopLayoutV1) return false;
-    if (!layout?.sections || !compactBuilderViewport()) return false;
-    return layoutHealth(layout).stale;
+  function layoutSyncIssue(layout) {
+    if (!layout?.sections) return null;
+    const health = layoutHealth(layout);
+    const savedVersion = layout?.meta?.repoLayoutVersion || 'unversioned';
+    if (savedVersion !== REPO_LAYOUT_VERSION) {
+      return {
+        ...health,
+        reason: 'repo layout version changed',
+        savedVersion,
+        repoVersion: REPO_LAYOUT_VERSION
+      };
+    }
+    if (health.stale) {
+      return {
+        ...health,
+        reason: 'stale or incomplete local layout',
+        savedVersion,
+        repoVersion: REPO_LAYOUT_VERSION
+      };
+    }
+    return null;
   }
 
   function spriteReportUrl(src) {
@@ -269,9 +283,9 @@
     const displayLayout = loadDisplayBuilderLayout();
     const sourceLabel = state.layoutSourceId === 'display-builder'
       ? displayLayout
-        ? 'display builder local browser layout'
+        ? `display builder synced local layout (${REPO_LAYOUT_VERSION})`
         : ignoredDisplayBuilderLayoutInfo
-          ? 'repo default fallback; stale local browser layout ignored on compact laptop'
+          ? `repo default fallback; ignored display-builder local layout (${ignoredDisplayBuilderLayoutInfo.reason})`
           : 'repo default fallback'
       : state.layoutSourceId === 'default'
         ? 'repo default layout'
@@ -288,6 +302,8 @@
       `layout layers: ${allLayerCount}`,
       `repo default layers: ${defaultLayoutLayerCount()}`,
       `ignored local layout layers: ${ignored ? ignored.layerCount : 'none'}`,
+      `ignored local layout version: ${ignored ? ignored.savedVersion : 'none'}`,
+      `repo layout version: ${REPO_LAYOUT_VERSION}`,
       `committed custom food images: ${foodImageIds.join(', ') || 'none'}`,
       `selected food has committed image: ${AVAILABLE_FOOD_IMAGE_IDS.has(String(food?.id || '').toLowerCase()) ? 'yes' : 'no, using food-type plate fallback'}`,
       `remembered failures: ${state.spriteFailures.size}`,
@@ -309,7 +325,7 @@
     els.spriteDiagnostics.classList.toggle('ok', issueCount === 0);
     els.spriteDiagnostics.classList.toggle('warn', issueCount > 0);
     if (!issueCount) {
-      const layoutNote = ignoredDisplayBuilderLayoutInfo ? ' - using repo default; ignored stale local layout' : '';
+      const layoutNote = ignoredDisplayBuilderLayoutInfo ? ` - using repo default; ignored ${ignoredDisplayBuilderLayoutInfo.reason}` : '';
       els.spriteDiagnostics.textContent = `Sprite check OK - ${BUILDER_BUILD_ID}${layoutNote}`;
       return;
     }
@@ -651,8 +667,9 @@
   function loadDisplayBuilderLayout() {
     const saved = rawDisplayBuilderLayout();
     ignoredDisplayBuilderLayoutInfo = null;
-    if (shouldIgnoreSavedLayoutOnThisDevice(saved)) {
-      ignoredDisplayBuilderLayoutInfo = layoutHealth(saved);
+    const syncIssue = layoutSyncIssue(saved);
+    if (syncIssue) {
+      ignoredDisplayBuilderLayoutInfo = syncIssue;
       return null;
     }
     return saved;
@@ -662,9 +679,9 @@
     const rawDisplayLayout = rawDisplayBuilderLayout();
     const displayLayout = loadDisplayBuilderLayout();
     const displayLabel = ignoredDisplayBuilderLayoutInfo
-      ? 'Display builder saved layout (stale on laptop; using repo default)'
+      ? 'Display builder saved layout (ignored; using repo default)'
       : displayLayout
-        ? 'Display builder saved layout'
+        ? 'Display builder synced saved layout'
         : rawDisplayLayout
           ? 'Display builder saved layout (unavailable)'
           : 'Display builder saved layout (empty)';
@@ -1224,9 +1241,9 @@
     const displayLayout = loadDisplayBuilderLayout();
     const layoutLabel = state.layoutSourceId === 'display-builder'
       ? displayLayout
-        ? 'Saved layout'
+        ? 'Saved layout synced to repo version'
         : ignoredDisplayBuilderLayoutInfo
-          ? 'Default layout (ignored stale saved layout)'
+          ? 'Default layout (ignored old saved layout)'
           : 'Default layout'
       : state.layoutSourceId === 'default'
         ? 'Default layout'

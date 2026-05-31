@@ -452,7 +452,7 @@ function bestMetricContext(metric, sectionKey) {
     polyunsaturated_fat_g: 'helping with cell structure and healthy signalling',
     omega3_mg: 'supporting a more useful fat profile',
     fibre_g: 'helping with digestion and steadier meals',
-    essential_amino_acids_score: 'showing strong usable protein quality',
+    essential_amino_acids_score: 'making the protein useful for repair and maintenance',
     bioavailability_percent: 'helping more of that protein count',
     vitamin_b12_dv: 'useful for nerve and blood-cell support',
     vitamin_d_dv: 'useful for bone and immune support',
@@ -484,7 +484,7 @@ function categoryWeakContext(foodType, sectionKey, metric = null) {
     return `a small miss for ${type || 'this category'}`;
   }
   if (sectionKey === 'proteins') {
-    if (foodType === 'meats') return 'a minor protein-side detail for meats';
+    if (foodType === 'meats') return 'so for meats, it is not bringing much connective-tissue protein';
     return `a weak mark for ${type || 'this category'}`;
   }
   if (sectionKey === 'vitamins') {
@@ -529,7 +529,7 @@ function outstandingMacroLine(result, sectionKey) {
     const bioavailability = byKey('bioavailability_percent');
     const collagen = byKey('collagen_g');
     const best = essentialAmino && bioavailability
-      ? `${metricValuePhrase(essentialAmino)}, with ${metricValueText(bioavailability)} bioavailability, showing strong usable protein quality`
+      ? `${metricValuePhrase(essentialAmino)}, with ${metricValueText(bioavailability)} bioavailability, making the protein useful for repair and maintenance`
       : bestMetricLine(essentialAmino || bioavailability || metrics[0], sectionKey);
     return joinShort([
       best,

@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260529-submacro-ease-v1';
+  const BUILDER_BUILD_ID = '20260531-submacro-slower-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -15,7 +15,8 @@
   const CAPTION_WORD_LOOKAHEAD_SECONDS = 0.002;
   const AUDIO_REVEAL_LEAD_SECONDS = 0.11;
   const AUDIO_REVEAL_WINDOW_SECONDS = 0.36;
-  const SUBMACRO_REVEAL_WINDOW_SECONDS = 1.15;
+  const SUBMACRO_REVEAL_WINDOW_SECONDS = 1.35;
+  const SUBMACRO_REVEAL_WINDOW_MAX_PROGRESS = 0.28;
   const AUDIO_TIMELINE_SYNC_TOLERANCE_SECONDS = 0.12;
   const SECTION_HOLD_SECONDS = 1;
   const SECTION_HOLD_IDS = new Set(['fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons']);
@@ -2799,7 +2800,9 @@
       ? SUBMACRO_REVEAL_WINDOW_SECONDS
       : AUDIO_REVEAL_WINDOW_SECONDS;
     const revealLead = isGroupedSubmacroReveal ? 0 : Math.min(0.035, AUDIO_REVEAL_LEAD_SECONDS / sceneDuration);
-    const revealWindow = Math.min(0.18, Math.max(0.045, revealWindowSeconds / sceneDuration));
+    const revealWindow = isGroupedSubmacroReveal
+      ? Math.min(SUBMACRO_REVEAL_WINDOW_MAX_PROGRESS, Math.max(0.075, revealWindowSeconds / sceneDuration))
+      : Math.min(0.18, Math.max(0.045, revealWindowSeconds / sceneDuration));
     const revealProgress = easeOutCubic((sceneProgress + revealLead - delay) / revealWindow);
     const visible = clamp(revealProgress, 0, 1);
     const phase = state.currentTime * Math.PI * 2;

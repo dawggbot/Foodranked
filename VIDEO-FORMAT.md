@@ -142,7 +142,8 @@ Rules:
 - abbreviations like `DV` should be spoken as `daily value`
 - measurement abbreviations in audio should be expanded to full unit words, for example `3g` becomes `3 grams`; on-screen subtitles and stat values should keep short units and avoid full unit words like `grams`
 - score-style ratios in audio should be expanded as spoken ratios, for example `8/9` becomes `8 out of 9`; subtitles and stat values should keep compact ratios like `8/9`
-- fats, carbs, and proteins narration should include at least one displayed submacro value from that section, such as `saturated fat is 12.6 grams` in audio and `saturated fat is 12.6g` in subtitles; protein fallback amount is not a valid protein submacro because the headline protein grams already cover it
+- fats, carbs, and proteins narration should aim to mention two outstanding displayed submacro values from that section: one of the best-scoring defensible submacros and one of the worst-scoring defensible submacros; skip `N/A` or weakly sourced values, and do not use protein headline grams as the protein submacro
+- macro narration may occasionally add a very brief benefit/context phrase for the best outstanding submacro, for example what fibre, omega-3, or amino-acid quality helps with; keep it selective so sections stay snappy
 - generated subtitle cues should be wrapped to a maximum of 2 lines, with a tight default line length so editor/import wrapping does not create a third line
 - generated subtitle wrapping must keep decimal values intact, for example `37.1g` and `12.6g` must not become `37. 1g` or split across cue boundaries
 - the closing summary should use a wider-but-safe centered `summary-full` subtitle placement across the page, then the final `X tier.` cue should use centered `tier-center` placement until a tier sprite replaces it

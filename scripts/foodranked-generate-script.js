@@ -84,7 +84,13 @@ function formatMetricKey(metricKey) {
     .replace(/\bomega3\b/i, 'omega 3')
     .replace(/\bgi\b/i, 'glycemic index')
     .replace(/\bea\b/i, 'essential amino acids')
-    .replace(/\bdv\b/i, 'daily value');
+    .replace(/\bdv\b/i, 'daily value')
+    .replace(/\bvitamin b12\b/i, 'vitamin B12')
+    .replace(/\bvitamin d\b/i, 'vitamin D')
+    .replace(/\bvitamin c\b/i, 'vitamin C')
+    .replace(/\bvitamin a\b/i, 'vitamin A')
+    .replace(/\bvitamin e\b/i, 'vitamin E')
+    .replace(/\bvitamin k\b/i, 'vitamin K');
 }
 
 function metricDisplayText(metric, options = {}) {
@@ -146,10 +152,9 @@ function rawProteinSubmetrics(result, limit = 4) {
     .slice(0, limit);
 }
 
-function topMetricsForSection(result, sectionKey, limit = 3, options = {}) {
-  const scoredMetrics = (result.metricBreakdown || [])
+function scoredMetricsForSection(result, sectionKey, options = {}) {
+  return (result.metricBreakdown || [])
     .filter(item => item.sectionKey === sectionKey)
-    .sort((a, b) => Math.abs(b.weightedScore) - Math.abs(a.weightedScore))
     .map(metric => ({
       metricKey: metric.metricKey,
       text: metricDisplayText(metric, options),
@@ -159,6 +164,11 @@ function topMetricsForSection(result, sectionKey, limit = 3, options = {}) {
       dvPercent: metric.dvPercent ?? null,
       value: metric.value ?? null
     }));
+}
+
+function topMetricsForSection(result, sectionKey, limit = 3, options = {}) {
+  const scoredMetrics = scoredMetricsForSection(result, sectionKey, options)
+    .sort((a, b) => Math.abs(b.weightedScore) - Math.abs(a.weightedScore));
 
   if (sectionKey === 'proteins') {
     const nonFallbackMetrics = scoredMetrics.filter(metric => metric.metricKey !== 'protein_g_fallback');
@@ -173,6 +183,96 @@ function topMetricsForSection(result, sectionKey, limit = 3, options = {}) {
   }
 
   return scoredMetrics.slice(0, limit);
+}
+
+function metricHasDefensibleValue(metric) {
+  return metric && (
+    metric.value !== null
+    || metric.dvPercent !== null
+    || metric.band
+  );
+}
+
+function arrowBand(metric) {
+  const match = String(metric?.band || '').match(/^(\d+)_(green|red)$/i);
+  if (!match) return null;
+  return { level: Number(match[1]) || 0, color: match[2].toLowerCase() };
+}
+
+function positiveMetricRank(metric) {
+  if (!metricHasDefensibleValue(metric)) return -Infinity;
+  const band = arrowBand(metric);
+  if (band?.color === 'green') return 1000 + (band.level * 100) + Math.max(0, metric.weightedScore ?? 0);
+  if (metric.scoringMode === 'dv_points') return (metric.weightedScore ?? 0) + ((metric.dvPercent ?? 0) / 100);
+  if ((metric.weightedScore ?? 0) > 0) return metric.weightedScore;
+  return -Infinity;
+}
+
+function weakMetricRank(metric) {
+  if (!metricHasDefensibleValue(metric)) return -Infinity;
+  const band = arrowBand(metric);
+  if (band?.color === 'red') return 1000 + (band.level * 100) + Math.abs(metric.weightedScore ?? 0);
+  if (metric.scoringMode === 'dv_points' && metric.dvPercent !== null) {
+    return 1000 - ((metric.weightedScore ?? 0) * 10) - (metric.dvPercent ?? 0);
+  }
+  if ((metric.weightedScore ?? 0) <= 0) return Math.abs(metric.weightedScore ?? 0) + 1;
+  return -Infinity;
+}
+
+function strongestPositiveMetric(metrics) {
+  return (metrics || [])
+    .filter(metric => positiveMetricRank(metric) > -Infinity)
+    .sort((a, b) => positiveMetricRank(b) - positiveMetricRank(a))[0] || null;
+}
+
+function weakestOutstandingMetric(metrics, exclude = null) {
+  return (metrics || [])
+    .filter(metric => metric !== exclude && weakMetricRank(metric) > -Infinity)
+    .sort((a, b) => weakMetricRank(b) - weakMetricRank(a))[0] || null;
+}
+
+function uniqueMetrics(metrics, limit = 4) {
+  const out = [];
+  const seen = new Set();
+  for (const metric of metrics || []) {
+    if (!metric || seen.has(metric.metricKey)) continue;
+    seen.add(metric.metricKey);
+    out.push(metric);
+    if (out.length >= limit) break;
+  }
+  return out;
+}
+
+function outstandingMacroMetrics(result, sectionKey, limit = 4) {
+  if (sectionKey === 'proteins') {
+    const proteinSubmetrics = rawProteinSubmetrics(result, limit);
+    const byKey = key => proteinSubmetrics.find(metric => metric.metricKey === key);
+    return uniqueMetrics([
+      byKey('essential_amino_acids_score'),
+      byKey('bioavailability_percent'),
+      byKey('collagen_g'),
+      byKey('nonessential_amino_acids_score'),
+      ...proteinSubmetrics
+    ], limit);
+  }
+
+  const metrics = scoredMetricsForSection(result, sectionKey);
+  const best = strongestPositiveMetric(metrics);
+  const weakest = weakestOutstandingMetric(metrics, best);
+  const remaining = [...metrics].sort((a, b) => {
+    const rankDiff = Math.max(positiveMetricRank(b), weakMetricRank(b)) - Math.max(positiveMetricRank(a), weakMetricRank(a));
+    return rankDiff || Math.abs(b.weightedScore ?? 0) - Math.abs(a.weightedScore ?? 0);
+  });
+  return uniqueMetrics([best, weakest, ...remaining], limit);
+}
+
+function outstandingMicronMetrics(result, sectionKey, limit = 4, options = {}) {
+  const metrics = scoredMetricsForSection(result, sectionKey, options)
+    .filter(metric => metric.dvPercent !== null);
+  const best = strongestPositiveMetric(metrics);
+  const weakest = weakestOutstandingMetric(metrics, best);
+  const remaining = [...metrics].sort((a, b) => Math.abs(b.weightedScore ?? 0) - Math.abs(a.weightedScore ?? 0));
+  return uniqueMetrics([best, weakest, ...remaining], limit);
 }
 
 function headerMacro(result, key) {
@@ -340,6 +440,111 @@ function strongestMetricLine(result, sectionKey) {
   return `${lead}, with ${names[1]} and ${names[2]} doing more of the work`;
 }
 
+function foodTypeLabel(foodType) {
+  return String(foodType || '')
+    .replace(/-/g, ' ')
+    .replace(/^oils and fats$/i, 'oils and fats');
+}
+
+function bestMetricContext(metric, sectionKey) {
+  const key = metric?.metricKey;
+  const contexts = {
+    polyunsaturated_fat_g: 'helping with cell structure and healthy signalling',
+    omega3_mg: 'supporting a more useful fat profile',
+    fibre_g: 'helping with digestion and steadier meals',
+    essential_amino_acids_score: 'showing strong usable protein quality',
+    bioavailability_percent: 'helping more of that protein count',
+    vitamin_b12_dv: 'useful for nerve and blood-cell support',
+    vitamin_d_dv: 'useful for bone and immune support',
+    vitamin_c_dv: 'useful for collagen formation and antioxidant support',
+    vitamin_a_dv: 'useful for vision and immune support',
+    zinc_dv: 'useful for immune support',
+    iron_dv: 'useful for oxygen transport',
+    potassium_dv: 'useful for fluid balance'
+  };
+  if (contexts[key]) return contexts[key];
+  if (sectionKey === 'fats') return 'supporting a better fat profile';
+  if (sectionKey === 'carbs') return 'supporting better carb quality';
+  if (sectionKey === 'proteins') return 'supporting protein quality';
+  if (sectionKey === 'vitamins') return 'adding useful vitamin support';
+  if (sectionKey === 'minerals') return 'adding useful mineral support';
+  return '';
+}
+
+function categoryWeakContext(foodType, sectionKey, metric = null) {
+  const type = foodTypeLabel(foodType);
+  if (sectionKey === 'fats') {
+    if (foodType === 'meats') return 'and for meats, fat quality is a major tradeoff';
+    if (foodType === 'oils-and-fats') return 'and for oils and fats, that matters a lot';
+    if (foodType === 'nuts' || foodType === 'seeds') return `and for ${type}, fat quality has to justify the calories`;
+    return `a weak mark for ${type || 'this category'}`;
+  }
+  if (sectionKey === 'carbs') {
+    if (['grains', 'fruits', 'legumes', 'tubers'].includes(foodType)) return `a meaningful miss for ${type}`;
+    return `a small miss for ${type || 'this category'}`;
+  }
+  if (sectionKey === 'proteins') {
+    if (foodType === 'meats') return 'a minor protein-side detail for meats';
+    return `a weak mark for ${type || 'this category'}`;
+  }
+  if (sectionKey === 'vitamins') {
+    if (foodType === 'meats') return 'a small miss for meats';
+    return `a weak mark for ${type || 'this category'}`;
+  }
+  if (sectionKey === 'minerals') {
+    if (foodType === 'meats') return 'a weak mark for meats';
+    return `a weak mark for ${type || 'this category'}`;
+  }
+  return `a weak mark for ${type || 'this category'}`;
+}
+
+function bestMetricLine(metric, sectionKey) {
+  if (!metric) return null;
+  const context = bestMetricContext(metric, sectionKey);
+  return context ? `${metricValuePhrase(metric)}, ${context}` : metricValuePhrase(metric);
+}
+
+function weakMetricLine(metric, result, sectionKey) {
+  if (!metric) return null;
+  const context = categoryWeakContext(result.food.foodType, sectionKey, metric);
+  if (metric.scoringMode === 'dv_points' && Number(metric.dvPercent) <= 5) {
+    return `${formatMetricKey(metric.metricKey)} is only ${metric.dvPercent}% DV, ${context}`;
+  }
+  if (metric.metricKey === 'collagen_g' && Number(metric.value) <= 1) {
+    return `collagen is only ${metricValueText(metric)}, ${context}`;
+  }
+  return `${metricValuePhrase(metric)}, ${context}`;
+}
+
+function outstandingMacroLine(result, sectionKey) {
+  const metrics = outstandingMacroMetrics(result, sectionKey, 4);
+  if (!metrics.length) {
+    const label = sectionKey === 'carbs' ? 'carb' : sectionKey.slice(0, -1);
+    return `no defensible ${label} submacros to call out`;
+  }
+
+  if (sectionKey === 'proteins') {
+    const byKey = key => metrics.find(metric => metric.metricKey === key);
+    const essentialAmino = byKey('essential_amino_acids_score');
+    const bioavailability = byKey('bioavailability_percent');
+    const collagen = byKey('collagen_g');
+    const best = essentialAmino && bioavailability
+      ? `${metricValuePhrase(essentialAmino)}, with ${metricValueText(bioavailability)} bioavailability, showing strong usable protein quality`
+      : bestMetricLine(essentialAmino || bioavailability || metrics[0], sectionKey);
+    return joinShort([
+      best,
+      collagen ? weakMetricLine(collagen, result, sectionKey) : null
+    ]).replace(/[.]$/g, '');
+  }
+
+  const best = strongestPositiveMetric(metrics);
+  const weakest = weakestOutstandingMetric(metrics, best);
+  return joinShort([
+    bestMetricLine(best, sectionKey),
+    weakMetricLine(weakest, result, sectionKey)
+  ]).replace(/[.]$/g, '');
+}
+
 function buildHook(result) {
   return `${result.food.name} ranked.`;
 }
@@ -350,7 +555,7 @@ function buildIntro() {
 
 function buildMacroSection(result, key) {
   const macro = macroLine(result, key);
-  const strongest = strongestMetricLine(result, key);
+  const outstanding = outstandingMacroLine(result, key);
   const foodType = result.food.foodType;
 
   const categoryLines = {
@@ -403,13 +608,12 @@ function buildMacroSection(result, key) {
   };
 
   const categoryLine = categoryLines[foodType]?.[key] || sectionContextLine(foodType, `${result.food.id}:${key}`);
-  return joinShort([macro, strongest, categoryLine]);
+  const useCategoryLine = !outstanding || /^no defensible /.test(outstanding);
+  return joinShort([macro, outstanding, useCategoryLine ? categoryLine : null]);
 }
 
 function buildMicrosSection(result, sectionKey) {
-  const top = topMetricsForSection(result, sectionKey, 4, { speakDailyValue: true })
-    .filter(metric => (metric.weightedScore ?? 0) > 0 || (metric.dvPercent ?? 0) >= 5)
-    .slice(0, 3);
+  const top = outstandingMicronMetrics(result, sectionKey, 4, { speakDailyValue: true });
   if (!top.length) {
     if (result.food.foodType === 'misc') {
       return sectionKey === 'vitamins' ? 'no real vitamin story here.' : 'no real mineral story here.';
@@ -423,15 +627,12 @@ function buildMicrosSection(result, sectionKey) {
     return sectionKey === 'vitamins' ? 'no real vitamin story here.' : 'no real mineral story here.';
   }
 
-  const score = result.sectionScores?.[sectionKey] || 0;
-
-  const names = top.map(m => metricDisplayText(m)).join(', ');
-  const context = sectionKey === 'vitamins'
-    ? (score >= 60 ? 'that is major vitamin support' : score >= 35 ? 'that gives this food real vitamin support' : score >= 15 ? 'that is only mild support overall' : 'that is barely moving the needle')
-    : (score >= 60 ? 'that is major mineral support' : score >= 35 ? 'that gives this food real mineral support' : score >= 15 ? 'useful, but still not a major mineral edge' : 'useful, but still pretty limited');
-  const standoutLine = top.length === 1 ? `${names} stands out most` : `${names} stand out most`;
-
-  return joinShort([standoutLine, context]);
+  const best = strongestPositiveMetric(top) || top[0];
+  const weakest = weakestOutstandingMetric(top, best);
+  return joinShort([
+    bestMetricLine(best, sectionKey),
+    weakMetricLine(weakest, result, sectionKey)
+  ]);
 }
 
 function lowerFirst(s) {
@@ -663,6 +864,12 @@ function displayItemsForSection(result, sectionKey) {
       impactLevel: item.impactLevel,
       resolvedScoreValue: item.resolvedScoreValue ?? null
     }));
+  }
+  if (['fats', 'carbs', 'proteins'].includes(sectionKey)) {
+    return outstandingMacroMetrics(result, sectionKey, 4);
+  }
+  if (sectionKey === 'vitamins' || sectionKey === 'minerals') {
+    return outstandingMicronMetrics(result, sectionKey, 4, { speakDailyValue: false });
   }
   return topMetricsForSection(result, sectionKey, 4);
 }

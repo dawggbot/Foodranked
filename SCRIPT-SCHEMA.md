@@ -27,9 +27,11 @@ It is the bridge between:
 - audio-only narration expands measurement abbreviations, so `3g`, `24g`, `15mg`, and similar values are spoken as full unit words
 - audio-only narration expands compact score ratios, so `8/9` is spoken as `8 out of 9`
 - subtitle and display text keep abbreviated units such as `g`, `mg`, and `DV`; subtitle copy must not use full unit words like `grams`
-- macro section narration/subtitles should target two outstanding displayed submacros with numeric values: one of the best-scoring defensible submacros and one of the worst-scoring defensible submacros; skip `N/A` or weakly sourced values rather than padding the line
+- macro section narration/subtitles should target two outstanding displayed submacros with numeric values: one of the best defensible visible indicators and one of the worst defensible visible indicators; for arrow submacros, stronger green/red arrow bands outrank raw weighted score when choosing what sounds outstanding
 - when only one defensible submacro is available for a macro section, mention the one that exists; the protein headline grams must not be repeated as the protein submacro
-- narration may occasionally add a very brief benefit/context phrase for the best outstanding submacro, for example what fibre, omega-3, or amino-acid quality helps with; keep this selective and short
+- narration may add a very brief benefit/context phrase for the best outstanding submacro, for example what fibre, polyunsaturated fat, omega-3, or amino-acid quality helps with; keep this selective and short
+- the worst outstanding explanation should be short and food-type based, for example whether that weak point matters for meats, grains, vegetables, or another category
+- vitamin and mineral narration/subtitles follow the same best-outstanding plus worst-outstanding pattern for DV-backed values; skip `N/A` or weakly sourced values rather than padding the line
 - food identity and score-readiness context travel with the script payload
 - pros/cons should stay explanation-led, not raw-score-led
 - dead legacy fields like context-item `scoreValue` should not be treated as script truth
@@ -107,7 +109,7 @@ Narration rules:
 - pros and cons should read like the narrator is directly reading the on-screen items in order
 - simple opener variation is allowed for pros/cons sections, for example `Pros first:`, `The upsides first:`, `Cons next:`, or `The drawbacks next:`
 - measurement units in spoken blocks use full words, for example `37.1 grams of fat` and `saturated fat is 12.6 grams`, while the matching subtitle/display text uses `37.1g` and `12.6g`
-- macro section spoken blocks should prefer the strongest available submacro plus the weakest available submacro, while keeping each section compact
+- macro, vitamin, and mineral spoken blocks should prefer the strongest available displayed item plus the weakest available displayed item, while keeping each section compact
 - do not narrate the overall score
 - the last spoken block must always be the tier reveal, for example `D tier.`
 

@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260601-sprite-ember-boost-v1';
+  const BUILDER_BUILD_ID = '20260601-point-ember-field-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -1947,10 +1947,12 @@
     const macroHighlightMap = macroSubmetricHighlightMap(scene, narrationProgress);
     const micronHighlightMap = micronMetricHighlightMap(scene, narrationProgress);
     const proConHighlightMap = proConNarrationHighlightMap(scene, narrationProgress);
+    const majorConPointEmbers = majorConPointEmberFields(scene, layerList, proConHighlightMap);
     const existingNodes = new Map(
       Array.from(roots.layerRoot.children).map(node => [node.dataset.renderKey || '', node])
     );
     const nextLayerNodes = document.createDocumentFragment();
+    majorConPointEmbers.forEach(node => nextLayerNodes.appendChild(node));
     layers.forEach(({ layer, index, persistent }) => {
       if (layer.visible === false) return;
       const tagName = layer.kind === 'sprite' ? 'IMG' : 'DIV';
@@ -2000,8 +2002,6 @@
       applySubmacroNarrationHighlight(node, scene, revealSchedule, macroHighlightMap);
       applyMicronNarrationHighlight(node, scene, revealSchedule, micronHighlightMap);
       applyProConNarrationHighlight(node, scene, revealSchedule, proConHighlightMap);
-      const emberField = majorConEmberField(layer, node, revealSchedule, proConHighlightMap);
-      if (emberField) nextLayerNodes.appendChild(emberField);
       nextLayerNodes.appendChild(node);
     });
     roots.layerRoot.replaceChildren(nextLayerNodes);
@@ -2936,68 +2936,171 @@
     }
   }
 
-  function majorConEmberField(layer, node, revealSchedule, highlightMap) {
-    if (revealSchedule?.family !== 'cons') return null;
-    if (revealSchedule.rowIndex == null) return null;
-    if (!['bullet', 'impact', 'item', 'row'].includes(revealSchedule.kind)) return null;
-    if (layer?.kind !== 'sprite' && layer?.kind !== 'text') return null;
-    const activeHighlight = highlightMap?.get(revealSchedule.rowIndex);
-    if (!activeHighlight || !String(activeHighlight.impactLevel || '').toLowerCase().includes('major')) return null;
+  function majorConPointEmberFields(scene, layers, highlightMap) {
+    if (scene?.id !== 'cons' || !highlightMap?.size) return [];
+    const fields = [];
+    [0, 1, 2].forEach(rowIndex => {
+      const activeHighlight = highlightMap.get(rowIndex);
+      if (!activeHighlight || !String(activeHighlight.impactLevel || '').toLowerCase().includes('major')) return;
+      const pointLayers = majorConPointLayers(scene, layers, rowIndex);
+      if (!pointLayers.length) return;
+      const rects = pointLayers.flatMap(layer => majorConEmberRects(layer));
+      if (!rects.length) return;
 
-    const isSpriteEmberField = layer.kind === 'sprite';
-    const spritePad = isSpriteEmberField ? 2 : 0;
-    const layerX = Number(layer.x) || 0;
-    const layerY = Number(layer.y) || 0;
-    const emberWidth = majorConEmberWidth(layer);
-    const emberHeight = majorConEmberHeight(layer);
-    const field = document.createElement('div');
-    field.className = `layer-node major-con-ember-field ${layer.kind}-ember-field`;
-    field.dataset.renderKey = `ember:${node.dataset.renderKey || layer.id || revealSchedule.rowIndex}`;
-    field.dataset.layerId = `${layer.id || revealSchedule.kind || 'layer'}_major_con_embers`;
-    field.style.left = isSpriteEmberField
-      ? `calc(${layerX - spritePad}px * var(--pixel-unit))`
-      : node.style.left;
-    field.style.top = isSpriteEmberField
-      ? `calc(${layerY - spritePad}px * var(--pixel-unit))`
-      : node.style.top;
-    field.style.width = isSpriteEmberField
-      ? `calc(${emberWidth + (spritePad * 2)}px * var(--pixel-unit))`
-      : node.style.width || `calc(${emberWidth}px * var(--pixel-unit))`;
-    field.style.height = isSpriteEmberField
-      ? `calc(${emberHeight + (spritePad * 2)}px * var(--pixel-unit))`
-      : node.style.height || `calc(${emberHeight}px * var(--pixel-unit))`;
-    field.style.zIndex = String(Number(layer.z) || 0);
-    field.style.opacity = node.style.opacity || String(clamp(activeHighlight.strength, 0, 1));
-    field.style.transform = node.style.transform || '';
-    field.style.transformOrigin = node.style.transformOrigin || 'top left';
-    if (node.style.clipPath) field.style.clipPath = node.style.clipPath;
+      const pad = 3;
+      const minX = Math.min(...rects.map(rect => rect.x));
+      const minY = Math.min(...rects.map(rect => rect.y));
+      const maxX = Math.max(...rects.map(rect => rect.x + rect.width));
+      const maxY = Math.max(...rects.map(rect => rect.y + rect.height));
+      const fieldX = minX - pad;
+      const fieldY = minY - pad;
+      const fieldWidth = Math.max(1, (maxX - minX) + (pad * 2));
+      const fieldHeight = Math.max(1, (maxY - minY) + (pad * 2));
+      const minZ = Math.min(...pointLayers.map(layer => Number(layer.z) || 0));
 
-    const strength = easeOutCubic(clamp(activeHighlight.strength, 0, 1));
-    const rowSeed = seededHash(`${revealSchedule.family}:${revealSchedule.rowIndex}`);
-    const elementSeed = rowSeed + seededHash(`${layer.kind}:${layer.id || layer.label || revealSchedule.kind}`);
+      const field = document.createElement('div');
+      field.className = 'layer-node major-con-ember-field major-con-point-ember-field';
+      field.dataset.renderKey = `ember:cons:point:${rowIndex}`;
+      field.dataset.layerId = `cons_point_${rowIndex + 1}_major_con_embers`;
+      field.style.left = `calc(${fieldX}px * var(--pixel-unit))`;
+      field.style.top = `calc(${fieldY}px * var(--pixel-unit))`;
+      field.style.width = `calc(${fieldWidth}px * var(--pixel-unit))`;
+      field.style.height = `calc(${fieldHeight}px * var(--pixel-unit))`;
+      field.style.zIndex = String(minZ);
+      field.style.opacity = String(clamp(activeHighlight.strength, 0, 1));
+
+      const relativeRects = rects.map(rect => ({
+        ...rect,
+        x: rect.x - fieldX,
+        y: rect.y - fieldY
+      }));
+      appendMajorConPointEmbers(field, relativeRects, rowIndex, easeOutCubic(clamp(activeHighlight.strength, 0, 1)), fieldWidth, fieldHeight);
+      fields.push(field);
+    });
+    return fields;
+  }
+
+  function majorConPointLayers(scene, layers, rowIndex) {
+    return layers.filter(layer => {
+      if (layer?.visible === false || (layer?.kind !== 'sprite' && layer?.kind !== 'text')) return false;
+      const classification = layerRevealClassification(layer, scene, false, layers);
+      return classification.family === 'cons'
+        && classification.rowIndex === rowIndex
+        && ['bullet', 'impact', 'item', 'row'].includes(classification.kind);
+    });
+  }
+
+  function majorConLayerBox(layer) {
+    const width = majorConEmberWidth(layer);
+    const height = majorConEmberHeight(layer);
+    if (width <= 0 || height <= 0) return null;
+    return {
+      x: Number(layer.x) || 0,
+      y: Number(layer.y) || 0,
+      width,
+      height,
+      kind: layer.kind,
+      id: layer.id || layer.label || layer.kind
+    };
+  }
+
+  function majorConEmberRects(layer) {
+    const box = majorConLayerBox(layer);
+    if (!box) return [];
+    if (layer.kind !== 'text') {
+      return [{ ...box, weight: Math.max(8, box.width * box.height * 0.48) }];
+    }
+
+    const text = String(layer.text || '').trim();
+    if (!text) return [];
+    const fontSize = asNumber(layer.fontSize, 5);
+    const charWidth = Math.max(1, fontSize * 0.56);
+    const lineHeight = Math.max(fontSize + 1, fontSize * 1.18);
+    const maxChars = Math.max(3, Math.floor(box.width / charWidth));
+    const lines = majorConEmberTextLines(text, maxChars);
+    return lines.map((line, index) => {
+      const width = clamp(line.length * charWidth, Math.min(box.width, fontSize), box.width);
+      const y = box.y + (index * lineHeight);
+      const height = Math.min(lineHeight, Math.max(0, (box.y + box.height) - y));
+      const align = String(layer.align || 'left').toLowerCase();
+      const offsetX = align === 'right'
+        ? box.width - width
+        : align === 'center'
+          ? (box.width - width) / 2
+          : 0;
+      return {
+        x: box.x + offsetX,
+        y,
+        width,
+        height,
+        kind: 'text',
+        id: `${box.id}:line:${index}`,
+        weight: Math.max(4, width * height * 0.06)
+      };
+    }).filter(rect => rect.width > 0 && rect.height > 0);
+  }
+
+  function majorConEmberTextLines(text, maxChars) {
+    const lines = [];
+    String(text || '').split(/\n+/).forEach(sourceLine => {
+      let current = '';
+      sourceLine.split(/\s+/).filter(Boolean).forEach(word => {
+        const candidate = current ? `${current} ${word}` : word;
+        if (candidate.length <= maxChars || !current) {
+          current = candidate;
+        } else {
+          lines.push(current);
+          current = word;
+        }
+      });
+      if (current) lines.push(current);
+    });
+    return lines.length ? lines : [String(text || '').trim()];
+  }
+
+  function weightedMajorConRect(rects, seed) {
+    const totalWeight = rects.reduce((sum, rect) => sum + rect.weight, 0);
+    let cursor = seededUnit(seed) * totalWeight;
+    for (const rect of rects) {
+      cursor -= rect.weight;
+      if (cursor <= 0) return rect;
+    }
+    return rects[rects.length - 1];
+  }
+
+  function appendMajorConPointEmbers(field, rects, rowIndex, strength, fieldWidth, fieldHeight) {
+    const rowSeed = seededHash(`cons:${rowIndex}:point-ember`);
     const baseTime = state.currentTime * 2.15;
-    const emberCount = isSpriteEmberField ? 44 : 24;
+    const emberCount = 96;
     for (let index = 0; index < emberCount; index += 1) {
-      const ember = document.createElement('span');
-      ember.className = 'major-con-ember';
+      const rect = weightedMajorConRect(rects, rowSeed + (index * 101));
       const progress = (baseTime + seededUnit(rowSeed + index * 17)) % 1;
-      const startX = 7 + (seededUnit(elementSeed + index * 41) * 86);
-      const drift = (seededUnit(elementSeed + index * 67) - 0.5) * 11 * progress;
-      const x = clamp(startX + drift, 4, 96);
-      const startY = 94 - (seededUnit(elementSeed + index * 59) * 82);
-      const y = clamp(startY - (progress * 22), 4, 96);
-      const rotate = -25 + (seededUnit(elementSeed + index * 83) * 50) + (progress * 24);
-      const scale = 0.65 + (seededUnit(elementSeed + index * 97) * 0.75);
-      const alphaBase = isSpriteEmberField ? 0.16 : 0.12;
-      const alphaPeak = isSpriteEmberField ? 0.44 : 0.38;
+      const inset = rect.kind === 'sprite' ? 0.45 : 0.8;
+      const usableWidth = Math.max(0.1, rect.width - (inset * 2));
+      const usableHeight = Math.max(0.1, rect.height - (inset * 2));
+      const driftLimit = rect.kind === 'sprite' ? 1.7 : 0.45;
+      const rise = rect.kind === 'sprite' ? 1.6 : 0.55;
+      const rawX = rect.x + inset + (seededUnit(rowSeed + index * 41) * usableWidth);
+      const rawY = rect.y + inset + (seededUnit(rowSeed + index * 59) * usableHeight);
+      const drift = (seededUnit(rowSeed + index * 67) - 0.5) * driftLimit * progress;
+      const x = clamp(rawX + drift, rect.x + inset, rect.x + rect.width - inset);
+      const y = clamp(rawY - (progress * rise), rect.y + inset, rect.y + rect.height - inset);
+      const rotate = -26 + (seededUnit(rowSeed + index * 83) * 52) + (progress * 22);
+      const scale = rect.kind === 'sprite'
+        ? 0.72 + (seededUnit(rowSeed + index * 97) * 0.72)
+        : 0.52 + (seededUnit(rowSeed + index * 97) * 0.46);
+      const alphaBase = rect.kind === 'sprite' ? 0.15 : 0.1;
+      const alphaPeak = rect.kind === 'sprite' ? 0.43 : 0.28;
       const alpha = strength * (alphaBase + (Math.sin(progress * Math.PI) * alphaPeak));
-      ember.style.left = `${x.toFixed(2)}%`;
-      ember.style.top = `${y.toFixed(2)}%`;
+
+      const ember = document.createElement('span');
+      ember.className = `major-con-ember ${rect.kind === 'sprite' ? 'sprite-ember' : 'text-ember'}`;
+      ember.style.left = `${((x / fieldWidth) * 100).toFixed(2)}%`;
+      ember.style.top = `${((y / fieldHeight) * 100).toFixed(2)}%`;
       ember.style.opacity = alpha.toFixed(3);
       ember.style.transform = `translate(-50%, -50%) rotate(${rotate.toFixed(2)}deg) scale(${scale.toFixed(2)})`;
       field.appendChild(ember);
     }
-    return field;
   }
 
   function majorConEmberWidth(layer) {

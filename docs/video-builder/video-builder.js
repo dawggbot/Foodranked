@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260601-contained-slot-arrow-v1';
+  const BUILDER_BUILD_ID = '20260601-synced-arrow-glow-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -17,10 +17,6 @@
   const AUDIO_REVEAL_WINDOW_SECONDS = 0.36;
   const SUBMACRO_REVEAL_WINDOW_SECONDS = 1.35;
   const SUBMACRO_REVEAL_WINDOW_MAX_PROGRESS = 0.28;
-  const SUBMACRO_ARROW_AFTER_ROWS_SECONDS = 0.16;
-  const SUBMACRO_ARROW_REVEAL_WINDOW_SECONDS = 0.62;
-  const SUBMACRO_ARROW_ROW_STAGGER_SECONDS = 0.055;
-  const SUBMACRO_ARROW_SLOT_STAGGER_SECONDS = 0.045;
   const AUDIO_TIMELINE_SYNC_TOLERANCE_SECONDS = 0.12;
   const SECTION_HOLD_SECONDS = 0;
   const SECTION_HOLD_IDS = new Set(['fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons']);
@@ -2699,22 +2695,8 @@
     return '255, 247, 205';
   }
 
-  function macroArrowSlotIndex(layer) {
-    const x = asNumber(layer?.x, null);
-    if (x == null) return 0;
-    return clamp(Math.round((x - 95) / 8), 0, 2);
-  }
-
   function macroRevealWindowProgress(scene, seconds) {
     return Math.min(SUBMACRO_REVEAL_WINDOW_MAX_PROGRESS, Math.max(0.075, seconds / Math.max(1, sceneContentDuration(scene))));
-  }
-
-  function macroArrowRevealAnchor(scene, baseAnchor, rowIndex, layer) {
-    const sceneDuration = Math.max(1, sceneContentDuration(scene));
-    const bodyWindow = macroRevealWindowProgress(scene, SUBMACRO_REVEAL_WINDOW_SECONDS);
-    const rowStagger = (rowIndex || 0) * SUBMACRO_ARROW_ROW_STAGGER_SECONDS;
-    const slotStagger = macroArrowSlotIndex(layer) * SUBMACRO_ARROW_SLOT_STAGGER_SECONDS;
-    return clamp(baseAnchor + bodyWindow + ((SUBMACRO_ARROW_AFTER_ROWS_SECONDS + rowStagger + slotStagger) / sceneDuration), 0.015, 0.94);
   }
 
   function macroTextKind(layer, sectionId) {
@@ -2844,12 +2826,7 @@
 
     if (['fats', 'carbs', 'protein'].includes(sectionId)) {
       if (classification.kind === 'icon' || classification.kind === 'decor') return secondsAnchor(MACRO_REVEAL_SECONDS);
-      if (classification.rowIndex != null) {
-        const baseAnchor = macroMainNarrationEndAnchor(scene, timing);
-        return classification.kind === 'arrow'
-          ? macroArrowRevealAnchor(scene, baseAnchor, classification.rowIndex, layer)
-          : baseAnchor;
-      }
+      if (classification.rowIndex != null) return macroMainNarrationEndAnchor(scene, timing);
     }
 
     if (sectionId === 'vitamins' || sectionId === 'minerals') {
@@ -2955,10 +2932,7 @@
     const sceneDuration = Math.max(1, sceneContentDuration(scene));
     const isMacroRowReveal = revealSchedule?.family === 'macro' && revealSchedule.rowIndex != null;
     const isMacroArrowReveal = isMacroRowReveal && revealSchedule?.kind === 'arrow';
-    const isMacroBodyReveal = isMacroRowReveal && !isMacroArrowReveal;
-    const revealWindowSeconds = isMacroArrowReveal
-      ? SUBMACRO_ARROW_REVEAL_WINDOW_SECONDS
-      : isMacroBodyReveal
+    const revealWindowSeconds = isMacroRowReveal
       ? SUBMACRO_REVEAL_WINDOW_SECONDS
       : AUDIO_REVEAL_WINDOW_SECONDS;
     const revealLead = isMacroRowReveal ? 0 : Math.min(0.035, AUDIO_REVEAL_LEAD_SECONDS / sceneDuration);
@@ -2966,34 +2940,21 @@
       ? macroRevealWindowProgress(scene, revealWindowSeconds)
       : Math.min(0.18, Math.max(0.045, revealWindowSeconds / sceneDuration));
     const rawRevealProgress = (sceneProgress + revealLead - delay) / revealWindow;
-    const arrowRevealProgress = clamp(rawRevealProgress, 0, 1);
     const revealProgress = easeOutCubic(rawRevealProgress);
-    const visible = isMacroArrowReveal
-      ? easeOutCubic((arrowRevealProgress - 0.04) / 0.24)
-      : clamp(revealProgress, 0, 1);
+    const visible = clamp(revealProgress, 0, 1);
     const revealPulse = isMacroArrowReveal
-      ? Math.sin(arrowRevealProgress * Math.PI)
+      ? Math.sin(visible * Math.PI)
       : 0;
     const phase = state.currentTime * Math.PI * 2;
     let x = 0;
     let y = 0;
     let scale = layer.kind === 'text' ? 1 : 0.96 + (visible * 0.04);
     let clip = '';
-    let rotate = 0;
     const lockSpriteLayout = layer.kind === 'sprite' && !persistent;
 
-    if (isMacroBodyReveal) {
+    if (isMacroRowReveal) {
       scale = 1;
       y += (1 - visible) * 5;
-    } else if (isMacroArrowReveal) {
-      const reel = easeOutCubic(arrowRevealProgress);
-      const tick = Math.sin(arrowRevealProgress * Math.PI * 7) * Math.pow(1 - arrowRevealProgress, 1.35);
-      x += tick * 0.45;
-      y -= (1 - reel) * 4.8;
-      y += tick * 2.1;
-      scale = 0.97 + (visible * 0.03) + (revealPulse * 0.025);
-      rotate = tick * 2.2;
-      clip = `inset(${Math.round((1 - visible) * 10)}% 0 ${Math.round((1 - reel) * 8)}% 0)`;
     } else if (lockSpriteLayout) {
       scale = 1;
     } else if (scene.reveal === 'slide') {
@@ -3015,8 +2976,7 @@
     const flip = layer.flipY ? ' scaleY(-1)' : '';
     node.style.transformOrigin = isMacroArrowReveal || layer.flipY ? 'center' : 'top left';
     node.style.opacity = String(visible);
-    const rotation = rotate ? ` rotate(${rotate.toFixed(3)}deg)` : '';
-    node.style.transform = `translate3d(calc(${x}px * var(--pixel-unit)), calc(${y}px * var(--pixel-unit)), 0) scale(${scale})${rotation}${flip}`;
+    node.style.transform = `translate3d(calc(${x}px * var(--pixel-unit)), calc(${y}px * var(--pixel-unit)), 0) scale(${scale})${flip}`;
     if (clip) node.style.clipPath = clip;
     if (isMacroArrowReveal && revealPulse > 0.02) {
       const glowRgb = macroArrowGlowRgb(layer);

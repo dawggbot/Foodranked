@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260601-pro-con-latched-highlight-v1';
+  const BUILDER_BUILD_ID = '20260601-pro-con-sync-pulse-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -2576,11 +2576,11 @@
     const normalizedTerms = terms.map(speechTokens).filter(tokens => tokens.length);
     if (!normalizedTerms.length || !timing?.words?.length) return null;
 
-    const wordTokens = timing.words.map(word => word.tokens?.join(' ') || word.clean || '');
+    const tokenStream = timingTokenStream(timing);
     for (const termTokens of normalizedTerms) {
-      for (let index = 0; index <= wordTokens.length - termTokens.length; index += 1) {
-        const matches = termTokens.every((token, offset) => wordTokens[index + offset] === token);
-        if (matches) return timing.words[index].start;
+      for (let index = 0; index <= tokenStream.length - termTokens.length; index += 1) {
+        const matches = termTokens.every((token, offset) => tokenStream[index + offset]?.token === token);
+        if (matches) return timing.words[tokenStream[index].wordIndex]?.start;
       }
     }
 
@@ -2593,18 +2593,27 @@
     return segmentStartForTerms(timing.sentences || [], terms);
   }
 
+  function timingTokenStream(timing) {
+    return (timing?.words || []).flatMap((word, wordIndex) => {
+      const tokens = Array.isArray(word.tokens) && word.tokens.length
+        ? word.tokens
+        : speechTokens(word.clean || word.text || '');
+      return tokens.map(token => ({ token, wordIndex }));
+    });
+  }
+
   function termSpanForTiming(timing, terms) {
     const normalizedTerms = terms.map(speechTokens).filter(tokens => tokens.length);
     if (!normalizedTerms.length || !timing?.words?.length) return null;
 
-    const wordTokens = timing.words.map(word => word.tokens?.join(' ') || word.clean || '');
+    const tokenStream = timingTokenStream(timing);
     let best = null;
     for (const termTokens of normalizedTerms) {
-      for (let index = 0; index <= wordTokens.length - termTokens.length; index += 1) {
-        const matches = termTokens.every((token, offset) => wordTokens[index + offset] === token);
+      for (let index = 0; index <= tokenStream.length - termTokens.length; index += 1) {
+        const matches = termTokens.every((token, offset) => tokenStream[index + offset]?.token === token);
         if (!matches) continue;
-        const start = timing.words[index]?.start;
-        const end = timing.words[index + termTokens.length - 1]?.end;
+        const start = timing.words[tokenStream[index].wordIndex]?.start;
+        const end = timing.words[tokenStream[index + termTokens.length - 1].wordIndex]?.end;
         if (start == null || end == null) continue;
         if (!best || start < best.start) best = { start, end };
       }
@@ -2853,7 +2862,10 @@
     const activeHighlight = highlightMap.get(revealSchedule.rowIndex);
     if (!activeHighlight) return;
     const strength = clamp(activeHighlight.strength, 0, 1);
-    if (layerKindClass(node, 'text')) node.style.color = '#fffdf4';
+    if (layerKindClass(node, 'text')) {
+      node.style.color = '#fffdf4';
+      node.style.setProperty('--pro-con-text-core-glow', colorWithAlpha('#fffdf4', 0.72 * strength));
+    }
     applyNarrationHighlightStyles(node, activeHighlight.color, strength);
     node.classList.add(layerKindClass(node, 'text') ? 'pro-con-text-highlight' : 'pro-con-sprite-highlight');
     if (String(activeHighlight.impactLevel || '').toLowerCase().includes('major')) {
@@ -3244,6 +3256,7 @@
     const isMicronReveal = revealSchedule?.family === 'micron';
     const isMicronTierReveal = isMicronReveal && ['dv-bar', 'icon', 'label', 'value'].includes(revealSchedule?.kind);
     const isProConRowReveal = (revealSchedule?.family === 'pros' || revealSchedule?.family === 'cons') && revealSchedule.rowIndex != null;
+    const isProConPulseLayer = isProConRowReveal && (layer.kind === 'sprite' || layer.kind === 'text');
     const revealWindowSeconds = isMacroRowReveal
       ? SUBMACRO_REVEAL_WINDOW_SECONDS
       : isMicronTierReveal
@@ -3289,14 +3302,17 @@
       y += (1 - visible) * 7;
     }
 
-    if (layer.kind === 'sprite' && !lockSpriteLayout) {
+    if (isProConPulseLayer) {
+      const syncedPulse = Math.sin(phase * 0.55) * 0.006 * visible;
+      scale += syncedPulse;
+    } else if (layer.kind === 'sprite' && !lockSpriteLayout) {
       if (scene.motion === 'bob') y += Math.sin(phase + index) * 0.7;
       if (scene.motion === 'pulse') scale += Math.sin(phase * 0.8 + index) * 0.018;
       if (scene.motion === 'drift') x += Math.sin(phase * 0.45 + index) * 0.55;
     }
 
     const flip = layer.flipY ? ' scaleY(-1)' : '';
-    node.style.transformOrigin = isMacroArrowReveal || layer.flipY ? 'center' : 'top left';
+    node.style.transformOrigin = isMacroArrowReveal || isProConPulseLayer || layer.flipY ? 'center' : 'top left';
     node.style.opacity = String(visible);
     node.style.transform = `translate3d(calc(${x}px * var(--pixel-unit)), calc(${y}px * var(--pixel-unit)), 0) scale(${scale})${flip}`;
     if (clip) node.style.clipPath = clip;

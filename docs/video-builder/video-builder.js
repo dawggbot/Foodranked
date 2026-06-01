@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260601-major-con-more-embers-v1';
+  const BUILDER_BUILD_ID = '20260601-major-con-frequent-embers-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -2961,19 +2961,19 @@
     const strength = easeOutCubic(clamp(activeHighlight.strength, 0, 1));
     const rowSeed = seededHash(`${revealSchedule.family}:${revealSchedule.rowIndex}`);
     const elementSeed = rowSeed + seededHash(`${layer.kind}:${layer.id || layer.label || revealSchedule.kind}`);
-    const baseTime = state.currentTime * 1.35;
-    for (let index = 0; index < 14; index += 1) {
+    const baseTime = state.currentTime * 2.15;
+    for (let index = 0; index < 24; index += 1) {
       const ember = document.createElement('span');
       ember.className = 'major-con-ember';
-      const progress = (baseTime + seededUnit(rowSeed + index * 23)) % 1;
-      const startX = 10 + (seededUnit(elementSeed + index * 41) * 80);
-      const drift = (seededUnit(elementSeed + index * 67) - 0.5) * 13 * progress;
-      const x = clamp(startX + drift, 5, 95);
-      const startY = 84 - (seededUnit(elementSeed + index * 59) * 42);
-      const y = clamp(startY - (progress * 34), 6, 94);
-      const rotate = -25 + (seededUnit(elementSeed + index * 83) * 50) + (progress * 18);
+      const progress = (baseTime + seededUnit(rowSeed + index * 17)) % 1;
+      const startX = 7 + (seededUnit(elementSeed + index * 41) * 86);
+      const drift = (seededUnit(elementSeed + index * 67) - 0.5) * 11 * progress;
+      const x = clamp(startX + drift, 4, 96);
+      const startY = 94 - (seededUnit(elementSeed + index * 59) * 82);
+      const y = clamp(startY - (progress * 22), 4, 96);
+      const rotate = -25 + (seededUnit(elementSeed + index * 83) * 50) + (progress * 24);
       const scale = 0.65 + (seededUnit(elementSeed + index * 97) * 0.75);
-      const alpha = strength * Math.sin(progress * Math.PI) * 0.48;
+      const alpha = strength * (0.12 + (Math.sin(progress * Math.PI) * 0.38));
       ember.style.left = `${x.toFixed(2)}%`;
       ember.style.top = `${y.toFixed(2)}%`;
       ember.style.opacity = alpha.toFixed(3);

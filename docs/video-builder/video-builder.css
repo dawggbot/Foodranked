@@ -418,15 +418,16 @@ h2 {
   text-shadow: none;
 }
 
-.layer-node.pro-con-sprite-highlight {
+.layer-node.pro-con-point-highlight {
   filter:
-    brightness(calc(1 + (0.70 * var(--submacro-highlight-strength))))
-    saturate(calc(1 + (0.68 * var(--submacro-highlight-strength))))
+    brightness(calc(1 + (0.50 * var(--submacro-highlight-strength))))
+    saturate(calc(1 + (0.50 * var(--submacro-highlight-strength))))
     drop-shadow(0 0 calc(3px * var(--pixel-unit)) var(--submacro-highlight-glow))
-    drop-shadow(0 0 calc(7px * var(--pixel-unit)) var(--submacro-highlight-glow-soft));
+    drop-shadow(0 0 calc(7px * var(--pixel-unit)) var(--submacro-highlight-glow-soft))
+    drop-shadow(0 0 calc(11px * var(--pixel-unit)) var(--submacro-highlight-glow-wide));
 }
 
-.layer-node.text.pro-con-text-highlight {
+.layer-node.text.pro-con-point-highlight {
   filter: none;
   text-shadow:
     0 0 calc(1px * var(--pixel-unit)) var(--pro-con-text-core-glow, transparent),
@@ -436,84 +437,69 @@ h2 {
     0 0 0 #000;
 }
 
-.layer-node.major-pro-highlight {
-  --major-highlight-strength: 1;
-  box-shadow:
-    0 0 calc(2px * var(--pixel-unit)) rgba(255,255,255,.42),
-    0 0 calc(5px * var(--pixel-unit)) rgba(124,242,167,.36);
-  filter:
-    brightness(1.32)
-    saturate(1.35)
-    drop-shadow(0 0 calc(2px * var(--pixel-unit)) rgba(255,247,199,.86))
-    drop-shadow(0 0 calc(4px * var(--pixel-unit)) rgba(124,242,167,.54));
-}
-
-.layer-node.text.major-pro-highlight {
-  box-shadow: none;
-  filter: none;
-  text-shadow:
-    0 0 calc(2px * var(--pixel-unit)) #fffdf4,
-    0 0 calc(5px * var(--pixel-unit)) rgba(124,242,167,.98),
-    0 0 calc(9px * var(--pixel-unit)) rgba(255,255,255,.7),
-    0 0 0 #000;
-}
-
-.layer-node.major-con-highlight {
-  --major-highlight-strength: 1;
-  box-shadow:
-    0 0 calc(1px * var(--pixel-unit)) rgba(255,255,255,.12),
-    0 0 calc(3px * var(--pixel-unit)) rgba(255,111,111,.28);
-  filter:
-    brightness(1.14)
-    saturate(1.26)
-    contrast(1.08)
-    drop-shadow(0 0 calc(1px * var(--pixel-unit)) rgba(255,111,111,.56))
-    drop-shadow(0 0 calc(2px * var(--pixel-unit)) rgba(95,15,15,.38));
-}
-
-.layer-node.text.major-con-highlight {
-  box-shadow: none;
-  filter: none;
-  text-shadow:
-    calc(0.3px * var(--pixel-unit)) 0 0 rgba(255,111,111,.58),
-    calc(-0.3px * var(--pixel-unit)) 0 0 rgba(95,15,15,.46),
-    0 0 calc(2px * var(--pixel-unit)) rgba(255,111,111,.78),
-    0 0 calc(4px * var(--pixel-unit)) rgba(95,15,15,.26),
-    0 0 0 #000;
-}
-
-.major-con-ember-field {
+.major-pro-con-effect-field {
+  --major-effect-strength: 1;
+  --major-effect-pulse: .5;
+  --major-effect-scale: 1;
   overflow: visible;
   pointer-events: none;
   background: transparent;
 }
 
-.major-con-ember {
+.major-pro-con-effect-field::before {
+  content: "";
   position: absolute;
-  width: calc(1.65px * var(--pixel-unit));
-  height: calc(1.65px * var(--pixel-unit));
-  background: #ff2d2d;
-  border-radius: 999px;
+  inset: calc(-2px * var(--pixel-unit));
+  transform: scale(var(--major-effect-scale));
+  transform-origin: center;
+}
+
+.major-pro-effect-field::before {
+  background:
+    radial-gradient(circle at 26% 45%, rgba(255, 253, 244, calc(.16 * var(--major-effect-strength))) 0 8%, transparent 26%),
+    radial-gradient(circle at 62% 54%, rgba(124, 242, 167, calc(.20 * var(--major-effect-strength))) 0 10%, transparent 30%);
+  filter: blur(calc(.35px * var(--pixel-unit)));
   box-shadow:
-    0 0 calc(1px * var(--pixel-unit)) rgba(255, 45, 45, 0.82),
-    0 0 calc(2.5px * var(--pixel-unit)) rgba(255, 0, 0, 0.34);
+    0 0 calc(4px * var(--pixel-unit)) rgba(124, 242, 167, calc(.20 + (.22 * var(--major-effect-strength)))),
+    0 0 calc(8px * var(--pixel-unit)) rgba(255, 247, 199, calc(.12 + (.18 * var(--major-effect-pulse))));
+}
+
+.major-con-effect-field::before {
+  background:
+    radial-gradient(circle at 30% 48%, rgba(255, 45, 45, calc(.12 * var(--major-effect-strength))) 0 10%, transparent 32%),
+    radial-gradient(circle at 68% 55%, rgba(95, 15, 15, calc(.18 * var(--major-effect-strength))) 0 12%, transparent 34%);
+  filter: blur(calc(.28px * var(--pixel-unit)));
+  box-shadow:
+    0 0 calc(3px * var(--pixel-unit)) rgba(255, 45, 45, calc(.18 + (.22 * var(--major-effect-pulse)))),
+    0 0 calc(7px * var(--pixel-unit)) rgba(95, 15, 15, calc(.10 + (.18 * var(--major-effect-strength))));
+}
+
+.major-con-ember,
+.major-pro-twinkle {
+  overflow: visible;
+  pointer-events: none;
+  position: absolute;
   image-rendering: pixelated;
 }
 
-.major-con-ember.sprite-ember {
-  width: calc(2px * var(--pixel-unit));
-  height: calc(2px * var(--pixel-unit));
+.major-con-ember {
+  width: calc(1.8px * var(--pixel-unit));
+  height: calc(1.8px * var(--pixel-unit));
+  background: #ff2d2d;
+  border-radius: 999px;
   box-shadow:
-    0 0 calc(1.2px * var(--pixel-unit)) rgba(255, 45, 45, 0.9),
-    0 0 calc(3.5px * var(--pixel-unit)) rgba(255, 0, 0, 0.42);
+    0 0 calc(1px * var(--pixel-unit)) rgba(255, 45, 45, 0.86),
+    0 0 calc(3px * var(--pixel-unit)) rgba(255, 0, 0, 0.38);
 }
 
-.major-con-ember.text-ember {
-  width: calc(1.45px * var(--pixel-unit));
-  height: calc(1.45px * var(--pixel-unit));
+.major-pro-twinkle {
+  width: calc(2px * var(--pixel-unit));
+  height: calc(2px * var(--pixel-unit));
+  background: #fff7c7;
+  clip-path: polygon(50% 0, 64% 36%, 100% 50%, 64% 64%, 50% 100%, 36% 64%, 0 50%, 36% 36%);
   box-shadow:
-    0 0 calc(1px * var(--pixel-unit)) rgba(255, 45, 45, 0.78),
-    0 0 calc(2.8px * var(--pixel-unit)) rgba(255, 0, 0, 0.34);
+    0 0 calc(1px * var(--pixel-unit)) rgba(255, 253, 244, 0.9),
+    0 0 calc(3px * var(--pixel-unit)) rgba(124, 242, 167, 0.46);
 }
 
 .layer-node.sprite.ranked-shine {

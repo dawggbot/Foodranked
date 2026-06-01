@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260601-even-point-embers-v1';
+  const BUILDER_BUILD_ID = '20260601-unified-pro-con-points-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -1947,12 +1947,12 @@
     const macroHighlightMap = macroSubmetricHighlightMap(scene, narrationProgress);
     const micronHighlightMap = micronMetricHighlightMap(scene, narrationProgress);
     const proConHighlightMap = proConNarrationHighlightMap(scene, narrationProgress);
-    const majorConPointEmbers = majorConPointEmberFields(scene, layerList, proConHighlightMap);
+    const majorProConPointEffects = majorProConPointEffectFields(scene, layerList, proConHighlightMap);
     const existingNodes = new Map(
       Array.from(roots.layerRoot.children).map(node => [node.dataset.renderKey || '', node])
     );
     const nextLayerNodes = document.createDocumentFragment();
-    majorConPointEmbers.forEach(node => nextLayerNodes.appendChild(node));
+    majorProConPointEffects.forEach(node => nextLayerNodes.appendChild(node));
     layers.forEach(({ layer, index, persistent }) => {
       if (layer.visible === false) return;
       const tagName = layer.kind === 'sprite' ? 'IMG' : 'DIV';
@@ -2865,17 +2865,10 @@
       node.style.setProperty('--pro-con-text-core-glow', colorWithAlpha('#fffdf4', 0.92 * strength));
     }
     applyNarrationHighlightStyles(node, activeHighlight.color, strength);
-    if (layerKindClass(node, 'text')) {
-      node.style.setProperty('--submacro-highlight-glow', colorWithAlpha(activeHighlight.color, strength));
-      node.style.setProperty('--submacro-highlight-glow-soft', colorWithAlpha(activeHighlight.color, 0.78 * strength));
-      node.style.setProperty('--submacro-highlight-glow-wide', colorWithAlpha(activeHighlight.color, 0.52 * strength));
-    }
-    node.classList.add(layerKindClass(node, 'text') ? 'pro-con-text-highlight' : 'pro-con-sprite-highlight');
-    if (String(activeHighlight.impactLevel || '').toLowerCase().includes('major')) {
-      node.classList.add(revealSchedule.family === 'pros' ? 'major-pro-highlight' : 'major-con-highlight');
-      node.style.setProperty('--major-highlight-strength', strength.toFixed(3));
-      applyLiveMajorProConEffect(node, revealSchedule.family, layerKindClass(node, 'text'), strength, revealSchedule.rowIndex);
-    }
+    node.style.setProperty('--submacro-highlight-glow', colorWithAlpha(activeHighlight.color, 0.96 * strength));
+    node.style.setProperty('--submacro-highlight-glow-soft', colorWithAlpha(activeHighlight.color, 0.72 * strength));
+    node.style.setProperty('--submacro-highlight-glow-wide', colorWithAlpha(activeHighlight.color, 0.46 * strength));
+    node.classList.add('pro-con-point-highlight');
   }
 
   function layerKindClass(node, kind) {
@@ -2887,110 +2880,55 @@
     if (isText) node.style.color = '#d9cec1';
   }
 
-  function applyLiveMajorProConEffect(node, family, isText, strength, rowIndex = 0) {
-    const rowPhase = (Number(rowIndex) || 0) * 0.73;
-    const pulse = 0.5 + (Math.sin((state.currentTime * Math.PI * (family === 'pros' ? 5.2 : 4.8)) + rowPhase) * 0.5);
-    const power = easeOutCubic(clamp(strength, 0, 1));
-    const peak = pulse * power;
-    if (family === 'pros') {
-      if (isText) {
-        node.style.textShadow = [
-          `0 0 calc(${(0.8 + power * 2.2 + peak * 1.5).toFixed(2)}px * var(--pixel-unit)) rgba(255,253,244,${(0.24 + power * 0.6 + peak * 0.16).toFixed(3)})`,
-          `0 0 calc(${(1.8 + power * 4.2 + peak * 3.2).toFixed(2)}px * var(--pixel-unit)) rgba(124,242,167,${(0.24 + power * 0.68 + peak * 0.08).toFixed(3)})`,
-          `0 0 calc(${(3.2 + power * 6.8 + peak * 4.4).toFixed(2)}px * var(--pixel-unit)) rgba(255,255,255,${(0.12 + power * 0.34 + peak * 0.36).toFixed(3)})`,
-          '0 0 0 #000'
-        ].join(', ');
-      } else {
-        node.style.filter = [
-          `brightness(${(1 + power * 0.36 + peak * 0.42).toFixed(3)})`,
-          `saturate(${(1 + power * 0.34 + peak * 0.32).toFixed(3)})`,
-          `drop-shadow(0 0 calc(${(0.8 + power * 1.4 + peak * 3.3).toFixed(2)}px * var(--pixel-unit)) rgba(255,247,199,${(0.14 + power * 0.48 + peak * 0.36).toFixed(3)}))`,
-          `drop-shadow(0 0 calc(${(1.4 + power * 2.4 + peak * 5.0).toFixed(2)}px * var(--pixel-unit)) rgba(124,242,167,${(0.1 + power * 0.34 + peak * 0.38).toFixed(3)}))`
-        ].join(' ');
-      }
-      return;
-    }
-
-    if (isText) {
-      const shift = (0.12 + peak * 0.16).toFixed(2);
-      node.style.color = '#fff2ed';
-      node.style.textShadow = [
-        `calc(${shift}px * var(--pixel-unit)) 0 0 rgba(255,54,54,${(0.14 + power * 0.36 + peak * 0.12).toFixed(3)})`,
-        `calc(-${shift}px * var(--pixel-unit)) 0 0 rgba(95,15,15,${(0.1 + power * 0.28 + peak * 0.1).toFixed(3)})`,
-        `0 0 calc(${(1.2 + power * 3.4 + peak * 1.8).toFixed(2)}px * var(--pixel-unit)) rgba(255,54,54,${(0.28 + power * 0.54 + peak * 0.1).toFixed(3)})`,
-        `0 0 calc(${(2.4 + power * 5.2 + peak * 2.2).toFixed(2)}px * var(--pixel-unit)) rgba(255,0,0,${(0.1 + power * 0.28 + peak * 0.12).toFixed(3)})`,
-        '0 0 0 #000'
-      ].join(', ');
-      node.style.filter = [
-        `brightness(${(1 + power * 0.09 + peak * 0.08).toFixed(3)})`,
-        `saturate(${(1 + power * 0.08 + peak * 0.06).toFixed(3)})`
-      ].join(' ');
-    } else {
-      node.style.filter = [
-        `brightness(${(1 + power * 0.12 + peak * 0.12).toFixed(3)})`,
-        `saturate(${(1 + power * 0.18 + peak * 0.14).toFixed(3)})`,
-        `contrast(${(1 + power * 0.08 + peak * 0.08).toFixed(3)})`,
-        `drop-shadow(0 0 calc(${(0.6 + power * 0.8 + peak * 1.2).toFixed(2)}px * var(--pixel-unit)) rgba(255,54,54,${(0.14 + power * 0.34 + peak * 0.1).toFixed(3)}))`,
-        `drop-shadow(0 0 calc(${(1.0 + power * 1.4 + peak * 1.8).toFixed(2)}px * var(--pixel-unit)) rgba(95,15,15,${(0.08 + power * 0.22 + peak * 0.12).toFixed(3)}))`
-      ].join(' ');
-    }
-  }
-
-  function majorConPointEmberFields(scene, layers, highlightMap) {
-    if (scene?.id !== 'cons' || !highlightMap?.size) return [];
+  function majorProConPointEffectFields(scene, layers, highlightMap) {
+    const sectionId = scene?.id || '';
+    if ((sectionId !== 'pros' && sectionId !== 'cons') || !highlightMap?.size) return [];
     const fields = [];
     [0, 1, 2].forEach(rowIndex => {
       const activeHighlight = highlightMap.get(rowIndex);
       if (!activeHighlight || !String(activeHighlight.impactLevel || '').toLowerCase().includes('major')) return;
-      const pointLayers = majorConPointLayers(scene, layers, rowIndex);
+      const pointLayers = majorProConPointLayers(scene, layers, rowIndex);
       if (!pointLayers.length) return;
-      const rects = pointLayers.flatMap(layer => majorConEmberRects(layer));
-      if (!rects.length) return;
+      const box = majorProConPointBox(pointLayers);
+      if (!box) return;
 
-      const pad = 3;
-      const minX = Math.min(...rects.map(rect => rect.x));
-      const minY = Math.min(...rects.map(rect => rect.y));
-      const maxX = Math.max(...rects.map(rect => rect.x + rect.width));
-      const maxY = Math.max(...rects.map(rect => rect.y + rect.height));
-      const fieldX = minX - pad;
-      const fieldY = minY - pad;
-      const fieldWidth = Math.max(1, (maxX - minX) + (pad * 2));
-      const fieldHeight = Math.max(1, (maxY - minY) + (pad * 2));
-      const minZ = Math.min(...pointLayers.map(layer => Number(layer.z) || 0));
+      const strength = easeOutCubic(clamp(activeHighlight.strength, 0, 1));
+      const rowPhase = rowIndex * 0.73;
+      const pulseRate = sectionId === 'pros' ? 5.4 : 4.6;
+      const pulse = 0.5 + (Math.sin((state.currentTime * Math.PI * pulseRate) + rowPhase) * 0.5);
 
       const field = document.createElement('div');
-      field.className = 'layer-node major-con-ember-field major-con-point-ember-field';
-      field.dataset.renderKey = `ember:cons:point:${rowIndex}`;
-      field.dataset.layerId = `cons_point_${rowIndex + 1}_major_con_embers`;
-      field.style.left = `calc(${fieldX}px * var(--pixel-unit))`;
-      field.style.top = `calc(${fieldY}px * var(--pixel-unit))`;
-      field.style.width = `calc(${fieldWidth}px * var(--pixel-unit))`;
-      field.style.height = `calc(${fieldHeight}px * var(--pixel-unit))`;
-      field.style.zIndex = String(minZ);
+      field.className = `layer-node major-pro-con-effect-field major-${sectionId === 'pros' ? 'pro' : 'con'}-effect-field`;
+      field.dataset.renderKey = `major-effect:${sectionId}:point:${rowIndex}`;
+      field.dataset.layerId = `${sectionId}_point_${rowIndex + 1}_major_effect`;
+      field.style.left = `calc(${box.x}px * var(--pixel-unit))`;
+      field.style.top = `calc(${box.y}px * var(--pixel-unit))`;
+      field.style.width = `calc(${box.width}px * var(--pixel-unit))`;
+      field.style.height = `calc(${box.height}px * var(--pixel-unit))`;
+      field.style.zIndex = String(box.z);
       field.style.opacity = String(clamp(activeHighlight.strength, 0, 1));
+      field.style.setProperty('--major-effect-strength', strength.toFixed(3));
+      field.style.setProperty('--major-effect-pulse', pulse.toFixed(3));
+      field.style.setProperty('--major-effect-scale', (1 + (strength * (0.018 + (pulse * 0.024)))).toFixed(3));
 
-      const relativeRects = rects.map(rect => ({
-        ...rect,
-        x: rect.x - fieldX,
-        y: rect.y - fieldY
-      }));
-      appendMajorConPointEmbers(field, relativeRects, rowIndex, easeOutCubic(clamp(activeHighlight.strength, 0, 1)), fieldWidth, fieldHeight);
+      appendMajorProConPointParticles(field, sectionId, rowIndex, strength, box.width, box.height);
       fields.push(field);
     });
     return fields;
   }
 
-  function majorConPointLayers(scene, layers, rowIndex) {
+  function majorProConPointLayers(scene, layers, rowIndex) {
+    const sectionId = scene?.id || '';
     return layers.filter(layer => {
       if (layer?.visible === false || (layer?.kind !== 'sprite' && layer?.kind !== 'text')) return false;
       const classification = layerRevealClassification(layer, scene, false, layers);
-      return classification.family === 'cons'
+      return classification.family === sectionId
         && classification.rowIndex === rowIndex
         && ['bullet', 'impact', 'item', 'row'].includes(classification.kind);
     });
   }
 
-  function majorConLayerBox(layer) {
+  function majorProConLayerBox(layer) {
     const width = majorConEmberWidth(layer);
     const height = majorConEmberHeight(layer);
     if (width <= 0 || height <= 0) return null;
@@ -2999,107 +2937,58 @@
       y: Number(layer.y) || 0,
       width,
       height,
-      kind: layer.kind,
-      id: layer.id || layer.label || layer.kind
+      z: Number(layer.z) || 0
     };
   }
 
-  function majorConEmberRects(layer) {
-    const box = majorConLayerBox(layer);
-    if (!box) return [];
-    if (layer.kind !== 'text') {
-      return [{ ...box, weight: Math.max(8, box.width * box.height * 0.48) }];
-    }
-
-    const text = String(layer.text || '').trim();
-    if (!text) return [];
-    const fontSize = asNumber(layer.fontSize, 5);
-    const charWidth = Math.max(1, fontSize * 0.56);
-    const lineHeight = Math.max(fontSize + 1, fontSize * 1.18);
-    const maxChars = Math.max(3, Math.floor(box.width / charWidth));
-    const lines = majorConEmberTextLines(text, maxChars);
-    return lines.map((line, index) => {
-      const width = clamp(line.length * charWidth, Math.min(box.width, fontSize), box.width);
-      const y = box.y + (index * lineHeight);
-      const height = Math.min(lineHeight, Math.max(0, (box.y + box.height) - y));
-      const align = String(layer.align || 'left').toLowerCase();
-      const offsetX = align === 'right'
-        ? box.width - width
-        : align === 'center'
-          ? (box.width - width) / 2
-          : 0;
-      return {
-        x: box.x + offsetX,
-        y,
-        width,
-        height,
-        kind: 'text',
-        id: `${box.id}:line:${index}`,
-        weight: Math.max(4, width * height * 0.06)
-      };
-    }).filter(rect => rect.width > 0 && rect.height > 0);
+  function majorProConPointBox(layers) {
+    const boxes = layers.map(majorProConLayerBox).filter(Boolean);
+    if (!boxes.length) return null;
+    const pad = 3;
+    const minX = Math.min(...boxes.map(box => box.x));
+    const minY = Math.min(...boxes.map(box => box.y));
+    const maxX = Math.max(...boxes.map(box => box.x + box.width));
+    const maxY = Math.max(...boxes.map(box => box.y + box.height));
+    return {
+      x: minX - pad,
+      y: minY - pad,
+      width: Math.max(1, (maxX - minX) + (pad * 2)),
+      height: Math.max(1, (maxY - minY) + (pad * 2)),
+      z: Math.min(...boxes.map(box => box.z))
+    };
   }
 
-  function majorConEmberTextLines(text, maxChars) {
-    const lines = [];
-    String(text || '').split(/\n+/).forEach(sourceLine => {
-      let current = '';
-      sourceLine.split(/\s+/).filter(Boolean).forEach(word => {
-        const candidate = current ? `${current} ${word}` : word;
-        if (candidate.length <= maxChars || !current) {
-          current = candidate;
-        } else {
-          lines.push(current);
-          current = word;
-        }
-      });
-      if (current) lines.push(current);
-    });
-    return lines.length ? lines : [String(text || '').trim()];
-  }
-
-  function evenMajorConRect(rects, seed) {
-    const index = clamp(Math.floor(seededUnit(seed) * rects.length), 0, rects.length - 1);
-    return rects[index];
-  }
-
-  function appendMajorConPointEmbers(field, rects, rowIndex, strength, fieldWidth, fieldHeight) {
-    const rowSeed = seededHash(`cons:${rowIndex}:point-ember`);
-    const baseTime = state.currentTime * 2.15;
-    const emberCount = 112;
-    const spriteRects = rects.filter(rect => rect.kind === 'sprite');
-    const textRects = rects.filter(rect => rect.kind === 'text');
-    for (let index = 0; index < emberCount; index += 1) {
-      const pool = spriteRects.length && textRects.length
-        ? (index % 2 === 0 ? spriteRects : textRects)
-        : rects;
-      const rect = evenMajorConRect(pool, rowSeed + (index * 101));
+  function appendMajorProConPointParticles(field, sectionId, rowIndex, strength, fieldWidth, fieldHeight) {
+    const rowSeed = seededHash(`${sectionId}:${rowIndex}:major-point-effect`);
+    const baseTime = state.currentTime * (sectionId === 'pros' ? 1.85 : 2.15);
+    const count = sectionId === 'pros' ? 82 : 116;
+    const margin = 3;
+    const usableWidth = Math.max(0.1, fieldWidth - (margin * 2));
+    const usableHeight = Math.max(0.1, fieldHeight - (margin * 2));
+    for (let index = 0; index < count; index += 1) {
       const progress = (baseTime + seededUnit(rowSeed + index * 17)) % 1;
-      const inset = rect.kind === 'sprite' ? 0.45 : 0.8;
-      const usableWidth = Math.max(0.1, rect.width - (inset * 2));
-      const usableHeight = Math.max(0.1, rect.height - (inset * 2));
-      const driftLimit = rect.kind === 'sprite' ? 1.7 : 0.45;
-      const rise = rect.kind === 'sprite' ? 1.6 : 0.55;
-      const rawX = rect.x + inset + (seededUnit(rowSeed + index * 41) * usableWidth);
-      const rawY = rect.y + inset + (seededUnit(rowSeed + index * 59) * usableHeight);
-      const drift = (seededUnit(rowSeed + index * 67) - 0.5) * driftLimit * progress;
-      const x = clamp(rawX + drift, rect.x + inset, rect.x + rect.width - inset);
-      const y = clamp(rawY - (progress * rise), rect.y + inset, rect.y + rect.height - inset);
-      const rotate = -26 + (seededUnit(rowSeed + index * 83) * 52) + (progress * 22);
-      const scale = rect.kind === 'sprite'
-        ? 0.8 + (seededUnit(rowSeed + index * 97) * 0.76)
-        : 0.64 + (seededUnit(rowSeed + index * 97) * 0.54);
-      const alphaBase = rect.kind === 'sprite' ? 0.18 : 0.14;
-      const alphaPeak = rect.kind === 'sprite' ? 0.48 : 0.38;
-      const alpha = strength * (alphaBase + (Math.sin(progress * Math.PI) * alphaPeak));
+      const rawX = margin + (seededUnit(rowSeed + index * 41) * usableWidth);
+      const rawY = margin + (seededUnit(rowSeed + index * 59) * usableHeight);
+      const drift = (seededUnit(rowSeed + index * 67) - 0.5) * 1.2 * progress;
+      const rise = sectionId === 'pros' ? 0.35 : 1.6;
+      const x = clamp(rawX + drift, 1, fieldWidth - 1);
+      const y = clamp(rawY - (progress * rise), 1, fieldHeight - 1);
+      const pulse = Math.sin(progress * Math.PI);
+      const rotate = -30 + (seededUnit(rowSeed + index * 83) * 60) + (progress * 26);
+      const scale = sectionId === 'pros'
+        ? 0.58 + (seededUnit(rowSeed + index * 97) * 0.66) + (pulse * 0.32)
+        : 0.74 + (seededUnit(rowSeed + index * 97) * 0.74);
+      const alpha = sectionId === 'pros'
+        ? strength * (0.08 + (pulse * pulse * 0.68))
+        : strength * (0.16 + (pulse * 0.48));
 
-      const ember = document.createElement('span');
-      ember.className = `major-con-ember ${rect.kind === 'sprite' ? 'sprite-ember' : 'text-ember'}`;
-      ember.style.left = `${((x / fieldWidth) * 100).toFixed(2)}%`;
-      ember.style.top = `${((y / fieldHeight) * 100).toFixed(2)}%`;
-      ember.style.opacity = alpha.toFixed(3);
-      ember.style.transform = `translate(-50%, -50%) rotate(${rotate.toFixed(2)}deg) scale(${scale.toFixed(2)})`;
-      field.appendChild(ember);
+      const particle = document.createElement('span');
+      particle.className = sectionId === 'pros' ? 'major-pro-twinkle' : 'major-con-ember';
+      particle.style.left = `${((x / fieldWidth) * 100).toFixed(2)}%`;
+      particle.style.top = `${((y / fieldHeight) * 100).toFixed(2)}%`;
+      particle.style.opacity = alpha.toFixed(3);
+      particle.style.transform = `translate(-50%, -50%) rotate(${rotate.toFixed(2)}deg) scale(${scale.toFixed(2)})`;
+      field.appendChild(particle);
     }
   }
 

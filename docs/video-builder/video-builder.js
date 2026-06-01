@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260601-pro-con-pre-reveal-major-effects-v1';
+  const BUILDER_BUILD_ID = '20260601-tight-pro-con-highlight-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -2715,10 +2715,9 @@
   function proConNarrationWindow(scene, timing, sectionId, rowIndex, layer = null) {
     const span = termSpanForTiming(timing, proConItemTerms(sectionId, rowIndex, layer));
     if (!span) return null;
-    const segment = (timing.chunks || timing.sentences || []).find(item => span.start >= item.start - 0.001 && span.start <= item.end + 0.001);
     return {
-      start: clamp(span.start - 0.015, 0, 1),
-      end: clamp(Math.max(span.end, segment?.end ?? span.end) + 0.055, 0, 1)
+      start: clamp(span.start - 0.005, 0, 1),
+      end: clamp(span.end + 0.025, 0, 1)
     };
   }
 
@@ -2726,7 +2725,7 @@
     const sectionId = scene?.id || '';
     if (sectionId !== 'pros' && sectionId !== 'cons') return new Map();
     const timing = sceneTimingModel(scene);
-    const fade = clamp(0.22 / Math.max(1, sceneNarrationDuration(scene)), 0.018, 0.08);
+    const fade = clamp(0.13 / Math.max(1, sceneNarrationDuration(scene)), 0.012, 0.045);
     const windows = [0, 1, 2]
       .map(index => {
         const window = proConNarrationWindow(scene, timing, sectionId, index);
@@ -2854,15 +2853,26 @@
   function applyProConNarrationHighlight(node, scene, revealSchedule, highlightMap) {
     if (!highlightMap || (revealSchedule?.family !== 'pros' && revealSchedule?.family !== 'cons')) return;
     if (revealSchedule.rowIndex == null) return;
-    const activeHighlight = highlightMap.get(revealSchedule.rowIndex);
-    if (!activeHighlight) return;
     if (!['bullet', 'impact', 'item', 'row'].includes(revealSchedule.kind)) return;
+    const activeHighlight = highlightMap.get(revealSchedule.rowIndex);
+    if (!activeHighlight) {
+      if (highlightMap.size > 0) {
+        node.classList.add('pro-con-row-dimmed');
+        node.style.opacity = String((asNumber(node.style.opacity, 1) * 0.46).toFixed(3));
+      }
+      return;
+    }
     const strength = clamp(activeHighlight.strength, 0, 1);
     applyNarrationHighlightStyles(node, activeHighlight.color, strength);
+    node.classList.add(layerKindClass(node, 'text') ? 'pro-con-text-highlight' : 'pro-con-sprite-highlight');
     if (String(activeHighlight.impactLevel || '').toLowerCase().includes('major')) {
       node.classList.add(revealSchedule.family === 'pros' ? 'major-pro-highlight' : 'major-con-highlight');
       node.style.setProperty('--major-highlight-strength', strength.toFixed(3));
     }
+  }
+
+  function layerKindClass(node, kind) {
+    return node?.classList?.contains(kind);
   }
 
   function rowIndexFromY(layer, startY, stepY, maxIndex) {

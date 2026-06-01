@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260601-slot-arrow-reveal-v1';
+  const BUILDER_BUILD_ID = '20260601-contained-slot-arrow-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -2988,12 +2988,12 @@
     } else if (isMacroArrowReveal) {
       const reel = easeOutCubic(arrowRevealProgress);
       const tick = Math.sin(arrowRevealProgress * Math.PI * 7) * Math.pow(1 - arrowRevealProgress, 1.35);
-      x += tick * 0.85;
-      y -= (1 - reel) * 18;
-      y += tick * 5.5;
-      scale = 0.94 + (visible * 0.06) + (revealPulse * 0.045);
-      rotate = tick * 5;
-      clip = `inset(${Math.round((1 - visible) * 16)}% 0 ${Math.round((1 - reel) * 20)}% 0)`;
+      x += tick * 0.45;
+      y -= (1 - reel) * 4.8;
+      y += tick * 2.1;
+      scale = 0.97 + (visible * 0.03) + (revealPulse * 0.025);
+      rotate = tick * 2.2;
+      clip = `inset(${Math.round((1 - visible) * 10)}% 0 ${Math.round((1 - reel) * 8)}% 0)`;
     } else if (lockSpriteLayout) {
       scale = 1;
     } else if (scene.reveal === 'slide') {

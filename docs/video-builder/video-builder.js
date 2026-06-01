@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260601-strong-major-highlight-glow-v1';
+  const BUILDER_BUILD_ID = '20260601-compact-major-ember-glow-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -2874,15 +2874,15 @@
 
   function applyMajorProConGlow(node, family, color, strength, rowIndex = 0) {
     const rowPhase = (Number(rowIndex) || 0) * 0.73;
-    const pulseRate = family === 'pros' ? 7.2 : 6.4;
+    const pulseRate = family === 'pros' ? 8.4 : 7.6;
     const pulseRaw = 0.5 + (Math.sin((state.currentTime * Math.PI * pulseRate) + rowPhase) * 0.5);
     const pulse = easeOutCubic(clamp(pulseRaw, 0, 1));
     const power = easeOutCubic(clamp(strength, 0, 1));
     const twinkleRaw = family === 'pros'
-      ? 0.5 + (Math.sin((state.currentTime * Math.PI * 16.2) + rowPhase) * 0.5)
+      ? 0.5 + (Math.sin((state.currentTime * Math.PI * 18.8) + rowPhase) * 0.5)
       : 0;
     const twinkle = family === 'pros' ? Math.pow(clamp(twinkleRaw, 0, 1), 2.2) : 0;
-    const flash = family === 'pros' ? Math.max(pulse * 0.45, twinkle) : pulse;
+    const flash = family === 'pros' ? Math.max(pulse * 0.52, twinkle) : pulse;
     const glowColor = color || (family === 'pros' ? SUBMACRO_VALUE_COLORS.green : SUBMACRO_VALUE_COLORS.red);
     node.classList.add(family === 'pros' ? 'major-pro-glow' : 'major-con-glow');
     node.style.setProperty('--submacro-highlight-glow', colorWithAlpha(glowColor, Math.min(1, (0.98 * power) + (0.16 * flash))));
@@ -2895,6 +2895,7 @@
     node.style.setProperty('--major-highlight-pulse', pulse.toFixed(3));
     node.style.setProperty('--major-highlight-twinkle', twinkle.toFixed(3));
     node.style.setProperty('--major-highlight-flash', flash.toFixed(3));
+    node.style.setProperty('--major-highlight-dip', (1 - pulse).toFixed(3));
   }
 
   function layerKindClass(node, kind) {

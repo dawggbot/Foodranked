@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260601-synced-arrow-glow-v1';
+  const BUILDER_BUILD_ID = '20260601-micron-bar-fill-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -17,6 +17,9 @@
   const AUDIO_REVEAL_WINDOW_SECONDS = 0.36;
   const SUBMACRO_REVEAL_WINDOW_SECONDS = 1.35;
   const SUBMACRO_REVEAL_WINDOW_MAX_PROGRESS = 0.28;
+  const MICRON_GRAPH_REVEAL_SECONDS = 0.26;
+  const MICRON_BAR_AFTER_GRAPH_SECONDS = 0.28;
+  const MICRON_BAR_STEP_SECONDS = 0.09;
   const AUDIO_TIMELINE_SYNC_TOLERANCE_SECONDS = 0.12;
   const SECTION_HOLD_SECONDS = 0;
   const SECTION_HOLD_IDS = new Set(['fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons']);
@@ -2830,15 +2833,17 @@
     }
 
     if (sectionId === 'vitamins' || sectionId === 'minerals') {
-      const specs = sectionId === 'vitamins' ? VITAMIN_TEXT_SPECS : MINERAL_TEXT_SPECS;
       if (classification.kind === 'title') return 0.025;
-      const columnIndex = classification.columnIndex;
-      if (columnIndex != null) {
-        const spec = specs[columnIndex];
-        return termStartForTiming(timing, [...metricTerms(spec?.key, spec?.shortLabel), ...layerTextTerms(layer)])
-          ?? distributedRevealDelay(columnIndex + 1, Math.max(specs.length + 1, segments.length), segments, { start: 0.12, end: 0.74 });
+      const graphAnchor = secondsAnchor(MICRON_GRAPH_REVEAL_SECONDS);
+      if (classification.kind === 'dv-bar') {
+        const barStep = clamp(Math.round((asNumber(classification.percent, 10) || 10) / 10), 1, 10);
+        return clamp(
+          graphAnchor + ((MICRON_BAR_AFTER_GRAPH_SECONDS + ((barStep - 1) * MICRON_BAR_STEP_SECONDS)) / sceneContentDuration(scene)),
+          graphAnchor,
+          0.94
+        );
       }
-      return 0.08;
+      return graphAnchor;
     }
 
     if (sectionId === 'pros' || sectionId === 'cons') {
@@ -2867,11 +2872,7 @@
       offset = 0;
     }
     if (classification.family === 'micron') {
-      if (classification.kind === 'bar-line') offset = -0.045;
-      if (classification.kind === 'icon') offset = -0.026;
-      if (classification.kind === 'label') offset = -0.012;
-      if (classification.kind === 'value') offset = 0.025;
-      if (classification.kind === 'dv-bar') offset = 0.01 + Math.min(0.14, (asNumber(classification.percent, 0) || 0) / 100 * 0.16);
+      offset = 0;
     }
     if (classification.family === 'pros' || classification.family === 'cons') {
       if (classification.kind === 'impact') offset = -0.035;

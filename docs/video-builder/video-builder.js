@@ -2,11 +2,11 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260601-nine-sections-tight-indicators-v1';
+  const BUILDER_BUILD_ID = '20260601-display-spacing-submacro-highlight-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
-  const SECTION_INDICATOR_LAYOUT = { normalSize: 10, highlightedSize: 12, slotOverlap: 1 };
+  const SECTION_INDICATOR_LAYOUT = { startX: 4, y: 173, stepX: 11, normalSize: 10, highlightedSize: 12 };
   const CAPTION_SAFE_X = 7;
   const CAPTION_MAX_LINES = 2;
   const CAPTION_MAX_LINE_CHARS = 18;
@@ -779,22 +779,9 @@
     });
     if (!visible.length) return visible;
 
-    const normalSize = SECTION_INDICATOR_LAYOUT.normalSize;
-    const slotSource = candidateVisible.length ? candidateVisible : sorted;
-    const centers = slotSource.map(layer => (Number(layer.x) || 0) + normalSize / 2);
-    const xDiffs = centers.slice(1)
-      .map((center, index) => center - centers[index])
-      .filter(diff => Number.isFinite(diff) && diff > 0);
-    const slotStep = Math.max(1, (xDiffs.length ? Math.min(...xDiffs) : normalSize) - SECTION_INDICATOR_LAYOUT.slotOverlap);
-    const clusterCenter = centers.length
-      ? (Math.min(...centers) + Math.max(...centers)) / 2
-      : (Number(visible[0].x) || 0) + normalSize / 2;
-    const startX = Math.round(clusterCenter - ((visible.length - 1) * slotStep / 2) - (normalSize / 2));
-    const y = Math.round(visible.reduce((sum, layer) => sum + (Number(layer.y) || 0), 0) / visible.length);
-
     visible.forEach((layer, index) => {
-      layer.x = startX + (index * slotStep);
-      layer.y = y;
+      layer.x = SECTION_INDICATOR_LAYOUT.startX + (index * SECTION_INDICATOR_LAYOUT.stepX);
+      layer.y = SECTION_INDICATOR_LAYOUT.y;
       layer.visible = true;
     });
     return visible;
@@ -1865,6 +1852,7 @@
     roots.layerRoot.innerHTML = '';
 
     const layerList = layers.map(item => item.layer);
+    const activeMacroRowIndex = activeMacroSubmetricRowIndex(scene, sceneProgress);
     layers.forEach(({ layer, index, persistent }) => {
       if (layer.visible === false) return;
       const node = document.createElement(layer.kind === 'sprite' ? 'img' : 'div');
@@ -1900,6 +1888,7 @@
         if (layer.width) node.style.width = `calc(${Number(layer.width)}px * var(--pixel-unit))`;
         node.style.textAlign = layer.align || 'left';
       }
+      applySubmacroNarrationHighlight(node, scene, revealSchedule, activeMacroRowIndex);
       roots.layerRoot.appendChild(node);
     });
 
@@ -2484,12 +2473,79 @@
     return segmentStartForTerms(timing.sentences || [], terms);
   }
 
+  function termSpanForTiming(timing, terms) {
+    const normalizedTerms = terms.map(speechTokens).filter(tokens => tokens.length);
+    if (!normalizedTerms.length || !timing?.words?.length) return null;
+
+    const wordTokens = timing.words.map(word => word.tokens?.join(' ') || word.clean || '');
+    let best = null;
+    for (const termTokens of normalizedTerms) {
+      for (let index = 0; index <= wordTokens.length - termTokens.length; index += 1) {
+        const matches = termTokens.every((token, offset) => wordTokens[index + offset] === token);
+        if (!matches) continue;
+        const start = timing.words[index]?.start;
+        const end = timing.words[index + termTokens.length - 1]?.end;
+        if (start == null || end == null) continue;
+        if (!best || start < best.start) best = { start, end };
+      }
+    }
+    if (best) return best;
+
+    const fallbackStart = termStartForTiming(timing, terms);
+    if (fallbackStart == null) return null;
+    const segment = (timing.sentences || []).find(item => fallbackStart >= item.start && fallbackStart <= item.end);
+    return {
+      start: fallbackStart,
+      end: Math.max(fallbackStart + 0.04, segment?.end ?? fallbackStart + 0.14)
+    };
+  }
+
   function metricTerms(metricKey, fallbackLabel = '') {
     const fallback = normalizeSpeechSearch(fallbackLabel);
     return [
       ...(METRIC_SPEECH_TERMS[metricKey] || []),
       ...(fallback.length > 1 ? [fallbackLabel] : [])
     ].filter(Boolean);
+  }
+
+  function macroSubmetricNarrationWindow(scene, timing, spec) {
+    if (!spec) return null;
+    const span = termSpanForTiming(timing, metricTerms(spec.key, spec.label));
+    if (!span) return null;
+    const segment = (timing.chunks || timing.sentences || []).find(item => span.start >= item.start - 0.001 && span.start <= item.end + 0.001);
+    return {
+      start: clamp(span.start - 0.015, 0, 1),
+      end: clamp(Math.max(span.end, segment?.end ?? span.end) + 0.045, 0, 1)
+    };
+  }
+
+  function activeMacroSubmetricRowIndex(scene, sceneProgress) {
+    const sectionId = scene?.id || '';
+    const specs = MACRO_SUBMETRIC_SPECS[sectionId] || [];
+    if (!specs.length) return null;
+    const timing = sceneTimingModel(scene);
+    const active = specs
+      .map((spec, index) => ({ index, window: macroSubmetricNarrationWindow(scene, timing, spec) }))
+      .filter(item => item.window && sceneProgress >= item.window.start && sceneProgress <= item.window.end)
+      .sort((a, b) => b.window.start - a.window.start);
+    return active[0]?.index ?? null;
+  }
+
+  function macroSubmetricHighlightColor(sectionId, rowIndex) {
+    const spec = MACRO_SUBMETRIC_SPECS[sectionId]?.[rowIndex];
+    if (!spec) return SUBMACRO_VALUE_COLORS.neutral;
+    const presentation = macroArrowPresentation(selectedFood(), sectionId, spec);
+    return presentation.textColor || SUBMACRO_VALUE_COLORS[presentation.color] || SUBMACRO_VALUE_COLORS.neutral;
+  }
+
+  function applySubmacroNarrationHighlight(node, scene, revealSchedule, activeRowIndex) {
+    if (activeRowIndex == null || revealSchedule?.family !== 'macro') return;
+    if (revealSchedule.rowIndex !== activeRowIndex) return;
+    if (!['score-card', 'arrow', 'label', 'value', 'row'].includes(revealSchedule.kind)) return;
+    const color = macroSubmetricHighlightColor(scene?.id || '', activeRowIndex);
+    node.classList.add('submacro-narration-highlight');
+    node.style.setProperty('--submacro-highlight', color);
+    if (node.classList.contains('text')) node.style.color = color;
   }
 
   function macroMainSentence(scene, sectionId) {

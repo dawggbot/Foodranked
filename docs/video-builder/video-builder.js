@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260601-layout-indicators-faded-highlight-v1';
+  const BUILDER_BUILD_ID = '20260601-strong-submacro-crossfade-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -2539,7 +2539,7 @@
       const next = windows[index + 1];
       const window = {
         ...item.window,
-        end: next ? Math.min(item.window.end, next.window.start + fade) : item.window.end
+        end: next ? next.window.start + fade : item.window.end
       };
       const strength = submacroHighlightStrength(scene, sceneProgress, window);
       if (strength > 0) highlights.set(item.index, { rowIndex: item.index, strength });
@@ -2577,8 +2577,9 @@
     node.classList.add('submacro-narration-highlight');
     node.style.setProperty('--submacro-highlight', color);
     node.style.setProperty('--submacro-highlight-strength', strength.toFixed(3));
-    node.style.setProperty('--submacro-highlight-glow', colorWithAlpha(color, 0.72 * strength));
-    node.style.setProperty('--submacro-highlight-glow-soft', colorWithAlpha(color, 0.32 * strength));
+    node.style.setProperty('--submacro-highlight-glow', colorWithAlpha(color, 0.9 * strength));
+    node.style.setProperty('--submacro-highlight-glow-soft', colorWithAlpha(color, 0.55 * strength));
+    node.style.setProperty('--submacro-highlight-glow-wide', colorWithAlpha(color, 0.3 * strength));
   }
 
   function macroMainSentence(scene, sectionId) {

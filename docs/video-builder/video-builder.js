@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260601-major-con-frequent-embers-v1';
+  const BUILDER_BUILD_ID = '20260601-sprite-ember-boost-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -2944,14 +2944,28 @@
     const activeHighlight = highlightMap?.get(revealSchedule.rowIndex);
     if (!activeHighlight || !String(activeHighlight.impactLevel || '').toLowerCase().includes('major')) return null;
 
+    const isSpriteEmberField = layer.kind === 'sprite';
+    const spritePad = isSpriteEmberField ? 2 : 0;
+    const layerX = Number(layer.x) || 0;
+    const layerY = Number(layer.y) || 0;
+    const emberWidth = majorConEmberWidth(layer);
+    const emberHeight = majorConEmberHeight(layer);
     const field = document.createElement('div');
     field.className = `layer-node major-con-ember-field ${layer.kind}-ember-field`;
     field.dataset.renderKey = `ember:${node.dataset.renderKey || layer.id || revealSchedule.rowIndex}`;
     field.dataset.layerId = `${layer.id || revealSchedule.kind || 'layer'}_major_con_embers`;
-    field.style.left = node.style.left;
-    field.style.top = node.style.top;
-    field.style.width = node.style.width || `calc(${majorConEmberWidth(layer)}px * var(--pixel-unit))`;
-    field.style.height = node.style.height || `calc(${majorConEmberHeight(layer)}px * var(--pixel-unit))`;
+    field.style.left = isSpriteEmberField
+      ? `calc(${layerX - spritePad}px * var(--pixel-unit))`
+      : node.style.left;
+    field.style.top = isSpriteEmberField
+      ? `calc(${layerY - spritePad}px * var(--pixel-unit))`
+      : node.style.top;
+    field.style.width = isSpriteEmberField
+      ? `calc(${emberWidth + (spritePad * 2)}px * var(--pixel-unit))`
+      : node.style.width || `calc(${emberWidth}px * var(--pixel-unit))`;
+    field.style.height = isSpriteEmberField
+      ? `calc(${emberHeight + (spritePad * 2)}px * var(--pixel-unit))`
+      : node.style.height || `calc(${emberHeight}px * var(--pixel-unit))`;
     field.style.zIndex = String(Number(layer.z) || 0);
     field.style.opacity = node.style.opacity || String(clamp(activeHighlight.strength, 0, 1));
     field.style.transform = node.style.transform || '';
@@ -2962,7 +2976,8 @@
     const rowSeed = seededHash(`${revealSchedule.family}:${revealSchedule.rowIndex}`);
     const elementSeed = rowSeed + seededHash(`${layer.kind}:${layer.id || layer.label || revealSchedule.kind}`);
     const baseTime = state.currentTime * 2.15;
-    for (let index = 0; index < 24; index += 1) {
+    const emberCount = isSpriteEmberField ? 44 : 24;
+    for (let index = 0; index < emberCount; index += 1) {
       const ember = document.createElement('span');
       ember.className = 'major-con-ember';
       const progress = (baseTime + seededUnit(rowSeed + index * 17)) % 1;
@@ -2973,7 +2988,9 @@
       const y = clamp(startY - (progress * 22), 4, 96);
       const rotate = -25 + (seededUnit(elementSeed + index * 83) * 50) + (progress * 24);
       const scale = 0.65 + (seededUnit(elementSeed + index * 97) * 0.75);
-      const alpha = strength * (0.12 + (Math.sin(progress * Math.PI) * 0.38));
+      const alphaBase = isSpriteEmberField ? 0.16 : 0.12;
+      const alphaPeak = isSpriteEmberField ? 0.44 : 0.38;
+      const alpha = strength * (alphaBase + (Math.sin(progress * Math.PI) * alphaPeak));
       ember.style.left = `${x.toFixed(2)}%`;
       ember.style.top = `${y.toFixed(2)}%`;
       ember.style.opacity = alpha.toFixed(3);

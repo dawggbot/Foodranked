@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260601-clean-stage-micro-placement-v1';
+  const BUILDER_BUILD_ID = '20260601-pro-con-sync-highlight-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -1944,6 +1944,7 @@
     const layerList = layers.map(item => item.layer);
     const macroHighlightMap = macroSubmetricHighlightMap(scene, narrationProgress);
     const micronHighlightMap = micronMetricHighlightMap(scene, narrationProgress);
+    const proConHighlightMap = proConNarrationHighlightMap(scene, narrationProgress);
     const existingNodes = new Map(
       Array.from(roots.layerRoot.children).map(node => [node.dataset.renderKey || '', node])
     );
@@ -1996,6 +1997,7 @@
       }
       applySubmacroNarrationHighlight(node, scene, revealSchedule, macroHighlightMap);
       applyMicronNarrationHighlight(node, scene, revealSchedule, micronHighlightMap);
+      applyProConNarrationHighlight(node, scene, revealSchedule, proConHighlightMap);
       nextLayerNodes.appendChild(node);
     });
     roots.layerRoot.replaceChildren(nextLayerNodes);
@@ -2695,6 +2697,54 @@
     return highlights;
   }
 
+  function proConItemTerms(sectionId, rowIndex, layer = null) {
+    const item = selectedFood()?.contextItems?.[sectionId]?.[rowIndex];
+    return [
+      item?.title,
+      item?.explanation,
+      ...layerTextTerms(layer)
+    ].filter(Boolean);
+  }
+
+  function proConNarrationWindow(scene, timing, sectionId, rowIndex, layer = null) {
+    const span = termSpanForTiming(timing, proConItemTerms(sectionId, rowIndex, layer));
+    if (!span) return null;
+    const segment = (timing.chunks || timing.sentences || []).find(item => span.start >= item.start - 0.001 && span.start <= item.end + 0.001);
+    return {
+      start: clamp(span.start - 0.015, 0, 1),
+      end: clamp(Math.max(span.end, segment?.end ?? span.end) + 0.055, 0, 1)
+    };
+  }
+
+  function proConNarrationHighlightMap(scene, sceneProgress) {
+    const sectionId = scene?.id || '';
+    if (sectionId !== 'pros' && sectionId !== 'cons') return new Map();
+    const timing = sceneTimingModel(scene);
+    const fade = clamp(0.22 / Math.max(1, sceneNarrationDuration(scene)), 0.018, 0.08);
+    const windows = [0, 1, 2]
+      .map(index => {
+        const window = proConNarrationWindow(scene, timing, sectionId, index);
+        return window ? { index, window } : null;
+      })
+      .filter(Boolean)
+      .sort((a, b) => a.window.start - b.window.start);
+    const highlights = new Map();
+    windows.forEach((item, index) => {
+      const next = windows[index + 1];
+      const window = {
+        ...item.window,
+        end: next ? next.window.start + fade : item.window.end
+      };
+      const strength = submacroHighlightStrength(scene, sceneProgress, window);
+      if (strength > 0) highlights.set(item.index, {
+        rowIndex: item.index,
+        color: sectionId === 'pros' ? SUBMACRO_VALUE_COLORS.green : SUBMACRO_VALUE_COLORS.red,
+        strength
+      });
+    });
+    return highlights;
+  }
+
   function macroSubmetricHighlightColor(sectionId, rowIndex) {
     const spec = MACRO_SUBMETRIC_SPECS[sectionId]?.[rowIndex];
     if (!spec) return SUBMACRO_VALUE_COLORS.neutral;
@@ -2792,6 +2842,15 @@
     const color = activeHighlight.color || micronMetricHighlightColor(scene?.id || '', activeHighlight.columnIndex);
     const strength = clamp(activeHighlight.strength, 0, 1);
     applyNarrationHighlightStyles(node, color, strength);
+  }
+
+  function applyProConNarrationHighlight(node, scene, revealSchedule, highlightMap) {
+    if (!highlightMap || (revealSchedule?.family !== 'pros' && revealSchedule?.family !== 'cons')) return;
+    if (revealSchedule.rowIndex == null) return;
+    const activeHighlight = highlightMap.get(revealSchedule.rowIndex);
+    if (!activeHighlight) return;
+    if (!['bullet', 'impact', 'item', 'row'].includes(revealSchedule.kind)) return;
+    applyNarrationHighlightStyles(node, activeHighlight.color, clamp(activeHighlight.strength, 0, 1));
   }
 
   function rowIndexFromY(layer, startY, stepY, maxIndex) {
@@ -2903,6 +2962,7 @@
     if (id.match(new RegExp(`^${sectionId}_impact_\\d+$`))) return 'impact';
     if (id.match(new RegExp(`^${sectionId}_item_\\d+$`))) return 'item';
     const fingerprint = `${layer?.label || ''} ${layer?.src || ''}`.toLowerCase();
+    if (/bullet|bullet_point/.test(fingerprint)) return 'bullet';
     if (/badge|impact|label/.test(fingerprint)) return 'impact';
     if (fingerprint.includes(sectionId === 'pros' ? 'pro' : 'con')) return 'item';
     return null;
@@ -3037,8 +3097,7 @@
     if (sectionId === 'pros' || sectionId === 'cons') {
       const rowIndex = classification.rowIndex;
       if (rowIndex != null) {
-        const itemLayerTerms = classification.kind === 'item' ? layerTextTerms(layer) : [];
-        const matched = termStartForTiming(timing, itemLayerTerms);
+        const matched = termStartForTiming(timing, proConItemTerms(sectionId, rowIndex, layer));
         return matched ?? distributedRevealDelay(rowIndex * 2, 5, segments, { start: 0.06, end: 0.66 });
       }
     }
@@ -3063,8 +3122,7 @@
       offset = 0;
     }
     if (classification.family === 'pros' || classification.family === 'cons') {
-      if (classification.kind === 'impact') offset = -0.035;
-      if (classification.kind === 'item') offset = 0.012;
+      offset = 0;
     }
     if (classification.family === 'outro') {
       if (classification.kind === 'frame') offset = -0.08;

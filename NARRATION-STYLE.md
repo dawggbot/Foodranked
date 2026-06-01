@@ -32,6 +32,19 @@
 - allow a bit of personality on debate foods
   - example: butter being treated under oils & fats
 
+## Reference example
+Bacon is the current reference script style for educational, informative narration. Future scripts should copy the pattern, not the exact wording:
+- headline macro first
+- strongest defensible standout with a brief practical "why it matters"
+- weakest defensible standout with a short food-type relevance note
+- vitamins/minerals use the same best-plus-worst rhythm when values exist
+- pros/cons still read all 3 items directly
+
+Example section lines:
+- `Polyunsaturated fat is 5.8g, helping with cell structure and healthy signalling. Saturated fat is 12.6g, and for meats, fat quality is a major tradeoff.`
+- `Vitamin B12 is 21% DV, useful for nerve and blood-cell support. Vitamin D is only 1% DV, a small miss for meats.`
+- `Zinc is 10% DV, useful for immune support. Iron is only 2% DV, a weak mark for meats.`
+
 ## Script shape goal
 - opener
 - 7 short sections

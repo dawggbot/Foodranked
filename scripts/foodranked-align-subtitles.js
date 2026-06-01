@@ -114,6 +114,9 @@ function unitWord(unit, value) {
 
 function displayWordSpeechTokens(word) {
   const raw = String(word || '');
+  if (/^DV[.,!?;:]*$/i.test(raw)) {
+    return ['daily', 'value'];
+  }
   const compactUnit = raw.match(/^(\d+(?:\.\d+)?)(mcg|mg|kg|kcal|g)([.,!?;:]*)$/i);
   if (compactUnit) {
     return [normalizeToken(compactUnit[1]), normalizeToken(unitWord(compactUnit[2], compactUnit[1]))];

@@ -437,69 +437,48 @@ h2 {
     0 0 0 #000;
 }
 
-.major-pro-con-effect-field {
-  --major-effect-strength: 1;
-  --major-effect-pulse: .5;
-  --major-effect-scale: 1;
-  overflow: visible;
-  pointer-events: none;
-  background: transparent;
+.layer-node.pro-con-point-highlight.major-pro-glow {
+  filter:
+    brightness(calc(1 + (.54 * var(--submacro-highlight-strength)) + (.16 * var(--major-highlight-twinkle))))
+    saturate(calc(1 + (.46 * var(--submacro-highlight-strength))))
+    drop-shadow(0 0 calc(3px * var(--pixel-unit)) var(--submacro-highlight-glow))
+    drop-shadow(0 0 calc(7px * var(--pixel-unit)) var(--submacro-highlight-glow-soft))
+    drop-shadow(0 0 calc(11px * var(--pixel-unit)) rgba(255, 247, 199, calc(.12 + (.28 * var(--major-highlight-twinkle)))))
+    drop-shadow(0 0 calc(15px * var(--pixel-unit)) rgba(124, 242, 167, calc(.12 + (.22 * var(--major-highlight-strength)))));
 }
 
-.major-pro-con-effect-field::before {
-  content: "";
-  position: absolute;
-  inset: calc(-2px * var(--pixel-unit));
-  transform: scale(var(--major-effect-scale));
-  transform-origin: center;
+.layer-node.pro-con-point-highlight.major-con-glow {
+  filter:
+    brightness(calc(1 + (.34 * var(--submacro-highlight-strength)) + (.10 * var(--major-highlight-pulse))))
+    saturate(calc(1 + (.42 * var(--submacro-highlight-strength))))
+    contrast(calc(1 + (.08 * var(--major-highlight-strength))))
+    drop-shadow(0 0 calc(3px * var(--pixel-unit)) var(--submacro-highlight-glow))
+    drop-shadow(0 0 calc(7px * var(--pixel-unit)) var(--submacro-highlight-glow-soft))
+    drop-shadow(0 0 calc(12px * var(--pixel-unit)) rgba(255, 45, 45, calc(.16 + (.24 * var(--major-highlight-pulse)))))
+    drop-shadow(0 0 calc(16px * var(--pixel-unit)) rgba(95, 15, 15, calc(.10 + (.18 * var(--major-highlight-strength)))));
 }
 
-.major-pro-effect-field::before {
-  background:
-    radial-gradient(circle at 26% 45%, rgba(255, 253, 244, calc(.16 * var(--major-effect-strength))) 0 8%, transparent 26%),
-    radial-gradient(circle at 62% 54%, rgba(124, 242, 167, calc(.20 * var(--major-effect-strength))) 0 10%, transparent 30%);
-  filter: blur(calc(.35px * var(--pixel-unit)));
-  box-shadow:
-    0 0 calc(4px * var(--pixel-unit)) rgba(124, 242, 167, calc(.20 + (.22 * var(--major-effect-strength)))),
-    0 0 calc(8px * var(--pixel-unit)) rgba(255, 247, 199, calc(.12 + (.18 * var(--major-effect-pulse))));
+.layer-node.text.pro-con-point-highlight.major-pro-glow {
+  filter: none;
+  text-shadow:
+    0 0 calc(1px * var(--pixel-unit)) var(--pro-con-text-core-glow, transparent),
+    0 0 calc(4px * var(--pixel-unit)) var(--submacro-highlight-glow),
+    0 0 calc(10px * var(--pixel-unit)) var(--submacro-highlight-glow-soft),
+    0 0 calc(15px * var(--pixel-unit)) rgba(255, 247, 199, calc(.18 + (.30 * var(--major-highlight-twinkle)))),
+    0 0 calc(19px * var(--pixel-unit)) rgba(124, 242, 167, calc(.14 + (.22 * var(--major-highlight-strength)))),
+    0 0 0 #000;
 }
 
-.major-con-effect-field::before {
-  background:
-    radial-gradient(circle at 30% 48%, rgba(255, 45, 45, calc(.12 * var(--major-effect-strength))) 0 10%, transparent 32%),
-    radial-gradient(circle at 68% 55%, rgba(95, 15, 15, calc(.18 * var(--major-effect-strength))) 0 12%, transparent 34%);
-  filter: blur(calc(.28px * var(--pixel-unit)));
-  box-shadow:
-    0 0 calc(3px * var(--pixel-unit)) rgba(255, 45, 45, calc(.18 + (.22 * var(--major-effect-pulse)))),
-    0 0 calc(7px * var(--pixel-unit)) rgba(95, 15, 15, calc(.10 + (.18 * var(--major-effect-strength))));
-}
-
-.major-con-ember,
-.major-pro-twinkle {
-  overflow: visible;
-  pointer-events: none;
-  position: absolute;
-  image-rendering: pixelated;
-}
-
-.major-con-ember {
-  width: calc(1.8px * var(--pixel-unit));
-  height: calc(1.8px * var(--pixel-unit));
-  background: #ff2d2d;
-  border-radius: 999px;
-  box-shadow:
-    0 0 calc(1px * var(--pixel-unit)) rgba(255, 45, 45, 0.86),
-    0 0 calc(3px * var(--pixel-unit)) rgba(255, 0, 0, 0.38);
-}
-
-.major-pro-twinkle {
-  width: calc(2px * var(--pixel-unit));
-  height: calc(2px * var(--pixel-unit));
-  background: #fff7c7;
-  clip-path: polygon(50% 0, 64% 36%, 100% 50%, 64% 64%, 50% 100%, 36% 64%, 0 50%, 36% 36%);
-  box-shadow:
-    0 0 calc(1px * var(--pixel-unit)) rgba(255, 253, 244, 0.9),
-    0 0 calc(3px * var(--pixel-unit)) rgba(124, 242, 167, 0.46);
+.layer-node.text.pro-con-point-highlight.major-con-glow {
+  filter: none;
+  text-shadow:
+    calc(.2px * var(--pixel-unit)) 0 0 rgba(255, 54, 54, calc(.18 + (.24 * var(--major-highlight-pulse)))),
+    calc(-.2px * var(--pixel-unit)) 0 0 rgba(95, 15, 15, calc(.14 + (.18 * var(--major-highlight-strength)))),
+    0 0 calc(4px * var(--pixel-unit)) var(--submacro-highlight-glow),
+    0 0 calc(10px * var(--pixel-unit)) var(--submacro-highlight-glow-soft),
+    0 0 calc(16px * var(--pixel-unit)) rgba(255, 45, 45, calc(.14 + (.24 * var(--major-highlight-pulse)))),
+    0 0 calc(20px * var(--pixel-unit)) rgba(95, 15, 15, calc(.10 + (.18 * var(--major-highlight-strength)))),
+    0 0 0 #000;
 }
 
 .layer-node.sprite.ranked-shine {

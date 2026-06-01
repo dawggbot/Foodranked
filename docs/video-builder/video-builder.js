@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260601-tight-pro-con-highlight-v1';
+  const BUILDER_BUILD_ID = '20260601-live-pro-con-effects-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -2716,8 +2716,8 @@
     const span = termSpanForTiming(timing, proConItemTerms(sectionId, rowIndex, layer));
     if (!span) return null;
     return {
-      start: clamp(span.start - 0.005, 0, 1),
-      end: clamp(span.end + 0.025, 0, 1)
+      start: clamp(span.start, 0, 1),
+      end: clamp(span.end + 0.008, 0, 1)
     };
   }
 
@@ -2725,7 +2725,7 @@
     const sectionId = scene?.id || '';
     if (sectionId !== 'pros' && sectionId !== 'cons') return new Map();
     const timing = sceneTimingModel(scene);
-    const fade = clamp(0.13 / Math.max(1, sceneNarrationDuration(scene)), 0.012, 0.045);
+    const fade = clamp(0.08 / Math.max(1, sceneNarrationDuration(scene)), 0.008, 0.03);
     const windows = [0, 1, 2]
       .map(index => {
         const window = proConNarrationWindow(scene, timing, sectionId, index);
@@ -2858,7 +2858,7 @@
     if (!activeHighlight) {
       if (highlightMap.size > 0) {
         node.classList.add('pro-con-row-dimmed');
-        node.style.opacity = String((asNumber(node.style.opacity, 1) * 0.46).toFixed(3));
+        node.style.opacity = String((asNumber(node.style.opacity, 1) * 0.82).toFixed(3));
       }
       return;
     }
@@ -2868,11 +2868,54 @@
     if (String(activeHighlight.impactLevel || '').toLowerCase().includes('major')) {
       node.classList.add(revealSchedule.family === 'pros' ? 'major-pro-highlight' : 'major-con-highlight');
       node.style.setProperty('--major-highlight-strength', strength.toFixed(3));
+      applyLiveMajorProConEffect(node, revealSchedule.family, layerKindClass(node, 'text'), strength);
     }
   }
 
   function layerKindClass(node, kind) {
     return node?.classList?.contains(kind);
+  }
+
+  function applyLiveMajorProConEffect(node, family, isText, strength) {
+    const pulse = 0.5 + (Math.sin(state.currentTime * Math.PI * (family === 'pros' ? 5.2 : 7.2)) * 0.5);
+    const power = clamp(0.35 + (strength * 0.65), 0, 1);
+    const peak = pulse * power;
+    if (family === 'pros') {
+      if (isText) {
+        node.style.textShadow = [
+          `0 0 calc(${(1.3 + peak * 1.2).toFixed(2)}px * var(--pixel-unit)) #fff7c7`,
+          `0 0 calc(${(2.6 + peak * 3.2).toFixed(2)}px * var(--pixel-unit)) rgba(124,242,167,${(0.78 + peak * 0.22).toFixed(3)})`,
+          `0 0 calc(${(4.2 + peak * 4.8).toFixed(2)}px * var(--pixel-unit)) rgba(255,255,255,${(0.18 + peak * 0.48).toFixed(3)})`,
+          '0 0 0 #000'
+        ].join(', ');
+      } else {
+        node.style.filter = [
+          `brightness(${(1.28 + peak * 0.34).toFixed(3)})`,
+          `saturate(${(1.24 + peak * 0.24).toFixed(3)})`,
+          `drop-shadow(0 0 calc(${(1.8 + peak * 2.8).toFixed(2)}px * var(--pixel-unit)) rgba(255,247,199,${(0.55 + peak * 0.35).toFixed(3)}))`,
+          `drop-shadow(0 0 calc(${(3.2 + peak * 4.2).toFixed(2)}px * var(--pixel-unit)) rgba(124,242,167,${(0.36 + peak * 0.34).toFixed(3)}))`
+        ].join(' ');
+      }
+      return;
+    }
+
+    if (isText) {
+      const shift = (0.35 + peak * 0.55).toFixed(2);
+      node.style.textShadow = [
+        `calc(${shift}px * var(--pixel-unit)) 0 0 rgba(255,111,111,${(0.58 + peak * 0.36).toFixed(3)})`,
+        `calc(-${shift}px * var(--pixel-unit)) 0 0 rgba(95,15,15,${(0.46 + peak * 0.34).toFixed(3)})`,
+        `0 0 calc(${(2.0 + peak * 3.6).toFixed(2)}px * var(--pixel-unit)) rgba(255,111,111,${(0.64 + peak * 0.32).toFixed(3)})`,
+        '0 0 0 #000'
+      ].join(', ');
+    } else {
+      node.style.filter = [
+        `brightness(${(1.12 + peak * 0.36).toFixed(3)})`,
+        `saturate(${(1.22 + peak * 0.42).toFixed(3)})`,
+        `contrast(${(1.08 + peak * 0.24).toFixed(3)})`,
+        `drop-shadow(0 0 calc(${(1.6 + peak * 3.2).toFixed(2)}px * var(--pixel-unit)) rgba(255,111,111,${(0.58 + peak * 0.34).toFixed(3)}))`,
+        `drop-shadow(0 0 calc(${(3.0 + peak * 4.4).toFixed(2)}px * var(--pixel-unit)) rgba(95,15,15,${(0.38 + peak * 0.34).toFixed(3)}))`
+      ].join(' ');
+    }
   }
 
   function rowIndexFromY(layer, startY, stepY, maxIndex) {

@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260601-pro-con-sync-pulse-v1';
+  const BUILDER_BUILD_ID = '20260601-global-sync-pulse-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -2864,9 +2864,14 @@
     const strength = clamp(activeHighlight.strength, 0, 1);
     if (layerKindClass(node, 'text')) {
       node.style.color = '#fffdf4';
-      node.style.setProperty('--pro-con-text-core-glow', colorWithAlpha('#fffdf4', 0.72 * strength));
+      node.style.setProperty('--pro-con-text-core-glow', colorWithAlpha('#fffdf4', 0.92 * strength));
     }
     applyNarrationHighlightStyles(node, activeHighlight.color, strength);
+    if (layerKindClass(node, 'text')) {
+      node.style.setProperty('--submacro-highlight-glow', colorWithAlpha(activeHighlight.color, strength));
+      node.style.setProperty('--submacro-highlight-glow-soft', colorWithAlpha(activeHighlight.color, 0.78 * strength));
+      node.style.setProperty('--submacro-highlight-glow-wide', colorWithAlpha(activeHighlight.color, 0.52 * strength));
+    }
     node.classList.add(layerKindClass(node, 'text') ? 'pro-con-text-highlight' : 'pro-con-sprite-highlight');
     if (String(activeHighlight.impactLevel || '').toLowerCase().includes('major')) {
       node.classList.add(revealSchedule.family === 'pros' ? 'major-pro-highlight' : 'major-con-highlight');
@@ -2891,9 +2896,9 @@
     if (family === 'pros') {
       if (isText) {
         node.style.textShadow = [
-          `0 0 calc(${(0.4 + power * 1.5 + peak * 1.8).toFixed(2)}px * var(--pixel-unit)) rgba(255,253,244,${(0.16 + power * 0.54 + peak * 0.28).toFixed(3)})`,
-          `0 0 calc(${(1.0 + power * 2.8 + peak * 4.4).toFixed(2)}px * var(--pixel-unit)) rgba(124,242,167,${(0.18 + power * 0.62 + peak * 0.18).toFixed(3)})`,
-          `0 0 calc(${(1.8 + power * 4.2 + peak * 6.2).toFixed(2)}px * var(--pixel-unit)) rgba(255,255,255,${(0.08 + power * 0.26 + peak * 0.58).toFixed(3)})`,
+          `0 0 calc(${(0.8 + power * 2.2 + peak * 1.5).toFixed(2)}px * var(--pixel-unit)) rgba(255,253,244,${(0.24 + power * 0.6 + peak * 0.16).toFixed(3)})`,
+          `0 0 calc(${(1.8 + power * 4.2 + peak * 3.2).toFixed(2)}px * var(--pixel-unit)) rgba(124,242,167,${(0.24 + power * 0.68 + peak * 0.08).toFixed(3)})`,
+          `0 0 calc(${(3.2 + power * 6.8 + peak * 4.4).toFixed(2)}px * var(--pixel-unit)) rgba(255,255,255,${(0.12 + power * 0.34 + peak * 0.36).toFixed(3)})`,
           '0 0 0 #000'
         ].join(', ');
       } else {
@@ -2908,23 +2913,41 @@
     }
 
     if (isText) {
-      const shift = (0.45 + peak * 0.65).toFixed(2);
+      const shift = (0.2 + peak * 0.28).toFixed(2);
       node.style.textShadow = [
-        `calc(${shift}px * var(--pixel-unit)) 0 0 rgba(255,111,111,${(0.16 + power * 0.58 + peak * 0.24).toFixed(3)})`,
-        `calc(-${shift}px * var(--pixel-unit)) 0 0 rgba(95,15,15,${(0.14 + power * 0.48 + peak * 0.3).toFixed(3)})`,
-        `0 0 calc(${(0.8 + power * 2.2 + peak * 4.8).toFixed(2)}px * var(--pixel-unit)) rgba(255,111,111,${(0.2 + power * 0.58 + peak * 0.2).toFixed(3)})`,
-        `0 0 calc(${(1.6 + power * 3.6 + peak * 5.8).toFixed(2)}px * var(--pixel-unit)) rgba(95,15,15,${(0.08 + power * 0.26 + peak * 0.42).toFixed(3)})`,
+        `calc(${shift}px * var(--pixel-unit)) 0 0 rgba(255,54,54,${(0.12 + power * 0.42 + peak * 0.12).toFixed(3)})`,
+        `calc(-${shift}px * var(--pixel-unit)) 0 0 rgba(95,15,15,${(0.12 + power * 0.36 + peak * 0.14).toFixed(3)})`,
+        `0 0 calc(${(1.0 + power * 4.2 + peak * 2.0).toFixed(2)}px * var(--pixel-unit)) rgba(255,54,54,${(0.24 + power * 0.68 + peak * 0.08).toFixed(3)})`,
+        `0 0 calc(${(2.2 + power * 6.8 + peak * 3.0).toFixed(2)}px * var(--pixel-unit)) rgba(255,0,0,${(0.1 + power * 0.32 + peak * 0.16).toFixed(3)})`,
         '0 0 0 #000'
       ].join(', ');
+      applyMajorConSparkVars(node, power);
     } else {
       node.style.filter = [
-        `brightness(${(1 + power * 0.2 + peak * 0.44).toFixed(3)})`,
-        `saturate(${(1 + power * 0.32 + peak * 0.48).toFixed(3)})`,
-        `contrast(${(1 + power * 0.12 + peak * 0.3).toFixed(3)})`,
-        `drop-shadow(0 0 calc(${(0.8 + power * 1.2 + peak * 3.8).toFixed(2)}px * var(--pixel-unit)) rgba(255,111,111,${(0.18 + power * 0.48 + peak * 0.32).toFixed(3)}))`,
-        `drop-shadow(0 0 calc(${(1.4 + power * 2.2 + peak * 5.2).toFixed(2)}px * var(--pixel-unit)) rgba(95,15,15,${(0.12 + power * 0.32 + peak * 0.36).toFixed(3)}))`
+        `brightness(${(1 + power * 0.2 + peak * 0.24).toFixed(3)})`,
+        `saturate(${(1 + power * 0.32 + peak * 0.28).toFixed(3)})`,
+        `contrast(${(1 + power * 0.12 + peak * 0.16).toFixed(3)})`,
+        `drop-shadow(0 0 calc(${(0.8 + power * 1.2 + peak * 2.2).toFixed(2)}px * var(--pixel-unit)) rgba(255,54,54,${(0.18 + power * 0.48 + peak * 0.18).toFixed(3)}))`,
+        `drop-shadow(0 0 calc(${(1.4 + power * 2.2 + peak * 3.0).toFixed(2)}px * var(--pixel-unit)) rgba(95,15,15,${(0.12 + power * 0.32 + peak * 0.22).toFixed(3)}))`
       ].join(' ');
     }
+  }
+
+  function applyMajorConSparkVars(node, power) {
+    const sparkPower = clamp(power, 0, 1);
+    const baseTime = state.currentTime * 2.8;
+    const angles = [-0.95, -0.42, 0.08, 0.54, 0.96];
+    angles.forEach((angle, index) => {
+      const progress = (baseTime + (index * 0.19)) % 1;
+      const wobble = Math.sin((state.currentTime * 5.1) + index) * 0.16;
+      const distance = (1.2 + (progress * 6.4)) * sparkPower;
+      const x = Math.cos(angle + wobble) * distance;
+      const y = (Math.sin(angle + wobble) * distance) - (progress * 2.2 * sparkPower);
+      const alpha = sparkPower * Math.pow(1 - progress, 0.62);
+      node.style.setProperty(`--major-con-spark-${index}-x`, `calc(${x.toFixed(2)}px * var(--pixel-unit))`);
+      node.style.setProperty(`--major-con-spark-${index}-y`, `calc(${y.toFixed(2)}px * var(--pixel-unit))`);
+      node.style.setProperty(`--major-con-spark-${index}-color`, colorWithAlpha('#ff2d2d', 0.92 * alpha));
+    });
   }
 
   function rowIndexFromY(layer, startY, stepY, maxIndex) {
@@ -3239,13 +3262,17 @@
     return 0.12 + (row * 0.42) + ((index % 4) * 0.035);
   }
 
+  function syncedLayerPulse(visible = 1) {
+    return Math.sin(state.currentTime * Math.PI * 1.1) * 0.0045 * clamp(visible, 0, 1);
+  }
+
   function applyLayerAnimation(node, layer, scene, sceneProgress, index, persistent = false, revealSchedule = null) {
     if (persistent) {
+      const scale = 1 + syncedLayerPulse(1);
+      const flip = layer.flipY ? ' scaleY(-1)' : '';
       node.style.opacity = '1';
-      if (layer.flipY) {
-        node.style.transformOrigin = 'center';
-        node.style.transform = 'scaleY(-1)';
-      }
+      node.style.transformOrigin = 'center';
+      node.style.transform = `scale(${scale})${flip}`;
       return;
     }
 
@@ -3256,7 +3283,7 @@
     const isMicronReveal = revealSchedule?.family === 'micron';
     const isMicronTierReveal = isMicronReveal && ['dv-bar', 'icon', 'label', 'value'].includes(revealSchedule?.kind);
     const isProConRowReveal = (revealSchedule?.family === 'pros' || revealSchedule?.family === 'cons') && revealSchedule.rowIndex != null;
-    const isProConPulseLayer = isProConRowReveal && (layer.kind === 'sprite' || layer.kind === 'text');
+    const isPulseLayer = layer.kind === 'sprite' || layer.kind === 'text';
     const revealWindowSeconds = isMacroRowReveal
       ? SUBMACRO_REVEAL_WINDOW_SECONDS
       : isMicronTierReveal
@@ -3302,17 +3329,17 @@
       y += (1 - visible) * 7;
     }
 
-    if (isProConPulseLayer) {
-      const syncedPulse = Math.sin(phase * 0.55) * 0.006 * visible;
-      scale += syncedPulse;
-    } else if (layer.kind === 'sprite' && !lockSpriteLayout) {
+    if (isPulseLayer) {
+      scale += syncedLayerPulse(visible);
+    }
+
+    if (layer.kind === 'sprite' && !lockSpriteLayout) {
       if (scene.motion === 'bob') y += Math.sin(phase + index) * 0.7;
-      if (scene.motion === 'pulse') scale += Math.sin(phase * 0.8 + index) * 0.018;
       if (scene.motion === 'drift') x += Math.sin(phase * 0.45 + index) * 0.55;
     }
 
     const flip = layer.flipY ? ' scaleY(-1)' : '';
-    node.style.transformOrigin = isMacroArrowReveal || isProConPulseLayer || layer.flipY ? 'center' : 'top left';
+    node.style.transformOrigin = isMacroArrowReveal || isPulseLayer || layer.flipY ? 'center' : 'top left';
     node.style.opacity = String(visible);
     node.style.transform = `translate3d(calc(${x}px * var(--pixel-unit)), calc(${y}px * var(--pixel-unit)), 0) scale(${scale})${flip}`;
     if (clip) node.style.clipPath = clip;

@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260601-micron-stamp-arrow-glow-v1';
+  const BUILDER_BUILD_ID = '20260601-micron-tier-text-sync-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -833,6 +833,23 @@
     const safe = asNumber(value, null);
     if (safe == null || safe <= 0) return null;
     return clamp(Math.max(1, Math.floor(safe / 10)), 1, 10);
+  }
+
+  function micronSpecsForSection(sectionId) {
+    if (sectionId === 'vitamins') return VITAMIN_TEXT_SPECS;
+    if (sectionId === 'minerals') return MINERAL_TEXT_SPECS;
+    return [];
+  }
+
+  function micronStepForColumn(sectionId, columnIndex, food = selectedFood()) {
+    const spec = micronSpecsForSection(sectionId)[columnIndex];
+    return spec ? micronutrientStep(food?.metrics?.[spec.key]) : null;
+  }
+
+  function maxMicronStepForSection(sectionId, food = selectedFood()) {
+    return micronSpecsForSection(sectionId).reduce((maxStep, spec) => {
+      return Math.max(maxStep, micronutrientStep(food?.metrics?.[spec.key]) || 0);
+    }, 0);
   }
 
   function syncHeader(layout, food) {
@@ -2827,6 +2844,16 @@
     return clamp(start + ((order / Math.max(1, count - 1)) * (end - start)), start, end);
   }
 
+  function micronTierRevealAnchor(scene, sectionId, step, graphAnchor) {
+    const maxStep = Math.max(1, maxMicronStepForSection(sectionId));
+    const safeStep = clamp(step || 1, 1, maxStep);
+    return clamp(
+      graphAnchor + ((MICRON_BAR_AFTER_GRAPH_SECONDS + ((safeStep - 1) * MICRON_BAR_STEP_SECONDS)) / sceneContentDuration(scene)),
+      graphAnchor,
+      0.94
+    );
+  }
+
   function revealAnchorForLayer(layer, scene, classification, timing, index = 0) {
     const sectionId = scene?.id || '';
     const segments = timing.sentences || sceneTimedSentences(scene);
@@ -2862,10 +2889,17 @@
       if (classification.kind === 'title') return graphAnchor;
       if (classification.kind === 'dv-bar') {
         const barStep = clamp(Math.round((asNumber(classification.percent, 10) || 10) / 10), 1, 10);
-        return clamp(
-          graphAnchor + ((MICRON_BAR_AFTER_GRAPH_SECONDS + ((barStep - 1) * MICRON_BAR_STEP_SECONDS)) / sceneContentDuration(scene)),
-          graphAnchor,
-          0.94
+        return micronTierRevealAnchor(scene, sectionId, barStep, graphAnchor);
+      }
+      if (classification.kind === 'label') {
+        return micronTierRevealAnchor(scene, sectionId, 1, graphAnchor);
+      }
+      if (classification.kind === 'value') {
+        return micronTierRevealAnchor(
+          scene,
+          sectionId,
+          micronStepForColumn(sectionId, classification.columnIndex) || 1,
+          graphAnchor
         );
       }
       return graphAnchor;
@@ -2959,10 +2993,10 @@
     const isMacroRowReveal = revealSchedule?.family === 'macro' && revealSchedule.rowIndex != null;
     const isMacroArrowReveal = isMacroRowReveal && revealSchedule?.kind === 'arrow';
     const isMicronReveal = revealSchedule?.family === 'micron';
-    const isMicronBarReveal = isMicronReveal && revealSchedule?.kind === 'dv-bar';
+    const isMicronTierReveal = isMicronReveal && ['dv-bar', 'label', 'value'].includes(revealSchedule?.kind);
     const revealWindowSeconds = isMacroRowReveal
       ? SUBMACRO_REVEAL_WINDOW_SECONDS
-      : isMicronBarReveal
+      : isMicronTierReveal
         ? MICRON_BAR_STAMP_REVEAL_SECONDS
         : isMicronReveal
           ? MICRON_STAMP_REVEAL_SECONDS
@@ -2971,7 +3005,7 @@
     const revealWindow = isMacroRowReveal
       ? macroRevealWindowProgress(scene, revealWindowSeconds)
       : isMicronReveal
-        ? Math.min(0.12, Math.max(isMicronBarReveal ? 0.008 : 0.028, revealWindowSeconds / sceneDuration))
+        ? Math.min(0.12, Math.max(isMicronTierReveal ? 0.008 : 0.028, revealWindowSeconds / sceneDuration))
         : Math.min(0.18, Math.max(0.045, revealWindowSeconds / sceneDuration));
     const rawRevealProgress = (sceneProgress + revealLead - delay) / revealWindow;
     const revealProgress = easeOutCubic(rawRevealProgress);
@@ -2991,7 +3025,7 @@
       y += (1 - visible) * 5;
     } else if (isMicronReveal) {
       const stampPulse = Math.sin(visible * Math.PI);
-      scale = 0.965 + (visible * 0.035) + (stampPulse * (isMicronBarReveal ? 0.018 : 0.012));
+      scale = 0.965 + (visible * 0.035) + (stampPulse * (isMicronTierReveal ? 0.018 : 0.012));
       y += (1 - visible) * 2.4;
     } else if (lockSpriteLayout) {
       scale = 1;

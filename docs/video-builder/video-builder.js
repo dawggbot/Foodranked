@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260601-major-pro-con-effects-v1';
+  const BUILDER_BUILD_ID = '20260601-pro-con-pre-reveal-major-effects-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -19,6 +19,9 @@
   const SUBMACRO_REVEAL_WINDOW_MAX_PROGRESS = 0.28;
   const SECTION_NARRATION_AFTER_REVEAL_PAD_SECONDS = 0.03;
   const MACRO_CONTINUATION_NARRATION_DELAY_SECONDS = 0.42;
+  const PRO_CON_ROW_REVEAL_SECONDS = 0.18;
+  const PRO_CON_ROW_STEP_SECONDS = 0.24;
+  const PRO_CON_NARRATION_AFTER_REVEAL_PAD_SECONDS = 0.18;
   const MICRON_GRAPH_REVEAL_SECONDS = 0.08;
   const MICRON_BAR_AFTER_GRAPH_SECONDS = 0.38;
   const MICRON_BAR_STEP_SECONDS = 0.12;
@@ -867,6 +870,9 @@
         + MICRON_BAR_STAMP_REVEAL_SECONDS
         + SECTION_NARRATION_AFTER_REVEAL_PAD_SECONDS
       ).toFixed(3));
+    }
+    if (sectionId === 'pros' || sectionId === 'cons') {
+      return Number((PRO_CON_ROW_REVEAL_SECONDS + (2 * PRO_CON_ROW_STEP_SECONDS) + PRO_CON_NARRATION_AFTER_REVEAL_PAD_SECONDS).toFixed(3));
     }
     return 0;
   }
@@ -3103,8 +3109,7 @@
     if (sectionId === 'pros' || sectionId === 'cons') {
       const rowIndex = classification.rowIndex;
       if (rowIndex != null) {
-        const matched = termStartForTiming(timing, proConItemTerms(sectionId, rowIndex, layer));
-        return matched ?? distributedRevealDelay(rowIndex * 2, 5, segments, { start: 0.06, end: 0.66 });
+        return secondsAnchor(PRO_CON_ROW_REVEAL_SECONDS + (rowIndex * PRO_CON_ROW_STEP_SECONDS));
       }
     }
 
@@ -3135,7 +3140,7 @@
       if (classification.kind === 'tier') offset = 0;
     }
 
-    const minimumDelay = !persistent && ['macro', 'micron'].includes(classification.family) ? 0.005 : 0.015;
+    const minimumDelay = !persistent && ['macro', 'micron', 'pros', 'cons'].includes(classification.family) ? 0.005 : 0.015;
     const delay = clamp((anchor ?? 0.08) + offset, persistent ? 0 : minimumDelay, 0.94);
     return {
       layerId: layer?.id || null,
@@ -3188,6 +3193,7 @@
     const isMacroArrowReveal = isMacroRowReveal && revealSchedule?.kind === 'arrow';
     const isMicronReveal = revealSchedule?.family === 'micron';
     const isMicronTierReveal = isMicronReveal && ['dv-bar', 'icon', 'label', 'value'].includes(revealSchedule?.kind);
+    const isProConRowReveal = (revealSchedule?.family === 'pros' || revealSchedule?.family === 'cons') && revealSchedule.rowIndex != null;
     const revealWindowSeconds = isMacroRowReveal
       ? SUBMACRO_REVEAL_WINDOW_SECONDS
       : isMicronTierReveal
@@ -3212,7 +3218,7 @@
     let y = 0;
     let scale = layer.kind === 'text' ? 1 : 0.96 + (visible * 0.04);
     let clip = '';
-    const lockSpriteLayout = layer.kind === 'sprite' && !persistent;
+    const lockSpriteLayout = layer.kind === 'sprite' && !persistent && !isProConRowReveal;
 
     if (isMacroRowReveal) {
       scale = 1;

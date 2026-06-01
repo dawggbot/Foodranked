@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260601-point-ember-field-v1';
+  const BUILDER_BUILD_ID = '20260601-even-point-embers-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -3058,22 +3058,22 @@
     return lines.length ? lines : [String(text || '').trim()];
   }
 
-  function weightedMajorConRect(rects, seed) {
-    const totalWeight = rects.reduce((sum, rect) => sum + rect.weight, 0);
-    let cursor = seededUnit(seed) * totalWeight;
-    for (const rect of rects) {
-      cursor -= rect.weight;
-      if (cursor <= 0) return rect;
-    }
-    return rects[rects.length - 1];
+  function evenMajorConRect(rects, seed) {
+    const index = clamp(Math.floor(seededUnit(seed) * rects.length), 0, rects.length - 1);
+    return rects[index];
   }
 
   function appendMajorConPointEmbers(field, rects, rowIndex, strength, fieldWidth, fieldHeight) {
     const rowSeed = seededHash(`cons:${rowIndex}:point-ember`);
     const baseTime = state.currentTime * 2.15;
-    const emberCount = 96;
+    const emberCount = 112;
+    const spriteRects = rects.filter(rect => rect.kind === 'sprite');
+    const textRects = rects.filter(rect => rect.kind === 'text');
     for (let index = 0; index < emberCount; index += 1) {
-      const rect = weightedMajorConRect(rects, rowSeed + (index * 101));
+      const pool = spriteRects.length && textRects.length
+        ? (index % 2 === 0 ? spriteRects : textRects)
+        : rects;
+      const rect = evenMajorConRect(pool, rowSeed + (index * 101));
       const progress = (baseTime + seededUnit(rowSeed + index * 17)) % 1;
       const inset = rect.kind === 'sprite' ? 0.45 : 0.8;
       const usableWidth = Math.max(0.1, rect.width - (inset * 2));
@@ -3087,10 +3087,10 @@
       const y = clamp(rawY - (progress * rise), rect.y + inset, rect.y + rect.height - inset);
       const rotate = -26 + (seededUnit(rowSeed + index * 83) * 52) + (progress * 22);
       const scale = rect.kind === 'sprite'
-        ? 0.72 + (seededUnit(rowSeed + index * 97) * 0.72)
-        : 0.52 + (seededUnit(rowSeed + index * 97) * 0.46);
-      const alphaBase = rect.kind === 'sprite' ? 0.15 : 0.1;
-      const alphaPeak = rect.kind === 'sprite' ? 0.43 : 0.28;
+        ? 0.8 + (seededUnit(rowSeed + index * 97) * 0.76)
+        : 0.64 + (seededUnit(rowSeed + index * 97) * 0.54);
+      const alphaBase = rect.kind === 'sprite' ? 0.18 : 0.14;
+      const alphaPeak = rect.kind === 'sprite' ? 0.48 : 0.38;
       const alpha = strength * (alphaBase + (Math.sin(progress * Math.PI) * alphaPeak));
 
       const ember = document.createElement('span');

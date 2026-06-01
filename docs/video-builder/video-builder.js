@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260601-micron-tier-text-sync-v1';
+  const BUILDER_BUILD_ID = '20260601-delayed-section-narration-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -17,6 +17,7 @@
   const AUDIO_REVEAL_WINDOW_SECONDS = 0.36;
   const SUBMACRO_REVEAL_WINDOW_SECONDS = 1.35;
   const SUBMACRO_REVEAL_WINDOW_MAX_PROGRESS = 0.28;
+  const SECTION_NARRATION_AFTER_REVEAL_PAD_SECONDS = 0.1;
   const MICRON_GRAPH_REVEAL_SECONDS = 0.26;
   const MICRON_BAR_AFTER_GRAPH_SECONDS = 0.28;
   const MICRON_BAR_STEP_SECONDS = 0.09;
@@ -27,8 +28,7 @@
   const SECTION_HOLD_IDS = new Set(['fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons']);
   const HIDDEN_CAPTION_SECTION_IDS = new Set(['intro']);
   const MACRO_REVEAL_SECONDS = 0.2;
-  const SUBMACRO_GROUP_REVEAL_SECONDS = 0.85;
-  const SUBMACRO_AFTER_MAIN_MACRO_SECONDS = 0.08;
+  const MACRO_ROW_AFTER_ICON_SECONDS = 0.16;
   const INTRO_RANKED_SPRITE_PATH = './sprites/ui/intro_&_outro/ranked.png';
   const INTRO_RANKED_VISIBLE_CENTER = { x: 0.5, y: 0.47 };
   const INTRO_HERO_SIZE = { ranked: 80, foodWidth: 48, foodHeight: 24 };
@@ -852,6 +852,23 @@
     }, 0);
   }
 
+  function sectionNarrationDelaySeconds(sectionId, food = selectedFood()) {
+    if (['fats', 'carbs', 'protein'].includes(sectionId)) {
+      return Number((MACRO_REVEAL_SECONDS + MACRO_ROW_AFTER_ICON_SECONDS + SUBMACRO_REVEAL_WINDOW_SECONDS + SECTION_NARRATION_AFTER_REVEAL_PAD_SECONDS).toFixed(3));
+    }
+    if (sectionId === 'vitamins' || sectionId === 'minerals') {
+      const maxStep = Math.max(1, maxMicronStepForSection(sectionId, food));
+      return Number((
+        MICRON_GRAPH_REVEAL_SECONDS
+        + MICRON_BAR_AFTER_GRAPH_SECONDS
+        + ((maxStep - 1) * MICRON_BAR_STEP_SECONDS)
+        + MICRON_BAR_STAMP_REVEAL_SECONDS
+        + SECTION_NARRATION_AFTER_REVEAL_PAD_SECONDS
+      ).toFixed(3));
+    }
+    return 0;
+  }
+
   function syncHeader(layout, food) {
     const values = {
       food_name_text: food?.name || 'Unknown',
@@ -1412,18 +1429,25 @@
       const episodeTiming = episodeSceneTiming(food, section.id);
       const holdSeconds = sectionHoldSeconds(section.id);
       const existingHold = asNumber(existing?.holdSeconds, holdSeconds);
-      const contentDuration = Math.max(
+      const narrationDelay = sectionNarrationDelaySeconds(section.id, food);
+      const narrationDuration = Math.max(
         0.4,
-        asNumber(existing?.contentDurationSeconds, null)
+        asNumber(existing?.narrationDurationSeconds, null)
+          ?? (asNumber(existing?.contentDurationSeconds, null) != null
+            ? Math.max(0.4, asNumber(existing.contentDurationSeconds, 0) - asNumber(existing.narrationDelaySeconds, 0))
+            : null)
           ?? (asNumber(existing?.duration, null) != null ? Math.max(0.4, asNumber(existing.duration, 0) - existingHold) : null)
           ?? episodeTiming?.durationSeconds
           ?? section.duration
       );
+      const contentDuration = narrationDelay + narrationDuration;
       return {
         id: section.id,
         label: section.label,
         duration: Number((contentDuration + holdSeconds).toFixed(3)),
         contentDurationSeconds: Number(contentDuration.toFixed(3)),
+        narrationDelaySeconds: Number(narrationDelay.toFixed(3)),
+        narrationDurationSeconds: Number(narrationDuration.toFixed(3)),
         holdSeconds,
         reveal: existing?.reveal || section.reveal,
         motion: existing?.motion || section.motion,
@@ -1451,11 +1475,30 @@
     return Math.max(0.4, asNumber(scene?.contentDurationSeconds, null) ?? ((asNumber(scene?.duration, 0) || 0) - holdSeconds));
   }
 
+  function sceneNarrationDelaySeconds(scene) {
+    return Math.max(0, asNumber(scene?.narrationDelaySeconds, sectionNarrationDelaySeconds(scene?.id)) || 0);
+  }
+
+  function sceneNarrationDuration(scene) {
+    const storedDuration = asNumber(scene?.narrationDurationSeconds, null);
+    if (storedDuration != null) return Math.max(0.4, storedDuration);
+    return Math.max(0.4, sceneContentDuration(scene) - sceneNarrationDelaySeconds(scene));
+  }
+
+  function sceneNarrationProgress(scene, sceneElapsed) {
+    const narrationElapsed = sceneElapsed - sceneNarrationDelaySeconds(scene);
+    return clamp(narrationElapsed / sceneNarrationDuration(scene), 0, 1);
+  }
+
   function setSceneDuration(scene, duration) {
     const holdSeconds = sceneHoldSeconds(scene);
-    const safeDuration = Math.max(0.4 + holdSeconds, asNumber(duration, scene.duration) || scene.duration || 1);
+    const narrationDelay = sceneNarrationDelaySeconds(scene);
+    const safeDuration = Math.max(narrationDelay + 0.4 + holdSeconds, asNumber(duration, scene.duration) || scene.duration || 1);
+    const contentDuration = Math.max(narrationDelay + 0.4, safeDuration - holdSeconds);
     scene.duration = Number(safeDuration.toFixed(3));
-    scene.contentDurationSeconds = Number(Math.max(0.4, safeDuration - holdSeconds).toFixed(3));
+    scene.contentDurationSeconds = Number(contentDuration.toFixed(3));
+    scene.narrationDelaySeconds = Number(narrationDelay.toFixed(3));
+    scene.narrationDurationSeconds = Number(Math.max(0.4, contentDuration - narrationDelay).toFixed(3));
     scene.holdSeconds = holdSeconds;
   }
 
@@ -1473,7 +1516,7 @@
   }
 
   function totalNarrationDuration() {
-    return state.scenes.reduce((sum, scene) => sum + sceneContentDuration(scene), 0);
+    return state.scenes.reduce((sum, scene) => sum + sceneNarrationDuration(scene), 0);
   }
 
   function totalHoldDuration() {
@@ -1487,17 +1530,27 @@
     return sceneHoldSeconds(scene) > 0 && elapsed >= sceneContentDuration(scene);
   }
 
+  function isSceneNarrationDelayAt(time = state.currentTime) {
+    const scene = activeSceneAt(time);
+    if (!scene) return false;
+    const delay = sceneNarrationDelaySeconds(scene);
+    if (delay <= 0) return false;
+    const elapsed = clamp(time - scene.start, 0, scene.duration);
+    return elapsed < delay;
+  }
+
   function videoTimeToAudioTime(time = state.currentTime) {
     const scenes = sceneStarts();
     let audioCursor = 0;
     for (const scene of scenes) {
-      const contentDuration = sceneContentDuration(scene);
+      const narrationDelay = sceneNarrationDelaySeconds(scene);
+      const narrationDuration = sceneNarrationDuration(scene);
       if (time < scene.start) return audioCursor;
       if (time <= scene.end) {
         const elapsed = clamp(time - scene.start, 0, scene.duration);
-        return audioCursor + Math.min(elapsed, contentDuration);
+        return audioCursor + clamp(elapsed - narrationDelay, 0, narrationDuration);
       }
-      audioCursor += contentDuration;
+      audioCursor += narrationDuration;
     }
     return audioCursor;
   }
@@ -1506,11 +1559,12 @@
     const scenes = sceneStarts();
     let audioCursor = 0;
     for (const scene of scenes) {
-      const contentDuration = sceneContentDuration(scene);
-      if (audioTime <= audioCursor + contentDuration) {
-        return scene.start + clamp(audioTime - audioCursor, 0, contentDuration);
+      const narrationDelay = sceneNarrationDelaySeconds(scene);
+      const narrationDuration = sceneNarrationDuration(scene);
+      if (audioTime <= audioCursor + narrationDuration) {
+        return scene.start + narrationDelay + clamp(audioTime - audioCursor, 0, narrationDuration);
       }
-      audioCursor += contentDuration;
+      audioCursor += narrationDuration;
     }
     return totalDuration();
   }
@@ -1542,12 +1596,20 @@
 
     const ratio = audioDuration / currentNarrationTotal;
     const playheadAudioTime = videoTimeToAudioTime(state.currentTime);
-    state.scenes = state.scenes.map(scene => ({
-      ...scene,
-      contentDurationSeconds: Number(Math.max(0.4, sceneContentDuration(scene) * ratio).toFixed(3)),
-      holdSeconds: sceneHoldSeconds(scene),
-      duration: Number((Math.max(0.4, sceneContentDuration(scene) * ratio) + sceneHoldSeconds(scene)).toFixed(3))
-    }));
+    state.scenes = state.scenes.map(scene => {
+      const narrationDelay = sceneNarrationDelaySeconds(scene);
+      const narrationDuration = Math.max(0.4, sceneNarrationDuration(scene) * ratio);
+      const contentDuration = narrationDelay + narrationDuration;
+      const holdSeconds = sceneHoldSeconds(scene);
+      return {
+        ...scene,
+        contentDurationSeconds: Number(contentDuration.toFixed(3)),
+        narrationDelaySeconds: Number(narrationDelay.toFixed(3)),
+        narrationDurationSeconds: Number(narrationDuration.toFixed(3)),
+        holdSeconds,
+        duration: Number((contentDuration + holdSeconds).toFixed(3))
+      };
+    });
     state.currentTime = clamp(audioTimeToVideoTime(playheadAudioTime * ratio), 0, totalDuration());
     return true;
   }
@@ -1689,6 +1751,8 @@
     const timing = sceneTimingModel(scene);
     const layerSchedule = sceneLayerRevealSchedule(scene, food);
     const contentDuration = sceneContentDuration(scene);
+    const narrationDelay = sceneNarrationDelaySeconds(scene);
+    const narrationDuration = sceneNarrationDuration(scene);
     const holdSeconds = sceneHoldSeconds(scene);
     const captionsHidden = hideSceneCaptions(scene);
     return {
@@ -1697,7 +1761,10 @@
       start: Number(scene.start.toFixed(2)),
       end: Number(scene.end.toFixed(2)),
       duration: Number(scene.duration.toFixed(2)),
-      narrationDuration: Number(contentDuration.toFixed(2)),
+      contentDuration: Number(contentDuration.toFixed(2)),
+      narrationDelaySeconds: Number(narrationDelay.toFixed(2)),
+      narrationStart: Number((scene.start + narrationDelay).toFixed(2)),
+      narrationDuration: Number(narrationDuration.toFixed(2)),
       holdSeconds: Number(holdSeconds.toFixed(2)),
       holdMode: holdSeconds ? 'post-section-dwell' : null,
       holdStart: holdSeconds ? Number((scene.start + contentDuration).toFixed(2)) : null,
@@ -1713,8 +1780,8 @@
           id: cue.id,
           startSeconds: cue.startSeconds,
           endSeconds: cue.endSeconds,
-          videoStartSeconds: chunk ? Number((scene.start + (chunk.start * contentDuration)).toFixed(3)) : null,
-          videoEndSeconds: chunk ? Number((scene.start + (chunk.end * contentDuration)).toFixed(3)) : null,
+          videoStartSeconds: chunk ? Number((scene.start + narrationDelay + (chunk.start * narrationDuration)).toFixed(3)) : null,
+          videoEndSeconds: chunk ? Number((scene.start + narrationDelay + (chunk.end * narrationDuration)).toFixed(3)) : null,
           placement: cue.placement || null,
           maxLines: CAPTION_MAX_LINES,
           lines: cue.lines,
@@ -1726,7 +1793,9 @@
         source: timing.source || 'weighted-caption-v3',
         sceneStartSeconds: Number(scene.start.toFixed(3)),
         sceneDurationSeconds: Number(scene.duration.toFixed(3)),
-        narrationDurationSeconds: Number(contentDuration.toFixed(3)),
+        contentDurationSeconds: Number(contentDuration.toFixed(3)),
+        narrationDelaySeconds: Number(narrationDelay.toFixed(3)),
+        narrationDurationSeconds: Number(narrationDuration.toFixed(3)),
         holdSeconds: Number(holdSeconds.toFixed(3)),
         holdMode: holdSeconds ? 'post-section-dwell' : null,
         revealLeadSeconds: AUDIO_REVEAL_LEAD_SECONDS,
@@ -1735,16 +1804,16 @@
       revealBeats: timing.sentences.map(segment => ({
         start: Number(segment.start.toFixed(3)),
         end: Number(segment.end.toFixed(3)),
-        absoluteStart: Number((scene.start + (segment.start * contentDuration)).toFixed(3)),
-        absoluteEnd: Number((scene.start + (segment.end * contentDuration)).toFixed(3)),
+        absoluteStart: Number((scene.start + narrationDelay + (segment.start * narrationDuration)).toFixed(3)),
+        absoluteEnd: Number((scene.start + narrationDelay + (segment.end * narrationDuration)).toFixed(3)),
         text: segment.text
       })),
       activeWords: timing.words.map(word => ({
         text: word.text,
         start: Number(word.start.toFixed(4)),
         end: Number(word.end.toFixed(4)),
-        absoluteStart: Number((scene.start + (word.start * contentDuration)).toFixed(3)),
-        absoluteEnd: Number((scene.start + (word.end * contentDuration)).toFixed(3))
+        absoluteStart: Number((scene.start + narrationDelay + (word.start * narrationDuration)).toFixed(3)),
+        absoluteEnd: Number((scene.start + narrationDelay + (word.end * narrationDuration)).toFixed(3))
       })),
       layerRevealSchedule: layerSchedule.map(entry => ({
         ...entry,
@@ -1856,6 +1925,9 @@
     const contentDuration = sceneContentDuration(scene);
     const sceneElapsed = clamp(state.currentTime - scene.start, 0, scene.duration);
     const sceneProgress = clamp(sceneElapsed / contentDuration, 0, 1);
+    const narrationDelay = sceneNarrationDelaySeconds(scene);
+    const narrationElapsed = sceneElapsed - narrationDelay;
+    const narrationProgress = sceneNarrationProgress(scene, sceneElapsed);
     const inHold = sceneHoldSeconds(scene) > 0 && sceneElapsed >= contentDuration;
     const content = sceneContentLayers(scene.id).map((layer, index) => ({ layer, index, persistent: false }));
     const chrome = persistentChromeLayers(scene.id, food).map((layer, index) => ({ layer, index, persistent: true }));
@@ -1868,7 +1940,7 @@
     void renderDynamicBackground(roots.bg, food);
 
     const layerList = layers.map(item => item.layer);
-    const macroHighlightMap = macroSubmetricHighlightMap(scene, sceneProgress);
+    const macroHighlightMap = macroSubmetricHighlightMap(scene, narrationProgress);
     const existingNodes = new Map(
       Array.from(roots.layerRoot.children).map(node => [node.dataset.renderKey || '', node])
     );
@@ -1931,10 +2003,13 @@
       roots.caption.replaceChildren();
       roots.caption.style.opacity = '0';
     } else {
-      const frame = captionFrame(scene, sceneProgress);
+      const narrationActive = narrationElapsed >= 0 && !inHold;
+      const frame = captionFrame(scene, narrationProgress);
       roots.caption.style.fontSize = captionFontSize(scene, frame);
-      renderCaption(roots.caption, scene, sceneProgress, frame);
-      roots.caption.style.opacity = inHold ? '0' : String(easeOutCubic((sceneProgress + 0.05) * 4));
+      renderCaption(roots.caption, scene, narrationProgress, frame);
+      roots.caption.style.opacity = narrationActive
+        ? String(easeOutCubic(clamp((narrationElapsed + 0.05) * 4, 0, 1)))
+        : '0';
     }
   }
 
@@ -2164,7 +2239,7 @@
       return {
         source: 'weighted-caption-v3',
         text: '',
-        duration: sceneContentDuration(scene),
+        duration: sceneNarrationDuration(scene),
         totalWeight: 0,
         sentences: [],
         chunks: [],
@@ -2173,7 +2248,7 @@
       };
     }
 
-    const duration = Math.max(1, sceneContentDuration(scene));
+    const duration = Math.max(1, sceneNarrationDuration(scene));
     const sentences = rawSentences.map((sentence, sentenceIndex) => {
       const words = sentence.split(/\s+/).filter(Boolean).map((word, index) => ({
         text: word,
@@ -2249,7 +2324,7 @@
     const cues = (scene?.subtitleCues || []).filter(cue => cue?.lines?.length);
     if (!cues.length) return null;
 
-    const duration = Math.max(1, sceneContentDuration(scene));
+    const duration = Math.max(1, sceneNarrationDuration(scene));
     const sourceTimes = cues.flatMap(cue => {
       const values = [asNumber(cue.startSeconds, null), asNumber(cue.endSeconds, null)];
       if (Array.isArray(cue.wordTimings)) {
@@ -2627,47 +2702,6 @@
     }
   }
 
-  function macroMainSentence(scene, sectionId) {
-    const sentences = captionSentences(subtitleOnlyCaptionText(scene?.caption || ''));
-    if (!sentences.length) return '';
-    const patterns = {
-      fats: /\b\d+(?:\.\d+)?\s*g\s+of\s+fat\b/i,
-      carbs: /\b\d+(?:\.\d+)?\s*g\s+of\s+carbs?\b/i,
-      protein: /\b\d+(?:\.\d+)?\s*g\s+of\s+protein\b/i
-    };
-    const pattern = patterns[sectionId];
-    return sentences.find(sentence => pattern?.test(sentence))
-      || sentences.find(sentence => normalizeSpeechSearch(sentence).includes(sectionId === 'fats' ? 'fat' : sectionId))
-      || sentences[0];
-  }
-
-  function timingEndForText(timing, text) {
-    const targetTokens = speechTokens(text);
-    if (!targetTokens.length || !timing?.words?.length) return null;
-    const flatTokens = [];
-    timing.words.forEach((word, wordIndex) => {
-      const tokens = word.tokens?.length ? word.tokens : speechTokens(word.text);
-      tokens.forEach(token => flatTokens.push({ token, wordIndex }));
-    });
-    for (let start = 0; start <= flatTokens.length - targetTokens.length; start += 1) {
-      const matches = targetTokens.every((token, offset) => flatTokens[start + offset]?.token === token);
-      if (matches) {
-        const endWordIndex = flatTokens[start + targetTokens.length - 1].wordIndex;
-        return timing.words[endWordIndex]?.end ?? null;
-      }
-    }
-    return null;
-  }
-
-  function macroMainNarrationEndAnchor(scene, timing) {
-    const mainSentence = macroMainSentence(scene, scene?.id || '');
-    const matchedEnd = timingEndForText(timing, mainSentence);
-    const fallback = seconds => clamp(seconds / sceneContentDuration(scene), 0.015, 0.94);
-    const pad = SUBMACRO_AFTER_MAIN_MACRO_SECONDS / sceneContentDuration(scene);
-    if (matchedEnd != null) return clamp(matchedEnd + pad, 0.015, 0.94);
-    return fallback(SUBMACRO_GROUP_REVEAL_SECONDS);
-  }
-
   function rowIndexFromY(layer, startY, stepY, maxIndex) {
     const y = asNumber(layer?.y, null);
     if (y == null) return null;
@@ -2752,8 +2786,8 @@
   }
 
   function isMicronTitleLayer(layer, sectionId) {
-    const fingerprint = `${layer?.id || ''} ${layer?.label || ''} ${layer?.src || ''}`.toLowerCase();
-    return fingerprint.includes(sectionId.slice(0, -1)) && /title|main|section/.test(fingerprint);
+    const fingerprint = `${layer?.id || ''} ${layer?.label || ''}`.toLowerCase();
+    return fingerprint.includes(sectionId.slice(0, -1)) && /title|main/.test(fingerprint);
   }
 
   function isMicronIconLayer(layer, sectionId) {
@@ -2881,7 +2915,7 @@
 
     if (['fats', 'carbs', 'protein'].includes(sectionId)) {
       if (classification.kind === 'icon' || classification.kind === 'decor') return secondsAnchor(MACRO_REVEAL_SECONDS);
-      if (classification.rowIndex != null) return macroMainNarrationEndAnchor(scene, timing);
+      if (classification.rowIndex != null) return secondsAnchor(MACRO_REVEAL_SECONDS + MACRO_ROW_AFTER_ICON_SECONDS);
     }
 
     if (sectionId === 'vitamins' || sectionId === 'minerals') {
@@ -2892,6 +2926,9 @@
         return micronTierRevealAnchor(scene, sectionId, barStep, graphAnchor);
       }
       if (classification.kind === 'label') {
+        return micronTierRevealAnchor(scene, sectionId, 1, graphAnchor);
+      }
+      if (classification.kind === 'icon') {
         return micronTierRevealAnchor(scene, sectionId, 1, graphAnchor);
       }
       if (classification.kind === 'value') {
@@ -2993,7 +3030,7 @@
     const isMacroRowReveal = revealSchedule?.family === 'macro' && revealSchedule.rowIndex != null;
     const isMacroArrowReveal = isMacroRowReveal && revealSchedule?.kind === 'arrow';
     const isMicronReveal = revealSchedule?.family === 'micron';
-    const isMicronTierReveal = isMicronReveal && ['dv-bar', 'label', 'value'].includes(revealSchedule?.kind);
+    const isMicronTierReveal = isMicronReveal && ['dv-bar', 'icon', 'label', 'value'].includes(revealSchedule?.kind);
     const revealWindowSeconds = isMacroRowReveal
       ? SUBMACRO_REVEAL_WINDOW_SECONDS
       : isMicronTierReveal
@@ -3295,7 +3332,7 @@
 
   function syncAudioPlaybackState() {
     if (!state.audioEnabled || !els.narrationAudio?.src) return;
-    if (isSceneHoldAt(state.currentTime)) {
+    if (isSceneHoldAt(state.currentTime) || isSceneNarrationDelayAt(state.currentTime)) {
       if (!state.audioInHold) {
         syncAudioTime({ force: true });
         state.audioInHold = true;
@@ -3325,7 +3362,7 @@
 
   function playAudioFromCurrentTime({ forceSync = true } = {}) {
     if (!state.audioEnabled || !els.narrationAudio?.src) return;
-    if (isSceneHoldAt(state.currentTime)) return;
+    if (isSceneHoldAt(state.currentTime) || isSceneNarrationDelayAt(state.currentTime)) return;
     syncAudioTime({ force: forceSync });
     const playPromise = els.narrationAudio.play();
     if (playPromise?.catch) {

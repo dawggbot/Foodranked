@@ -2,11 +2,12 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260531-submacro-slower-v1';
+  const BUILDER_BUILD_ID = '20260601-seven-progress-dots-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SECTION_INDICATOR_LAYOUT = { normalSize: 10, highlightedSize: 12 };
+  const PROGRESS_SECTION_IDS = ['fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons'];
   const CAPTION_SAFE_X = 7;
   const CAPTION_MAX_LINES = 2;
   const CAPTION_MAX_LINE_CHARS = 18;
@@ -761,11 +762,43 @@
   }
 
   function indicatorSectionIndex(sectionId) {
-    return SECTIONS.findIndex(section => section.id === sectionId);
+    return PROGRESS_SECTION_IDS.indexOf(sectionId);
   }
 
   function compareIndicatorsByPosition(a, b) {
     return (Number(a.x) || 0) - (Number(b.x) || 0) || (Number(a.y) || 0) - (Number(b.y) || 0);
+  }
+
+  function normalizeProgressIndicatorSlots(indicators) {
+    const sorted = [...(indicators || [])].sort(compareIndicatorsByPosition);
+    const candidateVisible = sorted.filter(layer => layer.visible !== false);
+    const visible = (candidateVisible.length >= PROGRESS_SECTION_IDS.length ? candidateVisible : sorted)
+      .slice(0, PROGRESS_SECTION_IDS.length);
+    const visibleSet = new Set(visible);
+    sorted.forEach(layer => {
+      layer.visible = visibleSet.has(layer);
+    });
+    if (!visible.length) return visible;
+
+    const normalSize = SECTION_INDICATOR_LAYOUT.normalSize;
+    const slotSource = candidateVisible.length ? candidateVisible : sorted;
+    const centers = slotSource.map(layer => (Number(layer.x) || 0) + normalSize / 2);
+    const xDiffs = centers.slice(1)
+      .map((center, index) => center - centers[index])
+      .filter(diff => Number.isFinite(diff) && diff > 0);
+    const slotStep = xDiffs.length ? Math.min(...xDiffs) : normalSize;
+    const clusterCenter = centers.length
+      ? (Math.min(...centers) + Math.max(...centers)) / 2
+      : (Number(visible[0].x) || 0) + normalSize / 2;
+    const startX = Math.round(clusterCenter - ((visible.length - 1) * slotStep / 2) - (normalSize / 2));
+    const y = Math.round(visible.reduce((sum, layer) => sum + (Number(layer.y) || 0), 0) / visible.length);
+
+    visible.forEach((layer, index) => {
+      layer.x = startX + (index * slotStep);
+      layer.y = y;
+      layer.visible = true;
+    });
+    return visible;
   }
 
   function isMicrosBar(layer) {
@@ -850,8 +883,7 @@
 
   function syncSectionIndicators(layout, food) {
     for (const section of SECTIONS) {
-      const layers = getSectionLayers(layout, section.id).filter(isSectionIndicator)
-        .sort(compareIndicatorsByPosition);
+      const layers = normalizeProgressIndicatorSlots(getSectionLayers(layout, section.id).filter(isSectionIndicator));
       const activeIndex = indicatorSectionIndex(section.id);
       layers.forEach((layer, index) => {
         const highlighted = index === activeIndex;
@@ -1745,8 +1777,10 @@
     const introLayers = getSectionLayers(state.layout, 'intro');
     const sectionChrome = sectionLayers.filter(layer => isPersistentChrome(layer) || isSectionIndicator(layer));
     const introChrome = introLayers.filter(layer => isPersistentChrome(layer) || isSectionIndicator(layer));
-    const layers = (sectionChrome.length ? sectionChrome : introChrome).map(clone);
-    const indicators = layers.filter(isSectionIndicator).sort(compareIndicatorsByPosition);
+    const rawLayers = (sectionChrome.length ? sectionChrome : introChrome).map(clone);
+    const indicators = normalizeProgressIndicatorSlots(rawLayers.filter(isSectionIndicator));
+    const visibleIndicatorSet = new Set(indicators);
+    const layers = rawLayers.filter(layer => !isSectionIndicator(layer) || visibleIndicatorSet.has(layer));
     const activeIndex = indicatorSectionIndex(sectionId);
     indicators.forEach((layer, index) => {
       const highlighted = index === activeIndex;

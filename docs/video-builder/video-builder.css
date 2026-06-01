@@ -482,21 +482,20 @@ h2 {
     0 0 0 #000;
 }
 
-.layer-node.text.major-con-highlight::after {
-  content: "";
-  position: absolute;
-  left: calc(50% + var(--major-con-spark-0-x, 0px));
-  top: calc(48% + var(--major-con-spark-0-y, 0px));
-  width: calc(1px * var(--pixel-unit));
-  height: calc(1px * var(--pixel-unit));
-  background: var(--major-con-spark-0-color, transparent);
-  box-shadow:
-    var(--major-con-spark-1-x, 0) var(--major-con-spark-1-y, 0) 0 var(--major-con-spark-1-color, transparent),
-    var(--major-con-spark-2-x, 0) var(--major-con-spark-2-y, 0) 0 var(--major-con-spark-2-color, transparent),
-    var(--major-con-spark-3-x, 0) var(--major-con-spark-3-y, 0) 0 var(--major-con-spark-3-color, transparent),
-    var(--major-con-spark-4-x, 0) var(--major-con-spark-4-y, 0) 0 var(--major-con-spark-4-color, transparent);
-  image-rendering: pixelated;
+.major-con-spark-field {
+  overflow: hidden;
   pointer-events: none;
+  background: transparent;
+  contain: paint;
+}
+
+.major-con-spark {
+  position: absolute;
+  width: calc(1px * var(--pixel-unit));
+  height: calc(2px * var(--pixel-unit));
+  background: #ff2d2d;
+  box-shadow: 0 0 calc(1px * var(--pixel-unit)) rgba(255, 45, 45, 0.65);
+  image-rendering: pixelated;
 }
 
 .layer-node.sprite.ranked-shine {

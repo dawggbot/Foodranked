@@ -2001,6 +2001,8 @@
       applyMicronNarrationHighlight(node, scene, revealSchedule, micronHighlightMap);
       applyProConNarrationHighlight(node, scene, revealSchedule, proConHighlightMap);
       nextLayerNodes.appendChild(node);
+      const sparkField = majorConSparkField(layer, node, revealSchedule, proConHighlightMap);
+      if (sparkField) nextLayerNodes.appendChild(sparkField);
     });
     roots.layerRoot.replaceChildren(nextLayerNodes);
 
@@ -2872,7 +2874,7 @@
     if (String(activeHighlight.impactLevel || '').toLowerCase().includes('major')) {
       node.classList.add(revealSchedule.family === 'pros' ? 'major-pro-highlight' : 'major-con-highlight');
       node.style.setProperty('--major-highlight-strength', strength.toFixed(3));
-      applyLiveMajorProConEffect(node, revealSchedule.family, layerKindClass(node, 'text'), strength);
+      applyLiveMajorProConEffect(node, revealSchedule.family, layerKindClass(node, 'text'), strength, revealSchedule.rowIndex);
     }
   }
 
@@ -2885,8 +2887,9 @@
     if (isText) node.style.color = '#d9cec1';
   }
 
-  function applyLiveMajorProConEffect(node, family, isText, strength) {
-    const pulse = 0.5 + (Math.sin(state.currentTime * Math.PI * (family === 'pros' ? 5.2 : 7.2)) * 0.5);
+  function applyLiveMajorProConEffect(node, family, isText, strength, rowIndex = 0) {
+    const rowPhase = (Number(rowIndex) || 0) * 0.73;
+    const pulse = 0.5 + (Math.sin((state.currentTime * Math.PI * (family === 'pros' ? 5.2 : 4.8)) + rowPhase) * 0.5);
     const power = easeOutCubic(clamp(strength, 0, 1));
     const peak = pulse * power;
     if (family === 'pros') {
@@ -2917,7 +2920,7 @@
         `0 0 calc(${(1.6 + power * 3.4 + peak * 1.4).toFixed(2)}px * var(--pixel-unit)) rgba(255,0,0,${(0.08 + power * 0.2 + peak * 0.08).toFixed(3)})`,
         '0 0 0 #000'
       ].join(', ');
-      applyMajorConSparkVars(node, power);
+      node.style.filter = `brightness(${(1 + power * 0.035 + peak * 0.035).toFixed(3)})`;
     } else {
       node.style.filter = [
         `brightness(${(1 + power * 0.12 + peak * 0.12).toFixed(3)})`,
@@ -2929,20 +2932,65 @@
     }
   }
 
-  function applyMajorConSparkVars(node, power) {
-    const sparkPower = clamp(power, 0, 1);
-    const layerSeed = seededHash(node.dataset.layerId || node.dataset.renderKey || 'major-con');
-    const baseTime = state.currentTime * 1.8;
-    [0, 1, 2, 3, 4].forEach(index => {
-      const progress = (baseTime + seededUnit(layerSeed + index * 19)) % 1;
-      const drift = (progress - 0.5) * 3.2 * sparkPower;
-      const x = ((seededUnit(layerSeed + index * 37) - 0.5) * 44 + drift) * sparkPower;
-      const y = ((seededUnit(layerSeed + index * 53) - 0.5) * 13 - (progress * 2.4)) * sparkPower;
-      const alpha = sparkPower * Math.pow(1 - progress, 0.9);
-      node.style.setProperty(`--major-con-spark-${index}-x`, `calc(${x.toFixed(2)}px * var(--pixel-unit))`);
-      node.style.setProperty(`--major-con-spark-${index}-y`, `calc(${y.toFixed(2)}px * var(--pixel-unit))`);
-      node.style.setProperty(`--major-con-spark-${index}-color`, colorWithAlpha('#ff2d2d', 0.58 * alpha));
-    });
+  function majorConSparkField(layer, node, revealSchedule, highlightMap) {
+    if (revealSchedule?.family !== 'cons') return null;
+    if (revealSchedule.rowIndex == null) return null;
+    if (!['bullet', 'impact', 'item', 'row'].includes(revealSchedule.kind)) return null;
+    if (layer?.kind !== 'sprite' && layer?.kind !== 'text') return null;
+    const activeHighlight = highlightMap?.get(revealSchedule.rowIndex);
+    if (!activeHighlight || !String(activeHighlight.impactLevel || '').toLowerCase().includes('major')) return null;
+
+    const field = document.createElement('div');
+    field.className = `layer-node major-con-spark-field ${layer.kind}-spark-field`;
+    field.dataset.renderKey = `spark:${node.dataset.renderKey || layer.id || revealSchedule.rowIndex}`;
+    field.dataset.layerId = `${layer.id || revealSchedule.kind || 'layer'}_major_con_sparks`;
+    field.style.left = node.style.left;
+    field.style.top = node.style.top;
+    field.style.width = node.style.width || `calc(${majorConSparkWidth(layer)}px * var(--pixel-unit))`;
+    field.style.height = node.style.height || `calc(${majorConSparkHeight(layer)}px * var(--pixel-unit))`;
+    field.style.zIndex = String((Number(layer.z) || 0) + 2);
+    field.style.opacity = node.style.opacity || String(clamp(activeHighlight.strength, 0, 1));
+    field.style.transform = node.style.transform || '';
+    field.style.transformOrigin = node.style.transformOrigin || 'top left';
+    if (node.style.clipPath) field.style.clipPath = node.style.clipPath;
+
+    const strength = easeOutCubic(clamp(activeHighlight.strength, 0, 1));
+    const rowSeed = seededHash(`${revealSchedule.family}:${revealSchedule.rowIndex}`);
+    const elementSeed = rowSeed + seededHash(`${layer.kind}:${layer.id || layer.label || revealSchedule.kind}`);
+    const baseTime = state.currentTime * 1.7;
+    for (let index = 0; index < 6; index += 1) {
+      const spark = document.createElement('span');
+      spark.className = 'major-con-spark';
+      const progress = (baseTime + seededUnit(rowSeed + index * 23)) % 1;
+      const x = clamp(10 + (seededUnit(elementSeed + index * 41) * 80) + ((progress - 0.5) * 5), 5, 95);
+      const y = clamp(16 + (seededUnit(elementSeed + index * 59) * 68) - (progress * 6), 7, 93);
+      const rotate = -70 + (seededUnit(elementSeed + index * 83) * 140) + (progress * 28);
+      const alpha = strength * Math.pow(1 - progress, 0.9) * 0.62;
+      spark.style.left = `${x.toFixed(2)}%`;
+      spark.style.top = `${y.toFixed(2)}%`;
+      spark.style.opacity = alpha.toFixed(3);
+      spark.style.transform = `translate(-50%, -50%) rotate(${rotate.toFixed(2)}deg)`;
+      field.appendChild(spark);
+    }
+    return field;
+  }
+
+  function majorConSparkWidth(layer) {
+    if (asNumber(layer?.width, null) != null) return Math.max(1, asNumber(layer.width, 1));
+    if (layer?.kind !== 'text') return 8;
+    const fontSize = asNumber(layer?.fontSize, 5);
+    return Math.max(8, String(layer?.text || '').length * fontSize * 0.55);
+  }
+
+  function majorConSparkHeight(layer) {
+    if (asNumber(layer?.height, null) != null) return Math.max(1, asNumber(layer.height, 1));
+    if (layer?.kind !== 'text') return Math.max(1, asNumber(layer?.width, 8) || 8);
+    const fontSize = asNumber(layer?.fontSize, 5);
+    const width = majorConSparkWidth(layer);
+    const charsPerLine = Math.max(4, Math.floor(width / Math.max(1, fontSize * 0.62)));
+    const manualLines = String(layer?.text || '').split(/\n/).length;
+    const wrappedLines = Math.ceil(String(layer?.text || '').length / charsPerLine);
+    return Math.max(fontSize + 2, Math.max(manualLines, wrappedLines) * fontSize * 1.18);
   }
 
   function seededHash(value) {

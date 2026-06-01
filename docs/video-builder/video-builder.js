@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260601-major-con-embers-v1';
+  const BUILDER_BUILD_ID = '20260601-major-con-more-embers-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -2000,9 +2000,9 @@
       applySubmacroNarrationHighlight(node, scene, revealSchedule, macroHighlightMap);
       applyMicronNarrationHighlight(node, scene, revealSchedule, micronHighlightMap);
       applyProConNarrationHighlight(node, scene, revealSchedule, proConHighlightMap);
-      nextLayerNodes.appendChild(node);
       const emberField = majorConEmberField(layer, node, revealSchedule, proConHighlightMap);
       if (emberField) nextLayerNodes.appendChild(emberField);
+      nextLayerNodes.appendChild(node);
     });
     roots.layerRoot.replaceChildren(nextLayerNodes);
 
@@ -2952,7 +2952,7 @@
     field.style.top = node.style.top;
     field.style.width = node.style.width || `calc(${majorConEmberWidth(layer)}px * var(--pixel-unit))`;
     field.style.height = node.style.height || `calc(${majorConEmberHeight(layer)}px * var(--pixel-unit))`;
-    field.style.zIndex = String((Number(layer.z) || 0) + 2);
+    field.style.zIndex = String(Number(layer.z) || 0);
     field.style.opacity = node.style.opacity || String(clamp(activeHighlight.strength, 0, 1));
     field.style.transform = node.style.transform || '';
     field.style.transformOrigin = node.style.transformOrigin || 'top left';
@@ -2962,7 +2962,7 @@
     const rowSeed = seededHash(`${revealSchedule.family}:${revealSchedule.rowIndex}`);
     const elementSeed = rowSeed + seededHash(`${layer.kind}:${layer.id || layer.label || revealSchedule.kind}`);
     const baseTime = state.currentTime * 1.35;
-    for (let index = 0; index < 7; index += 1) {
+    for (let index = 0; index < 14; index += 1) {
       const ember = document.createElement('span');
       ember.className = 'major-con-ember';
       const progress = (baseTime + seededUnit(rowSeed + index * 23)) % 1;
@@ -2973,7 +2973,7 @@
       const y = clamp(startY - (progress * 34), 6, 94);
       const rotate = -25 + (seededUnit(elementSeed + index * 83) * 50) + (progress * 18);
       const scale = 0.65 + (seededUnit(elementSeed + index * 97) * 0.75);
-      const alpha = strength * Math.sin(progress * Math.PI) * 0.52;
+      const alpha = strength * Math.sin(progress * Math.PI) * 0.48;
       ember.style.left = `${x.toFixed(2)}%`;
       ember.style.top = `${y.toFixed(2)}%`;
       ember.style.opacity = alpha.toFixed(3);

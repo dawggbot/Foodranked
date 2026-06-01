@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260601-pro-con-sync-highlight-v1';
+  const BUILDER_BUILD_ID = '20260601-major-pro-con-effects-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -2739,6 +2739,7 @@
       if (strength > 0) highlights.set(item.index, {
         rowIndex: item.index,
         color: sectionId === 'pros' ? SUBMACRO_VALUE_COLORS.green : SUBMACRO_VALUE_COLORS.red,
+        impactLevel: selectedFood()?.contextItems?.[sectionId]?.[item.index]?.impactLevel || null,
         strength
       });
     });
@@ -2850,7 +2851,12 @@
     const activeHighlight = highlightMap.get(revealSchedule.rowIndex);
     if (!activeHighlight) return;
     if (!['bullet', 'impact', 'item', 'row'].includes(revealSchedule.kind)) return;
-    applyNarrationHighlightStyles(node, activeHighlight.color, clamp(activeHighlight.strength, 0, 1));
+    const strength = clamp(activeHighlight.strength, 0, 1);
+    applyNarrationHighlightStyles(node, activeHighlight.color, strength);
+    if (String(activeHighlight.impactLevel || '').toLowerCase().includes('major')) {
+      node.classList.add(revealSchedule.family === 'pros' ? 'major-pro-highlight' : 'major-con-highlight');
+      node.style.setProperty('--major-highlight-strength', strength.toFixed(3));
+    }
   }
 
   function rowIndexFromY(layer, startY, stepY, maxIndex) {

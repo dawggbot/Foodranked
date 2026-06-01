@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260601-micron-bar-fill-v1';
+  const BUILDER_BUILD_ID = '20260601-micron-stamp-arrow-glow-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -20,6 +20,8 @@
   const MICRON_GRAPH_REVEAL_SECONDS = 0.26;
   const MICRON_BAR_AFTER_GRAPH_SECONDS = 0.28;
   const MICRON_BAR_STEP_SECONDS = 0.09;
+  const MICRON_STAMP_REVEAL_SECONDS = 0.28;
+  const MICRON_BAR_STAMP_REVEAL_SECONDS = 0.08;
   const AUDIO_TIMELINE_SYNC_TOLERANCE_SECONDS = 0.12;
   const SECTION_HOLD_SECONDS = 0;
   const SECTION_HOLD_IDS = new Set(['fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons']);
@@ -1847,16 +1849,24 @@
     els.videoStage.style.backgroundColor = state.layout?.canvas?.background || '#d6d6d6';
     roots.bg.style.background = backgroundFieldGradient(food);
     void renderDynamicBackground(roots.bg, food);
-    roots.layerRoot.innerHTML = '';
 
     const layerList = layers.map(item => item.layer);
     const macroHighlightMap = macroSubmetricHighlightMap(scene, sceneProgress);
+    const existingNodes = new Map(
+      Array.from(roots.layerRoot.children).map(node => [node.dataset.renderKey || '', node])
+    );
+    const nextLayerNodes = document.createDocumentFragment();
     layers.forEach(({ layer, index, persistent }) => {
       if (layer.visible === false) return;
-      const node = document.createElement(layer.kind === 'sprite' ? 'img' : 'div');
+      const tagName = layer.kind === 'sprite' ? 'IMG' : 'DIV';
+      const renderKey = `${persistent ? 'persistent' : 'scene'}:${layer.kind}:${layer.id || index}`;
+      let node = existingNodes.get(renderKey);
+      if (!node || node.tagName !== tagName) node = document.createElement(layer.kind === 'sprite' ? 'img' : 'div');
       const effectClass = layer.effect ? ` ${String(layer.effect).replace(/[^a-z0-9_-]+/gi, '-')}` : '';
       node.className = `layer-node ${layer.kind}${layer.kind === 'text' ? ' pixel-text' : ''}${effectClass}`;
+      node.removeAttribute('style');
       if (layer.animationDelay != null) node.style.animationDelay = String(layer.animationDelay);
+      node.dataset.renderKey = renderKey;
       node.dataset.layerId = layer.id || '';
       node.dataset.persistent = persistent ? 'true' : 'false';
       const revealSchedule = layerRevealSchedule(layer, scene, index, persistent, layerList);
@@ -1868,13 +1878,19 @@
       applyLayerBox(node, layer);
       applyLayerAnimation(node, layer, scene, sceneProgress, index, persistent, revealSchedule);
       if (layer.kind === 'sprite') {
-        node.src = spritePath(layer.src);
+        const nextSpriteSrc = spritePath(layer.src);
+        if (node.dataset.spriteSrc !== nextSpriteSrc) {
+          node.dataset.spriteSrc = nextSpriteSrc;
+          node.src = nextSpriteSrc;
+        }
         node.alt = layer.label || '';
         node.onerror = () => {
           const failedSrc = node.currentSrc || node.src || spritePath(layer.src);
           if (layer.fallbackSrc && node.src !== new URL(spritePath(layer.fallbackSrc), window.location.href).href) {
-            recordSpriteFailure(failedSrc, spritePath(layer.fallbackSrc), layer.label || '');
-            node.src = spritePath(layer.fallbackSrc);
+            const fallbackSrc = spritePath(layer.fallbackSrc);
+            recordSpriteFailure(failedSrc, fallbackSrc, layer.label || '');
+            node.dataset.spriteSrc = fallbackSrc;
+            node.src = fallbackSrc;
             return;
           }
           recordSpriteFailure(failedSrc, '', layer.label || '');
@@ -1887,8 +1903,9 @@
         node.style.textAlign = layer.align || 'left';
       }
       applySubmacroNarrationHighlight(node, scene, revealSchedule, macroHighlightMap);
-      roots.layerRoot.appendChild(node);
+      nextLayerNodes.appendChild(node);
     });
+    roots.layerRoot.replaceChildren(nextLayerNodes);
 
     syncCaptionSafeArea(roots.caption);
     if (hideSceneCaptions(scene)) {
@@ -2583,6 +2600,14 @@
     node.style.setProperty('--submacro-highlight-glow', colorWithAlpha(color, 0.9 * strength));
     node.style.setProperty('--submacro-highlight-glow-soft', colorWithAlpha(color, 0.55 * strength));
     node.style.setProperty('--submacro-highlight-glow-wide', colorWithAlpha(color, 0.3 * strength));
+    if (revealSchedule.kind === 'arrow') {
+      node.style.filter = [
+        `brightness(${(1 + (0.24 * strength)).toFixed(3)})`,
+        `saturate(${(1 + (0.32 * strength)).toFixed(3)})`,
+        `drop-shadow(0 0 calc(${(1.2 + (1.8 * strength)).toFixed(2)}px * var(--pixel-unit)) ${colorWithAlpha(color, 0.42 + (0.42 * strength))})`,
+        `drop-shadow(0 0 calc(${(2.2 + (1.8 * strength)).toFixed(2)}px * var(--pixel-unit)) ${colorWithAlpha(color, 0.18 + (0.2 * strength))})`
+      ].join(' ');
+    }
   }
 
   function macroMainSentence(scene, sectionId) {
@@ -2833,8 +2858,8 @@
     }
 
     if (sectionId === 'vitamins' || sectionId === 'minerals') {
-      if (classification.kind === 'title') return 0.025;
       const graphAnchor = secondsAnchor(MICRON_GRAPH_REVEAL_SECONDS);
+      if (classification.kind === 'title') return graphAnchor;
       if (classification.kind === 'dv-bar') {
         const barStep = clamp(Math.round((asNumber(classification.percent, 10) || 10) / 10), 1, 10);
         return clamp(
@@ -2933,13 +2958,21 @@
     const sceneDuration = Math.max(1, sceneContentDuration(scene));
     const isMacroRowReveal = revealSchedule?.family === 'macro' && revealSchedule.rowIndex != null;
     const isMacroArrowReveal = isMacroRowReveal && revealSchedule?.kind === 'arrow';
+    const isMicronReveal = revealSchedule?.family === 'micron';
+    const isMicronBarReveal = isMicronReveal && revealSchedule?.kind === 'dv-bar';
     const revealWindowSeconds = isMacroRowReveal
       ? SUBMACRO_REVEAL_WINDOW_SECONDS
+      : isMicronBarReveal
+        ? MICRON_BAR_STAMP_REVEAL_SECONDS
+        : isMicronReveal
+          ? MICRON_STAMP_REVEAL_SECONDS
       : AUDIO_REVEAL_WINDOW_SECONDS;
-    const revealLead = isMacroRowReveal ? 0 : Math.min(0.035, AUDIO_REVEAL_LEAD_SECONDS / sceneDuration);
+    const revealLead = isMacroRowReveal || isMicronReveal ? 0 : Math.min(0.035, AUDIO_REVEAL_LEAD_SECONDS / sceneDuration);
     const revealWindow = isMacroRowReveal
       ? macroRevealWindowProgress(scene, revealWindowSeconds)
-      : Math.min(0.18, Math.max(0.045, revealWindowSeconds / sceneDuration));
+      : isMicronReveal
+        ? Math.min(0.12, Math.max(isMicronBarReveal ? 0.008 : 0.028, revealWindowSeconds / sceneDuration))
+        : Math.min(0.18, Math.max(0.045, revealWindowSeconds / sceneDuration));
     const rawRevealProgress = (sceneProgress + revealLead - delay) / revealWindow;
     const revealProgress = easeOutCubic(rawRevealProgress);
     const visible = clamp(revealProgress, 0, 1);
@@ -2956,6 +2989,10 @@
     if (isMacroRowReveal) {
       scale = 1;
       y += (1 - visible) * 5;
+    } else if (isMicronReveal) {
+      const stampPulse = Math.sin(visible * Math.PI);
+      scale = 0.965 + (visible * 0.035) + (stampPulse * (isMicronBarReveal ? 0.018 : 0.012));
+      y += (1 - visible) * 2.4;
     } else if (lockSpriteLayout) {
       scale = 1;
     } else if (scene.reveal === 'slide') {
@@ -2981,10 +3018,18 @@
     if (clip) node.style.clipPath = clip;
     if (isMacroArrowReveal && revealPulse > 0.02) {
       const glowRgb = macroArrowGlowRgb(layer);
+      const glowStrength = 0.35 + (revealPulse * 0.45);
       node.style.filter = [
-        `brightness(${(1 + revealPulse * 0.75).toFixed(3)})`,
-        `saturate(${(1 + revealPulse * 0.65).toFixed(3)})`,
-        `drop-shadow(0 0 calc(${(1 + revealPulse * 2.8).toFixed(2)}px * var(--pixel-unit)) rgba(${glowRgb}, ${(0.32 + revealPulse * 0.48).toFixed(3)}))`
+        `brightness(${(1.08 + revealPulse * 0.28).toFixed(3)})`,
+        `saturate(${(1.16 + revealPulse * 0.28).toFixed(3)})`,
+        `drop-shadow(0 0 calc(${(1.15 + revealPulse * 2.1).toFixed(2)}px * var(--pixel-unit)) rgba(${glowRgb}, ${glowStrength.toFixed(3)}))`
+      ].join(' ');
+    } else if (isMacroArrowReveal) {
+      const glowRgb = macroArrowGlowRgb(layer);
+      node.style.filter = [
+        'brightness(1.08)',
+        'saturate(1.16)',
+        `drop-shadow(0 0 calc(1.15px * var(--pixel-unit)) rgba(${glowRgb}, 0.35))`
       ].join(' ');
     }
   }

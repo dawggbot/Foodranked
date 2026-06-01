@@ -2,11 +2,11 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260601-nine-sections-no-dwell-v1';
+  const BUILDER_BUILD_ID = '20260601-nine-sections-tight-indicators-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
-  const SECTION_INDICATOR_LAYOUT = { normalSize: 10, highlightedSize: 12 };
+  const SECTION_INDICATOR_LAYOUT = { normalSize: 10, highlightedSize: 12, slotOverlap: 1 };
   const CAPTION_SAFE_X = 7;
   const CAPTION_MAX_LINES = 2;
   const CAPTION_MAX_LINE_CHARS = 18;
@@ -785,7 +785,7 @@
     const xDiffs = centers.slice(1)
       .map((center, index) => center - centers[index])
       .filter(diff => Number.isFinite(diff) && diff > 0);
-    const slotStep = xDiffs.length ? Math.min(...xDiffs) : normalSize;
+    const slotStep = Math.max(1, (xDiffs.length ? Math.min(...xDiffs) : normalSize) - SECTION_INDICATOR_LAYOUT.slotOverlap);
     const clusterCenter = centers.length
       ? (Math.min(...centers) + Math.max(...centers)) / 2
       : (Number(visible[0].x) || 0) + normalSize / 2;

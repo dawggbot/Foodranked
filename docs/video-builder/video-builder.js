@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260601-major-con-ember-glow-v1';
+  const BUILDER_BUILD_ID = '20260601-plain-pro-con-highlight-v2';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -2867,10 +2867,6 @@
     node.style.setProperty('--submacro-highlight-glow-soft', colorWithAlpha(activeHighlight.color, 0.72 * strength));
     node.style.setProperty('--submacro-highlight-glow-wide', colorWithAlpha(activeHighlight.color, 0.46 * strength));
     node.classList.add('pro-con-point-highlight');
-    if (revealSchedule.family === 'cons' && String(activeHighlight.impactLevel || '').toLowerCase().includes('major')) {
-      node.classList.add('major-con-ember-glow');
-      node.style.setProperty('--major-con-ember-strength', strength.toFixed(3));
-    }
   }
 
   function layerKindClass(node, kind) {

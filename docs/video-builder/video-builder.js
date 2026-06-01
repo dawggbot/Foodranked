@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260601-micro-color-icon-sync-v1';
+  const BUILDER_BUILD_ID = '20260601-relative-micro-highlight-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -1244,11 +1244,11 @@
         const icon = iconColumn?.layer || iconColumn?.items?.[0]?.layer;
         if (icon) {
           const iconWidth = Number(icon.width) || 11;
-          label.width = Math.max(Number(label.width) || 0, sectionId === 'minerals' ? 7 : 5);
-          label.x = Math.round((Number(icon.x) || 0) + ((iconWidth - label.width) / 2));
+          label.width = iconWidth;
+          label.x = Math.round(Number(icon.x) || 0);
           label.y = Math.round(Number(icon.y) || 0);
           label.z = Math.max(Number(label.z) || 0, (Number(icon.z) || 0) + 5);
-          label.align = 'left';
+          label.align = 'center';
         }
       }
       if (value) {
@@ -2234,7 +2234,7 @@
   function captionWordWeight(word) {
     const text = String(word || '');
     const coreLength = text.replace(/[^a-z0-9]/gi, '').length;
-    const punctuationPause = /[.!?]$/.test(text) ? 0.55 : /[,;:]$/.test(text) ? 0.2 : 0;
+    const punctuationPause = /[.!?]$/.test(text) ? 0.38 : /[,;:]$/.test(text) ? 0.12 : 0;
     const numericExpansion = /\d/.test(text) ? 1.12 : 0;
     const acronymExpansion = /^[A-Z0-9]{2,}$/.test(text.replace(/[^a-z0-9]/gi, '')) ? 0.36 : 0;
     return Math.max(0.68, 0.54 + (coreLength * 0.155) + numericExpansion + acronymExpansion + punctuationPause);
@@ -2287,7 +2287,7 @@
         index,
         weight: captionWordWeight(word)
       }));
-      const pauseWeight = sentenceIndex === rawSentences.length - 1 ? 0 : 0.18;
+      const pauseWeight = sentenceIndex === rawSentences.length - 1 ? 0 : 0.1;
       return {
         text: sentence,
         sentenceIndex,
@@ -2702,6 +2702,7 @@
       })
       .filter(Boolean)
       .sort((a, b) => a.window.start - b.window.start);
+    const colors = micronRelativeHighlightColors(sectionId, windows.map(item => item.index));
     const highlights = new Map();
     windows.forEach((item, index) => {
       const next = windows[index + 1];
@@ -2710,7 +2711,11 @@
         end: next ? next.window.start + fade : 1
       };
       const strength = submacroHighlightStrength(scene, sceneProgress, window);
-      if (strength > 0) highlights.set(item.index, { columnIndex: item.index, strength });
+      if (strength > 0) highlights.set(item.index, {
+        columnIndex: item.index,
+        color: colors.get(item.index) || micronMetricHighlightColor(sectionId, item.index),
+        strength
+      });
     });
     return highlights;
   }
@@ -2727,6 +2732,40 @@
     if (step == null) return SUBMACRO_VALUE_COLORS.red;
     if (step >= 2) return SUBMACRO_VALUE_COLORS.green;
     return SUBMACRO_VALUE_COLORS.red;
+  }
+
+  function micronDvValue(sectionId, columnIndex, food = selectedFood()) {
+    const spec = micronSpecsForSection(sectionId)[columnIndex];
+    return spec ? asNumber(food?.metrics?.[spec.key], null) : null;
+  }
+
+  function micronRelativeHighlightColors(sectionId, columnIndexes) {
+    const colors = new Map();
+    const uniqueIndexes = [...new Set(columnIndexes)].filter(index => index != null);
+    const values = uniqueIndexes.map(index => ({ index, value: micronDvValue(sectionId, index) }));
+    const validValues = values.filter(item => item.value != null && item.value > 0);
+    if (!values.length) return colors;
+    if (!validValues.length) {
+      values.forEach(item => colors.set(item.index, SUBMACRO_VALUE_COLORS.red));
+      return colors;
+    }
+
+    const maxValue = Math.max(...validValues.map(item => item.value));
+    const minValue = Math.min(...validValues.map(item => item.value));
+    values.forEach(item => {
+      if (item.value == null || item.value <= 0) {
+        colors.set(item.index, SUBMACRO_VALUE_COLORS.red);
+      } else if (maxValue === minValue) {
+        colors.set(item.index, item.value >= 20 ? SUBMACRO_VALUE_COLORS.green : SUBMACRO_VALUE_COLORS.red);
+      } else if (item.value === maxValue) {
+        colors.set(item.index, SUBMACRO_VALUE_COLORS.green);
+      } else if (item.value === minValue) {
+        colors.set(item.index, SUBMACRO_VALUE_COLORS.red);
+      } else {
+        colors.set(item.index, SUBMACRO_VALUE_COLORS.neutral);
+      }
+    });
+    return colors;
   }
 
   function colorWithAlpha(color, alpha) {
@@ -2775,7 +2814,7 @@
     const activeHighlight = highlightMap.get(revealSchedule.columnIndex);
     if (!activeHighlight) return;
     if (!['dv-bar', 'icon', 'label', 'value', 'column'].includes(revealSchedule.kind)) return;
-    const color = micronMetricHighlightColor(scene?.id || '', activeHighlight.columnIndex);
+    const color = activeHighlight.color || micronMetricHighlightColor(scene?.id || '', activeHighlight.columnIndex);
     const strength = clamp(activeHighlight.strength, 0, 1);
     applyNarrationHighlightStyles(node, color, strength);
   }

@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260601-delayed-section-narration-v1';
+  const BUILDER_BUILD_ID = '20260601-clear-reveal-micro-highlight-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -15,11 +15,11 @@
   const CAPTION_WORD_LOOKAHEAD_SECONDS = 0.002;
   const AUDIO_REVEAL_LEAD_SECONDS = 0.11;
   const AUDIO_REVEAL_WINDOW_SECONDS = 0.36;
-  const SUBMACRO_REVEAL_WINDOW_SECONDS = 1.35;
+  const SUBMACRO_REVEAL_WINDOW_SECONDS = 1.25;
   const SUBMACRO_REVEAL_WINDOW_MAX_PROGRESS = 0.28;
-  const SECTION_NARRATION_AFTER_REVEAL_PAD_SECONDS = 0.1;
-  const MICRON_GRAPH_REVEAL_SECONDS = 0.26;
-  const MICRON_BAR_AFTER_GRAPH_SECONDS = 0.28;
+  const SECTION_NARRATION_AFTER_REVEAL_PAD_SECONDS = 0.03;
+  const MICRON_GRAPH_REVEAL_SECONDS = 0.08;
+  const MICRON_BAR_AFTER_GRAPH_SECONDS = 0.38;
   const MICRON_BAR_STEP_SECONDS = 0.09;
   const MICRON_STAMP_REVEAL_SECONDS = 0.28;
   const MICRON_BAR_STAMP_REVEAL_SECONDS = 0.08;
@@ -27,8 +27,8 @@
   const SECTION_HOLD_SECONDS = 0;
   const SECTION_HOLD_IDS = new Set(['fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons']);
   const HIDDEN_CAPTION_SECTION_IDS = new Set(['intro']);
-  const MACRO_REVEAL_SECONDS = 0.2;
-  const MACRO_ROW_AFTER_ICON_SECONDS = 0.16;
+  const MACRO_REVEAL_SECONDS = 0.08;
+  const MACRO_ROW_AFTER_ICON_SECONDS = 0.38;
   const INTRO_RANKED_SPRITE_PATH = './sprites/ui/intro_&_outro/ranked.png';
   const INTRO_RANKED_VISIBLE_CENTER = { x: 0.5, y: 0.47 };
   const INTRO_HERO_SIZE = { ranked: 80, foodWidth: 48, foodHeight: 24 };
@@ -1941,6 +1941,7 @@
 
     const layerList = layers.map(item => item.layer);
     const macroHighlightMap = macroSubmetricHighlightMap(scene, narrationProgress);
+    const micronHighlightMap = micronMetricHighlightMap(scene, narrationProgress);
     const existingNodes = new Map(
       Array.from(roots.layerRoot.children).map(node => [node.dataset.renderKey || '', node])
     );
@@ -1992,6 +1993,7 @@
         node.style.textAlign = layer.align || 'left';
       }
       applySubmacroNarrationHighlight(node, scene, revealSchedule, macroHighlightMap);
+      applyMicronNarrationHighlight(node, scene, revealSchedule, micronHighlightMap);
       nextLayerNodes.appendChild(node);
     });
     roots.layerRoot.replaceChildren(nextLayerNodes);
@@ -2573,7 +2575,8 @@
     }
 
     for (const termTokens of normalizedTerms) {
-      const looseMatch = timing.words.find(word => termTokens.every(token => (word.clean || '').includes(token)));
+      if (termTokens.length !== 1 || termTokens[0].length <= 1) continue;
+      const looseMatch = timing.words.find(word => (word.clean || '').includes(termTokens[0]));
       if (looseMatch) return looseMatch.start;
     }
 
@@ -2617,7 +2620,7 @@
 
   function macroSubmetricNarrationWindow(scene, timing, spec) {
     if (!spec) return null;
-    const span = termSpanForTiming(timing, metricTerms(spec.key, spec.label));
+    const span = termSpanForTiming(timing, metricTerms(spec.key, spec.label || spec.shortLabel || ''));
     if (!span) return null;
     const segment = (timing.chunks || timing.sentences || []).find(item => span.start >= item.start - 0.001 && span.start <= item.end + 0.001);
     return {
@@ -2627,7 +2630,7 @@
   }
 
   function submacroHighlightStrength(scene, sceneProgress, window) {
-    const fade = clamp(0.22 / Math.max(1, sceneContentDuration(scene)), 0.018, 0.08);
+    const fade = clamp(0.22 / Math.max(1, sceneNarrationDuration(scene)), 0.018, 0.08);
     const fadeIn = clamp((sceneProgress - window.start) / fade, 0, 1);
     const fadeOut = clamp((window.end - sceneProgress) / fade, 0, 1);
     return easeOutCubic(Math.min(fadeIn, fadeOut));
@@ -2638,7 +2641,7 @@
     const specs = MACRO_SUBMETRIC_SPECS[sectionId] || [];
     if (!specs.length) return new Map();
     const timing = sceneTimingModel(scene);
-    const fade = clamp(0.22 / Math.max(1, sceneContentDuration(scene)), 0.018, 0.08);
+    const fade = clamp(0.22 / Math.max(1, sceneNarrationDuration(scene)), 0.018, 0.08);
     const windows = specs
       .map((spec, index) => {
         const window = macroSubmetricNarrationWindow(scene, timing, spec);
@@ -2659,11 +2662,44 @@
     return highlights;
   }
 
+  function micronMetricHighlightMap(scene, sceneProgress) {
+    const sectionId = scene?.id || '';
+    const specs = micronSpecsForSection(sectionId);
+    if (!specs.length) return new Map();
+    const timing = sceneTimingModel(scene);
+    const fade = clamp(0.22 / Math.max(1, sceneNarrationDuration(scene)), 0.018, 0.08);
+    const windows = specs
+      .map((spec, index) => {
+        const window = macroSubmetricNarrationWindow(scene, timing, spec);
+        return window ? { index, window } : null;
+      })
+      .filter(Boolean)
+      .sort((a, b) => a.window.start - b.window.start);
+    const highlights = new Map();
+    windows.forEach((item, index) => {
+      const next = windows[index + 1];
+      const window = {
+        ...item.window,
+        end: next ? next.window.start + fade : 1
+      };
+      const strength = submacroHighlightStrength(scene, sceneProgress, window);
+      if (strength > 0) highlights.set(item.index, { columnIndex: item.index, strength });
+    });
+    return highlights;
+  }
+
   function macroSubmetricHighlightColor(sectionId, rowIndex) {
     const spec = MACRO_SUBMETRIC_SPECS[sectionId]?.[rowIndex];
     if (!spec) return SUBMACRO_VALUE_COLORS.neutral;
     const presentation = macroArrowPresentation(selectedFood(), sectionId, spec);
     return presentation.textColor || SUBMACRO_VALUE_COLORS[presentation.color] || SUBMACRO_VALUE_COLORS.neutral;
+  }
+
+  function micronMetricHighlightColor(sectionId, columnIndex) {
+    const step = micronStepForColumn(sectionId, columnIndex);
+    if (step == null) return SUBMACRO_VALUE_COLORS.red;
+    if (step >= 2) return SUBMACRO_VALUE_COLORS.green;
+    return '#ffd76e';
   }
 
   function colorWithAlpha(color, alpha) {
@@ -2679,6 +2715,15 @@
     return `rgba(${r}, ${g}, ${b}, ${clamp(alpha, 0, 1).toFixed(3)})`;
   }
 
+  function applyNarrationHighlightStyles(node, color, strength) {
+    node.classList.add('submacro-narration-highlight');
+    node.style.setProperty('--submacro-highlight', color);
+    node.style.setProperty('--submacro-highlight-strength', strength.toFixed(3));
+    node.style.setProperty('--submacro-highlight-glow', colorWithAlpha(color, 0.9 * strength));
+    node.style.setProperty('--submacro-highlight-glow-soft', colorWithAlpha(color, 0.55 * strength));
+    node.style.setProperty('--submacro-highlight-glow-wide', colorWithAlpha(color, 0.3 * strength));
+  }
+
   function applySubmacroNarrationHighlight(node, scene, revealSchedule, highlightMap) {
     if (!highlightMap || revealSchedule?.family !== 'macro') return;
     const activeHighlight = highlightMap.get(revealSchedule.rowIndex);
@@ -2686,12 +2731,7 @@
     if (!['score-card', 'arrow', 'label', 'value', 'row'].includes(revealSchedule.kind)) return;
     const color = macroSubmetricHighlightColor(scene?.id || '', activeHighlight.rowIndex);
     const strength = clamp(activeHighlight.strength, 0, 1);
-    node.classList.add('submacro-narration-highlight');
-    node.style.setProperty('--submacro-highlight', color);
-    node.style.setProperty('--submacro-highlight-strength', strength.toFixed(3));
-    node.style.setProperty('--submacro-highlight-glow', colorWithAlpha(color, 0.9 * strength));
-    node.style.setProperty('--submacro-highlight-glow-soft', colorWithAlpha(color, 0.55 * strength));
-    node.style.setProperty('--submacro-highlight-glow-wide', colorWithAlpha(color, 0.3 * strength));
+    applyNarrationHighlightStyles(node, color, strength);
     if (revealSchedule.kind === 'arrow') {
       node.style.filter = [
         `brightness(${(1 + (0.24 * strength)).toFixed(3)})`,
@@ -2700,6 +2740,17 @@
         `drop-shadow(0 0 calc(${(2.2 + (1.8 * strength)).toFixed(2)}px * var(--pixel-unit)) ${colorWithAlpha(color, 0.18 + (0.2 * strength))})`
       ].join(' ');
     }
+  }
+
+  function applyMicronNarrationHighlight(node, scene, revealSchedule, highlightMap) {
+    if (!highlightMap || revealSchedule?.family !== 'micron') return;
+    if (revealSchedule.columnIndex == null) return;
+    const activeHighlight = highlightMap.get(revealSchedule.columnIndex);
+    if (!activeHighlight) return;
+    if (!['dv-bar', 'icon', 'label', 'value', 'column'].includes(revealSchedule.kind)) return;
+    const color = micronMetricHighlightColor(scene?.id || '', activeHighlight.columnIndex);
+    const strength = clamp(activeHighlight.strength, 0, 1);
+    applyNarrationHighlightStyles(node, color, strength);
   }
 
   function rowIndexFromY(layer, startY, stepY, maxIndex) {
@@ -2891,7 +2942,7 @@
   function revealAnchorForLayer(layer, scene, classification, timing, index = 0) {
     const sectionId = scene?.id || '';
     const segments = timing.sentences || sceneTimedSentences(scene);
-    const secondsAnchor = seconds => clamp(seconds / sceneContentDuration(scene), 0.015, 0.94);
+    const secondsAnchor = seconds => clamp(seconds / sceneContentDuration(scene), 0.005, 0.94);
 
     if (sectionId === 'intro') {
       const food = selectedFood();
@@ -2979,7 +3030,8 @@
       if (classification.kind === 'tier') offset = 0;
     }
 
-    const delay = clamp((anchor ?? 0.08) + offset, persistent ? 0 : 0.015, 0.94);
+    const minimumDelay = !persistent && ['macro', 'micron'].includes(classification.family) ? 0.005 : 0.015;
+    const delay = clamp((anchor ?? 0.08) + offset, persistent ? 0 : minimumDelay, 0.94);
     return {
       layerId: layer?.id || null,
       label: layer?.label || null,

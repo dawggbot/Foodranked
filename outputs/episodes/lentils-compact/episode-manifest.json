@@ -1,6 +1,6 @@
 {
   "id": "lentils-episode-v1",
-  "generatedAt": "2026-03-20T14:18:46.328Z",
+  "generatedAt": "2026-06-01T22:53:52.030Z",
   "status": "draft",
   "mode": "compact",
   "food": {
@@ -11,6 +11,12 @@
       "value": 100,
       "unit": "g"
     },
+    "identity": null,
+    "scoreReadiness": null,
+    "sourceNotes": [
+      "Calibration benchmark sample for FoodRanked.",
+      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
+    ],
     "sourceFile": "foods/lentils.sample.json"
   },
   "sourceOfTruth": {
@@ -28,31 +34,88 @@
     "subtitlesJson": "subtitles.json"
   },
   "scoreSnapshot": {
-    "overallScore": 60,
+    "overallScore": 67.2,
+    "overallScoreExact": 67.2285,
+    "baseOverallScore": 52.8,
+    "baseOverallScoreExact": 52.7706,
     "tier": "A",
-    "baseScore": 57,
-    "contextAdjustment": 3,
     "sectionScores": {
-      "fats": 55.6,
-      "carbs": 71.2,
-      "proteins": 77.8,
-      "vitamins": null,
+      "fats": 53.3,
+      "carbs": 72.7,
+      "proteins": 100,
+      "vitamins": 0,
       "minerals": 26.7,
-      "pros": 33.3,
-      "cons": 0
+      "pros": 66.7,
+      "cons": 50
     },
+    "strongestSection": {
+      "key": "proteins",
+      "label": "Proteins",
+      "score": 100
+    },
+    "weakestSection": {
+      "key": "vitamins",
+      "label": "Vitamins",
+      "score": 0
+    },
+    "topPros": [
+      {
+        "title": "one of the best budget staple foods",
+        "explanation": "It is unusually cheap, filling, and useful in real meals compared with a lot of healthy-food staples.",
+        "impactLevel": "major",
+        "side": "pro",
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "very filling for the calories",
+        "explanation": "The fibre and protein combo gives it strong practical fullness.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "usually affordable and practical",
+        "explanation": "Makes it easy to use as a real staple rather than a niche health food.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      }
+    ],
+    "topCons": [
+      {
+        "title": "contains some anti-nutrients",
+        "explanation": "Phytates may reduce mineral uptake somewhat.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "can be rough on some people digestively",
+        "explanation": "Not everyone handles legumes equally well.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "needs some cooking effort",
+        "explanation": "A small practical friction versus more convenient foods.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
+      }
+    ],
     "explanation": {
-      "summary": "Proteins are carrying this food most, while minerals are the biggest drag. It lands in A tier.",
-      "whyThisTier": "This food lands in A tier with an overall score of 60 from a base nutrition score of 57. Context lifted it by 3 points.",
+      "summary": "Proteins are carrying this food most, while vitamins are holding it back most. It lands in A tier.",
+      "whyThisTier": "This food lands in A tier with an overall score of 67.2. Section scores: fats 53.3, carbs 72.7, proteins 100, vitamins 0, minerals 26.7, pros 66.7, cons 50.",
       "strongestSection": {
         "key": "proteins",
         "label": "Proteins",
-        "score": 77.8
+        "score": 100
       },
       "weakestSection": {
-        "key": "minerals",
-        "label": "Minerals",
-        "score": 26.7
+        "key": "vitamins",
+        "label": "Vitamins",
+        "score": 0
       },
       "topPros": [
         {
@@ -60,7 +123,21 @@
           "explanation": "It is unusually cheap, filling, and useful in real meals compared with a lot of healthy-food staples.",
           "impactLevel": "major",
           "side": "pro",
-          "resolvedScoreValue": 3
+          "resolvedScoreValue": 100
+        },
+        {
+          "title": "very filling for the calories",
+          "explanation": "The fibre and protein combo gives it strong practical fullness.",
+          "impactLevel": "minor",
+          "side": "pro",
+          "resolvedScoreValue": 50
+        },
+        {
+          "title": "usually affordable and practical",
+          "explanation": "Makes it easy to use as a real staple rather than a niche health food.",
+          "impactLevel": "minor",
+          "side": "pro",
+          "resolvedScoreValue": 50
         }
       ],
       "topCons": [
@@ -69,36 +146,37 @@
           "explanation": "Phytates may reduce mineral uptake somewhat.",
           "impactLevel": "minor",
           "side": "con",
-          "resolvedScoreValue": 0
+          "resolvedScoreValue": 50
         },
         {
           "title": "can be rough on some people digestively",
           "explanation": "Not everyone handles legumes equally well.",
           "impactLevel": "minor",
           "side": "con",
-          "resolvedScoreValue": 0
+          "resolvedScoreValue": 50
         },
         {
           "title": "needs some cooking effort",
           "explanation": "A small practical friction versus more convenient foods.",
           "impactLevel": "minor",
           "side": "con",
-          "resolvedScoreValue": 0
+          "resolvedScoreValue": 50
         }
       ],
       "narrationNotes": [
         "Strongest section: Proteins.",
-        "Weakest section: Minerals.",
-        "Context improved the final tier case by 3 points.",
+        "Weakest section: Vitamins.",
         "Final verdict: A tier."
       ]
     }
   },
   "scriptSnapshot": {
+    "schemaVersion": "foodranked-script.v2",
+    "narrationFormat": "elevenlabs-blocks-v1",
     "hook": "Lentils ranked.",
-    "intro": null,
     "closing": {
-      "summary": "Lentils has a genuinely strong overall case. the practical downsides are real, but they do not outweigh the upside. best when you want fibre, protein, and actual meal utility together.",
+      "summary": "Big strengths are protein and fibre, but the biggest weaknesses are contains some anti-nutrients and rough on some people digestively.",
+      "overview": "Big strengths are protein and fibre, but the biggest weaknesses are contains some anti-nutrients and rough on some people digestively.",
       "finalReveal": "A tier.",
       "useCaseNote": "Best when you want fibre, protein, and actual meal utility together.",
       "cta": "Would you rank it the same, or nah?"
@@ -111,45 +189,468 @@
       "minerals",
       "pros",
       "cons"
-    ]
+    ],
+    "narrationBlockCount": 11
   },
   "visualBinding": {
     "templateId": "foodranked-visual-template.v1",
     "aspectRatio": "9:16",
     "categoryAccent": "Earth Brown",
-    "tierColor": "light blue"
+    "tierColor": "light blue",
+    "visualProfile": {
+      "name": "balanced",
+      "description": "Default launch profile: readable, centered, and close to the locked storyboard.",
+      "macroLayout": "stacked",
+      "subtitleLift": "standard",
+      "hookStyle": "hero-center",
+      "motionPreset": "balanced",
+      "statsDensity": "standard",
+      "micronutrientRows": 2,
+      "macroSlotsVisible": 3,
+      "emphasisOrder": [
+        "hook",
+        "header",
+        "macro",
+        "micros",
+        "pros-cons",
+        "tier"
+      ]
+    },
+    "spriteBindings": {
+      "strategy": "png-primary-with-aseprite-reference",
+      "categoryKey": "legume",
+      "notes": [
+        "Use exported 100% PNG and GIF files for edit/runtime placement.",
+        "Use .aseprite sources only as fidelity references when adjusting layout or re-exporting."
+      ],
+      "header": {
+        "foodPlate": {
+          "path": "sprites/header/food_plate/legume_food_plate.png",
+          "format": "png"
+        },
+        "foodPlateSource": {
+          "path": "sprites/header/food_plate/legume_food_plate.aseprite",
+          "format": "aseprite"
+        },
+        "foodTypePlate": {
+          "path": "sprites/header/food_type_plate/legume_type_plate.png",
+          "format": "png"
+        },
+        "foodTypePlateSource": {
+          "path": "sprites/header/food_type_plate/legume_type_plate.aseprite",
+          "format": "aseprite"
+        },
+        "calorieBubble": {
+          "path": "sprites/header/calorie_bubble/legume_calorie_bubble.png",
+          "format": "png"
+        },
+        "calorieBubbleSource": {
+          "path": "sprites/header/calorie_bubble/legume_calorie_bubble.aseprite",
+          "format": "aseprite"
+        },
+        "scorePlate": {
+          "path": "sprites/header/header_ui/score_plate.png",
+          "format": "png"
+        },
+        "scorePlateSource": {
+          "path": "sprites/header/header_ui/score_plate.aseprite",
+          "format": "aseprite"
+        }
+      },
+      "macros": {
+        "arrows": {
+          "positive": {
+            "path": "sprites/macros_section/arrow_indicators/green_arrow.png",
+            "format": "png"
+          },
+          "positiveSource": {
+            "path": "sprites/macros_section/arrow_indicators/green_arrow.aseprite",
+            "format": "aseprite"
+          },
+          "negative": {
+            "path": "sprites/macros_section/arrow_indicators/red_arrow.png",
+            "format": "png"
+          },
+          "negativeSource": {
+            "path": "sprites/macros_section/arrow_indicators/red_arrow.aseprite",
+            "format": "aseprite"
+          }
+        },
+        "fats": {
+          "icon": {
+            "path": "sprites/macros_section/section_1_fats/fat_icon.gif",
+            "format": "gif"
+          },
+          "iconSource": {
+            "path": "sprites/macros_section/section_1_fats/fat_icon.aseprite",
+            "format": "aseprite"
+          },
+          "bullet": {
+            "path": "sprites/macros_section/section_1_fats/fat_submacro_bullet_point.png",
+            "format": "png"
+          },
+          "bulletSource": {
+            "path": "sprites/macros_section/section_1_fats/fat_submacro_bullet_point.aseprite",
+            "format": "aseprite"
+          }
+        },
+        "carbs": {
+          "icon": {
+            "path": "sprites/macros_section/section_2_carbs/carb_icon.gif",
+            "format": "gif"
+          },
+          "iconSource": {
+            "path": "sprites/macros_section/section_2_carbs/carb_icon.aseprite",
+            "format": "aseprite"
+          },
+          "bullet": {
+            "path": "sprites/macros_section/section_2_carbs/carb_submacro_bullet_point.png",
+            "format": "png"
+          },
+          "bulletSource": {
+            "path": "sprites/macros_section/section_2_carbs/carb_submacro_bullet_point.aseprite",
+            "format": "aseprite"
+          }
+        },
+        "proteins": {
+          "icon": {
+            "path": "sprites/macros_section/section_3_protein/protein_icon.gif",
+            "format": "gif"
+          },
+          "iconSource": {
+            "path": "sprites/macros_section/section_3_protein/protein_icon.aseprite",
+            "format": "aseprite"
+          },
+          "bullet": {
+            "path": "sprites/macros_section/section_3_protein/protein_submacro_bullet_point.png",
+            "format": "png"
+          },
+          "bulletSource": {
+            "path": "sprites/macros_section/section_3_protein/protein_submacro_bullet_point.aseprite",
+            "format": "aseprite"
+          }
+        }
+      },
+      "micros": {
+        "vitamins": {
+          "icon": {
+            "path": "sprites/micros_section/vitamins/vitamin_icon.gif",
+            "format": "gif"
+          },
+          "iconSource": {
+            "path": "sprites/micros_section/vitamins/vitamin_icon.aseprite",
+            "format": "aseprite"
+          },
+          "microIcon": {
+            "path": "sprites/micros_section/vitamins/vitamin_micro_icon.png",
+            "format": "png"
+          },
+          "microIconSource": {
+            "path": "sprites/micros_section/vitamins/vitamin_micro_icon.aseprite",
+            "format": "aseprite"
+          }
+        },
+        "minerals": {
+          "icon": {
+            "path": "sprites/micros_section/minerals/mineral_icon.gif",
+            "format": "gif"
+          },
+          "iconSource": {
+            "path": "sprites/micros_section/minerals/mineral_icon.aseprite",
+            "format": "aseprite"
+          },
+          "microIcon": {
+            "path": "sprites/micros_section/minerals/mineral_micro_icon.png",
+            "format": "png"
+          },
+          "microIconSource": {
+            "path": "sprites/micros_section/minerals/mineral_micro_icon.aseprite",
+            "format": "aseprite"
+          }
+        },
+        "bars": {
+          "line": {
+            "path": "sprites/micros_section/bars/bar_line.png",
+            "format": "png"
+          },
+          "lineSource": {
+            "path": "sprites/micros_section/bars/bar_line.aseprite",
+            "format": "aseprite"
+          },
+          "full": {
+            "path": "sprites/micros_section/bars/100%_bar.png",
+            "format": "png"
+          },
+          "fullSource": {
+            "path": "sprites/micros_section/bars/100%_bar.aseprite",
+            "format": "aseprite"
+          }
+        }
+      },
+      "prosCons": {
+        "pros": {
+          "bullet": {
+            "path": "sprites/pros_and_cons/pros/pro_bullet_point.png",
+            "format": "png"
+          },
+          "bulletSource": {
+            "path": "sprites/pros_and_cons/pros/pro_bullet_point.aseprite",
+            "format": "aseprite"
+          }
+        },
+        "cons": {
+          "bullet": {
+            "path": "sprites/pros_and_cons/cons/con_bullet_point.png",
+            "format": "png"
+          },
+          "bulletSource": {
+            "path": "sprites/pros_and_cons/cons/con_bullet_point.aseprite",
+            "format": "aseprite"
+          }
+        }
+      },
+      "progress": {
+        "inactive": {
+          "path": "sprites/ui/section_indicator/legume_section_indicator.png",
+          "format": "png"
+        },
+        "inactiveSource": {
+          "path": "sprites/ui/section_indicator/legume_section_indicator.aseprite",
+          "format": "aseprite"
+        },
+        "active": {
+          "path": "sprites/ui/section_indicator/legume_highlighted_section_indicator.png",
+          "format": "png"
+        },
+        "activeSource": {
+          "path": "sprites/ui/section_indicator/legume_highlighted_section_indicator.aseprite",
+          "format": "aseprite"
+        }
+      },
+      "separators": {
+        "section": {
+          "path": "sprites/ui/section_separator/legume_section_separator.png",
+          "format": "png"
+        },
+        "sectionSource": {
+          "path": "sprites/ui/section_separator/legume_section_separator.aseprite",
+          "format": "aseprite"
+        }
+      },
+      "references": {
+        "macroLayout": {
+          "path": "sprites/references/macros_section.png",
+          "format": "png"
+        },
+        "macroLayoutSource": {
+          "path": "sprites/references/macros_section.aseprite",
+          "format": "aseprite"
+        },
+        "microLayout": {
+          "path": "sprites/references/micros_section.png",
+          "format": "png"
+        },
+        "microLayoutSource": {
+          "path": "sprites/references/micros_section.aseprite",
+          "format": "aseprite"
+        },
+        "prosConsLayout": {
+          "path": "sprites/references/pros_cons_section.png",
+          "format": "png"
+        },
+        "prosConsLayoutSource": {
+          "path": "sprites/references/pros_cons_section.aseprite",
+          "format": "aseprite"
+        }
+      }
+    },
+    "storyboardContract": {
+      "lockedSceneStack": [
+        {
+          "id": "hook",
+          "kind": "hook",
+          "narrativeRole": "opening-promise",
+          "subtitlePlacement": "lower-third"
+        },
+        {
+          "id": "fats",
+          "kind": "section",
+          "narrativeRole": "macro-foundation",
+          "subtitlePlacement": "lower-third"
+        },
+        {
+          "id": "carbs",
+          "kind": "section",
+          "narrativeRole": "macro-foundation",
+          "subtitlePlacement": "lower-third"
+        },
+        {
+          "id": "proteins",
+          "kind": "section",
+          "narrativeRole": "macro-foundation",
+          "subtitlePlacement": "lower-third"
+        },
+        {
+          "id": "vitamins",
+          "kind": "section",
+          "narrativeRole": "micronutrient-proof",
+          "subtitlePlacement": "lower-third"
+        },
+        {
+          "id": "minerals",
+          "kind": "section",
+          "narrativeRole": "micronutrient-proof",
+          "subtitlePlacement": "lower-third"
+        },
+        {
+          "id": "pros",
+          "kind": "section",
+          "narrativeRole": "real-world-upside",
+          "subtitlePlacement": "high-lower-third"
+        },
+        {
+          "id": "cons",
+          "kind": "section",
+          "narrativeRole": "real-world-downside",
+          "subtitlePlacement": "high-lower-third"
+        },
+        {
+          "id": "final",
+          "kind": "closing",
+          "narrativeRole": "verdict-payoff",
+          "subtitlePlacement": "subtitle-floor"
+        }
+      ],
+      "subtitleSafeBox": {
+        "x": 80,
+        "y": 1320,
+        "w": 920,
+        "h": 280
+      },
+      "progressIndicator": {
+        "id": "progress_dots",
+        "type": "dotRow",
+        "count": 7,
+        "x": 414,
+        "y": 1710,
+        "dotSize": 26,
+        "gap": 20,
+        "states": [
+          "inactive",
+          "active",
+          "completed"
+        ]
+      }
+    }
   },
   "reviewChecklist": [
     "Verify nutrient values are sourced well enough for publishable use.",
     "Review narration for category repetition and trim any awkward lines.",
     "Confirm subtitle density stays readable at phone speed.",
-    "Replace placeholder hero/sprite art with final asset selection.",
+    "Use the PNG and GIF sprite exports directly, and only open .aseprite sources when fidelity adjustments are needed.",
     "Check that the final tier verdict feels editorially defensible."
   ],
   "nextHumanStep": "Review the generated narration + manifest, then use the manifest as the handoff into visual assembly / editing.",
   "scenePlan": {
     "mode": "compact",
-    "totalEstimatedDurationSeconds": 92.77,
+    "visualProfile": "balanced",
+    "subtitleRules": {
+      "maxLines": 2,
+      "maxCharactersPerLine": 18
+    },
+    "totalEstimatedDurationSeconds": 77.12,
     "scenes": [
       {
         "id": "hook",
         "kind": "hook",
+        "narrativeRole": "opening-promise",
         "startSeconds": 0,
         "durationSeconds": 2.1,
         "endSeconds": 2.1,
         "narrationText": "Lentils ranked.",
         "subtitleText": "Lentils ranked.",
+        "subtitlePlacement": "lower-third",
         "visualBinding": {
           "title": "Lentils",
           "rankedWord": "RANKED",
           "foodType": "legumes",
           "kcal": 353,
-          "categoryAccent": "Earth Brown"
+          "categoryAccent": "Earth Brown",
+          "hookStyle": "hero-center",
+          "headerSprites": {
+            "foodPlate": {
+              "path": "sprites/header/food_plate/legume_food_plate.png",
+              "format": "png"
+            },
+            "foodPlateSource": {
+              "path": "sprites/header/food_plate/legume_food_plate.aseprite",
+              "format": "aseprite"
+            },
+            "foodTypePlate": {
+              "path": "sprites/header/food_type_plate/legume_type_plate.png",
+              "format": "png"
+            },
+            "foodTypePlateSource": {
+              "path": "sprites/header/food_type_plate/legume_type_plate.aseprite",
+              "format": "aseprite"
+            },
+            "calorieBubble": {
+              "path": "sprites/header/calorie_bubble/legume_calorie_bubble.png",
+              "format": "png"
+            },
+            "calorieBubbleSource": {
+              "path": "sprites/header/calorie_bubble/legume_calorie_bubble.aseprite",
+              "format": "aseprite"
+            },
+            "scorePlate": {
+              "path": "sprites/header/header_ui/score_plate.png",
+              "format": "png"
+            },
+            "scorePlateSource": {
+              "path": "sprites/header/header_ui/score_plate.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "progressSprites": {
+            "inactive": {
+              "path": "sprites/ui/section_indicator/legume_section_indicator.png",
+              "format": "png"
+            },
+            "inactiveSource": {
+              "path": "sprites/ui/section_indicator/legume_section_indicator.aseprite",
+              "format": "aseprite"
+            },
+            "active": {
+              "path": "sprites/ui/section_indicator/legume_highlighted_section_indicator.png",
+              "format": "png"
+            },
+            "activeSource": {
+              "path": "sprites/ui/section_indicator/legume_highlighted_section_indicator.aseprite",
+              "format": "aseprite"
+            }
+          }
         },
         "revealPlan": [
           "hero_food",
           "hook_title",
           "hook_ranked_word"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "hero_food",
+            "beat": "start",
+            "purpose": "food-recognition"
+          },
+          {
+            "slotId": "hook_title",
+            "beat": "mid",
+            "purpose": "ranking-promise"
+          },
+          {
+            "slotId": "hook_ranked_word",
+            "beat": "end",
+            "purpose": "impact-lockup"
+          }
         ],
         "subtitleCues": [
           {
@@ -170,26 +671,29 @@
       {
         "id": "fats",
         "kind": "section",
+        "narrativeRole": "macro-foundation",
         "startSeconds": 2.1,
-        "durationSeconds": 11.65,
-        "endSeconds": 13.75,
-        "narrationText": "1.1 grams of fat. Saturated fat is 0.2 grams. Saturated fat is 0.2 grams. 1.1 grams of fat. Saturated fat, omega3, and polyunsaturated fat are doing most of the work. For a legume, this is exactly the kind of profile you want.",
-        "subtitleText": "1.1g of fat. Saturated fat is 0.2g. Saturated fat is 0.2g. 1.1g of fat. Saturated fat, omega3, and polyunsaturated fat are doing most of the work. For a legume, this is exactly the kind of profile you want.",
+        "durationSeconds": 4.94,
+        "endSeconds": 7.04,
+        "narrationText": "1.1 grams of fat. Saturated fat is 0.2 grams, supporting a better fat profile.",
+        "subtitleText": "1.1g of fat. Saturated fat is 0.2g, supporting a better fat profile.",
+        "subtitlePlacement": "lower-third",
         "visualBinding": {
           "sectionKey": "fats",
           "title": "Fats",
-          "score": 55.6,
+          "score": 53.3,
           "templateSlots": [
             "macro_headline",
             "submetric_1",
             "submetric_2",
-            "submetric_3"
+            "submetric_3",
+            "commentary_note"
           ],
           "displayItems": [
             {
               "metricKey": "saturated_fat_g",
-              "text": "saturated fat at 0.2",
-              "weightedScore": 3,
+              "text": "saturated fat at 0.2g",
+              "weightedScore": 100,
               "scoringMode": "arrow_bands",
               "band": "↓↓↓",
               "dvPercent": null,
@@ -197,8 +701,8 @@
             },
             {
               "metricKey": "omega3_mg",
-              "text": "omega3 at 130",
-              "weightedScore": -1,
+              "text": "omega 3 at 130mg",
+              "weightedScore": 40,
               "scoringMode": "arrow_bands",
               "band": "↓",
               "dvPercent": null,
@@ -206,171 +710,209 @@
             },
             {
               "metricKey": "polyunsaturated_fat_g",
-              "text": "polyunsaturated fat at 0.5",
-              "weightedScore": -1,
+              "text": "polyunsaturated fat at 0.5g",
+              "weightedScore": 20,
               "scoringMode": "arrow_bands",
-              "band": "↓",
+              "band": "↓↓",
               "dvPercent": null,
               "value": 0.5
             }
           ],
-          "timingHint": "short-medium"
+          "timingHint": "short-medium",
+          "narrativeRole": "macro-foundation",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "lower-third",
+          "preferredSpriteBindings": {
+            "icon": {
+              "path": "sprites/macros_section/section_1_fats/fat_icon.gif",
+              "format": "gif"
+            },
+            "iconSource": {
+              "path": "sprites/macros_section/section_1_fats/fat_icon.aseprite",
+              "format": "aseprite"
+            },
+            "bullet": {
+              "path": "sprites/macros_section/section_1_fats/fat_submacro_bullet_point.png",
+              "format": "png"
+            },
+            "bulletSource": {
+              "path": "sprites/macros_section/section_1_fats/fat_submacro_bullet_point.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": {
+              "slotId": "macro_headline",
+              "label": "Fats",
+              "value": null,
+              "emphasis": "standard"
+            },
+            "macroSlots": [
+              {
+                "slotId": "submetric_1",
+                "metricKey": "saturated_fat_g",
+                "label": "saturated fat",
+                "displayValue": "0.2g",
+                "scoringMode": "arrow_bands",
+                "band": "↓↓↓",
+                "weightedScore": 100,
+                "spriteRole": "fats",
+                "text": "saturated fat at 0.2g"
+              },
+              {
+                "slotId": "submetric_2",
+                "metricKey": "omega3_mg",
+                "label": "omega 3",
+                "displayValue": "130mg",
+                "scoringMode": "arrow_bands",
+                "band": "↓",
+                "weightedScore": 40,
+                "spriteRole": "fats",
+                "text": "omega 3 at 130mg"
+              },
+              {
+                "slotId": "submetric_3",
+                "metricKey": "polyunsaturated_fat_g",
+                "label": "polyunsaturated fat",
+                "displayValue": "0.5g",
+                "scoringMode": "arrow_bands",
+                "band": "↓↓",
+                "weightedScore": 20,
+                "spriteRole": "fats",
+                "text": "polyunsaturated fat at 0.5g"
+              }
+            ],
+            "micronutrientRows": [],
+            "commentaryNote": null
+          }
         },
         "revealPlan": [
           "macro_headline",
           "submetric_1",
           "submetric_2",
-          "submetric_3"
+          "submetric_3",
+          "commentary_note"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "macro_headline",
+            "beat": "lead",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_1",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_2",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_3",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "commentary_note",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          }
         ],
         "subtitleCues": [
           {
             "id": "02-fats-1",
             "sceneId": "fats",
             "startSeconds": 2.1,
-            "endSeconds": 3.99,
+            "endSeconds": 3.48,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "1. 1g of fat.",
-              "Saturated fat is"
+              "1.1g of",
+              "fat."
             ],
-            "text": "1. 1g of fat.\nSaturated fat is"
+            "text": "1.1g of\nfat."
           },
           {
             "id": "03-fats-2",
             "sceneId": "fats",
-            "startSeconds": 3.99,
-            "endSeconds": 4.45,
+            "startSeconds": 3.48,
+            "endSeconds": 5.05,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "0."
+              "Saturated fat is",
+              "0.2g,"
             ],
-            "text": "0."
+            "text": "Saturated fat is\n0.2g,"
           },
           {
             "id": "04-fats-3",
             "sceneId": "fats",
-            "startSeconds": 4.45,
-            "endSeconds": 6.62,
+            "startSeconds": 5.05,
+            "endSeconds": 6.5,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "2g. Saturated fat",
-              "is 0. 2g. 1."
+              "supporting a",
+              "better fat"
             ],
-            "text": "2g. Saturated fat\nis 0. 2g. 1."
+            "text": "supporting a\nbetter fat"
           },
           {
             "id": "05-fats-4",
             "sceneId": "fats",
-            "startSeconds": 6.62,
-            "endSeconds": 7.56,
+            "startSeconds": 6.5,
+            "endSeconds": 7.04,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "1g of fat."
+              "profile."
             ],
-            "text": "1g of fat."
-          },
-          {
-            "id": "06-fats-5",
-            "sceneId": "fats",
-            "startSeconds": 7.56,
-            "endSeconds": 8.64,
-            "placement": "lower-third",
-            "maxLines": 2,
-            "maxCharactersPerLine": 18,
-            "lines": [
-              "Saturated fat,",
-              "omega3, and"
-            ],
-            "text": "Saturated fat,\nomega3, and"
-          },
-          {
-            "id": "07-fats-6",
-            "sceneId": "fats",
-            "startSeconds": 8.64,
-            "endSeconds": 9.87,
-            "placement": "lower-third",
-            "maxLines": 2,
-            "maxCharactersPerLine": 18,
-            "lines": [
-              "polyunsaturated",
-              "fat are doing most"
-            ],
-            "text": "polyunsaturated\nfat are doing most"
-          },
-          {
-            "id": "08-fats-7",
-            "sceneId": "fats",
-            "startSeconds": 9.87,
-            "endSeconds": 10.72,
-            "placement": "lower-third",
-            "maxLines": 2,
-            "maxCharactersPerLine": 18,
-            "lines": [
-              "of the work."
-            ],
-            "text": "of the work."
-          },
-          {
-            "id": "09-fats-8",
-            "sceneId": "fats",
-            "startSeconds": 10.72,
-            "endSeconds": 12.42,
-            "placement": "lower-third",
-            "maxLines": 2,
-            "maxCharactersPerLine": 18,
-            "lines": [
-              "For a legume, this",
-              "is exactly the"
-            ],
-            "text": "For a legume, this\nis exactly the"
-          },
-          {
-            "id": "10-fats-9",
-            "sceneId": "fats",
-            "startSeconds": 12.42,
-            "endSeconds": 13.75,
-            "placement": "lower-third",
-            "maxLines": 2,
-            "maxCharactersPerLine": 18,
-            "lines": [
-              "kind of profile",
-              "you want."
-            ],
-            "text": "kind of profile\nyou want."
+            "text": "profile."
           }
         ]
       },
       {
         "id": "carbs",
         "kind": "section",
-        "startSeconds": 13.75,
-        "durationSeconds": 10.94,
-        "endSeconds": 24.69,
-        "narrationText": "60.1 grams of carbs. Fibre is 10.7 grams. 60.1 grams of carbs. Fibre is 10.7 grams, doing a lot of the work here. For legumes, the carbs look much better when fibre and protein are both backing them up.",
-        "subtitleText": "60.1g of carbs. Fibre is 10.7g. 60.1g of carbs. Fibre is 10.7g, doing a lot of the work here. For legumes, the carbs look much better when fibre and protein are both backing them up.",
+        "narrativeRole": "macro-foundation",
+        "startSeconds": 7.04,
+        "durationSeconds": 4.59,
+        "endSeconds": 11.63,
+        "narrationText": "60.1 grams of carbs. Glycemic index is 32 GI, supporting better carb quality.",
+        "subtitleText": "60.1g of carbs. Glycemic index is 32 GI, supporting better carb quality.",
+        "subtitlePlacement": "lower-third",
         "visualBinding": {
           "sectionKey": "carbs",
           "title": "Carbs",
-          "score": 71.2,
+          "score": 72.7,
           "templateSlots": [
             "macro_headline",
             "submetric_1",
             "submetric_2",
-            "submetric_3"
+            "submetric_3",
+            "commentary_note"
           ],
           "displayItems": [
             {
+              "metricKey": "glycemic_index",
+              "text": "glycemic index at 32 GI",
+              "weightedScore": 320,
+              "scoringMode": "arrow_bands",
+              "band": "↓↓",
+              "dvPercent": null,
+              "value": 32
+            },
+            {
               "metricKey": "fibre_g",
-              "text": "fibre at 10.7",
-              "weightedScore": 4,
+              "text": "fibre at 10.7g",
+              "weightedScore": 240,
               "scoringMode": "arrow_bands",
               "band": "↑",
               "dvPercent": null,
@@ -378,188 +920,345 @@
             },
             {
               "metricKey": "sugar_g",
-              "text": "sugar at 2",
-              "weightedScore": 4,
+              "text": "sugar at 2g",
+              "weightedScore": 160,
               "scoringMode": "arrow_bands",
               "band": "↓↓",
               "dvPercent": null,
               "value": 2
             },
             {
-              "metricKey": "glycemic_index",
-              "text": "glycemic index at 32",
-              "weightedScore": 4,
-              "scoringMode": "arrow_bands",
-              "band": "↓",
-              "dvPercent": null,
-              "value": 32
-            },
-            {
               "metricKey": "starch_g",
-              "text": "starch at 42",
-              "weightedScore": 2,
+              "text": "starch at 42g",
+              "weightedScore": 80,
               "scoringMode": "arrow_bands",
               "band": "↑↑",
               "dvPercent": null,
               "value": 42
             }
           ],
-          "timingHint": "short-medium"
+          "timingHint": "short-medium",
+          "narrativeRole": "macro-foundation",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "lower-third",
+          "preferredSpriteBindings": {
+            "icon": {
+              "path": "sprites/macros_section/section_2_carbs/carb_icon.gif",
+              "format": "gif"
+            },
+            "iconSource": {
+              "path": "sprites/macros_section/section_2_carbs/carb_icon.aseprite",
+              "format": "aseprite"
+            },
+            "bullet": {
+              "path": "sprites/macros_section/section_2_carbs/carb_submacro_bullet_point.png",
+              "format": "png"
+            },
+            "bulletSource": {
+              "path": "sprites/macros_section/section_2_carbs/carb_submacro_bullet_point.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": {
+              "slotId": "macro_headline",
+              "label": "Carbs",
+              "value": null,
+              "emphasis": "standard"
+            },
+            "macroSlots": [
+              {
+                "slotId": "submetric_1",
+                "metricKey": "glycemic_index",
+                "label": "glycemic index",
+                "displayValue": "32 GI",
+                "scoringMode": "arrow_bands",
+                "band": "↓↓",
+                "weightedScore": 320,
+                "spriteRole": "carbs",
+                "text": "glycemic index at 32 GI"
+              },
+              {
+                "slotId": "submetric_2",
+                "metricKey": "fibre_g",
+                "label": "fibre",
+                "displayValue": "10.7g",
+                "scoringMode": "arrow_bands",
+                "band": "↑",
+                "weightedScore": 240,
+                "spriteRole": "carbs",
+                "text": "fibre at 10.7g"
+              },
+              {
+                "slotId": "submetric_3",
+                "metricKey": "sugar_g",
+                "label": "sugar",
+                "displayValue": "2g",
+                "scoringMode": "arrow_bands",
+                "band": "↓↓",
+                "weightedScore": 160,
+                "spriteRole": "carbs",
+                "text": "sugar at 2g"
+              }
+            ],
+            "micronutrientRows": [],
+            "commentaryNote": "Overflow metrics stay off-screen unless the edit intentionally promotes them."
+          }
         },
         "revealPlan": [
           "macro_headline",
           "submetric_1",
           "submetric_2",
-          "submetric_3"
+          "submetric_3",
+          "commentary_note"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "macro_headline",
+            "beat": "lead",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_1",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_2",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_3",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "commentary_note",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          }
         ],
         "subtitleCues": [
           {
-            "id": "11-carbs-1",
+            "id": "06-carbs-1",
             "sceneId": "carbs",
-            "startSeconds": 13.75,
-            "endSeconds": 16.23,
+            "startSeconds": 7.04,
+            "endSeconds": 8.33,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "60. 1g of carbs.",
-              "Fibre is 10. 7g."
+              "60.1g of",
+              "carbs."
             ],
-            "text": "60. 1g of carbs.\nFibre is 10. 7g."
+            "text": "60.1g of\ncarbs."
           },
           {
-            "id": "12-carbs-2",
+            "id": "07-carbs-2",
             "sceneId": "carbs",
-            "startSeconds": 16.23,
-            "endSeconds": 18.36,
+            "startSeconds": 8.33,
+            "endSeconds": 10.46,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "60. 1g of carbs.",
-              "Fibre is 10."
+              "Glycemic index is",
+              "32 GI, supporting"
             ],
-            "text": "60. 1g of carbs.\nFibre is 10."
+            "text": "Glycemic index is\n32 GI, supporting"
           },
           {
-            "id": "13-carbs-3",
+            "id": "08-carbs-3",
             "sceneId": "carbs",
-            "startSeconds": 18.36,
-            "endSeconds": 20.56,
+            "startSeconds": 10.46,
+            "endSeconds": 11.63,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "7g, doing a lot of",
-              "the work here."
+              "better carb",
+              "quality."
             ],
-            "text": "7g, doing a lot of\nthe work here."
-          },
-          {
-            "id": "14-carbs-4",
-            "sceneId": "carbs",
-            "startSeconds": 20.56,
-            "endSeconds": 22.07,
-            "placement": "lower-third",
-            "maxLines": 2,
-            "maxCharactersPerLine": 18,
-            "lines": [
-              "For legumes, the",
-              "carbs look much"
-            ],
-            "text": "For legumes, the\ncarbs look much"
-          },
-          {
-            "id": "15-carbs-5",
-            "sceneId": "carbs",
-            "startSeconds": 22.07,
-            "endSeconds": 23.57,
-            "placement": "lower-third",
-            "maxLines": 2,
-            "maxCharactersPerLine": 18,
-            "lines": [
-              "better when fibre",
-              "and protein are"
-            ],
-            "text": "better when fibre\nand protein are"
-          },
-          {
-            "id": "16-carbs-6",
-            "sceneId": "carbs",
-            "startSeconds": 23.57,
-            "endSeconds": 24.69,
-            "placement": "lower-third",
-            "maxLines": 2,
-            "maxCharactersPerLine": 18,
-            "lines": [
-              "both backing them",
-              "up."
-            ],
-            "text": "both backing them\nup."
+            "text": "better carb\nquality."
           }
         ]
       },
       {
         "id": "proteins",
         "kind": "section",
-        "startSeconds": 24.69,
-        "durationSeconds": 10.59,
-        "endSeconds": 35.28,
-        "narrationText": "Essential amino acids score is 6 out of 9. 25.8 grams of protein. Bioavailability and amino acid quality are both strong. Protein support is a big part of what makes legumes worth it.",
-        "subtitleText": "Essential amino acids score is 6/9. 25.8g of protein. Bioavailability and amino acid quality are both strong. Protein support is a big part of what makes legumes worth it.",
+        "narrativeRole": "macro-foundation",
+        "startSeconds": 11.63,
+        "durationSeconds": 8.47,
+        "endSeconds": 20.1,
+        "narrationText": "25.8 grams of protein. Essential amino acids score is 6 out of 9, with 58% bioavailability, making the protein useful for repair and maintenance.",
+        "subtitleText": "25.8g of protein. Essential amino acids score is 6/9, with 58% bioavailability, making the protein useful for repair and maintenance.",
+        "subtitlePlacement": "lower-third",
         "visualBinding": {
           "sectionKey": "proteins",
           "title": "Proteins",
-          "score": 77.8,
+          "score": 100,
           "templateSlots": [
             "macro_headline",
             "submetric_1",
             "submetric_2",
-            "submetric_3"
+            "submetric_3",
+            "commentary_note"
           ],
           "displayItems": [
             {
               "metricKey": "essential_amino_acids_score",
               "text": "essential amino acids score at 6/9",
-              "weightedScore": 6,
-              "scoringMode": "arrow_bands",
-              "band": "↑↑",
+              "weightedScore": null,
+              "scoringMode": "reference_submacro",
+              "band": null,
               "dvPercent": null,
-              "value": 6
+              "value": 6,
+              "referenceOnly": true
+            },
+            {
+              "metricKey": "bioavailability_percent",
+              "text": "bioavailability at 58%",
+              "weightedScore": null,
+              "scoringMode": "reference_submacro",
+              "band": null,
+              "dvPercent": null,
+              "value": 58,
+              "referenceOnly": true
             },
             {
               "metricKey": "nonessential_amino_acids_score",
               "text": "nonessential amino acids score at 8/11",
-              "weightedScore": 2,
-              "scoringMode": "arrow_bands",
-              "band": "↑↑",
+              "weightedScore": null,
+              "scoringMode": "reference_submacro",
+              "band": null,
               "dvPercent": null,
-              "value": 8
-            },
-            {
-              "metricKey": "bioavailability_percent",
-              "text": "bioavailability at 58",
-              "weightedScore": 2,
-              "scoringMode": "arrow_bands",
-              "band": "↑",
-              "dvPercent": null,
-              "value": 58
+              "value": 8,
+              "referenceOnly": true
             }
           ],
-          "timingHint": "short-medium"
+          "timingHint": "short-medium",
+          "narrativeRole": "macro-foundation",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "lower-third",
+          "preferredSpriteBindings": {
+            "icon": {
+              "path": "sprites/macros_section/section_3_protein/protein_icon.gif",
+              "format": "gif"
+            },
+            "iconSource": {
+              "path": "sprites/macros_section/section_3_protein/protein_icon.aseprite",
+              "format": "aseprite"
+            },
+            "bullet": {
+              "path": "sprites/macros_section/section_3_protein/protein_submacro_bullet_point.png",
+              "format": "png"
+            },
+            "bulletSource": {
+              "path": "sprites/macros_section/section_3_protein/protein_submacro_bullet_point.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": {
+              "slotId": "macro_headline",
+              "label": "Proteins",
+              "value": null,
+              "emphasis": "standard"
+            },
+            "macroSlots": [
+              {
+                "slotId": "submetric_1",
+                "metricKey": "essential_amino_acids_score",
+                "label": "essential amino acids score",
+                "displayValue": "6/9",
+                "scoringMode": "reference_submacro",
+                "band": null,
+                "weightedScore": null,
+                "spriteRole": "proteins",
+                "text": "essential amino acids score at 6/9"
+              },
+              {
+                "slotId": "submetric_2",
+                "metricKey": "bioavailability_percent",
+                "label": "bioavailability",
+                "displayValue": "58%",
+                "scoringMode": "reference_submacro",
+                "band": null,
+                "weightedScore": null,
+                "spriteRole": "proteins",
+                "text": "bioavailability at 58%"
+              },
+              {
+                "slotId": "submetric_3",
+                "metricKey": "nonessential_amino_acids_score",
+                "label": "nonessential amino acids score",
+                "displayValue": "8/11",
+                "scoringMode": "reference_submacro",
+                "band": null,
+                "weightedScore": null,
+                "spriteRole": "proteins",
+                "text": "nonessential amino acids score at 8/11"
+              }
+            ],
+            "micronutrientRows": [],
+            "commentaryNote": null
+          }
         },
         "revealPlan": [
           "macro_headline",
           "submetric_1",
           "submetric_2",
-          "submetric_3"
+          "submetric_3",
+          "commentary_note"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "macro_headline",
+            "beat": "lead",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_1",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_2",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_3",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "commentary_note",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          }
         ],
         "subtitleCues": [
           {
-            "id": "17-proteins-1",
+            "id": "09-proteins-1",
             "sceneId": "proteins",
-            "startSeconds": 24.69,
-            "endSeconds": 26.3,
+            "startSeconds": 11.63,
+            "endSeconds": 13.1,
+            "placement": "lower-third",
+            "maxLines": 2,
+            "maxCharactersPerLine": 18,
+            "lines": [
+              "25.8g of",
+              "protein."
+            ],
+            "text": "25.8g of\nprotein."
+          },
+          {
+            "id": "10-proteins-2",
+            "sceneId": "proteins",
+            "startSeconds": 13.1,
+            "endSeconds": 15.02,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -570,286 +1269,426 @@
             "text": "Essential amino\nacids score is"
           },
           {
-            "id": "18-proteins-2",
+            "id": "11-proteins-3",
             "sceneId": "proteins",
-            "startSeconds": 26.3,
-            "endSeconds": 26.91,
+            "startSeconds": 15.02,
+            "endSeconds": 16.85,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "6/9."
+              "6/9, with 58%",
+              "bioavailability,"
             ],
-            "text": "6/9."
+            "text": "6/9, with 58%\nbioavailability,"
           },
           {
-            "id": "19-proteins-3",
+            "id": "12-proteins-4",
             "sceneId": "proteins",
-            "startSeconds": 26.91,
-            "endSeconds": 28.57,
+            "startSeconds": 16.85,
+            "endSeconds": 19.14,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "25. 8g of protein."
+              "making the protein",
+              "useful for repair"
             ],
-            "text": "25. 8g of protein."
+            "text": "making the protein\nuseful for repair"
           },
           {
-            "id": "20-proteins-4",
+            "id": "13-proteins-5",
             "sceneId": "proteins",
-            "startSeconds": 28.57,
-            "endSeconds": 29.87,
+            "startSeconds": 19.14,
+            "endSeconds": 20.1,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "Bioavailability",
-              "and amino acid"
+              "and maintenance."
             ],
-            "text": "Bioavailability\nand amino acid"
-          },
-          {
-            "id": "21-proteins-5",
-            "sceneId": "proteins",
-            "startSeconds": 29.87,
-            "endSeconds": 31.3,
-            "placement": "lower-third",
-            "maxLines": 2,
-            "maxCharactersPerLine": 18,
-            "lines": [
-              "quality are both",
-              "strong."
-            ],
-            "text": "quality are both\nstrong."
-          },
-          {
-            "id": "22-proteins-6",
-            "sceneId": "proteins",
-            "startSeconds": 31.3,
-            "endSeconds": 33.85,
-            "placement": "lower-third",
-            "maxLines": 2,
-            "maxCharactersPerLine": 18,
-            "lines": [
-              "Protein support is",
-              "a big part of what"
-            ],
-            "text": "Protein support is\na big part of what"
-          },
-          {
-            "id": "23-proteins-7",
-            "sceneId": "proteins",
-            "startSeconds": 33.85,
-            "endSeconds": 35.28,
-            "placement": "lower-third",
-            "maxLines": 2,
-            "maxCharactersPerLine": 18,
-            "lines": [
-              "makes legumes",
-              "worth it."
-            ],
-            "text": "makes legumes\nworth it."
+            "text": "and maintenance."
           }
         ]
       },
       {
         "id": "vitamins",
         "kind": "section",
-        "startSeconds": 35.28,
-        "durationSeconds": 2.82,
-        "endSeconds": 38.1,
-        "narrationText": "Outside of that, the profile is pretty quiet.",
-        "subtitleText": "Outside of that, the profile is pretty quiet.",
+        "narrativeRole": "micronutrient-proof",
+        "startSeconds": 20.1,
+        "durationSeconds": 8.82,
+        "endSeconds": 28.92,
+        "narrationText": "Vitamin C is 8% daily value, useful for collagen formation and antioxidant support. Vitamin E is only 3% daily value, a weak mark for legumes.",
+        "subtitleText": "Vitamin C is 8% DV, useful for collagen formation and antioxidant support. Vitamin E is only 3% DV, a weak mark for legumes.",
+        "subtitlePlacement": "lower-third",
         "visualBinding": {
           "sectionKey": "vitamins",
           "title": "Vitamins",
-          "score": null,
+          "score": 0,
           "templateSlots": [
             "micronutrient_1",
-            "micronutrient_2"
+            "micronutrient_2",
+            "commentary_note"
           ],
-          "displayItems": [],
-          "timingHint": "short-medium"
+          "displayItems": [
+            {
+              "metricKey": "vitamin_c_dv",
+              "text": "vitamin C at 8% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 8,
+              "value": null
+            },
+            {
+              "metricKey": "vitamin_e_dv",
+              "text": "vitamin E at 3% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 3,
+              "value": null
+            }
+          ],
+          "timingHint": "short-medium",
+          "narrativeRole": "micronutrient-proof",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "lower-third",
+          "preferredSpriteBindings": {
+            "icon": {
+              "path": "sprites/micros_section/vitamins/vitamin_icon.gif",
+              "format": "gif"
+            },
+            "iconSource": {
+              "path": "sprites/micros_section/vitamins/vitamin_icon.aseprite",
+              "format": "aseprite"
+            },
+            "microIcon": {
+              "path": "sprites/micros_section/vitamins/vitamin_micro_icon.png",
+              "format": "png"
+            },
+            "microIconSource": {
+              "path": "sprites/micros_section/vitamins/vitamin_micro_icon.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": null,
+            "macroSlots": [],
+            "micronutrientRows": [
+              {
+                "slotId": "micronutrient_1",
+                "metricKey": "vitamin_c_dv",
+                "label": "vitamin c",
+                "displayValue": "8% DV",
+                "dvPercent": 8,
+                "spriteRole": "micronutrient-row",
+                "text": "vitamin C at 8% DV"
+              },
+              {
+                "slotId": "micronutrient_2",
+                "metricKey": "vitamin_e_dv",
+                "label": "vitamin e",
+                "displayValue": "3% DV",
+                "dvPercent": 3,
+                "spriteRole": "micronutrient-row",
+                "text": "vitamin E at 3% DV"
+              }
+            ],
+            "commentaryNote": null
+          }
         },
         "revealPlan": [
           "micronutrient_1",
-          "micronutrient_2"
+          "micronutrient_2",
+          "commentary_note"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "micronutrient_1",
+            "beat": "lead",
+            "purpose": "micronutrient-proof"
+          },
+          {
+            "slotId": "micronutrient_2",
+            "beat": "follow",
+            "purpose": "micronutrient-proof"
+          },
+          {
+            "slotId": "commentary_note",
+            "beat": "follow",
+            "purpose": "micronutrient-proof"
+          }
         ],
         "subtitleCues": [
           {
-            "id": "24-vitamins-1",
+            "id": "14-vitamins-1",
             "sceneId": "vitamins",
-            "startSeconds": 35.28,
-            "endSeconds": 37.27,
+            "startSeconds": 20.1,
+            "endSeconds": 22.72,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "Outside of that,",
-              "the profile is"
+              "Vitamin C is 8%",
+              "DV, useful for"
             ],
-            "text": "Outside of that,\nthe profile is"
+            "text": "Vitamin C is 8%\nDV, useful for"
           },
           {
-            "id": "25-vitamins-2",
+            "id": "15-vitamins-2",
             "sceneId": "vitamins",
-            "startSeconds": 37.27,
-            "endSeconds": 38.1,
+            "startSeconds": 22.72,
+            "endSeconds": 24.16,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "pretty quiet."
+              "collagen formation",
+              "and antioxidant"
             ],
-            "text": "pretty quiet."
+            "text": "collagen formation\nand antioxidant"
+          },
+          {
+            "id": "16-vitamins-3",
+            "sceneId": "vitamins",
+            "startSeconds": 24.16,
+            "endSeconds": 24.71,
+            "placement": "lower-third",
+            "maxLines": 2,
+            "maxCharactersPerLine": 18,
+            "lines": [
+              "support."
+            ],
+            "text": "support."
+          },
+          {
+            "id": "17-vitamins-4",
+            "sceneId": "vitamins",
+            "startSeconds": 24.71,
+            "endSeconds": 28.03,
+            "placement": "lower-third",
+            "maxLines": 2,
+            "maxCharactersPerLine": 18,
+            "lines": [
+              "Vitamin E is only",
+              "3% DV, a weak mark"
+            ],
+            "text": "Vitamin E is only\n3% DV, a weak mark"
+          },
+          {
+            "id": "18-vitamins-5",
+            "sceneId": "vitamins",
+            "startSeconds": 28.03,
+            "endSeconds": 28.92,
+            "placement": "lower-third",
+            "maxLines": 2,
+            "maxCharactersPerLine": 18,
+            "lines": [
+              "for legumes."
+            ],
+            "text": "for legumes."
           }
         ]
       },
       {
         "id": "minerals",
         "kind": "section",
-        "startSeconds": 38.1,
-        "durationSeconds": 9.18,
-        "endSeconds": 47.28,
-        "narrationText": "Iron at 37% daily value, magnesium at 30% daily value, zinc at 23% daily value stand out most. Useful, but still not a major mineral edge.",
-        "subtitleText": "Iron at 37% daily value, magnesium at 30% daily value, zinc at 23% daily value stand out most. Useful, but still not a major mineral edge.",
+        "narrativeRole": "micronutrient-proof",
+        "startSeconds": 28.92,
+        "durationSeconds": 6.71,
+        "endSeconds": 35.63,
+        "narrationText": "Iron is 37% daily value, useful for oxygen transport. Zinc is 23% daily value, a weak mark for legumes.",
+        "subtitleText": "Iron is 37% DV, useful for oxygen transport. Zinc is 23% DV, a weak mark for legumes.",
+        "subtitlePlacement": "lower-third",
         "visualBinding": {
           "sectionKey": "minerals",
           "title": "Minerals",
           "score": 26.7,
           "templateSlots": [
             "micronutrient_1",
-            "micronutrient_2"
+            "micronutrient_2",
+            "commentary_note"
           ],
           "displayItems": [
             {
               "metricKey": "iron_dv",
-              "text": "iron at 37% daily value",
-              "weightedScore": 6,
+              "text": "iron at 37% DV",
+              "weightedScore": 60,
               "scoringMode": "dv_points",
               "band": null,
               "dvPercent": 37,
               "value": null
             },
             {
-              "metricKey": "magnesium_dv",
-              "text": "magnesium at 30% daily value",
-              "weightedScore": 6,
-              "scoringMode": "dv_points",
-              "band": null,
-              "dvPercent": 30,
-              "value": null
-            },
-            {
               "metricKey": "zinc_dv",
-              "text": "zinc at 23% daily value",
-              "weightedScore": 2,
+              "text": "zinc at 23% DV",
+              "weightedScore": 20,
               "scoringMode": "dv_points",
               "band": null,
               "dvPercent": 23,
               "value": null
             },
             {
+              "metricKey": "magnesium_dv",
+              "text": "magnesium at 30% DV",
+              "weightedScore": 60,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 30,
+              "value": null
+            },
+            {
               "metricKey": "potassium_dv",
-              "text": "potassium at 27% daily value",
-              "weightedScore": 2,
+              "text": "potassium at 27% DV",
+              "weightedScore": 20,
               "scoringMode": "dv_points",
               "band": null,
               "dvPercent": 27,
               "value": null
             }
           ],
-          "timingHint": "short-medium"
+          "timingHint": "short-medium",
+          "narrativeRole": "micronutrient-proof",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "lower-third",
+          "preferredSpriteBindings": {
+            "icon": {
+              "path": "sprites/micros_section/minerals/mineral_icon.gif",
+              "format": "gif"
+            },
+            "iconSource": {
+              "path": "sprites/micros_section/minerals/mineral_icon.aseprite",
+              "format": "aseprite"
+            },
+            "microIcon": {
+              "path": "sprites/micros_section/minerals/mineral_micro_icon.png",
+              "format": "png"
+            },
+            "microIconSource": {
+              "path": "sprites/micros_section/minerals/mineral_micro_icon.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": null,
+            "macroSlots": [],
+            "micronutrientRows": [
+              {
+                "slotId": "micronutrient_1",
+                "metricKey": "iron_dv",
+                "label": "iron",
+                "displayValue": "37% DV",
+                "dvPercent": 37,
+                "spriteRole": "micronutrient-row",
+                "text": "iron at 37% DV"
+              },
+              {
+                "slotId": "micronutrient_2",
+                "metricKey": "zinc_dv",
+                "label": "zinc",
+                "displayValue": "23% DV",
+                "dvPercent": 23,
+                "spriteRole": "micronutrient-row",
+                "text": "zinc at 23% DV"
+              }
+            ],
+            "commentaryNote": "Overflow metrics stay off-screen unless the edit intentionally promotes them."
+          }
         },
         "revealPlan": [
           "micronutrient_1",
-          "micronutrient_2"
+          "micronutrient_2",
+          "commentary_note"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "micronutrient_1",
+            "beat": "lead",
+            "purpose": "micronutrient-proof"
+          },
+          {
+            "slotId": "micronutrient_2",
+            "beat": "follow",
+            "purpose": "micronutrient-proof"
+          },
+          {
+            "slotId": "commentary_note",
+            "beat": "follow",
+            "purpose": "micronutrient-proof"
+          }
         ],
         "subtitleCues": [
           {
-            "id": "26-minerals-1",
+            "id": "19-minerals-1",
             "sceneId": "minerals",
-            "startSeconds": 38.1,
-            "endSeconds": 40.19,
+            "startSeconds": 28.92,
+            "endSeconds": 31.55,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "Iron at 37% daily",
-              "value, magnesium"
+              "Iron is 37% DV,",
+              "useful for oxygen"
             ],
-            "text": "Iron at 37% daily\nvalue, magnesium"
+            "text": "Iron is 37% DV,\nuseful for oxygen"
           },
           {
-            "id": "27-minerals-2",
+            "id": "20-minerals-2",
             "sceneId": "minerals",
-            "startSeconds": 40.19,
-            "endSeconds": 42.72,
+            "startSeconds": 31.55,
+            "endSeconds": 32.1,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "at 30% daily",
-              "value, zinc at 23%"
+              "transport."
             ],
-            "text": "at 30% daily\nvalue, zinc at 23%"
+            "text": "transport."
           },
           {
-            "id": "28-minerals-3",
+            "id": "21-minerals-3",
             "sceneId": "minerals",
-            "startSeconds": 42.72,
-            "endSeconds": 44.5,
+            "startSeconds": 32.1,
+            "endSeconds": 35.09,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "daily value stand",
-              "out most."
+              "Zinc is 23% DV, a",
+              "weak mark for"
             ],
-            "text": "daily value stand\nout most."
+            "text": "Zinc is 23% DV, a\nweak mark for"
           },
           {
-            "id": "29-minerals-4",
+            "id": "22-minerals-4",
             "sceneId": "minerals",
-            "startSeconds": 44.5,
-            "endSeconds": 46.46,
+            "startSeconds": 35.09,
+            "endSeconds": 35.63,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "Useful, but still",
-              "not a major"
+              "legumes."
             ],
-            "text": "Useful, but still\nnot a major"
-          },
-          {
-            "id": "30-minerals-5",
-            "sceneId": "minerals",
-            "startSeconds": 46.46,
-            "endSeconds": 47.28,
-            "placement": "lower-third",
-            "maxLines": 2,
-            "maxCharactersPerLine": 18,
-            "lines": [
-              "mineral edge."
-            ],
-            "text": "mineral edge."
+            "text": "legumes."
           }
         ]
       },
       {
         "id": "pros",
         "kind": "section",
-        "startSeconds": 47.28,
-        "durationSeconds": 21.88,
-        "endSeconds": 69.16,
-        "narrationText": "On the plus side: one of the best budget staple foods. It is unusually cheap, filling, and useful in real meals compared with a lot of healthy-food staples. Very filling for the calories. The fibre and protein combo gives it strong practical fullness. Usually affordable and practical. Makes it easy to use as a real staple rather than a niche health food.",
-        "subtitleText": "On the plus side: one of the best budget staple foods. It is unusually cheap, filling, and useful in real meals compared with a lot of healthy-food staples. Very filling for the calories. The fibre and protein combo gives it strong practical fullness. Usually affordable and practical. Makes it easy to use as a real staple rather than a niche health food.",
+        "narrativeRole": "real-world-upside",
+        "startSeconds": 35.63,
+        "durationSeconds": 21.53,
+        "endSeconds": 57.16,
+        "narrationText": "The upsides first: one of the best budget staple foods. It is unusually cheap, filling, and useful in real meals compared with a lot of healthy-food staples. Very filling for the calories. The fibre and protein combo gives it strong practical fullness. Usually affordable and practical. Makes it easy to use as a real staple rather than a niche health food.",
+        "subtitleText": "The upsides first: one of the best budget staple foods. It is unusually cheap, filling, and useful in real meals compared with a lot of healthy-food staples. Very filling for the calories. The fibre and protein combo gives it strong practical fullness. Usually affordable and practical. Makes it easy to use as a real staple rather than a niche health food.",
+        "subtitlePlacement": "high-lower-third",
         "visualBinding": {
           "sectionKey": "pros",
           "title": "Pros",
-          "score": 33.3,
+          "score": 66.7,
           "templateSlots": [
             "bullet_1",
             "bullet_2",
@@ -861,51 +1700,87 @@
               "title": "one of the best budget staple foods",
               "explanation": "It is unusually cheap, filling, and useful in real meals compared with a lot of healthy-food staples.",
               "impactLevel": "major",
-              "scoreValue": 3
+              "resolvedScoreValue": 100
             },
             {
               "type": "pro",
               "title": "very filling for the calories",
               "explanation": "The fibre and protein combo gives it strong practical fullness.",
               "impactLevel": "minor",
-              "scoreValue": 0
+              "resolvedScoreValue": 50
             },
             {
               "type": "pro",
               "title": "usually affordable and practical",
               "explanation": "Makes it easy to use as a real staple rather than a niche health food.",
               "impactLevel": "minor",
-              "scoreValue": 0
+              "resolvedScoreValue": 50
             }
           ],
-          "timingHint": "medium"
+          "timingHint": "medium",
+          "narrativeRole": "real-world-upside",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "high-lower-third",
+          "preferredSpriteBindings": {
+            "bullet": {
+              "path": "sprites/pros_and_cons/pros/pro_bullet_point.png",
+              "format": "png"
+            },
+            "bulletSource": {
+              "path": "sprites/pros_and_cons/pros/pro_bullet_point.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": null,
+            "macroSlots": [],
+            "micronutrientRows": [],
+            "commentaryNote": null
+          }
         },
         "revealPlan": [
           "bullet_1",
           "bullet_2",
           "bullet_3"
         ],
+        "beatPlan": [
+          {
+            "slotId": "bullet_1",
+            "beat": "lead",
+            "purpose": "real-world-upside"
+          },
+          {
+            "slotId": "bullet_2",
+            "beat": "follow",
+            "purpose": "real-world-upside"
+          },
+          {
+            "slotId": "bullet_3",
+            "beat": "follow",
+            "purpose": "real-world-upside"
+          }
+        ],
         "subtitleCues": [
           {
-            "id": "31-pros-1",
+            "id": "23-pros-1",
             "sceneId": "pros",
-            "startSeconds": 47.28,
-            "endSeconds": 49.96,
-            "placement": "lower-third",
+            "startSeconds": 35.63,
+            "endSeconds": 37.98,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "On the plus side:",
+              "The upsides first:",
               "one of the best"
             ],
-            "text": "On the plus side:\none of the best"
+            "text": "The upsides first:\none of the best"
           },
           {
-            "id": "32-pros-2",
+            "id": "24-pros-2",
             "sceneId": "pros",
-            "startSeconds": 49.96,
-            "endSeconds": 51.13,
-            "placement": "lower-third",
+            "startSeconds": 37.98,
+            "endSeconds": 39.15,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -915,11 +1790,11 @@
             "text": "budget staple\nfoods."
           },
           {
-            "id": "33-pros-3",
+            "id": "25-pros-3",
             "sceneId": "pros",
-            "startSeconds": 51.13,
-            "endSeconds": 52.82,
-            "placement": "lower-third",
+            "startSeconds": 39.15,
+            "endSeconds": 40.84,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -929,11 +1804,11 @@
             "text": "It is unusually\ncheap, filling,"
           },
           {
-            "id": "34-pros-4",
+            "id": "26-pros-4",
             "sceneId": "pros",
-            "startSeconds": 52.82,
-            "endSeconds": 54.85,
-            "placement": "lower-third",
+            "startSeconds": 40.84,
+            "endSeconds": 42.86,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -943,11 +1818,11 @@
             "text": "and useful in real\nmeals compared"
           },
           {
-            "id": "35-pros-5",
+            "id": "27-pros-5",
             "sceneId": "pros",
-            "startSeconds": 54.85,
-            "endSeconds": 56.54,
-            "placement": "lower-third",
+            "startSeconds": 42.86,
+            "endSeconds": 44.55,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -957,11 +1832,11 @@
             "text": "with a lot of\nhealthy-food"
           },
           {
-            "id": "36-pros-6",
+            "id": "28-pros-6",
             "sceneId": "pros",
-            "startSeconds": 56.54,
-            "endSeconds": 57.05,
-            "placement": "lower-third",
+            "startSeconds": 44.55,
+            "endSeconds": 45.06,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -970,11 +1845,11 @@
             "text": "staples."
           },
           {
-            "id": "37-pros-7",
+            "id": "29-pros-7",
             "sceneId": "pros",
-            "startSeconds": 57.05,
-            "endSeconds": 58.88,
-            "placement": "lower-third",
+            "startSeconds": 45.06,
+            "endSeconds": 46.89,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -984,11 +1859,11 @@
             "text": "Very filling for\nthe calories."
           },
           {
-            "id": "38-pros-8",
+            "id": "30-pros-8",
             "sceneId": "pros",
-            "startSeconds": 58.88,
-            "endSeconds": 60.57,
-            "placement": "lower-third",
+            "startSeconds": 46.89,
+            "endSeconds": 48.58,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -998,11 +1873,11 @@
             "text": "The fibre and\nprotein combo"
           },
           {
-            "id": "39-pros-9",
+            "id": "31-pros-9",
             "sceneId": "pros",
-            "startSeconds": 60.57,
-            "endSeconds": 61.93,
-            "placement": "lower-third",
+            "startSeconds": 48.58,
+            "endSeconds": 49.94,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -1012,11 +1887,11 @@
             "text": "gives it strong\npractical"
           },
           {
-            "id": "40-pros-10",
+            "id": "32-pros-10",
             "sceneId": "pros",
-            "startSeconds": 61.93,
-            "endSeconds": 62.44,
-            "placement": "lower-third",
+            "startSeconds": 49.94,
+            "endSeconds": 50.45,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -1025,11 +1900,11 @@
             "text": "fullness."
           },
           {
-            "id": "41-pros-11",
+            "id": "33-pros-11",
             "sceneId": "pros",
-            "startSeconds": 62.44,
-            "endSeconds": 63.95,
-            "placement": "lower-third",
+            "startSeconds": 50.45,
+            "endSeconds": 51.95,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -1039,11 +1914,11 @@
             "text": "Usually affordable\nand practical."
           },
           {
-            "id": "42-pros-12",
+            "id": "34-pros-12",
             "sceneId": "pros",
-            "startSeconds": 63.95,
-            "endSeconds": 66.63,
-            "placement": "lower-third",
+            "startSeconds": 51.95,
+            "endSeconds": 54.63,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -1053,11 +1928,11 @@
             "text": "Makes it easy to\nuse as a real"
           },
           {
-            "id": "43-pros-13",
+            "id": "35-pros-13",
             "sceneId": "pros",
-            "startSeconds": 66.63,
-            "endSeconds": 68.65,
-            "placement": "lower-third",
+            "startSeconds": 54.63,
+            "endSeconds": 56.65,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -1067,11 +1942,11 @@
             "text": "staple rather than\na niche health"
           },
           {
-            "id": "44-pros-14",
+            "id": "36-pros-14",
             "sceneId": "pros",
-            "startSeconds": 68.65,
-            "endSeconds": 69.16,
-            "placement": "lower-third",
+            "startSeconds": 56.65,
+            "endSeconds": 57.16,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -1084,15 +1959,17 @@
       {
         "id": "cons",
         "kind": "section",
-        "startSeconds": 69.16,
-        "durationSeconds": 13.06,
-        "endSeconds": 82.22,
-        "narrationText": "Now the downsides: contains some anti-nutrients. Phytates may reduce mineral uptake somewhat. Can be rough on some people digestively. Not everyone handles legumes equally well. Needs some cooking effort. A small practical friction versus more convenient foods.",
-        "subtitleText": "Now the downsides: contains some anti-nutrients. Phytates may reduce mineral uptake somewhat. Can be rough on some people digestively. Not everyone handles legumes equally well. Needs some cooking effort. A small practical friction versus more convenient foods.",
+        "narrativeRole": "real-world-downside",
+        "startSeconds": 57.16,
+        "durationSeconds": 12.71,
+        "endSeconds": 69.87,
+        "narrationText": "Cons next: contains some anti-nutrients. Phytates may reduce mineral uptake somewhat. Can be rough on some people digestively. Not everyone handles legumes equally well. Needs some cooking effort. A small practical friction versus more convenient foods.",
+        "subtitleText": "Cons next: contains some anti-nutrients. Phytates may reduce mineral uptake somewhat. Can be rough on some people digestively. Not everyone handles legumes equally well. Needs some cooking effort. A small practical friction versus more convenient foods.",
+        "subtitlePlacement": "high-lower-third",
         "visualBinding": {
           "sectionKey": "cons",
           "title": "Cons",
-          "score": 0,
+          "score": 50,
           "templateSlots": [
             "bullet_1",
             "bullet_2",
@@ -1104,51 +1981,87 @@
               "title": "contains some anti-nutrients",
               "explanation": "Phytates may reduce mineral uptake somewhat.",
               "impactLevel": "minor",
-              "scoreValue": 0
+              "resolvedScoreValue": 50
             },
             {
               "type": "con",
               "title": "can be rough on some people digestively",
               "explanation": "Not everyone handles legumes equally well.",
               "impactLevel": "minor",
-              "scoreValue": 0
+              "resolvedScoreValue": 50
             },
             {
               "type": "con",
               "title": "needs some cooking effort",
               "explanation": "A small practical friction versus more convenient foods.",
               "impactLevel": "minor",
-              "scoreValue": 0
+              "resolvedScoreValue": 50
             }
           ],
-          "timingHint": "medium"
+          "timingHint": "medium",
+          "narrativeRole": "real-world-downside",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "high-lower-third",
+          "preferredSpriteBindings": {
+            "bullet": {
+              "path": "sprites/pros_and_cons/cons/con_bullet_point.png",
+              "format": "png"
+            },
+            "bulletSource": {
+              "path": "sprites/pros_and_cons/cons/con_bullet_point.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": null,
+            "macroSlots": [],
+            "micronutrientRows": [],
+            "commentaryNote": null
+          }
         },
         "revealPlan": [
           "bullet_1",
           "bullet_2",
           "bullet_3"
         ],
+        "beatPlan": [
+          {
+            "slotId": "bullet_1",
+            "beat": "lead",
+            "purpose": "real-world-downside"
+          },
+          {
+            "slotId": "bullet_2",
+            "beat": "follow",
+            "purpose": "real-world-downside"
+          },
+          {
+            "slotId": "bullet_3",
+            "beat": "follow",
+            "purpose": "real-world-downside"
+          }
+        ],
         "subtitleCues": [
           {
-            "id": "45-cons-1",
+            "id": "37-cons-1",
             "sceneId": "cons",
-            "startSeconds": 69.16,
-            "endSeconds": 70.79,
-            "placement": "lower-third",
+            "startSeconds": 57.16,
+            "endSeconds": 58.47,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "Now the downsides:",
+              "Cons next:",
               "contains some"
             ],
-            "text": "Now the downsides:\ncontains some"
+            "text": "Cons next:\ncontains some"
           },
           {
-            "id": "46-cons-2",
+            "id": "38-cons-2",
             "sceneId": "cons",
-            "startSeconds": 70.79,
-            "endSeconds": 71.29,
-            "placement": "lower-third",
+            "startSeconds": 58.47,
+            "endSeconds": 58.97,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -1157,11 +2070,11 @@
             "text": "anti-nutrients."
           },
           {
-            "id": "47-cons-3",
+            "id": "39-cons-3",
             "sceneId": "cons",
-            "startSeconds": 71.29,
-            "endSeconds": 72.61,
-            "placement": "lower-third",
+            "startSeconds": 58.97,
+            "endSeconds": 60.28,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -1171,11 +2084,11 @@
             "text": "Phytates may\nreduce mineral"
           },
           {
-            "id": "48-cons-4",
+            "id": "40-cons-4",
             "sceneId": "cons",
-            "startSeconds": 72.61,
-            "endSeconds": 73.42,
-            "placement": "lower-third",
+            "startSeconds": 60.28,
+            "endSeconds": 61.09,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -1184,11 +2097,11 @@
             "text": "uptake somewhat."
           },
           {
-            "id": "49-cons-5",
+            "id": "41-cons-5",
             "sceneId": "cons",
-            "startSeconds": 73.42,
-            "endSeconds": 75.37,
-            "placement": "lower-third",
+            "startSeconds": 61.09,
+            "endSeconds": 63.04,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -1198,11 +2111,11 @@
             "text": "Can be rough on\nsome people"
           },
           {
-            "id": "50-cons-6",
+            "id": "42-cons-6",
             "sceneId": "cons",
-            "startSeconds": 75.37,
-            "endSeconds": 75.87,
-            "placement": "lower-third",
+            "startSeconds": 63.04,
+            "endSeconds": 63.53,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -1211,11 +2124,11 @@
             "text": "digestively."
           },
           {
-            "id": "51-cons-7",
+            "id": "43-cons-7",
             "sceneId": "cons",
-            "startSeconds": 75.87,
-            "endSeconds": 77.18,
-            "placement": "lower-third",
+            "startSeconds": 63.53,
+            "endSeconds": 64.85,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -1225,11 +2138,11 @@
             "text": "Not everyone\nhandles legumes"
           },
           {
-            "id": "52-cons-8",
+            "id": "44-cons-8",
             "sceneId": "cons",
-            "startSeconds": 77.18,
-            "endSeconds": 78,
-            "placement": "lower-third",
+            "startSeconds": 64.85,
+            "endSeconds": 65.66,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -1238,11 +2151,11 @@
             "text": "equally well."
           },
           {
-            "id": "53-cons-9",
+            "id": "45-cons-9",
             "sceneId": "cons",
-            "startSeconds": 78,
-            "endSeconds": 79.45,
-            "placement": "lower-third",
+            "startSeconds": 65.66,
+            "endSeconds": 67.11,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -1252,11 +2165,11 @@
             "text": "Needs some cooking\neffort."
           },
           {
-            "id": "54-cons-10",
+            "id": "46-cons-10",
             "sceneId": "cons",
-            "startSeconds": 79.45,
-            "endSeconds": 81.09,
-            "placement": "lower-third",
+            "startSeconds": 67.11,
+            "endSeconds": 68.74,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -1266,11 +2179,11 @@
             "text": "A small practical\nfriction versus"
           },
           {
-            "id": "55-cons-11",
+            "id": "47-cons-11",
             "sceneId": "cons",
-            "startSeconds": 81.09,
-            "endSeconds": 82.22,
-            "placement": "lower-third",
+            "startSeconds": 68.74,
+            "endSeconds": 69.87,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -1284,127 +2197,146 @@
       {
         "id": "final",
         "kind": "closing",
-        "startSeconds": 82.22,
-        "durationSeconds": 10.55,
-        "endSeconds": 92.77,
-        "narrationText": "Lentils has a genuinely strong overall case. the practical downsides are real, but they do not outweigh the upside. best when you want fibre, protein, and actual meal utility together. A tier.",
-        "subtitleText": "Lentils has a genuinely strong overall case. the practical downsides are real, but they do not outweigh the upside. best when you want fibre, protein, and actual meal utility together. A tier.",
+        "narrativeRole": "verdict-payoff",
+        "startSeconds": 69.87,
+        "durationSeconds": 7.25,
+        "endSeconds": 77.12,
+        "narrationText": "Big strengths are protein and fibre, but the biggest weaknesses are contains some anti-nutrients and rough on some people digestively. A tier.",
+        "subtitleText": "Big strengths are protein and fibre, but the biggest weaknesses are contains some anti-nutrients and rough on some people digestively. A tier.",
+        "subtitleSequence": [
+          {
+            "role": "conclusion-summary",
+            "text": "Big strengths are protein and fibre, but the biggest weaknesses are contains some anti-nutrients and rough on some people digestively.",
+            "placement": "summary-full",
+            "maxCharactersPerLine": 24
+          },
+          {
+            "role": "tier-reveal",
+            "text": "A tier.",
+            "placement": "tier-center",
+            "maxCharactersPerLine": 24
+          }
+        ],
+        "subtitlePlacement": "subtitle-floor",
         "visualBinding": {
           "tier": "A",
-          "tierColor": "light blue"
+          "tierColor": "light blue",
+          "scorePlate": {
+            "path": "sprites/header/header_ui/score_plate.png",
+            "format": "png"
+          },
+          "scorePlateSource": {
+            "path": "sprites/header/header_ui/score_plate.aseprite",
+            "format": "aseprite"
+          },
+          "categorySeparator": {
+            "path": "sprites/ui/section_separator/legume_section_separator.png",
+            "format": "png"
+          },
+          "categorySeparatorSource": {
+            "path": "sprites/ui/section_separator/legume_section_separator.aseprite",
+            "format": "aseprite"
+          }
         },
         "revealPlan": [
-          "tier_stamp"
+          "summary_text",
+          "tier_stamp",
+          "final_line"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "summary_text",
+            "beat": "lead",
+            "purpose": "verdict-setup"
+          },
+          {
+            "slotId": "tier_stamp",
+            "beat": "impact",
+            "purpose": "verdict-hit"
+          },
+          {
+            "slotId": "final_line",
+            "beat": "resolve",
+            "purpose": "use-case-tag"
+          }
         ],
         "subtitleCues": [
           {
-            "id": "56-final-1",
+            "id": "48-final-1",
             "sceneId": "final",
-            "startSeconds": 82.22,
-            "endSeconds": 84.53,
+            "startSeconds": 69.87,
+            "endSeconds": 72.07,
             "placement": "summary-full",
             "maxLines": 2,
-            "maxCharactersPerLine": 28,
+            "maxCharactersPerLine": 24,
             "lines": [
-              "Lentils has a genuinely",
-              "strong overall case."
+              "Big strengths are",
+              "protein and fibre, but"
             ],
-            "text": "Lentils has a genuinely\nstrong overall case.",
+            "text": "Big strengths are\nprotein and fibre, but",
             "role": "conclusion-summary"
           },
           {
-            "id": "57-final-2",
+            "id": "49-final-2",
             "sceneId": "final",
-            "startSeconds": 84.53,
-            "endSeconds": 87.33,
+            "startSeconds": 72.07,
+            "endSeconds": 73.96,
             "placement": "summary-full",
             "maxLines": 2,
-            "maxCharactersPerLine": 28,
+            "maxCharactersPerLine": 24,
             "lines": [
-              "the practical downsides are",
-              "real, but they do not"
+              "the biggest weaknesses",
+              "are contains some"
             ],
-            "text": "the practical downsides are\nreal, but they do not",
+            "text": "the biggest weaknesses\nare contains some",
             "role": "conclusion-summary"
           },
           {
-            "id": "58-final-3",
+            "id": "50-final-3",
             "sceneId": "final",
-            "startSeconds": 87.33,
-            "endSeconds": 88.41,
+            "startSeconds": 73.96,
+            "endSeconds": 75.85,
             "placement": "summary-full",
             "maxLines": 2,
-            "maxCharactersPerLine": 28,
+            "maxCharactersPerLine": 24,
             "lines": [
-              "outweigh the upside."
+              "anti-nutrients and rough",
+              "on some people"
             ],
-            "text": "outweigh the upside.",
+            "text": "anti-nutrients and rough\non some people",
             "role": "conclusion-summary"
           },
           {
-            "id": "59-final-4",
+            "id": "51-final-4",
             "sceneId": "final",
-            "startSeconds": 88.41,
-            "endSeconds": 91.21,
+            "startSeconds": 75.85,
+            "endSeconds": 76.33,
             "placement": "summary-full",
             "maxLines": 2,
-            "maxCharactersPerLine": 28,
+            "maxCharactersPerLine": 24,
             "lines": [
-              "best when you want fibre,",
-              "protein, and actual meal"
+              "digestively."
             ],
-            "text": "best when you want fibre,\nprotein, and actual meal",
+            "text": "digestively.",
             "role": "conclusion-summary"
           },
           {
-            "id": "60-final-5",
+            "id": "52-final-5",
             "sceneId": "final",
-            "startSeconds": 91.21,
-            "endSeconds": 91.99,
-            "placement": "summary-full",
-            "maxLines": 2,
-            "maxCharactersPerLine": 28,
-            "lines": [
-              "utility together."
-            ],
-            "text": "utility together.",
-            "role": "conclusion-summary"
-          },
-          {
-            "id": "61-final-6",
-            "sceneId": "final",
-            "startSeconds": 91.99,
-            "endSeconds": 92.77,
+            "startSeconds": 76.33,
+            "endSeconds": 77.12,
             "placement": "tier-center",
             "maxLines": 2,
-            "maxCharactersPerLine": 28,
+            "maxCharactersPerLine": 24,
             "lines": [
               "A tier."
             ],
             "text": "A tier.",
             "role": "tier-reveal"
           }
-        ],
-        "subtitleSequence": [
-          {
-            "role": "conclusion-summary",
-            "text": "Lentils has a genuinely strong overall case. the practical downsides are real, but they do not outweigh the upside. best when you want fibre, protein, and actual meal utility together.",
-            "placement": "summary-full",
-            "maxCharactersPerLine": 28
-          },
-          {
-            "role": "tier-reveal",
-            "text": "A tier.",
-            "placement": "tier-center",
-            "maxCharactersPerLine": 28
-          }
         ]
       }
     ],
-    "subtitleRules": {
-      "maxLines": 2,
-      "maxCharactersPerLine": 18
-    },
     "subtitleCues": [
       {
         "id": "01-hook",
@@ -1423,214 +2355,118 @@
         "id": "02-fats-1",
         "sceneId": "fats",
         "startSeconds": 2.1,
-        "endSeconds": 3.99,
+        "endSeconds": 3.48,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "1. 1g of fat.",
-          "Saturated fat is"
+          "1.1g of",
+          "fat."
         ],
-        "text": "1. 1g of fat.\nSaturated fat is"
+        "text": "1.1g of\nfat."
       },
       {
         "id": "03-fats-2",
         "sceneId": "fats",
-        "startSeconds": 3.99,
-        "endSeconds": 4.45,
+        "startSeconds": 3.48,
+        "endSeconds": 5.05,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "0."
+          "Saturated fat is",
+          "0.2g,"
         ],
-        "text": "0."
+        "text": "Saturated fat is\n0.2g,"
       },
       {
         "id": "04-fats-3",
         "sceneId": "fats",
-        "startSeconds": 4.45,
-        "endSeconds": 6.62,
+        "startSeconds": 5.05,
+        "endSeconds": 6.5,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "2g. Saturated fat",
-          "is 0. 2g. 1."
+          "supporting a",
+          "better fat"
         ],
-        "text": "2g. Saturated fat\nis 0. 2g. 1."
+        "text": "supporting a\nbetter fat"
       },
       {
         "id": "05-fats-4",
         "sceneId": "fats",
-        "startSeconds": 6.62,
-        "endSeconds": 7.56,
+        "startSeconds": 6.5,
+        "endSeconds": 7.04,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "1g of fat."
+          "profile."
         ],
-        "text": "1g of fat."
+        "text": "profile."
       },
       {
-        "id": "06-fats-5",
-        "sceneId": "fats",
-        "startSeconds": 7.56,
-        "endSeconds": 8.64,
-        "placement": "lower-third",
-        "maxLines": 2,
-        "maxCharactersPerLine": 18,
-        "lines": [
-          "Saturated fat,",
-          "omega3, and"
-        ],
-        "text": "Saturated fat,\nomega3, and"
-      },
-      {
-        "id": "07-fats-6",
-        "sceneId": "fats",
-        "startSeconds": 8.64,
-        "endSeconds": 9.87,
-        "placement": "lower-third",
-        "maxLines": 2,
-        "maxCharactersPerLine": 18,
-        "lines": [
-          "polyunsaturated",
-          "fat are doing most"
-        ],
-        "text": "polyunsaturated\nfat are doing most"
-      },
-      {
-        "id": "08-fats-7",
-        "sceneId": "fats",
-        "startSeconds": 9.87,
-        "endSeconds": 10.72,
-        "placement": "lower-third",
-        "maxLines": 2,
-        "maxCharactersPerLine": 18,
-        "lines": [
-          "of the work."
-        ],
-        "text": "of the work."
-      },
-      {
-        "id": "09-fats-8",
-        "sceneId": "fats",
-        "startSeconds": 10.72,
-        "endSeconds": 12.42,
-        "placement": "lower-third",
-        "maxLines": 2,
-        "maxCharactersPerLine": 18,
-        "lines": [
-          "For a legume, this",
-          "is exactly the"
-        ],
-        "text": "For a legume, this\nis exactly the"
-      },
-      {
-        "id": "10-fats-9",
-        "sceneId": "fats",
-        "startSeconds": 12.42,
-        "endSeconds": 13.75,
-        "placement": "lower-third",
-        "maxLines": 2,
-        "maxCharactersPerLine": 18,
-        "lines": [
-          "kind of profile",
-          "you want."
-        ],
-        "text": "kind of profile\nyou want."
-      },
-      {
-        "id": "11-carbs-1",
+        "id": "06-carbs-1",
         "sceneId": "carbs",
-        "startSeconds": 13.75,
-        "endSeconds": 16.23,
+        "startSeconds": 7.04,
+        "endSeconds": 8.33,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "60. 1g of carbs.",
-          "Fibre is 10. 7g."
+          "60.1g of",
+          "carbs."
         ],
-        "text": "60. 1g of carbs.\nFibre is 10. 7g."
+        "text": "60.1g of\ncarbs."
       },
       {
-        "id": "12-carbs-2",
+        "id": "07-carbs-2",
         "sceneId": "carbs",
-        "startSeconds": 16.23,
-        "endSeconds": 18.36,
+        "startSeconds": 8.33,
+        "endSeconds": 10.46,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "60. 1g of carbs.",
-          "Fibre is 10."
+          "Glycemic index is",
+          "32 GI, supporting"
         ],
-        "text": "60. 1g of carbs.\nFibre is 10."
+        "text": "Glycemic index is\n32 GI, supporting"
       },
       {
-        "id": "13-carbs-3",
+        "id": "08-carbs-3",
         "sceneId": "carbs",
-        "startSeconds": 18.36,
-        "endSeconds": 20.56,
+        "startSeconds": 10.46,
+        "endSeconds": 11.63,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "7g, doing a lot of",
-          "the work here."
+          "better carb",
+          "quality."
         ],
-        "text": "7g, doing a lot of\nthe work here."
+        "text": "better carb\nquality."
       },
       {
-        "id": "14-carbs-4",
-        "sceneId": "carbs",
-        "startSeconds": 20.56,
-        "endSeconds": 22.07,
-        "placement": "lower-third",
-        "maxLines": 2,
-        "maxCharactersPerLine": 18,
-        "lines": [
-          "For legumes, the",
-          "carbs look much"
-        ],
-        "text": "For legumes, the\ncarbs look much"
-      },
-      {
-        "id": "15-carbs-5",
-        "sceneId": "carbs",
-        "startSeconds": 22.07,
-        "endSeconds": 23.57,
-        "placement": "lower-third",
-        "maxLines": 2,
-        "maxCharactersPerLine": 18,
-        "lines": [
-          "better when fibre",
-          "and protein are"
-        ],
-        "text": "better when fibre\nand protein are"
-      },
-      {
-        "id": "16-carbs-6",
-        "sceneId": "carbs",
-        "startSeconds": 23.57,
-        "endSeconds": 24.69,
-        "placement": "lower-third",
-        "maxLines": 2,
-        "maxCharactersPerLine": 18,
-        "lines": [
-          "both backing them",
-          "up."
-        ],
-        "text": "both backing them\nup."
-      },
-      {
-        "id": "17-proteins-1",
+        "id": "09-proteins-1",
         "sceneId": "proteins",
-        "startSeconds": 24.69,
-        "endSeconds": 26.3,
+        "startSeconds": 11.63,
+        "endSeconds": 13.1,
+        "placement": "lower-third",
+        "maxLines": 2,
+        "maxCharactersPerLine": 18,
+        "lines": [
+          "25.8g of",
+          "protein."
+        ],
+        "text": "25.8g of\nprotein."
+      },
+      {
+        "id": "10-proteins-2",
+        "sceneId": "proteins",
+        "startSeconds": 13.1,
+        "endSeconds": 15.02,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -1641,203 +2477,188 @@
         "text": "Essential amino\nacids score is"
       },
       {
-        "id": "18-proteins-2",
+        "id": "11-proteins-3",
         "sceneId": "proteins",
-        "startSeconds": 26.3,
-        "endSeconds": 26.91,
+        "startSeconds": 15.02,
+        "endSeconds": 16.85,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "6/9."
+          "6/9, with 58%",
+          "bioavailability,"
         ],
-        "text": "6/9."
+        "text": "6/9, with 58%\nbioavailability,"
       },
       {
-        "id": "19-proteins-3",
+        "id": "12-proteins-4",
         "sceneId": "proteins",
-        "startSeconds": 26.91,
-        "endSeconds": 28.57,
+        "startSeconds": 16.85,
+        "endSeconds": 19.14,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "25. 8g of protein."
+          "making the protein",
+          "useful for repair"
         ],
-        "text": "25. 8g of protein."
+        "text": "making the protein\nuseful for repair"
       },
       {
-        "id": "20-proteins-4",
+        "id": "13-proteins-5",
         "sceneId": "proteins",
-        "startSeconds": 28.57,
-        "endSeconds": 29.87,
+        "startSeconds": 19.14,
+        "endSeconds": 20.1,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "Bioavailability",
-          "and amino acid"
+          "and maintenance."
         ],
-        "text": "Bioavailability\nand amino acid"
+        "text": "and maintenance."
       },
       {
-        "id": "21-proteins-5",
-        "sceneId": "proteins",
-        "startSeconds": 29.87,
-        "endSeconds": 31.3,
-        "placement": "lower-third",
-        "maxLines": 2,
-        "maxCharactersPerLine": 18,
-        "lines": [
-          "quality are both",
-          "strong."
-        ],
-        "text": "quality are both\nstrong."
-      },
-      {
-        "id": "22-proteins-6",
-        "sceneId": "proteins",
-        "startSeconds": 31.3,
-        "endSeconds": 33.85,
-        "placement": "lower-third",
-        "maxLines": 2,
-        "maxCharactersPerLine": 18,
-        "lines": [
-          "Protein support is",
-          "a big part of what"
-        ],
-        "text": "Protein support is\na big part of what"
-      },
-      {
-        "id": "23-proteins-7",
-        "sceneId": "proteins",
-        "startSeconds": 33.85,
-        "endSeconds": 35.28,
-        "placement": "lower-third",
-        "maxLines": 2,
-        "maxCharactersPerLine": 18,
-        "lines": [
-          "makes legumes",
-          "worth it."
-        ],
-        "text": "makes legumes\nworth it."
-      },
-      {
-        "id": "24-vitamins-1",
+        "id": "14-vitamins-1",
         "sceneId": "vitamins",
-        "startSeconds": 35.28,
-        "endSeconds": 37.27,
+        "startSeconds": 20.1,
+        "endSeconds": 22.72,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "Outside of that,",
-          "the profile is"
+          "Vitamin C is 8%",
+          "DV, useful for"
         ],
-        "text": "Outside of that,\nthe profile is"
+        "text": "Vitamin C is 8%\nDV, useful for"
       },
       {
-        "id": "25-vitamins-2",
+        "id": "15-vitamins-2",
         "sceneId": "vitamins",
-        "startSeconds": 37.27,
-        "endSeconds": 38.1,
+        "startSeconds": 22.72,
+        "endSeconds": 24.16,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "pretty quiet."
+          "collagen formation",
+          "and antioxidant"
         ],
-        "text": "pretty quiet."
+        "text": "collagen formation\nand antioxidant"
       },
       {
-        "id": "26-minerals-1",
+        "id": "16-vitamins-3",
+        "sceneId": "vitamins",
+        "startSeconds": 24.16,
+        "endSeconds": 24.71,
+        "placement": "lower-third",
+        "maxLines": 2,
+        "maxCharactersPerLine": 18,
+        "lines": [
+          "support."
+        ],
+        "text": "support."
+      },
+      {
+        "id": "17-vitamins-4",
+        "sceneId": "vitamins",
+        "startSeconds": 24.71,
+        "endSeconds": 28.03,
+        "placement": "lower-third",
+        "maxLines": 2,
+        "maxCharactersPerLine": 18,
+        "lines": [
+          "Vitamin E is only",
+          "3% DV, a weak mark"
+        ],
+        "text": "Vitamin E is only\n3% DV, a weak mark"
+      },
+      {
+        "id": "18-vitamins-5",
+        "sceneId": "vitamins",
+        "startSeconds": 28.03,
+        "endSeconds": 28.92,
+        "placement": "lower-third",
+        "maxLines": 2,
+        "maxCharactersPerLine": 18,
+        "lines": [
+          "for legumes."
+        ],
+        "text": "for legumes."
+      },
+      {
+        "id": "19-minerals-1",
         "sceneId": "minerals",
-        "startSeconds": 38.1,
-        "endSeconds": 40.19,
+        "startSeconds": 28.92,
+        "endSeconds": 31.55,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "Iron at 37% daily",
-          "value, magnesium"
+          "Iron is 37% DV,",
+          "useful for oxygen"
         ],
-        "text": "Iron at 37% daily\nvalue, magnesium"
+        "text": "Iron is 37% DV,\nuseful for oxygen"
       },
       {
-        "id": "27-minerals-2",
+        "id": "20-minerals-2",
         "sceneId": "minerals",
-        "startSeconds": 40.19,
-        "endSeconds": 42.72,
+        "startSeconds": 31.55,
+        "endSeconds": 32.1,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "at 30% daily",
-          "value, zinc at 23%"
+          "transport."
         ],
-        "text": "at 30% daily\nvalue, zinc at 23%"
+        "text": "transport."
       },
       {
-        "id": "28-minerals-3",
+        "id": "21-minerals-3",
         "sceneId": "minerals",
-        "startSeconds": 42.72,
-        "endSeconds": 44.5,
+        "startSeconds": 32.1,
+        "endSeconds": 35.09,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "daily value stand",
-          "out most."
+          "Zinc is 23% DV, a",
+          "weak mark for"
         ],
-        "text": "daily value stand\nout most."
+        "text": "Zinc is 23% DV, a\nweak mark for"
       },
       {
-        "id": "29-minerals-4",
+        "id": "22-minerals-4",
         "sceneId": "minerals",
-        "startSeconds": 44.5,
-        "endSeconds": 46.46,
+        "startSeconds": 35.09,
+        "endSeconds": 35.63,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "Useful, but still",
-          "not a major"
+          "legumes."
         ],
-        "text": "Useful, but still\nnot a major"
+        "text": "legumes."
       },
       {
-        "id": "30-minerals-5",
-        "sceneId": "minerals",
-        "startSeconds": 46.46,
-        "endSeconds": 47.28,
-        "placement": "lower-third",
-        "maxLines": 2,
-        "maxCharactersPerLine": 18,
-        "lines": [
-          "mineral edge."
-        ],
-        "text": "mineral edge."
-      },
-      {
-        "id": "31-pros-1",
+        "id": "23-pros-1",
         "sceneId": "pros",
-        "startSeconds": 47.28,
-        "endSeconds": 49.96,
-        "placement": "lower-third",
+        "startSeconds": 35.63,
+        "endSeconds": 37.98,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "On the plus side:",
+          "The upsides first:",
           "one of the best"
         ],
-        "text": "On the plus side:\none of the best"
+        "text": "The upsides first:\none of the best"
       },
       {
-        "id": "32-pros-2",
+        "id": "24-pros-2",
         "sceneId": "pros",
-        "startSeconds": 49.96,
-        "endSeconds": 51.13,
-        "placement": "lower-third",
+        "startSeconds": 37.98,
+        "endSeconds": 39.15,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1847,11 +2668,11 @@
         "text": "budget staple\nfoods."
       },
       {
-        "id": "33-pros-3",
+        "id": "25-pros-3",
         "sceneId": "pros",
-        "startSeconds": 51.13,
-        "endSeconds": 52.82,
-        "placement": "lower-third",
+        "startSeconds": 39.15,
+        "endSeconds": 40.84,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1861,11 +2682,11 @@
         "text": "It is unusually\ncheap, filling,"
       },
       {
-        "id": "34-pros-4",
+        "id": "26-pros-4",
         "sceneId": "pros",
-        "startSeconds": 52.82,
-        "endSeconds": 54.85,
-        "placement": "lower-third",
+        "startSeconds": 40.84,
+        "endSeconds": 42.86,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1875,11 +2696,11 @@
         "text": "and useful in real\nmeals compared"
       },
       {
-        "id": "35-pros-5",
+        "id": "27-pros-5",
         "sceneId": "pros",
-        "startSeconds": 54.85,
-        "endSeconds": 56.54,
-        "placement": "lower-third",
+        "startSeconds": 42.86,
+        "endSeconds": 44.55,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1889,11 +2710,11 @@
         "text": "with a lot of\nhealthy-food"
       },
       {
-        "id": "36-pros-6",
+        "id": "28-pros-6",
         "sceneId": "pros",
-        "startSeconds": 56.54,
-        "endSeconds": 57.05,
-        "placement": "lower-third",
+        "startSeconds": 44.55,
+        "endSeconds": 45.06,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1902,11 +2723,11 @@
         "text": "staples."
       },
       {
-        "id": "37-pros-7",
+        "id": "29-pros-7",
         "sceneId": "pros",
-        "startSeconds": 57.05,
-        "endSeconds": 58.88,
-        "placement": "lower-third",
+        "startSeconds": 45.06,
+        "endSeconds": 46.89,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1916,11 +2737,11 @@
         "text": "Very filling for\nthe calories."
       },
       {
-        "id": "38-pros-8",
+        "id": "30-pros-8",
         "sceneId": "pros",
-        "startSeconds": 58.88,
-        "endSeconds": 60.57,
-        "placement": "lower-third",
+        "startSeconds": 46.89,
+        "endSeconds": 48.58,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1930,11 +2751,11 @@
         "text": "The fibre and\nprotein combo"
       },
       {
-        "id": "39-pros-9",
+        "id": "31-pros-9",
         "sceneId": "pros",
-        "startSeconds": 60.57,
-        "endSeconds": 61.93,
-        "placement": "lower-third",
+        "startSeconds": 48.58,
+        "endSeconds": 49.94,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1944,11 +2765,11 @@
         "text": "gives it strong\npractical"
       },
       {
-        "id": "40-pros-10",
+        "id": "32-pros-10",
         "sceneId": "pros",
-        "startSeconds": 61.93,
-        "endSeconds": 62.44,
-        "placement": "lower-third",
+        "startSeconds": 49.94,
+        "endSeconds": 50.45,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1957,11 +2778,11 @@
         "text": "fullness."
       },
       {
-        "id": "41-pros-11",
+        "id": "33-pros-11",
         "sceneId": "pros",
-        "startSeconds": 62.44,
-        "endSeconds": 63.95,
-        "placement": "lower-third",
+        "startSeconds": 50.45,
+        "endSeconds": 51.95,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1971,11 +2792,11 @@
         "text": "Usually affordable\nand practical."
       },
       {
-        "id": "42-pros-12",
+        "id": "34-pros-12",
         "sceneId": "pros",
-        "startSeconds": 63.95,
-        "endSeconds": 66.63,
-        "placement": "lower-third",
+        "startSeconds": 51.95,
+        "endSeconds": 54.63,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1985,11 +2806,11 @@
         "text": "Makes it easy to\nuse as a real"
       },
       {
-        "id": "43-pros-13",
+        "id": "35-pros-13",
         "sceneId": "pros",
-        "startSeconds": 66.63,
-        "endSeconds": 68.65,
-        "placement": "lower-third",
+        "startSeconds": 54.63,
+        "endSeconds": 56.65,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1999,11 +2820,11 @@
         "text": "staple rather than\na niche health"
       },
       {
-        "id": "44-pros-14",
+        "id": "36-pros-14",
         "sceneId": "pros",
-        "startSeconds": 68.65,
-        "endSeconds": 69.16,
-        "placement": "lower-third",
+        "startSeconds": 56.65,
+        "endSeconds": 57.16,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -2012,25 +2833,25 @@
         "text": "food."
       },
       {
-        "id": "45-cons-1",
+        "id": "37-cons-1",
         "sceneId": "cons",
-        "startSeconds": 69.16,
-        "endSeconds": 70.79,
-        "placement": "lower-third",
+        "startSeconds": 57.16,
+        "endSeconds": 58.47,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "Now the downsides:",
+          "Cons next:",
           "contains some"
         ],
-        "text": "Now the downsides:\ncontains some"
+        "text": "Cons next:\ncontains some"
       },
       {
-        "id": "46-cons-2",
+        "id": "38-cons-2",
         "sceneId": "cons",
-        "startSeconds": 70.79,
-        "endSeconds": 71.29,
-        "placement": "lower-third",
+        "startSeconds": 58.47,
+        "endSeconds": 58.97,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -2039,11 +2860,11 @@
         "text": "anti-nutrients."
       },
       {
-        "id": "47-cons-3",
+        "id": "39-cons-3",
         "sceneId": "cons",
-        "startSeconds": 71.29,
-        "endSeconds": 72.61,
-        "placement": "lower-third",
+        "startSeconds": 58.97,
+        "endSeconds": 60.28,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -2053,11 +2874,11 @@
         "text": "Phytates may\nreduce mineral"
       },
       {
-        "id": "48-cons-4",
+        "id": "40-cons-4",
         "sceneId": "cons",
-        "startSeconds": 72.61,
-        "endSeconds": 73.42,
-        "placement": "lower-third",
+        "startSeconds": 60.28,
+        "endSeconds": 61.09,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -2066,11 +2887,11 @@
         "text": "uptake somewhat."
       },
       {
-        "id": "49-cons-5",
+        "id": "41-cons-5",
         "sceneId": "cons",
-        "startSeconds": 73.42,
-        "endSeconds": 75.37,
-        "placement": "lower-third",
+        "startSeconds": 61.09,
+        "endSeconds": 63.04,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -2080,11 +2901,11 @@
         "text": "Can be rough on\nsome people"
       },
       {
-        "id": "50-cons-6",
+        "id": "42-cons-6",
         "sceneId": "cons",
-        "startSeconds": 75.37,
-        "endSeconds": 75.87,
-        "placement": "lower-third",
+        "startSeconds": 63.04,
+        "endSeconds": 63.53,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -2093,11 +2914,11 @@
         "text": "digestively."
       },
       {
-        "id": "51-cons-7",
+        "id": "43-cons-7",
         "sceneId": "cons",
-        "startSeconds": 75.87,
-        "endSeconds": 77.18,
-        "placement": "lower-third",
+        "startSeconds": 63.53,
+        "endSeconds": 64.85,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -2107,11 +2928,11 @@
         "text": "Not everyone\nhandles legumes"
       },
       {
-        "id": "52-cons-8",
+        "id": "44-cons-8",
         "sceneId": "cons",
-        "startSeconds": 77.18,
-        "endSeconds": 78,
-        "placement": "lower-third",
+        "startSeconds": 64.85,
+        "endSeconds": 65.66,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -2120,11 +2941,11 @@
         "text": "equally well."
       },
       {
-        "id": "53-cons-9",
+        "id": "45-cons-9",
         "sceneId": "cons",
-        "startSeconds": 78,
-        "endSeconds": 79.45,
-        "placement": "lower-third",
+        "startSeconds": 65.66,
+        "endSeconds": 67.11,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -2134,11 +2955,11 @@
         "text": "Needs some cooking\neffort."
       },
       {
-        "id": "54-cons-10",
+        "id": "46-cons-10",
         "sceneId": "cons",
-        "startSeconds": 79.45,
-        "endSeconds": 81.09,
-        "placement": "lower-third",
+        "startSeconds": 67.11,
+        "endSeconds": 68.74,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -2148,11 +2969,11 @@
         "text": "A small practical\nfriction versus"
       },
       {
-        "id": "55-cons-11",
+        "id": "47-cons-11",
         "sceneId": "cons",
-        "startSeconds": 81.09,
-        "endSeconds": 82.22,
-        "placement": "lower-third",
+        "startSeconds": 68.74,
+        "endSeconds": 69.87,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -2162,86 +2983,72 @@
         "text": "more convenient\nfoods."
       },
       {
-        "id": "56-final-1",
+        "id": "48-final-1",
         "sceneId": "final",
-        "startSeconds": 82.22,
-        "endSeconds": 84.53,
+        "startSeconds": 69.87,
+        "endSeconds": 72.07,
         "placement": "summary-full",
         "maxLines": 2,
-        "maxCharactersPerLine": 28,
+        "maxCharactersPerLine": 24,
         "lines": [
-          "Lentils has a genuinely",
-          "strong overall case."
+          "Big strengths are",
+          "protein and fibre, but"
         ],
-        "text": "Lentils has a genuinely\nstrong overall case.",
+        "text": "Big strengths are\nprotein and fibre, but",
         "role": "conclusion-summary"
       },
       {
-        "id": "57-final-2",
+        "id": "49-final-2",
         "sceneId": "final",
-        "startSeconds": 84.53,
-        "endSeconds": 87.33,
+        "startSeconds": 72.07,
+        "endSeconds": 73.96,
         "placement": "summary-full",
         "maxLines": 2,
-        "maxCharactersPerLine": 28,
+        "maxCharactersPerLine": 24,
         "lines": [
-          "the practical downsides are",
-          "real, but they do not"
+          "the biggest weaknesses",
+          "are contains some"
         ],
-        "text": "the practical downsides are\nreal, but they do not",
+        "text": "the biggest weaknesses\nare contains some",
         "role": "conclusion-summary"
       },
       {
-        "id": "58-final-3",
+        "id": "50-final-3",
         "sceneId": "final",
-        "startSeconds": 87.33,
-        "endSeconds": 88.41,
+        "startSeconds": 73.96,
+        "endSeconds": 75.85,
         "placement": "summary-full",
         "maxLines": 2,
-        "maxCharactersPerLine": 28,
+        "maxCharactersPerLine": 24,
         "lines": [
-          "outweigh the upside."
+          "anti-nutrients and rough",
+          "on some people"
         ],
-        "text": "outweigh the upside.",
+        "text": "anti-nutrients and rough\non some people",
         "role": "conclusion-summary"
       },
       {
-        "id": "59-final-4",
+        "id": "51-final-4",
         "sceneId": "final",
-        "startSeconds": 88.41,
-        "endSeconds": 91.21,
+        "startSeconds": 75.85,
+        "endSeconds": 76.33,
         "placement": "summary-full",
         "maxLines": 2,
-        "maxCharactersPerLine": 28,
+        "maxCharactersPerLine": 24,
         "lines": [
-          "best when you want fibre,",
-          "protein, and actual meal"
+          "digestively."
         ],
-        "text": "best when you want fibre,\nprotein, and actual meal",
+        "text": "digestively.",
         "role": "conclusion-summary"
       },
       {
-        "id": "60-final-5",
+        "id": "52-final-5",
         "sceneId": "final",
-        "startSeconds": 91.21,
-        "endSeconds": 91.99,
-        "placement": "summary-full",
-        "maxLines": 2,
-        "maxCharactersPerLine": 28,
-        "lines": [
-          "utility together."
-        ],
-        "text": "utility together.",
-        "role": "conclusion-summary"
-      },
-      {
-        "id": "61-final-6",
-        "sceneId": "final",
-        "startSeconds": 91.99,
-        "endSeconds": 92.77,
+        "startSeconds": 76.33,
+        "endSeconds": 77.12,
         "placement": "tier-center",
         "maxLines": 2,
-        "maxCharactersPerLine": 28,
+        "maxCharactersPerLine": 24,
         "lines": [
           "A tier."
         ],

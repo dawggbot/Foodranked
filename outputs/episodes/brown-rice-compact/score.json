@@ -7,7 +7,11 @@
   },
   "ruleset": {
     "id": "grains.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 370,
@@ -16,36 +20,32 @@
     "protein_g": 7.9
   },
   "sectionScores": {
-    "fats": 66.7,
-    "carbs": 38.9,
-    "proteins": 86.7,
-    "vitamins": null,
-    "minerals": 23.3,
-    "pros": 0,
-    "cons": 0
+    "fats": 46.7,
+    "carbs": 43.1,
+    "proteins": 20,
+    "vitamins": 0,
+    "minerals": 12.7,
+    "pros": 50,
+    "cons": 50
   },
-  "baseScore": 38,
-  "contextAdjustment": {
-    "rawAdjustment": 0,
-    "appliedAdjustment": 0,
-    "appliedItems": [],
-    "ignoredItems": []
-  },
-  "overallScore": 38,
-  "tier": "B",
-  "summary": "Proteins are carrying this food most, while minerals are the biggest drag. It lands in B tier.",
+  "overallScore": 19.6,
+  "overallScoreExact": 19.5654,
+  "baseOverallScore": 31.8,
+  "baseOverallScoreExact": 31.7729,
+  "tier": "D",
+  "summary": "Pros are carrying this food most, while vitamins are holding it back most. It lands in D tier.",
   "explanation": {
-    "summary": "Proteins are carrying this food most, while minerals are the biggest drag. It lands in B tier.",
-    "whyThisTier": "This food lands in B tier with an overall score of 38 from a base nutrition score of 38. Context barely changed the result.",
+    "summary": "Pros are carrying this food most, while vitamins are holding it back most. It lands in D tier.",
+    "whyThisTier": "This food lands in D tier with an overall score of 19.6. Section scores: fats 46.7, carbs 43.1, proteins 20, vitamins 0, minerals 12.7, pros 50, cons 50.",
     "strongestSection": {
-      "key": "proteins",
-      "label": "Proteins",
-      "score": 86.7
+      "key": "pros",
+      "label": "Pros",
+      "score": 50
     },
     "weakestSection": {
-      "key": "minerals",
-      "label": "Minerals",
-      "score": 23.3
+      "key": "vitamins",
+      "label": "Vitamins",
+      "score": 0
     },
     "topPros": [
       {
@@ -53,21 +53,21 @@
         "explanation": "Very practical in everyday meal planning.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "better category fit than white rice",
         "explanation": "At least retains more fibre and micronutrients than more refined versions.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "often easy for people to tolerate",
         "explanation": "A practical plus in some contexts.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -76,27 +76,27 @@
         "explanation": "Not terrible, just not category-leading.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "glycemic behaviour is only okay",
         "explanation": "Not one of the best grains on this dimension.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "micronutrient payoff is fairly average",
         "explanation": "Does not stand out strongly in vitamins/minerals.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
-      "Strongest section: Proteins.",
-      "Weakest section: Minerals.",
-      "Final verdict: B tier."
+      "Strongest section: Pros.",
+      "Weakest section: Vitamins.",
+      "Final verdict: D tier."
     ]
   },
   "contextItems": {
@@ -104,52 +104,58 @@
       {
         "itemKey": "staple_reliability",
         "impactLevel": "minor",
-        "scoreValue": 0,
         "title": "easy staple to build meals around",
         "explanation": "Very practical in everyday meal planning.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "better_than_refined",
         "impactLevel": "minor",
-        "scoreValue": 0,
         "title": "better category fit than white rice",
         "explanation": "At least retains more fibre and micronutrients than more refined versions.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "digestive_neutrality",
         "impactLevel": "minor",
-        "scoreValue": 0,
         "title": "often easy for people to tolerate",
         "explanation": "A practical plus in some contexts.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "cons": [
       {
         "itemKey": "middling_fibre",
         "impactLevel": "minor",
-        "scoreValue": 0,
         "title": "fibre is only moderate for a strong grain",
         "explanation": "Not terrible, just not category-leading.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "middling_gi",
         "impactLevel": "minor",
-        "scoreValue": 0,
         "title": "glycemic behaviour is only okay",
         "explanation": "Not one of the best grains on this dimension.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "micros_not_special",
         "impactLevel": "minor",
-        "scoreValue": 0,
         "title": "micronutrient payoff is fairly average",
         "explanation": "Does not stand out strongly in vitamins/minerals.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       }
     ]
   },
@@ -159,100 +165,90 @@
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 0.6,
-      "band": "↓↓↓",
-      "score": 3,
+      "band": "2_green",
+      "score": 80,
       "weight": 1,
-      "weightedScore": 3
+      "weightedScore": 80
     },
     {
       "metricKey": "omega3_mg",
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 26,
-      "band": "↑↑↑",
-      "score": 3,
+      "band": "2_red",
+      "score": 20,
       "weight": 1,
-      "weightedScore": 3
+      "weightedScore": 20
     },
     {
       "metricKey": "polyunsaturated_fat_g",
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 1,
-      "band": "↓↓↓",
-      "score": -3,
+      "band": "1_red",
+      "score": 40,
       "weight": 1,
-      "weightedScore": -3
+      "weightedScore": 40
     },
     {
       "metricKey": "starch_g",
       "sectionKey": "carbs",
       "scoringMode": "arrow_bands",
       "value": 70,
-      "band": "↑↑↑",
-      "score": 3,
+      "band": "3_green",
+      "score": 100,
       "weight": 1,
-      "weightedScore": 3
+      "weightedScore": 100
     },
     {
       "metricKey": "fibre_g",
       "sectionKey": "carbs",
       "scoringMode": "arrow_bands",
       "value": 3.5,
-      "band": "↓",
-      "score": -1,
-      "weight": 3,
-      "weightedScore": -3
+      "band": "1_red",
+      "score": 40,
+      "weight": 5,
+      "weightedScore": 200
     },
     {
       "metricKey": "sugar_g",
       "sectionKey": "carbs",
       "scoringMode": "arrow_bands",
       "value": 0.9,
-      "band": "↓↓",
-      "score": 2,
-      "weight": 1,
-      "weightedScore": 2
+      "band": "2_green",
+      "score": 80,
+      "weight": 2,
+      "weightedScore": 160
     },
     {
       "metricKey": "glycemic_index",
       "sectionKey": "carbs",
       "scoringMode": "arrow_bands",
       "value": 68,
-      "band": "↑↑",
-      "score": -2,
-      "weight": 4,
-      "weightedScore": -8
+      "band": "2_red",
+      "score": 20,
+      "weight": 5,
+      "weightedScore": 100
     },
     {
-      "metricKey": "essential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 4,
-      "band": "↑",
-      "score": 1,
-      "weight": 2,
-      "weightedScore": 2
-    },
-    {
-      "metricKey": "nonessential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 6,
-      "band": "↑↑↑",
-      "score": 3,
+      "metricKey": "vitamin_e_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 1,
+      "points": 0,
+      "score": 0,
       "weight": 1,
-      "weightedScore": 3
+      "weightedScore": 0
     },
     {
-      "metricKey": "bioavailability_percent",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 50,
-      "band": "↑↑↑",
-      "score": 3,
-      "weight": 2,
-      "weightedScore": 6
+      "metricKey": "iron_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 8,
+      "points": 0,
+      "score": 0,
+      "weight": 4,
+      "weightedScore": 0
     },
     {
       "metricKey": "magnesium_dv",
@@ -260,8 +256,9 @@
       "scoringMode": "dv_points",
       "dvPercent": 35,
       "points": 3,
-      "weight": 2,
-      "weightedScore": 6
+      "score": 30,
+      "weight": 5,
+      "weightedScore": 150
     },
     {
       "metricKey": "zinc_dv",
@@ -269,8 +266,30 @@
       "scoringMode": "dv_points",
       "dvPercent": 13,
       "points": 1,
-      "weight": 1,
-      "weightedScore": 1
+      "score": 10,
+      "weight": 4,
+      "weightedScore": 40
+    },
+    {
+      "metricKey": "potassium_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 6,
+      "points": 0,
+      "score": 0,
+      "weight": 2,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "protein_g_fallback",
+      "sectionKey": "proteins",
+      "scoringMode": "protein_fallback",
+      "value": 7.9,
+      "band": "2_red",
+      "score": 20,
+      "weight": 2,
+      "weightedScore": 40,
+      "fallbackApplied": true
     }
   ]
 }

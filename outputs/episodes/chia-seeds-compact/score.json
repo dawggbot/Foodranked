@@ -7,7 +7,11 @@
   },
   "ruleset": {
     "id": "seeds.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 486,
@@ -16,47 +20,32 @@
     "protein_g": 16.5
   },
   "sectionScores": {
-    "fats": 88.1,
+    "fats": 90,
     "carbs": 100,
-    "proteins": 70.8,
-    "vitamins": null,
+    "proteins": 40,
+    "vitamins": 0,
     "minerals": 53.3,
-    "pros": 33.3,
-    "cons": 0
+    "pros": 66.7,
+    "cons": 50
   },
-  "baseScore": 75,
-  "contextAdjustment": {
-    "rawAdjustment": 3,
-    "appliedAdjustment": 3,
-    "appliedItems": [
-      {
-        "itemKey": "extreme_fibre_density",
-        "impactLevel": "major",
-        "scoreValue": 3,
-        "title": "extreme fibre density",
-        "explanation": "Adds standout digestive and satiety value even beyond the headline nutrient display.",
-        "evidenceType": "manual",
-        "side": "pro",
-        "resolvedScoreValue": 3
-      }
-    ],
-    "ignoredItems": []
-  },
-  "overallScore": 78,
+  "overallScore": 81.4,
+  "overallScoreExact": 81.3525,
+  "baseOverallScore": 57.1,
+  "baseOverallScoreExact": 57.1429,
   "tier": "S",
-  "summary": "Carbs are carrying this food most, while minerals are the biggest drag. It lands in S tier.",
+  "summary": "Carbs are carrying this food most, while vitamins are holding it back most. It lands in S tier.",
   "explanation": {
-    "summary": "Carbs are carrying this food most, while minerals are the biggest drag. It lands in S tier.",
-    "whyThisTier": "This food lands in S tier with an overall score of 78 from a base nutrition score of 75. Context lifted it by 3 points.",
+    "summary": "Carbs are carrying this food most, while vitamins are holding it back most. It lands in S tier.",
+    "whyThisTier": "This food lands in S tier with an overall score of 81.4. Section scores: fats 90, carbs 100, proteins 40, vitamins 0, minerals 53.3, pros 66.7, cons 50.",
     "strongestSection": {
       "key": "carbs",
       "label": "Carbs",
       "score": 100
     },
     "weakestSection": {
-      "key": "minerals",
-      "label": "Minerals",
-      "score": 53.3
+      "key": "vitamins",
+      "label": "Vitamins",
+      "score": 0
     },
     "topPros": [
       {
@@ -64,7 +53,21 @@
         "explanation": "Adds standout digestive and satiety value even beyond the headline nutrient display.",
         "impactLevel": "major",
         "side": "pro",
-        "resolvedScoreValue": 3
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "can be very filling for the amount used",
+        "explanation": "The gel-forming fibre profile gives it practical fullness value.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "easy to add into meals",
+        "explanation": "Can be mixed into oats, yogurt, puddings, and smoothies without much friction.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -73,27 +76,26 @@
         "explanation": "Phytates may reduce mineral uptake somewhat.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "texture can put some people off",
         "explanation": "The gel-like texture is not universally appealing.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "usually works best with some preparation",
         "explanation": "Often needs soaking or mixing into something else to shine.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
       "Strongest section: Carbs.",
-      "Weakest section: Minerals.",
-      "Context improved the final tier case by 3 points.",
+      "Weakest section: Vitamins.",
       "Final verdict: S tier."
     ]
   },
@@ -102,52 +104,58 @@
       {
         "itemKey": "extreme_fibre_density",
         "impactLevel": "major",
-        "scoreValue": 3,
         "title": "extreme fibre density",
         "explanation": "Adds standout digestive and satiety value even beyond the headline nutrient display.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 100
       },
       {
         "itemKey": "high_satiety",
         "impactLevel": "minor",
-        "scoreValue": 0,
         "title": "can be very filling for the amount used",
         "explanation": "The gel-forming fibre profile gives it practical fullness value.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "easy_add_in",
         "impactLevel": "minor",
-        "scoreValue": 0,
         "title": "easy to add into meals",
         "explanation": "Can be mixed into oats, yogurt, puddings, and smoothies without much friction.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "cons": [
       {
         "itemKey": "anti_nutrients",
         "impactLevel": "minor",
-        "scoreValue": 0,
         "title": "contains some anti-nutrients",
         "explanation": "Phytates may reduce mineral uptake somewhat.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "texture_limitation",
         "impactLevel": "minor",
-        "scoreValue": 0,
         "title": "texture can put some people off",
         "explanation": "The gel-like texture is not universally appealing.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "prep_dependency",
         "impactLevel": "minor",
-        "scoreValue": 0,
         "title": "usually works best with some preparation",
         "explanation": "Often needs soaking or mixing into something else to shine.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       }
     ]
   },
@@ -158,9 +166,9 @@
       "scoringMode": "arrow_bands",
       "value": 3.3,
       "band": "↓↓",
-      "score": 2,
+      "score": 80,
       "weight": 2,
-      "weightedScore": 4
+      "weightedScore": 160
     },
     {
       "metricKey": "omega3_mg",
@@ -168,9 +176,9 @@
       "scoringMode": "arrow_bands",
       "value": 17830,
       "band": "↑↑↑",
-      "score": 3,
-      "weight": 2,
-      "weightedScore": 6
+      "score": 100,
+      "weight": 4,
+      "weightedScore": 400
     },
     {
       "metricKey": "polyunsaturated_fat_g",
@@ -178,19 +186,29 @@
       "scoringMode": "arrow_bands",
       "value": 23.7,
       "band": "↑↑",
-      "score": 2,
-      "weight": 2,
-      "weightedScore": 4
+      "score": 80,
+      "weight": 3,
+      "weightedScore": 240
     },
     {
       "metricKey": "cholesterol_mg",
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 0,
-      "band": "↓↓",
-      "score": 2,
+      "band": "↓↓↓",
+      "score": 100,
       "weight": 1,
-      "weightedScore": 2
+      "weightedScore": 100
+    },
+    {
+      "metricKey": "starch_g",
+      "sectionKey": "carbs",
+      "scoringMode": "arrow_bands",
+      "value": 0,
+      "band": "↓↓↓",
+      "score": 0,
+      "weight": 0,
+      "weightedScore": 0
     },
     {
       "metricKey": "fibre_g",
@@ -198,9 +216,9 @@
       "scoringMode": "arrow_bands",
       "value": 34.4,
       "band": "↑↑↑",
-      "score": 3,
+      "score": 100,
       "weight": 4,
-      "weightedScore": 12
+      "weightedScore": 400
     },
     {
       "metricKey": "sugar_g",
@@ -208,9 +226,9 @@
       "scoringMode": "arrow_bands",
       "value": 0,
       "band": "↓↓↓",
-      "score": 3,
+      "score": 100,
       "weight": 1,
-      "weightedScore": 3
+      "weightedScore": 100
     },
     {
       "metricKey": "glycemic_index",
@@ -218,39 +236,29 @@
       "scoringMode": "arrow_bands",
       "value": 1,
       "band": "↓↓↓",
-      "score": 3,
+      "score": 100,
       "weight": 1,
-      "weightedScore": 3
+      "weightedScore": 100
     },
     {
-      "metricKey": "essential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 6,
-      "band": "↑↑",
-      "score": 2,
-      "weight": 2,
-      "weightedScore": 4
+      "metricKey": "vitamin_e_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 3,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
     },
     {
-      "metricKey": "nonessential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 8,
-      "band": "↑↑",
-      "score": 2,
-      "weight": 1,
-      "weightedScore": 2
-    },
-    {
-      "metricKey": "bioavailability_percent",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 58,
-      "band": "↓",
-      "score": -1,
-      "weight": 1,
-      "weightedScore": -1
+      "metricKey": "vitamin_b12_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 0,
+      "points": 0,
+      "score": 0,
+      "weight": 0,
+      "weightedScore": 0
     },
     {
       "metricKey": "magnesium_dv",
@@ -258,8 +266,9 @@
       "scoringMode": "dv_points",
       "dvPercent": 80,
       "points": 8,
+      "score": 80,
       "weight": 3,
-      "weightedScore": 24
+      "weightedScore": 240
     },
     {
       "metricKey": "zinc_dv",
@@ -267,8 +276,9 @@
       "scoringMode": "dv_points",
       "dvPercent": 42,
       "points": 4,
+      "score": 40,
       "weight": 2,
-      "weightedScore": 8
+      "weightedScore": 80
     },
     {
       "metricKey": "iron_dv",
@@ -276,8 +286,9 @@
       "scoringMode": "dv_points",
       "dvPercent": 43,
       "points": 4,
+      "score": 40,
       "weight": 2,
-      "weightedScore": 8
+      "weightedScore": 80
     },
     {
       "metricKey": "calcium_dv",
@@ -285,8 +296,20 @@
       "scoringMode": "dv_points",
       "dvPercent": 49,
       "points": 4,
+      "score": 40,
       "weight": 2,
-      "weightedScore": 8
+      "weightedScore": 80
+    },
+    {
+      "metricKey": "protein_g_fallback",
+      "sectionKey": "proteins",
+      "scoringMode": "protein_fallback",
+      "value": 16.5,
+      "band": "1_red",
+      "score": 40,
+      "weight": 2,
+      "weightedScore": 80,
+      "fallbackApplied": true
     }
   ]
 }

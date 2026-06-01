@@ -1,13 +1,29 @@
 {
   "status": "ok",
+  "schemaVersion": "foodranked-script.v2",
+  "narrationFormat": "elevenlabs-blocks-v1",
   "food": {
     "id": "cod",
     "name": "Cod",
-    "foodType": "meats"
+    "foodType": "meats",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "identity": null,
+    "scoreReadiness": null,
+    "sourceNotes": [
+      "Calibration benchmark sample for FoodRanked.",
+      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
+    ]
   },
   "ruleset": {
     "id": "meats.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 82,
@@ -16,167 +32,207 @@
     "protein_g": 17.8
   },
   "hook": "Cod ranked.",
-  "intro": "",
   "sections": [
     {
       "key": "fats",
       "title": "Fats",
-      "narration": "0.7 grams of fat. Saturated fat is 0.1 grams. Saturated fat is 0.1 grams. 0.7 grams of fat. Saturated fat, cholesterol, and polyunsaturated fat are doing most of the work. For meats, fat quality matters a lot once the protein is already there.",
+      "narration": "0.7 grams of fat. Saturated fat is 0.1 grams, supporting a better fat profile. Polyunsaturated fat is 0.2 grams, and for meats, fat quality is a major tradeoff.",
       "displayItems": [
         {
           "metricKey": "saturated_fat_g",
           "text": "saturated fat at 0.1g",
-          "weightedScore": 6,
+          "weightedScore": 300,
           "scoringMode": "arrow_bands",
-          "band": "↓↓↓",
+          "band": "3_green",
           "dvPercent": null,
           "value": 0.1
         },
         {
-          "metricKey": "cholesterol_mg",
-          "text": "cholesterol at 43mg",
-          "weightedScore": 4,
-          "scoringMode": "arrow_bands",
-          "band": "↓↓",
-          "dvPercent": null,
-          "value": 43
-        },
-        {
           "metricKey": "polyunsaturated_fat_g",
           "text": "polyunsaturated fat at 0.2g",
-          "weightedScore": -3,
+          "weightedScore": 0,
           "scoringMode": "arrow_bands",
-          "band": "↓↓↓",
+          "band": "3_red",
           "dvPercent": null,
           "value": 0.2
         },
         {
+          "metricKey": "cholesterol_mg",
+          "text": "cholesterol at 43mg",
+          "weightedScore": 200,
+          "scoringMode": "arrow_bands",
+          "band": "3_green",
+          "dvPercent": null,
+          "value": 43
+        },
+        {
           "metricKey": "omega3_mg",
           "text": "omega 3 at 180mg",
-          "weightedScore": 1,
+          "weightedScore": 120,
           "scoringMode": "arrow_bands",
-          "band": "↑",
+          "band": "1_red",
           "dvPercent": null,
           "value": 180
         }
       ],
-      "subtitleText": "0.7g of fat. Saturated fat is 0.1g. Saturated fat is 0.1g. 0.7g of fat. Saturated fat, cholesterol, and polyunsaturated fat are doing most of the work. For meats, fat quality matters a lot once the protein is already there.",
+      "subtitleText": "0.7g of fat. Saturated fat is 0.1g, supporting a better fat profile. Polyunsaturated fat is 0.2g, and for meats, fat quality is a major tradeoff.",
       "timingHint": "short-medium",
-      "score": 72.2
+      "score": 68.9
     },
     {
       "key": "carbs",
       "title": "Carbs",
-      "narration": "0 grams of carbs. The rest is not doing much. In this category, carbs barely matter.",
+      "narration": "0 grams of carbs. No defensible carb submacros to call out. In this category, carbs barely matter.",
       "displayItems": [],
-      "subtitleText": "0g of carbs. The rest is not doing much. In this category, carbs barely matter.",
+      "subtitleText": "0g of carbs. No defensible carb submacros to call out. In this category, carbs barely matter.",
       "timingHint": "short-medium",
       "score": null
     },
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "Essential amino acids score is 9 out of 9. 17.8 grams of protein. Bioavailability and amino acid quality are both strong. Strong protein is expected here, so the rest of the profile decides how high it climbs.",
+      "narration": "17.8 grams of protein. Essential amino acids score is 9 out of 9, with 95% bioavailability, making the protein useful for repair and maintenance. Collagen is only 0.4 grams, so for meats, it is not bringing much connective-tissue protein.",
       "displayItems": [
         {
           "metricKey": "essential_amino_acids_score",
           "text": "essential amino acids score at 9/9",
-          "weightedScore": 9,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
           "dvPercent": null,
-          "value": 9
+          "value": 9,
+          "referenceOnly": true
         },
         {
           "metricKey": "bioavailability_percent",
           "text": "bioavailability at 95%",
-          "weightedScore": 9,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
           "dvPercent": null,
-          "value": 95
-        },
-        {
-          "metricKey": "nonessential_amino_acids_score",
-          "text": "nonessential amino acids score at 11/11",
-          "weightedScore": 6,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
-          "dvPercent": null,
-          "value": 11
+          "value": 95,
+          "referenceOnly": true
         },
         {
           "metricKey": "collagen_g",
           "text": "collagen at 0.4g",
-          "weightedScore": -3,
-          "scoringMode": "arrow_bands",
-          "band": "↓↓↓",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
           "dvPercent": null,
-          "value": 0.4
+          "value": 0.4,
+          "referenceOnly": true
+        },
+        {
+          "metricKey": "nonessential_amino_acids_score",
+          "text": "nonessential amino acids score at 11/11",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
+          "dvPercent": null,
+          "value": 11,
+          "referenceOnly": true
         }
       ],
-      "subtitleText": "Essential amino acids score is 9/9. 17.8g of protein. Bioavailability and amino acid quality are both strong. Strong protein is expected here, so the rest of the profile decides how high it climbs.",
+      "subtitleText": "17.8g of protein. Essential amino acids score is 9/9, with 95% bioavailability, making the protein useful for repair and maintenance. Collagen is only 0.4g, so for meats, it is not bringing much connective-tissue protein.",
       "timingHint": "short-medium",
-      "score": 88.9
+      "score": 40
     },
     {
       "key": "vitamins",
       "title": "Vitamins",
-      "narration": "Vitamin b12 at 54% daily value stands out most. That gives this food real vitamin support.",
+      "narration": "Vitamin B12 is 54% daily value, useful for nerve and blood-cell support. Vitamin D is 8% daily value, a small miss for meats.",
       "displayItems": [
         {
           "metricKey": "vitamin_b12_dv",
-          "text": "vitamin b12 at 54% DV",
-          "weightedScore": 10,
+          "text": "vitamin B12 at 54% DV",
+          "weightedScore": 150,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 54,
           "value": null
+        },
+        {
+          "metricKey": "vitamin_d_dv",
+          "text": "vitamin D at 8% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 8,
+          "value": null
         }
       ],
-      "subtitleText": "Vitamin b12 at 54% daily value stands out most. That gives this food real vitamin support.",
+      "subtitleText": "Vitamin B12 is 54% DV, useful for nerve and blood-cell support. Vitamin D is 8% DV, a small miss for meats.",
       "timingHint": "short-medium",
-      "score": 50
+      "score": 30
     },
     {
       "key": "minerals",
       "title": "Minerals",
-      "narration": "Minerals are basically not adding much here.",
-      "displayItems": [],
-      "subtitleText": "Minerals are basically not adding much here.",
+      "narration": "Potassium is 9% daily value, useful for fluid balance. Iron is only 2% daily value, a weak mark for meats.",
+      "displayItems": [
+        {
+          "metricKey": "potassium_dv",
+          "text": "potassium at 9% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 9,
+          "value": null
+        },
+        {
+          "metricKey": "iron_dv",
+          "text": "iron at 2% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 2,
+          "value": null
+        },
+        {
+          "metricKey": "zinc_dv",
+          "text": "zinc at 4% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 4,
+          "value": null
+        }
+      ],
+      "subtitleText": "Potassium is 9% DV, useful for fluid balance. Iron is only 2% DV, a weak mark for meats.",
       "timingHint": "short-medium",
-      "score": null
+      "score": 0
     },
     {
       "key": "pros",
       "title": "Pros",
-      "narration": "On the plus side: gives a straightforward protein solution. The category often wins on simplicity and reliability. Complete protein delivery is reliable. The category is supposed to do this well. High satiety protein source. That is a major real-world strength for meat.",
+      "narration": "The upsides first: gives a straightforward protein solution. The category often wins on simplicity and reliability. Complete protein delivery is reliable. The category is supposed to do this well. High satiety protein source. That is a major real-world strength for meat.",
       "displayItems": [
         {
           "type": "pro",
           "title": "gives a straightforward protein solution",
           "explanation": "The category often wins on simplicity and reliability.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "complete protein delivery is reliable",
           "explanation": "The category is supposed to do this well.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "high satiety protein source",
           "explanation": "That is a major real-world strength for meat.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "On the plus side: gives a straightforward protein solution. The category often wins on simplicity and reliability. Complete protein delivery is reliable. The category is supposed to do this well. High satiety protein source. That is a major real-world strength for meat.",
+      "subtitleText": "The upsides first: gives a straightforward protein solution. The category often wins on simplicity and reliability. Complete protein delivery is reliable. The category is supposed to do this well. High satiety protein source. That is a major real-world strength for meat.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     },
     {
       "key": "cons",
@@ -188,48 +244,114 @@
           "title": "fat quality can go sideways fast",
           "explanation": "Some meats are strong until the fat profile shows up.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "the outcome depends heavily on preparation",
           "explanation": "A good raw profile can still be cooked into a worse result.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "cost and storage can be a pain",
           "explanation": "Practical downsides still count.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         }
       ],
       "subtitleText": "The drawbacks next: fat quality can go sideways fast. Some meats are strong until the fat profile shows up. The outcome depends heavily on preparation. A good raw profile can still be cooked into a worse result. Cost and storage can be a pain. Practical downsides still count.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     }
   ],
   "closing": {
-    "summary": "Cod has a genuinely strong overall case. the practical downsides are real, but they do not outweigh the upside. best when you want efficient protein and can accept the category tradeoffs that come with it.",
-    "finalReveal": "A tier.",
-    "useCaseNote": "Best when you want efficient protein and can accept the category tradeoffs that come with it.",
+    "summary": "Big strengths are omega 3 and protein, but the biggest weaknesses are fat quality can go sideways fast and the outcome depends heavily on preparation.",
+    "overview": "Big strengths are omega 3 and protein, but the biggest weaknesses are fat quality can go sideways fast and the outcome depends heavily on preparation.",
+    "finalReveal": "C tier.",
+    "useCaseNote": "Best only if convenience, budget, or taste matters more than getting the cleanest meat option.",
     "cta": "Would you rank it the same, or nah?"
   },
-  "tier": "A",
-  "overallScore": 70,
+  "tier": "C",
+  "overallScore": 28.1,
+  "overallScoreExact": 28.0993,
+  "baseOverallScore": 39.8,
+  "baseOverallScoreExact": 39.8148,
+  "sectionOrder": [
+    "fats",
+    "carbs",
+    "proteins",
+    "vitamins",
+    "minerals",
+    "pros",
+    "cons"
+  ],
+  "narrationBlocks": [
+    {
+      "kind": "hook_food",
+      "text": "Cod!"
+    },
+    {
+      "kind": "hook_ranked",
+      "text": "Ranked!"
+    },
+    {
+      "kind": "section",
+      "sectionKey": "fats",
+      "text": "0.7 grams of fat. Saturated fat is 0.1 grams, supporting a better fat profile. Polyunsaturated fat is 0.2 grams, and for meats, fat quality is a major tradeoff."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "carbs",
+      "text": "0 grams of carbs. No defensible carb submacros to call out. In this category, carbs barely matter."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "proteins",
+      "text": "17.8 grams of protein. Essential amino acids score is 9 out of 9, with 95% bioavailability, making the protein useful for repair and maintenance. Collagen is only 0.4 grams, so for meats, it is not bringing much connective-tissue protein."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "vitamins",
+      "text": "Vitamin B12 is 54% daily value, useful for nerve and blood-cell support. Vitamin D is 8% daily value, a small miss for meats."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "minerals",
+      "text": "Potassium is 9% daily value, useful for fluid balance. Iron is only 2% daily value, a weak mark for meats."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "pros",
+      "text": "The upsides first: gives a straightforward protein solution. The category often wins on simplicity and reliability. Complete protein delivery is reliable. The category is supposed to do this well. High satiety protein source. That is a major real-world strength for meat."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "cons",
+      "text": "The drawbacks next: fat quality can go sideways fast. Some meats are strong until the fat profile shows up. The outcome depends heavily on preparation. A good raw profile can still be cooked into a worse result. Cost and storage can be a pain. Practical downsides still count."
+    },
+    {
+      "kind": "closing_summary",
+      "text": "Big strengths are omega 3 and protein, but the biggest weaknesses are fat quality can go sideways fast and the outcome depends heavily on preparation."
+    },
+    {
+      "kind": "final_reveal",
+      "text": "C tier."
+    }
+  ],
   "explanation": {
-    "summary": "Proteins are carrying this food most, while vitamins are the biggest drag. It lands in A tier.",
-    "whyThisTier": "This food lands in A tier with an overall score of 70 from a base nutrition score of 70. Context barely changed the result.",
+    "summary": "Fats are carrying this food most, while minerals are holding it back most. It lands in C tier.",
+    "whyThisTier": "This food lands in C tier with an overall score of 28.1. Section scores: fats 68.9, proteins 40, vitamins 30, minerals 0, pros 50, cons 50.",
     "strongestSection": {
-      "key": "proteins",
-      "label": "Proteins",
-      "score": 88.9
+      "key": "fats",
+      "label": "Fats",
+      "score": 68.9
     },
     "weakestSection": {
-      "key": "vitamins",
-      "label": "Vitamins",
-      "score": 50
+      "key": "minerals",
+      "label": "Minerals",
+      "score": 0
     },
     "topPros": [
       {
@@ -237,21 +359,21 @@
         "explanation": "The category often wins on simplicity and reliability.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "complete protein delivery is reliable",
         "explanation": "The category is supposed to do this well.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "high satiety protein source",
         "explanation": "That is a major real-world strength for meat.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -260,27 +382,27 @@
         "explanation": "Some meats are strong until the fat profile shows up.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "the outcome depends heavily on preparation",
         "explanation": "A good raw profile can still be cooked into a worse result.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "cost and storage can be a pain",
         "explanation": "Practical downsides still count.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
-      "Strongest section: Proteins.",
-      "Weakest section: Vitamins.",
-      "Final verdict: A tier."
+      "Strongest section: Fats.",
+      "Weakest section: Minerals.",
+      "Final verdict: C tier."
     ]
   }
 }

@@ -7,7 +7,11 @@
   },
   "ruleset": {
     "id": "oils-and-fats.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 884,
@@ -16,36 +20,32 @@
     "protein_g": 0
   },
   "sectionScores": {
-    "fats": 38.1,
+    "fats": 42.9,
     "carbs": null,
     "proteins": null,
-    "vitamins": null,
-    "minerals": null,
-    "pros": 0,
-    "cons": 0
+    "vitamins": 0,
+    "minerals": 0,
+    "pros": 50,
+    "cons": 50
   },
-  "baseScore": 29,
-  "contextAdjustment": {
-    "rawAdjustment": 0,
-    "appliedAdjustment": 0,
-    "appliedItems": [],
-    "ignoredItems": []
-  },
-  "overallScore": 29,
-  "tier": "B",
-  "summary": "Fats are carrying this food most, while fats are the biggest drag. It lands in B tier.",
+  "overallScore": 27.8,
+  "overallScoreExact": 27.7768,
+  "baseOverallScore": 28.6,
+  "baseOverallScoreExact": 28.5714,
+  "tier": "C",
+  "summary": "Pros are carrying this food most, while minerals are holding it back most. It lands in C tier.",
   "explanation": {
-    "summary": "Fats are carrying this food most, while fats are the biggest drag. It lands in B tier.",
-    "whyThisTier": "This food lands in B tier with an overall score of 29 from a base nutrition score of 29. Context barely changed the result.",
+    "summary": "Pros are carrying this food most, while minerals are holding it back most. It lands in C tier.",
+    "whyThisTier": "This food lands in C tier with an overall score of 27.8. Section scores: fats 42.9, vitamins 0, minerals 0, pros 50, cons 50.",
     "strongestSection": {
-      "key": "fats",
-      "label": "Fats",
-      "score": 38.1
+      "key": "pros",
+      "label": "Pros",
+      "score": 50
     },
     "weakestSection": {
-      "key": "fats",
-      "label": "Fats",
-      "score": 38.1
+      "key": "minerals",
+      "label": "Minerals",
+      "score": 0
     },
     "topPros": [
       {
@@ -53,21 +53,21 @@
         "explanation": "Practical culinary value matters here.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "efficient energy source",
         "explanation": "That can be a strength in the right context.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "can help meals feel more complete and usable",
         "explanation": "Fats sometimes improve the whole plate, not just their own stats.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -76,27 +76,27 @@
         "explanation": "That is the unavoidable category burden.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "not a complete food on its own",
         "explanation": "Even the better fats are still just part of a meal.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "easy to overpour without noticing",
         "explanation": "Practical portion creep is real.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
-      "Strongest section: Fats.",
-      "Weakest section: Fats.",
-      "Final verdict: B tier."
+      "Strongest section: Pros.",
+      "Weakest section: Minerals.",
+      "Final verdict: C tier."
     ]
   },
   "contextItems": {
@@ -104,52 +104,58 @@
       {
         "itemKey": "fat_culinary_use",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "highly useful in cooking",
         "explanation": "Practical culinary value matters here.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "fat_energy_density",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "efficient energy source",
         "explanation": "That can be a strength in the right context.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "oil_absorption_support",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "can help meals feel more complete and usable",
         "explanation": "Fats sometimes improve the whole plate, not just their own stats.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "cons": [
       {
         "itemKey": "fat_dense_by_default",
         "impactLevel": "minor",
-        "scoreValue": -1,
         "title": "extremely calorie dense by default",
         "explanation": "That is the unavoidable category burden.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "fat_not_complete_food",
         "impactLevel": "minor",
-        "scoreValue": -1,
         "title": "not a complete food on its own",
         "explanation": "Even the better fats are still just part of a meal.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "fat_easy_to_overpour",
         "impactLevel": "minor",
-        "scoreValue": -1,
         "title": "easy to overpour without noticing",
         "explanation": "Practical portion creep is real.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       }
     ]
   },
@@ -160,9 +166,9 @@
       "scoringMode": "arrow_bands",
       "value": 33,
       "band": "↑",
-      "score": -1,
+      "score": 40,
       "weight": 7,
-      "weightedScore": -7
+      "weightedScore": 280
     },
     {
       "metricKey": "omega3_mg",
@@ -170,9 +176,9 @@
       "scoringMode": "arrow_bands",
       "value": 1000,
       "band": "↑",
-      "score": 1,
+      "score": 60,
       "weight": 1,
-      "weightedScore": 1
+      "weightedScore": 60
     },
     {
       "metricKey": "polyunsaturated_fat_g",
@@ -180,9 +186,9 @@
       "scoringMode": "arrow_bands",
       "value": 13,
       "band": "↑",
-      "score": 1,
+      "score": 60,
       "weight": 1,
-      "weightedScore": 1
+      "weightedScore": 60
     },
     {
       "metricKey": "cholesterol_mg",
@@ -190,9 +196,69 @@
       "scoringMode": "arrow_bands",
       "value": 100,
       "band": "↑",
-      "score": -1,
+      "score": 40,
       "weight": 5,
-      "weightedScore": -5
+      "weightedScore": 200
+    },
+    {
+      "metricKey": "vitamin_e_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 3,
+      "points": 0,
+      "score": 0,
+      "weight": 2,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "vitamin_k_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 6,
+      "points": 0,
+      "score": 0,
+      "weight": 2,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "vitamin_a_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 0,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "iron_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 0,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "magnesium_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 0,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "calcium_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 0,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
     }
   ]
 }

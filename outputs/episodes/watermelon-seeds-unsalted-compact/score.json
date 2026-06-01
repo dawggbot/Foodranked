@@ -7,7 +7,11 @@
   },
   "ruleset": {
     "id": "seeds.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 557,
@@ -16,36 +20,32 @@
     "protein_g": 28.3
   },
   "sectionScores": {
-    "fats": 27.8,
-    "carbs": 38.1,
-    "proteins": 87.5,
-    "vitamins": null,
-    "minerals": 74.3,
-    "pros": 0,
-    "cons": 0
+    "fats": 31.1,
+    "carbs": 33.3,
+    "proteins": 100,
+    "vitamins": 0,
+    "minerals": 57.8,
+    "pros": 50,
+    "cons": 50
   },
-  "baseScore": 49,
-  "contextAdjustment": {
-    "rawAdjustment": 0,
-    "appliedAdjustment": 0,
-    "appliedItems": [],
-    "ignoredItems": []
-  },
-  "overallScore": 49,
-  "tier": "B",
-  "summary": "Proteins are carrying this food most, while fats are the biggest drag. It lands in B tier.",
+  "overallScore": 32.1,
+  "overallScoreExact": 32.0796,
+  "baseOverallScore": 46,
+  "baseOverallScoreExact": 46.0317,
+  "tier": "C",
+  "summary": "Proteins are carrying this food most, while vitamins are holding it back most. It lands in C tier.",
   "explanation": {
-    "summary": "Proteins are carrying this food most, while fats are the biggest drag. It lands in B tier.",
-    "whyThisTier": "This food lands in B tier with an overall score of 49 from a base nutrition score of 49. Context barely changed the result.",
+    "summary": "Proteins are carrying this food most, while vitamins are holding it back most. It lands in C tier.",
+    "whyThisTier": "This food lands in C tier with an overall score of 32.1. Section scores: fats 31.1, carbs 33.3, proteins 100, vitamins 0, minerals 57.8, pros 50, cons 50.",
     "strongestSection": {
       "key": "proteins",
       "label": "Proteins",
-      "score": 87.5
+      "score": 100
     },
     "weakestSection": {
-      "key": "fats",
-      "label": "Fats",
-      "score": 27.8
+      "key": "vitamins",
+      "label": "Vitamins",
+      "score": 0
     },
     "topPros": [
       {
@@ -53,21 +53,21 @@
         "explanation": "Seeds often shine as support foods.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "tiny food with serious nutrient density",
         "explanation": "Seeds often overperform for their size.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "often brings dense micronutrient support",
         "explanation": "That is part of what makes the category interesting.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -76,27 +76,27 @@
         "explanation": "Not everyone uses seeds consistently.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "real serving sizes are often small",
         "explanation": "Some strong paper numbers are hard to cash out in practice.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "calorie density still stacks up fast",
         "explanation": "Tiny foods can still overshoot fast.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
       "Strongest section: Proteins.",
-      "Weakest section: Fats.",
-      "Final verdict: B tier."
+      "Weakest section: Vitamins.",
+      "Final verdict: C tier."
     ]
   },
   "contextItems": {
@@ -104,52 +104,58 @@
       {
         "itemKey": "seed_booster_role",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "easy to sprinkle into meals for a real upgrade",
         "explanation": "Seeds often shine as support foods.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "seed_nutrient_density",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "tiny food with serious nutrient density",
         "explanation": "Seeds often overperform for their size.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "seed_mineral_density_identity",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "often brings dense micronutrient support",
         "explanation": "That is part of what makes the category interesting.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "cons": [
       {
         "itemKey": "seed_prep_or_texture",
         "impactLevel": "minor",
-        "scoreValue": -1,
         "title": "texture or prep can be a barrier",
         "explanation": "Not everyone uses seeds consistently.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "seed_serving_size",
         "impactLevel": "minor",
-        "scoreValue": -1,
         "title": "real serving sizes are often small",
         "explanation": "Some strong paper numbers are hard to cash out in practice.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "seed_calorie_density",
         "impactLevel": "minor",
-        "scoreValue": -1,
         "title": "calorie density still stacks up fast",
         "explanation": "Tiny foods can still overshoot fast.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       }
     ]
   },
@@ -160,9 +166,9 @@
       "scoringMode": "arrow_bands",
       "value": 9.8,
       "band": "↑",
-      "score": -1,
+      "score": 40,
       "weight": 2,
-      "weightedScore": -2
+      "weightedScore": 80
     },
     {
       "metricKey": "omega3_mg",
@@ -170,9 +176,9 @@
       "scoringMode": "arrow_bands",
       "value": 90,
       "band": "↓↓",
-      "score": -2,
-      "weight": 2,
-      "weightedScore": -4
+      "score": 20,
+      "weight": 4,
+      "weightedScore": 80
     },
     {
       "metricKey": "polyunsaturated_fat_g",
@@ -180,9 +186,9 @@
       "scoringMode": "arrow_bands",
       "value": 14.6,
       "band": "↓",
-      "score": -1,
-      "weight": 2,
-      "weightedScore": -2
+      "score": 40,
+      "weight": 3,
+      "weightedScore": 120
     },
     {
       "metricKey": "starch_g",
@@ -190,19 +196,19 @@
       "scoringMode": "arrow_bands",
       "value": 2,
       "band": "↓↓",
-      "score": -2,
-      "weight": 1,
-      "weightedScore": -2
+      "score": 20,
+      "weight": 0,
+      "weightedScore": 0
     },
     {
       "metricKey": "fibre_g",
       "sectionKey": "carbs",
       "scoringMode": "arrow_bands",
       "value": 4,
-      "band": "↓↓",
-      "score": -2,
+      "band": "↓↓↓",
+      "score": 0,
       "weight": 4,
-      "weightedScore": -8
+      "weightedScore": 0
     },
     {
       "metricKey": "sugar_g",
@@ -210,49 +216,29 @@
       "scoringMode": "arrow_bands",
       "value": 0.4,
       "band": "↓↓↓",
-      "score": 3,
+      "score": 100,
       "weight": 1,
-      "weightedScore": 3
+      "weightedScore": 100
     },
     {
       "metricKey": "glycemic_index",
       "sectionKey": "carbs",
       "scoringMode": "arrow_bands",
       "value": 10,
-      "band": "↓↓",
-      "score": 2,
+      "band": "↓↓↓",
+      "score": 100,
       "weight": 1,
-      "weightedScore": 2
+      "weightedScore": 100
     },
     {
-      "metricKey": "essential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 7,
-      "band": "↑↑",
-      "score": 2,
-      "weight": 2,
-      "weightedScore": 4
-    },
-    {
-      "metricKey": "nonessential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 9,
-      "band": "↑↑↑",
-      "score": 3,
+      "metricKey": "vitamin_e_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 2,
+      "points": 0,
+      "score": 0,
       "weight": 1,
-      "weightedScore": 3
-    },
-    {
-      "metricKey": "bioavailability_percent",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 78,
-      "band": "↑↑",
-      "score": 2,
-      "weight": 1,
-      "weightedScore": 2
+      "weightedScore": 0
     },
     {
       "metricKey": "magnesium_dv",
@@ -260,8 +246,9 @@
       "scoringMode": "dv_points",
       "dvPercent": 129,
       "points": 10,
+      "score": 100,
       "weight": 3,
-      "weightedScore": 30
+      "weightedScore": 300
     },
     {
       "metricKey": "zinc_dv",
@@ -269,8 +256,9 @@
       "scoringMode": "dv_points",
       "dvPercent": 71,
       "points": 7,
+      "score": 70,
       "weight": 2,
-      "weightedScore": 14
+      "weightedScore": 140
     },
     {
       "metricKey": "iron_dv",
@@ -278,8 +266,30 @@
       "scoringMode": "dv_points",
       "dvPercent": 42,
       "points": 4,
+      "score": 40,
       "weight": 2,
-      "weightedScore": 8
+      "weightedScore": 80
+    },
+    {
+      "metricKey": "calcium_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 5,
+      "points": 0,
+      "score": 0,
+      "weight": 2,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "protein_g_fallback",
+      "sectionKey": "proteins",
+      "scoringMode": "protein_fallback",
+      "value": 28.3,
+      "band": "3_green",
+      "score": 100,
+      "weight": 2,
+      "weightedScore": 200,
+      "fallbackApplied": true
     }
   ]
 }

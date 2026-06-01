@@ -7,7 +7,11 @@
   },
   "ruleset": {
     "id": "legumes.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 446,
@@ -16,47 +20,32 @@
     "protein_g": 36.5
   },
   "sectionScores": {
-    "fats": 77.8,
-    "carbs": 66.7,
-    "proteins": 94.4,
-    "vitamins": 10,
+    "fats": 80,
+    "carbs": 65.5,
+    "proteins": 100,
+    "vitamins": 5,
     "minerals": 46.7,
-    "pros": 33.3,
-    "cons": 0
+    "pros": 66.7,
+    "cons": 50
   },
-  "baseScore": 65,
-  "contextAdjustment": {
-    "rawAdjustment": 3,
-    "appliedAdjustment": 3,
-    "appliedItems": [
-      {
-        "itemKey": "extreme_legume_profile",
-        "impactLevel": "major",
-        "scoreValue": 3,
-        "title": "extreme protein/mineral legume",
-        "explanation": "Tests whether legumes can handle a very non-typical high-fat, high-protein member.",
-        "evidenceType": "manual",
-        "side": "pro",
-        "resolvedScoreValue": 3
-      }
-    ],
-    "ignoredItems": []
-  },
-  "overallScore": 68,
+  "overallScore": 81.2,
+  "overallScoreExact": 81.1767,
+  "baseOverallScore": 59.1,
+  "baseOverallScoreExact": 59.1126,
   "tier": "S",
-  "summary": "Proteins are carrying this food most, while vitamins are the biggest drag. It lands in S tier.",
+  "summary": "Proteins are carrying this food most, while vitamins are holding it back most. It lands in S tier.",
   "explanation": {
-    "summary": "Proteins are carrying this food most, while vitamins are the biggest drag. It lands in S tier.",
-    "whyThisTier": "This food lands in S tier with an overall score of 68 from a base nutrition score of 65. Context lifted it by 3 points.",
+    "summary": "Proteins are carrying this food most, while vitamins are holding it back most. It lands in S tier.",
+    "whyThisTier": "This food lands in S tier with an overall score of 81.2. Section scores: fats 80, carbs 65.5, proteins 100, vitamins 5, minerals 46.7, pros 66.7, cons 50.",
     "strongestSection": {
       "key": "proteins",
       "label": "Proteins",
-      "score": 94.4
+      "score": 100
     },
     "weakestSection": {
       "key": "vitamins",
       "label": "Vitamins",
-      "score": 10
+      "score": 5
     },
     "topPros": [
       {
@@ -64,7 +53,21 @@
         "explanation": "Tests whether legumes can handle a very non-typical high-fat, high-protein member.",
         "impactLevel": "major",
         "side": "pro",
-        "resolvedScoreValue": 3
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "very low glycemic behaviour",
+        "explanation": "Strong category fit.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "many practical uses",
+        "explanation": "Broad food-system relevance.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -73,27 +76,26 @@
         "explanation": "Preparation and form matter a lot.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "often consumed in processed forms",
         "explanation": "Whole soybeans are not the only real-world form.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "can be rough on some people",
         "explanation": "Practical downside.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
       "Strongest section: Proteins.",
       "Weakest section: Vitamins.",
-      "Context improved the final tier case by 3 points.",
       "Final verdict: S tier."
     ]
   },
@@ -102,52 +104,58 @@
       {
         "itemKey": "extreme_legume_profile",
         "impactLevel": "major",
-        "scoreValue": 3,
         "title": "extreme protein/mineral legume",
         "explanation": "Tests whether legumes can handle a very non-typical high-fat, high-protein member.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 100
       },
       {
         "itemKey": "low_gi",
         "impactLevel": "minor",
-        "scoreValue": 0,
         "title": "very low glycemic behaviour",
         "explanation": "Strong category fit.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "versatile_uses",
         "impactLevel": "minor",
-        "scoreValue": 0,
         "title": "many practical uses",
         "explanation": "Broad food-system relevance.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "cons": [
       {
         "itemKey": "anti_nutrients",
         "impactLevel": "minor",
-        "scoreValue": 0,
         "title": "anti-nutrients matter",
         "explanation": "Preparation and form matter a lot.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "processing_dependency",
         "impactLevel": "minor",
-        "scoreValue": 0,
         "title": "often consumed in processed forms",
         "explanation": "Whole soybeans are not the only real-world form.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "digestive_tradeoff",
         "impactLevel": "minor",
-        "scoreValue": 0,
         "title": "can be rough on some people",
         "explanation": "Practical downside.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       }
     ]
   },
@@ -158,9 +166,9 @@
       "scoringMode": "arrow_bands",
       "value": 2.9,
       "band": "↑",
-      "score": -1,
+      "score": 40,
       "weight": 1,
-      "weightedScore": -1
+      "weightedScore": 40
     },
     {
       "metricKey": "omega3_mg",
@@ -168,9 +176,9 @@
       "scoringMode": "arrow_bands",
       "value": 1440,
       "band": "↑↑↑",
-      "score": 3,
+      "score": 100,
       "weight": 1,
-      "weightedScore": 3
+      "weightedScore": 100
     },
     {
       "metricKey": "polyunsaturated_fat_g",
@@ -178,9 +186,9 @@
       "scoringMode": "arrow_bands",
       "value": 11.3,
       "band": "↑↑↑",
-      "score": 3,
+      "score": 100,
       "weight": 1,
-      "weightedScore": 3
+      "weightedScore": 100
     },
     {
       "metricKey": "starch_g",
@@ -188,9 +196,9 @@
       "scoringMode": "arrow_bands",
       "value": 3,
       "band": "↓↓↓",
-      "score": -3,
+      "score": 0,
       "weight": 1,
-      "weightedScore": -3
+      "weightedScore": 0
     },
     {
       "metricKey": "fibre_g",
@@ -198,9 +206,9 @@
       "scoringMode": "arrow_bands",
       "value": 9.3,
       "band": "↑",
-      "score": 1,
+      "score": 60,
       "weight": 4,
-      "weightedScore": 4
+      "weightedScore": 240
     },
     {
       "metricKey": "sugar_g",
@@ -208,9 +216,9 @@
       "scoringMode": "arrow_bands",
       "value": 7.3,
       "band": "↑",
-      "score": -1,
+      "score": 40,
       "weight": 2,
-      "weightedScore": -2
+      "weightedScore": 80
     },
     {
       "metricKey": "glycemic_index",
@@ -218,39 +226,19 @@
       "scoringMode": "arrow_bands",
       "value": 16,
       "band": "↓↓↓",
-      "score": 3,
+      "score": 100,
       "weight": 4,
-      "weightedScore": 12
+      "weightedScore": 400
     },
     {
-      "metricKey": "essential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 8,
-      "band": "↑↑↑",
-      "score": 3,
-      "weight": 3,
-      "weightedScore": 9
-    },
-    {
-      "metricKey": "nonessential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 9,
-      "band": "↑↑↑",
-      "score": 3,
+      "metricKey": "vitamin_e_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 6,
+      "points": 0,
+      "score": 0,
       "weight": 1,
-      "weightedScore": 3
-    },
-    {
-      "metricKey": "bioavailability_percent",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 65,
-      "band": "↑↑",
-      "score": 2,
-      "weight": 2,
-      "weightedScore": 4
+      "weightedScore": 0
     },
     {
       "metricKey": "vitamin_c_dv",
@@ -258,8 +246,9 @@
       "scoringMode": "dv_points",
       "dvPercent": 10,
       "points": 1,
+      "score": 10,
       "weight": 1,
-      "weightedScore": 1
+      "weightedScore": 10
     },
     {
       "metricKey": "iron_dv",
@@ -267,8 +256,9 @@
       "scoringMode": "dv_points",
       "dvPercent": 49,
       "points": 4,
+      "score": 40,
       "weight": 2,
-      "weightedScore": 8
+      "weightedScore": 80
     },
     {
       "metricKey": "magnesium_dv",
@@ -276,8 +266,9 @@
       "scoringMode": "dv_points",
       "dvPercent": 70,
       "points": 7,
+      "score": 70,
       "weight": 2,
-      "weightedScore": 14
+      "weightedScore": 140
     },
     {
       "metricKey": "zinc_dv",
@@ -285,8 +276,9 @@
       "scoringMode": "dv_points",
       "dvPercent": 37,
       "points": 3,
+      "score": 30,
       "weight": 1,
-      "weightedScore": 3
+      "weightedScore": 30
     },
     {
       "metricKey": "potassium_dv",
@@ -294,8 +286,20 @@
       "scoringMode": "dv_points",
       "dvPercent": 38,
       "points": 3,
+      "score": 30,
       "weight": 1,
-      "weightedScore": 3
+      "weightedScore": 30
+    },
+    {
+      "metricKey": "protein_g_fallback",
+      "sectionKey": "proteins",
+      "scoringMode": "protein_fallback",
+      "value": 36.5,
+      "band": "3_green",
+      "score": 100,
+      "weight": 3,
+      "weightedScore": 300,
+      "fallbackApplied": true
     }
   ]
 }

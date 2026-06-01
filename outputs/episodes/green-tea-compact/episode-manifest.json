@@ -1,6 +1,6 @@
 {
   "id": "green-tea-episode-v1",
-  "generatedAt": "2026-03-20T14:18:44.124Z",
+  "generatedAt": "2026-06-01T22:53:49.418Z",
   "status": "draft",
   "mode": "compact",
   "food": {
@@ -11,6 +11,13 @@
       "value": 100,
       "unit": "g"
     },
+    "identity": null,
+    "scoreReadiness": null,
+    "sourceNotes": [
+      "Calibration benchmark sample for FoodRanked.",
+      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database.",
+      "This misc example is judged mostly by context/effects rather than composition."
+    ],
     "sourceFile": "foods/green-tea.sample.json"
   },
   "sourceOfTruth": {
@@ -28,45 +35,110 @@
     "subtitlesJson": "subtitles.json"
   },
   "scoreSnapshot": {
-    "overallScore": 24,
+    "overallScore": 80.2,
+    "overallScoreExact": 80.2307,
+    "baseOverallScore": 37.5,
+    "baseOverallScoreExact": 37.5,
     "tier": "S",
-    "baseScore": 0,
-    "contextAdjustment": 24,
     "sectionScores": {
       "fats": null,
       "carbs": null,
       "proteins": null,
-      "vitamins": null,
-      "minerals": null,
+      "vitamins": 0,
+      "minerals": 0,
       "pros": 100,
-      "cons": 0
+      "cons": 50
     },
+    "strongestSection": {
+      "key": "pros",
+      "label": "Pros",
+      "score": 100
+    },
+    "weakestSection": {
+      "key": "minerals",
+      "label": "Minerals",
+      "score": 0
+    },
+    "topPros": [
+      {
+        "title": "catechin content adds real upside",
+        "explanation": "That gives it a useful compound story beyond the near-empty nutrition label.",
+        "impactLevel": "major",
+        "side": "pro",
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "strong polyphenol reputation",
+        "explanation": "The core appeal of green tea lives in its compounds and effects rather than classic nutrition composition.",
+        "impactLevel": "major",
+        "side": "pro",
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "nearly zero-calorie daily use",
+        "explanation": "A huge practical advantage in a category judged more by effect than macros.",
+        "impactLevel": "major",
+        "side": "pro",
+        "resolvedScoreValue": 100
+      }
+    ],
+    "topCons": [
+      {
+        "title": "taste can be a barrier",
+        "explanation": "Not everyone enjoys it enough to use consistently.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "quality varies by source",
+        "explanation": "The practical value depends somewhat on the product.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "can be a bit fussier than grab-and-go drinks",
+        "explanation": "A tiny practical downside, but not a serious one.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
+      }
+    ],
     "explanation": {
-      "summary": "This food is being judged mostly by contextual strengths and weaknesses rather than nutrient sections. It lands in S tier.",
-      "whyThisTier": "This food lands in S tier with an overall score of 24 from a base nutrition score of 0. Context lifted it by 24 points.",
-      "strongestSection": null,
-      "weakestSection": null,
+      "summary": "Pros are carrying this food most, while minerals are holding it back most. It lands in S tier.",
+      "whyThisTier": "This food lands in S tier with an overall score of 80.2. Section scores: vitamins 0, minerals 0, pros 100, cons 50.",
+      "strongestSection": {
+        "key": "pros",
+        "label": "Pros",
+        "score": 100
+      },
+      "weakestSection": {
+        "key": "minerals",
+        "label": "Minerals",
+        "score": 0
+      },
       "topPros": [
         {
           "title": "catechin content adds real upside",
           "explanation": "That gives it a useful compound story beyond the near-empty nutrition label.",
           "impactLevel": "major",
           "side": "pro",
-          "resolvedScoreValue": 8
+          "resolvedScoreValue": 100
         },
         {
           "title": "strong polyphenol reputation",
           "explanation": "The core appeal of green tea lives in its compounds and effects rather than classic nutrition composition.",
           "impactLevel": "major",
           "side": "pro",
-          "resolvedScoreValue": 8
+          "resolvedScoreValue": 100
         },
         {
           "title": "nearly zero-calorie daily use",
           "explanation": "A huge practical advantage in a category judged more by effect than macros.",
           "impactLevel": "major",
           "side": "pro",
-          "resolvedScoreValue": 8
+          "resolvedScoreValue": 100
         }
       ],
       "topCons": [
@@ -75,34 +147,37 @@
           "explanation": "Not everyone enjoys it enough to use consistently.",
           "impactLevel": "minor",
           "side": "con",
-          "resolvedScoreValue": 0
+          "resolvedScoreValue": 50
         },
         {
           "title": "quality varies by source",
           "explanation": "The practical value depends somewhat on the product.",
           "impactLevel": "minor",
           "side": "con",
-          "resolvedScoreValue": 0
+          "resolvedScoreValue": 50
         },
         {
           "title": "can be a bit fussier than grab-and-go drinks",
           "explanation": "A tiny practical downside, but not a serious one.",
           "impactLevel": "minor",
           "side": "con",
-          "resolvedScoreValue": 0
+          "resolvedScoreValue": 50
         }
       ],
       "narrationNotes": [
-        "Context improved the final tier case by 24 points.",
+        "Strongest section: Pros.",
+        "Weakest section: Minerals.",
         "Final verdict: S tier."
       ]
     }
   },
   "scriptSnapshot": {
+    "schemaVersion": "foodranked-script.v2",
+    "narrationFormat": "elevenlabs-blocks-v1",
     "hook": "Green Tea ranked.",
-    "intro": null,
     "closing": {
-      "summary": "Green Tea has a genuinely strong overall case. the practical downsides are real, but they do not outweigh the upside. best treated as a context item rather than a nutritional cornerstone.",
+      "summary": "Big strengths are catechin content adds real upside and strong polyphenol reputation, but the biggest weaknesses are taste can be a barrier and quality varies by source.",
+      "overview": "Big strengths are catechin content adds real upside and strong polyphenol reputation, but the biggest weaknesses are taste can be a barrier and quality varies by source.",
       "finalReveal": "S tier.",
       "useCaseNote": "Best treated as a context item rather than a nutritional cornerstone.",
       "cta": "Would you rank it the same, or nah?"
@@ -115,45 +190,468 @@
       "minerals",
       "pros",
       "cons"
-    ]
+    ],
+    "narrationBlockCount": 11
   },
   "visualBinding": {
     "templateId": "foodranked-visual-template.v1",
     "aspectRatio": "9:16",
     "categoryAccent": "Neutral Grey",
-    "tierColor": "platinum-gold"
+    "tierColor": "platinum-gold",
+    "visualProfile": {
+      "name": "balanced",
+      "description": "Default launch profile: readable, centered, and close to the locked storyboard.",
+      "macroLayout": "stacked",
+      "subtitleLift": "standard",
+      "hookStyle": "hero-center",
+      "motionPreset": "balanced",
+      "statsDensity": "standard",
+      "micronutrientRows": 2,
+      "macroSlotsVisible": 3,
+      "emphasisOrder": [
+        "hook",
+        "header",
+        "macro",
+        "micros",
+        "pros-cons",
+        "tier"
+      ]
+    },
+    "spriteBindings": {
+      "strategy": "png-primary-with-aseprite-reference",
+      "categoryKey": "misc",
+      "notes": [
+        "Use exported 100% PNG and GIF files for edit/runtime placement.",
+        "Use .aseprite sources only as fidelity references when adjusting layout or re-exporting."
+      ],
+      "header": {
+        "foodPlate": {
+          "path": "sprites/header/food_plate/misc_food_plate.png",
+          "format": "png"
+        },
+        "foodPlateSource": {
+          "path": "sprites/header/food_plate/misc_food_plate.aseprite",
+          "format": "aseprite"
+        },
+        "foodTypePlate": {
+          "path": "sprites/header/food_type_plate/misc_type_plate.png",
+          "format": "png"
+        },
+        "foodTypePlateSource": {
+          "path": "sprites/header/food_type_plate/misc_type_plate.aseprite",
+          "format": "aseprite"
+        },
+        "calorieBubble": {
+          "path": "sprites/header/calorie_bubble/misc_calorie_bubble.png",
+          "format": "png"
+        },
+        "calorieBubbleSource": {
+          "path": "sprites/header/calorie_bubble/misc_calorie_bubble.aseprite",
+          "format": "aseprite"
+        },
+        "scorePlate": {
+          "path": "sprites/header/header_ui/score_plate.png",
+          "format": "png"
+        },
+        "scorePlateSource": {
+          "path": "sprites/header/header_ui/score_plate.aseprite",
+          "format": "aseprite"
+        }
+      },
+      "macros": {
+        "arrows": {
+          "positive": {
+            "path": "sprites/macros_section/arrow_indicators/green_arrow.png",
+            "format": "png"
+          },
+          "positiveSource": {
+            "path": "sprites/macros_section/arrow_indicators/green_arrow.aseprite",
+            "format": "aseprite"
+          },
+          "negative": {
+            "path": "sprites/macros_section/arrow_indicators/red_arrow.png",
+            "format": "png"
+          },
+          "negativeSource": {
+            "path": "sprites/macros_section/arrow_indicators/red_arrow.aseprite",
+            "format": "aseprite"
+          }
+        },
+        "fats": {
+          "icon": {
+            "path": "sprites/macros_section/section_1_fats/fat_icon.gif",
+            "format": "gif"
+          },
+          "iconSource": {
+            "path": "sprites/macros_section/section_1_fats/fat_icon.aseprite",
+            "format": "aseprite"
+          },
+          "bullet": {
+            "path": "sprites/macros_section/section_1_fats/fat_submacro_bullet_point.png",
+            "format": "png"
+          },
+          "bulletSource": {
+            "path": "sprites/macros_section/section_1_fats/fat_submacro_bullet_point.aseprite",
+            "format": "aseprite"
+          }
+        },
+        "carbs": {
+          "icon": {
+            "path": "sprites/macros_section/section_2_carbs/carb_icon.gif",
+            "format": "gif"
+          },
+          "iconSource": {
+            "path": "sprites/macros_section/section_2_carbs/carb_icon.aseprite",
+            "format": "aseprite"
+          },
+          "bullet": {
+            "path": "sprites/macros_section/section_2_carbs/carb_submacro_bullet_point.png",
+            "format": "png"
+          },
+          "bulletSource": {
+            "path": "sprites/macros_section/section_2_carbs/carb_submacro_bullet_point.aseprite",
+            "format": "aseprite"
+          }
+        },
+        "proteins": {
+          "icon": {
+            "path": "sprites/macros_section/section_3_protein/protein_icon.gif",
+            "format": "gif"
+          },
+          "iconSource": {
+            "path": "sprites/macros_section/section_3_protein/protein_icon.aseprite",
+            "format": "aseprite"
+          },
+          "bullet": {
+            "path": "sprites/macros_section/section_3_protein/protein_submacro_bullet_point.png",
+            "format": "png"
+          },
+          "bulletSource": {
+            "path": "sprites/macros_section/section_3_protein/protein_submacro_bullet_point.aseprite",
+            "format": "aseprite"
+          }
+        }
+      },
+      "micros": {
+        "vitamins": {
+          "icon": {
+            "path": "sprites/micros_section/vitamins/vitamin_icon.gif",
+            "format": "gif"
+          },
+          "iconSource": {
+            "path": "sprites/micros_section/vitamins/vitamin_icon.aseprite",
+            "format": "aseprite"
+          },
+          "microIcon": {
+            "path": "sprites/micros_section/vitamins/vitamin_micro_icon.png",
+            "format": "png"
+          },
+          "microIconSource": {
+            "path": "sprites/micros_section/vitamins/vitamin_micro_icon.aseprite",
+            "format": "aseprite"
+          }
+        },
+        "minerals": {
+          "icon": {
+            "path": "sprites/micros_section/minerals/mineral_icon.gif",
+            "format": "gif"
+          },
+          "iconSource": {
+            "path": "sprites/micros_section/minerals/mineral_icon.aseprite",
+            "format": "aseprite"
+          },
+          "microIcon": {
+            "path": "sprites/micros_section/minerals/mineral_micro_icon.png",
+            "format": "png"
+          },
+          "microIconSource": {
+            "path": "sprites/micros_section/minerals/mineral_micro_icon.aseprite",
+            "format": "aseprite"
+          }
+        },
+        "bars": {
+          "line": {
+            "path": "sprites/micros_section/bars/bar_line.png",
+            "format": "png"
+          },
+          "lineSource": {
+            "path": "sprites/micros_section/bars/bar_line.aseprite",
+            "format": "aseprite"
+          },
+          "full": {
+            "path": "sprites/micros_section/bars/100%_bar.png",
+            "format": "png"
+          },
+          "fullSource": {
+            "path": "sprites/micros_section/bars/100%_bar.aseprite",
+            "format": "aseprite"
+          }
+        }
+      },
+      "prosCons": {
+        "pros": {
+          "bullet": {
+            "path": "sprites/pros_and_cons/pros/pro_bullet_point.png",
+            "format": "png"
+          },
+          "bulletSource": {
+            "path": "sprites/pros_and_cons/pros/pro_bullet_point.aseprite",
+            "format": "aseprite"
+          }
+        },
+        "cons": {
+          "bullet": {
+            "path": "sprites/pros_and_cons/cons/con_bullet_point.png",
+            "format": "png"
+          },
+          "bulletSource": {
+            "path": "sprites/pros_and_cons/cons/con_bullet_point.aseprite",
+            "format": "aseprite"
+          }
+        }
+      },
+      "progress": {
+        "inactive": {
+          "path": "sprites/ui/section_indicator/misc_section_indicator.png",
+          "format": "png"
+        },
+        "inactiveSource": {
+          "path": "sprites/ui/section_indicator/misc_section_indicator.aseprite",
+          "format": "aseprite"
+        },
+        "active": {
+          "path": "sprites/ui/section_indicator/misc_highlighted_section_indicator.png",
+          "format": "png"
+        },
+        "activeSource": {
+          "path": "sprites/ui/section_indicator/misc_highlighted_section_indicator.aseprite",
+          "format": "aseprite"
+        }
+      },
+      "separators": {
+        "section": {
+          "path": "sprites/ui/section_separator/misc_section_separator.png",
+          "format": "png"
+        },
+        "sectionSource": {
+          "path": "sprites/ui/section_separator/misc_section_separator.aseprite",
+          "format": "aseprite"
+        }
+      },
+      "references": {
+        "macroLayout": {
+          "path": "sprites/references/macros_section.png",
+          "format": "png"
+        },
+        "macroLayoutSource": {
+          "path": "sprites/references/macros_section.aseprite",
+          "format": "aseprite"
+        },
+        "microLayout": {
+          "path": "sprites/references/micros_section.png",
+          "format": "png"
+        },
+        "microLayoutSource": {
+          "path": "sprites/references/micros_section.aseprite",
+          "format": "aseprite"
+        },
+        "prosConsLayout": {
+          "path": "sprites/references/pros_cons_section.png",
+          "format": "png"
+        },
+        "prosConsLayoutSource": {
+          "path": "sprites/references/pros_cons_section.aseprite",
+          "format": "aseprite"
+        }
+      }
+    },
+    "storyboardContract": {
+      "lockedSceneStack": [
+        {
+          "id": "hook",
+          "kind": "hook",
+          "narrativeRole": "opening-promise",
+          "subtitlePlacement": "lower-third"
+        },
+        {
+          "id": "fats",
+          "kind": "section",
+          "narrativeRole": "macro-foundation",
+          "subtitlePlacement": "lower-third"
+        },
+        {
+          "id": "carbs",
+          "kind": "section",
+          "narrativeRole": "macro-foundation",
+          "subtitlePlacement": "lower-third"
+        },
+        {
+          "id": "proteins",
+          "kind": "section",
+          "narrativeRole": "macro-foundation",
+          "subtitlePlacement": "lower-third"
+        },
+        {
+          "id": "vitamins",
+          "kind": "section",
+          "narrativeRole": "micronutrient-proof",
+          "subtitlePlacement": "lower-third"
+        },
+        {
+          "id": "minerals",
+          "kind": "section",
+          "narrativeRole": "micronutrient-proof",
+          "subtitlePlacement": "lower-third"
+        },
+        {
+          "id": "pros",
+          "kind": "section",
+          "narrativeRole": "real-world-upside",
+          "subtitlePlacement": "high-lower-third"
+        },
+        {
+          "id": "cons",
+          "kind": "section",
+          "narrativeRole": "real-world-downside",
+          "subtitlePlacement": "high-lower-third"
+        },
+        {
+          "id": "final",
+          "kind": "closing",
+          "narrativeRole": "verdict-payoff",
+          "subtitlePlacement": "subtitle-floor"
+        }
+      ],
+      "subtitleSafeBox": {
+        "x": 80,
+        "y": 1320,
+        "w": 920,
+        "h": 280
+      },
+      "progressIndicator": {
+        "id": "progress_dots",
+        "type": "dotRow",
+        "count": 7,
+        "x": 414,
+        "y": 1710,
+        "dotSize": 26,
+        "gap": 20,
+        "states": [
+          "inactive",
+          "active",
+          "completed"
+        ]
+      }
+    }
   },
   "reviewChecklist": [
     "Verify nutrient values are sourced well enough for publishable use.",
     "Review narration for category repetition and trim any awkward lines.",
     "Confirm subtitle density stays readable at phone speed.",
-    "Replace placeholder hero/sprite art with final asset selection.",
+    "Use the PNG and GIF sprite exports directly, and only open .aseprite sources when fidelity adjustments are needed.",
     "Check that the final tier verdict feels editorially defensible."
   ],
   "nextHumanStep": "Review the generated narration + manifest, then use the manifest as the handoff into visual assembly / editing.",
   "scenePlan": {
     "mode": "compact",
-    "totalEstimatedDurationSeconds": 62.33,
+    "visualProfile": "balanced",
+    "subtitleRules": {
+      "maxLines": 2,
+      "maxCharactersPerLine": 18
+    },
+    "totalEstimatedDurationSeconds": 63.5,
     "scenes": [
       {
         "id": "hook",
         "kind": "hook",
+        "narrativeRole": "opening-promise",
         "startSeconds": 0,
         "durationSeconds": 2.1,
         "endSeconds": 2.1,
         "narrationText": "Green Tea ranked.",
         "subtitleText": "Green Tea ranked.",
+        "subtitlePlacement": "lower-third",
         "visualBinding": {
           "title": "Green Tea",
           "rankedWord": "RANKED",
           "foodType": "misc",
           "kcal": 1,
-          "categoryAccent": "Neutral Grey"
+          "categoryAccent": "Neutral Grey",
+          "hookStyle": "hero-center",
+          "headerSprites": {
+            "foodPlate": {
+              "path": "sprites/header/food_plate/misc_food_plate.png",
+              "format": "png"
+            },
+            "foodPlateSource": {
+              "path": "sprites/header/food_plate/misc_food_plate.aseprite",
+              "format": "aseprite"
+            },
+            "foodTypePlate": {
+              "path": "sprites/header/food_type_plate/misc_type_plate.png",
+              "format": "png"
+            },
+            "foodTypePlateSource": {
+              "path": "sprites/header/food_type_plate/misc_type_plate.aseprite",
+              "format": "aseprite"
+            },
+            "calorieBubble": {
+              "path": "sprites/header/calorie_bubble/misc_calorie_bubble.png",
+              "format": "png"
+            },
+            "calorieBubbleSource": {
+              "path": "sprites/header/calorie_bubble/misc_calorie_bubble.aseprite",
+              "format": "aseprite"
+            },
+            "scorePlate": {
+              "path": "sprites/header/header_ui/score_plate.png",
+              "format": "png"
+            },
+            "scorePlateSource": {
+              "path": "sprites/header/header_ui/score_plate.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "progressSprites": {
+            "inactive": {
+              "path": "sprites/ui/section_indicator/misc_section_indicator.png",
+              "format": "png"
+            },
+            "inactiveSource": {
+              "path": "sprites/ui/section_indicator/misc_section_indicator.aseprite",
+              "format": "aseprite"
+            },
+            "active": {
+              "path": "sprites/ui/section_indicator/misc_highlighted_section_indicator.png",
+              "format": "png"
+            },
+            "activeSource": {
+              "path": "sprites/ui/section_indicator/misc_highlighted_section_indicator.aseprite",
+              "format": "aseprite"
+            }
+          }
         },
         "revealPlan": [
           "hero_food",
           "hook_title",
           "hook_ranked_word"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "hero_food",
+            "beat": "start",
+            "purpose": "food-recognition"
+          },
+          {
+            "slotId": "hook_title",
+            "beat": "mid",
+            "purpose": "ranking-promise"
+          },
+          {
+            "slotId": "hook_ranked_word",
+            "beat": "end",
+            "purpose": "impact-lockup"
+          }
         ],
         "subtitleCues": [
           {
@@ -174,11 +672,13 @@
       {
         "id": "fats",
         "kind": "section",
+        "narrativeRole": "macro-foundation",
         "startSeconds": 2.1,
         "durationSeconds": 2.1,
         "endSeconds": 4.2,
         "narrationText": "Simple one.",
         "subtitleText": "Simple one.",
+        "subtitlePlacement": "lower-third",
         "visualBinding": {
           "sectionKey": "fats",
           "title": "Fats",
@@ -187,16 +687,77 @@
             "macro_headline",
             "submetric_1",
             "submetric_2",
-            "submetric_3"
+            "submetric_3",
+            "commentary_note"
           ],
           "displayItems": [],
-          "timingHint": "short-medium"
+          "timingHint": "short-medium",
+          "narrativeRole": "macro-foundation",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "lower-third",
+          "preferredSpriteBindings": {
+            "icon": {
+              "path": "sprites/macros_section/section_1_fats/fat_icon.gif",
+              "format": "gif"
+            },
+            "iconSource": {
+              "path": "sprites/macros_section/section_1_fats/fat_icon.aseprite",
+              "format": "aseprite"
+            },
+            "bullet": {
+              "path": "sprites/macros_section/section_1_fats/fat_submacro_bullet_point.png",
+              "format": "png"
+            },
+            "bulletSource": {
+              "path": "sprites/macros_section/section_1_fats/fat_submacro_bullet_point.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": {
+              "slotId": "macro_headline",
+              "label": "Fats",
+              "value": null,
+              "emphasis": "standard"
+            },
+            "macroSlots": [],
+            "micronutrientRows": [],
+            "commentaryNote": null
+          }
         },
         "revealPlan": [
           "macro_headline",
           "submetric_1",
           "submetric_2",
-          "submetric_3"
+          "submetric_3",
+          "commentary_note"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "macro_headline",
+            "beat": "lead",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_1",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_2",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_3",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "commentary_note",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          }
         ],
         "subtitleCues": [
           {
@@ -217,11 +778,13 @@
       {
         "id": "carbs",
         "kind": "section",
+        "narrativeRole": "macro-foundation",
         "startSeconds": 4.2,
         "durationSeconds": 4.24,
         "endSeconds": 8.44,
         "narrationText": "0 grams of carbs. And that is basically the whole nutrition story.",
         "subtitleText": "0g of carbs. And that is basically the whole nutrition story.",
+        "subtitlePlacement": "lower-third",
         "visualBinding": {
           "sectionKey": "carbs",
           "title": "Carbs",
@@ -230,16 +793,77 @@
             "macro_headline",
             "submetric_1",
             "submetric_2",
-            "submetric_3"
+            "submetric_3",
+            "commentary_note"
           ],
           "displayItems": [],
-          "timingHint": "short-medium"
+          "timingHint": "short-medium",
+          "narrativeRole": "macro-foundation",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "lower-third",
+          "preferredSpriteBindings": {
+            "icon": {
+              "path": "sprites/macros_section/section_2_carbs/carb_icon.gif",
+              "format": "gif"
+            },
+            "iconSource": {
+              "path": "sprites/macros_section/section_2_carbs/carb_icon.aseprite",
+              "format": "aseprite"
+            },
+            "bullet": {
+              "path": "sprites/macros_section/section_2_carbs/carb_submacro_bullet_point.png",
+              "format": "png"
+            },
+            "bulletSource": {
+              "path": "sprites/macros_section/section_2_carbs/carb_submacro_bullet_point.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": {
+              "slotId": "macro_headline",
+              "label": "Carbs",
+              "value": null,
+              "emphasis": "standard"
+            },
+            "macroSlots": [],
+            "micronutrientRows": [],
+            "commentaryNote": null
+          }
         },
         "revealPlan": [
           "macro_headline",
           "submetric_1",
           "submetric_2",
-          "submetric_3"
+          "submetric_3",
+          "commentary_note"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "macro_headline",
+            "beat": "lead",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_1",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_2",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_3",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "commentary_note",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          }
         ],
         "subtitleCues": [
           {
@@ -288,11 +912,13 @@
       {
         "id": "proteins",
         "kind": "section",
+        "narrativeRole": "macro-foundation",
         "startSeconds": 8.44,
-        "durationSeconds": 2.1,
-        "endSeconds": 10.54,
-        "narrationText": "No real protein story here.",
-        "subtitleText": "No real protein story here.",
+        "durationSeconds": 5.65,
+        "endSeconds": 14.09,
+        "narrationText": "0.2 grams of protein. No defensible protein submacros to call out. No real protein story here.",
+        "subtitleText": "0.2g of protein. No defensible protein submacros to call out. No real protein story here.",
+        "subtitlePlacement": "lower-third",
         "visualBinding": {
           "sectionKey": "proteins",
           "title": "Proteins",
@@ -301,23 +927,125 @@
             "macro_headline",
             "submetric_1",
             "submetric_2",
-            "submetric_3"
+            "submetric_3",
+            "commentary_note"
           ],
           "displayItems": [],
-          "timingHint": "short-medium"
+          "timingHint": "short-medium",
+          "narrativeRole": "macro-foundation",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "lower-third",
+          "preferredSpriteBindings": {
+            "icon": {
+              "path": "sprites/macros_section/section_3_protein/protein_icon.gif",
+              "format": "gif"
+            },
+            "iconSource": {
+              "path": "sprites/macros_section/section_3_protein/protein_icon.aseprite",
+              "format": "aseprite"
+            },
+            "bullet": {
+              "path": "sprites/macros_section/section_3_protein/protein_submacro_bullet_point.png",
+              "format": "png"
+            },
+            "bulletSource": {
+              "path": "sprites/macros_section/section_3_protein/protein_submacro_bullet_point.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": {
+              "slotId": "macro_headline",
+              "label": "Proteins",
+              "value": null,
+              "emphasis": "standard"
+            },
+            "macroSlots": [],
+            "micronutrientRows": [],
+            "commentaryNote": null
+          }
         },
         "revealPlan": [
           "macro_headline",
           "submetric_1",
           "submetric_2",
-          "submetric_3"
+          "submetric_3",
+          "commentary_note"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "macro_headline",
+            "beat": "lead",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_1",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_2",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_3",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "commentary_note",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          }
         ],
         "subtitleCues": [
           {
-            "id": "06-proteins",
+            "id": "06-proteins-1",
             "sceneId": "proteins",
             "startSeconds": 8.44,
-            "endSeconds": 10.54,
+            "endSeconds": 9.73,
+            "placement": "lower-third",
+            "maxLines": 2,
+            "maxCharactersPerLine": 18,
+            "lines": [
+              "0.2g of",
+              "protein."
+            ],
+            "text": "0.2g of\nprotein."
+          },
+          {
+            "id": "07-proteins-2",
+            "sceneId": "proteins",
+            "startSeconds": 9.73,
+            "endSeconds": 11.09,
+            "placement": "lower-third",
+            "maxLines": 2,
+            "maxCharactersPerLine": 18,
+            "lines": [
+              "No defensible",
+              "protein submacros"
+            ],
+            "text": "No defensible\nprotein submacros"
+          },
+          {
+            "id": "08-proteins-3",
+            "sceneId": "proteins",
+            "startSeconds": 11.09,
+            "endSeconds": 12.26,
+            "placement": "lower-third",
+            "maxLines": 2,
+            "maxCharactersPerLine": 18,
+            "lines": [
+              "to call out."
+            ],
+            "text": "to call out."
+          },
+          {
+            "id": "09-proteins-4",
+            "sceneId": "proteins",
+            "startSeconds": 12.26,
+            "endSeconds": 14.09,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -332,32 +1060,127 @@
       {
         "id": "vitamins",
         "kind": "section",
-        "startSeconds": 10.54,
+        "narrativeRole": "micronutrient-proof",
+        "startSeconds": 14.09,
         "durationSeconds": 2.1,
-        "endSeconds": 12.64,
+        "endSeconds": 16.19,
         "narrationText": "No real vitamin story here.",
         "subtitleText": "No real vitamin story here.",
+        "subtitlePlacement": "lower-third",
         "visualBinding": {
           "sectionKey": "vitamins",
           "title": "Vitamins",
-          "score": null,
+          "score": 0,
           "templateSlots": [
             "micronutrient_1",
-            "micronutrient_2"
+            "micronutrient_2",
+            "commentary_note"
           ],
-          "displayItems": [],
-          "timingHint": "short-medium"
+          "displayItems": [
+            {
+              "metricKey": "vitamin_c_dv",
+              "text": "vitamin C at 0% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 0,
+              "value": null
+            },
+            {
+              "metricKey": "vitamin_e_dv",
+              "text": "vitamin E at 0% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 0,
+              "value": null
+            },
+            {
+              "metricKey": "vitamin_k_dv",
+              "text": "vitamin K at 0% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 0,
+              "value": null
+            }
+          ],
+          "timingHint": "short-medium",
+          "narrativeRole": "micronutrient-proof",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "lower-third",
+          "preferredSpriteBindings": {
+            "icon": {
+              "path": "sprites/micros_section/vitamins/vitamin_icon.gif",
+              "format": "gif"
+            },
+            "iconSource": {
+              "path": "sprites/micros_section/vitamins/vitamin_icon.aseprite",
+              "format": "aseprite"
+            },
+            "microIcon": {
+              "path": "sprites/micros_section/vitamins/vitamin_micro_icon.png",
+              "format": "png"
+            },
+            "microIconSource": {
+              "path": "sprites/micros_section/vitamins/vitamin_micro_icon.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": null,
+            "macroSlots": [],
+            "micronutrientRows": [
+              {
+                "slotId": "micronutrient_1",
+                "metricKey": "vitamin_c_dv",
+                "label": "vitamin c",
+                "displayValue": "0% DV",
+                "dvPercent": 0,
+                "spriteRole": "micronutrient-row",
+                "text": "vitamin C at 0% DV"
+              },
+              {
+                "slotId": "micronutrient_2",
+                "metricKey": "vitamin_e_dv",
+                "label": "vitamin e",
+                "displayValue": "0% DV",
+                "dvPercent": 0,
+                "spriteRole": "micronutrient-row",
+                "text": "vitamin E at 0% DV"
+              }
+            ],
+            "commentaryNote": null
+          }
         },
         "revealPlan": [
           "micronutrient_1",
-          "micronutrient_2"
+          "micronutrient_2",
+          "commentary_note"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "micronutrient_1",
+            "beat": "lead",
+            "purpose": "micronutrient-proof"
+          },
+          {
+            "slotId": "micronutrient_2",
+            "beat": "follow",
+            "purpose": "micronutrient-proof"
+          },
+          {
+            "slotId": "commentary_note",
+            "beat": "follow",
+            "purpose": "micronutrient-proof"
+          }
         ],
         "subtitleCues": [
           {
-            "id": "07-vitamins",
+            "id": "10-vitamins",
             "sceneId": "vitamins",
-            "startSeconds": 10.54,
-            "endSeconds": 12.64,
+            "startSeconds": 14.09,
+            "endSeconds": 16.19,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -372,32 +1195,136 @@
       {
         "id": "minerals",
         "kind": "section",
-        "startSeconds": 12.64,
+        "narrativeRole": "micronutrient-proof",
+        "startSeconds": 16.19,
         "durationSeconds": 2.1,
-        "endSeconds": 14.74,
+        "endSeconds": 18.29,
         "narrationText": "No real mineral story here.",
         "subtitleText": "No real mineral story here.",
+        "subtitlePlacement": "lower-third",
         "visualBinding": {
           "sectionKey": "minerals",
           "title": "Minerals",
-          "score": null,
+          "score": 0,
           "templateSlots": [
             "micronutrient_1",
-            "micronutrient_2"
+            "micronutrient_2",
+            "commentary_note"
           ],
-          "displayItems": [],
-          "timingHint": "short-medium"
+          "displayItems": [
+            {
+              "metricKey": "potassium_dv",
+              "text": "potassium at 1% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 1,
+              "value": null
+            },
+            {
+              "metricKey": "magnesium_dv",
+              "text": "magnesium at 0% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 0,
+              "value": null
+            },
+            {
+              "metricKey": "iron_dv",
+              "text": "iron at 0% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 0,
+              "value": null
+            },
+            {
+              "metricKey": "zinc_dv",
+              "text": "zinc at 0% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 0,
+              "value": null
+            }
+          ],
+          "timingHint": "short-medium",
+          "narrativeRole": "micronutrient-proof",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "lower-third",
+          "preferredSpriteBindings": {
+            "icon": {
+              "path": "sprites/micros_section/minerals/mineral_icon.gif",
+              "format": "gif"
+            },
+            "iconSource": {
+              "path": "sprites/micros_section/minerals/mineral_icon.aseprite",
+              "format": "aseprite"
+            },
+            "microIcon": {
+              "path": "sprites/micros_section/minerals/mineral_micro_icon.png",
+              "format": "png"
+            },
+            "microIconSource": {
+              "path": "sprites/micros_section/minerals/mineral_micro_icon.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": null,
+            "macroSlots": [],
+            "micronutrientRows": [
+              {
+                "slotId": "micronutrient_1",
+                "metricKey": "potassium_dv",
+                "label": "potassium",
+                "displayValue": "1% DV",
+                "dvPercent": 1,
+                "spriteRole": "micronutrient-row",
+                "text": "potassium at 1% DV"
+              },
+              {
+                "slotId": "micronutrient_2",
+                "metricKey": "magnesium_dv",
+                "label": "magnesium",
+                "displayValue": "0% DV",
+                "dvPercent": 0,
+                "spriteRole": "micronutrient-row",
+                "text": "magnesium at 0% DV"
+              }
+            ],
+            "commentaryNote": "Overflow metrics stay off-screen unless the edit intentionally promotes them."
+          }
         },
         "revealPlan": [
           "micronutrient_1",
-          "micronutrient_2"
+          "micronutrient_2",
+          "commentary_note"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "micronutrient_1",
+            "beat": "lead",
+            "purpose": "micronutrient-proof"
+          },
+          {
+            "slotId": "micronutrient_2",
+            "beat": "follow",
+            "purpose": "micronutrient-proof"
+          },
+          {
+            "slotId": "commentary_note",
+            "beat": "follow",
+            "purpose": "micronutrient-proof"
+          }
         ],
         "subtitleCues": [
           {
-            "id": "08-minerals",
+            "id": "11-minerals",
             "sceneId": "minerals",
-            "startSeconds": 12.64,
-            "endSeconds": 14.74,
+            "startSeconds": 16.19,
+            "endSeconds": 18.29,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -412,11 +1339,13 @@
       {
         "id": "pros",
         "kind": "section",
-        "startSeconds": 14.74,
-        "durationSeconds": 20.47,
-        "endSeconds": 35.21,
-        "narrationText": "On the plus side: catechin content adds real upside. That gives it a useful compound story beyond the near-empty nutrition label. Strong polyphenol reputation. The core appeal of green tea lives in its compounds and effects rather than classic nutrition composition. Nearly zero-calorie daily use. A huge practical advantage in a category judged more by effect than macros.",
-        "subtitleText": "On the plus side: catechin content adds real upside. That gives it a useful compound story beyond the near-empty nutrition label. Strong polyphenol reputation. The core appeal of green tea lives in its compounds and effects rather than classic nutrition composition. Nearly zero-calorie daily use. A huge practical advantage in a category judged more by effect than macros.",
+        "narrativeRole": "real-world-upside",
+        "startSeconds": 18.29,
+        "durationSeconds": 20.12,
+        "endSeconds": 38.41,
+        "narrationText": "The upsides first: catechin content adds real upside. That gives it a useful compound story beyond the near-empty nutrition label. Strong polyphenol reputation. The core appeal of green tea lives in its compounds and effects rather than classic nutrition composition. Nearly zero-calorie daily use. A huge practical advantage in a category judged more by effect than macros.",
+        "subtitleText": "The upsides first: catechin content adds real upside. That gives it a useful compound story beyond the near-empty nutrition label. Strong polyphenol reputation. The core appeal of green tea lives in its compounds and effects rather than classic nutrition composition. Nearly zero-calorie daily use. A huge practical advantage in a category judged more by effect than macros.",
+        "subtitlePlacement": "high-lower-third",
         "visualBinding": {
           "sectionKey": "pros",
           "title": "Pros",
@@ -432,51 +1361,87 @@
               "title": "catechin content adds real upside",
               "explanation": "That gives it a useful compound story beyond the near-empty nutrition label.",
               "impactLevel": "major",
-              "scoreValue": 8
+              "resolvedScoreValue": 100
             },
             {
               "type": "pro",
               "title": "strong polyphenol reputation",
               "explanation": "The core appeal of green tea lives in its compounds and effects rather than classic nutrition composition.",
               "impactLevel": "major",
-              "scoreValue": 8
+              "resolvedScoreValue": 100
             },
             {
               "type": "pro",
               "title": "nearly zero-calorie daily use",
               "explanation": "A huge practical advantage in a category judged more by effect than macros.",
               "impactLevel": "major",
-              "scoreValue": 8
+              "resolvedScoreValue": 100
             }
           ],
-          "timingHint": "medium"
+          "timingHint": "medium",
+          "narrativeRole": "real-world-upside",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "high-lower-third",
+          "preferredSpriteBindings": {
+            "bullet": {
+              "path": "sprites/pros_and_cons/pros/pro_bullet_point.png",
+              "format": "png"
+            },
+            "bulletSource": {
+              "path": "sprites/pros_and_cons/pros/pro_bullet_point.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": null,
+            "macroSlots": [],
+            "micronutrientRows": [],
+            "commentaryNote": null
+          }
         },
         "revealPlan": [
           "bullet_1",
           "bullet_2",
           "bullet_3"
         ],
+        "beatPlan": [
+          {
+            "slotId": "bullet_1",
+            "beat": "lead",
+            "purpose": "real-world-upside"
+          },
+          {
+            "slotId": "bullet_2",
+            "beat": "follow",
+            "purpose": "real-world-upside"
+          },
+          {
+            "slotId": "bullet_3",
+            "beat": "follow",
+            "purpose": "real-world-upside"
+          }
+        ],
         "subtitleCues": [
           {
-            "id": "09-pros-1",
+            "id": "12-pros-1",
             "sceneId": "pros",
-            "startSeconds": 14.74,
-            "endSeconds": 16.75,
-            "placement": "lower-third",
+            "startSeconds": 18.29,
+            "endSeconds": 19.97,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "On the plus side:",
+              "The upsides first:",
               "catechin content"
             ],
-            "text": "On the plus side:\ncatechin content"
+            "text": "The upsides first:\ncatechin content"
           },
           {
-            "id": "10-pros-2",
+            "id": "13-pros-2",
             "sceneId": "pros",
-            "startSeconds": 16.75,
-            "endSeconds": 17.91,
-            "placement": "lower-third",
+            "startSeconds": 19.97,
+            "endSeconds": 21.13,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -485,11 +1450,11 @@
             "text": "adds real upside."
           },
           {
-            "id": "11-pros-3",
+            "id": "14-pros-3",
             "sceneId": "pros",
-            "startSeconds": 17.91,
-            "endSeconds": 19.92,
-            "placement": "lower-third",
+            "startSeconds": 21.13,
+            "endSeconds": 23.14,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -499,11 +1464,11 @@
             "text": "That gives it a\nuseful compound"
           },
           {
-            "id": "12-pros-4",
+            "id": "15-pros-4",
             "sceneId": "pros",
-            "startSeconds": 19.92,
-            "endSeconds": 21.27,
-            "placement": "lower-third",
+            "startSeconds": 23.14,
+            "endSeconds": 24.49,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -513,11 +1478,11 @@
             "text": "story beyond the\nnear-empty"
           },
           {
-            "id": "13-pros-5",
+            "id": "16-pros-5",
             "sceneId": "pros",
-            "startSeconds": 21.27,
-            "endSeconds": 22.11,
-            "placement": "lower-third",
+            "startSeconds": 24.49,
+            "endSeconds": 25.32,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -526,11 +1491,11 @@
             "text": "nutrition label."
           },
           {
-            "id": "14-pros-6",
+            "id": "17-pros-6",
             "sceneId": "pros",
-            "startSeconds": 22.11,
-            "endSeconds": 23.28,
-            "placement": "lower-third",
+            "startSeconds": 25.32,
+            "endSeconds": 26.49,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -540,11 +1505,11 @@
             "text": "Strong polyphenol\nreputation."
           },
           {
-            "id": "15-pros-7",
+            "id": "18-pros-7",
             "sceneId": "pros",
-            "startSeconds": 23.28,
-            "endSeconds": 25.94,
-            "placement": "lower-third",
+            "startSeconds": 26.49,
+            "endSeconds": 29.15,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -554,11 +1519,11 @@
             "text": "The core appeal of\ngreen tea lives in"
           },
           {
-            "id": "16-pros-8",
+            "id": "19-pros-8",
             "sceneId": "pros",
-            "startSeconds": 25.94,
-            "endSeconds": 27.62,
-            "placement": "lower-third",
+            "startSeconds": 29.15,
+            "endSeconds": 30.83,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -568,11 +1533,11 @@
             "text": "its compounds and\neffects rather"
           },
           {
-            "id": "17-pros-9",
+            "id": "20-pros-9",
             "sceneId": "pros",
-            "startSeconds": 27.62,
-            "endSeconds": 28.64,
-            "placement": "lower-third",
+            "startSeconds": 30.83,
+            "endSeconds": 31.85,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -582,11 +1547,11 @@
             "text": "than classic\nnutrition"
           },
           {
-            "id": "18-pros-10",
+            "id": "21-pros-10",
             "sceneId": "pros",
-            "startSeconds": 28.64,
-            "endSeconds": 29.15,
-            "placement": "lower-third",
+            "startSeconds": 31.85,
+            "endSeconds": 32.36,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -595,11 +1560,11 @@
             "text": "composition."
           },
           {
-            "id": "19-pros-11",
+            "id": "22-pros-11",
             "sceneId": "pros",
-            "startSeconds": 29.15,
-            "endSeconds": 30.18,
-            "placement": "lower-third",
+            "startSeconds": 32.36,
+            "endSeconds": 33.38,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -609,11 +1574,11 @@
             "text": "Nearly\nzero-calorie daily"
           },
           {
-            "id": "20-pros-12",
+            "id": "23-pros-12",
             "sceneId": "pros",
-            "startSeconds": 30.18,
-            "endSeconds": 30.68,
-            "placement": "lower-third",
+            "startSeconds": 33.38,
+            "endSeconds": 33.89,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -622,11 +1587,11 @@
             "text": "use."
           },
           {
-            "id": "21-pros-13",
+            "id": "24-pros-13",
             "sceneId": "pros",
-            "startSeconds": 30.68,
-            "endSeconds": 32.69,
-            "placement": "lower-third",
+            "startSeconds": 33.89,
+            "endSeconds": 35.9,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -636,11 +1601,11 @@
             "text": "A huge practical\nadvantage in a"
           },
           {
-            "id": "22-pros-14",
+            "id": "25-pros-14",
             "sceneId": "pros",
-            "startSeconds": 32.69,
-            "endSeconds": 34.37,
-            "placement": "lower-third",
+            "startSeconds": 35.9,
+            "endSeconds": 37.57,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -650,11 +1615,11 @@
             "text": "category judged\nmore by effect"
           },
           {
-            "id": "23-pros-15",
+            "id": "26-pros-15",
             "sceneId": "pros",
-            "startSeconds": 34.37,
-            "endSeconds": 35.21,
-            "placement": "lower-third",
+            "startSeconds": 37.57,
+            "endSeconds": 38.41,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -667,15 +1632,17 @@
       {
         "id": "cons",
         "kind": "section",
-        "startSeconds": 35.21,
-        "durationSeconds": 16.24,
-        "endSeconds": 51.45,
-        "narrationText": "On the weaker side: taste can be a barrier. Not everyone enjoys it enough to use consistently. Quality varies by source. The practical value depends somewhat on the product. Can be a bit fussier than grab-and-go drinks. A tiny practical downside, but not a serious one.",
-        "subtitleText": "On the weaker side: taste can be a barrier. Not everyone enjoys it enough to use consistently. Quality varies by source. The practical value depends somewhat on the product. Can be a bit fussier than grab-and-go drinks. A tiny practical downside, but not a serious one.",
+        "narrativeRole": "real-world-downside",
+        "startSeconds": 38.41,
+        "durationSeconds": 15.53,
+        "endSeconds": 53.94,
+        "narrationText": "Downsides next: taste can be a barrier. Not everyone enjoys it enough to use consistently. Quality varies by source. The practical value depends somewhat on the product. Can be a bit fussier than grab-and-go drinks. A tiny practical downside, but not a serious one.",
+        "subtitleText": "Downsides next: taste can be a barrier. Not everyone enjoys it enough to use consistently. Quality varies by source. The practical value depends somewhat on the product. Can be a bit fussier than grab-and-go drinks. A tiny practical downside, but not a serious one.",
+        "subtitlePlacement": "high-lower-third",
         "visualBinding": {
           "sectionKey": "cons",
           "title": "Cons",
-          "score": 0,
+          "score": 50,
           "templateSlots": [
             "bullet_1",
             "bullet_2",
@@ -687,64 +1654,100 @@
               "title": "taste can be a barrier",
               "explanation": "Not everyone enjoys it enough to use consistently.",
               "impactLevel": "minor",
-              "scoreValue": 0
+              "resolvedScoreValue": 50
             },
             {
               "type": "con",
               "title": "quality varies by source",
               "explanation": "The practical value depends somewhat on the product.",
               "impactLevel": "minor",
-              "scoreValue": 0
+              "resolvedScoreValue": 50
             },
             {
               "type": "con",
               "title": "can be a bit fussier than grab-and-go drinks",
               "explanation": "A tiny practical downside, but not a serious one.",
               "impactLevel": "minor",
-              "scoreValue": 0
+              "resolvedScoreValue": 50
             }
           ],
-          "timingHint": "medium"
+          "timingHint": "medium",
+          "narrativeRole": "real-world-downside",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "high-lower-third",
+          "preferredSpriteBindings": {
+            "bullet": {
+              "path": "sprites/pros_and_cons/cons/con_bullet_point.png",
+              "format": "png"
+            },
+            "bulletSource": {
+              "path": "sprites/pros_and_cons/cons/con_bullet_point.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": null,
+            "macroSlots": [],
+            "micronutrientRows": [],
+            "commentaryNote": null
+          }
         },
         "revealPlan": [
           "bullet_1",
           "bullet_2",
           "bullet_3"
         ],
+        "beatPlan": [
+          {
+            "slotId": "bullet_1",
+            "beat": "lead",
+            "purpose": "real-world-downside"
+          },
+          {
+            "slotId": "bullet_2",
+            "beat": "follow",
+            "purpose": "real-world-downside"
+          },
+          {
+            "slotId": "bullet_3",
+            "beat": "follow",
+            "purpose": "real-world-downside"
+          }
+        ],
         "subtitleCues": [
           {
-            "id": "24-cons-1",
+            "id": "27-cons-1",
             "sceneId": "cons",
-            "startSeconds": 35.21,
-            "endSeconds": 37.53,
-            "placement": "lower-third",
+            "startSeconds": 38.41,
+            "endSeconds": 40.39,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "On the weaker",
-              "side: taste can be"
+              "Downsides next:",
+              "taste can be a"
             ],
-            "text": "On the weaker\nside: taste can be"
+            "text": "Downsides next:\ntaste can be a"
           },
           {
-            "id": "25-cons-2",
+            "id": "28-cons-2",
             "sceneId": "cons",
-            "startSeconds": 37.53,
-            "endSeconds": 38.36,
-            "placement": "lower-third",
+            "startSeconds": 40.39,
+            "endSeconds": 40.9,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "a barrier."
+              "barrier."
             ],
-            "text": "a barrier."
+            "text": "barrier."
           },
           {
-            "id": "26-cons-3",
+            "id": "29-cons-3",
             "sceneId": "cons",
-            "startSeconds": 38.36,
-            "endSeconds": 40.02,
-            "placement": "lower-third",
+            "startSeconds": 40.9,
+            "endSeconds": 42.56,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -754,11 +1757,11 @@
             "text": "Not everyone\nenjoys it enough"
           },
           {
-            "id": "27-cons-4",
+            "id": "30-cons-4",
             "sceneId": "cons",
-            "startSeconds": 40.02,
-            "endSeconds": 41.18,
-            "placement": "lower-third",
+            "startSeconds": 42.56,
+            "endSeconds": 43.71,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -768,11 +1771,11 @@
             "text": "to use\nconsistently."
           },
           {
-            "id": "28-cons-5",
+            "id": "31-cons-5",
             "sceneId": "cons",
-            "startSeconds": 41.18,
-            "endSeconds": 42.66,
-            "placement": "lower-third",
+            "startSeconds": 43.71,
+            "endSeconds": 45.18,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -782,11 +1785,11 @@
             "text": "Quality varies by\nsource."
           },
           {
-            "id": "29-cons-6",
+            "id": "32-cons-6",
             "sceneId": "cons",
-            "startSeconds": 42.66,
-            "endSeconds": 44,
-            "placement": "lower-third",
+            "startSeconds": 45.18,
+            "endSeconds": 46.52,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -796,11 +1799,11 @@
             "text": "The practical\nvalue depends"
           },
           {
-            "id": "30-cons-7",
+            "id": "33-cons-7",
             "sceneId": "cons",
-            "startSeconds": 44,
-            "endSeconds": 45.48,
-            "placement": "lower-third",
+            "startSeconds": 46.52,
+            "endSeconds": 47.99,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -810,11 +1813,11 @@
             "text": "somewhat on the\nproduct."
           },
           {
-            "id": "31-cons-8",
+            "id": "34-cons-8",
             "sceneId": "cons",
-            "startSeconds": 45.48,
-            "endSeconds": 47.47,
-            "placement": "lower-third",
+            "startSeconds": 47.99,
+            "endSeconds": 49.98,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -824,11 +1827,11 @@
             "text": "Can be a bit\nfussier than"
           },
           {
-            "id": "32-cons-9",
+            "id": "35-cons-9",
             "sceneId": "cons",
-            "startSeconds": 47.47,
-            "endSeconds": 48.3,
-            "placement": "lower-third",
+            "startSeconds": 49.98,
+            "endSeconds": 50.8,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -838,11 +1841,11 @@
             "text": "grab-and-go\ndrinks."
           },
           {
-            "id": "33-cons-10",
+            "id": "36-cons-10",
             "sceneId": "cons",
-            "startSeconds": 48.3,
-            "endSeconds": 50.29,
-            "placement": "lower-third",
+            "startSeconds": 50.8,
+            "endSeconds": 52.79,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -852,11 +1855,11 @@
             "text": "A tiny practical\ndownside, but not"
           },
           {
-            "id": "34-cons-11",
+            "id": "37-cons-11",
             "sceneId": "cons",
-            "startSeconds": 50.29,
-            "endSeconds": 51.45,
-            "placement": "lower-third",
+            "startSeconds": 52.79,
+            "endSeconds": 53.94,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -869,127 +1872,147 @@
       {
         "id": "final",
         "kind": "closing",
-        "startSeconds": 51.45,
-        "durationSeconds": 10.88,
-        "endSeconds": 62.33,
-        "narrationText": "Green Tea has a genuinely strong overall case. the practical downsides are real, but they do not outweigh the upside. best treated as a context item rather than a nutritional cornerstone. S tier.",
-        "subtitleText": "Green Tea has a genuinely strong overall case. the practical downsides are real, but they do not outweigh the upside. best treated as a context item rather than a nutritional cornerstone. S tier.",
+        "narrativeRole": "verdict-payoff",
+        "startSeconds": 53.94,
+        "durationSeconds": 9.56,
+        "endSeconds": 63.5,
+        "narrationText": "Big strengths are catechin content adds real upside and strong polyphenol reputation, but the biggest weaknesses are taste can be a barrier and quality varies by source. S tier.",
+        "subtitleText": "Big strengths are catechin content adds real upside and strong polyphenol reputation, but the biggest weaknesses are taste can be a barrier and quality varies by source. S tier.",
+        "subtitleSequence": [
+          {
+            "role": "conclusion-summary",
+            "text": "Big strengths are catechin content adds real upside and strong polyphenol reputation, but the biggest weaknesses are taste can be a barrier and quality varies by source.",
+            "placement": "summary-full",
+            "maxCharactersPerLine": 24
+          },
+          {
+            "role": "tier-reveal",
+            "text": "S tier.",
+            "placement": "tier-center",
+            "maxCharactersPerLine": 24
+          }
+        ],
+        "subtitlePlacement": "subtitle-floor",
         "visualBinding": {
           "tier": "S",
-          "tierColor": "platinum-gold"
+          "tierColor": "platinum-gold",
+          "scorePlate": {
+            "path": "sprites/header/header_ui/score_plate.png",
+            "format": "png"
+          },
+          "scorePlateSource": {
+            "path": "sprites/header/header_ui/score_plate.aseprite",
+            "format": "aseprite"
+          },
+          "categorySeparator": {
+            "path": "sprites/ui/section_separator/misc_section_separator.png",
+            "format": "png"
+          },
+          "categorySeparatorSource": {
+            "path": "sprites/ui/section_separator/misc_section_separator.aseprite",
+            "format": "aseprite"
+          }
         },
         "revealPlan": [
-          "tier_stamp"
+          "summary_text",
+          "tier_stamp",
+          "final_line"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "summary_text",
+            "beat": "lead",
+            "purpose": "verdict-setup"
+          },
+          {
+            "slotId": "tier_stamp",
+            "beat": "impact",
+            "purpose": "verdict-hit"
+          },
+          {
+            "slotId": "final_line",
+            "beat": "resolve",
+            "purpose": "use-case-tag"
+          }
         ],
         "subtitleCues": [
           {
-            "id": "35-final-1",
+            "id": "38-final-1",
             "sceneId": "final",
-            "startSeconds": 51.45,
-            "endSeconds": 54.07,
+            "startSeconds": 53.94,
+            "endSeconds": 55.86,
             "placement": "summary-full",
             "maxLines": 2,
-            "maxCharactersPerLine": 28,
+            "maxCharactersPerLine": 24,
             "lines": [
-              "Green Tea has a genuinely",
-              "strong overall case."
+              "Big strengths are",
+              "catechin content adds"
             ],
-            "text": "Green Tea has a genuinely\nstrong overall case.",
+            "text": "Big strengths are\ncatechin content adds",
             "role": "conclusion-summary"
           },
           {
-            "id": "36-final-2",
+            "id": "39-final-2",
             "sceneId": "final",
-            "startSeconds": 54.07,
-            "endSeconds": 56.87,
+            "startSeconds": 55.86,
+            "endSeconds": 57.78,
             "placement": "summary-full",
             "maxLines": 2,
-            "maxCharactersPerLine": 28,
+            "maxCharactersPerLine": 24,
             "lines": [
-              "the practical downsides are",
-              "real, but they do not"
+              "real upside and strong",
+              "polyphenol reputation,"
             ],
-            "text": "the practical downsides are\nreal, but they do not",
+            "text": "real upside and strong\npolyphenol reputation,",
             "role": "conclusion-summary"
           },
           {
-            "id": "37-final-3",
+            "id": "40-final-3",
             "sceneId": "final",
-            "startSeconds": 56.87,
-            "endSeconds": 57.96,
+            "startSeconds": 57.78,
+            "endSeconds": 60.02,
             "placement": "summary-full",
             "maxLines": 2,
-            "maxCharactersPerLine": 28,
+            "maxCharactersPerLine": 24,
             "lines": [
-              "outweigh the upside."
+              "but the biggest",
+              "weaknesses are taste can"
             ],
-            "text": "outweigh the upside.",
+            "text": "but the biggest\nweaknesses are taste can",
             "role": "conclusion-summary"
           },
           {
-            "id": "38-final-4",
+            "id": "41-final-4",
             "sceneId": "final",
-            "startSeconds": 57.96,
-            "endSeconds": 60.76,
+            "startSeconds": 60.02,
+            "endSeconds": 62.7,
             "placement": "summary-full",
             "maxLines": 2,
-            "maxCharactersPerLine": 28,
+            "maxCharactersPerLine": 24,
             "lines": [
-              "best treated as a context",
-              "item rather than a"
+              "be a barrier and quality",
+              "varies by source."
             ],
-            "text": "best treated as a context\nitem rather than a",
+            "text": "be a barrier and quality\nvaries by source.",
             "role": "conclusion-summary"
           },
           {
-            "id": "39-final-5",
+            "id": "42-final-5",
             "sceneId": "final",
-            "startSeconds": 60.76,
-            "endSeconds": 61.55,
-            "placement": "summary-full",
-            "maxLines": 2,
-            "maxCharactersPerLine": 28,
-            "lines": [
-              "nutritional cornerstone."
-            ],
-            "text": "nutritional cornerstone.",
-            "role": "conclusion-summary"
-          },
-          {
-            "id": "40-final-6",
-            "sceneId": "final",
-            "startSeconds": 61.55,
-            "endSeconds": 62.33,
+            "startSeconds": 62.7,
+            "endSeconds": 63.5,
             "placement": "tier-center",
             "maxLines": 2,
-            "maxCharactersPerLine": 28,
+            "maxCharactersPerLine": 24,
             "lines": [
               "S tier."
             ],
             "text": "S tier.",
             "role": "tier-reveal"
           }
-        ],
-        "subtitleSequence": [
-          {
-            "role": "conclusion-summary",
-            "text": "Green Tea has a genuinely strong overall case. the practical downsides are real, but they do not outweigh the upside. best treated as a context item rather than a nutritional cornerstone.",
-            "placement": "summary-full",
-            "maxCharactersPerLine": 28
-          },
-          {
-            "role": "tier-reveal",
-            "text": "S tier.",
-            "placement": "tier-center",
-            "maxCharactersPerLine": 28
-          }
         ]
       }
     ],
-    "subtitleRules": {
-      "maxLines": 2,
-      "maxCharactersPerLine": 18
-    },
     "subtitleCues": [
       {
         "id": "01-hook",
@@ -1059,10 +2082,51 @@
         "text": "whole nutrition\nstory."
       },
       {
-        "id": "06-proteins",
+        "id": "06-proteins-1",
         "sceneId": "proteins",
         "startSeconds": 8.44,
-        "endSeconds": 10.54,
+        "endSeconds": 9.73,
+        "placement": "lower-third",
+        "maxLines": 2,
+        "maxCharactersPerLine": 18,
+        "lines": [
+          "0.2g of",
+          "protein."
+        ],
+        "text": "0.2g of\nprotein."
+      },
+      {
+        "id": "07-proteins-2",
+        "sceneId": "proteins",
+        "startSeconds": 9.73,
+        "endSeconds": 11.09,
+        "placement": "lower-third",
+        "maxLines": 2,
+        "maxCharactersPerLine": 18,
+        "lines": [
+          "No defensible",
+          "protein submacros"
+        ],
+        "text": "No defensible\nprotein submacros"
+      },
+      {
+        "id": "08-proteins-3",
+        "sceneId": "proteins",
+        "startSeconds": 11.09,
+        "endSeconds": 12.26,
+        "placement": "lower-third",
+        "maxLines": 2,
+        "maxCharactersPerLine": 18,
+        "lines": [
+          "to call out."
+        ],
+        "text": "to call out."
+      },
+      {
+        "id": "09-proteins-4",
+        "sceneId": "proteins",
+        "startSeconds": 12.26,
+        "endSeconds": 14.09,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -1073,10 +2137,10 @@
         "text": "No real protein\nstory here."
       },
       {
-        "id": "07-vitamins",
+        "id": "10-vitamins",
         "sceneId": "vitamins",
-        "startSeconds": 10.54,
-        "endSeconds": 12.64,
+        "startSeconds": 14.09,
+        "endSeconds": 16.19,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -1087,10 +2151,10 @@
         "text": "No real vitamin\nstory here."
       },
       {
-        "id": "08-minerals",
+        "id": "11-minerals",
         "sceneId": "minerals",
-        "startSeconds": 12.64,
-        "endSeconds": 14.74,
+        "startSeconds": 16.19,
+        "endSeconds": 18.29,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -1101,25 +2165,25 @@
         "text": "No real mineral\nstory here."
       },
       {
-        "id": "09-pros-1",
+        "id": "12-pros-1",
         "sceneId": "pros",
-        "startSeconds": 14.74,
-        "endSeconds": 16.75,
-        "placement": "lower-third",
+        "startSeconds": 18.29,
+        "endSeconds": 19.97,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "On the plus side:",
+          "The upsides first:",
           "catechin content"
         ],
-        "text": "On the plus side:\ncatechin content"
+        "text": "The upsides first:\ncatechin content"
       },
       {
-        "id": "10-pros-2",
+        "id": "13-pros-2",
         "sceneId": "pros",
-        "startSeconds": 16.75,
-        "endSeconds": 17.91,
-        "placement": "lower-third",
+        "startSeconds": 19.97,
+        "endSeconds": 21.13,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1128,11 +2192,11 @@
         "text": "adds real upside."
       },
       {
-        "id": "11-pros-3",
+        "id": "14-pros-3",
         "sceneId": "pros",
-        "startSeconds": 17.91,
-        "endSeconds": 19.92,
-        "placement": "lower-third",
+        "startSeconds": 21.13,
+        "endSeconds": 23.14,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1142,11 +2206,11 @@
         "text": "That gives it a\nuseful compound"
       },
       {
-        "id": "12-pros-4",
+        "id": "15-pros-4",
         "sceneId": "pros",
-        "startSeconds": 19.92,
-        "endSeconds": 21.27,
-        "placement": "lower-third",
+        "startSeconds": 23.14,
+        "endSeconds": 24.49,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1156,11 +2220,11 @@
         "text": "story beyond the\nnear-empty"
       },
       {
-        "id": "13-pros-5",
+        "id": "16-pros-5",
         "sceneId": "pros",
-        "startSeconds": 21.27,
-        "endSeconds": 22.11,
-        "placement": "lower-third",
+        "startSeconds": 24.49,
+        "endSeconds": 25.32,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1169,11 +2233,11 @@
         "text": "nutrition label."
       },
       {
-        "id": "14-pros-6",
+        "id": "17-pros-6",
         "sceneId": "pros",
-        "startSeconds": 22.11,
-        "endSeconds": 23.28,
-        "placement": "lower-third",
+        "startSeconds": 25.32,
+        "endSeconds": 26.49,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1183,11 +2247,11 @@
         "text": "Strong polyphenol\nreputation."
       },
       {
-        "id": "15-pros-7",
+        "id": "18-pros-7",
         "sceneId": "pros",
-        "startSeconds": 23.28,
-        "endSeconds": 25.94,
-        "placement": "lower-third",
+        "startSeconds": 26.49,
+        "endSeconds": 29.15,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1197,11 +2261,11 @@
         "text": "The core appeal of\ngreen tea lives in"
       },
       {
-        "id": "16-pros-8",
+        "id": "19-pros-8",
         "sceneId": "pros",
-        "startSeconds": 25.94,
-        "endSeconds": 27.62,
-        "placement": "lower-third",
+        "startSeconds": 29.15,
+        "endSeconds": 30.83,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1211,11 +2275,11 @@
         "text": "its compounds and\neffects rather"
       },
       {
-        "id": "17-pros-9",
+        "id": "20-pros-9",
         "sceneId": "pros",
-        "startSeconds": 27.62,
-        "endSeconds": 28.64,
-        "placement": "lower-third",
+        "startSeconds": 30.83,
+        "endSeconds": 31.85,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1225,11 +2289,11 @@
         "text": "than classic\nnutrition"
       },
       {
-        "id": "18-pros-10",
+        "id": "21-pros-10",
         "sceneId": "pros",
-        "startSeconds": 28.64,
-        "endSeconds": 29.15,
-        "placement": "lower-third",
+        "startSeconds": 31.85,
+        "endSeconds": 32.36,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1238,11 +2302,11 @@
         "text": "composition."
       },
       {
-        "id": "19-pros-11",
+        "id": "22-pros-11",
         "sceneId": "pros",
-        "startSeconds": 29.15,
-        "endSeconds": 30.18,
-        "placement": "lower-third",
+        "startSeconds": 32.36,
+        "endSeconds": 33.38,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1252,11 +2316,11 @@
         "text": "Nearly\nzero-calorie daily"
       },
       {
-        "id": "20-pros-12",
+        "id": "23-pros-12",
         "sceneId": "pros",
-        "startSeconds": 30.18,
-        "endSeconds": 30.68,
-        "placement": "lower-third",
+        "startSeconds": 33.38,
+        "endSeconds": 33.89,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1265,11 +2329,11 @@
         "text": "use."
       },
       {
-        "id": "21-pros-13",
+        "id": "24-pros-13",
         "sceneId": "pros",
-        "startSeconds": 30.68,
-        "endSeconds": 32.69,
-        "placement": "lower-third",
+        "startSeconds": 33.89,
+        "endSeconds": 35.9,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1279,11 +2343,11 @@
         "text": "A huge practical\nadvantage in a"
       },
       {
-        "id": "22-pros-14",
+        "id": "25-pros-14",
         "sceneId": "pros",
-        "startSeconds": 32.69,
-        "endSeconds": 34.37,
-        "placement": "lower-third",
+        "startSeconds": 35.9,
+        "endSeconds": 37.57,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1293,11 +2357,11 @@
         "text": "category judged\nmore by effect"
       },
       {
-        "id": "23-pros-15",
+        "id": "26-pros-15",
         "sceneId": "pros",
-        "startSeconds": 34.37,
-        "endSeconds": 35.21,
-        "placement": "lower-third",
+        "startSeconds": 37.57,
+        "endSeconds": 38.41,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1306,38 +2370,38 @@
         "text": "than macros."
       },
       {
-        "id": "24-cons-1",
+        "id": "27-cons-1",
         "sceneId": "cons",
-        "startSeconds": 35.21,
-        "endSeconds": 37.53,
-        "placement": "lower-third",
+        "startSeconds": 38.41,
+        "endSeconds": 40.39,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "On the weaker",
-          "side: taste can be"
+          "Downsides next:",
+          "taste can be a"
         ],
-        "text": "On the weaker\nside: taste can be"
+        "text": "Downsides next:\ntaste can be a"
       },
       {
-        "id": "25-cons-2",
+        "id": "28-cons-2",
         "sceneId": "cons",
-        "startSeconds": 37.53,
-        "endSeconds": 38.36,
-        "placement": "lower-third",
+        "startSeconds": 40.39,
+        "endSeconds": 40.9,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "a barrier."
+          "barrier."
         ],
-        "text": "a barrier."
+        "text": "barrier."
       },
       {
-        "id": "26-cons-3",
+        "id": "29-cons-3",
         "sceneId": "cons",
-        "startSeconds": 38.36,
-        "endSeconds": 40.02,
-        "placement": "lower-third",
+        "startSeconds": 40.9,
+        "endSeconds": 42.56,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1347,11 +2411,11 @@
         "text": "Not everyone\nenjoys it enough"
       },
       {
-        "id": "27-cons-4",
+        "id": "30-cons-4",
         "sceneId": "cons",
-        "startSeconds": 40.02,
-        "endSeconds": 41.18,
-        "placement": "lower-third",
+        "startSeconds": 42.56,
+        "endSeconds": 43.71,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1361,11 +2425,11 @@
         "text": "to use\nconsistently."
       },
       {
-        "id": "28-cons-5",
+        "id": "31-cons-5",
         "sceneId": "cons",
-        "startSeconds": 41.18,
-        "endSeconds": 42.66,
-        "placement": "lower-third",
+        "startSeconds": 43.71,
+        "endSeconds": 45.18,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1375,11 +2439,11 @@
         "text": "Quality varies by\nsource."
       },
       {
-        "id": "29-cons-6",
+        "id": "32-cons-6",
         "sceneId": "cons",
-        "startSeconds": 42.66,
-        "endSeconds": 44,
-        "placement": "lower-third",
+        "startSeconds": 45.18,
+        "endSeconds": 46.52,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1389,11 +2453,11 @@
         "text": "The practical\nvalue depends"
       },
       {
-        "id": "30-cons-7",
+        "id": "33-cons-7",
         "sceneId": "cons",
-        "startSeconds": 44,
-        "endSeconds": 45.48,
-        "placement": "lower-third",
+        "startSeconds": 46.52,
+        "endSeconds": 47.99,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1403,11 +2467,11 @@
         "text": "somewhat on the\nproduct."
       },
       {
-        "id": "31-cons-8",
+        "id": "34-cons-8",
         "sceneId": "cons",
-        "startSeconds": 45.48,
-        "endSeconds": 47.47,
-        "placement": "lower-third",
+        "startSeconds": 47.99,
+        "endSeconds": 49.98,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1417,11 +2481,11 @@
         "text": "Can be a bit\nfussier than"
       },
       {
-        "id": "32-cons-9",
+        "id": "35-cons-9",
         "sceneId": "cons",
-        "startSeconds": 47.47,
-        "endSeconds": 48.3,
-        "placement": "lower-third",
+        "startSeconds": 49.98,
+        "endSeconds": 50.8,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1431,11 +2495,11 @@
         "text": "grab-and-go\ndrinks."
       },
       {
-        "id": "33-cons-10",
+        "id": "36-cons-10",
         "sceneId": "cons",
-        "startSeconds": 48.3,
-        "endSeconds": 50.29,
-        "placement": "lower-third",
+        "startSeconds": 50.8,
+        "endSeconds": 52.79,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1445,11 +2509,11 @@
         "text": "A tiny practical\ndownside, but not"
       },
       {
-        "id": "34-cons-11",
+        "id": "37-cons-11",
         "sceneId": "cons",
-        "startSeconds": 50.29,
-        "endSeconds": 51.45,
-        "placement": "lower-third",
+        "startSeconds": 52.79,
+        "endSeconds": 53.94,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1458,86 +2522,73 @@
         "text": "a serious one."
       },
       {
-        "id": "35-final-1",
+        "id": "38-final-1",
         "sceneId": "final",
-        "startSeconds": 51.45,
-        "endSeconds": 54.07,
+        "startSeconds": 53.94,
+        "endSeconds": 55.86,
         "placement": "summary-full",
         "maxLines": 2,
-        "maxCharactersPerLine": 28,
+        "maxCharactersPerLine": 24,
         "lines": [
-          "Green Tea has a genuinely",
-          "strong overall case."
+          "Big strengths are",
+          "catechin content adds"
         ],
-        "text": "Green Tea has a genuinely\nstrong overall case.",
+        "text": "Big strengths are\ncatechin content adds",
         "role": "conclusion-summary"
       },
       {
-        "id": "36-final-2",
+        "id": "39-final-2",
         "sceneId": "final",
-        "startSeconds": 54.07,
-        "endSeconds": 56.87,
+        "startSeconds": 55.86,
+        "endSeconds": 57.78,
         "placement": "summary-full",
         "maxLines": 2,
-        "maxCharactersPerLine": 28,
+        "maxCharactersPerLine": 24,
         "lines": [
-          "the practical downsides are",
-          "real, but they do not"
+          "real upside and strong",
+          "polyphenol reputation,"
         ],
-        "text": "the practical downsides are\nreal, but they do not",
+        "text": "real upside and strong\npolyphenol reputation,",
         "role": "conclusion-summary"
       },
       {
-        "id": "37-final-3",
+        "id": "40-final-3",
         "sceneId": "final",
-        "startSeconds": 56.87,
-        "endSeconds": 57.96,
+        "startSeconds": 57.78,
+        "endSeconds": 60.02,
         "placement": "summary-full",
         "maxLines": 2,
-        "maxCharactersPerLine": 28,
+        "maxCharactersPerLine": 24,
         "lines": [
-          "outweigh the upside."
+          "but the biggest",
+          "weaknesses are taste can"
         ],
-        "text": "outweigh the upside.",
+        "text": "but the biggest\nweaknesses are taste can",
         "role": "conclusion-summary"
       },
       {
-        "id": "38-final-4",
+        "id": "41-final-4",
         "sceneId": "final",
-        "startSeconds": 57.96,
-        "endSeconds": 60.76,
+        "startSeconds": 60.02,
+        "endSeconds": 62.7,
         "placement": "summary-full",
         "maxLines": 2,
-        "maxCharactersPerLine": 28,
+        "maxCharactersPerLine": 24,
         "lines": [
-          "best treated as a context",
-          "item rather than a"
+          "be a barrier and quality",
+          "varies by source."
         ],
-        "text": "best treated as a context\nitem rather than a",
+        "text": "be a barrier and quality\nvaries by source.",
         "role": "conclusion-summary"
       },
       {
-        "id": "39-final-5",
+        "id": "42-final-5",
         "sceneId": "final",
-        "startSeconds": 60.76,
-        "endSeconds": 61.55,
-        "placement": "summary-full",
-        "maxLines": 2,
-        "maxCharactersPerLine": 28,
-        "lines": [
-          "nutritional cornerstone."
-        ],
-        "text": "nutritional cornerstone.",
-        "role": "conclusion-summary"
-      },
-      {
-        "id": "40-final-6",
-        "sceneId": "final",
-        "startSeconds": 61.55,
-        "endSeconds": 62.33,
+        "startSeconds": 62.7,
+        "endSeconds": 63.5,
         "placement": "tier-center",
         "maxLines": 2,
-        "maxCharactersPerLine": 28,
+        "maxCharactersPerLine": 24,
         "lines": [
           "S tier."
         ],

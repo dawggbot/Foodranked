@@ -7,7 +7,11 @@
   },
   "ruleset": {
     "id": "grains.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 389,
@@ -16,138 +20,148 @@
     "protein_g": 16.9
   },
   "sectionScores": {
-    "fats": 72.2,
-    "carbs": 72.2,
-    "proteins": 93.3,
-    "vitamins": null,
-    "minerals": 30,
-    "pros": 33.3,
-    "cons": 0
+    "fats": 60,
+    "carbs": 77.5,
+    "proteins": 100,
+    "vitamins": 25,
+    "minerals": 28,
+    "pros": 66.7,
+    "cons": 50
   },
-  "baseScore": 61,
-  "contextAdjustment": {
-    "rawAdjustment": 3,
-    "appliedAdjustment": 3,
-    "appliedItems": [
-      {
-        "itemKey": "beta_glucans",
-        "impactLevel": "major",
-        "scoreValue": 3,
-        "title": "contains useful beta-glucans",
-        "explanation": "Adds extra cardiovascular and satiety context beyond the base nutrient display.",
-        "evidenceType": "manual",
-        "side": "pro",
-        "resolvedScoreValue": 3
-      }
-    ],
-    "ignoredItems": []
-  },
-  "overallScore": 64,
-  "tier": "A",
-  "summary": "Proteins are carrying this food most, while minerals are the biggest drag. It lands in A tier.",
+  "overallScore": 81.8,
+  "overallScoreExact": 81.7567,
+  "baseOverallScore": 58.2,
+  "baseOverallScoreExact": 58.1667,
+  "tier": "S",
+  "summary": "Proteins are carrying this food most, while vitamins are holding it back most. It lands in S tier.",
   "explanation": {
-    "summary": "Proteins are carrying this food most, while minerals are the biggest drag. It lands in A tier.",
-    "whyThisTier": "This food lands in A tier with an overall score of 64 from a base nutrition score of 61. Context lifted it by 3 points.",
+    "summary": "Proteins are carrying this food most, while vitamins are holding it back most. It lands in S tier.",
+    "whyThisTier": "This food lands in S tier with an overall score of 81.8. Section scores: fats 60, carbs 77.5, proteins 100, vitamins 25, minerals 28, pros 66.7, cons 50.",
     "strongestSection": {
       "key": "proteins",
       "label": "Proteins",
-      "score": 93.3
+      "score": 100
     },
     "weakestSection": {
-      "key": "minerals",
-      "label": "Minerals",
-      "score": 30
+      "key": "vitamins",
+      "label": "Vitamins",
+      "score": 25
     },
     "topPros": [
       {
-        "title": "contains useful beta-glucans",
-        "explanation": "Adds extra cardiovascular and satiety context beyond the base nutrient display.",
+        "title": "contains meaningful beta-glucan soluble fibre",
+        "explanation": "Oats are unusual among common grains for their beta-glucan content, which makes the fibre story more specific than just the fibre grams already shown.",
         "impactLevel": "major",
         "side": "pro",
-        "resolvedScoreValue": 3
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "easy whole-grain staple to use regularly",
+        "explanation": "Plain rolled oats are cheap, familiar, and realistic for repeated use, which matters for an everyday grain.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "plain oats start unsweetened",
+        "explanation": "That gives them a cleaner baseline than sweetened instant oatmeal products, which are excluded from this entry.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
       {
-        "title": "contains some anti-nutrients",
-        "explanation": "Phytates may slightly reduce mineral uptake.",
+        "title": "phytates can modestly reduce mineral uptake",
+        "explanation": "That caveat is real for oats, even if it does not erase their mineral content.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
-        "title": "healthiness depends on what you add to it",
-        "explanation": "Sugary toppings can shift the outcome a lot.",
+        "title": "the bowl can get worse fast with sugary add-ons",
+        "explanation": "The plain ingredient is solid, but common preparation choices can change the real meal a lot.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
-        "title": "not ideal for everyone digestively",
-        "explanation": "Some people do not tolerate oats especially well.",
+        "title": "texture and tolerance are not universal wins",
+        "explanation": "Some people dislike the texture or do not tolerate oats especially well, which is a real usability downside for a staple food.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
       "Strongest section: Proteins.",
-      "Weakest section: Minerals.",
-      "Context improved the final tier case by 3 points.",
-      "Final verdict: A tier."
+      "Weakest section: Vitamins.",
+      "Final verdict: S tier."
     ]
   },
   "contextItems": {
     "pros": [
       {
-        "itemKey": "beta_glucans",
+        "itemKey": "beta_glucan_soluble_fibre",
         "impactLevel": "major",
-        "scoreValue": 3,
-        "title": "contains useful beta-glucans",
-        "explanation": "Adds extra cardiovascular and satiety context beyond the base nutrient display.",
-        "evidenceType": "manual"
+        "title": "contains meaningful beta-glucan soluble fibre",
+        "explanation": "Oats are unusual among common grains for their beta-glucan content, which makes the fibre story more specific than just the fibre grams already shown.",
+        "evidenceType": "manual",
+        "confidence": "high",
+        "side": "pro",
+        "resolvedScoreValue": 100
       },
       {
-        "itemKey": "versatile_staple",
+        "itemKey": "whole_grain_staple",
         "impactLevel": "minor",
-        "scoreValue": 0,
-        "title": "easy to build meals around",
-        "explanation": "Works well as a simple staple in many eating patterns.",
-        "evidenceType": "manual"
+        "title": "easy whole-grain staple to use regularly",
+        "explanation": "Plain rolled oats are cheap, familiar, and realistic for repeated use, which matters for an everyday grain.",
+        "evidenceType": "manual",
+        "confidence": "high",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
-        "itemKey": "digestive_support",
+        "itemKey": "low_free_sugar_plain",
         "impactLevel": "minor",
-        "scoreValue": 0,
-        "title": "can support digestive regularity",
-        "explanation": "The overall fibre profile can be practically useful beyond the raw grams display.",
-        "evidenceType": "manual"
+        "title": "plain oats start unsweetened",
+        "explanation": "That gives them a cleaner baseline than sweetened instant oatmeal products, which are excluded from this entry.",
+        "evidenceType": "manual",
+        "confidence": "high",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "cons": [
       {
-        "itemKey": "anti_nutrients",
+        "itemKey": "phytate_mineral_interference",
         "impactLevel": "minor",
-        "scoreValue": 0,
-        "title": "contains some anti-nutrients",
-        "explanation": "Phytates may slightly reduce mineral uptake.",
-        "evidenceType": "manual"
+        "title": "phytates can modestly reduce mineral uptake",
+        "explanation": "That caveat is real for oats, even if it does not erase their mineral content.",
+        "evidenceType": "manual",
+        "confidence": "medium",
+        "side": "con",
+        "resolvedScoreValue": 50
       },
       {
-        "itemKey": "prep_dependency",
+        "itemKey": "topping_dependency",
         "impactLevel": "minor",
-        "scoreValue": 0,
-        "title": "healthiness depends on what you add to it",
-        "explanation": "Sugary toppings can shift the outcome a lot.",
-        "evidenceType": "manual"
+        "title": "the bowl can get worse fast with sugary add-ons",
+        "explanation": "The plain ingredient is solid, but common preparation choices can change the real meal a lot.",
+        "evidenceType": "manual",
+        "confidence": "high",
+        "side": "con",
+        "resolvedScoreValue": 50
       },
       {
-        "itemKey": "tolerance_issue",
+        "itemKey": "texture_digestive_variability",
         "impactLevel": "minor",
-        "scoreValue": 0,
-        "title": "not ideal for everyone digestively",
-        "explanation": "Some people do not tolerate oats especially well.",
-        "evidenceType": "manual"
+        "title": "texture and tolerance are not universal wins",
+        "explanation": "Some people dislike the texture or do not tolerate oats especially well, which is a real usability downside for a staple food.",
+        "evidenceType": "manual",
+        "confidence": "medium",
+        "side": "con",
+        "resolvedScoreValue": 50
       }
     ]
   },
@@ -157,100 +171,90 @@
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 1.2,
-      "band": "↓↓",
-      "score": 2,
+      "band": "1_green",
+      "score": 60,
       "weight": 1,
-      "weightedScore": 2
+      "weightedScore": 60
     },
     {
       "metricKey": "omega3_mg",
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 111,
-      "band": "↑↑↑",
-      "score": 3,
+      "band": "1_green",
+      "score": 60,
       "weight": 1,
-      "weightedScore": 3
+      "weightedScore": 60
     },
     {
       "metricKey": "polyunsaturated_fat_g",
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 2.5,
-      "band": "↓",
-      "score": -1,
+      "band": "1_green",
+      "score": 60,
       "weight": 1,
-      "weightedScore": -1
+      "weightedScore": 60
     },
     {
       "metricKey": "starch_g",
       "sectionKey": "carbs",
       "scoringMode": "arrow_bands",
       "value": 55,
-      "band": "↑",
-      "score": 1,
+      "band": "1_green",
+      "score": 60,
       "weight": 1,
-      "weightedScore": 1
+      "weightedScore": 60
     },
     {
       "metricKey": "fibre_g",
       "sectionKey": "carbs",
       "scoringMode": "arrow_bands",
       "value": 10.6,
-      "band": "↑↑",
-      "score": 2,
-      "weight": 3,
-      "weightedScore": 6
+      "band": "2_green",
+      "score": 80,
+      "weight": 5,
+      "weightedScore": 400
     },
     {
       "metricKey": "sugar_g",
       "sectionKey": "carbs",
       "scoringMode": "arrow_bands",
       "value": 1,
-      "band": "↓",
-      "score": 1,
-      "weight": 1,
-      "weightedScore": 1
+      "band": "2_green",
+      "score": 80,
+      "weight": 2,
+      "weightedScore": 160
     },
     {
-      "metricKey": "glycemic_index",
-      "sectionKey": "carbs",
-      "scoringMode": "arrow_bands",
-      "value": 55,
-      "band": "↓",
-      "score": 1,
+      "metricKey": "vitamin_e_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 3,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "vitamin_b1_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 51,
+      "points": 5,
+      "score": 50,
       "weight": 4,
-      "weightedScore": 4
+      "weightedScore": 200
     },
     {
-      "metricKey": "essential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 5,
-      "band": "↑↑",
-      "score": 2,
-      "weight": 2,
-      "weightedScore": 4
-    },
-    {
-      "metricKey": "nonessential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 7,
-      "band": "↑↑↑",
-      "score": 3,
-      "weight": 1,
-      "weightedScore": 3
-    },
-    {
-      "metricKey": "bioavailability_percent",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 55,
-      "band": "↑↑↑",
-      "score": 3,
-      "weight": 2,
-      "weightedScore": 6
+      "metricKey": "vitamin_b3_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 6,
+      "points": 0,
+      "score": 0,
+      "weight": 3,
+      "weightedScore": 0
     },
     {
       "metricKey": "iron_dv",
@@ -258,8 +262,9 @@
       "scoringMode": "dv_points",
       "dvPercent": 26,
       "points": 2,
-      "weight": 2,
-      "weightedScore": 4
+      "score": 20,
+      "weight": 4,
+      "weightedScore": 80
     },
     {
       "metricKey": "magnesium_dv",
@@ -267,8 +272,9 @@
       "scoringMode": "dv_points",
       "dvPercent": 44,
       "points": 4,
-      "weight": 2,
-      "weightedScore": 8
+      "score": 40,
+      "weight": 5,
+      "weightedScore": 200
     },
     {
       "metricKey": "zinc_dv",
@@ -276,8 +282,30 @@
       "scoringMode": "dv_points",
       "dvPercent": 36,
       "points": 3,
-      "weight": 1,
-      "weightedScore": 3
+      "score": 30,
+      "weight": 4,
+      "weightedScore": 120
+    },
+    {
+      "metricKey": "potassium_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 12,
+      "points": 1,
+      "score": 10,
+      "weight": 2,
+      "weightedScore": 20
+    },
+    {
+      "metricKey": "protein_g_fallback",
+      "sectionKey": "proteins",
+      "scoringMode": "protein_fallback",
+      "value": 16.9,
+      "band": "3_green",
+      "score": 100,
+      "weight": 2,
+      "weightedScore": 200,
+      "fallbackApplied": true
     }
   ]
 }

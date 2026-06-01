@@ -1,13 +1,29 @@
 {
   "status": "ok",
+  "schemaVersion": "foodranked-script.v2",
+  "narrationFormat": "elevenlabs-blocks-v1",
   "food": {
     "id": "cheddar-cheese",
     "name": "Cheddar Cheese",
-    "foodType": "dairy"
+    "foodType": "dairy",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "identity": null,
+    "scoreReadiness": null,
+    "sourceNotes": [
+      "Calibration benchmark sample for FoodRanked.",
+      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
+    ]
   },
   "ruleset": {
     "id": "dairy.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 403,
@@ -16,128 +32,139 @@
     "protein_g": 24.9
   },
   "hook": "Cheddar Cheese ranked.",
-  "intro": "",
   "sections": [
     {
       "key": "fats",
       "title": "Fats",
-      "narration": "33.1 grams of fat. Omega 3 is 180 milligrams, doing a lot of the work here. For dairy, the fat side can either add richness or drag the whole thing down.",
+      "narration": "33.1 grams of fat. Omega 3 is 180 milligrams, supporting a more useful fat profile. Saturated fat is 19 grams, a weak mark for dairy.",
       "displayItems": [
-        {
-          "metricKey": "saturated_fat_g",
-          "text": "saturated fat at 19g",
-          "weightedScore": -18,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
-          "dvPercent": null,
-          "value": 19
-        },
-        {
-          "metricKey": "cholesterol_mg",
-          "text": "cholesterol at 105mg",
-          "weightedScore": -12,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
-          "dvPercent": null,
-          "value": 105
-        },
         {
           "metricKey": "omega3_mg",
           "text": "omega 3 at 180mg",
-          "weightedScore": 1,
+          "weightedScore": 60,
           "scoringMode": "arrow_bands",
           "band": "↑",
           "dvPercent": null,
           "value": 180
         },
         {
+          "metricKey": "saturated_fat_g",
+          "text": "saturated fat at 19g",
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
+          "band": "↑↑↑",
+          "dvPercent": null,
+          "value": 19
+        },
+        {
           "metricKey": "polyunsaturated_fat_g",
           "text": "polyunsaturated fat at 1g",
-          "weightedScore": 1,
+          "weightedScore": 40,
           "scoringMode": "arrow_bands",
-          "band": "↑",
+          "band": "↓",
           "dvPercent": null,
           "value": 1
+        },
+        {
+          "metricKey": "cholesterol_mg",
+          "text": "cholesterol at 105mg",
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
+          "band": "↑↑↑",
+          "dvPercent": null,
+          "value": 105
         }
       ],
-      "subtitleText": "33.1g of fat. Omega 3 is 180mg, doing a lot of the work here. For dairy, the fat side can either add richness or drag the whole thing down.",
+      "subtitleText": "33.1g of fat. Omega 3 is 180mg, supporting a more useful fat profile. Saturated fat is 19g, a weak mark for dairy.",
       "timingHint": "short-medium",
-      "score": 11.1
+      "score": 8.3
     },
     {
       "key": "carbs",
       "title": "Carbs",
-      "narration": "1.3 grams of carbs. Sugar is 0.5 grams. Sugar is 0.5 grams. 1.3 grams of carbs. Sugar and glycemic index matter most here. For dairy, the best versions keep the convenience without wrecking the fat profile.",
+      "narration": "1.3 grams of carbs. Sugar is 0.5 grams, supporting better carb quality. Starch is 0 grams, a small miss for dairy.",
       "displayItems": [
         {
           "metricKey": "sugar_g",
           "text": "sugar at 0.5g",
-          "weightedScore": 12,
+          "weightedScore": 400,
           "scoringMode": "arrow_bands",
           "band": "↓↓↓",
           "dvPercent": null,
           "value": 0.5
         },
         {
+          "metricKey": "starch_g",
+          "text": "starch at 0g",
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
+          "band": "3_red",
+          "dvPercent": null,
+          "value": 0
+        },
+        {
           "metricKey": "glycemic_index",
           "text": "glycemic index at 0 GI",
-          "weightedScore": 6,
+          "weightedScore": 200,
           "scoringMode": "arrow_bands",
           "band": "↓↓↓",
           "dvPercent": null,
           "value": 0
         }
       ],
-      "subtitleText": "1.3g of carbs. Sugar is 0.5g. Sugar is 0.5g. 1.3g of carbs. Sugar and glycemic index matter most here. For dairy, the best versions keep the convenience without wrecking the fat profile.",
+      "subtitleText": "1.3g of carbs. Sugar is 0.5g, supporting better carb quality. Starch is 0g, a small miss for dairy.",
       "timingHint": "short-medium",
       "score": 100
     },
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "Essential amino acids score is 8 out of 9. 24.9 grams of protein. Bioavailability and amino acid quality are both strong. Useful protein can rescue a lot of weaker traits here.",
+      "narration": "24.9 grams of protein. Essential amino acids score is 8 out of 9, with 95% bioavailability, making the protein useful for repair and maintenance.",
       "displayItems": [
         {
           "metricKey": "essential_amino_acids_score",
           "text": "essential amino acids score at 8/9",
-          "weightedScore": 9,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
           "dvPercent": null,
-          "value": 8
+          "value": 8,
+          "referenceOnly": true
         },
         {
           "metricKey": "bioavailability_percent",
           "text": "bioavailability at 95%",
-          "weightedScore": 9,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
           "dvPercent": null,
-          "value": 95
+          "value": 95,
+          "referenceOnly": true
         },
         {
           "metricKey": "nonessential_amino_acids_score",
           "text": "nonessential amino acids score at 10/11",
-          "weightedScore": 3,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
           "dvPercent": null,
-          "value": 10
+          "value": 10,
+          "referenceOnly": true
         }
       ],
-      "subtitleText": "Essential amino acids score is 8/9. 24.9g of protein. Bioavailability and amino acid quality are both strong. Useful protein can rescue a lot of weaker traits here.",
+      "subtitleText": "24.9g of protein. Essential amino acids score is 8/9, with 95% bioavailability, making the protein useful for repair and maintenance.",
       "timingHint": "short-medium",
       "score": 100
     },
     {
       "key": "vitamins",
       "title": "Vitamins",
-      "narration": "Vitamin b12 at 30% daily value, vitamin a at 30% daily value stand out most. That is only mild support overall.",
+      "narration": "Vitamin B12 is 30% daily value, useful for nerve and blood-cell support. Vitamin A is 30% daily value, a weak mark for dairy.",
       "displayItems": [
         {
           "metricKey": "vitamin_b12_dv",
-          "text": "vitamin b12 at 30% DV",
-          "weightedScore": 6,
+          "text": "vitamin B12 at 30% DV",
+          "weightedScore": 60,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 30,
@@ -145,129 +172,204 @@
         },
         {
           "metricKey": "vitamin_a_dv",
-          "text": "vitamin a at 30% DV",
-          "weightedScore": 3,
+          "text": "vitamin A at 30% DV",
+          "weightedScore": 30,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 30,
           "value": null
         }
       ],
-      "subtitleText": "Vitamin b12 at 30% daily value, vitamin a at 30% daily value stand out most. That is only mild support overall.",
+      "subtitleText": "Vitamin B12 is 30% DV, useful for nerve and blood-cell support. Vitamin A is 30% DV, a weak mark for dairy.",
       "timingHint": "short-medium",
       "score": 30
     },
     {
       "key": "minerals",
       "title": "Minerals",
-      "narration": "Calcium at 72% daily value, zinc at 21% daily value stand out most. That gives this food real mineral support.",
+      "narration": "Calcium is 72% daily value, adding useful mineral support. Magnesium is 7% daily value, a weak mark for dairy.",
       "displayItems": [
         {
           "metricKey": "calcium_dv",
           "text": "calcium at 72% DV",
-          "weightedScore": 21,
+          "weightedScore": 210,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 72,
           "value": null
         },
         {
+          "metricKey": "magnesium_dv",
+          "text": "magnesium at 7% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 7,
+          "value": null
+        },
+        {
           "metricKey": "zinc_dv",
           "text": "zinc at 21% DV",
-          "weightedScore": 2,
+          "weightedScore": 20,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 21,
           "value": null
         }
       ],
-      "subtitleText": "Calcium at 72% daily value, zinc at 21% daily value stand out most. That gives this food real mineral support.",
+      "subtitleText": "Calcium is 72% DV, adding useful mineral support. Magnesium is 7% DV, a weak mark for dairy.",
       "timingHint": "short-medium",
-      "score": 57.5
+      "score": 46
     },
     {
       "key": "pros",
       "title": "Pros",
-      "narration": "The upsides first: very strong calcium identity. This is one of the cleanest reasons cheese still performs well inside dairy despite its drawbacks. Protein density is strong. Cheddar clearly still delivers on the protein side of dairy. Very practical and versatile. It is genuinely easy to use in lots of foods.",
+      "narration": "Positives first: very strong calcium identity. This is one of the cleanest reasons cheese still performs well inside dairy despite its drawbacks. Protein density is strong. Cheddar clearly still delivers on the protein side of dairy. Very practical and versatile. It is genuinely easy to use in lots of foods.",
       "displayItems": [
         {
           "type": "pro",
           "title": "very strong calcium identity",
           "explanation": "This is one of the cleanest reasons cheese still performs well inside dairy despite its drawbacks.",
           "impactLevel": "major",
-          "scoreValue": 3
+          "resolvedScoreValue": 100
         },
         {
           "type": "pro",
           "title": "protein density is strong",
           "explanation": "Cheddar clearly still delivers on the protein side of dairy.",
           "impactLevel": "minor",
-          "scoreValue": 0
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "very practical and versatile",
           "explanation": "It is genuinely easy to use in lots of foods.",
           "impactLevel": "minor",
-          "scoreValue": 0
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "The upsides first: very strong calcium identity. This is one of the cleanest reasons cheese still performs well inside dairy despite its drawbacks. Protein density is strong. Cheddar clearly still delivers on the protein side of dairy. Very practical and versatile. It is genuinely easy to use in lots of foods.",
+      "subtitleText": "Positives first: very strong calcium identity. This is one of the cleanest reasons cheese still performs well inside dairy despite its drawbacks. Protein density is strong. Cheddar clearly still delivers on the protein side of dairy. Very practical and versatile. It is genuinely easy to use in lots of foods.",
       "timingHint": "medium",
-      "score": 33.3
+      "score": 66.7
     },
     {
       "key": "cons",
       "title": "Cons",
-      "narration": "On the weaker side: saturated fat is a major drawback. This is the biggest reason cheddar is not an easy elite dairy food. Energy density is harsh. Calories add up quickly compared with cleaner dairy anchors. Easy to overeat. Highly palatable and dense enough to add up fast.",
+      "narration": "Downsides next: saturated fat is a major drawback. This is the biggest reason cheddar is not an easy elite dairy food. Energy density is harsh. Calories add up quickly compared with cleaner dairy anchors. Easy to overeat. Highly palatable and dense enough to add up fast.",
       "displayItems": [
         {
           "type": "con",
           "title": "saturated fat is a major drawback",
           "explanation": "This is the biggest reason cheddar is not an easy elite dairy food.",
           "impactLevel": "major",
-          "scoreValue": -3
+          "resolvedScoreValue": 100
         },
         {
           "type": "con",
           "title": "energy density is harsh",
           "explanation": "Calories add up quickly compared with cleaner dairy anchors.",
           "impactLevel": "major",
-          "scoreValue": -3
+          "resolvedScoreValue": 100
         },
         {
           "type": "con",
           "title": "easy to overeat",
           "explanation": "Highly palatable and dense enough to add up fast.",
-          "impactLevel": "minor",
-          "scoreValue": 0
+          "impactLevel": "major",
+          "resolvedScoreValue": 100
         }
       ],
-      "subtitleText": "On the weaker side: saturated fat is a major drawback. This is the biggest reason cheddar is not an easy elite dairy food. Energy density is harsh. Calories add up quickly compared with cleaner dairy anchors. Easy to overeat. Highly palatable and dense enough to add up fast.",
+      "subtitleText": "Downsides next: saturated fat is a major drawback. This is the biggest reason cheddar is not an easy elite dairy food. Energy density is harsh. Calories add up quickly compared with cleaner dairy anchors. Easy to overeat. Highly palatable and dense enough to add up fast.",
       "timingHint": "medium",
-      "score": 66.7
+      "score": 0
     }
   ],
   "closing": {
-    "summary": "Cheddar Cheese does have some solid upside. but the tradeoffs keep it from climbing higher. best when the protein payoff or fermentation angle outweighs the fat and sodium tradeoffs.",
-    "finalReveal": "B tier.",
+    "summary": "Big strengths are protein and carb quality, but the biggest weaknesses are saturated fat and energy density is harsh.",
+    "overview": "Big strengths are protein and carb quality, but the biggest weaknesses are saturated fat and energy density is harsh.",
+    "finalReveal": "S tier.",
     "useCaseNote": "Best when the protein payoff or fermentation angle outweighs the fat and sodium tradeoffs.",
     "cta": "Would you rank it the same, or nah?"
   },
-  "tier": "B",
-  "overallScore": 48,
+  "tier": "S",
+  "overallScore": 80,
+  "overallScoreExact": 80.0286,
+  "baseOverallScore": 50.1,
+  "baseOverallScoreExact": 50.1429,
+  "sectionOrder": [
+    "fats",
+    "carbs",
+    "proteins",
+    "vitamins",
+    "minerals",
+    "pros",
+    "cons"
+  ],
+  "narrationBlocks": [
+    {
+      "kind": "hook_food",
+      "text": "Cheddar Cheese!"
+    },
+    {
+      "kind": "hook_ranked",
+      "text": "Ranked!"
+    },
+    {
+      "kind": "section",
+      "sectionKey": "fats",
+      "text": "33.1 grams of fat. Omega 3 is 180 milligrams, supporting a more useful fat profile. Saturated fat is 19 grams, a weak mark for dairy."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "carbs",
+      "text": "1.3 grams of carbs. Sugar is 0.5 grams, supporting better carb quality. Starch is 0 grams, a small miss for dairy."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "proteins",
+      "text": "24.9 grams of protein. Essential amino acids score is 8 out of 9, with 95% bioavailability, making the protein useful for repair and maintenance."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "vitamins",
+      "text": "Vitamin B12 is 30% daily value, useful for nerve and blood-cell support. Vitamin A is 30% daily value, a weak mark for dairy."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "minerals",
+      "text": "Calcium is 72% daily value, adding useful mineral support. Magnesium is 7% daily value, a weak mark for dairy."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "pros",
+      "text": "Positives first: very strong calcium identity. This is one of the cleanest reasons cheese still performs well inside dairy despite its drawbacks. Protein density is strong. Cheddar clearly still delivers on the protein side of dairy. Very practical and versatile. It is genuinely easy to use in lots of foods."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "cons",
+      "text": "Downsides next: saturated fat is a major drawback. This is the biggest reason cheddar is not an easy elite dairy food. Energy density is harsh. Calories add up quickly compared with cleaner dairy anchors. Easy to overeat. Highly palatable and dense enough to add up fast."
+    },
+    {
+      "kind": "closing_summary",
+      "text": "Big strengths are protein and carb quality, but the biggest weaknesses are saturated fat and energy density is harsh."
+    },
+    {
+      "kind": "final_reveal",
+      "text": "S tier."
+    }
+  ],
   "explanation": {
-    "summary": "Carbs are carrying this food most, while fats are the biggest drag. It lands in B tier.",
-    "whyThisTier": "This food lands in B tier with an overall score of 48 from a base nutrition score of 51. Context dragged it down by 3 points.",
+    "summary": "Carbs are carrying this food most, while cons are holding it back most. It lands in S tier.",
+    "whyThisTier": "This food lands in S tier with an overall score of 80. Section scores: fats 8.3, carbs 100, proteins 100, vitamins 30, minerals 46, pros 66.7, cons 0.",
     "strongestSection": {
       "key": "carbs",
       "label": "Carbs",
       "score": 100
     },
     "weakestSection": {
-      "key": "fats",
-      "label": "Fats",
-      "score": 11.1
+      "key": "cons",
+      "label": "Cons",
+      "score": 0
     },
     "topPros": [
       {
@@ -275,7 +377,21 @@
         "explanation": "This is one of the cleanest reasons cheese still performs well inside dairy despite its drawbacks.",
         "impactLevel": "major",
         "side": "pro",
-        "resolvedScoreValue": 3
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "protein density is strong",
+        "explanation": "Cheddar clearly still delivers on the protein side of dairy.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "very practical and versatile",
+        "explanation": "It is genuinely easy to use in lots of foods.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -284,21 +400,27 @@
         "explanation": "This is the biggest reason cheddar is not an easy elite dairy food.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -3
+        "resolvedScoreValue": 100
       },
       {
         "title": "energy density is harsh",
         "explanation": "Calories add up quickly compared with cleaner dairy anchors.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -3
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "easy to overeat",
+        "explanation": "Highly palatable and dense enough to add up fast.",
+        "impactLevel": "major",
+        "side": "con",
+        "resolvedScoreValue": 100
       }
     ],
     "narrationNotes": [
       "Strongest section: Carbs.",
-      "Weakest section: Fats.",
-      "Context weakened the final tier case by 3 points.",
-      "Final verdict: B tier."
+      "Weakest section: Cons.",
+      "Final verdict: S tier."
     ]
   }
 }

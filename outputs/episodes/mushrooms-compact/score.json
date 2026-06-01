@@ -7,7 +7,11 @@
   },
   "ruleset": {
     "id": "vegetables.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 22,
@@ -16,54 +20,54 @@
     "protein_g": 3.1
   },
   "sectionScores": {
-    "fats": 61.1,
-    "carbs": 66.7,
-    "proteins": 66.7,
-    "vitamins": null,
+    "fats": 100,
+    "carbs": 60,
+    "proteins": null,
+    "vitamins": 0,
     "minerals": 0,
-    "pros": 0,
-    "cons": 0
+    "pros": 50,
+    "cons": 50
   },
-  "baseScore": 21,
-  "contextAdjustment": {
-    "rawAdjustment": 0,
-    "appliedAdjustment": 0,
-    "appliedItems": [],
-    "ignoredItems": []
-  },
-  "overallScore": 21,
-  "tier": "C",
-  "summary": "Carbs are carrying this food most, while minerals are the biggest drag. It lands in C tier.",
+  "overallScore": 19.8,
+  "overallScoreExact": 19.7826,
+  "baseOverallScore": 43.3,
+  "baseOverallScoreExact": 43.3333,
+  "tier": "D",
+  "summary": "Fats are carrying this food most, while minerals are holding it back most. It lands in D tier.",
   "explanation": {
-    "summary": "Carbs are carrying this food most, while minerals are the biggest drag. It lands in C tier.",
-    "whyThisTier": "This food lands in C tier with an overall score of 21 from a base nutrition score of 21. Context barely changed the result.",
+    "summary": "Fats are carrying this food most, while minerals are holding it back most. It lands in D tier.",
+    "whyThisTier": "This food lands in D tier with an overall score of 19.8. Section scores: fats 100, carbs 60, vitamins 0, minerals 0, pros 50, cons 50.",
     "strongestSection": {
-      "key": "carbs",
-      "label": "Carbs",
-      "score": 66.7
+      "key": "fats",
+      "label": "Fats",
+      "score": 100
     },
-    "weakestSection": null,
+    "weakestSection": {
+      "key": "minerals",
+      "label": "Minerals",
+      "score": 0
+    },
     "topPros": [
       {
         "title": "very low downside whole food",
         "explanation": "Vegetables win a lot simply by offering clean nutritional payoff.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "helps add volume without much calorie cost",
         "explanation": "That makes vegetables easier to use often.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "good volume for the calories",
         "explanation": "That matters for satiety and general usefulness.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -72,26 +76,27 @@
         "explanation": "Most vegetables are not complete by themselves.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "freshness and prep can matter",
         "explanation": "Practical friction is still a real downside.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "taste and texture can limit compliance",
         "explanation": "A strong paper profile still needs real-world repeatability.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
-      "Strongest section: Carbs.",
-      "Final verdict: C tier."
+      "Strongest section: Fats.",
+      "Weakest section: Minerals.",
+      "Final verdict: D tier."
     ]
   },
   "contextItems": {
@@ -99,52 +104,58 @@
       {
         "itemKey": "low_downside_vegetable",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "very low downside whole food",
         "explanation": "Vegetables win a lot simply by offering clean nutritional payoff.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "veg_low_calorie_padding",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "helps add volume without much calorie cost",
         "explanation": "That makes vegetables easier to use often.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "volume_for_calories",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "good volume for the calories",
         "explanation": "That matters for satiety and general usefulness.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "cons": [
       {
         "itemKey": "veg_needs_pairing",
         "impactLevel": "minor",
-        "scoreValue": -1,
         "title": "usually needs pairing to make a full meal",
         "explanation": "Most vegetables are not complete by themselves.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "storage_or_prep_cost",
         "impactLevel": "minor",
-        "scoreValue": -1,
         "title": "freshness and prep can matter",
         "explanation": "Practical friction is still a real downside.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "veg_palatability_limit",
         "impactLevel": "minor",
-        "scoreValue": -1,
         "title": "taste and texture can limit compliance",
         "explanation": "A strong paper profile still needs real-world repeatability.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       }
     ]
   },
@@ -154,40 +165,50 @@
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 0.1,
-      "band": "↓↓",
-      "score": 2,
+      "band": "↓↓↓",
+      "score": 100,
       "weight": 1,
-      "weightedScore": 2
+      "weightedScore": 100
     },
     {
       "metricKey": "omega3_mg",
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 10,
-      "band": "↑↑↑",
-      "score": 3,
-      "weight": 1,
-      "weightedScore": 3
+      "band": "3_green",
+      "score": 100,
+      "weight": 0,
+      "weightedScore": 0
     },
     {
       "metricKey": "polyunsaturated_fat_g",
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 0.2,
-      "band": "↓↓↓",
-      "score": -3,
-      "weight": 1,
-      "weightedScore": -3
+      "band": "3_red",
+      "score": 0,
+      "weight": 0,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "starch_g",
+      "sectionKey": "carbs",
+      "scoringMode": "arrow_bands",
+      "value": 0,
+      "band": "3_red",
+      "score": 0,
+      "weight": 0,
+      "weightedScore": 0
     },
     {
       "metricKey": "fibre_g",
       "sectionKey": "carbs",
       "scoringMode": "arrow_bands",
       "value": 1,
-      "band": "↓↓",
-      "score": -2,
+      "band": "↓↓↓",
+      "score": 0,
       "weight": 3,
-      "weightedScore": -6
+      "weightedScore": 0
     },
     {
       "metricKey": "sugar_g",
@@ -195,9 +216,9 @@
       "scoringMode": "arrow_bands",
       "value": 2,
       "band": "↓↓",
-      "score": 2,
+      "score": 80,
       "weight": 3,
-      "weightedScore": 6
+      "weightedScore": 240
     },
     {
       "metricKey": "glycemic_index",
@@ -205,39 +226,69 @@
       "scoringMode": "arrow_bands",
       "value": 10,
       "band": "↓↓↓",
-      "score": 3,
+      "score": 100,
       "weight": 3,
-      "weightedScore": 9
+      "weightedScore": 300
     },
     {
       "metricKey": "essential_amino_acids_score",
       "sectionKey": "proteins",
       "scoringMode": "arrow_bands",
       "value": 3,
-      "band": "↓",
-      "score": -1,
-      "weight": 1,
-      "weightedScore": -1
+      "band": "1_red",
+      "score": 40,
+      "weight": 0,
+      "weightedScore": 0
     },
     {
       "metricKey": "nonessential_amino_acids_score",
       "sectionKey": "proteins",
       "scoringMode": "arrow_bands",
       "value": 4,
-      "band": "↑",
-      "score": 1,
-      "weight": 1,
-      "weightedScore": 1
+      "band": "1_green",
+      "score": 60,
+      "weight": 0,
+      "weightedScore": 0
     },
     {
       "metricKey": "bioavailability_percent",
       "sectionKey": "proteins",
       "scoringMode": "arrow_bands",
       "value": 45,
-      "band": "↑↑↑",
-      "score": 3,
-      "weight": 1,
-      "weightedScore": 3
+      "band": "3_green",
+      "score": 100,
+      "weight": 0,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "vitamin_a_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 0,
+      "points": 0,
+      "score": 0,
+      "weight": 2,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "vitamin_c_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 4,
+      "points": 0,
+      "score": 0,
+      "weight": 2,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "vitamin_k_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 0,
+      "points": 0,
+      "score": 0,
+      "weight": 3,
+      "weightedScore": 0
     },
     {
       "metricKey": "potassium_dv",
@@ -245,7 +296,38 @@
       "scoringMode": "dv_points",
       "dvPercent": 7,
       "points": 0,
+      "score": 0,
       "weight": 2,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "magnesium_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 2,
+      "points": 0,
+      "score": 0,
+      "weight": 2,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "iron_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 3,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "calcium_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 0,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
       "weightedScore": 0
     }
   ]

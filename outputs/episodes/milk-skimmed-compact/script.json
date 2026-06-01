@@ -1,13 +1,29 @@
 {
   "status": "ok",
+  "schemaVersion": "foodranked-script.v2",
+  "narrationFormat": "elevenlabs-blocks-v1",
   "food": {
     "id": "milk-skimmed",
     "name": "Skimmed Milk",
-    "foodType": "dairy"
+    "foodType": "dairy",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "identity": null,
+    "scoreReadiness": null,
+    "sourceNotes": [
+      "Calibration benchmark sample for FoodRanked.",
+      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
+    ]
   },
   "ruleset": {
     "id": "dairy.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 34,
@@ -16,147 +32,204 @@
     "protein_g": 3.4
   },
   "hook": "Skimmed Milk ranked.",
-  "intro": "",
   "sections": [
     {
       "key": "fats",
       "title": "Fats",
-      "narration": "0.1 grams of fat. Saturated fat is 0.1 grams. Saturated fat is 0.1 grams. 0.1 grams of fat. Saturated fat, cholesterol, and omega3 are doing most of the work. For dairy, the fat side can either add richness or drag the whole thing down.",
+      "narration": "0.1 grams of fat. Saturated fat is 0.1 grams, supporting a better fat profile. Omega 3 is 10 milligrams, a weak mark for dairy.",
       "displayItems": [
         {
           "metricKey": "saturated_fat_g",
           "text": "saturated fat at 0.1g",
-          "weightedScore": 18,
+          "weightedScore": 600,
           "scoringMode": "arrow_bands",
           "band": "↓↓↓",
           "dvPercent": null,
           "value": 0.1
         },
         {
+          "metricKey": "omega3_mg",
+          "text": "omega 3 at 10mg",
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
+          "band": "↓↓↓",
+          "dvPercent": null,
+          "value": 10
+        },
+        {
           "metricKey": "cholesterol_mg",
           "text": "cholesterol at 2mg",
-          "weightedScore": 12,
+          "weightedScore": 400,
           "scoringMode": "arrow_bands",
           "band": "↓↓↓",
           "dvPercent": null,
           "value": 2
         },
         {
-          "metricKey": "omega3_mg",
-          "text": "omega 3 at 10mg",
-          "weightedScore": -3,
+          "metricKey": "polyunsaturated_fat_g",
+          "text": "polyunsaturated fat at 0g",
+          "weightedScore": 0,
           "scoringMode": "arrow_bands",
           "band": "↓↓↓",
           "dvPercent": null,
-          "value": 10
+          "value": 0
         }
       ],
-      "subtitleText": "0.1g of fat. Saturated fat is 0.1g. Saturated fat is 0.1g. 0.1g of fat. Saturated fat, cholesterol, and omega3 are doing most of the work. For dairy, the fat side can either add richness or drag the whole thing down.",
+      "subtitleText": "0.1g of fat. Saturated fat is 0.1g, supporting a better fat profile. Omega 3 is 10mg, a weak mark for dairy.",
       "timingHint": "short-medium",
-      "score": 90.9
+      "score": 83.3
     },
     {
       "key": "carbs",
       "title": "Carbs",
-      "narration": "5 grams of carbs. Sugar is 5 grams. Sugar and glycemic index matter most here. For a dairy food, this is doing the right stuff.",
+      "narration": "5 grams of carbs. Sugar is 5 grams, supporting better carb quality. Starch is 0 grams, a small miss for dairy.",
       "displayItems": [
         {
           "metricKey": "sugar_g",
           "text": "sugar at 5g",
-          "weightedScore": 4,
+          "weightedScore": 320,
           "scoringMode": "arrow_bands",
-          "band": "↓",
+          "band": "↓↓",
           "dvPercent": null,
           "value": 5
         },
         {
+          "metricKey": "starch_g",
+          "text": "starch at 0g",
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
+          "band": "3_red",
+          "dvPercent": null,
+          "value": 0
+        },
+        {
           "metricKey": "glycemic_index",
           "text": "glycemic index at 32 GI",
-          "weightedScore": 4,
+          "weightedScore": 160,
           "scoringMode": "arrow_bands",
           "band": "↓↓",
           "dvPercent": null,
           "value": 32
         }
       ],
-      "subtitleText": "5g of carbs. Sugar is 5g. Sugar and glycemic index matter most here. For a dairy food, this is doing the right stuff.",
+      "subtitleText": "5g of carbs. Sugar is 5g, supporting better carb quality. Starch is 0g, a small miss for dairy.",
       "timingHint": "short-medium",
-      "score": 72.2
+      "score": 80
     },
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "Essential amino acids score is 7 out of 9. 3.4 grams of protein. Bioavailability and amino acid quality are both strong. Useful protein can rescue a lot of weaker traits here.",
+      "narration": "3.4 grams of protein. Essential amino acids score is 7 out of 9, with 90% bioavailability, making the protein useful for repair and maintenance. Collagen is only 0 grams, a weak mark for dairy.",
       "displayItems": [
         {
           "metricKey": "essential_amino_acids_score",
           "text": "essential amino acids score at 7/9",
-          "weightedScore": 6,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
           "dvPercent": null,
-          "value": 7
+          "value": 7,
+          "referenceOnly": true
         },
         {
           "metricKey": "bioavailability_percent",
           "text": "bioavailability at 90%",
-          "weightedScore": 6,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
           "dvPercent": null,
-          "value": 90
+          "value": 90,
+          "referenceOnly": true
+        },
+        {
+          "metricKey": "collagen_g",
+          "text": "collagen at 0g",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
+          "dvPercent": null,
+          "value": 0,
+          "referenceOnly": true
         },
         {
           "metricKey": "nonessential_amino_acids_score",
           "text": "nonessential amino acids score at 8/11",
-          "weightedScore": 2,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑",
-          "dvPercent": null,
-          "value": 8
-        }
-      ],
-      "subtitleText": "Essential amino acids score is 7/9. 3.4g of protein. Bioavailability and amino acid quality are both strong. Useful protein can rescue a lot of weaker traits here.",
-      "timingHint": "short-medium",
-      "score": 83.3
-    },
-    {
-      "key": "vitamins",
-      "title": "Vitamins",
-      "narration": "Vitamin b12 at 20% daily value stands out most. That is only mild support overall.",
-      "displayItems": [
-        {
-          "metricKey": "vitamin_b12_dv",
-          "text": "vitamin b12 at 20% DV",
-          "weightedScore": 4,
-          "scoringMode": "dv_points",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
           "band": null,
-          "dvPercent": 20,
-          "value": null
+          "dvPercent": null,
+          "value": 8,
+          "referenceOnly": true
         }
       ],
-      "subtitleText": "Vitamin b12 at 20% daily value stands out most. That is only mild support overall.",
+      "subtitleText": "3.4g of protein. Essential amino acids score is 7/9, with 90% bioavailability, making the protein useful for repair and maintenance. Collagen is only 0g, a weak mark for dairy.",
       "timingHint": "short-medium",
       "score": 20
     },
     {
+      "key": "vitamins",
+      "title": "Vitamins",
+      "narration": "Vitamin B12 is 20% daily value, useful for nerve and blood-cell support. Vitamin A is only 2% daily value, a weak mark for dairy.",
+      "displayItems": [
+        {
+          "metricKey": "vitamin_b12_dv",
+          "text": "vitamin B12 at 20% DV",
+          "weightedScore": 40,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 20,
+          "value": null
+        },
+        {
+          "metricKey": "vitamin_a_dv",
+          "text": "vitamin A at 2% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 2,
+          "value": null
+        }
+      ],
+      "subtitleText": "Vitamin B12 is 20% DV, useful for nerve and blood-cell support. Vitamin A is only 2% DV, a weak mark for dairy.",
+      "timingHint": "short-medium",
+      "score": 13.3
+    },
+    {
       "key": "minerals",
       "title": "Minerals",
-      "narration": "Calcium at 10% daily value stands out most. Useful, but still pretty limited.",
+      "narration": "Calcium is 10% daily value, adding useful mineral support. Magnesium is only 2% daily value, a weak mark for dairy.",
       "displayItems": [
         {
           "metricKey": "calcium_dv",
           "text": "calcium at 10% DV",
-          "weightedScore": 3,
+          "weightedScore": 30,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 10,
           "value": null
+        },
+        {
+          "metricKey": "magnesium_dv",
+          "text": "magnesium at 2% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 2,
+          "value": null
+        },
+        {
+          "metricKey": "zinc_dv",
+          "text": "zinc at 4% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 4,
+          "value": null
         }
       ],
-      "subtitleText": "Calcium at 10% daily value stands out most. Useful, but still pretty limited.",
+      "subtitleText": "Calcium is 10% DV, adding useful mineral support. Magnesium is only 2% DV, a weak mark for dairy.",
       "timingHint": "short-medium",
-      "score": 10
+      "score": 6
     },
     {
       "key": "pros",
@@ -168,79 +241,145 @@
           "title": "easy protein delivery for normal diets",
           "explanation": "Dairy gets real credit for convenience.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "easy to fit into familiar meals",
           "explanation": "That lowers friction for regular use.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "slots into meals very easily",
           "explanation": "Practical versatility matters a lot for dairy.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         }
       ],
       "subtitleText": "Pros first: easy protein delivery for normal diets. Dairy gets real credit for convenience. Easy to fit into familiar meals. That lowers friction for regular use. Slots into meals very easily. Practical versatility matters a lot for dairy.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     },
     {
       "key": "cons",
       "title": "Cons",
-      "narration": "On the weaker side: processing changes the category a lot. The label alone does not tell the whole story. Fat quality varies wildly across dairy. Some dairy is clean, some really is not. Some versions get dense fast on fat, sodium, or both. The category swings a lot by format.",
+      "narration": "Downsides next: processing changes the category a lot. The label alone does not tell the whole story. Fat quality varies wildly across dairy. Some dairy is clean, some really is not. Some versions get dense fast on fat, sodium, or both. The category swings a lot by format.",
       "displayItems": [
         {
           "type": "con",
           "title": "processing changes the category a lot",
           "explanation": "The label alone does not tell the whole story.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "fat quality varies wildly across dairy",
           "explanation": "Some dairy is clean, some really is not.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "some versions get dense fast on fat, sodium, or both",
           "explanation": "The category swings a lot by format.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "On the weaker side: processing changes the category a lot. The label alone does not tell the whole story. Fat quality varies wildly across dairy. Some dairy is clean, some really is not. Some versions get dense fast on fat, sodium, or both. The category swings a lot by format.",
+      "subtitleText": "Downsides next: processing changes the category a lot. The label alone does not tell the whole story. Fat quality varies wildly across dairy. Some dairy is clean, some really is not. Some versions get dense fast on fat, sodium, or both. The category swings a lot by format.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     }
   ],
   "closing": {
-    "summary": "Skimmed Milk has a genuinely strong overall case. the practical downsides are real, but they do not outweigh the upside. best when the protein payoff or fermentation angle outweighs the fat and sodium tradeoffs.",
-    "finalReveal": "S tier.",
+    "summary": "Big strengths are omega 3 and protein, but the biggest weaknesses are processing changes the category a lot and fat quality varies wildly across dairy.",
+    "overview": "Big strengths are omega 3 and protein, but the biggest weaknesses are processing changes the category a lot and fat quality varies wildly across dairy.",
+    "finalReveal": "B tier.",
     "useCaseNote": "Best when the protein payoff or fermentation angle outweighs the fat and sodium tradeoffs.",
     "cta": "Would you rank it the same, or nah?"
   },
-  "tier": "S",
-  "overallScore": 68,
+  "tier": "B",
+  "overallScore": 53.6,
+  "overallScoreExact": 53.6118,
+  "baseOverallScore": 43.2,
+  "baseOverallScoreExact": 43.2381,
+  "sectionOrder": [
+    "fats",
+    "carbs",
+    "proteins",
+    "vitamins",
+    "minerals",
+    "pros",
+    "cons"
+  ],
+  "narrationBlocks": [
+    {
+      "kind": "hook_food",
+      "text": "Skimmed Milk!"
+    },
+    {
+      "kind": "hook_ranked",
+      "text": "Ranked!"
+    },
+    {
+      "kind": "section",
+      "sectionKey": "fats",
+      "text": "0.1 grams of fat. Saturated fat is 0.1 grams, supporting a better fat profile. Omega 3 is 10 milligrams, a weak mark for dairy."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "carbs",
+      "text": "5 grams of carbs. Sugar is 5 grams, supporting better carb quality. Starch is 0 grams, a small miss for dairy."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "proteins",
+      "text": "3.4 grams of protein. Essential amino acids score is 7 out of 9, with 90% bioavailability, making the protein useful for repair and maintenance. Collagen is only 0 grams, a weak mark for dairy."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "vitamins",
+      "text": "Vitamin B12 is 20% daily value, useful for nerve and blood-cell support. Vitamin A is only 2% daily value, a weak mark for dairy."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "minerals",
+      "text": "Calcium is 10% daily value, adding useful mineral support. Magnesium is only 2% daily value, a weak mark for dairy."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "pros",
+      "text": "Pros first: easy protein delivery for normal diets. Dairy gets real credit for convenience. Easy to fit into familiar meals. That lowers friction for regular use. Slots into meals very easily. Practical versatility matters a lot for dairy."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "cons",
+      "text": "Downsides next: processing changes the category a lot. The label alone does not tell the whole story. Fat quality varies wildly across dairy. Some dairy is clean, some really is not. Some versions get dense fast on fat, sodium, or both. The category swings a lot by format."
+    },
+    {
+      "kind": "closing_summary",
+      "text": "Big strengths are omega 3 and protein, but the biggest weaknesses are processing changes the category a lot and fat quality varies wildly across dairy."
+    },
+    {
+      "kind": "final_reveal",
+      "text": "B tier."
+    }
+  ],
   "explanation": {
-    "summary": "Fats are carrying this food most, while minerals are the biggest drag. It lands in S tier.",
-    "whyThisTier": "This food lands in S tier with an overall score of 68 from a base nutrition score of 68. Context barely changed the result.",
+    "summary": "Fats are carrying this food most, while minerals are holding it back most. It lands in B tier.",
+    "whyThisTier": "This food lands in B tier with an overall score of 53.6. Section scores: fats 83.3, carbs 80, proteins 20, vitamins 13.3, minerals 6, pros 50, cons 50.",
     "strongestSection": {
       "key": "fats",
       "label": "Fats",
-      "score": 90.9
+      "score": 83.3
     },
     "weakestSection": {
       "key": "minerals",
       "label": "Minerals",
-      "score": 10
+      "score": 6
     },
     "topPros": [
       {
@@ -248,21 +387,21 @@
         "explanation": "Dairy gets real credit for convenience.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "easy to fit into familiar meals",
         "explanation": "That lowers friction for regular use.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "slots into meals very easily",
         "explanation": "Practical versatility matters a lot for dairy.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -271,27 +410,27 @@
         "explanation": "The label alone does not tell the whole story.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "fat quality varies wildly across dairy",
         "explanation": "Some dairy is clean, some really is not.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "some versions get dense fast on fat, sodium, or both",
         "explanation": "The category swings a lot by format.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
       "Strongest section: Fats.",
       "Weakest section: Minerals.",
-      "Final verdict: S tier."
+      "Final verdict: B tier."
     ]
   }
 }

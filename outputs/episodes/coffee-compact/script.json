@@ -1,13 +1,30 @@
 {
   "status": "ok",
+  "schemaVersion": "foodranked-script.v2",
+  "narrationFormat": "elevenlabs-blocks-v1",
   "food": {
     "id": "coffee",
     "name": "Coffee",
-    "foodType": "misc"
+    "foodType": "misc",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "identity": null,
+    "scoreReadiness": null,
+    "sourceNotes": [
+      "Calibration benchmark sample for FoodRanked.",
+      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database.",
+      "This misc example is judged mostly by context/effects rather than composition."
+    ]
   },
   "ruleset": {
     "id": "misc.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 2,
@@ -16,7 +33,6 @@
     "protein_g": 0.3
   },
   "hook": "Coffee ranked.",
-  "intro": "",
   "sections": [
     {
       "key": "fats",
@@ -39,9 +55,9 @@
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "No real protein story here.",
+      "narration": "0.3 grams of protein. No defensible protein submacros to call out. No real protein story here.",
       "displayItems": [],
-      "subtitleText": "No real protein story here.",
+      "subtitleText": "0.3g of protein. No defensible protein submacros to call out. No real protein story here.",
       "timingHint": "short-medium",
       "score": null
     },
@@ -49,110 +65,256 @@
       "key": "vitamins",
       "title": "Vitamins",
       "narration": "No real vitamin story here.",
-      "displayItems": [],
+      "displayItems": [
+        {
+          "metricKey": "vitamin_c_dv",
+          "text": "vitamin C at 0% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
+        },
+        {
+          "metricKey": "vitamin_e_dv",
+          "text": "vitamin E at 0% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
+        },
+        {
+          "metricKey": "vitamin_k_dv",
+          "text": "vitamin K at 0% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
+        }
+      ],
       "subtitleText": "No real vitamin story here.",
       "timingHint": "short-medium",
-      "score": null
+      "score": 0
     },
     {
       "key": "minerals",
       "title": "Minerals",
       "narration": "No real mineral story here.",
-      "displayItems": [],
+      "displayItems": [
+        {
+          "metricKey": "potassium_dv",
+          "text": "potassium at 2% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 2,
+          "value": null
+        },
+        {
+          "metricKey": "iron_dv",
+          "text": "iron at 0% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
+        },
+        {
+          "metricKey": "magnesium_dv",
+          "text": "magnesium at 1% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 1,
+          "value": null
+        },
+        {
+          "metricKey": "zinc_dv",
+          "text": "zinc at 0% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
+        }
+      ],
       "subtitleText": "No real mineral story here.",
       "timingHint": "short-medium",
-      "score": null
+      "score": 0
     },
     {
       "key": "pros",
       "title": "Pros",
-      "narration": "The upsides first: strong misc-category fit. Coffee is still fundamentally judged by effects and use-case rather than nutrient composition. Strong alertness effect. This is the main real-world reason coffee matters in this category. Usually near-zero calories plain. Very clean base use-case when not loaded with extras.",
+      "narration": "Positives first: strong misc-category fit. Coffee is still fundamentally judged by effects and use-case rather than nutrient composition. Strong alertness effect. This is the main real-world reason coffee matters in this category. Usually near-zero calories plain. Very clean base use-case when not loaded with extras.",
       "displayItems": [
         {
           "type": "pro",
           "title": "strong misc-category fit",
           "explanation": "Coffee is still fundamentally judged by effects and use-case rather than nutrient composition.",
           "impactLevel": "major",
-          "scoreValue": 8
+          "resolvedScoreValue": 100
         },
         {
           "type": "pro",
           "title": "strong alertness effect",
           "explanation": "This is the main real-world reason coffee matters in this category.",
           "impactLevel": "major",
-          "scoreValue": 8
+          "resolvedScoreValue": 100
         },
         {
           "type": "pro",
           "title": "usually near-zero calories plain",
           "explanation": "Very clean base use-case when not loaded with extras.",
           "impactLevel": "minor",
-          "scoreValue": 0
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "The upsides first: strong misc-category fit. Coffee is still fundamentally judged by effects and use-case rather than nutrient composition. Strong alertness effect. This is the main real-world reason coffee matters in this category. Usually near-zero calories plain. Very clean base use-case when not loaded with extras.",
+      "subtitleText": "Positives first: strong misc-category fit. Coffee is still fundamentally judged by effects and use-case rather than nutrient composition. Strong alertness effect. This is the main real-world reason coffee matters in this category. Usually near-zero calories plain. Very clean base use-case when not loaded with extras.",
       "timingHint": "medium",
-      "score": 100
+      "score": 83.3
     },
     {
       "key": "cons",
       "title": "Cons",
-      "narration": "On the weaker side: caffeine tradeoffs are real. Sleep disruption, jitters, and overuse risk stop this from being a clean automatic S. Habit dependence can creep in. A stronger practical downside than green tea usually carries. People often ruin it with sugary add-ins. The practical version consumed is not always the clean black-coffee version.",
+      "narration": "Downsides next: caffeine tradeoffs are real. Sleep disruption, jitters, and overuse risk stop this from being a clean automatic S. Habit dependence can creep in. A stronger practical downside than green tea usually carries. People often ruin it with sugary add-ins. The practical version consumed is not always the clean black-coffee version.",
       "displayItems": [
         {
           "type": "con",
           "title": "caffeine tradeoffs are real",
           "explanation": "Sleep disruption, jitters, and overuse risk stop this from being a clean automatic S.",
           "impactLevel": "major",
-          "scoreValue": -8
+          "resolvedScoreValue": 100
         },
         {
           "type": "con",
           "title": "habit dependence can creep in",
           "explanation": "A stronger practical downside than green tea usually carries.",
           "impactLevel": "major",
-          "scoreValue": -8
+          "resolvedScoreValue": 100
         },
         {
           "type": "con",
           "title": "people often ruin it with sugary add-ins",
           "explanation": "The practical version consumed is not always the clean black-coffee version.",
           "impactLevel": "minor",
-          "scoreValue": 0
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "On the weaker side: caffeine tradeoffs are real. Sleep disruption, jitters, and overuse risk stop this from being a clean automatic S. Habit dependence can creep in. A stronger practical downside than green tea usually carries. People often ruin it with sugary add-ins. The practical version consumed is not always the clean black-coffee version.",
+      "subtitleText": "Downsides next: caffeine tradeoffs are real. Sleep disruption, jitters, and overuse risk stop this from being a clean automatic S. Habit dependence can creep in. A stronger practical downside than green tea usually carries. People often ruin it with sugary add-ins. The practical version consumed is not always the clean black-coffee version.",
       "timingHint": "medium",
-      "score": 100
+      "score": 16.7
     }
   ],
   "closing": {
-    "summary": "Coffee does have some solid upside. but the tradeoffs keep it from climbing higher. best treated as a context item rather than a nutritional cornerstone.",
+    "summary": "Big strengths are strong misc-category fit and strong alertness effect, but the biggest weaknesses are caffeine tradeoffs are real and habit dependence can creep in.",
+    "overview": "Big strengths are strong misc-category fit and strong alertness effect, but the biggest weaknesses are caffeine tradeoffs are real and habit dependence can creep in.",
     "finalReveal": "B tier.",
     "useCaseNote": "Best treated as a context item rather than a nutritional cornerstone.",
     "cta": "Would you rank it the same, or nah?"
   },
   "tier": "B",
-  "overallScore": 8,
+  "overallScore": 44.3,
+  "overallScoreExact": 44.2552,
+  "baseOverallScore": 25,
+  "baseOverallScoreExact": 25,
+  "sectionOrder": [
+    "fats",
+    "carbs",
+    "proteins",
+    "vitamins",
+    "minerals",
+    "pros",
+    "cons"
+  ],
+  "narrationBlocks": [
+    {
+      "kind": "hook_food",
+      "text": "Coffee!"
+    },
+    {
+      "kind": "hook_ranked",
+      "text": "Ranked!"
+    },
+    {
+      "kind": "section",
+      "sectionKey": "fats",
+      "text": "Simple one."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "carbs",
+      "text": "0 grams of carbs. And that is basically the whole nutrition story."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "proteins",
+      "text": "0.3 grams of protein. No defensible protein submacros to call out. No real protein story here."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "vitamins",
+      "text": "No real vitamin story here."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "minerals",
+      "text": "No real mineral story here."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "pros",
+      "text": "Positives first: strong misc-category fit. Coffee is still fundamentally judged by effects and use-case rather than nutrient composition. Strong alertness effect. This is the main real-world reason coffee matters in this category. Usually near-zero calories plain. Very clean base use-case when not loaded with extras."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "cons",
+      "text": "Downsides next: caffeine tradeoffs are real. Sleep disruption, jitters, and overuse risk stop this from being a clean automatic S. Habit dependence can creep in. A stronger practical downside than green tea usually carries. People often ruin it with sugary add-ins. The practical version consumed is not always the clean black-coffee version."
+    },
+    {
+      "kind": "closing_summary",
+      "text": "Big strengths are strong misc-category fit and strong alertness effect, but the biggest weaknesses are caffeine tradeoffs are real and habit dependence can creep in."
+    },
+    {
+      "kind": "final_reveal",
+      "text": "B tier."
+    }
+  ],
   "explanation": {
-    "summary": "This food is being judged mostly by contextual strengths and weaknesses rather than nutrient sections. It lands in B tier.",
-    "whyThisTier": "This food lands in B tier with an overall score of 8 from a base nutrition score of 0. Context lifted it by 8 points.",
-    "strongestSection": null,
-    "weakestSection": null,
+    "summary": "Pros are carrying this food most, while minerals are holding it back most. It lands in B tier.",
+    "whyThisTier": "This food lands in B tier with an overall score of 44.3. Section scores: vitamins 0, minerals 0, pros 83.3, cons 16.7.",
+    "strongestSection": {
+      "key": "pros",
+      "label": "Pros",
+      "score": 83.3
+    },
+    "weakestSection": {
+      "key": "minerals",
+      "label": "Minerals",
+      "score": 0
+    },
     "topPros": [
       {
         "title": "strong misc-category fit",
         "explanation": "Coffee is still fundamentally judged by effects and use-case rather than nutrient composition.",
         "impactLevel": "major",
         "side": "pro",
-        "resolvedScoreValue": 8
+        "resolvedScoreValue": 100
       },
       {
         "title": "strong alertness effect",
         "explanation": "This is the main real-world reason coffee matters in this category.",
         "impactLevel": "major",
         "side": "pro",
-        "resolvedScoreValue": 8
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "usually near-zero calories plain",
+        "explanation": "Very clean base use-case when not loaded with extras.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -161,11 +323,26 @@
         "explanation": "Sleep disruption, jitters, and overuse risk stop this from being a clean automatic S.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -8
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "habit dependence can creep in",
+        "explanation": "A stronger practical downside than green tea usually carries.",
+        "impactLevel": "major",
+        "side": "con",
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "people often ruin it with sugary add-ins",
+        "explanation": "The practical version consumed is not always the clean black-coffee version.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
-      "Context improved the final tier case by 8 points.",
+      "Strongest section: Pros.",
+      "Weakest section: Minerals.",
       "Final verdict: B tier."
     ]
   }

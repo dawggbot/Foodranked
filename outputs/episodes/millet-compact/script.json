@@ -1,13 +1,29 @@
 {
   "status": "ok",
+  "schemaVersion": "foodranked-script.v2",
+  "narrationFormat": "elevenlabs-blocks-v1",
   "food": {
     "id": "millet",
     "name": "Millet",
-    "foodType": "grains"
+    "foodType": "grains",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "identity": null,
+    "scoreReadiness": null,
+    "sourceNotes": [
+      "Calibration benchmark sample for FoodRanked.",
+      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
+    ]
   },
   "ruleset": {
     "id": "grains.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 378,
@@ -16,155 +32,176 @@
     "protein_g": 11
   },
   "hook": "Millet ranked.",
-  "intro": "",
   "sections": [
     {
       "key": "fats",
       "title": "Fats",
-      "narration": "4.2 grams of fat. Omega 3 is 60 milligrams, doing a lot of the work here. Fat is basically not the story here.",
+      "narration": "4.2 grams of fat. Saturated fat is 0.7 grams, supporting a better fat profile. Omega 3 is 60 milligrams, a weak mark for grains.",
       "displayItems": [
         {
           "metricKey": "saturated_fat_g",
           "text": "saturated fat at 0.7g",
-          "weightedScore": 3,
+          "weightedScore": 80,
           "scoringMode": "arrow_bands",
-          "band": "↓↓↓",
+          "band": "2_green",
           "dvPercent": null,
           "value": 0.7
         },
         {
           "metricKey": "omega3_mg",
           "text": "omega 3 at 60mg",
-          "weightedScore": 3,
+          "weightedScore": 20,
           "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
+          "band": "2_red",
           "dvPercent": null,
           "value": 60
         },
         {
           "metricKey": "polyunsaturated_fat_g",
           "text": "polyunsaturated fat at 2.2g",
-          "weightedScore": -1,
+          "weightedScore": 60,
           "scoringMode": "arrow_bands",
-          "band": "↓",
+          "band": "1_green",
           "dvPercent": null,
           "value": 2.2
         }
       ],
-      "subtitleText": "4.2g of fat. Omega 3 is 60mg, doing a lot of the work here. Fat is basically not the story here.",
+      "subtitleText": "4.2g of fat. Saturated fat is 0.7g, supporting a better fat profile. Omega 3 is 60mg, a weak mark for grains.",
       "timingHint": "short-medium",
-      "score": 77.8
+      "score": 53.3
     },
     {
       "key": "carbs",
       "title": "Carbs",
-      "narration": "72.9 grams of carbs. Fibre is 8.5 grams. 72.9 grams of carbs. Fibre is 8.5 grams, doing a lot of the work here. For grains, the carb quality matters much more than the raw number.",
+      "narration": "72.9 grams of carbs. Fibre is 8.5 grams, helping with digestion and steadier meals.",
       "displayItems": [
         {
           "metricKey": "fibre_g",
           "text": "fibre at 8.5g",
-          "weightedScore": 6,
+          "weightedScore": 400,
           "scoringMode": "arrow_bands",
-          "band": "↑↑",
+          "band": "2_green",
           "dvPercent": null,
           "value": 8.5
         },
         {
-          "metricKey": "glycemic_index",
-          "text": "glycemic index at 54 GI",
-          "weightedScore": 4,
-          "scoringMode": "arrow_bands",
-          "band": "↓",
-          "dvPercent": null,
-          "value": 54
-        },
-        {
           "metricKey": "sugar_g",
           "text": "sugar at 0g",
-          "weightedScore": 3,
+          "weightedScore": 200,
           "scoringMode": "arrow_bands",
-          "band": "↓↓↓",
+          "band": "3_green",
           "dvPercent": null,
           "value": 0
         },
         {
+          "metricKey": "glycemic_index",
+          "text": "glycemic index at 54 GI",
+          "weightedScore": 300,
+          "scoringMode": "arrow_bands",
+          "band": "1_green",
+          "dvPercent": null,
+          "value": 54
+        },
+        {
           "metricKey": "starch_g",
           "text": "starch at 57g",
-          "weightedScore": 1,
+          "weightedScore": 80,
           "scoringMode": "arrow_bands",
-          "band": "↑",
+          "band": "2_green",
           "dvPercent": null,
           "value": 57
         }
       ],
-      "subtitleText": "72.9g of carbs. Fibre is 8.5g. 72.9g of carbs. Fibre is 8.5g, doing a lot of the work here. For grains, the carb quality matters much more than the raw number.",
+      "subtitleText": "72.9g of carbs. Fibre is 8.5g, helping with digestion and steadier meals.",
       "timingHint": "short-medium",
-      "score": 75.9
+      "score": 75.4
     },
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "11 grams of protein. Bioavailability is 55%, and amino acid quality is strong. Protein helps, but not enough if the carb side is weak.",
+      "narration": "11 grams of protein. Essential amino acids score is 4 out of 9, with 55% bioavailability, making the protein useful for repair and maintenance.",
       "displayItems": [
-        {
-          "metricKey": "bioavailability_percent",
-          "text": "bioavailability at 55%",
-          "weightedScore": 6,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
-          "dvPercent": null,
-          "value": 55
-        },
         {
           "metricKey": "essential_amino_acids_score",
           "text": "essential amino acids score at 4/9",
-          "weightedScore": 2,
-          "scoringMode": "arrow_bands",
-          "band": "↑",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
           "dvPercent": null,
-          "value": 4
+          "value": 4,
+          "referenceOnly": true
+        },
+        {
+          "metricKey": "bioavailability_percent",
+          "text": "bioavailability at 55%",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
+          "dvPercent": null,
+          "value": 55,
+          "referenceOnly": true
         },
         {
           "metricKey": "nonessential_amino_acids_score",
           "text": "nonessential amino acids score at 5/11",
-          "weightedScore": 2,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
           "dvPercent": null,
-          "value": 5
+          "value": 5,
+          "referenceOnly": true
         }
       ],
-      "subtitleText": "11g of protein. Bioavailability is 55%, and amino acid quality is strong. Protein helps, but not enough if the carb side is weak.",
+      "subtitleText": "11g of protein. Essential amino acids score is 4/9, with 55% bioavailability, making the protein useful for repair and maintenance.",
       "timingHint": "short-medium",
-      "score": 83.3
+      "score": 60
     },
     {
       "key": "vitamins",
       "title": "Vitamins",
-      "narration": "The rest is pretty lackluster.",
-      "displayItems": [],
-      "subtitleText": "The rest is pretty lackluster.",
+      "narration": "Vitamin E is 0% daily value, adding useful vitamin support.",
+      "displayItems": [
+        {
+          "metricKey": "vitamin_e_dv",
+          "text": "vitamin E at 0% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
+        }
+      ],
+      "subtitleText": "Vitamin E is 0% DV, adding useful vitamin support.",
       "timingHint": "short-medium",
-      "score": null
+      "score": 0
     },
     {
       "key": "minerals",
       "title": "Minerals",
-      "narration": "Magnesium at 29% daily value, iron at 17% daily value, zinc at 14% daily value stand out most. Useful, but still pretty limited.",
+      "narration": "Magnesium is 29% daily value, adding useful mineral support. Potassium is only 5% daily value, a weak mark for grains.",
       "displayItems": [
         {
           "metricKey": "magnesium_dv",
           "text": "magnesium at 29% DV",
-          "weightedScore": 4,
+          "weightedScore": 100,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 29,
           "value": null
         },
         {
+          "metricKey": "potassium_dv",
+          "text": "potassium at 5% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 5,
+          "value": null
+        },
+        {
           "metricKey": "iron_dv",
           "text": "iron at 17% DV",
-          "weightedScore": 2,
+          "weightedScore": 40,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 17,
@@ -173,16 +210,16 @@
         {
           "metricKey": "zinc_dv",
           "text": "zinc at 14% DV",
-          "weightedScore": 1,
+          "weightedScore": 40,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 14,
           "value": null
         }
       ],
-      "subtitleText": "Magnesium at 29% daily value, iron at 17% daily value, zinc at 14% daily value stand out most. Useful, but still pretty limited.",
+      "subtitleText": "Magnesium is 29% DV, adding useful mineral support. Potassium is only 5% DV, a weak mark for grains.",
       "timingHint": "short-medium",
-      "score": 14
+      "score": 12
     },
     {
       "key": "pros",
@@ -194,79 +231,145 @@
           "title": "works as a meal anchor",
           "explanation": "A lot of value comes from being easy to build around.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "can keep meals cheap and steady",
           "explanation": "That is a genuine category strength.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "easy to batch cook at scale",
           "explanation": "That practicality is part of why grains matter.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         }
       ],
       "subtitleText": "Pros first: works as a meal anchor. A lot of value comes from being easy to build around. Can keep meals cheap and steady. That is a genuine category strength. Easy to batch cook at scale. That practicality is part of why grains matter.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     },
     {
       "key": "cons",
       "title": "Cons",
-      "narration": "Now the downsides: needs strong pairings to feel complete. The grain rarely finishes the nutrition job alone. Carb load is still the main burden. That is the category risk no grain fully escapes. Easy to overshoot portions. Staple carbs can pile up fast without much friction.",
+      "narration": "Cons next: needs strong pairings to feel complete. The grain rarely finishes the nutrition job alone. Carb load is still the main burden. That is the category risk no grain fully escapes. Easy to overshoot portions. Staple carbs can pile up fast without much friction.",
       "displayItems": [
         {
           "type": "con",
           "title": "needs strong pairings to feel complete",
           "explanation": "The grain rarely finishes the nutrition job alone.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "carb load is still the main burden",
           "explanation": "That is the category risk no grain fully escapes.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "easy to overshoot portions",
           "explanation": "Staple carbs can pile up fast without much friction.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "Now the downsides: needs strong pairings to feel complete. The grain rarely finishes the nutrition job alone. Carb load is still the main burden. That is the category risk no grain fully escapes. Easy to overshoot portions. Staple carbs can pile up fast without much friction.",
+      "subtitleText": "Cons next: needs strong pairings to feel complete. The grain rarely finishes the nutrition job alone. Carb load is still the main burden. That is the category risk no grain fully escapes. Easy to overshoot portions. Staple carbs can pile up fast without much friction.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     }
   ],
   "closing": {
-    "summary": "Millet does have some solid upside. but the tradeoffs keep it from climbing higher. best when you want a staple carb that actually brings something useful with it.",
-    "finalReveal": "B tier.",
-    "useCaseNote": "Best when you want a staple carb that actually brings something useful with it.",
+    "summary": "Big strengths are protein and fibre, but the biggest weaknesses are needs strong pairings to feel complete and carb load is still the main burden.",
+    "overview": "Big strengths are protein and fibre, but the biggest weaknesses are needs strong pairings to feel complete and carb load is still the main burden.",
+    "finalReveal": "C tier.",
+    "useCaseNote": "Best only as a light snack base or texture food, not as a strong staple by itself.",
     "cta": "Would you rank it the same, or nah?"
   },
-  "tier": "B",
-  "overallScore": 61,
+  "tier": "C",
+  "overallScore": 38.8,
+  "overallScoreExact": 38.8411,
+  "baseOverallScore": 43,
+  "baseOverallScoreExact": 42.9597,
+  "sectionOrder": [
+    "fats",
+    "carbs",
+    "proteins",
+    "vitamins",
+    "minerals",
+    "pros",
+    "cons"
+  ],
+  "narrationBlocks": [
+    {
+      "kind": "hook_food",
+      "text": "Millet!"
+    },
+    {
+      "kind": "hook_ranked",
+      "text": "Ranked!"
+    },
+    {
+      "kind": "section",
+      "sectionKey": "fats",
+      "text": "4.2 grams of fat. Saturated fat is 0.7 grams, supporting a better fat profile. Omega 3 is 60 milligrams, a weak mark for grains."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "carbs",
+      "text": "72.9 grams of carbs. Fibre is 8.5 grams, helping with digestion and steadier meals."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "proteins",
+      "text": "11 grams of protein. Essential amino acids score is 4 out of 9, with 55% bioavailability, making the protein useful for repair and maintenance."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "vitamins",
+      "text": "Vitamin E is 0% daily value, adding useful vitamin support."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "minerals",
+      "text": "Magnesium is 29% daily value, adding useful mineral support. Potassium is only 5% daily value, a weak mark for grains."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "pros",
+      "text": "Pros first: works as a meal anchor. A lot of value comes from being easy to build around. Can keep meals cheap and steady. That is a genuine category strength. Easy to batch cook at scale. That practicality is part of why grains matter."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "cons",
+      "text": "Cons next: needs strong pairings to feel complete. The grain rarely finishes the nutrition job alone. Carb load is still the main burden. That is the category risk no grain fully escapes. Easy to overshoot portions. Staple carbs can pile up fast without much friction."
+    },
+    {
+      "kind": "closing_summary",
+      "text": "Big strengths are protein and fibre, but the biggest weaknesses are needs strong pairings to feel complete and carb load is still the main burden."
+    },
+    {
+      "kind": "final_reveal",
+      "text": "C tier."
+    }
+  ],
   "explanation": {
-    "summary": "Proteins are carrying this food most, while minerals are the biggest drag. It lands in B tier.",
-    "whyThisTier": "This food lands in B tier with an overall score of 61 from a base nutrition score of 61. Context barely changed the result.",
+    "summary": "Carbs are carrying this food most, while vitamins are holding it back most. It lands in C tier.",
+    "whyThisTier": "This food lands in C tier with an overall score of 38.8. Section scores: fats 53.3, carbs 75.4, proteins 60, vitamins 0, minerals 12, pros 50, cons 50.",
     "strongestSection": {
-      "key": "proteins",
-      "label": "Proteins",
-      "score": 83.3
+      "key": "carbs",
+      "label": "Carbs",
+      "score": 75.4
     },
     "weakestSection": {
-      "key": "minerals",
-      "label": "Minerals",
-      "score": 14
+      "key": "vitamins",
+      "label": "Vitamins",
+      "score": 0
     },
     "topPros": [
       {
@@ -274,21 +377,21 @@
         "explanation": "A lot of value comes from being easy to build around.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "can keep meals cheap and steady",
         "explanation": "That is a genuine category strength.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "easy to batch cook at scale",
         "explanation": "That practicality is part of why grains matter.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -297,27 +400,27 @@
         "explanation": "The grain rarely finishes the nutrition job alone.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "carb load is still the main burden",
         "explanation": "That is the category risk no grain fully escapes.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "easy to overshoot portions",
         "explanation": "Staple carbs can pile up fast without much friction.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
-      "Strongest section: Proteins.",
-      "Weakest section: Minerals.",
-      "Final verdict: B tier."
+      "Strongest section: Carbs.",
+      "Weakest section: Vitamins.",
+      "Final verdict: C tier."
     ]
   }
 }

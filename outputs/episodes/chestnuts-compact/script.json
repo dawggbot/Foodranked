@@ -1,13 +1,29 @@
 {
   "status": "ok",
+  "schemaVersion": "foodranked-script.v2",
+  "narrationFormat": "elevenlabs-blocks-v1",
   "food": {
     "id": "chestnuts",
     "name": "Chestnuts",
-    "foodType": "nuts"
+    "foodType": "nuts",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "identity": null,
+    "scoreReadiness": null,
+    "sourceNotes": [
+      "Calibration benchmark sample for FoodRanked.",
+      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
+    ]
   },
   "ruleset": {
     "id": "nuts.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 213,
@@ -16,167 +32,179 @@
     "protein_g": 2.4
   },
   "hook": "Chestnuts ranked.",
-  "intro": "",
   "sections": [
     {
       "key": "fats",
       "title": "Fats",
-      "narration": "2.2 grams of fat. Saturated fat is 0.4 grams. Saturated fat is 0.4 grams. 2.2 grams of fat. Saturated fat, polyunsaturated fat, and omega3 are doing most of the work. For nuts, fat quality has to justify the calorie density.",
+      "narration": "2.2 grams of fat. Saturated fat is 0.4 grams, supporting a better fat profile. Omega 3 is 38 milligrams, and for nuts, fat quality has to justify the calories.",
       "displayItems": [
         {
           "metricKey": "saturated_fat_g",
           "text": "saturated fat at 0.4g",
-          "weightedScore": 6,
+          "weightedScore": 300,
           "scoringMode": "arrow_bands",
-          "band": "↓↓↓",
+          "band": "3_green",
           "dvPercent": null,
           "value": 0.4
         },
         {
-          "metricKey": "polyunsaturated_fat_g",
-          "text": "polyunsaturated fat at 0.9g",
-          "weightedScore": -6,
-          "scoringMode": "arrow_bands",
-          "band": "↓↓↓",
-          "dvPercent": null,
-          "value": 0.9
-        },
-        {
           "metricKey": "omega3_mg",
           "text": "omega 3 at 38mg",
-          "weightedScore": -4,
+          "weightedScore": 100,
           "scoringMode": "arrow_bands",
-          "band": "↓↓",
+          "band": "2_red",
           "dvPercent": null,
           "value": 38
         },
         {
           "metricKey": "cholesterol_mg",
           "text": "cholesterol at 0mg",
-          "weightedScore": 2,
+          "weightedScore": 100,
           "scoringMode": "arrow_bands",
-          "band": "↓↓",
+          "band": "3_green",
           "dvPercent": null,
           "value": 0
+        },
+        {
+          "metricKey": "polyunsaturated_fat_g",
+          "text": "polyunsaturated fat at 0.9g",
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
+          "band": "3_red",
+          "dvPercent": null,
+          "value": 0.9
         }
       ],
-      "subtitleText": "2.2g of fat. Saturated fat is 0.4g. Saturated fat is 0.4g. 2.2g of fat. Saturated fat, polyunsaturated fat, and omega3 are doing most of the work. For nuts, fat quality has to justify the calorie density.",
+      "subtitleText": "2.2g of fat. Saturated fat is 0.4g, supporting a better fat profile. Omega 3 is 38mg, and for nuts, fat quality has to justify the calories.",
       "timingHint": "short-medium",
-      "score": 45.2
+      "score": 41.7
     },
     {
       "key": "carbs",
       "title": "Carbs",
-      "narration": "45.5 grams of carbs. Sugar is 10.6 grams. 45.5 grams of carbs. Fibre is 8.1 grams, doing a lot of the work here. For a nut, fat quality matters a ton.",
+      "narration": "45.5 grams of carbs. Starch is 24.1 grams, supporting better carb quality. Sugar is 10.6 grams, a small miss for nuts.",
       "displayItems": [
-        {
-          "metricKey": "sugar_g",
-          "text": "sugar at 10.6g",
-          "weightedScore": -4,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑",
-          "dvPercent": null,
-          "value": 10.6
-        },
         {
           "metricKey": "starch_g",
           "text": "starch at 24.1g",
-          "weightedScore": 3,
+          "weightedScore": 50,
           "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
+          "band": "3_green",
           "dvPercent": null,
           "value": 24.1
         },
         {
+          "metricKey": "sugar_g",
+          "text": "sugar at 10.6g",
+          "weightedScore": 40,
+          "scoringMode": "arrow_bands",
+          "band": "2_red",
+          "dvPercent": null,
+          "value": 10.6
+        },
+        {
           "metricKey": "fibre_g",
           "text": "fibre at 8.1g",
-          "weightedScore": 2,
+          "weightedScore": 180,
           "scoringMode": "arrow_bands",
-          "band": "↑",
+          "band": "1_green",
           "dvPercent": null,
           "value": 8.1
         },
         {
           "metricKey": "glycemic_index",
           "text": "glycemic index at 54 GI",
-          "weightedScore": -2,
+          "weightedScore": 30,
           "scoringMode": "arrow_bands",
-          "band": "↑↑",
+          "band": "2_red",
           "dvPercent": null,
           "value": 54
         }
       ],
-      "subtitleText": "45.5g of carbs. Sugar is 10.6g. 45.5g of carbs. Fibre is 8.1g, doing a lot of the work here. For a nut, fat quality matters a ton.",
+      "subtitleText": "45.5g of carbs. Starch is 24.1g, supporting better carb quality. Sugar is 10.6g, a small miss for nuts.",
       "timingHint": "short-medium",
-      "score": 47.2
+      "score": 42.9
     },
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "2.4 grams of protein. Essential amino acids score is 2 out of 9, where things start to fall off. Protein is support here, not the whole argument.",
+      "narration": "2.4 grams of protein. Essential amino acids score is 2 out of 9, with 35% bioavailability, making the protein useful for repair and maintenance.",
       "displayItems": [
         {
           "metricKey": "essential_amino_acids_score",
           "text": "essential amino acids score at 2/9",
-          "weightedScore": -6,
-          "scoringMode": "arrow_bands",
-          "band": "↓↓↓",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
           "dvPercent": null,
-          "value": 2
+          "value": 2,
+          "referenceOnly": true
         },
         {
           "metricKey": "bioavailability_percent",
           "text": "bioavailability at 35%",
-          "weightedScore": -6,
-          "scoringMode": "arrow_bands",
-          "band": "↓↓↓",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
           "dvPercent": null,
-          "value": 35
+          "value": 35,
+          "referenceOnly": true
         },
         {
           "metricKey": "nonessential_amino_acids_score",
           "text": "nonessential amino acids score at 3/11",
-          "weightedScore": -3,
-          "scoringMode": "arrow_bands",
-          "band": "↓↓↓",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
           "dvPercent": null,
-          "value": 3
+          "value": 3,
+          "referenceOnly": true
         }
       ],
-      "subtitleText": "2.4g of protein. Essential amino acids score is 2/9, where things start to fall off. Protein is support here, not the whole argument.",
+      "subtitleText": "2.4g of protein. Essential amino acids score is 2/9, with 35% bioavailability, making the protein useful for repair and maintenance.",
       "timingHint": "short-medium",
       "score": 0
     },
     {
       "key": "vitamins",
       "title": "Vitamins",
-      "narration": "Outside of that, the profile is pretty quiet.",
-      "displayItems": [],
-      "subtitleText": "Outside of that, the profile is pretty quiet.",
+      "narration": "Vitamin E is 1% daily value, adding useful vitamin support. Vitamin B12 is only 0% daily value, a weak mark for nuts.",
+      "displayItems": [
+        {
+          "metricKey": "vitamin_e_dv",
+          "text": "vitamin E at 1% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 1,
+          "value": null
+        },
+        {
+          "metricKey": "vitamin_b12_dv",
+          "text": "vitamin B12 at 0% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
+        }
+      ],
+      "subtitleText": "Vitamin E is 1% DV, adding useful vitamin support. Vitamin B12 is only 0% DV, a weak mark for nuts.",
       "timingHint": "short-medium",
-      "score": null
+      "score": 0
     },
     {
       "key": "minerals",
       "title": "Minerals",
-      "narration": "Minerals are basically not part of the case here.",
+      "narration": "Iron is 17% daily value, useful for oxygen transport. Zinc is 6% daily value, a weak mark for nuts.",
       "displayItems": [
         {
           "metricKey": "iron_dv",
           "text": "iron at 17% DV",
-          "weightedScore": 1,
+          "weightedScore": 10,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 17,
-          "value": null
-        },
-        {
-          "metricKey": "magnesium_dv",
-          "text": "magnesium at 8% DV",
-          "weightedScore": 0,
-          "scoringMode": "dv_points",
-          "band": null,
-          "dvPercent": 8,
           "value": null
         },
         {
@@ -187,113 +215,192 @@
           "band": null,
           "dvPercent": 6,
           "value": null
+        },
+        {
+          "metricKey": "magnesium_dv",
+          "text": "magnesium at 8% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 8,
+          "value": null
         }
       ],
-      "subtitleText": "Minerals are basically not part of the case here.",
+      "subtitleText": "Iron is 17% DV, useful for oxygen transport. Zinc is 6% DV, a weak mark for nuts.",
       "timingHint": "short-medium",
       "score": 1.7
     },
     {
       "key": "pros",
       "title": "Pros",
-      "narration": "On the plus side: has strong seasonal appeal. Could be useful for content packaging even if the nutrition fit is weaker. Lighter than most nuts. This can be practically appealing to some viewers. Works in both sweet and savoury uses. Useful culinary flexibility.",
+      "narration": "The upsides first: has strong seasonal appeal. Could be useful for content packaging even if the nutrition fit is weaker. Lighter than most nuts. This can be practically appealing to some viewers. Works in both sweet and savoury uses. Useful culinary flexibility.",
       "displayItems": [
         {
           "type": "pro",
           "title": "has strong seasonal appeal",
           "explanation": "Could be useful for content packaging even if the nutrition fit is weaker.",
           "impactLevel": "minor",
-          "scoreValue": 0
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "lighter than most nuts",
           "explanation": "This can be practically appealing to some viewers.",
           "impactLevel": "minor",
-          "scoreValue": 0
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "works in both sweet and savoury uses",
           "explanation": "Useful culinary flexibility.",
           "impactLevel": "minor",
-          "scoreValue": 0
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "On the plus side: has strong seasonal appeal. Could be useful for content packaging even if the nutrition fit is weaker. Lighter than most nuts. This can be practically appealing to some viewers. Works in both sweet and savoury uses. Useful culinary flexibility.",
+      "subtitleText": "The upsides first: has strong seasonal appeal. Could be useful for content packaging even if the nutrition fit is weaker. Lighter than most nuts. This can be practically appealing to some viewers. Works in both sweet and savoury uses. Useful culinary flexibility.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     },
     {
       "key": "cons",
       "title": "Cons",
-      "narration": "Now the downsides: poor fit for the nut category goals. Very weak on the fat-quality signals that define stronger nuts. More starch-heavy than ideal here. Moves away from what the nut category is supposed to reward. Protein support is weak. Does not offer much in the protein-quality lane either.",
+      "narration": "Cons next: poor fit for the nut category goals. Very weak on the fat-quality signals that define stronger nuts. More starch-heavy than ideal here. Moves away from what the nut category is supposed to reward. Protein support is weak. Does not offer much in the protein-quality lane either.",
       "displayItems": [
         {
           "type": "con",
           "title": "poor fit for the nut category goals",
           "explanation": "Very weak on the fat-quality signals that define stronger nuts.",
           "impactLevel": "major",
-          "scoreValue": -3
+          "resolvedScoreValue": 100
         },
         {
           "type": "con",
           "title": "more starch-heavy than ideal here",
           "explanation": "Moves away from what the nut category is supposed to reward.",
           "impactLevel": "minor",
-          "scoreValue": 0
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "protein support is weak",
           "explanation": "Does not offer much in the protein-quality lane either.",
           "impactLevel": "minor",
-          "scoreValue": 0
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "Now the downsides: poor fit for the nut category goals. Very weak on the fat-quality signals that define stronger nuts. More starch-heavy than ideal here. Moves away from what the nut category is supposed to reward. Protein support is weak. Does not offer much in the protein-quality lane either.",
+      "subtitleText": "Cons next: poor fit for the nut category goals. Very weak on the fat-quality signals that define stronger nuts. More starch-heavy than ideal here. Moves away from what the nut category is supposed to reward. Protein support is weak. Does not offer much in the protein-quality lane either.",
       "timingHint": "medium",
       "score": 33.3
     }
   ],
   "closing": {
-    "summary": "Chestnuts does have a few real-world upsides. but the nutrition case is still weak and the downsides drag it down hard. best only in small amounts when the calories stay under control.",
+    "summary": "Big strengths are protein and strong seasonal appeal, but the biggest weaknesses are poor fit for the nut category goals and more starch-heavy than ideal here.",
+    "overview": "Big strengths are protein and strong seasonal appeal, but the biggest weaknesses are poor fit for the nut category goals and more starch-heavy than ideal here.",
     "finalReveal": "D tier.",
     "useCaseNote": "Best only in small amounts when the calories stay under control.",
     "cta": "Would you rank it the same, or nah?"
   },
   "tier": "D",
-  "overallScore": 25,
-  "explanation": {
-    "summary": "Carbs are carrying this food most, while proteins are the biggest drag. It lands in D tier.",
-    "whyThisTier": "This food lands in D tier with an overall score of 25 from a base nutrition score of 28. Context dragged it down by 3 points.",
-    "strongestSection": {
-      "key": "carbs",
-      "label": "Carbs",
-      "score": 47.2
+  "overallScore": 16.3,
+  "overallScoreExact": 16.2988,
+  "baseOverallScore": 24.2,
+  "baseOverallScoreExact": 24.2177,
+  "sectionOrder": [
+    "fats",
+    "carbs",
+    "proteins",
+    "vitamins",
+    "minerals",
+    "pros",
+    "cons"
+  ],
+  "narrationBlocks": [
+    {
+      "kind": "hook_food",
+      "text": "Chestnuts!"
     },
-    "weakestSection": null,
+    {
+      "kind": "hook_ranked",
+      "text": "Ranked!"
+    },
+    {
+      "kind": "section",
+      "sectionKey": "fats",
+      "text": "2.2 grams of fat. Saturated fat is 0.4 grams, supporting a better fat profile. Omega 3 is 38 milligrams, and for nuts, fat quality has to justify the calories."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "carbs",
+      "text": "45.5 grams of carbs. Starch is 24.1 grams, supporting better carb quality. Sugar is 10.6 grams, a small miss for nuts."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "proteins",
+      "text": "2.4 grams of protein. Essential amino acids score is 2 out of 9, with 35% bioavailability, making the protein useful for repair and maintenance."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "vitamins",
+      "text": "Vitamin E is 1% daily value, adding useful vitamin support. Vitamin B12 is only 0% daily value, a weak mark for nuts."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "minerals",
+      "text": "Iron is 17% daily value, useful for oxygen transport. Zinc is 6% daily value, a weak mark for nuts."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "pros",
+      "text": "The upsides first: has strong seasonal appeal. Could be useful for content packaging even if the nutrition fit is weaker. Lighter than most nuts. This can be practically appealing to some viewers. Works in both sweet and savoury uses. Useful culinary flexibility."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "cons",
+      "text": "Cons next: poor fit for the nut category goals. Very weak on the fat-quality signals that define stronger nuts. More starch-heavy than ideal here. Moves away from what the nut category is supposed to reward. Protein support is weak. Does not offer much in the protein-quality lane either."
+    },
+    {
+      "kind": "closing_summary",
+      "text": "Big strengths are protein and strong seasonal appeal, but the biggest weaknesses are poor fit for the nut category goals and more starch-heavy than ideal here."
+    },
+    {
+      "kind": "final_reveal",
+      "text": "D tier."
+    }
+  ],
+  "explanation": {
+    "summary": "Pros are carrying this food most, while vitamins are holding it back most. It lands in D tier.",
+    "whyThisTier": "This food lands in D tier with an overall score of 16.3. Section scores: fats 41.7, carbs 42.9, proteins 0, vitamins 0, minerals 1.7, pros 50, cons 33.3.",
+    "strongestSection": {
+      "key": "pros",
+      "label": "Pros",
+      "score": 50
+    },
+    "weakestSection": {
+      "key": "vitamins",
+      "label": "Vitamins",
+      "score": 0
+    },
     "topPros": [
       {
         "title": "has strong seasonal appeal",
         "explanation": "Could be useful for content packaging even if the nutrition fit is weaker.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "lighter than most nuts",
         "explanation": "This can be practically appealing to some viewers.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "works in both sweet and savoury uses",
         "explanation": "Useful culinary flexibility.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -302,12 +409,26 @@
         "explanation": "Very weak on the fat-quality signals that define stronger nuts.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -3
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "more starch-heavy than ideal here",
+        "explanation": "Moves away from what the nut category is supposed to reward.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "protein support is weak",
+        "explanation": "Does not offer much in the protein-quality lane either.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
-      "Strongest section: Carbs.",
-      "Context weakened the final tier case by 3 points.",
+      "Strongest section: Pros.",
+      "Weakest section: Vitamins.",
       "Final verdict: D tier."
     ]
   }

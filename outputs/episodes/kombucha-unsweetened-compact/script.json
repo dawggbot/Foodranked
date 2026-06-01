@@ -1,13 +1,29 @@
 {
   "status": "ok",
+  "schemaVersion": "foodranked-script.v2",
+  "narrationFormat": "elevenlabs-blocks-v1",
   "food": {
     "id": "kombucha-unsweetened",
     "name": "Kombucha (Unsweetened)",
-    "foodType": "misc"
+    "foodType": "misc",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "identity": null,
+    "scoreReadiness": null,
+    "sourceNotes": [
+      "Calibration benchmark sample for FoodRanked.",
+      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
+    ]
   },
   "ruleset": {
     "id": "misc.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 16,
@@ -16,7 +32,6 @@
     "protein_g": 0
   },
   "hook": "Kombucha (Unsweetened) ranked.",
-  "intro": "",
   "sections": [
     {
       "key": "fats",
@@ -39,9 +54,40 @@
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "No real protein story here.",
-      "displayItems": [],
-      "subtitleText": "No real protein story here.",
+      "narration": "0 grams of protein. Essential amino acids score is 0 out of 9, with 0% bioavailability, making the protein useful for repair and maintenance.",
+      "displayItems": [
+        {
+          "metricKey": "essential_amino_acids_score",
+          "text": "essential amino acids score at 0/9",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
+          "dvPercent": null,
+          "value": 0,
+          "referenceOnly": true
+        },
+        {
+          "metricKey": "bioavailability_percent",
+          "text": "bioavailability at 0%",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
+          "dvPercent": null,
+          "value": 0,
+          "referenceOnly": true
+        },
+        {
+          "metricKey": "nonessential_amino_acids_score",
+          "text": "nonessential amino acids score at 0/11",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
+          "dvPercent": null,
+          "value": 0,
+          "referenceOnly": true
+        }
+      ],
+      "subtitleText": "0g of protein. Essential amino acids score is 0/9, with 0% bioavailability, making the protein useful for repair and maintenance.",
       "timingHint": "short-medium",
       "score": null
     },
@@ -49,103 +95,256 @@
       "key": "vitamins",
       "title": "Vitamins",
       "narration": "No real vitamin story here.",
-      "displayItems": [],
+      "displayItems": [
+        {
+          "metricKey": "vitamin_c_dv",
+          "text": "vitamin C at 0% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
+        },
+        {
+          "metricKey": "vitamin_e_dv",
+          "text": "vitamin E at 0% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
+        },
+        {
+          "metricKey": "vitamin_k_dv",
+          "text": "vitamin K at 0% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
+        }
+      ],
       "subtitleText": "No real vitamin story here.",
       "timingHint": "short-medium",
-      "score": null
+      "score": 0
     },
     {
       "key": "minerals",
       "title": "Minerals",
       "narration": "No real mineral story here.",
-      "displayItems": [],
+      "displayItems": [
+        {
+          "metricKey": "potassium_dv",
+          "text": "potassium at 1% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 1,
+          "value": null
+        },
+        {
+          "metricKey": "magnesium_dv",
+          "text": "magnesium at 0% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
+        },
+        {
+          "metricKey": "iron_dv",
+          "text": "iron at 0% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
+        },
+        {
+          "metricKey": "zinc_dv",
+          "text": "zinc at 0% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
+        }
+      ],
       "subtitleText": "No real mineral story here.",
       "timingHint": "short-medium",
-      "score": null
+      "score": 0
     },
     {
       "key": "pros",
       "title": "Pros",
-      "narration": "The upsides first: can replace much worse drinks. That substitution value matters more than raw micronutrients here. Clear real-world role. If a misc item helps or harms behavior, that matters a lot. Can still earn points as a better swap. The category should reward harm reduction when it is real.",
+      "narration": "Positives first: can replace much worse drinks. That substitution value matters more than raw micronutrients here. Clear real-world role. If a misc item helps or harms behavior, that matters a lot. Can still earn points as a better swap. The category should reward harm reduction when it is real.",
       "displayItems": [
         {
           "type": "pro",
           "title": "can replace much worse drinks",
           "explanation": "That substitution value matters more than raw micronutrients here.",
           "impactLevel": "major",
-          "scoreValue": 2
+          "resolvedScoreValue": 100
         },
         {
           "type": "pro",
           "title": "clear real-world role",
           "explanation": "If a misc item helps or harms behavior, that matters a lot.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "can still earn points as a better swap",
           "explanation": "The category should reward harm reduction when it is real.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "The upsides first: can replace much worse drinks. That substitution value matters more than raw micronutrients here. Clear real-world role. If a misc item helps or harms behavior, that matters a lot. Can still earn points as a better swap. The category should reward harm reduction when it is real.",
+      "subtitleText": "Positives first: can replace much worse drinks. That substitution value matters more than raw micronutrients here. Clear real-world role. If a misc item helps or harms behavior, that matters a lot. Can still earn points as a better swap. The category should reward harm reduction when it is real.",
       "timingHint": "medium",
-      "score": 88.9
+      "score": 66.7
     },
     {
       "key": "cons",
       "title": "Cons",
-      "narration": "On the weaker side: easy to overpay for the health halo. The benefits are usually less magical than the branding suggests. Not a whole-food nutrition star. Most misc items are weak on raw nutrient profile. Easy to oversell beyond what the numbers support. Misc items often attract exaggerated narratives.",
+      "narration": "Downsides next: easy to overpay for the health halo. The benefits are usually less magical than the branding suggests. Not a whole-food nutrition star. Most misc items are weak on raw nutrient profile. Easy to oversell beyond what the numbers support. Misc items often attract exaggerated narratives.",
       "displayItems": [
         {
           "type": "con",
           "title": "easy to overpay for the health halo",
           "explanation": "The benefits are usually less magical than the branding suggests.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "not a whole-food nutrition star",
           "explanation": "Most misc items are weak on raw nutrient profile.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "easy to oversell beyond what the numbers support",
           "explanation": "Misc items often attract exaggerated narratives.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "On the weaker side: easy to overpay for the health halo. The benefits are usually less magical than the branding suggests. Not a whole-food nutrition star. Most misc items are weak on raw nutrient profile. Easy to oversell beyond what the numbers support. Misc items often attract exaggerated narratives.",
+      "subtitleText": "Downsides next: easy to overpay for the health halo. The benefits are usually less magical than the branding suggests. Not a whole-food nutrition star. Most misc items are weak on raw nutrient profile. Easy to oversell beyond what the numbers support. Misc items often attract exaggerated narratives.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     }
   ],
   "closing": {
-    "summary": "Kombucha (Unsweetened) does have some solid upside. but the tradeoffs keep it from climbing higher. best treated as a context item rather than a nutritional cornerstone.",
-    "finalReveal": "B tier.",
+    "summary": "Big strengths are can replace much worse drinks and clear real-world role, but the biggest weaknesses are easy to overpay for the health halo and not a whole-food nutrition star.",
+    "overview": "Big strengths are can replace much worse drinks and clear real-world role, but the biggest weaknesses are easy to overpay for the health halo and not a whole-food nutrition star.",
+    "finalReveal": "A tier.",
     "useCaseNote": "Best treated as a context item rather than a nutritional cornerstone.",
     "cta": "Would you rank it the same, or nah?"
   },
-  "tier": "B",
-  "overallScore": 8,
+  "tier": "A",
+  "overallScore": 62.5,
+  "overallScoreExact": 62.4941,
+  "baseOverallScore": 29.2,
+  "baseOverallScoreExact": 29.1667,
+  "sectionOrder": [
+    "fats",
+    "carbs",
+    "proteins",
+    "vitamins",
+    "minerals",
+    "pros",
+    "cons"
+  ],
+  "narrationBlocks": [
+    {
+      "kind": "hook_food",
+      "text": "Kombucha (Unsweetened)!"
+    },
+    {
+      "kind": "hook_ranked",
+      "text": "Ranked!"
+    },
+    {
+      "kind": "section",
+      "sectionKey": "fats",
+      "text": "Simple one."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "carbs",
+      "text": "3 grams of carbs. And that is basically the whole nutrition story."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "proteins",
+      "text": "0 grams of protein. Essential amino acids score is 0 out of 9, with 0% bioavailability, making the protein useful for repair and maintenance."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "vitamins",
+      "text": "No real vitamin story here."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "minerals",
+      "text": "No real mineral story here."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "pros",
+      "text": "Positives first: can replace much worse drinks. That substitution value matters more than raw micronutrients here. Clear real-world role. If a misc item helps or harms behavior, that matters a lot. Can still earn points as a better swap. The category should reward harm reduction when it is real."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "cons",
+      "text": "Downsides next: easy to overpay for the health halo. The benefits are usually less magical than the branding suggests. Not a whole-food nutrition star. Most misc items are weak on raw nutrient profile. Easy to oversell beyond what the numbers support. Misc items often attract exaggerated narratives."
+    },
+    {
+      "kind": "closing_summary",
+      "text": "Big strengths are can replace much worse drinks and clear real-world role, but the biggest weaknesses are easy to overpay for the health halo and not a whole-food nutrition star."
+    },
+    {
+      "kind": "final_reveal",
+      "text": "A tier."
+    }
+  ],
   "explanation": {
-    "summary": "This food is being judged mostly by contextual strengths and weaknesses rather than nutrient sections. It lands in B tier.",
-    "whyThisTier": "This food lands in B tier with an overall score of 8 from a base nutrition score of 0. Context lifted it by 8 points.",
-    "strongestSection": null,
-    "weakestSection": null,
+    "summary": "Pros are carrying this food most, while minerals are holding it back most. It lands in A tier.",
+    "whyThisTier": "This food lands in A tier with an overall score of 62.5. Section scores: vitamins 0, minerals 0, pros 66.7, cons 50.",
+    "strongestSection": {
+      "key": "pros",
+      "label": "Pros",
+      "score": 66.7
+    },
+    "weakestSection": {
+      "key": "minerals",
+      "label": "Minerals",
+      "score": 0
+    },
     "topPros": [
       {
         "title": "can replace much worse drinks",
         "explanation": "That substitution value matters more than raw micronutrients here.",
         "impactLevel": "major",
         "side": "pro",
-        "resolvedScoreValue": 8
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "clear real-world role",
+        "explanation": "If a misc item helps or harms behavior, that matters a lot.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "can still earn points as a better swap",
+        "explanation": "The category should reward harm reduction when it is real.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -154,26 +353,27 @@
         "explanation": "The benefits are usually less magical than the branding suggests.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "not a whole-food nutrition star",
         "explanation": "Most misc items are weak on raw nutrient profile.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "easy to oversell beyond what the numbers support",
         "explanation": "Misc items often attract exaggerated narratives.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
-      "Context improved the final tier case by 8 points.",
-      "Final verdict: B tier."
+      "Strongest section: Pros.",
+      "Weakest section: Minerals.",
+      "Final verdict: A tier."
     ]
   }
 }

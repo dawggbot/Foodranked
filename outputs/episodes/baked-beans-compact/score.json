@@ -7,7 +7,11 @@
   },
   "ruleset": {
     "id": "legumes.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 155,
@@ -16,85 +20,54 @@
     "protein_g": 5.5
   },
   "sectionScores": {
-    "fats": 44.4,
-    "carbs": 16.7,
-    "proteins": 19.4,
-    "vitamins": null,
+    "fats": 33.3,
+    "carbs": 27.3,
+    "proteins": 20,
+    "vitamins": 0,
     "minerals": 0,
-    "pros": 0,
-    "cons": 100
+    "pros": 50,
+    "cons": 0
   },
-  "baseScore": 14,
-  "contextAdjustment": {
-    "rawAdjustment": -9,
-    "appliedAdjustment": -9,
-    "appliedItems": [
-      {
-        "itemKey": "added_sugar_penalty",
-        "impactLevel": "major",
-        "scoreValue": -3,
-        "title": "added sugar is a major category problem",
-        "explanation": "Legumes are supposed to win on slow-carb behaviour, and this pushes the opposite way.",
-        "evidenceType": "manual",
-        "side": "con",
-        "resolvedScoreValue": -3
-      },
-      {
-        "itemKey": "processing_penalty",
-        "impactLevel": "major",
-        "scoreValue": -3,
-        "title": "processing drags the category fit down",
-        "explanation": "The canned sweet-sauce format makes it a worse version of what legumes are supposed to be.",
-        "evidenceType": "manual",
-        "side": "con",
-        "resolvedScoreValue": -3
-      },
-      {
-        "itemKey": "weak_protein_legume_fit",
-        "impactLevel": "major",
-        "scoreValue": -3,
-        "title": "weak protein usefulness for a legume",
-        "explanation": "It does not deliver the strong fibre-plus-protein combo that defines elite legumes.",
-        "evidenceType": "manual",
-        "side": "con",
-        "resolvedScoreValue": -3
-      }
-    ],
-    "ignoredItems": []
-  },
-  "overallScore": 5,
+  "overallScore": 11.3,
+  "overallScoreExact": 11.3309,
+  "baseOverallScore": 18.7,
+  "baseOverallScoreExact": 18.658,
   "tier": "D",
-  "summary": "Fats are carrying this food most, while minerals are the biggest drag. It lands in D tier.",
+  "summary": "Pros are carrying this food most, while cons are holding it back most. It lands in D tier.",
   "explanation": {
-    "summary": "Fats are carrying this food most, while minerals are the biggest drag. It lands in D tier.",
-    "whyThisTier": "This food lands in D tier with an overall score of 5 from a base nutrition score of 14. Context dragged it down by 9 points.",
+    "summary": "Pros are carrying this food most, while cons are holding it back most. It lands in D tier.",
+    "whyThisTier": "This food lands in D tier with an overall score of 11.3. Section scores: fats 33.3, carbs 27.3, proteins 20, vitamins 0, minerals 0, pros 50, cons 0.",
     "strongestSection": {
-      "key": "fats",
-      "label": "Fats",
-      "score": 44.4
+      "key": "pros",
+      "label": "Pros",
+      "score": 50
     },
-    "weakestSection": null,
+    "weakestSection": {
+      "key": "cons",
+      "label": "Cons",
+      "score": 0
+    },
     "topPros": [
       {
         "title": "cheap and convenient",
         "explanation": "Very easy to use as a quick meal component.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "still keeps some fibre",
         "explanation": "Not completely nutritionally empty despite the weaker category fit.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "has practical comfort-food appeal",
         "explanation": "People actually eat it, which matters in the real world.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -103,26 +76,26 @@
         "explanation": "Legumes are supposed to win on slow-carb behaviour, and this pushes the opposite way.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -3
+        "resolvedScoreValue": 100
       },
       {
         "title": "processing drags the category fit down",
         "explanation": "The canned sweet-sauce format makes it a worse version of what legumes are supposed to be.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -3
+        "resolvedScoreValue": 100
       },
       {
         "title": "weak protein usefulness for a legume",
         "explanation": "It does not deliver the strong fibre-plus-protein combo that defines elite legumes.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -3
+        "resolvedScoreValue": 100
       }
     ],
     "narrationNotes": [
-      "Strongest section: Fats.",
-      "Context weakened the final tier case by 9 points.",
+      "Strongest section: Pros.",
+      "Weakest section: Cons.",
       "Final verdict: D tier."
     ]
   },
@@ -131,52 +104,58 @@
       {
         "itemKey": "cheap_convenience",
         "impactLevel": "minor",
-        "scoreValue": 0,
         "title": "cheap and convenient",
         "explanation": "Very easy to use as a quick meal component.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "still_some_fibre",
         "impactLevel": "minor",
-        "scoreValue": 0,
         "title": "still keeps some fibre",
         "explanation": "Not completely nutritionally empty despite the weaker category fit.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "comfort_food_value",
         "impactLevel": "minor",
-        "scoreValue": 0,
         "title": "has practical comfort-food appeal",
         "explanation": "People actually eat it, which matters in the real world.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "cons": [
       {
         "itemKey": "added_sugar_penalty",
         "impactLevel": "major",
-        "scoreValue": -3,
         "title": "added sugar is a major category problem",
         "explanation": "Legumes are supposed to win on slow-carb behaviour, and this pushes the opposite way.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 100
       },
       {
         "itemKey": "processing_penalty",
         "impactLevel": "major",
-        "scoreValue": -3,
         "title": "processing drags the category fit down",
         "explanation": "The canned sweet-sauce format makes it a worse version of what legumes are supposed to be.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 100
       },
       {
         "itemKey": "weak_protein_legume_fit",
         "impactLevel": "major",
-        "scoreValue": -3,
         "title": "weak protein usefulness for a legume",
         "explanation": "It does not deliver the strong fibre-plus-protein combo that defines elite legumes.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 100
       }
     ]
   },
@@ -187,29 +166,29 @@
       "scoringMode": "arrow_bands",
       "value": 0.1,
       "band": "↓↓↓",
-      "score": 3,
+      "score": 100,
       "weight": 1,
-      "weightedScore": 3
+      "weightedScore": 100
     },
     {
       "metricKey": "omega3_mg",
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 20,
-      "band": "↓↓",
-      "score": -2,
+      "band": "↓↓↓",
+      "score": 0,
       "weight": 1,
-      "weightedScore": -2
+      "weightedScore": 0
     },
     {
       "metricKey": "polyunsaturated_fat_g",
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 0.2,
-      "band": "↓↓",
-      "score": -2,
+      "band": "↓↓↓",
+      "score": 0,
       "weight": 1,
-      "weightedScore": -2
+      "weightedScore": 0
     },
     {
       "metricKey": "starch_g",
@@ -217,9 +196,9 @@
       "scoringMode": "arrow_bands",
       "value": 12,
       "band": "↓↓",
-      "score": -2,
+      "score": 20,
       "weight": 1,
-      "weightedScore": -2
+      "weightedScore": 20
     },
     {
       "metricKey": "fibre_g",
@@ -227,9 +206,9 @@
       "scoringMode": "arrow_bands",
       "value": 5.5,
       "band": "↓↓",
-      "score": -2,
+      "score": 20,
       "weight": 4,
-      "weightedScore": -8
+      "weightedScore": 80
     },
     {
       "metricKey": "sugar_g",
@@ -237,49 +216,39 @@
       "scoringMode": "arrow_bands",
       "value": 9.8,
       "band": "↑↑",
-      "score": -2,
+      "score": 20,
       "weight": 2,
-      "weightedScore": -4
+      "weightedScore": 40
     },
     {
       "metricKey": "glycemic_index",
       "sectionKey": "carbs",
       "scoringMode": "arrow_bands",
       "value": 48,
-      "band": "↑↑",
-      "score": -2,
+      "band": "↑",
+      "score": 40,
       "weight": 4,
-      "weightedScore": -8
+      "weightedScore": 160
     },
     {
-      "metricKey": "essential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 3,
-      "band": "↓↓",
-      "score": -2,
-      "weight": 3,
-      "weightedScore": -6
-    },
-    {
-      "metricKey": "nonessential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 5,
-      "band": "↓",
-      "score": -1,
+      "metricKey": "vitamin_e_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 1,
+      "points": 0,
+      "score": 0,
       "weight": 1,
-      "weightedScore": -1
+      "weightedScore": 0
     },
     {
-      "metricKey": "bioavailability_percent",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 45,
-      "band": "↓↓",
-      "score": -2,
-      "weight": 2,
-      "weightedScore": -4
+      "metricKey": "vitamin_c_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 3,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
     },
     {
       "metricKey": "iron_dv",
@@ -287,6 +256,7 @@
       "scoringMode": "dv_points",
       "dvPercent": 9,
       "points": 0,
+      "score": 0,
       "weight": 2,
       "weightedScore": 0
     },
@@ -296,8 +266,40 @@
       "scoringMode": "dv_points",
       "dvPercent": 8,
       "points": 0,
+      "score": 0,
       "weight": 2,
       "weightedScore": 0
+    },
+    {
+      "metricKey": "zinc_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 6,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "potassium_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 8,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "protein_g_fallback",
+      "sectionKey": "proteins",
+      "scoringMode": "protein_fallback",
+      "value": 5.5,
+      "band": "2_red",
+      "score": 20,
+      "weight": 3,
+      "weightedScore": 60,
+      "fallbackApplied": true
     }
   ]
 }

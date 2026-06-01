@@ -7,7 +7,11 @@
   },
   "ruleset": {
     "id": "fruits.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 57,
@@ -16,54 +20,54 @@
     "protein_g": 0.4
   },
   "sectionScores": {
-    "fats": 66.7,
-    "carbs": 61.1,
-    "proteins": 33.3,
-    "vitamins": null,
+    "fats": 100,
+    "carbs": 61.4,
+    "proteins": null,
+    "vitamins": 0,
     "minerals": 0,
-    "pros": 0,
-    "cons": 0
+    "pros": 50,
+    "cons": 50
   },
-  "baseScore": 37,
-  "contextAdjustment": {
-    "rawAdjustment": 0,
-    "appliedAdjustment": 0,
-    "appliedItems": [],
-    "ignoredItems": []
-  },
-  "overallScore": 37,
-  "tier": "B",
-  "summary": "Fats are carrying this food most, while minerals are the biggest drag. It lands in B tier.",
+  "overallScore": 22.9,
+  "overallScoreExact": 22.8802,
+  "baseOverallScore": 43.6,
+  "baseOverallScoreExact": 43.5714,
+  "tier": "C",
+  "summary": "Fats are carrying this food most, while minerals are holding it back most. It lands in C tier.",
   "explanation": {
-    "summary": "Fats are carrying this food most, while minerals are the biggest drag. It lands in B tier.",
-    "whyThisTier": "This food lands in B tier with an overall score of 37 from a base nutrition score of 37. Context barely changed the result.",
+    "summary": "Fats are carrying this food most, while minerals are holding it back most. It lands in C tier.",
+    "whyThisTier": "This food lands in C tier with an overall score of 22.9. Section scores: fats 100, carbs 61.4, vitamins 0, minerals 0, pros 50, cons 50.",
     "strongestSection": {
       "key": "fats",
       "label": "Fats",
-      "score": 66.7
+      "score": 100
     },
-    "weakestSection": null,
+    "weakestSection": {
+      "key": "minerals",
+      "label": "Minerals",
+      "score": 0
+    },
     "topPros": [
       {
         "title": "usually beats ultra-processed sweet snacks",
         "explanation": "That replacement value matters in real life.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "easy to use as a whole food",
         "explanation": "Simple, recognisable, and realistic for everyday eating.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "ingredient simplicity is hard to argue with",
         "explanation": "Whole-fruit clarity is part of the category appeal.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -72,26 +76,27 @@
         "explanation": "That can blur the line between light and sugar-heavy portions.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "satiety is not especially strong",
         "explanation": "Fruit often needs help from the rest of the meal.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "protein contribution is tiny",
         "explanation": "That is normal for fruit, but it still limits nutritional breadth.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
       "Strongest section: Fats.",
-      "Final verdict: B tier."
+      "Weakest section: Minerals.",
+      "Final verdict: C tier."
     ]
   },
   "contextItems": {
@@ -99,52 +104,58 @@
       {
         "itemKey": "fruit_snack_swap",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "usually beats ultra-processed sweet snacks",
         "explanation": "That replacement value matters in real life.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "portable_whole_food",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "easy to use as a whole food",
         "explanation": "Simple, recognisable, and realistic for everyday eating.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "fruit_simple_ingredient_story",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "ingredient simplicity is hard to argue with",
         "explanation": "Whole-fruit clarity is part of the category appeal.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "cons": [
       {
         "itemKey": "fruit_portion_speed",
         "impactLevel": "minor",
-        "scoreValue": -1,
         "title": "easy to eat quickly when it is very sweet",
         "explanation": "That can blur the line between light and sugar-heavy portions.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "fruit_satiety_limit",
         "impactLevel": "minor",
-        "scoreValue": -1,
         "title": "satiety is not especially strong",
         "explanation": "Fruit often needs help from the rest of the meal.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "fruit_low_protein",
         "impactLevel": "minor",
-        "scoreValue": -1,
         "title": "protein contribution is tiny",
         "explanation": "That is normal for fruit, but it still limits nutritional breadth.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       }
     ]
   },
@@ -154,90 +165,120 @@
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 0,
-      "band": "↓↓↓",
-      "score": 3,
+      "band": "3_green",
+      "score": 100,
       "weight": 1,
-      "weightedScore": 3
+      "weightedScore": 100
     },
     {
       "metricKey": "omega3_mg",
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 10,
-      "band": "↑↑↑",
-      "score": 3,
-      "weight": 1,
-      "weightedScore": 3
+      "band": "3_green",
+      "score": 100,
+      "weight": 0,
+      "weightedScore": 0
     },
     {
       "metricKey": "polyunsaturated_fat_g",
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 0.1,
-      "band": "↓↓↓",
-      "score": -3,
-      "weight": 1,
-      "weightedScore": -3
+      "band": "3_red",
+      "score": 0,
+      "weight": 0,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "starch_g",
+      "sectionKey": "carbs",
+      "scoringMode": "arrow_bands",
+      "value": 0,
+      "band": "3_red",
+      "score": 0,
+      "weight": 0,
+      "weightedScore": 0
     },
     {
       "metricKey": "fibre_g",
       "sectionKey": "carbs",
       "scoringMode": "arrow_bands",
       "value": 3.1,
-      "band": "↓",
-      "score": -1,
+      "band": "1_red",
+      "score": 40,
       "weight": 4,
-      "weightedScore": -4
+      "weightedScore": 160
     },
     {
       "metricKey": "sugar_g",
       "sectionKey": "carbs",
       "scoringMode": "arrow_bands",
       "value": 9.8,
-      "band": "↓",
-      "score": 1,
-      "weight": 4,
-      "weightedScore": 4
+      "band": "1_green",
+      "score": 60,
+      "weight": 5,
+      "weightedScore": 300
     },
     {
       "metricKey": "glycemic_index",
       "sectionKey": "carbs",
       "scoringMode": "arrow_bands",
       "value": 38,
-      "band": "↓↓",
-      "score": 2,
-      "weight": 4,
-      "weightedScore": 8
+      "band": "2_green",
+      "score": 80,
+      "weight": 5,
+      "weightedScore": 400
     },
     {
       "metricKey": "essential_amino_acids_score",
       "sectionKey": "proteins",
       "scoringMode": "arrow_bands",
       "value": 1,
-      "band": "↓↓↓",
-      "score": -3,
-      "weight": 1,
-      "weightedScore": -3
+      "band": "3_red",
+      "score": 0,
+      "weight": 0,
+      "weightedScore": 0
     },
     {
       "metricKey": "nonessential_amino_acids_score",
       "sectionKey": "proteins",
       "scoringMode": "arrow_bands",
       "value": 1,
-      "band": "↓↓↓",
-      "score": -3,
-      "weight": 1,
-      "weightedScore": -3
+      "band": "3_red",
+      "score": 0,
+      "weight": 0,
+      "weightedScore": 0
     },
     {
       "metricKey": "bioavailability_percent",
       "sectionKey": "proteins",
       "scoringMode": "arrow_bands",
       "value": 28,
-      "band": "↑↑↑",
-      "score": 3,
+      "band": "3_green",
+      "score": 100,
+      "weight": 0,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "vitamin_c_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 5,
+      "points": 0,
+      "score": 0,
+      "weight": 4,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "vitamin_a_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 0,
+      "points": 0,
+      "score": 0,
       "weight": 1,
-      "weightedScore": 3
+      "weightedScore": 0
     },
     {
       "metricKey": "potassium_dv",
@@ -245,7 +286,28 @@
       "scoringMode": "dv_points",
       "dvPercent": 3,
       "points": 0,
+      "score": 0,
       "weight": 2,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "magnesium_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 2,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "iron_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 1,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
       "weightedScore": 0
     }
   ]

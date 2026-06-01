@@ -17,7 +17,8 @@ Keep the JSON split into:
 2. section weights
 3. metric rules
 4. context-item rules
-5. tier thresholds
+5. score calibration
+6. tier thresholds
 
 ## Recommended v1 JSON shape
 
@@ -81,12 +82,27 @@ Keep the JSON split into:
       { "label": "3_green", "min": 15.5, "score": 100 }
     ]
   },
+  "scoreCalibration": {
+    "version": 1,
+    "method": "piecewise_linear_raw_to_shared_tier_score",
+    "input": "baseOverallScore",
+    "output": "overallScore",
+    "anchors": [
+      { "raw": 0, "calibrated": 0 },
+      { "raw": 29.7171, "calibrated": 20 },
+      { "raw": 39.9475, "calibrated": 40 },
+      { "raw": 42.7319, "calibrated": 60 },
+      { "raw": 49.8098, "calibrated": 80 },
+      { "raw": 100, "calibrated": 100 }
+    ],
+    "notes": "Maps category-calibrated benchmark boundaries onto shared D/C/B/A/S 20-point score bands."
+  },
   "tierThresholds": [
-    { "tier": "S", "min": 90, "max": 100 },
-    { "tier": "A", "min": 78, "max": 89 },
-    { "tier": "B", "min": 64, "max": 77 },
-    { "tier": "C", "min": 45, "max": 63 },
-    { "tier": "D", "min": 0, "max": 44 }
+    { "tier": "S", "min": 80, "max": 100 },
+    { "tier": "A", "min": 60, "max": 79.9999 },
+    { "tier": "B", "min": 40, "max": 59.9999 },
+    { "tier": "C", "min": 20, "max": 39.9999 },
+    { "tier": "D", "min": 0, "max": 19.9999 }
   ]
 }
 ```
@@ -149,7 +165,8 @@ The scorer should:
 2. compute vitamin/mineral section scores from DV% tiers
 3. compute pros/cons as first-class sections from major/minor levels
 4. use `proteinFallback` when direct protein-quality metrics are intentionally unavailable
-5. average all 7 scored content section scores into the final overall score
-6. map the final score to the tier
+5. average all 7 scored content section scores into `baseOverallScore`
+6. apply `scoreCalibration` to produce the calibrated display `overallScore`
+7. map the calibrated `overallScore` to the tier with shared `tierThresholds`
 
 That keeps the math explainable while matching the visible video structure.

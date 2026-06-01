@@ -7,7 +7,11 @@
   },
   "ruleset": {
     "id": "misc.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 278,
@@ -19,58 +23,51 @@
     "fats": null,
     "carbs": null,
     "proteins": null,
-    "vitamins": null,
-    "minerals": null,
-    "pros": 0,
-    "cons": 88.9
+    "vitamins": 0,
+    "minerals": 0,
+    "pros": 50,
+    "cons": 33.3
   },
-  "baseScore": 0,
-  "contextAdjustment": {
-    "rawAdjustment": -8,
-    "appliedAdjustment": -8,
-    "appliedItems": [
-      {
-        "itemKey": "mostly_sugar_spread",
-        "impactLevel": "major",
-        "scoreValue": -2,
-        "title": "basically a sugar spread",
-        "explanation": "The fruit branding does not save it from the real composition.",
-        "evidenceType": "manual",
-        "side": "con",
-        "resolvedScoreValue": -8
-      }
-    ],
-    "ignoredItems": []
-  },
-  "overallScore": 0,
-  "tier": "D",
-  "summary": "This food is being judged mostly by contextual strengths and weaknesses rather than nutrient sections. It lands in D tier.",
+  "overallScore": 33,
+  "overallScoreExact": 33.0435,
+  "baseOverallScore": 20.8,
+  "baseOverallScoreExact": 20.8333,
+  "tier": "C",
+  "summary": "Pros are carrying this food most, while minerals are holding it back most. It lands in C tier.",
   "explanation": {
-    "summary": "This food is being judged mostly by contextual strengths and weaknesses rather than nutrient sections. It lands in D tier.",
-    "whyThisTier": "This food lands in D tier with an overall score of 0 from a base nutrition score of 0. Context dragged it down by 8 points.",
-    "strongestSection": null,
-    "weakestSection": null,
+    "summary": "Pros are carrying this food most, while minerals are holding it back most. It lands in C tier.",
+    "whyThisTier": "This food lands in C tier with an overall score of 33. Section scores: vitamins 0, minerals 0, pros 50, cons 33.3.",
+    "strongestSection": {
+      "key": "pros",
+      "label": "Pros",
+      "score": 50
+    },
+    "weakestSection": {
+      "key": "minerals",
+      "label": "Minerals",
+      "score": 0
+    },
     "topPros": [
       {
         "title": "context tells the real story",
         "explanation": "That is the whole point of misc.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "can still earn points as a better swap",
         "explanation": "The category should reward harm reduction when it is real.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "sometimes makes sense in a narrow use case",
         "explanation": "Context matters more here than raw nutrient purity.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -79,12 +76,27 @@
         "explanation": "The fruit branding does not save it from the real composition.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -8
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "better replacements often exist",
+        "explanation": "That practical comparison matters.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "not a whole-food nutrition star",
+        "explanation": "Most misc items are weak on raw nutrient profile.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
-      "Context weakened the final tier case by 8 points.",
-      "Final verdict: D tier."
+      "Strongest section: Pros.",
+      "Weakest section: Minerals.",
+      "Final verdict: C tier."
     ]
   },
   "contextItems": {
@@ -92,54 +104,141 @@
       {
         "itemKey": "misc_context_heavy",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "context tells the real story",
         "explanation": "That is the whole point of misc.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "misc_swap_value",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "can still earn points as a better swap",
         "explanation": "The category should reward harm reduction when it is real.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "misc_use_case_specificity",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "sometimes makes sense in a narrow use case",
         "explanation": "Context matters more here than raw nutrient purity.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "cons": [
       {
         "itemKey": "mostly_sugar_spread",
         "impactLevel": "major",
-        "scoreValue": -2,
         "title": "basically a sugar spread",
         "explanation": "The fruit branding does not save it from the real composition.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 100
       },
       {
         "itemKey": "misc_replacement_question",
         "impactLevel": "minor",
-        "scoreValue": -1,
         "title": "better replacements often exist",
         "explanation": "That practical comparison matters.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "misc_low_whole_food_value",
         "impactLevel": "minor",
-        "scoreValue": -1,
         "title": "not a whole-food nutrition star",
         "explanation": "Most misc items are weak on raw nutrient profile.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       }
     ]
   },
-  "metricBreakdown": []
+  "metricBreakdown": [
+    {
+      "metricKey": "vitamin_c_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 3,
+      "points": 0,
+      "score": 0,
+      "weight": 2,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "vitamin_e_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 0,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "vitamin_k_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 1,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "magnesium_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 1,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "potassium_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 1,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "iron_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 1,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "zinc_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 0,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "calcium_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 1,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    }
+  ]
 }

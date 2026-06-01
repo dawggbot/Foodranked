@@ -1,13 +1,29 @@
 {
   "status": "ok",
+  "schemaVersion": "foodranked-script.v2",
+  "narrationFormat": "elevenlabs-blocks-v1",
   "food": {
     "id": "rye",
     "name": "Rye",
-    "foodType": "grains"
+    "foodType": "grains",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "identity": null,
+    "scoreReadiness": null,
+    "sourceNotes": [
+      "Calibration benchmark sample for FoodRanked.",
+      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
+    ]
   },
   "ruleset": {
     "id": "grains.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 338,
@@ -16,155 +32,176 @@
     "protein_g": 10.3
   },
   "hook": "Rye ranked.",
-  "intro": "",
   "sections": [
     {
       "key": "fats",
       "title": "Fats",
-      "narration": "1.6 grams of fat. Omega 3 is 50 milligrams, doing a lot of the work here. Fat is basically not the story here.",
+      "narration": "1.6 grams of fat. Saturated fat is 0.2 grams, supporting a better fat profile. Omega 3 is 50 milligrams, a weak mark for grains.",
       "displayItems": [
         {
           "metricKey": "saturated_fat_g",
           "text": "saturated fat at 0.2g",
-          "weightedScore": 3,
+          "weightedScore": 100,
           "scoringMode": "arrow_bands",
-          "band": "↓↓↓",
+          "band": "3_green",
           "dvPercent": null,
           "value": 0.2
         },
         {
           "metricKey": "omega3_mg",
           "text": "omega 3 at 50mg",
-          "weightedScore": 3,
+          "weightedScore": 20,
           "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
+          "band": "2_red",
           "dvPercent": null,
           "value": 50
         },
         {
           "metricKey": "polyunsaturated_fat_g",
           "text": "polyunsaturated fat at 0.7g",
-          "weightedScore": -3,
+          "weightedScore": 20,
           "scoringMode": "arrow_bands",
-          "band": "↓↓↓",
+          "band": "2_red",
           "dvPercent": null,
           "value": 0.7
         }
       ],
-      "subtitleText": "1.6g of fat. Omega 3 is 50mg, doing a lot of the work here. Fat is basically not the story here.",
+      "subtitleText": "1.6g of fat. Saturated fat is 0.2g, supporting a better fat profile. Omega 3 is 50mg, a weak mark for grains.",
       "timingHint": "short-medium",
-      "score": 66.7
+      "score": 46.7
     },
     {
       "key": "carbs",
       "title": "Carbs",
-      "narration": "75.9 grams of carbs. Glycemic index is 34 GI. Fibre is 15.1 grams, doing a lot of the work here. For grains, the carb quality matters much more than the raw number.",
+      "narration": "75.9 grams of carbs. Fibre is 15.1 grams, helping with digestion and steadier meals.",
       "displayItems": [
-        {
-          "metricKey": "glycemic_index",
-          "text": "glycemic index at 34 GI",
-          "weightedScore": 12,
-          "scoringMode": "arrow_bands",
-          "band": "↓↓↓",
-          "dvPercent": null,
-          "value": 34
-        },
         {
           "metricKey": "fibre_g",
           "text": "fibre at 15.1g",
-          "weightedScore": 9,
+          "weightedScore": 500,
           "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
+          "band": "3_green",
           "dvPercent": null,
           "value": 15.1
         },
         {
-          "metricKey": "starch_g",
-          "text": "starch at 57g",
-          "weightedScore": 1,
+          "metricKey": "glycemic_index",
+          "text": "glycemic index at 34 GI",
+          "weightedScore": 500,
           "scoringMode": "arrow_bands",
-          "band": "↑",
+          "band": "3_green",
           "dvPercent": null,
-          "value": 57
+          "value": 34
         },
         {
           "metricKey": "sugar_g",
           "text": "sugar at 1g",
-          "weightedScore": 1,
+          "weightedScore": 160,
           "scoringMode": "arrow_bands",
-          "band": "↓",
+          "band": "2_green",
           "dvPercent": null,
           "value": 1
+        },
+        {
+          "metricKey": "starch_g",
+          "text": "starch at 57g",
+          "weightedScore": 80,
+          "scoringMode": "arrow_bands",
+          "band": "2_green",
+          "dvPercent": null,
+          "value": 57
         }
       ],
-      "subtitleText": "75.9g of carbs. Glycemic index is 34 GI. Fibre is 15.1g, doing a lot of the work here. For grains, the carb quality matters much more than the raw number.",
+      "subtitleText": "75.9g of carbs. Fibre is 15.1g, helping with digestion and steadier meals.",
       "timingHint": "short-medium",
-      "score": 92.6
+      "score": 95.4
     },
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "10.3 grams of protein. Bioavailability is 58%, and amino acid quality is strong. Protein helps, but not enough if the carb side is weak.",
+      "narration": "10.3 grams of protein. Essential amino acids score is 4 out of 9, with 58% bioavailability, making the protein useful for repair and maintenance.",
       "displayItems": [
-        {
-          "metricKey": "bioavailability_percent",
-          "text": "bioavailability at 58%",
-          "weightedScore": 6,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
-          "dvPercent": null,
-          "value": 58
-        },
         {
           "metricKey": "essential_amino_acids_score",
           "text": "essential amino acids score at 4/9",
-          "weightedScore": 2,
-          "scoringMode": "arrow_bands",
-          "band": "↑",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
           "dvPercent": null,
-          "value": 4
+          "value": 4,
+          "referenceOnly": true
+        },
+        {
+          "metricKey": "bioavailability_percent",
+          "text": "bioavailability at 58%",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
+          "dvPercent": null,
+          "value": 58,
+          "referenceOnly": true
         },
         {
           "metricKey": "nonessential_amino_acids_score",
           "text": "nonessential amino acids score at 5/11",
-          "weightedScore": 2,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
           "dvPercent": null,
-          "value": 5
+          "value": 5,
+          "referenceOnly": true
         }
       ],
-      "subtitleText": "10.3g of protein. Bioavailability is 58%, and amino acid quality is strong. Protein helps, but not enough if the carb side is weak.",
+      "subtitleText": "10.3g of protein. Essential amino acids score is 4/9, with 58% bioavailability, making the protein useful for repair and maintenance.",
       "timingHint": "short-medium",
-      "score": 83.3
+      "score": 60
     },
     {
       "key": "vitamins",
       "title": "Vitamins",
-      "narration": "The rest of the section is nothing special.",
-      "displayItems": [],
-      "subtitleText": "The rest of the section is nothing special.",
+      "narration": "Vitamin E is 1% daily value, adding useful vitamin support.",
+      "displayItems": [
+        {
+          "metricKey": "vitamin_e_dv",
+          "text": "vitamin E at 1% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 1,
+          "value": null
+        }
+      ],
+      "subtitleText": "Vitamin E is 1% DV, adding useful vitamin support.",
       "timingHint": "short-medium",
-      "score": null
+      "score": 0
     },
     {
       "key": "minerals",
       "title": "Minerals",
-      "narration": "Magnesium at 31% daily value, iron at 15% daily value, zinc at 18% daily value stand out most. Useful, but still not a major mineral edge.",
+      "narration": "Magnesium is 31% daily value, adding useful mineral support. Potassium is 15% daily value, a weak mark for grains.",
       "displayItems": [
         {
           "metricKey": "magnesium_dv",
           "text": "magnesium at 31% DV",
-          "weightedScore": 6,
+          "weightedScore": 150,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 31,
           "value": null
         },
         {
+          "metricKey": "potassium_dv",
+          "text": "potassium at 15% DV",
+          "weightedScore": 20,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 15,
+          "value": null
+        },
+        {
           "metricKey": "iron_dv",
           "text": "iron at 15% DV",
-          "weightedScore": 2,
+          "weightedScore": 40,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 15,
@@ -173,100 +210,166 @@
         {
           "metricKey": "zinc_dv",
           "text": "zinc at 18% DV",
-          "weightedScore": 1,
+          "weightedScore": 40,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 18,
           "value": null
         }
       ],
-      "subtitleText": "Magnesium at 31% daily value, iron at 15% daily value, zinc at 18% daily value stand out most. Useful, but still not a major mineral edge.",
+      "subtitleText": "Magnesium is 31% DV, adding useful mineral support. Potassium is 15% DV, a weak mark for grains.",
       "timingHint": "short-medium",
-      "score": 18
+      "score": 16.7
     },
     {
       "key": "pros",
       "title": "Pros",
-      "narration": "The upsides first: can keep meals cheap and steady. That is a genuine category strength. Usually affordable and scalable. Practicality matters for staple foods. Easy to batch cook at scale. That practicality is part of why grains matter.",
+      "narration": "Positives first: can keep meals cheap and steady. That is a genuine category strength. Usually affordable and scalable. Practicality matters for staple foods. Easy to batch cook at scale. That practicality is part of why grains matter.",
       "displayItems": [
         {
           "type": "pro",
           "title": "can keep meals cheap and steady",
           "explanation": "That is a genuine category strength.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "usually affordable and scalable",
           "explanation": "Practicality matters for staple foods.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "easy to batch cook at scale",
           "explanation": "That practicality is part of why grains matter.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "The upsides first: can keep meals cheap and steady. That is a genuine category strength. Usually affordable and scalable. Practicality matters for staple foods. Easy to batch cook at scale. That practicality is part of why grains matter.",
+      "subtitleText": "Positives first: can keep meals cheap and steady. That is a genuine category strength. Usually affordable and scalable. Practicality matters for staple foods. Easy to batch cook at scale. That practicality is part of why grains matter.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     },
     {
       "key": "cons",
       "title": "Cons",
-      "narration": "On the weaker side: protein quality is limited. Even the better grains usually need pairing. Quality can drop fast with processing. The grain category punishes refinement pretty hard. Needs strong pairings to feel complete. The grain rarely finishes the nutrition job alone.",
+      "narration": "Downsides next: protein quality is limited. Even the better grains usually need pairing. Quality can drop fast with processing. The grain category punishes refinement pretty hard. Needs strong pairings to feel complete. The grain rarely finishes the nutrition job alone.",
       "displayItems": [
         {
           "type": "con",
           "title": "protein quality is limited",
           "explanation": "Even the better grains usually need pairing.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "quality can drop fast with processing",
           "explanation": "The grain category punishes refinement pretty hard.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "needs strong pairings to feel complete",
           "explanation": "The grain rarely finishes the nutrition job alone.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "On the weaker side: protein quality is limited. Even the better grains usually need pairing. Quality can drop fast with processing. The grain category punishes refinement pretty hard. Needs strong pairings to feel complete. The grain rarely finishes the nutrition job alone.",
+      "subtitleText": "Downsides next: protein quality is limited. Even the better grains usually need pairing. Quality can drop fast with processing. The grain category punishes refinement pretty hard. Needs strong pairings to feel complete. The grain rarely finishes the nutrition job alone.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     }
   ],
   "closing": {
-    "summary": "Rye has a genuinely strong overall case. the practical downsides are real, but they do not outweigh the upside. best when you want a staple carb that actually brings something useful with it.",
-    "finalReveal": "A tier.",
+    "summary": "Big strengths are protein and fibre, but the biggest weaknesses are protein quality is limited and quality can drop fast with processing.",
+    "overview": "Big strengths are protein and fibre, but the biggest weaknesses are protein quality is limited and quality can drop fast with processing.",
+    "finalReveal": "B tier.",
     "useCaseNote": "Best when you want a staple carb that actually brings something useful with it.",
     "cta": "Would you rank it the same, or nah?"
   },
-  "tier": "A",
-  "overallScore": 72,
+  "tier": "B",
+  "overallScore": 48.6,
+  "overallScoreExact": 48.6229,
+  "baseOverallScore": 45.5,
+  "baseOverallScoreExact": 45.5311,
+  "sectionOrder": [
+    "fats",
+    "carbs",
+    "proteins",
+    "vitamins",
+    "minerals",
+    "pros",
+    "cons"
+  ],
+  "narrationBlocks": [
+    {
+      "kind": "hook_food",
+      "text": "Rye!"
+    },
+    {
+      "kind": "hook_ranked",
+      "text": "Ranked!"
+    },
+    {
+      "kind": "section",
+      "sectionKey": "fats",
+      "text": "1.6 grams of fat. Saturated fat is 0.2 grams, supporting a better fat profile. Omega 3 is 50 milligrams, a weak mark for grains."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "carbs",
+      "text": "75.9 grams of carbs. Fibre is 15.1 grams, helping with digestion and steadier meals."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "proteins",
+      "text": "10.3 grams of protein. Essential amino acids score is 4 out of 9, with 58% bioavailability, making the protein useful for repair and maintenance."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "vitamins",
+      "text": "Vitamin E is 1% daily value, adding useful vitamin support."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "minerals",
+      "text": "Magnesium is 31% daily value, adding useful mineral support. Potassium is 15% daily value, a weak mark for grains."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "pros",
+      "text": "Positives first: can keep meals cheap and steady. That is a genuine category strength. Usually affordable and scalable. Practicality matters for staple foods. Easy to batch cook at scale. That practicality is part of why grains matter."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "cons",
+      "text": "Downsides next: protein quality is limited. Even the better grains usually need pairing. Quality can drop fast with processing. The grain category punishes refinement pretty hard. Needs strong pairings to feel complete. The grain rarely finishes the nutrition job alone."
+    },
+    {
+      "kind": "closing_summary",
+      "text": "Big strengths are protein and fibre, but the biggest weaknesses are protein quality is limited and quality can drop fast with processing."
+    },
+    {
+      "kind": "final_reveal",
+      "text": "B tier."
+    }
+  ],
   "explanation": {
-    "summary": "Carbs are carrying this food most, while minerals are the biggest drag. It lands in A tier.",
-    "whyThisTier": "This food lands in A tier with an overall score of 72 from a base nutrition score of 72. Context barely changed the result.",
+    "summary": "Carbs are carrying this food most, while vitamins are holding it back most. It lands in B tier.",
+    "whyThisTier": "This food lands in B tier with an overall score of 48.6. Section scores: fats 46.7, carbs 95.4, proteins 60, vitamins 0, minerals 16.7, pros 50, cons 50.",
     "strongestSection": {
       "key": "carbs",
       "label": "Carbs",
-      "score": 92.6
+      "score": 95.4
     },
     "weakestSection": {
-      "key": "minerals",
-      "label": "Minerals",
-      "score": 18
+      "key": "vitamins",
+      "label": "Vitamins",
+      "score": 0
     },
     "topPros": [
       {
@@ -274,21 +377,21 @@
         "explanation": "That is a genuine category strength.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "usually affordable and scalable",
         "explanation": "Practicality matters for staple foods.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "easy to batch cook at scale",
         "explanation": "That practicality is part of why grains matter.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -297,27 +400,27 @@
         "explanation": "Even the better grains usually need pairing.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "quality can drop fast with processing",
         "explanation": "The grain category punishes refinement pretty hard.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "needs strong pairings to feel complete",
         "explanation": "The grain rarely finishes the nutrition job alone.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
       "Strongest section: Carbs.",
-      "Weakest section: Minerals.",
-      "Final verdict: A tier."
+      "Weakest section: Vitamins.",
+      "Final verdict: B tier."
     ]
   }
 }

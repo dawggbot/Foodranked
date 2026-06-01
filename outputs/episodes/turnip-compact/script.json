@@ -1,13 +1,29 @@
 {
   "status": "ok",
+  "schemaVersion": "foodranked-script.v2",
+  "narrationFormat": "elevenlabs-blocks-v1",
   "food": {
     "id": "turnip",
     "name": "Turnip",
-    "foodType": "tubers"
+    "foodType": "tubers",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "identity": null,
+    "scoreReadiness": null,
+    "sourceNotes": [
+      "Calibration benchmark sample for FoodRanked.",
+      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
+    ]
   },
   "ruleset": {
     "id": "tubers.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 28,
@@ -16,142 +32,162 @@
     "protein_g": 0.9
   },
   "hook": "Turnip ranked.",
-  "intro": "",
   "sections": [
     {
       "key": "fats",
       "title": "Fats",
-      "narration": "0.1 grams of fat. Omega 3 is 10 milligrams, doing a lot of the work here. For a tuber, glycemic behaviour matters a ton.",
+      "narration": "0.1 grams of fat. Omega 3 is 10 milligrams, supporting a more useful fat profile. Polyunsaturated fat is 0 grams, a weak mark for tubers.",
       "displayItems": [
         {
-          "metricKey": "saturated_fat_g",
-          "text": "saturated fat at 0g",
-          "weightedScore": 3,
+          "metricKey": "omega3_mg",
+          "text": "omega 3 at 10mg",
+          "weightedScore": 0,
           "scoringMode": "arrow_bands",
-          "band": "↓↓↓",
+          "band": "3_green",
+          "dvPercent": null,
+          "value": 10
+        },
+        {
+          "metricKey": "polyunsaturated_fat_g",
+          "text": "polyunsaturated fat at 0g",
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
+          "band": "3_red",
           "dvPercent": null,
           "value": 0
         },
         {
-          "metricKey": "omega3_mg",
-          "text": "omega 3 at 10mg",
-          "weightedScore": 3,
+          "metricKey": "saturated_fat_g",
+          "text": "saturated fat at 0g",
+          "weightedScore": 100,
           "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
+          "band": "↓↓↓",
           "dvPercent": null,
-          "value": 10
+          "value": 0
         }
       ],
-      "subtitleText": "0.1g of fat. Omega 3 is 10mg, doing a lot of the work here. For a tuber, glycemic behaviour matters a ton.",
+      "subtitleText": "0.1g of fat. Omega 3 is 10mg, supporting a more useful fat profile. Polyunsaturated fat is 0g, a weak mark for tubers.",
       "timingHint": "short-medium",
       "score": 100
     },
     {
       "key": "carbs",
       "title": "Carbs",
-      "narration": "6.4 grams of carbs. Glycemic index is 30 GI. Starch is 0.5 grams, doing most of the heavy lifting here. For tubers, the carb side decides whether the food feels stable or flimsy.",
+      "narration": "6.4 grams of carbs. Glycemic index is 30 GI, supporting better carb quality. Starch is 0.5 grams, a meaningful miss for tubers.",
       "displayItems": [
         {
           "metricKey": "glycemic_index",
           "text": "glycemic index at 30 GI",
-          "weightedScore": 12,
+          "weightedScore": 400,
           "scoringMode": "arrow_bands",
           "band": "↓↓↓",
           "dvPercent": null,
           "value": 30
         },
         {
-          "metricKey": "fibre_g",
-          "text": "fibre at 1.8g",
-          "weightedScore": -6,
-          "scoringMode": "arrow_bands",
-          "band": "↓↓",
-          "dvPercent": null,
-          "value": 1.8
-        },
-        {
           "metricKey": "starch_g",
           "text": "starch at 0.5g",
-          "weightedScore": -3,
+          "weightedScore": 0,
           "scoringMode": "arrow_bands",
           "band": "↓↓↓",
           "dvPercent": null,
           "value": 0.5
         },
         {
+          "metricKey": "fibre_g",
+          "text": "fibre at 1.8g",
+          "weightedScore": 60,
+          "scoringMode": "arrow_bands",
+          "band": "↓↓",
+          "dvPercent": null,
+          "value": 1.8
+        },
+        {
           "metricKey": "sugar_g",
           "text": "sugar at 3.8g",
-          "weightedScore": 1,
+          "weightedScore": 60,
           "scoringMode": "arrow_bands",
           "band": "↓",
           "dvPercent": null,
           "value": 3.8
         }
       ],
-      "subtitleText": "6.4g of carbs. Glycemic index is 30 GI. Starch is 0.5g, doing most of the heavy lifting here. For tubers, the carb side decides whether the food feels stable or flimsy.",
+      "subtitleText": "6.4g of carbs. Glycemic index is 30 GI, supporting better carb quality. Starch is 0.5g, a meaningful miss for tubers.",
       "timingHint": "short-medium",
-      "score": 57.4
+      "score": 57.8
     },
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "0.9 grams of protein. Bioavailability is 40%, one of the best parts of the protein story. Protein is usually limited here, so the other sections have to carry more.",
+      "narration": "0.9 grams of protein. Essential amino acids score is 1 out of 9, with 40% bioavailability, making the protein useful for repair and maintenance.",
       "displayItems": [
-        {
-          "metricKey": "bioavailability_percent",
-          "text": "bioavailability at 40%",
-          "weightedScore": 3,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
-          "dvPercent": null,
-          "value": 40
-        },
         {
           "metricKey": "essential_amino_acids_score",
           "text": "essential amino acids score at 1/9",
-          "weightedScore": -2,
+          "weightedScore": 0,
           "scoringMode": "arrow_bands",
-          "band": "↓↓",
+          "band": "↓↓↓",
           "dvPercent": null,
-          "value": 1
+          "value": 1,
+          "referenceOnly": false
+        },
+        {
+          "metricKey": "bioavailability_percent",
+          "text": "bioavailability at 40%",
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
+          "band": "3_green",
+          "dvPercent": null,
+          "value": 40,
+          "referenceOnly": false
         },
         {
           "metricKey": "nonessential_amino_acids_score",
           "text": "nonessential amino acids score at 2/11",
-          "weightedScore": -2,
+          "weightedScore": 0,
           "scoringMode": "arrow_bands",
-          "band": "↓↓",
+          "band": "2_red",
           "dvPercent": null,
-          "value": 2
+          "value": 2,
+          "referenceOnly": false
         }
       ],
-      "subtitleText": "0.9g of protein. Bioavailability is 40%, one of the best parts of the protein story. Protein is usually limited here, so the other sections have to carry more.",
+      "subtitleText": "0.9g of protein. Essential amino acids score is 1/9, with 40% bioavailability, making the protein useful for repair and maintenance.",
       "timingHint": "short-medium",
-      "score": 44.4
+      "score": 0
     },
     {
       "key": "vitamins",
       "title": "Vitamins",
-      "narration": "Vitamin c at 23% daily value stands out most. That is only mild support overall.",
+      "narration": "Vitamin C is 23% daily value, useful for collagen formation and antioxidant support. Vitamin A is only 0% daily value, a weak mark for tubers.",
       "displayItems": [
         {
           "metricKey": "vitamin_c_dv",
-          "text": "vitamin c at 23% DV",
-          "weightedScore": 4,
+          "text": "vitamin C at 23% DV",
+          "weightedScore": 40,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 23,
           "value": null
+        },
+        {
+          "metricKey": "vitamin_a_dv",
+          "text": "vitamin A at 0% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
         }
       ],
-      "subtitleText": "Vitamin c at 23% daily value stands out most. That is only mild support overall.",
+      "subtitleText": "Vitamin C is 23% DV, useful for collagen formation and antioxidant support. Vitamin A is only 0% DV, a weak mark for tubers.",
       "timingHint": "short-medium",
-      "score": 20
+      "score": 8
     },
     {
       "key": "minerals",
       "title": "Minerals",
-      "narration": "Minerals are basically not part of the case here.",
+      "narration": "Potassium is 5% daily value, useful for fluid balance. Iron is only 1% daily value, a weak mark for tubers.",
       "displayItems": [
         {
           "metricKey": "potassium_dv",
@@ -161,113 +197,201 @@
           "band": null,
           "dvPercent": 5,
           "value": null
+        },
+        {
+          "metricKey": "iron_dv",
+          "text": "iron at 1% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 1,
+          "value": null
+        },
+        {
+          "metricKey": "magnesium_dv",
+          "text": "magnesium at 3% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 3,
+          "value": null
         }
       ],
-      "subtitleText": "Minerals are basically not part of the case here.",
+      "subtitleText": "Potassium is 5% DV, useful for fluid balance. Iron is only 1% DV, a weak mark for tubers.",
       "timingHint": "short-medium",
       "score": 0
     },
     {
       "key": "pros",
       "title": "Pros",
-      "narration": "On the plus side: works across a lot of cooking styles. Utility counts for staple carbs. Can be quite filling. A useful practical strength when the preparation stays sensible. Whole-food carb package. That matters because it is a cleaner baseline than heavily refined carbs.",
+      "narration": "The upsides first: works across a lot of cooking styles. Utility counts for staple carbs. Can be quite filling. A useful practical strength when the preparation stays sensible. Whole-food carb package. That matters because it is a cleaner baseline than heavily refined carbs.",
       "displayItems": [
         {
           "type": "pro",
           "title": "works across a lot of cooking styles",
           "explanation": "Utility counts for staple carbs.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "can be quite filling",
           "explanation": "A useful practical strength when the preparation stays sensible.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "whole-food carb package",
           "explanation": "That matters because it is a cleaner baseline than heavily refined carbs.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "On the plus side: works across a lot of cooking styles. Utility counts for staple carbs. Can be quite filling. A useful practical strength when the preparation stays sensible. Whole-food carb package. That matters because it is a cleaner baseline than heavily refined carbs.",
+      "subtitleText": "The upsides first: works across a lot of cooking styles. Utility counts for staple carbs. Can be quite filling. A useful practical strength when the preparation stays sensible. Whole-food carb package. That matters because it is a cleaner baseline than heavily refined carbs.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     },
     {
       "key": "cons",
       "title": "Cons",
-      "narration": "On the weaker side: can go downhill fast when heavily processed. The category has a big preparation trap. Still a carb-heavy category. That is the core ceiling tubers have to manage. Satiety payoff depends a lot on format. Some versions are much steadier than others.",
+      "narration": "Downsides next: can go downhill fast when heavily processed. The category has a big preparation trap. Still a carb-heavy category. That is the core ceiling tubers have to manage. Satiety payoff depends a lot on format. Some versions are much steadier than others.",
       "displayItems": [
         {
           "type": "con",
           "title": "can go downhill fast when heavily processed",
           "explanation": "The category has a big preparation trap.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "still a carb-heavy category",
           "explanation": "That is the core ceiling tubers have to manage.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "satiety payoff depends a lot on format",
           "explanation": "Some versions are much steadier than others.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "On the weaker side: can go downhill fast when heavily processed. The category has a big preparation trap. Still a carb-heavy category. That is the core ceiling tubers have to manage. Satiety payoff depends a lot on format. Some versions are much steadier than others.",
+      "subtitleText": "Downsides next: can go downhill fast when heavily processed. The category has a big preparation trap. Still a carb-heavy category. That is the core ceiling tubers have to manage. Satiety payoff depends a lot on format. Some versions are much steadier than others.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     }
   ],
   "closing": {
-    "summary": "Turnip does have some solid upside. but the tradeoffs keep it from climbing higher. best when you want practical carbs and the rest of the profile is still reasonably clean.",
+    "summary": "Big strengths are omega 3 and protein, but the biggest weaknesses are can go downhill fast when heavily processed and still a carb-heavy category.",
+    "overview": "Big strengths are omega 3 and protein, but the biggest weaknesses are can go downhill fast when heavily processed and still a carb-heavy category.",
     "finalReveal": "B tier.",
     "useCaseNote": "Best when you want practical carbs and the rest of the profile is still reasonably clean.",
     "cta": "Would you rank it the same, or nah?"
   },
   "tier": "B",
-  "overallScore": 41,
+  "overallScore": 43.1,
+  "overallScoreExact": 43.1346,
+  "baseOverallScore": 38,
+  "baseOverallScoreExact": 37.9683,
+  "sectionOrder": [
+    "fats",
+    "carbs",
+    "proteins",
+    "vitamins",
+    "minerals",
+    "pros",
+    "cons"
+  ],
+  "narrationBlocks": [
+    {
+      "kind": "hook_food",
+      "text": "Turnip!"
+    },
+    {
+      "kind": "hook_ranked",
+      "text": "Ranked!"
+    },
+    {
+      "kind": "section",
+      "sectionKey": "fats",
+      "text": "0.1 grams of fat. Omega 3 is 10 milligrams, supporting a more useful fat profile. Polyunsaturated fat is 0 grams, a weak mark for tubers."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "carbs",
+      "text": "6.4 grams of carbs. Glycemic index is 30 GI, supporting better carb quality. Starch is 0.5 grams, a meaningful miss for tubers."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "proteins",
+      "text": "0.9 grams of protein. Essential amino acids score is 1 out of 9, with 40% bioavailability, making the protein useful for repair and maintenance."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "vitamins",
+      "text": "Vitamin C is 23% daily value, useful for collagen formation and antioxidant support. Vitamin A is only 0% daily value, a weak mark for tubers."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "minerals",
+      "text": "Potassium is 5% daily value, useful for fluid balance. Iron is only 1% daily value, a weak mark for tubers."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "pros",
+      "text": "The upsides first: works across a lot of cooking styles. Utility counts for staple carbs. Can be quite filling. A useful practical strength when the preparation stays sensible. Whole-food carb package. That matters because it is a cleaner baseline than heavily refined carbs."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "cons",
+      "text": "Downsides next: can go downhill fast when heavily processed. The category has a big preparation trap. Still a carb-heavy category. That is the core ceiling tubers have to manage. Satiety payoff depends a lot on format. Some versions are much steadier than others."
+    },
+    {
+      "kind": "closing_summary",
+      "text": "Big strengths are omega 3 and protein, but the biggest weaknesses are can go downhill fast when heavily processed and still a carb-heavy category."
+    },
+    {
+      "kind": "final_reveal",
+      "text": "B tier."
+    }
+  ],
   "explanation": {
-    "summary": "Fats are carrying this food most, while minerals are the biggest drag. It lands in B tier.",
-    "whyThisTier": "This food lands in B tier with an overall score of 41 from a base nutrition score of 41. Context barely changed the result.",
+    "summary": "Fats are carrying this food most, while minerals are holding it back most. It lands in B tier.",
+    "whyThisTier": "This food lands in B tier with an overall score of 43.1. Section scores: fats 100, carbs 57.8, proteins 0, vitamins 8, minerals 0, pros 50, cons 50.",
     "strongestSection": {
       "key": "fats",
       "label": "Fats",
       "score": 100
     },
-    "weakestSection": null,
+    "weakestSection": {
+      "key": "minerals",
+      "label": "Minerals",
+      "score": 0
+    },
     "topPros": [
       {
         "title": "works across a lot of cooking styles",
         "explanation": "Utility counts for staple carbs.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "can be quite filling",
         "explanation": "A useful practical strength when the preparation stays sensible.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "whole-food carb package",
         "explanation": "That matters because it is a cleaner baseline than heavily refined carbs.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -276,25 +400,26 @@
         "explanation": "The category has a big preparation trap.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "still a carb-heavy category",
         "explanation": "That is the core ceiling tubers have to manage.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "satiety payoff depends a lot on format",
         "explanation": "Some versions are much steadier than others.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
       "Strongest section: Fats.",
+      "Weakest section: Minerals.",
       "Final verdict: B tier."
     ]
   }

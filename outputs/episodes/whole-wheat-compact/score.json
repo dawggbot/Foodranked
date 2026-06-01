@@ -7,7 +7,11 @@
   },
   "ruleset": {
     "id": "grains.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 340,
@@ -16,36 +20,32 @@
     "protein_g": 13.2
   },
   "sectionScores": {
-    "fats": 72.2,
-    "carbs": 83.3,
-    "proteins": 86.7,
-    "vitamins": null,
-    "minerals": 24,
-    "pros": 0,
-    "cons": 0
+    "fats": 60,
+    "carbs": 83.1,
+    "proteins": 80,
+    "vitamins": 30,
+    "minerals": 22,
+    "pros": 50,
+    "cons": 50
   },
-  "baseScore": 67,
-  "contextAdjustment": {
-    "rawAdjustment": 0,
-    "appliedAdjustment": 0,
-    "appliedItems": [],
-    "ignoredItems": []
-  },
-  "overallScore": 67,
+  "overallScore": 78.2,
+  "overallScoreExact": 78.1666,
+  "baseOverallScore": 53.6,
+  "baseOverallScoreExact": 53.5824,
   "tier": "A",
-  "summary": "Proteins are carrying this food most, while minerals are the biggest drag. It lands in A tier.",
+  "summary": "Carbs are carrying this food most, while minerals are holding it back most. It lands in A tier.",
   "explanation": {
-    "summary": "Proteins are carrying this food most, while minerals are the biggest drag. It lands in A tier.",
-    "whyThisTier": "This food lands in A tier with an overall score of 67 from a base nutrition score of 67. Context barely changed the result.",
+    "summary": "Carbs are carrying this food most, while minerals are holding it back most. It lands in A tier.",
+    "whyThisTier": "This food lands in A tier with an overall score of 78.2. Section scores: fats 60, carbs 83.1, proteins 80, vitamins 30, minerals 22, pros 50, cons 50.",
     "strongestSection": {
-      "key": "proteins",
-      "label": "Proteins",
-      "score": 86.7
+      "key": "carbs",
+      "label": "Carbs",
+      "score": 83.1
     },
     "weakestSection": {
       "key": "minerals",
       "label": "Minerals",
-      "score": 24
+      "score": 22
     },
     "topPros": [
       {
@@ -53,21 +53,21 @@
         "explanation": "That is a genuine category strength.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "works as a meal anchor",
         "explanation": "A lot of value comes from being easy to build around.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "easy to batch cook at scale",
         "explanation": "That practicality is part of why grains matter.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -76,25 +76,25 @@
         "explanation": "That is the category risk no grain fully escapes.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "quality can drop fast with processing",
         "explanation": "The grain category punishes refinement pretty hard.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "needs strong pairings to feel complete",
         "explanation": "The grain rarely finishes the nutrition job alone.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
-      "Strongest section: Proteins.",
+      "Strongest section: Carbs.",
       "Weakest section: Minerals.",
       "Final verdict: A tier."
     ]
@@ -104,52 +104,58 @@
       {
         "itemKey": "grain_budget_stability",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "can keep meals cheap and steady",
         "explanation": "That is a genuine category strength.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "grain_meal_anchor",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "works as a meal anchor",
         "explanation": "A lot of value comes from being easy to build around.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "grain_batch_cooking",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "easy to batch cook at scale",
         "explanation": "That practicality is part of why grains matter.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "cons": [
       {
         "itemKey": "grain_carb_ceiling",
         "impactLevel": "minor",
-        "scoreValue": -1,
         "title": "carb load is still the main burden",
         "explanation": "That is the category risk no grain fully escapes.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "grain_processing_sensitivity",
         "impactLevel": "minor",
-        "scoreValue": -1,
         "title": "quality can drop fast with processing",
         "explanation": "The grain category punishes refinement pretty hard.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "grain_needs_pairing_quality",
         "impactLevel": "minor",
-        "scoreValue": -1,
         "title": "needs strong pairings to feel complete",
         "explanation": "The grain rarely finishes the nutrition job alone.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       }
     ]
   },
@@ -159,100 +165,100 @@
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 0.4,
-      "band": "↓↓↓",
-      "score": 3,
+      "band": "3_green",
+      "score": 100,
       "weight": 1,
-      "weightedScore": 3
+      "weightedScore": 100
     },
     {
       "metricKey": "omega3_mg",
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 70,
-      "band": "↑↑↑",
-      "score": 3,
+      "band": "1_red",
+      "score": 40,
       "weight": 1,
-      "weightedScore": 3
+      "weightedScore": 40
     },
     {
       "metricKey": "polyunsaturated_fat_g",
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 1.1,
-      "band": "↓↓",
-      "score": -2,
+      "band": "1_red",
+      "score": 40,
       "weight": 1,
-      "weightedScore": -2
+      "weightedScore": 40
     },
     {
       "metricKey": "starch_g",
       "sectionKey": "carbs",
       "scoringMode": "arrow_bands",
       "value": 58,
-      "band": "↑",
-      "score": 1,
+      "band": "2_green",
+      "score": 80,
       "weight": 1,
-      "weightedScore": 1
+      "weightedScore": 80
     },
     {
       "metricKey": "fibre_g",
       "sectionKey": "carbs",
       "scoringMode": "arrow_bands",
       "value": 10.7,
-      "band": "↑↑",
-      "score": 2,
-      "weight": 3,
-      "weightedScore": 6
+      "band": "2_green",
+      "score": 80,
+      "weight": 5,
+      "weightedScore": 400
     },
     {
       "metricKey": "sugar_g",
       "sectionKey": "carbs",
       "scoringMode": "arrow_bands",
       "value": 0.4,
-      "band": "↓↓↓",
-      "score": 3,
-      "weight": 1,
-      "weightedScore": 3
+      "band": "3_green",
+      "score": 100,
+      "weight": 2,
+      "weightedScore": 200
     },
     {
       "metricKey": "glycemic_index",
       "sectionKey": "carbs",
       "scoringMode": "arrow_bands",
       "value": 45,
-      "band": "↓↓",
-      "score": 2,
-      "weight": 4,
-      "weightedScore": 8
+      "band": "2_green",
+      "score": 80,
+      "weight": 5,
+      "weightedScore": 400
     },
     {
-      "metricKey": "essential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 4,
-      "band": "↑",
-      "score": 1,
-      "weight": 2,
-      "weightedScore": 2
-    },
-    {
-      "metricKey": "nonessential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 6,
-      "band": "↑↑↑",
-      "score": 3,
+      "metricKey": "vitamin_e_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 1,
+      "points": 0,
+      "score": 0,
       "weight": 1,
-      "weightedScore": 3
+      "weightedScore": 0
     },
     {
-      "metricKey": "bioavailability_percent",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 58,
-      "band": "↑↑↑",
-      "score": 3,
-      "weight": 2,
-      "weightedScore": 6
+      "metricKey": "vitamin_b1_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 39,
+      "points": 3,
+      "score": 30,
+      "weight": 4,
+      "weightedScore": 120
+    },
+    {
+      "metricKey": "vitamin_b3_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 44,
+      "points": 4,
+      "score": 40,
+      "weight": 3,
+      "weightedScore": 120
     },
     {
       "metricKey": "iron_dv",
@@ -260,8 +266,9 @@
       "scoringMode": "dv_points",
       "dvPercent": 20,
       "points": 2,
-      "weight": 2,
-      "weightedScore": 4
+      "score": 20,
+      "weight": 4,
+      "weightedScore": 80
     },
     {
       "metricKey": "magnesium_dv",
@@ -269,8 +276,9 @@
       "scoringMode": "dv_points",
       "dvPercent": 34,
       "points": 3,
-      "weight": 2,
-      "weightedScore": 6
+      "score": 30,
+      "weight": 5,
+      "weightedScore": 150
     },
     {
       "metricKey": "zinc_dv",
@@ -278,8 +286,30 @@
       "scoringMode": "dv_points",
       "dvPercent": 20,
       "points": 2,
-      "weight": 1,
-      "weightedScore": 2
+      "score": 20,
+      "weight": 4,
+      "weightedScore": 80
+    },
+    {
+      "metricKey": "potassium_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 12,
+      "points": 1,
+      "score": 10,
+      "weight": 2,
+      "weightedScore": 20
+    },
+    {
+      "metricKey": "protein_g_fallback",
+      "sectionKey": "proteins",
+      "scoringMode": "protein_fallback",
+      "value": 13.2,
+      "band": "2_green",
+      "score": 80,
+      "weight": 2,
+      "weightedScore": 160,
+      "fallbackApplied": true
     }
   ]
 }

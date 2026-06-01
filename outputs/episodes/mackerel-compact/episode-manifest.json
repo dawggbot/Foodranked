@@ -1,6 +1,6 @@
 {
   "id": "mackerel-episode-v1",
-  "generatedAt": "2026-03-20T14:18:46.872Z",
+  "generatedAt": "2026-06-01T22:53:52.666Z",
   "status": "draft",
   "mode": "compact",
   "food": {
@@ -11,6 +11,12 @@
       "value": 100,
       "unit": "g"
     },
+    "identity": null,
+    "scoreReadiness": null,
+    "sourceNotes": [
+      "Calibration benchmark sample for FoodRanked.",
+      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
+    ],
     "sourceFile": "foods/mackerel.sample.json"
   },
   "sourceOfTruth": {
@@ -28,31 +34,88 @@
     "subtitlesJson": "subtitles.json"
   },
   "scoreSnapshot": {
-    "overallScore": 79,
-    "tier": "A",
-    "baseScore": 79,
-    "contextAdjustment": 0,
+    "overallScore": 80.1,
+    "overallScoreExact": 80.1433,
+    "baseOverallScore": 56.4,
+    "baseOverallScoreExact": 56.3704,
+    "tier": "S",
     "sectionScores": {
-      "fats": 77.8,
+      "fats": 82.2,
       "carbs": null,
-      "proteins": 88.9,
-      "vitamins": 96.7,
-      "minerals": null,
-      "pros": 0,
-      "cons": 0
+      "proteins": 60,
+      "vitamins": 96,
+      "minerals": 0,
+      "pros": 50,
+      "cons": 50
     },
+    "strongestSection": {
+      "key": "vitamins",
+      "label": "Vitamins",
+      "score": 96
+    },
+    "weakestSection": {
+      "key": "minerals",
+      "label": "Minerals",
+      "score": 0
+    },
+    "topPros": [
+      {
+        "title": "easy to centre a meal around",
+        "explanation": "Practical meal value matters.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "gives a straightforward protein solution",
+        "explanation": "The category often wins on simplicity and reliability.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "complete protein delivery is reliable",
+        "explanation": "The category is supposed to do this well.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      }
+    ],
+    "topCons": [
+      {
+        "title": "the outcome depends heavily on preparation",
+        "explanation": "A good raw profile can still be cooked into a worse result.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "fat quality can go sideways fast",
+        "explanation": "Some meats are strong until the fat profile shows up.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "cost and storage can be a pain",
+        "explanation": "Practical downsides still count.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
+      }
+    ],
     "explanation": {
-      "summary": "Vitamins are carrying this food most, while fats are the biggest drag. It lands in A tier.",
-      "whyThisTier": "This food lands in A tier with an overall score of 79 from a base nutrition score of 79. Context barely changed the result.",
+      "summary": "Vitamins are carrying this food most, while minerals are holding it back most. It lands in S tier.",
+      "whyThisTier": "This food lands in S tier with an overall score of 80.1. Section scores: fats 82.2, proteins 60, vitamins 96, minerals 0, pros 50, cons 50.",
       "strongestSection": {
         "key": "vitamins",
         "label": "Vitamins",
-        "score": 96.7
+        "score": 96
       },
       "weakestSection": {
-        "key": "fats",
-        "label": "Fats",
-        "score": 77.8
+        "key": "minerals",
+        "label": "Minerals",
+        "score": 0
       },
       "topPros": [
         {
@@ -60,21 +123,21 @@
           "explanation": "Practical meal value matters.",
           "impactLevel": "minor",
           "side": "pro",
-          "resolvedScoreValue": 0
+          "resolvedScoreValue": 50
         },
         {
           "title": "gives a straightforward protein solution",
           "explanation": "The category often wins on simplicity and reliability.",
           "impactLevel": "minor",
           "side": "pro",
-          "resolvedScoreValue": 0
+          "resolvedScoreValue": 50
         },
         {
           "title": "complete protein delivery is reliable",
           "explanation": "The category is supposed to do this well.",
           "impactLevel": "minor",
           "side": "pro",
-          "resolvedScoreValue": 0
+          "resolvedScoreValue": 50
         }
       ],
       "topCons": [
@@ -83,36 +146,38 @@
           "explanation": "A good raw profile can still be cooked into a worse result.",
           "impactLevel": "minor",
           "side": "con",
-          "resolvedScoreValue": 0
+          "resolvedScoreValue": 50
         },
         {
           "title": "fat quality can go sideways fast",
           "explanation": "Some meats are strong until the fat profile shows up.",
           "impactLevel": "minor",
           "side": "con",
-          "resolvedScoreValue": 0
+          "resolvedScoreValue": 50
         },
         {
           "title": "cost and storage can be a pain",
           "explanation": "Practical downsides still count.",
           "impactLevel": "minor",
           "side": "con",
-          "resolvedScoreValue": 0
+          "resolvedScoreValue": 50
         }
       ],
       "narrationNotes": [
         "Strongest section: Vitamins.",
-        "Weakest section: Fats.",
-        "Final verdict: A tier."
+        "Weakest section: Minerals.",
+        "Final verdict: S tier."
       ]
     }
   },
   "scriptSnapshot": {
+    "schemaVersion": "foodranked-script.v2",
+    "narrationFormat": "elevenlabs-blocks-v1",
     "hook": "Mackerel ranked.",
-    "intro": null,
     "closing": {
-      "summary": "Mackerel has a genuinely strong overall case. the practical downsides are real, but they do not outweigh the upside. best when you want efficient protein and can accept the category tradeoffs that come with it.",
-      "finalReveal": "A tier.",
+      "summary": "Big strengths are omega 3 and protein, but the biggest weaknesses are the outcome depends heavily on preparation and fat quality can go sideways fast.",
+      "overview": "Big strengths are omega 3 and protein, but the biggest weaknesses are the outcome depends heavily on preparation and fat quality can go sideways fast.",
+      "finalReveal": "S tier.",
       "useCaseNote": "Best when you want efficient protein and can accept the category tradeoffs that come with it.",
       "cta": "Would you rank it the same, or nah?"
     },
@@ -124,45 +189,468 @@
       "minerals",
       "pros",
       "cons"
-    ]
+    ],
+    "narrationBlockCount": 11
   },
   "visualBinding": {
     "templateId": "foodranked-visual-template.v1",
     "aspectRatio": "9:16",
     "categoryAccent": "Deep Red",
-    "tierColor": "light blue"
+    "tierColor": "platinum-gold",
+    "visualProfile": {
+      "name": "balanced",
+      "description": "Default launch profile: readable, centered, and close to the locked storyboard.",
+      "macroLayout": "stacked",
+      "subtitleLift": "standard",
+      "hookStyle": "hero-center",
+      "motionPreset": "balanced",
+      "statsDensity": "standard",
+      "micronutrientRows": 2,
+      "macroSlotsVisible": 3,
+      "emphasisOrder": [
+        "hook",
+        "header",
+        "macro",
+        "micros",
+        "pros-cons",
+        "tier"
+      ]
+    },
+    "spriteBindings": {
+      "strategy": "png-primary-with-aseprite-reference",
+      "categoryKey": "meat",
+      "notes": [
+        "Use exported 100% PNG and GIF files for edit/runtime placement.",
+        "Use .aseprite sources only as fidelity references when adjusting layout or re-exporting."
+      ],
+      "header": {
+        "foodPlate": {
+          "path": "sprites/header/food_plate/meat_food_plate.png",
+          "format": "png"
+        },
+        "foodPlateSource": {
+          "path": "sprites/header/food_plate/meat_food_plate.aseprite",
+          "format": "aseprite"
+        },
+        "foodTypePlate": {
+          "path": "sprites/header/food_type_plate/meat_type_plate.png",
+          "format": "png"
+        },
+        "foodTypePlateSource": {
+          "path": "sprites/header/food_type_plate/meat_type_plate.aseprite",
+          "format": "aseprite"
+        },
+        "calorieBubble": {
+          "path": "sprites/header/calorie_bubble/meat_calorie_bubble.png",
+          "format": "png"
+        },
+        "calorieBubbleSource": {
+          "path": "sprites/header/calorie_bubble/meat_calorie_bubble.aseprite",
+          "format": "aseprite"
+        },
+        "scorePlate": {
+          "path": "sprites/header/header_ui/score_plate.png",
+          "format": "png"
+        },
+        "scorePlateSource": {
+          "path": "sprites/header/header_ui/score_plate.aseprite",
+          "format": "aseprite"
+        }
+      },
+      "macros": {
+        "arrows": {
+          "positive": {
+            "path": "sprites/macros_section/arrow_indicators/green_arrow.png",
+            "format": "png"
+          },
+          "positiveSource": {
+            "path": "sprites/macros_section/arrow_indicators/green_arrow.aseprite",
+            "format": "aseprite"
+          },
+          "negative": {
+            "path": "sprites/macros_section/arrow_indicators/red_arrow.png",
+            "format": "png"
+          },
+          "negativeSource": {
+            "path": "sprites/macros_section/arrow_indicators/red_arrow.aseprite",
+            "format": "aseprite"
+          }
+        },
+        "fats": {
+          "icon": {
+            "path": "sprites/macros_section/section_1_fats/fat_icon.gif",
+            "format": "gif"
+          },
+          "iconSource": {
+            "path": "sprites/macros_section/section_1_fats/fat_icon.aseprite",
+            "format": "aseprite"
+          },
+          "bullet": {
+            "path": "sprites/macros_section/section_1_fats/fat_submacro_bullet_point.png",
+            "format": "png"
+          },
+          "bulletSource": {
+            "path": "sprites/macros_section/section_1_fats/fat_submacro_bullet_point.aseprite",
+            "format": "aseprite"
+          }
+        },
+        "carbs": {
+          "icon": {
+            "path": "sprites/macros_section/section_2_carbs/carb_icon.gif",
+            "format": "gif"
+          },
+          "iconSource": {
+            "path": "sprites/macros_section/section_2_carbs/carb_icon.aseprite",
+            "format": "aseprite"
+          },
+          "bullet": {
+            "path": "sprites/macros_section/section_2_carbs/carb_submacro_bullet_point.png",
+            "format": "png"
+          },
+          "bulletSource": {
+            "path": "sprites/macros_section/section_2_carbs/carb_submacro_bullet_point.aseprite",
+            "format": "aseprite"
+          }
+        },
+        "proteins": {
+          "icon": {
+            "path": "sprites/macros_section/section_3_protein/protein_icon.gif",
+            "format": "gif"
+          },
+          "iconSource": {
+            "path": "sprites/macros_section/section_3_protein/protein_icon.aseprite",
+            "format": "aseprite"
+          },
+          "bullet": {
+            "path": "sprites/macros_section/section_3_protein/protein_submacro_bullet_point.png",
+            "format": "png"
+          },
+          "bulletSource": {
+            "path": "sprites/macros_section/section_3_protein/protein_submacro_bullet_point.aseprite",
+            "format": "aseprite"
+          }
+        }
+      },
+      "micros": {
+        "vitamins": {
+          "icon": {
+            "path": "sprites/micros_section/vitamins/vitamin_icon.gif",
+            "format": "gif"
+          },
+          "iconSource": {
+            "path": "sprites/micros_section/vitamins/vitamin_icon.aseprite",
+            "format": "aseprite"
+          },
+          "microIcon": {
+            "path": "sprites/micros_section/vitamins/vitamin_micro_icon.png",
+            "format": "png"
+          },
+          "microIconSource": {
+            "path": "sprites/micros_section/vitamins/vitamin_micro_icon.aseprite",
+            "format": "aseprite"
+          }
+        },
+        "minerals": {
+          "icon": {
+            "path": "sprites/micros_section/minerals/mineral_icon.gif",
+            "format": "gif"
+          },
+          "iconSource": {
+            "path": "sprites/micros_section/minerals/mineral_icon.aseprite",
+            "format": "aseprite"
+          },
+          "microIcon": {
+            "path": "sprites/micros_section/minerals/mineral_micro_icon.png",
+            "format": "png"
+          },
+          "microIconSource": {
+            "path": "sprites/micros_section/minerals/mineral_micro_icon.aseprite",
+            "format": "aseprite"
+          }
+        },
+        "bars": {
+          "line": {
+            "path": "sprites/micros_section/bars/bar_line.png",
+            "format": "png"
+          },
+          "lineSource": {
+            "path": "sprites/micros_section/bars/bar_line.aseprite",
+            "format": "aseprite"
+          },
+          "full": {
+            "path": "sprites/micros_section/bars/100%_bar.png",
+            "format": "png"
+          },
+          "fullSource": {
+            "path": "sprites/micros_section/bars/100%_bar.aseprite",
+            "format": "aseprite"
+          }
+        }
+      },
+      "prosCons": {
+        "pros": {
+          "bullet": {
+            "path": "sprites/pros_and_cons/pros/pro_bullet_point.png",
+            "format": "png"
+          },
+          "bulletSource": {
+            "path": "sprites/pros_and_cons/pros/pro_bullet_point.aseprite",
+            "format": "aseprite"
+          }
+        },
+        "cons": {
+          "bullet": {
+            "path": "sprites/pros_and_cons/cons/con_bullet_point.png",
+            "format": "png"
+          },
+          "bulletSource": {
+            "path": "sprites/pros_and_cons/cons/con_bullet_point.aseprite",
+            "format": "aseprite"
+          }
+        }
+      },
+      "progress": {
+        "inactive": {
+          "path": "sprites/ui/section_indicator/meat_section_indicator.png",
+          "format": "png"
+        },
+        "inactiveSource": {
+          "path": "sprites/ui/section_indicator/meat_section_indicator.aseprite",
+          "format": "aseprite"
+        },
+        "active": {
+          "path": "sprites/ui/section_indicator/meat_highlighted_section_indicator.png",
+          "format": "png"
+        },
+        "activeSource": {
+          "path": "sprites/ui/section_indicator/meat_highlighted_section_indicator.aseprite",
+          "format": "aseprite"
+        }
+      },
+      "separators": {
+        "section": {
+          "path": "sprites/ui/section_separator/meat_section_separator.png",
+          "format": "png"
+        },
+        "sectionSource": {
+          "path": "sprites/ui/section_separator/meat_section_separator.aseprite",
+          "format": "aseprite"
+        }
+      },
+      "references": {
+        "macroLayout": {
+          "path": "sprites/references/macros_section.png",
+          "format": "png"
+        },
+        "macroLayoutSource": {
+          "path": "sprites/references/macros_section.aseprite",
+          "format": "aseprite"
+        },
+        "microLayout": {
+          "path": "sprites/references/micros_section.png",
+          "format": "png"
+        },
+        "microLayoutSource": {
+          "path": "sprites/references/micros_section.aseprite",
+          "format": "aseprite"
+        },
+        "prosConsLayout": {
+          "path": "sprites/references/pros_cons_section.png",
+          "format": "png"
+        },
+        "prosConsLayoutSource": {
+          "path": "sprites/references/pros_cons_section.aseprite",
+          "format": "aseprite"
+        }
+      }
+    },
+    "storyboardContract": {
+      "lockedSceneStack": [
+        {
+          "id": "hook",
+          "kind": "hook",
+          "narrativeRole": "opening-promise",
+          "subtitlePlacement": "lower-third"
+        },
+        {
+          "id": "fats",
+          "kind": "section",
+          "narrativeRole": "macro-foundation",
+          "subtitlePlacement": "lower-third"
+        },
+        {
+          "id": "carbs",
+          "kind": "section",
+          "narrativeRole": "macro-foundation",
+          "subtitlePlacement": "lower-third"
+        },
+        {
+          "id": "proteins",
+          "kind": "section",
+          "narrativeRole": "macro-foundation",
+          "subtitlePlacement": "lower-third"
+        },
+        {
+          "id": "vitamins",
+          "kind": "section",
+          "narrativeRole": "micronutrient-proof",
+          "subtitlePlacement": "lower-third"
+        },
+        {
+          "id": "minerals",
+          "kind": "section",
+          "narrativeRole": "micronutrient-proof",
+          "subtitlePlacement": "lower-third"
+        },
+        {
+          "id": "pros",
+          "kind": "section",
+          "narrativeRole": "real-world-upside",
+          "subtitlePlacement": "high-lower-third"
+        },
+        {
+          "id": "cons",
+          "kind": "section",
+          "narrativeRole": "real-world-downside",
+          "subtitlePlacement": "high-lower-third"
+        },
+        {
+          "id": "final",
+          "kind": "closing",
+          "narrativeRole": "verdict-payoff",
+          "subtitlePlacement": "subtitle-floor"
+        }
+      ],
+      "subtitleSafeBox": {
+        "x": 80,
+        "y": 1320,
+        "w": 920,
+        "h": 280
+      },
+      "progressIndicator": {
+        "id": "progress_dots",
+        "type": "dotRow",
+        "count": 7,
+        "x": 414,
+        "y": 1710,
+        "dotSize": 26,
+        "gap": 20,
+        "states": [
+          "inactive",
+          "active",
+          "completed"
+        ]
+      }
+    }
   },
   "reviewChecklist": [
     "Verify nutrient values are sourced well enough for publishable use.",
     "Review narration for category repetition and trim any awkward lines.",
     "Confirm subtitle density stays readable at phone speed.",
-    "Replace placeholder hero/sprite art with final asset selection.",
+    "Use the PNG and GIF sprite exports directly, and only open .aseprite sources when fidelity adjustments are needed.",
     "Check that the final tier verdict feels editorially defensible."
   ],
   "nextHumanStep": "Review the generated narration + manifest, then use the manifest as the handoff into visual assembly / editing.",
   "scenePlan": {
     "mode": "compact",
-    "totalEstimatedDurationSeconds": 85.24,
+    "visualProfile": "balanced",
+    "subtitleRules": {
+      "maxLines": 2,
+      "maxCharactersPerLine": 18
+    },
+    "totalEstimatedDurationSeconds": 81.23,
     "scenes": [
       {
         "id": "hook",
         "kind": "hook",
+        "narrativeRole": "opening-promise",
         "startSeconds": 0,
         "durationSeconds": 2.1,
         "endSeconds": 2.1,
         "narrationText": "Mackerel ranked.",
         "subtitleText": "Mackerel ranked.",
+        "subtitlePlacement": "lower-third",
         "visualBinding": {
           "title": "Mackerel",
           "rankedWord": "RANKED",
           "foodType": "meats",
           "kcal": 205,
-          "categoryAccent": "Deep Red"
+          "categoryAccent": "Deep Red",
+          "hookStyle": "hero-center",
+          "headerSprites": {
+            "foodPlate": {
+              "path": "sprites/header/food_plate/meat_food_plate.png",
+              "format": "png"
+            },
+            "foodPlateSource": {
+              "path": "sprites/header/food_plate/meat_food_plate.aseprite",
+              "format": "aseprite"
+            },
+            "foodTypePlate": {
+              "path": "sprites/header/food_type_plate/meat_type_plate.png",
+              "format": "png"
+            },
+            "foodTypePlateSource": {
+              "path": "sprites/header/food_type_plate/meat_type_plate.aseprite",
+              "format": "aseprite"
+            },
+            "calorieBubble": {
+              "path": "sprites/header/calorie_bubble/meat_calorie_bubble.png",
+              "format": "png"
+            },
+            "calorieBubbleSource": {
+              "path": "sprites/header/calorie_bubble/meat_calorie_bubble.aseprite",
+              "format": "aseprite"
+            },
+            "scorePlate": {
+              "path": "sprites/header/header_ui/score_plate.png",
+              "format": "png"
+            },
+            "scorePlateSource": {
+              "path": "sprites/header/header_ui/score_plate.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "progressSprites": {
+            "inactive": {
+              "path": "sprites/ui/section_indicator/meat_section_indicator.png",
+              "format": "png"
+            },
+            "inactiveSource": {
+              "path": "sprites/ui/section_indicator/meat_section_indicator.aseprite",
+              "format": "aseprite"
+            },
+            "active": {
+              "path": "sprites/ui/section_indicator/meat_highlighted_section_indicator.png",
+              "format": "png"
+            },
+            "activeSource": {
+              "path": "sprites/ui/section_indicator/meat_highlighted_section_indicator.aseprite",
+              "format": "aseprite"
+            }
+          }
         },
         "revealPlan": [
           "hero_food",
           "hook_title",
           "hook_ranked_word"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "hero_food",
+            "beat": "start",
+            "purpose": "food-recognition"
+          },
+          {
+            "slotId": "hook_title",
+            "beat": "mid",
+            "purpose": "ranking-promise"
+          },
+          {
+            "slotId": "hook_ranked_word",
+            "beat": "end",
+            "purpose": "impact-lockup"
+          }
         ],
         "subtitleCues": [
           {
@@ -183,160 +671,219 @@
       {
         "id": "fats",
         "kind": "section",
+        "narrativeRole": "macro-foundation",
         "startSeconds": 2.1,
-        "durationSeconds": 11.65,
-        "endSeconds": 13.75,
-        "narrationText": "13.9 grams of fat. Omega 3 is 2600 milligrams, exactly the kind of fat support you want from a meat. For meats, fat quality matters a lot once the protein is already there.",
-        "subtitleText": "13.9g of fat. Omega 3 is 2600mg, exactly the kind of fat support you want from a meat. For meats, fat quality matters a lot once the protein is already there.",
+        "durationSeconds": 5.29,
+        "endSeconds": 7.39,
+        "narrationText": "13.9 grams of fat. Omega 3 is 2600 milligrams, supporting a more useful fat profile.",
+        "subtitleText": "13.9g of fat. Omega 3 is 2600mg, supporting a more useful fat profile.",
+        "subtitlePlacement": "lower-third",
         "visualBinding": {
           "sectionKey": "fats",
           "title": "Fats",
-          "score": 77.8,
+          "score": 82.2,
           "templateSlots": [
             "macro_headline",
             "submetric_1",
             "submetric_2",
-            "submetric_3"
+            "submetric_3",
+            "commentary_note"
           ],
           "displayItems": [
             {
               "metricKey": "omega3_mg",
-              "text": "omega3 at 2600",
-              "weightedScore": 3,
+              "text": "omega 3 at 2600mg",
+              "weightedScore": 300,
               "scoringMode": "arrow_bands",
-              "band": "↑↑↑",
+              "band": "3_green",
               "dvPercent": null,
               "value": 2600
             },
             {
               "metricKey": "polyunsaturated_fat_g",
-              "text": "polyunsaturated fat at 5.1",
-              "weightedScore": 3,
+              "text": "polyunsaturated fat at 5.1g",
+              "weightedScore": 100,
               "scoringMode": "arrow_bands",
-              "band": "↑↑↑",
+              "band": "3_green",
               "dvPercent": null,
               "value": 5.1
             },
             {
-              "metricKey": "saturated_fat_g",
-              "text": "saturated fat at 3.3",
-              "weightedScore": 2,
-              "scoringMode": "arrow_bands",
-              "band": "↓",
-              "dvPercent": null,
-              "value": 3.3
-            },
-            {
               "metricKey": "cholesterol_mg",
-              "text": "cholesterol at 70",
-              "weightedScore": 2,
+              "text": "cholesterol at 70mg",
+              "weightedScore": 160,
               "scoringMode": "arrow_bands",
-              "band": "↓",
+              "band": "2_green",
               "dvPercent": null,
               "value": 70
+            },
+            {
+              "metricKey": "saturated_fat_g",
+              "text": "saturated fat at 3.3g",
+              "weightedScore": 180,
+              "scoringMode": "arrow_bands",
+              "band": "1_green",
+              "dvPercent": null,
+              "value": 3.3
             }
           ],
-          "timingHint": "short-medium"
+          "timingHint": "short-medium",
+          "narrativeRole": "macro-foundation",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "lower-third",
+          "preferredSpriteBindings": {
+            "icon": {
+              "path": "sprites/macros_section/section_1_fats/fat_icon.gif",
+              "format": "gif"
+            },
+            "iconSource": {
+              "path": "sprites/macros_section/section_1_fats/fat_icon.aseprite",
+              "format": "aseprite"
+            },
+            "bullet": {
+              "path": "sprites/macros_section/section_1_fats/fat_submacro_bullet_point.png",
+              "format": "png"
+            },
+            "bulletSource": {
+              "path": "sprites/macros_section/section_1_fats/fat_submacro_bullet_point.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": {
+              "slotId": "macro_headline",
+              "label": "Fats",
+              "value": null,
+              "emphasis": "standard"
+            },
+            "macroSlots": [
+              {
+                "slotId": "submetric_1",
+                "metricKey": "omega3_mg",
+                "label": "omega 3",
+                "displayValue": "2600mg",
+                "scoringMode": "arrow_bands",
+                "band": "3_green",
+                "weightedScore": 300,
+                "spriteRole": "fats",
+                "text": "omega 3 at 2600mg"
+              },
+              {
+                "slotId": "submetric_2",
+                "metricKey": "polyunsaturated_fat_g",
+                "label": "polyunsaturated fat",
+                "displayValue": "5.1g",
+                "scoringMode": "arrow_bands",
+                "band": "3_green",
+                "weightedScore": 100,
+                "spriteRole": "fats",
+                "text": "polyunsaturated fat at 5.1g"
+              },
+              {
+                "slotId": "submetric_3",
+                "metricKey": "cholesterol_mg",
+                "label": "cholesterol",
+                "displayValue": "70mg",
+                "scoringMode": "arrow_bands",
+                "band": "2_green",
+                "weightedScore": 160,
+                "spriteRole": "fats",
+                "text": "cholesterol at 70mg"
+              }
+            ],
+            "micronutrientRows": [],
+            "commentaryNote": "Overflow metrics stay off-screen unless the edit intentionally promotes them."
+          }
         },
         "revealPlan": [
           "macro_headline",
           "submetric_1",
           "submetric_2",
-          "submetric_3"
+          "submetric_3",
+          "commentary_note"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "macro_headline",
+            "beat": "lead",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_1",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_2",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_3",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "commentary_note",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          }
         ],
         "subtitleCues": [
           {
             "id": "02-fats-1",
             "sceneId": "fats",
             "startSeconds": 2.1,
-            "endSeconds": 3.84,
+            "endSeconds": 3.45,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "13. 9g of fat."
+              "13.9g of",
+              "fat."
             ],
-            "text": "13. 9g of fat."
+            "text": "13.9g of\nfat."
           },
           {
             "id": "03-fats-2",
             "sceneId": "fats",
-            "startSeconds": 3.84,
-            "endSeconds": 6.42,
+            "startSeconds": 3.45,
+            "endSeconds": 6.17,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
               "Omega 3 is 2600mg,",
-              "exactly the kind"
+              "supporting a more"
             ],
-            "text": "Omega 3 is 2600mg,\nexactly the kind"
+            "text": "Omega 3 is 2600mg,\nsupporting a more"
           },
           {
             "id": "04-fats-3",
             "sceneId": "fats",
-            "startSeconds": 6.42,
-            "endSeconds": 9.23,
+            "startSeconds": 6.17,
+            "endSeconds": 7.39,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "of fat support you",
-              "want from a meat."
+              "useful fat",
+              "profile."
             ],
-            "text": "of fat support you\nwant from a meat."
-          },
-          {
-            "id": "05-fats-4",
-            "sceneId": "fats",
-            "startSeconds": 9.23,
-            "endSeconds": 11.24,
-            "placement": "lower-third",
-            "maxLines": 2,
-            "maxCharactersPerLine": 18,
-            "lines": [
-              "For meats, fat",
-              "quality matters a"
-            ],
-            "text": "For meats, fat\nquality matters a"
-          },
-          {
-            "id": "06-fats-5",
-            "sceneId": "fats",
-            "startSeconds": 11.24,
-            "endSeconds": 13.24,
-            "placement": "lower-third",
-            "maxLines": 2,
-            "maxCharactersPerLine": 18,
-            "lines": [
-              "lot once the",
-              "protein is already"
-            ],
-            "text": "lot once the\nprotein is already"
-          },
-          {
-            "id": "07-fats-6",
-            "sceneId": "fats",
-            "startSeconds": 13.24,
-            "endSeconds": 13.75,
-            "placement": "lower-third",
-            "maxLines": 2,
-            "maxCharactersPerLine": 18,
-            "lines": [
-              "there."
-            ],
-            "text": "there."
+            "text": "useful fat\nprofile."
           }
         ]
       },
       {
         "id": "carbs",
         "kind": "section",
-        "startSeconds": 13.75,
-        "durationSeconds": 6.35,
-        "endSeconds": 20.1,
-        "narrationText": "0 grams of carbs. Outside of that, the profile is pretty quiet. In this category, carbs barely matter.",
-        "subtitleText": "0g of carbs. Outside of that, the profile is pretty quiet. In this category, carbs barely matter.",
+        "narrativeRole": "macro-foundation",
+        "startSeconds": 7.39,
+        "durationSeconds": 6,
+        "endSeconds": 13.39,
+        "narrationText": "0 grams of carbs. No defensible carb submacros to call out. In this category, carbs barely matter.",
+        "subtitleText": "0g of carbs. No defensible carb submacros to call out. In this category, carbs barely matter.",
+        "subtitlePlacement": "lower-third",
         "visualBinding": {
           "sectionKey": "carbs",
           "title": "Carbs",
@@ -345,23 +892,84 @@
             "macro_headline",
             "submetric_1",
             "submetric_2",
-            "submetric_3"
+            "submetric_3",
+            "commentary_note"
           ],
           "displayItems": [],
-          "timingHint": "short-medium"
+          "timingHint": "short-medium",
+          "narrativeRole": "macro-foundation",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "lower-third",
+          "preferredSpriteBindings": {
+            "icon": {
+              "path": "sprites/macros_section/section_2_carbs/carb_icon.gif",
+              "format": "gif"
+            },
+            "iconSource": {
+              "path": "sprites/macros_section/section_2_carbs/carb_icon.aseprite",
+              "format": "aseprite"
+            },
+            "bullet": {
+              "path": "sprites/macros_section/section_2_carbs/carb_submacro_bullet_point.png",
+              "format": "png"
+            },
+            "bulletSource": {
+              "path": "sprites/macros_section/section_2_carbs/carb_submacro_bullet_point.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": {
+              "slotId": "macro_headline",
+              "label": "Carbs",
+              "value": null,
+              "emphasis": "standard"
+            },
+            "macroSlots": [],
+            "micronutrientRows": [],
+            "commentaryNote": null
+          }
         },
         "revealPlan": [
           "macro_headline",
           "submetric_1",
           "submetric_2",
-          "submetric_3"
+          "submetric_3",
+          "commentary_note"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "macro_headline",
+            "beat": "lead",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_1",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_2",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_3",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "commentary_note",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          }
         ],
         "subtitleCues": [
           {
-            "id": "08-carbs-1",
+            "id": "05-carbs-1",
             "sceneId": "carbs",
-            "startSeconds": 13.75,
-            "endSeconds": 15.05,
+            "startSeconds": 7.39,
+            "endSeconds": 8.68,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -371,37 +979,37 @@
             "text": "0g of carbs."
           },
           {
-            "id": "09-carbs-2",
+            "id": "06-carbs-2",
             "sceneId": "carbs",
-            "startSeconds": 15.05,
-            "endSeconds": 17.06,
+            "startSeconds": 8.68,
+            "endSeconds": 10.69,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "Outside of that,",
-              "the profile is"
+              "No defensible carb",
+              "submacros to call"
             ],
-            "text": "Outside of that,\nthe profile is"
+            "text": "No defensible carb\nsubmacros to call"
           },
           {
-            "id": "10-carbs-3",
+            "id": "07-carbs-3",
             "sceneId": "carbs",
-            "startSeconds": 17.06,
-            "endSeconds": 17.9,
+            "startSeconds": 10.69,
+            "endSeconds": 11.2,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "pretty quiet."
+              "out."
             ],
-            "text": "pretty quiet."
+            "text": "out."
           },
           {
-            "id": "11-carbs-4",
+            "id": "08-carbs-4",
             "sceneId": "carbs",
-            "startSeconds": 17.9,
-            "endSeconds": 19.59,
+            "startSeconds": 11.2,
+            "endSeconds": 12.88,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -412,10 +1020,10 @@
             "text": "In this category,\ncarbs barely"
           },
           {
-            "id": "12-carbs-5",
+            "id": "09-carbs-5",
             "sceneId": "carbs",
-            "startSeconds": 19.59,
-            "endSeconds": 20.1,
+            "startSeconds": 12.88,
+            "endSeconds": 13.39,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -429,73 +1037,188 @@
       {
         "id": "proteins",
         "kind": "section",
-        "startSeconds": 20.1,
-        "durationSeconds": 12,
-        "endSeconds": 32.1,
-        "narrationText": "Essential amino acids score is 9 out of 9. 18.6 grams of protein. Bioavailability and amino acid quality are both strong. Strong protein is expected here, so the rest of the profile decides how high it climbs.",
-        "subtitleText": "Essential amino acids score is 9/9. 18.6g of protein. Bioavailability and amino acid quality are both strong. Strong protein is expected here, so the rest of the profile decides how high it climbs.",
+        "narrativeRole": "macro-foundation",
+        "startSeconds": 13.39,
+        "durationSeconds": 13.76,
+        "endSeconds": 27.15,
+        "narrationText": "18.6 grams of protein. Essential amino acids score is 9 out of 9, with 95% bioavailability, making the protein useful for repair and maintenance. Collagen is only 0.8 grams, so for meats, it is not bringing much connective-tissue protein.",
+        "subtitleText": "18.6g of protein. Essential amino acids score is 9/9, with 95% bioavailability, making the protein useful for repair and maintenance. Collagen is only 0.8g, so for meats, it is not bringing much connective-tissue protein.",
+        "subtitlePlacement": "lower-third",
         "visualBinding": {
           "sectionKey": "proteins",
           "title": "Proteins",
-          "score": 88.9,
+          "score": 60,
           "templateSlots": [
             "macro_headline",
             "submetric_1",
             "submetric_2",
-            "submetric_3"
+            "submetric_3",
+            "commentary_note"
           ],
           "displayItems": [
             {
               "metricKey": "essential_amino_acids_score",
               "text": "essential amino acids score at 9/9",
-              "weightedScore": 9,
-              "scoringMode": "arrow_bands",
-              "band": "↑↑↑",
+              "weightedScore": null,
+              "scoringMode": "reference_submacro",
+              "band": null,
               "dvPercent": null,
-              "value": 9
+              "value": 9,
+              "referenceOnly": true
             },
             {
               "metricKey": "bioavailability_percent",
-              "text": "bioavailability at 95",
-              "weightedScore": 9,
-              "scoringMode": "arrow_bands",
-              "band": "↑↑↑",
+              "text": "bioavailability at 95%",
+              "weightedScore": null,
+              "scoringMode": "reference_submacro",
+              "band": null,
               "dvPercent": null,
-              "value": 95
+              "value": 95,
+              "referenceOnly": true
+            },
+            {
+              "metricKey": "collagen_g",
+              "text": "collagen at 0.8g",
+              "weightedScore": null,
+              "scoringMode": "reference_submacro",
+              "band": null,
+              "dvPercent": null,
+              "value": 0.8,
+              "referenceOnly": true
             },
             {
               "metricKey": "nonessential_amino_acids_score",
               "text": "nonessential amino acids score at 11/11",
-              "weightedScore": 6,
-              "scoringMode": "arrow_bands",
-              "band": "↑↑↑",
+              "weightedScore": null,
+              "scoringMode": "reference_submacro",
+              "band": null,
               "dvPercent": null,
-              "value": 11
-            },
-            {
-              "metricKey": "collagen_g",
-              "text": "collagen at 0.8",
-              "weightedScore": -3,
-              "scoringMode": "arrow_bands",
-              "band": "↓↓↓",
-              "dvPercent": null,
-              "value": 0.8
+              "value": 11,
+              "referenceOnly": true
             }
           ],
-          "timingHint": "short-medium"
+          "timingHint": "short-medium",
+          "narrativeRole": "macro-foundation",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "lower-third",
+          "preferredSpriteBindings": {
+            "icon": {
+              "path": "sprites/macros_section/section_3_protein/protein_icon.gif",
+              "format": "gif"
+            },
+            "iconSource": {
+              "path": "sprites/macros_section/section_3_protein/protein_icon.aseprite",
+              "format": "aseprite"
+            },
+            "bullet": {
+              "path": "sprites/macros_section/section_3_protein/protein_submacro_bullet_point.png",
+              "format": "png"
+            },
+            "bulletSource": {
+              "path": "sprites/macros_section/section_3_protein/protein_submacro_bullet_point.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": {
+              "slotId": "macro_headline",
+              "label": "Proteins",
+              "value": null,
+              "emphasis": "standard"
+            },
+            "macroSlots": [
+              {
+                "slotId": "submetric_1",
+                "metricKey": "essential_amino_acids_score",
+                "label": "essential amino acids score",
+                "displayValue": "9/9",
+                "scoringMode": "reference_submacro",
+                "band": null,
+                "weightedScore": null,
+                "spriteRole": "proteins",
+                "text": "essential amino acids score at 9/9"
+              },
+              {
+                "slotId": "submetric_2",
+                "metricKey": "bioavailability_percent",
+                "label": "bioavailability",
+                "displayValue": "95%",
+                "scoringMode": "reference_submacro",
+                "band": null,
+                "weightedScore": null,
+                "spriteRole": "proteins",
+                "text": "bioavailability at 95%"
+              },
+              {
+                "slotId": "submetric_3",
+                "metricKey": "collagen_g",
+                "label": "collagen",
+                "displayValue": "0.8g",
+                "scoringMode": "reference_submacro",
+                "band": null,
+                "weightedScore": null,
+                "spriteRole": "proteins",
+                "text": "collagen at 0.8g"
+              }
+            ],
+            "micronutrientRows": [],
+            "commentaryNote": "Overflow metrics stay off-screen unless the edit intentionally promotes them."
+          }
         },
         "revealPlan": [
           "macro_headline",
           "submetric_1",
           "submetric_2",
-          "submetric_3"
+          "submetric_3",
+          "commentary_note"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "macro_headline",
+            "beat": "lead",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_1",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_2",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_3",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "commentary_note",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          }
         ],
         "subtitleCues": [
           {
-            "id": "13-proteins-1",
+            "id": "10-proteins-1",
             "sceneId": "proteins",
-            "startSeconds": 20.1,
-            "endSeconds": 21.72,
+            "startSeconds": 13.39,
+            "endSeconds": 14.82,
+            "placement": "lower-third",
+            "maxLines": 2,
+            "maxCharactersPerLine": 18,
+            "lines": [
+              "18.6g of",
+              "protein."
+            ],
+            "text": "18.6g of\nprotein."
+          },
+          {
+            "id": "11-proteins-2",
+            "sceneId": "proteins",
+            "startSeconds": 14.82,
+            "endSeconds": 16.69,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -506,124 +1229,114 @@
             "text": "Essential amino\nacids score is"
           },
           {
-            "id": "14-proteins-2",
+            "id": "12-proteins-3",
             "sceneId": "proteins",
-            "startSeconds": 21.72,
-            "endSeconds": 22.34,
+            "startSeconds": 16.69,
+            "endSeconds": 18.46,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "9/9."
+              "9/9, with 95%",
+              "bioavailability,"
             ],
-            "text": "9/9."
+            "text": "9/9, with 95%\nbioavailability,"
           },
           {
-            "id": "15-proteins-3",
+            "id": "13-proteins-4",
             "sceneId": "proteins",
-            "startSeconds": 22.34,
-            "endSeconds": 24.02,
+            "startSeconds": 18.46,
+            "endSeconds": 20.69,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "18. 6g of protein."
+              "making the protein",
+              "useful for repair"
             ],
-            "text": "18. 6g of protein."
+            "text": "making the protein\nuseful for repair"
           },
           {
-            "id": "16-proteins-4",
+            "id": "14-proteins-5",
             "sceneId": "proteins",
-            "startSeconds": 24.02,
-            "endSeconds": 25.33,
+            "startSeconds": 20.69,
+            "endSeconds": 21.62,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "Bioavailability",
-              "and amino acid"
+              "and maintenance."
             ],
-            "text": "Bioavailability\nand amino acid"
+            "text": "and maintenance."
           },
           {
-            "id": "17-proteins-5",
+            "id": "15-proteins-6",
             "sceneId": "proteins",
-            "startSeconds": 25.33,
-            "endSeconds": 26.77,
+            "startSeconds": 21.62,
+            "endSeconds": 23.63,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "quality are both",
-              "strong."
+              "Collagen is only",
+              "0.8g, so"
             ],
-            "text": "quality are both\nstrong."
+            "text": "Collagen is only\n0.8g, so"
           },
           {
-            "id": "18-proteins-6",
+            "id": "16-proteins-7",
             "sceneId": "proteins",
-            "startSeconds": 26.77,
-            "endSeconds": 28.71,
+            "startSeconds": 23.63,
+            "endSeconds": 26.22,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "Strong protein is",
-              "expected here, so"
+              "for meats, it is",
+              "not bringing much"
             ],
-            "text": "Strong protein is\nexpected here, so"
+            "text": "for meats, it is\nnot bringing much"
           },
           {
-            "id": "19-proteins-7",
+            "id": "17-proteins-8",
             "sceneId": "proteins",
-            "startSeconds": 28.71,
-            "endSeconds": 30.66,
+            "startSeconds": 26.22,
+            "endSeconds": 27.15,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "the rest of the",
-              "profile decides"
+              "connective-tissue",
+              "protein."
             ],
-            "text": "the rest of the\nprofile decides"
-          },
-          {
-            "id": "20-proteins-8",
-            "sceneId": "proteins",
-            "startSeconds": 30.66,
-            "endSeconds": 32.1,
-            "placement": "lower-third",
-            "maxLines": 2,
-            "maxCharactersPerLine": 18,
-            "lines": [
-              "how high it",
-              "climbs."
-            ],
-            "text": "how high it\nclimbs."
+            "text": "connective-tissue\nprotein."
           }
         ]
       },
       {
         "id": "vitamins",
         "kind": "section",
-        "startSeconds": 32.1,
-        "durationSeconds": 7.06,
-        "endSeconds": 39.16,
-        "narrationText": "Vitamin b12 at 300% daily value, vitamin d at 90% daily value stand out most. That is major vitamin support.",
-        "subtitleText": "Vitamin b12 at 300% daily value, vitamin d at 90% daily value stand out most. That is major vitamin support.",
+        "narrativeRole": "micronutrient-proof",
+        "startSeconds": 27.15,
+        "durationSeconds": 8.12,
+        "endSeconds": 35.27,
+        "narrationText": "Vitamin B12 is 300% daily value, useful for nerve and blood-cell support. Vitamin D is 90% daily value, a small miss for meats.",
+        "subtitleText": "Vitamin B12 is 300% DV, useful for nerve and blood-cell support. Vitamin D is 90% DV, a small miss for meats.",
+        "subtitlePlacement": "lower-third",
         "visualBinding": {
           "sectionKey": "vitamins",
           "title": "Vitamins",
-          "score": 96.7,
+          "score": 96,
           "templateSlots": [
             "micronutrient_1",
-            "micronutrient_2"
+            "micronutrient_2",
+            "commentary_note"
           ],
           "displayItems": [
             {
               "metricKey": "vitamin_b12_dv",
-              "text": "vitamin b12 at 300% daily value",
-              "weightedScore": 20,
+              "text": "vitamin B12 at 300% DV",
+              "weightedScore": 300,
               "scoringMode": "dv_points",
               "band": null,
               "dvPercent": 300,
@@ -631,143 +1344,344 @@
             },
             {
               "metricKey": "vitamin_d_dv",
-              "text": "vitamin d at 90% daily value",
-              "weightedScore": 9,
+              "text": "vitamin D at 90% DV",
+              "weightedScore": 180,
               "scoringMode": "dv_points",
               "band": null,
               "dvPercent": 90,
               "value": null
             }
           ],
-          "timingHint": "short-medium"
+          "timingHint": "short-medium",
+          "narrativeRole": "micronutrient-proof",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "lower-third",
+          "preferredSpriteBindings": {
+            "icon": {
+              "path": "sprites/micros_section/vitamins/vitamin_icon.gif",
+              "format": "gif"
+            },
+            "iconSource": {
+              "path": "sprites/micros_section/vitamins/vitamin_icon.aseprite",
+              "format": "aseprite"
+            },
+            "microIcon": {
+              "path": "sprites/micros_section/vitamins/vitamin_micro_icon.png",
+              "format": "png"
+            },
+            "microIconSource": {
+              "path": "sprites/micros_section/vitamins/vitamin_micro_icon.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": null,
+            "macroSlots": [],
+            "micronutrientRows": [
+              {
+                "slotId": "micronutrient_1",
+                "metricKey": "vitamin_b12_dv",
+                "label": "vitamin b12",
+                "displayValue": "300% DV",
+                "dvPercent": 300,
+                "spriteRole": "micronutrient-row",
+                "text": "vitamin B12 at 300% DV"
+              },
+              {
+                "slotId": "micronutrient_2",
+                "metricKey": "vitamin_d_dv",
+                "label": "vitamin d",
+                "displayValue": "90% DV",
+                "dvPercent": 90,
+                "spriteRole": "micronutrient-row",
+                "text": "vitamin D at 90% DV"
+              }
+            ],
+            "commentaryNote": null
+          }
         },
         "revealPlan": [
           "micronutrient_1",
-          "micronutrient_2"
+          "micronutrient_2",
+          "commentary_note"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "micronutrient_1",
+            "beat": "lead",
+            "purpose": "micronutrient-proof"
+          },
+          {
+            "slotId": "micronutrient_2",
+            "beat": "follow",
+            "purpose": "micronutrient-proof"
+          },
+          {
+            "slotId": "commentary_note",
+            "beat": "follow",
+            "purpose": "micronutrient-proof"
+          }
         ],
         "subtitleCues": [
           {
-            "id": "21-vitamins-1",
+            "id": "18-vitamins-1",
             "sceneId": "vitamins",
-            "startSeconds": 32.1,
-            "endSeconds": 34.26,
+            "startSeconds": 27.15,
+            "endSeconds": 29.52,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "Vitamin b12 at",
-              "300% daily value,"
+              "Vitamin B12 is",
+              "300% DV, useful"
             ],
-            "text": "Vitamin b12 at\n300% daily value,"
+            "text": "Vitamin B12 is\n300% DV, useful"
           },
           {
-            "id": "22-vitamins-2",
+            "id": "19-vitamins-2",
             "sceneId": "vitamins",
-            "startSeconds": 34.26,
-            "endSeconds": 36.62,
+            "startSeconds": 29.52,
+            "endSeconds": 30.93,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "vitamin d at 90%",
-              "daily value stand"
+              "for nerve and",
+              "blood-cell"
             ],
-            "text": "vitamin d at 90%\ndaily value stand"
+            "text": "for nerve and\nblood-cell"
           },
           {
-            "id": "23-vitamins-3",
+            "id": "20-vitamins-3",
             "sceneId": "vitamins",
-            "startSeconds": 36.62,
-            "endSeconds": 37.42,
+            "startSeconds": 30.93,
+            "endSeconds": 31.47,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "out most."
+              "support."
             ],
-            "text": "out most."
+            "text": "support."
           },
           {
-            "id": "24-vitamins-4",
+            "id": "21-vitamins-4",
             "sceneId": "vitamins",
-            "startSeconds": 37.42,
-            "endSeconds": 39.16,
+            "startSeconds": 31.47,
+            "endSeconds": 34.39,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "That is major",
-              "vitamin support."
+              "Vitamin D is 90%",
+              "DV, a small miss"
             ],
-            "text": "That is major\nvitamin support."
+            "text": "Vitamin D is 90%\nDV, a small miss"
+          },
+          {
+            "id": "22-vitamins-5",
+            "sceneId": "vitamins",
+            "startSeconds": 34.39,
+            "endSeconds": 35.27,
+            "placement": "lower-third",
+            "maxLines": 2,
+            "maxCharactersPerLine": 18,
+            "lines": [
+              "for meats."
+            ],
+            "text": "for meats."
           }
         ]
       },
       {
         "id": "minerals",
         "kind": "section",
-        "startSeconds": 39.16,
-        "durationSeconds": 2.47,
-        "endSeconds": 41.63,
-        "narrationText": "Minerals are basically not adding much here.",
-        "subtitleText": "Minerals are basically not adding much here.",
+        "narrativeRole": "micronutrient-proof",
+        "startSeconds": 35.27,
+        "durationSeconds": 6.71,
+        "endSeconds": 41.98,
+        "narrationText": "Iron is 9% daily value, useful for oxygen transport. Zinc is 6% daily value, a weak mark for meats.",
+        "subtitleText": "Iron is 9% DV, useful for oxygen transport. Zinc is 6% DV, a weak mark for meats.",
+        "subtitlePlacement": "lower-third",
         "visualBinding": {
           "sectionKey": "minerals",
           "title": "Minerals",
-          "score": null,
+          "score": 0,
           "templateSlots": [
             "micronutrient_1",
-            "micronutrient_2"
+            "micronutrient_2",
+            "commentary_note"
           ],
-          "displayItems": [],
-          "timingHint": "short-medium"
+          "displayItems": [
+            {
+              "metricKey": "iron_dv",
+              "text": "iron at 9% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 9,
+              "value": null
+            },
+            {
+              "metricKey": "zinc_dv",
+              "text": "zinc at 6% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 6,
+              "value": null
+            },
+            {
+              "metricKey": "potassium_dv",
+              "text": "potassium at 9% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 9,
+              "value": null
+            }
+          ],
+          "timingHint": "short-medium",
+          "narrativeRole": "micronutrient-proof",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "lower-third",
+          "preferredSpriteBindings": {
+            "icon": {
+              "path": "sprites/micros_section/minerals/mineral_icon.gif",
+              "format": "gif"
+            },
+            "iconSource": {
+              "path": "sprites/micros_section/minerals/mineral_icon.aseprite",
+              "format": "aseprite"
+            },
+            "microIcon": {
+              "path": "sprites/micros_section/minerals/mineral_micro_icon.png",
+              "format": "png"
+            },
+            "microIconSource": {
+              "path": "sprites/micros_section/minerals/mineral_micro_icon.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": null,
+            "macroSlots": [],
+            "micronutrientRows": [
+              {
+                "slotId": "micronutrient_1",
+                "metricKey": "iron_dv",
+                "label": "iron",
+                "displayValue": "9% DV",
+                "dvPercent": 9,
+                "spriteRole": "micronutrient-row",
+                "text": "iron at 9% DV"
+              },
+              {
+                "slotId": "micronutrient_2",
+                "metricKey": "zinc_dv",
+                "label": "zinc",
+                "displayValue": "6% DV",
+                "dvPercent": 6,
+                "spriteRole": "micronutrient-row",
+                "text": "zinc at 6% DV"
+              }
+            ],
+            "commentaryNote": null
+          }
         },
         "revealPlan": [
           "micronutrient_1",
-          "micronutrient_2"
+          "micronutrient_2",
+          "commentary_note"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "micronutrient_1",
+            "beat": "lead",
+            "purpose": "micronutrient-proof"
+          },
+          {
+            "slotId": "micronutrient_2",
+            "beat": "follow",
+            "purpose": "micronutrient-proof"
+          },
+          {
+            "slotId": "commentary_note",
+            "beat": "follow",
+            "purpose": "micronutrient-proof"
+          }
         ],
         "subtitleCues": [
           {
-            "id": "25-minerals-1",
+            "id": "23-minerals-1",
             "sceneId": "minerals",
-            "startSeconds": 39.16,
-            "endSeconds": 40.49,
+            "startSeconds": 35.27,
+            "endSeconds": 37.9,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "Minerals are",
-              "basically not"
+              "Iron is 9% DV,",
+              "useful for oxygen"
             ],
-            "text": "Minerals are\nbasically not"
+            "text": "Iron is 9% DV,\nuseful for oxygen"
           },
           {
-            "id": "26-minerals-2",
+            "id": "24-minerals-2",
             "sceneId": "minerals",
-            "startSeconds": 40.49,
-            "endSeconds": 41.63,
+            "startSeconds": 37.9,
+            "endSeconds": 38.45,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "adding much here."
+              "transport."
             ],
-            "text": "adding much here."
+            "text": "transport."
+          },
+          {
+            "id": "25-minerals-3",
+            "sceneId": "minerals",
+            "startSeconds": 38.45,
+            "endSeconds": 41.44,
+            "placement": "lower-third",
+            "maxLines": 2,
+            "maxCharactersPerLine": 18,
+            "lines": [
+              "Zinc is 6% DV, a",
+              "weak mark for"
+            ],
+            "text": "Zinc is 6% DV, a\nweak mark for"
+          },
+          {
+            "id": "26-minerals-4",
+            "sceneId": "minerals",
+            "startSeconds": 41.44,
+            "endSeconds": 41.98,
+            "placement": "lower-third",
+            "maxLines": 2,
+            "maxCharactersPerLine": 18,
+            "lines": [
+              "meats."
+            ],
+            "text": "meats."
           }
         ]
       },
       {
         "id": "pros",
         "kind": "section",
-        "startSeconds": 41.63,
-        "durationSeconds": 14.12,
-        "endSeconds": 55.75,
-        "narrationText": "On the plus side: easy to centre a meal around. Practical meal value matters. Gives a straightforward protein solution. The category often wins on simplicity and reliability. Complete protein delivery is reliable. The category is supposed to do this well.",
-        "subtitleText": "On the plus side: easy to centre a meal around. Practical meal value matters. Gives a straightforward protein solution. The category often wins on simplicity and reliability. Complete protein delivery is reliable. The category is supposed to do this well.",
+        "narrativeRole": "real-world-upside",
+        "startSeconds": 41.98,
+        "durationSeconds": 13.76,
+        "endSeconds": 55.74,
+        "narrationText": "The upsides first: easy to centre a meal around. Practical meal value matters. Gives a straightforward protein solution. The category often wins on simplicity and reliability. Complete protein delivery is reliable. The category is supposed to do this well.",
+        "subtitleText": "The upsides first: easy to centre a meal around. Practical meal value matters. Gives a straightforward protein solution. The category often wins on simplicity and reliability. Complete protein delivery is reliable. The category is supposed to do this well.",
+        "subtitlePlacement": "high-lower-third",
         "visualBinding": {
           "sectionKey": "pros",
           "title": "Pros",
-          "score": 0,
+          "score": 50,
           "templateSlots": [
             "bullet_1",
             "bullet_2",
@@ -779,51 +1693,87 @@
               "title": "easy to centre a meal around",
               "explanation": "Practical meal value matters.",
               "impactLevel": "minor",
-              "scoreValue": 1
+              "resolvedScoreValue": 50
             },
             {
               "type": "pro",
               "title": "gives a straightforward protein solution",
               "explanation": "The category often wins on simplicity and reliability.",
               "impactLevel": "minor",
-              "scoreValue": 1
+              "resolvedScoreValue": 50
             },
             {
               "type": "pro",
               "title": "complete protein delivery is reliable",
               "explanation": "The category is supposed to do this well.",
               "impactLevel": "minor",
-              "scoreValue": 1
+              "resolvedScoreValue": 50
             }
           ],
-          "timingHint": "medium"
+          "timingHint": "medium",
+          "narrativeRole": "real-world-upside",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "high-lower-third",
+          "preferredSpriteBindings": {
+            "bullet": {
+              "path": "sprites/pros_and_cons/pros/pro_bullet_point.png",
+              "format": "png"
+            },
+            "bulletSource": {
+              "path": "sprites/pros_and_cons/pros/pro_bullet_point.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": null,
+            "macroSlots": [],
+            "micronutrientRows": [],
+            "commentaryNote": null
+          }
         },
         "revealPlan": [
           "bullet_1",
           "bullet_2",
           "bullet_3"
         ],
+        "beatPlan": [
+          {
+            "slotId": "bullet_1",
+            "beat": "lead",
+            "purpose": "real-world-upside"
+          },
+          {
+            "slotId": "bullet_2",
+            "beat": "follow",
+            "purpose": "real-world-upside"
+          },
+          {
+            "slotId": "bullet_3",
+            "beat": "follow",
+            "purpose": "real-world-upside"
+          }
+        ],
         "subtitleCues": [
           {
             "id": "27-pros-1",
             "sceneId": "pros",
-            "startSeconds": 41.63,
-            "endSeconds": 44.24,
-            "placement": "lower-third",
+            "startSeconds": 41.98,
+            "endSeconds": 44.26,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "On the plus side:",
+              "The upsides first:",
               "easy to centre a"
             ],
-            "text": "On the plus side:\neasy to centre a"
+            "text": "The upsides first:\neasy to centre a"
           },
           {
             "id": "28-pros-2",
             "sceneId": "pros",
-            "startSeconds": 44.24,
-            "endSeconds": 45.06,
-            "placement": "lower-third",
+            "startSeconds": 44.26,
+            "endSeconds": 45.08,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -834,9 +1784,9 @@
           {
             "id": "29-pros-3",
             "sceneId": "pros",
-            "startSeconds": 45.06,
-            "endSeconds": 46.53,
-            "placement": "lower-third",
+            "startSeconds": 45.08,
+            "endSeconds": 46.54,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -848,9 +1798,9 @@
           {
             "id": "30-pros-4",
             "sceneId": "pros",
-            "startSeconds": 46.53,
-            "endSeconds": 47.53,
-            "placement": "lower-third",
+            "startSeconds": 46.54,
+            "endSeconds": 47.54,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -862,9 +1812,9 @@
           {
             "id": "31-pros-5",
             "sceneId": "pros",
-            "startSeconds": 47.53,
-            "endSeconds": 48.35,
-            "placement": "lower-third",
+            "startSeconds": 47.54,
+            "endSeconds": 48.36,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -875,9 +1825,9 @@
           {
             "id": "32-pros-6",
             "sceneId": "pros",
-            "startSeconds": 48.35,
+            "startSeconds": 48.36,
             "endSeconds": 50.32,
-            "placement": "lower-third",
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -891,7 +1841,7 @@
             "sceneId": "pros",
             "startSeconds": 50.32,
             "endSeconds": 51.14,
-            "placement": "lower-third",
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -904,7 +1854,7 @@
             "sceneId": "pros",
             "startSeconds": 51.14,
             "endSeconds": 52.46,
-            "placement": "lower-third",
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -918,7 +1868,7 @@
             "sceneId": "pros",
             "startSeconds": 52.46,
             "endSeconds": 52.96,
-            "placement": "lower-third",
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -930,8 +1880,8 @@
             "id": "36-pros-10",
             "sceneId": "pros",
             "startSeconds": 52.96,
-            "endSeconds": 54.93,
-            "placement": "lower-third",
+            "endSeconds": 54.92,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -943,9 +1893,9 @@
           {
             "id": "37-pros-11",
             "sceneId": "pros",
-            "startSeconds": 54.93,
-            "endSeconds": 55.75,
-            "placement": "lower-third",
+            "startSeconds": 54.92,
+            "endSeconds": 55.74,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -958,15 +1908,17 @@
       {
         "id": "cons",
         "kind": "section",
-        "startSeconds": 55.75,
-        "durationSeconds": 17.29,
-        "endSeconds": 73.04,
-        "narrationText": "On the weaker side: the outcome depends heavily on preparation. A good raw profile can still be cooked into a worse result. Fat quality can go sideways fast. Some meats are strong until the fat profile shows up. Cost and storage can be a pain. Practical downsides still count.",
-        "subtitleText": "On the weaker side: the outcome depends heavily on preparation. A good raw profile can still be cooked into a worse result. Fat quality can go sideways fast. Some meats are strong until the fat profile shows up. Cost and storage can be a pain. Practical downsides still count.",
+        "narrativeRole": "real-world-downside",
+        "startSeconds": 55.74,
+        "durationSeconds": 16.59,
+        "endSeconds": 72.33,
+        "narrationText": "Downsides next: the outcome depends heavily on preparation. A good raw profile can still be cooked into a worse result. Fat quality can go sideways fast. Some meats are strong until the fat profile shows up. Cost and storage can be a pain. Practical downsides still count.",
+        "subtitleText": "Downsides next: the outcome depends heavily on preparation. A good raw profile can still be cooked into a worse result. Fat quality can go sideways fast. Some meats are strong until the fat profile shows up. Cost and storage can be a pain. Practical downsides still count.",
+        "subtitlePlacement": "high-lower-third",
         "visualBinding": {
           "sectionKey": "cons",
           "title": "Cons",
-          "score": 0,
+          "score": 50,
           "templateSlots": [
             "bullet_1",
             "bullet_2",
@@ -978,51 +1930,87 @@
               "title": "the outcome depends heavily on preparation",
               "explanation": "A good raw profile can still be cooked into a worse result.",
               "impactLevel": "minor",
-              "scoreValue": -1
+              "resolvedScoreValue": 50
             },
             {
               "type": "con",
               "title": "fat quality can go sideways fast",
               "explanation": "Some meats are strong until the fat profile shows up.",
               "impactLevel": "minor",
-              "scoreValue": -1
+              "resolvedScoreValue": 50
             },
             {
               "type": "con",
               "title": "cost and storage can be a pain",
               "explanation": "Practical downsides still count.",
               "impactLevel": "minor",
-              "scoreValue": -1
+              "resolvedScoreValue": 50
             }
           ],
-          "timingHint": "medium"
+          "timingHint": "medium",
+          "narrativeRole": "real-world-downside",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "high-lower-third",
+          "preferredSpriteBindings": {
+            "bullet": {
+              "path": "sprites/pros_and_cons/cons/con_bullet_point.png",
+              "format": "png"
+            },
+            "bulletSource": {
+              "path": "sprites/pros_and_cons/cons/con_bullet_point.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": null,
+            "macroSlots": [],
+            "micronutrientRows": [],
+            "commentaryNote": null
+          }
         },
         "revealPlan": [
           "bullet_1",
           "bullet_2",
           "bullet_3"
         ],
+        "beatPlan": [
+          {
+            "slotId": "bullet_1",
+            "beat": "lead",
+            "purpose": "real-world-downside"
+          },
+          {
+            "slotId": "bullet_2",
+            "beat": "follow",
+            "purpose": "real-world-downside"
+          },
+          {
+            "slotId": "bullet_3",
+            "beat": "follow",
+            "purpose": "real-world-downside"
+          }
+        ],
         "subtitleCues": [
           {
             "id": "38-cons-1",
             "sceneId": "cons",
-            "startSeconds": 55.75,
-            "endSeconds": 57.75,
-            "placement": "lower-third",
+            "startSeconds": 55.74,
+            "endSeconds": 57.09,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "On the weaker",
-              "side: the outcome"
+              "Downsides next:",
+              "the outcome"
             ],
-            "text": "On the weaker\nside: the outcome"
+            "text": "Downsides next:\nthe outcome"
           },
           {
             "id": "39-cons-2",
             "sceneId": "cons",
-            "startSeconds": 57.75,
-            "endSeconds": 59.25,
-            "placement": "lower-third",
+            "startSeconds": 57.09,
+            "endSeconds": 58.57,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -1034,9 +2022,9 @@
           {
             "id": "40-cons-3",
             "sceneId": "cons",
-            "startSeconds": 59.25,
-            "endSeconds": 61.58,
-            "placement": "lower-third",
+            "startSeconds": 58.57,
+            "endSeconds": 60.9,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -1048,9 +2036,9 @@
           {
             "id": "41-cons-4",
             "sceneId": "cons",
-            "startSeconds": 61.58,
-            "endSeconds": 63.4,
-            "placement": "lower-third",
+            "startSeconds": 60.9,
+            "endSeconds": 62.71,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -1062,9 +2050,9 @@
           {
             "id": "42-cons-5",
             "sceneId": "cons",
-            "startSeconds": 63.4,
-            "endSeconds": 65.54,
-            "placement": "lower-third",
+            "startSeconds": 62.71,
+            "endSeconds": 64.85,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -1076,9 +2064,9 @@
           {
             "id": "43-cons-6",
             "sceneId": "cons",
-            "startSeconds": 65.54,
-            "endSeconds": 67.55,
-            "placement": "lower-third",
+            "startSeconds": 64.85,
+            "endSeconds": 66.85,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -1090,9 +2078,9 @@
           {
             "id": "44-cons-7",
             "sceneId": "cons",
-            "startSeconds": 67.55,
-            "endSeconds": 69.04,
-            "placement": "lower-third",
+            "startSeconds": 66.85,
+            "endSeconds": 68.34,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -1104,9 +2092,9 @@
           {
             "id": "45-cons-8",
             "sceneId": "cons",
-            "startSeconds": 69.04,
-            "endSeconds": 71.51,
-            "placement": "lower-third",
+            "startSeconds": 68.34,
+            "endSeconds": 70.8,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -1118,9 +2106,9 @@
           {
             "id": "46-cons-9",
             "sceneId": "cons",
-            "startSeconds": 71.51,
-            "endSeconds": 72.53,
-            "placement": "lower-third",
+            "startSeconds": 70.8,
+            "endSeconds": 71.82,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -1132,9 +2120,9 @@
           {
             "id": "47-cons-10",
             "sceneId": "cons",
-            "startSeconds": 72.53,
-            "endSeconds": 73.04,
-            "placement": "lower-third",
+            "startSeconds": 71.82,
+            "endSeconds": 72.33,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -1147,128 +2135,146 @@
       {
         "id": "final",
         "kind": "closing",
-        "startSeconds": 73.04,
-        "durationSeconds": 12.2,
-        "endSeconds": 85.24,
-        "narrationText": "Mackerel has a genuinely strong overall case. the practical downsides are real, but they do not outweigh the upside. best when you want efficient protein and can accept the category tradeoffs that come with it. A tier.",
-        "subtitleText": "Mackerel has a genuinely strong overall case. the practical downsides are real, but they do not outweigh the upside. best when you want efficient protein and can accept the category tradeoffs that come with it. A tier.",
+        "narrativeRole": "verdict-payoff",
+        "startSeconds": 72.33,
+        "durationSeconds": 8.9,
+        "endSeconds": 81.23,
+        "narrationText": "Big strengths are omega 3 and protein, but the biggest weaknesses are the outcome depends heavily on preparation and fat quality can go sideways fast. S tier.",
+        "subtitleText": "Big strengths are omega 3 and protein, but the biggest weaknesses are the outcome depends heavily on preparation and fat quality can go sideways fast. S tier.",
+        "subtitleSequence": [
+          {
+            "role": "conclusion-summary",
+            "text": "Big strengths are omega 3 and protein, but the biggest weaknesses are the outcome depends heavily on preparation and fat quality can go sideways fast.",
+            "placement": "summary-full",
+            "maxCharactersPerLine": 24
+          },
+          {
+            "role": "tier-reveal",
+            "text": "S tier.",
+            "placement": "tier-center",
+            "maxCharactersPerLine": 24
+          }
+        ],
+        "subtitlePlacement": "subtitle-floor",
         "visualBinding": {
-          "tier": "A",
-          "tierColor": "light blue"
+          "tier": "S",
+          "tierColor": "platinum-gold",
+          "scorePlate": {
+            "path": "sprites/header/header_ui/score_plate.png",
+            "format": "png"
+          },
+          "scorePlateSource": {
+            "path": "sprites/header/header_ui/score_plate.aseprite",
+            "format": "aseprite"
+          },
+          "categorySeparator": {
+            "path": "sprites/ui/section_separator/meat_section_separator.png",
+            "format": "png"
+          },
+          "categorySeparatorSource": {
+            "path": "sprites/ui/section_separator/meat_section_separator.aseprite",
+            "format": "aseprite"
+          }
         },
         "revealPlan": [
-          "tier_stamp"
+          "summary_text",
+          "tier_stamp",
+          "final_line"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "summary_text",
+            "beat": "lead",
+            "purpose": "verdict-setup"
+          },
+          {
+            "slotId": "tier_stamp",
+            "beat": "impact",
+            "purpose": "verdict-hit"
+          },
+          {
+            "slotId": "final_line",
+            "beat": "resolve",
+            "purpose": "use-case-tag"
+          }
         ],
         "subtitleCues": [
           {
             "id": "48-final-1",
             "sceneId": "final",
-            "startSeconds": 73.04,
-            "endSeconds": 75.38,
+            "startSeconds": 72.33,
+            "endSeconds": 75.26,
             "placement": "summary-full",
             "maxLines": 2,
-            "maxCharactersPerLine": 28,
+            "maxCharactersPerLine": 24,
             "lines": [
-              "Mackerel has a genuinely",
-              "strong overall case."
+              "Big strengths are omega",
+              "3 and protein, but the"
             ],
-            "text": "Mackerel has a genuinely\nstrong overall case.",
+            "text": "Big strengths are omega\n3 and protein, but the",
             "role": "conclusion-summary"
           },
           {
             "id": "49-final-2",
             "sceneId": "final",
-            "startSeconds": 75.38,
-            "endSeconds": 78.2,
+            "startSeconds": 75.26,
+            "endSeconds": 77.15,
             "placement": "summary-full",
             "maxLines": 2,
-            "maxCharactersPerLine": 28,
+            "maxCharactersPerLine": 24,
             "lines": [
-              "the practical downsides are",
-              "real, but they do not"
+              "biggest weaknesses are",
+              "the outcome depends"
             ],
-            "text": "the practical downsides are\nreal, but they do not",
+            "text": "biggest weaknesses are\nthe outcome depends",
             "role": "conclusion-summary"
           },
           {
             "id": "50-final-3",
             "sceneId": "final",
-            "startSeconds": 78.2,
-            "endSeconds": 79.29,
+            "startSeconds": 77.15,
+            "endSeconds": 79.66,
             "placement": "summary-full",
             "maxLines": 2,
-            "maxCharactersPerLine": 28,
+            "maxCharactersPerLine": 24,
             "lines": [
-              "outweigh the upside."
+              "heavily on preparation",
+              "and fat quality can go"
             ],
-            "text": "outweigh the upside.",
+            "text": "heavily on preparation\nand fat quality can go",
             "role": "conclusion-summary"
           },
           {
             "id": "51-final-4",
             "sceneId": "final",
-            "startSeconds": 79.29,
-            "endSeconds": 82.43,
+            "startSeconds": 79.66,
+            "endSeconds": 80.44,
             "placement": "summary-full",
             "maxLines": 2,
-            "maxCharactersPerLine": 28,
+            "maxCharactersPerLine": 24,
             "lines": [
-              "best when you want efficient",
-              "protein and can accept the"
+              "sideways fast."
             ],
-            "text": "best when you want efficient\nprotein and can accept the",
+            "text": "sideways fast.",
             "role": "conclusion-summary"
           },
           {
             "id": "52-final-5",
             "sceneId": "final",
-            "startSeconds": 82.43,
-            "endSeconds": 84.45,
-            "placement": "summary-full",
-            "maxLines": 2,
-            "maxCharactersPerLine": 28,
-            "lines": [
-              "category tradeoffs that come",
-              "with it."
-            ],
-            "text": "category tradeoffs that come\nwith it.",
-            "role": "conclusion-summary"
-          },
-          {
-            "id": "53-final-6",
-            "sceneId": "final",
-            "startSeconds": 84.45,
-            "endSeconds": 85.24,
+            "startSeconds": 80.44,
+            "endSeconds": 81.23,
             "placement": "tier-center",
             "maxLines": 2,
-            "maxCharactersPerLine": 28,
+            "maxCharactersPerLine": 24,
             "lines": [
-              "A tier."
+              "S tier."
             ],
-            "text": "A tier.",
+            "text": "S tier.",
             "role": "tier-reveal"
-          }
-        ],
-        "subtitleSequence": [
-          {
-            "role": "conclusion-summary",
-            "text": "Mackerel has a genuinely strong overall case. the practical downsides are real, but they do not outweigh the upside. best when you want efficient protein and can accept the category tradeoffs that come with it.",
-            "placement": "summary-full",
-            "maxCharactersPerLine": 28
-          },
-          {
-            "role": "tier-reveal",
-            "text": "A tier.",
-            "placement": "tier-center",
-            "maxCharactersPerLine": 28
           }
         ]
       }
     ],
-    "subtitleRules": {
-      "maxLines": 2,
-      "maxCharactersPerLine": 18
-    },
     "subtitleCues": [
       {
         "id": "01-hook",
@@ -1287,89 +2293,49 @@
         "id": "02-fats-1",
         "sceneId": "fats",
         "startSeconds": 2.1,
-        "endSeconds": 3.84,
+        "endSeconds": 3.45,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "13. 9g of fat."
+          "13.9g of",
+          "fat."
         ],
-        "text": "13. 9g of fat."
+        "text": "13.9g of\nfat."
       },
       {
         "id": "03-fats-2",
         "sceneId": "fats",
-        "startSeconds": 3.84,
-        "endSeconds": 6.42,
+        "startSeconds": 3.45,
+        "endSeconds": 6.17,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
           "Omega 3 is 2600mg,",
-          "exactly the kind"
+          "supporting a more"
         ],
-        "text": "Omega 3 is 2600mg,\nexactly the kind"
+        "text": "Omega 3 is 2600mg,\nsupporting a more"
       },
       {
         "id": "04-fats-3",
         "sceneId": "fats",
-        "startSeconds": 6.42,
-        "endSeconds": 9.23,
+        "startSeconds": 6.17,
+        "endSeconds": 7.39,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "of fat support you",
-          "want from a meat."
+          "useful fat",
+          "profile."
         ],
-        "text": "of fat support you\nwant from a meat."
+        "text": "useful fat\nprofile."
       },
       {
-        "id": "05-fats-4",
-        "sceneId": "fats",
-        "startSeconds": 9.23,
-        "endSeconds": 11.24,
-        "placement": "lower-third",
-        "maxLines": 2,
-        "maxCharactersPerLine": 18,
-        "lines": [
-          "For meats, fat",
-          "quality matters a"
-        ],
-        "text": "For meats, fat\nquality matters a"
-      },
-      {
-        "id": "06-fats-5",
-        "sceneId": "fats",
-        "startSeconds": 11.24,
-        "endSeconds": 13.24,
-        "placement": "lower-third",
-        "maxLines": 2,
-        "maxCharactersPerLine": 18,
-        "lines": [
-          "lot once the",
-          "protein is already"
-        ],
-        "text": "lot once the\nprotein is already"
-      },
-      {
-        "id": "07-fats-6",
-        "sceneId": "fats",
-        "startSeconds": 13.24,
-        "endSeconds": 13.75,
-        "placement": "lower-third",
-        "maxLines": 2,
-        "maxCharactersPerLine": 18,
-        "lines": [
-          "there."
-        ],
-        "text": "there."
-      },
-      {
-        "id": "08-carbs-1",
+        "id": "05-carbs-1",
         "sceneId": "carbs",
-        "startSeconds": 13.75,
-        "endSeconds": 15.05,
+        "startSeconds": 7.39,
+        "endSeconds": 8.68,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -1379,37 +2345,37 @@
         "text": "0g of carbs."
       },
       {
-        "id": "09-carbs-2",
+        "id": "06-carbs-2",
         "sceneId": "carbs",
-        "startSeconds": 15.05,
-        "endSeconds": 17.06,
+        "startSeconds": 8.68,
+        "endSeconds": 10.69,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "Outside of that,",
-          "the profile is"
+          "No defensible carb",
+          "submacros to call"
         ],
-        "text": "Outside of that,\nthe profile is"
+        "text": "No defensible carb\nsubmacros to call"
       },
       {
-        "id": "10-carbs-3",
+        "id": "07-carbs-3",
         "sceneId": "carbs",
-        "startSeconds": 17.06,
-        "endSeconds": 17.9,
+        "startSeconds": 10.69,
+        "endSeconds": 11.2,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "pretty quiet."
+          "out."
         ],
-        "text": "pretty quiet."
+        "text": "out."
       },
       {
-        "id": "11-carbs-4",
+        "id": "08-carbs-4",
         "sceneId": "carbs",
-        "startSeconds": 17.9,
-        "endSeconds": 19.59,
+        "startSeconds": 11.2,
+        "endSeconds": 12.88,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -1420,10 +2386,10 @@
         "text": "In this category,\ncarbs barely"
       },
       {
-        "id": "12-carbs-5",
+        "id": "09-carbs-5",
         "sceneId": "carbs",
-        "startSeconds": 19.59,
-        "endSeconds": 20.1,
+        "startSeconds": 12.88,
+        "endSeconds": 13.39,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -1433,10 +2399,24 @@
         "text": "matter."
       },
       {
-        "id": "13-proteins-1",
+        "id": "10-proteins-1",
         "sceneId": "proteins",
-        "startSeconds": 20.1,
-        "endSeconds": 21.72,
+        "startSeconds": 13.39,
+        "endSeconds": 14.82,
+        "placement": "lower-third",
+        "maxLines": 2,
+        "maxCharactersPerLine": 18,
+        "lines": [
+          "18.6g of",
+          "protein."
+        ],
+        "text": "18.6g of\nprotein."
+      },
+      {
+        "id": "11-proteins-2",
+        "sceneId": "proteins",
+        "startSeconds": 14.82,
+        "endSeconds": 16.69,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -1447,203 +2427,230 @@
         "text": "Essential amino\nacids score is"
       },
       {
-        "id": "14-proteins-2",
+        "id": "12-proteins-3",
         "sceneId": "proteins",
-        "startSeconds": 21.72,
-        "endSeconds": 22.34,
+        "startSeconds": 16.69,
+        "endSeconds": 18.46,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "9/9."
+          "9/9, with 95%",
+          "bioavailability,"
         ],
-        "text": "9/9."
+        "text": "9/9, with 95%\nbioavailability,"
       },
       {
-        "id": "15-proteins-3",
+        "id": "13-proteins-4",
         "sceneId": "proteins",
-        "startSeconds": 22.34,
-        "endSeconds": 24.02,
+        "startSeconds": 18.46,
+        "endSeconds": 20.69,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "18. 6g of protein."
+          "making the protein",
+          "useful for repair"
         ],
-        "text": "18. 6g of protein."
+        "text": "making the protein\nuseful for repair"
       },
       {
-        "id": "16-proteins-4",
+        "id": "14-proteins-5",
         "sceneId": "proteins",
-        "startSeconds": 24.02,
-        "endSeconds": 25.33,
+        "startSeconds": 20.69,
+        "endSeconds": 21.62,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "Bioavailability",
-          "and amino acid"
+          "and maintenance."
         ],
-        "text": "Bioavailability\nand amino acid"
+        "text": "and maintenance."
       },
       {
-        "id": "17-proteins-5",
+        "id": "15-proteins-6",
         "sceneId": "proteins",
-        "startSeconds": 25.33,
-        "endSeconds": 26.77,
+        "startSeconds": 21.62,
+        "endSeconds": 23.63,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "quality are both",
-          "strong."
+          "Collagen is only",
+          "0.8g, so"
         ],
-        "text": "quality are both\nstrong."
+        "text": "Collagen is only\n0.8g, so"
       },
       {
-        "id": "18-proteins-6",
+        "id": "16-proteins-7",
         "sceneId": "proteins",
-        "startSeconds": 26.77,
-        "endSeconds": 28.71,
+        "startSeconds": 23.63,
+        "endSeconds": 26.22,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "Strong protein is",
-          "expected here, so"
+          "for meats, it is",
+          "not bringing much"
         ],
-        "text": "Strong protein is\nexpected here, so"
+        "text": "for meats, it is\nnot bringing much"
       },
       {
-        "id": "19-proteins-7",
+        "id": "17-proteins-8",
         "sceneId": "proteins",
-        "startSeconds": 28.71,
-        "endSeconds": 30.66,
+        "startSeconds": 26.22,
+        "endSeconds": 27.15,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "the rest of the",
-          "profile decides"
+          "connective-tissue",
+          "protein."
         ],
-        "text": "the rest of the\nprofile decides"
+        "text": "connective-tissue\nprotein."
       },
       {
-        "id": "20-proteins-8",
-        "sceneId": "proteins",
-        "startSeconds": 30.66,
-        "endSeconds": 32.1,
-        "placement": "lower-third",
-        "maxLines": 2,
-        "maxCharactersPerLine": 18,
-        "lines": [
-          "how high it",
-          "climbs."
-        ],
-        "text": "how high it\nclimbs."
-      },
-      {
-        "id": "21-vitamins-1",
+        "id": "18-vitamins-1",
         "sceneId": "vitamins",
-        "startSeconds": 32.1,
-        "endSeconds": 34.26,
+        "startSeconds": 27.15,
+        "endSeconds": 29.52,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "Vitamin b12 at",
-          "300% daily value,"
+          "Vitamin B12 is",
+          "300% DV, useful"
         ],
-        "text": "Vitamin b12 at\n300% daily value,"
+        "text": "Vitamin B12 is\n300% DV, useful"
       },
       {
-        "id": "22-vitamins-2",
+        "id": "19-vitamins-2",
         "sceneId": "vitamins",
-        "startSeconds": 34.26,
-        "endSeconds": 36.62,
+        "startSeconds": 29.52,
+        "endSeconds": 30.93,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "vitamin d at 90%",
-          "daily value stand"
+          "for nerve and",
+          "blood-cell"
         ],
-        "text": "vitamin d at 90%\ndaily value stand"
+        "text": "for nerve and\nblood-cell"
       },
       {
-        "id": "23-vitamins-3",
+        "id": "20-vitamins-3",
         "sceneId": "vitamins",
-        "startSeconds": 36.62,
-        "endSeconds": 37.42,
+        "startSeconds": 30.93,
+        "endSeconds": 31.47,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "out most."
+          "support."
         ],
-        "text": "out most."
+        "text": "support."
       },
       {
-        "id": "24-vitamins-4",
+        "id": "21-vitamins-4",
         "sceneId": "vitamins",
-        "startSeconds": 37.42,
-        "endSeconds": 39.16,
+        "startSeconds": 31.47,
+        "endSeconds": 34.39,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "That is major",
-          "vitamin support."
+          "Vitamin D is 90%",
+          "DV, a small miss"
         ],
-        "text": "That is major\nvitamin support."
+        "text": "Vitamin D is 90%\nDV, a small miss"
       },
       {
-        "id": "25-minerals-1",
+        "id": "22-vitamins-5",
+        "sceneId": "vitamins",
+        "startSeconds": 34.39,
+        "endSeconds": 35.27,
+        "placement": "lower-third",
+        "maxLines": 2,
+        "maxCharactersPerLine": 18,
+        "lines": [
+          "for meats."
+        ],
+        "text": "for meats."
+      },
+      {
+        "id": "23-minerals-1",
         "sceneId": "minerals",
-        "startSeconds": 39.16,
-        "endSeconds": 40.49,
+        "startSeconds": 35.27,
+        "endSeconds": 37.9,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "Minerals are",
-          "basically not"
+          "Iron is 9% DV,",
+          "useful for oxygen"
         ],
-        "text": "Minerals are\nbasically not"
+        "text": "Iron is 9% DV,\nuseful for oxygen"
       },
       {
-        "id": "26-minerals-2",
+        "id": "24-minerals-2",
         "sceneId": "minerals",
-        "startSeconds": 40.49,
-        "endSeconds": 41.63,
+        "startSeconds": 37.9,
+        "endSeconds": 38.45,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "adding much here."
+          "transport."
         ],
-        "text": "adding much here."
+        "text": "transport."
+      },
+      {
+        "id": "25-minerals-3",
+        "sceneId": "minerals",
+        "startSeconds": 38.45,
+        "endSeconds": 41.44,
+        "placement": "lower-third",
+        "maxLines": 2,
+        "maxCharactersPerLine": 18,
+        "lines": [
+          "Zinc is 6% DV, a",
+          "weak mark for"
+        ],
+        "text": "Zinc is 6% DV, a\nweak mark for"
+      },
+      {
+        "id": "26-minerals-4",
+        "sceneId": "minerals",
+        "startSeconds": 41.44,
+        "endSeconds": 41.98,
+        "placement": "lower-third",
+        "maxLines": 2,
+        "maxCharactersPerLine": 18,
+        "lines": [
+          "meats."
+        ],
+        "text": "meats."
       },
       {
         "id": "27-pros-1",
         "sceneId": "pros",
-        "startSeconds": 41.63,
-        "endSeconds": 44.24,
-        "placement": "lower-third",
+        "startSeconds": 41.98,
+        "endSeconds": 44.26,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "On the plus side:",
+          "The upsides first:",
           "easy to centre a"
         ],
-        "text": "On the plus side:\neasy to centre a"
+        "text": "The upsides first:\neasy to centre a"
       },
       {
         "id": "28-pros-2",
         "sceneId": "pros",
-        "startSeconds": 44.24,
-        "endSeconds": 45.06,
-        "placement": "lower-third",
+        "startSeconds": 44.26,
+        "endSeconds": 45.08,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1654,9 +2661,9 @@
       {
         "id": "29-pros-3",
         "sceneId": "pros",
-        "startSeconds": 45.06,
-        "endSeconds": 46.53,
-        "placement": "lower-third",
+        "startSeconds": 45.08,
+        "endSeconds": 46.54,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1668,9 +2675,9 @@
       {
         "id": "30-pros-4",
         "sceneId": "pros",
-        "startSeconds": 46.53,
-        "endSeconds": 47.53,
-        "placement": "lower-third",
+        "startSeconds": 46.54,
+        "endSeconds": 47.54,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1682,9 +2689,9 @@
       {
         "id": "31-pros-5",
         "sceneId": "pros",
-        "startSeconds": 47.53,
-        "endSeconds": 48.35,
-        "placement": "lower-third",
+        "startSeconds": 47.54,
+        "endSeconds": 48.36,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1695,9 +2702,9 @@
       {
         "id": "32-pros-6",
         "sceneId": "pros",
-        "startSeconds": 48.35,
+        "startSeconds": 48.36,
         "endSeconds": 50.32,
-        "placement": "lower-third",
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1711,7 +2718,7 @@
         "sceneId": "pros",
         "startSeconds": 50.32,
         "endSeconds": 51.14,
-        "placement": "lower-third",
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1724,7 +2731,7 @@
         "sceneId": "pros",
         "startSeconds": 51.14,
         "endSeconds": 52.46,
-        "placement": "lower-third",
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1738,7 +2745,7 @@
         "sceneId": "pros",
         "startSeconds": 52.46,
         "endSeconds": 52.96,
-        "placement": "lower-third",
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1750,8 +2757,8 @@
         "id": "36-pros-10",
         "sceneId": "pros",
         "startSeconds": 52.96,
-        "endSeconds": 54.93,
-        "placement": "lower-third",
+        "endSeconds": 54.92,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1763,9 +2770,9 @@
       {
         "id": "37-pros-11",
         "sceneId": "pros",
-        "startSeconds": 54.93,
-        "endSeconds": 55.75,
-        "placement": "lower-third",
+        "startSeconds": 54.92,
+        "endSeconds": 55.74,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1776,23 +2783,23 @@
       {
         "id": "38-cons-1",
         "sceneId": "cons",
-        "startSeconds": 55.75,
-        "endSeconds": 57.75,
-        "placement": "lower-third",
+        "startSeconds": 55.74,
+        "endSeconds": 57.09,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "On the weaker",
-          "side: the outcome"
+          "Downsides next:",
+          "the outcome"
         ],
-        "text": "On the weaker\nside: the outcome"
+        "text": "Downsides next:\nthe outcome"
       },
       {
         "id": "39-cons-2",
         "sceneId": "cons",
-        "startSeconds": 57.75,
-        "endSeconds": 59.25,
-        "placement": "lower-third",
+        "startSeconds": 57.09,
+        "endSeconds": 58.57,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1804,9 +2811,9 @@
       {
         "id": "40-cons-3",
         "sceneId": "cons",
-        "startSeconds": 59.25,
-        "endSeconds": 61.58,
-        "placement": "lower-third",
+        "startSeconds": 58.57,
+        "endSeconds": 60.9,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1818,9 +2825,9 @@
       {
         "id": "41-cons-4",
         "sceneId": "cons",
-        "startSeconds": 61.58,
-        "endSeconds": 63.4,
-        "placement": "lower-third",
+        "startSeconds": 60.9,
+        "endSeconds": 62.71,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1832,9 +2839,9 @@
       {
         "id": "42-cons-5",
         "sceneId": "cons",
-        "startSeconds": 63.4,
-        "endSeconds": 65.54,
-        "placement": "lower-third",
+        "startSeconds": 62.71,
+        "endSeconds": 64.85,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1846,9 +2853,9 @@
       {
         "id": "43-cons-6",
         "sceneId": "cons",
-        "startSeconds": 65.54,
-        "endSeconds": 67.55,
-        "placement": "lower-third",
+        "startSeconds": 64.85,
+        "endSeconds": 66.85,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1860,9 +2867,9 @@
       {
         "id": "44-cons-7",
         "sceneId": "cons",
-        "startSeconds": 67.55,
-        "endSeconds": 69.04,
-        "placement": "lower-third",
+        "startSeconds": 66.85,
+        "endSeconds": 68.34,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1874,9 +2881,9 @@
       {
         "id": "45-cons-8",
         "sceneId": "cons",
-        "startSeconds": 69.04,
-        "endSeconds": 71.51,
-        "placement": "lower-third",
+        "startSeconds": 68.34,
+        "endSeconds": 70.8,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1888,9 +2895,9 @@
       {
         "id": "46-cons-9",
         "sceneId": "cons",
-        "startSeconds": 71.51,
-        "endSeconds": 72.53,
-        "placement": "lower-third",
+        "startSeconds": 70.8,
+        "endSeconds": 71.82,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1902,9 +2909,9 @@
       {
         "id": "47-cons-10",
         "sceneId": "cons",
-        "startSeconds": 72.53,
-        "endSeconds": 73.04,
-        "placement": "lower-third",
+        "startSeconds": 71.82,
+        "endSeconds": 72.33,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1915,89 +2922,74 @@
       {
         "id": "48-final-1",
         "sceneId": "final",
-        "startSeconds": 73.04,
-        "endSeconds": 75.38,
+        "startSeconds": 72.33,
+        "endSeconds": 75.26,
         "placement": "summary-full",
         "maxLines": 2,
-        "maxCharactersPerLine": 28,
+        "maxCharactersPerLine": 24,
         "lines": [
-          "Mackerel has a genuinely",
-          "strong overall case."
+          "Big strengths are omega",
+          "3 and protein, but the"
         ],
-        "text": "Mackerel has a genuinely\nstrong overall case.",
+        "text": "Big strengths are omega\n3 and protein, but the",
         "role": "conclusion-summary"
       },
       {
         "id": "49-final-2",
         "sceneId": "final",
-        "startSeconds": 75.38,
-        "endSeconds": 78.2,
+        "startSeconds": 75.26,
+        "endSeconds": 77.15,
         "placement": "summary-full",
         "maxLines": 2,
-        "maxCharactersPerLine": 28,
+        "maxCharactersPerLine": 24,
         "lines": [
-          "the practical downsides are",
-          "real, but they do not"
+          "biggest weaknesses are",
+          "the outcome depends"
         ],
-        "text": "the practical downsides are\nreal, but they do not",
+        "text": "biggest weaknesses are\nthe outcome depends",
         "role": "conclusion-summary"
       },
       {
         "id": "50-final-3",
         "sceneId": "final",
-        "startSeconds": 78.2,
-        "endSeconds": 79.29,
+        "startSeconds": 77.15,
+        "endSeconds": 79.66,
         "placement": "summary-full",
         "maxLines": 2,
-        "maxCharactersPerLine": 28,
+        "maxCharactersPerLine": 24,
         "lines": [
-          "outweigh the upside."
+          "heavily on preparation",
+          "and fat quality can go"
         ],
-        "text": "outweigh the upside.",
+        "text": "heavily on preparation\nand fat quality can go",
         "role": "conclusion-summary"
       },
       {
         "id": "51-final-4",
         "sceneId": "final",
-        "startSeconds": 79.29,
-        "endSeconds": 82.43,
+        "startSeconds": 79.66,
+        "endSeconds": 80.44,
         "placement": "summary-full",
         "maxLines": 2,
-        "maxCharactersPerLine": 28,
+        "maxCharactersPerLine": 24,
         "lines": [
-          "best when you want efficient",
-          "protein and can accept the"
+          "sideways fast."
         ],
-        "text": "best when you want efficient\nprotein and can accept the",
+        "text": "sideways fast.",
         "role": "conclusion-summary"
       },
       {
         "id": "52-final-5",
         "sceneId": "final",
-        "startSeconds": 82.43,
-        "endSeconds": 84.45,
-        "placement": "summary-full",
-        "maxLines": 2,
-        "maxCharactersPerLine": 28,
-        "lines": [
-          "category tradeoffs that come",
-          "with it."
-        ],
-        "text": "category tradeoffs that come\nwith it.",
-        "role": "conclusion-summary"
-      },
-      {
-        "id": "53-final-6",
-        "sceneId": "final",
-        "startSeconds": 84.45,
-        "endSeconds": 85.24,
+        "startSeconds": 80.44,
+        "endSeconds": 81.23,
         "placement": "tier-center",
         "maxLines": 2,
-        "maxCharactersPerLine": 28,
+        "maxCharactersPerLine": 24,
         "lines": [
-          "A tier."
+          "S tier."
         ],
-        "text": "A tier.",
+        "text": "S tier.",
         "role": "tier-reveal"
       }
     ]

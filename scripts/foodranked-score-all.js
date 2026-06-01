@@ -65,9 +65,11 @@ function main() {
     if (scored.ok) {
       rows.push({
         food: scored.result.food.name,
+        type: scored.result.food.foodType,
         foodType: scored.result.food.foodType,
         tier: scored.result.tier,
         overallScore: scored.result.overallScore,
+        baseOverallScore: scored.result.baseOverallScore ?? null,
         fats: scored.result.sectionScores.fats,
         carbs: scored.result.sectionScores.carbs,
         proteins: scored.result.sectionScores.proteins,

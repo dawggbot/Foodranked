@@ -1,13 +1,51 @@
 {
   "status": "ok",
+  "schemaVersion": "foodranked-script.v2",
+  "narrationFormat": "elevenlabs-blocks-v1",
   "food": {
     "id": "tomato",
     "name": "Tomato",
-    "foodType": "vegetables"
+    "foodType": "vegetables",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "identity": {
+      "canonicalName": "Tomatoes, red, ripe, raw, year round average",
+      "commonName": "Tomato",
+      "form": "whole raw tomato",
+      "state": "raw",
+      "ediblePortion": "edible portion with skin and flesh",
+      "basisReason": "Raw per-100g edible-portion basis matches the actual base food being ranked.",
+      "includes": [
+        "plain ripe red tomato"
+      ],
+      "excludes": [
+        "sun-dried tomatoes",
+        "canned tomatoes with salt",
+        "tomato sauce",
+        "cherry tomato mixed-format records"
+      ]
+    },
+    "scoreReadiness": {
+      "status": "production-safe",
+      "summary": "Identity, basis, and core nutrient fields are coherent enough for production use. Weak protein proxy metrics were removed, but the remaining tomato record is honest and stable.",
+      "blockers": []
+    },
+    "sourceNotes": [
+      "Production-lane cleanup pass.",
+      "Identity locked to raw red ripe tomato, year-round average, per 100 g edible portion.",
+      "Core nutrient values align with common USDA FoodData Central style entries for raw tomato.",
+      "Weak proxy metrics were removed rather than preserved as fake certainty."
+    ]
   },
   "ruleset": {
     "id": "vegetables.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 18,
@@ -16,142 +54,140 @@
     "protein_g": 0.9
   },
   "hook": "Tomato ranked.",
-  "intro": "",
   "sections": [
     {
       "key": "fats",
       "title": "Fats",
-      "narration": "0.2 grams of fat. Omega 3 is 10 milligrams, doing a lot of the work here. For a vegetable, nutrient payoff is the whole point.",
+      "narration": "0.2 grams of fat. Omega 3 is 10 milligrams, supporting a more useful fat profile. Polyunsaturated fat is 0.1 grams, a weak mark for vegetables.",
       "displayItems": [
-        {
-          "metricKey": "saturated_fat_g",
-          "text": "saturated fat at 0g",
-          "weightedScore": 3,
-          "scoringMode": "arrow_bands",
-          "band": "↓↓↓",
-          "dvPercent": null,
-          "value": 0
-        },
         {
           "metricKey": "omega3_mg",
           "text": "omega 3 at 10mg",
-          "weightedScore": 3,
+          "weightedScore": 0,
           "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
+          "band": "3_green",
           "dvPercent": null,
           "value": 10
         },
         {
           "metricKey": "polyunsaturated_fat_g",
           "text": "polyunsaturated fat at 0.1g",
-          "weightedScore": -3,
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
+          "band": "3_red",
+          "dvPercent": null,
+          "value": 0.1
+        },
+        {
+          "metricKey": "saturated_fat_g",
+          "text": "saturated fat at 0g",
+          "weightedScore": 100,
           "scoringMode": "arrow_bands",
           "band": "↓↓↓",
           "dvPercent": null,
-          "value": 0.1
+          "value": 0
         }
       ],
-      "subtitleText": "0.2g of fat. Omega 3 is 10mg, doing a lot of the work here. For a vegetable, nutrient payoff is the whole point.",
+      "subtitleText": "0.2g of fat. Omega 3 is 10mg, supporting a more useful fat profile. Polyunsaturated fat is 0.1g, a weak mark for vegetables.",
       "timingHint": "short-medium",
-      "score": 66.7
+      "score": 100
     },
     {
       "key": "carbs",
       "title": "Carbs",
-      "narration": "Glycemic index is 15 GI. 3.9 grams of carbs. Glycemic index, fibre, and sugar are doing most of the work. For vegetables, low downside is useful, but there still needs to be real payoff.",
+      "narration": "3.9 grams of carbs. Glycemic index is 15 GI, supporting better carb quality. Starch is 0 grams, a small miss for vegetables.",
       "displayItems": [
         {
           "metricKey": "glycemic_index",
           "text": "glycemic index at 15 GI",
-          "weightedScore": 9,
+          "weightedScore": 300,
           "scoringMode": "arrow_bands",
           "band": "↓↓↓",
           "dvPercent": null,
           "value": 15
         },
         {
-          "metricKey": "fibre_g",
-          "text": "fibre at 1.2g",
-          "weightedScore": -6,
+          "metricKey": "starch_g",
+          "text": "starch at 0g",
+          "weightedScore": 0,
           "scoringMode": "arrow_bands",
-          "band": "↓↓",
+          "band": "3_red",
           "dvPercent": null,
-          "value": 1.2
+          "value": 0
         },
         {
           "metricKey": "sugar_g",
           "text": "sugar at 2.6g",
-          "weightedScore": 3,
+          "weightedScore": 180,
           "scoringMode": "arrow_bands",
           "band": "↓",
           "dvPercent": null,
           "value": 2.6
+        },
+        {
+          "metricKey": "fibre_g",
+          "text": "fibre at 1.2g",
+          "weightedScore": 60,
+          "scoringMode": "arrow_bands",
+          "band": "↓↓",
+          "dvPercent": null,
+          "value": 1.2
         }
       ],
-      "subtitleText": "Glycemic index is 15 GI. 3.9g of carbs. Glycemic index, fibre, and sugar are doing most of the work. For vegetables, low downside is useful, but there still needs to be real payoff.",
+      "subtitleText": "3.9g of carbs. Glycemic index is 15 GI, supporting better carb quality. Starch is 0g, a small miss for vegetables.",
       "timingHint": "short-medium",
-      "score": 61.1
+      "score": 60
     },
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "0.9 grams of protein. Bioavailability is 35%, one of the best parts of the protein story. Protein is not the main pitch here, but extra support still matters.",
-      "displayItems": [
-        {
-          "metricKey": "essential_amino_acids_score",
-          "text": "essential amino acids score at 1/9",
-          "weightedScore": -3,
-          "scoringMode": "arrow_bands",
-          "band": "↓↓↓",
-          "dvPercent": null,
-          "value": 1
-        },
-        {
-          "metricKey": "bioavailability_percent",
-          "text": "bioavailability at 35%",
-          "weightedScore": 3,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
-          "dvPercent": null,
-          "value": 35
-        },
-        {
-          "metricKey": "nonessential_amino_acids_score",
-          "text": "nonessential amino acids score at 2/11",
-          "weightedScore": -2,
-          "scoringMode": "arrow_bands",
-          "band": "↓↓",
-          "dvPercent": null,
-          "value": 2
-        }
-      ],
-      "subtitleText": "0.9g of protein. Bioavailability is 35%, one of the best parts of the protein story. Protein is not the main pitch here, but extra support still matters.",
+      "narration": "0.9 grams of protein. No defensible protein submacros to call out. Protein is not the main pitch here, but extra support still matters.",
+      "displayItems": [],
+      "subtitleText": "0.9g of protein. No defensible protein submacros to call out. Protein is not the main pitch here, but extra support still matters.",
       "timingHint": "short-medium",
-      "score": 38.9
+      "score": null
     },
     {
       "key": "vitamins",
       "title": "Vitamins",
-      "narration": "Vitamin c at 17% daily value stands out most. That is barely moving the needle.",
+      "narration": "Vitamin C is 17% daily value, useful for collagen formation and antioxidant support. Vitamin A is only 5% daily value, a weak mark for vegetables.",
       "displayItems": [
         {
           "metricKey": "vitamin_c_dv",
-          "text": "vitamin c at 17% DV",
-          "weightedScore": 2,
+          "text": "vitamin C at 17% DV",
+          "weightedScore": 20,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 17,
           "value": null
+        },
+        {
+          "metricKey": "vitamin_a_dv",
+          "text": "vitamin A at 5% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 5,
+          "value": null
+        },
+        {
+          "metricKey": "vitamin_k_dv",
+          "text": "vitamin K at 7% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 7,
+          "value": null
         }
       ],
-      "subtitleText": "Vitamin c at 17% daily value stands out most. That is barely moving the needle.",
+      "subtitleText": "Vitamin C is 17% DV, useful for collagen formation and antioxidant support. Vitamin A is only 5% DV, a weak mark for vegetables.",
       "timingHint": "short-medium",
-      "score": 10
+      "score": 2.9
     },
     {
       "key": "minerals",
       "title": "Minerals",
-      "narration": "Minerals are basically not part of the case here.",
+      "narration": "Potassium is 5% daily value, useful for fluid balance. Iron is only 1% daily value, a weak mark for vegetables.",
       "displayItems": [
         {
           "metricKey": "potassium_dv",
@@ -161,140 +197,238 @@
           "band": null,
           "dvPercent": 5,
           "value": null
+        },
+        {
+          "metricKey": "iron_dv",
+          "text": "iron at 1% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 1,
+          "value": null
+        },
+        {
+          "metricKey": "magnesium_dv",
+          "text": "magnesium at 3% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 3,
+          "value": null
+        },
+        {
+          "metricKey": "calcium_dv",
+          "text": "calcium at 1% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 1,
+          "value": null
         }
       ],
-      "subtitleText": "Minerals are basically not part of the case here.",
+      "subtitleText": "Potassium is 5% DV, useful for fluid balance. Iron is only 1% DV, a weak mark for vegetables.",
       "timingHint": "short-medium",
       "score": 0
     },
     {
       "key": "pros",
       "title": "Pros",
-      "narration": "Pros first: good volume for the calories. That matters for satiety and general usefulness. Easy to build meals around. A practical plus because good foods need realistic use cases. Very low downside whole food. Vegetables win a lot simply by offering clean nutritional payoff.",
+      "narration": "Pros first: tomatoes bring a distinctive lycopene story. That antioxidant identity is a more tomato-specific strength than generic low-calorie praise. High water content gives a lot of food volume for few calories. Tomatoes are useful for adding bulk and freshness without much calorie cost. Works raw or cooked in a lot of meals. That versatility is one reason tomatoes are easy to use regularly rather than just admire nutritionally.",
       "displayItems": [
         {
           "type": "pro",
-          "title": "good volume for the calories",
-          "explanation": "That matters for satiety and general usefulness.",
-          "impactLevel": "minor",
-          "scoreValue": 1
+          "title": "tomatoes bring a distinctive lycopene story",
+          "explanation": "That antioxidant identity is a more tomato-specific strength than generic low-calorie praise.",
+          "impactLevel": "major",
+          "resolvedScoreValue": 100
         },
         {
           "type": "pro",
-          "title": "easy to build meals around",
-          "explanation": "A practical plus because good foods need realistic use cases.",
+          "title": "high water content gives a lot of food volume for few calories",
+          "explanation": "Tomatoes are useful for adding bulk and freshness without much calorie cost.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
-          "title": "very low downside whole food",
-          "explanation": "Vegetables win a lot simply by offering clean nutritional payoff.",
+          "title": "works raw or cooked in a lot of meals",
+          "explanation": "That versatility is one reason tomatoes are easy to use regularly rather than just admire nutritionally.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "Pros first: good volume for the calories. That matters for satiety and general usefulness. Easy to build meals around. A practical plus because good foods need realistic use cases. Very low downside whole food. Vegetables win a lot simply by offering clean nutritional payoff.",
+      "subtitleText": "Pros first: tomatoes bring a distinctive lycopene story. That antioxidant identity is a more tomato-specific strength than generic low-calorie praise. High water content gives a lot of food volume for few calories. Tomatoes are useful for adding bulk and freshness without much calorie cost. Works raw or cooked in a lot of meals. That versatility is one reason tomatoes are easy to use regularly rather than just admire nutritionally.",
       "timingHint": "medium",
-      "score": 0
+      "score": 66.7
     },
     {
       "key": "cons",
       "title": "Cons",
-      "narration": "The drawbacks next: energy density is very low. Good for some use cases, but not enough on its own. Usually needs pairing to make a full meal. Most vegetables are not complete by themselves. Rarely carries a meal by itself. That is normal here, but still part of the tradeoff.",
+      "narration": "The drawbacks next: it contributes freshness more than serious energy or protein. A tomato can improve a meal, but it usually does not do the heavy lifting by itself. Acidity can be rough for some people. Tomatoes can aggravate reflux or sensitivity in a way that is specific enough to mention. Flavor and quality swing a lot with ripeness and season. That does not erase the nutrition case, but it does affect real-world usefulness and appeal.",
       "displayItems": [
         {
           "type": "con",
-          "title": "energy density is very low",
-          "explanation": "Good for some use cases, but not enough on its own.",
+          "title": "it contributes freshness more than serious energy or protein",
+          "explanation": "A tomato can improve a meal, but it usually does not do the heavy lifting by itself.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
-          "title": "usually needs pairing to make a full meal",
-          "explanation": "Most vegetables are not complete by themselves.",
+          "title": "acidity can be rough for some people",
+          "explanation": "Tomatoes can aggravate reflux or sensitivity in a way that is specific enough to mention.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
-          "title": "rarely carries a meal by itself",
-          "explanation": "That is normal here, but still part of the tradeoff.",
+          "title": "flavor and quality swing a lot with ripeness and season",
+          "explanation": "That does not erase the nutrition case, but it does affect real-world usefulness and appeal.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "The drawbacks next: energy density is very low. Good for some use cases, but not enough on its own. Usually needs pairing to make a full meal. Most vegetables are not complete by themselves. Rarely carries a meal by itself. That is normal here, but still part of the tradeoff.",
+      "subtitleText": "The drawbacks next: it contributes freshness more than serious energy or protein. A tomato can improve a meal, but it usually does not do the heavy lifting by itself. Acidity can be rough for some people. Tomatoes can aggravate reflux or sensitivity in a way that is specific enough to mention. Flavor and quality swing a lot with ripeness and season. That does not erase the nutrition case, but it does affect real-world usefulness and appeal.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     }
   ],
   "closing": {
-    "summary": "Tomato does have a few real-world upsides. but the nutrition case is still weak and the downsides drag it down hard. best only when you need a low-commitment add-on rather than a nutrient-dense anchor.",
+    "summary": "Big strengths are omega 3 and carb quality, but the biggest weaknesses are it contributes freshness more than serious energy or protein and acidity can be rough for some people.",
+    "overview": "Big strengths are omega 3 and carb quality, but the biggest weaknesses are it contributes freshness more than serious energy or protein and acidity can be rough for some people.",
     "finalReveal": "C tier.",
     "useCaseNote": "Best only when you need a low-commitment add-on rather than a nutrient-dense anchor.",
     "cta": "Would you rank it the same, or nah?"
   },
   "tier": "C",
-  "overallScore": 23,
+  "overallScore": 39.3,
+  "overallScoreExact": 39.3373,
+  "baseOverallScore": 46.6,
+  "baseOverallScoreExact": 46.5873,
+  "sectionOrder": [
+    "fats",
+    "carbs",
+    "proteins",
+    "vitamins",
+    "minerals",
+    "pros",
+    "cons"
+  ],
+  "narrationBlocks": [
+    {
+      "kind": "hook_food",
+      "text": "Tomato!"
+    },
+    {
+      "kind": "hook_ranked",
+      "text": "Ranked!"
+    },
+    {
+      "kind": "section",
+      "sectionKey": "fats",
+      "text": "0.2 grams of fat. Omega 3 is 10 milligrams, supporting a more useful fat profile. Polyunsaturated fat is 0.1 grams, a weak mark for vegetables."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "carbs",
+      "text": "3.9 grams of carbs. Glycemic index is 15 GI, supporting better carb quality. Starch is 0 grams, a small miss for vegetables."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "proteins",
+      "text": "0.9 grams of protein. No defensible protein submacros to call out. Protein is not the main pitch here, but extra support still matters."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "vitamins",
+      "text": "Vitamin C is 17% daily value, useful for collagen formation and antioxidant support. Vitamin A is only 5% daily value, a weak mark for vegetables."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "minerals",
+      "text": "Potassium is 5% daily value, useful for fluid balance. Iron is only 1% daily value, a weak mark for vegetables."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "pros",
+      "text": "Pros first: tomatoes bring a distinctive lycopene story. That antioxidant identity is a more tomato-specific strength than generic low-calorie praise. High water content gives a lot of food volume for few calories. Tomatoes are useful for adding bulk and freshness without much calorie cost. Works raw or cooked in a lot of meals. That versatility is one reason tomatoes are easy to use regularly rather than just admire nutritionally."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "cons",
+      "text": "The drawbacks next: it contributes freshness more than serious energy or protein. A tomato can improve a meal, but it usually does not do the heavy lifting by itself. Acidity can be rough for some people. Tomatoes can aggravate reflux or sensitivity in a way that is specific enough to mention. Flavor and quality swing a lot with ripeness and season. That does not erase the nutrition case, but it does affect real-world usefulness and appeal."
+    },
+    {
+      "kind": "closing_summary",
+      "text": "Big strengths are omega 3 and carb quality, but the biggest weaknesses are it contributes freshness more than serious energy or protein and acidity can be rough for some people."
+    },
+    {
+      "kind": "final_reveal",
+      "text": "C tier."
+    }
+  ],
   "explanation": {
-    "summary": "Fats are carrying this food most, while minerals are the biggest drag. It lands in C tier.",
-    "whyThisTier": "This food lands in C tier with an overall score of 23 from a base nutrition score of 23. Context barely changed the result.",
+    "summary": "Fats are carrying this food most, while minerals are holding it back most. It lands in C tier.",
+    "whyThisTier": "This food lands in C tier with an overall score of 39.3. Section scores: fats 100, carbs 60, vitamins 2.9, minerals 0, pros 66.7, cons 50.",
     "strongestSection": {
       "key": "fats",
       "label": "Fats",
-      "score": 66.7
+      "score": 100
     },
-    "weakestSection": null,
+    "weakestSection": {
+      "key": "minerals",
+      "label": "Minerals",
+      "score": 0
+    },
     "topPros": [
       {
-        "title": "good volume for the calories",
-        "explanation": "That matters for satiety and general usefulness.",
-        "impactLevel": "minor",
+        "title": "tomatoes bring a distinctive lycopene story",
+        "explanation": "That antioxidant identity is a more tomato-specific strength than generic low-calorie praise.",
+        "impactLevel": "major",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 100
       },
       {
-        "title": "easy to build meals around",
-        "explanation": "A practical plus because good foods need realistic use cases.",
+        "title": "high water content gives a lot of food volume for few calories",
+        "explanation": "Tomatoes are useful for adding bulk and freshness without much calorie cost.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
-        "title": "very low downside whole food",
-        "explanation": "Vegetables win a lot simply by offering clean nutritional payoff.",
+        "title": "works raw or cooked in a lot of meals",
+        "explanation": "That versatility is one reason tomatoes are easy to use regularly rather than just admire nutritionally.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
       {
-        "title": "energy density is very low",
-        "explanation": "Good for some use cases, but not enough on its own.",
+        "title": "it contributes freshness more than serious energy or protein",
+        "explanation": "A tomato can improve a meal, but it usually does not do the heavy lifting by itself.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
-        "title": "usually needs pairing to make a full meal",
-        "explanation": "Most vegetables are not complete by themselves.",
+        "title": "acidity can be rough for some people",
+        "explanation": "Tomatoes can aggravate reflux or sensitivity in a way that is specific enough to mention.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
-        "title": "rarely carries a meal by itself",
-        "explanation": "That is normal here, but still part of the tradeoff.",
+        "title": "flavor and quality swing a lot with ripeness and season",
+        "explanation": "That does not erase the nutrition case, but it does affect real-world usefulness and appeal.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
       "Strongest section: Fats.",
+      "Weakest section: Minerals.",
       "Final verdict: C tier."
     ]
   }

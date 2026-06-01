@@ -1,13 +1,29 @@
 {
   "status": "ok",
+  "schemaVersion": "foodranked-script.v2",
+  "narrationFormat": "elevenlabs-blocks-v1",
   "food": {
     "id": "shrimp",
     "name": "Shrimp",
-    "foodType": "meats"
+    "foodType": "meats",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "identity": null,
+    "scoreReadiness": null,
+    "sourceNotes": [
+      "Calibration benchmark sample for FoodRanked.",
+      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
+    ]
   },
   "ruleset": {
     "id": "meats.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 99,
@@ -16,146 +32,176 @@
     "protein_g": 24
   },
   "hook": "Shrimp ranked.",
-  "intro": "",
   "sections": [
     {
       "key": "fats",
       "title": "Fats",
-      "narration": "Cholesterol is 189 milligrams. 0.3 grams of fat. Cholesterol adds to the tradeoff. For meats, fat quality matters a lot once the protein is already there.",
+      "narration": "0.3 grams of fat. Saturated fat is 0.1 grams, supporting a better fat profile. Polyunsaturated fat is 0.1 grams, and for meats, fat quality is a major tradeoff.",
       "displayItems": [
         {
           "metricKey": "saturated_fat_g",
           "text": "saturated fat at 0.1g",
-          "weightedScore": 6,
+          "weightedScore": 300,
           "scoringMode": "arrow_bands",
-          "band": "↓↓↓",
+          "band": "3_green",
           "dvPercent": null,
           "value": 0.1
         },
         {
-          "metricKey": "cholesterol_mg",
-          "text": "cholesterol at 189mg",
-          "weightedScore": -6,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
-          "dvPercent": null,
-          "value": 189
-        },
-        {
           "metricKey": "polyunsaturated_fat_g",
           "text": "polyunsaturated fat at 0.1g",
-          "weightedScore": -3,
+          "weightedScore": 0,
           "scoringMode": "arrow_bands",
-          "band": "↓↓↓",
+          "band": "3_red",
           "dvPercent": null,
           "value": 0.1
         },
         {
           "metricKey": "omega3_mg",
           "text": "omega 3 at 300mg",
-          "weightedScore": 1,
+          "weightedScore": 180,
           "scoringMode": "arrow_bands",
-          "band": "↑",
+          "band": "1_green",
           "dvPercent": null,
           "value": 300
+        },
+        {
+          "metricKey": "cholesterol_mg",
+          "text": "cholesterol at 189mg",
+          "weightedScore": 40,
+          "scoringMode": "arrow_bands",
+          "band": "2_red",
+          "dvPercent": null,
+          "value": 189
         }
       ],
-      "subtitleText": "Cholesterol is 189mg. 0.3g of fat. Cholesterol adds to the tradeoff. For meats, fat quality matters a lot once the protein is already there.",
+      "subtitleText": "0.3g of fat. Saturated fat is 0.1g, supporting a better fat profile. Polyunsaturated fat is 0.1g, and for meats, fat quality is a major tradeoff.",
       "timingHint": "short-medium",
-      "score": 44.4
+      "score": 57.8
     },
     {
       "key": "carbs",
       "title": "Carbs",
-      "narration": "0.2 grams of carbs. Everything else is fairly underwhelming. In this category, carbs barely matter.",
+      "narration": "0.2 grams of carbs. No defensible carb submacros to call out. In this category, carbs barely matter.",
       "displayItems": [],
-      "subtitleText": "0.2g of carbs. Everything else is fairly underwhelming. In this category, carbs barely matter.",
+      "subtitleText": "0.2g of carbs. No defensible carb submacros to call out. In this category, carbs barely matter.",
       "timingHint": "short-medium",
       "score": null
     },
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "24 grams of protein. Essential amino acids score is 9 out of 9. Bioavailability and amino acid quality are both strong. Strong protein is expected here, so the rest of the profile decides how high it climbs.",
+      "narration": "24 grams of protein. Essential amino acids score is 9 out of 9, with 95% bioavailability, making the protein useful for repair and maintenance. Collagen is 1.2 grams, so for meats, it is not bringing much connective-tissue protein.",
       "displayItems": [
         {
           "metricKey": "essential_amino_acids_score",
           "text": "essential amino acids score at 9/9",
-          "weightedScore": 9,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
           "dvPercent": null,
-          "value": 9
+          "value": 9,
+          "referenceOnly": true
         },
         {
           "metricKey": "bioavailability_percent",
           "text": "bioavailability at 95%",
-          "weightedScore": 9,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
           "dvPercent": null,
-          "value": 95
-        },
-        {
-          "metricKey": "nonessential_amino_acids_score",
-          "text": "nonessential amino acids score at 10/11",
-          "weightedScore": 4,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑",
-          "dvPercent": null,
-          "value": 10
+          "value": 95,
+          "referenceOnly": true
         },
         {
           "metricKey": "collagen_g",
           "text": "collagen at 1.2g",
-          "weightedScore": -2,
-          "scoringMode": "arrow_bands",
-          "band": "↓↓",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
           "dvPercent": null,
-          "value": 1.2
+          "value": 1.2,
+          "referenceOnly": true
+        },
+        {
+          "metricKey": "nonessential_amino_acids_score",
+          "text": "nonessential amino acids score at 10/11",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
+          "dvPercent": null,
+          "value": 10,
+          "referenceOnly": true
         }
       ],
-      "subtitleText": "24g of protein. Essential amino acids score is 9/9. Bioavailability and amino acid quality are both strong. Strong protein is expected here, so the rest of the profile decides how high it climbs.",
+      "subtitleText": "24g of protein. Essential amino acids score is 9/9, with 95% bioavailability, making the protein useful for repair and maintenance. Collagen is 1.2g, so for meats, it is not bringing much connective-tissue protein.",
       "timingHint": "short-medium",
-      "score": 87
+      "score": 80
     },
     {
       "key": "vitamins",
       "title": "Vitamins",
-      "narration": "Vitamin b12 at 54% daily value stands out most. That gives this food real vitamin support.",
+      "narration": "Vitamin B12 is 54% daily value, useful for nerve and blood-cell support. Vitamin D is only 0% daily value, a small miss for meats.",
       "displayItems": [
         {
           "metricKey": "vitamin_b12_dv",
-          "text": "vitamin b12 at 54% DV",
-          "weightedScore": 10,
+          "text": "vitamin B12 at 54% DV",
+          "weightedScore": 150,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 54,
           "value": null
+        },
+        {
+          "metricKey": "vitamin_d_dv",
+          "text": "vitamin D at 0% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
         }
       ],
-      "subtitleText": "Vitamin b12 at 54% daily value stands out most. That gives this food real vitamin support.",
+      "subtitleText": "Vitamin B12 is 54% DV, useful for nerve and blood-cell support. Vitamin D is only 0% DV, a small miss for meats.",
       "timingHint": "short-medium",
-      "score": 50
+      "score": 30
     },
     {
       "key": "minerals",
       "title": "Minerals",
-      "narration": "Zinc at 10% daily value stands out most. Useful, but still pretty limited.",
+      "narration": "Zinc is 10% daily value, useful for immune support. Iron is only 2% daily value, a weak mark for meats.",
       "displayItems": [
         {
           "metricKey": "zinc_dv",
           "text": "zinc at 10% DV",
-          "weightedScore": 2,
+          "weightedScore": 30,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 10,
           "value": null
+        },
+        {
+          "metricKey": "iron_dv",
+          "text": "iron at 2% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 2,
+          "value": null
+        },
+        {
+          "metricKey": "potassium_dv",
+          "text": "potassium at 7% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 7,
+          "value": null
         }
       ],
-      "subtitleText": "Zinc at 10% daily value stands out most. Useful, but still pretty limited.",
+      "subtitleText": "Zinc is 10% DV, useful for immune support. Iron is only 2% DV, a weak mark for meats.",
       "timingHint": "short-medium",
-      "score": 10
+      "score": 3.8
     },
     {
       "key": "pros",
@@ -167,26 +213,26 @@
           "title": "easy to centre a meal around",
           "explanation": "Practical meal value matters.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "complete protein delivery is reliable",
           "explanation": "The category is supposed to do this well.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "gives a straightforward protein solution",
           "explanation": "The category often wins on simplicity and reliability.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         }
       ],
       "subtitleText": "Pros first: easy to centre a meal around. Practical meal value matters. Complete protein delivery is reliable. The category is supposed to do this well. Gives a straightforward protein solution. The category often wins on simplicity and reliability.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     },
     {
       "key": "cons",
@@ -198,21 +244,21 @@
           "title": "cholesterol headline is hard to ignore",
           "explanation": "Even if the full story is more nuanced, the category score should reflect how extreme the number looks.",
           "impactLevel": "major",
-          "scoreValue": -2
+          "resolvedScoreValue": 100
         },
         {
           "type": "con",
           "title": "quality swings a lot by cut and processing",
           "explanation": "The category can look very different depending on what version you actually buy.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "cost and storage can be a pain",
           "explanation": "Practical downsides still count.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         }
       ],
       "subtitleText": "The drawbacks next: cholesterol headline is hard to ignore. Even if the full story is more nuanced, the category score should reflect how extreme the number looks. Quality swings a lot by cut and processing. The category can look very different depending on what version you actually buy. Cost and storage can be a pain. Practical downsides still count.",
@@ -221,25 +267,91 @@
     }
   ],
   "closing": {
-    "summary": "Shrimp does have some solid upside. but the tradeoffs keep it from climbing higher. best when you want efficient protein and can accept the category tradeoffs that come with it.",
+    "summary": "Big strengths are omega 3 and protein, but the biggest weaknesses are cholesterol headline is hard to ignore and quality swings a lot by cut and processing.",
+    "overview": "Big strengths are omega 3 and protein, but the biggest weaknesses are cholesterol headline is hard to ignore and quality swings a lot by cut and processing.",
     "finalReveal": "B tier.",
     "useCaseNote": "Best when you want efficient protein and can accept the category tradeoffs that come with it.",
     "cta": "Would you rank it the same, or nah?"
   },
   "tier": "B",
-  "overallScore": 60,
+  "overallScore": 40.4,
+  "overallScoreExact": 40.3512,
+  "baseOverallScore": 42.5,
+  "baseOverallScoreExact": 42.4769,
+  "sectionOrder": [
+    "fats",
+    "carbs",
+    "proteins",
+    "vitamins",
+    "minerals",
+    "pros",
+    "cons"
+  ],
+  "narrationBlocks": [
+    {
+      "kind": "hook_food",
+      "text": "Shrimp!"
+    },
+    {
+      "kind": "hook_ranked",
+      "text": "Ranked!"
+    },
+    {
+      "kind": "section",
+      "sectionKey": "fats",
+      "text": "0.3 grams of fat. Saturated fat is 0.1 grams, supporting a better fat profile. Polyunsaturated fat is 0.1 grams, and for meats, fat quality is a major tradeoff."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "carbs",
+      "text": "0.2 grams of carbs. No defensible carb submacros to call out. In this category, carbs barely matter."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "proteins",
+      "text": "24 grams of protein. Essential amino acids score is 9 out of 9, with 95% bioavailability, making the protein useful for repair and maintenance. Collagen is 1.2 grams, so for meats, it is not bringing much connective-tissue protein."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "vitamins",
+      "text": "Vitamin B12 is 54% daily value, useful for nerve and blood-cell support. Vitamin D is only 0% daily value, a small miss for meats."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "minerals",
+      "text": "Zinc is 10% daily value, useful for immune support. Iron is only 2% daily value, a weak mark for meats."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "pros",
+      "text": "Pros first: easy to centre a meal around. Practical meal value matters. Complete protein delivery is reliable. The category is supposed to do this well. Gives a straightforward protein solution. The category often wins on simplicity and reliability."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "cons",
+      "text": "The drawbacks next: cholesterol headline is hard to ignore. Even if the full story is more nuanced, the category score should reflect how extreme the number looks. Quality swings a lot by cut and processing. The category can look very different depending on what version you actually buy. Cost and storage can be a pain. Practical downsides still count."
+    },
+    {
+      "kind": "closing_summary",
+      "text": "Big strengths are omega 3 and protein, but the biggest weaknesses are cholesterol headline is hard to ignore and quality swings a lot by cut and processing."
+    },
+    {
+      "kind": "final_reveal",
+      "text": "B tier."
+    }
+  ],
   "explanation": {
-    "summary": "Proteins are carrying this food most, while minerals are the biggest drag. It lands in B tier.",
-    "whyThisTier": "This food lands in B tier with an overall score of 60 from a base nutrition score of 63. Context dragged it down by 3 points.",
+    "summary": "Proteins are carrying this food most, while minerals are holding it back most. It lands in B tier.",
+    "whyThisTier": "This food lands in B tier with an overall score of 40.4. Section scores: fats 57.8, proteins 80, vitamins 30, minerals 3.8, pros 50, cons 33.3.",
     "strongestSection": {
       "key": "proteins",
       "label": "Proteins",
-      "score": 87
+      "score": 80
     },
     "weakestSection": {
       "key": "minerals",
       "label": "Minerals",
-      "score": 10
+      "score": 3.8
     },
     "topPros": [
       {
@@ -247,21 +359,21 @@
         "explanation": "Practical meal value matters.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "complete protein delivery is reliable",
         "explanation": "The category is supposed to do this well.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "gives a straightforward protein solution",
         "explanation": "The category often wins on simplicity and reliability.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -270,13 +382,26 @@
         "explanation": "Even if the full story is more nuanced, the category score should reflect how extreme the number looks.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -3
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "quality swings a lot by cut and processing",
+        "explanation": "The category can look very different depending on what version you actually buy.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "cost and storage can be a pain",
+        "explanation": "Practical downsides still count.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
       "Strongest section: Proteins.",
       "Weakest section: Minerals.",
-      "Context weakened the final tier case by 3 points.",
       "Final verdict: B tier."
     ]
   }

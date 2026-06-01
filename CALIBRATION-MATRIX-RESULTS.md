@@ -1,6 +1,6 @@
 # CALIBRATION-MATRIX-RESULTS
 
-Verification after writing the calibration matrix and per-category thresholds.
+Verification after writing the calibration matrix, category score calibrations, and shared tier thresholds.
 
 ## dairy
 - matched: 25/25

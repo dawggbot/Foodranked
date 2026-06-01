@@ -15,11 +15,12 @@ Design a scoring model that is:
 FoodRanked should not judge every food by one universal ideal.
 It should judge foods by **how well they perform within their category**.
 
-That means the scoring system has 4 layers:
+That means the scoring system has 5 layers:
 1. **Canonical facts** — raw per-100g nutrition data with explicit units
 2. **Category ruleset** — thresholds, applicability, polarity, and weights for that food type
-3. **Score computation** — 7 scored content section scores and one final overall score
-4. **Narrative derivation** — pros, cons, summary, and explanation payloads
+3. **Raw score computation** — 7 scored content section scores and one raw base score
+4. **Score calibration** — category benchmark anchors map raw scores onto the shared final score scale
+5. **Narrative derivation** — pros, cons, summary, and explanation payloads
 
 ## Locked assumptions
 - one food belongs to one primary food type
@@ -309,15 +310,26 @@ Again, the section score lands on a 0 to 100 scale.
 
 This prevents fake precision.
 
-## Step 11: tier mapping
+## Step 11: score calibration and tier mapping
 
-Tier thresholds should be calibrated per category against benchmark foods.
-A universal threshold map can be a starting point, but the real production rule is category-relative calibration.
+Raw section math remains category-relative. A grain, meat, oil, fruit, or vegetable can still use different metric bands and harshness rules, because each category has different nutritional jobs.
+
+Final display scores and tiers use a shared threshold map, but only after applying a category-specific score calibration.
+
+Current shared final tier thresholds:
+- `S`: 80 to 100
+- `A`: 60 to 79.9999
+- `B`: 40 to 59.9999
+- `C`: 20 to 39.9999
+- `D`: 0 to 19.9999
+
+Each category stores `scoreCalibration` anchors that map raw benchmark boundaries onto those shared 20-point tier bands.
 
 That means:
-- use stable thresholds inside each category once tuned
-- do not force every category to share the same raw score cutoffs
-- re-check thresholds whenever the ruleset architecture changes materially
+- do not compare uncalibrated raw scores across food types
+- use the calibrated `overallScore` for display, sorting, and tier lookup
+- keep `baseOverallScore` for audit and calibration review
+- re-check calibration anchors whenever the ruleset architecture changes materially
 
 ## Step 12: benchmark calibration
 
@@ -358,7 +370,8 @@ The scoring engine should output:
 - resolved submacro band outcomes
 - weighted metric contributions
 - section scores for all 7 scored content sections
-- overall score
+- calibrated overall score
+- raw base overall score for audit
 - final tier
 - generated pros
 - generated cons

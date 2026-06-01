@@ -7,7 +7,11 @@
   },
   "ruleset": {
     "id": "dairy.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 34,
@@ -16,36 +20,32 @@
     "protein_g": 3.4
   },
   "sectionScores": {
-    "fats": 90.9,
-    "carbs": 72.2,
-    "proteins": 83.3,
-    "vitamins": 20,
-    "minerals": 10,
-    "pros": 0,
-    "cons": 0
+    "fats": 83.3,
+    "carbs": 80,
+    "proteins": 20,
+    "vitamins": 13.3,
+    "minerals": 6,
+    "pros": 50,
+    "cons": 50
   },
-  "baseScore": 68,
-  "contextAdjustment": {
-    "rawAdjustment": 0,
-    "appliedAdjustment": 0,
-    "appliedItems": [],
-    "ignoredItems": []
-  },
-  "overallScore": 68,
-  "tier": "S",
-  "summary": "Fats are carrying this food most, while minerals are the biggest drag. It lands in S tier.",
+  "overallScore": 53.6,
+  "overallScoreExact": 53.6118,
+  "baseOverallScore": 43.2,
+  "baseOverallScoreExact": 43.2381,
+  "tier": "B",
+  "summary": "Fats are carrying this food most, while minerals are holding it back most. It lands in B tier.",
   "explanation": {
-    "summary": "Fats are carrying this food most, while minerals are the biggest drag. It lands in S tier.",
-    "whyThisTier": "This food lands in S tier with an overall score of 68 from a base nutrition score of 68. Context barely changed the result.",
+    "summary": "Fats are carrying this food most, while minerals are holding it back most. It lands in B tier.",
+    "whyThisTier": "This food lands in B tier with an overall score of 53.6. Section scores: fats 83.3, carbs 80, proteins 20, vitamins 13.3, minerals 6, pros 50, cons 50.",
     "strongestSection": {
       "key": "fats",
       "label": "Fats",
-      "score": 90.9
+      "score": 83.3
     },
     "weakestSection": {
       "key": "minerals",
       "label": "Minerals",
-      "score": 10
+      "score": 6
     },
     "topPros": [
       {
@@ -53,21 +53,21 @@
         "explanation": "Dairy gets real credit for convenience.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "easy to fit into familiar meals",
         "explanation": "That lowers friction for regular use.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "slots into meals very easily",
         "explanation": "Practical versatility matters a lot for dairy.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -76,27 +76,27 @@
         "explanation": "The label alone does not tell the whole story.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "fat quality varies wildly across dairy",
         "explanation": "Some dairy is clean, some really is not.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "some versions get dense fast on fat, sodium, or both",
         "explanation": "The category swings a lot by format.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
       "Strongest section: Fats.",
       "Weakest section: Minerals.",
-      "Final verdict: S tier."
+      "Final verdict: B tier."
     ]
   },
   "contextItems": {
@@ -104,52 +104,58 @@
       {
         "itemKey": "dairy_practical_protein",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "easy protein delivery for normal diets",
         "explanation": "Dairy gets real credit for convenience.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "dairy_meal_adhesion",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "easy to fit into familiar meals",
         "explanation": "That lowers friction for regular use.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "dairy_meal_versatility",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "slots into meals very easily",
         "explanation": "Practical versatility matters a lot for dairy.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "cons": [
       {
         "itemKey": "dairy_processing_variability",
         "impactLevel": "minor",
-        "scoreValue": -1,
         "title": "processing changes the category a lot",
         "explanation": "The label alone does not tell the whole story.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "dairy_sat_fat_variability",
         "impactLevel": "minor",
-        "scoreValue": -1,
         "title": "fat quality varies wildly across dairy",
         "explanation": "Some dairy is clean, some really is not.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "dairy_sodium_density_trap",
         "impactLevel": "minor",
-        "scoreValue": -1,
         "title": "some versions get dense fast on fat, sodium, or both",
         "explanation": "The category swings a lot by format.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       }
     ]
   },
@@ -160,9 +166,9 @@
       "scoringMode": "arrow_bands",
       "value": 0.1,
       "band": "↓↓↓",
-      "score": 3,
+      "score": 100,
       "weight": 6,
-      "weightedScore": 18
+      "weightedScore": 600
     },
     {
       "metricKey": "omega3_mg",
@@ -170,9 +176,19 @@
       "scoringMode": "arrow_bands",
       "value": 10,
       "band": "↓↓↓",
-      "score": -3,
+      "score": 0,
       "weight": 1,
-      "weightedScore": -3
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "polyunsaturated_fat_g",
+      "sectionKey": "fats",
+      "scoringMode": "arrow_bands",
+      "value": 0,
+      "band": "↓↓↓",
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
     },
     {
       "metricKey": "cholesterol_mg",
@@ -180,19 +196,29 @@
       "scoringMode": "arrow_bands",
       "value": 2,
       "band": "↓↓↓",
-      "score": 3,
+      "score": 100,
       "weight": 4,
-      "weightedScore": 12
+      "weightedScore": 400
+    },
+    {
+      "metricKey": "starch_g",
+      "sectionKey": "carbs",
+      "scoringMode": "arrow_bands",
+      "value": 0,
+      "band": "3_red",
+      "score": 0,
+      "weight": 0,
+      "weightedScore": 0
     },
     {
       "metricKey": "sugar_g",
       "sectionKey": "carbs",
       "scoringMode": "arrow_bands",
       "value": 5,
-      "band": "↓",
-      "score": 1,
+      "band": "↓↓",
+      "score": 80,
       "weight": 4,
-      "weightedScore": 4
+      "weightedScore": 320
     },
     {
       "metricKey": "glycemic_index",
@@ -200,39 +226,9 @@
       "scoringMode": "arrow_bands",
       "value": 32,
       "band": "↓↓",
-      "score": 2,
+      "score": 80,
       "weight": 2,
-      "weightedScore": 4
-    },
-    {
-      "metricKey": "essential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 7,
-      "band": "↑↑",
-      "score": 2,
-      "weight": 3,
-      "weightedScore": 6
-    },
-    {
-      "metricKey": "nonessential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 8,
-      "band": "↑↑",
-      "score": 2,
-      "weight": 1,
-      "weightedScore": 2
-    },
-    {
-      "metricKey": "bioavailability_percent",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 90,
-      "band": "↑↑",
-      "score": 2,
-      "weight": 3,
-      "weightedScore": 6
+      "weightedScore": 160
     },
     {
       "metricKey": "vitamin_b12_dv",
@@ -240,8 +236,19 @@
       "scoringMode": "dv_points",
       "dvPercent": 20,
       "points": 2,
+      "score": 20,
       "weight": 2,
-      "weightedScore": 4
+      "weightedScore": 40
+    },
+    {
+      "metricKey": "vitamin_a_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 2,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
     },
     {
       "metricKey": "calcium_dv",
@@ -249,8 +256,40 @@
       "scoringMode": "dv_points",
       "dvPercent": 10,
       "points": 1,
+      "score": 10,
       "weight": 3,
-      "weightedScore": 3
+      "weightedScore": 30
+    },
+    {
+      "metricKey": "zinc_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 4,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "magnesium_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 2,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "protein_g_fallback",
+      "sectionKey": "proteins",
+      "scoringMode": "protein_fallback",
+      "value": 3.4,
+      "band": "2_red",
+      "score": 20,
+      "weight": 3,
+      "weightedScore": 60,
+      "fallbackApplied": true
     }
   ]
 }

@@ -7,7 +7,11 @@
   },
   "ruleset": {
     "id": "grains.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 365,
@@ -16,140 +20,148 @@
     "protein_g": 7.1
   },
   "sectionScores": {
-    "fats": 66.7,
-    "carbs": 33.3,
-    "proteins": 66.7,
-    "vitamins": null,
-    "minerals": 10,
-    "pros": 0,
-    "cons": 0
+    "fats": 33.3,
+    "carbs": 47.5,
+    "proteins": 20,
+    "vitamins": 3.8,
+    "minerals": 2.7,
+    "pros": 50,
+    "cons": 33.3
   },
-  "baseScore": 30,
-  "contextAdjustment": {
-    "rawAdjustment": 0,
-    "appliedAdjustment": 0,
-    "appliedItems": [],
-    "ignoredItems": []
-  },
-  "overallScore": 30,
-  "tier": "C",
-  "summary": "Fats are carrying this food most, while minerals are the biggest drag. It lands in C tier.",
+  "overallScore": 16.8,
+  "overallScoreExact": 16.7656,
+  "baseOverallScore": 27.2,
+  "baseOverallScoreExact": 27.2262,
+  "tier": "D",
+  "summary": "Pros are carrying this food most, while minerals are holding it back most. It lands in D tier.",
   "explanation": {
-    "summary": "Fats are carrying this food most, while minerals are the biggest drag. It lands in C tier.",
-    "whyThisTier": "This food lands in C tier with an overall score of 30 from a base nutrition score of 30. Context barely changed the result.",
+    "summary": "Pros are carrying this food most, while minerals are holding it back most. It lands in D tier.",
+    "whyThisTier": "This food lands in D tier with an overall score of 16.8. Section scores: fats 33.3, carbs 47.5, proteins 20, vitamins 3.8, minerals 2.7, pros 50, cons 33.3.",
     "strongestSection": {
-      "key": "fats",
-      "label": "Fats",
-      "score": 66.7
+      "key": "pros",
+      "label": "Pros",
+      "score": 50
     },
     "weakestSection": {
       "key": "minerals",
       "label": "Minerals",
-      "score": 10
+      "score": 2.7
     },
     "topPros": [
       {
-        "title": "useful staple energy source",
-        "explanation": "That matters because grains are often judged by how practical they are in real diets.",
+        "title": "plain white rice is easy on many stomachs",
+        "explanation": "Its lower fibre and blandness make it a practical recovery or tolerance food for some people, which is more specific than generic convenience.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
-        "title": "easy to batch cook at scale",
-        "explanation": "That practicality is part of why grains matter.",
+        "title": "cheap and easy to scale as a staple",
+        "explanation": "White rice earns real-world value from being affordable, shelf-stable, and easy to cook in large batches.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
-        "title": "works as a meal anchor",
-        "explanation": "A lot of value comes from being easy to build around.",
+        "title": "neutral enough to pair with almost anything",
+        "explanation": "That flexibility helps explain why it stays common even when its standalone nutrition case is weak.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
       {
-        "title": "quality can drop fast with processing",
-        "explanation": "The grain category punishes refinement pretty hard.",
-        "impactLevel": "minor",
+        "title": "refining strips out much of the fibre and micronutrient value",
+        "explanation": "That is the central reason white rice scores worse than intact whole grains.",
+        "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 100
       },
       {
-        "title": "carb load is still the main burden",
-        "explanation": "That is the category risk no grain fully escapes.",
+        "title": "it is mostly starch with limited standalone nutrition",
+        "explanation": "The protein, fibre, and micronutrient payload are all modest for the calories.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
-        "title": "protein quality is limited",
-        "explanation": "Even the better grains usually need pairing.",
+        "title": "carb quality changes a lot with rice type and preparation",
+        "explanation": "That makes the exact glycemic story hard to lock honestly from a single dry-rice record.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
-      "Strongest section: Fats.",
+      "Strongest section: Pros.",
       "Weakest section: Minerals.",
-      "Final verdict: C tier."
+      "Final verdict: D tier."
     ]
   },
   "contextItems": {
     "pros": [
       {
-        "itemKey": "grain_energy_staple",
+        "itemKey": "digestive_bluntness_low_fibre",
         "impactLevel": "minor",
-        "scoreValue": 1,
-        "title": "useful staple energy source",
-        "explanation": "That matters because grains are often judged by how practical they are in real diets.",
-        "evidenceType": "manual"
+        "title": "plain white rice is easy on many stomachs",
+        "explanation": "Its lower fibre and blandness make it a practical recovery or tolerance food for some people, which is more specific than generic convenience.",
+        "evidenceType": "manual",
+        "confidence": "medium",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
-        "itemKey": "grain_batch_cooking",
+        "itemKey": "cheap_scalable_staple",
         "impactLevel": "minor",
-        "scoreValue": 1,
-        "title": "easy to batch cook at scale",
-        "explanation": "That practicality is part of why grains matter.",
-        "evidenceType": "manual"
+        "title": "cheap and easy to scale as a staple",
+        "explanation": "White rice earns real-world value from being affordable, shelf-stable, and easy to cook in large batches.",
+        "evidenceType": "manual",
+        "confidence": "high",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
-        "itemKey": "grain_meal_anchor",
+        "itemKey": "neutral_pairing_food",
         "impactLevel": "minor",
-        "scoreValue": 1,
-        "title": "works as a meal anchor",
-        "explanation": "A lot of value comes from being easy to build around.",
-        "evidenceType": "manual"
+        "title": "neutral enough to pair with almost anything",
+        "explanation": "That flexibility helps explain why it stays common even when its standalone nutrition case is weak.",
+        "evidenceType": "manual",
+        "confidence": "high",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "cons": [
       {
-        "itemKey": "grain_processing_sensitivity",
-        "impactLevel": "minor",
-        "scoreValue": -1,
-        "title": "quality can drop fast with processing",
-        "explanation": "The grain category punishes refinement pretty hard.",
-        "evidenceType": "manual"
+        "itemKey": "refined_grain_loss",
+        "impactLevel": "major",
+        "title": "refining strips out much of the fibre and micronutrient value",
+        "explanation": "That is the central reason white rice scores worse than intact whole grains.",
+        "evidenceType": "manual",
+        "confidence": "high",
+        "side": "con",
+        "resolvedScoreValue": 100
       },
       {
-        "itemKey": "grain_carb_ceiling",
+        "itemKey": "weak_standalone_nutrition",
         "impactLevel": "minor",
-        "scoreValue": -1,
-        "title": "carb load is still the main burden",
-        "explanation": "That is the category risk no grain fully escapes.",
-        "evidenceType": "manual"
+        "title": "it is mostly starch with limited standalone nutrition",
+        "explanation": "The protein, fibre, and micronutrient payload are all modest for the calories.",
+        "evidenceType": "manual",
+        "confidence": "high",
+        "side": "con",
+        "resolvedScoreValue": 50
       },
       {
-        "itemKey": "grain_protein_limit",
+        "itemKey": "glycemic_variability_blocker",
         "impactLevel": "minor",
-        "scoreValue": -1,
-        "title": "protein quality is limited",
-        "explanation": "Even the better grains usually need pairing.",
-        "evidenceType": "manual"
+        "title": "carb quality changes a lot with rice type and preparation",
+        "explanation": "That makes the exact glycemic story hard to lock honestly from a single dry-rice record.",
+        "evidenceType": "manual",
+        "confidence": "high",
+        "side": "con",
+        "resolvedScoreValue": 50
       }
     ]
   },
@@ -159,100 +171,110 @@
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 0.2,
-      "band": "↓↓↓",
-      "score": 3,
+      "band": "3_green",
+      "score": 100,
       "weight": 1,
-      "weightedScore": 3
+      "weightedScore": 100
     },
     {
       "metricKey": "omega3_mg",
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 20,
-      "band": "↑↑↑",
-      "score": 3,
+      "band": "3_red",
+      "score": 0,
       "weight": 1,
-      "weightedScore": 3
+      "weightedScore": 0
     },
     {
       "metricKey": "polyunsaturated_fat_g",
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 0.2,
-      "band": "↓↓↓",
-      "score": -3,
+      "band": "3_red",
+      "score": 0,
       "weight": 1,
-      "weightedScore": -3
+      "weightedScore": 0
     },
     {
       "metricKey": "starch_g",
       "sectionKey": "carbs",
       "scoringMode": "arrow_bands",
       "value": 63,
-      "band": "↑↑",
-      "score": 2,
+      "band": "2_green",
+      "score": 80,
       "weight": 1,
-      "weightedScore": 2
+      "weightedScore": 80
     },
     {
       "metricKey": "fibre_g",
       "sectionKey": "carbs",
       "scoringMode": "arrow_bands",
       "value": 1.3,
-      "band": "↓↓",
-      "score": -2,
-      "weight": 3,
-      "weightedScore": -6
+      "band": "2_red",
+      "score": 20,
+      "weight": 5,
+      "weightedScore": 100
     },
     {
       "metricKey": "sugar_g",
       "sectionKey": "carbs",
       "scoringMode": "arrow_bands",
       "value": 0.1,
-      "band": "↓↓↓",
-      "score": 3,
-      "weight": 1,
-      "weightedScore": 3
+      "band": "3_green",
+      "score": 100,
+      "weight": 2,
+      "weightedScore": 200
     },
     {
-      "metricKey": "glycemic_index",
-      "sectionKey": "carbs",
-      "scoringMode": "arrow_bands",
-      "value": 73,
-      "band": "↑↑",
-      "score": -2,
+      "metricKey": "vitamin_e_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 0,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "vitamin_b1_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 6,
+      "points": 0,
+      "score": 0,
       "weight": 4,
-      "weightedScore": -8
+      "weightedScore": 0
     },
     {
-      "metricKey": "essential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 3,
-      "band": "↓",
-      "score": -1,
-      "weight": 2,
-      "weightedScore": -2
+      "metricKey": "vitamin_b3_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 10,
+      "points": 1,
+      "score": 10,
+      "weight": 3,
+      "weightedScore": 30
     },
     {
-      "metricKey": "nonessential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 4,
-      "band": "↑",
-      "score": 1,
-      "weight": 1,
-      "weightedScore": 1
+      "metricKey": "iron_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 1,
+      "points": 0,
+      "score": 0,
+      "weight": 4,
+      "weightedScore": 0
     },
     {
-      "metricKey": "bioavailability_percent",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 60,
-      "band": "↑↑↑",
-      "score": 3,
-      "weight": 2,
-      "weightedScore": 6
+      "metricKey": "magnesium_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 6,
+      "points": 0,
+      "score": 0,
+      "weight": 5,
+      "weightedScore": 0
     },
     {
       "metricKey": "zinc_dv",
@@ -260,8 +282,30 @@
       "scoringMode": "dv_points",
       "dvPercent": 10,
       "points": 1,
-      "weight": 1,
-      "weightedScore": 1
+      "score": 10,
+      "weight": 4,
+      "weightedScore": 40
+    },
+    {
+      "metricKey": "potassium_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 2,
+      "points": 0,
+      "score": 0,
+      "weight": 2,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "protein_g_fallback",
+      "sectionKey": "proteins",
+      "scoringMode": "protein_fallback",
+      "value": 7.1,
+      "band": "2_red",
+      "score": 20,
+      "weight": 2,
+      "weightedScore": 40,
+      "fallbackApplied": true
     }
   ]
 }

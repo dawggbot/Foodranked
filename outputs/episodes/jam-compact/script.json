@@ -1,13 +1,29 @@
 {
   "status": "ok",
+  "schemaVersion": "foodranked-script.v2",
+  "narrationFormat": "elevenlabs-blocks-v1",
   "food": {
     "id": "jam",
     "name": "Jam",
-    "foodType": "misc"
+    "foodType": "misc",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "identity": null,
+    "scoreReadiness": null,
+    "sourceNotes": [
+      "Calibration benchmark sample for FoodRanked.",
+      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
+    ]
   },
   "ruleset": {
     "id": "misc.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 278,
@@ -16,7 +32,6 @@
     "protein_g": 0.3
   },
   "hook": "Jam ranked.",
-  "intro": "",
   "sections": [
     {
       "key": "fats",
@@ -39,9 +54,40 @@
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "No real protein story here.",
-      "displayItems": [],
-      "subtitleText": "No real protein story here.",
+      "narration": "0.3 grams of protein. Essential amino acids score is 0 out of 9, with 0% bioavailability, making the protein useful for repair and maintenance.",
+      "displayItems": [
+        {
+          "metricKey": "essential_amino_acids_score",
+          "text": "essential amino acids score at 0/9",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
+          "dvPercent": null,
+          "value": 0,
+          "referenceOnly": true
+        },
+        {
+          "metricKey": "bioavailability_percent",
+          "text": "bioavailability at 0%",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
+          "dvPercent": null,
+          "value": 0,
+          "referenceOnly": true
+        },
+        {
+          "metricKey": "nonessential_amino_acids_score",
+          "text": "nonessential amino acids score at 0/11",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
+          "dvPercent": null,
+          "value": 0,
+          "referenceOnly": true
+        }
+      ],
+      "subtitleText": "0.3g of protein. Essential amino acids score is 0/9, with 0% bioavailability, making the protein useful for repair and maintenance.",
       "timingHint": "short-medium",
       "score": null
     },
@@ -49,117 +95,256 @@
       "key": "vitamins",
       "title": "Vitamins",
       "narration": "No real vitamin story here.",
-      "displayItems": [],
+      "displayItems": [
+        {
+          "metricKey": "vitamin_c_dv",
+          "text": "vitamin C at 3% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 3,
+          "value": null
+        },
+        {
+          "metricKey": "vitamin_e_dv",
+          "text": "vitamin E at 0% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
+        },
+        {
+          "metricKey": "vitamin_k_dv",
+          "text": "vitamin K at 1% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 1,
+          "value": null
+        }
+      ],
       "subtitleText": "No real vitamin story here.",
       "timingHint": "short-medium",
-      "score": null
+      "score": 0
     },
     {
       "key": "minerals",
       "title": "Minerals",
       "narration": "No real mineral story here.",
-      "displayItems": [],
+      "displayItems": [
+        {
+          "metricKey": "magnesium_dv",
+          "text": "magnesium at 1% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 1,
+          "value": null
+        },
+        {
+          "metricKey": "zinc_dv",
+          "text": "zinc at 0% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
+        },
+        {
+          "metricKey": "potassium_dv",
+          "text": "potassium at 1% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 1,
+          "value": null
+        },
+        {
+          "metricKey": "iron_dv",
+          "text": "iron at 1% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 1,
+          "value": null
+        }
+      ],
       "subtitleText": "No real mineral story here.",
       "timingHint": "short-medium",
-      "score": null
+      "score": 0
     },
     {
       "key": "pros",
       "title": "Pros",
-      "narration": "On the plus side: context tells the real story. That is the whole point of misc. Can still earn points as a better swap. The category should reward harm reduction when it is real. Sometimes makes sense in a narrow use case. Context matters more here than raw nutrient purity.",
+      "narration": "The upsides first: context tells the real story. That is the whole point of misc. Can still earn points as a better swap. The category should reward harm reduction when it is real. Sometimes makes sense in a narrow use case. Context matters more here than raw nutrient purity.",
       "displayItems": [
         {
           "type": "pro",
           "title": "context tells the real story",
           "explanation": "That is the whole point of misc.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "can still earn points as a better swap",
           "explanation": "The category should reward harm reduction when it is real.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "sometimes makes sense in a narrow use case",
           "explanation": "Context matters more here than raw nutrient purity.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "On the plus side: context tells the real story. That is the whole point of misc. Can still earn points as a better swap. The category should reward harm reduction when it is real. Sometimes makes sense in a narrow use case. Context matters more here than raw nutrient purity.",
+      "subtitleText": "The upsides first: context tells the real story. That is the whole point of misc. Can still earn points as a better swap. The category should reward harm reduction when it is real. Sometimes makes sense in a narrow use case. Context matters more here than raw nutrient purity.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     },
     {
       "key": "cons",
       "title": "Cons",
-      "narration": "On the weaker side: basically a sugar spread. The fruit branding does not save it from the real composition. Better replacements often exist. That practical comparison matters. Not a whole-food nutrition star. Most misc items are weak on raw nutrient profile.",
+      "narration": "Downsides next: basically a sugar spread. The fruit branding does not save it from the real composition. Better replacements often exist. That practical comparison matters. Not a whole-food nutrition star. Most misc items are weak on raw nutrient profile.",
       "displayItems": [
         {
           "type": "con",
           "title": "basically a sugar spread",
           "explanation": "The fruit branding does not save it from the real composition.",
           "impactLevel": "major",
-          "scoreValue": -2
+          "resolvedScoreValue": 100
         },
         {
           "type": "con",
           "title": "better replacements often exist",
           "explanation": "That practical comparison matters.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "not a whole-food nutrition star",
           "explanation": "Most misc items are weak on raw nutrient profile.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "On the weaker side: basically a sugar spread. The fruit branding does not save it from the real composition. Better replacements often exist. That practical comparison matters. Not a whole-food nutrition star. Most misc items are weak on raw nutrient profile.",
+      "subtitleText": "Downsides next: basically a sugar spread. The fruit branding does not save it from the real composition. Better replacements often exist. That practical comparison matters. Not a whole-food nutrition star. Most misc items are weak on raw nutrient profile.",
       "timingHint": "medium",
-      "score": 88.9
+      "score": 33.3
     }
   ],
   "closing": {
-    "summary": "Jam does have a few real-world upsides. but the nutrition case is still weak and the downsides drag it down hard. best treated as an occasional context item, not a nutritional base.",
-    "finalReveal": "D tier.",
+    "summary": "Big strengths are context tells the real story and can still earn points as a better swap, but the biggest weaknesses are basically a sugar spread and better replacements often exist.",
+    "overview": "Big strengths are context tells the real story and can still earn points as a better swap, but the biggest weaknesses are basically a sugar spread and better replacements often exist.",
+    "finalReveal": "C tier.",
     "useCaseNote": "Best treated as an occasional context item, not a nutritional base.",
     "cta": "Would you rank it the same, or nah?"
   },
-  "tier": "D",
-  "overallScore": 0,
+  "tier": "C",
+  "overallScore": 33,
+  "overallScoreExact": 33.0435,
+  "baseOverallScore": 20.8,
+  "baseOverallScoreExact": 20.8333,
+  "sectionOrder": [
+    "fats",
+    "carbs",
+    "proteins",
+    "vitamins",
+    "minerals",
+    "pros",
+    "cons"
+  ],
+  "narrationBlocks": [
+    {
+      "kind": "hook_food",
+      "text": "Jam!"
+    },
+    {
+      "kind": "hook_ranked",
+      "text": "Ranked!"
+    },
+    {
+      "kind": "section",
+      "sectionKey": "fats",
+      "text": "Simple one."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "carbs",
+      "text": "69 grams of carbs. And that is basically the whole nutrition story."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "proteins",
+      "text": "0.3 grams of protein. Essential amino acids score is 0 out of 9, with 0% bioavailability, making the protein useful for repair and maintenance."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "vitamins",
+      "text": "No real vitamin story here."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "minerals",
+      "text": "No real mineral story here."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "pros",
+      "text": "The upsides first: context tells the real story. That is the whole point of misc. Can still earn points as a better swap. The category should reward harm reduction when it is real. Sometimes makes sense in a narrow use case. Context matters more here than raw nutrient purity."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "cons",
+      "text": "Downsides next: basically a sugar spread. The fruit branding does not save it from the real composition. Better replacements often exist. That practical comparison matters. Not a whole-food nutrition star. Most misc items are weak on raw nutrient profile."
+    },
+    {
+      "kind": "closing_summary",
+      "text": "Big strengths are context tells the real story and can still earn points as a better swap, but the biggest weaknesses are basically a sugar spread and better replacements often exist."
+    },
+    {
+      "kind": "final_reveal",
+      "text": "C tier."
+    }
+  ],
   "explanation": {
-    "summary": "This food is being judged mostly by contextual strengths and weaknesses rather than nutrient sections. It lands in D tier.",
-    "whyThisTier": "This food lands in D tier with an overall score of 0 from a base nutrition score of 0. Context dragged it down by 8 points.",
-    "strongestSection": null,
-    "weakestSection": null,
+    "summary": "Pros are carrying this food most, while minerals are holding it back most. It lands in C tier.",
+    "whyThisTier": "This food lands in C tier with an overall score of 33. Section scores: vitamins 0, minerals 0, pros 50, cons 33.3.",
+    "strongestSection": {
+      "key": "pros",
+      "label": "Pros",
+      "score": 50
+    },
+    "weakestSection": {
+      "key": "minerals",
+      "label": "Minerals",
+      "score": 0
+    },
     "topPros": [
       {
         "title": "context tells the real story",
         "explanation": "That is the whole point of misc.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "can still earn points as a better swap",
         "explanation": "The category should reward harm reduction when it is real.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "sometimes makes sense in a narrow use case",
         "explanation": "Context matters more here than raw nutrient purity.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -168,12 +353,27 @@
         "explanation": "The fruit branding does not save it from the real composition.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -8
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "better replacements often exist",
+        "explanation": "That practical comparison matters.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "not a whole-food nutrition star",
+        "explanation": "Most misc items are weak on raw nutrient profile.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
-      "Context weakened the final tier case by 8 points.",
-      "Final verdict: D tier."
+      "Strongest section: Pros.",
+      "Weakest section: Minerals.",
+      "Final verdict: C tier."
     ]
   }
 }

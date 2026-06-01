@@ -7,7 +7,11 @@
   },
   "ruleset": {
     "id": "tubers.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 86,
@@ -16,47 +20,32 @@
     "protein_g": 1.6
   },
   "sectionScores": {
-    "fats": 91.7,
-    "carbs": 70.4,
-    "proteins": 66.7,
-    "vitamins": 100,
-    "minerals": 10,
-    "pros": 33.3,
-    "cons": 0
+    "fats": 100,
+    "carbs": 60,
+    "proteins": 20,
+    "vitamins": 60,
+    "minerals": 5,
+    "pros": 66.7,
+    "cons": 50
   },
-  "baseScore": 66,
-  "contextAdjustment": {
-    "rawAdjustment": 3,
-    "appliedAdjustment": 3,
-    "appliedItems": [
-      {
-        "itemKey": "carotenoid_bonus",
-        "impactLevel": "major",
-        "scoreValue": 3,
-        "title": "carotenoid content gives it extra value",
-        "explanation": "That adds a useful plant-pigment angle beyond the basic carb role most tubers play.",
-        "evidenceType": "manual",
-        "side": "pro",
-        "resolvedScoreValue": 3
-      }
-    ],
-    "ignoredItems": []
-  },
-  "overallScore": 69,
+  "overallScore": 83.1,
+  "overallScoreExact": 83.0527,
+  "baseOverallScore": 51.7,
+  "baseOverallScoreExact": 51.6667,
   "tier": "S",
-  "summary": "Vitamins are carrying this food most, while minerals are the biggest drag. It lands in S tier.",
+  "summary": "Fats are carrying this food most, while minerals are holding it back most. It lands in S tier.",
   "explanation": {
-    "summary": "Vitamins are carrying this food most, while minerals are the biggest drag. It lands in S tier.",
-    "whyThisTier": "This food lands in S tier with an overall score of 69 from a base nutrition score of 66. Context lifted it by 3 points.",
+    "summary": "Fats are carrying this food most, while minerals are holding it back most. It lands in S tier.",
+    "whyThisTier": "This food lands in S tier with an overall score of 83.1. Section scores: fats 100, carbs 60, proteins 20, vitamins 60, minerals 5, pros 66.7, cons 50.",
     "strongestSection": {
-      "key": "vitamins",
-      "label": "Vitamins",
+      "key": "fats",
+      "label": "Fats",
       "score": 100
     },
     "weakestSection": {
       "key": "minerals",
       "label": "Minerals",
-      "score": 10
+      "score": 5
     },
     "topPros": [
       {
@@ -64,7 +53,21 @@
         "explanation": "That adds a useful plant-pigment angle beyond the basic carb role most tubers play.",
         "impactLevel": "major",
         "side": "pro",
-        "resolvedScoreValue": 3
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "fairly filling for the calories",
+        "explanation": "A practical strength for an energy food.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "easy to use as a wholefood staple",
+        "explanation": "Works cleanly in meals without needing much rescue from toppings or processing.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -73,27 +76,26 @@
         "explanation": "Still fine, but it is not the lowest-sugar energy food in the category.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "healthiness depends on preparation",
         "explanation": "Heavy added fats or sugary toppings can change the practical outcome.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "protein contribution is light",
         "explanation": "Like most tubers, it is not doing much in the protein lane.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
-      "Strongest section: Vitamins.",
+      "Strongest section: Fats.",
       "Weakest section: Minerals.",
-      "Context improved the final tier case by 3 points.",
       "Final verdict: S tier."
     ]
   },
@@ -102,52 +104,58 @@
       {
         "itemKey": "carotenoid_bonus",
         "impactLevel": "major",
-        "scoreValue": 3,
         "title": "carotenoid content gives it extra value",
         "explanation": "That adds a useful plant-pigment angle beyond the basic carb role most tubers play.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 100
       },
       {
         "itemKey": "high_satiety",
         "impactLevel": "minor",
-        "scoreValue": 0,
         "title": "fairly filling for the calories",
         "explanation": "A practical strength for an energy food.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "easy_wholefood_use",
         "impactLevel": "minor",
-        "scoreValue": 0,
         "title": "easy to use as a wholefood staple",
         "explanation": "Works cleanly in meals without needing much rescue from toppings or processing.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "cons": [
       {
         "itemKey": "sugar_not_zero",
         "impactLevel": "minor",
-        "scoreValue": 0,
         "title": "naturally sweeter than some tubers",
         "explanation": "Still fine, but it is not the lowest-sugar energy food in the category.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "prep_dependency",
         "impactLevel": "minor",
-        "scoreValue": 0,
         "title": "healthiness depends on preparation",
         "explanation": "Heavy added fats or sugary toppings can change the practical outcome.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "protein_light",
         "impactLevel": "minor",
-        "scoreValue": 0,
         "title": "protein contribution is light",
         "explanation": "Like most tubers, it is not doing much in the protein lane.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       }
     ]
   },
@@ -158,19 +166,29 @@
       "scoringMode": "arrow_bands",
       "value": 0,
       "band": "↓↓↓",
-      "score": 3,
+      "score": 100,
       "weight": 1,
-      "weightedScore": 3
+      "weightedScore": 100
     },
     {
       "metricKey": "omega3_mg",
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 5,
-      "band": "↑↑",
-      "score": 2,
-      "weight": 1,
-      "weightedScore": 2
+      "band": "2_green",
+      "score": 80,
+      "weight": 0,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "polyunsaturated_fat_g",
+      "sectionKey": "fats",
+      "scoringMode": "arrow_bands",
+      "value": 0,
+      "band": "3_red",
+      "score": 0,
+      "weight": 0,
+      "weightedScore": 0
     },
     {
       "metricKey": "starch_g",
@@ -178,19 +196,19 @@
       "scoringMode": "arrow_bands",
       "value": 12.7,
       "band": "↓",
-      "score": -1,
+      "score": 40,
       "weight": 1,
-      "weightedScore": -1
+      "weightedScore": 40
     },
     {
       "metricKey": "fibre_g",
       "sectionKey": "carbs",
       "scoringMode": "arrow_bands",
       "value": 3,
-      "band": "↑",
-      "score": 1,
+      "band": "↓",
+      "score": 40,
       "weight": 3,
-      "weightedScore": 3
+      "weightedScore": 120
     },
     {
       "metricKey": "sugar_g",
@@ -198,9 +216,9 @@
       "scoringMode": "arrow_bands",
       "value": 4.2,
       "band": "↓",
-      "score": 1,
+      "score": 60,
       "weight": 1,
-      "weightedScore": 1
+      "weightedScore": 60
     },
     {
       "metricKey": "glycemic_index",
@@ -208,39 +226,39 @@
       "scoringMode": "arrow_bands",
       "value": 44,
       "band": "↓↓",
-      "score": 2,
+      "score": 80,
       "weight": 4,
-      "weightedScore": 8
+      "weightedScore": 320
     },
     {
       "metricKey": "essential_amino_acids_score",
       "sectionKey": "proteins",
       "scoringMode": "arrow_bands",
       "value": 2,
-      "band": "↓",
-      "score": -1,
+      "band": "↓↓",
+      "score": 20,
       "weight": 1,
-      "weightedScore": -1
+      "weightedScore": 20
     },
     {
       "metricKey": "nonessential_amino_acids_score",
       "sectionKey": "proteins",
       "scoringMode": "arrow_bands",
       "value": 4,
-      "band": "↑",
-      "score": 1,
-      "weight": 1,
-      "weightedScore": 1
+      "band": "1_green",
+      "score": 60,
+      "weight": 0,
+      "weightedScore": 0
     },
     {
       "metricKey": "bioavailability_percent",
       "sectionKey": "proteins",
       "scoringMode": "arrow_bands",
       "value": 35,
-      "band": "↑↑↑",
-      "score": 3,
-      "weight": 1,
-      "weightedScore": 3
+      "band": "3_green",
+      "score": 100,
+      "weight": 0,
+      "weightedScore": 0
     },
     {
       "metricKey": "vitamin_a_dv",
@@ -248,8 +266,19 @@
       "scoringMode": "dv_points",
       "dvPercent": 160,
       "points": 10,
+      "score": 100,
       "weight": 3,
-      "weightedScore": 30
+      "weightedScore": 300
+    },
+    {
+      "metricKey": "vitamin_c_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 3,
+      "points": 0,
+      "score": 0,
+      "weight": 2,
+      "weightedScore": 0
     },
     {
       "metricKey": "potassium_dv",
@@ -257,8 +286,29 @@
       "scoringMode": "dv_points",
       "dvPercent": 10,
       "points": 1,
+      "score": 10,
       "weight": 2,
-      "weightedScore": 2
+      "weightedScore": 20
+    },
+    {
+      "metricKey": "magnesium_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 6,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "iron_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 3,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
     }
   ]
 }

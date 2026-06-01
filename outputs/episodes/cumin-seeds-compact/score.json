@@ -7,7 +7,11 @@
   },
   "ruleset": {
     "id": "seeds.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 375,
@@ -16,31 +20,27 @@
     "protein_g": 17.8
   },
   "sectionScores": {
-    "fats": 38.9,
+    "fats": 31.1,
     "carbs": 50,
-    "proteins": 83.3,
+    "proteins": 40,
     "vitamins": 20,
     "minerals": 78.9,
-    "pros": 0,
-    "cons": 0
+    "pros": 50,
+    "cons": 50
   },
-  "baseScore": 57,
-  "contextAdjustment": {
-    "rawAdjustment": 0,
-    "appliedAdjustment": 0,
-    "appliedItems": [],
-    "ignoredItems": []
-  },
-  "overallScore": 57,
-  "tier": "B",
-  "summary": "Proteins are carrying this food most, while vitamins are the biggest drag. It lands in B tier.",
+  "overallScore": 31.5,
+  "overallScoreExact": 31.468,
+  "baseOverallScore": 45.7,
+  "baseOverallScoreExact": 45.7143,
+  "tier": "C",
+  "summary": "Minerals are carrying this food most, while vitamins are holding it back most. It lands in C tier.",
   "explanation": {
-    "summary": "Proteins are carrying this food most, while vitamins are the biggest drag. It lands in B tier.",
-    "whyThisTier": "This food lands in B tier with an overall score of 57 from a base nutrition score of 57. Context barely changed the result.",
+    "summary": "Minerals are carrying this food most, while vitamins are holding it back most. It lands in C tier.",
+    "whyThisTier": "This food lands in C tier with an overall score of 31.5. Section scores: fats 31.1, carbs 50, proteins 40, vitamins 20, minerals 78.9, pros 50, cons 50.",
     "strongestSection": {
-      "key": "proteins",
-      "label": "Proteins",
-      "score": 83.3
+      "key": "minerals",
+      "label": "Minerals",
+      "score": 78.9
     },
     "weakestSection": {
       "key": "vitamins",
@@ -53,21 +53,21 @@
         "explanation": "That is one of the category strengths.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "often brings dense micronutrient support",
         "explanation": "That is part of what makes the category interesting.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "easy to sprinkle into meals",
         "explanation": "That practical versatility matters.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -76,27 +76,27 @@
         "explanation": "The numbers look huge, but people do not eat 100 grams of cumin seeds.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "texture or prep can be a barrier",
         "explanation": "Not everyone uses seeds consistently.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "paper scores can overstate realistic serving sizes",
         "explanation": "People often eat far less than 100 grams.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
-      "Strongest section: Proteins.",
+      "Strongest section: Minerals.",
       "Weakest section: Vitamins.",
-      "Final verdict: B tier."
+      "Final verdict: C tier."
     ]
   },
   "contextItems": {
@@ -104,52 +104,58 @@
       {
         "itemKey": "seed_fat_quality",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "usually brings decent fat support",
         "explanation": "That is one of the category strengths.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "seed_mineral_density_identity",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "often brings dense micronutrient support",
         "explanation": "That is part of what makes the category interesting.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "seed_easy_add_on",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "easy to sprinkle into meals",
         "explanation": "That practical versatility matters.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "cons": [
       {
         "itemKey": "tiny_real_world_servings",
         "impactLevel": "minor",
-        "scoreValue": -1,
         "title": "spice-like serving sizes limit real payoff",
         "explanation": "The numbers look huge, but people do not eat 100 grams of cumin seeds.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "seed_prep_or_texture",
         "impactLevel": "minor",
-        "scoreValue": -1,
         "title": "texture or prep can be a barrier",
         "explanation": "Not everyone uses seeds consistently.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "seed_serving_reality",
         "impactLevel": "minor",
-        "scoreValue": -1,
         "title": "paper scores can overstate realistic serving sizes",
         "explanation": "People often eat far less than 100 grams.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       }
     ]
   },
@@ -160,9 +166,9 @@
       "scoringMode": "arrow_bands",
       "value": 1.5,
       "band": "↓↓↓",
-      "score": 3,
+      "score": 100,
       "weight": 2,
-      "weightedScore": 6
+      "weightedScore": 200
     },
     {
       "metricKey": "omega3_mg",
@@ -170,9 +176,9 @@
       "scoringMode": "arrow_bands",
       "value": 120,
       "band": "↓↓",
-      "score": -2,
-      "weight": 2,
-      "weightedScore": -4
+      "score": 20,
+      "weight": 4,
+      "weightedScore": 80
     },
     {
       "metricKey": "polyunsaturated_fat_g",
@@ -180,9 +186,9 @@
       "scoringMode": "arrow_bands",
       "value": 3.3,
       "band": "↓↓↓",
-      "score": -3,
-      "weight": 2,
-      "weightedScore": -6
+      "score": 0,
+      "weight": 3,
+      "weightedScore": 0
     },
     {
       "metricKey": "starch_g",
@@ -190,9 +196,9 @@
       "scoringMode": "arrow_bands",
       "value": 11,
       "band": "↑↑",
-      "score": 2,
-      "weight": 1,
-      "weightedScore": 2
+      "score": 80,
+      "weight": 0,
+      "weightedScore": 0
     },
     {
       "metricKey": "fibre_g",
@@ -200,9 +206,9 @@
       "scoringMode": "arrow_bands",
       "value": 10.5,
       "band": "↓",
-      "score": -1,
+      "score": 40,
       "weight": 4,
-      "weightedScore": -4
+      "weightedScore": 160
     },
     {
       "metricKey": "sugar_g",
@@ -210,49 +216,19 @@
       "scoringMode": "arrow_bands",
       "value": 2.3,
       "band": "↓",
-      "score": 1,
+      "score": 60,
       "weight": 1,
-      "weightedScore": 1
+      "weightedScore": 60
     },
     {
       "metricKey": "glycemic_index",
       "sectionKey": "carbs",
       "scoringMode": "arrow_bands",
       "value": 20,
-      "band": "↓",
-      "score": 1,
+      "band": "↓↓",
+      "score": 80,
       "weight": 1,
-      "weightedScore": 1
-    },
-    {
-      "metricKey": "essential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 6,
-      "band": "↑↑",
-      "score": 2,
-      "weight": 2,
-      "weightedScore": 4
-    },
-    {
-      "metricKey": "nonessential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 7,
-      "band": "↑↑",
-      "score": 2,
-      "weight": 1,
-      "weightedScore": 2
-    },
-    {
-      "metricKey": "bioavailability_percent",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 72,
-      "band": "↑↑",
-      "score": 2,
-      "weight": 1,
-      "weightedScore": 2
+      "weightedScore": 80
     },
     {
       "metricKey": "vitamin_e_dv",
@@ -260,8 +236,9 @@
       "scoringMode": "dv_points",
       "dvPercent": 22,
       "points": 2,
+      "score": 20,
       "weight": 1,
-      "weightedScore": 2
+      "weightedScore": 20
     },
     {
       "metricKey": "magnesium_dv",
@@ -269,8 +246,9 @@
       "scoringMode": "dv_points",
       "dvPercent": 91,
       "points": 9,
+      "score": 90,
       "weight": 3,
-      "weightedScore": 27
+      "weightedScore": 270
     },
     {
       "metricKey": "zinc_dv",
@@ -278,8 +256,9 @@
       "scoringMode": "dv_points",
       "dvPercent": 32,
       "points": 3,
+      "score": 30,
       "weight": 2,
-      "weightedScore": 6
+      "weightedScore": 60
     },
     {
       "metricKey": "iron_dv",
@@ -287,8 +266,9 @@
       "scoringMode": "dv_points",
       "dvPercent": 366,
       "points": 10,
+      "score": 100,
       "weight": 2,
-      "weightedScore": 20
+      "weightedScore": 200
     },
     {
       "metricKey": "calcium_dv",
@@ -296,8 +276,20 @@
       "scoringMode": "dv_points",
       "dvPercent": 93,
       "points": 9,
+      "score": 90,
       "weight": 2,
-      "weightedScore": 18
+      "weightedScore": 180
+    },
+    {
+      "metricKey": "protein_g_fallback",
+      "sectionKey": "proteins",
+      "scoringMode": "protein_fallback",
+      "value": 17.8,
+      "band": "1_red",
+      "score": 40,
+      "weight": 2,
+      "weightedScore": 80,
+      "fallbackApplied": true
     }
   ]
 }

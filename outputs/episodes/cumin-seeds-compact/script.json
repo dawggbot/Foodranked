@@ -1,13 +1,29 @@
 {
   "status": "ok",
+  "schemaVersion": "foodranked-script.v2",
+  "narrationFormat": "elevenlabs-blocks-v1",
   "food": {
     "id": "cumin-seeds",
     "name": "Cumin Seeds",
-    "foodType": "seeds"
+    "foodType": "seeds",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "identity": null,
+    "scoreReadiness": null,
+    "sourceNotes": [
+      "Calibration benchmark sample for FoodRanked.",
+      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
+    ]
   },
   "ruleset": {
     "id": "seeds.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 375,
@@ -16,17 +32,16 @@
     "protein_g": 17.8
   },
   "hook": "Cumin Seeds ranked.",
-  "intro": "",
   "sections": [
     {
       "key": "fats",
       "title": "Fats",
-      "narration": "22.3 grams of fat. Saturated fat is 1.5 grams. Saturated fat is 1.5 grams. 22.3 grams of fat. Saturated fat, polyunsaturated fat, and omega3 are doing most of the work. For seeds, the fat profile is one of the biggest reasons they earn their place.",
+      "narration": "22.3 grams of fat. Saturated fat is 1.5 grams, supporting a better fat profile. Polyunsaturated fat is 3.3 grams, and for seeds, fat quality has to justify the calories.",
       "displayItems": [
         {
           "metricKey": "saturated_fat_g",
           "text": "saturated fat at 1.5g",
-          "weightedScore": 6,
+          "weightedScore": 200,
           "scoringMode": "arrow_bands",
           "band": "↓↓↓",
           "dvPercent": null,
@@ -35,7 +50,7 @@
         {
           "metricKey": "polyunsaturated_fat_g",
           "text": "polyunsaturated fat at 3.3g",
-          "weightedScore": -6,
+          "weightedScore": 0,
           "scoringMode": "arrow_bands",
           "band": "↓↓↓",
           "dvPercent": null,
@@ -44,26 +59,26 @@
         {
           "metricKey": "omega3_mg",
           "text": "omega 3 at 120mg",
-          "weightedScore": -4,
+          "weightedScore": 80,
           "scoringMode": "arrow_bands",
           "band": "↓↓",
           "dvPercent": null,
           "value": 120
         }
       ],
-      "subtitleText": "22.3g of fat. Saturated fat is 1.5g. Saturated fat is 1.5g. 22.3g of fat. Saturated fat, polyunsaturated fat, and omega3 are doing most of the work. For seeds, the fat profile is one of the biggest reasons they earn their place.",
+      "subtitleText": "22.3g of fat. Saturated fat is 1.5g, supporting a better fat profile. Polyunsaturated fat is 3.3g, and for seeds, fat quality has to justify the calories.",
       "timingHint": "short-medium",
-      "score": 38.9
+      "score": 31.1
     },
     {
       "key": "carbs",
       "title": "Carbs",
-      "narration": "44.2 grams of carbs. Starch is 11 grams, doing most of the heavy lifting here. For a seed, this is a very strong sign.",
+      "narration": "44.2 grams of carbs. Fibre is 10.5 grams, helping with digestion and steadier meals. Starch is 11 grams, a small miss for seeds.",
       "displayItems": [
         {
           "metricKey": "fibre_g",
           "text": "fibre at 10.5g",
-          "weightedScore": -4,
+          "weightedScore": 160,
           "scoringMode": "arrow_bands",
           "band": "↓",
           "dvPercent": null,
@@ -72,109 +87,121 @@
         {
           "metricKey": "starch_g",
           "text": "starch at 11g",
-          "weightedScore": 2,
+          "weightedScore": 0,
           "scoringMode": "arrow_bands",
           "band": "↑↑",
           "dvPercent": null,
           "value": 11
         },
         {
+          "metricKey": "glycemic_index",
+          "text": "glycemic index at 20 GI",
+          "weightedScore": 80,
+          "scoringMode": "arrow_bands",
+          "band": "↓↓",
+          "dvPercent": null,
+          "value": 20
+        },
+        {
           "metricKey": "sugar_g",
           "text": "sugar at 2.3g",
-          "weightedScore": 1,
+          "weightedScore": 60,
           "scoringMode": "arrow_bands",
           "band": "↓",
           "dvPercent": null,
           "value": 2.3
-        },
-        {
-          "metricKey": "glycemic_index",
-          "text": "glycemic index at 20 GI",
-          "weightedScore": 1,
-          "scoringMode": "arrow_bands",
-          "band": "↓",
-          "dvPercent": null,
-          "value": 20
         }
       ],
-      "subtitleText": "44.2g of carbs. Starch is 11g, doing most of the heavy lifting here. For a seed, this is a very strong sign.",
+      "subtitleText": "44.2g of carbs. Fibre is 10.5g, helping with digestion and steadier meals. Starch is 11g, a small miss for seeds.",
       "timingHint": "short-medium",
       "score": 50
     },
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "Essential amino acids score is 6 out of 9. 17.8 grams of protein. Bioavailability and amino acid quality are both strong. Protein is a bonus, but not enough by itself.",
+      "narration": "17.8 grams of protein. Essential amino acids score is 6 out of 9, with 72% bioavailability, making the protein useful for repair and maintenance.",
       "displayItems": [
         {
           "metricKey": "essential_amino_acids_score",
           "text": "essential amino acids score at 6/9",
-          "weightedScore": 4,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
           "dvPercent": null,
-          "value": 6
-        },
-        {
-          "metricKey": "nonessential_amino_acids_score",
-          "text": "nonessential amino acids score at 7/11",
-          "weightedScore": 2,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑",
-          "dvPercent": null,
-          "value": 7
+          "value": 6,
+          "referenceOnly": true
         },
         {
           "metricKey": "bioavailability_percent",
           "text": "bioavailability at 72%",
-          "weightedScore": 2,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
           "dvPercent": null,
-          "value": 72
+          "value": 72,
+          "referenceOnly": true
+        },
+        {
+          "metricKey": "nonessential_amino_acids_score",
+          "text": "nonessential amino acids score at 7/11",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
+          "dvPercent": null,
+          "value": 7,
+          "referenceOnly": true
         }
       ],
-      "subtitleText": "Essential amino acids score is 6/9. 17.8g of protein. Bioavailability and amino acid quality are both strong. Protein is a bonus, but not enough by itself.",
+      "subtitleText": "17.8g of protein. Essential amino acids score is 6/9, with 72% bioavailability, making the protein useful for repair and maintenance.",
       "timingHint": "short-medium",
-      "score": 83.3
+      "score": 40
     },
     {
       "key": "vitamins",
       "title": "Vitamins",
-      "narration": "Vitamin e at 22% daily value stands out most. That is only mild support overall.",
+      "narration": "Vitamin E is 22% daily value, adding useful vitamin support.",
       "displayItems": [
         {
           "metricKey": "vitamin_e_dv",
-          "text": "vitamin e at 22% DV",
-          "weightedScore": 2,
+          "text": "vitamin E at 22% DV",
+          "weightedScore": 20,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 22,
           "value": null
         }
       ],
-      "subtitleText": "Vitamin e at 22% daily value stands out most. That is only mild support overall.",
+      "subtitleText": "Vitamin E is 22% DV, adding useful vitamin support.",
       "timingHint": "short-medium",
       "score": 20
     },
     {
       "key": "minerals",
       "title": "Minerals",
-      "narration": "Magnesium at 91% daily value, iron at 366% daily value, calcium at 93% daily value stand out most. That is major mineral support.",
+      "narration": "Magnesium is 91% daily value, adding useful mineral support. Zinc is 32% daily value, a weak mark for seeds.",
       "displayItems": [
         {
           "metricKey": "magnesium_dv",
           "text": "magnesium at 91% DV",
-          "weightedScore": 27,
+          "weightedScore": 270,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 91,
           "value": null
         },
         {
+          "metricKey": "zinc_dv",
+          "text": "zinc at 32% DV",
+          "weightedScore": 60,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 32,
+          "value": null
+        },
+        {
           "metricKey": "iron_dv",
           "text": "iron at 366% DV",
-          "weightedScore": 20,
+          "weightedScore": 200,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 366,
@@ -183,56 +210,47 @@
         {
           "metricKey": "calcium_dv",
           "text": "calcium at 93% DV",
-          "weightedScore": 18,
+          "weightedScore": 180,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 93,
           "value": null
-        },
-        {
-          "metricKey": "zinc_dv",
-          "text": "zinc at 32% DV",
-          "weightedScore": 6,
-          "scoringMode": "dv_points",
-          "band": null,
-          "dvPercent": 32,
-          "value": null
         }
       ],
-      "subtitleText": "Magnesium at 91% daily value, iron at 366% daily value, calcium at 93% daily value stand out most. That is major mineral support.",
+      "subtitleText": "Magnesium is 91% DV, adding useful mineral support. Zinc is 32% DV, a weak mark for seeds.",
       "timingHint": "short-medium",
       "score": 78.9
     },
     {
       "key": "pros",
       "title": "Pros",
-      "narration": "The upsides first: usually brings decent fat support. That is one of the category strengths. Often brings dense micronutrient support. That is part of what makes the category interesting. Easy to sprinkle into meals. That practical versatility matters.",
+      "narration": "Positives first: usually brings decent fat support. That is one of the category strengths. Often brings dense micronutrient support. That is part of what makes the category interesting. Easy to sprinkle into meals. That practical versatility matters.",
       "displayItems": [
         {
           "type": "pro",
           "title": "usually brings decent fat support",
           "explanation": "That is one of the category strengths.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "often brings dense micronutrient support",
           "explanation": "That is part of what makes the category interesting.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "easy to sprinkle into meals",
           "explanation": "That practical versatility matters.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "The upsides first: usually brings decent fat support. That is one of the category strengths. Often brings dense micronutrient support. That is part of what makes the category interesting. Easy to sprinkle into meals. That practical versatility matters.",
+      "subtitleText": "Positives first: usually brings decent fat support. That is one of the category strengths. Often brings dense micronutrient support. That is part of what makes the category interesting. Easy to sprinkle into meals. That practical versatility matters.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     },
     {
       "key": "cons",
@@ -244,43 +262,109 @@
           "title": "spice-like serving sizes limit real payoff",
           "explanation": "The numbers look huge, but people do not eat 100 grams of cumin seeds.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "texture or prep can be a barrier",
           "explanation": "Not everyone uses seeds consistently.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "paper scores can overstate realistic serving sizes",
           "explanation": "People often eat far less than 100 grams.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         }
       ],
       "subtitleText": "The drawbacks next: spice-like serving sizes limit real payoff. The numbers look huge, but people do not eat 100g of cumin seeds. Texture or prep can be a barrier. Not everyone uses seeds consistently. Paper scores can overstate realistic serving sizes. People often eat far less than 100g.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     }
   ],
   "closing": {
-    "summary": "Cumin Seeds does have some solid upside. but the tradeoffs keep it from climbing higher. best as a support food that boosts meals instead of carrying them alone.",
-    "finalReveal": "B tier.",
-    "useCaseNote": "Best as a support food that boosts meals instead of carrying them alone.",
+    "summary": "Big strengths are protein and vitamin E, but the biggest weaknesses are spice-like serving sizes limit real payoff and texture or prep can be a barrier.",
+    "overview": "Big strengths are protein and vitamin E, but the biggest weaknesses are spice-like serving sizes limit real payoff and texture or prep can be a barrier.",
+    "finalReveal": "C tier.",
+    "useCaseNote": "Best only as a supporting add-on rather than something to lean on heavily.",
     "cta": "Would you rank it the same, or nah?"
   },
-  "tier": "B",
-  "overallScore": 57,
+  "tier": "C",
+  "overallScore": 31.5,
+  "overallScoreExact": 31.468,
+  "baseOverallScore": 45.7,
+  "baseOverallScoreExact": 45.7143,
+  "sectionOrder": [
+    "fats",
+    "carbs",
+    "proteins",
+    "vitamins",
+    "minerals",
+    "pros",
+    "cons"
+  ],
+  "narrationBlocks": [
+    {
+      "kind": "hook_food",
+      "text": "Cumin Seeds!"
+    },
+    {
+      "kind": "hook_ranked",
+      "text": "Ranked!"
+    },
+    {
+      "kind": "section",
+      "sectionKey": "fats",
+      "text": "22.3 grams of fat. Saturated fat is 1.5 grams, supporting a better fat profile. Polyunsaturated fat is 3.3 grams, and for seeds, fat quality has to justify the calories."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "carbs",
+      "text": "44.2 grams of carbs. Fibre is 10.5 grams, helping with digestion and steadier meals. Starch is 11 grams, a small miss for seeds."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "proteins",
+      "text": "17.8 grams of protein. Essential amino acids score is 6 out of 9, with 72% bioavailability, making the protein useful for repair and maintenance."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "vitamins",
+      "text": "Vitamin E is 22% daily value, adding useful vitamin support."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "minerals",
+      "text": "Magnesium is 91% daily value, adding useful mineral support. Zinc is 32% daily value, a weak mark for seeds."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "pros",
+      "text": "Positives first: usually brings decent fat support. That is one of the category strengths. Often brings dense micronutrient support. That is part of what makes the category interesting. Easy to sprinkle into meals. That practical versatility matters."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "cons",
+      "text": "The drawbacks next: spice-like serving sizes limit real payoff. The numbers look huge, but people do not eat 100 grams of cumin seeds. Texture or prep can be a barrier. Not everyone uses seeds consistently. Paper scores can overstate realistic serving sizes. People often eat far less than 100 grams."
+    },
+    {
+      "kind": "closing_summary",
+      "text": "Big strengths are protein and vitamin E, but the biggest weaknesses are spice-like serving sizes limit real payoff and texture or prep can be a barrier."
+    },
+    {
+      "kind": "final_reveal",
+      "text": "C tier."
+    }
+  ],
   "explanation": {
-    "summary": "Proteins are carrying this food most, while vitamins are the biggest drag. It lands in B tier.",
-    "whyThisTier": "This food lands in B tier with an overall score of 57 from a base nutrition score of 57. Context barely changed the result.",
+    "summary": "Minerals are carrying this food most, while vitamins are holding it back most. It lands in C tier.",
+    "whyThisTier": "This food lands in C tier with an overall score of 31.5. Section scores: fats 31.1, carbs 50, proteins 40, vitamins 20, minerals 78.9, pros 50, cons 50.",
     "strongestSection": {
-      "key": "proteins",
-      "label": "Proteins",
-      "score": 83.3
+      "key": "minerals",
+      "label": "Minerals",
+      "score": 78.9
     },
     "weakestSection": {
       "key": "vitamins",
@@ -293,21 +377,21 @@
         "explanation": "That is one of the category strengths.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "often brings dense micronutrient support",
         "explanation": "That is part of what makes the category interesting.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "easy to sprinkle into meals",
         "explanation": "That practical versatility matters.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -316,27 +400,27 @@
         "explanation": "The numbers look huge, but people do not eat 100 grams of cumin seeds.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "texture or prep can be a barrier",
         "explanation": "Not everyone uses seeds consistently.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "paper scores can overstate realistic serving sizes",
         "explanation": "People often eat far less than 100 grams.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
-      "Strongest section: Proteins.",
+      "Strongest section: Minerals.",
       "Weakest section: Vitamins.",
-      "Final verdict: B tier."
+      "Final verdict: C tier."
     ]
   }
 }

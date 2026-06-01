@@ -1,13 +1,29 @@
 {
   "status": "ok",
+  "schemaVersion": "foodranked-script.v2",
+  "narrationFormat": "elevenlabs-blocks-v1",
   "food": {
     "id": "baked-beans",
     "name": "Baked Beans",
-    "foodType": "legumes"
+    "foodType": "legumes",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "identity": null,
+    "scoreReadiness": null,
+    "sourceNotes": [
+      "Calibration benchmark sample for FoodRanked.",
+      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
+    ]
   },
   "ruleset": {
     "id": "legumes.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 155,
@@ -16,17 +32,16 @@
     "protein_g": 5.5
   },
   "hook": "Baked Beans ranked.",
-  "intro": "",
   "sections": [
     {
       "key": "fats",
       "title": "Fats",
-      "narration": "0.5 grams of fat. Saturated fat is 0.1 grams. Saturated fat is 0.1 grams. 0.5 grams of fat. Saturated fat, omega3, and polyunsaturated fat are doing most of the work. For a legume, this is exactly the kind of profile you want.",
+      "narration": "0.5 grams of fat. Saturated fat is 0.1 grams, supporting a better fat profile. Omega 3 is 20 milligrams, a weak mark for legumes.",
       "displayItems": [
         {
           "metricKey": "saturated_fat_g",
           "text": "saturated fat at 0.1g",
-          "weightedScore": 3,
+          "weightedScore": 100,
           "scoringMode": "arrow_bands",
           "band": "↓↓↓",
           "dvPercent": null,
@@ -35,53 +50,53 @@
         {
           "metricKey": "omega3_mg",
           "text": "omega 3 at 20mg",
-          "weightedScore": -2,
+          "weightedScore": 0,
           "scoringMode": "arrow_bands",
-          "band": "↓↓",
+          "band": "↓↓↓",
           "dvPercent": null,
           "value": 20
         },
         {
           "metricKey": "polyunsaturated_fat_g",
           "text": "polyunsaturated fat at 0.2g",
-          "weightedScore": -2,
+          "weightedScore": 0,
           "scoringMode": "arrow_bands",
-          "band": "↓↓",
+          "band": "↓↓↓",
           "dvPercent": null,
           "value": 0.2
         }
       ],
-      "subtitleText": "0.5g of fat. Saturated fat is 0.1g. Saturated fat is 0.1g. 0.5g of fat. Saturated fat, omega3, and polyunsaturated fat are doing most of the work. For a legume, this is exactly the kind of profile you want.",
+      "subtitleText": "0.5g of fat. Saturated fat is 0.1g, supporting a better fat profile. Omega 3 is 20mg, a weak mark for legumes.",
       "timingHint": "short-medium",
-      "score": 44.4
+      "score": 33.3
     },
     {
       "key": "carbs",
       "title": "Carbs",
-      "narration": "27 grams of carbs. Fibre is 5.5 grams. 27 grams of carbs. Fibre is 5.5 grams. Glycemic index is where this starts to get messy. For legumes, the carbs look much better when fibre and protein are both backing them up.",
+      "narration": "27 grams of carbs. Glycemic index is 48 GI, supporting better carb quality.",
       "displayItems": [
+        {
+          "metricKey": "glycemic_index",
+          "text": "glycemic index at 48 GI",
+          "weightedScore": 160,
+          "scoringMode": "arrow_bands",
+          "band": "↑",
+          "dvPercent": null,
+          "value": 48
+        },
         {
           "metricKey": "fibre_g",
           "text": "fibre at 5.5g",
-          "weightedScore": -8,
+          "weightedScore": 80,
           "scoringMode": "arrow_bands",
           "band": "↓↓",
           "dvPercent": null,
           "value": 5.5
         },
         {
-          "metricKey": "glycemic_index",
-          "text": "glycemic index at 48 GI",
-          "weightedScore": -8,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑",
-          "dvPercent": null,
-          "value": 48
-        },
-        {
           "metricKey": "sugar_g",
           "text": "sugar at 9.8g",
-          "weightedScore": -4,
+          "weightedScore": 40,
           "scoringMode": "arrow_bands",
           "band": "↑↑",
           "dvPercent": null,
@@ -90,67 +105,89 @@
         {
           "metricKey": "starch_g",
           "text": "starch at 12g",
-          "weightedScore": -2,
+          "weightedScore": 20,
           "scoringMode": "arrow_bands",
           "band": "↓↓",
           "dvPercent": null,
           "value": 12
         }
       ],
-      "subtitleText": "27g of carbs. Fibre is 5.5g. 27g of carbs. Fibre is 5.5g. Glycemic index is where this starts to get messy. For legumes, the carbs look much better when fibre and protein are both backing them up.",
+      "subtitleText": "27g of carbs. Glycemic index is 48 GI, supporting better carb quality.",
       "timingHint": "short-medium",
-      "score": 16.7
+      "score": 27.3
     },
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "5.5 grams of protein. Essential amino acids score is 3 out of 9, where things start to fall off. Protein support is a big part of what makes legumes worth it.",
+      "narration": "5.5 grams of protein. Essential amino acids score is 3 out of 9, with 45% bioavailability, making the protein useful for repair and maintenance.",
       "displayItems": [
         {
           "metricKey": "essential_amino_acids_score",
           "text": "essential amino acids score at 3/9",
-          "weightedScore": -6,
-          "scoringMode": "arrow_bands",
-          "band": "↓↓",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
           "dvPercent": null,
-          "value": 3
+          "value": 3,
+          "referenceOnly": true
         },
         {
           "metricKey": "bioavailability_percent",
           "text": "bioavailability at 45%",
-          "weightedScore": -4,
-          "scoringMode": "arrow_bands",
-          "band": "↓↓",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
           "dvPercent": null,
-          "value": 45
+          "value": 45,
+          "referenceOnly": true
         },
         {
           "metricKey": "nonessential_amino_acids_score",
           "text": "nonessential amino acids score at 5/11",
-          "weightedScore": -1,
-          "scoringMode": "arrow_bands",
-          "band": "↓",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
           "dvPercent": null,
-          "value": 5
+          "value": 5,
+          "referenceOnly": true
         }
       ],
-      "subtitleText": "5.5g of protein. Essential amino acids score is 3/9, where things start to fall off. Protein support is a big part of what makes legumes worth it.",
+      "subtitleText": "5.5g of protein. Essential amino acids score is 3/9, with 45% bioavailability, making the protein useful for repair and maintenance.",
       "timingHint": "short-medium",
-      "score": 19.4
+      "score": 20
     },
     {
       "key": "vitamins",
       "title": "Vitamins",
-      "narration": "The rest is not doing much.",
-      "displayItems": [],
-      "subtitleText": "The rest is not doing much.",
+      "narration": "Vitamin C is 3% daily value, useful for collagen formation and antioxidant support. Vitamin E is only 1% daily value, a weak mark for legumes.",
+      "displayItems": [
+        {
+          "metricKey": "vitamin_c_dv",
+          "text": "vitamin C at 3% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 3,
+          "value": null
+        },
+        {
+          "metricKey": "vitamin_e_dv",
+          "text": "vitamin E at 1% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 1,
+          "value": null
+        }
+      ],
+      "subtitleText": "Vitamin C is 3% DV, useful for collagen formation and antioxidant support. Vitamin E is only 1% DV, a weak mark for legumes.",
       "timingHint": "short-medium",
-      "score": null
+      "score": 0
     },
     {
       "key": "minerals",
       "title": "Minerals",
-      "narration": "Minerals are basically not part of the case here.",
+      "narration": "Iron is 9% daily value, useful for oxygen transport. Zinc is 6% daily value, a weak mark for legumes.",
       "displayItems": [
         {
           "metricKey": "iron_dv",
@@ -162,6 +199,15 @@
           "value": null
         },
         {
+          "metricKey": "zinc_dv",
+          "text": "zinc at 6% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 6,
+          "value": null
+        },
+        {
           "metricKey": "magnesium_dv",
           "text": "magnesium at 8% DV",
           "weightedScore": 0,
@@ -169,42 +215,51 @@
           "band": null,
           "dvPercent": 8,
           "value": null
+        },
+        {
+          "metricKey": "potassium_dv",
+          "text": "potassium at 8% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 8,
+          "value": null
         }
       ],
-      "subtitleText": "Minerals are basically not part of the case here.",
+      "subtitleText": "Iron is 9% DV, useful for oxygen transport. Zinc is 6% DV, a weak mark for legumes.",
       "timingHint": "short-medium",
       "score": 0
     },
     {
       "key": "pros",
       "title": "Pros",
-      "narration": "On the plus side: cheap and convenient. Very easy to use as a quick meal component. Still keeps some fibre. Not completely nutritionally empty despite the weaker category fit. Has practical comfort-food appeal. People actually eat it, which matters in the real world.",
+      "narration": "The upsides first: cheap and convenient. Very easy to use as a quick meal component. Still keeps some fibre. Not completely nutritionally empty despite the weaker category fit. Has practical comfort-food appeal. People actually eat it, which matters in the real world.",
       "displayItems": [
         {
           "type": "pro",
           "title": "cheap and convenient",
           "explanation": "Very easy to use as a quick meal component.",
           "impactLevel": "minor",
-          "scoreValue": 0
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "still keeps some fibre",
           "explanation": "Not completely nutritionally empty despite the weaker category fit.",
           "impactLevel": "minor",
-          "scoreValue": 0
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "has practical comfort-food appeal",
           "explanation": "People actually eat it, which matters in the real world.",
           "impactLevel": "minor",
-          "scoreValue": 0
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "On the plus side: cheap and convenient. Very easy to use as a quick meal component. Still keeps some fibre. Not completely nutritionally empty despite the weaker category fit. Has practical comfort-food appeal. People actually eat it, which matters in the real world.",
+      "subtitleText": "The upsides first: cheap and convenient. Very easy to use as a quick meal component. Still keeps some fibre. Not completely nutritionally empty despite the weaker category fit. Has practical comfort-food appeal. People actually eat it, which matters in the real world.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     },
     {
       "key": "cons",
@@ -216,66 +271,136 @@
           "title": "added sugar is a major category problem",
           "explanation": "Legumes are supposed to win on slow-carb behaviour, and this pushes the opposite way.",
           "impactLevel": "major",
-          "scoreValue": -3
+          "resolvedScoreValue": 100
         },
         {
           "type": "con",
           "title": "processing drags the category fit down",
           "explanation": "The canned sweet-sauce format makes it a worse version of what legumes are supposed to be.",
           "impactLevel": "major",
-          "scoreValue": -3
+          "resolvedScoreValue": 100
         },
         {
           "type": "con",
           "title": "weak protein usefulness for a legume",
           "explanation": "It does not deliver the strong fibre-plus-protein combo that defines elite legumes.",
           "impactLevel": "major",
-          "scoreValue": -3
+          "resolvedScoreValue": 100
         }
       ],
       "subtitleText": "The drawbacks next: added sugar is a major category problem. Legumes are supposed to win on slow-carb behaviour, and this pushes the opposite way. Processing drags the category fit down. The canned sweet-sauce format makes it a worse version of what legumes are supposed to be. Weak protein usefulness for a legume. It does not deliver the strong fibre-plus-protein combo that defines elite legumes.",
       "timingHint": "medium",
-      "score": 100
+      "score": 0
     }
   ],
   "closing": {
-    "summary": "Baked Beans does have a few real-world upsides. but the nutrition case is still weak and the downsides drag it down hard. best only when convenience outweighs the weaker fibre or protein payoff.",
+    "summary": "Big strengths are protein and cheap and convenient, but the biggest weaknesses are added sugar is a major category problem and processing drags the category fit down.",
+    "overview": "Big strengths are protein and cheap and convenient, but the biggest weaknesses are added sugar is a major category problem and processing drags the category fit down.",
     "finalReveal": "D tier.",
     "useCaseNote": "Best only when convenience outweighs the weaker fibre or protein payoff.",
     "cta": "Would you rank it the same, or nah?"
   },
   "tier": "D",
-  "overallScore": 5,
-  "explanation": {
-    "summary": "Fats are carrying this food most, while minerals are the biggest drag. It lands in D tier.",
-    "whyThisTier": "This food lands in D tier with an overall score of 5 from a base nutrition score of 14. Context dragged it down by 9 points.",
-    "strongestSection": {
-      "key": "fats",
-      "label": "Fats",
-      "score": 44.4
+  "overallScore": 11.3,
+  "overallScoreExact": 11.3309,
+  "baseOverallScore": 18.7,
+  "baseOverallScoreExact": 18.658,
+  "sectionOrder": [
+    "fats",
+    "carbs",
+    "proteins",
+    "vitamins",
+    "minerals",
+    "pros",
+    "cons"
+  ],
+  "narrationBlocks": [
+    {
+      "kind": "hook_food",
+      "text": "Baked Beans!"
     },
-    "weakestSection": null,
+    {
+      "kind": "hook_ranked",
+      "text": "Ranked!"
+    },
+    {
+      "kind": "section",
+      "sectionKey": "fats",
+      "text": "0.5 grams of fat. Saturated fat is 0.1 grams, supporting a better fat profile. Omega 3 is 20 milligrams, a weak mark for legumes."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "carbs",
+      "text": "27 grams of carbs. Glycemic index is 48 GI, supporting better carb quality."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "proteins",
+      "text": "5.5 grams of protein. Essential amino acids score is 3 out of 9, with 45% bioavailability, making the protein useful for repair and maintenance."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "vitamins",
+      "text": "Vitamin C is 3% daily value, useful for collagen formation and antioxidant support. Vitamin E is only 1% daily value, a weak mark for legumes."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "minerals",
+      "text": "Iron is 9% daily value, useful for oxygen transport. Zinc is 6% daily value, a weak mark for legumes."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "pros",
+      "text": "The upsides first: cheap and convenient. Very easy to use as a quick meal component. Still keeps some fibre. Not completely nutritionally empty despite the weaker category fit. Has practical comfort-food appeal. People actually eat it, which matters in the real world."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "cons",
+      "text": "The drawbacks next: added sugar is a major category problem. Legumes are supposed to win on slow-carb behaviour, and this pushes the opposite way. Processing drags the category fit down. The canned sweet-sauce format makes it a worse version of what legumes are supposed to be. Weak protein usefulness for a legume. It does not deliver the strong fibre-plus-protein combo that defines elite legumes."
+    },
+    {
+      "kind": "closing_summary",
+      "text": "Big strengths are protein and cheap and convenient, but the biggest weaknesses are added sugar is a major category problem and processing drags the category fit down."
+    },
+    {
+      "kind": "final_reveal",
+      "text": "D tier."
+    }
+  ],
+  "explanation": {
+    "summary": "Pros are carrying this food most, while cons are holding it back most. It lands in D tier.",
+    "whyThisTier": "This food lands in D tier with an overall score of 11.3. Section scores: fats 33.3, carbs 27.3, proteins 20, vitamins 0, minerals 0, pros 50, cons 0.",
+    "strongestSection": {
+      "key": "pros",
+      "label": "Pros",
+      "score": 50
+    },
+    "weakestSection": {
+      "key": "cons",
+      "label": "Cons",
+      "score": 0
+    },
     "topPros": [
       {
         "title": "cheap and convenient",
         "explanation": "Very easy to use as a quick meal component.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "still keeps some fibre",
         "explanation": "Not completely nutritionally empty despite the weaker category fit.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "has practical comfort-food appeal",
         "explanation": "People actually eat it, which matters in the real world.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -284,26 +409,26 @@
         "explanation": "Legumes are supposed to win on slow-carb behaviour, and this pushes the opposite way.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -3
+        "resolvedScoreValue": 100
       },
       {
         "title": "processing drags the category fit down",
         "explanation": "The canned sweet-sauce format makes it a worse version of what legumes are supposed to be.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -3
+        "resolvedScoreValue": 100
       },
       {
         "title": "weak protein usefulness for a legume",
         "explanation": "It does not deliver the strong fibre-plus-protein combo that defines elite legumes.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -3
+        "resolvedScoreValue": 100
       }
     ],
     "narrationNotes": [
-      "Strongest section: Fats.",
-      "Context weakened the final tier case by 9 points.",
+      "Strongest section: Pros.",
+      "Weakest section: Cons.",
       "Final verdict: D tier."
     ]
   }

@@ -942,6 +942,8 @@ function main() {
     tier: result.tier,
     overallScore: result.overallScore,
     overallScoreExact: result.overallScoreExact,
+    baseOverallScore: result.baseOverallScore ?? null,
+    baseOverallScoreExact: result.baseOverallScoreExact ?? null,
     sectionOrder: sections.map(section => section.key),
     narrationBlocks: [],
     explanation: result.explanation

@@ -461,28 +461,28 @@
   "tierThresholds": [
     {
       "tier": "S",
-      "min": 49.8098,
+      "min": 80,
       "max": 100
     },
     {
       "tier": "A",
-      "min": 42.7319,
-      "max": 49.8097
+      "min": 60,
+      "max": 79.9999
     },
     {
       "tier": "B",
-      "min": 39.9475,
-      "max": 42.7318
+      "min": 40,
+      "max": 59.9999
     },
     {
       "tier": "C",
-      "min": 29.7171,
-      "max": 39.9474
+      "min": 20,
+      "max": 39.9999
     },
     {
       "tier": "D",
       "min": 0,
-      "max": 29.717
+      "max": 19.9999
     }
   ],
   "proteinFallback": {
@@ -524,5 +524,38 @@
         "score": 100
       }
     ]
+  },
+  "scoreCalibration": {
+    "version": 1,
+    "method": "piecewise_linear_raw_to_shared_tier_score",
+    "input": "baseOverallScore",
+    "output": "overallScore",
+    "anchors": [
+      {
+        "raw": 0,
+        "calibrated": 0
+      },
+      {
+        "raw": 29.7171,
+        "calibrated": 20
+      },
+      {
+        "raw": 39.9475,
+        "calibrated": 40
+      },
+      {
+        "raw": 42.7319,
+        "calibrated": 60
+      },
+      {
+        "raw": 49.8098,
+        "calibrated": 80
+      },
+      {
+        "raw": 100,
+        "calibrated": 100
+      }
+    ],
+    "notes": "Maps category-calibrated benchmark boundaries onto shared D/C/B/A/S 20-point score bands."
   }
 }

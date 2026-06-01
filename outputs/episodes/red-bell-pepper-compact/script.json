@@ -1,13 +1,29 @@
 {
   "status": "ok",
+  "schemaVersion": "foodranked-script.v2",
+  "narrationFormat": "elevenlabs-blocks-v1",
   "food": {
     "id": "red-bell-pepper",
     "name": "Red Bell Pepper",
-    "foodType": "vegetables"
+    "foodType": "vegetables",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "identity": null,
+    "scoreReadiness": null,
+    "sourceNotes": [
+      "Calibration benchmark sample for FoodRanked.",
+      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
+    ]
   },
   "ruleset": {
     "id": "vegetables.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 31,
@@ -16,63 +32,71 @@
     "protein_g": 1
   },
   "hook": "Red Bell Pepper ranked.",
-  "intro": "",
   "sections": [
     {
       "key": "fats",
       "title": "Fats",
-      "narration": "0.3 grams of fat. Omega 3 is 10 milligrams, doing a lot of the work here. For a vegetable, nutrient payoff is the whole point.",
+      "narration": "0.3 grams of fat. Omega 3 is 10 milligrams, supporting a more useful fat profile. Polyunsaturated fat is 0.1 grams, a weak mark for vegetables.",
       "displayItems": [
-        {
-          "metricKey": "saturated_fat_g",
-          "text": "saturated fat at 0g",
-          "weightedScore": 3,
-          "scoringMode": "arrow_bands",
-          "band": "↓↓↓",
-          "dvPercent": null,
-          "value": 0
-        },
         {
           "metricKey": "omega3_mg",
           "text": "omega 3 at 10mg",
-          "weightedScore": 3,
+          "weightedScore": 0,
           "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
+          "band": "3_green",
           "dvPercent": null,
           "value": 10
         },
         {
           "metricKey": "polyunsaturated_fat_g",
           "text": "polyunsaturated fat at 0.1g",
-          "weightedScore": -3,
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
+          "band": "3_red",
+          "dvPercent": null,
+          "value": 0.1
+        },
+        {
+          "metricKey": "saturated_fat_g",
+          "text": "saturated fat at 0g",
+          "weightedScore": 100,
           "scoringMode": "arrow_bands",
           "band": "↓↓↓",
           "dvPercent": null,
-          "value": 0.1
+          "value": 0
         }
       ],
-      "subtitleText": "0.3g of fat. Omega 3 is 10mg, doing a lot of the work here. For a vegetable, nutrient payoff is the whole point.",
+      "subtitleText": "0.3g of fat. Omega 3 is 10mg, supporting a more useful fat profile. Polyunsaturated fat is 0.1g, a weak mark for vegetables.",
       "timingHint": "short-medium",
-      "score": 66.7
+      "score": 100
     },
     {
       "key": "carbs",
       "title": "Carbs",
-      "narration": "6 grams of carbs. Glycemic index is 15 GI. Sugar is 4.2 grams. The sugar load matters more than you would want. For vegetables, low downside is useful, but there still needs to be real payoff.",
+      "narration": "6 grams of carbs. Glycemic index is 15 GI, supporting better carb quality. Starch is 0 grams, a small miss for vegetables.",
       "displayItems": [
         {
           "metricKey": "glycemic_index",
           "text": "glycemic index at 15 GI",
-          "weightedScore": 9,
+          "weightedScore": 300,
           "scoringMode": "arrow_bands",
           "band": "↓↓↓",
           "dvPercent": null,
           "value": 15
         },
         {
+          "metricKey": "starch_g",
+          "text": "starch at 0g",
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
+          "band": "3_red",
+          "dvPercent": null,
+          "value": 0
+        },
+        {
           "metricKey": "fibre_g",
           "text": "fibre at 2.1g",
-          "weightedScore": -3,
+          "weightedScore": 120,
           "scoringMode": "arrow_bands",
           "band": "↓",
           "dvPercent": null,
@@ -81,86 +105,98 @@
         {
           "metricKey": "sugar_g",
           "text": "sugar at 4.2g",
-          "weightedScore": -3,
+          "weightedScore": 120,
           "scoringMode": "arrow_bands",
           "band": "↑",
           "dvPercent": null,
           "value": 4.2
         }
       ],
-      "subtitleText": "6g of carbs. Glycemic index is 15 GI. Sugar is 4.2g. The sugar load matters more than you would want. For vegetables, low downside is useful, but there still needs to be real payoff.",
+      "subtitleText": "6g of carbs. Glycemic index is 15 GI, supporting better carb quality. Starch is 0g, a small miss for vegetables.",
       "timingHint": "short-medium",
-      "score": 55.6
+      "score": 60
     },
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "1 gram of protein. Bioavailability is 35%, one of the best parts of the protein story. Protein is not the main pitch here, but extra support still matters.",
+      "narration": "1 gram of protein. Essential amino acids score is 2 out of 9, with 35% bioavailability, making the protein useful for repair and maintenance.",
       "displayItems": [
-        {
-          "metricKey": "bioavailability_percent",
-          "text": "bioavailability at 35%",
-          "weightedScore": 3,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
-          "dvPercent": null,
-          "value": 35
-        },
         {
           "metricKey": "essential_amino_acids_score",
           "text": "essential amino acids score at 2/9",
-          "weightedScore": -2,
+          "weightedScore": 0,
           "scoringMode": "arrow_bands",
-          "band": "↓↓",
+          "band": "2_red",
           "dvPercent": null,
-          "value": 2
+          "value": 2,
+          "referenceOnly": false
+        },
+        {
+          "metricKey": "bioavailability_percent",
+          "text": "bioavailability at 35%",
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
+          "band": "3_green",
+          "dvPercent": null,
+          "value": 35,
+          "referenceOnly": false
         },
         {
           "metricKey": "nonessential_amino_acids_score",
           "text": "nonessential amino acids score at 2/11",
-          "weightedScore": -2,
+          "weightedScore": 0,
           "scoringMode": "arrow_bands",
-          "band": "↓↓",
+          "band": "2_red",
           "dvPercent": null,
-          "value": 2
+          "value": 2,
+          "referenceOnly": false
         }
       ],
-      "subtitleText": "1g of protein. Bioavailability is 35%, one of the best parts of the protein story. Protein is not the main pitch here, but extra support still matters.",
+      "subtitleText": "1g of protein. Essential amino acids score is 2/9, with 35% bioavailability, making the protein useful for repair and maintenance.",
       "timingHint": "short-medium",
-      "score": 44.4
+      "score": null
     },
     {
       "key": "vitamins",
       "title": "Vitamins",
-      "narration": "Vitamin c at 140% daily value, vitamin a at 35% daily value stand out most. That is major vitamin support.",
+      "narration": "Vitamin C is 140% daily value, useful for collagen formation and antioxidant support. Vitamin K is 6% daily value, a weak mark for vegetables.",
       "displayItems": [
         {
           "metricKey": "vitamin_c_dv",
-          "text": "vitamin c at 140% DV",
-          "weightedScore": 20,
+          "text": "vitamin C at 140% DV",
+          "weightedScore": 200,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 140,
           "value": null
         },
         {
+          "metricKey": "vitamin_k_dv",
+          "text": "vitamin K at 6% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 6,
+          "value": null
+        },
+        {
           "metricKey": "vitamin_a_dv",
-          "text": "vitamin a at 35% DV",
-          "weightedScore": 6,
+          "text": "vitamin A at 35% DV",
+          "weightedScore": 60,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 35,
           "value": null
         }
       ],
-      "subtitleText": "Vitamin c at 140% daily value, vitamin a at 35% daily value stand out most. That is major vitamin support.",
+      "subtitleText": "Vitamin C is 140% DV, useful for collagen formation and antioxidant support. Vitamin K is 6% DV, a weak mark for vegetables.",
       "timingHint": "short-medium",
-      "score": 65
+      "score": 37.1
     },
     {
       "key": "minerals",
       "title": "Minerals",
-      "narration": "Minerals are basically not part of the case here.",
+      "narration": "Potassium is 4% daily value, useful for fluid balance. Calcium is only 1% daily value, a weak mark for vegetables.",
       "displayItems": [
         {
           "metricKey": "potassium_dv",
@@ -170,42 +206,69 @@
           "band": null,
           "dvPercent": 4,
           "value": null
+        },
+        {
+          "metricKey": "calcium_dv",
+          "text": "calcium at 1% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 1,
+          "value": null
+        },
+        {
+          "metricKey": "magnesium_dv",
+          "text": "magnesium at 3% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 3,
+          "value": null
+        },
+        {
+          "metricKey": "iron_dv",
+          "text": "iron at 2% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 2,
+          "value": null
         }
       ],
-      "subtitleText": "Minerals are basically not part of the case here.",
+      "subtitleText": "Potassium is 4% DV, useful for fluid balance. Calcium is only 1% DV, a weak mark for vegetables.",
       "timingHint": "short-medium",
       "score": 0
     },
     {
       "key": "pros",
       "title": "Pros",
-      "narration": "On the plus side: easy to build meals around. A practical plus because good foods need realistic use cases. Helps add volume without much calorie cost. That makes vegetables easier to use often. Very low downside whole food. Vegetables win a lot simply by offering clean nutritional payoff.",
+      "narration": "The upsides first: easy to build meals around. A practical plus because good foods need realistic use cases. Helps add volume without much calorie cost. That makes vegetables easier to use often. Very low downside whole food. Vegetables win a lot simply by offering clean nutritional payoff.",
       "displayItems": [
         {
           "type": "pro",
           "title": "easy to build meals around",
           "explanation": "A practical plus because good foods need realistic use cases.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "helps add volume without much calorie cost",
           "explanation": "That makes vegetables easier to use often.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "very low downside whole food",
           "explanation": "Vegetables win a lot simply by offering clean nutritional payoff.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "On the plus side: easy to build meals around. A practical plus because good foods need realistic use cases. Helps add volume without much calorie cost. That makes vegetables easier to use often. Very low downside whole food. Vegetables win a lot simply by offering clean nutritional payoff.",
+      "subtitleText": "The upsides first: easy to build meals around. A practical plus because good foods need realistic use cases. Helps add volume without much calorie cost. That makes vegetables easier to use often. Very low downside whole food. Vegetables win a lot simply by offering clean nutritional payoff.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     },
     {
       "key": "cons",
@@ -217,66 +280,136 @@
           "title": "freshness and prep can matter",
           "explanation": "Practical friction is still a real downside.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "rarely carries a meal by itself",
           "explanation": "That is normal here, but still part of the tradeoff.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "usually needs pairing to make a full meal",
           "explanation": "Most vegetables are not complete by themselves.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         }
       ],
       "subtitleText": "The drawbacks next: freshness and prep can matter. Practical friction is still a real downside. Rarely carries a meal by itself. That is normal here, but still part of the tradeoff. Usually needs pairing to make a full meal. Most vegetables are not complete by themselves.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     }
   ],
   "closing": {
-    "summary": "Red Bell Pepper has a genuinely strong overall case. the practical downsides are real, but they do not outweigh the upside. best when you want low downside and easy micronutrient support.",
+    "summary": "Big strengths are omega 3 and carb quality, but the biggest weaknesses are freshness and prep can matter and rarely carries a meal by itself.",
+    "overview": "Big strengths are omega 3 and carb quality, but the biggest weaknesses are freshness and prep can matter and rarely carries a meal by itself.",
     "finalReveal": "A tier.",
     "useCaseNote": "Best when you want low downside and easy micronutrient support.",
     "cta": "Would you rank it the same, or nah?"
   },
   "tier": "A",
-  "overallScore": 42,
+  "overallScore": 60.6,
+  "overallScoreExact": 60.6431,
+  "baseOverallScore": 49.5,
+  "baseOverallScoreExact": 49.5238,
+  "sectionOrder": [
+    "fats",
+    "carbs",
+    "proteins",
+    "vitamins",
+    "minerals",
+    "pros",
+    "cons"
+  ],
+  "narrationBlocks": [
+    {
+      "kind": "hook_food",
+      "text": "Red Bell Pepper!"
+    },
+    {
+      "kind": "hook_ranked",
+      "text": "Ranked!"
+    },
+    {
+      "kind": "section",
+      "sectionKey": "fats",
+      "text": "0.3 grams of fat. Omega 3 is 10 milligrams, supporting a more useful fat profile. Polyunsaturated fat is 0.1 grams, a weak mark for vegetables."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "carbs",
+      "text": "6 grams of carbs. Glycemic index is 15 GI, supporting better carb quality. Starch is 0 grams, a small miss for vegetables."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "proteins",
+      "text": "1 gram of protein. Essential amino acids score is 2 out of 9, with 35% bioavailability, making the protein useful for repair and maintenance."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "vitamins",
+      "text": "Vitamin C is 140% daily value, useful for collagen formation and antioxidant support. Vitamin K is 6% daily value, a weak mark for vegetables."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "minerals",
+      "text": "Potassium is 4% daily value, useful for fluid balance. Calcium is only 1% daily value, a weak mark for vegetables."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "pros",
+      "text": "The upsides first: easy to build meals around. A practical plus because good foods need realistic use cases. Helps add volume without much calorie cost. That makes vegetables easier to use often. Very low downside whole food. Vegetables win a lot simply by offering clean nutritional payoff."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "cons",
+      "text": "The drawbacks next: freshness and prep can matter. Practical friction is still a real downside. Rarely carries a meal by itself. That is normal here, but still part of the tradeoff. Usually needs pairing to make a full meal. Most vegetables are not complete by themselves."
+    },
+    {
+      "kind": "closing_summary",
+      "text": "Big strengths are omega 3 and carb quality, but the biggest weaknesses are freshness and prep can matter and rarely carries a meal by itself."
+    },
+    {
+      "kind": "final_reveal",
+      "text": "A tier."
+    }
+  ],
   "explanation": {
-    "summary": "Fats are carrying this food most, while minerals are the biggest drag. It lands in A tier.",
-    "whyThisTier": "This food lands in A tier with an overall score of 42 from a base nutrition score of 42. Context barely changed the result.",
+    "summary": "Fats are carrying this food most, while minerals are holding it back most. It lands in A tier.",
+    "whyThisTier": "This food lands in A tier with an overall score of 60.6. Section scores: fats 100, carbs 60, vitamins 37.1, minerals 0, pros 50, cons 50.",
     "strongestSection": {
       "key": "fats",
       "label": "Fats",
-      "score": 66.7
+      "score": 100
     },
-    "weakestSection": null,
+    "weakestSection": {
+      "key": "minerals",
+      "label": "Minerals",
+      "score": 0
+    },
     "topPros": [
       {
         "title": "easy to build meals around",
         "explanation": "A practical plus because good foods need realistic use cases.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "helps add volume without much calorie cost",
         "explanation": "That makes vegetables easier to use often.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "very low downside whole food",
         "explanation": "Vegetables win a lot simply by offering clean nutritional payoff.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -285,25 +418,26 @@
         "explanation": "Practical friction is still a real downside.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "rarely carries a meal by itself",
         "explanation": "That is normal here, but still part of the tradeoff.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "usually needs pairing to make a full meal",
         "explanation": "Most vegetables are not complete by themselves.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
       "Strongest section: Fats.",
+      "Weakest section: Minerals.",
       "Final verdict: A tier."
     ]
   }

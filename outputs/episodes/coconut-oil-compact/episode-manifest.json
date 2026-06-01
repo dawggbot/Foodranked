@@ -1,6 +1,6 @@
 {
   "id": "coconut-oil-episode-v1",
-  "generatedAt": "2026-03-20T14:18:41.178Z",
+  "generatedAt": "2026-06-01T22:53:45.727Z",
   "status": "draft",
   "mode": "compact",
   "food": {
@@ -11,6 +11,12 @@
       "value": 100,
       "unit": "g"
     },
+    "identity": null,
+    "scoreReadiness": null,
+    "sourceNotes": [
+      "Calibration benchmark sample for FoodRanked.",
+      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
+    ],
     "sourceFile": "foods/coconut-oil.sample.json"
   },
   "sourceOfTruth": {
@@ -28,31 +34,88 @@
     "subtitlesJson": "subtitles.json"
   },
   "scoreSnapshot": {
-    "overallScore": 9,
+    "overallScore": 17.5,
+    "overallScoreExact": 17.5438,
+    "baseOverallScore": 23.8,
+    "baseOverallScoreExact": 23.8095,
     "tier": "D",
-    "baseScore": 23,
-    "contextAdjustment": -14,
     "sectionScores": {
-      "fats": 29.8,
+      "fats": 35.7,
       "carbs": null,
       "proteins": null,
-      "vitamins": null,
-      "minerals": null,
-      "pros": 44.4,
-      "cons": 100
+      "vitamins": 0,
+      "minerals": 0,
+      "pros": 66.7,
+      "cons": 16.7
     },
+    "strongestSection": {
+      "key": "pros",
+      "label": "Pros",
+      "score": 66.7
+    },
+    "weakestSection": {
+      "key": "minerals",
+      "label": "Minerals",
+      "score": 0
+    },
+    "topPros": [
+      {
+        "title": "strong cooking-stability case",
+        "explanation": "Tests whether practical cooking arguments can rescue brutal fat chemistry.",
+        "impactLevel": "major",
+        "side": "pro",
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "simple ingredient identity",
+        "explanation": "Cleaner than industrial spreads.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "strong healthy-food halo",
+        "explanation": "Likely audience argument magnet.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      }
+    ],
+    "topCons": [
+      {
+        "title": "saturated fat is extreme",
+        "explanation": "This should hammer it hard if the category means what it says.",
+        "impactLevel": "major",
+        "side": "con",
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "overall fat profile is weak",
+        "explanation": "Very poor fit for an elite fats ranking.",
+        "impactLevel": "major",
+        "side": "con",
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "health reputation can outrun the data",
+        "explanation": "Useful editorial counterweight.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
+      }
+    ],
     "explanation": {
-      "summary": "Fats are carrying this food most, while fats are the biggest drag. It lands in D tier.",
-      "whyThisTier": "This food lands in D tier with an overall score of 9 from a base nutrition score of 23. Context dragged it down by 14 points.",
+      "summary": "Pros are carrying this food most, while minerals are holding it back most. It lands in D tier.",
+      "whyThisTier": "This food lands in D tier with an overall score of 17.5. Section scores: fats 35.7, vitamins 0, minerals 0, pros 66.7, cons 16.7.",
       "strongestSection": {
-        "key": "fats",
-        "label": "Fats",
-        "score": 29.8
+        "key": "pros",
+        "label": "Pros",
+        "score": 66.7
       },
       "weakestSection": {
-        "key": "fats",
-        "label": "Fats",
-        "score": 29.8
+        "key": "minerals",
+        "label": "Minerals",
+        "score": 0
       },
       "topPros": [
         {
@@ -60,7 +123,21 @@
           "explanation": "Tests whether practical cooking arguments can rescue brutal fat chemistry.",
           "impactLevel": "major",
           "side": "pro",
-          "resolvedScoreValue": 4
+          "resolvedScoreValue": 100
+        },
+        {
+          "title": "simple ingredient identity",
+          "explanation": "Cleaner than industrial spreads.",
+          "impactLevel": "minor",
+          "side": "pro",
+          "resolvedScoreValue": 50
+        },
+        {
+          "title": "strong healthy-food halo",
+          "explanation": "Likely audience argument magnet.",
+          "impactLevel": "minor",
+          "side": "pro",
+          "resolvedScoreValue": 50
         }
       ],
       "topCons": [
@@ -69,29 +146,37 @@
           "explanation": "This should hammer it hard if the category means what it says.",
           "impactLevel": "major",
           "side": "con",
-          "resolvedScoreValue": -9
+          "resolvedScoreValue": 100
         },
         {
           "title": "overall fat profile is weak",
           "explanation": "Very poor fit for an elite fats ranking.",
           "impactLevel": "major",
           "side": "con",
-          "resolvedScoreValue": -9
+          "resolvedScoreValue": 100
+        },
+        {
+          "title": "health reputation can outrun the data",
+          "explanation": "Useful editorial counterweight.",
+          "impactLevel": "minor",
+          "side": "con",
+          "resolvedScoreValue": 50
         }
       ],
       "narrationNotes": [
-        "Strongest section: Fats.",
-        "Weakest section: Fats.",
-        "Context weakened the final tier case by 14 points.",
+        "Strongest section: Pros.",
+        "Weakest section: Minerals.",
         "Final verdict: D tier."
       ]
     }
   },
   "scriptSnapshot": {
+    "schemaVersion": "foodranked-script.v2",
+    "narrationFormat": "elevenlabs-blocks-v1",
     "hook": "Coconut Oil ranked.",
-    "intro": null,
     "closing": {
-      "summary": "Coconut Oil does have a few real-world upsides. but the nutrition case is still weak and the downsides drag it down hard. best only in small amounts when the cooking job matters more than the nutrition case.",
+      "summary": "Big strengths are strong cooking-stability case and simple ingredient identity, but the biggest weaknesses are saturated fat is extreme and overall fat profile is weak.",
+      "overview": "Big strengths are strong cooking-stability case and simple ingredient identity, but the biggest weaknesses are saturated fat is extreme and overall fat profile is weak.",
       "finalReveal": "D tier.",
       "useCaseNote": "Best only in small amounts when the cooking job matters more than the nutrition case.",
       "cta": "Would you rank it the same, or nah?"
@@ -104,45 +189,468 @@
       "minerals",
       "pros",
       "cons"
-    ]
+    ],
+    "narrationBlockCount": 11
   },
   "visualBinding": {
     "templateId": "foodranked-visual-template.v1",
     "aspectRatio": "9:16",
     "categoryAccent": "Amber Yellow",
-    "tierColor": "purple"
+    "tierColor": "purple",
+    "visualProfile": {
+      "name": "balanced",
+      "description": "Default launch profile: readable, centered, and close to the locked storyboard.",
+      "macroLayout": "stacked",
+      "subtitleLift": "standard",
+      "hookStyle": "hero-center",
+      "motionPreset": "balanced",
+      "statsDensity": "standard",
+      "micronutrientRows": 2,
+      "macroSlotsVisible": 3,
+      "emphasisOrder": [
+        "hook",
+        "header",
+        "macro",
+        "micros",
+        "pros-cons",
+        "tier"
+      ]
+    },
+    "spriteBindings": {
+      "strategy": "png-primary-with-aseprite-reference",
+      "categoryKey": "oil_fat",
+      "notes": [
+        "Use exported 100% PNG and GIF files for edit/runtime placement.",
+        "Use .aseprite sources only as fidelity references when adjusting layout or re-exporting."
+      ],
+      "header": {
+        "foodPlate": {
+          "path": "sprites/header/food_plate/oil_fat_food_plate.png",
+          "format": "png"
+        },
+        "foodPlateSource": {
+          "path": "sprites/header/food_plate/oil_fat_food_plate.aseprite",
+          "format": "aseprite"
+        },
+        "foodTypePlate": {
+          "path": "sprites/header/food_type_plate/oil_fat_type_plate.png",
+          "format": "png"
+        },
+        "foodTypePlateSource": {
+          "path": "sprites/header/food_type_plate/oil_fat_type_plate.aseprite",
+          "format": "aseprite"
+        },
+        "calorieBubble": {
+          "path": "sprites/header/calorie_bubble/oil_fat_calorie_bubble.png",
+          "format": "png"
+        },
+        "calorieBubbleSource": {
+          "path": "sprites/header/calorie_bubble/oil_fat_calorie_bubble.aseprite",
+          "format": "aseprite"
+        },
+        "scorePlate": {
+          "path": "sprites/header/header_ui/score_plate.png",
+          "format": "png"
+        },
+        "scorePlateSource": {
+          "path": "sprites/header/header_ui/score_plate.aseprite",
+          "format": "aseprite"
+        }
+      },
+      "macros": {
+        "arrows": {
+          "positive": {
+            "path": "sprites/macros_section/arrow_indicators/green_arrow.png",
+            "format": "png"
+          },
+          "positiveSource": {
+            "path": "sprites/macros_section/arrow_indicators/green_arrow.aseprite",
+            "format": "aseprite"
+          },
+          "negative": {
+            "path": "sprites/macros_section/arrow_indicators/red_arrow.png",
+            "format": "png"
+          },
+          "negativeSource": {
+            "path": "sprites/macros_section/arrow_indicators/red_arrow.aseprite",
+            "format": "aseprite"
+          }
+        },
+        "fats": {
+          "icon": {
+            "path": "sprites/macros_section/section_1_fats/fat_icon.gif",
+            "format": "gif"
+          },
+          "iconSource": {
+            "path": "sprites/macros_section/section_1_fats/fat_icon.aseprite",
+            "format": "aseprite"
+          },
+          "bullet": {
+            "path": "sprites/macros_section/section_1_fats/fat_submacro_bullet_point.png",
+            "format": "png"
+          },
+          "bulletSource": {
+            "path": "sprites/macros_section/section_1_fats/fat_submacro_bullet_point.aseprite",
+            "format": "aseprite"
+          }
+        },
+        "carbs": {
+          "icon": {
+            "path": "sprites/macros_section/section_2_carbs/carb_icon.gif",
+            "format": "gif"
+          },
+          "iconSource": {
+            "path": "sprites/macros_section/section_2_carbs/carb_icon.aseprite",
+            "format": "aseprite"
+          },
+          "bullet": {
+            "path": "sprites/macros_section/section_2_carbs/carb_submacro_bullet_point.png",
+            "format": "png"
+          },
+          "bulletSource": {
+            "path": "sprites/macros_section/section_2_carbs/carb_submacro_bullet_point.aseprite",
+            "format": "aseprite"
+          }
+        },
+        "proteins": {
+          "icon": {
+            "path": "sprites/macros_section/section_3_protein/protein_icon.gif",
+            "format": "gif"
+          },
+          "iconSource": {
+            "path": "sprites/macros_section/section_3_protein/protein_icon.aseprite",
+            "format": "aseprite"
+          },
+          "bullet": {
+            "path": "sprites/macros_section/section_3_protein/protein_submacro_bullet_point.png",
+            "format": "png"
+          },
+          "bulletSource": {
+            "path": "sprites/macros_section/section_3_protein/protein_submacro_bullet_point.aseprite",
+            "format": "aseprite"
+          }
+        }
+      },
+      "micros": {
+        "vitamins": {
+          "icon": {
+            "path": "sprites/micros_section/vitamins/vitamin_icon.gif",
+            "format": "gif"
+          },
+          "iconSource": {
+            "path": "sprites/micros_section/vitamins/vitamin_icon.aseprite",
+            "format": "aseprite"
+          },
+          "microIcon": {
+            "path": "sprites/micros_section/vitamins/vitamin_micro_icon.png",
+            "format": "png"
+          },
+          "microIconSource": {
+            "path": "sprites/micros_section/vitamins/vitamin_micro_icon.aseprite",
+            "format": "aseprite"
+          }
+        },
+        "minerals": {
+          "icon": {
+            "path": "sprites/micros_section/minerals/mineral_icon.gif",
+            "format": "gif"
+          },
+          "iconSource": {
+            "path": "sprites/micros_section/minerals/mineral_icon.aseprite",
+            "format": "aseprite"
+          },
+          "microIcon": {
+            "path": "sprites/micros_section/minerals/mineral_micro_icon.png",
+            "format": "png"
+          },
+          "microIconSource": {
+            "path": "sprites/micros_section/minerals/mineral_micro_icon.aseprite",
+            "format": "aseprite"
+          }
+        },
+        "bars": {
+          "line": {
+            "path": "sprites/micros_section/bars/bar_line.png",
+            "format": "png"
+          },
+          "lineSource": {
+            "path": "sprites/micros_section/bars/bar_line.aseprite",
+            "format": "aseprite"
+          },
+          "full": {
+            "path": "sprites/micros_section/bars/100%_bar.png",
+            "format": "png"
+          },
+          "fullSource": {
+            "path": "sprites/micros_section/bars/100%_bar.aseprite",
+            "format": "aseprite"
+          }
+        }
+      },
+      "prosCons": {
+        "pros": {
+          "bullet": {
+            "path": "sprites/pros_and_cons/pros/pro_bullet_point.png",
+            "format": "png"
+          },
+          "bulletSource": {
+            "path": "sprites/pros_and_cons/pros/pro_bullet_point.aseprite",
+            "format": "aseprite"
+          }
+        },
+        "cons": {
+          "bullet": {
+            "path": "sprites/pros_and_cons/cons/con_bullet_point.png",
+            "format": "png"
+          },
+          "bulletSource": {
+            "path": "sprites/pros_and_cons/cons/con_bullet_point.aseprite",
+            "format": "aseprite"
+          }
+        }
+      },
+      "progress": {
+        "inactive": {
+          "path": "sprites/ui/section_indicator/oil_fat_section_indicator.png",
+          "format": "png"
+        },
+        "inactiveSource": {
+          "path": "sprites/ui/section_indicator/oil_fat_section_indicator.aseprite",
+          "format": "aseprite"
+        },
+        "active": {
+          "path": "sprites/ui/section_indicator/oil_fat_highlighted_section_indicator.png",
+          "format": "png"
+        },
+        "activeSource": {
+          "path": "sprites/ui/section_indicator/oil_fat_highlighted_section_indicator.aseprite",
+          "format": "aseprite"
+        }
+      },
+      "separators": {
+        "section": {
+          "path": "sprites/ui/section_separator/oil_fat_section_separator.png",
+          "format": "png"
+        },
+        "sectionSource": {
+          "path": "sprites/ui/section_separator/oil_fat_section_separator.aseprite",
+          "format": "aseprite"
+        }
+      },
+      "references": {
+        "macroLayout": {
+          "path": "sprites/references/macros_section.png",
+          "format": "png"
+        },
+        "macroLayoutSource": {
+          "path": "sprites/references/macros_section.aseprite",
+          "format": "aseprite"
+        },
+        "microLayout": {
+          "path": "sprites/references/micros_section.png",
+          "format": "png"
+        },
+        "microLayoutSource": {
+          "path": "sprites/references/micros_section.aseprite",
+          "format": "aseprite"
+        },
+        "prosConsLayout": {
+          "path": "sprites/references/pros_cons_section.png",
+          "format": "png"
+        },
+        "prosConsLayoutSource": {
+          "path": "sprites/references/pros_cons_section.aseprite",
+          "format": "aseprite"
+        }
+      }
+    },
+    "storyboardContract": {
+      "lockedSceneStack": [
+        {
+          "id": "hook",
+          "kind": "hook",
+          "narrativeRole": "opening-promise",
+          "subtitlePlacement": "lower-third"
+        },
+        {
+          "id": "fats",
+          "kind": "section",
+          "narrativeRole": "macro-foundation",
+          "subtitlePlacement": "lower-third"
+        },
+        {
+          "id": "carbs",
+          "kind": "section",
+          "narrativeRole": "macro-foundation",
+          "subtitlePlacement": "lower-third"
+        },
+        {
+          "id": "proteins",
+          "kind": "section",
+          "narrativeRole": "macro-foundation",
+          "subtitlePlacement": "lower-third"
+        },
+        {
+          "id": "vitamins",
+          "kind": "section",
+          "narrativeRole": "micronutrient-proof",
+          "subtitlePlacement": "lower-third"
+        },
+        {
+          "id": "minerals",
+          "kind": "section",
+          "narrativeRole": "micronutrient-proof",
+          "subtitlePlacement": "lower-third"
+        },
+        {
+          "id": "pros",
+          "kind": "section",
+          "narrativeRole": "real-world-upside",
+          "subtitlePlacement": "high-lower-third"
+        },
+        {
+          "id": "cons",
+          "kind": "section",
+          "narrativeRole": "real-world-downside",
+          "subtitlePlacement": "high-lower-third"
+        },
+        {
+          "id": "final",
+          "kind": "closing",
+          "narrativeRole": "verdict-payoff",
+          "subtitlePlacement": "subtitle-floor"
+        }
+      ],
+      "subtitleSafeBox": {
+        "x": 80,
+        "y": 1320,
+        "w": 920,
+        "h": 280
+      },
+      "progressIndicator": {
+        "id": "progress_dots",
+        "type": "dotRow",
+        "count": 7,
+        "x": 414,
+        "y": 1710,
+        "dotSize": 26,
+        "gap": 20,
+        "states": [
+          "inactive",
+          "active",
+          "completed"
+        ]
+      }
+    }
   },
   "reviewChecklist": [
     "Verify nutrient values are sourced well enough for publishable use.",
     "Review narration for category repetition and trim any awkward lines.",
     "Confirm subtitle density stays readable at phone speed.",
-    "Replace placeholder hero/sprite art with final asset selection.",
+    "Use the PNG and GIF sprite exports directly, and only open .aseprite sources when fidelity adjustments are needed.",
     "Check that the final tier verdict feels editorially defensible."
   ],
   "nextHumanStep": "Review the generated narration + manifest, then use the manifest as the handoff into visual assembly / editing.",
   "scenePlan": {
     "mode": "compact",
-    "totalEstimatedDurationSeconds": 64.01,
+    "visualProfile": "balanced",
+    "subtitleRules": {
+      "maxLines": 2,
+      "maxCharactersPerLine": 18
+    },
+    "totalEstimatedDurationSeconds": 71.7,
     "scenes": [
       {
         "id": "hook",
         "kind": "hook",
+        "narrativeRole": "opening-promise",
         "startSeconds": 0,
         "durationSeconds": 2.1,
         "endSeconds": 2.1,
         "narrationText": "Coconut Oil ranked.",
         "subtitleText": "Coconut Oil ranked.",
+        "subtitlePlacement": "lower-third",
         "visualBinding": {
           "title": "Coconut Oil",
           "rankedWord": "RANKED",
           "foodType": "oils-and-fats",
           "kcal": 892,
-          "categoryAccent": "Amber Yellow"
+          "categoryAccent": "Amber Yellow",
+          "hookStyle": "hero-center",
+          "headerSprites": {
+            "foodPlate": {
+              "path": "sprites/header/food_plate/oil_fat_food_plate.png",
+              "format": "png"
+            },
+            "foodPlateSource": {
+              "path": "sprites/header/food_plate/oil_fat_food_plate.aseprite",
+              "format": "aseprite"
+            },
+            "foodTypePlate": {
+              "path": "sprites/header/food_type_plate/oil_fat_type_plate.png",
+              "format": "png"
+            },
+            "foodTypePlateSource": {
+              "path": "sprites/header/food_type_plate/oil_fat_type_plate.aseprite",
+              "format": "aseprite"
+            },
+            "calorieBubble": {
+              "path": "sprites/header/calorie_bubble/oil_fat_calorie_bubble.png",
+              "format": "png"
+            },
+            "calorieBubbleSource": {
+              "path": "sprites/header/calorie_bubble/oil_fat_calorie_bubble.aseprite",
+              "format": "aseprite"
+            },
+            "scorePlate": {
+              "path": "sprites/header/header_ui/score_plate.png",
+              "format": "png"
+            },
+            "scorePlateSource": {
+              "path": "sprites/header/header_ui/score_plate.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "progressSprites": {
+            "inactive": {
+              "path": "sprites/ui/section_indicator/oil_fat_section_indicator.png",
+              "format": "png"
+            },
+            "inactiveSource": {
+              "path": "sprites/ui/section_indicator/oil_fat_section_indicator.aseprite",
+              "format": "aseprite"
+            },
+            "active": {
+              "path": "sprites/ui/section_indicator/oil_fat_highlighted_section_indicator.png",
+              "format": "png"
+            },
+            "activeSource": {
+              "path": "sprites/ui/section_indicator/oil_fat_highlighted_section_indicator.aseprite",
+              "format": "aseprite"
+            }
+          }
         },
         "revealPlan": [
           "hero_food",
           "hook_title",
           "hook_ranked_word"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "hero_food",
+            "beat": "start",
+            "purpose": "food-recognition"
+          },
+          {
+            "slotId": "hook_title",
+            "beat": "mid",
+            "purpose": "ranking-promise"
+          },
+          {
+            "slotId": "hook_ranked_word",
+            "beat": "end",
+            "purpose": "impact-lockup"
+          }
         ],
         "subtitleCues": [
           {
@@ -164,44 +672,47 @@
       {
         "id": "fats",
         "kind": "section",
+        "narrativeRole": "macro-foundation",
         "startSeconds": 2.1,
-        "durationSeconds": 7.76,
-        "endSeconds": 9.86,
-        "narrationText": "100 grams of fat. Saturated fat is 82.5 grams. 100 grams of fat. Saturated fat is 82.5 grams, a major pressure point. For this category, the real question is fat quality.",
-        "subtitleText": "100g of fat. Saturated fat is 82.5g. 100g of fat. Saturated fat is 82.5g, a major pressure point. For this category, the real question is fat quality.",
+        "durationSeconds": 9.53,
+        "endSeconds": 11.63,
+        "narrationText": "100 grams of fat. Cholesterol is 0 milligrams, supporting a better fat profile. Saturated fat is 82.5 grams, and for oils and fats, that matters a lot.",
+        "subtitleText": "100g of fat. Cholesterol is 0mg, supporting a better fat profile. Saturated fat is 82.5g, and for oils and fats, that matters a lot.",
+        "subtitlePlacement": "lower-third",
         "visualBinding": {
           "sectionKey": "fats",
           "title": "Fats",
-          "score": 29.8,
+          "score": 35.7,
           "templateSlots": [
             "macro_headline",
             "submetric_1",
             "submetric_2",
-            "submetric_3"
+            "submetric_3",
+            "commentary_note"
           ],
           "displayItems": [
             {
+              "metricKey": "cholesterol_mg",
+              "text": "cholesterol at 0mg",
+              "weightedScore": 500,
+              "scoringMode": "arrow_bands",
+              "band": "↓↓↓",
+              "dvPercent": null,
+              "value": 0
+            },
+            {
               "metricKey": "saturated_fat_g",
-              "text": "saturated fat at 82.5",
-              "weightedScore": -21,
+              "text": "saturated fat at 82.5g",
+              "weightedScore": 0,
               "scoringMode": "arrow_bands",
               "band": "↑↑↑",
               "dvPercent": null,
               "value": 82.5
             },
             {
-              "metricKey": "cholesterol_mg",
-              "text": "cholesterol at 0",
-              "weightedScore": 10,
-              "scoringMode": "arrow_bands",
-              "band": "↓↓",
-              "dvPercent": null,
-              "value": 0
-            },
-            {
               "metricKey": "omega3_mg",
-              "text": "omega3 at 0",
-              "weightedScore": -3,
+              "text": "omega 3 at 0mg",
+              "weightedScore": 0,
               "scoringMode": "arrow_bands",
               "band": "↓↓↓",
               "dvPercent": null,
@@ -209,128 +720,211 @@
             },
             {
               "metricKey": "polyunsaturated_fat_g",
-              "text": "polyunsaturated fat at 1.8",
-              "weightedScore": -3,
+              "text": "polyunsaturated fat at 1.8g",
+              "weightedScore": 0,
               "scoringMode": "arrow_bands",
               "band": "↓↓↓",
               "dvPercent": null,
               "value": 1.8
             }
           ],
-          "timingHint": "short-medium"
+          "timingHint": "short-medium",
+          "narrativeRole": "macro-foundation",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "lower-third",
+          "preferredSpriteBindings": {
+            "icon": {
+              "path": "sprites/macros_section/section_1_fats/fat_icon.gif",
+              "format": "gif"
+            },
+            "iconSource": {
+              "path": "sprites/macros_section/section_1_fats/fat_icon.aseprite",
+              "format": "aseprite"
+            },
+            "bullet": {
+              "path": "sprites/macros_section/section_1_fats/fat_submacro_bullet_point.png",
+              "format": "png"
+            },
+            "bulletSource": {
+              "path": "sprites/macros_section/section_1_fats/fat_submacro_bullet_point.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": {
+              "slotId": "macro_headline",
+              "label": "Fats",
+              "value": null,
+              "emphasis": "highest"
+            },
+            "macroSlots": [
+              {
+                "slotId": "submetric_1",
+                "metricKey": "cholesterol_mg",
+                "label": "cholesterol",
+                "displayValue": "0mg",
+                "scoringMode": "arrow_bands",
+                "band": "↓↓↓",
+                "weightedScore": 500,
+                "spriteRole": "fats",
+                "text": "cholesterol at 0mg"
+              },
+              {
+                "slotId": "submetric_2",
+                "metricKey": "saturated_fat_g",
+                "label": "saturated fat",
+                "displayValue": "82.5g",
+                "scoringMode": "arrow_bands",
+                "band": "↑↑↑",
+                "weightedScore": 0,
+                "spriteRole": "fats",
+                "text": "saturated fat at 82.5g"
+              },
+              {
+                "slotId": "submetric_3",
+                "metricKey": "omega3_mg",
+                "label": "omega 3",
+                "displayValue": "0mg",
+                "scoringMode": "arrow_bands",
+                "band": "↓↓↓",
+                "weightedScore": 0,
+                "spriteRole": "fats",
+                "text": "omega 3 at 0mg"
+              }
+            ],
+            "micronutrientRows": [],
+            "commentaryNote": "Overflow metrics stay off-screen unless the edit intentionally promotes them."
+          }
         },
         "revealPlan": [
           "macro_headline",
           "submetric_1",
           "submetric_2",
-          "submetric_3"
+          "submetric_3",
+          "commentary_note"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "macro_headline",
+            "beat": "lead",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_1",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_2",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_3",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "commentary_note",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          }
         ],
         "subtitleCues": [
           {
             "id": "02-fats-1",
             "sceneId": "fats",
             "startSeconds": 2.1,
-            "endSeconds": 3.57,
+            "endSeconds": 3.48,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "100g of fat.",
-              "Saturated fat is"
+              "100g of fat."
             ],
-            "text": "100g of fat.\nSaturated fat is"
+            "text": "100g of fat."
           },
           {
             "id": "03-fats-2",
             "sceneId": "fats",
-            "startSeconds": 3.57,
-            "endSeconds": 4.01,
+            "startSeconds": 3.48,
+            "endSeconds": 5.41,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "82."
+              "Cholesterol is",
+              "0mg, supporting a"
             ],
-            "text": "82."
+            "text": "Cholesterol is\n0mg, supporting a"
           },
           {
             "id": "04-fats-3",
             "sceneId": "fats",
-            "startSeconds": 4.01,
-            "endSeconds": 5.21,
+            "startSeconds": 5.41,
+            "endSeconds": 6.66,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "5g. 100g of fat."
+              "better fat",
+              "profile."
             ],
-            "text": "5g. 100g of fat."
+            "text": "better fat\nprofile."
           },
           {
             "id": "05-fats-4",
             "sceneId": "fats",
-            "startSeconds": 5.21,
-            "endSeconds": 6.33,
+            "startSeconds": 6.66,
+            "endSeconds": 8.24,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
               "Saturated fat is",
-              "82."
+              "82.5g,"
             ],
-            "text": "Saturated fat is\n82."
+            "text": "Saturated fat is\n82.5g,"
           },
           {
             "id": "06-fats-5",
             "sceneId": "fats",
-            "startSeconds": 6.33,
-            "endSeconds": 7.67,
+            "startSeconds": 8.24,
+            "endSeconds": 10.73,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "5g, a major",
-              "pressure point."
+              "and for oils and",
+              "fats, that matters"
             ],
-            "text": "5g, a major\npressure point."
+            "text": "and for oils and\nfats, that matters"
           },
           {
             "id": "07-fats-6",
             "sceneId": "fats",
-            "startSeconds": 7.67,
-            "endSeconds": 9.06,
+            "startSeconds": 10.73,
+            "endSeconds": 11.63,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "For this category,",
-              "the real question"
+              "a lot."
             ],
-            "text": "For this category,\nthe real question"
-          },
-          {
-            "id": "08-fats-7",
-            "sceneId": "fats",
-            "startSeconds": 9.06,
-            "endSeconds": 9.86,
-            "placement": "lower-third",
-            "maxLines": 2,
-            "maxCharactersPerLine": 18,
-            "lines": [
-              "is fat quality."
-            ],
-            "text": "is fat quality."
+            "text": "a lot."
           }
         ]
       },
       {
         "id": "carbs",
         "kind": "section",
-        "startSeconds": 9.86,
-        "durationSeconds": 4.59,
-        "endSeconds": 14.45,
-        "narrationText": "0 grams of carbs. Everything else here is pretty flat. Not relevant here.",
-        "subtitleText": "0g of carbs. Everything else here is pretty flat. Not relevant here.",
+        "narrativeRole": "macro-foundation",
+        "startSeconds": 11.63,
+        "durationSeconds": 4.94,
+        "endSeconds": 16.57,
+        "narrationText": "0 grams of carbs. No defensible carb submacros to call out. Not relevant here.",
+        "subtitleText": "0g of carbs. No defensible carb submacros to call out. Not relevant here.",
+        "subtitlePlacement": "lower-third",
         "visualBinding": {
           "sectionKey": "carbs",
           "title": "Carbs",
@@ -339,23 +933,84 @@
             "macro_headline",
             "submetric_1",
             "submetric_2",
-            "submetric_3"
+            "submetric_3",
+            "commentary_note"
           ],
           "displayItems": [],
-          "timingHint": "short-medium"
+          "timingHint": "short-medium",
+          "narrativeRole": "macro-foundation",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "lower-third",
+          "preferredSpriteBindings": {
+            "icon": {
+              "path": "sprites/macros_section/section_2_carbs/carb_icon.gif",
+              "format": "gif"
+            },
+            "iconSource": {
+              "path": "sprites/macros_section/section_2_carbs/carb_icon.aseprite",
+              "format": "aseprite"
+            },
+            "bullet": {
+              "path": "sprites/macros_section/section_2_carbs/carb_submacro_bullet_point.png",
+              "format": "png"
+            },
+            "bulletSource": {
+              "path": "sprites/macros_section/section_2_carbs/carb_submacro_bullet_point.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": {
+              "slotId": "macro_headline",
+              "label": "Carbs",
+              "value": null,
+              "emphasis": "standard"
+            },
+            "macroSlots": [],
+            "micronutrientRows": [],
+            "commentaryNote": null
+          }
         },
         "revealPlan": [
           "macro_headline",
           "submetric_1",
           "submetric_2",
-          "submetric_3"
+          "submetric_3",
+          "commentary_note"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "macro_headline",
+            "beat": "lead",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_1",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_2",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_3",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "commentary_note",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          }
         ],
         "subtitleCues": [
           {
-            "id": "09-carbs-1",
+            "id": "08-carbs-1",
             "sceneId": "carbs",
-            "startSeconds": 9.86,
-            "endSeconds": 11.13,
+            "startSeconds": 11.63,
+            "endSeconds": 12.91,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -365,37 +1020,37 @@
             "text": "0g of carbs."
           },
           {
-            "id": "10-carbs-2",
+            "id": "09-carbs-2",
             "sceneId": "carbs",
-            "startSeconds": 11.13,
-            "endSeconds": 12.8,
+            "startSeconds": 12.91,
+            "endSeconds": 14.91,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "Everything else",
-              "here is pretty"
+              "No defensible carb",
+              "submacros to call"
             ],
-            "text": "Everything else\nhere is pretty"
+            "text": "No defensible carb\nsubmacros to call"
           },
           {
-            "id": "11-carbs-3",
+            "id": "10-carbs-3",
             "sceneId": "carbs",
-            "startSeconds": 12.8,
-            "endSeconds": 13.3,
+            "startSeconds": 14.91,
+            "endSeconds": 15.41,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "flat."
+              "out."
             ],
-            "text": "flat."
+            "text": "out."
           },
           {
-            "id": "12-carbs-4",
+            "id": "11-carbs-4",
             "sceneId": "carbs",
-            "startSeconds": 13.3,
-            "endSeconds": 14.45,
+            "startSeconds": 15.41,
+            "endSeconds": 16.57,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -409,11 +1064,13 @@
       {
         "id": "proteins",
         "kind": "section",
-        "startSeconds": 14.45,
-        "durationSeconds": 5.65,
-        "endSeconds": 20.1,
-        "narrationText": "0 grams of protein. The rest of the section is nothing special. Also not relevant here.",
-        "subtitleText": "0g of protein. The rest of the section is nothing special. Also not relevant here.",
+        "narrativeRole": "macro-foundation",
+        "startSeconds": 16.57,
+        "durationSeconds": 5.29,
+        "endSeconds": 21.86,
+        "narrationText": "0 grams of protein. No defensible protein submacros to call out. Also not relevant here.",
+        "subtitleText": "0g of protein. No defensible protein submacros to call out. Also not relevant here.",
+        "subtitlePlacement": "lower-third",
         "visualBinding": {
           "sectionKey": "proteins",
           "title": "Proteins",
@@ -422,23 +1079,84 @@
             "macro_headline",
             "submetric_1",
             "submetric_2",
-            "submetric_3"
+            "submetric_3",
+            "commentary_note"
           ],
           "displayItems": [],
-          "timingHint": "short-medium"
+          "timingHint": "short-medium",
+          "narrativeRole": "macro-foundation",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "lower-third",
+          "preferredSpriteBindings": {
+            "icon": {
+              "path": "sprites/macros_section/section_3_protein/protein_icon.gif",
+              "format": "gif"
+            },
+            "iconSource": {
+              "path": "sprites/macros_section/section_3_protein/protein_icon.aseprite",
+              "format": "aseprite"
+            },
+            "bullet": {
+              "path": "sprites/macros_section/section_3_protein/protein_submacro_bullet_point.png",
+              "format": "png"
+            },
+            "bulletSource": {
+              "path": "sprites/macros_section/section_3_protein/protein_submacro_bullet_point.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": {
+              "slotId": "macro_headline",
+              "label": "Proteins",
+              "value": null,
+              "emphasis": "standard"
+            },
+            "macroSlots": [],
+            "micronutrientRows": [],
+            "commentaryNote": null
+          }
         },
         "revealPlan": [
           "macro_headline",
           "submetric_1",
           "submetric_2",
-          "submetric_3"
+          "submetric_3",
+          "commentary_note"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "macro_headline",
+            "beat": "lead",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_1",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_2",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_3",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "commentary_note",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          }
         ],
         "subtitleCues": [
           {
-            "id": "13-proteins-1",
+            "id": "12-proteins-1",
             "sceneId": "proteins",
-            "startSeconds": 14.45,
-            "endSeconds": 15.74,
+            "startSeconds": 16.57,
+            "endSeconds": 17.86,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -448,37 +1166,37 @@
             "text": "0g of protein."
           },
           {
-            "id": "14-proteins-2",
+            "id": "13-proteins-2",
             "sceneId": "proteins",
-            "startSeconds": 15.74,
-            "endSeconds": 18.09,
+            "startSeconds": 17.86,
+            "endSeconds": 19.21,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "The rest of the",
-              "section is nothing"
+              "No defensible",
+              "protein submacros"
             ],
-            "text": "The rest of the\nsection is nothing"
+            "text": "No defensible\nprotein submacros"
           },
           {
-            "id": "15-proteins-3",
+            "id": "14-proteins-3",
             "sceneId": "proteins",
-            "startSeconds": 18.09,
-            "endSeconds": 18.6,
+            "startSeconds": 19.21,
+            "endSeconds": 20.37,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "special."
+              "to call out."
             ],
-            "text": "special."
+            "text": "to call out."
           },
           {
-            "id": "16-proteins-4",
+            "id": "15-proteins-4",
             "sceneId": "proteins",
-            "startSeconds": 18.6,
-            "endSeconds": 20.1,
+            "startSeconds": 20.37,
+            "endSeconds": 21.86,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -493,121 +1211,367 @@
       {
         "id": "vitamins",
         "kind": "section",
-        "startSeconds": 20.1,
-        "durationSeconds": 2.82,
-        "endSeconds": 22.92,
-        "narrationText": "The rest of the section is nothing special.",
-        "subtitleText": "The rest of the section is nothing special.",
+        "narrativeRole": "micronutrient-proof",
+        "startSeconds": 21.86,
+        "durationSeconds": 8.47,
+        "endSeconds": 30.33,
+        "narrationText": "Vitamin E is 1% daily value, adding useful vitamin support. Vitamin A is only 0% daily value, a weak mark for oils and fats.",
+        "subtitleText": "Vitamin E is 1% DV, adding useful vitamin support. Vitamin A is only 0% DV, a weak mark for oils and fats.",
+        "subtitlePlacement": "lower-third",
         "visualBinding": {
           "sectionKey": "vitamins",
           "title": "Vitamins",
-          "score": null,
+          "score": 0,
           "templateSlots": [
             "micronutrient_1",
-            "micronutrient_2"
+            "micronutrient_2",
+            "commentary_note"
           ],
-          "displayItems": [],
-          "timingHint": "short-medium"
+          "displayItems": [
+            {
+              "metricKey": "vitamin_e_dv",
+              "text": "vitamin E at 1% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 1,
+              "value": null
+            },
+            {
+              "metricKey": "vitamin_a_dv",
+              "text": "vitamin A at 0% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 0,
+              "value": null
+            },
+            {
+              "metricKey": "vitamin_k_dv",
+              "text": "vitamin K at 1% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 1,
+              "value": null
+            }
+          ],
+          "timingHint": "short-medium",
+          "narrativeRole": "micronutrient-proof",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "lower-third",
+          "preferredSpriteBindings": {
+            "icon": {
+              "path": "sprites/micros_section/vitamins/vitamin_icon.gif",
+              "format": "gif"
+            },
+            "iconSource": {
+              "path": "sprites/micros_section/vitamins/vitamin_icon.aseprite",
+              "format": "aseprite"
+            },
+            "microIcon": {
+              "path": "sprites/micros_section/vitamins/vitamin_micro_icon.png",
+              "format": "png"
+            },
+            "microIconSource": {
+              "path": "sprites/micros_section/vitamins/vitamin_micro_icon.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": null,
+            "macroSlots": [],
+            "micronutrientRows": [
+              {
+                "slotId": "micronutrient_1",
+                "metricKey": "vitamin_e_dv",
+                "label": "vitamin e",
+                "displayValue": "1% DV",
+                "dvPercent": 1,
+                "spriteRole": "micronutrient-row",
+                "text": "vitamin E at 1% DV"
+              },
+              {
+                "slotId": "micronutrient_2",
+                "metricKey": "vitamin_a_dv",
+                "label": "vitamin a",
+                "displayValue": "0% DV",
+                "dvPercent": 0,
+                "spriteRole": "micronutrient-row",
+                "text": "vitamin A at 0% DV"
+              }
+            ],
+            "commentaryNote": null
+          }
         },
         "revealPlan": [
           "micronutrient_1",
-          "micronutrient_2"
+          "micronutrient_2",
+          "commentary_note"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "micronutrient_1",
+            "beat": "lead",
+            "purpose": "micronutrient-proof"
+          },
+          {
+            "slotId": "micronutrient_2",
+            "beat": "follow",
+            "purpose": "micronutrient-proof"
+          },
+          {
+            "slotId": "commentary_note",
+            "beat": "follow",
+            "purpose": "micronutrient-proof"
+          }
         ],
         "subtitleCues": [
           {
-            "id": "17-vitamins-1",
+            "id": "16-vitamins-1",
             "sceneId": "vitamins",
-            "startSeconds": 20.1,
-            "endSeconds": 22.42,
+            "startSeconds": 21.86,
+            "endSeconds": 24.5,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "The rest of the",
-              "section is nothing"
+              "Vitamin E is 1%",
+              "DV, adding useful"
             ],
-            "text": "The rest of the\nsection is nothing"
+            "text": "Vitamin E is 1%\nDV, adding useful"
           },
           {
-            "id": "18-vitamins-2",
+            "id": "17-vitamins-2",
             "sceneId": "vitamins",
-            "startSeconds": 22.42,
-            "endSeconds": 22.92,
+            "startSeconds": 24.5,
+            "endSeconds": 25.39,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "special."
+              "vitamin support."
             ],
-            "text": "special."
+            "text": "vitamin support."
+          },
+          {
+            "id": "18-vitamins-3",
+            "sceneId": "vitamins",
+            "startSeconds": 25.39,
+            "endSeconds": 28.73,
+            "placement": "lower-third",
+            "maxLines": 2,
+            "maxCharactersPerLine": 18,
+            "lines": [
+              "Vitamin A is only",
+              "0% DV, a weak mark"
+            ],
+            "text": "Vitamin A is only\n0% DV, a weak mark"
+          },
+          {
+            "id": "19-vitamins-4",
+            "sceneId": "vitamins",
+            "startSeconds": 28.73,
+            "endSeconds": 30.33,
+            "placement": "lower-third",
+            "maxLines": 2,
+            "maxCharactersPerLine": 18,
+            "lines": [
+              "for oils and fats."
+            ],
+            "text": "for oils and fats."
           }
         ]
       },
       {
         "id": "minerals",
         "kind": "section",
-        "startSeconds": 22.92,
-        "durationSeconds": 2.47,
-        "endSeconds": 25.39,
-        "narrationText": "Minerals are basically not adding much here.",
-        "subtitleText": "Minerals are basically not adding much here.",
+        "narrativeRole": "micronutrient-proof",
+        "startSeconds": 30.33,
+        "durationSeconds": 7.76,
+        "endSeconds": 38.09,
+        "narrationText": "Iron is 0% daily value, useful for oxygen transport. Magnesium is only 0% daily value, a weak mark for oils and fats.",
+        "subtitleText": "Iron is 0% DV, useful for oxygen transport. Magnesium is only 0% DV, a weak mark for oils and fats.",
+        "subtitlePlacement": "lower-third",
         "visualBinding": {
           "sectionKey": "minerals",
           "title": "Minerals",
-          "score": null,
+          "score": 0,
           "templateSlots": [
             "micronutrient_1",
-            "micronutrient_2"
+            "micronutrient_2",
+            "commentary_note"
           ],
-          "displayItems": [],
-          "timingHint": "short-medium"
+          "displayItems": [
+            {
+              "metricKey": "iron_dv",
+              "text": "iron at 0% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 0,
+              "value": null
+            },
+            {
+              "metricKey": "magnesium_dv",
+              "text": "magnesium at 0% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 0,
+              "value": null
+            },
+            {
+              "metricKey": "calcium_dv",
+              "text": "calcium at 0% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 0,
+              "value": null
+            }
+          ],
+          "timingHint": "short-medium",
+          "narrativeRole": "micronutrient-proof",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "lower-third",
+          "preferredSpriteBindings": {
+            "icon": {
+              "path": "sprites/micros_section/minerals/mineral_icon.gif",
+              "format": "gif"
+            },
+            "iconSource": {
+              "path": "sprites/micros_section/minerals/mineral_icon.aseprite",
+              "format": "aseprite"
+            },
+            "microIcon": {
+              "path": "sprites/micros_section/minerals/mineral_micro_icon.png",
+              "format": "png"
+            },
+            "microIconSource": {
+              "path": "sprites/micros_section/minerals/mineral_micro_icon.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": null,
+            "macroSlots": [],
+            "micronutrientRows": [
+              {
+                "slotId": "micronutrient_1",
+                "metricKey": "iron_dv",
+                "label": "iron",
+                "displayValue": "0% DV",
+                "dvPercent": 0,
+                "spriteRole": "micronutrient-row",
+                "text": "iron at 0% DV"
+              },
+              {
+                "slotId": "micronutrient_2",
+                "metricKey": "magnesium_dv",
+                "label": "magnesium",
+                "displayValue": "0% DV",
+                "dvPercent": 0,
+                "spriteRole": "micronutrient-row",
+                "text": "magnesium at 0% DV"
+              }
+            ],
+            "commentaryNote": null
+          }
         },
         "revealPlan": [
           "micronutrient_1",
-          "micronutrient_2"
+          "micronutrient_2",
+          "commentary_note"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "micronutrient_1",
+            "beat": "lead",
+            "purpose": "micronutrient-proof"
+          },
+          {
+            "slotId": "micronutrient_2",
+            "beat": "follow",
+            "purpose": "micronutrient-proof"
+          },
+          {
+            "slotId": "commentary_note",
+            "beat": "follow",
+            "purpose": "micronutrient-proof"
+          }
         ],
         "subtitleCues": [
           {
-            "id": "19-minerals-1",
+            "id": "20-minerals-1",
             "sceneId": "minerals",
-            "startSeconds": 22.92,
-            "endSeconds": 24.25,
+            "startSeconds": 30.33,
+            "endSeconds": 32.96,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "Minerals are",
-              "basically not"
+              "Iron is 0% DV,",
+              "useful for oxygen"
             ],
-            "text": "Minerals are\nbasically not"
+            "text": "Iron is 0% DV,\nuseful for oxygen"
           },
           {
-            "id": "20-minerals-2",
+            "id": "21-minerals-2",
             "sceneId": "minerals",
-            "startSeconds": 24.25,
-            "endSeconds": 25.39,
+            "startSeconds": 32.96,
+            "endSeconds": 33.51,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "adding much here."
+              "transport."
             ],
-            "text": "adding much here."
+            "text": "transport."
+          },
+          {
+            "id": "22-minerals-3",
+            "sceneId": "minerals",
+            "startSeconds": 33.51,
+            "endSeconds": 36.49,
+            "placement": "lower-third",
+            "maxLines": 2,
+            "maxCharactersPerLine": 18,
+            "lines": [
+              "Magnesium is only",
+              "0% DV, a weak mark"
+            ],
+            "text": "Magnesium is only\n0% DV, a weak mark"
+          },
+          {
+            "id": "23-minerals-4",
+            "sceneId": "minerals",
+            "startSeconds": 36.49,
+            "endSeconds": 38.09,
+            "placement": "lower-third",
+            "maxLines": 2,
+            "maxCharactersPerLine": 18,
+            "lines": [
+              "for oils and fats."
+            ],
+            "text": "for oils and fats."
           }
         ]
       },
       {
         "id": "pros",
         "kind": "section",
-        "startSeconds": 25.39,
-        "durationSeconds": 10.94,
-        "endSeconds": 36.33,
-        "narrationText": "On the plus side: strong cooking-stability case. Tests whether practical cooking arguments can rescue brutal fat chemistry. Simple ingredient identity. Cleaner than industrial spreads. Strong healthy-food halo. Likely audience argument magnet.",
-        "subtitleText": "On the plus side: strong cooking-stability case. Tests whether practical cooking arguments can rescue brutal fat chemistry. Simple ingredient identity. Cleaner than industrial spreads. Strong healthy-food halo. Likely audience argument magnet.",
+        "narrativeRole": "real-world-upside",
+        "startSeconds": 38.09,
+        "durationSeconds": 10.59,
+        "endSeconds": 48.68,
+        "narrationText": "The upsides first: strong cooking-stability case. Tests whether practical cooking arguments can rescue brutal fat chemistry. Simple ingredient identity. Cleaner than industrial spreads. Strong healthy-food halo. Likely audience argument magnet.",
+        "subtitleText": "The upsides first: strong cooking-stability case. Tests whether practical cooking arguments can rescue brutal fat chemistry. Simple ingredient identity. Cleaner than industrial spreads. Strong healthy-food halo. Likely audience argument magnet.",
+        "subtitlePlacement": "high-lower-third",
         "visualBinding": {
           "sectionKey": "pros",
           "title": "Pros",
-          "score": 44.4,
+          "score": 66.7,
           "templateSlots": [
             "bullet_1",
             "bullet_2",
@@ -619,51 +1583,87 @@
               "title": "strong cooking-stability case",
               "explanation": "Tests whether practical cooking arguments can rescue brutal fat chemistry.",
               "impactLevel": "major",
-              "scoreValue": 4
+              "resolvedScoreValue": 100
             },
             {
               "type": "pro",
               "title": "simple ingredient identity",
               "explanation": "Cleaner than industrial spreads.",
               "impactLevel": "minor",
-              "scoreValue": 0
+              "resolvedScoreValue": 50
             },
             {
               "type": "pro",
               "title": "strong healthy-food halo",
               "explanation": "Likely audience argument magnet.",
               "impactLevel": "minor",
-              "scoreValue": 0
+              "resolvedScoreValue": 50
             }
           ],
-          "timingHint": "medium"
+          "timingHint": "medium",
+          "narrativeRole": "real-world-upside",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "high-lower-third",
+          "preferredSpriteBindings": {
+            "bullet": {
+              "path": "sprites/pros_and_cons/pros/pro_bullet_point.png",
+              "format": "png"
+            },
+            "bulletSource": {
+              "path": "sprites/pros_and_cons/pros/pro_bullet_point.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": null,
+            "macroSlots": [],
+            "micronutrientRows": [],
+            "commentaryNote": null
+          }
         },
         "revealPlan": [
           "bullet_1",
           "bullet_2",
           "bullet_3"
         ],
+        "beatPlan": [
+          {
+            "slotId": "bullet_1",
+            "beat": "lead",
+            "purpose": "real-world-upside"
+          },
+          {
+            "slotId": "bullet_2",
+            "beat": "follow",
+            "purpose": "real-world-upside"
+          },
+          {
+            "slotId": "bullet_3",
+            "beat": "follow",
+            "purpose": "real-world-upside"
+          }
+        ],
         "subtitleCues": [
           {
-            "id": "21-pros-1",
+            "id": "24-pros-1",
             "sceneId": "pros",
-            "startSeconds": 25.39,
-            "endSeconds": 27,
-            "placement": "lower-third",
+            "startSeconds": 38.09,
+            "endSeconds": 39.38,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "On the plus side:",
+              "The upsides first:",
               "strong"
             ],
-            "text": "On the plus side:\nstrong"
+            "text": "The upsides first:\nstrong"
           },
           {
-            "id": "22-pros-2",
+            "id": "25-pros-2",
             "sceneId": "pros",
-            "startSeconds": 27,
-            "endSeconds": 27.8,
-            "placement": "lower-third",
+            "startSeconds": 39.38,
+            "endSeconds": 40.18,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -673,11 +1673,11 @@
             "text": "cooking-stability\ncase."
           },
           {
-            "id": "23-pros-3",
+            "id": "26-pros-3",
             "sceneId": "pros",
-            "startSeconds": 27.8,
-            "endSeconds": 29.1,
-            "placement": "lower-third",
+            "startSeconds": 40.18,
+            "endSeconds": 41.47,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -687,11 +1687,11 @@
             "text": "Tests whether\npractical cooking"
           },
           {
-            "id": "24-pros-4",
+            "id": "27-pros-4",
             "sceneId": "pros",
-            "startSeconds": 29.1,
-            "endSeconds": 30.71,
-            "placement": "lower-third",
+            "startSeconds": 41.47,
+            "endSeconds": 43.08,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -701,11 +1701,11 @@
             "text": "arguments can\nrescue brutal fat"
           },
           {
-            "id": "25-pros-5",
+            "id": "28-pros-5",
             "sceneId": "pros",
-            "startSeconds": 30.71,
-            "endSeconds": 31.2,
-            "placement": "lower-third",
+            "startSeconds": 43.08,
+            "endSeconds": 43.56,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -714,11 +1714,11 @@
             "text": "chemistry."
           },
           {
-            "id": "26-pros-6",
+            "id": "29-pros-6",
             "sceneId": "pros",
-            "startSeconds": 31.2,
-            "endSeconds": 32.31,
-            "placement": "lower-third",
+            "startSeconds": 43.56,
+            "endSeconds": 44.68,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -728,11 +1728,11 @@
             "text": "Simple ingredient\nidentity."
           },
           {
-            "id": "27-pros-7",
+            "id": "30-pros-7",
             "sceneId": "pros",
-            "startSeconds": 32.31,
-            "endSeconds": 33.29,
-            "placement": "lower-third",
+            "startSeconds": 44.68,
+            "endSeconds": 45.65,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -742,11 +1742,11 @@
             "text": "Cleaner than\nindustrial"
           },
           {
-            "id": "28-pros-8",
+            "id": "31-pros-8",
             "sceneId": "pros",
-            "startSeconds": 33.29,
-            "endSeconds": 33.78,
-            "placement": "lower-third",
+            "startSeconds": 45.65,
+            "endSeconds": 46.14,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -755,11 +1755,11 @@
             "text": "spreads."
           },
           {
-            "id": "29-pros-9",
+            "id": "32-pros-9",
             "sceneId": "pros",
-            "startSeconds": 33.78,
-            "endSeconds": 34.9,
-            "placement": "lower-third",
+            "startSeconds": 46.14,
+            "endSeconds": 47.25,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -769,11 +1769,11 @@
             "text": "Strong\nhealthy-food halo."
           },
           {
-            "id": "30-pros-10",
+            "id": "33-pros-10",
             "sceneId": "pros",
-            "startSeconds": 34.9,
-            "endSeconds": 36.33,
-            "placement": "lower-third",
+            "startSeconds": 47.25,
+            "endSeconds": 48.68,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -787,15 +1787,17 @@
       {
         "id": "cons",
         "kind": "section",
-        "startSeconds": 36.33,
-        "durationSeconds": 14.82,
-        "endSeconds": 51.15,
-        "narrationText": "On the weaker side: saturated fat is extreme. This should hammer it hard if the category means what it says. Overall fat profile is weak. Very poor fit for an elite fats ranking. Health reputation can outrun the data. Useful editorial counterweight.",
-        "subtitleText": "On the weaker side: saturated fat is extreme. This should hammer it hard if the category means what it says. Overall fat profile is weak. Very poor fit for an elite fats ranking. Health reputation can outrun the data. Useful editorial counterweight.",
+        "narrativeRole": "real-world-downside",
+        "startSeconds": 48.68,
+        "durationSeconds": 14.12,
+        "endSeconds": 62.8,
+        "narrationText": "Downsides next: saturated fat is extreme. This should hammer it hard if the category means what it says. Overall fat profile is weak. Very poor fit for an elite fats ranking. Health reputation can outrun the data. Useful editorial counterweight.",
+        "subtitleText": "Downsides next: saturated fat is extreme. This should hammer it hard if the category means what it says. Overall fat profile is weak. Very poor fit for an elite fats ranking. Health reputation can outrun the data. Useful editorial counterweight.",
+        "subtitlePlacement": "high-lower-third",
         "visualBinding": {
           "sectionKey": "cons",
           "title": "Cons",
-          "score": 100,
+          "score": 16.7,
           "templateSlots": [
             "bullet_1",
             "bullet_2",
@@ -807,64 +1809,100 @@
               "title": "saturated fat is extreme",
               "explanation": "This should hammer it hard if the category means what it says.",
               "impactLevel": "major",
-              "scoreValue": -9
+              "resolvedScoreValue": 100
             },
             {
               "type": "con",
               "title": "overall fat profile is weak",
               "explanation": "Very poor fit for an elite fats ranking.",
               "impactLevel": "major",
-              "scoreValue": -9
+              "resolvedScoreValue": 100
             },
             {
               "type": "con",
               "title": "health reputation can outrun the data",
               "explanation": "Useful editorial counterweight.",
               "impactLevel": "minor",
-              "scoreValue": 0
+              "resolvedScoreValue": 50
             }
           ],
-          "timingHint": "medium"
+          "timingHint": "medium",
+          "narrativeRole": "real-world-downside",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "high-lower-third",
+          "preferredSpriteBindings": {
+            "bullet": {
+              "path": "sprites/pros_and_cons/cons/con_bullet_point.png",
+              "format": "png"
+            },
+            "bulletSource": {
+              "path": "sprites/pros_and_cons/cons/con_bullet_point.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": null,
+            "macroSlots": [],
+            "micronutrientRows": [],
+            "commentaryNote": null
+          }
         },
         "revealPlan": [
           "bullet_1",
           "bullet_2",
           "bullet_3"
         ],
+        "beatPlan": [
+          {
+            "slotId": "bullet_1",
+            "beat": "lead",
+            "purpose": "real-world-downside"
+          },
+          {
+            "slotId": "bullet_2",
+            "beat": "follow",
+            "purpose": "real-world-downside"
+          },
+          {
+            "slotId": "bullet_3",
+            "beat": "follow",
+            "purpose": "real-world-downside"
+          }
+        ],
         "subtitleCues": [
           {
-            "id": "31-cons-1",
+            "id": "34-cons-1",
             "sceneId": "cons",
-            "startSeconds": 36.33,
-            "endSeconds": 37.99,
-            "placement": "lower-third",
+            "startSeconds": 48.68,
+            "endSeconds": 50.33,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "On the weaker",
-              "side: saturated"
+              "Downsides next:",
+              "saturated fat is"
             ],
-            "text": "On the weaker\nside: saturated"
+            "text": "Downsides next:\nsaturated fat is"
           },
           {
-            "id": "32-cons-2",
+            "id": "35-cons-2",
             "sceneId": "cons",
-            "startSeconds": 37.99,
-            "endSeconds": 39.14,
-            "placement": "lower-third",
+            "startSeconds": 50.33,
+            "endSeconds": 50.83,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "fat is extreme."
+              "extreme."
             ],
-            "text": "fat is extreme."
+            "text": "extreme."
           },
           {
-            "id": "33-cons-3",
+            "id": "36-cons-3",
             "sceneId": "cons",
-            "startSeconds": 39.14,
-            "endSeconds": 41.44,
-            "placement": "lower-third",
+            "startSeconds": 50.83,
+            "endSeconds": 53.13,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -874,11 +1912,11 @@
             "text": "This should hammer\nit hard if the"
           },
           {
-            "id": "34-cons-4",
+            "id": "37-cons-4",
             "sceneId": "cons",
-            "startSeconds": 41.44,
-            "endSeconds": 43.24,
-            "placement": "lower-third",
+            "startSeconds": 53.13,
+            "endSeconds": 54.92,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -888,11 +1926,11 @@
             "text": "category means\nwhat it says."
           },
           {
-            "id": "35-cons-5",
+            "id": "38-cons-5",
             "sceneId": "cons",
-            "startSeconds": 43.24,
-            "endSeconds": 45.03,
-            "placement": "lower-third",
+            "startSeconds": 54.92,
+            "endSeconds": 56.71,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -902,11 +1940,11 @@
             "text": "Overall fat\nprofile is weak."
           },
           {
-            "id": "36-cons-6",
+            "id": "39-cons-6",
             "sceneId": "cons",
-            "startSeconds": 45.03,
-            "endSeconds": 47.34,
-            "placement": "lower-third",
+            "startSeconds": 56.71,
+            "endSeconds": 59,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -916,11 +1954,11 @@
             "text": "Very poor fit for\nan elite fats"
           },
           {
-            "id": "37-cons-7",
+            "id": "40-cons-7",
             "sceneId": "cons",
-            "startSeconds": 47.34,
-            "endSeconds": 47.84,
-            "placement": "lower-third",
+            "startSeconds": 59,
+            "endSeconds": 59.5,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -929,11 +1967,11 @@
             "text": "ranking."
           },
           {
-            "id": "38-cons-8",
+            "id": "41-cons-8",
             "sceneId": "cons",
-            "startSeconds": 47.84,
-            "endSeconds": 49.5,
-            "placement": "lower-third",
+            "startSeconds": 59.5,
+            "endSeconds": 61.16,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -943,11 +1981,11 @@
             "text": "Health reputation\ncan outrun the"
           },
           {
-            "id": "39-cons-9",
+            "id": "42-cons-9",
             "sceneId": "cons",
-            "startSeconds": 49.5,
-            "endSeconds": 50,
-            "placement": "lower-third",
+            "startSeconds": 61.16,
+            "endSeconds": 61.66,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -956,11 +1994,11 @@
             "text": "data."
           },
           {
-            "id": "40-cons-10",
+            "id": "43-cons-10",
             "sceneId": "cons",
-            "startSeconds": 50,
-            "endSeconds": 51.15,
-            "placement": "lower-third",
+            "startSeconds": 61.66,
+            "endSeconds": 62.8,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -974,128 +2012,147 @@
       {
         "id": "final",
         "kind": "closing",
-        "startSeconds": 51.15,
-        "durationSeconds": 12.86,
-        "endSeconds": 64.01,
-        "narrationText": "Coconut Oil does have a few real-world upsides. but the nutrition case is still weak and the downsides drag it down hard. best only in small amounts when the cooking job matters more than the nutrition case. D tier.",
-        "subtitleText": "Coconut Oil does have a few real-world upsides. but the nutrition case is still weak and the downsides drag it down hard. best only in small amounts when the cooking job matters more than the nutrition case. D tier.",
+        "narrativeRole": "verdict-payoff",
+        "startSeconds": 62.8,
+        "durationSeconds": 8.9,
+        "endSeconds": 71.7,
+        "narrationText": "Big strengths are strong cooking-stability case and simple ingredient identity, but the biggest weaknesses are saturated fat is extreme and overall fat profile is weak. D tier.",
+        "subtitleText": "Big strengths are strong cooking-stability case and simple ingredient identity, but the biggest weaknesses are saturated fat is extreme and overall fat profile is weak. D tier.",
+        "subtitleSequence": [
+          {
+            "role": "conclusion-summary",
+            "text": "Big strengths are strong cooking-stability case and simple ingredient identity, but the biggest weaknesses are saturated fat is extreme and overall fat profile is weak.",
+            "placement": "summary-full",
+            "maxCharactersPerLine": 24
+          },
+          {
+            "role": "tier-reveal",
+            "text": "D tier.",
+            "placement": "tier-center",
+            "maxCharactersPerLine": 24
+          }
+        ],
+        "subtitlePlacement": "subtitle-floor",
         "visualBinding": {
           "tier": "D",
-          "tierColor": "purple"
+          "tierColor": "purple",
+          "scorePlate": {
+            "path": "sprites/header/header_ui/score_plate.png",
+            "format": "png"
+          },
+          "scorePlateSource": {
+            "path": "sprites/header/header_ui/score_plate.aseprite",
+            "format": "aseprite"
+          },
+          "categorySeparator": {
+            "path": "sprites/ui/section_separator/oil_fat_section_separator.png",
+            "format": "png"
+          },
+          "categorySeparatorSource": {
+            "path": "sprites/ui/section_separator/oil_fat_section_separator.aseprite",
+            "format": "aseprite"
+          }
         },
         "revealPlan": [
-          "tier_stamp"
+          "summary_text",
+          "tier_stamp",
+          "final_line"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "summary_text",
+            "beat": "lead",
+            "purpose": "verdict-setup"
+          },
+          {
+            "slotId": "tier_stamp",
+            "beat": "impact",
+            "purpose": "verdict-hit"
+          },
+          {
+            "slotId": "final_line",
+            "beat": "resolve",
+            "purpose": "use-case-tag"
+          }
         ],
         "subtitleCues": [
           {
-            "id": "41-final-1",
+            "id": "44-final-1",
             "sceneId": "final",
-            "startSeconds": 51.15,
-            "endSeconds": 53.8,
+            "startSeconds": 62.8,
+            "endSeconds": 64.71,
             "placement": "summary-full",
             "maxLines": 2,
-            "maxCharactersPerLine": 28,
+            "maxCharactersPerLine": 24,
             "lines": [
-              "Coconut Oil does have a few",
-              "real-world upsides."
+              "Big strengths are strong",
+              "cooking-stability case"
             ],
-            "text": "Coconut Oil does have a few\nreal-world upsides.",
+            "text": "Big strengths are strong\ncooking-stability case",
             "role": "conclusion-summary"
           },
           {
-            "id": "42-final-2",
+            "id": "45-final-2",
             "sceneId": "final",
-            "startSeconds": 53.8,
-            "endSeconds": 56.94,
+            "startSeconds": 64.71,
+            "endSeconds": 66.63,
             "placement": "summary-full",
             "maxLines": 2,
-            "maxCharactersPerLine": 28,
+            "maxCharactersPerLine": 24,
             "lines": [
-              "but the nutrition case is",
-              "still weak and the downsides"
+              "and simple ingredient",
+              "identity, but the"
             ],
-            "text": "but the nutrition case is\nstill weak and the downsides",
+            "text": "and simple ingredient\nidentity, but the",
             "role": "conclusion-summary"
           },
           {
-            "id": "43-final-3",
+            "id": "46-final-3",
             "sceneId": "final",
-            "startSeconds": 56.94,
-            "endSeconds": 58.36,
+            "startSeconds": 66.63,
+            "endSeconds": 68.85,
             "placement": "summary-full",
             "maxLines": 2,
-            "maxCharactersPerLine": 28,
+            "maxCharactersPerLine": 24,
             "lines": [
-              "drag it down hard."
+              "biggest weaknesses are",
+              "saturated fat is extreme"
             ],
-            "text": "drag it down hard.",
+            "text": "biggest weaknesses are\nsaturated fat is extreme",
             "role": "conclusion-summary"
           },
           {
-            "id": "44-final-4",
+            "id": "47-final-4",
             "sceneId": "final",
-            "startSeconds": 58.36,
-            "endSeconds": 61.5,
+            "startSeconds": 68.85,
+            "endSeconds": 70.9,
             "placement": "summary-full",
             "maxLines": 2,
-            "maxCharactersPerLine": 28,
+            "maxCharactersPerLine": 24,
             "lines": [
-              "best only in small amounts",
-              "when the cooking job matters"
+              "and overall fat profile",
+              "is weak."
             ],
-            "text": "best only in small amounts\nwhen the cooking job matters",
+            "text": "and overall fat profile\nis weak.",
             "role": "conclusion-summary"
           },
           {
-            "id": "45-final-5",
+            "id": "48-final-5",
             "sceneId": "final",
-            "startSeconds": 61.5,
-            "endSeconds": 63.22,
-            "placement": "summary-full",
-            "maxLines": 2,
-            "maxCharactersPerLine": 28,
-            "lines": [
-              "more than the nutrition",
-              "case."
-            ],
-            "text": "more than the nutrition\ncase.",
-            "role": "conclusion-summary"
-          },
-          {
-            "id": "46-final-6",
-            "sceneId": "final",
-            "startSeconds": 63.22,
-            "endSeconds": 64.01,
+            "startSeconds": 70.9,
+            "endSeconds": 71.7,
             "placement": "tier-center",
             "maxLines": 2,
-            "maxCharactersPerLine": 28,
+            "maxCharactersPerLine": 24,
             "lines": [
               "D tier."
             ],
             "text": "D tier.",
             "role": "tier-reveal"
           }
-        ],
-        "subtitleSequence": [
-          {
-            "role": "conclusion-summary",
-            "text": "Coconut Oil does have a few real-world upsides. but the nutrition case is still weak and the downsides drag it down hard. best only in small amounts when the cooking job matters more than the nutrition case.",
-            "placement": "summary-full",
-            "maxCharactersPerLine": 28
-          },
-          {
-            "role": "tier-reveal",
-            "text": "D tier.",
-            "placement": "tier-center",
-            "maxCharactersPerLine": 28
-          }
         ]
       }
     ],
-    "subtitleRules": {
-      "maxLines": 2,
-      "maxCharactersPerLine": 18
-    },
     "subtitleCues": [
       {
         "id": "01-hook",
@@ -1115,102 +2172,89 @@
         "id": "02-fats-1",
         "sceneId": "fats",
         "startSeconds": 2.1,
-        "endSeconds": 3.57,
+        "endSeconds": 3.48,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "100g of fat.",
-          "Saturated fat is"
+          "100g of fat."
         ],
-        "text": "100g of fat.\nSaturated fat is"
+        "text": "100g of fat."
       },
       {
         "id": "03-fats-2",
         "sceneId": "fats",
-        "startSeconds": 3.57,
-        "endSeconds": 4.01,
+        "startSeconds": 3.48,
+        "endSeconds": 5.41,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "82."
+          "Cholesterol is",
+          "0mg, supporting a"
         ],
-        "text": "82."
+        "text": "Cholesterol is\n0mg, supporting a"
       },
       {
         "id": "04-fats-3",
         "sceneId": "fats",
-        "startSeconds": 4.01,
-        "endSeconds": 5.21,
+        "startSeconds": 5.41,
+        "endSeconds": 6.66,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "5g. 100g of fat."
+          "better fat",
+          "profile."
         ],
-        "text": "5g. 100g of fat."
+        "text": "better fat\nprofile."
       },
       {
         "id": "05-fats-4",
         "sceneId": "fats",
-        "startSeconds": 5.21,
-        "endSeconds": 6.33,
+        "startSeconds": 6.66,
+        "endSeconds": 8.24,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
           "Saturated fat is",
-          "82."
+          "82.5g,"
         ],
-        "text": "Saturated fat is\n82."
+        "text": "Saturated fat is\n82.5g,"
       },
       {
         "id": "06-fats-5",
         "sceneId": "fats",
-        "startSeconds": 6.33,
-        "endSeconds": 7.67,
+        "startSeconds": 8.24,
+        "endSeconds": 10.73,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "5g, a major",
-          "pressure point."
+          "and for oils and",
+          "fats, that matters"
         ],
-        "text": "5g, a major\npressure point."
+        "text": "and for oils and\nfats, that matters"
       },
       {
         "id": "07-fats-6",
         "sceneId": "fats",
-        "startSeconds": 7.67,
-        "endSeconds": 9.06,
+        "startSeconds": 10.73,
+        "endSeconds": 11.63,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "For this category,",
-          "the real question"
+          "a lot."
         ],
-        "text": "For this category,\nthe real question"
+        "text": "a lot."
       },
       {
-        "id": "08-fats-7",
-        "sceneId": "fats",
-        "startSeconds": 9.06,
-        "endSeconds": 9.86,
-        "placement": "lower-third",
-        "maxLines": 2,
-        "maxCharactersPerLine": 18,
-        "lines": [
-          "is fat quality."
-        ],
-        "text": "is fat quality."
-      },
-      {
-        "id": "09-carbs-1",
+        "id": "08-carbs-1",
         "sceneId": "carbs",
-        "startSeconds": 9.86,
-        "endSeconds": 11.13,
+        "startSeconds": 11.63,
+        "endSeconds": 12.91,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -1220,37 +2264,37 @@
         "text": "0g of carbs."
       },
       {
-        "id": "10-carbs-2",
+        "id": "09-carbs-2",
         "sceneId": "carbs",
-        "startSeconds": 11.13,
-        "endSeconds": 12.8,
+        "startSeconds": 12.91,
+        "endSeconds": 14.91,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "Everything else",
-          "here is pretty"
+          "No defensible carb",
+          "submacros to call"
         ],
-        "text": "Everything else\nhere is pretty"
+        "text": "No defensible carb\nsubmacros to call"
       },
       {
-        "id": "11-carbs-3",
+        "id": "10-carbs-3",
         "sceneId": "carbs",
-        "startSeconds": 12.8,
-        "endSeconds": 13.3,
+        "startSeconds": 14.91,
+        "endSeconds": 15.41,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "flat."
+          "out."
         ],
-        "text": "flat."
+        "text": "out."
       },
       {
-        "id": "12-carbs-4",
+        "id": "11-carbs-4",
         "sceneId": "carbs",
-        "startSeconds": 13.3,
-        "endSeconds": 14.45,
+        "startSeconds": 15.41,
+        "endSeconds": 16.57,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -1260,10 +2304,10 @@
         "text": "Not relevant here."
       },
       {
-        "id": "13-proteins-1",
+        "id": "12-proteins-1",
         "sceneId": "proteins",
-        "startSeconds": 14.45,
-        "endSeconds": 15.74,
+        "startSeconds": 16.57,
+        "endSeconds": 17.86,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -1273,37 +2317,37 @@
         "text": "0g of protein."
       },
       {
-        "id": "14-proteins-2",
+        "id": "13-proteins-2",
         "sceneId": "proteins",
-        "startSeconds": 15.74,
-        "endSeconds": 18.09,
+        "startSeconds": 17.86,
+        "endSeconds": 19.21,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "The rest of the",
-          "section is nothing"
+          "No defensible",
+          "protein submacros"
         ],
-        "text": "The rest of the\nsection is nothing"
+        "text": "No defensible\nprotein submacros"
       },
       {
-        "id": "15-proteins-3",
+        "id": "14-proteins-3",
         "sceneId": "proteins",
-        "startSeconds": 18.09,
-        "endSeconds": 18.6,
+        "startSeconds": 19.21,
+        "endSeconds": 20.37,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "special."
+          "to call out."
         ],
-        "text": "special."
+        "text": "to call out."
       },
       {
-        "id": "16-proteins-4",
+        "id": "15-proteins-4",
         "sceneId": "proteins",
-        "startSeconds": 18.6,
-        "endSeconds": 20.1,
+        "startSeconds": 20.37,
+        "endSeconds": 21.86,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -1314,79 +2358,133 @@
         "text": "Also not relevant\nhere."
       },
       {
-        "id": "17-vitamins-1",
+        "id": "16-vitamins-1",
         "sceneId": "vitamins",
-        "startSeconds": 20.1,
-        "endSeconds": 22.42,
+        "startSeconds": 21.86,
+        "endSeconds": 24.5,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "The rest of the",
-          "section is nothing"
+          "Vitamin E is 1%",
+          "DV, adding useful"
         ],
-        "text": "The rest of the\nsection is nothing"
+        "text": "Vitamin E is 1%\nDV, adding useful"
       },
       {
-        "id": "18-vitamins-2",
+        "id": "17-vitamins-2",
         "sceneId": "vitamins",
-        "startSeconds": 22.42,
-        "endSeconds": 22.92,
-        "placement": "lower-third",
-        "maxLines": 2,
-        "maxCharactersPerLine": 18,
-        "lines": [
-          "special."
-        ],
-        "text": "special."
-      },
-      {
-        "id": "19-minerals-1",
-        "sceneId": "minerals",
-        "startSeconds": 22.92,
-        "endSeconds": 24.25,
-        "placement": "lower-third",
-        "maxLines": 2,
-        "maxCharactersPerLine": 18,
-        "lines": [
-          "Minerals are",
-          "basically not"
-        ],
-        "text": "Minerals are\nbasically not"
-      },
-      {
-        "id": "20-minerals-2",
-        "sceneId": "minerals",
-        "startSeconds": 24.25,
+        "startSeconds": 24.5,
         "endSeconds": 25.39,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "adding much here."
+          "vitamin support."
         ],
-        "text": "adding much here."
+        "text": "vitamin support."
       },
       {
-        "id": "21-pros-1",
-        "sceneId": "pros",
+        "id": "18-vitamins-3",
+        "sceneId": "vitamins",
         "startSeconds": 25.39,
-        "endSeconds": 27,
+        "endSeconds": 28.73,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "On the plus side:",
-          "strong"
+          "Vitamin A is only",
+          "0% DV, a weak mark"
         ],
-        "text": "On the plus side:\nstrong"
+        "text": "Vitamin A is only\n0% DV, a weak mark"
       },
       {
-        "id": "22-pros-2",
-        "sceneId": "pros",
-        "startSeconds": 27,
-        "endSeconds": 27.8,
+        "id": "19-vitamins-4",
+        "sceneId": "vitamins",
+        "startSeconds": 28.73,
+        "endSeconds": 30.33,
         "placement": "lower-third",
+        "maxLines": 2,
+        "maxCharactersPerLine": 18,
+        "lines": [
+          "for oils and fats."
+        ],
+        "text": "for oils and fats."
+      },
+      {
+        "id": "20-minerals-1",
+        "sceneId": "minerals",
+        "startSeconds": 30.33,
+        "endSeconds": 32.96,
+        "placement": "lower-third",
+        "maxLines": 2,
+        "maxCharactersPerLine": 18,
+        "lines": [
+          "Iron is 0% DV,",
+          "useful for oxygen"
+        ],
+        "text": "Iron is 0% DV,\nuseful for oxygen"
+      },
+      {
+        "id": "21-minerals-2",
+        "sceneId": "minerals",
+        "startSeconds": 32.96,
+        "endSeconds": 33.51,
+        "placement": "lower-third",
+        "maxLines": 2,
+        "maxCharactersPerLine": 18,
+        "lines": [
+          "transport."
+        ],
+        "text": "transport."
+      },
+      {
+        "id": "22-minerals-3",
+        "sceneId": "minerals",
+        "startSeconds": 33.51,
+        "endSeconds": 36.49,
+        "placement": "lower-third",
+        "maxLines": 2,
+        "maxCharactersPerLine": 18,
+        "lines": [
+          "Magnesium is only",
+          "0% DV, a weak mark"
+        ],
+        "text": "Magnesium is only\n0% DV, a weak mark"
+      },
+      {
+        "id": "23-minerals-4",
+        "sceneId": "minerals",
+        "startSeconds": 36.49,
+        "endSeconds": 38.09,
+        "placement": "lower-third",
+        "maxLines": 2,
+        "maxCharactersPerLine": 18,
+        "lines": [
+          "for oils and fats."
+        ],
+        "text": "for oils and fats."
+      },
+      {
+        "id": "24-pros-1",
+        "sceneId": "pros",
+        "startSeconds": 38.09,
+        "endSeconds": 39.38,
+        "placement": "high-lower-third",
+        "maxLines": 2,
+        "maxCharactersPerLine": 18,
+        "lines": [
+          "The upsides first:",
+          "strong"
+        ],
+        "text": "The upsides first:\nstrong"
+      },
+      {
+        "id": "25-pros-2",
+        "sceneId": "pros",
+        "startSeconds": 39.38,
+        "endSeconds": 40.18,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1396,11 +2494,11 @@
         "text": "cooking-stability\ncase."
       },
       {
-        "id": "23-pros-3",
+        "id": "26-pros-3",
         "sceneId": "pros",
-        "startSeconds": 27.8,
-        "endSeconds": 29.1,
-        "placement": "lower-third",
+        "startSeconds": 40.18,
+        "endSeconds": 41.47,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1410,11 +2508,11 @@
         "text": "Tests whether\npractical cooking"
       },
       {
-        "id": "24-pros-4",
+        "id": "27-pros-4",
         "sceneId": "pros",
-        "startSeconds": 29.1,
-        "endSeconds": 30.71,
-        "placement": "lower-third",
+        "startSeconds": 41.47,
+        "endSeconds": 43.08,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1424,11 +2522,11 @@
         "text": "arguments can\nrescue brutal fat"
       },
       {
-        "id": "25-pros-5",
+        "id": "28-pros-5",
         "sceneId": "pros",
-        "startSeconds": 30.71,
-        "endSeconds": 31.2,
-        "placement": "lower-third",
+        "startSeconds": 43.08,
+        "endSeconds": 43.56,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1437,11 +2535,11 @@
         "text": "chemistry."
       },
       {
-        "id": "26-pros-6",
+        "id": "29-pros-6",
         "sceneId": "pros",
-        "startSeconds": 31.2,
-        "endSeconds": 32.31,
-        "placement": "lower-third",
+        "startSeconds": 43.56,
+        "endSeconds": 44.68,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1451,11 +2549,11 @@
         "text": "Simple ingredient\nidentity."
       },
       {
-        "id": "27-pros-7",
+        "id": "30-pros-7",
         "sceneId": "pros",
-        "startSeconds": 32.31,
-        "endSeconds": 33.29,
-        "placement": "lower-third",
+        "startSeconds": 44.68,
+        "endSeconds": 45.65,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1465,11 +2563,11 @@
         "text": "Cleaner than\nindustrial"
       },
       {
-        "id": "28-pros-8",
+        "id": "31-pros-8",
         "sceneId": "pros",
-        "startSeconds": 33.29,
-        "endSeconds": 33.78,
-        "placement": "lower-third",
+        "startSeconds": 45.65,
+        "endSeconds": 46.14,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1478,11 +2576,11 @@
         "text": "spreads."
       },
       {
-        "id": "29-pros-9",
+        "id": "32-pros-9",
         "sceneId": "pros",
-        "startSeconds": 33.78,
-        "endSeconds": 34.9,
-        "placement": "lower-third",
+        "startSeconds": 46.14,
+        "endSeconds": 47.25,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1492,11 +2590,11 @@
         "text": "Strong\nhealthy-food halo."
       },
       {
-        "id": "30-pros-10",
+        "id": "33-pros-10",
         "sceneId": "pros",
-        "startSeconds": 34.9,
-        "endSeconds": 36.33,
-        "placement": "lower-third",
+        "startSeconds": 47.25,
+        "endSeconds": 48.68,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1506,38 +2604,38 @@
         "text": "Likely audience\nargument magnet."
       },
       {
-        "id": "31-cons-1",
+        "id": "34-cons-1",
         "sceneId": "cons",
-        "startSeconds": 36.33,
-        "endSeconds": 37.99,
-        "placement": "lower-third",
+        "startSeconds": 48.68,
+        "endSeconds": 50.33,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "On the weaker",
-          "side: saturated"
+          "Downsides next:",
+          "saturated fat is"
         ],
-        "text": "On the weaker\nside: saturated"
+        "text": "Downsides next:\nsaturated fat is"
       },
       {
-        "id": "32-cons-2",
+        "id": "35-cons-2",
         "sceneId": "cons",
-        "startSeconds": 37.99,
-        "endSeconds": 39.14,
-        "placement": "lower-third",
+        "startSeconds": 50.33,
+        "endSeconds": 50.83,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "fat is extreme."
+          "extreme."
         ],
-        "text": "fat is extreme."
+        "text": "extreme."
       },
       {
-        "id": "33-cons-3",
+        "id": "36-cons-3",
         "sceneId": "cons",
-        "startSeconds": 39.14,
-        "endSeconds": 41.44,
-        "placement": "lower-third",
+        "startSeconds": 50.83,
+        "endSeconds": 53.13,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1547,11 +2645,11 @@
         "text": "This should hammer\nit hard if the"
       },
       {
-        "id": "34-cons-4",
+        "id": "37-cons-4",
         "sceneId": "cons",
-        "startSeconds": 41.44,
-        "endSeconds": 43.24,
-        "placement": "lower-third",
+        "startSeconds": 53.13,
+        "endSeconds": 54.92,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1561,11 +2659,11 @@
         "text": "category means\nwhat it says."
       },
       {
-        "id": "35-cons-5",
+        "id": "38-cons-5",
         "sceneId": "cons",
-        "startSeconds": 43.24,
-        "endSeconds": 45.03,
-        "placement": "lower-third",
+        "startSeconds": 54.92,
+        "endSeconds": 56.71,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1575,11 +2673,11 @@
         "text": "Overall fat\nprofile is weak."
       },
       {
-        "id": "36-cons-6",
+        "id": "39-cons-6",
         "sceneId": "cons",
-        "startSeconds": 45.03,
-        "endSeconds": 47.34,
-        "placement": "lower-third",
+        "startSeconds": 56.71,
+        "endSeconds": 59,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1589,11 +2687,11 @@
         "text": "Very poor fit for\nan elite fats"
       },
       {
-        "id": "37-cons-7",
+        "id": "40-cons-7",
         "sceneId": "cons",
-        "startSeconds": 47.34,
-        "endSeconds": 47.84,
-        "placement": "lower-third",
+        "startSeconds": 59,
+        "endSeconds": 59.5,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1602,11 +2700,11 @@
         "text": "ranking."
       },
       {
-        "id": "38-cons-8",
+        "id": "41-cons-8",
         "sceneId": "cons",
-        "startSeconds": 47.84,
-        "endSeconds": 49.5,
-        "placement": "lower-third",
+        "startSeconds": 59.5,
+        "endSeconds": 61.16,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1616,11 +2714,11 @@
         "text": "Health reputation\ncan outrun the"
       },
       {
-        "id": "39-cons-9",
+        "id": "42-cons-9",
         "sceneId": "cons",
-        "startSeconds": 49.5,
-        "endSeconds": 50,
-        "placement": "lower-third",
+        "startSeconds": 61.16,
+        "endSeconds": 61.66,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1629,11 +2727,11 @@
         "text": "data."
       },
       {
-        "id": "40-cons-10",
+        "id": "43-cons-10",
         "sceneId": "cons",
-        "startSeconds": 50,
-        "endSeconds": 51.15,
-        "placement": "lower-third",
+        "startSeconds": 61.66,
+        "endSeconds": 62.8,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1643,87 +2741,73 @@
         "text": "Useful editorial\ncounterweight."
       },
       {
-        "id": "41-final-1",
+        "id": "44-final-1",
         "sceneId": "final",
-        "startSeconds": 51.15,
-        "endSeconds": 53.8,
+        "startSeconds": 62.8,
+        "endSeconds": 64.71,
         "placement": "summary-full",
         "maxLines": 2,
-        "maxCharactersPerLine": 28,
+        "maxCharactersPerLine": 24,
         "lines": [
-          "Coconut Oil does have a few",
-          "real-world upsides."
+          "Big strengths are strong",
+          "cooking-stability case"
         ],
-        "text": "Coconut Oil does have a few\nreal-world upsides.",
+        "text": "Big strengths are strong\ncooking-stability case",
         "role": "conclusion-summary"
       },
       {
-        "id": "42-final-2",
+        "id": "45-final-2",
         "sceneId": "final",
-        "startSeconds": 53.8,
-        "endSeconds": 56.94,
+        "startSeconds": 64.71,
+        "endSeconds": 66.63,
         "placement": "summary-full",
         "maxLines": 2,
-        "maxCharactersPerLine": 28,
+        "maxCharactersPerLine": 24,
         "lines": [
-          "but the nutrition case is",
-          "still weak and the downsides"
+          "and simple ingredient",
+          "identity, but the"
         ],
-        "text": "but the nutrition case is\nstill weak and the downsides",
+        "text": "and simple ingredient\nidentity, but the",
         "role": "conclusion-summary"
       },
       {
-        "id": "43-final-3",
+        "id": "46-final-3",
         "sceneId": "final",
-        "startSeconds": 56.94,
-        "endSeconds": 58.36,
+        "startSeconds": 66.63,
+        "endSeconds": 68.85,
         "placement": "summary-full",
         "maxLines": 2,
-        "maxCharactersPerLine": 28,
+        "maxCharactersPerLine": 24,
         "lines": [
-          "drag it down hard."
+          "biggest weaknesses are",
+          "saturated fat is extreme"
         ],
-        "text": "drag it down hard.",
+        "text": "biggest weaknesses are\nsaturated fat is extreme",
         "role": "conclusion-summary"
       },
       {
-        "id": "44-final-4",
+        "id": "47-final-4",
         "sceneId": "final",
-        "startSeconds": 58.36,
-        "endSeconds": 61.5,
+        "startSeconds": 68.85,
+        "endSeconds": 70.9,
         "placement": "summary-full",
         "maxLines": 2,
-        "maxCharactersPerLine": 28,
+        "maxCharactersPerLine": 24,
         "lines": [
-          "best only in small amounts",
-          "when the cooking job matters"
+          "and overall fat profile",
+          "is weak."
         ],
-        "text": "best only in small amounts\nwhen the cooking job matters",
+        "text": "and overall fat profile\nis weak.",
         "role": "conclusion-summary"
       },
       {
-        "id": "45-final-5",
+        "id": "48-final-5",
         "sceneId": "final",
-        "startSeconds": 61.5,
-        "endSeconds": 63.22,
-        "placement": "summary-full",
-        "maxLines": 2,
-        "maxCharactersPerLine": 28,
-        "lines": [
-          "more than the nutrition",
-          "case."
-        ],
-        "text": "more than the nutrition\ncase.",
-        "role": "conclusion-summary"
-      },
-      {
-        "id": "46-final-6",
-        "sceneId": "final",
-        "startSeconds": 63.22,
-        "endSeconds": 64.01,
+        "startSeconds": 70.9,
+        "endSeconds": 71.7,
         "placement": "tier-center",
         "maxLines": 2,
-        "maxCharactersPerLine": 28,
+        "maxCharactersPerLine": 24,
         "lines": [
           "D tier."
         ],

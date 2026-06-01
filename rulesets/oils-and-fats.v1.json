@@ -325,28 +325,61 @@
   "tierThresholds": [
     {
       "tier": "S",
-      "min": 50.625,
+      "min": 80,
       "max": 100
     },
     {
       "tier": "A",
-      "min": 41.55,
-      "max": 50.6249
+      "min": 60,
+      "max": 79.9999
     },
     {
       "tier": "B",
-      "min": 30.8167,
-      "max": 41.5499
+      "min": 40,
+      "max": 59.9999
     },
     {
       "tier": "C",
-      "min": 27.1429,
-      "max": 30.8166
+      "min": 20,
+      "max": 39.9999
     },
     {
       "tier": "D",
       "min": 0,
-      "max": 27.1428
+      "max": 19.9999
     }
-  ]
+  ],
+  "scoreCalibration": {
+    "version": 1,
+    "method": "piecewise_linear_raw_to_shared_tier_score",
+    "input": "baseOverallScore",
+    "output": "overallScore",
+    "anchors": [
+      {
+        "raw": 0,
+        "calibrated": 0
+      },
+      {
+        "raw": 27.1429,
+        "calibrated": 20
+      },
+      {
+        "raw": 30.8167,
+        "calibrated": 40
+      },
+      {
+        "raw": 41.55,
+        "calibrated": 60
+      },
+      {
+        "raw": 50.625,
+        "calibrated": 80
+      },
+      {
+        "raw": 100,
+        "calibrated": 100
+      }
+    ],
+    "notes": "Maps category-calibrated benchmark boundaries onto shared D/C/B/A/S 20-point score bands."
+  }
 }

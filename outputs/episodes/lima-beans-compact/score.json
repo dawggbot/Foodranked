@@ -7,7 +7,11 @@
   },
   "ruleset": {
     "id": "legumes.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 338,
@@ -16,36 +20,32 @@
     "protein_g": 21.5
   },
   "sectionScores": {
-    "fats": 50,
-    "carbs": 83.3,
-    "proteins": 88.9,
-    "vitamins": null,
+    "fats": 46.7,
+    "carbs": 87.3,
+    "proteins": 100,
+    "vitamins": 0,
     "minerals": 21.7,
-    "pros": 0,
-    "cons": 0
+    "pros": 50,
+    "cons": 50
   },
-  "baseScore": 64,
-  "contextAdjustment": {
-    "rawAdjustment": 0,
-    "appliedAdjustment": 0,
-    "appliedItems": [],
-    "ignoredItems": []
-  },
-  "overallScore": 64,
-  "tier": "S",
-  "summary": "Proteins are carrying this food most, while minerals are the biggest drag. It lands in S tier.",
+  "overallScore": 60.6,
+  "overallScoreExact": 60.5841,
+  "baseOverallScore": 50.8,
+  "baseOverallScoreExact": 50.8009,
+  "tier": "A",
+  "summary": "Proteins are carrying this food most, while vitamins are holding it back most. It lands in A tier.",
   "explanation": {
-    "summary": "Proteins are carrying this food most, while minerals are the biggest drag. It lands in S tier.",
-    "whyThisTier": "This food lands in S tier with an overall score of 64 from a base nutrition score of 64. Context barely changed the result.",
+    "summary": "Proteins are carrying this food most, while vitamins are holding it back most. It lands in A tier.",
+    "whyThisTier": "This food lands in A tier with an overall score of 60.6. Section scores: fats 46.7, carbs 87.3, proteins 100, vitamins 0, minerals 21.7, pros 50, cons 50.",
     "strongestSection": {
       "key": "proteins",
       "label": "Proteins",
-      "score": 88.9
+      "score": 100
     },
     "weakestSection": {
-      "key": "minerals",
-      "label": "Minerals",
-      "score": 21.7
+      "key": "vitamins",
+      "label": "Vitamins",
+      "score": 0
     },
     "topPros": [
       {
@@ -53,21 +53,21 @@
         "explanation": "Legumes usually earn a lot of practical value from satiety.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "does a lot of jobs at once",
         "explanation": "Protein, fibre, and meal utility are why legumes stay valuable.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "fibre-forward category identity",
         "explanation": "Legumes are supposed to bring stable carbs and fibre.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -76,27 +76,27 @@
         "explanation": "Good, but not meat or dairy level.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "can take planning or prep",
         "explanation": "That is a small but real friction cost.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "prep time can still be a barrier",
         "explanation": "Dry legumes especially ask more from the cook.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
       "Strongest section: Proteins.",
-      "Weakest section: Minerals.",
-      "Final verdict: S tier."
+      "Weakest section: Vitamins.",
+      "Final verdict: A tier."
     ]
   },
   "contextItems": {
@@ -104,52 +104,58 @@
       {
         "itemKey": "legume_satiety",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "filling for the calories",
         "explanation": "Legumes usually earn a lot of practical value from satiety.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "legume_meal_density",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "does a lot of jobs at once",
         "explanation": "Protein, fibre, and meal utility are why legumes stay valuable.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "legume_fibre_identity",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "fibre-forward category identity",
         "explanation": "Legumes are supposed to bring stable carbs and fibre.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "cons": [
       {
         "itemKey": "legume_protein_ceiling",
         "impactLevel": "minor",
-        "scoreValue": -1,
         "title": "protein quality still has a ceiling",
         "explanation": "Good, but not meat or dairy level.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "legume_prep_time",
         "impactLevel": "minor",
-        "scoreValue": -1,
         "title": "can take planning or prep",
         "explanation": "That is a small but real friction cost.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "legume_prep_time",
         "impactLevel": "minor",
-        "scoreValue": -1,
         "title": "prep time can still be a barrier",
         "explanation": "Dry legumes especially ask more from the cook.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       }
     ]
   },
@@ -160,19 +166,19 @@
       "scoringMode": "arrow_bands",
       "value": 0.2,
       "band": "↓↓↓",
-      "score": 3,
+      "score": 100,
       "weight": 1,
-      "weightedScore": 3
+      "weightedScore": 100
     },
     {
       "metricKey": "omega3_mg",
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 80,
-      "band": "↓",
-      "score": -1,
+      "band": "↓↓",
+      "score": 20,
       "weight": 1,
-      "weightedScore": -1
+      "weightedScore": 20
     },
     {
       "metricKey": "polyunsaturated_fat_g",
@@ -180,9 +186,9 @@
       "scoringMode": "arrow_bands",
       "value": 0.3,
       "band": "↓↓",
-      "score": -2,
+      "score": 20,
       "weight": 1,
-      "weightedScore": -2
+      "weightedScore": 20
     },
     {
       "metricKey": "starch_g",
@@ -190,9 +196,9 @@
       "scoringMode": "arrow_bands",
       "value": 36,
       "band": "↑↑",
-      "score": 2,
+      "score": 80,
       "weight": 1,
-      "weightedScore": 2
+      "weightedScore": 80
     },
     {
       "metricKey": "fibre_g",
@@ -200,9 +206,9 @@
       "scoringMode": "arrow_bands",
       "value": 19,
       "band": "↑↑↑",
-      "score": 3,
+      "score": 100,
       "weight": 4,
-      "weightedScore": 12
+      "weightedScore": 400
     },
     {
       "metricKey": "sugar_g",
@@ -210,49 +216,39 @@
       "scoringMode": "arrow_bands",
       "value": 2,
       "band": "↓↓",
-      "score": 2,
+      "score": 80,
       "weight": 2,
-      "weightedScore": 4
+      "weightedScore": 160
     },
     {
       "metricKey": "glycemic_index",
       "sectionKey": "carbs",
       "scoringMode": "arrow_bands",
       "value": 32,
-      "band": "↓",
-      "score": 1,
+      "band": "↓↓",
+      "score": 80,
       "weight": 4,
-      "weightedScore": 4
+      "weightedScore": 320
     },
     {
-      "metricKey": "essential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 6,
-      "band": "↑↑",
-      "score": 2,
-      "weight": 3,
-      "weightedScore": 6
-    },
-    {
-      "metricKey": "nonessential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 8,
-      "band": "↑↑",
-      "score": 2,
+      "metricKey": "vitamin_e_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 1,
+      "points": 0,
+      "score": 0,
       "weight": 1,
-      "weightedScore": 2
+      "weightedScore": 0
     },
     {
-      "metricKey": "bioavailability_percent",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 72,
-      "band": "↑↑↑",
-      "score": 3,
-      "weight": 2,
-      "weightedScore": 6
+      "metricKey": "vitamin_c_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 2,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
     },
     {
       "metricKey": "iron_dv",
@@ -260,8 +256,9 @@
       "scoringMode": "dv_points",
       "dvPercent": 25,
       "points": 2,
+      "score": 20,
       "weight": 2,
-      "weightedScore": 4
+      "weightedScore": 40
     },
     {
       "metricKey": "magnesium_dv",
@@ -269,8 +266,9 @@
       "scoringMode": "dv_points",
       "dvPercent": 32,
       "points": 3,
+      "score": 30,
       "weight": 2,
-      "weightedScore": 6
+      "weightedScore": 60
     },
     {
       "metricKey": "zinc_dv",
@@ -278,8 +276,9 @@
       "scoringMode": "dv_points",
       "dvPercent": 18,
       "points": 1,
+      "score": 10,
       "weight": 1,
-      "weightedScore": 1
+      "weightedScore": 10
     },
     {
       "metricKey": "potassium_dv",
@@ -287,8 +286,20 @@
       "scoringMode": "dv_points",
       "dvPercent": 27,
       "points": 2,
+      "score": 20,
       "weight": 1,
-      "weightedScore": 2
+      "weightedScore": 20
+    },
+    {
+      "metricKey": "protein_g_fallback",
+      "sectionKey": "proteins",
+      "scoringMode": "protein_fallback",
+      "value": 21.5,
+      "band": "3_green",
+      "score": 100,
+      "weight": 3,
+      "weightedScore": 300,
+      "fallbackApplied": true
     }
   ]
 }

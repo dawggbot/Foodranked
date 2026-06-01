@@ -7,7 +7,11 @@
   },
   "ruleset": {
     "id": "vegetables.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 14,
@@ -18,83 +22,52 @@
   "sectionScores": {
     "fats": 100,
     "carbs": 66.7,
-    "proteins": 38.9,
-    "vitamins": 10,
+    "proteins": null,
+    "vitamins": 4.3,
     "minerals": 0,
-    "pros": 0,
-    "cons": 100
+    "pros": 50,
+    "cons": 0
   },
-  "baseScore": 25,
-  "contextAdjustment": {
-    "rawAdjustment": -9,
-    "appliedAdjustment": -9,
-    "appliedItems": [
-      {
-        "itemKey": "weak_micronutrient_payoff",
-        "impactLevel": "major",
-        "scoreValue": -3,
-        "title": "micronutrient payoff is weak",
-        "explanation": "That is a major problem in a category meant to reward nutrient density.",
-        "evidenceType": "manual",
-        "side": "con",
-        "resolvedScoreValue": -3
-      },
-      {
-        "itemKey": "weak_fibre_density",
-        "impactLevel": "major",
-        "scoreValue": -3,
-        "title": "fibre payoff is weak for a vegetable",
-        "explanation": "It does not offer much of the maintenance-and-repair value the category is supposed to reward.",
-        "evidenceType": "manual",
-        "side": "con",
-        "resolvedScoreValue": -3
-      },
-      {
-        "itemKey": "mostly_water_penalty",
-        "impactLevel": "major",
-        "scoreValue": -3,
-        "title": "mostly water with limited nutritional return",
-        "explanation": "Very low payoff compared with stronger vegetables.",
-        "evidenceType": "manual",
-        "side": "con",
-        "resolvedScoreValue": -3
-      }
-    ],
-    "ignoredItems": []
-  },
-  "overallScore": 16,
+  "overallScore": 16.8,
+  "overallScoreExact": 16.8116,
+  "baseOverallScore": 36.8,
+  "baseOverallScoreExact": 36.8254,
   "tier": "D",
-  "summary": "Fats are carrying this food most, while minerals are the biggest drag. It lands in D tier.",
+  "summary": "Fats are carrying this food most, while cons are holding it back most. It lands in D tier.",
   "explanation": {
-    "summary": "Fats are carrying this food most, while minerals are the biggest drag. It lands in D tier.",
-    "whyThisTier": "This food lands in D tier with an overall score of 16 from a base nutrition score of 25. Context dragged it down by 9 points.",
+    "summary": "Fats are carrying this food most, while cons are holding it back most. It lands in D tier.",
+    "whyThisTier": "This food lands in D tier with an overall score of 16.8. Section scores: fats 100, carbs 66.7, vitamins 4.3, minerals 0, pros 50, cons 0.",
     "strongestSection": {
       "key": "fats",
       "label": "Fats",
       "score": 100
     },
-    "weakestSection": null,
+    "weakestSection": {
+      "key": "cons",
+      "label": "Cons",
+      "score": 0
+    },
     "topPros": [
       {
         "title": "adds hydrating volume",
         "explanation": "It can bulk out meals with almost no calories.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "easy salad base",
         "explanation": "Very practical in sandwiches, burgers, and salads.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "mild and easy to tolerate",
         "explanation": "A practical plus for people who dislike bitter greens.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -103,26 +76,26 @@
         "explanation": "That is a major problem in a category meant to reward nutrient density.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -3
+        "resolvedScoreValue": 100
       },
       {
         "title": "fibre payoff is weak for a vegetable",
         "explanation": "It does not offer much of the maintenance-and-repair value the category is supposed to reward.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -3
+        "resolvedScoreValue": 100
       },
       {
         "title": "mostly water with limited nutritional return",
         "explanation": "Very low payoff compared with stronger vegetables.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -3
+        "resolvedScoreValue": 100
       }
     ],
     "narrationNotes": [
       "Strongest section: Fats.",
-      "Context weakened the final tier case by 9 points.",
+      "Weakest section: Cons.",
       "Final verdict: D tier."
     ]
   },
@@ -131,52 +104,58 @@
       {
         "itemKey": "hydrating_volume",
         "impactLevel": "minor",
-        "scoreValue": 0,
         "title": "adds hydrating volume",
         "explanation": "It can bulk out meals with almost no calories.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "easy_salad_base",
         "impactLevel": "minor",
-        "scoreValue": 0,
         "title": "easy salad base",
         "explanation": "Very practical in sandwiches, burgers, and salads.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "mild_flavour",
         "impactLevel": "minor",
-        "scoreValue": 0,
         "title": "mild and easy to tolerate",
         "explanation": "A practical plus for people who dislike bitter greens.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "cons": [
       {
         "itemKey": "weak_micronutrient_payoff",
         "impactLevel": "major",
-        "scoreValue": -3,
         "title": "micronutrient payoff is weak",
         "explanation": "That is a major problem in a category meant to reward nutrient density.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 100
       },
       {
         "itemKey": "weak_fibre_density",
         "impactLevel": "major",
-        "scoreValue": -3,
         "title": "fibre payoff is weak for a vegetable",
         "explanation": "It does not offer much of the maintenance-and-repair value the category is supposed to reward.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 100
       },
       {
         "itemKey": "mostly_water_penalty",
         "impactLevel": "major",
-        "scoreValue": -3,
         "title": "mostly water with limited nutritional return",
         "explanation": "Very low payoff compared with stronger vegetables.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 100
       }
     ]
   },
@@ -187,19 +166,39 @@
       "scoringMode": "arrow_bands",
       "value": 0,
       "band": "↓↓↓",
-      "score": 3,
+      "score": 100,
       "weight": 1,
-      "weightedScore": 3
+      "weightedScore": 100
     },
     {
       "metricKey": "omega3_mg",
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 20,
-      "band": "↑↑↑",
-      "score": 3,
-      "weight": 1,
-      "weightedScore": 3
+      "band": "3_green",
+      "score": 100,
+      "weight": 0,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "polyunsaturated_fat_g",
+      "sectionKey": "fats",
+      "scoringMode": "arrow_bands",
+      "value": 0,
+      "band": "3_red",
+      "score": 0,
+      "weight": 0,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "starch_g",
+      "sectionKey": "carbs",
+      "scoringMode": "arrow_bands",
+      "value": 0,
+      "band": "3_red",
+      "score": 0,
+      "weight": 0,
+      "weightedScore": 0
     },
     {
       "metricKey": "fibre_g",
@@ -207,9 +206,9 @@
       "scoringMode": "arrow_bands",
       "value": 1.2,
       "band": "↓↓",
-      "score": -2,
+      "score": 20,
       "weight": 3,
-      "weightedScore": -6
+      "weightedScore": 60
     },
     {
       "metricKey": "sugar_g",
@@ -217,9 +216,9 @@
       "scoringMode": "arrow_bands",
       "value": 1.8,
       "band": "↓↓",
-      "score": 2,
+      "score": 80,
       "weight": 3,
-      "weightedScore": 6
+      "weightedScore": 240
     },
     {
       "metricKey": "glycemic_index",
@@ -227,39 +226,59 @@
       "scoringMode": "arrow_bands",
       "value": 10,
       "band": "↓↓↓",
-      "score": 3,
+      "score": 100,
       "weight": 3,
-      "weightedScore": 9
+      "weightedScore": 300
     },
     {
       "metricKey": "essential_amino_acids_score",
       "sectionKey": "proteins",
       "scoringMode": "arrow_bands",
       "value": 1,
-      "band": "↓↓↓",
-      "score": -3,
-      "weight": 1,
-      "weightedScore": -3
+      "band": "3_red",
+      "score": 0,
+      "weight": 0,
+      "weightedScore": 0
     },
     {
       "metricKey": "nonessential_amino_acids_score",
       "sectionKey": "proteins",
       "scoringMode": "arrow_bands",
       "value": 2,
-      "band": "↓↓",
-      "score": -2,
-      "weight": 1,
-      "weightedScore": -2
+      "band": "2_red",
+      "score": 20,
+      "weight": 0,
+      "weightedScore": 0
     },
     {
       "metricKey": "bioavailability_percent",
       "sectionKey": "proteins",
       "scoringMode": "arrow_bands",
       "value": 30,
-      "band": "↑↑↑",
-      "score": 3,
-      "weight": 1,
-      "weightedScore": 3
+      "band": "3_green",
+      "score": 100,
+      "weight": 0,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "vitamin_a_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 4,
+      "points": 0,
+      "score": 0,
+      "weight": 2,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "vitamin_c_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 3,
+      "points": 0,
+      "score": 0,
+      "weight": 2,
+      "weightedScore": 0
     },
     {
       "metricKey": "vitamin_k_dv",
@@ -267,8 +286,9 @@
       "scoringMode": "dv_points",
       "dvPercent": 17,
       "points": 1,
+      "score": 10,
       "weight": 3,
-      "weightedScore": 3
+      "weightedScore": 30
     },
     {
       "metricKey": "potassium_dv",
@@ -276,7 +296,38 @@
       "scoringMode": "dv_points",
       "dvPercent": 3,
       "points": 0,
+      "score": 0,
       "weight": 2,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "magnesium_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 1,
+      "points": 0,
+      "score": 0,
+      "weight": 2,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "iron_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 2,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "calcium_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 2,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
       "weightedScore": 0
     }
   ]

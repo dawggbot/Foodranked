@@ -1,13 +1,30 @@
 {
   "status": "ok",
+  "schemaVersion": "foodranked-script.v2",
+  "narrationFormat": "elevenlabs-blocks-v1",
   "food": {
     "id": "butter",
     "name": "Butter",
-    "foodType": "oils-and-fats"
+    "foodType": "oils-and-fats",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "identity": null,
+    "scoreReadiness": null,
+    "sourceNotes": [
+      "Calibration benchmark sample for FoodRanked.",
+      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database.",
+      "Configured intentionally as a flawed but legitimate middle-ground fat anchor."
+    ]
   },
   "ruleset": {
     "id": "oils-and-fats.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 717,
@@ -16,17 +33,16 @@
     "protein_g": 0.9
   },
   "hook": "Butter ranked.",
-  "intro": "",
   "sections": [
     {
       "key": "fats",
       "title": "Fats",
-      "narration": "81.1 grams of fat. Saturated fat is 51.4 grams. 81.1 grams of fat. Saturated fat is 51.4 grams, a major pressure point. For this category, the real question is fat quality.",
+      "narration": "81.1 grams of fat. Saturated fat is 51.4 grams, supporting a better fat profile.",
       "displayItems": [
         {
           "metricKey": "saturated_fat_g",
           "text": "saturated fat at 51.4g",
-          "weightedScore": -14,
+          "weightedScore": 140,
           "scoringMode": "arrow_bands",
           "band": "↑↑",
           "dvPercent": null,
@@ -35,89 +51,126 @@
         {
           "metricKey": "cholesterol_mg",
           "text": "cholesterol at 215mg",
-          "weightedScore": -10,
+          "weightedScore": 100,
           "scoringMode": "arrow_bands",
           "band": "↑↑",
           "dvPercent": null,
           "value": 215
         },
         {
-          "metricKey": "polyunsaturated_fat_g",
-          "text": "polyunsaturated fat at 3g",
-          "weightedScore": -2,
-          "scoringMode": "arrow_bands",
-          "band": "↓↓",
-          "dvPercent": null,
-          "value": 3
-        },
-        {
           "metricKey": "omega3_mg",
           "text": "omega 3 at 315mg",
-          "weightedScore": -1,
+          "weightedScore": 40,
           "scoringMode": "arrow_bands",
           "band": "↓",
           "dvPercent": null,
           "value": 315
+        },
+        {
+          "metricKey": "polyunsaturated_fat_g",
+          "text": "polyunsaturated fat at 3g",
+          "weightedScore": 20,
+          "scoringMode": "arrow_bands",
+          "band": "↓↓",
+          "dvPercent": null,
+          "value": 3
         }
       ],
-      "subtitleText": "81.1g of fat. Saturated fat is 51.4g. 81.1g of fat. Saturated fat is 51.4g, a major pressure point. For this category, the real question is fat quality.",
+      "subtitleText": "81.1g of fat. Saturated fat is 51.4g, supporting a better fat profile.",
       "timingHint": "short-medium",
-      "score": 17.9
+      "score": 21.4
     },
     {
       "key": "carbs",
       "title": "Carbs",
-      "narration": "0.1 grams of carbs. Outside of that, the profile is pretty quiet. Not relevant here.",
+      "narration": "0.1 grams of carbs. No defensible carb submacros to call out. Not relevant here.",
       "displayItems": [],
-      "subtitleText": "0.1g of carbs. Outside of that, the profile is pretty quiet. Not relevant here.",
+      "subtitleText": "0.1g of carbs. No defensible carb submacros to call out. Not relevant here.",
       "timingHint": "short-medium",
       "score": null
     },
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "0.9 grams of protein. Everything else is fairly underwhelming. Also not relevant here.",
+      "narration": "0.9 grams of protein. No defensible protein submacros to call out. Also not relevant here.",
       "displayItems": [],
-      "subtitleText": "0.9g of protein. Everything else is fairly underwhelming. Also not relevant here.",
+      "subtitleText": "0.9g of protein. No defensible protein submacros to call out. Also not relevant here.",
       "timingHint": "short-medium",
       "score": null
     },
     {
       "key": "vitamins",
       "title": "Vitamins",
-      "narration": "Vitamin e at 11% daily value, vitamin a at 28% daily value stand out most. That is barely moving the needle.",
+      "narration": "Vitamin A is 28% daily value, useful for vision and immune support. Vitamin K is 6% daily value, a weak mark for oils and fats.",
       "displayItems": [
         {
-          "metricKey": "vitamin_e_dv",
-          "text": "vitamin e at 11% DV",
-          "weightedScore": 2,
-          "scoringMode": "dv_points",
-          "band": null,
-          "dvPercent": 11,
-          "value": null
-        },
-        {
           "metricKey": "vitamin_a_dv",
-          "text": "vitamin a at 28% DV",
-          "weightedScore": 2,
+          "text": "vitamin A at 28% DV",
+          "weightedScore": 20,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 28,
           "value": null
+        },
+        {
+          "metricKey": "vitamin_k_dv",
+          "text": "vitamin K at 6% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 6,
+          "value": null
+        },
+        {
+          "metricKey": "vitamin_e_dv",
+          "text": "vitamin E at 11% DV",
+          "weightedScore": 20,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 11,
+          "value": null
         }
       ],
-      "subtitleText": "Vitamin e at 11% daily value, vitamin a at 28% daily value stand out most. That is barely moving the needle.",
+      "subtitleText": "Vitamin A is 28% DV, useful for vision and immune support. Vitamin K is 6% DV, a weak mark for oils and fats.",
       "timingHint": "short-medium",
-      "score": 13.3
+      "score": 8
     },
     {
       "key": "minerals",
       "title": "Minerals",
-      "narration": "Minerals are basically not adding much here.",
-      "displayItems": [],
-      "subtitleText": "Minerals are basically not adding much here.",
+      "narration": "Calcium is 2% daily value, adding useful mineral support. Iron is only 0% daily value, a weak mark for oils and fats.",
+      "displayItems": [
+        {
+          "metricKey": "calcium_dv",
+          "text": "calcium at 2% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 2,
+          "value": null
+        },
+        {
+          "metricKey": "iron_dv",
+          "text": "iron at 0% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
+        },
+        {
+          "metricKey": "magnesium_dv",
+          "text": "magnesium at 0% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
+        }
+      ],
+      "subtitleText": "Calcium is 2% DV, adding useful mineral support. Iron is only 0% DV, a weak mark for oils and fats.",
       "timingHint": "short-medium",
-      "score": null
+      "score": 0
     },
     {
       "key": "pros",
@@ -129,21 +182,21 @@
           "title": "simple traditional fat",
           "explanation": "This gives butter a cleaner identity than heavily processed fat substitutes.",
           "impactLevel": "major",
-          "scoreValue": 4
+          "resolvedScoreValue": 100
         },
         {
           "type": "pro",
           "title": "very strong culinary usefulness",
           "explanation": "Butter has real kitchen legitimacy and practical use that matters in this category.",
           "impactLevel": "major",
-          "scoreValue": 4
+          "resolvedScoreValue": 100
         },
         {
           "type": "pro",
           "title": "can fit as a moderate traditional fat",
           "explanation": "The editorial position here is that butter belongs as a flawed but legitimate middle-ground fat rather than a bottom-tier industrial product.",
           "impactLevel": "major",
-          "scoreValue": 4
+          "resolvedScoreValue": 100
         }
       ],
       "subtitleText": "Pros first: simple traditional fat. This gives butter a cleaner identity than heavily processed fat substitutes. Very strong culinary usefulness. Butter has real kitchen legitimacy and practical use that matters in this category. Can fit as a moderate traditional fat. The editorial position here is that butter belongs as a flawed but legitimate middle-ground fat rather than a bottom-tier industrial product.",
@@ -153,55 +206,121 @@
     {
       "key": "cons",
       "title": "Cons",
-      "narration": "Now the downsides: saturated fat is a major drawback. This is the main reason butter cannot be an elite oils-and-fats food. Cholesterol is high. A second meaningful strike against the fat profile. Fat profile is clearly weaker than top-tier oils. Butter is not competing with the best oils on chemistry alone.",
+      "narration": "Cons next: saturated fat is a major drawback. This is the main reason butter cannot be an elite oils-and-fats food. Cholesterol is high. A second meaningful strike against the fat profile. Fat profile is clearly weaker than top-tier oils. Butter is not competing with the best oils on chemistry alone.",
       "displayItems": [
         {
           "type": "con",
           "title": "saturated fat is a major drawback",
           "explanation": "This is the main reason butter cannot be an elite oils-and-fats food.",
           "impactLevel": "major",
-          "scoreValue": -9
+          "resolvedScoreValue": 100
         },
         {
           "type": "con",
           "title": "cholesterol is high",
           "explanation": "A second meaningful strike against the fat profile.",
           "impactLevel": "major",
-          "scoreValue": -9
+          "resolvedScoreValue": 100
         },
         {
           "type": "con",
           "title": "fat profile is clearly weaker than top-tier oils",
           "explanation": "Butter is not competing with the best oils on chemistry alone.",
           "impactLevel": "minor",
-          "scoreValue": 0
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "Now the downsides: saturated fat is a major drawback. This is the main reason butter cannot be an elite oils-and-fats food. Cholesterol is high. A second meaningful strike against the fat profile. Fat profile is clearly weaker than top-tier oils. Butter is not competing with the best oils on chemistry alone.",
+      "subtitleText": "Cons next: saturated fat is a major drawback. This is the main reason butter cannot be an elite oils-and-fats food. Cholesterol is high. A second meaningful strike against the fat profile. Fat profile is clearly weaker than top-tier oils. Butter is not competing with the best oils on chemistry alone.",
       "timingHint": "medium",
-      "score": 100
+      "score": 16.7
     }
   ],
   "closing": {
-    "summary": "Butter does have a few real-world upsides. but the nutrition case is still weak and the downsides drag it down hard. best only in small amounts when the cooking job matters more than the nutrition case.",
-    "finalReveal": "D tier.",
+    "summary": "Big strengths are simple traditional fat and strong culinary usefulness, but the biggest weaknesses are saturated fat and cholesterol is high.",
+    "overview": "Big strengths are simple traditional fat and strong culinary usefulness, but the biggest weaknesses are saturated fat and cholesterol is high.",
+    "finalReveal": "C tier.",
     "useCaseNote": "Best only in small amounts when the cooking job matters more than the nutrition case.",
     "cta": "Would you rank it the same, or nah?"
   },
-  "tier": "D",
-  "overallScore": 1,
+  "tier": "C",
+  "overallScore": 31.3,
+  "overallScoreExact": 31.3025,
+  "baseOverallScore": 29.2,
+  "baseOverallScoreExact": 29.219,
+  "sectionOrder": [
+    "fats",
+    "carbs",
+    "proteins",
+    "vitamins",
+    "minerals",
+    "pros",
+    "cons"
+  ],
+  "narrationBlocks": [
+    {
+      "kind": "hook_food",
+      "text": "Butter!"
+    },
+    {
+      "kind": "hook_ranked",
+      "text": "Ranked!"
+    },
+    {
+      "kind": "section",
+      "sectionKey": "fats",
+      "text": "81.1 grams of fat. Saturated fat is 51.4 grams, supporting a better fat profile."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "carbs",
+      "text": "0.1 grams of carbs. No defensible carb submacros to call out. Not relevant here."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "proteins",
+      "text": "0.9 grams of protein. No defensible protein submacros to call out. Also not relevant here."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "vitamins",
+      "text": "Vitamin A is 28% daily value, useful for vision and immune support. Vitamin K is 6% daily value, a weak mark for oils and fats."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "minerals",
+      "text": "Calcium is 2% daily value, adding useful mineral support. Iron is only 0% daily value, a weak mark for oils and fats."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "pros",
+      "text": "Pros first: simple traditional fat. This gives butter a cleaner identity than heavily processed fat substitutes. Very strong culinary usefulness. Butter has real kitchen legitimacy and practical use that matters in this category. Can fit as a moderate traditional fat. The editorial position here is that butter belongs as a flawed but legitimate middle-ground fat rather than a bottom-tier industrial product."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "cons",
+      "text": "Cons next: saturated fat is a major drawback. This is the main reason butter cannot be an elite oils-and-fats food. Cholesterol is high. A second meaningful strike against the fat profile. Fat profile is clearly weaker than top-tier oils. Butter is not competing with the best oils on chemistry alone."
+    },
+    {
+      "kind": "closing_summary",
+      "text": "Big strengths are simple traditional fat and strong culinary usefulness, but the biggest weaknesses are saturated fat and cholesterol is high."
+    },
+    {
+      "kind": "final_reveal",
+      "text": "C tier."
+    }
+  ],
   "explanation": {
-    "summary": "Fats are carrying this food most, while vitamins are the biggest drag. It lands in D tier.",
-    "whyThisTier": "This food lands in D tier with an overall score of 1 from a base nutrition score of 15. Context dragged it down by 14 points.",
+    "summary": "Pros are carrying this food most, while minerals are holding it back most. It lands in C tier.",
+    "whyThisTier": "This food lands in C tier with an overall score of 31.3. Section scores: fats 21.4, vitamins 8, minerals 0, pros 100, cons 16.7.",
     "strongestSection": {
-      "key": "fats",
-      "label": "Fats",
-      "score": 17.9
+      "key": "pros",
+      "label": "Pros",
+      "score": 100
     },
     "weakestSection": {
-      "key": "vitamins",
-      "label": "Vitamins",
-      "score": 13.3
+      "key": "minerals",
+      "label": "Minerals",
+      "score": 0
     },
     "topPros": [
       {
@@ -209,7 +328,21 @@
         "explanation": "This gives butter a cleaner identity than heavily processed fat substitutes.",
         "impactLevel": "major",
         "side": "pro",
-        "resolvedScoreValue": 4
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "very strong culinary usefulness",
+        "explanation": "Butter has real kitchen legitimacy and practical use that matters in this category.",
+        "impactLevel": "major",
+        "side": "pro",
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "can fit as a moderate traditional fat",
+        "explanation": "The editorial position here is that butter belongs as a flawed but legitimate middle-ground fat rather than a bottom-tier industrial product.",
+        "impactLevel": "major",
+        "side": "pro",
+        "resolvedScoreValue": 100
       }
     ],
     "topCons": [
@@ -218,21 +351,27 @@
         "explanation": "This is the main reason butter cannot be an elite oils-and-fats food.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -9
+        "resolvedScoreValue": 100
       },
       {
         "title": "cholesterol is high",
         "explanation": "A second meaningful strike against the fat profile.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -9
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "fat profile is clearly weaker than top-tier oils",
+        "explanation": "Butter is not competing with the best oils on chemistry alone.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
-      "Strongest section: Fats.",
-      "Weakest section: Vitamins.",
-      "Context weakened the final tier case by 14 points.",
-      "Final verdict: D tier."
+      "Strongest section: Pros.",
+      "Weakest section: Minerals.",
+      "Final verdict: C tier."
     ]
   }
 }

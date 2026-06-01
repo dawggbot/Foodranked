@@ -7,7 +7,11 @@
   },
   "ruleset": {
     "id": "misc.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 2,
@@ -19,54 +23,51 @@
     "fats": null,
     "carbs": null,
     "proteins": null,
-    "vitamins": null,
-    "minerals": null,
-    "pros": 88.9,
-    "cons": 88.9
+    "vitamins": 0,
+    "minerals": 0,
+    "pros": 33.3,
+    "cons": 0
   },
-  "baseScore": 0,
-  "contextAdjustment": {
-    "rawAdjustment": 0,
-    "appliedAdjustment": 0,
-    "appliedItems": [
-      {
-        "itemKey": "better_than_sugary_version",
-        "impactLevel": "major",
-        "scoreValue": 2,
-        "title": "much better than the sugary version",
-        "explanation": "The replacement logic matters in misc.",
-        "evidenceType": "manual",
-        "side": "pro",
-        "resolvedScoreValue": 8
-      },
-      {
-        "itemKey": "stimulant_habit_food",
-        "impactLevel": "major",
-        "scoreValue": -2,
-        "title": "still encourages heavy stimulant habits",
-        "explanation": "A better option is not automatically a great option.",
-        "evidenceType": "manual",
-        "side": "con",
-        "resolvedScoreValue": -8
-      }
-    ],
-    "ignoredItems": []
-  },
-  "overallScore": 0,
+  "overallScore": 11.4,
+  "overallScoreExact": 11.4286,
+  "baseOverallScore": 8.3,
+  "baseOverallScoreExact": 8.3333,
   "tier": "D",
-  "summary": "This food is being judged mostly by contextual strengths and weaknesses rather than nutrient sections. It lands in D tier.",
+  "summary": "Pros are carrying this food most, while cons are holding it back most. It lands in D tier.",
   "explanation": {
-    "summary": "This food is being judged mostly by contextual strengths and weaknesses rather than nutrient sections. It lands in D tier.",
-    "whyThisTier": "This food lands in D tier with an overall score of 0 from a base nutrition score of 0. Context barely changed the result.",
-    "strongestSection": null,
-    "weakestSection": null,
+    "summary": "Pros are carrying this food most, while cons are holding it back most. It lands in D tier.",
+    "whyThisTier": "This food lands in D tier with an overall score of 11.4. Section scores: vitamins 0, minerals 0, pros 33.3, cons 0.",
+    "strongestSection": {
+      "key": "pros",
+      "label": "Pros",
+      "score": 33.3
+    },
+    "weakestSection": {
+      "key": "cons",
+      "label": "Cons",
+      "score": 0
+    },
     "topPros": [
       {
+        "title": "clear real-world role",
+        "explanation": "If a misc item helps or harms behavior, that matters a lot.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "use case can matter more than macros",
+        "explanation": "This category is really about function and trade-offs.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      },
+      {
         "title": "much better than the sugary version",
         "explanation": "The replacement logic matters in misc.",
-        "impactLevel": "major",
+        "impactLevel": "neutral",
         "side": "pro",
-        "resolvedScoreValue": 8
+        "resolvedScoreValue": 0
       }
     ],
     "topCons": [
@@ -75,10 +76,26 @@
         "explanation": "A better option is not automatically a great option.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -8
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "easy to overrate or misuse",
+        "explanation": "This category attracts strong marketing and habits.",
+        "impactLevel": "major",
+        "side": "con",
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "better replacements often exist",
+        "explanation": "That practical comparison matters.",
+        "impactLevel": "major",
+        "side": "con",
+        "resolvedScoreValue": 100
       }
     ],
     "narrationNotes": [
+      "Strongest section: Pros.",
+      "Weakest section: Cons.",
       "Final verdict: D tier."
     ]
   },
@@ -86,55 +103,142 @@
     "pros": [
       {
         "itemKey": "better_than_sugary_version",
-        "impactLevel": "major",
-        "scoreValue": 2,
+        "impactLevel": "neutral",
         "title": "much better than the sugary version",
         "explanation": "The replacement logic matters in misc.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 0
       },
       {
         "itemKey": "misc_practical_identity",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "clear real-world role",
         "explanation": "If a misc item helps or harms behavior, that matters a lot.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "misc_use_case_strength",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "use case can matter more than macros",
         "explanation": "This category is really about function and trade-offs.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "cons": [
       {
         "itemKey": "stimulant_habit_food",
         "impactLevel": "major",
-        "scoreValue": -2,
         "title": "still encourages heavy stimulant habits",
         "explanation": "A better option is not automatically a great option.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 100
       },
       {
         "itemKey": "misc_easy_to_misuse",
-        "impactLevel": "minor",
-        "scoreValue": -1,
+        "impactLevel": "major",
         "title": "easy to overrate or misuse",
         "explanation": "This category attracts strong marketing and habits.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 100
       },
       {
         "itemKey": "misc_replacement_question",
-        "impactLevel": "minor",
-        "scoreValue": -1,
+        "impactLevel": "major",
         "title": "better replacements often exist",
         "explanation": "That practical comparison matters.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 100
       }
     ]
   },
-  "metricBreakdown": []
+  "metricBreakdown": [
+    {
+      "metricKey": "vitamin_c_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 0,
+      "points": 0,
+      "score": 0,
+      "weight": 2,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "vitamin_e_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 0,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "vitamin_k_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 0,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "magnesium_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 0,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "potassium_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 0,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "iron_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 0,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "zinc_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 0,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "calcium_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 0,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    }
+  ]
 }

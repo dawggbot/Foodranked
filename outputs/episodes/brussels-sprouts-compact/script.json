@@ -1,13 +1,29 @@
 {
   "status": "ok",
+  "schemaVersion": "foodranked-script.v2",
+  "narrationFormat": "elevenlabs-blocks-v1",
   "food": {
     "id": "brussels-sprouts",
     "name": "Brussels Sprouts",
-    "foodType": "vegetables"
+    "foodType": "vegetables",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "identity": null,
+    "scoreReadiness": null,
+    "sourceNotes": [
+      "Calibration benchmark sample for FoodRanked.",
+      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
+    ]
   },
   "ruleset": {
     "id": "vegetables.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 43,
@@ -16,63 +32,71 @@
     "protein_g": 3.4
   },
   "hook": "Brussels Sprouts ranked.",
-  "intro": "",
   "sections": [
     {
       "key": "fats",
       "title": "Fats",
-      "narration": "0.3 grams of fat. Omega 3 is 150 milligrams, doing a lot of the work here. For a vegetable, nutrient payoff is the whole point.",
+      "narration": "0.3 grams of fat. Omega 3 is 150 milligrams, supporting a more useful fat profile. Polyunsaturated fat is 0.1 grams, a weak mark for vegetables.",
       "displayItems": [
         {
           "metricKey": "omega3_mg",
           "text": "omega 3 at 150mg",
-          "weightedScore": 3,
+          "weightedScore": 0,
           "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
+          "band": "3_green",
           "dvPercent": null,
           "value": 150
         },
         {
           "metricKey": "polyunsaturated_fat_g",
           "text": "polyunsaturated fat at 0.1g",
-          "weightedScore": -3,
+          "weightedScore": 0,
           "scoringMode": "arrow_bands",
-          "band": "↓↓↓",
+          "band": "3_red",
           "dvPercent": null,
           "value": 0.1
         },
         {
           "metricKey": "saturated_fat_g",
           "text": "saturated fat at 0.1g",
-          "weightedScore": 2,
+          "weightedScore": 100,
           "scoringMode": "arrow_bands",
-          "band": "↓↓",
+          "band": "↓↓↓",
           "dvPercent": null,
           "value": 0.1
         }
       ],
-      "subtitleText": "0.3g of fat. Omega 3 is 150mg, doing a lot of the work here. For a vegetable, nutrient payoff is the whole point.",
+      "subtitleText": "0.3g of fat. Omega 3 is 150mg, supporting a more useful fat profile. Polyunsaturated fat is 0.1g, a weak mark for vegetables.",
       "timingHint": "short-medium",
-      "score": 61.1
+      "score": 100
     },
     {
       "key": "carbs",
       "title": "Carbs",
-      "narration": "9 grams of carbs. Glycemic index is 15 GI. Fibre is 3.8 grams, doing a lot of the work here. For vegetables, low downside is useful, but there still needs to be real payoff.",
+      "narration": "9 grams of carbs. Glycemic index is 15 GI, supporting better carb quality. Starch is 0 grams, a small miss for vegetables.",
       "displayItems": [
         {
           "metricKey": "glycemic_index",
           "text": "glycemic index at 15 GI",
-          "weightedScore": 9,
+          "weightedScore": 300,
           "scoringMode": "arrow_bands",
           "band": "↓↓↓",
           "dvPercent": null,
           "value": 15
         },
         {
+          "metricKey": "starch_g",
+          "text": "starch at 0g",
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
+          "band": "3_red",
+          "dvPercent": null,
+          "value": 0
+        },
+        {
           "metricKey": "sugar_g",
           "text": "sugar at 2.2g",
-          "weightedScore": 6,
+          "weightedScore": 240,
           "scoringMode": "arrow_bands",
           "band": "↓↓",
           "dvPercent": null,
@@ -81,109 +105,139 @@
         {
           "metricKey": "fibre_g",
           "text": "fibre at 3.8g",
-          "weightedScore": 3,
+          "weightedScore": 180,
           "scoringMode": "arrow_bands",
           "band": "↑",
           "dvPercent": null,
           "value": 3.8
         }
       ],
-      "subtitleText": "9g of carbs. Glycemic index is 15 GI. Fibre is 3.8g, doing a lot of the work here. For vegetables, low downside is useful, but there still needs to be real payoff.",
+      "subtitleText": "9g of carbs. Glycemic index is 15 GI, supporting better carb quality. Starch is 0g, a small miss for vegetables.",
       "timingHint": "short-medium",
-      "score": 83.3
+      "score": 80
     },
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "3.4 grams of protein. Bioavailability is 40%, one of the best parts of the protein story. Protein is not the main pitch here, but extra support still matters.",
+      "narration": "3.4 grams of protein. Essential amino acids score is 3 out of 9, with 40% bioavailability, making the protein useful for repair and maintenance.",
       "displayItems": [
-        {
-          "metricKey": "bioavailability_percent",
-          "text": "bioavailability at 40%",
-          "weightedScore": 3,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
-          "dvPercent": null,
-          "value": 40
-        },
         {
           "metricKey": "essential_amino_acids_score",
           "text": "essential amino acids score at 3/9",
-          "weightedScore": -1,
+          "weightedScore": 0,
           "scoringMode": "arrow_bands",
-          "band": "↓",
+          "band": "1_red",
           "dvPercent": null,
-          "value": 3
+          "value": 3,
+          "referenceOnly": false
+        },
+        {
+          "metricKey": "bioavailability_percent",
+          "text": "bioavailability at 40%",
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
+          "band": "3_green",
+          "dvPercent": null,
+          "value": 40,
+          "referenceOnly": false
         },
         {
           "metricKey": "nonessential_amino_acids_score",
           "text": "nonessential amino acids score at 4/11",
-          "weightedScore": 1,
+          "weightedScore": 0,
           "scoringMode": "arrow_bands",
-          "band": "↑",
+          "band": "1_green",
           "dvPercent": null,
-          "value": 4
+          "value": 4,
+          "referenceOnly": false
         }
       ],
-      "subtitleText": "3.4g of protein. Bioavailability is 40%, one of the best parts of the protein story. Protein is not the main pitch here, but extra support still matters.",
+      "subtitleText": "3.4g of protein. Essential amino acids score is 3/9, with 40% bioavailability, making the protein useful for repair and maintenance.",
       "timingHint": "short-medium",
-      "score": 66.7
+      "score": null
     },
     {
       "key": "vitamins",
       "title": "Vitamins",
-      "narration": "Vitamin k at 148% daily value, vitamin c at 94% daily value, vitamin a at 15% daily value stand out most. That is major vitamin support.",
+      "narration": "Vitamin K is 148% daily value, adding useful vitamin support. Vitamin A is 15% daily value, a weak mark for vegetables.",
       "displayItems": [
         {
           "metricKey": "vitamin_k_dv",
-          "text": "vitamin k at 148% DV",
-          "weightedScore": 30,
+          "text": "vitamin K at 148% DV",
+          "weightedScore": 300,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 148,
           "value": null
         },
         {
-          "metricKey": "vitamin_c_dv",
-          "text": "vitamin c at 94% DV",
-          "weightedScore": 18,
-          "scoringMode": "dv_points",
-          "band": null,
-          "dvPercent": 94,
-          "value": null
-        },
-        {
           "metricKey": "vitamin_a_dv",
-          "text": "vitamin a at 15% DV",
-          "weightedScore": 2,
+          "text": "vitamin A at 15% DV",
+          "weightedScore": 20,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 15,
           "value": null
+        },
+        {
+          "metricKey": "vitamin_c_dv",
+          "text": "vitamin C at 94% DV",
+          "weightedScore": 180,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 94,
+          "value": null
         }
       ],
-      "subtitleText": "Vitamin k at 148% daily value, vitamin c at 94% daily value, vitamin a at 15% daily value stand out most. That is major vitamin support.",
+      "subtitleText": "Vitamin K is 148% DV, adding useful vitamin support. Vitamin A is 15% DV, a weak mark for vegetables.",
       "timingHint": "short-medium",
       "score": 71.4
     },
     {
       "key": "minerals",
       "title": "Minerals",
-      "narration": "Potassium at 11% daily value stands out most. Useful, but still pretty limited.",
+      "narration": "Potassium is 11% daily value, useful for fluid balance. Calcium is only 3% daily value, a weak mark for vegetables.",
       "displayItems": [
         {
           "metricKey": "potassium_dv",
           "text": "potassium at 11% DV",
-          "weightedScore": 2,
+          "weightedScore": 20,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 11,
           "value": null
+        },
+        {
+          "metricKey": "calcium_dv",
+          "text": "calcium at 3% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 3,
+          "value": null
+        },
+        {
+          "metricKey": "magnesium_dv",
+          "text": "magnesium at 5% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 5,
+          "value": null
+        },
+        {
+          "metricKey": "iron_dv",
+          "text": "iron at 7% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 7,
+          "value": null
         }
       ],
-      "subtitleText": "Potassium at 11% daily value stands out most. Useful, but still pretty limited.",
+      "subtitleText": "Potassium is 11% DV, useful for fluid balance. Calcium is only 3% DV, a weak mark for vegetables.",
       "timingHint": "short-medium",
-      "score": 10
+      "score": 3.3
     },
     {
       "key": "pros",
@@ -195,26 +249,26 @@
           "title": "makes meals feel more balanced",
           "explanation": "The category has real value beyond single-nutrient stats.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "good volume for the calories",
           "explanation": "That matters for satiety and general usefulness.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "very low downside whole food",
           "explanation": "Vegetables win a lot simply by offering clean nutritional payoff.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         }
       ],
       "subtitleText": "Pros first: makes meals feel more balanced. The category has real value beyond single-nutrient stats. Good volume for the calories. That matters for satiety and general usefulness. Very low downside whole food. Vegetables win a lot simply by offering clean nutritional payoff.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     },
     {
       "key": "cons",
@@ -226,48 +280,114 @@
           "title": "taste and texture can limit compliance",
           "explanation": "A strong paper profile still needs real-world repeatability.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "energy density is very low",
           "explanation": "Good for some use cases, but not enough on its own.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "usually needs pairing to make a full meal",
           "explanation": "Most vegetables are not complete by themselves.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         }
       ],
       "subtitleText": "The drawbacks next: taste and texture can limit compliance. A strong paper profile still needs real-world repeatability. Energy density is very low. Good for some use cases, but not enough on its own. Usually needs pairing to make a full meal. Most vegetables are not complete by themselves.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     }
   ],
   "closing": {
-    "summary": "Brussels Sprouts has a genuinely strong overall case. the practical downsides are real, but they do not outweigh the upside. best when you want low downside and easy micronutrient support.",
+    "summary": "Big strengths are omega 3 and fibre, but the biggest weaknesses are taste and texture can limit compliance and energy density is very low.",
+    "overview": "Big strengths are omega 3 and fibre, but the biggest weaknesses are taste and texture can limit compliance and energy density is very low.",
     "finalReveal": "S tier.",
     "useCaseNote": "Best when you want low downside and easy micronutrient support.",
     "cta": "Would you rank it the same, or nah?"
   },
   "tier": "S",
-  "overallScore": 56,
+  "overallScore": 80,
+  "overallScoreExact": 80.0242,
+  "baseOverallScore": 59.1,
+  "baseOverallScoreExact": 59.127,
+  "sectionOrder": [
+    "fats",
+    "carbs",
+    "proteins",
+    "vitamins",
+    "minerals",
+    "pros",
+    "cons"
+  ],
+  "narrationBlocks": [
+    {
+      "kind": "hook_food",
+      "text": "Brussels Sprouts!"
+    },
+    {
+      "kind": "hook_ranked",
+      "text": "Ranked!"
+    },
+    {
+      "kind": "section",
+      "sectionKey": "fats",
+      "text": "0.3 grams of fat. Omega 3 is 150 milligrams, supporting a more useful fat profile. Polyunsaturated fat is 0.1 grams, a weak mark for vegetables."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "carbs",
+      "text": "9 grams of carbs. Glycemic index is 15 GI, supporting better carb quality. Starch is 0 grams, a small miss for vegetables."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "proteins",
+      "text": "3.4 grams of protein. Essential amino acids score is 3 out of 9, with 40% bioavailability, making the protein useful for repair and maintenance."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "vitamins",
+      "text": "Vitamin K is 148% daily value, adding useful vitamin support. Vitamin A is 15% daily value, a weak mark for vegetables."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "minerals",
+      "text": "Potassium is 11% daily value, useful for fluid balance. Calcium is only 3% daily value, a weak mark for vegetables."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "pros",
+      "text": "Pros first: makes meals feel more balanced. The category has real value beyond single-nutrient stats. Good volume for the calories. That matters for satiety and general usefulness. Very low downside whole food. Vegetables win a lot simply by offering clean nutritional payoff."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "cons",
+      "text": "The drawbacks next: taste and texture can limit compliance. A strong paper profile still needs real-world repeatability. Energy density is very low. Good for some use cases, but not enough on its own. Usually needs pairing to make a full meal. Most vegetables are not complete by themselves."
+    },
+    {
+      "kind": "closing_summary",
+      "text": "Big strengths are omega 3 and fibre, but the biggest weaknesses are taste and texture can limit compliance and energy density is very low."
+    },
+    {
+      "kind": "final_reveal",
+      "text": "S tier."
+    }
+  ],
   "explanation": {
-    "summary": "Carbs are carrying this food most, while minerals are the biggest drag. It lands in S tier.",
-    "whyThisTier": "This food lands in S tier with an overall score of 56 from a base nutrition score of 56. Context barely changed the result.",
+    "summary": "Fats are carrying this food most, while minerals are holding it back most. It lands in S tier.",
+    "whyThisTier": "This food lands in S tier with an overall score of 80. Section scores: fats 100, carbs 80, vitamins 71.4, minerals 3.3, pros 50, cons 50.",
     "strongestSection": {
-      "key": "carbs",
-      "label": "Carbs",
-      "score": 83.3
+      "key": "fats",
+      "label": "Fats",
+      "score": 100
     },
     "weakestSection": {
       "key": "minerals",
       "label": "Minerals",
-      "score": 10
+      "score": 3.3
     },
     "topPros": [
       {
@@ -275,21 +395,21 @@
         "explanation": "The category has real value beyond single-nutrient stats.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "good volume for the calories",
         "explanation": "That matters for satiety and general usefulness.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "very low downside whole food",
         "explanation": "Vegetables win a lot simply by offering clean nutritional payoff.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -298,25 +418,25 @@
         "explanation": "A strong paper profile still needs real-world repeatability.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "energy density is very low",
         "explanation": "Good for some use cases, but not enough on its own.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "usually needs pairing to make a full meal",
         "explanation": "Most vegetables are not complete by themselves.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
-      "Strongest section: Carbs.",
+      "Strongest section: Fats.",
       "Weakest section: Minerals.",
       "Final verdict: S tier."
     ]

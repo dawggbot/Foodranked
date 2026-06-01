@@ -7,7 +7,11 @@
   },
   "ruleset": {
     "id": "vegetables.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 18,
@@ -16,135 +20,148 @@
     "protein_g": 0.9
   },
   "sectionScores": {
-    "fats": 66.7,
-    "carbs": 61.1,
-    "proteins": 38.9,
-    "vitamins": 10,
+    "fats": 100,
+    "carbs": 60,
+    "proteins": null,
+    "vitamins": 2.9,
     "minerals": 0,
-    "pros": 0,
-    "cons": 0
+    "pros": 66.7,
+    "cons": 50
   },
-  "baseScore": 23,
-  "contextAdjustment": {
-    "rawAdjustment": 0,
-    "appliedAdjustment": 0,
-    "appliedItems": [],
-    "ignoredItems": []
-  },
-  "overallScore": 23,
+  "overallScore": 39.3,
+  "overallScoreExact": 39.3373,
+  "baseOverallScore": 46.6,
+  "baseOverallScoreExact": 46.5873,
   "tier": "C",
-  "summary": "Fats are carrying this food most, while minerals are the biggest drag. It lands in C tier.",
+  "summary": "Fats are carrying this food most, while minerals are holding it back most. It lands in C tier.",
   "explanation": {
-    "summary": "Fats are carrying this food most, while minerals are the biggest drag. It lands in C tier.",
-    "whyThisTier": "This food lands in C tier with an overall score of 23 from a base nutrition score of 23. Context barely changed the result.",
+    "summary": "Fats are carrying this food most, while minerals are holding it back most. It lands in C tier.",
+    "whyThisTier": "This food lands in C tier with an overall score of 39.3. Section scores: fats 100, carbs 60, vitamins 2.9, minerals 0, pros 66.7, cons 50.",
     "strongestSection": {
       "key": "fats",
       "label": "Fats",
-      "score": 66.7
+      "score": 100
     },
-    "weakestSection": null,
+    "weakestSection": {
+      "key": "minerals",
+      "label": "Minerals",
+      "score": 0
+    },
     "topPros": [
       {
-        "title": "good volume for the calories",
-        "explanation": "That matters for satiety and general usefulness.",
-        "impactLevel": "minor",
+        "title": "tomatoes bring a distinctive lycopene story",
+        "explanation": "That antioxidant identity is a more tomato-specific strength than generic low-calorie praise.",
+        "impactLevel": "major",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 100
       },
       {
-        "title": "easy to build meals around",
-        "explanation": "A practical plus because good foods need realistic use cases.",
+        "title": "high water content gives a lot of food volume for few calories",
+        "explanation": "Tomatoes are useful for adding bulk and freshness without much calorie cost.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
-        "title": "very low downside whole food",
-        "explanation": "Vegetables win a lot simply by offering clean nutritional payoff.",
+        "title": "works raw or cooked in a lot of meals",
+        "explanation": "That versatility is one reason tomatoes are easy to use regularly rather than just admire nutritionally.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
       {
-        "title": "energy density is very low",
-        "explanation": "Good for some use cases, but not enough on its own.",
+        "title": "it contributes freshness more than serious energy or protein",
+        "explanation": "A tomato can improve a meal, but it usually does not do the heavy lifting by itself.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
-        "title": "usually needs pairing to make a full meal",
-        "explanation": "Most vegetables are not complete by themselves.",
+        "title": "acidity can be rough for some people",
+        "explanation": "Tomatoes can aggravate reflux or sensitivity in a way that is specific enough to mention.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
-        "title": "rarely carries a meal by itself",
-        "explanation": "That is normal here, but still part of the tradeoff.",
+        "title": "flavor and quality swing a lot with ripeness and season",
+        "explanation": "That does not erase the nutrition case, but it does affect real-world usefulness and appeal.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
       "Strongest section: Fats.",
+      "Weakest section: Minerals.",
       "Final verdict: C tier."
     ]
   },
   "contextItems": {
     "pros": [
       {
-        "itemKey": "volume_for_calories",
-        "impactLevel": "minor",
-        "scoreValue": 1,
-        "title": "good volume for the calories",
-        "explanation": "That matters for satiety and general usefulness.",
-        "evidenceType": "manual"
+        "itemKey": "lycopene_signature",
+        "impactLevel": "major",
+        "title": "tomatoes bring a distinctive lycopene story",
+        "explanation": "That antioxidant identity is a more tomato-specific strength than generic low-calorie praise.",
+        "evidenceType": "manual",
+        "confidence": "high",
+        "side": "pro",
+        "resolvedScoreValue": 100
       },
       {
-        "itemKey": "easy_to_pair",
+        "itemKey": "high_water_volume_food",
         "impactLevel": "minor",
-        "scoreValue": 1,
-        "title": "easy to build meals around",
-        "explanation": "A practical plus because good foods need realistic use cases.",
-        "evidenceType": "manual"
+        "title": "high water content gives a lot of food volume for few calories",
+        "explanation": "Tomatoes are useful for adding bulk and freshness without much calorie cost.",
+        "evidenceType": "manual",
+        "confidence": "high",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
-        "itemKey": "low_downside_vegetable",
+        "itemKey": "raw_or_cooked_flexibility",
         "impactLevel": "minor",
-        "scoreValue": 1,
-        "title": "very low downside whole food",
-        "explanation": "Vegetables win a lot simply by offering clean nutritional payoff.",
-        "evidenceType": "manual"
+        "title": "works raw or cooked in a lot of meals",
+        "explanation": "That versatility is one reason tomatoes are easy to use regularly rather than just admire nutritionally.",
+        "evidenceType": "manual",
+        "confidence": "high",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "cons": [
       {
-        "itemKey": "veg_low_energy",
+        "itemKey": "low_calorie_ceiling",
         "impactLevel": "minor",
-        "scoreValue": -1,
-        "title": "energy density is very low",
-        "explanation": "Good for some use cases, but not enough on its own.",
-        "evidenceType": "manual"
+        "title": "it contributes freshness more than serious energy or protein",
+        "explanation": "A tomato can improve a meal, but it usually does not do the heavy lifting by itself.",
+        "evidenceType": "manual",
+        "confidence": "high",
+        "side": "con",
+        "resolvedScoreValue": 50
       },
       {
-        "itemKey": "veg_needs_pairing",
+        "itemKey": "acid_reflux_trigger",
         "impactLevel": "minor",
-        "scoreValue": -1,
-        "title": "usually needs pairing to make a full meal",
-        "explanation": "Most vegetables are not complete by themselves.",
-        "evidenceType": "manual"
+        "title": "acidity can be rough for some people",
+        "explanation": "Tomatoes can aggravate reflux or sensitivity in a way that is specific enough to mention.",
+        "evidenceType": "manual",
+        "confidence": "medium",
+        "side": "con",
+        "resolvedScoreValue": 50
       },
       {
-        "itemKey": "veg_underpowered_alone",
+        "itemKey": "fresh_quality_variance",
         "impactLevel": "minor",
-        "scoreValue": -1,
-        "title": "rarely carries a meal by itself",
-        "explanation": "That is normal here, but still part of the tradeoff.",
-        "evidenceType": "manual"
+        "title": "flavor and quality swing a lot with ripeness and season",
+        "explanation": "That does not erase the nutrition case, but it does affect real-world usefulness and appeal.",
+        "evidenceType": "manual",
+        "confidence": "high",
+        "side": "con",
+        "resolvedScoreValue": 50
       }
     ]
   },
@@ -155,29 +172,39 @@
       "scoringMode": "arrow_bands",
       "value": 0,
       "band": "↓↓↓",
-      "score": 3,
+      "score": 100,
       "weight": 1,
-      "weightedScore": 3
+      "weightedScore": 100
     },
     {
       "metricKey": "omega3_mg",
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 10,
-      "band": "↑↑↑",
-      "score": 3,
-      "weight": 1,
-      "weightedScore": 3
+      "band": "3_green",
+      "score": 100,
+      "weight": 0,
+      "weightedScore": 0
     },
     {
       "metricKey": "polyunsaturated_fat_g",
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 0.1,
-      "band": "↓↓↓",
-      "score": -3,
-      "weight": 1,
-      "weightedScore": -3
+      "band": "3_red",
+      "score": 0,
+      "weight": 0,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "starch_g",
+      "sectionKey": "carbs",
+      "scoringMode": "arrow_bands",
+      "value": 0,
+      "band": "3_red",
+      "score": 0,
+      "weight": 0,
+      "weightedScore": 0
     },
     {
       "metricKey": "fibre_g",
@@ -185,9 +212,9 @@
       "scoringMode": "arrow_bands",
       "value": 1.2,
       "band": "↓↓",
-      "score": -2,
+      "score": 20,
       "weight": 3,
-      "weightedScore": -6
+      "weightedScore": 60
     },
     {
       "metricKey": "sugar_g",
@@ -195,9 +222,9 @@
       "scoringMode": "arrow_bands",
       "value": 2.6,
       "band": "↓",
-      "score": 1,
+      "score": 60,
       "weight": 3,
-      "weightedScore": 3
+      "weightedScore": 180
     },
     {
       "metricKey": "glycemic_index",
@@ -205,39 +232,19 @@
       "scoringMode": "arrow_bands",
       "value": 15,
       "band": "↓↓↓",
-      "score": 3,
+      "score": 100,
       "weight": 3,
-      "weightedScore": 9
+      "weightedScore": 300
     },
     {
-      "metricKey": "essential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 1,
-      "band": "↓↓↓",
-      "score": -3,
-      "weight": 1,
-      "weightedScore": -3
-    },
-    {
-      "metricKey": "nonessential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 2,
-      "band": "↓↓",
-      "score": -2,
-      "weight": 1,
-      "weightedScore": -2
-    },
-    {
-      "metricKey": "bioavailability_percent",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 35,
-      "band": "↑↑↑",
-      "score": 3,
-      "weight": 1,
-      "weightedScore": 3
+      "metricKey": "vitamin_a_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 5,
+      "points": 0,
+      "score": 0,
+      "weight": 2,
+      "weightedScore": 0
     },
     {
       "metricKey": "vitamin_c_dv",
@@ -245,8 +252,19 @@
       "scoringMode": "dv_points",
       "dvPercent": 17,
       "points": 1,
+      "score": 10,
       "weight": 2,
-      "weightedScore": 2
+      "weightedScore": 20
+    },
+    {
+      "metricKey": "vitamin_k_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 7,
+      "points": 0,
+      "score": 0,
+      "weight": 3,
+      "weightedScore": 0
     },
     {
       "metricKey": "potassium_dv",
@@ -254,7 +272,38 @@
       "scoringMode": "dv_points",
       "dvPercent": 5,
       "points": 0,
+      "score": 0,
       "weight": 2,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "magnesium_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 3,
+      "points": 0,
+      "score": 0,
+      "weight": 2,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "iron_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 1,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "calcium_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 1,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
       "weightedScore": 0
     }
   ]

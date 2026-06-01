@@ -7,7 +7,11 @@
   },
   "ruleset": {
     "id": "tubers.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 43,
@@ -16,54 +20,54 @@
     "protein_g": 1.6
   },
   "sectionScores": {
-    "fats": 66.7,
-    "carbs": 29.6,
-    "proteins": 55.6,
-    "vitamins": null,
+    "fats": 100,
+    "carbs": 35.6,
+    "proteins": 20,
+    "vitamins": 0,
     "minerals": 0,
-    "pros": 0,
-    "cons": 0
+    "pros": 50,
+    "cons": 50
   },
-  "baseScore": 21,
-  "contextAdjustment": {
-    "rawAdjustment": 0,
-    "appliedAdjustment": 0,
-    "appliedItems": [],
-    "ignoredItems": []
-  },
-  "overallScore": 21,
-  "tier": "D",
-  "summary": "Fats are carrying this food most, while minerals are the biggest drag. It lands in D tier.",
+  "overallScore": 38.3,
+  "overallScoreExact": 38.2572,
+  "baseOverallScore": 36.5,
+  "baseOverallScoreExact": 36.5079,
+  "tier": "C",
+  "summary": "Fats are carrying this food most, while minerals are holding it back most. It lands in C tier.",
   "explanation": {
-    "summary": "Fats are carrying this food most, while minerals are the biggest drag. It lands in D tier.",
-    "whyThisTier": "This food lands in D tier with an overall score of 21 from a base nutrition score of 21. Context barely changed the result.",
+    "summary": "Fats are carrying this food most, while minerals are holding it back most. It lands in C tier.",
+    "whyThisTier": "This food lands in C tier with an overall score of 38.3. Section scores: fats 100, carbs 35.6, proteins 20, vitamins 0, minerals 0, pros 50, cons 50.",
     "strongestSection": {
       "key": "fats",
       "label": "Fats",
-      "score": 66.7
+      "score": 100
     },
-    "weakestSection": null,
+    "weakestSection": {
+      "key": "minerals",
+      "label": "Minerals",
+      "score": 0
+    },
     "topPros": [
       {
         "title": "practical staple carb source",
         "explanation": "Tubers are often judged by how usable they are day to day.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "can be quite filling",
         "explanation": "A useful practical strength when the preparation stays sensible.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "whole-food carb package",
         "explanation": "That matters because it is a cleaner baseline than heavily refined carbs.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -72,26 +76,27 @@
         "explanation": "That is the core ceiling tubers have to manage.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "satiety payoff depends a lot on format",
         "explanation": "Some versions are much steadier than others.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "can go downhill fast when heavily processed",
         "explanation": "The category has a big preparation trap.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
       "Strongest section: Fats.",
-      "Final verdict: D tier."
+      "Weakest section: Minerals.",
+      "Final verdict: C tier."
     ]
   },
   "contextItems": {
@@ -99,52 +104,58 @@
       {
         "itemKey": "tuber_staple_energy",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "practical staple carb source",
         "explanation": "Tubers are often judged by how usable they are day to day.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "tuber_satiety",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "can be quite filling",
         "explanation": "A useful practical strength when the preparation stays sensible.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "tuber_whole_food",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "whole-food carb package",
         "explanation": "That matters because it is a cleaner baseline than heavily refined carbs.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "cons": [
       {
         "itemKey": "tuber_carb_load",
         "impactLevel": "minor",
-        "scoreValue": -1,
         "title": "still a carb-heavy category",
         "explanation": "That is the core ceiling tubers have to manage.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "tuber_satiety_variance",
         "impactLevel": "minor",
-        "scoreValue": -1,
         "title": "satiety payoff depends a lot on format",
         "explanation": "Some versions are much steadier than others.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "tuber_easy_to_refine_badly",
         "impactLevel": "minor",
-        "scoreValue": -1,
         "title": "can go downhill fast when heavily processed",
         "explanation": "The category has a big preparation trap.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       }
     ]
   },
@@ -155,29 +166,29 @@
       "scoringMode": "arrow_bands",
       "value": 0,
       "band": "↓↓↓",
-      "score": 3,
+      "score": 100,
       "weight": 1,
-      "weightedScore": 3
+      "weightedScore": 100
     },
     {
       "metricKey": "omega3_mg",
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 20,
-      "band": "↑↑↑",
-      "score": 3,
-      "weight": 1,
-      "weightedScore": 3
+      "band": "3_green",
+      "score": 100,
+      "weight": 0,
+      "weightedScore": 0
     },
     {
       "metricKey": "polyunsaturated_fat_g",
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 0.1,
-      "band": "↓↓↓",
-      "score": -3,
-      "weight": 1,
-      "weightedScore": -3
+      "band": "3_red",
+      "score": 0,
+      "weight": 0,
+      "weightedScore": 0
     },
     {
       "metricKey": "starch_g",
@@ -185,9 +196,9 @@
       "scoringMode": "arrow_bands",
       "value": 0.1,
       "band": "↓↓↓",
-      "score": -3,
+      "score": 0,
       "weight": 1,
-      "weightedScore": -3
+      "weightedScore": 0
     },
     {
       "metricKey": "fibre_g",
@@ -195,9 +206,9 @@
       "scoringMode": "arrow_bands",
       "value": 2.8,
       "band": "↓",
-      "score": -1,
+      "score": 40,
       "weight": 3,
-      "weightedScore": -3
+      "weightedScore": 120
     },
     {
       "metricKey": "sugar_g",
@@ -205,9 +216,9 @@
       "scoringMode": "arrow_bands",
       "value": 6.8,
       "band": "↑",
-      "score": -1,
+      "score": 40,
       "weight": 1,
-      "weightedScore": -1
+      "weightedScore": 40
     },
     {
       "metricKey": "glycemic_index",
@@ -215,39 +226,59 @@
       "scoringMode": "arrow_bands",
       "value": 64,
       "band": "↑",
-      "score": -1,
+      "score": 40,
       "weight": 4,
-      "weightedScore": -4
+      "weightedScore": 160
     },
     {
       "metricKey": "essential_amino_acids_score",
       "sectionKey": "proteins",
       "scoringMode": "arrow_bands",
       "value": 2,
-      "band": "↓",
-      "score": -1,
+      "band": "↓↓",
+      "score": 20,
       "weight": 1,
-      "weightedScore": -1
+      "weightedScore": 20
     },
     {
       "metricKey": "nonessential_amino_acids_score",
       "sectionKey": "proteins",
       "scoringMode": "arrow_bands",
       "value": 3,
-      "band": "↓",
-      "score": -1,
-      "weight": 1,
-      "weightedScore": -1
+      "band": "1_red",
+      "score": 40,
+      "weight": 0,
+      "weightedScore": 0
     },
     {
       "metricKey": "bioavailability_percent",
       "sectionKey": "proteins",
       "scoringMode": "arrow_bands",
       "value": 42,
-      "band": "↑↑↑",
-      "score": 3,
-      "weight": 1,
-      "weightedScore": 3
+      "band": "3_green",
+      "score": 100,
+      "weight": 0,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "vitamin_a_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 0,
+      "points": 0,
+      "score": 0,
+      "weight": 3,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "vitamin_c_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 8,
+      "points": 0,
+      "score": 0,
+      "weight": 2,
+      "weightedScore": 0
     },
     {
       "metricKey": "potassium_dv",
@@ -255,7 +286,28 @@
       "scoringMode": "dv_points",
       "dvPercent": 9,
       "points": 0,
+      "score": 0,
       "weight": 2,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "magnesium_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 6,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "iron_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 4,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
       "weightedScore": 0
     }
   ]

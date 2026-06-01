@@ -7,7 +7,11 @@
   },
   "ruleset": {
     "id": "dairy.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 207,
@@ -17,66 +21,31 @@
   },
   "sectionScores": {
     "fats": 33.3,
-    "carbs": 11.1,
-    "proteins": 31,
-    "vitamins": null,
-    "minerals": 10,
-    "pros": 0,
-    "cons": 100
+    "carbs": 13.3,
+    "proteins": 20,
+    "vitamins": 0,
+    "minerals": 6,
+    "pros": 50,
+    "cons": 0
   },
-  "baseScore": 24,
-  "contextAdjustment": {
-    "rawAdjustment": -9,
-    "appliedAdjustment": -9,
-    "appliedItems": [
-      {
-        "itemKey": "extreme_sugar_penalty",
-        "impactLevel": "major",
-        "scoreValue": -3,
-        "title": "sugar load is a major dairy-category problem",
-        "explanation": "This pushes it away from what strong dairy foods are supposed to deliver.",
-        "evidenceType": "manual",
-        "side": "con",
-        "resolvedScoreValue": -3
-      },
-      {
-        "itemKey": "satfat_penalty",
-        "impactLevel": "major",
-        "scoreValue": -3,
-        "title": "saturated fat is a major drawback",
-        "explanation": "A second major strike against the food in this category.",
-        "evidenceType": "manual",
-        "side": "con",
-        "resolvedScoreValue": -3
-      },
-      {
-        "itemKey": "weak_protein_dairy_fit",
-        "impactLevel": "major",
-        "scoreValue": -3,
-        "title": "protein usefulness is weak for dairy",
-        "explanation": "That makes it a poor fit compared with stronger dairy anchors like yogurt.",
-        "evidenceType": "manual",
-        "side": "con",
-        "resolvedScoreValue": -3
-      }
-    ],
-    "ignoredItems": []
-  },
-  "overallScore": 15,
+  "overallScore": 9.6,
+  "overallScoreExact": 9.5864,
+  "baseOverallScore": 17.5,
+  "baseOverallScoreExact": 17.5238,
   "tier": "D",
-  "summary": "Fats are carrying this food most, while minerals are the biggest drag. It lands in D tier.",
+  "summary": "Pros are carrying this food most, while cons are holding it back most. It lands in D tier.",
   "explanation": {
-    "summary": "Fats are carrying this food most, while minerals are the biggest drag. It lands in D tier.",
-    "whyThisTier": "This food lands in D tier with an overall score of 15 from a base nutrition score of 24. Context dragged it down by 9 points.",
+    "summary": "Pros are carrying this food most, while cons are holding it back most. It lands in D tier.",
+    "whyThisTier": "This food lands in D tier with an overall score of 9.6. Section scores: fats 33.3, carbs 13.3, proteins 20, vitamins 0, minerals 6, pros 50, cons 0.",
     "strongestSection": {
-      "key": "fats",
-      "label": "Fats",
-      "score": 33.3
+      "key": "pros",
+      "label": "Pros",
+      "score": 50
     },
     "weakestSection": {
-      "key": "minerals",
-      "label": "Minerals",
-      "score": 10
+      "key": "cons",
+      "label": "Cons",
+      "score": 0
     },
     "topPros": [
       {
@@ -84,21 +53,21 @@
         "explanation": "A real-world reason people eat it, even if the category fit is weak.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "still retains some calcium",
         "explanation": "Not nutritionally empty, just weak compared with stronger dairy foods.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "still clearly dairy-based",
         "explanation": "That matters for fairness when picking anchors.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -107,27 +76,26 @@
         "explanation": "This pushes it away from what strong dairy foods are supposed to deliver.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -3
+        "resolvedScoreValue": 100
       },
       {
         "title": "saturated fat is a major drawback",
         "explanation": "A second major strike against the food in this category.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -3
+        "resolvedScoreValue": 100
       },
       {
         "title": "protein usefulness is weak for dairy",
         "explanation": "That makes it a poor fit compared with stronger dairy anchors like yogurt.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -3
+        "resolvedScoreValue": 100
       }
     ],
     "narrationNotes": [
-      "Strongest section: Fats.",
-      "Weakest section: Minerals.",
-      "Context weakened the final tier case by 9 points.",
+      "Strongest section: Pros.",
+      "Weakest section: Cons.",
       "Final verdict: D tier."
     ]
   },
@@ -136,52 +104,58 @@
       {
         "itemKey": "pleasure_food_appeal",
         "impactLevel": "minor",
-        "scoreValue": 0,
         "title": "high enjoyment factor",
         "explanation": "A real-world reason people eat it, even if the category fit is weak.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "still_some_calcium",
         "impactLevel": "minor",
-        "scoreValue": 0,
         "title": "still retains some calcium",
         "explanation": "Not nutritionally empty, just weak compared with stronger dairy foods.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "recognisable_dairy_identity",
         "impactLevel": "minor",
-        "scoreValue": 0,
         "title": "still clearly dairy-based",
         "explanation": "That matters for fairness when picking anchors.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "cons": [
       {
         "itemKey": "extreme_sugar_penalty",
         "impactLevel": "major",
-        "scoreValue": -3,
         "title": "sugar load is a major dairy-category problem",
         "explanation": "This pushes it away from what strong dairy foods are supposed to deliver.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 100
       },
       {
         "itemKey": "satfat_penalty",
         "impactLevel": "major",
-        "scoreValue": -3,
         "title": "saturated fat is a major drawback",
         "explanation": "A second major strike against the food in this category.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 100
       },
       {
         "itemKey": "weak_protein_dairy_fit",
         "impactLevel": "major",
-        "scoreValue": -3,
         "title": "protein usefulness is weak for dairy",
         "explanation": "That makes it a poor fit compared with stronger dairy anchors like yogurt.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 100
       }
     ]
   },
@@ -192,9 +166,9 @@
       "scoringMode": "arrow_bands",
       "value": 7,
       "band": "↑↑",
-      "score": -2,
+      "score": 20,
       "weight": 6,
-      "weightedScore": -12
+      "weightedScore": 120
     },
     {
       "metricKey": "omega3_mg",
@@ -202,9 +176,9 @@
       "scoringMode": "arrow_bands",
       "value": 30,
       "band": "↓↓",
-      "score": -2,
+      "score": 20,
       "weight": 1,
-      "weightedScore": -2
+      "weightedScore": 20
     },
     {
       "metricKey": "polyunsaturated_fat_g",
@@ -212,9 +186,9 @@
       "scoringMode": "arrow_bands",
       "value": 0.4,
       "band": "↓↓",
-      "score": -2,
+      "score": 20,
       "weight": 1,
-      "weightedScore": -2
+      "weightedScore": 20
     },
     {
       "metricKey": "cholesterol_mg",
@@ -222,9 +196,19 @@
       "scoringMode": "arrow_bands",
       "value": 44,
       "band": "↓",
-      "score": 1,
+      "score": 60,
       "weight": 4,
-      "weightedScore": 4
+      "weightedScore": 240
+    },
+    {
+      "metricKey": "starch_g",
+      "sectionKey": "carbs",
+      "scoringMode": "arrow_bands",
+      "value": 0,
+      "band": "3_red",
+      "score": 0,
+      "weight": 0,
+      "weightedScore": 0
     },
     {
       "metricKey": "sugar_g",
@@ -232,9 +216,9 @@
       "scoringMode": "arrow_bands",
       "value": 21,
       "band": "↑↑↑",
-      "score": -3,
+      "score": 0,
       "weight": 4,
-      "weightedScore": -12
+      "weightedScore": 0
     },
     {
       "metricKey": "glycemic_index",
@@ -242,39 +226,29 @@
       "scoringMode": "arrow_bands",
       "value": 61,
       "band": "↑",
-      "score": -1,
+      "score": 40,
       "weight": 2,
-      "weightedScore": -2
+      "weightedScore": 80
     },
     {
-      "metricKey": "essential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 4,
-      "band": "↓",
-      "score": -1,
-      "weight": 3,
-      "weightedScore": -3
+      "metricKey": "vitamin_b12_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 6,
+      "points": 0,
+      "score": 0,
+      "weight": 2,
+      "weightedScore": 0
     },
     {
-      "metricKey": "nonessential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 6,
-      "band": "↑",
-      "score": 1,
+      "metricKey": "vitamin_a_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 8,
+      "points": 0,
+      "score": 0,
       "weight": 1,
-      "weightedScore": 1
-    },
-    {
-      "metricKey": "bioavailability_percent",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 70,
-      "band": "↓↓",
-      "score": -2,
-      "weight": 3,
-      "weightedScore": -6
+      "weightedScore": 0
     },
     {
       "metricKey": "calcium_dv",
@@ -282,8 +256,40 @@
       "scoringMode": "dv_points",
       "dvPercent": 13,
       "points": 1,
+      "score": 10,
       "weight": 3,
-      "weightedScore": 3
+      "weightedScore": 30
+    },
+    {
+      "metricKey": "zinc_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 3,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "magnesium_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 2,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "protein_g_fallback",
+      "sectionKey": "proteins",
+      "scoringMode": "protein_fallback",
+      "value": 3.5,
+      "band": "2_red",
+      "score": 20,
+      "weight": 3,
+      "weightedScore": 60,
+      "fallbackApplied": true
     }
   ]
 }

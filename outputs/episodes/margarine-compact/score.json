@@ -7,7 +7,11 @@
   },
   "ruleset": {
     "id": "oils-and-fats.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 717,
@@ -16,67 +20,32 @@
     "protein_g": 0.2
   },
   "sectionScores": {
-    "fats": 39.3,
+    "fats": 47.1,
     "carbs": null,
     "proteins": null,
-    "vitamins": null,
-    "minerals": null,
-    "pros": 0,
-    "cons": 100
+    "vitamins": 0,
+    "minerals": 0,
+    "pros": 50,
+    "cons": 0
   },
-  "baseScore": 30,
-  "contextAdjustment": {
-    "rawAdjustment": -27,
-    "appliedAdjustment": -27,
-    "appliedItems": [
-      {
-        "itemKey": "processing_penalty",
-        "impactLevel": "major",
-        "scoreValue": -9,
-        "title": "processing is a major category negative",
-        "explanation": "This is the core reason margarine makes a clean weak anchor in this category.",
-        "evidenceType": "manual",
-        "side": "con",
-        "resolvedScoreValue": -9
-      },
-      {
-        "itemKey": "ingredient_complexity",
-        "impactLevel": "major",
-        "scoreValue": -9,
-        "title": "ingredient simplicity is poor",
-        "explanation": "Much weaker trust and wholefood fit than stronger oils/fats anchors.",
-        "evidenceType": "manual",
-        "side": "con",
-        "resolvedScoreValue": -9
-      },
-      {
-        "itemKey": "formula_variability",
-        "impactLevel": "major",
-        "scoreValue": -9,
-        "title": "quality varies wildly by formulation",
-        "explanation": "That makes the category fit feel unstable and less trustworthy.",
-        "evidenceType": "manual",
-        "side": "con",
-        "resolvedScoreValue": -9
-      }
-    ],
-    "ignoredItems": []
-  },
-  "overallScore": 3,
+  "overallScore": 14.3,
+  "overallScoreExact": 14.3158,
+  "baseOverallScore": 19.4,
+  "baseOverallScoreExact": 19.4286,
   "tier": "D",
-  "summary": "Fats are carrying this food most, while fats are the biggest drag. It lands in D tier.",
+  "summary": "Pros are carrying this food most, while cons are holding it back most. It lands in D tier.",
   "explanation": {
-    "summary": "Fats are carrying this food most, while fats are the biggest drag. It lands in D tier.",
-    "whyThisTier": "This food lands in D tier with an overall score of 3 from a base nutrition score of 30. Context dragged it down by 27 points.",
+    "summary": "Pros are carrying this food most, while cons are holding it back most. It lands in D tier.",
+    "whyThisTier": "This food lands in D tier with an overall score of 14.3. Section scores: fats 47.1, vitamins 0, minerals 0, pros 50, cons 0.",
     "strongestSection": {
-      "key": "fats",
-      "label": "Fats",
-      "score": 39.3
+      "key": "pros",
+      "label": "Pros",
+      "score": 50
     },
     "weakestSection": {
-      "key": "fats",
-      "label": "Fats",
-      "score": 39.3
+      "key": "cons",
+      "label": "Cons",
+      "score": 0
     },
     "topPros": [
       {
@@ -84,21 +53,21 @@
         "explanation": "Simple practical upside.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "often inexpensive",
         "explanation": "A practical reason it still exists in real kitchens.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "very familiar product",
         "explanation": "People know what it is and how to use it.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -107,27 +76,26 @@
         "explanation": "This is the core reason margarine makes a clean weak anchor in this category.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -9
+        "resolvedScoreValue": 100
       },
       {
         "title": "ingredient simplicity is poor",
         "explanation": "Much weaker trust and wholefood fit than stronger oils/fats anchors.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -9
+        "resolvedScoreValue": 100
       },
       {
         "title": "quality varies wildly by formulation",
         "explanation": "That makes the category fit feel unstable and less trustworthy.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -9
+        "resolvedScoreValue": 100
       }
     ],
     "narrationNotes": [
-      "Strongest section: Fats.",
-      "Weakest section: Fats.",
-      "Context weakened the final tier case by 27 points.",
+      "Strongest section: Pros.",
+      "Weakest section: Cons.",
       "Final verdict: D tier."
     ]
   },
@@ -136,52 +104,58 @@
       {
         "itemKey": "spreadability_convenience",
         "impactLevel": "minor",
-        "scoreValue": 0,
         "title": "easy and convenient to use",
         "explanation": "Simple practical upside.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "cheap_option",
         "impactLevel": "minor",
-        "scoreValue": 0,
         "title": "often inexpensive",
         "explanation": "A practical reason it still exists in real kitchens.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "familiar_product",
         "impactLevel": "minor",
-        "scoreValue": 0,
         "title": "very familiar product",
         "explanation": "People know what it is and how to use it.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "cons": [
       {
         "itemKey": "processing_penalty",
         "impactLevel": "major",
-        "scoreValue": -9,
         "title": "processing is a major category negative",
         "explanation": "This is the core reason margarine makes a clean weak anchor in this category.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 100
       },
       {
         "itemKey": "ingredient_complexity",
         "impactLevel": "major",
-        "scoreValue": -9,
         "title": "ingredient simplicity is poor",
         "explanation": "Much weaker trust and wholefood fit than stronger oils/fats anchors.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 100
       },
       {
         "itemKey": "formula_variability",
         "impactLevel": "major",
-        "scoreValue": -9,
         "title": "quality varies wildly by formulation",
         "explanation": "That makes the category fit feel unstable and less trustworthy.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 100
       }
     ]
   },
@@ -192,9 +166,9 @@
       "scoringMode": "arrow_bands",
       "value": 42,
       "band": "↑↑",
-      "score": -2,
+      "score": 20,
       "weight": 7,
-      "weightedScore": -14
+      "weightedScore": 140
     },
     {
       "metricKey": "omega3_mg",
@@ -202,9 +176,9 @@
       "scoringMode": "arrow_bands",
       "value": 50,
       "band": "↓↓↓",
-      "score": -3,
+      "score": 0,
       "weight": 1,
-      "weightedScore": -3
+      "weightedScore": 0
     },
     {
       "metricKey": "polyunsaturated_fat_g",
@@ -212,19 +186,79 @@
       "scoringMode": "arrow_bands",
       "value": 4,
       "band": "↓↓",
-      "score": -2,
+      "score": 20,
       "weight": 1,
-      "weightedScore": -2
+      "weightedScore": 20
     },
     {
       "metricKey": "cholesterol_mg",
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 0,
-      "band": "↓↓",
-      "score": 2,
+      "band": "↓↓↓",
+      "score": 100,
       "weight": 5,
-      "weightedScore": 10
+      "weightedScore": 500
+    },
+    {
+      "metricKey": "vitamin_e_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 2,
+      "points": 0,
+      "score": 0,
+      "weight": 2,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "vitamin_k_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 4,
+      "points": 0,
+      "score": 0,
+      "weight": 2,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "vitamin_a_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 4,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "iron_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 0,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "magnesium_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 0,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "calcium_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 0,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
     }
   ]
 }

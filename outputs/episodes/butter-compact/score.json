@@ -7,7 +7,11 @@
   },
   "ruleset": {
     "id": "oils-and-fats.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 717,
@@ -16,88 +20,32 @@
     "protein_g": 0.9
   },
   "sectionScores": {
-    "fats": 17.9,
+    "fats": 21.4,
     "carbs": null,
     "proteins": null,
-    "vitamins": 13.3,
-    "minerals": null,
+    "vitamins": 8,
+    "minerals": 0,
     "pros": 100,
-    "cons": 100
+    "cons": 16.7
   },
-  "baseScore": 15,
-  "contextAdjustment": {
-    "rawAdjustment": -14,
-    "appliedAdjustment": -14,
-    "appliedItems": [
-      {
-        "itemKey": "very_high_satfat",
-        "impactLevel": "major",
-        "scoreValue": -9,
-        "title": "saturated fat is a major drawback",
-        "explanation": "This is the main reason butter cannot be an elite oils-and-fats food.",
-        "evidenceType": "manual",
-        "side": "con",
-        "resolvedScoreValue": -9
-      },
-      {
-        "itemKey": "high_cholesterol",
-        "impactLevel": "major",
-        "scoreValue": -9,
-        "title": "cholesterol is high",
-        "explanation": "A second meaningful strike against the fat profile.",
-        "evidenceType": "manual",
-        "side": "con",
-        "resolvedScoreValue": -9
-      },
-      {
-        "itemKey": "traditional_simple_fat",
-        "impactLevel": "major",
-        "scoreValue": 4,
-        "title": "simple traditional fat",
-        "explanation": "This gives butter a cleaner identity than heavily processed fat substitutes.",
-        "evidenceType": "manual",
-        "side": "pro",
-        "resolvedScoreValue": 4
-      }
-    ],
-    "ignoredItems": [
-      {
-        "itemKey": "culinary_strength",
-        "impactLevel": "major",
-        "scoreValue": 4,
-        "title": "very strong culinary usefulness",
-        "explanation": "Butter has real kitchen legitimacy and practical use that matters in this category.",
-        "evidenceType": "manual",
-        "side": "pro",
-        "resolvedScoreValue": 4
-      },
-      {
-        "itemKey": "moderation_legitimacy",
-        "impactLevel": "major",
-        "scoreValue": 4,
-        "title": "can fit as a moderate traditional fat",
-        "explanation": "The editorial position here is that butter belongs as a flawed but legitimate middle-ground fat rather than a bottom-tier industrial product.",
-        "evidenceType": "manual",
-        "side": "pro",
-        "resolvedScoreValue": 4
-      }
-    ]
-  },
-  "overallScore": 1,
-  "tier": "D",
-  "summary": "Fats are carrying this food most, while vitamins are the biggest drag. It lands in D tier.",
+  "overallScore": 31.3,
+  "overallScoreExact": 31.3025,
+  "baseOverallScore": 29.2,
+  "baseOverallScoreExact": 29.219,
+  "tier": "C",
+  "summary": "Pros are carrying this food most, while minerals are holding it back most. It lands in C tier.",
   "explanation": {
-    "summary": "Fats are carrying this food most, while vitamins are the biggest drag. It lands in D tier.",
-    "whyThisTier": "This food lands in D tier with an overall score of 1 from a base nutrition score of 15. Context dragged it down by 14 points.",
+    "summary": "Pros are carrying this food most, while minerals are holding it back most. It lands in C tier.",
+    "whyThisTier": "This food lands in C tier with an overall score of 31.3. Section scores: fats 21.4, vitamins 8, minerals 0, pros 100, cons 16.7.",
     "strongestSection": {
-      "key": "fats",
-      "label": "Fats",
-      "score": 17.9
+      "key": "pros",
+      "label": "Pros",
+      "score": 100
     },
     "weakestSection": {
-      "key": "vitamins",
-      "label": "Vitamins",
-      "score": 13.3
+      "key": "minerals",
+      "label": "Minerals",
+      "score": 0
     },
     "topPros": [
       {
@@ -105,7 +53,21 @@
         "explanation": "This gives butter a cleaner identity than heavily processed fat substitutes.",
         "impactLevel": "major",
         "side": "pro",
-        "resolvedScoreValue": 4
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "very strong culinary usefulness",
+        "explanation": "Butter has real kitchen legitimacy and practical use that matters in this category.",
+        "impactLevel": "major",
+        "side": "pro",
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "can fit as a moderate traditional fat",
+        "explanation": "The editorial position here is that butter belongs as a flawed but legitimate middle-ground fat rather than a bottom-tier industrial product.",
+        "impactLevel": "major",
+        "side": "pro",
+        "resolvedScoreValue": 100
       }
     ],
     "topCons": [
@@ -114,21 +76,27 @@
         "explanation": "This is the main reason butter cannot be an elite oils-and-fats food.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -9
+        "resolvedScoreValue": 100
       },
       {
         "title": "cholesterol is high",
         "explanation": "A second meaningful strike against the fat profile.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -9
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "fat profile is clearly weaker than top-tier oils",
+        "explanation": "Butter is not competing with the best oils on chemistry alone.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
-      "Strongest section: Fats.",
-      "Weakest section: Vitamins.",
-      "Context weakened the final tier case by 14 points.",
-      "Final verdict: D tier."
+      "Strongest section: Pros.",
+      "Weakest section: Minerals.",
+      "Final verdict: C tier."
     ]
   },
   "contextItems": {
@@ -136,52 +104,58 @@
       {
         "itemKey": "traditional_simple_fat",
         "impactLevel": "major",
-        "scoreValue": 4,
         "title": "simple traditional fat",
         "explanation": "This gives butter a cleaner identity than heavily processed fat substitutes.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 100
       },
       {
         "itemKey": "culinary_strength",
         "impactLevel": "major",
-        "scoreValue": 4,
         "title": "very strong culinary usefulness",
         "explanation": "Butter has real kitchen legitimacy and practical use that matters in this category.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 100
       },
       {
         "itemKey": "moderation_legitimacy",
         "impactLevel": "major",
-        "scoreValue": 4,
         "title": "can fit as a moderate traditional fat",
         "explanation": "The editorial position here is that butter belongs as a flawed but legitimate middle-ground fat rather than a bottom-tier industrial product.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 100
       }
     ],
     "cons": [
       {
         "itemKey": "very_high_satfat",
         "impactLevel": "major",
-        "scoreValue": -9,
         "title": "saturated fat is a major drawback",
         "explanation": "This is the main reason butter cannot be an elite oils-and-fats food.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 100
       },
       {
         "itemKey": "high_cholesterol",
         "impactLevel": "major",
-        "scoreValue": -9,
         "title": "cholesterol is high",
         "explanation": "A second meaningful strike against the fat profile.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 100
       },
       {
         "itemKey": "weak_fat_profile_vs_best",
         "impactLevel": "minor",
-        "scoreValue": 0,
         "title": "fat profile is clearly weaker than top-tier oils",
         "explanation": "Butter is not competing with the best oils on chemistry alone.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       }
     ]
   },
@@ -192,9 +166,9 @@
       "scoringMode": "arrow_bands",
       "value": 51.4,
       "band": "↑↑",
-      "score": -2,
+      "score": 20,
       "weight": 7,
-      "weightedScore": -14
+      "weightedScore": 140
     },
     {
       "metricKey": "omega3_mg",
@@ -202,9 +176,9 @@
       "scoringMode": "arrow_bands",
       "value": 315,
       "band": "↓",
-      "score": -1,
+      "score": 40,
       "weight": 1,
-      "weightedScore": -1
+      "weightedScore": 40
     },
     {
       "metricKey": "polyunsaturated_fat_g",
@@ -212,9 +186,9 @@
       "scoringMode": "arrow_bands",
       "value": 3,
       "band": "↓↓",
-      "score": -2,
+      "score": 20,
       "weight": 1,
-      "weightedScore": -2
+      "weightedScore": 20
     },
     {
       "metricKey": "cholesterol_mg",
@@ -222,9 +196,9 @@
       "scoringMode": "arrow_bands",
       "value": 215,
       "band": "↑↑",
-      "score": -2,
+      "score": 20,
       "weight": 5,
-      "weightedScore": -10
+      "weightedScore": 100
     },
     {
       "metricKey": "vitamin_e_dv",
@@ -232,8 +206,19 @@
       "scoringMode": "dv_points",
       "dvPercent": 11,
       "points": 1,
+      "score": 10,
       "weight": 2,
-      "weightedScore": 2
+      "weightedScore": 20
+    },
+    {
+      "metricKey": "vitamin_k_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 6,
+      "points": 0,
+      "score": 0,
+      "weight": 2,
+      "weightedScore": 0
     },
     {
       "metricKey": "vitamin_a_dv",
@@ -241,8 +226,39 @@
       "scoringMode": "dv_points",
       "dvPercent": 28,
       "points": 2,
+      "score": 20,
       "weight": 1,
-      "weightedScore": 2
+      "weightedScore": 20
+    },
+    {
+      "metricKey": "iron_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 0,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "magnesium_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 0,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "calcium_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 2,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "id": "grapes-episode-v1",
-  "generatedAt": "2026-03-20T14:18:43.750Z",
+  "generatedAt": "2026-06-01T22:53:48.987Z",
   "status": "draft",
   "mode": "compact",
   "food": {
@@ -11,6 +11,12 @@
       "value": 100,
       "unit": "g"
     },
+    "identity": null,
+    "scoreReadiness": null,
+    "sourceNotes": [
+      "Calibration benchmark sample for FoodRanked.",
+      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
+    ],
     "sourceFile": "foods/grapes.sample.json"
   },
   "sourceOfTruth": {
@@ -28,35 +34,110 @@
     "subtitlesJson": "subtitles.json"
   },
   "scoreSnapshot": {
-    "overallScore": 13,
-    "tier": "C",
-    "baseScore": 16,
-    "contextAdjustment": -3,
+    "overallScore": 16.3,
+    "overallScoreExact": 16.3183,
+    "baseOverallScore": 35.3,
+    "baseOverallScoreExact": 35.3175,
+    "tier": "D",
     "sectionScores": {
-      "fats": 91.7,
-      "carbs": 22.2,
-      "proteins": 38.9,
-      "vitamins": null,
+      "fats": 100,
+      "carbs": 28.6,
+      "proteins": null,
+      "vitamins": 0,
       "minerals": 0,
-      "pros": 33.3,
-      "cons": 66.7
+      "pros": 66.7,
+      "cons": 16.7
     },
+    "strongestSection": {
+      "key": "fats",
+      "label": "Fats",
+      "score": 100
+    },
+    "weakestSection": {
+      "key": "minerals",
+      "label": "Minerals",
+      "score": 0
+    },
+    "topPros": [
+      {
+        "title": "polyphenol case is stronger than the sugar suggests",
+        "explanation": "Tests whether fruit context can rescue sugary but still respected fruits.",
+        "impactLevel": "major",
+        "side": "pro",
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "very easy to eat",
+        "explanation": "Highly practical fruit.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "hydrating and easy",
+        "explanation": "Practical plus.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      }
+    ],
+    "topCons": [
+      {
+        "title": "sugar load is high for fruit",
+        "explanation": "A real stress test for the fruit ruleset.",
+        "impactLevel": "major",
+        "side": "con",
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "fibre moderation is weak",
+        "explanation": "Much weaker than elite fruits.",
+        "impactLevel": "major",
+        "side": "con",
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "easy to overeat quickly",
+        "explanation": "Can rack up sugar fast.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
+      }
+    ],
     "explanation": {
-      "summary": "Fats are carrying this food most, while minerals are the biggest drag. It lands in C tier.",
-      "whyThisTier": "This food lands in C tier with an overall score of 13 from a base nutrition score of 16. Context dragged it down by 3 points.",
+      "summary": "Fats are carrying this food most, while minerals are holding it back most. It lands in D tier.",
+      "whyThisTier": "This food lands in D tier with an overall score of 16.3. Section scores: fats 100, carbs 28.6, vitamins 0, minerals 0, pros 66.7, cons 16.7.",
       "strongestSection": {
         "key": "fats",
         "label": "Fats",
-        "score": 91.7
+        "score": 100
       },
-      "weakestSection": null,
+      "weakestSection": {
+        "key": "minerals",
+        "label": "Minerals",
+        "score": 0
+      },
       "topPros": [
         {
           "title": "polyphenol case is stronger than the sugar suggests",
           "explanation": "Tests whether fruit context can rescue sugary but still respected fruits.",
           "impactLevel": "major",
           "side": "pro",
-          "resolvedScoreValue": 3
+          "resolvedScoreValue": 100
+        },
+        {
+          "title": "very easy to eat",
+          "explanation": "Highly practical fruit.",
+          "impactLevel": "minor",
+          "side": "pro",
+          "resolvedScoreValue": 50
+        },
+        {
+          "title": "hydrating and easy",
+          "explanation": "Practical plus.",
+          "impactLevel": "minor",
+          "side": "pro",
+          "resolvedScoreValue": 50
         }
       ],
       "topCons": [
@@ -65,29 +146,38 @@
           "explanation": "A real stress test for the fruit ruleset.",
           "impactLevel": "major",
           "side": "con",
-          "resolvedScoreValue": -3
+          "resolvedScoreValue": 100
         },
         {
           "title": "fibre moderation is weak",
           "explanation": "Much weaker than elite fruits.",
           "impactLevel": "major",
           "side": "con",
-          "resolvedScoreValue": -3
+          "resolvedScoreValue": 100
+        },
+        {
+          "title": "easy to overeat quickly",
+          "explanation": "Can rack up sugar fast.",
+          "impactLevel": "minor",
+          "side": "con",
+          "resolvedScoreValue": 50
         }
       ],
       "narrationNotes": [
         "Strongest section: Fats.",
-        "Context weakened the final tier case by 3 points.",
-        "Final verdict: C tier."
+        "Weakest section: Minerals.",
+        "Final verdict: D tier."
       ]
     }
   },
   "scriptSnapshot": {
+    "schemaVersion": "foodranked-script.v2",
+    "narrationFormat": "elevenlabs-blocks-v1",
     "hook": "Grapes ranked.",
-    "intro": null,
     "closing": {
-      "summary": "Grapes does have a few real-world upsides. but the nutrition case is still weak and the downsides drag it down hard. best only when the convenience or taste matters more than the nutrition return.",
-      "finalReveal": "C tier.",
+      "summary": "Big strengths are omega 3 and polyphenol case is stronger than the sugar suggests, but the biggest weaknesses are sugar load is high for fruit and fibre moderation is weak.",
+      "overview": "Big strengths are omega 3 and polyphenol case is stronger than the sugar suggests, but the biggest weaknesses are sugar load is high for fruit and fibre moderation is weak.",
+      "finalReveal": "D tier.",
       "useCaseNote": "Best only when the convenience or taste matters more than the nutrition return.",
       "cta": "Would you rank it the same, or nah?"
     },
@@ -99,45 +189,468 @@
       "minerals",
       "pros",
       "cons"
-    ]
+    ],
+    "narrationBlockCount": 11
   },
   "visualBinding": {
     "templateId": "foodranked-visual-template.v1",
     "aspectRatio": "9:16",
     "categoryAccent": "Bright Red",
-    "tierColor": "green"
+    "tierColor": "purple",
+    "visualProfile": {
+      "name": "balanced",
+      "description": "Default launch profile: readable, centered, and close to the locked storyboard.",
+      "macroLayout": "stacked",
+      "subtitleLift": "standard",
+      "hookStyle": "hero-center",
+      "motionPreset": "balanced",
+      "statsDensity": "standard",
+      "micronutrientRows": 2,
+      "macroSlotsVisible": 3,
+      "emphasisOrder": [
+        "hook",
+        "header",
+        "macro",
+        "micros",
+        "pros-cons",
+        "tier"
+      ]
+    },
+    "spriteBindings": {
+      "strategy": "png-primary-with-aseprite-reference",
+      "categoryKey": "fruit",
+      "notes": [
+        "Use exported 100% PNG and GIF files for edit/runtime placement.",
+        "Use .aseprite sources only as fidelity references when adjusting layout or re-exporting."
+      ],
+      "header": {
+        "foodPlate": {
+          "path": "sprites/header/food_plate/fruit_food_plate.png",
+          "format": "png"
+        },
+        "foodPlateSource": {
+          "path": "sprites/header/food_plate/fruit_food_plate.aseprite",
+          "format": "aseprite"
+        },
+        "foodTypePlate": {
+          "path": "sprites/header/food_type_plate/fruit_type_plate.png",
+          "format": "png"
+        },
+        "foodTypePlateSource": {
+          "path": "sprites/header/food_type_plate/fruit_type_plate.aseprite",
+          "format": "aseprite"
+        },
+        "calorieBubble": {
+          "path": "sprites/header/calorie_bubble/fruit_calorie_bubble.png",
+          "format": "png"
+        },
+        "calorieBubbleSource": {
+          "path": "sprites/header/calorie_bubble/fruit_calorie_bubble.aseprite",
+          "format": "aseprite"
+        },
+        "scorePlate": {
+          "path": "sprites/header/header_ui/score_plate.png",
+          "format": "png"
+        },
+        "scorePlateSource": {
+          "path": "sprites/header/header_ui/score_plate.aseprite",
+          "format": "aseprite"
+        }
+      },
+      "macros": {
+        "arrows": {
+          "positive": {
+            "path": "sprites/macros_section/arrow_indicators/green_arrow.png",
+            "format": "png"
+          },
+          "positiveSource": {
+            "path": "sprites/macros_section/arrow_indicators/green_arrow.aseprite",
+            "format": "aseprite"
+          },
+          "negative": {
+            "path": "sprites/macros_section/arrow_indicators/red_arrow.png",
+            "format": "png"
+          },
+          "negativeSource": {
+            "path": "sprites/macros_section/arrow_indicators/red_arrow.aseprite",
+            "format": "aseprite"
+          }
+        },
+        "fats": {
+          "icon": {
+            "path": "sprites/macros_section/section_1_fats/fat_icon.gif",
+            "format": "gif"
+          },
+          "iconSource": {
+            "path": "sprites/macros_section/section_1_fats/fat_icon.aseprite",
+            "format": "aseprite"
+          },
+          "bullet": {
+            "path": "sprites/macros_section/section_1_fats/fat_submacro_bullet_point.png",
+            "format": "png"
+          },
+          "bulletSource": {
+            "path": "sprites/macros_section/section_1_fats/fat_submacro_bullet_point.aseprite",
+            "format": "aseprite"
+          }
+        },
+        "carbs": {
+          "icon": {
+            "path": "sprites/macros_section/section_2_carbs/carb_icon.gif",
+            "format": "gif"
+          },
+          "iconSource": {
+            "path": "sprites/macros_section/section_2_carbs/carb_icon.aseprite",
+            "format": "aseprite"
+          },
+          "bullet": {
+            "path": "sprites/macros_section/section_2_carbs/carb_submacro_bullet_point.png",
+            "format": "png"
+          },
+          "bulletSource": {
+            "path": "sprites/macros_section/section_2_carbs/carb_submacro_bullet_point.aseprite",
+            "format": "aseprite"
+          }
+        },
+        "proteins": {
+          "icon": {
+            "path": "sprites/macros_section/section_3_protein/protein_icon.gif",
+            "format": "gif"
+          },
+          "iconSource": {
+            "path": "sprites/macros_section/section_3_protein/protein_icon.aseprite",
+            "format": "aseprite"
+          },
+          "bullet": {
+            "path": "sprites/macros_section/section_3_protein/protein_submacro_bullet_point.png",
+            "format": "png"
+          },
+          "bulletSource": {
+            "path": "sprites/macros_section/section_3_protein/protein_submacro_bullet_point.aseprite",
+            "format": "aseprite"
+          }
+        }
+      },
+      "micros": {
+        "vitamins": {
+          "icon": {
+            "path": "sprites/micros_section/vitamins/vitamin_icon.gif",
+            "format": "gif"
+          },
+          "iconSource": {
+            "path": "sprites/micros_section/vitamins/vitamin_icon.aseprite",
+            "format": "aseprite"
+          },
+          "microIcon": {
+            "path": "sprites/micros_section/vitamins/vitamin_micro_icon.png",
+            "format": "png"
+          },
+          "microIconSource": {
+            "path": "sprites/micros_section/vitamins/vitamin_micro_icon.aseprite",
+            "format": "aseprite"
+          }
+        },
+        "minerals": {
+          "icon": {
+            "path": "sprites/micros_section/minerals/mineral_icon.gif",
+            "format": "gif"
+          },
+          "iconSource": {
+            "path": "sprites/micros_section/minerals/mineral_icon.aseprite",
+            "format": "aseprite"
+          },
+          "microIcon": {
+            "path": "sprites/micros_section/minerals/mineral_micro_icon.png",
+            "format": "png"
+          },
+          "microIconSource": {
+            "path": "sprites/micros_section/minerals/mineral_micro_icon.aseprite",
+            "format": "aseprite"
+          }
+        },
+        "bars": {
+          "line": {
+            "path": "sprites/micros_section/bars/bar_line.png",
+            "format": "png"
+          },
+          "lineSource": {
+            "path": "sprites/micros_section/bars/bar_line.aseprite",
+            "format": "aseprite"
+          },
+          "full": {
+            "path": "sprites/micros_section/bars/100%_bar.png",
+            "format": "png"
+          },
+          "fullSource": {
+            "path": "sprites/micros_section/bars/100%_bar.aseprite",
+            "format": "aseprite"
+          }
+        }
+      },
+      "prosCons": {
+        "pros": {
+          "bullet": {
+            "path": "sprites/pros_and_cons/pros/pro_bullet_point.png",
+            "format": "png"
+          },
+          "bulletSource": {
+            "path": "sprites/pros_and_cons/pros/pro_bullet_point.aseprite",
+            "format": "aseprite"
+          }
+        },
+        "cons": {
+          "bullet": {
+            "path": "sprites/pros_and_cons/cons/con_bullet_point.png",
+            "format": "png"
+          },
+          "bulletSource": {
+            "path": "sprites/pros_and_cons/cons/con_bullet_point.aseprite",
+            "format": "aseprite"
+          }
+        }
+      },
+      "progress": {
+        "inactive": {
+          "path": "sprites/ui/section_indicator/fruit_section_indicator.png",
+          "format": "png"
+        },
+        "inactiveSource": {
+          "path": "sprites/ui/section_indicator/fruit_section_indicator.aseprite",
+          "format": "aseprite"
+        },
+        "active": {
+          "path": "sprites/ui/section_indicator/fruit_highlighted_section_indicator.png",
+          "format": "png"
+        },
+        "activeSource": {
+          "path": "sprites/ui/section_indicator/fruit_highlighted_section_indicator.aseprite",
+          "format": "aseprite"
+        }
+      },
+      "separators": {
+        "section": {
+          "path": "sprites/ui/section_separator/fruit_section_separator.png",
+          "format": "png"
+        },
+        "sectionSource": {
+          "path": "sprites/ui/section_separator/fruit_section_separator.aseprite",
+          "format": "aseprite"
+        }
+      },
+      "references": {
+        "macroLayout": {
+          "path": "sprites/references/macros_section.png",
+          "format": "png"
+        },
+        "macroLayoutSource": {
+          "path": "sprites/references/macros_section.aseprite",
+          "format": "aseprite"
+        },
+        "microLayout": {
+          "path": "sprites/references/micros_section.png",
+          "format": "png"
+        },
+        "microLayoutSource": {
+          "path": "sprites/references/micros_section.aseprite",
+          "format": "aseprite"
+        },
+        "prosConsLayout": {
+          "path": "sprites/references/pros_cons_section.png",
+          "format": "png"
+        },
+        "prosConsLayoutSource": {
+          "path": "sprites/references/pros_cons_section.aseprite",
+          "format": "aseprite"
+        }
+      }
+    },
+    "storyboardContract": {
+      "lockedSceneStack": [
+        {
+          "id": "hook",
+          "kind": "hook",
+          "narrativeRole": "opening-promise",
+          "subtitlePlacement": "lower-third"
+        },
+        {
+          "id": "fats",
+          "kind": "section",
+          "narrativeRole": "macro-foundation",
+          "subtitlePlacement": "lower-third"
+        },
+        {
+          "id": "carbs",
+          "kind": "section",
+          "narrativeRole": "macro-foundation",
+          "subtitlePlacement": "lower-third"
+        },
+        {
+          "id": "proteins",
+          "kind": "section",
+          "narrativeRole": "macro-foundation",
+          "subtitlePlacement": "lower-third"
+        },
+        {
+          "id": "vitamins",
+          "kind": "section",
+          "narrativeRole": "micronutrient-proof",
+          "subtitlePlacement": "lower-third"
+        },
+        {
+          "id": "minerals",
+          "kind": "section",
+          "narrativeRole": "micronutrient-proof",
+          "subtitlePlacement": "lower-third"
+        },
+        {
+          "id": "pros",
+          "kind": "section",
+          "narrativeRole": "real-world-upside",
+          "subtitlePlacement": "high-lower-third"
+        },
+        {
+          "id": "cons",
+          "kind": "section",
+          "narrativeRole": "real-world-downside",
+          "subtitlePlacement": "high-lower-third"
+        },
+        {
+          "id": "final",
+          "kind": "closing",
+          "narrativeRole": "verdict-payoff",
+          "subtitlePlacement": "subtitle-floor"
+        }
+      ],
+      "subtitleSafeBox": {
+        "x": 80,
+        "y": 1320,
+        "w": 920,
+        "h": 280
+      },
+      "progressIndicator": {
+        "id": "progress_dots",
+        "type": "dotRow",
+        "count": 7,
+        "x": 414,
+        "y": 1710,
+        "dotSize": 26,
+        "gap": 20,
+        "states": [
+          "inactive",
+          "active",
+          "completed"
+        ]
+      }
+    }
   },
   "reviewChecklist": [
     "Verify nutrient values are sourced well enough for publishable use.",
     "Review narration for category repetition and trim any awkward lines.",
     "Confirm subtitle density stays readable at phone speed.",
-    "Replace placeholder hero/sprite art with final asset selection.",
+    "Use the PNG and GIF sprite exports directly, and only open .aseprite sources when fidelity adjustments are needed.",
     "Check that the final tier verdict feels editorially defensible."
   ],
   "nextHumanStep": "Review the generated narration + manifest, then use the manifest as the handoff into visual assembly / editing.",
   "scenePlan": {
     "mode": "compact",
-    "totalEstimatedDurationSeconds": 72.54,
+    "visualProfile": "balanced",
+    "subtitleRules": {
+      "maxLines": 2,
+      "maxCharactersPerLine": 18
+    },
+    "totalEstimatedDurationSeconds": 76.88,
     "scenes": [
       {
         "id": "hook",
         "kind": "hook",
+        "narrativeRole": "opening-promise",
         "startSeconds": 0,
         "durationSeconds": 2.1,
         "endSeconds": 2.1,
         "narrationText": "Grapes ranked.",
         "subtitleText": "Grapes ranked.",
+        "subtitlePlacement": "lower-third",
         "visualBinding": {
           "title": "Grapes",
           "rankedWord": "RANKED",
           "foodType": "fruits",
           "kcal": 69,
-          "categoryAccent": "Bright Red"
+          "categoryAccent": "Bright Red",
+          "hookStyle": "hero-center",
+          "headerSprites": {
+            "foodPlate": {
+              "path": "sprites/header/food_plate/fruit_food_plate.png",
+              "format": "png"
+            },
+            "foodPlateSource": {
+              "path": "sprites/header/food_plate/fruit_food_plate.aseprite",
+              "format": "aseprite"
+            },
+            "foodTypePlate": {
+              "path": "sprites/header/food_type_plate/fruit_type_plate.png",
+              "format": "png"
+            },
+            "foodTypePlateSource": {
+              "path": "sprites/header/food_type_plate/fruit_type_plate.aseprite",
+              "format": "aseprite"
+            },
+            "calorieBubble": {
+              "path": "sprites/header/calorie_bubble/fruit_calorie_bubble.png",
+              "format": "png"
+            },
+            "calorieBubbleSource": {
+              "path": "sprites/header/calorie_bubble/fruit_calorie_bubble.aseprite",
+              "format": "aseprite"
+            },
+            "scorePlate": {
+              "path": "sprites/header/header_ui/score_plate.png",
+              "format": "png"
+            },
+            "scorePlateSource": {
+              "path": "sprites/header/header_ui/score_plate.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "progressSprites": {
+            "inactive": {
+              "path": "sprites/ui/section_indicator/fruit_section_indicator.png",
+              "format": "png"
+            },
+            "inactiveSource": {
+              "path": "sprites/ui/section_indicator/fruit_section_indicator.aseprite",
+              "format": "aseprite"
+            },
+            "active": {
+              "path": "sprites/ui/section_indicator/fruit_highlighted_section_indicator.png",
+              "format": "png"
+            },
+            "activeSource": {
+              "path": "sprites/ui/section_indicator/fruit_highlighted_section_indicator.aseprite",
+              "format": "aseprite"
+            }
+          }
         },
         "revealPlan": [
           "hero_food",
           "hook_title",
           "hook_ranked_word"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "hero_food",
+            "beat": "start",
+            "purpose": "food-recognition"
+          },
+          {
+            "slotId": "hook_title",
+            "beat": "mid",
+            "purpose": "ranking-promise"
+          },
+          {
+            "slotId": "hook_ranked_word",
+            "beat": "end",
+            "purpose": "impact-lockup"
+          }
         ],
         "subtitleCues": [
           {
@@ -158,515 +671,1069 @@
       {
         "id": "fats",
         "kind": "section",
+        "narrativeRole": "macro-foundation",
         "startSeconds": 2.1,
-        "durationSeconds": 9.88,
-        "endSeconds": 11.98,
-        "narrationText": "0.2 grams of fat. Omega 3 is 10 milligrams, doing a lot of the work here. For a fruit, the cleanest wins are low sugar and decent fibre.",
-        "subtitleText": "0.2g of fat. Omega 3 is 10mg, doing a lot of the work here. For a fruit, the cleanest wins are low sugar and decent fibre.",
+        "durationSeconds": 8.47,
+        "endSeconds": 10.57,
+        "narrationText": "0.2 grams of fat. Saturated fat is 0.1 grams, supporting a better fat profile. Polyunsaturated fat is 0 grams, a weak mark for fruits.",
+        "subtitleText": "0.2g of fat. Saturated fat is 0.1g, supporting a better fat profile. Polyunsaturated fat is 0g, a weak mark for fruits.",
+        "subtitlePlacement": "lower-third",
         "visualBinding": {
           "sectionKey": "fats",
           "title": "Fats",
-          "score": 91.7,
+          "score": 100,
           "templateSlots": [
             "macro_headline",
             "submetric_1",
             "submetric_2",
-            "submetric_3"
+            "submetric_3",
+            "commentary_note"
           ],
           "displayItems": [
             {
-              "metricKey": "omega3_mg",
-              "text": "omega3 at 10",
-              "weightedScore": 3,
-              "scoringMode": "arrow_bands",
-              "band": "↑↑↑",
-              "dvPercent": null,
-              "value": 10
-            },
-            {
               "metricKey": "saturated_fat_g",
-              "text": "saturated fat at 0.1",
-              "weightedScore": 2,
+              "text": "saturated fat at 0.1g",
+              "weightedScore": 100,
               "scoringMode": "arrow_bands",
-              "band": "↓↓",
+              "band": "3_green",
               "dvPercent": null,
               "value": 0.1
+            },
+            {
+              "metricKey": "polyunsaturated_fat_g",
+              "text": "polyunsaturated fat at 0g",
+              "weightedScore": 0,
+              "scoringMode": "arrow_bands",
+              "band": "3_red",
+              "dvPercent": null,
+              "value": 0
+            },
+            {
+              "metricKey": "omega3_mg",
+              "text": "omega 3 at 10mg",
+              "weightedScore": 0,
+              "scoringMode": "arrow_bands",
+              "band": "3_green",
+              "dvPercent": null,
+              "value": 10
             }
           ],
-          "timingHint": "short-medium"
+          "timingHint": "short-medium",
+          "narrativeRole": "macro-foundation",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "lower-third",
+          "preferredSpriteBindings": {
+            "icon": {
+              "path": "sprites/macros_section/section_1_fats/fat_icon.gif",
+              "format": "gif"
+            },
+            "iconSource": {
+              "path": "sprites/macros_section/section_1_fats/fat_icon.aseprite",
+              "format": "aseprite"
+            },
+            "bullet": {
+              "path": "sprites/macros_section/section_1_fats/fat_submacro_bullet_point.png",
+              "format": "png"
+            },
+            "bulletSource": {
+              "path": "sprites/macros_section/section_1_fats/fat_submacro_bullet_point.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": {
+              "slotId": "macro_headline",
+              "label": "Fats",
+              "value": null,
+              "emphasis": "standard"
+            },
+            "macroSlots": [
+              {
+                "slotId": "submetric_1",
+                "metricKey": "saturated_fat_g",
+                "label": "saturated fat",
+                "displayValue": "0.1g",
+                "scoringMode": "arrow_bands",
+                "band": "3_green",
+                "weightedScore": 100,
+                "spriteRole": "fats",
+                "text": "saturated fat at 0.1g"
+              },
+              {
+                "slotId": "submetric_2",
+                "metricKey": "polyunsaturated_fat_g",
+                "label": "polyunsaturated fat",
+                "displayValue": "0g",
+                "scoringMode": "arrow_bands",
+                "band": "3_red",
+                "weightedScore": 0,
+                "spriteRole": "fats",
+                "text": "polyunsaturated fat at 0g"
+              },
+              {
+                "slotId": "submetric_3",
+                "metricKey": "omega3_mg",
+                "label": "omega 3",
+                "displayValue": "10mg",
+                "scoringMode": "arrow_bands",
+                "band": "3_green",
+                "weightedScore": 0,
+                "spriteRole": "fats",
+                "text": "omega 3 at 10mg"
+              }
+            ],
+            "micronutrientRows": [],
+            "commentaryNote": null
+          }
         },
         "revealPlan": [
           "macro_headline",
           "submetric_1",
           "submetric_2",
-          "submetric_3"
+          "submetric_3",
+          "commentary_note"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "macro_headline",
+            "beat": "lead",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_1",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_2",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_3",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "commentary_note",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          }
         ],
         "subtitleCues": [
           {
             "id": "02-fats-1",
             "sceneId": "fats",
             "startSeconds": 2.1,
-            "endSeconds": 3.83,
+            "endSeconds": 3.48,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "0. 2g of fat."
+              "0.2g of",
+              "fat."
             ],
-            "text": "0. 2g of fat."
+            "text": "0.2g of\nfat."
           },
           {
             "id": "03-fats-2",
             "sceneId": "fats",
-            "startSeconds": 3.83,
-            "endSeconds": 7.04,
+            "startSeconds": 3.48,
+            "endSeconds": 5.06,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "Omega 3 is 10mg,",
-              "doing a lot of the"
+              "Saturated fat is",
+              "0.1g,"
             ],
-            "text": "Omega 3 is 10mg,\ndoing a lot of the"
+            "text": "Saturated fat is\n0.1g,"
           },
           {
             "id": "04-fats-3",
             "sceneId": "fats",
-            "startSeconds": 7.04,
-            "endSeconds": 7.86,
+            "startSeconds": 5.06,
+            "endSeconds": 6.5,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "work here."
+              "supporting a",
+              "better fat"
             ],
-            "text": "work here."
+            "text": "supporting a\nbetter fat"
           },
           {
             "id": "05-fats-4",
             "sceneId": "fats",
-            "startSeconds": 7.86,
-            "endSeconds": 10.18,
+            "startSeconds": 6.5,
+            "endSeconds": 7.05,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "For a fruit, the",
-              "cleanest wins are"
+              "profile."
             ],
-            "text": "For a fruit, the\ncleanest wins are"
+            "text": "profile."
           },
           {
             "id": "06-fats-5",
             "sceneId": "fats",
-            "startSeconds": 10.18,
-            "endSeconds": 11.98,
+            "startSeconds": 7.05,
+            "endSeconds": 9.32,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "low sugar and",
-              "decent fibre."
+              "Polyunsaturated",
+              "fat is 0g, a weak"
             ],
-            "text": "low sugar and\ndecent fibre."
+            "text": "Polyunsaturated\nfat is 0g, a weak"
+          },
+          {
+            "id": "07-fats-6",
+            "sceneId": "fats",
+            "startSeconds": 9.32,
+            "endSeconds": 10.57,
+            "placement": "lower-third",
+            "maxLines": 2,
+            "maxCharactersPerLine": 18,
+            "lines": [
+              "mark for fruits."
+            ],
+            "text": "mark for fruits."
           }
         ]
       },
       {
         "id": "carbs",
         "kind": "section",
-        "startSeconds": 11.98,
-        "durationSeconds": 9.53,
-        "endSeconds": 21.51,
-        "narrationText": "18.1 grams of carbs. Glycemic index is 59 GI, where this starts to get messy. For fruit, the real question is whether the sweetness stays under control.",
-        "subtitleText": "18.1g of carbs. Glycemic index is 59 GI, where this starts to get messy. For fruit, the real question is whether the sweetness stays under control.",
+        "narrativeRole": "macro-foundation",
+        "startSeconds": 10.57,
+        "durationSeconds": 7.41,
+        "endSeconds": 17.98,
+        "narrationText": "18.1 grams of carbs. Sugar is 15.5 grams, supporting better carb quality. Starch is 0 grams, a meaningful miss for fruits.",
+        "subtitleText": "18.1g of carbs. Sugar is 15.5g, supporting better carb quality. Starch is 0g, a meaningful miss for fruits.",
+        "subtitlePlacement": "lower-third",
         "visualBinding": {
           "sectionKey": "carbs",
           "title": "Carbs",
-          "score": 22.2,
+          "score": 28.6,
           "templateSlots": [
             "macro_headline",
             "submetric_1",
             "submetric_2",
-            "submetric_3"
+            "submetric_3",
+            "commentary_note"
           ],
           "displayItems": [
             {
-              "metricKey": "fibre_g",
-              "text": "fibre at 0.9",
-              "weightedScore": -12,
-              "scoringMode": "arrow_bands",
-              "band": "↓↓↓",
-              "dvPercent": null,
-              "value": 0.9
-            },
-            {
               "metricKey": "sugar_g",
-              "text": "sugar at 15.5",
-              "weightedScore": -4,
+              "text": "sugar at 15.5g",
+              "weightedScore": 200,
               "scoringMode": "arrow_bands",
-              "band": "↑",
+              "band": "1_red",
               "dvPercent": null,
               "value": 15.5
             },
             {
-              "metricKey": "glycemic_index",
-              "text": "glycemic index at 59",
-              "weightedScore": -4,
+              "metricKey": "starch_g",
+              "text": "starch at 0g",
+              "weightedScore": 0,
               "scoringMode": "arrow_bands",
-              "band": "↑",
+              "band": "3_red",
+              "dvPercent": null,
+              "value": 0
+            },
+            {
+              "metricKey": "glycemic_index",
+              "text": "glycemic index at 59 GI",
+              "weightedScore": 200,
+              "scoringMode": "arrow_bands",
+              "band": "1_red",
               "dvPercent": null,
               "value": 59
+            },
+            {
+              "metricKey": "fibre_g",
+              "text": "fibre at 0.9g",
+              "weightedScore": 0,
+              "scoringMode": "arrow_bands",
+              "band": "3_red",
+              "dvPercent": null,
+              "value": 0.9
             }
           ],
-          "timingHint": "short-medium"
+          "timingHint": "short-medium",
+          "narrativeRole": "macro-foundation",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "lower-third",
+          "preferredSpriteBindings": {
+            "icon": {
+              "path": "sprites/macros_section/section_2_carbs/carb_icon.gif",
+              "format": "gif"
+            },
+            "iconSource": {
+              "path": "sprites/macros_section/section_2_carbs/carb_icon.aseprite",
+              "format": "aseprite"
+            },
+            "bullet": {
+              "path": "sprites/macros_section/section_2_carbs/carb_submacro_bullet_point.png",
+              "format": "png"
+            },
+            "bulletSource": {
+              "path": "sprites/macros_section/section_2_carbs/carb_submacro_bullet_point.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": {
+              "slotId": "macro_headline",
+              "label": "Carbs",
+              "value": null,
+              "emphasis": "standard"
+            },
+            "macroSlots": [
+              {
+                "slotId": "submetric_1",
+                "metricKey": "sugar_g",
+                "label": "sugar",
+                "displayValue": "15.5g",
+                "scoringMode": "arrow_bands",
+                "band": "1_red",
+                "weightedScore": 200,
+                "spriteRole": "carbs",
+                "text": "sugar at 15.5g"
+              },
+              {
+                "slotId": "submetric_2",
+                "metricKey": "starch_g",
+                "label": "starch",
+                "displayValue": "0g",
+                "scoringMode": "arrow_bands",
+                "band": "3_red",
+                "weightedScore": 0,
+                "spriteRole": "carbs",
+                "text": "starch at 0g"
+              },
+              {
+                "slotId": "submetric_3",
+                "metricKey": "glycemic_index",
+                "label": "glycemic index",
+                "displayValue": "59 GI",
+                "scoringMode": "arrow_bands",
+                "band": "1_red",
+                "weightedScore": 200,
+                "spriteRole": "carbs",
+                "text": "glycemic index at 59 GI"
+              }
+            ],
+            "micronutrientRows": [],
+            "commentaryNote": "Overflow metrics stay off-screen unless the edit intentionally promotes them."
+          }
         },
         "revealPlan": [
           "macro_headline",
           "submetric_1",
           "submetric_2",
-          "submetric_3"
+          "submetric_3",
+          "commentary_note"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "macro_headline",
+            "beat": "lead",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_1",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_2",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_3",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "commentary_note",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          }
         ],
         "subtitleCues": [
           {
-            "id": "07-carbs-1",
+            "id": "08-carbs-1",
             "sceneId": "carbs",
-            "startSeconds": 11.98,
-            "endSeconds": 13.66,
+            "startSeconds": 10.57,
+            "endSeconds": 11.95,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "18. 1g of carbs."
+              "18.1g of",
+              "carbs."
             ],
-            "text": "18. 1g of carbs."
+            "text": "18.1g of\ncarbs."
           },
           {
-            "id": "08-carbs-2",
+            "id": "09-carbs-2",
             "sceneId": "carbs",
-            "startSeconds": 13.66,
-            "endSeconds": 16.03,
+            "startSeconds": 11.95,
+            "endSeconds": 13.19,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "Glycemic index is",
-              "59 GI, where this"
+              "Sugar is",
+              "15.5g,"
             ],
-            "text": "Glycemic index is\n59 GI, where this"
+            "text": "Sugar is\n15.5g,"
           },
           {
-            "id": "09-carbs-3",
+            "id": "10-carbs-3",
             "sceneId": "carbs",
-            "startSeconds": 16.03,
-            "endSeconds": 17.47,
+            "startSeconds": 13.19,
+            "endSeconds": 14.79,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "starts to get",
-              "messy."
+              "supporting better",
+              "carb quality."
             ],
-            "text": "starts to get\nmessy."
+            "text": "supporting better\ncarb quality."
           },
           {
-            "id": "10-carbs-4",
+            "id": "11-carbs-4",
             "sceneId": "carbs",
-            "startSeconds": 17.47,
-            "endSeconds": 19.4,
+            "startSeconds": 14.79,
+            "endSeconds": 17.08,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "For fruit, the",
-              "real question is"
+              "Starch is 0g, a",
+              "meaningful miss"
             ],
-            "text": "For fruit, the\nreal question is"
+            "text": "Starch is 0g, a\nmeaningful miss"
           },
           {
-            "id": "11-carbs-5",
+            "id": "12-carbs-5",
             "sceneId": "carbs",
-            "startSeconds": 19.4,
-            "endSeconds": 20.7,
+            "startSeconds": 17.08,
+            "endSeconds": 17.98,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "whether the",
-              "sweetness stays"
+              "for fruits."
             ],
-            "text": "whether the\nsweetness stays"
-          },
-          {
-            "id": "12-carbs-6",
-            "sceneId": "carbs",
-            "startSeconds": 20.7,
-            "endSeconds": 21.51,
-            "placement": "lower-third",
-            "maxLines": 2,
-            "maxCharactersPerLine": 18,
-            "lines": [
-              "under control."
-            ],
-            "text": "under control."
+            "text": "for fruits."
           }
         ]
       },
       {
         "id": "proteins",
         "kind": "section",
-        "startSeconds": 21.51,
-        "durationSeconds": 9.88,
-        "endSeconds": 31.39,
-        "narrationText": "0.7 grams of protein. Bioavailability is 30%, one of the best parts of the protein story. For a fruit, the cleanest wins are low sugar and decent fibre.",
-        "subtitleText": "0.7g of protein. Bioavailability is 30%, one of the best parts of the protein story. For a fruit, the cleanest wins are low sugar and decent fibre.",
+        "narrativeRole": "macro-foundation",
+        "startSeconds": 17.98,
+        "durationSeconds": 8.47,
+        "endSeconds": 26.45,
+        "narrationText": "0.7 grams of protein. Essential amino acids score is 1 out of 9, with 30% bioavailability, making the protein useful for repair and maintenance.",
+        "subtitleText": "0.7g of protein. Essential amino acids score is 1/9, with 30% bioavailability, making the protein useful for repair and maintenance.",
+        "subtitlePlacement": "lower-third",
         "visualBinding": {
           "sectionKey": "proteins",
           "title": "Proteins",
-          "score": 38.9,
+          "score": null,
           "templateSlots": [
             "macro_headline",
             "submetric_1",
             "submetric_2",
-            "submetric_3"
+            "submetric_3",
+            "commentary_note"
           ],
           "displayItems": [
             {
               "metricKey": "essential_amino_acids_score",
               "text": "essential amino acids score at 1/9",
-              "weightedScore": -3,
+              "weightedScore": 0,
               "scoringMode": "arrow_bands",
-              "band": "↓↓↓",
+              "band": "3_red",
               "dvPercent": null,
-              "value": 1
+              "value": 1,
+              "referenceOnly": false
             },
             {
               "metricKey": "bioavailability_percent",
-              "text": "bioavailability at 30",
-              "weightedScore": 3,
+              "text": "bioavailability at 30%",
+              "weightedScore": 0,
               "scoringMode": "arrow_bands",
-              "band": "↑↑↑",
+              "band": "3_green",
               "dvPercent": null,
-              "value": 30
+              "value": 30,
+              "referenceOnly": false
             },
             {
               "metricKey": "nonessential_amino_acids_score",
               "text": "nonessential amino acids score at 2/11",
-              "weightedScore": -2,
+              "weightedScore": 0,
               "scoringMode": "arrow_bands",
-              "band": "↓↓",
+              "band": "2_red",
               "dvPercent": null,
-              "value": 2
+              "value": 2,
+              "referenceOnly": false
             }
           ],
-          "timingHint": "short-medium"
+          "timingHint": "short-medium",
+          "narrativeRole": "macro-foundation",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "lower-third",
+          "preferredSpriteBindings": {
+            "icon": {
+              "path": "sprites/macros_section/section_3_protein/protein_icon.gif",
+              "format": "gif"
+            },
+            "iconSource": {
+              "path": "sprites/macros_section/section_3_protein/protein_icon.aseprite",
+              "format": "aseprite"
+            },
+            "bullet": {
+              "path": "sprites/macros_section/section_3_protein/protein_submacro_bullet_point.png",
+              "format": "png"
+            },
+            "bulletSource": {
+              "path": "sprites/macros_section/section_3_protein/protein_submacro_bullet_point.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": {
+              "slotId": "macro_headline",
+              "label": "Proteins",
+              "value": null,
+              "emphasis": "standard"
+            },
+            "macroSlots": [
+              {
+                "slotId": "submetric_1",
+                "metricKey": "essential_amino_acids_score",
+                "label": "essential amino acids score",
+                "displayValue": "1/9",
+                "scoringMode": "arrow_bands",
+                "band": "3_red",
+                "weightedScore": 0,
+                "spriteRole": "proteins",
+                "text": "essential amino acids score at 1/9"
+              },
+              {
+                "slotId": "submetric_2",
+                "metricKey": "bioavailability_percent",
+                "label": "bioavailability",
+                "displayValue": "30%",
+                "scoringMode": "arrow_bands",
+                "band": "3_green",
+                "weightedScore": 0,
+                "spriteRole": "proteins",
+                "text": "bioavailability at 30%"
+              },
+              {
+                "slotId": "submetric_3",
+                "metricKey": "nonessential_amino_acids_score",
+                "label": "nonessential amino acids score",
+                "displayValue": "2/11",
+                "scoringMode": "arrow_bands",
+                "band": "2_red",
+                "weightedScore": 0,
+                "spriteRole": "proteins",
+                "text": "nonessential amino acids score at 2/11"
+              }
+            ],
+            "micronutrientRows": [],
+            "commentaryNote": null
+          }
         },
         "revealPlan": [
           "macro_headline",
           "submetric_1",
           "submetric_2",
-          "submetric_3"
+          "submetric_3",
+          "commentary_note"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "macro_headline",
+            "beat": "lead",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_1",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_2",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_3",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "commentary_note",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          }
         ],
         "subtitleCues": [
           {
             "id": "13-proteins-1",
             "sceneId": "proteins",
-            "startSeconds": 21.51,
+            "startSeconds": 17.98,
+            "endSeconds": 19.45,
+            "placement": "lower-third",
+            "maxLines": 2,
+            "maxCharactersPerLine": 18,
+            "lines": [
+              "0.7g of",
+              "protein."
+            ],
+            "text": "0.7g of\nprotein."
+          },
+          {
+            "id": "14-proteins-2",
+            "sceneId": "proteins",
+            "startSeconds": 19.45,
+            "endSeconds": 21.37,
+            "placement": "lower-third",
+            "maxLines": 2,
+            "maxCharactersPerLine": 18,
+            "lines": [
+              "Essential amino",
+              "acids score is"
+            ],
+            "text": "Essential amino\nacids score is"
+          },
+          {
+            "id": "15-proteins-3",
+            "sceneId": "proteins",
+            "startSeconds": 21.37,
             "endSeconds": 23.2,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "0. 7g of protein."
+              "1/9, with 30%",
+              "bioavailability,"
             ],
-            "text": "0. 7g of protein."
-          },
-          {
-            "id": "14-proteins-2",
-            "sceneId": "proteins",
-            "startSeconds": 23.2,
-            "endSeconds": 25.27,
-            "placement": "lower-third",
-            "maxLines": 2,
-            "maxCharactersPerLine": 18,
-            "lines": [
-              "Bioavailability is",
-              "30%, one of the"
-            ],
-            "text": "Bioavailability is\n30%, one of the"
-          },
-          {
-            "id": "15-proteins-3",
-            "sceneId": "proteins",
-            "startSeconds": 25.27,
-            "endSeconds": 27.36,
-            "placement": "lower-third",
-            "maxLines": 2,
-            "maxCharactersPerLine": 18,
-            "lines": [
-              "best parts of the",
-              "protein story."
-            ],
-            "text": "best parts of the\nprotein story."
+            "text": "1/9, with 30%\nbioavailability,"
           },
           {
             "id": "16-proteins-4",
             "sceneId": "proteins",
-            "startSeconds": 27.36,
-            "endSeconds": 29.62,
+            "startSeconds": 23.2,
+            "endSeconds": 25.49,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "For a fruit, the",
-              "cleanest wins are"
+              "making the protein",
+              "useful for repair"
             ],
-            "text": "For a fruit, the\ncleanest wins are"
+            "text": "making the protein\nuseful for repair"
           },
           {
             "id": "17-proteins-5",
             "sceneId": "proteins",
-            "startSeconds": 29.62,
-            "endSeconds": 31.39,
+            "startSeconds": 25.49,
+            "endSeconds": 26.45,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "low sugar and",
-              "decent fibre."
+              "and maintenance."
             ],
-            "text": "low sugar and\ndecent fibre."
+            "text": "and maintenance."
           }
         ]
       },
       {
         "id": "vitamins",
         "kind": "section",
-        "startSeconds": 31.39,
-        "durationSeconds": 2.1,
-        "endSeconds": 33.49,
-        "narrationText": "Everything else is fairly underwhelming.",
-        "subtitleText": "Everything else is fairly underwhelming.",
+        "narrativeRole": "micronutrient-proof",
+        "startSeconds": 26.45,
+        "durationSeconds": 8.82,
+        "endSeconds": 35.27,
+        "narrationText": "Vitamin C is 6% daily value, useful for collagen formation and antioxidant support. Vitamin A is only 2% daily value, a weak mark for fruits.",
+        "subtitleText": "Vitamin C is 6% DV, useful for collagen formation and antioxidant support. Vitamin A is only 2% DV, a weak mark for fruits.",
+        "subtitlePlacement": "lower-third",
         "visualBinding": {
           "sectionKey": "vitamins",
           "title": "Vitamins",
-          "score": null,
+          "score": 0,
           "templateSlots": [
             "micronutrient_1",
-            "micronutrient_2"
+            "micronutrient_2",
+            "commentary_note"
           ],
-          "displayItems": [],
-          "timingHint": "short-medium"
+          "displayItems": [
+            {
+              "metricKey": "vitamin_c_dv",
+              "text": "vitamin C at 6% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 6,
+              "value": null
+            },
+            {
+              "metricKey": "vitamin_a_dv",
+              "text": "vitamin A at 2% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 2,
+              "value": null
+            }
+          ],
+          "timingHint": "short-medium",
+          "narrativeRole": "micronutrient-proof",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "lower-third",
+          "preferredSpriteBindings": {
+            "icon": {
+              "path": "sprites/micros_section/vitamins/vitamin_icon.gif",
+              "format": "gif"
+            },
+            "iconSource": {
+              "path": "sprites/micros_section/vitamins/vitamin_icon.aseprite",
+              "format": "aseprite"
+            },
+            "microIcon": {
+              "path": "sprites/micros_section/vitamins/vitamin_micro_icon.png",
+              "format": "png"
+            },
+            "microIconSource": {
+              "path": "sprites/micros_section/vitamins/vitamin_micro_icon.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": null,
+            "macroSlots": [],
+            "micronutrientRows": [
+              {
+                "slotId": "micronutrient_1",
+                "metricKey": "vitamin_c_dv",
+                "label": "vitamin c",
+                "displayValue": "6% DV",
+                "dvPercent": 6,
+                "spriteRole": "micronutrient-row",
+                "text": "vitamin C at 6% DV"
+              },
+              {
+                "slotId": "micronutrient_2",
+                "metricKey": "vitamin_a_dv",
+                "label": "vitamin a",
+                "displayValue": "2% DV",
+                "dvPercent": 2,
+                "spriteRole": "micronutrient-row",
+                "text": "vitamin A at 2% DV"
+              }
+            ],
+            "commentaryNote": null
+          }
         },
         "revealPlan": [
           "micronutrient_1",
-          "micronutrient_2"
+          "micronutrient_2",
+          "commentary_note"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "micronutrient_1",
+            "beat": "lead",
+            "purpose": "micronutrient-proof"
+          },
+          {
+            "slotId": "micronutrient_2",
+            "beat": "follow",
+            "purpose": "micronutrient-proof"
+          },
+          {
+            "slotId": "commentary_note",
+            "beat": "follow",
+            "purpose": "micronutrient-proof"
+          }
         ],
         "subtitleCues": [
           {
             "id": "18-vitamins-1",
             "sceneId": "vitamins",
-            "startSeconds": 31.39,
-            "endSeconds": 32.92,
+            "startSeconds": 26.45,
+            "endSeconds": 29.07,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "Everything else is",
-              "fairly"
+              "Vitamin C is 6%",
+              "DV, useful for"
             ],
-            "text": "Everything else is\nfairly"
+            "text": "Vitamin C is 6%\nDV, useful for"
           },
           {
             "id": "19-vitamins-2",
             "sceneId": "vitamins",
-            "startSeconds": 32.92,
-            "endSeconds": 33.49,
+            "startSeconds": 29.07,
+            "endSeconds": 30.51,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "underwhelming."
+              "collagen formation",
+              "and antioxidant"
             ],
-            "text": "underwhelming."
+            "text": "collagen formation\nand antioxidant"
+          },
+          {
+            "id": "20-vitamins-3",
+            "sceneId": "vitamins",
+            "startSeconds": 30.51,
+            "endSeconds": 31.06,
+            "placement": "lower-third",
+            "maxLines": 2,
+            "maxCharactersPerLine": 18,
+            "lines": [
+              "support."
+            ],
+            "text": "support."
+          },
+          {
+            "id": "21-vitamins-4",
+            "sceneId": "vitamins",
+            "startSeconds": 31.06,
+            "endSeconds": 34.38,
+            "placement": "lower-third",
+            "maxLines": 2,
+            "maxCharactersPerLine": 18,
+            "lines": [
+              "Vitamin A is only",
+              "2% DV, a weak mark"
+            ],
+            "text": "Vitamin A is only\n2% DV, a weak mark"
+          },
+          {
+            "id": "22-vitamins-5",
+            "sceneId": "vitamins",
+            "startSeconds": 34.38,
+            "endSeconds": 35.27,
+            "placement": "lower-third",
+            "maxLines": 2,
+            "maxCharactersPerLine": 18,
+            "lines": [
+              "for fruits."
+            ],
+            "text": "for fruits."
           }
         ]
       },
       {
         "id": "minerals",
         "kind": "section",
-        "startSeconds": 33.49,
-        "durationSeconds": 3.18,
-        "endSeconds": 36.67,
-        "narrationText": "Minerals are basically not part of the case here.",
-        "subtitleText": "Minerals are basically not part of the case here.",
+        "narrativeRole": "micronutrient-proof",
+        "startSeconds": 35.27,
+        "durationSeconds": 7.06,
+        "endSeconds": 42.33,
+        "narrationText": "Potassium is 5% daily value, useful for fluid balance. Magnesium is only 1% daily value, a weak mark for fruits.",
+        "subtitleText": "Potassium is 5% DV, useful for fluid balance. Magnesium is only 1% DV, a weak mark for fruits.",
+        "subtitlePlacement": "lower-third",
         "visualBinding": {
           "sectionKey": "minerals",
           "title": "Minerals",
           "score": 0,
           "templateSlots": [
             "micronutrient_1",
-            "micronutrient_2"
+            "micronutrient_2",
+            "commentary_note"
           ],
           "displayItems": [
             {
               "metricKey": "potassium_dv",
-              "text": "potassium at 5% daily value",
+              "text": "potassium at 5% DV",
               "weightedScore": 0,
               "scoringMode": "dv_points",
               "band": null,
               "dvPercent": 5,
               "value": null
+            },
+            {
+              "metricKey": "magnesium_dv",
+              "text": "magnesium at 1% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 1,
+              "value": null
+            },
+            {
+              "metricKey": "iron_dv",
+              "text": "iron at 2% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 2,
+              "value": null
             }
           ],
-          "timingHint": "short-medium"
+          "timingHint": "short-medium",
+          "narrativeRole": "micronutrient-proof",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "lower-third",
+          "preferredSpriteBindings": {
+            "icon": {
+              "path": "sprites/micros_section/minerals/mineral_icon.gif",
+              "format": "gif"
+            },
+            "iconSource": {
+              "path": "sprites/micros_section/minerals/mineral_icon.aseprite",
+              "format": "aseprite"
+            },
+            "microIcon": {
+              "path": "sprites/micros_section/minerals/mineral_micro_icon.png",
+              "format": "png"
+            },
+            "microIconSource": {
+              "path": "sprites/micros_section/minerals/mineral_micro_icon.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": null,
+            "macroSlots": [],
+            "micronutrientRows": [
+              {
+                "slotId": "micronutrient_1",
+                "metricKey": "potassium_dv",
+                "label": "potassium",
+                "displayValue": "5% DV",
+                "dvPercent": 5,
+                "spriteRole": "micronutrient-row",
+                "text": "potassium at 5% DV"
+              },
+              {
+                "slotId": "micronutrient_2",
+                "metricKey": "magnesium_dv",
+                "label": "magnesium",
+                "displayValue": "1% DV",
+                "dvPercent": 1,
+                "spriteRole": "micronutrient-row",
+                "text": "magnesium at 1% DV"
+              }
+            ],
+            "commentaryNote": null
+          }
         },
         "revealPlan": [
           "micronutrient_1",
-          "micronutrient_2"
+          "micronutrient_2",
+          "commentary_note"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "micronutrient_1",
+            "beat": "lead",
+            "purpose": "micronutrient-proof"
+          },
+          {
+            "slotId": "micronutrient_2",
+            "beat": "follow",
+            "purpose": "micronutrient-proof"
+          },
+          {
+            "slotId": "commentary_note",
+            "beat": "follow",
+            "purpose": "micronutrient-proof"
+          }
         ],
         "subtitleCues": [
           {
-            "id": "20-minerals-1",
+            "id": "23-minerals-1",
             "sceneId": "minerals",
-            "startSeconds": 33.49,
-            "endSeconds": 35.17,
+            "startSeconds": 35.27,
+            "endSeconds": 37.55,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "Minerals are",
-              "basically not part"
+              "Potassium is 5%",
+              "DV, useful for"
             ],
-            "text": "Minerals are\nbasically not part"
+            "text": "Potassium is 5%\nDV, useful for"
           },
           {
-            "id": "21-minerals-2",
+            "id": "24-minerals-2",
             "sceneId": "minerals",
-            "startSeconds": 35.17,
-            "endSeconds": 36.67,
+            "startSeconds": 37.55,
+            "endSeconds": 38.45,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "of the case here."
+              "fluid balance."
             ],
-            "text": "of the case here."
+            "text": "fluid balance."
+          },
+          {
+            "id": "25-minerals-3",
+            "sceneId": "minerals",
+            "startSeconds": 38.45,
+            "endSeconds": 41.43,
+            "placement": "lower-third",
+            "maxLines": 2,
+            "maxCharactersPerLine": 18,
+            "lines": [
+              "Magnesium is only",
+              "1% DV, a weak mark"
+            ],
+            "text": "Magnesium is only\n1% DV, a weak mark"
+          },
+          {
+            "id": "26-minerals-4",
+            "sceneId": "minerals",
+            "startSeconds": 41.43,
+            "endSeconds": 42.33,
+            "placement": "lower-third",
+            "maxLines": 2,
+            "maxCharactersPerLine": 18,
+            "lines": [
+              "for fruits."
+            ],
+            "text": "for fruits."
           }
         ]
       },
       {
         "id": "pros",
         "kind": "section",
-        "startSeconds": 36.67,
+        "narrativeRole": "real-world-upside",
+        "startSeconds": 42.33,
         "durationSeconds": 11.65,
-        "endSeconds": 48.32,
+        "endSeconds": 53.98,
         "narrationText": "Pros first: polyphenol case is stronger than the sugar suggests. Tests whether fruit context can rescue sugary but still respected fruits. Very easy to eat. Highly practical fruit. Hydrating and easy. Practical plus.",
         "subtitleText": "Pros first: polyphenol case is stronger than the sugar suggests. Tests whether fruit context can rescue sugary but still respected fruits. Very easy to eat. Highly practical fruit. Hydrating and easy. Practical plus.",
+        "subtitlePlacement": "high-lower-third",
         "visualBinding": {
           "sectionKey": "pros",
           "title": "Pros",
-          "score": 33.3,
+          "score": 66.7,
           "templateSlots": [
             "bullet_1",
             "bullet_2",
@@ -678,37 +1745,73 @@
               "title": "polyphenol case is stronger than the sugar suggests",
               "explanation": "Tests whether fruit context can rescue sugary but still respected fruits.",
               "impactLevel": "major",
-              "scoreValue": 3
+              "resolvedScoreValue": 100
             },
             {
               "type": "pro",
               "title": "very easy to eat",
               "explanation": "Highly practical fruit.",
               "impactLevel": "minor",
-              "scoreValue": 0
+              "resolvedScoreValue": 50
             },
             {
               "type": "pro",
               "title": "hydrating and easy",
               "explanation": "Practical plus.",
               "impactLevel": "minor",
-              "scoreValue": 0
+              "resolvedScoreValue": 50
             }
           ],
-          "timingHint": "medium"
+          "timingHint": "medium",
+          "narrativeRole": "real-world-upside",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "high-lower-third",
+          "preferredSpriteBindings": {
+            "bullet": {
+              "path": "sprites/pros_and_cons/pros/pro_bullet_point.png",
+              "format": "png"
+            },
+            "bulletSource": {
+              "path": "sprites/pros_and_cons/pros/pro_bullet_point.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": null,
+            "macroSlots": [],
+            "micronutrientRows": [],
+            "commentaryNote": null
+          }
         },
         "revealPlan": [
           "bullet_1",
           "bullet_2",
           "bullet_3"
         ],
+        "beatPlan": [
+          {
+            "slotId": "bullet_1",
+            "beat": "lead",
+            "purpose": "real-world-upside"
+          },
+          {
+            "slotId": "bullet_2",
+            "beat": "follow",
+            "purpose": "real-world-upside"
+          },
+          {
+            "slotId": "bullet_3",
+            "beat": "follow",
+            "purpose": "real-world-upside"
+          }
+        ],
         "subtitleCues": [
           {
-            "id": "22-pros-1",
+            "id": "27-pros-1",
             "sceneId": "pros",
-            "startSeconds": 36.67,
-            "endSeconds": 38.32,
-            "placement": "lower-third",
+            "startSeconds": 42.33,
+            "endSeconds": 43.98,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -718,11 +1821,11 @@
             "text": "Pros first:\npolyphenol case is"
           },
           {
-            "id": "23-pros-2",
+            "id": "28-pros-2",
             "sceneId": "pros",
-            "startSeconds": 38.32,
-            "endSeconds": 40.1,
-            "placement": "lower-third",
+            "startSeconds": 43.98,
+            "endSeconds": 45.76,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -732,11 +1835,11 @@
             "text": "stronger than the\nsugar suggests."
           },
           {
-            "id": "24-pros-3",
+            "id": "29-pros-3",
             "sceneId": "pros",
-            "startSeconds": 40.1,
-            "endSeconds": 41.75,
-            "placement": "lower-third",
+            "startSeconds": 45.76,
+            "endSeconds": 47.41,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -746,11 +1849,11 @@
             "text": "Tests whether\nfruit context can"
           },
           {
-            "id": "25-pros-4",
+            "id": "30-pros-4",
             "sceneId": "pros",
-            "startSeconds": 41.75,
-            "endSeconds": 43.39,
-            "placement": "lower-third",
+            "startSeconds": 47.41,
+            "endSeconds": 49.05,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -760,11 +1863,11 @@
             "text": "rescue sugary but\nstill respected"
           },
           {
-            "id": "26-pros-5",
+            "id": "31-pros-5",
             "sceneId": "pros",
-            "startSeconds": 43.39,
-            "endSeconds": 43.89,
-            "placement": "lower-third",
+            "startSeconds": 49.05,
+            "endSeconds": 49.55,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -773,11 +1876,11 @@
             "text": "fruits."
           },
           {
-            "id": "27-pros-6",
+            "id": "32-pros-6",
             "sceneId": "pros",
-            "startSeconds": 43.89,
-            "endSeconds": 45.36,
-            "placement": "lower-third",
+            "startSeconds": 49.55,
+            "endSeconds": 51.02,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -786,11 +1889,11 @@
             "text": "Very easy to eat."
           },
           {
-            "id": "28-pros-7",
+            "id": "33-pros-7",
             "sceneId": "pros",
-            "startSeconds": 45.36,
-            "endSeconds": 46.5,
-            "placement": "lower-third",
+            "startSeconds": 51.02,
+            "endSeconds": 52.16,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -800,11 +1903,11 @@
             "text": "Highly practical\nfruit."
           },
           {
-            "id": "29-pros-8",
+            "id": "34-pros-8",
             "sceneId": "pros",
-            "startSeconds": 46.5,
-            "endSeconds": 47.82,
-            "placement": "lower-third",
+            "startSeconds": 52.16,
+            "endSeconds": 53.48,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -814,11 +1917,11 @@
             "text": "Hydrating and\neasy. Practical"
           },
           {
-            "id": "30-pros-9",
+            "id": "35-pros-9",
             "sceneId": "pros",
-            "startSeconds": 47.82,
-            "endSeconds": 48.32,
-            "placement": "lower-third",
+            "startSeconds": 53.48,
+            "endSeconds": 53.98,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -831,15 +1934,17 @@
       {
         "id": "cons",
         "kind": "section",
-        "startSeconds": 48.32,
+        "narrativeRole": "real-world-downside",
+        "startSeconds": 53.98,
         "durationSeconds": 12.35,
-        "endSeconds": 60.67,
+        "endSeconds": 66.33,
         "narrationText": "The drawbacks next: sugar load is high for fruit. A real stress test for the fruit ruleset. Fibre moderation is weak. Much weaker than elite fruits. Easy to overeat quickly. Can rack up sugar fast.",
         "subtitleText": "The drawbacks next: sugar load is high for fruit. A real stress test for the fruit ruleset. Fibre moderation is weak. Much weaker than elite fruits. Easy to overeat quickly. Can rack up sugar fast.",
+        "subtitlePlacement": "high-lower-third",
         "visualBinding": {
           "sectionKey": "cons",
           "title": "Cons",
-          "score": 66.7,
+          "score": 16.7,
           "templateSlots": [
             "bullet_1",
             "bullet_2",
@@ -851,37 +1956,73 @@
               "title": "sugar load is high for fruit",
               "explanation": "A real stress test for the fruit ruleset.",
               "impactLevel": "major",
-              "scoreValue": -3
+              "resolvedScoreValue": 100
             },
             {
               "type": "con",
               "title": "fibre moderation is weak",
               "explanation": "Much weaker than elite fruits.",
               "impactLevel": "major",
-              "scoreValue": -3
+              "resolvedScoreValue": 100
             },
             {
               "type": "con",
               "title": "easy to overeat quickly",
               "explanation": "Can rack up sugar fast.",
               "impactLevel": "minor",
-              "scoreValue": 0
+              "resolvedScoreValue": 50
             }
           ],
-          "timingHint": "medium"
+          "timingHint": "medium",
+          "narrativeRole": "real-world-downside",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "high-lower-third",
+          "preferredSpriteBindings": {
+            "bullet": {
+              "path": "sprites/pros_and_cons/cons/con_bullet_point.png",
+              "format": "png"
+            },
+            "bulletSource": {
+              "path": "sprites/pros_and_cons/cons/con_bullet_point.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": null,
+            "macroSlots": [],
+            "micronutrientRows": [],
+            "commentaryNote": null
+          }
         },
         "revealPlan": [
           "bullet_1",
           "bullet_2",
           "bullet_3"
         ],
+        "beatPlan": [
+          {
+            "slotId": "bullet_1",
+            "beat": "lead",
+            "purpose": "real-world-downside"
+          },
+          {
+            "slotId": "bullet_2",
+            "beat": "follow",
+            "purpose": "real-world-downside"
+          },
+          {
+            "slotId": "bullet_3",
+            "beat": "follow",
+            "purpose": "real-world-downside"
+          }
+        ],
         "subtitleCues": [
           {
-            "id": "31-cons-1",
+            "id": "36-cons-1",
             "sceneId": "cons",
-            "startSeconds": 48.32,
-            "endSeconds": 49.96,
-            "placement": "lower-third",
+            "startSeconds": 53.98,
+            "endSeconds": 55.62,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -891,11 +2032,11 @@
             "text": "The drawbacks\nnext: sugar load"
           },
           {
-            "id": "32-cons-2",
+            "id": "37-cons-2",
             "sceneId": "cons",
-            "startSeconds": 49.96,
-            "endSeconds": 51.42,
-            "placement": "lower-third",
+            "startSeconds": 55.62,
+            "endSeconds": 57.08,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -904,11 +2045,11 @@
             "text": "is high for fruit."
           },
           {
-            "id": "33-cons-3",
+            "id": "38-cons-3",
             "sceneId": "cons",
-            "startSeconds": 51.42,
-            "endSeconds": 53.7,
-            "placement": "lower-third",
+            "startSeconds": 57.08,
+            "endSeconds": 59.36,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -918,11 +2059,11 @@
             "text": "A real stress test\nfor the fruit"
           },
           {
-            "id": "34-cons-4",
+            "id": "39-cons-4",
             "sceneId": "cons",
-            "startSeconds": 53.7,
-            "endSeconds": 54.2,
-            "placement": "lower-third",
+            "startSeconds": 59.36,
+            "endSeconds": 59.86,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -931,11 +2072,11 @@
             "text": "ruleset."
           },
           {
-            "id": "35-cons-5",
+            "id": "40-cons-5",
             "sceneId": "cons",
-            "startSeconds": 54.2,
-            "endSeconds": 55.66,
-            "placement": "lower-third",
+            "startSeconds": 59.86,
+            "endSeconds": 61.32,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -945,11 +2086,11 @@
             "text": "Fibre moderation\nis weak."
           },
           {
-            "id": "36-cons-6",
+            "id": "41-cons-6",
             "sceneId": "cons",
-            "startSeconds": 55.66,
-            "endSeconds": 57.43,
-            "placement": "lower-third",
+            "startSeconds": 61.32,
+            "endSeconds": 63.09,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -959,11 +2100,11 @@
             "text": "Much weaker than\nelite fruits."
           },
           {
-            "id": "37-cons-7",
+            "id": "42-cons-7",
             "sceneId": "cons",
-            "startSeconds": 57.43,
-            "endSeconds": 58.89,
-            "placement": "lower-third",
+            "startSeconds": 63.09,
+            "endSeconds": 64.55,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -973,11 +2114,11 @@
             "text": "Easy to overeat\nquickly."
           },
           {
-            "id": "38-cons-8",
+            "id": "43-cons-8",
             "sceneId": "cons",
-            "startSeconds": 58.89,
-            "endSeconds": 60.67,
-            "placement": "lower-third",
+            "startSeconds": 64.55,
+            "endSeconds": 66.33,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -991,128 +2132,147 @@
       {
         "id": "final",
         "kind": "closing",
-        "startSeconds": 60.67,
-        "durationSeconds": 11.87,
-        "endSeconds": 72.54,
-        "narrationText": "Grapes does have a few real-world upsides. but the nutrition case is still weak and the downsides drag it down hard. best only when the convenience or taste matters more than the nutrition return. C tier.",
-        "subtitleText": "Grapes does have a few real-world upsides. but the nutrition case is still weak and the downsides drag it down hard. best only when the convenience or taste matters more than the nutrition return. C tier.",
-        "visualBinding": {
-          "tier": "C",
-          "tierColor": "green"
-        },
-        "revealPlan": [
-          "tier_stamp"
-        ],
-        "subtitleCues": [
-          {
-            "id": "39-final-1",
-            "sceneId": "final",
-            "startSeconds": 60.67,
-            "endSeconds": 63,
-            "placement": "summary-full",
-            "maxLines": 2,
-            "maxCharactersPerLine": 28,
-            "lines": [
-              "Grapes does have a few",
-              "real-world upsides."
-            ],
-            "text": "Grapes does have a few\nreal-world upsides.",
-            "role": "conclusion-summary"
-          },
-          {
-            "id": "40-final-2",
-            "sceneId": "final",
-            "startSeconds": 63,
-            "endSeconds": 66.13,
-            "placement": "summary-full",
-            "maxLines": 2,
-            "maxCharactersPerLine": 28,
-            "lines": [
-              "but the nutrition case is",
-              "still weak and the downsides"
-            ],
-            "text": "but the nutrition case is\nstill weak and the downsides",
-            "role": "conclusion-summary"
-          },
-          {
-            "id": "41-final-3",
-            "sceneId": "final",
-            "startSeconds": 66.13,
-            "endSeconds": 67.53,
-            "placement": "summary-full",
-            "maxLines": 2,
-            "maxCharactersPerLine": 28,
-            "lines": [
-              "drag it down hard."
-            ],
-            "text": "drag it down hard.",
-            "role": "conclusion-summary"
-          },
-          {
-            "id": "42-final-4",
-            "sceneId": "final",
-            "startSeconds": 67.53,
-            "endSeconds": 70.04,
-            "placement": "summary-full",
-            "maxLines": 2,
-            "maxCharactersPerLine": 28,
-            "lines": [
-              "best only when the",
-              "convenience or taste matters"
-            ],
-            "text": "best only when the\nconvenience or taste matters",
-            "role": "conclusion-summary"
-          },
-          {
-            "id": "43-final-5",
-            "sceneId": "final",
-            "startSeconds": 70.04,
-            "endSeconds": 71.75,
-            "placement": "summary-full",
-            "maxLines": 2,
-            "maxCharactersPerLine": 28,
-            "lines": [
-              "more than the nutrition",
-              "return."
-            ],
-            "text": "more than the nutrition\nreturn.",
-            "role": "conclusion-summary"
-          },
-          {
-            "id": "44-final-6",
-            "sceneId": "final",
-            "startSeconds": 71.75,
-            "endSeconds": 72.54,
-            "placement": "tier-center",
-            "maxLines": 2,
-            "maxCharactersPerLine": 28,
-            "lines": [
-              "C tier."
-            ],
-            "text": "C tier.",
-            "role": "tier-reveal"
-          }
-        ],
+        "narrativeRole": "verdict-payoff",
+        "startSeconds": 66.33,
+        "durationSeconds": 10.55,
+        "endSeconds": 76.88,
+        "narrationText": "Big strengths are omega 3 and polyphenol case is stronger than the sugar suggests, but the biggest weaknesses are sugar load is high for fruit and fibre moderation is weak. D tier.",
+        "subtitleText": "Big strengths are omega 3 and polyphenol case is stronger than the sugar suggests, but the biggest weaknesses are sugar load is high for fruit and fibre moderation is weak. D tier.",
         "subtitleSequence": [
           {
             "role": "conclusion-summary",
-            "text": "Grapes does have a few real-world upsides. but the nutrition case is still weak and the downsides drag it down hard. best only when the convenience or taste matters more than the nutrition return.",
+            "text": "Big strengths are omega 3 and polyphenol case is stronger than the sugar suggests, but the biggest weaknesses are sugar load is high for fruit and fibre moderation is weak.",
             "placement": "summary-full",
-            "maxCharactersPerLine": 28
+            "maxCharactersPerLine": 24
           },
           {
             "role": "tier-reveal",
-            "text": "C tier.",
+            "text": "D tier.",
             "placement": "tier-center",
-            "maxCharactersPerLine": 28
+            "maxCharactersPerLine": 24
+          }
+        ],
+        "subtitlePlacement": "subtitle-floor",
+        "visualBinding": {
+          "tier": "D",
+          "tierColor": "purple",
+          "scorePlate": {
+            "path": "sprites/header/header_ui/score_plate.png",
+            "format": "png"
+          },
+          "scorePlateSource": {
+            "path": "sprites/header/header_ui/score_plate.aseprite",
+            "format": "aseprite"
+          },
+          "categorySeparator": {
+            "path": "sprites/ui/section_separator/fruit_section_separator.png",
+            "format": "png"
+          },
+          "categorySeparatorSource": {
+            "path": "sprites/ui/section_separator/fruit_section_separator.aseprite",
+            "format": "aseprite"
+          }
+        },
+        "revealPlan": [
+          "summary_text",
+          "tier_stamp",
+          "final_line"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "summary_text",
+            "beat": "lead",
+            "purpose": "verdict-setup"
+          },
+          {
+            "slotId": "tier_stamp",
+            "beat": "impact",
+            "purpose": "verdict-hit"
+          },
+          {
+            "slotId": "final_line",
+            "beat": "resolve",
+            "purpose": "use-case-tag"
+          }
+        ],
+        "subtitleCues": [
+          {
+            "id": "44-final-1",
+            "sceneId": "final",
+            "startSeconds": 66.33,
+            "endSeconds": 69.29,
+            "placement": "summary-full",
+            "maxLines": 2,
+            "maxCharactersPerLine": 24,
+            "lines": [
+              "Big strengths are omega",
+              "3 and polyphenol case is"
+            ],
+            "text": "Big strengths are omega\n3 and polyphenol case is",
+            "role": "conclusion-summary"
+          },
+          {
+            "id": "45-final-2",
+            "sceneId": "final",
+            "startSeconds": 69.29,
+            "endSeconds": 71.51,
+            "placement": "summary-full",
+            "maxLines": 2,
+            "maxCharactersPerLine": 24,
+            "lines": [
+              "stronger than the sugar",
+              "suggests, but the"
+            ],
+            "text": "stronger than the sugar\nsuggests, but the",
+            "role": "conclusion-summary"
+          },
+          {
+            "id": "46-final-3",
+            "sceneId": "final",
+            "startSeconds": 71.51,
+            "endSeconds": 74.04,
+            "placement": "summary-full",
+            "maxLines": 2,
+            "maxCharactersPerLine": 24,
+            "lines": [
+              "biggest weaknesses are",
+              "sugar load is high for"
+            ],
+            "text": "biggest weaknesses are\nsugar load is high for",
+            "role": "conclusion-summary"
+          },
+          {
+            "id": "47-final-4",
+            "sceneId": "final",
+            "startSeconds": 74.04,
+            "endSeconds": 76.09,
+            "placement": "summary-full",
+            "maxLines": 2,
+            "maxCharactersPerLine": 24,
+            "lines": [
+              "fruit and fibre",
+              "moderation is weak."
+            ],
+            "text": "fruit and fibre\nmoderation is weak.",
+            "role": "conclusion-summary"
+          },
+          {
+            "id": "48-final-5",
+            "sceneId": "final",
+            "startSeconds": 76.09,
+            "endSeconds": 76.88,
+            "placement": "tier-center",
+            "maxLines": 2,
+            "maxCharactersPerLine": 24,
+            "lines": [
+              "D tier."
+            ],
+            "text": "D tier.",
+            "role": "tier-reveal"
           }
         ]
       }
     ],
-    "subtitleRules": {
-      "maxLines": 2,
-      "maxCharactersPerLine": 18
-    },
     "subtitleCues": [
       {
         "id": "01-hook",
@@ -1131,281 +2291,350 @@
         "id": "02-fats-1",
         "sceneId": "fats",
         "startSeconds": 2.1,
-        "endSeconds": 3.83,
+        "endSeconds": 3.48,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "0. 2g of fat."
+          "0.2g of",
+          "fat."
         ],
-        "text": "0. 2g of fat."
+        "text": "0.2g of\nfat."
       },
       {
         "id": "03-fats-2",
         "sceneId": "fats",
-        "startSeconds": 3.83,
-        "endSeconds": 7.04,
+        "startSeconds": 3.48,
+        "endSeconds": 5.06,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "Omega 3 is 10mg,",
-          "doing a lot of the"
+          "Saturated fat is",
+          "0.1g,"
         ],
-        "text": "Omega 3 is 10mg,\ndoing a lot of the"
+        "text": "Saturated fat is\n0.1g,"
       },
       {
         "id": "04-fats-3",
         "sceneId": "fats",
-        "startSeconds": 7.04,
-        "endSeconds": 7.86,
+        "startSeconds": 5.06,
+        "endSeconds": 6.5,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "work here."
+          "supporting a",
+          "better fat"
         ],
-        "text": "work here."
+        "text": "supporting a\nbetter fat"
       },
       {
         "id": "05-fats-4",
         "sceneId": "fats",
-        "startSeconds": 7.86,
-        "endSeconds": 10.18,
+        "startSeconds": 6.5,
+        "endSeconds": 7.05,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "For a fruit, the",
-          "cleanest wins are"
+          "profile."
         ],
-        "text": "For a fruit, the\ncleanest wins are"
+        "text": "profile."
       },
       {
         "id": "06-fats-5",
         "sceneId": "fats",
-        "startSeconds": 10.18,
-        "endSeconds": 11.98,
+        "startSeconds": 7.05,
+        "endSeconds": 9.32,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "low sugar and",
-          "decent fibre."
+          "Polyunsaturated",
+          "fat is 0g, a weak"
         ],
-        "text": "low sugar and\ndecent fibre."
+        "text": "Polyunsaturated\nfat is 0g, a weak"
       },
       {
-        "id": "07-carbs-1",
-        "sceneId": "carbs",
-        "startSeconds": 11.98,
-        "endSeconds": 13.66,
+        "id": "07-fats-6",
+        "sceneId": "fats",
+        "startSeconds": 9.32,
+        "endSeconds": 10.57,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "18. 1g of carbs."
+          "mark for fruits."
         ],
-        "text": "18. 1g of carbs."
+        "text": "mark for fruits."
       },
       {
-        "id": "08-carbs-2",
+        "id": "08-carbs-1",
         "sceneId": "carbs",
-        "startSeconds": 13.66,
-        "endSeconds": 16.03,
+        "startSeconds": 10.57,
+        "endSeconds": 11.95,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "Glycemic index is",
-          "59 GI, where this"
+          "18.1g of",
+          "carbs."
         ],
-        "text": "Glycemic index is\n59 GI, where this"
+        "text": "18.1g of\ncarbs."
       },
       {
-        "id": "09-carbs-3",
+        "id": "09-carbs-2",
         "sceneId": "carbs",
-        "startSeconds": 16.03,
-        "endSeconds": 17.47,
+        "startSeconds": 11.95,
+        "endSeconds": 13.19,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "starts to get",
-          "messy."
+          "Sugar is",
+          "15.5g,"
         ],
-        "text": "starts to get\nmessy."
+        "text": "Sugar is\n15.5g,"
       },
       {
-        "id": "10-carbs-4",
+        "id": "10-carbs-3",
         "sceneId": "carbs",
-        "startSeconds": 17.47,
-        "endSeconds": 19.4,
+        "startSeconds": 13.19,
+        "endSeconds": 14.79,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "For fruit, the",
-          "real question is"
+          "supporting better",
+          "carb quality."
         ],
-        "text": "For fruit, the\nreal question is"
+        "text": "supporting better\ncarb quality."
       },
       {
-        "id": "11-carbs-5",
+        "id": "11-carbs-4",
         "sceneId": "carbs",
-        "startSeconds": 19.4,
-        "endSeconds": 20.7,
+        "startSeconds": 14.79,
+        "endSeconds": 17.08,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "whether the",
-          "sweetness stays"
+          "Starch is 0g, a",
+          "meaningful miss"
         ],
-        "text": "whether the\nsweetness stays"
+        "text": "Starch is 0g, a\nmeaningful miss"
       },
       {
-        "id": "12-carbs-6",
+        "id": "12-carbs-5",
         "sceneId": "carbs",
-        "startSeconds": 20.7,
-        "endSeconds": 21.51,
+        "startSeconds": 17.08,
+        "endSeconds": 17.98,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "under control."
+          "for fruits."
         ],
-        "text": "under control."
+        "text": "for fruits."
       },
       {
         "id": "13-proteins-1",
         "sceneId": "proteins",
-        "startSeconds": 21.51,
+        "startSeconds": 17.98,
+        "endSeconds": 19.45,
+        "placement": "lower-third",
+        "maxLines": 2,
+        "maxCharactersPerLine": 18,
+        "lines": [
+          "0.7g of",
+          "protein."
+        ],
+        "text": "0.7g of\nprotein."
+      },
+      {
+        "id": "14-proteins-2",
+        "sceneId": "proteins",
+        "startSeconds": 19.45,
+        "endSeconds": 21.37,
+        "placement": "lower-third",
+        "maxLines": 2,
+        "maxCharactersPerLine": 18,
+        "lines": [
+          "Essential amino",
+          "acids score is"
+        ],
+        "text": "Essential amino\nacids score is"
+      },
+      {
+        "id": "15-proteins-3",
+        "sceneId": "proteins",
+        "startSeconds": 21.37,
         "endSeconds": 23.2,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "0. 7g of protein."
+          "1/9, with 30%",
+          "bioavailability,"
         ],
-        "text": "0. 7g of protein."
-      },
-      {
-        "id": "14-proteins-2",
-        "sceneId": "proteins",
-        "startSeconds": 23.2,
-        "endSeconds": 25.27,
-        "placement": "lower-third",
-        "maxLines": 2,
-        "maxCharactersPerLine": 18,
-        "lines": [
-          "Bioavailability is",
-          "30%, one of the"
-        ],
-        "text": "Bioavailability is\n30%, one of the"
-      },
-      {
-        "id": "15-proteins-3",
-        "sceneId": "proteins",
-        "startSeconds": 25.27,
-        "endSeconds": 27.36,
-        "placement": "lower-third",
-        "maxLines": 2,
-        "maxCharactersPerLine": 18,
-        "lines": [
-          "best parts of the",
-          "protein story."
-        ],
-        "text": "best parts of the\nprotein story."
+        "text": "1/9, with 30%\nbioavailability,"
       },
       {
         "id": "16-proteins-4",
         "sceneId": "proteins",
-        "startSeconds": 27.36,
-        "endSeconds": 29.62,
+        "startSeconds": 23.2,
+        "endSeconds": 25.49,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "For a fruit, the",
-          "cleanest wins are"
+          "making the protein",
+          "useful for repair"
         ],
-        "text": "For a fruit, the\ncleanest wins are"
+        "text": "making the protein\nuseful for repair"
       },
       {
         "id": "17-proteins-5",
         "sceneId": "proteins",
-        "startSeconds": 29.62,
-        "endSeconds": 31.39,
+        "startSeconds": 25.49,
+        "endSeconds": 26.45,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "low sugar and",
-          "decent fibre."
+          "and maintenance."
         ],
-        "text": "low sugar and\ndecent fibre."
+        "text": "and maintenance."
       },
       {
         "id": "18-vitamins-1",
         "sceneId": "vitamins",
-        "startSeconds": 31.39,
-        "endSeconds": 32.92,
+        "startSeconds": 26.45,
+        "endSeconds": 29.07,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "Everything else is",
-          "fairly"
+          "Vitamin C is 6%",
+          "DV, useful for"
         ],
-        "text": "Everything else is\nfairly"
+        "text": "Vitamin C is 6%\nDV, useful for"
       },
       {
         "id": "19-vitamins-2",
         "sceneId": "vitamins",
-        "startSeconds": 32.92,
-        "endSeconds": 33.49,
+        "startSeconds": 29.07,
+        "endSeconds": 30.51,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "underwhelming."
+          "collagen formation",
+          "and antioxidant"
         ],
-        "text": "underwhelming."
+        "text": "collagen formation\nand antioxidant"
       },
       {
-        "id": "20-minerals-1",
+        "id": "20-vitamins-3",
+        "sceneId": "vitamins",
+        "startSeconds": 30.51,
+        "endSeconds": 31.06,
+        "placement": "lower-third",
+        "maxLines": 2,
+        "maxCharactersPerLine": 18,
+        "lines": [
+          "support."
+        ],
+        "text": "support."
+      },
+      {
+        "id": "21-vitamins-4",
+        "sceneId": "vitamins",
+        "startSeconds": 31.06,
+        "endSeconds": 34.38,
+        "placement": "lower-third",
+        "maxLines": 2,
+        "maxCharactersPerLine": 18,
+        "lines": [
+          "Vitamin A is only",
+          "2% DV, a weak mark"
+        ],
+        "text": "Vitamin A is only\n2% DV, a weak mark"
+      },
+      {
+        "id": "22-vitamins-5",
+        "sceneId": "vitamins",
+        "startSeconds": 34.38,
+        "endSeconds": 35.27,
+        "placement": "lower-third",
+        "maxLines": 2,
+        "maxCharactersPerLine": 18,
+        "lines": [
+          "for fruits."
+        ],
+        "text": "for fruits."
+      },
+      {
+        "id": "23-minerals-1",
         "sceneId": "minerals",
-        "startSeconds": 33.49,
-        "endSeconds": 35.17,
+        "startSeconds": 35.27,
+        "endSeconds": 37.55,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "Minerals are",
-          "basically not part"
+          "Potassium is 5%",
+          "DV, useful for"
         ],
-        "text": "Minerals are\nbasically not part"
+        "text": "Potassium is 5%\nDV, useful for"
       },
       {
-        "id": "21-minerals-2",
+        "id": "24-minerals-2",
         "sceneId": "minerals",
-        "startSeconds": 35.17,
-        "endSeconds": 36.67,
+        "startSeconds": 37.55,
+        "endSeconds": 38.45,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "of the case here."
+          "fluid balance."
         ],
-        "text": "of the case here."
+        "text": "fluid balance."
       },
       {
-        "id": "22-pros-1",
+        "id": "25-minerals-3",
+        "sceneId": "minerals",
+        "startSeconds": 38.45,
+        "endSeconds": 41.43,
+        "placement": "lower-third",
+        "maxLines": 2,
+        "maxCharactersPerLine": 18,
+        "lines": [
+          "Magnesium is only",
+          "1% DV, a weak mark"
+        ],
+        "text": "Magnesium is only\n1% DV, a weak mark"
+      },
+      {
+        "id": "26-minerals-4",
+        "sceneId": "minerals",
+        "startSeconds": 41.43,
+        "endSeconds": 42.33,
+        "placement": "lower-third",
+        "maxLines": 2,
+        "maxCharactersPerLine": 18,
+        "lines": [
+          "for fruits."
+        ],
+        "text": "for fruits."
+      },
+      {
+        "id": "27-pros-1",
         "sceneId": "pros",
-        "startSeconds": 36.67,
-        "endSeconds": 38.32,
-        "placement": "lower-third",
+        "startSeconds": 42.33,
+        "endSeconds": 43.98,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1415,11 +2644,11 @@
         "text": "Pros first:\npolyphenol case is"
       },
       {
-        "id": "23-pros-2",
+        "id": "28-pros-2",
         "sceneId": "pros",
-        "startSeconds": 38.32,
-        "endSeconds": 40.1,
-        "placement": "lower-third",
+        "startSeconds": 43.98,
+        "endSeconds": 45.76,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1429,11 +2658,11 @@
         "text": "stronger than the\nsugar suggests."
       },
       {
-        "id": "24-pros-3",
+        "id": "29-pros-3",
         "sceneId": "pros",
-        "startSeconds": 40.1,
-        "endSeconds": 41.75,
-        "placement": "lower-third",
+        "startSeconds": 45.76,
+        "endSeconds": 47.41,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1443,11 +2672,11 @@
         "text": "Tests whether\nfruit context can"
       },
       {
-        "id": "25-pros-4",
+        "id": "30-pros-4",
         "sceneId": "pros",
-        "startSeconds": 41.75,
-        "endSeconds": 43.39,
-        "placement": "lower-third",
+        "startSeconds": 47.41,
+        "endSeconds": 49.05,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1457,11 +2686,11 @@
         "text": "rescue sugary but\nstill respected"
       },
       {
-        "id": "26-pros-5",
+        "id": "31-pros-5",
         "sceneId": "pros",
-        "startSeconds": 43.39,
-        "endSeconds": 43.89,
-        "placement": "lower-third",
+        "startSeconds": 49.05,
+        "endSeconds": 49.55,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1470,11 +2699,11 @@
         "text": "fruits."
       },
       {
-        "id": "27-pros-6",
+        "id": "32-pros-6",
         "sceneId": "pros",
-        "startSeconds": 43.89,
-        "endSeconds": 45.36,
-        "placement": "lower-third",
+        "startSeconds": 49.55,
+        "endSeconds": 51.02,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1483,11 +2712,11 @@
         "text": "Very easy to eat."
       },
       {
-        "id": "28-pros-7",
+        "id": "33-pros-7",
         "sceneId": "pros",
-        "startSeconds": 45.36,
-        "endSeconds": 46.5,
-        "placement": "lower-third",
+        "startSeconds": 51.02,
+        "endSeconds": 52.16,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1497,11 +2726,11 @@
         "text": "Highly practical\nfruit."
       },
       {
-        "id": "29-pros-8",
+        "id": "34-pros-8",
         "sceneId": "pros",
-        "startSeconds": 46.5,
-        "endSeconds": 47.82,
-        "placement": "lower-third",
+        "startSeconds": 52.16,
+        "endSeconds": 53.48,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1511,11 +2740,11 @@
         "text": "Hydrating and\neasy. Practical"
       },
       {
-        "id": "30-pros-9",
+        "id": "35-pros-9",
         "sceneId": "pros",
-        "startSeconds": 47.82,
-        "endSeconds": 48.32,
-        "placement": "lower-third",
+        "startSeconds": 53.48,
+        "endSeconds": 53.98,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1524,11 +2753,11 @@
         "text": "plus."
       },
       {
-        "id": "31-cons-1",
+        "id": "36-cons-1",
         "sceneId": "cons",
-        "startSeconds": 48.32,
-        "endSeconds": 49.96,
-        "placement": "lower-third",
+        "startSeconds": 53.98,
+        "endSeconds": 55.62,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1538,11 +2767,11 @@
         "text": "The drawbacks\nnext: sugar load"
       },
       {
-        "id": "32-cons-2",
+        "id": "37-cons-2",
         "sceneId": "cons",
-        "startSeconds": 49.96,
-        "endSeconds": 51.42,
-        "placement": "lower-third",
+        "startSeconds": 55.62,
+        "endSeconds": 57.08,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1551,11 +2780,11 @@
         "text": "is high for fruit."
       },
       {
-        "id": "33-cons-3",
+        "id": "38-cons-3",
         "sceneId": "cons",
-        "startSeconds": 51.42,
-        "endSeconds": 53.7,
-        "placement": "lower-third",
+        "startSeconds": 57.08,
+        "endSeconds": 59.36,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1565,11 +2794,11 @@
         "text": "A real stress test\nfor the fruit"
       },
       {
-        "id": "34-cons-4",
+        "id": "39-cons-4",
         "sceneId": "cons",
-        "startSeconds": 53.7,
-        "endSeconds": 54.2,
-        "placement": "lower-third",
+        "startSeconds": 59.36,
+        "endSeconds": 59.86,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1578,11 +2807,11 @@
         "text": "ruleset."
       },
       {
-        "id": "35-cons-5",
+        "id": "40-cons-5",
         "sceneId": "cons",
-        "startSeconds": 54.2,
-        "endSeconds": 55.66,
-        "placement": "lower-third",
+        "startSeconds": 59.86,
+        "endSeconds": 61.32,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1592,11 +2821,11 @@
         "text": "Fibre moderation\nis weak."
       },
       {
-        "id": "36-cons-6",
+        "id": "41-cons-6",
         "sceneId": "cons",
-        "startSeconds": 55.66,
-        "endSeconds": 57.43,
-        "placement": "lower-third",
+        "startSeconds": 61.32,
+        "endSeconds": 63.09,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1606,11 +2835,11 @@
         "text": "Much weaker than\nelite fruits."
       },
       {
-        "id": "37-cons-7",
+        "id": "42-cons-7",
         "sceneId": "cons",
-        "startSeconds": 57.43,
-        "endSeconds": 58.89,
-        "placement": "lower-third",
+        "startSeconds": 63.09,
+        "endSeconds": 64.55,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1620,11 +2849,11 @@
         "text": "Easy to overeat\nquickly."
       },
       {
-        "id": "38-cons-8",
+        "id": "43-cons-8",
         "sceneId": "cons",
-        "startSeconds": 58.89,
-        "endSeconds": 60.67,
-        "placement": "lower-third",
+        "startSeconds": 64.55,
+        "endSeconds": 66.33,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1634,91 +2863,77 @@
         "text": "Can rack up sugar\nfast."
       },
       {
-        "id": "39-final-1",
+        "id": "44-final-1",
         "sceneId": "final",
-        "startSeconds": 60.67,
-        "endSeconds": 63,
+        "startSeconds": 66.33,
+        "endSeconds": 69.29,
         "placement": "summary-full",
         "maxLines": 2,
-        "maxCharactersPerLine": 28,
+        "maxCharactersPerLine": 24,
         "lines": [
-          "Grapes does have a few",
-          "real-world upsides."
+          "Big strengths are omega",
+          "3 and polyphenol case is"
         ],
-        "text": "Grapes does have a few\nreal-world upsides.",
+        "text": "Big strengths are omega\n3 and polyphenol case is",
         "role": "conclusion-summary"
       },
       {
-        "id": "40-final-2",
+        "id": "45-final-2",
         "sceneId": "final",
-        "startSeconds": 63,
-        "endSeconds": 66.13,
+        "startSeconds": 69.29,
+        "endSeconds": 71.51,
         "placement": "summary-full",
         "maxLines": 2,
-        "maxCharactersPerLine": 28,
+        "maxCharactersPerLine": 24,
         "lines": [
-          "but the nutrition case is",
-          "still weak and the downsides"
+          "stronger than the sugar",
+          "suggests, but the"
         ],
-        "text": "but the nutrition case is\nstill weak and the downsides",
+        "text": "stronger than the sugar\nsuggests, but the",
         "role": "conclusion-summary"
       },
       {
-        "id": "41-final-3",
+        "id": "46-final-3",
         "sceneId": "final",
-        "startSeconds": 66.13,
-        "endSeconds": 67.53,
+        "startSeconds": 71.51,
+        "endSeconds": 74.04,
         "placement": "summary-full",
         "maxLines": 2,
-        "maxCharactersPerLine": 28,
+        "maxCharactersPerLine": 24,
         "lines": [
-          "drag it down hard."
+          "biggest weaknesses are",
+          "sugar load is high for"
         ],
-        "text": "drag it down hard.",
+        "text": "biggest weaknesses are\nsugar load is high for",
         "role": "conclusion-summary"
       },
       {
-        "id": "42-final-4",
+        "id": "47-final-4",
         "sceneId": "final",
-        "startSeconds": 67.53,
-        "endSeconds": 70.04,
+        "startSeconds": 74.04,
+        "endSeconds": 76.09,
         "placement": "summary-full",
         "maxLines": 2,
-        "maxCharactersPerLine": 28,
+        "maxCharactersPerLine": 24,
         "lines": [
-          "best only when the",
-          "convenience or taste matters"
+          "fruit and fibre",
+          "moderation is weak."
         ],
-        "text": "best only when the\nconvenience or taste matters",
+        "text": "fruit and fibre\nmoderation is weak.",
         "role": "conclusion-summary"
       },
       {
-        "id": "43-final-5",
+        "id": "48-final-5",
         "sceneId": "final",
-        "startSeconds": 70.04,
-        "endSeconds": 71.75,
-        "placement": "summary-full",
-        "maxLines": 2,
-        "maxCharactersPerLine": 28,
-        "lines": [
-          "more than the nutrition",
-          "return."
-        ],
-        "text": "more than the nutrition\nreturn.",
-        "role": "conclusion-summary"
-      },
-      {
-        "id": "44-final-6",
-        "sceneId": "final",
-        "startSeconds": 71.75,
-        "endSeconds": 72.54,
+        "startSeconds": 76.09,
+        "endSeconds": 76.88,
         "placement": "tier-center",
         "maxLines": 2,
-        "maxCharactersPerLine": 28,
+        "maxCharactersPerLine": 24,
         "lines": [
-          "C tier."
+          "D tier."
         ],
-        "text": "C tier.",
+        "text": "D tier.",
         "role": "tier-reveal"
       }
     ]

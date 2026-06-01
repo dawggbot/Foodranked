@@ -7,7 +7,11 @@
   },
   "ruleset": {
     "id": "dairy.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 403,
@@ -16,67 +20,32 @@
     "protein_g": 24.9
   },
   "sectionScores": {
-    "fats": 11.1,
+    "fats": 8.3,
     "carbs": 100,
     "proteins": 100,
     "vitamins": 30,
-    "minerals": 57.5,
-    "pros": 33.3,
-    "cons": 66.7
+    "minerals": 46,
+    "pros": 66.7,
+    "cons": 0
   },
-  "baseScore": 51,
-  "contextAdjustment": {
-    "rawAdjustment": -3,
-    "appliedAdjustment": -3,
-    "appliedItems": [
-      {
-        "itemKey": "strong_calcium_identity",
-        "impactLevel": "major",
-        "scoreValue": 3,
-        "title": "very strong calcium identity",
-        "explanation": "This is one of the cleanest reasons cheese still performs well inside dairy despite its drawbacks.",
-        "evidenceType": "manual",
-        "side": "pro",
-        "resolvedScoreValue": 3
-      },
-      {
-        "itemKey": "very_high_satfat",
-        "impactLevel": "major",
-        "scoreValue": -3,
-        "title": "saturated fat is a major drawback",
-        "explanation": "This is the biggest reason cheddar is not an easy elite dairy food.",
-        "evidenceType": "manual",
-        "side": "con",
-        "resolvedScoreValue": -3
-      },
-      {
-        "itemKey": "energy_density_penalty",
-        "impactLevel": "major",
-        "scoreValue": -3,
-        "title": "energy density is harsh",
-        "explanation": "Calories add up quickly compared with cleaner dairy anchors.",
-        "evidenceType": "manual",
-        "side": "con",
-        "resolvedScoreValue": -3
-      }
-    ],
-    "ignoredItems": []
-  },
-  "overallScore": 48,
-  "tier": "B",
-  "summary": "Carbs are carrying this food most, while fats are the biggest drag. It lands in B tier.",
+  "overallScore": 80,
+  "overallScoreExact": 80.0286,
+  "baseOverallScore": 50.1,
+  "baseOverallScoreExact": 50.1429,
+  "tier": "S",
+  "summary": "Carbs are carrying this food most, while cons are holding it back most. It lands in S tier.",
   "explanation": {
-    "summary": "Carbs are carrying this food most, while fats are the biggest drag. It lands in B tier.",
-    "whyThisTier": "This food lands in B tier with an overall score of 48 from a base nutrition score of 51. Context dragged it down by 3 points.",
+    "summary": "Carbs are carrying this food most, while cons are holding it back most. It lands in S tier.",
+    "whyThisTier": "This food lands in S tier with an overall score of 80. Section scores: fats 8.3, carbs 100, proteins 100, vitamins 30, minerals 46, pros 66.7, cons 0.",
     "strongestSection": {
       "key": "carbs",
       "label": "Carbs",
       "score": 100
     },
     "weakestSection": {
-      "key": "fats",
-      "label": "Fats",
-      "score": 11.1
+      "key": "cons",
+      "label": "Cons",
+      "score": 0
     },
     "topPros": [
       {
@@ -84,7 +53,21 @@
         "explanation": "This is one of the cleanest reasons cheese still performs well inside dairy despite its drawbacks.",
         "impactLevel": "major",
         "side": "pro",
-        "resolvedScoreValue": 3
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "protein density is strong",
+        "explanation": "Cheddar clearly still delivers on the protein side of dairy.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "very practical and versatile",
+        "explanation": "It is genuinely easy to use in lots of foods.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -93,21 +76,27 @@
         "explanation": "This is the biggest reason cheddar is not an easy elite dairy food.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -3
+        "resolvedScoreValue": 100
       },
       {
         "title": "energy density is harsh",
         "explanation": "Calories add up quickly compared with cleaner dairy anchors.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -3
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "easy to overeat",
+        "explanation": "Highly palatable and dense enough to add up fast.",
+        "impactLevel": "major",
+        "side": "con",
+        "resolvedScoreValue": 100
       }
     ],
     "narrationNotes": [
       "Strongest section: Carbs.",
-      "Weakest section: Fats.",
-      "Context weakened the final tier case by 3 points.",
-      "Final verdict: B tier."
+      "Weakest section: Cons.",
+      "Final verdict: S tier."
     ]
   },
   "contextItems": {
@@ -115,52 +104,58 @@
       {
         "itemKey": "strong_calcium_identity",
         "impactLevel": "major",
-        "scoreValue": 3,
         "title": "very strong calcium identity",
         "explanation": "This is one of the cleanest reasons cheese still performs well inside dairy despite its drawbacks.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 100
       },
       {
         "itemKey": "protein_dense",
         "impactLevel": "minor",
-        "scoreValue": 0,
         "title": "protein density is strong",
         "explanation": "Cheddar clearly still delivers on the protein side of dairy.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "culinary_strength",
         "impactLevel": "minor",
-        "scoreValue": 0,
         "title": "very practical and versatile",
         "explanation": "It is genuinely easy to use in lots of foods.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "cons": [
       {
         "itemKey": "very_high_satfat",
         "impactLevel": "major",
-        "scoreValue": -3,
         "title": "saturated fat is a major drawback",
         "explanation": "This is the biggest reason cheddar is not an easy elite dairy food.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 100
       },
       {
         "itemKey": "energy_density_penalty",
         "impactLevel": "major",
-        "scoreValue": -3,
         "title": "energy density is harsh",
         "explanation": "Calories add up quickly compared with cleaner dairy anchors.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 100
       },
       {
         "itemKey": "easy_to_overeat",
-        "impactLevel": "minor",
-        "scoreValue": 0,
+        "impactLevel": "major",
         "title": "easy to overeat",
         "explanation": "Highly palatable and dense enough to add up fast.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 100
       }
     ]
   },
@@ -171,9 +166,9 @@
       "scoringMode": "arrow_bands",
       "value": 19,
       "band": "↑↑↑",
-      "score": -3,
+      "score": 0,
       "weight": 6,
-      "weightedScore": -18
+      "weightedScore": 0
     },
     {
       "metricKey": "omega3_mg",
@@ -181,19 +176,19 @@
       "scoringMode": "arrow_bands",
       "value": 180,
       "band": "↑",
-      "score": 1,
+      "score": 60,
       "weight": 1,
-      "weightedScore": 1
+      "weightedScore": 60
     },
     {
       "metricKey": "polyunsaturated_fat_g",
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 1,
-      "band": "↑",
-      "score": 1,
+      "band": "↓",
+      "score": 40,
       "weight": 1,
-      "weightedScore": 1
+      "weightedScore": 40
     },
     {
       "metricKey": "cholesterol_mg",
@@ -201,9 +196,19 @@
       "scoringMode": "arrow_bands",
       "value": 105,
       "band": "↑↑↑",
-      "score": -3,
+      "score": 0,
       "weight": 4,
-      "weightedScore": -12
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "starch_g",
+      "sectionKey": "carbs",
+      "scoringMode": "arrow_bands",
+      "value": 0,
+      "band": "3_red",
+      "score": 0,
+      "weight": 0,
+      "weightedScore": 0
     },
     {
       "metricKey": "sugar_g",
@@ -211,9 +216,9 @@
       "scoringMode": "arrow_bands",
       "value": 0.5,
       "band": "↓↓↓",
-      "score": 3,
+      "score": 100,
       "weight": 4,
-      "weightedScore": 12
+      "weightedScore": 400
     },
     {
       "metricKey": "glycemic_index",
@@ -221,39 +226,9 @@
       "scoringMode": "arrow_bands",
       "value": 0,
       "band": "↓↓↓",
-      "score": 3,
+      "score": 100,
       "weight": 2,
-      "weightedScore": 6
-    },
-    {
-      "metricKey": "essential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 8,
-      "band": "↑↑↑",
-      "score": 3,
-      "weight": 3,
-      "weightedScore": 9
-    },
-    {
-      "metricKey": "nonessential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 10,
-      "band": "↑↑↑",
-      "score": 3,
-      "weight": 1,
-      "weightedScore": 3
-    },
-    {
-      "metricKey": "bioavailability_percent",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 95,
-      "band": "↑↑↑",
-      "score": 3,
-      "weight": 3,
-      "weightedScore": 9
+      "weightedScore": 200
     },
     {
       "metricKey": "vitamin_b12_dv",
@@ -261,8 +236,9 @@
       "scoringMode": "dv_points",
       "dvPercent": 30,
       "points": 3,
+      "score": 30,
       "weight": 2,
-      "weightedScore": 6
+      "weightedScore": 60
     },
     {
       "metricKey": "vitamin_a_dv",
@@ -270,8 +246,9 @@
       "scoringMode": "dv_points",
       "dvPercent": 30,
       "points": 3,
+      "score": 30,
       "weight": 1,
-      "weightedScore": 3
+      "weightedScore": 30
     },
     {
       "metricKey": "calcium_dv",
@@ -279,8 +256,9 @@
       "scoringMode": "dv_points",
       "dvPercent": 72,
       "points": 7,
+      "score": 70,
       "weight": 3,
-      "weightedScore": 21
+      "weightedScore": 210
     },
     {
       "metricKey": "zinc_dv",
@@ -288,8 +266,30 @@
       "scoringMode": "dv_points",
       "dvPercent": 21,
       "points": 2,
+      "score": 20,
       "weight": 1,
-      "weightedScore": 2
+      "weightedScore": 20
+    },
+    {
+      "metricKey": "magnesium_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 7,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "protein_g_fallback",
+      "sectionKey": "proteins",
+      "scoringMode": "protein_fallback",
+      "value": 24.9,
+      "band": "3_green",
+      "score": 100,
+      "weight": 3,
+      "weightedScore": 300,
+      "fallbackApplied": true
     }
   ]
 }

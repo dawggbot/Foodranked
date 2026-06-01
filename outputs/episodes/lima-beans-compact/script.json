@@ -1,13 +1,29 @@
 {
   "status": "ok",
+  "schemaVersion": "foodranked-script.v2",
+  "narrationFormat": "elevenlabs-blocks-v1",
   "food": {
     "id": "lima-beans",
     "name": "Lima Beans",
-    "foodType": "legumes"
+    "foodType": "legumes",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "identity": null,
+    "scoreReadiness": null,
+    "sourceNotes": [
+      "Calibration benchmark sample for FoodRanked.",
+      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
+    ]
   },
   "ruleset": {
     "id": "legumes.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 338,
@@ -16,155 +32,185 @@
     "protein_g": 21.5
   },
   "hook": "Lima Beans ranked.",
-  "intro": "",
   "sections": [
     {
       "key": "fats",
       "title": "Fats",
-      "narration": "0.7 grams of fat. Saturated fat is 0.2 grams. Saturated fat is 0.2 grams. 0.7 grams of fat. Saturated fat, polyunsaturated fat, and omega3 are doing most of the work. For a legume, the whole appeal is cheap, filling nutritional payoff.",
+      "narration": "0.7 grams of fat. Saturated fat is 0.2 grams, supporting a better fat profile.",
       "displayItems": [
         {
           "metricKey": "saturated_fat_g",
           "text": "saturated fat at 0.2g",
-          "weightedScore": 3,
+          "weightedScore": 100,
           "scoringMode": "arrow_bands",
           "band": "↓↓↓",
           "dvPercent": null,
           "value": 0.2
         },
         {
+          "metricKey": "omega3_mg",
+          "text": "omega 3 at 80mg",
+          "weightedScore": 20,
+          "scoringMode": "arrow_bands",
+          "band": "↓↓",
+          "dvPercent": null,
+          "value": 80
+        },
+        {
           "metricKey": "polyunsaturated_fat_g",
           "text": "polyunsaturated fat at 0.3g",
-          "weightedScore": -2,
+          "weightedScore": 20,
           "scoringMode": "arrow_bands",
           "band": "↓↓",
           "dvPercent": null,
           "value": 0.3
-        },
-        {
-          "metricKey": "omega3_mg",
-          "text": "omega 3 at 80mg",
-          "weightedScore": -1,
-          "scoringMode": "arrow_bands",
-          "band": "↓",
-          "dvPercent": null,
-          "value": 80
         }
       ],
-      "subtitleText": "0.7g of fat. Saturated fat is 0.2g. Saturated fat is 0.2g. 0.7g of fat. Saturated fat, polyunsaturated fat, and omega3 are doing most of the work. For a legume, the whole appeal is cheap, filling nutritional payoff.",
+      "subtitleText": "0.7g of fat. Saturated fat is 0.2g, supporting a better fat profile.",
       "timingHint": "short-medium",
-      "score": 50
+      "score": 46.7
     },
     {
       "key": "carbs",
       "title": "Carbs",
-      "narration": "63.4 grams of carbs. Fibre is 19 grams, doing a lot of the work here. For legumes, the carbs look much better when fibre and protein are both backing them up.",
+      "narration": "63.4 grams of carbs. Fibre is 19 grams, helping with digestion and steadier meals.",
       "displayItems": [
         {
           "metricKey": "fibre_g",
           "text": "fibre at 19g",
-          "weightedScore": 12,
+          "weightedScore": 400,
           "scoringMode": "arrow_bands",
           "band": "↑↑↑",
           "dvPercent": null,
           "value": 19
         },
         {
+          "metricKey": "glycemic_index",
+          "text": "glycemic index at 32 GI",
+          "weightedScore": 320,
+          "scoringMode": "arrow_bands",
+          "band": "↓↓",
+          "dvPercent": null,
+          "value": 32
+        },
+        {
           "metricKey": "sugar_g",
           "text": "sugar at 2g",
-          "weightedScore": 4,
+          "weightedScore": 160,
           "scoringMode": "arrow_bands",
           "band": "↓↓",
           "dvPercent": null,
           "value": 2
         },
         {
-          "metricKey": "glycemic_index",
-          "text": "glycemic index at 32 GI",
-          "weightedScore": 4,
-          "scoringMode": "arrow_bands",
-          "band": "↓",
-          "dvPercent": null,
-          "value": 32
-        },
-        {
           "metricKey": "starch_g",
           "text": "starch at 36g",
-          "weightedScore": 2,
+          "weightedScore": 80,
           "scoringMode": "arrow_bands",
           "band": "↑↑",
           "dvPercent": null,
           "value": 36
         }
       ],
-      "subtitleText": "63.4g of carbs. Fibre is 19g, doing a lot of the work here. For legumes, the carbs look much better when fibre and protein are both backing them up.",
+      "subtitleText": "63.4g of carbs. Fibre is 19g, helping with digestion and steadier meals.",
       "timingHint": "short-medium",
-      "score": 83.3
+      "score": 87.3
     },
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "Essential amino acids score is 6 out of 9. 21.5 grams of protein. Bioavailability and amino acid quality are both strong. Protein support is a big part of what makes legumes worth it.",
+      "narration": "21.5 grams of protein. Essential amino acids score is 6 out of 9, with 72% bioavailability, making the protein useful for repair and maintenance.",
       "displayItems": [
         {
           "metricKey": "essential_amino_acids_score",
           "text": "essential amino acids score at 6/9",
-          "weightedScore": 6,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
           "dvPercent": null,
-          "value": 6
+          "value": 6,
+          "referenceOnly": true
         },
         {
           "metricKey": "bioavailability_percent",
           "text": "bioavailability at 72%",
-          "weightedScore": 6,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
           "dvPercent": null,
-          "value": 72
+          "value": 72,
+          "referenceOnly": true
         },
         {
           "metricKey": "nonessential_amino_acids_score",
           "text": "nonessential amino acids score at 8/11",
-          "weightedScore": 2,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
           "dvPercent": null,
-          "value": 8
+          "value": 8,
+          "referenceOnly": true
         }
       ],
-      "subtitleText": "Essential amino acids score is 6/9. 21.5g of protein. Bioavailability and amino acid quality are both strong. Protein support is a big part of what makes legumes worth it.",
+      "subtitleText": "21.5g of protein. Essential amino acids score is 6/9, with 72% bioavailability, making the protein useful for repair and maintenance.",
       "timingHint": "short-medium",
-      "score": 88.9
+      "score": 100
     },
     {
       "key": "vitamins",
       "title": "Vitamins",
-      "narration": "Outside of that, the profile is pretty quiet.",
-      "displayItems": [],
-      "subtitleText": "Outside of that, the profile is pretty quiet.",
+      "narration": "Vitamin C is 2% daily value, useful for collagen formation and antioxidant support. Vitamin E is only 1% daily value, a weak mark for legumes.",
+      "displayItems": [
+        {
+          "metricKey": "vitamin_c_dv",
+          "text": "vitamin C at 2% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 2,
+          "value": null
+        },
+        {
+          "metricKey": "vitamin_e_dv",
+          "text": "vitamin E at 1% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 1,
+          "value": null
+        }
+      ],
+      "subtitleText": "Vitamin C is 2% DV, useful for collagen formation and antioxidant support. Vitamin E is only 1% DV, a weak mark for legumes.",
       "timingHint": "short-medium",
-      "score": null
+      "score": 0
     },
     {
       "key": "minerals",
       "title": "Minerals",
-      "narration": "Magnesium at 32% daily value, iron at 25% daily value, potassium at 27% daily value stand out most. Useful, but still not a major mineral edge.",
+      "narration": "Magnesium is 32% daily value, adding useful mineral support. Zinc is 18% daily value, a weak mark for legumes.",
       "displayItems": [
         {
           "metricKey": "magnesium_dv",
           "text": "magnesium at 32% DV",
-          "weightedScore": 6,
+          "weightedScore": 60,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 32,
           "value": null
         },
         {
+          "metricKey": "zinc_dv",
+          "text": "zinc at 18% DV",
+          "weightedScore": 10,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 18,
+          "value": null
+        },
+        {
           "metricKey": "iron_dv",
           "text": "iron at 25% DV",
-          "weightedScore": 4,
+          "weightedScore": 40,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 25,
@@ -173,109 +219,166 @@
         {
           "metricKey": "potassium_dv",
           "text": "potassium at 27% DV",
-          "weightedScore": 2,
+          "weightedScore": 20,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 27,
           "value": null
-        },
-        {
-          "metricKey": "zinc_dv",
-          "text": "zinc at 18% DV",
-          "weightedScore": 1,
-          "scoringMode": "dv_points",
-          "band": null,
-          "dvPercent": 18,
-          "value": null
         }
       ],
-      "subtitleText": "Magnesium at 32% daily value, iron at 25% daily value, potassium at 27% daily value stand out most. Useful, but still not a major mineral edge.",
+      "subtitleText": "Magnesium is 32% DV, adding useful mineral support. Zinc is 18% DV, a weak mark for legumes.",
       "timingHint": "short-medium",
       "score": 21.7
     },
     {
       "key": "pros",
       "title": "Pros",
-      "narration": "The upsides first: filling for the calories. Legumes usually earn a lot of practical value from satiety. Does a lot of jobs at once. Protein, fibre, and meal utility are why legumes stay valuable. Fibre-forward category identity. Legumes are supposed to bring stable carbs and fibre.",
+      "narration": "Positives first: filling for the calories. Legumes usually earn a lot of practical value from satiety. Does a lot of jobs at once. Protein, fibre, and meal utility are why legumes stay valuable. Fibre-forward category identity. Legumes are supposed to bring stable carbs and fibre.",
       "displayItems": [
         {
           "type": "pro",
           "title": "filling for the calories",
           "explanation": "Legumes usually earn a lot of practical value from satiety.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "does a lot of jobs at once",
           "explanation": "Protein, fibre, and meal utility are why legumes stay valuable.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "fibre-forward category identity",
           "explanation": "Legumes are supposed to bring stable carbs and fibre.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "The upsides first: filling for the calories. Legumes usually earn a lot of practical value from satiety. Does a lot of jobs at once. Protein, fibre, and meal utility are why legumes stay valuable. Fibre-forward category identity. Legumes are supposed to bring stable carbs and fibre.",
+      "subtitleText": "Positives first: filling for the calories. Legumes usually earn a lot of practical value from satiety. Does a lot of jobs at once. Protein, fibre, and meal utility are why legumes stay valuable. Fibre-forward category identity. Legumes are supposed to bring stable carbs and fibre.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     },
     {
       "key": "cons",
       "title": "Cons",
-      "narration": "On the weaker side: protein quality still has a ceiling. Good, but not meat or dairy level. Can take planning or prep. That is a small but real friction cost. Prep time can still be a barrier. Dry legumes especially ask more from the cook.",
+      "narration": "Downsides next: protein quality still has a ceiling. Good, but not meat or dairy level. Can take planning or prep. That is a small but real friction cost. Prep time can still be a barrier. Dry legumes especially ask more from the cook.",
       "displayItems": [
         {
           "type": "con",
           "title": "protein quality still has a ceiling",
           "explanation": "Good, but not meat or dairy level.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "can take planning or prep",
           "explanation": "That is a small but real friction cost.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "prep time can still be a barrier",
           "explanation": "Dry legumes especially ask more from the cook.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "On the weaker side: protein quality still has a ceiling. Good, but not meat or dairy level. Can take planning or prep. That is a small but real friction cost. Prep time can still be a barrier. Dry legumes especially ask more from the cook.",
+      "subtitleText": "Downsides next: protein quality still has a ceiling. Good, but not meat or dairy level. Can take planning or prep. That is a small but real friction cost. Prep time can still be a barrier. Dry legumes especially ask more from the cook.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     }
   ],
   "closing": {
-    "summary": "Lima Beans has a genuinely strong overall case. the practical downsides are real, but they do not outweigh the upside. best when you want fibre, protein, and actual meal utility together.",
-    "finalReveal": "S tier.",
+    "summary": "Big strengths are protein and fibre, but the biggest weaknesses are protein quality still has a ceiling and can take planning or prep.",
+    "overview": "Big strengths are protein and fibre, but the biggest weaknesses are protein quality still has a ceiling and can take planning or prep.",
+    "finalReveal": "A tier.",
     "useCaseNote": "Best when you want fibre, protein, and actual meal utility together.",
     "cta": "Would you rank it the same, or nah?"
   },
-  "tier": "S",
-  "overallScore": 64,
+  "tier": "A",
+  "overallScore": 60.6,
+  "overallScoreExact": 60.5841,
+  "baseOverallScore": 50.8,
+  "baseOverallScoreExact": 50.8009,
+  "sectionOrder": [
+    "fats",
+    "carbs",
+    "proteins",
+    "vitamins",
+    "minerals",
+    "pros",
+    "cons"
+  ],
+  "narrationBlocks": [
+    {
+      "kind": "hook_food",
+      "text": "Lima Beans!"
+    },
+    {
+      "kind": "hook_ranked",
+      "text": "Ranked!"
+    },
+    {
+      "kind": "section",
+      "sectionKey": "fats",
+      "text": "0.7 grams of fat. Saturated fat is 0.2 grams, supporting a better fat profile."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "carbs",
+      "text": "63.4 grams of carbs. Fibre is 19 grams, helping with digestion and steadier meals."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "proteins",
+      "text": "21.5 grams of protein. Essential amino acids score is 6 out of 9, with 72% bioavailability, making the protein useful for repair and maintenance."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "vitamins",
+      "text": "Vitamin C is 2% daily value, useful for collagen formation and antioxidant support. Vitamin E is only 1% daily value, a weak mark for legumes."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "minerals",
+      "text": "Magnesium is 32% daily value, adding useful mineral support. Zinc is 18% daily value, a weak mark for legumes."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "pros",
+      "text": "Positives first: filling for the calories. Legumes usually earn a lot of practical value from satiety. Does a lot of jobs at once. Protein, fibre, and meal utility are why legumes stay valuable. Fibre-forward category identity. Legumes are supposed to bring stable carbs and fibre."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "cons",
+      "text": "Downsides next: protein quality still has a ceiling. Good, but not meat or dairy level. Can take planning or prep. That is a small but real friction cost. Prep time can still be a barrier. Dry legumes especially ask more from the cook."
+    },
+    {
+      "kind": "closing_summary",
+      "text": "Big strengths are protein and fibre, but the biggest weaknesses are protein quality still has a ceiling and can take planning or prep."
+    },
+    {
+      "kind": "final_reveal",
+      "text": "A tier."
+    }
+  ],
   "explanation": {
-    "summary": "Proteins are carrying this food most, while minerals are the biggest drag. It lands in S tier.",
-    "whyThisTier": "This food lands in S tier with an overall score of 64 from a base nutrition score of 64. Context barely changed the result.",
+    "summary": "Proteins are carrying this food most, while vitamins are holding it back most. It lands in A tier.",
+    "whyThisTier": "This food lands in A tier with an overall score of 60.6. Section scores: fats 46.7, carbs 87.3, proteins 100, vitamins 0, minerals 21.7, pros 50, cons 50.",
     "strongestSection": {
       "key": "proteins",
       "label": "Proteins",
-      "score": 88.9
+      "score": 100
     },
     "weakestSection": {
-      "key": "minerals",
-      "label": "Minerals",
-      "score": 21.7
+      "key": "vitamins",
+      "label": "Vitamins",
+      "score": 0
     },
     "topPros": [
       {
@@ -283,21 +386,21 @@
         "explanation": "Legumes usually earn a lot of practical value from satiety.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "does a lot of jobs at once",
         "explanation": "Protein, fibre, and meal utility are why legumes stay valuable.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "fibre-forward category identity",
         "explanation": "Legumes are supposed to bring stable carbs and fibre.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -306,27 +409,27 @@
         "explanation": "Good, but not meat or dairy level.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "can take planning or prep",
         "explanation": "That is a small but real friction cost.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "prep time can still be a barrier",
         "explanation": "Dry legumes especially ask more from the cook.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
       "Strongest section: Proteins.",
-      "Weakest section: Minerals.",
-      "Final verdict: S tier."
+      "Weakest section: Vitamins.",
+      "Final verdict: A tier."
     ]
   }
 }

@@ -1,13 +1,29 @@
 {
   "status": "ok",
+  "schemaVersion": "foodranked-script.v2",
+  "narrationFormat": "elevenlabs-blocks-v1",
   "food": {
     "id": "chickpeas",
     "name": "Chickpeas",
-    "foodType": "legumes"
+    "foodType": "legumes",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "identity": null,
+    "scoreReadiness": null,
+    "sourceNotes": [
+      "Calibration benchmark sample for FoodRanked.",
+      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
+    ]
   },
   "ruleset": {
     "id": "legumes.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 364,
@@ -16,17 +32,16 @@
     "protein_g": 19.3
   },
   "hook": "Chickpeas ranked.",
-  "intro": "",
   "sections": [
     {
       "key": "fats",
       "title": "Fats",
-      "narration": "6 grams of fat. Omega 3 is 250 milligrams, doing a lot of the work here. For a legume, this is exactly the kind of profile you want.",
+      "narration": "6 grams of fat. Saturated fat is 0.6 grams, supporting a better fat profile.",
       "displayItems": [
         {
           "metricKey": "saturated_fat_g",
           "text": "saturated fat at 0.6g",
-          "weightedScore": 2,
+          "weightedScore": 80,
           "scoringMode": "arrow_bands",
           "band": "↓↓",
           "dvPercent": null,
@@ -35,7 +50,7 @@
         {
           "metricKey": "polyunsaturated_fat_g",
           "text": "polyunsaturated fat at 2.7g",
-          "weightedScore": 2,
+          "weightedScore": 80,
           "scoringMode": "arrow_bands",
           "band": "↑↑",
           "dvPercent": null,
@@ -44,26 +59,26 @@
         {
           "metricKey": "omega3_mg",
           "text": "omega 3 at 250mg",
-          "weightedScore": 1,
+          "weightedScore": 60,
           "scoringMode": "arrow_bands",
           "band": "↑",
           "dvPercent": null,
           "value": 250
         }
       ],
-      "subtitleText": "6g of fat. Omega 3 is 250mg, doing a lot of the work here. For a legume, this is exactly the kind of profile you want.",
+      "subtitleText": "6g of fat. Saturated fat is 0.6g, supporting a better fat profile.",
       "timingHint": "short-medium",
-      "score": 77.8
+      "score": 73.3
     },
     {
       "key": "carbs",
       "title": "Carbs",
-      "narration": "60.7 grams of carbs. Fibre is 17.4 grams. 60.7 grams of carbs. Fibre is 17.4 grams, doing a lot of the work here. For legumes, the carbs look much better when fibre and protein are both backing them up.",
+      "narration": "60.7 grams of carbs. Fibre is 17.4 grams, helping with digestion and steadier meals.",
       "displayItems": [
         {
           "metricKey": "fibre_g",
           "text": "fibre at 17.4g",
-          "weightedScore": 12,
+          "weightedScore": 400,
           "scoringMode": "arrow_bands",
           "band": "↑↑↑",
           "dvPercent": null,
@@ -72,99 +87,130 @@
         {
           "metricKey": "glycemic_index",
           "text": "glycemic index at 28 GI",
-          "weightedScore": 8,
+          "weightedScore": 320,
           "scoringMode": "arrow_bands",
           "band": "↓↓",
           "dvPercent": null,
           "value": 28
         },
         {
-          "metricKey": "sugar_g",
-          "text": "sugar at 10.7g",
-          "weightedScore": -4,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑",
-          "dvPercent": null,
-          "value": 10.7
-        },
-        {
           "metricKey": "starch_g",
           "text": "starch at 32g",
-          "weightedScore": 1,
+          "weightedScore": 60,
           "scoringMode": "arrow_bands",
           "band": "↑",
           "dvPercent": null,
           "value": 32
+        },
+        {
+          "metricKey": "sugar_g",
+          "text": "sugar at 10.7g",
+          "weightedScore": 40,
+          "scoringMode": "arrow_bands",
+          "band": "↑↑",
+          "dvPercent": null,
+          "value": 10.7
         }
       ],
-      "subtitleText": "60.7g of carbs. Fibre is 17.4g. 60.7g of carbs. Fibre is 17.4g, doing a lot of the work here. For legumes, the carbs look much better when fibre and protein are both backing them up.",
+      "subtitleText": "60.7g of carbs. Fibre is 17.4g, helping with digestion and steadier meals.",
       "timingHint": "short-medium",
-      "score": 75.8
+      "score": 74.5
     },
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "Essential amino acids score is 5 out of 9. 19.3 grams of protein. Bioavailability and amino acid quality are both strong. Protein support is a big part of what makes legumes worth it.",
+      "narration": "19.3 grams of protein. Essential amino acids score is 5 out of 9, with 55% bioavailability, making the protein useful for repair and maintenance.",
       "displayItems": [
         {
           "metricKey": "essential_amino_acids_score",
           "text": "essential amino acids score at 5/9",
-          "weightedScore": 3,
-          "scoringMode": "arrow_bands",
-          "band": "↑",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
           "dvPercent": null,
-          "value": 5
-        },
-        {
-          "metricKey": "nonessential_amino_acids_score",
-          "text": "nonessential amino acids score at 7/11",
-          "weightedScore": 2,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑",
-          "dvPercent": null,
-          "value": 7
+          "value": 5,
+          "referenceOnly": true
         },
         {
           "metricKey": "bioavailability_percent",
           "text": "bioavailability at 55%",
-          "weightedScore": 2,
-          "scoringMode": "arrow_bands",
-          "band": "↑",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
           "dvPercent": null,
-          "value": 55
+          "value": 55,
+          "referenceOnly": true
+        },
+        {
+          "metricKey": "nonessential_amino_acids_score",
+          "text": "nonessential amino acids score at 7/11",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
+          "dvPercent": null,
+          "value": 7,
+          "referenceOnly": true
         }
       ],
-      "subtitleText": "Essential amino acids score is 5/9. 19.3g of protein. Bioavailability and amino acid quality are both strong. Protein support is a big part of what makes legumes worth it.",
+      "subtitleText": "19.3g of protein. Essential amino acids score is 5/9, with 55% bioavailability, making the protein useful for repair and maintenance.",
       "timingHint": "short-medium",
-      "score": 69.4
+      "score": 100
     },
     {
       "key": "vitamins",
       "title": "Vitamins",
-      "narration": "Everything else here is pretty flat.",
-      "displayItems": [],
-      "subtitleText": "Everything else here is pretty flat.",
+      "narration": "Vitamin C is 7% daily value, useful for collagen formation and antioxidant support. Vitamin E is only 4% daily value, a weak mark for legumes.",
+      "displayItems": [
+        {
+          "metricKey": "vitamin_c_dv",
+          "text": "vitamin C at 7% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 7,
+          "value": null
+        },
+        {
+          "metricKey": "vitamin_e_dv",
+          "text": "vitamin E at 4% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 4,
+          "value": null
+        }
+      ],
+      "subtitleText": "Vitamin C is 7% DV, useful for collagen formation and antioxidant support. Vitamin E is only 4% DV, a weak mark for legumes.",
       "timingHint": "short-medium",
-      "score": null
+      "score": 0
     },
     {
       "key": "minerals",
       "title": "Minerals",
-      "narration": "Iron at 34% daily value, magnesium at 29% daily value, zinc at 27% daily value stand out most. Useful, but still not a major mineral edge.",
+      "narration": "Iron is 34% daily value, useful for oxygen transport. Potassium is 25% daily value, a weak mark for legumes.",
       "displayItems": [
         {
           "metricKey": "iron_dv",
           "text": "iron at 34% DV",
-          "weightedScore": 6,
+          "weightedScore": 60,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 34,
           "value": null
         },
         {
+          "metricKey": "potassium_dv",
+          "text": "potassium at 25% DV",
+          "weightedScore": 20,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 25,
+          "value": null
+        },
+        {
           "metricKey": "magnesium_dv",
           "text": "magnesium at 29% DV",
-          "weightedScore": 4,
+          "weightedScore": 40,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 29,
@@ -173,109 +219,166 @@
         {
           "metricKey": "zinc_dv",
           "text": "zinc at 27% DV",
-          "weightedScore": 2,
+          "weightedScore": 20,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 27,
           "value": null
-        },
-        {
-          "metricKey": "potassium_dv",
-          "text": "potassium at 25% DV",
-          "weightedScore": 2,
-          "scoringMode": "dv_points",
-          "band": null,
-          "dvPercent": 25,
-          "value": null
         }
       ],
-      "subtitleText": "Iron at 34% daily value, magnesium at 29% daily value, zinc at 27% daily value stand out most. Useful, but still not a major mineral edge.",
+      "subtitleText": "Iron is 34% DV, useful for oxygen transport. Potassium is 25% DV, a weak mark for legumes.",
       "timingHint": "short-medium",
       "score": 23.3
     },
     {
       "key": "pros",
       "title": "Pros",
-      "narration": "On the plus side: strong all-round legume profile. Fibre, minerals, and useful protein all show up well enough to make it a very solid category food. Easy to use across lots of meals. Works in bowls, curries, salads, hummus, and snacks. Pretty filling and steady. Useful as a practical staple rather than just a niche health food.",
+      "narration": "The upsides first: strong all-round legume profile. Fibre, minerals, and useful protein all show up well enough to make it a very solid category food. Easy to use across lots of meals. Works in bowls, curries, salads, hummus, and snacks. Pretty filling and steady. Useful as a practical staple rather than just a niche health food.",
       "displayItems": [
         {
           "type": "pro",
           "title": "strong all-round legume profile",
           "explanation": "Fibre, minerals, and useful protein all show up well enough to make it a very solid category food.",
           "impactLevel": "major",
-          "scoreValue": 3
+          "resolvedScoreValue": 100
         },
         {
           "type": "pro",
           "title": "easy to use across lots of meals",
           "explanation": "Works in bowls, curries, salads, hummus, and snacks.",
           "impactLevel": "minor",
-          "scoreValue": 0
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "pretty filling and steady",
           "explanation": "Useful as a practical staple rather than just a niche health food.",
           "impactLevel": "minor",
-          "scoreValue": 0
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "On the plus side: strong all-round legume profile. Fibre, minerals, and useful protein all show up well enough to make it a very solid category food. Easy to use across lots of meals. Works in bowls, curries, salads, hummus, and snacks. Pretty filling and steady. Useful as a practical staple rather than just a niche health food.",
+      "subtitleText": "The upsides first: strong all-round legume profile. Fibre, minerals, and useful protein all show up well enough to make it a very solid category food. Easy to use across lots of meals. Works in bowls, curries, salads, hummus, and snacks. Pretty filling and steady. Useful as a practical staple rather than just a niche health food.",
       "timingHint": "medium",
-      "score": 33.3
+      "score": 66.7
     },
     {
       "key": "cons",
       "title": "Cons",
-      "narration": "Now the downsides: sugar is a bit high for the category. Not a disaster, but it is less clean than the best legumes on this axis. Can be rough on some people digestively. Legume tolerance varies a lot. Contains some anti-nutrients. Phytates may reduce mineral uptake somewhat.",
+      "narration": "Cons next: sugar is a bit high for the category. Not a disaster, but it is less clean than the best legumes on this axis. Can be rough on some people digestively. Legume tolerance varies a lot. Contains some anti-nutrients. Phytates may reduce mineral uptake somewhat.",
       "displayItems": [
         {
           "type": "con",
           "title": "sugar is a bit high for the category",
           "explanation": "Not a disaster, but it is less clean than the best legumes on this axis.",
           "impactLevel": "minor",
-          "scoreValue": 0
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "can be rough on some people digestively",
           "explanation": "Legume tolerance varies a lot.",
           "impactLevel": "minor",
-          "scoreValue": 0
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "contains some anti-nutrients",
           "explanation": "Phytates may reduce mineral uptake somewhat.",
           "impactLevel": "minor",
-          "scoreValue": 0
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "Now the downsides: sugar is a bit high for the category. Not a disaster, but it is less clean than the best legumes on this axis. Can be rough on some people digestively. Legume tolerance varies a lot. Contains some anti-nutrients. Phytates may reduce mineral uptake somewhat.",
+      "subtitleText": "Cons next: sugar is a bit high for the category. Not a disaster, but it is less clean than the best legumes on this axis. Can be rough on some people digestively. Legume tolerance varies a lot. Contains some anti-nutrients. Phytates may reduce mineral uptake somewhat.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     }
   ],
   "closing": {
-    "summary": "Chickpeas has a genuinely strong overall case. the practical downsides are real, but they do not outweigh the upside. best when you want fibre, protein, and actual meal utility together.",
-    "finalReveal": "S tier.",
+    "summary": "Big strengths are omega 3 and protein, but the biggest weaknesses are sugar is a bit high for the category and rough on some people digestively.",
+    "overview": "Big strengths are omega 3 and protein, but the biggest weaknesses are sugar is a bit high for the category and rough on some people digestively.",
+    "finalReveal": "A tier.",
     "useCaseNote": "Best when you want fibre, protein, and actual meal utility together.",
     "cta": "Would you rank it the same, or nah?"
   },
-  "tier": "S",
-  "overallScore": 61,
+  "tier": "A",
+  "overallScore": 76.1,
+  "overallScoreExact": 76.1364,
+  "baseOverallScore": 55.4,
+  "baseOverallScoreExact": 55.4113,
+  "sectionOrder": [
+    "fats",
+    "carbs",
+    "proteins",
+    "vitamins",
+    "minerals",
+    "pros",
+    "cons"
+  ],
+  "narrationBlocks": [
+    {
+      "kind": "hook_food",
+      "text": "Chickpeas!"
+    },
+    {
+      "kind": "hook_ranked",
+      "text": "Ranked!"
+    },
+    {
+      "kind": "section",
+      "sectionKey": "fats",
+      "text": "6 grams of fat. Saturated fat is 0.6 grams, supporting a better fat profile."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "carbs",
+      "text": "60.7 grams of carbs. Fibre is 17.4 grams, helping with digestion and steadier meals."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "proteins",
+      "text": "19.3 grams of protein. Essential amino acids score is 5 out of 9, with 55% bioavailability, making the protein useful for repair and maintenance."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "vitamins",
+      "text": "Vitamin C is 7% daily value, useful for collagen formation and antioxidant support. Vitamin E is only 4% daily value, a weak mark for legumes."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "minerals",
+      "text": "Iron is 34% daily value, useful for oxygen transport. Potassium is 25% daily value, a weak mark for legumes."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "pros",
+      "text": "The upsides first: strong all-round legume profile. Fibre, minerals, and useful protein all show up well enough to make it a very solid category food. Easy to use across lots of meals. Works in bowls, curries, salads, hummus, and snacks. Pretty filling and steady. Useful as a practical staple rather than just a niche health food."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "cons",
+      "text": "Cons next: sugar is a bit high for the category. Not a disaster, but it is less clean than the best legumes on this axis. Can be rough on some people digestively. Legume tolerance varies a lot. Contains some anti-nutrients. Phytates may reduce mineral uptake somewhat."
+    },
+    {
+      "kind": "closing_summary",
+      "text": "Big strengths are omega 3 and protein, but the biggest weaknesses are sugar is a bit high for the category and rough on some people digestively."
+    },
+    {
+      "kind": "final_reveal",
+      "text": "A tier."
+    }
+  ],
   "explanation": {
-    "summary": "Fats are carrying this food most, while minerals are the biggest drag. It lands in S tier.",
-    "whyThisTier": "This food lands in S tier with an overall score of 61 from a base nutrition score of 58. Context lifted it by 3 points.",
+    "summary": "Proteins are carrying this food most, while vitamins are holding it back most. It lands in A tier.",
+    "whyThisTier": "This food lands in A tier with an overall score of 76.1. Section scores: fats 73.3, carbs 74.5, proteins 100, vitamins 0, minerals 23.3, pros 66.7, cons 50.",
     "strongestSection": {
-      "key": "fats",
-      "label": "Fats",
-      "score": 77.8
+      "key": "proteins",
+      "label": "Proteins",
+      "score": 100
     },
     "weakestSection": {
-      "key": "minerals",
-      "label": "Minerals",
-      "score": 23.3
+      "key": "vitamins",
+      "label": "Vitamins",
+      "score": 0
     },
     "topPros": [
       {
@@ -283,7 +386,21 @@
         "explanation": "Fibre, minerals, and useful protein all show up well enough to make it a very solid category food.",
         "impactLevel": "major",
         "side": "pro",
-        "resolvedScoreValue": 3
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "easy to use across lots of meals",
+        "explanation": "Works in bowls, curries, salads, hummus, and snacks.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "pretty filling and steady",
+        "explanation": "Useful as a practical staple rather than just a niche health food.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -292,28 +409,27 @@
         "explanation": "Not a disaster, but it is less clean than the best legumes on this axis.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "can be rough on some people digestively",
         "explanation": "Legume tolerance varies a lot.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "contains some anti-nutrients",
         "explanation": "Phytates may reduce mineral uptake somewhat.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
-      "Strongest section: Fats.",
-      "Weakest section: Minerals.",
-      "Context improved the final tier case by 3 points.",
-      "Final verdict: S tier."
+      "Strongest section: Proteins.",
+      "Weakest section: Vitamins.",
+      "Final verdict: A tier."
     ]
   }
 }

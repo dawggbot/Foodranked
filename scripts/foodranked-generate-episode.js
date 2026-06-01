@@ -766,6 +766,8 @@ function buildManifest({ food, rulesetPath, foodPath, score, script, template, s
     scoreSnapshot: {
       overallScore: score.overallScore,
       overallScoreExact: score.overallScoreExact ?? score.overallScore,
+      baseOverallScore: score.baseOverallScore ?? null,
+      baseOverallScoreExact: score.baseOverallScoreExact ?? null,
       tier: score.tier,
       sectionScores: score.sectionScores,
       strongestSection: score.explanation?.strongestSection || null,

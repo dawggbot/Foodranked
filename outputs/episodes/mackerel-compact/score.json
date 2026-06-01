@@ -7,7 +7,11 @@
   },
   "ruleset": {
     "id": "meats.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 205,
@@ -16,36 +20,32 @@
     "protein_g": 18.6
   },
   "sectionScores": {
-    "fats": 77.8,
+    "fats": 82.2,
     "carbs": null,
-    "proteins": 88.9,
-    "vitamins": 96.7,
-    "minerals": null,
-    "pros": 0,
-    "cons": 0
+    "proteins": 60,
+    "vitamins": 96,
+    "minerals": 0,
+    "pros": 50,
+    "cons": 50
   },
-  "baseScore": 79,
-  "contextAdjustment": {
-    "rawAdjustment": 0,
-    "appliedAdjustment": 0,
-    "appliedItems": [],
-    "ignoredItems": []
-  },
-  "overallScore": 79,
-  "tier": "A",
-  "summary": "Vitamins are carrying this food most, while fats are the biggest drag. It lands in A tier.",
+  "overallScore": 80.1,
+  "overallScoreExact": 80.1433,
+  "baseOverallScore": 56.4,
+  "baseOverallScoreExact": 56.3704,
+  "tier": "S",
+  "summary": "Vitamins are carrying this food most, while minerals are holding it back most. It lands in S tier.",
   "explanation": {
-    "summary": "Vitamins are carrying this food most, while fats are the biggest drag. It lands in A tier.",
-    "whyThisTier": "This food lands in A tier with an overall score of 79 from a base nutrition score of 79. Context barely changed the result.",
+    "summary": "Vitamins are carrying this food most, while minerals are holding it back most. It lands in S tier.",
+    "whyThisTier": "This food lands in S tier with an overall score of 80.1. Section scores: fats 82.2, proteins 60, vitamins 96, minerals 0, pros 50, cons 50.",
     "strongestSection": {
       "key": "vitamins",
       "label": "Vitamins",
-      "score": 96.7
+      "score": 96
     },
     "weakestSection": {
-      "key": "fats",
-      "label": "Fats",
-      "score": 77.8
+      "key": "minerals",
+      "label": "Minerals",
+      "score": 0
     },
     "topPros": [
       {
@@ -53,21 +53,21 @@
         "explanation": "Practical meal value matters.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "gives a straightforward protein solution",
         "explanation": "The category often wins on simplicity and reliability.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "complete protein delivery is reliable",
         "explanation": "The category is supposed to do this well.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -76,27 +76,27 @@
         "explanation": "A good raw profile can still be cooked into a worse result.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "fat quality can go sideways fast",
         "explanation": "Some meats are strong until the fat profile shows up.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "cost and storage can be a pain",
         "explanation": "Practical downsides still count.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
       "Strongest section: Vitamins.",
-      "Weakest section: Fats.",
-      "Final verdict: A tier."
+      "Weakest section: Minerals.",
+      "Final verdict: S tier."
     ]
   },
   "contextItems": {
@@ -104,52 +104,58 @@
       {
         "itemKey": "meat_practicality",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "easy to centre a meal around",
         "explanation": "Practical meal value matters.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "meat_simple_high_protein",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "gives a straightforward protein solution",
         "explanation": "The category often wins on simplicity and reliability.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "meat_complete_protein",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "complete protein delivery is reliable",
         "explanation": "The category is supposed to do this well.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "cons": [
       {
         "itemKey": "meat_cooking_dependency",
         "impactLevel": "minor",
-        "scoreValue": -1,
         "title": "the outcome depends heavily on preparation",
         "explanation": "A good raw profile can still be cooked into a worse result.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "meat_saturated_fat_risk",
         "impactLevel": "minor",
-        "scoreValue": -1,
         "title": "fat quality can go sideways fast",
         "explanation": "Some meats are strong until the fat profile shows up.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "meat_cost_or_storage",
         "impactLevel": "minor",
-        "scoreValue": -1,
         "title": "cost and storage can be a pain",
         "explanation": "Practical downsides still count.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       }
     ]
   },
@@ -159,80 +165,40 @@
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 3.3,
-      "band": "↓",
-      "score": 1,
-      "weight": 2,
-      "weightedScore": 2
+      "band": "1_green",
+      "score": 60,
+      "weight": 3,
+      "weightedScore": 180
     },
     {
       "metricKey": "omega3_mg",
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 2600,
-      "band": "↑↑↑",
-      "score": 3,
-      "weight": 1,
-      "weightedScore": 3
+      "band": "3_green",
+      "score": 100,
+      "weight": 3,
+      "weightedScore": 300
     },
     {
       "metricKey": "polyunsaturated_fat_g",
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 5.1,
-      "band": "↑↑↑",
-      "score": 3,
+      "band": "3_green",
+      "score": 100,
       "weight": 1,
-      "weightedScore": 3
+      "weightedScore": 100
     },
     {
       "metricKey": "cholesterol_mg",
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 70,
-      "band": "↓",
-      "score": 1,
+      "band": "2_green",
+      "score": 80,
       "weight": 2,
-      "weightedScore": 2
-    },
-    {
-      "metricKey": "collagen_g",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 0.8,
-      "band": "↓↓↓",
-      "score": -3,
-      "weight": 1,
-      "weightedScore": -3
-    },
-    {
-      "metricKey": "essential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 9,
-      "band": "↑↑↑",
-      "score": 3,
-      "weight": 3,
-      "weightedScore": 9
-    },
-    {
-      "metricKey": "nonessential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 11,
-      "band": "↑↑↑",
-      "score": 3,
-      "weight": 2,
-      "weightedScore": 6
-    },
-    {
-      "metricKey": "bioavailability_percent",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 95,
-      "band": "↑↑↑",
-      "score": 3,
-      "weight": 3,
-      "weightedScore": 9
+      "weightedScore": 160
     },
     {
       "metricKey": "vitamin_b12_dv",
@@ -240,8 +206,9 @@
       "scoringMode": "dv_points",
       "dvPercent": 300,
       "points": 10,
-      "weight": 2,
-      "weightedScore": 20
+      "score": 100,
+      "weight": 3,
+      "weightedScore": 300
     },
     {
       "metricKey": "vitamin_d_dv",
@@ -249,8 +216,50 @@
       "scoringMode": "dv_points",
       "dvPercent": 90,
       "points": 9,
-      "weight": 1,
-      "weightedScore": 9
+      "score": 90,
+      "weight": 2,
+      "weightedScore": 180
+    },
+    {
+      "metricKey": "iron_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 9,
+      "points": 0,
+      "score": 0,
+      "weight": 3,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "zinc_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 6,
+      "points": 0,
+      "score": 0,
+      "weight": 3,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "potassium_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 9,
+      "points": 0,
+      "score": 0,
+      "weight": 2,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "protein_g_fallback",
+      "sectionKey": "proteins",
+      "scoringMode": "protein_fallback",
+      "value": 18.6,
+      "band": "1_green",
+      "score": 60,
+      "weight": 4,
+      "weightedScore": 240,
+      "fallbackApplied": true
     }
   ]
 }

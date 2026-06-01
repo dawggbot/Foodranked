@@ -1,13 +1,29 @@
 {
   "status": "ok",
+  "schemaVersion": "foodranked-script.v2",
+  "narrationFormat": "elevenlabs-blocks-v1",
   "food": {
     "id": "raw-honey",
     "name": "Raw Honey",
-    "foodType": "misc"
+    "foodType": "misc",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "identity": null,
+    "scoreReadiness": null,
+    "sourceNotes": [
+      "Calibration benchmark sample for FoodRanked.",
+      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
+    ]
   },
   "ruleset": {
     "id": "misc.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 304,
@@ -16,7 +32,6 @@
     "protein_g": 0.3
   },
   "hook": "Raw Honey ranked.",
-  "intro": "",
   "sections": [
     {
       "key": "fats",
@@ -39,9 +54,9 @@
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "No real protein story here.",
+      "narration": "0.3 grams of protein. No defensible protein submacros to call out. No real protein story here.",
       "displayItems": [],
-      "subtitleText": "No real protein story here.",
+      "subtitleText": "0.3g of protein. No defensible protein submacros to call out. No real protein story here.",
       "timingHint": "short-medium",
       "score": null
     },
@@ -49,50 +64,115 @@
       "key": "vitamins",
       "title": "Vitamins",
       "narration": "No real vitamin story here.",
-      "displayItems": [],
+      "displayItems": [
+        {
+          "metricKey": "vitamin_c_dv",
+          "text": "vitamin C at 0% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
+        },
+        {
+          "metricKey": "vitamin_e_dv",
+          "text": "vitamin E at 0% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
+        },
+        {
+          "metricKey": "vitamin_k_dv",
+          "text": "vitamin K at 0% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
+        }
+      ],
       "subtitleText": "No real vitamin story here.",
       "timingHint": "short-medium",
-      "score": null
+      "score": 0
     },
     {
       "key": "minerals",
       "title": "Minerals",
       "narration": "No real mineral story here.",
-      "displayItems": [],
+      "displayItems": [
+        {
+          "metricKey": "iron_dv",
+          "text": "iron at 2% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 2,
+          "value": null
+        },
+        {
+          "metricKey": "magnesium_dv",
+          "text": "magnesium at 1% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 1,
+          "value": null
+        },
+        {
+          "metricKey": "potassium_dv",
+          "text": "potassium at 1% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 1,
+          "value": null
+        },
+        {
+          "metricKey": "zinc_dv",
+          "text": "zinc at 1% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 1,
+          "value": null
+        }
+      ],
       "subtitleText": "No real mineral story here.",
       "timingHint": "short-medium",
-      "score": null
+      "score": 0
     },
     {
       "key": "pros",
       "title": "Pros",
-      "narration": "The upsides first: strong traditional identity. Tests whether raw honey scores above processed honey via context. Less processed than commercial honey. Should separate it meaningfully in misc. Very familiar use case. Practical relevance.",
+      "narration": "Positives first: strong traditional identity. Tests whether raw honey scores above processed honey via context. Less processed than commercial honey. Should separate it meaningfully in misc. Very familiar use case. Practical relevance.",
       "displayItems": [
         {
           "type": "pro",
           "title": "strong traditional identity",
           "explanation": "Tests whether raw honey scores above processed honey via context.",
           "impactLevel": "major",
-          "scoreValue": 8
+          "resolvedScoreValue": 100
         },
         {
           "type": "pro",
           "title": "less processed than commercial honey",
           "explanation": "Should separate it meaningfully in misc.",
           "impactLevel": "major",
-          "scoreValue": 8
+          "resolvedScoreValue": 100
         },
         {
           "type": "pro",
           "title": "very familiar use case",
           "explanation": "Practical relevance.",
           "impactLevel": "minor",
-          "scoreValue": 0
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "The upsides first: strong traditional identity. Tests whether raw honey scores above processed honey via context. Less processed than commercial honey. Should separate it meaningfully in misc. Very familiar use case. Practical relevance.",
+      "subtitleText": "Positives first: strong traditional identity. Tests whether raw honey scores above processed honey via context. Less processed than commercial honey. Should separate it meaningfully in misc. Very familiar use case. Practical relevance.",
       "timingHint": "medium",
-      "score": 100
+      "score": 83.3
     },
     {
       "key": "cons",
@@ -104,55 +184,136 @@
           "title": "still mostly concentrated sugar",
           "explanation": "This remains the main downside.",
           "impactLevel": "major",
-          "scoreValue": -8
+          "resolvedScoreValue": 100
         },
         {
           "type": "con",
           "title": "overall payoff is still limited",
           "explanation": "Better than processed honey, not magically elite.",
           "impactLevel": "major",
-          "scoreValue": -8
+          "resolvedScoreValue": 100
         },
         {
           "type": "con",
           "title": "easy to overuse",
           "explanation": "Practical downside.",
           "impactLevel": "minor",
-          "scoreValue": 0
+          "resolvedScoreValue": 50
         }
       ],
       "subtitleText": "The drawbacks next: still mostly concentrated sugar. This remains the main downside. Overall payoff is still limited. Better than processed honey, not magically elite. Easy to overuse. Practical downside.",
       "timingHint": "medium",
-      "score": 100
+      "score": 16.7
     }
   ],
   "closing": {
-    "summary": "Raw Honey does have some solid upside. but the tradeoffs keep it from climbing higher. best treated as a context item rather than a nutritional cornerstone.",
+    "summary": "Big strengths are strong traditional identity and less processed than commercial honey, but the biggest weaknesses are still mostly concentrated sugar and overall payoff is still limited.",
+    "overview": "Big strengths are strong traditional identity and less processed than commercial honey, but the biggest weaknesses are still mostly concentrated sugar and overall payoff is still limited.",
     "finalReveal": "B tier.",
     "useCaseNote": "Best treated as a context item rather than a nutritional cornerstone.",
     "cta": "Would you rank it the same, or nah?"
   },
   "tier": "B",
-  "overallScore": 8,
+  "overallScore": 44.3,
+  "overallScoreExact": 44.2552,
+  "baseOverallScore": 25,
+  "baseOverallScoreExact": 25,
+  "sectionOrder": [
+    "fats",
+    "carbs",
+    "proteins",
+    "vitamins",
+    "minerals",
+    "pros",
+    "cons"
+  ],
+  "narrationBlocks": [
+    {
+      "kind": "hook_food",
+      "text": "Raw Honey!"
+    },
+    {
+      "kind": "hook_ranked",
+      "text": "Ranked!"
+    },
+    {
+      "kind": "section",
+      "sectionKey": "fats",
+      "text": "Simple one."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "carbs",
+      "text": "82.4 grams of carbs. And that is basically the whole nutrition story."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "proteins",
+      "text": "0.3 grams of protein. No defensible protein submacros to call out. No real protein story here."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "vitamins",
+      "text": "No real vitamin story here."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "minerals",
+      "text": "No real mineral story here."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "pros",
+      "text": "Positives first: strong traditional identity. Tests whether raw honey scores above processed honey via context. Less processed than commercial honey. Should separate it meaningfully in misc. Very familiar use case. Practical relevance."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "cons",
+      "text": "The drawbacks next: still mostly concentrated sugar. This remains the main downside. Overall payoff is still limited. Better than processed honey, not magically elite. Easy to overuse. Practical downside."
+    },
+    {
+      "kind": "closing_summary",
+      "text": "Big strengths are strong traditional identity and less processed than commercial honey, but the biggest weaknesses are still mostly concentrated sugar and overall payoff is still limited."
+    },
+    {
+      "kind": "final_reveal",
+      "text": "B tier."
+    }
+  ],
   "explanation": {
-    "summary": "This food is being judged mostly by contextual strengths and weaknesses rather than nutrient sections. It lands in B tier.",
-    "whyThisTier": "This food lands in B tier with an overall score of 8 from a base nutrition score of 0. Context lifted it by 8 points.",
-    "strongestSection": null,
-    "weakestSection": null,
+    "summary": "Pros are carrying this food most, while minerals are holding it back most. It lands in B tier.",
+    "whyThisTier": "This food lands in B tier with an overall score of 44.3. Section scores: vitamins 0, minerals 0, pros 83.3, cons 16.7.",
+    "strongestSection": {
+      "key": "pros",
+      "label": "Pros",
+      "score": 83.3
+    },
+    "weakestSection": {
+      "key": "minerals",
+      "label": "Minerals",
+      "score": 0
+    },
     "topPros": [
       {
         "title": "strong traditional identity",
         "explanation": "Tests whether raw honey scores above processed honey via context.",
         "impactLevel": "major",
         "side": "pro",
-        "resolvedScoreValue": 8
+        "resolvedScoreValue": 100
       },
       {
         "title": "less processed than commercial honey",
         "explanation": "Should separate it meaningfully in misc.",
         "impactLevel": "major",
         "side": "pro",
-        "resolvedScoreValue": 8
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "very familiar use case",
+        "explanation": "Practical relevance.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -161,11 +322,26 @@
         "explanation": "This remains the main downside.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -8
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "overall payoff is still limited",
+        "explanation": "Better than processed honey, not magically elite.",
+        "impactLevel": "major",
+        "side": "con",
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "easy to overuse",
+        "explanation": "Practical downside.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
-      "Context improved the final tier case by 8 points.",
+      "Strongest section: Pros.",
+      "Weakest section: Minerals.",
       "Final verdict: B tier."
     ]
   }

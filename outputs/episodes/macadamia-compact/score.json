@@ -7,7 +7,11 @@
   },
   "ruleset": {
     "id": "nuts.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 718,
@@ -16,36 +20,32 @@
     "protein_g": 7.9
   },
   "sectionScores": {
-    "fats": 16.7,
-    "carbs": 73.3,
-    "proteins": 40,
-    "vitamins": null,
+    "fats": 23.6,
+    "carbs": 64.3,
+    "proteins": 0,
+    "vitamins": 0,
     "minerals": 21.7,
-    "pros": 0,
-    "cons": 0
+    "pros": 50,
+    "cons": 50
   },
-  "baseScore": 29,
-  "contextAdjustment": {
-    "rawAdjustment": 0,
-    "appliedAdjustment": 0,
-    "appliedItems": [],
-    "ignoredItems": []
-  },
-  "overallScore": 29,
-  "tier": "D",
-  "summary": "Carbs are carrying this food most, while fats are the biggest drag. It lands in D tier.",
+  "overallScore": 20.4,
+  "overallScoreExact": 20.4382,
+  "baseOverallScore": 29.9,
+  "baseOverallScoreExact": 29.9412,
+  "tier": "C",
+  "summary": "Carbs are carrying this food most, while vitamins are holding it back most. It lands in C tier.",
   "explanation": {
-    "summary": "Carbs are carrying this food most, while fats are the biggest drag. It lands in D tier.",
-    "whyThisTier": "This food lands in D tier with an overall score of 29 from a base nutrition score of 29. Context barely changed the result.",
+    "summary": "Carbs are carrying this food most, while vitamins are holding it back most. It lands in C tier.",
+    "whyThisTier": "This food lands in C tier with an overall score of 20.4. Section scores: fats 23.6, carbs 64.3, proteins 0, vitamins 0, minerals 21.7, pros 50, cons 50.",
     "strongestSection": {
       "key": "carbs",
       "label": "Carbs",
-      "score": 73.3
+      "score": 64.3
     },
     "weakestSection": {
-      "key": "fats",
-      "label": "Fats",
-      "score": 16.7
+      "key": "vitamins",
+      "label": "Vitamins",
+      "score": 0
     },
     "topPros": [
       {
@@ -53,21 +53,21 @@
         "explanation": "That real-world swap value counts.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "texture helps them feel satisfying",
         "explanation": "That can make moderation easier than with softer snack foods.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "still a recognisable whole-food option",
         "explanation": "That keeps them cleaner than most processed snacks.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -76,27 +76,27 @@
         "explanation": "Nuts help, but they are not protein stars.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "calorie density is very high",
         "explanation": "That makes portion control a real issue.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "cost or allergy issues can limit use",
         "explanation": "Practical downsides still count.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
       "Strongest section: Carbs.",
-      "Weakest section: Fats.",
-      "Final verdict: D tier."
+      "Weakest section: Vitamins.",
+      "Final verdict: C tier."
     ]
   },
   "contextItems": {
@@ -104,52 +104,58 @@
       {
         "itemKey": "nuts_snack_resilience",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "holds up as a better snack default than most packaged options",
         "explanation": "That real-world swap value counts.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "nuts_texture_satisfaction",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "texture helps them feel satisfying",
         "explanation": "That can make moderation easier than with softer snack foods.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "nut_whole_food_identity",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "still a recognisable whole-food option",
         "explanation": "That keeps them cleaner than most processed snacks.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "cons": [
       {
         "itemKey": "nut_protein_limit",
         "impactLevel": "minor",
-        "scoreValue": -1,
         "title": "protein is useful but not elite",
         "explanation": "Nuts help, but they are not protein stars.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "nut_calorie_density",
         "impactLevel": "minor",
-        "scoreValue": -1,
         "title": "calorie density is very high",
         "explanation": "That makes portion control a real issue.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "nut_cost_or_allergy",
         "impactLevel": "minor",
-        "scoreValue": -1,
         "title": "cost or allergy issues can limit use",
         "explanation": "Practical downsides still count.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       }
     ]
   },
@@ -159,90 +165,80 @@
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 12.1,
-      "band": "↑↑",
-      "score": -2,
-      "weight": 2,
-      "weightedScore": -4
+      "band": "2_red",
+      "score": 20,
+      "weight": 3,
+      "weightedScore": 60
     },
     {
       "metricKey": "omega3_mg",
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 200,
-      "band": "↓",
-      "score": -1,
-      "weight": 2,
-      "weightedScore": -2
+      "band": "1_red",
+      "score": 40,
+      "weight": 5,
+      "weightedScore": 200
     },
     {
       "metricKey": "polyunsaturated_fat_g",
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 1.5,
-      "band": "↓↓↓",
-      "score": -3,
-      "weight": 2,
-      "weightedScore": -6
+      "band": "3_red",
+      "score": 0,
+      "weight": 3,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "starch_g",
+      "sectionKey": "carbs",
+      "scoringMode": "arrow_bands",
+      "value": 0,
+      "band": "3_red",
+      "score": 0,
+      "weight": 0.5,
+      "weightedScore": 0
     },
     {
       "metricKey": "fibre_g",
       "sectionKey": "carbs",
       "scoringMode": "arrow_bands",
       "value": 8.6,
-      "band": "↑",
-      "score": 1,
-      "weight": 2,
-      "weightedScore": 2
+      "band": "1_green",
+      "score": 60,
+      "weight": 3,
+      "weightedScore": 180
     },
     {
       "metricKey": "sugar_g",
       "sectionKey": "carbs",
       "scoringMode": "arrow_bands",
       "value": 4.6,
-      "band": "↓",
-      "score": 1,
+      "band": "1_green",
+      "score": 60,
       "weight": 2,
-      "weightedScore": 2
+      "weightedScore": 120
     },
     {
       "metricKey": "glycemic_index",
       "sectionKey": "carbs",
       "scoringMode": "arrow_bands",
       "value": 10,
-      "band": "↓↓↓",
-      "score": 3,
-      "weight": 1,
-      "weightedScore": 3
+      "band": "3_green",
+      "score": 100,
+      "weight": 1.5,
+      "weightedScore": 150
     },
     {
-      "metricKey": "essential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 3,
-      "band": "↓↓",
-      "score": -2,
+      "metricKey": "vitamin_e_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 4,
+      "points": 0,
+      "score": 0,
       "weight": 2,
-      "weightedScore": -4
-    },
-    {
-      "metricKey": "nonessential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 5,
-      "band": "↓",
-      "score": -1,
-      "weight": 1,
-      "weightedScore": -1
-    },
-    {
-      "metricKey": "bioavailability_percent",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 65,
-      "band": "↑",
-      "score": 1,
-      "weight": 2,
-      "weightedScore": 2
+      "weightedScore": 0
     },
     {
       "metricKey": "magnesium_dv",
@@ -250,8 +246,9 @@
       "scoringMode": "dv_points",
       "dvPercent": 31,
       "points": 3,
+      "score": 30,
       "weight": 3,
-      "weightedScore": 9
+      "weightedScore": 90
     },
     {
       "metricKey": "zinc_dv",
@@ -259,8 +256,9 @@
       "scoringMode": "dv_points",
       "dvPercent": 13,
       "points": 1,
+      "score": 10,
       "weight": 2,
-      "weightedScore": 2
+      "weightedScore": 20
     },
     {
       "metricKey": "iron_dv",
@@ -268,8 +266,20 @@
       "scoringMode": "dv_points",
       "dvPercent": 20,
       "points": 2,
+      "score": 20,
       "weight": 1,
-      "weightedScore": 2
+      "weightedScore": 20
+    },
+    {
+      "metricKey": "protein_g_fallback",
+      "sectionKey": "proteins",
+      "scoringMode": "protein_fallback",
+      "value": 7.9,
+      "band": "3_red",
+      "score": 0,
+      "weight": 2,
+      "weightedScore": 0,
+      "fallbackApplied": true
     }
   ]
 }

@@ -7,7 +7,11 @@
   },
   "ruleset": {
     "id": "fruits.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 47,
@@ -17,50 +21,53 @@
   },
   "sectionScores": {
     "fats": 100,
-    "carbs": 51.3,
-    "proteins": 33.3,
-    "vitamins": 50,
+    "carbs": 55.7,
+    "proteins": null,
+    "vitamins": 40,
     "minerals": 0,
-    "pros": 33.3,
-    "cons": 0
+    "pros": 66.7,
+    "cons": 50
   },
-  "baseScore": 42,
-  "contextAdjustment": {
-    "rawAdjustment": 3,
-    "appliedAdjustment": 3,
-    "appliedItems": [
-      {
-        "itemKey": "vitamin_c_signature",
-        "impactLevel": "major",
-        "scoreValue": 2,
-        "title": "vitamin C reputation is a real strength",
-        "explanation": "This is one of the clearest viewer-recognisable wins in the fruit category.",
-        "evidenceType": "manual",
-        "side": "pro",
-        "resolvedScoreValue": 3
-      }
-    ],
-    "ignoredItems": []
-  },
-  "overallScore": 45,
+  "overallScore": 77.4,
+  "overallScoreExact": 77.4033,
+  "baseOverallScore": 52.1,
+  "baseOverallScoreExact": 52.0635,
   "tier": "A",
-  "summary": "Fats are carrying this food most, while minerals are the biggest drag. It lands in A tier.",
+  "summary": "Fats are carrying this food most, while minerals are holding it back most. It lands in A tier.",
   "explanation": {
-    "summary": "Fats are carrying this food most, while minerals are the biggest drag. It lands in A tier.",
-    "whyThisTier": "This food lands in A tier with an overall score of 45 from a base nutrition score of 42. Context lifted it by 3 points.",
+    "summary": "Fats are carrying this food most, while minerals are holding it back most. It lands in A tier.",
+    "whyThisTier": "This food lands in A tier with an overall score of 77.4. Section scores: fats 100, carbs 55.7, vitamins 40, minerals 0, pros 66.7, cons 50.",
     "strongestSection": {
       "key": "fats",
       "label": "Fats",
       "score": 100
     },
-    "weakestSection": null,
+    "weakestSection": {
+      "key": "minerals",
+      "label": "Minerals",
+      "score": 0
+    },
     "topPros": [
       {
         "title": "vitamin C reputation is a real strength",
         "explanation": "This is one of the clearest viewer-recognisable wins in the fruit category.",
         "impactLevel": "major",
         "side": "pro",
-        "resolvedScoreValue": 3
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "brings a clean fruit identity",
+        "explanation": "It still contributes something valuable even when it is not elite.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "ingredient simplicity is hard to argue with",
+        "explanation": "Whole-fruit clarity is part of the category appeal.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -69,26 +76,26 @@
         "explanation": "That can blur the line between light and sugar-heavy portions.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "satiety is not especially strong",
         "explanation": "Fruit often needs help from the rest of the meal.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "protein contribution is tiny",
         "explanation": "That is normal for fruit, but it still limits nutritional breadth.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
       "Strongest section: Fats.",
-      "Context improved the final tier case by 3 points.",
+      "Weakest section: Minerals.",
       "Final verdict: A tier."
     ]
   },
@@ -97,52 +104,58 @@
       {
         "itemKey": "vitamin_c_signature",
         "impactLevel": "major",
-        "scoreValue": 2,
         "title": "vitamin C reputation is a real strength",
         "explanation": "This is one of the clearest viewer-recognisable wins in the fruit category.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 100
       },
       {
         "itemKey": "antioxidant_identity",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "brings a clean fruit identity",
         "explanation": "It still contributes something valuable even when it is not elite.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "fruit_simple_ingredient_story",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "ingredient simplicity is hard to argue with",
         "explanation": "Whole-fruit clarity is part of the category appeal.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "cons": [
       {
         "itemKey": "fruit_portion_speed",
         "impactLevel": "minor",
-        "scoreValue": -1,
         "title": "easy to eat quickly when it is very sweet",
         "explanation": "That can blur the line between light and sugar-heavy portions.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "fruit_satiety_limit",
         "impactLevel": "minor",
-        "scoreValue": -1,
         "title": "satiety is not especially strong",
         "explanation": "Fruit often needs help from the rest of the meal.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "fruit_low_protein",
         "impactLevel": "minor",
-        "scoreValue": -1,
         "title": "protein contribution is tiny",
         "explanation": "That is normal for fruit, but it still limits nutritional breadth.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       }
     ]
   },
@@ -152,90 +165,100 @@
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 0,
-      "band": "↓↓↓",
-      "score": 3,
+      "band": "3_green",
+      "score": 100,
       "weight": 1,
-      "weightedScore": 3
+      "weightedScore": 100
     },
     {
       "metricKey": "omega3_mg",
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 20,
-      "band": "↑↑↑",
-      "score": 3,
-      "weight": 1,
-      "weightedScore": 3
+      "band": "3_green",
+      "score": 100,
+      "weight": 0,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "polyunsaturated_fat_g",
+      "sectionKey": "fats",
+      "scoringMode": "arrow_bands",
+      "value": 0,
+      "band": "3_red",
+      "score": 0,
+      "weight": 0,
+      "weightedScore": 0
     },
     {
       "metricKey": "starch_g",
       "sectionKey": "carbs",
       "scoringMode": "arrow_bands",
       "value": 0.2,
-      "band": "↓↓↓",
-      "score": -3,
-      "weight": 1,
-      "weightedScore": -3
+      "band": "3_red",
+      "score": 0,
+      "weight": 0,
+      "weightedScore": 0
     },
     {
       "metricKey": "fibre_g",
       "sectionKey": "carbs",
       "scoringMode": "arrow_bands",
       "value": 2.4,
-      "band": "↓↓",
-      "score": -2,
+      "band": "2_red",
+      "score": 20,
       "weight": 4,
-      "weightedScore": -8
+      "weightedScore": 80
     },
     {
       "metricKey": "sugar_g",
       "sectionKey": "carbs",
       "scoringMode": "arrow_bands",
       "value": 9.4,
-      "band": "↓",
-      "score": 1,
-      "weight": 4,
-      "weightedScore": 4
+      "band": "1_green",
+      "score": 60,
+      "weight": 5,
+      "weightedScore": 300
     },
     {
       "metricKey": "glycemic_index",
       "sectionKey": "carbs",
       "scoringMode": "arrow_bands",
       "value": 43,
-      "band": "↓↓",
-      "score": 2,
-      "weight": 4,
-      "weightedScore": 8
+      "band": "2_green",
+      "score": 80,
+      "weight": 5,
+      "weightedScore": 400
     },
     {
       "metricKey": "essential_amino_acids_score",
       "sectionKey": "proteins",
       "scoringMode": "arrow_bands",
       "value": 1,
-      "band": "↓↓↓",
-      "score": -3,
-      "weight": 1,
-      "weightedScore": -3
+      "band": "3_red",
+      "score": 0,
+      "weight": 0,
+      "weightedScore": 0
     },
     {
       "metricKey": "nonessential_amino_acids_score",
       "sectionKey": "proteins",
       "scoringMode": "arrow_bands",
       "value": 1,
-      "band": "↓↓↓",
-      "score": -3,
-      "weight": 1,
-      "weightedScore": -3
+      "band": "3_red",
+      "score": 0,
+      "weight": 0,
+      "weightedScore": 0
     },
     {
       "metricKey": "bioavailability_percent",
       "sectionKey": "proteins",
       "scoringMode": "arrow_bands",
       "value": 30,
-      "band": "↑↑↑",
-      "score": 3,
-      "weight": 1,
-      "weightedScore": 3
+      "band": "3_green",
+      "score": 100,
+      "weight": 0,
+      "weightedScore": 0
     },
     {
       "metricKey": "vitamin_c_dv",
@@ -243,8 +266,19 @@
       "scoringMode": "dv_points",
       "dvPercent": 59,
       "points": 5,
-      "weight": 3,
-      "weightedScore": 15
+      "score": 50,
+      "weight": 4,
+      "weightedScore": 200
+    },
+    {
+      "metricKey": "vitamin_a_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 5,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
     },
     {
       "metricKey": "potassium_dv",
@@ -252,7 +286,28 @@
       "scoringMode": "dv_points",
       "dvPercent": 4,
       "points": 0,
+      "score": 0,
       "weight": 2,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "magnesium_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 2,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "iron_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 0,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
       "weightedScore": 0
     }
   ]

@@ -1,13 +1,29 @@
 {
   "status": "ok",
+  "schemaVersion": "foodranked-script.v2",
+  "narrationFormat": "elevenlabs-blocks-v1",
   "food": {
     "id": "brown-rice",
     "name": "Brown Rice",
-    "foodType": "grains"
+    "foodType": "grains",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "identity": null,
+    "scoreReadiness": null,
+    "sourceNotes": [
+      "Calibration benchmark sample for FoodRanked.",
+      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
+    ]
   },
   "ruleset": {
     "id": "grains.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 370,
@@ -16,248 +32,344 @@
     "protein_g": 7.9
   },
   "hook": "Brown Rice ranked.",
-  "intro": "",
   "sections": [
     {
       "key": "fats",
       "title": "Fats",
-      "narration": "2.9 grams of fat. Omega 3 is 26 milligrams, doing a lot of the work here. Fat is basically not the story here.",
+      "narration": "2.9 grams of fat. Saturated fat is 0.6 grams, supporting a better fat profile. Omega 3 is 26 milligrams, a weak mark for grains.",
       "displayItems": [
         {
           "metricKey": "saturated_fat_g",
           "text": "saturated fat at 0.6g",
-          "weightedScore": 3,
+          "weightedScore": 80,
           "scoringMode": "arrow_bands",
-          "band": "↓↓↓",
+          "band": "2_green",
           "dvPercent": null,
           "value": 0.6
         },
         {
           "metricKey": "omega3_mg",
           "text": "omega 3 at 26mg",
-          "weightedScore": 3,
+          "weightedScore": 20,
           "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
+          "band": "2_red",
           "dvPercent": null,
           "value": 26
         },
         {
           "metricKey": "polyunsaturated_fat_g",
           "text": "polyunsaturated fat at 1g",
-          "weightedScore": -3,
+          "weightedScore": 40,
           "scoringMode": "arrow_bands",
-          "band": "↓↓↓",
+          "band": "1_red",
           "dvPercent": null,
           "value": 1
         }
       ],
-      "subtitleText": "2.9g of fat. Omega 3 is 26mg, doing a lot of the work here. Fat is basically not the story here.",
+      "subtitleText": "2.9g of fat. Saturated fat is 0.6g, supporting a better fat profile. Omega 3 is 26mg, a weak mark for grains.",
       "timingHint": "short-medium",
-      "score": 66.7
+      "score": 46.7
     },
     {
       "key": "carbs",
       "title": "Carbs",
-      "narration": "77.2 grams of carbs. Glycemic index is 68 GI, where this starts to get messy. For grains, the carb quality matters much more than the raw number.",
+      "narration": "77.2 grams of carbs. Starch is 70 grams, supporting better carb quality. Fibre is 3.5 grams, a meaningful miss for grains.",
       "displayItems": [
-        {
-          "metricKey": "glycemic_index",
-          "text": "glycemic index at 68 GI",
-          "weightedScore": -8,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑",
-          "dvPercent": null,
-          "value": 68
-        },
         {
           "metricKey": "starch_g",
           "text": "starch at 70g",
-          "weightedScore": 3,
+          "weightedScore": 100,
           "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
+          "band": "3_green",
           "dvPercent": null,
           "value": 70
         },
         {
           "metricKey": "fibre_g",
           "text": "fibre at 3.5g",
-          "weightedScore": -3,
+          "weightedScore": 200,
           "scoringMode": "arrow_bands",
-          "band": "↓",
+          "band": "1_red",
           "dvPercent": null,
           "value": 3.5
         },
         {
           "metricKey": "sugar_g",
           "text": "sugar at 0.9g",
-          "weightedScore": 2,
+          "weightedScore": 160,
           "scoringMode": "arrow_bands",
-          "band": "↓↓",
+          "band": "2_green",
           "dvPercent": null,
           "value": 0.9
+        },
+        {
+          "metricKey": "glycemic_index",
+          "text": "glycemic index at 68 GI",
+          "weightedScore": 100,
+          "scoringMode": "arrow_bands",
+          "band": "2_red",
+          "dvPercent": null,
+          "value": 68
         }
       ],
-      "subtitleText": "77.2g of carbs. Glycemic index is 68 GI, where this starts to get messy. For grains, the carb quality matters much more than the raw number.",
+      "subtitleText": "77.2g of carbs. Starch is 70g, supporting better carb quality. Fibre is 3.5g, a meaningful miss for grains.",
       "timingHint": "short-medium",
-      "score": 38.9
+      "score": 43.1
     },
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "7.9 grams of protein. Bioavailability is 50%, and amino acid quality is strong. Protein helps, but not enough if the carb side is weak.",
+      "narration": "7.9 grams of protein. Essential amino acids score is 4 out of 9, with 50% bioavailability, making the protein useful for repair and maintenance.",
       "displayItems": [
+        {
+          "metricKey": "essential_amino_acids_score",
+          "text": "essential amino acids score at 4/9",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
+          "dvPercent": null,
+          "value": 4,
+          "referenceOnly": true
+        },
         {
           "metricKey": "bioavailability_percent",
           "text": "bioavailability at 50%",
-          "weightedScore": 6,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
           "dvPercent": null,
-          "value": 50
+          "value": 50,
+          "referenceOnly": true
         },
         {
           "metricKey": "nonessential_amino_acids_score",
           "text": "nonessential amino acids score at 6/11",
-          "weightedScore": 3,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
           "dvPercent": null,
-          "value": 6
-        },
-        {
-          "metricKey": "essential_amino_acids_score",
-          "text": "essential amino acids score at 4/9",
-          "weightedScore": 2,
-          "scoringMode": "arrow_bands",
-          "band": "↑",
-          "dvPercent": null,
-          "value": 4
+          "value": 6,
+          "referenceOnly": true
         }
       ],
-      "subtitleText": "7.9g of protein. Bioavailability is 50%, and amino acid quality is strong. Protein helps, but not enough if the carb side is weak.",
+      "subtitleText": "7.9g of protein. Essential amino acids score is 4/9, with 50% bioavailability, making the protein useful for repair and maintenance.",
       "timingHint": "short-medium",
-      "score": 86.7
+      "score": 20
     },
     {
       "key": "vitamins",
       "title": "Vitamins",
-      "narration": "Everything else is fairly underwhelming.",
-      "displayItems": [],
-      "subtitleText": "Everything else is fairly underwhelming.",
+      "narration": "Vitamin E is 1% daily value, adding useful vitamin support.",
+      "displayItems": [
+        {
+          "metricKey": "vitamin_e_dv",
+          "text": "vitamin E at 1% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 1,
+          "value": null
+        }
+      ],
+      "subtitleText": "Vitamin E is 1% DV, adding useful vitamin support.",
       "timingHint": "short-medium",
-      "score": null
+      "score": 0
     },
     {
       "key": "minerals",
       "title": "Minerals",
-      "narration": "Magnesium at 35% daily value, zinc at 13% daily value stand out most. Useful, but still not a major mineral edge.",
+      "narration": "Magnesium is 35% daily value, adding useful mineral support. Potassium is 6% daily value, a weak mark for grains.",
       "displayItems": [
         {
           "metricKey": "magnesium_dv",
           "text": "magnesium at 35% DV",
-          "weightedScore": 6,
+          "weightedScore": 150,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 35,
           "value": null
         },
         {
+          "metricKey": "potassium_dv",
+          "text": "potassium at 6% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 6,
+          "value": null
+        },
+        {
           "metricKey": "zinc_dv",
           "text": "zinc at 13% DV",
-          "weightedScore": 1,
+          "weightedScore": 40,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 13,
           "value": null
+        },
+        {
+          "metricKey": "iron_dv",
+          "text": "iron at 8% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 8,
+          "value": null
         }
       ],
-      "subtitleText": "Magnesium at 35% daily value, zinc at 13% daily value stand out most. Useful, but still not a major mineral edge.",
+      "subtitleText": "Magnesium is 35% DV, adding useful mineral support. Potassium is 6% DV, a weak mark for grains.",
       "timingHint": "short-medium",
-      "score": 23.3
+      "score": 12.7
     },
     {
       "key": "pros",
       "title": "Pros",
-      "narration": "The upsides first: easy staple to build meals around. Very practical in everyday meal planning. Better category fit than white rice. At least retains more fibre and micronutrients than more refined versions. Often easy for people to tolerate. A practical plus in some contexts.",
+      "narration": "Positives first: easy staple to build meals around. Very practical in everyday meal planning. Better category fit than white rice. At least retains more fibre and micronutrients than more refined versions. Often easy for people to tolerate. A practical plus in some contexts.",
       "displayItems": [
         {
           "type": "pro",
           "title": "easy staple to build meals around",
           "explanation": "Very practical in everyday meal planning.",
           "impactLevel": "minor",
-          "scoreValue": 0
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "better category fit than white rice",
           "explanation": "At least retains more fibre and micronutrients than more refined versions.",
           "impactLevel": "minor",
-          "scoreValue": 0
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "often easy for people to tolerate",
           "explanation": "A practical plus in some contexts.",
           "impactLevel": "minor",
-          "scoreValue": 0
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "The upsides first: easy staple to build meals around. Very practical in everyday meal planning. Better category fit than white rice. At least retains more fibre and micronutrients than more refined versions. Often easy for people to tolerate. A practical plus in some contexts.",
+      "subtitleText": "Positives first: easy staple to build meals around. Very practical in everyday meal planning. Better category fit than white rice. At least retains more fibre and micronutrients than more refined versions. Often easy for people to tolerate. A practical plus in some contexts.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     },
     {
       "key": "cons",
       "title": "Cons",
-      "narration": "On the weaker side: fibre is only moderate for a strong grain. Not terrible, just not category-leading. Glycemic behaviour is only okay. Not one of the best grains on this dimension. Micronutrient payoff is fairly average. Does not stand out strongly in vitamins/minerals.",
+      "narration": "Downsides next: fibre is only moderate for a strong grain. Not terrible, just not category-leading. Glycemic behaviour is only okay. Not one of the best grains on this dimension. Micronutrient payoff is fairly average. Does not stand out strongly in vitamins/minerals.",
       "displayItems": [
         {
           "type": "con",
           "title": "fibre is only moderate for a strong grain",
           "explanation": "Not terrible, just not category-leading.",
           "impactLevel": "minor",
-          "scoreValue": 0
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "glycemic behaviour is only okay",
           "explanation": "Not one of the best grains on this dimension.",
           "impactLevel": "minor",
-          "scoreValue": 0
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "micronutrient payoff is fairly average",
           "explanation": "Does not stand out strongly in vitamins/minerals.",
           "impactLevel": "minor",
-          "scoreValue": 0
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "On the weaker side: fibre is only moderate for a strong grain. Not terrible, just not category-leading. Glycemic behaviour is only okay. Not one of the best grains on this dimension. Micronutrient payoff is fairly average. Does not stand out strongly in vitamins/minerals.",
+      "subtitleText": "Downsides next: fibre is only moderate for a strong grain. Not terrible, just not category-leading. Glycemic behaviour is only okay. Not one of the best grains on this dimension. Micronutrient payoff is fairly average. Does not stand out strongly in vitamins/minerals.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     }
   ],
   "closing": {
-    "summary": "Brown Rice does have some solid upside. but the tradeoffs keep it from climbing higher. best when you want a staple carb that actually brings something useful with it.",
-    "finalReveal": "B tier.",
-    "useCaseNote": "Best when you want a staple carb that actually brings something useful with it.",
+    "summary": "Big strengths are protein and easy staple to build meals around, but the biggest weaknesses are fibre is only moderate for a strong grain and glycemic behaviour is only okay.",
+    "overview": "Big strengths are protein and easy staple to build meals around, but the biggest weaknesses are fibre is only moderate for a strong grain and glycemic behaviour is only okay.",
+    "finalReveal": "D tier.",
+    "useCaseNote": "Best only as a light snack base or texture food, not as a strong staple by itself.",
     "cta": "Would you rank it the same, or nah?"
   },
-  "tier": "B",
-  "overallScore": 38,
+  "tier": "D",
+  "overallScore": 19.6,
+  "overallScoreExact": 19.5654,
+  "baseOverallScore": 31.8,
+  "baseOverallScoreExact": 31.7729,
+  "sectionOrder": [
+    "fats",
+    "carbs",
+    "proteins",
+    "vitamins",
+    "minerals",
+    "pros",
+    "cons"
+  ],
+  "narrationBlocks": [
+    {
+      "kind": "hook_food",
+      "text": "Brown Rice!"
+    },
+    {
+      "kind": "hook_ranked",
+      "text": "Ranked!"
+    },
+    {
+      "kind": "section",
+      "sectionKey": "fats",
+      "text": "2.9 grams of fat. Saturated fat is 0.6 grams, supporting a better fat profile. Omega 3 is 26 milligrams, a weak mark for grains."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "carbs",
+      "text": "77.2 grams of carbs. Starch is 70 grams, supporting better carb quality. Fibre is 3.5 grams, a meaningful miss for grains."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "proteins",
+      "text": "7.9 grams of protein. Essential amino acids score is 4 out of 9, with 50% bioavailability, making the protein useful for repair and maintenance."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "vitamins",
+      "text": "Vitamin E is 1% daily value, adding useful vitamin support."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "minerals",
+      "text": "Magnesium is 35% daily value, adding useful mineral support. Potassium is 6% daily value, a weak mark for grains."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "pros",
+      "text": "Positives first: easy staple to build meals around. Very practical in everyday meal planning. Better category fit than white rice. At least retains more fibre and micronutrients than more refined versions. Often easy for people to tolerate. A practical plus in some contexts."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "cons",
+      "text": "Downsides next: fibre is only moderate for a strong grain. Not terrible, just not category-leading. Glycemic behaviour is only okay. Not one of the best grains on this dimension. Micronutrient payoff is fairly average. Does not stand out strongly in vitamins/minerals."
+    },
+    {
+      "kind": "closing_summary",
+      "text": "Big strengths are protein and easy staple to build meals around, but the biggest weaknesses are fibre is only moderate for a strong grain and glycemic behaviour is only okay."
+    },
+    {
+      "kind": "final_reveal",
+      "text": "D tier."
+    }
+  ],
   "explanation": {
-    "summary": "Proteins are carrying this food most, while minerals are the biggest drag. It lands in B tier.",
-    "whyThisTier": "This food lands in B tier with an overall score of 38 from a base nutrition score of 38. Context barely changed the result.",
+    "summary": "Pros are carrying this food most, while vitamins are holding it back most. It lands in D tier.",
+    "whyThisTier": "This food lands in D tier with an overall score of 19.6. Section scores: fats 46.7, carbs 43.1, proteins 20, vitamins 0, minerals 12.7, pros 50, cons 50.",
     "strongestSection": {
-      "key": "proteins",
-      "label": "Proteins",
-      "score": 86.7
+      "key": "pros",
+      "label": "Pros",
+      "score": 50
     },
     "weakestSection": {
-      "key": "minerals",
-      "label": "Minerals",
-      "score": 23.3
+      "key": "vitamins",
+      "label": "Vitamins",
+      "score": 0
     },
     "topPros": [
       {
@@ -265,21 +377,21 @@
         "explanation": "Very practical in everyday meal planning.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "better category fit than white rice",
         "explanation": "At least retains more fibre and micronutrients than more refined versions.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "often easy for people to tolerate",
         "explanation": "A practical plus in some contexts.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -288,27 +400,27 @@
         "explanation": "Not terrible, just not category-leading.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "glycemic behaviour is only okay",
         "explanation": "Not one of the best grains on this dimension.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "micronutrient payoff is fairly average",
         "explanation": "Does not stand out strongly in vitamins/minerals.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
-      "Strongest section: Proteins.",
-      "Weakest section: Minerals.",
-      "Final verdict: B tier."
+      "Strongest section: Pros.",
+      "Weakest section: Vitamins.",
+      "Final verdict: D tier."
     ]
   }
 }

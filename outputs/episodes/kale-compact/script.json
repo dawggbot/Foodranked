@@ -1,13 +1,29 @@
 {
   "status": "ok",
+  "schemaVersion": "foodranked-script.v2",
+  "narrationFormat": "elevenlabs-blocks-v1",
   "food": {
     "id": "kale",
     "name": "Kale",
-    "foodType": "vegetables"
+    "foodType": "vegetables",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "identity": null,
+    "scoreReadiness": null,
+    "sourceNotes": [
+      "Calibration benchmark sample for FoodRanked.",
+      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
+    ]
   },
   "ruleset": {
     "id": "vegetables.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 49,
@@ -16,63 +32,71 @@
     "protein_g": 4.3
   },
   "hook": "Kale ranked.",
-  "intro": "",
   "sections": [
     {
       "key": "fats",
       "title": "Fats",
-      "narration": "0.9 grams of fat. Omega 3 is 180 milligrams, doing a lot of the work here. For a vegetable, clean nutrient density is the real test.",
+      "narration": "0.9 grams of fat. Omega 3 is 180 milligrams, supporting a more useful fat profile. Polyunsaturated fat is 0.3 grams, a weak mark for vegetables.",
       "displayItems": [
         {
           "metricKey": "omega3_mg",
           "text": "omega 3 at 180mg",
-          "weightedScore": 3,
+          "weightedScore": 0,
           "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
+          "band": "3_green",
           "dvPercent": null,
           "value": 180
         },
         {
           "metricKey": "polyunsaturated_fat_g",
           "text": "polyunsaturated fat at 0.3g",
-          "weightedScore": -3,
+          "weightedScore": 0,
           "scoringMode": "arrow_bands",
-          "band": "↓↓↓",
+          "band": "3_red",
           "dvPercent": null,
           "value": 0.3
         },
         {
           "metricKey": "saturated_fat_g",
           "text": "saturated fat at 0.1g",
-          "weightedScore": 2,
+          "weightedScore": 100,
           "scoringMode": "arrow_bands",
-          "band": "↓↓",
+          "band": "↓↓↓",
           "dvPercent": null,
           "value": 0.1
         }
       ],
-      "subtitleText": "0.9g of fat. Omega 3 is 180mg, doing a lot of the work here. For a vegetable, clean nutrient density is the real test.",
+      "subtitleText": "0.9g of fat. Omega 3 is 180mg, supporting a more useful fat profile. Polyunsaturated fat is 0.3g, a weak mark for vegetables.",
       "timingHint": "short-medium",
-      "score": 61.1
+      "score": 100
     },
     {
       "key": "carbs",
       "title": "Carbs",
-      "narration": "8.8 grams of carbs. Glycemic index is 15 GI. Fibre is 4.1 grams, doing a lot of the work here. For vegetables, low downside is useful, but there still needs to be real payoff.",
+      "narration": "8.8 grams of carbs. Glycemic index is 15 GI, supporting better carb quality. Starch is 0 grams, a small miss for vegetables.",
       "displayItems": [
         {
           "metricKey": "glycemic_index",
           "text": "glycemic index at 15 GI",
-          "weightedScore": 9,
+          "weightedScore": 300,
           "scoringMode": "arrow_bands",
           "band": "↓↓↓",
           "dvPercent": null,
           "value": 15
         },
         {
+          "metricKey": "starch_g",
+          "text": "starch at 0g",
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
+          "band": "3_red",
+          "dvPercent": null,
+          "value": 0
+        },
+        {
           "metricKey": "fibre_g",
           "text": "fibre at 4.1g",
-          "weightedScore": 6,
+          "weightedScore": 240,
           "scoringMode": "arrow_bands",
           "band": "↑↑",
           "dvPercent": null,
@@ -81,100 +105,103 @@
         {
           "metricKey": "sugar_g",
           "text": "sugar at 2.3g",
-          "weightedScore": 6,
+          "weightedScore": 240,
           "scoringMode": "arrow_bands",
           "band": "↓↓",
           "dvPercent": null,
           "value": 2.3
         }
       ],
-      "subtitleText": "8.8g of carbs. Glycemic index is 15 GI. Fibre is 4.1g, doing a lot of the work here. For vegetables, low downside is useful, but there still needs to be real payoff.",
+      "subtitleText": "8.8g of carbs. Glycemic index is 15 GI, supporting better carb quality. Starch is 0g, a small miss for vegetables.",
       "timingHint": "short-medium",
-      "score": 88.9
+      "score": 86.7
     },
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "4.3 grams of protein. Bioavailability is 45%, and amino acid quality is strong. Protein is not the main pitch here, but extra support still matters.",
+      "narration": "4.3 grams of protein. Essential amino acids score is 4 out of 9, with 45% bioavailability, making the protein useful for repair and maintenance.",
       "displayItems": [
+        {
+          "metricKey": "essential_amino_acids_score",
+          "text": "essential amino acids score at 4/9",
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
+          "band": "1_green",
+          "dvPercent": null,
+          "value": 4,
+          "referenceOnly": false
+        },
         {
           "metricKey": "bioavailability_percent",
           "text": "bioavailability at 45%",
-          "weightedScore": 3,
+          "weightedScore": 0,
           "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
+          "band": "3_green",
           "dvPercent": null,
-          "value": 45
+          "value": 45,
+          "referenceOnly": false
         },
         {
           "metricKey": "nonessential_amino_acids_score",
           "text": "nonessential amino acids score at 5/11",
-          "weightedScore": 2,
+          "weightedScore": 0,
           "scoringMode": "arrow_bands",
-          "band": "↑↑",
+          "band": "2_green",
           "dvPercent": null,
-          "value": 5
-        },
-        {
-          "metricKey": "essential_amino_acids_score",
-          "text": "essential amino acids score at 4/9",
-          "weightedScore": 1,
-          "scoringMode": "arrow_bands",
-          "band": "↑",
-          "dvPercent": null,
-          "value": 4
+          "value": 5,
+          "referenceOnly": false
         }
       ],
-      "subtitleText": "4.3g of protein. Bioavailability is 45%, and amino acid quality is strong. Protein is not the main pitch here, but extra support still matters.",
+      "subtitleText": "4.3g of protein. Essential amino acids score is 4/9, with 45% bioavailability, making the protein useful for repair and maintenance.",
       "timingHint": "short-medium",
-      "score": 83.3
+      "score": null
     },
     {
       "key": "vitamins",
       "title": "Vitamins",
-      "narration": "Vitamin k at 570% daily value, vitamin c at 80% daily value, vitamin a at 57% daily value stand out most. That is major vitamin support.",
+      "narration": "Vitamin K is 570% daily value, adding useful vitamin support. Vitamin A is 57% daily value, a weak mark for vegetables.",
       "displayItems": [
         {
           "metricKey": "vitamin_k_dv",
-          "text": "vitamin k at 570% DV",
-          "weightedScore": 30,
+          "text": "vitamin K at 570% DV",
+          "weightedScore": 300,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 570,
           "value": null
         },
         {
-          "metricKey": "vitamin_c_dv",
-          "text": "vitamin c at 80% DV",
-          "weightedScore": 16,
-          "scoringMode": "dv_points",
-          "band": null,
-          "dvPercent": 80,
-          "value": null
-        },
-        {
           "metricKey": "vitamin_a_dv",
-          "text": "vitamin a at 57% DV",
-          "weightedScore": 10,
+          "text": "vitamin A at 57% DV",
+          "weightedScore": 100,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 57,
           "value": null
+        },
+        {
+          "metricKey": "vitamin_c_dv",
+          "text": "vitamin C at 80% DV",
+          "weightedScore": 160,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 80,
+          "value": null
         }
       ],
-      "subtitleText": "Vitamin k at 570% daily value, vitamin c at 80% daily value, vitamin a at 57% daily value stand out most. That is major vitamin support.",
+      "subtitleText": "Vitamin K is 570% DV, adding useful vitamin support. Vitamin A is 57% DV, a weak mark for vegetables.",
       "timingHint": "short-medium",
       "score": 80
     },
     {
       "key": "minerals",
       "title": "Minerals",
-      "narration": "Minerals are basically not part of the case here.",
+      "narration": "Calcium is 11% daily value, adding useful mineral support. Potassium is 7% daily value, a weak mark for vegetables.",
       "displayItems": [
         {
           "metricKey": "calcium_dv",
           "text": "calcium at 11% DV",
-          "weightedScore": 1,
+          "weightedScore": 10,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 11,
@@ -188,11 +215,29 @@
           "band": null,
           "dvPercent": 7,
           "value": null
+        },
+        {
+          "metricKey": "magnesium_dv",
+          "text": "magnesium at 8% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 8,
+          "value": null
+        },
+        {
+          "metricKey": "iron_dv",
+          "text": "iron at 8% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 8,
+          "value": null
         }
       ],
-      "subtitleText": "Minerals are basically not part of the case here.",
+      "subtitleText": "Calcium is 11% DV, adding useful mineral support. Potassium is 7% DV, a weak mark for vegetables.",
       "timingHint": "short-medium",
-      "score": 3.3
+      "score": 1.7
     },
     {
       "key": "pros",
@@ -204,79 +249,145 @@
           "title": "micronutrient density is ridiculous",
           "explanation": "This is the kind of vegetable profile that can clearly carry a category.",
           "impactLevel": "major",
-          "scoreValue": 2
+          "resolvedScoreValue": 100
         },
         {
           "type": "pro",
           "title": "easy to build meals around",
           "explanation": "A practical plus because good foods need realistic use cases.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "very low downside whole food",
           "explanation": "Vegetables win a lot simply by offering clean nutritional payoff.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         }
       ],
       "subtitleText": "Pros first: micronutrient density is ridiculous. This is the kind of vegetable profile that can clearly carry a category. Easy to build meals around. A practical plus because good foods need realistic use cases. Very low downside whole food. Vegetables win a lot simply by offering clean nutritional payoff.",
       "timingHint": "medium",
-      "score": 33.3
+      "score": 66.7
     },
     {
       "key": "cons",
       "title": "Cons",
-      "narration": "Now the downsides: freshness and prep can matter. Practical friction is still a real downside. Rarely carries a meal by itself. That is normal here, but still part of the tradeoff. Energy density is very low. Good for some use cases, but not enough on its own.",
+      "narration": "Cons next: freshness and prep can matter. Practical friction is still a real downside. Rarely carries a meal by itself. That is normal here, but still part of the tradeoff. Energy density is very low. Good for some use cases, but not enough on its own.",
       "displayItems": [
         {
           "type": "con",
           "title": "freshness and prep can matter",
           "explanation": "Practical friction is still a real downside.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "rarely carries a meal by itself",
           "explanation": "That is normal here, but still part of the tradeoff.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "energy density is very low",
           "explanation": "Good for some use cases, but not enough on its own.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "Now the downsides: freshness and prep can matter. Practical friction is still a real downside. Rarely carries a meal by itself. That is normal here, but still part of the tradeoff. Energy density is very low. Good for some use cases, but not enough on its own.",
+      "subtitleText": "Cons next: freshness and prep can matter. Practical friction is still a real downside. Rarely carries a meal by itself. That is normal here, but still part of the tradeoff. Energy density is very low. Good for some use cases, but not enough on its own.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     }
   ],
   "closing": {
-    "summary": "Kale has a genuinely strong overall case. the practical downsides are real, but they do not outweigh the upside. best when you want low downside and easy micronutrient support.",
+    "summary": "Big strengths are omega 3 and fibre, but the biggest weaknesses are freshness and prep can matter and rarely carries a meal by itself.",
+    "overview": "Big strengths are omega 3 and fibre, but the biggest weaknesses are freshness and prep can matter and rarely carries a meal by itself.",
     "finalReveal": "S tier.",
     "useCaseNote": "Best when you want low downside and easy micronutrient support.",
     "cta": "Would you rank it the same, or nah?"
   },
   "tier": "S",
-  "overallScore": 62,
+  "overallScore": 82.5,
+  "overallScoreExact": 82.4873,
+  "baseOverallScore": 64.2,
+  "baseOverallScoreExact": 64.1667,
+  "sectionOrder": [
+    "fats",
+    "carbs",
+    "proteins",
+    "vitamins",
+    "minerals",
+    "pros",
+    "cons"
+  ],
+  "narrationBlocks": [
+    {
+      "kind": "hook_food",
+      "text": "Kale!"
+    },
+    {
+      "kind": "hook_ranked",
+      "text": "Ranked!"
+    },
+    {
+      "kind": "section",
+      "sectionKey": "fats",
+      "text": "0.9 grams of fat. Omega 3 is 180 milligrams, supporting a more useful fat profile. Polyunsaturated fat is 0.3 grams, a weak mark for vegetables."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "carbs",
+      "text": "8.8 grams of carbs. Glycemic index is 15 GI, supporting better carb quality. Starch is 0 grams, a small miss for vegetables."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "proteins",
+      "text": "4.3 grams of protein. Essential amino acids score is 4 out of 9, with 45% bioavailability, making the protein useful for repair and maintenance."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "vitamins",
+      "text": "Vitamin K is 570% daily value, adding useful vitamin support. Vitamin A is 57% daily value, a weak mark for vegetables."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "minerals",
+      "text": "Calcium is 11% daily value, adding useful mineral support. Potassium is 7% daily value, a weak mark for vegetables."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "pros",
+      "text": "Pros first: micronutrient density is ridiculous. This is the kind of vegetable profile that can clearly carry a category. Easy to build meals around. A practical plus because good foods need realistic use cases. Very low downside whole food. Vegetables win a lot simply by offering clean nutritional payoff."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "cons",
+      "text": "Cons next: freshness and prep can matter. Practical friction is still a real downside. Rarely carries a meal by itself. That is normal here, but still part of the tradeoff. Energy density is very low. Good for some use cases, but not enough on its own."
+    },
+    {
+      "kind": "closing_summary",
+      "text": "Big strengths are omega 3 and fibre, but the biggest weaknesses are freshness and prep can matter and rarely carries a meal by itself."
+    },
+    {
+      "kind": "final_reveal",
+      "text": "S tier."
+    }
+  ],
   "explanation": {
-    "summary": "Carbs are carrying this food most, while minerals are the biggest drag. It lands in S tier.",
-    "whyThisTier": "This food lands in S tier with an overall score of 62 from a base nutrition score of 59. Context lifted it by 3 points.",
+    "summary": "Fats are carrying this food most, while minerals are holding it back most. It lands in S tier.",
+    "whyThisTier": "This food lands in S tier with an overall score of 82.5. Section scores: fats 100, carbs 86.7, vitamins 80, minerals 1.7, pros 66.7, cons 50.",
     "strongestSection": {
-      "key": "carbs",
-      "label": "Carbs",
-      "score": 88.9
+      "key": "fats",
+      "label": "Fats",
+      "score": 100
     },
     "weakestSection": {
       "key": "minerals",
       "label": "Minerals",
-      "score": 3.3
+      "score": 1.7
     },
     "topPros": [
       {
@@ -284,7 +395,21 @@
         "explanation": "This is the kind of vegetable profile that can clearly carry a category.",
         "impactLevel": "major",
         "side": "pro",
-        "resolvedScoreValue": 3
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "easy to build meals around",
+        "explanation": "A practical plus because good foods need realistic use cases.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "very low downside whole food",
+        "explanation": "Vegetables win a lot simply by offering clean nutritional payoff.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -293,27 +418,26 @@
         "explanation": "Practical friction is still a real downside.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "rarely carries a meal by itself",
         "explanation": "That is normal here, but still part of the tradeoff.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "energy density is very low",
         "explanation": "Good for some use cases, but not enough on its own.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
-      "Strongest section: Carbs.",
+      "Strongest section: Fats.",
       "Weakest section: Minerals.",
-      "Context improved the final tier case by 3 points.",
       "Final verdict: S tier."
     ]
   }

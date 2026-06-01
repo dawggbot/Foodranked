@@ -1,13 +1,29 @@
 {
   "status": "ok",
+  "schemaVersion": "foodranked-script.v2",
+  "narrationFormat": "elevenlabs-blocks-v1",
   "food": {
     "id": "purple-sweet-potato",
     "name": "Purple Sweet Potato",
-    "foodType": "tubers"
+    "foodType": "tubers",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "identity": null,
+    "scoreReadiness": null,
+    "sourceNotes": [
+      "Calibration benchmark sample for FoodRanked.",
+      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
+    ]
   },
   "ruleset": {
     "id": "tubers.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 86,
@@ -16,128 +32,139 @@
     "protein_g": 1.6
   },
   "hook": "Purple Sweet Potato ranked.",
-  "intro": "",
   "sections": [
     {
       "key": "fats",
       "title": "Fats",
-      "narration": "0.1 grams of fat. Omega 3 is 10 milligrams, doing a lot of the work here. For a tuber, this mostly lives or dies on carb behaviour.",
+      "narration": "0.1 grams of fat. Omega 3 is 10 milligrams, supporting a more useful fat profile. Polyunsaturated fat is 0 grams, a weak mark for tubers.",
       "displayItems": [
         {
-          "metricKey": "saturated_fat_g",
-          "text": "saturated fat at 0g",
-          "weightedScore": 3,
+          "metricKey": "omega3_mg",
+          "text": "omega 3 at 10mg",
+          "weightedScore": 0,
           "scoringMode": "arrow_bands",
-          "band": "↓↓↓",
+          "band": "3_green",
+          "dvPercent": null,
+          "value": 10
+        },
+        {
+          "metricKey": "polyunsaturated_fat_g",
+          "text": "polyunsaturated fat at 0g",
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
+          "band": "3_red",
           "dvPercent": null,
           "value": 0
         },
         {
-          "metricKey": "omega3_mg",
-          "text": "omega 3 at 10mg",
-          "weightedScore": 3,
+          "metricKey": "saturated_fat_g",
+          "text": "saturated fat at 0g",
+          "weightedScore": 100,
           "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
+          "band": "↓↓↓",
           "dvPercent": null,
-          "value": 10
+          "value": 0
         }
       ],
-      "subtitleText": "0.1g of fat. Omega 3 is 10mg, doing a lot of the work here. For a tuber, this mostly lives or dies on carb behaviour.",
+      "subtitleText": "0.1g of fat. Omega 3 is 10mg, supporting a more useful fat profile. Polyunsaturated fat is 0g, a weak mark for tubers.",
       "timingHint": "short-medium",
       "score": 100
     },
     {
       "key": "carbs",
       "title": "Carbs",
-      "narration": "20.1 grams of carbs. Fibre is 3 grams, doing a lot of the work here. For tubers, the carb side decides whether the food feels stable or flimsy.",
+      "narration": "20.1 grams of carbs. Glycemic index is 50 GI, supporting better carb quality.",
       "displayItems": [
         {
           "metricKey": "glycemic_index",
           "text": "glycemic index at 50 GI",
-          "weightedScore": 4,
+          "weightedScore": 320,
           "scoringMode": "arrow_bands",
-          "band": "↓",
+          "band": "↓↓",
           "dvPercent": null,
           "value": 50
         },
         {
           "metricKey": "fibre_g",
           "text": "fibre at 3g",
-          "weightedScore": 3,
-          "scoringMode": "arrow_bands",
-          "band": "↑",
-          "dvPercent": null,
-          "value": 3
-        },
-        {
-          "metricKey": "starch_g",
-          "text": "starch at 12g",
-          "weightedScore": -1,
+          "weightedScore": 120,
           "scoringMode": "arrow_bands",
           "band": "↓",
           "dvPercent": null,
-          "value": 12
+          "value": 3
         },
         {
           "metricKey": "sugar_g",
           "text": "sugar at 4.2g",
-          "weightedScore": 1,
+          "weightedScore": 60,
           "scoringMode": "arrow_bands",
           "band": "↓",
           "dvPercent": null,
           "value": 4.2
+        },
+        {
+          "metricKey": "starch_g",
+          "text": "starch at 12g",
+          "weightedScore": 40,
+          "scoringMode": "arrow_bands",
+          "band": "↓",
+          "dvPercent": null,
+          "value": 12
         }
       ],
-      "subtitleText": "20.1g of carbs. Fibre is 3g, doing a lot of the work here. For tubers, the carb side decides whether the food feels stable or flimsy.",
+      "subtitleText": "20.1g of carbs. Glycemic index is 50 GI, supporting better carb quality.",
       "timingHint": "short-medium",
-      "score": 63
+      "score": 60
     },
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "1.6 grams of protein. Bioavailability is 45%, one of the best parts of the protein story. Protein is usually limited here, so the other sections have to carry more.",
+      "narration": "1.6 grams of protein. Essential amino acids score is 2 out of 9, with 45% bioavailability, making the protein useful for repair and maintenance.",
       "displayItems": [
-        {
-          "metricKey": "bioavailability_percent",
-          "text": "bioavailability at 45%",
-          "weightedScore": 3,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
-          "dvPercent": null,
-          "value": 45
-        },
         {
           "metricKey": "essential_amino_acids_score",
           "text": "essential amino acids score at 2/9",
-          "weightedScore": -1,
+          "weightedScore": 20,
           "scoringMode": "arrow_bands",
-          "band": "↓",
+          "band": "↓↓",
           "dvPercent": null,
-          "value": 2
+          "value": 2,
+          "referenceOnly": false
+        },
+        {
+          "metricKey": "bioavailability_percent",
+          "text": "bioavailability at 45%",
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
+          "band": "3_green",
+          "dvPercent": null,
+          "value": 45,
+          "referenceOnly": false
         },
         {
           "metricKey": "nonessential_amino_acids_score",
           "text": "nonessential amino acids score at 3/11",
-          "weightedScore": -1,
+          "weightedScore": 0,
           "scoringMode": "arrow_bands",
-          "band": "↓",
+          "band": "1_red",
           "dvPercent": null,
-          "value": 3
+          "value": 3,
+          "referenceOnly": false
         }
       ],
-      "subtitleText": "1.6g of protein. Bioavailability is 45%, one of the best parts of the protein story. Protein is usually limited here, so the other sections have to carry more.",
+      "subtitleText": "1.6g of protein. Essential amino acids score is 2/9, with 45% bioavailability, making the protein useful for repair and maintenance.",
       "timingHint": "short-medium",
-      "score": 55.6
+      "score": 20
     },
     {
       "key": "vitamins",
       "title": "Vitamins",
-      "narration": "Vitamin c at 22% daily value, vitamin a at 18% daily value stand out most. That is barely moving the needle.",
+      "narration": "Vitamin C is 22% daily value, useful for collagen formation and antioxidant support. Vitamin A is 18% daily value, a weak mark for tubers.",
       "displayItems": [
         {
           "metricKey": "vitamin_c_dv",
-          "text": "vitamin c at 22% DV",
-          "weightedScore": 4,
+          "text": "vitamin C at 22% DV",
+          "weightedScore": 40,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 22,
@@ -145,36 +172,54 @@
         },
         {
           "metricKey": "vitamin_a_dv",
-          "text": "vitamin a at 18% DV",
-          "weightedScore": 3,
+          "text": "vitamin A at 18% DV",
+          "weightedScore": 30,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 18,
           "value": null
         }
       ],
-      "subtitleText": "Vitamin c at 22% daily value, vitamin a at 18% daily value stand out most. That is barely moving the needle.",
+      "subtitleText": "Vitamin C is 22% DV, useful for collagen formation and antioxidant support. Vitamin A is 18% DV, a weak mark for tubers.",
       "timingHint": "short-medium",
       "score": 14
     },
     {
       "key": "minerals",
       "title": "Minerals",
-      "narration": "Potassium at 10% daily value stands out most. Useful, but still pretty limited.",
+      "narration": "Potassium is 10% daily value, useful for fluid balance. Iron is only 3% daily value, a weak mark for tubers.",
       "displayItems": [
         {
           "metricKey": "potassium_dv",
           "text": "potassium at 10% DV",
-          "weightedScore": 2,
+          "weightedScore": 20,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 10,
           "value": null
+        },
+        {
+          "metricKey": "iron_dv",
+          "text": "iron at 3% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 3,
+          "value": null
+        },
+        {
+          "metricKey": "magnesium_dv",
+          "text": "magnesium at 6% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 6,
+          "value": null
         }
       ],
-      "subtitleText": "Potassium at 10% daily value stands out most. Useful, but still pretty limited.",
+      "subtitleText": "Potassium is 10% DV, useful for fluid balance. Iron is only 3% DV, a weak mark for tubers.",
       "timingHint": "short-medium",
-      "score": 10
+      "score": 5
     },
     {
       "key": "pros",
@@ -186,26 +231,26 @@
           "title": "easy comfort-food base with less baggage than junk food",
           "explanation": "That practical swap value matters.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "whole-food carb package",
           "explanation": "That matters because it is a cleaner baseline than heavily refined carbs.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "practical staple carb source",
           "explanation": "Tubers are often judged by how usable they are day to day.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         }
       ],
       "subtitleText": "Pros first: easy comfort-food base with less baggage than junk food. That practical swap value matters. Whole-food carb package. That matters because it is a cleaner baseline than heavily refined carbs. Practical staple carb source. Tubers are often judged by how usable they are day to day.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     },
     {
       "key": "cons",
@@ -217,39 +262,105 @@
           "title": "protein support is weak",
           "explanation": "Tubers still need help from the rest of the meal.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "still a carb-heavy category",
           "explanation": "That is the core ceiling tubers have to manage.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "preparation changes outcomes a lot",
           "explanation": "What you do to a tuber can make or break it.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         }
       ],
       "subtitleText": "The drawbacks next: protein support is weak. Tubers still need help from the rest of the meal. Still a carb-heavy category. That is the core ceiling tubers have to manage. Preparation changes outcomes a lot. What you do to a tuber can make or break it.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     }
   ],
   "closing": {
-    "summary": "Purple Sweet Potato does have some solid upside. but the tradeoffs keep it from climbing higher. best when you want practical carbs and the rest of the profile is still reasonably clean.",
-    "finalReveal": "B tier.",
+    "summary": "Big strengths are omega 3 and protein, but the biggest weaknesses are protein support is weak and still a carb-heavy category.",
+    "overview": "Big strengths are omega 3 and protein, but the biggest weaknesses are protein support is weak and still a carb-heavy category.",
+    "finalReveal": "A tier.",
     "useCaseNote": "Best when you want practical carbs and the rest of the profile is still reasonably clean.",
     "cta": "Would you rank it the same, or nah?"
   },
-  "tier": "B",
-  "overallScore": 45,
+  "tier": "A",
+  "overallScore": 76.7,
+  "overallScoreExact": 76.6669,
+  "baseOverallScore": 42.7,
+  "baseOverallScoreExact": 42.7143,
+  "sectionOrder": [
+    "fats",
+    "carbs",
+    "proteins",
+    "vitamins",
+    "minerals",
+    "pros",
+    "cons"
+  ],
+  "narrationBlocks": [
+    {
+      "kind": "hook_food",
+      "text": "Purple Sweet Potato!"
+    },
+    {
+      "kind": "hook_ranked",
+      "text": "Ranked!"
+    },
+    {
+      "kind": "section",
+      "sectionKey": "fats",
+      "text": "0.1 grams of fat. Omega 3 is 10 milligrams, supporting a more useful fat profile. Polyunsaturated fat is 0 grams, a weak mark for tubers."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "carbs",
+      "text": "20.1 grams of carbs. Glycemic index is 50 GI, supporting better carb quality."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "proteins",
+      "text": "1.6 grams of protein. Essential amino acids score is 2 out of 9, with 45% bioavailability, making the protein useful for repair and maintenance."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "vitamins",
+      "text": "Vitamin C is 22% daily value, useful for collagen formation and antioxidant support. Vitamin A is 18% daily value, a weak mark for tubers."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "minerals",
+      "text": "Potassium is 10% daily value, useful for fluid balance. Iron is only 3% daily value, a weak mark for tubers."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "pros",
+      "text": "Pros first: easy comfort-food base with less baggage than junk food. That practical swap value matters. Whole-food carb package. That matters because it is a cleaner baseline than heavily refined carbs. Practical staple carb source. Tubers are often judged by how usable they are day to day."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "cons",
+      "text": "The drawbacks next: protein support is weak. Tubers still need help from the rest of the meal. Still a carb-heavy category. That is the core ceiling tubers have to manage. Preparation changes outcomes a lot. What you do to a tuber can make or break it."
+    },
+    {
+      "kind": "closing_summary",
+      "text": "Big strengths are omega 3 and protein, but the biggest weaknesses are protein support is weak and still a carb-heavy category."
+    },
+    {
+      "kind": "final_reveal",
+      "text": "A tier."
+    }
+  ],
   "explanation": {
-    "summary": "Fats are carrying this food most, while minerals are the biggest drag. It lands in B tier.",
-    "whyThisTier": "This food lands in B tier with an overall score of 45 from a base nutrition score of 45. Context barely changed the result.",
+    "summary": "Fats are carrying this food most, while minerals are holding it back most. It lands in A tier.",
+    "whyThisTier": "This food lands in A tier with an overall score of 76.7. Section scores: fats 100, carbs 60, proteins 20, vitamins 14, minerals 5, pros 50, cons 50.",
     "strongestSection": {
       "key": "fats",
       "label": "Fats",
@@ -258,7 +369,7 @@
     "weakestSection": {
       "key": "minerals",
       "label": "Minerals",
-      "score": 10
+      "score": 5
     },
     "topPros": [
       {
@@ -266,21 +377,21 @@
         "explanation": "That practical swap value matters.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "whole-food carb package",
         "explanation": "That matters because it is a cleaner baseline than heavily refined carbs.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "practical staple carb source",
         "explanation": "Tubers are often judged by how usable they are day to day.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -289,27 +400,27 @@
         "explanation": "Tubers still need help from the rest of the meal.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "still a carb-heavy category",
         "explanation": "That is the core ceiling tubers have to manage.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "preparation changes outcomes a lot",
         "explanation": "What you do to a tuber can make or break it.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
       "Strongest section: Fats.",
       "Weakest section: Minerals.",
-      "Final verdict: B tier."
+      "Final verdict: A tier."
     ]
   }
 }

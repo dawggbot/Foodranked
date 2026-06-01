@@ -7,7 +7,11 @@
   },
   "ruleset": {
     "id": "dairy.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 431,
@@ -16,36 +20,32 @@
     "protein_g": 38
   },
   "sectionScores": {
-    "fats": 11.1,
+    "fats": 13.3,
     "carbs": 100,
-    "proteins": 92.9,
+    "proteins": 100,
     "vitamins": 33.3,
     "minerals": 60,
-    "pros": 0,
+    "pros": 50,
     "cons": 0
   },
-  "baseScore": 50,
-  "contextAdjustment": {
-    "rawAdjustment": 0,
-    "appliedAdjustment": 0,
-    "appliedItems": [],
-    "ignoredItems": []
-  },
-  "overallScore": 50,
-  "tier": "B",
-  "summary": "Carbs are carrying this food most, while fats are the biggest drag. It lands in B tier.",
+  "overallScore": 80.4,
+  "overallScoreExact": 80.3529,
+  "baseOverallScore": 51,
+  "baseOverallScoreExact": 50.9524,
+  "tier": "S",
+  "summary": "Carbs are carrying this food most, while cons are holding it back most. It lands in S tier.",
   "explanation": {
-    "summary": "Carbs are carrying this food most, while fats are the biggest drag. It lands in B tier.",
-    "whyThisTier": "This food lands in B tier with an overall score of 50 from a base nutrition score of 50. Context barely changed the result.",
+    "summary": "Carbs are carrying this food most, while cons are holding it back most. It lands in S tier.",
+    "whyThisTier": "This food lands in S tier with an overall score of 80.4. Section scores: fats 13.3, carbs 100, proteins 100, vitamins 33.3, minerals 60, pros 50, cons 0.",
     "strongestSection": {
       "key": "carbs",
       "label": "Carbs",
       "score": 100
     },
     "weakestSection": {
-      "key": "fats",
-      "label": "Fats",
-      "score": 11.1
+      "key": "cons",
+      "label": "Cons",
+      "score": 0
     },
     "topPros": [
       {
@@ -53,50 +53,50 @@
         "explanation": "That is a core category strength.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "slots into meals very easily",
         "explanation": "Practical versatility matters a lot for dairy.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "can be a very convenient protein vehicle",
         "explanation": "Convenience is one of dairy’s strongest practical advantages.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
       {
         "title": "very dense and easy to overshoot",
         "explanation": "The nutrient density is real, but so is the concentration.",
-        "impactLevel": "minor",
+        "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 100
       },
       {
         "title": "fat quality varies wildly across dairy",
         "explanation": "Some dairy is clean, some really is not.",
-        "impactLevel": "minor",
+        "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 100
       },
       {
         "title": "processing changes the category a lot",
         "explanation": "The label alone does not tell the whole story.",
-        "impactLevel": "minor",
+        "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 100
       }
     ],
     "narrationNotes": [
       "Strongest section: Carbs.",
-      "Weakest section: Fats.",
-      "Final verdict: B tier."
+      "Weakest section: Cons.",
+      "Final verdict: S tier."
     ]
   },
   "contextItems": {
@@ -104,52 +104,58 @@
       {
         "itemKey": "dairy_calcium_identity",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "clear calcium identity",
         "explanation": "That is a core category strength.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "dairy_meal_versatility",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "slots into meals very easily",
         "explanation": "Practical versatility matters a lot for dairy.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "dairy_convenient_protein",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "can be a very convenient protein vehicle",
         "explanation": "Convenience is one of dairy’s strongest practical advantages.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "cons": [
       {
         "itemKey": "sodium_and_density",
-        "impactLevel": "minor",
-        "scoreValue": -1,
+        "impactLevel": "major",
         "title": "very dense and easy to overshoot",
         "explanation": "The nutrient density is real, but so is the concentration.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 100
       },
       {
         "itemKey": "dairy_sat_fat_variability",
-        "impactLevel": "minor",
-        "scoreValue": -1,
+        "impactLevel": "major",
         "title": "fat quality varies wildly across dairy",
         "explanation": "Some dairy is clean, some really is not.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 100
       },
       {
         "itemKey": "dairy_processing_variability",
-        "impactLevel": "minor",
-        "scoreValue": -1,
+        "impactLevel": "major",
         "title": "processing changes the category a lot",
         "explanation": "The label alone does not tell the whole story.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 100
       }
     ]
   },
@@ -160,9 +166,9 @@
       "scoringMode": "arrow_bands",
       "value": 18.7,
       "band": "↑↑↑",
-      "score": -3,
+      "score": 0,
       "weight": 6,
-      "weightedScore": -18
+      "weightedScore": 0
     },
     {
       "metricKey": "omega3_mg",
@@ -170,9 +176,9 @@
       "scoringMode": "arrow_bands",
       "value": 100,
       "band": "↓",
-      "score": -1,
+      "score": 40,
       "weight": 1,
-      "weightedScore": -1
+      "weightedScore": 40
     },
     {
       "metricKey": "polyunsaturated_fat_g",
@@ -180,9 +186,9 @@
       "scoringMode": "arrow_bands",
       "value": 0.8,
       "band": "↓",
-      "score": -1,
+      "score": 40,
       "weight": 1,
-      "weightedScore": -1
+      "weightedScore": 40
     },
     {
       "metricKey": "cholesterol_mg",
@@ -190,9 +196,19 @@
       "scoringMode": "arrow_bands",
       "value": 88,
       "band": "↑↑",
-      "score": -2,
+      "score": 20,
       "weight": 4,
-      "weightedScore": -8
+      "weightedScore": 80
+    },
+    {
+      "metricKey": "starch_g",
+      "sectionKey": "carbs",
+      "scoringMode": "arrow_bands",
+      "value": 0,
+      "band": "3_red",
+      "score": 0,
+      "weight": 0,
+      "weightedScore": 0
     },
     {
       "metricKey": "sugar_g",
@@ -200,9 +216,9 @@
       "scoringMode": "arrow_bands",
       "value": 0.9,
       "band": "↓↓↓",
-      "score": 3,
+      "score": 100,
       "weight": 4,
-      "weightedScore": 12
+      "weightedScore": 400
     },
     {
       "metricKey": "glycemic_index",
@@ -210,39 +226,9 @@
       "scoringMode": "arrow_bands",
       "value": 0,
       "band": "↓↓↓",
-      "score": 3,
+      "score": 100,
       "weight": 2,
-      "weightedScore": 6
-    },
-    {
-      "metricKey": "essential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 9,
-      "band": "↑↑↑",
-      "score": 3,
-      "weight": 3,
-      "weightedScore": 9
-    },
-    {
-      "metricKey": "nonessential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 10,
-      "band": "↑↑↑",
-      "score": 3,
-      "weight": 1,
-      "weightedScore": 3
-    },
-    {
-      "metricKey": "bioavailability_percent",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 94,
-      "band": "↑↑",
-      "score": 2,
-      "weight": 3,
-      "weightedScore": 6
+      "weightedScore": 200
     },
     {
       "metricKey": "vitamin_b12_dv",
@@ -250,8 +236,9 @@
       "scoringMode": "dv_points",
       "dvPercent": 44,
       "points": 4,
+      "score": 40,
       "weight": 2,
-      "weightedScore": 8
+      "weightedScore": 80
     },
     {
       "metricKey": "vitamin_a_dv",
@@ -259,8 +246,9 @@
       "scoringMode": "dv_points",
       "dvPercent": 26,
       "points": 2,
+      "score": 20,
       "weight": 1,
-      "weightedScore": 2
+      "weightedScore": 20
     },
     {
       "metricKey": "calcium_dv",
@@ -268,8 +256,9 @@
       "scoringMode": "dv_points",
       "dvPercent": 92,
       "points": 9,
+      "score": 90,
       "weight": 3,
-      "weightedScore": 27
+      "weightedScore": 270
     },
     {
       "metricKey": "zinc_dv",
@@ -277,8 +266,9 @@
       "scoringMode": "dv_points",
       "dvPercent": 29,
       "points": 2,
+      "score": 20,
       "weight": 1,
-      "weightedScore": 2
+      "weightedScore": 20
     },
     {
       "metricKey": "magnesium_dv",
@@ -286,8 +276,20 @@
       "scoringMode": "dv_points",
       "dvPercent": 11,
       "points": 1,
+      "score": 10,
       "weight": 1,
-      "weightedScore": 1
+      "weightedScore": 10
+    },
+    {
+      "metricKey": "protein_g_fallback",
+      "sectionKey": "proteins",
+      "scoringMode": "protein_fallback",
+      "value": 38,
+      "band": "3_green",
+      "score": 100,
+      "weight": 3,
+      "weightedScore": 300,
+      "fallbackApplied": true
     }
   ]
 }

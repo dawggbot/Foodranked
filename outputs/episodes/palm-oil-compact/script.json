@@ -1,13 +1,29 @@
 {
   "status": "ok",
+  "schemaVersion": "foodranked-script.v2",
+  "narrationFormat": "elevenlabs-blocks-v1",
   "food": {
     "id": "palm-oil",
     "name": "Palm Oil",
-    "foodType": "oils-and-fats"
+    "foodType": "oils-and-fats",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "identity": null,
+    "scoreReadiness": null,
+    "sourceNotes": [
+      "Calibration benchmark sample for FoodRanked.",
+      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
+    ]
   },
   "ruleset": {
     "id": "oils-and-fats.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 884,
@@ -16,99 +32,144 @@
     "protein_g": 0
   },
   "hook": "Palm Oil ranked.",
-  "intro": "",
   "sections": [
     {
       "key": "fats",
       "title": "Fats",
-      "narration": "100 grams of fat. Saturated fat is 49 grams, a major pressure point. For this category, the real question is fat quality.",
+      "narration": "100 grams of fat. Cholesterol is 0 milligrams, supporting a better fat profile.",
       "displayItems": [
+        {
+          "metricKey": "cholesterol_mg",
+          "text": "cholesterol at 0mg",
+          "weightedScore": 500,
+          "scoringMode": "arrow_bands",
+          "band": "↓↓↓",
+          "dvPercent": null,
+          "value": 0
+        },
         {
           "metricKey": "saturated_fat_g",
           "text": "saturated fat at 49g",
-          "weightedScore": -14,
+          "weightedScore": 140,
           "scoringMode": "arrow_bands",
           "band": "↑↑",
           "dvPercent": null,
           "value": 49
         },
         {
-          "metricKey": "cholesterol_mg",
-          "text": "cholesterol at 0mg",
-          "weightedScore": 10,
-          "scoringMode": "arrow_bands",
-          "band": "↓↓",
-          "dvPercent": null,
-          "value": 0
-        },
-        {
-          "metricKey": "omega3_mg",
-          "text": "omega 3 at 200mg",
-          "weightedScore": -2,
-          "scoringMode": "arrow_bands",
-          "band": "↓↓",
-          "dvPercent": null,
-          "value": 200
-        },
-        {
           "metricKey": "polyunsaturated_fat_g",
           "text": "polyunsaturated fat at 9g",
-          "weightedScore": -1,
+          "weightedScore": 40,
           "scoringMode": "arrow_bands",
           "band": "↓",
           "dvPercent": null,
           "value": 9
+        },
+        {
+          "metricKey": "omega3_mg",
+          "text": "omega 3 at 200mg",
+          "weightedScore": 20,
+          "scoringMode": "arrow_bands",
+          "band": "↓↓",
+          "dvPercent": null,
+          "value": 200
         }
       ],
-      "subtitleText": "100g of fat. Saturated fat is 49g, a major pressure point. For this category, the real question is fat quality.",
+      "subtitleText": "100g of fat. Cholesterol is 0mg, supporting a better fat profile.",
       "timingHint": "short-medium",
-      "score": 41.7
+      "score": 50
     },
     {
       "key": "carbs",
       "title": "Carbs",
-      "narration": "0 grams of carbs. Everything else is fairly underwhelming. Not relevant here.",
+      "narration": "0 grams of carbs. No defensible carb submacros to call out. Not relevant here.",
       "displayItems": [],
-      "subtitleText": "0g of carbs. Everything else is fairly underwhelming. Not relevant here.",
+      "subtitleText": "0g of carbs. No defensible carb submacros to call out. Not relevant here.",
       "timingHint": "short-medium",
       "score": null
     },
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "0 grams of protein. The rest is not doing much. Also not relevant here.",
+      "narration": "0 grams of protein. No defensible protein submacros to call out. Also not relevant here.",
       "displayItems": [],
-      "subtitleText": "0g of protein. The rest is not doing much. Also not relevant here.",
+      "subtitleText": "0g of protein. No defensible protein submacros to call out. Also not relevant here.",
       "timingHint": "short-medium",
       "score": null
     },
     {
       "key": "vitamins",
       "title": "Vitamins",
-      "narration": "Vitamin e at 19% daily value stands out most. That is barely moving the needle.",
+      "narration": "Vitamin E is 19% daily value, adding useful vitamin support. Vitamin A is only 0% daily value, a weak mark for oils and fats.",
       "displayItems": [
         {
           "metricKey": "vitamin_e_dv",
-          "text": "vitamin e at 19% DV",
-          "weightedScore": 2,
+          "text": "vitamin E at 19% DV",
+          "weightedScore": 20,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 19,
           "value": null
+        },
+        {
+          "metricKey": "vitamin_a_dv",
+          "text": "vitamin A at 0% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
+        },
+        {
+          "metricKey": "vitamin_k_dv",
+          "text": "vitamin K at 8% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 8,
+          "value": null
         }
       ],
-      "subtitleText": "Vitamin e at 19% daily value stands out most. That is barely moving the needle.",
+      "subtitleText": "Vitamin E is 19% DV, adding useful vitamin support. Vitamin A is only 0% DV, a weak mark for oils and fats.",
       "timingHint": "short-medium",
-      "score": 10
+      "score": 4
     },
     {
       "key": "minerals",
       "title": "Minerals",
-      "narration": "Minerals are basically not adding much here.",
-      "displayItems": [],
-      "subtitleText": "Minerals are basically not adding much here.",
+      "narration": "Iron is 0% daily value, useful for oxygen transport. Magnesium is only 0% daily value, a weak mark for oils and fats.",
+      "displayItems": [
+        {
+          "metricKey": "iron_dv",
+          "text": "iron at 0% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
+        },
+        {
+          "metricKey": "magnesium_dv",
+          "text": "magnesium at 0% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
+        },
+        {
+          "metricKey": "calcium_dv",
+          "text": "calcium at 0% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
+        }
+      ],
+      "subtitleText": "Iron is 0% DV, useful for oxygen transport. Magnesium is only 0% DV, a weak mark for oils and fats.",
       "timingHint": "short-medium",
-      "score": null
+      "score": 0
     },
     {
       "key": "pros",
@@ -120,79 +181,145 @@
           "title": "helps meals actually work",
           "explanation": "A fat that people can use well matters more than a theoretical one.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "efficient energy source",
           "explanation": "That can be a strength in the right context.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "small amounts can change a whole meal",
           "explanation": "That leverage matters when the fat quality is good.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         }
       ],
       "subtitleText": "Pros first: helps meals actually work. A fat that people can use well matters more than a theoretical one. Efficient energy source. That can be a strength in the right context. Small amounts can change a whole meal. That leverage matters when the fat quality is good.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     },
     {
       "key": "cons",
       "title": "Cons",
-      "narration": "On the weaker side: calorie density is brutally high. Tiny serving errors matter here. Extremely calorie dense by default. That is the unavoidable category burden. Not a complete food on its own. Even the better fats are still just part of a meal.",
+      "narration": "Downsides next: calorie density is brutally high. Tiny serving errors matter here. Extremely calorie dense by default. That is the unavoidable category burden. Not a complete food on its own. Even the better fats are still just part of a meal.",
       "displayItems": [
         {
           "type": "con",
           "title": "calorie density is brutally high",
           "explanation": "Tiny serving errors matter here.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "extremely calorie dense by default",
           "explanation": "That is the unavoidable category burden.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "not a complete food on its own",
           "explanation": "Even the better fats are still just part of a meal.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "On the weaker side: calorie density is brutally high. Tiny serving errors matter here. Extremely calorie dense by default. That is the unavoidable category burden. Not a complete food on its own. Even the better fats are still just part of a meal.",
+      "subtitleText": "Downsides next: calorie density is brutally high. Tiny serving errors matter here. Extremely calorie dense by default. That is the unavoidable category burden. Not a complete food on its own. Even the better fats are still just part of a meal.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     }
   ],
   "closing": {
-    "summary": "Palm Oil does have some solid upside. but the tradeoffs keep it from climbing higher. best in controlled amounts where fat quality is the main reason to use it.",
-    "finalReveal": "B tier.",
-    "useCaseNote": "Best in controlled amounts where fat quality is the main reason to use it.",
+    "summary": "Big strengths are helps meals actually work and efficient energy source, but the biggest weaknesses are calorie density is brutally high and extremely calorie dense by default.",
+    "overview": "Big strengths are helps meals actually work and efficient energy source, but the biggest weaknesses are calorie density is brutally high and extremely calorie dense by default.",
+    "finalReveal": "C tier.",
+    "useCaseNote": "Best only in small amounts when the cooking job matters more than the nutrition case.",
     "cta": "Would you rank it the same, or nah?"
   },
-  "tier": "B",
-  "overallScore": 33,
+  "tier": "C",
+  "overallScore": 39.9,
+  "overallScoreExact": 39.9091,
+  "baseOverallScore": 30.8,
+  "baseOverallScoreExact": 30.8,
+  "sectionOrder": [
+    "fats",
+    "carbs",
+    "proteins",
+    "vitamins",
+    "minerals",
+    "pros",
+    "cons"
+  ],
+  "narrationBlocks": [
+    {
+      "kind": "hook_food",
+      "text": "Palm Oil!"
+    },
+    {
+      "kind": "hook_ranked",
+      "text": "Ranked!"
+    },
+    {
+      "kind": "section",
+      "sectionKey": "fats",
+      "text": "100 grams of fat. Cholesterol is 0 milligrams, supporting a better fat profile."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "carbs",
+      "text": "0 grams of carbs. No defensible carb submacros to call out. Not relevant here."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "proteins",
+      "text": "0 grams of protein. No defensible protein submacros to call out. Also not relevant here."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "vitamins",
+      "text": "Vitamin E is 19% daily value, adding useful vitamin support. Vitamin A is only 0% daily value, a weak mark for oils and fats."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "minerals",
+      "text": "Iron is 0% daily value, useful for oxygen transport. Magnesium is only 0% daily value, a weak mark for oils and fats."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "pros",
+      "text": "Pros first: helps meals actually work. A fat that people can use well matters more than a theoretical one. Efficient energy source. That can be a strength in the right context. Small amounts can change a whole meal. That leverage matters when the fat quality is good."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "cons",
+      "text": "Downsides next: calorie density is brutally high. Tiny serving errors matter here. Extremely calorie dense by default. That is the unavoidable category burden. Not a complete food on its own. Even the better fats are still just part of a meal."
+    },
+    {
+      "kind": "closing_summary",
+      "text": "Big strengths are helps meals actually work and efficient energy source, but the biggest weaknesses are calorie density is brutally high and extremely calorie dense by default."
+    },
+    {
+      "kind": "final_reveal",
+      "text": "C tier."
+    }
+  ],
   "explanation": {
-    "summary": "Fats are carrying this food most, while vitamins are the biggest drag. It lands in B tier.",
-    "whyThisTier": "This food lands in B tier with an overall score of 33 from a base nutrition score of 33. Context barely changed the result.",
+    "summary": "Fats are carrying this food most, while minerals are holding it back most. It lands in C tier.",
+    "whyThisTier": "This food lands in C tier with an overall score of 39.9. Section scores: fats 50, vitamins 4, minerals 0, pros 50, cons 50.",
     "strongestSection": {
       "key": "fats",
       "label": "Fats",
-      "score": 41.7
+      "score": 50
     },
     "weakestSection": {
-      "key": "vitamins",
-      "label": "Vitamins",
-      "score": 10
+      "key": "minerals",
+      "label": "Minerals",
+      "score": 0
     },
     "topPros": [
       {
@@ -200,21 +327,21 @@
         "explanation": "A fat that people can use well matters more than a theoretical one.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "efficient energy source",
         "explanation": "That can be a strength in the right context.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "small amounts can change a whole meal",
         "explanation": "That leverage matters when the fat quality is good.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -223,27 +350,27 @@
         "explanation": "Tiny serving errors matter here.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "extremely calorie dense by default",
         "explanation": "That is the unavoidable category burden.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "not a complete food on its own",
         "explanation": "Even the better fats are still just part of a meal.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
       "Strongest section: Fats.",
-      "Weakest section: Vitamins.",
-      "Final verdict: B tier."
+      "Weakest section: Minerals.",
+      "Final verdict: C tier."
     ]
   }
 }

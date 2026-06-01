@@ -193,8 +193,35 @@ Suggested fields:
 - bands
 - notes nullable
 
+### score_calibrations
+Category-specific mapping from raw ruleset score to the shared final score scale.
+
+Suggested fields:
+- id
+- ruleset_id
+- version
+- method (`piecewise_linear_raw_to_shared_tier_score`)
+- input_score_key (`baseOverallScore`)
+- output_score_key (`overallScore`)
+- notes nullable
+
+### score_calibration_anchors
+Piecewise-linear anchor points for `score_calibrations`.
+
+Suggested fields:
+- id
+- score_calibration_id
+- raw_score
+- calibrated_score
+- display_order
+
+Important note:
+- raw thresholds stay category-relative
+- calibrated scores are the comparable display/tier scores
+- anchors should be refreshed from benchmark foods whenever category rule bands or metric weights change materially
+
 ### tier_thresholds
-Versioned mapping from overall score to final tier.
+Versioned shared mapping from calibrated overall score to final tier.
 
 Suggested fields:
 - id
@@ -205,7 +232,8 @@ Suggested fields:
 - notes nullable
 
 Important note:
-- thresholds should be calibrated per category after the ruleset architecture is stable enough to test against benchmark foods
+- the active v1 threshold map is shared across food types
+- fairness comes from category-specific `score_calibrations`, not from different final tier cutoffs
 
 ## Default band scoring
 
@@ -252,13 +280,14 @@ cons_section_score = 100 - cons_severity_score
 10. Score vitamins/minerals from DV% tiers.
 11. Score pros and cons from major/minor item levels.
 12. Apply `proteinFallback` when the proteins section would otherwise depend on weak proxy fields.
-13. Average the 7 scored content section scores using equal top-level weights.
-14. Map the final score to the tier.
-15. Generate derived outputs:
+13. Average the 7 scored content section scores using equal top-level weights to produce `baseOverallScore`.
+14. Apply the active category `scoreCalibration` to produce the calibrated `overallScore`.
+15. Map the calibrated `overallScore` to the tier using shared `tierThresholds`.
+16. Generate derived outputs:
    - summary
    - explanation notes
    - final tier
-16. Generate video payloads.
+17. Generate video payloads.
 
 ## Required output payloads
 
@@ -270,6 +299,7 @@ The ruleset system should generate:
 - short summary
 - all 7 scored content section scores
 - overall score
+- base overall score
 - final tier
 - explanation snapshot referencing the ruleset version used
 

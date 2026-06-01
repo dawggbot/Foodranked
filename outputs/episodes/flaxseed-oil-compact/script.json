@@ -1,13 +1,29 @@
 {
   "status": "ok",
+  "schemaVersion": "foodranked-script.v2",
+  "narrationFormat": "elevenlabs-blocks-v1",
   "food": {
     "id": "flaxseed-oil",
     "name": "Flaxseed Oil",
-    "foodType": "oils-and-fats"
+    "foodType": "oils-and-fats",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "identity": null,
+    "scoreReadiness": null,
+    "sourceNotes": [
+      "Calibration benchmark sample for FoodRanked.",
+      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
+    ]
   },
   "ruleset": {
     "id": "oils-and-fats.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 884,
@@ -16,17 +32,16 @@
     "protein_g": 0
   },
   "hook": "Flaxseed Oil ranked.",
-  "intro": "",
   "sections": [
     {
       "key": "fats",
       "title": "Fats",
-      "narration": "100 grams of fat. Omega 3 is 53300 milligrams, doing a lot of the work here. For this category, the real question is fat quality.",
+      "narration": "100 grams of fat. Saturated fat is 9 grams, supporting a better fat profile.",
       "displayItems": [
         {
           "metricKey": "saturated_fat_g",
           "text": "saturated fat at 9g",
-          "weightedScore": 21,
+          "weightedScore": 700,
           "scoringMode": "arrow_bands",
           "band": "↓↓↓",
           "dvPercent": null,
@@ -35,16 +50,16 @@
         {
           "metricKey": "cholesterol_mg",
           "text": "cholesterol at 0mg",
-          "weightedScore": 10,
+          "weightedScore": 500,
           "scoringMode": "arrow_bands",
-          "band": "↓↓",
+          "band": "↓↓↓",
           "dvPercent": null,
           "value": 0
         },
         {
           "metricKey": "omega3_mg",
           "text": "omega 3 at 53300mg",
-          "weightedScore": 3,
+          "weightedScore": 100,
           "scoringMode": "arrow_bands",
           "band": "↑↑↑",
           "dvPercent": null,
@@ -53,62 +68,108 @@
         {
           "metricKey": "polyunsaturated_fat_g",
           "text": "polyunsaturated fat at 67.8g",
-          "weightedScore": 3,
+          "weightedScore": 100,
           "scoringMode": "arrow_bands",
           "band": "↑↑↑",
           "dvPercent": null,
           "value": 67.8
         }
       ],
-      "subtitleText": "100g of fat. Omega 3 is 53300mg, doing a lot of the work here. For this category, the real question is fat quality.",
+      "subtitleText": "100g of fat. Saturated fat is 9g, supporting a better fat profile.",
       "timingHint": "short-medium",
-      "score": 94
+      "score": 100
     },
     {
       "key": "carbs",
       "title": "Carbs",
-      "narration": "0 grams of carbs. Everything else is lackluster. Not relevant here.",
+      "narration": "0 grams of carbs. No defensible carb submacros to call out. Not relevant here.",
       "displayItems": [],
-      "subtitleText": "0g of carbs. Everything else is lackluster. Not relevant here.",
+      "subtitleText": "0g of carbs. No defensible carb submacros to call out. Not relevant here.",
       "timingHint": "short-medium",
       "score": null
     },
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "0 grams of protein. Everything else here is pretty flat. Also not relevant here.",
+      "narration": "0 grams of protein. No defensible protein submacros to call out. Also not relevant here.",
       "displayItems": [],
-      "subtitleText": "0g of protein. Everything else here is pretty flat. Also not relevant here.",
+      "subtitleText": "0g of protein. No defensible protein submacros to call out. Also not relevant here.",
       "timingHint": "short-medium",
       "score": null
     },
     {
       "key": "vitamins",
       "title": "Vitamins",
-      "narration": "Vitamin k at 10% daily value stands out most. That is barely moving the needle.",
+      "narration": "Vitamin K is 10% daily value, adding useful vitamin support. Vitamin A is only 0% daily value, a weak mark for oils and fats.",
       "displayItems": [
         {
           "metricKey": "vitamin_k_dv",
-          "text": "vitamin k at 10% DV",
-          "weightedScore": 2,
+          "text": "vitamin K at 10% DV",
+          "weightedScore": 20,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 10,
           "value": null
+        },
+        {
+          "metricKey": "vitamin_a_dv",
+          "text": "vitamin A at 0% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
+        },
+        {
+          "metricKey": "vitamin_e_dv",
+          "text": "vitamin E at 2% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 2,
+          "value": null
         }
       ],
-      "subtitleText": "Vitamin k at 10% daily value stands out most. That is barely moving the needle.",
+      "subtitleText": "Vitamin K is 10% DV, adding useful vitamin support. Vitamin A is only 0% DV, a weak mark for oils and fats.",
       "timingHint": "short-medium",
-      "score": 10
+      "score": 4
     },
     {
       "key": "minerals",
       "title": "Minerals",
-      "narration": "Minerals are basically not adding much here.",
-      "displayItems": [],
-      "subtitleText": "Minerals are basically not adding much here.",
+      "narration": "Iron is 0% daily value, useful for oxygen transport. Magnesium is only 0% daily value, a weak mark for oils and fats.",
+      "displayItems": [
+        {
+          "metricKey": "iron_dv",
+          "text": "iron at 0% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
+        },
+        {
+          "metricKey": "magnesium_dv",
+          "text": "magnesium at 0% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
+        },
+        {
+          "metricKey": "calcium_dv",
+          "text": "calcium at 0% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
+        }
+      ],
+      "subtitleText": "Iron is 0% DV, useful for oxygen transport. Magnesium is only 0% DV, a weak mark for oils and fats.",
       "timingHint": "short-medium",
-      "score": null
+      "score": 0
     },
     {
       "key": "pros",
@@ -120,79 +181,145 @@
           "title": "highly useful in cooking",
           "explanation": "Practical culinary value matters here.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "can help meals feel more complete and usable",
           "explanation": "Fats sometimes improve the whole plate, not just their own stats.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "small amounts can change a whole meal",
           "explanation": "That leverage matters when the fat quality is good.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         }
       ],
       "subtitleText": "Pros first: highly useful in cooking. Practical culinary value matters here. Can help meals feel more complete and usable. Fats sometimes improve the whole plate, not just their own stats. Small amounts can change a whole meal. That leverage matters when the fat quality is good.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     },
     {
       "key": "cons",
       "title": "Cons",
-      "narration": "On the weaker side: not the most forgiving cooking fat. Great chemistry on paper, but use case is narrower than the headline suggests. Not a complete food on its own. Even the better fats are still just part of a meal. Calorie density is brutally high. Tiny serving errors matter here.",
+      "narration": "Downsides next: not the most forgiving cooking fat. Great chemistry on paper, but use case is narrower than the headline suggests. Not a complete food on its own. Even the better fats are still just part of a meal. Calorie density is brutally high. Tiny serving errors matter here.",
       "displayItems": [
         {
           "type": "con",
           "title": "not the most forgiving cooking fat",
           "explanation": "Great chemistry on paper, but use case is narrower than the headline suggests.",
           "impactLevel": "major",
-          "scoreValue": -2
+          "resolvedScoreValue": 100
         },
         {
           "type": "con",
           "title": "not a complete food on its own",
           "explanation": "Even the better fats are still just part of a meal.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "calorie density is brutally high",
           "explanation": "Tiny serving errors matter here.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "On the weaker side: not the most forgiving cooking fat. Great chemistry on paper, but use case is narrower than the headline suggests. Not a complete food on its own. Even the better fats are still just part of a meal. Calorie density is brutally high. Tiny serving errors matter here.",
+      "subtitleText": "Downsides next: not the most forgiving cooking fat. Great chemistry on paper, but use case is narrower than the headline suggests. Not a complete food on its own. Even the better fats are still just part of a meal. Calorie density is brutally high. Tiny serving errors matter here.",
       "timingHint": "medium",
-      "score": 100
+      "score": 33.3
     }
   ],
   "closing": {
-    "summary": "Flaxseed Oil has a genuinely strong overall case. the practical downsides are real, but they do not outweigh the upside. best in controlled amounts where fat quality is the main reason to use it.",
-    "finalReveal": "A tier.",
+    "summary": "Big strengths are fat quality and useful in cooking, but the biggest weaknesses are not the most forgiving cooking fat and not a complete food on its own.",
+    "overview": "Big strengths are fat quality and useful in cooking, but the biggest weaknesses are not the most forgiving cooking fat and not a complete food on its own.",
+    "finalReveal": "B tier.",
     "useCaseNote": "Best in controlled amounts where fat quality is the main reason to use it.",
     "cta": "Would you rank it the same, or nah?"
   },
-  "tier": "A",
-  "overallScore": 64,
+  "tier": "B",
+  "overallScore": 52.4,
+  "overallScoreExact": 52.3913,
+  "baseOverallScore": 37.5,
+  "baseOverallScoreExact": 37.4667,
+  "sectionOrder": [
+    "fats",
+    "carbs",
+    "proteins",
+    "vitamins",
+    "minerals",
+    "pros",
+    "cons"
+  ],
+  "narrationBlocks": [
+    {
+      "kind": "hook_food",
+      "text": "Flaxseed Oil!"
+    },
+    {
+      "kind": "hook_ranked",
+      "text": "Ranked!"
+    },
+    {
+      "kind": "section",
+      "sectionKey": "fats",
+      "text": "100 grams of fat. Saturated fat is 9 grams, supporting a better fat profile."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "carbs",
+      "text": "0 grams of carbs. No defensible carb submacros to call out. Not relevant here."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "proteins",
+      "text": "0 grams of protein. No defensible protein submacros to call out. Also not relevant here."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "vitamins",
+      "text": "Vitamin K is 10% daily value, adding useful vitamin support. Vitamin A is only 0% daily value, a weak mark for oils and fats."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "minerals",
+      "text": "Iron is 0% daily value, useful for oxygen transport. Magnesium is only 0% daily value, a weak mark for oils and fats."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "pros",
+      "text": "Pros first: highly useful in cooking. Practical culinary value matters here. Can help meals feel more complete and usable. Fats sometimes improve the whole plate, not just their own stats. Small amounts can change a whole meal. That leverage matters when the fat quality is good."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "cons",
+      "text": "Downsides next: not the most forgiving cooking fat. Great chemistry on paper, but use case is narrower than the headline suggests. Not a complete food on its own. Even the better fats are still just part of a meal. Calorie density is brutally high. Tiny serving errors matter here."
+    },
+    {
+      "kind": "closing_summary",
+      "text": "Big strengths are fat quality and useful in cooking, but the biggest weaknesses are not the most forgiving cooking fat and not a complete food on its own."
+    },
+    {
+      "kind": "final_reveal",
+      "text": "B tier."
+    }
+  ],
   "explanation": {
-    "summary": "Fats are carrying this food most, while vitamins are the biggest drag. It lands in A tier.",
-    "whyThisTier": "This food lands in A tier with an overall score of 64 from a base nutrition score of 73. Context dragged it down by 9 points.",
+    "summary": "Fats are carrying this food most, while minerals are holding it back most. It lands in B tier.",
+    "whyThisTier": "This food lands in B tier with an overall score of 52.4. Section scores: fats 100, vitamins 4, minerals 0, pros 50, cons 33.3.",
     "strongestSection": {
       "key": "fats",
       "label": "Fats",
-      "score": 94
+      "score": 100
     },
     "weakestSection": {
-      "key": "vitamins",
-      "label": "Vitamins",
-      "score": 10
+      "key": "minerals",
+      "label": "Minerals",
+      "score": 0
     },
     "topPros": [
       {
@@ -200,21 +327,21 @@
         "explanation": "Practical culinary value matters here.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "can help meals feel more complete and usable",
         "explanation": "Fats sometimes improve the whole plate, not just their own stats.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "small amounts can change a whole meal",
         "explanation": "That leverage matters when the fat quality is good.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -223,14 +350,27 @@
         "explanation": "Great chemistry on paper, but use case is narrower than the headline suggests.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -9
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "not a complete food on its own",
+        "explanation": "Even the better fats are still just part of a meal.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "calorie density is brutally high",
+        "explanation": "Tiny serving errors matter here.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
       "Strongest section: Fats.",
-      "Weakest section: Vitamins.",
-      "Context weakened the final tier case by 9 points.",
-      "Final verdict: A tier."
+      "Weakest section: Minerals.",
+      "Final verdict: B tier."
     ]
   }
 }

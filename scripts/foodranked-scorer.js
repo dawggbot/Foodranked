@@ -114,6 +114,26 @@ function getTier(score, thresholds) {
   return 'UNKNOWN';
 }
 
+function applyScoreCalibration(score, calibration) {
+  const anchors = (calibration?.anchors || [])
+    .filter(anchor => typeof anchor.raw === 'number' && typeof anchor.calibrated === 'number')
+    .sort((a, b) => a.raw - b.raw);
+
+  if (anchors.length < 2) return clamp(score, 0, 100);
+  if (score <= anchors[0].raw) return clamp(anchors[0].calibrated, 0, 100);
+
+  for (let i = 1; i < anchors.length; i += 1) {
+    const lower = anchors[i - 1];
+    const upper = anchors[i];
+    if (score > upper.raw) continue;
+    if (upper.raw === lower.raw) return clamp(upper.calibrated, 0, 100);
+    const ratio = (score - lower.raw) / (upper.raw - lower.raw);
+    return clamp(lower.calibrated + (ratio * (upper.calibrated - lower.calibrated)), 0, 100);
+  }
+
+  return clamp(anchors[anchors.length - 1].calibrated, 0, 100);
+}
+
 function capitalize(s) {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
@@ -307,12 +327,13 @@ function main() {
   const sectionWeights = ruleset.sectionWeights || {};
   const scoredSections = Object.entries(sectionScores).filter(([, score]) => typeof score === 'number');
   const weightedDenominator = scoredSections.reduce((sum, [section]) => sum + (typeof sectionWeights[section] === 'number' ? sectionWeights[section] : 0), 0);
-  const rawOverallScore = scoredSections.length
+  const baseOverallScoreExact = scoredSections.length
     ? (scoredSections.reduce((sum, [section, score]) => sum + (score * (typeof sectionWeights[section] === 'number' ? sectionWeights[section] : 0)), 0) / (weightedDenominator || 1))
     : 0;
-  const overallScore = round1(rawOverallScore);
+  const calibratedOverallScoreExact = applyScoreCalibration(baseOverallScoreExact, ruleset.scoreCalibration);
+  const overallScore = round1(calibratedOverallScoreExact);
 
-  const tier = getTier(rawOverallScore, ruleset.tierThresholds);
+  const tier = getTier(calibratedOverallScoreExact, ruleset.tierThresholds);
   const summary = buildSummary(sectionScores, tier);
   const extremes = pickSectionExtremes(sectionScores);
   const topPros = trimContextItems(contextComputation.pros, 'pro');
@@ -339,11 +360,20 @@ function main() {
   const output = {
     status: 'ok',
     food: { id: food.id, name: food.name, foodType: food.foodType },
-    ruleset: { id: ruleset.id, version: ruleset.version },
+    ruleset: {
+      id: ruleset.id,
+      version: ruleset.version,
+      scoreCalibration: ruleset.scoreCalibration ? {
+        version: ruleset.scoreCalibration.version ?? null,
+        method: ruleset.scoreCalibration.method ?? null
+      } : null
+    },
     header: food.header,
     sectionScores: Object.fromEntries(Object.entries(sectionScores).map(([k, v]) => [k, v === null ? null : round1(v)])),
     overallScore,
-    overallScoreExact: Number(rawOverallScore.toFixed(4)),
+    overallScoreExact: Number(calibratedOverallScoreExact.toFixed(4)),
+    baseOverallScore: round1(baseOverallScoreExact),
+    baseOverallScoreExact: Number(baseOverallScoreExact.toFixed(4)),
     tier,
     summary,
     explanation,

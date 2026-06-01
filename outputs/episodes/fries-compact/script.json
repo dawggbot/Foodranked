@@ -1,13 +1,29 @@
 {
   "status": "ok",
+  "schemaVersion": "foodranked-script.v2",
+  "narrationFormat": "elevenlabs-blocks-v1",
   "food": {
     "id": "fries",
     "name": "Fries",
-    "foodType": "tubers"
+    "foodType": "tubers",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "identity": null,
+    "scoreReadiness": null,
+    "sourceNotes": [
+      "Calibration benchmark sample for FoodRanked.",
+      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
+    ]
   },
   "ruleset": {
     "id": "tubers.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 312,
@@ -16,155 +32,194 @@
     "protein_g": 3.4
   },
   "hook": "Fries ranked.",
-  "intro": "",
   "sections": [
     {
       "key": "fats",
       "title": "Fats",
-      "narration": "15 grams of fat. Omega 3 is 40 milligrams, doing a lot of the work here. For a tuber, this mostly lives or dies on carb behaviour.",
+      "narration": "15 grams of fat. Omega 3 is 40 milligrams, supporting a more useful fat profile. Polyunsaturated fat is 4.5 grams, a weak mark for tubers.",
       "displayItems": [
         {
           "metricKey": "omega3_mg",
           "text": "omega 3 at 40mg",
-          "weightedScore": 3,
+          "weightedScore": 0,
           "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
+          "band": "3_green",
           "dvPercent": null,
           "value": 40
         },
         {
+          "metricKey": "polyunsaturated_fat_g",
+          "text": "polyunsaturated fat at 4.5g",
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
+          "band": "2_green",
+          "dvPercent": null,
+          "value": 4.5
+        },
+        {
           "metricKey": "saturated_fat_g",
           "text": "saturated fat at 2.3g",
-          "weightedScore": -2,
+          "weightedScore": 20,
           "scoringMode": "arrow_bands",
           "band": "↑↑",
           "dvPercent": null,
           "value": 2.3
-        },
-        {
-          "metricKey": "polyunsaturated_fat_g",
-          "text": "polyunsaturated fat at 4.5g",
-          "weightedScore": 2,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑",
-          "dvPercent": null,
-          "value": 4.5
         }
       ],
-      "subtitleText": "15g of fat. Omega 3 is 40mg, doing a lot of the work here. For a tuber, this mostly lives or dies on carb behaviour.",
+      "subtitleText": "15g of fat. Omega 3 is 40mg, supporting a more useful fat profile. Polyunsaturated fat is 4.5g, a weak mark for tubers.",
       "timingHint": "short-medium",
-      "score": 66.7
+      "score": 20
     },
     {
       "key": "carbs",
       "title": "Carbs",
-      "narration": "41 grams of carbs. Glycemic index is 75 GI. Fibre is 3.8 grams, doing a lot of the work here. For tubers, the carb side decides whether the food feels stable or flimsy.",
+      "narration": "41 grams of carbs. Fibre is 3.8 grams, helping with digestion and steadier meals.",
       "displayItems": [
-        {
-          "metricKey": "glycemic_index",
-          "text": "glycemic index at 75 GI",
-          "weightedScore": -8,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑",
-          "dvPercent": null,
-          "value": 75
-        },
-        {
-          "metricKey": "starch_g",
-          "text": "starch at 35g",
-          "weightedScore": 3,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
-          "dvPercent": null,
-          "value": 35
-        },
         {
           "metricKey": "fibre_g",
           "text": "fibre at 3.8g",
-          "weightedScore": 3,
+          "weightedScore": 180,
           "scoringMode": "arrow_bands",
           "band": "↑",
           "dvPercent": null,
           "value": 3.8
         },
         {
-          "metricKey": "sugar_g",
-          "text": "sugar at 0.3g",
-          "weightedScore": 3,
-          "scoringMode": "arrow_bands",
-          "band": "↓↓↓",
-          "dvPercent": null,
-          "value": 0.3
-        }
-      ],
-      "subtitleText": "41g of carbs. Glycemic index is 75 GI. Fibre is 3.8g, doing a lot of the work here. For tubers, the carb side decides whether the food feels stable or flimsy.",
-      "timingHint": "short-medium",
-      "score": 51.9
-    },
-    {
-      "key": "proteins",
-      "title": "Proteins",
-      "narration": "3.4 grams of protein. Bioavailability is 35%, one of the best parts of the protein story. Protein is usually limited here, so the other sections have to carry more.",
-      "displayItems": [
-        {
-          "metricKey": "bioavailability_percent",
-          "text": "bioavailability at 35%",
-          "weightedScore": 3,
+          "metricKey": "starch_g",
+          "text": "starch at 35g",
+          "weightedScore": 100,
           "scoringMode": "arrow_bands",
           "band": "↑↑↑",
           "dvPercent": null,
           "value": 35
         },
         {
+          "metricKey": "sugar_g",
+          "text": "sugar at 0.3g",
+          "weightedScore": 100,
+          "scoringMode": "arrow_bands",
+          "band": "↓↓↓",
+          "dvPercent": null,
+          "value": 0.3
+        },
+        {
+          "metricKey": "glycemic_index",
+          "text": "glycemic index at 75 GI",
+          "weightedScore": 80,
+          "scoringMode": "arrow_bands",
+          "band": "↑↑",
+          "dvPercent": null,
+          "value": 75
+        }
+      ],
+      "subtitleText": "41g of carbs. Fibre is 3.8g, helping with digestion and steadier meals.",
+      "timingHint": "short-medium",
+      "score": 51.1
+    },
+    {
+      "key": "proteins",
+      "title": "Proteins",
+      "narration": "3.4 grams of protein. Essential amino acids score is 2 out of 9, with 35% bioavailability, making the protein useful for repair and maintenance.",
+      "displayItems": [
+        {
           "metricKey": "essential_amino_acids_score",
           "text": "essential amino acids score at 2/9",
-          "weightedScore": -1,
+          "weightedScore": 20,
           "scoringMode": "arrow_bands",
-          "band": "↓",
+          "band": "↓↓",
           "dvPercent": null,
-          "value": 2
+          "value": 2,
+          "referenceOnly": false
+        },
+        {
+          "metricKey": "bioavailability_percent",
+          "text": "bioavailability at 35%",
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
+          "band": "3_green",
+          "dvPercent": null,
+          "value": 35,
+          "referenceOnly": false
         },
         {
           "metricKey": "nonessential_amino_acids_score",
           "text": "nonessential amino acids score at 4/11",
-          "weightedScore": 1,
+          "weightedScore": 0,
           "scoringMode": "arrow_bands",
-          "band": "↑",
+          "band": "1_green",
           "dvPercent": null,
-          "value": 4
+          "value": 4,
+          "referenceOnly": false
         }
       ],
-      "subtitleText": "3.4g of protein. Bioavailability is 35%, one of the best parts of the protein story. Protein is usually limited here, so the other sections have to carry more.",
+      "subtitleText": "3.4g of protein. Essential amino acids score is 2/9, with 35% bioavailability, making the protein useful for repair and maintenance.",
       "timingHint": "short-medium",
-      "score": 66.7
+      "score": 20
     },
     {
       "key": "vitamins",
       "title": "Vitamins",
-      "narration": "The rest is pretty lackluster.",
-      "displayItems": [],
-      "subtitleText": "The rest is pretty lackluster.",
+      "narration": "Vitamin C is 6% daily value, useful for collagen formation and antioxidant support. Vitamin A is only 0% daily value, a weak mark for tubers.",
+      "displayItems": [
+        {
+          "metricKey": "vitamin_c_dv",
+          "text": "vitamin C at 6% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 6,
+          "value": null
+        },
+        {
+          "metricKey": "vitamin_a_dv",
+          "text": "vitamin A at 0% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
+        }
+      ],
+      "subtitleText": "Vitamin C is 6% DV, useful for collagen formation and antioxidant support. Vitamin A is only 0% DV, a weak mark for tubers.",
       "timingHint": "short-medium",
-      "score": null
+      "score": 0
     },
     {
       "key": "minerals",
       "title": "Minerals",
-      "narration": "Potassium at 13% daily value stands out most. Useful, but still pretty limited.",
+      "narration": "Potassium is 13% daily value, useful for fluid balance. Iron is only 4% daily value, a weak mark for tubers.",
       "displayItems": [
         {
           "metricKey": "potassium_dv",
           "text": "potassium at 13% DV",
-          "weightedScore": 2,
+          "weightedScore": 20,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 13,
           "value": null
+        },
+        {
+          "metricKey": "iron_dv",
+          "text": "iron at 4% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 4,
+          "value": null
+        },
+        {
+          "metricKey": "magnesium_dv",
+          "text": "magnesium at 7% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 7,
+          "value": null
         }
       ],
-      "subtitleText": "Potassium at 13% daily value stands out most. Useful, but still pretty limited.",
+      "subtitleText": "Potassium is 13% DV, useful for fluid balance. Iron is only 4% DV, a weak mark for tubers.",
       "timingHint": "short-medium",
-      "score": 10
+      "score": 5
     },
     {
       "key": "pros",
@@ -176,79 +231,145 @@
           "title": "strong comfort-food appeal",
           "explanation": "A very real reason people like them, even if the nutrition fit is weak.",
           "impactLevel": "minor",
-          "scoreValue": 0
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "still retains some tuber identity",
           "explanation": "Not nutritionally empty, just much worse than stronger tuber forms.",
           "impactLevel": "minor",
-          "scoreValue": 0
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "satisfying texture and taste",
           "explanation": "Part of the real-world appeal, especially for content framing.",
           "impactLevel": "minor",
-          "scoreValue": 0
+          "resolvedScoreValue": 50
         }
       ],
       "subtitleText": "Pros first: strong comfort-food appeal. A very real reason people like them, even if the nutrition fit is weak. Still retains some tuber identity. Not nutritionally empty, just much worse than stronger tuber forms. Satisfying texture and taste. Part of the real-world appeal, especially for content framing.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     },
     {
       "key": "cons",
       "title": "Cons",
-      "narration": "Now the downsides: fried format is a major category negative. This drags tubers away from the cleaner energy-food role the category is supposed to reward. Glycemic behaviour is rough. A major practical strike against the food in a carb-behaviour category. Energy density is much harsher than ideal. Much easier to overshoot calories than with cleaner tuber forms.",
+      "narration": "Cons next: fried format is a major category negative. This drags tubers away from the cleaner energy-food role the category is supposed to reward. Glycemic behaviour is rough. A major practical strike against the food in a carb-behaviour category. Energy density is much harsher than ideal. Much easier to overshoot calories than with cleaner tuber forms.",
       "displayItems": [
         {
           "type": "con",
           "title": "fried format is a major category negative",
           "explanation": "This drags tubers away from the cleaner energy-food role the category is supposed to reward.",
           "impactLevel": "major",
-          "scoreValue": -3
+          "resolvedScoreValue": 100
         },
         {
           "type": "con",
           "title": "glycemic behaviour is rough",
           "explanation": "A major practical strike against the food in a carb-behaviour category.",
           "impactLevel": "major",
-          "scoreValue": -3
+          "resolvedScoreValue": 100
         },
         {
           "type": "con",
           "title": "energy density is much harsher than ideal",
           "explanation": "Much easier to overshoot calories than with cleaner tuber forms.",
           "impactLevel": "major",
-          "scoreValue": -3
+          "resolvedScoreValue": 100
         }
       ],
-      "subtitleText": "Now the downsides: fried format is a major category negative. This drags tubers away from the cleaner energy-food role the category is supposed to reward. Glycemic behaviour is rough. A major practical strike against the food in a carb-behaviour category. Energy density is much harsher than ideal. Much easier to overshoot calories than with cleaner tuber forms.",
+      "subtitleText": "Cons next: fried format is a major category negative. This drags tubers away from the cleaner energy-food role the category is supposed to reward. Glycemic behaviour is rough. A major practical strike against the food in a carb-behaviour category. Energy density is much harsher than ideal. Much easier to overshoot calories than with cleaner tuber forms.",
       "timingHint": "medium",
-      "score": 100
+      "score": 0
     }
   ],
   "closing": {
-    "summary": "Fries does have a few real-world upsides. but the nutrition case is still weak and the downsides drag it down hard. best only when you want easy carbs and can accept the missing upside.",
+    "summary": "Big strengths are protein and strong comfort-food appeal, but the biggest weaknesses are fried format is a major category negative and glycemic behaviour is rough.",
+    "overview": "Big strengths are protein and strong comfort-food appeal, but the biggest weaknesses are fried format is a major category negative and glycemic behaviour is rough.",
     "finalReveal": "D tier.",
     "useCaseNote": "Best only when you want easy carbs and can accept the missing upside.",
     "cta": "Would you rank it the same, or nah?"
   },
   "tier": "D",
-  "overallScore": 26,
+  "overallScore": 14.9,
+  "overallScoreExact": 14.8798,
+  "baseOverallScore": 20.9,
+  "baseOverallScoreExact": 20.873,
+  "sectionOrder": [
+    "fats",
+    "carbs",
+    "proteins",
+    "vitamins",
+    "minerals",
+    "pros",
+    "cons"
+  ],
+  "narrationBlocks": [
+    {
+      "kind": "hook_food",
+      "text": "Fries!"
+    },
+    {
+      "kind": "hook_ranked",
+      "text": "Ranked!"
+    },
+    {
+      "kind": "section",
+      "sectionKey": "fats",
+      "text": "15 grams of fat. Omega 3 is 40 milligrams, supporting a more useful fat profile. Polyunsaturated fat is 4.5 grams, a weak mark for tubers."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "carbs",
+      "text": "41 grams of carbs. Fibre is 3.8 grams, helping with digestion and steadier meals."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "proteins",
+      "text": "3.4 grams of protein. Essential amino acids score is 2 out of 9, with 35% bioavailability, making the protein useful for repair and maintenance."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "vitamins",
+      "text": "Vitamin C is 6% daily value, useful for collagen formation and antioxidant support. Vitamin A is only 0% daily value, a weak mark for tubers."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "minerals",
+      "text": "Potassium is 13% daily value, useful for fluid balance. Iron is only 4% daily value, a weak mark for tubers."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "pros",
+      "text": "Pros first: strong comfort-food appeal. A very real reason people like them, even if the nutrition fit is weak. Still retains some tuber identity. Not nutritionally empty, just much worse than stronger tuber forms. Satisfying texture and taste. Part of the real-world appeal, especially for content framing."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "cons",
+      "text": "Cons next: fried format is a major category negative. This drags tubers away from the cleaner energy-food role the category is supposed to reward. Glycemic behaviour is rough. A major practical strike against the food in a carb-behaviour category. Energy density is much harsher than ideal. Much easier to overshoot calories than with cleaner tuber forms."
+    },
+    {
+      "kind": "closing_summary",
+      "text": "Big strengths are protein and strong comfort-food appeal, but the biggest weaknesses are fried format is a major category negative and glycemic behaviour is rough."
+    },
+    {
+      "kind": "final_reveal",
+      "text": "D tier."
+    }
+  ],
   "explanation": {
-    "summary": "Fats are carrying this food most, while minerals are the biggest drag. It lands in D tier.",
-    "whyThisTier": "This food lands in D tier with an overall score of 26 from a base nutrition score of 35. Context dragged it down by 9 points.",
+    "summary": "Carbs are carrying this food most, while cons are holding it back most. It lands in D tier.",
+    "whyThisTier": "This food lands in D tier with an overall score of 14.9. Section scores: fats 20, carbs 51.1, proteins 20, vitamins 0, minerals 5, pros 50, cons 0.",
     "strongestSection": {
-      "key": "fats",
-      "label": "Fats",
-      "score": 66.7
+      "key": "carbs",
+      "label": "Carbs",
+      "score": 51.1
     },
     "weakestSection": {
-      "key": "minerals",
-      "label": "Minerals",
-      "score": 10
+      "key": "cons",
+      "label": "Cons",
+      "score": 0
     },
     "topPros": [
       {
@@ -256,21 +377,21 @@
         "explanation": "A very real reason people like them, even if the nutrition fit is weak.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "still retains some tuber identity",
         "explanation": "Not nutritionally empty, just much worse than stronger tuber forms.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "satisfying texture and taste",
         "explanation": "Part of the real-world appeal, especially for content framing.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -279,27 +400,26 @@
         "explanation": "This drags tubers away from the cleaner energy-food role the category is supposed to reward.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -3
+        "resolvedScoreValue": 100
       },
       {
         "title": "glycemic behaviour is rough",
         "explanation": "A major practical strike against the food in a carb-behaviour category.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -3
+        "resolvedScoreValue": 100
       },
       {
         "title": "energy density is much harsher than ideal",
         "explanation": "Much easier to overshoot calories than with cleaner tuber forms.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -3
+        "resolvedScoreValue": 100
       }
     ],
     "narrationNotes": [
-      "Strongest section: Fats.",
-      "Weakest section: Minerals.",
-      "Context weakened the final tier case by 9 points.",
+      "Strongest section: Carbs.",
+      "Weakest section: Cons.",
       "Final verdict: D tier."
     ]
   }

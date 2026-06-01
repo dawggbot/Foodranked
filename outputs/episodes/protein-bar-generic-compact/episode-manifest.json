@@ -1,6 +1,6 @@
 {
   "id": "protein-bar-generic-episode-v1",
-  "generatedAt": "2026-03-20T14:18:50.982Z",
+  "generatedAt": "2026-06-01T22:53:57.824Z",
   "status": "draft",
   "mode": "compact",
   "food": {
@@ -11,6 +11,12 @@
       "value": 100,
       "unit": "g"
     },
+    "identity": null,
+    "scoreReadiness": null,
+    "sourceNotes": [
+      "Calibration benchmark sample for FoodRanked.",
+      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
+    ],
     "sourceFile": "foods/protein-bar-generic.sample.json"
   },
   "sourceOfTruth": {
@@ -28,31 +34,88 @@
     "subtitlesJson": "subtitles.json"
   },
   "scoreSnapshot": {
-    "overallScore": 3,
-    "tier": "C",
-    "baseScore": 3,
-    "contextAdjustment": 0,
+    "overallScore": 54.5,
+    "overallScoreExact": 54.4682,
+    "baseOverallScore": 27,
+    "baseOverallScoreExact": 27,
+    "tier": "B",
     "sectionScores": {
       "fats": null,
       "carbs": null,
       "proteins": null,
-      "vitamins": null,
-      "minerals": 10,
-      "pros": 88.9,
-      "cons": 88.9
+      "vitamins": 0,
+      "minerals": 8,
+      "pros": 66.7,
+      "cons": 33.3
     },
+    "strongestSection": {
+      "key": "pros",
+      "label": "Pros",
+      "score": 66.7
+    },
+    "weakestSection": {
+      "key": "vitamins",
+      "label": "Vitamins",
+      "score": 0
+    },
+    "topPros": [
+      {
+        "title": "usually better than just grabbing candy",
+        "explanation": "The misc rules should reward a functional upgrade when it is real.",
+        "impactLevel": "major",
+        "side": "pro",
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "can still earn points as a better swap",
+        "explanation": "The category should reward harm reduction when it is real.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "context tells the real story",
+        "explanation": "That is the whole point of misc.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      }
+    ],
+    "topCons": [
+      {
+        "title": "still easy to overrate as a health food",
+        "explanation": "A protein bar is often a useful compromise, not a clean win.",
+        "impactLevel": "major",
+        "side": "con",
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "easy to overrate or misuse",
+        "explanation": "This category attracts strong marketing and habits.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "better replacements often exist",
+        "explanation": "That practical comparison matters.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
+      }
+    ],
     "explanation": {
-      "summary": "Minerals are carrying this food most, while minerals are the biggest drag. It lands in C tier.",
-      "whyThisTier": "This food lands in C tier with an overall score of 3 from a base nutrition score of 3. Context barely changed the result.",
+      "summary": "Pros are carrying this food most, while vitamins are holding it back most. It lands in B tier.",
+      "whyThisTier": "This food lands in B tier with an overall score of 54.5. Section scores: vitamins 0, minerals 8, pros 66.7, cons 33.3.",
       "strongestSection": {
-        "key": "minerals",
-        "label": "Minerals",
-        "score": 10
+        "key": "pros",
+        "label": "Pros",
+        "score": 66.7
       },
       "weakestSection": {
-        "key": "minerals",
-        "label": "Minerals",
-        "score": 10
+        "key": "vitamins",
+        "label": "Vitamins",
+        "score": 0
       },
       "topPros": [
         {
@@ -60,7 +123,21 @@
           "explanation": "The misc rules should reward a functional upgrade when it is real.",
           "impactLevel": "major",
           "side": "pro",
-          "resolvedScoreValue": 8
+          "resolvedScoreValue": 100
+        },
+        {
+          "title": "can still earn points as a better swap",
+          "explanation": "The category should reward harm reduction when it is real.",
+          "impactLevel": "minor",
+          "side": "pro",
+          "resolvedScoreValue": 50
+        },
+        {
+          "title": "context tells the real story",
+          "explanation": "That is the whole point of misc.",
+          "impactLevel": "minor",
+          "side": "pro",
+          "resolvedScoreValue": 50
         }
       ],
       "topCons": [
@@ -69,23 +146,39 @@
           "explanation": "A protein bar is often a useful compromise, not a clean win.",
           "impactLevel": "major",
           "side": "con",
-          "resolvedScoreValue": -8
+          "resolvedScoreValue": 100
+        },
+        {
+          "title": "easy to overrate or misuse",
+          "explanation": "This category attracts strong marketing and habits.",
+          "impactLevel": "minor",
+          "side": "con",
+          "resolvedScoreValue": 50
+        },
+        {
+          "title": "better replacements often exist",
+          "explanation": "That practical comparison matters.",
+          "impactLevel": "minor",
+          "side": "con",
+          "resolvedScoreValue": 50
         }
       ],
       "narrationNotes": [
-        "Strongest section: Minerals.",
-        "Weakest section: Minerals.",
-        "Final verdict: C tier."
+        "Strongest section: Pros.",
+        "Weakest section: Vitamins.",
+        "Final verdict: B tier."
       ]
     }
   },
   "scriptSnapshot": {
+    "schemaVersion": "foodranked-script.v2",
+    "narrationFormat": "elevenlabs-blocks-v1",
     "hook": "Protein Bar (Generic) ranked.",
-    "intro": null,
     "closing": {
-      "summary": "Protein Bar (Generic) does have a few real-world upsides. but the nutrition case is still weak and the downsides drag it down hard. best treated as an occasional context item, not a nutritional base.",
-      "finalReveal": "C tier.",
-      "useCaseNote": "Best treated as an occasional context item, not a nutritional base.",
+      "summary": "Big strengths are usually better than just grabbing candy and can still earn points as a better swap, but the biggest weaknesses are still easy to overrate as a health food and easy to overrate or misuse.",
+      "overview": "Big strengths are usually better than just grabbing candy and can still earn points as a better swap, but the biggest weaknesses are still easy to overrate as a health food and easy to overrate or misuse.",
+      "finalReveal": "B tier.",
+      "useCaseNote": "Best treated as a context item rather than a nutritional cornerstone.",
       "cta": "Would you rank it the same, or nah?"
     },
     "sectionOrder": [
@@ -96,45 +189,468 @@
       "minerals",
       "pros",
       "cons"
-    ]
+    ],
+    "narrationBlockCount": 11
   },
   "visualBinding": {
     "templateId": "foodranked-visual-template.v1",
     "aspectRatio": "9:16",
     "categoryAccent": "Neutral Grey",
-    "tierColor": "green"
+    "tierColor": "red",
+    "visualProfile": {
+      "name": "balanced",
+      "description": "Default launch profile: readable, centered, and close to the locked storyboard.",
+      "macroLayout": "stacked",
+      "subtitleLift": "standard",
+      "hookStyle": "hero-center",
+      "motionPreset": "balanced",
+      "statsDensity": "standard",
+      "micronutrientRows": 2,
+      "macroSlotsVisible": 3,
+      "emphasisOrder": [
+        "hook",
+        "header",
+        "macro",
+        "micros",
+        "pros-cons",
+        "tier"
+      ]
+    },
+    "spriteBindings": {
+      "strategy": "png-primary-with-aseprite-reference",
+      "categoryKey": "misc",
+      "notes": [
+        "Use exported 100% PNG and GIF files for edit/runtime placement.",
+        "Use .aseprite sources only as fidelity references when adjusting layout or re-exporting."
+      ],
+      "header": {
+        "foodPlate": {
+          "path": "sprites/header/food_plate/misc_food_plate.png",
+          "format": "png"
+        },
+        "foodPlateSource": {
+          "path": "sprites/header/food_plate/misc_food_plate.aseprite",
+          "format": "aseprite"
+        },
+        "foodTypePlate": {
+          "path": "sprites/header/food_type_plate/misc_type_plate.png",
+          "format": "png"
+        },
+        "foodTypePlateSource": {
+          "path": "sprites/header/food_type_plate/misc_type_plate.aseprite",
+          "format": "aseprite"
+        },
+        "calorieBubble": {
+          "path": "sprites/header/calorie_bubble/misc_calorie_bubble.png",
+          "format": "png"
+        },
+        "calorieBubbleSource": {
+          "path": "sprites/header/calorie_bubble/misc_calorie_bubble.aseprite",
+          "format": "aseprite"
+        },
+        "scorePlate": {
+          "path": "sprites/header/header_ui/score_plate.png",
+          "format": "png"
+        },
+        "scorePlateSource": {
+          "path": "sprites/header/header_ui/score_plate.aseprite",
+          "format": "aseprite"
+        }
+      },
+      "macros": {
+        "arrows": {
+          "positive": {
+            "path": "sprites/macros_section/arrow_indicators/green_arrow.png",
+            "format": "png"
+          },
+          "positiveSource": {
+            "path": "sprites/macros_section/arrow_indicators/green_arrow.aseprite",
+            "format": "aseprite"
+          },
+          "negative": {
+            "path": "sprites/macros_section/arrow_indicators/red_arrow.png",
+            "format": "png"
+          },
+          "negativeSource": {
+            "path": "sprites/macros_section/arrow_indicators/red_arrow.aseprite",
+            "format": "aseprite"
+          }
+        },
+        "fats": {
+          "icon": {
+            "path": "sprites/macros_section/section_1_fats/fat_icon.gif",
+            "format": "gif"
+          },
+          "iconSource": {
+            "path": "sprites/macros_section/section_1_fats/fat_icon.aseprite",
+            "format": "aseprite"
+          },
+          "bullet": {
+            "path": "sprites/macros_section/section_1_fats/fat_submacro_bullet_point.png",
+            "format": "png"
+          },
+          "bulletSource": {
+            "path": "sprites/macros_section/section_1_fats/fat_submacro_bullet_point.aseprite",
+            "format": "aseprite"
+          }
+        },
+        "carbs": {
+          "icon": {
+            "path": "sprites/macros_section/section_2_carbs/carb_icon.gif",
+            "format": "gif"
+          },
+          "iconSource": {
+            "path": "sprites/macros_section/section_2_carbs/carb_icon.aseprite",
+            "format": "aseprite"
+          },
+          "bullet": {
+            "path": "sprites/macros_section/section_2_carbs/carb_submacro_bullet_point.png",
+            "format": "png"
+          },
+          "bulletSource": {
+            "path": "sprites/macros_section/section_2_carbs/carb_submacro_bullet_point.aseprite",
+            "format": "aseprite"
+          }
+        },
+        "proteins": {
+          "icon": {
+            "path": "sprites/macros_section/section_3_protein/protein_icon.gif",
+            "format": "gif"
+          },
+          "iconSource": {
+            "path": "sprites/macros_section/section_3_protein/protein_icon.aseprite",
+            "format": "aseprite"
+          },
+          "bullet": {
+            "path": "sprites/macros_section/section_3_protein/protein_submacro_bullet_point.png",
+            "format": "png"
+          },
+          "bulletSource": {
+            "path": "sprites/macros_section/section_3_protein/protein_submacro_bullet_point.aseprite",
+            "format": "aseprite"
+          }
+        }
+      },
+      "micros": {
+        "vitamins": {
+          "icon": {
+            "path": "sprites/micros_section/vitamins/vitamin_icon.gif",
+            "format": "gif"
+          },
+          "iconSource": {
+            "path": "sprites/micros_section/vitamins/vitamin_icon.aseprite",
+            "format": "aseprite"
+          },
+          "microIcon": {
+            "path": "sprites/micros_section/vitamins/vitamin_micro_icon.png",
+            "format": "png"
+          },
+          "microIconSource": {
+            "path": "sprites/micros_section/vitamins/vitamin_micro_icon.aseprite",
+            "format": "aseprite"
+          }
+        },
+        "minerals": {
+          "icon": {
+            "path": "sprites/micros_section/minerals/mineral_icon.gif",
+            "format": "gif"
+          },
+          "iconSource": {
+            "path": "sprites/micros_section/minerals/mineral_icon.aseprite",
+            "format": "aseprite"
+          },
+          "microIcon": {
+            "path": "sprites/micros_section/minerals/mineral_micro_icon.png",
+            "format": "png"
+          },
+          "microIconSource": {
+            "path": "sprites/micros_section/minerals/mineral_micro_icon.aseprite",
+            "format": "aseprite"
+          }
+        },
+        "bars": {
+          "line": {
+            "path": "sprites/micros_section/bars/bar_line.png",
+            "format": "png"
+          },
+          "lineSource": {
+            "path": "sprites/micros_section/bars/bar_line.aseprite",
+            "format": "aseprite"
+          },
+          "full": {
+            "path": "sprites/micros_section/bars/100%_bar.png",
+            "format": "png"
+          },
+          "fullSource": {
+            "path": "sprites/micros_section/bars/100%_bar.aseprite",
+            "format": "aseprite"
+          }
+        }
+      },
+      "prosCons": {
+        "pros": {
+          "bullet": {
+            "path": "sprites/pros_and_cons/pros/pro_bullet_point.png",
+            "format": "png"
+          },
+          "bulletSource": {
+            "path": "sprites/pros_and_cons/pros/pro_bullet_point.aseprite",
+            "format": "aseprite"
+          }
+        },
+        "cons": {
+          "bullet": {
+            "path": "sprites/pros_and_cons/cons/con_bullet_point.png",
+            "format": "png"
+          },
+          "bulletSource": {
+            "path": "sprites/pros_and_cons/cons/con_bullet_point.aseprite",
+            "format": "aseprite"
+          }
+        }
+      },
+      "progress": {
+        "inactive": {
+          "path": "sprites/ui/section_indicator/misc_section_indicator.png",
+          "format": "png"
+        },
+        "inactiveSource": {
+          "path": "sprites/ui/section_indicator/misc_section_indicator.aseprite",
+          "format": "aseprite"
+        },
+        "active": {
+          "path": "sprites/ui/section_indicator/misc_highlighted_section_indicator.png",
+          "format": "png"
+        },
+        "activeSource": {
+          "path": "sprites/ui/section_indicator/misc_highlighted_section_indicator.aseprite",
+          "format": "aseprite"
+        }
+      },
+      "separators": {
+        "section": {
+          "path": "sprites/ui/section_separator/misc_section_separator.png",
+          "format": "png"
+        },
+        "sectionSource": {
+          "path": "sprites/ui/section_separator/misc_section_separator.aseprite",
+          "format": "aseprite"
+        }
+      },
+      "references": {
+        "macroLayout": {
+          "path": "sprites/references/macros_section.png",
+          "format": "png"
+        },
+        "macroLayoutSource": {
+          "path": "sprites/references/macros_section.aseprite",
+          "format": "aseprite"
+        },
+        "microLayout": {
+          "path": "sprites/references/micros_section.png",
+          "format": "png"
+        },
+        "microLayoutSource": {
+          "path": "sprites/references/micros_section.aseprite",
+          "format": "aseprite"
+        },
+        "prosConsLayout": {
+          "path": "sprites/references/pros_cons_section.png",
+          "format": "png"
+        },
+        "prosConsLayoutSource": {
+          "path": "sprites/references/pros_cons_section.aseprite",
+          "format": "aseprite"
+        }
+      }
+    },
+    "storyboardContract": {
+      "lockedSceneStack": [
+        {
+          "id": "hook",
+          "kind": "hook",
+          "narrativeRole": "opening-promise",
+          "subtitlePlacement": "lower-third"
+        },
+        {
+          "id": "fats",
+          "kind": "section",
+          "narrativeRole": "macro-foundation",
+          "subtitlePlacement": "lower-third"
+        },
+        {
+          "id": "carbs",
+          "kind": "section",
+          "narrativeRole": "macro-foundation",
+          "subtitlePlacement": "lower-third"
+        },
+        {
+          "id": "proteins",
+          "kind": "section",
+          "narrativeRole": "macro-foundation",
+          "subtitlePlacement": "lower-third"
+        },
+        {
+          "id": "vitamins",
+          "kind": "section",
+          "narrativeRole": "micronutrient-proof",
+          "subtitlePlacement": "lower-third"
+        },
+        {
+          "id": "minerals",
+          "kind": "section",
+          "narrativeRole": "micronutrient-proof",
+          "subtitlePlacement": "lower-third"
+        },
+        {
+          "id": "pros",
+          "kind": "section",
+          "narrativeRole": "real-world-upside",
+          "subtitlePlacement": "high-lower-third"
+        },
+        {
+          "id": "cons",
+          "kind": "section",
+          "narrativeRole": "real-world-downside",
+          "subtitlePlacement": "high-lower-third"
+        },
+        {
+          "id": "final",
+          "kind": "closing",
+          "narrativeRole": "verdict-payoff",
+          "subtitlePlacement": "subtitle-floor"
+        }
+      ],
+      "subtitleSafeBox": {
+        "x": 80,
+        "y": 1320,
+        "w": 920,
+        "h": 280
+      },
+      "progressIndicator": {
+        "id": "progress_dots",
+        "type": "dotRow",
+        "count": 7,
+        "x": 414,
+        "y": 1710,
+        "dotSize": 26,
+        "gap": 20,
+        "states": [
+          "inactive",
+          "active",
+          "completed"
+        ]
+      }
+    }
   },
   "reviewChecklist": [
     "Verify nutrient values are sourced well enough for publishable use.",
     "Review narration for category repetition and trim any awkward lines.",
     "Confirm subtitle density stays readable at phone speed.",
-    "Replace placeholder hero/sprite art with final asset selection.",
+    "Use the PNG and GIF sprite exports directly, and only open .aseprite sources when fidelity adjustments are needed.",
     "Check that the final tier verdict feels editorially defensible."
   ],
   "nextHumanStep": "Review the generated narration + manifest, then use the manifest as the handoff into visual assembly / editing.",
   "scenePlan": {
     "mode": "compact",
-    "totalEstimatedDurationSeconds": 60.14,
+    "visualProfile": "balanced",
+    "subtitleRules": {
+      "maxLines": 2,
+      "maxCharactersPerLine": 18
+    },
+    "totalEstimatedDurationSeconds": 66.79,
     "scenes": [
       {
         "id": "hook",
         "kind": "hook",
+        "narrativeRole": "opening-promise",
         "startSeconds": 0,
         "durationSeconds": 2.1,
         "endSeconds": 2.1,
         "narrationText": "Protein Bar (Generic) ranked.",
         "subtitleText": "Protein Bar (Generic) ranked.",
+        "subtitlePlacement": "lower-third",
         "visualBinding": {
           "title": "Protein Bar (Generic)",
           "rankedWord": "RANKED",
           "foodType": "misc",
           "kcal": 360,
-          "categoryAccent": "Neutral Grey"
+          "categoryAccent": "Neutral Grey",
+          "hookStyle": "hero-center",
+          "headerSprites": {
+            "foodPlate": {
+              "path": "sprites/header/food_plate/misc_food_plate.png",
+              "format": "png"
+            },
+            "foodPlateSource": {
+              "path": "sprites/header/food_plate/misc_food_plate.aseprite",
+              "format": "aseprite"
+            },
+            "foodTypePlate": {
+              "path": "sprites/header/food_type_plate/misc_type_plate.png",
+              "format": "png"
+            },
+            "foodTypePlateSource": {
+              "path": "sprites/header/food_type_plate/misc_type_plate.aseprite",
+              "format": "aseprite"
+            },
+            "calorieBubble": {
+              "path": "sprites/header/calorie_bubble/misc_calorie_bubble.png",
+              "format": "png"
+            },
+            "calorieBubbleSource": {
+              "path": "sprites/header/calorie_bubble/misc_calorie_bubble.aseprite",
+              "format": "aseprite"
+            },
+            "scorePlate": {
+              "path": "sprites/header/header_ui/score_plate.png",
+              "format": "png"
+            },
+            "scorePlateSource": {
+              "path": "sprites/header/header_ui/score_plate.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "progressSprites": {
+            "inactive": {
+              "path": "sprites/ui/section_indicator/misc_section_indicator.png",
+              "format": "png"
+            },
+            "inactiveSource": {
+              "path": "sprites/ui/section_indicator/misc_section_indicator.aseprite",
+              "format": "aseprite"
+            },
+            "active": {
+              "path": "sprites/ui/section_indicator/misc_highlighted_section_indicator.png",
+              "format": "png"
+            },
+            "activeSource": {
+              "path": "sprites/ui/section_indicator/misc_highlighted_section_indicator.aseprite",
+              "format": "aseprite"
+            }
+          }
         },
         "revealPlan": [
           "hero_food",
           "hook_title",
           "hook_ranked_word"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "hero_food",
+            "beat": "start",
+            "purpose": "food-recognition"
+          },
+          {
+            "slotId": "hook_title",
+            "beat": "mid",
+            "purpose": "ranking-promise"
+          },
+          {
+            "slotId": "hook_ranked_word",
+            "beat": "end",
+            "purpose": "impact-lockup"
+          }
         ],
         "subtitleCues": [
           {
@@ -156,11 +672,13 @@
       {
         "id": "fats",
         "kind": "section",
+        "narrativeRole": "macro-foundation",
         "startSeconds": 2.1,
         "durationSeconds": 2.1,
         "endSeconds": 4.2,
         "narrationText": "Simple one.",
         "subtitleText": "Simple one.",
+        "subtitlePlacement": "lower-third",
         "visualBinding": {
           "sectionKey": "fats",
           "title": "Fats",
@@ -169,16 +687,77 @@
             "macro_headline",
             "submetric_1",
             "submetric_2",
-            "submetric_3"
+            "submetric_3",
+            "commentary_note"
           ],
           "displayItems": [],
-          "timingHint": "short-medium"
+          "timingHint": "short-medium",
+          "narrativeRole": "macro-foundation",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "lower-third",
+          "preferredSpriteBindings": {
+            "icon": {
+              "path": "sprites/macros_section/section_1_fats/fat_icon.gif",
+              "format": "gif"
+            },
+            "iconSource": {
+              "path": "sprites/macros_section/section_1_fats/fat_icon.aseprite",
+              "format": "aseprite"
+            },
+            "bullet": {
+              "path": "sprites/macros_section/section_1_fats/fat_submacro_bullet_point.png",
+              "format": "png"
+            },
+            "bulletSource": {
+              "path": "sprites/macros_section/section_1_fats/fat_submacro_bullet_point.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": {
+              "slotId": "macro_headline",
+              "label": "Fats",
+              "value": null,
+              "emphasis": "standard"
+            },
+            "macroSlots": [],
+            "micronutrientRows": [],
+            "commentaryNote": null
+          }
         },
         "revealPlan": [
           "macro_headline",
           "submetric_1",
           "submetric_2",
-          "submetric_3"
+          "submetric_3",
+          "commentary_note"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "macro_headline",
+            "beat": "lead",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_1",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_2",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_3",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "commentary_note",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          }
         ],
         "subtitleCues": [
           {
@@ -199,11 +778,13 @@
       {
         "id": "carbs",
         "kind": "section",
+        "narrativeRole": "macro-foundation",
         "startSeconds": 4.2,
         "durationSeconds": 4.24,
         "endSeconds": 8.44,
         "narrationText": "35 grams of carbs. And that is basically the whole nutrition story.",
         "subtitleText": "35g of carbs. And that is basically the whole nutrition story.",
+        "subtitlePlacement": "lower-third",
         "visualBinding": {
           "sectionKey": "carbs",
           "title": "Carbs",
@@ -212,16 +793,77 @@
             "macro_headline",
             "submetric_1",
             "submetric_2",
-            "submetric_3"
+            "submetric_3",
+            "commentary_note"
           ],
           "displayItems": [],
-          "timingHint": "short-medium"
+          "timingHint": "short-medium",
+          "narrativeRole": "macro-foundation",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "lower-third",
+          "preferredSpriteBindings": {
+            "icon": {
+              "path": "sprites/macros_section/section_2_carbs/carb_icon.gif",
+              "format": "gif"
+            },
+            "iconSource": {
+              "path": "sprites/macros_section/section_2_carbs/carb_icon.aseprite",
+              "format": "aseprite"
+            },
+            "bullet": {
+              "path": "sprites/macros_section/section_2_carbs/carb_submacro_bullet_point.png",
+              "format": "png"
+            },
+            "bulletSource": {
+              "path": "sprites/macros_section/section_2_carbs/carb_submacro_bullet_point.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": {
+              "slotId": "macro_headline",
+              "label": "Carbs",
+              "value": null,
+              "emphasis": "standard"
+            },
+            "macroSlots": [],
+            "micronutrientRows": [],
+            "commentaryNote": null
+          }
         },
         "revealPlan": [
           "macro_headline",
           "submetric_1",
           "submetric_2",
-          "submetric_3"
+          "submetric_3",
+          "commentary_note"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "macro_headline",
+            "beat": "lead",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_1",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_2",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_3",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "commentary_note",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          }
         ],
         "subtitleCues": [
           {
@@ -270,11 +912,13 @@
       {
         "id": "proteins",
         "kind": "section",
+        "narrativeRole": "macro-foundation",
         "startSeconds": 8.44,
-        "durationSeconds": 2.1,
-        "endSeconds": 10.54,
-        "narrationText": "No real protein story here.",
-        "subtitleText": "No real protein story here.",
+        "durationSeconds": 8.47,
+        "endSeconds": 16.91,
+        "narrationText": "30 grams of protein. Essential amino acids score is 7 out of 9, with 85% bioavailability, making the protein useful for repair and maintenance.",
+        "subtitleText": "30g of protein. Essential amino acids score is 7/9, with 85% bioavailability, making the protein useful for repair and maintenance.",
+        "subtitlePlacement": "lower-third",
         "visualBinding": {
           "sectionKey": "proteins",
           "title": "Proteins",
@@ -283,63 +927,338 @@
             "macro_headline",
             "submetric_1",
             "submetric_2",
-            "submetric_3"
+            "submetric_3",
+            "commentary_note"
           ],
-          "displayItems": [],
-          "timingHint": "short-medium"
+          "displayItems": [
+            {
+              "metricKey": "essential_amino_acids_score",
+              "text": "essential amino acids score at 7/9",
+              "weightedScore": null,
+              "scoringMode": "reference_submacro",
+              "band": null,
+              "dvPercent": null,
+              "value": 7,
+              "referenceOnly": true
+            },
+            {
+              "metricKey": "bioavailability_percent",
+              "text": "bioavailability at 85%",
+              "weightedScore": null,
+              "scoringMode": "reference_submacro",
+              "band": null,
+              "dvPercent": null,
+              "value": 85,
+              "referenceOnly": true
+            },
+            {
+              "metricKey": "nonessential_amino_acids_score",
+              "text": "nonessential amino acids score at 8/11",
+              "weightedScore": null,
+              "scoringMode": "reference_submacro",
+              "band": null,
+              "dvPercent": null,
+              "value": 8,
+              "referenceOnly": true
+            }
+          ],
+          "timingHint": "short-medium",
+          "narrativeRole": "macro-foundation",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "lower-third",
+          "preferredSpriteBindings": {
+            "icon": {
+              "path": "sprites/macros_section/section_3_protein/protein_icon.gif",
+              "format": "gif"
+            },
+            "iconSource": {
+              "path": "sprites/macros_section/section_3_protein/protein_icon.aseprite",
+              "format": "aseprite"
+            },
+            "bullet": {
+              "path": "sprites/macros_section/section_3_protein/protein_submacro_bullet_point.png",
+              "format": "png"
+            },
+            "bulletSource": {
+              "path": "sprites/macros_section/section_3_protein/protein_submacro_bullet_point.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": {
+              "slotId": "macro_headline",
+              "label": "Proteins",
+              "value": null,
+              "emphasis": "standard"
+            },
+            "macroSlots": [
+              {
+                "slotId": "submetric_1",
+                "metricKey": "essential_amino_acids_score",
+                "label": "essential amino acids score",
+                "displayValue": "7/9",
+                "scoringMode": "reference_submacro",
+                "band": null,
+                "weightedScore": null,
+                "spriteRole": "proteins",
+                "text": "essential amino acids score at 7/9"
+              },
+              {
+                "slotId": "submetric_2",
+                "metricKey": "bioavailability_percent",
+                "label": "bioavailability",
+                "displayValue": "85%",
+                "scoringMode": "reference_submacro",
+                "band": null,
+                "weightedScore": null,
+                "spriteRole": "proteins",
+                "text": "bioavailability at 85%"
+              },
+              {
+                "slotId": "submetric_3",
+                "metricKey": "nonessential_amino_acids_score",
+                "label": "nonessential amino acids score",
+                "displayValue": "8/11",
+                "scoringMode": "reference_submacro",
+                "band": null,
+                "weightedScore": null,
+                "spriteRole": "proteins",
+                "text": "nonessential amino acids score at 8/11"
+              }
+            ],
+            "micronutrientRows": [],
+            "commentaryNote": null
+          }
         },
         "revealPlan": [
           "macro_headline",
           "submetric_1",
           "submetric_2",
-          "submetric_3"
+          "submetric_3",
+          "commentary_note"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "macro_headline",
+            "beat": "lead",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_1",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_2",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "submetric_3",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          },
+          {
+            "slotId": "commentary_note",
+            "beat": "follow",
+            "purpose": "macro-foundation"
+          }
         ],
         "subtitleCues": [
           {
-            "id": "06-proteins",
+            "id": "06-proteins-1",
             "sceneId": "proteins",
             "startSeconds": 8.44,
-            "endSeconds": 10.54,
+            "endSeconds": 9.91,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "No real protein",
-              "story here."
+              "30g of protein."
             ],
-            "text": "No real protein\nstory here."
+            "text": "30g of protein."
+          },
+          {
+            "id": "07-proteins-2",
+            "sceneId": "proteins",
+            "startSeconds": 9.91,
+            "endSeconds": 11.83,
+            "placement": "lower-third",
+            "maxLines": 2,
+            "maxCharactersPerLine": 18,
+            "lines": [
+              "Essential amino",
+              "acids score is"
+            ],
+            "text": "Essential amino\nacids score is"
+          },
+          {
+            "id": "08-proteins-3",
+            "sceneId": "proteins",
+            "startSeconds": 11.83,
+            "endSeconds": 13.66,
+            "placement": "lower-third",
+            "maxLines": 2,
+            "maxCharactersPerLine": 18,
+            "lines": [
+              "7/9, with 85%",
+              "bioavailability,"
+            ],
+            "text": "7/9, with 85%\nbioavailability,"
+          },
+          {
+            "id": "09-proteins-4",
+            "sceneId": "proteins",
+            "startSeconds": 13.66,
+            "endSeconds": 15.95,
+            "placement": "lower-third",
+            "maxLines": 2,
+            "maxCharactersPerLine": 18,
+            "lines": [
+              "making the protein",
+              "useful for repair"
+            ],
+            "text": "making the protein\nuseful for repair"
+          },
+          {
+            "id": "10-proteins-5",
+            "sceneId": "proteins",
+            "startSeconds": 15.95,
+            "endSeconds": 16.91,
+            "placement": "lower-third",
+            "maxLines": 2,
+            "maxCharactersPerLine": 18,
+            "lines": [
+              "and maintenance."
+            ],
+            "text": "and maintenance."
           }
         ]
       },
       {
         "id": "vitamins",
         "kind": "section",
-        "startSeconds": 10.54,
+        "narrativeRole": "micronutrient-proof",
+        "startSeconds": 16.91,
         "durationSeconds": 2.1,
-        "endSeconds": 12.64,
+        "endSeconds": 19.01,
         "narrationText": "No real vitamin story here.",
         "subtitleText": "No real vitamin story here.",
+        "subtitlePlacement": "lower-third",
         "visualBinding": {
           "sectionKey": "vitamins",
           "title": "Vitamins",
-          "score": null,
+          "score": 0,
           "templateSlots": [
             "micronutrient_1",
-            "micronutrient_2"
+            "micronutrient_2",
+            "commentary_note"
           ],
-          "displayItems": [],
-          "timingHint": "short-medium"
+          "displayItems": [
+            {
+              "metricKey": "vitamin_c_dv",
+              "text": "vitamin C at 0% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 0,
+              "value": null
+            },
+            {
+              "metricKey": "vitamin_e_dv",
+              "text": "vitamin E at 0% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 0,
+              "value": null
+            },
+            {
+              "metricKey": "vitamin_k_dv",
+              "text": "vitamin K at 0% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 0,
+              "value": null
+            }
+          ],
+          "timingHint": "short-medium",
+          "narrativeRole": "micronutrient-proof",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "lower-third",
+          "preferredSpriteBindings": {
+            "icon": {
+              "path": "sprites/micros_section/vitamins/vitamin_icon.gif",
+              "format": "gif"
+            },
+            "iconSource": {
+              "path": "sprites/micros_section/vitamins/vitamin_icon.aseprite",
+              "format": "aseprite"
+            },
+            "microIcon": {
+              "path": "sprites/micros_section/vitamins/vitamin_micro_icon.png",
+              "format": "png"
+            },
+            "microIconSource": {
+              "path": "sprites/micros_section/vitamins/vitamin_micro_icon.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": null,
+            "macroSlots": [],
+            "micronutrientRows": [
+              {
+                "slotId": "micronutrient_1",
+                "metricKey": "vitamin_c_dv",
+                "label": "vitamin c",
+                "displayValue": "0% DV",
+                "dvPercent": 0,
+                "spriteRole": "micronutrient-row",
+                "text": "vitamin C at 0% DV"
+              },
+              {
+                "slotId": "micronutrient_2",
+                "metricKey": "vitamin_e_dv",
+                "label": "vitamin e",
+                "displayValue": "0% DV",
+                "dvPercent": 0,
+                "spriteRole": "micronutrient-row",
+                "text": "vitamin E at 0% DV"
+              }
+            ],
+            "commentaryNote": null
+          }
         },
         "revealPlan": [
           "micronutrient_1",
-          "micronutrient_2"
+          "micronutrient_2",
+          "commentary_note"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "micronutrient_1",
+            "beat": "lead",
+            "purpose": "micronutrient-proof"
+          },
+          {
+            "slotId": "micronutrient_2",
+            "beat": "follow",
+            "purpose": "micronutrient-proof"
+          },
+          {
+            "slotId": "commentary_note",
+            "beat": "follow",
+            "purpose": "micronutrient-proof"
+          }
         ],
         "subtitleCues": [
           {
-            "id": "07-vitamins",
+            "id": "11-vitamins",
             "sceneId": "vitamins",
-            "startSeconds": 10.54,
-            "endSeconds": 12.64,
+            "startSeconds": 16.91,
+            "endSeconds": 19.01,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -354,24 +1273,45 @@
       {
         "id": "minerals",
         "kind": "section",
-        "startSeconds": 12.64,
+        "narrativeRole": "micronutrient-proof",
+        "startSeconds": 19.01,
         "durationSeconds": 2.1,
-        "endSeconds": 14.74,
+        "endSeconds": 21.11,
         "narrationText": "No real mineral story here.",
         "subtitleText": "No real mineral story here.",
+        "subtitlePlacement": "lower-third",
         "visualBinding": {
           "sectionKey": "minerals",
           "title": "Minerals",
-          "score": 10,
+          "score": 8,
           "templateSlots": [
             "micronutrient_1",
-            "micronutrient_2"
+            "micronutrient_2",
+            "commentary_note"
           ],
           "displayItems": [
             {
+              "metricKey": "calcium_dv",
+              "text": "calcium at 15% DV",
+              "weightedScore": 10,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 15,
+              "value": null
+            },
+            {
+              "metricKey": "potassium_dv",
+              "text": "potassium at 4% DV",
+              "weightedScore": 0,
+              "scoringMode": "dv_points",
+              "band": null,
+              "dvPercent": 4,
+              "value": null
+            },
+            {
               "metricKey": "magnesium_dv",
-              "text": "magnesium at 12% daily value",
-              "weightedScore": 1,
+              "text": "magnesium at 12% DV",
+              "weightedScore": 10,
               "scoringMode": "dv_points",
               "band": null,
               "dvPercent": 12,
@@ -379,44 +1319,90 @@
             },
             {
               "metricKey": "iron_dv",
-              "text": "iron at 10% daily value",
-              "weightedScore": 1,
+              "text": "iron at 10% DV",
+              "weightedScore": 10,
               "scoringMode": "dv_points",
               "band": null,
               "dvPercent": 10,
-              "value": null
-            },
-            {
-              "metricKey": "zinc_dv",
-              "text": "zinc at 10% daily value",
-              "weightedScore": 1,
-              "scoringMode": "dv_points",
-              "band": null,
-              "dvPercent": 10,
-              "value": null
-            },
-            {
-              "metricKey": "calcium_dv",
-              "text": "calcium at 15% daily value",
-              "weightedScore": 1,
-              "scoringMode": "dv_points",
-              "band": null,
-              "dvPercent": 15,
               "value": null
             }
           ],
-          "timingHint": "short-medium"
+          "timingHint": "short-medium",
+          "narrativeRole": "micronutrient-proof",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "lower-third",
+          "preferredSpriteBindings": {
+            "icon": {
+              "path": "sprites/micros_section/minerals/mineral_icon.gif",
+              "format": "gif"
+            },
+            "iconSource": {
+              "path": "sprites/micros_section/minerals/mineral_icon.aseprite",
+              "format": "aseprite"
+            },
+            "microIcon": {
+              "path": "sprites/micros_section/minerals/mineral_micro_icon.png",
+              "format": "png"
+            },
+            "microIconSource": {
+              "path": "sprites/micros_section/minerals/mineral_micro_icon.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": null,
+            "macroSlots": [],
+            "micronutrientRows": [
+              {
+                "slotId": "micronutrient_1",
+                "metricKey": "calcium_dv",
+                "label": "calcium",
+                "displayValue": "15% DV",
+                "dvPercent": 15,
+                "spriteRole": "micronutrient-row",
+                "text": "calcium at 15% DV"
+              },
+              {
+                "slotId": "micronutrient_2",
+                "metricKey": "potassium_dv",
+                "label": "potassium",
+                "displayValue": "4% DV",
+                "dvPercent": 4,
+                "spriteRole": "micronutrient-row",
+                "text": "potassium at 4% DV"
+              }
+            ],
+            "commentaryNote": "Overflow metrics stay off-screen unless the edit intentionally promotes them."
+          }
         },
         "revealPlan": [
           "micronutrient_1",
-          "micronutrient_2"
+          "micronutrient_2",
+          "commentary_note"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "micronutrient_1",
+            "beat": "lead",
+            "purpose": "micronutrient-proof"
+          },
+          {
+            "slotId": "micronutrient_2",
+            "beat": "follow",
+            "purpose": "micronutrient-proof"
+          },
+          {
+            "slotId": "commentary_note",
+            "beat": "follow",
+            "purpose": "micronutrient-proof"
+          }
         ],
         "subtitleCues": [
           {
-            "id": "08-minerals",
+            "id": "12-minerals",
             "sceneId": "minerals",
-            "startSeconds": 12.64,
-            "endSeconds": 14.74,
+            "startSeconds": 19.01,
+            "endSeconds": 21.11,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -431,15 +1417,17 @@
       {
         "id": "pros",
         "kind": "section",
-        "startSeconds": 14.74,
-        "durationSeconds": 18.35,
-        "endSeconds": 33.09,
-        "narrationText": "On the plus side: usually better than just grabbing candy. The misc rules should reward a functional upgrade when it is real. Can still earn points as a better swap. The category should reward harm reduction when it is real. Context tells the real story. That is the whole point of misc.",
-        "subtitleText": "On the plus side: usually better than just grabbing candy. The misc rules should reward a functional upgrade when it is real. Can still earn points as a better swap. The category should reward harm reduction when it is real. Context tells the real story. That is the whole point of misc.",
+        "narrativeRole": "real-world-upside",
+        "startSeconds": 21.11,
+        "durationSeconds": 18,
+        "endSeconds": 39.11,
+        "narrationText": "The upsides first: usually better than just grabbing candy. The misc rules should reward a functional upgrade when it is real. Can still earn points as a better swap. The category should reward harm reduction when it is real. Context tells the real story. That is the whole point of misc.",
+        "subtitleText": "The upsides first: usually better than just grabbing candy. The misc rules should reward a functional upgrade when it is real. Can still earn points as a better swap. The category should reward harm reduction when it is real. Context tells the real story. That is the whole point of misc.",
+        "subtitlePlacement": "high-lower-third",
         "visualBinding": {
           "sectionKey": "pros",
           "title": "Pros",
-          "score": 88.9,
+          "score": 66.7,
           "templateSlots": [
             "bullet_1",
             "bullet_2",
@@ -451,51 +1439,87 @@
               "title": "usually better than just grabbing candy",
               "explanation": "The misc rules should reward a functional upgrade when it is real.",
               "impactLevel": "major",
-              "scoreValue": 2
+              "resolvedScoreValue": 100
             },
             {
               "type": "pro",
               "title": "can still earn points as a better swap",
               "explanation": "The category should reward harm reduction when it is real.",
               "impactLevel": "minor",
-              "scoreValue": 1
+              "resolvedScoreValue": 50
             },
             {
               "type": "pro",
               "title": "context tells the real story",
               "explanation": "That is the whole point of misc.",
               "impactLevel": "minor",
-              "scoreValue": 1
+              "resolvedScoreValue": 50
             }
           ],
-          "timingHint": "medium"
+          "timingHint": "medium",
+          "narrativeRole": "real-world-upside",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "high-lower-third",
+          "preferredSpriteBindings": {
+            "bullet": {
+              "path": "sprites/pros_and_cons/pros/pro_bullet_point.png",
+              "format": "png"
+            },
+            "bulletSource": {
+              "path": "sprites/pros_and_cons/pros/pro_bullet_point.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": null,
+            "macroSlots": [],
+            "micronutrientRows": [],
+            "commentaryNote": null
+          }
         },
         "revealPlan": [
           "bullet_1",
           "bullet_2",
           "bullet_3"
         ],
+        "beatPlan": [
+          {
+            "slotId": "bullet_1",
+            "beat": "lead",
+            "purpose": "real-world-upside"
+          },
+          {
+            "slotId": "bullet_2",
+            "beat": "follow",
+            "purpose": "real-world-upside"
+          },
+          {
+            "slotId": "bullet_3",
+            "beat": "follow",
+            "purpose": "real-world-upside"
+          }
+        ],
         "subtitleCues": [
           {
-            "id": "09-pros-1",
+            "id": "13-pros-1",
             "sceneId": "pros",
-            "startSeconds": 14.74,
-            "endSeconds": 16.75,
-            "placement": "lower-third",
+            "startSeconds": 21.11,
+            "endSeconds": 22.79,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "On the plus side:",
+              "The upsides first:",
               "usually better"
             ],
-            "text": "On the plus side:\nusually better"
+            "text": "The upsides first:\nusually better"
           },
           {
-            "id": "10-pros-2",
+            "id": "14-pros-2",
             "sceneId": "pros",
-            "startSeconds": 16.75,
-            "endSeconds": 18.25,
-            "placement": "lower-third",
+            "startSeconds": 22.79,
+            "endSeconds": 24.29,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -505,11 +1529,11 @@
             "text": "than just grabbing\ncandy."
           },
           {
-            "id": "11-pros-3",
+            "id": "15-pros-3",
             "sceneId": "pros",
-            "startSeconds": 18.25,
-            "endSeconds": 20.26,
-            "placement": "lower-third",
+            "startSeconds": 24.29,
+            "endSeconds": 26.3,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -519,11 +1543,11 @@
             "text": "The misc rules\nshould reward a"
           },
           {
-            "id": "12-pros-4",
+            "id": "16-pros-4",
             "sceneId": "pros",
-            "startSeconds": 20.26,
-            "endSeconds": 22.42,
-            "placement": "lower-third",
+            "startSeconds": 26.3,
+            "endSeconds": 28.45,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -533,11 +1557,11 @@
             "text": "functional upgrade\nwhen it is real."
           },
           {
-            "id": "13-pros-5",
+            "id": "17-pros-5",
             "sceneId": "pros",
-            "startSeconds": 22.42,
-            "endSeconds": 24.76,
-            "placement": "lower-third",
+            "startSeconds": 28.45,
+            "endSeconds": 30.79,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -547,11 +1571,11 @@
             "text": "Can still earn\npoints as a better"
           },
           {
-            "id": "14-pros-6",
+            "id": "18-pros-6",
             "sceneId": "pros",
-            "startSeconds": 24.76,
-            "endSeconds": 25.27,
-            "placement": "lower-third",
+            "startSeconds": 30.79,
+            "endSeconds": 31.3,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -560,11 +1584,11 @@
             "text": "swap."
           },
           {
-            "id": "15-pros-7",
+            "id": "19-pros-7",
             "sceneId": "pros",
-            "startSeconds": 25.27,
-            "endSeconds": 26.95,
-            "placement": "lower-third",
+            "startSeconds": 31.3,
+            "endSeconds": 32.98,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -574,11 +1598,11 @@
             "text": "The category\nshould reward harm"
           },
           {
-            "id": "16-pros-8",
+            "id": "20-pros-8",
             "sceneId": "pros",
-            "startSeconds": 26.95,
-            "endSeconds": 28.78,
-            "placement": "lower-third",
+            "startSeconds": 32.98,
+            "endSeconds": 34.81,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -588,11 +1612,11 @@
             "text": "reduction when it\nis real."
           },
           {
-            "id": "17-pros-9",
+            "id": "21-pros-9",
             "sceneId": "pros",
-            "startSeconds": 28.78,
-            "endSeconds": 30.61,
-            "placement": "lower-third",
+            "startSeconds": 34.81,
+            "endSeconds": 36.63,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -602,11 +1626,11 @@
             "text": "Context tells the\nreal story."
           },
           {
-            "id": "18-pros-10",
+            "id": "22-pros-10",
             "sceneId": "pros",
-            "startSeconds": 30.61,
-            "endSeconds": 33.09,
-            "placement": "lower-third",
+            "startSeconds": 36.63,
+            "endSeconds": 39.11,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -620,15 +1644,17 @@
       {
         "id": "cons",
         "kind": "section",
-        "startSeconds": 33.09,
-        "durationSeconds": 15.18,
-        "endSeconds": 48.27,
-        "narrationText": "Now the downsides: still easy to overrate as a health food. A protein bar is often a useful compromise, not a clean win. Easy to overrate or misuse. This category attracts strong marketing and habits. Better replacements often exist. That practical comparison matters.",
-        "subtitleText": "Now the downsides: still easy to overrate as a health food. A protein bar is often a useful compromise, not a clean win. Easy to overrate or misuse. This category attracts strong marketing and habits. Better replacements often exist. That practical comparison matters.",
+        "narrativeRole": "real-world-downside",
+        "startSeconds": 39.11,
+        "durationSeconds": 14.82,
+        "endSeconds": 53.93,
+        "narrationText": "Cons next: still easy to overrate as a health food. A protein bar is often a useful compromise, not a clean win. Easy to overrate or misuse. This category attracts strong marketing and habits. Better replacements often exist. That practical comparison matters.",
+        "subtitleText": "Cons next: still easy to overrate as a health food. A protein bar is often a useful compromise, not a clean win. Easy to overrate or misuse. This category attracts strong marketing and habits. Better replacements often exist. That practical comparison matters.",
+        "subtitlePlacement": "high-lower-third",
         "visualBinding": {
           "sectionKey": "cons",
           "title": "Cons",
-          "score": 88.9,
+          "score": 33.3,
           "templateSlots": [
             "bullet_1",
             "bullet_2",
@@ -640,65 +1666,100 @@
               "title": "still easy to overrate as a health food",
               "explanation": "A protein bar is often a useful compromise, not a clean win.",
               "impactLevel": "major",
-              "scoreValue": -2
+              "resolvedScoreValue": 100
             },
             {
               "type": "con",
               "title": "easy to overrate or misuse",
               "explanation": "This category attracts strong marketing and habits.",
               "impactLevel": "minor",
-              "scoreValue": -1
+              "resolvedScoreValue": 50
             },
             {
               "type": "con",
               "title": "better replacements often exist",
               "explanation": "That practical comparison matters.",
               "impactLevel": "minor",
-              "scoreValue": -1
+              "resolvedScoreValue": 50
             }
           ],
-          "timingHint": "medium"
+          "timingHint": "medium",
+          "narrativeRole": "real-world-downside",
+          "macroLayout": "stacked",
+          "subtitlePlacement": "high-lower-third",
+          "preferredSpriteBindings": {
+            "bullet": {
+              "path": "sprites/pros_and_cons/cons/con_bullet_point.png",
+              "format": "png"
+            },
+            "bulletSource": {
+              "path": "sprites/pros_and_cons/cons/con_bullet_point.aseprite",
+              "format": "aseprite"
+            }
+          },
+          "slotPlan": {
+            "macroHeadline": null,
+            "macroSlots": [],
+            "micronutrientRows": [],
+            "commentaryNote": null
+          }
         },
         "revealPlan": [
           "bullet_1",
           "bullet_2",
           "bullet_3"
         ],
+        "beatPlan": [
+          {
+            "slotId": "bullet_1",
+            "beat": "lead",
+            "purpose": "real-world-downside"
+          },
+          {
+            "slotId": "bullet_2",
+            "beat": "follow",
+            "purpose": "real-world-downside"
+          },
+          {
+            "slotId": "bullet_3",
+            "beat": "follow",
+            "purpose": "real-world-downside"
+          }
+        ],
         "subtitleCues": [
           {
-            "id": "19-cons-1",
+            "id": "23-cons-1",
             "sceneId": "cons",
-            "startSeconds": 33.09,
-            "endSeconds": 35.07,
-            "placement": "lower-third",
+            "startSeconds": 39.11,
+            "endSeconds": 41.09,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "Now the downsides:",
-              "still easy to"
+              "Cons next: still",
+              "easy to overrate"
             ],
-            "text": "Now the downsides:\nstill easy to"
+            "text": "Cons next: still\neasy to overrate"
           },
           {
-            "id": "20-cons-2",
+            "id": "24-cons-2",
             "sceneId": "cons",
-            "startSeconds": 35.07,
-            "endSeconds": 36.87,
-            "placement": "lower-third",
+            "startSeconds": 41.09,
+            "endSeconds": 42.56,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "overrate as a",
-              "health food."
+              "as a health food."
             ],
-            "text": "overrate as a\nhealth food."
+            "text": "as a health food."
           },
           {
-            "id": "21-cons-3",
+            "id": "25-cons-3",
             "sceneId": "cons",
-            "startSeconds": 36.87,
-            "endSeconds": 39.17,
-            "placement": "lower-third",
+            "startSeconds": 42.56,
+            "endSeconds": 44.85,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -708,11 +1769,11 @@
             "text": "A protein bar is\noften a useful"
           },
           {
-            "id": "22-cons-4",
+            "id": "26-cons-4",
             "sceneId": "cons",
-            "startSeconds": 39.17,
-            "endSeconds": 40.97,
-            "placement": "lower-third",
+            "startSeconds": 44.85,
+            "endSeconds": 46.65,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -722,11 +1783,11 @@
             "text": "compromise, not a\nclean win."
           },
           {
-            "id": "23-cons-5",
+            "id": "27-cons-5",
             "sceneId": "cons",
-            "startSeconds": 40.97,
-            "endSeconds": 42.76,
-            "placement": "lower-third",
+            "startSeconds": 46.65,
+            "endSeconds": 48.44,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -736,11 +1797,11 @@
             "text": "Easy to overrate\nor misuse."
           },
           {
-            "id": "24-cons-6",
+            "id": "28-cons-6",
             "sceneId": "cons",
-            "startSeconds": 42.76,
-            "endSeconds": 44.1,
-            "placement": "lower-third",
+            "startSeconds": 48.44,
+            "endSeconds": 49.77,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -750,11 +1811,11 @@
             "text": "This category\nattracts strong"
           },
           {
-            "id": "25-cons-7",
+            "id": "29-cons-7",
             "sceneId": "cons",
-            "startSeconds": 44.1,
-            "endSeconds": 45.25,
-            "placement": "lower-third",
+            "startSeconds": 49.77,
+            "endSeconds": 50.91,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -764,11 +1825,11 @@
             "text": "marketing and\nhabits."
           },
           {
-            "id": "26-cons-8",
+            "id": "30-cons-8",
             "sceneId": "cons",
-            "startSeconds": 45.25,
-            "endSeconds": 46.26,
-            "placement": "lower-third",
+            "startSeconds": 50.91,
+            "endSeconds": 51.92,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -778,11 +1839,11 @@
             "text": "Better\nreplacements often"
           },
           {
-            "id": "27-cons-9",
+            "id": "31-cons-9",
             "sceneId": "cons",
-            "startSeconds": 46.26,
-            "endSeconds": 46.76,
-            "placement": "lower-third",
+            "startSeconds": 51.92,
+            "endSeconds": 52.42,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -791,11 +1852,11 @@
             "text": "exist."
           },
           {
-            "id": "28-cons-10",
+            "id": "32-cons-10",
             "sceneId": "cons",
-            "startSeconds": 46.76,
-            "endSeconds": 47.77,
-            "placement": "lower-third",
+            "startSeconds": 52.42,
+            "endSeconds": 53.43,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -805,11 +1866,11 @@
             "text": "That practical\ncomparison"
           },
           {
-            "id": "29-cons-11",
+            "id": "33-cons-11",
             "sceneId": "cons",
-            "startSeconds": 47.77,
-            "endSeconds": 48.27,
-            "placement": "lower-third",
+            "startSeconds": 53.43,
+            "endSeconds": 53.93,
+            "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
@@ -822,141 +1883,162 @@
       {
         "id": "final",
         "kind": "closing",
-        "startSeconds": 48.27,
-        "durationSeconds": 11.87,
-        "endSeconds": 60.14,
-        "narrationText": "Protein Bar (Generic) does have a few real-world upsides. but the nutrition case is still weak and the downsides drag it down hard. best treated as an occasional context item, not a nutritional base. C tier.",
-        "subtitleText": "Protein Bar (Generic) does have a few real-world upsides. but the nutrition case is still weak and the downsides drag it down hard. best treated as an occasional context item, not a nutritional base. C tier.",
-        "visualBinding": {
-          "tier": "C",
-          "tierColor": "green"
-        },
-        "revealPlan": [
-          "tier_stamp"
-        ],
-        "subtitleCues": [
-          {
-            "id": "30-final-1",
-            "sceneId": "final",
-            "startSeconds": 48.27,
-            "endSeconds": 50.77,
-            "placement": "summary-full",
-            "maxLines": 2,
-            "maxCharactersPerLine": 28,
-            "lines": [
-              "Protein Bar (Generic) does",
-              "have a few real-world"
-            ],
-            "text": "Protein Bar (Generic) does\nhave a few real-world",
-            "role": "conclusion-summary"
-          },
-          {
-            "id": "31-final-2",
-            "sceneId": "final",
-            "startSeconds": 50.77,
-            "endSeconds": 51.25,
-            "placement": "summary-full",
-            "maxLines": 2,
-            "maxCharactersPerLine": 28,
-            "lines": [
-              "upsides."
-            ],
-            "text": "upsides.",
-            "role": "conclusion-summary"
-          },
-          {
-            "id": "32-final-3",
-            "sceneId": "final",
-            "startSeconds": 51.25,
-            "endSeconds": 54.36,
-            "placement": "summary-full",
-            "maxLines": 2,
-            "maxCharactersPerLine": 28,
-            "lines": [
-              "but the nutrition case is",
-              "still weak and the downsides"
-            ],
-            "text": "but the nutrition case is\nstill weak and the downsides",
-            "role": "conclusion-summary"
-          },
-          {
-            "id": "33-final-4",
-            "sceneId": "final",
-            "startSeconds": 54.36,
-            "endSeconds": 55.76,
-            "placement": "summary-full",
-            "maxLines": 2,
-            "maxCharactersPerLine": 28,
-            "lines": [
-              "drag it down hard."
-            ],
-            "text": "drag it down hard.",
-            "role": "conclusion-summary"
-          },
-          {
-            "id": "34-final-5",
-            "sceneId": "final",
-            "startSeconds": 55.76,
-            "endSeconds": 58.26,
-            "placement": "summary-full",
-            "maxLines": 2,
-            "maxCharactersPerLine": 28,
-            "lines": [
-              "best treated as an",
-              "occasional context item, not"
-            ],
-            "text": "best treated as an\noccasional context item, not",
-            "role": "conclusion-summary"
-          },
-          {
-            "id": "35-final-6",
-            "sceneId": "final",
-            "startSeconds": 58.26,
-            "endSeconds": 59.36,
-            "placement": "summary-full",
-            "maxLines": 2,
-            "maxCharactersPerLine": 28,
-            "lines": [
-              "a nutritional base."
-            ],
-            "text": "a nutritional base.",
-            "role": "conclusion-summary"
-          },
-          {
-            "id": "36-final-7",
-            "sceneId": "final",
-            "startSeconds": 59.36,
-            "endSeconds": 60.14,
-            "placement": "tier-center",
-            "maxLines": 2,
-            "maxCharactersPerLine": 28,
-            "lines": [
-              "C tier."
-            ],
-            "text": "C tier.",
-            "role": "tier-reveal"
-          }
-        ],
+        "narrativeRole": "verdict-payoff",
+        "startSeconds": 53.93,
+        "durationSeconds": 12.86,
+        "endSeconds": 66.79,
+        "narrationText": "Big strengths are usually better than just grabbing candy and can still earn points as a better swap, but the biggest weaknesses are still easy to overrate as a health food and easy to overrate or misuse. B tier.",
+        "subtitleText": "Big strengths are usually better than just grabbing candy and can still earn points as a better swap, but the biggest weaknesses are still easy to overrate as a health food and easy to overrate or misuse. B tier.",
         "subtitleSequence": [
           {
             "role": "conclusion-summary",
-            "text": "Protein Bar (Generic) does have a few real-world upsides. but the nutrition case is still weak and the downsides drag it down hard. best treated as an occasional context item, not a nutritional base.",
+            "text": "Big strengths are usually better than just grabbing candy and can still earn points as a better swap, but the biggest weaknesses are still easy to overrate as a health food and easy to overrate or misuse.",
             "placement": "summary-full",
-            "maxCharactersPerLine": 28
+            "maxCharactersPerLine": 24
           },
           {
             "role": "tier-reveal",
-            "text": "C tier.",
+            "text": "B tier.",
             "placement": "tier-center",
-            "maxCharactersPerLine": 28
+            "maxCharactersPerLine": 24
+          }
+        ],
+        "subtitlePlacement": "subtitle-floor",
+        "visualBinding": {
+          "tier": "B",
+          "tierColor": "red",
+          "scorePlate": {
+            "path": "sprites/header/header_ui/score_plate.png",
+            "format": "png"
+          },
+          "scorePlateSource": {
+            "path": "sprites/header/header_ui/score_plate.aseprite",
+            "format": "aseprite"
+          },
+          "categorySeparator": {
+            "path": "sprites/ui/section_separator/misc_section_separator.png",
+            "format": "png"
+          },
+          "categorySeparatorSource": {
+            "path": "sprites/ui/section_separator/misc_section_separator.aseprite",
+            "format": "aseprite"
+          }
+        },
+        "revealPlan": [
+          "summary_text",
+          "tier_stamp",
+          "final_line"
+        ],
+        "beatPlan": [
+          {
+            "slotId": "summary_text",
+            "beat": "lead",
+            "purpose": "verdict-setup"
+          },
+          {
+            "slotId": "tier_stamp",
+            "beat": "impact",
+            "purpose": "verdict-hit"
+          },
+          {
+            "slotId": "final_line",
+            "beat": "resolve",
+            "purpose": "use-case-tag"
+          }
+        ],
+        "subtitleCues": [
+          {
+            "id": "34-final-1",
+            "sceneId": "final",
+            "startSeconds": 53.93,
+            "endSeconds": 56.19,
+            "placement": "summary-full",
+            "maxLines": 2,
+            "maxCharactersPerLine": 24,
+            "lines": [
+              "Big strengths are",
+              "usually better than just"
+            ],
+            "text": "Big strengths are\nusually better than just",
+            "role": "conclusion-summary"
+          },
+          {
+            "id": "35-final-2",
+            "sceneId": "final",
+            "startSeconds": 56.19,
+            "endSeconds": 59.08,
+            "placement": "summary-full",
+            "maxLines": 2,
+            "maxCharactersPerLine": 24,
+            "lines": [
+              "grabbing candy and can",
+              "still earn points as a"
+            ],
+            "text": "grabbing candy and can\nstill earn points as a",
+            "role": "conclusion-summary"
+          },
+          {
+            "id": "36-final-3",
+            "sceneId": "final",
+            "startSeconds": 59.08,
+            "endSeconds": 61.33,
+            "placement": "summary-full",
+            "maxLines": 2,
+            "maxCharactersPerLine": 24,
+            "lines": [
+              "better swap, but the",
+              "biggest weaknesses are"
+            ],
+            "text": "better swap, but the\nbiggest weaknesses are",
+            "role": "conclusion-summary"
+          },
+          {
+            "id": "37-final-4",
+            "sceneId": "final",
+            "startSeconds": 61.33,
+            "endSeconds": 64.22,
+            "placement": "summary-full",
+            "maxLines": 2,
+            "maxCharactersPerLine": 24,
+            "lines": [
+              "still easy to overrate",
+              "as a health food and"
+            ],
+            "text": "still easy to overrate\nas a health food and",
+            "role": "conclusion-summary"
+          },
+          {
+            "id": "38-final-5",
+            "sceneId": "final",
+            "startSeconds": 64.22,
+            "endSeconds": 65.98,
+            "placement": "summary-full",
+            "maxLines": 2,
+            "maxCharactersPerLine": 24,
+            "lines": [
+              "easy to overrate or",
+              "misuse."
+            ],
+            "text": "easy to overrate or\nmisuse.",
+            "role": "conclusion-summary"
+          },
+          {
+            "id": "39-final-6",
+            "sceneId": "final",
+            "startSeconds": 65.98,
+            "endSeconds": 66.79,
+            "placement": "tier-center",
+            "maxLines": 2,
+            "maxCharactersPerLine": 24,
+            "lines": [
+              "B tier."
+            ],
+            "text": "B tier.",
+            "role": "tier-reveal"
           }
         ]
       }
     ],
-    "subtitleRules": {
-      "maxLines": 2,
-      "maxCharactersPerLine": 18
-    },
     "subtitleCues": [
       {
         "id": "01-hook",
@@ -1027,24 +2109,78 @@
         "text": "whole nutrition\nstory."
       },
       {
-        "id": "06-proteins",
+        "id": "06-proteins-1",
         "sceneId": "proteins",
         "startSeconds": 8.44,
-        "endSeconds": 10.54,
+        "endSeconds": 9.91,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "No real protein",
-          "story here."
+          "30g of protein."
         ],
-        "text": "No real protein\nstory here."
+        "text": "30g of protein."
       },
       {
-        "id": "07-vitamins",
+        "id": "07-proteins-2",
+        "sceneId": "proteins",
+        "startSeconds": 9.91,
+        "endSeconds": 11.83,
+        "placement": "lower-third",
+        "maxLines": 2,
+        "maxCharactersPerLine": 18,
+        "lines": [
+          "Essential amino",
+          "acids score is"
+        ],
+        "text": "Essential amino\nacids score is"
+      },
+      {
+        "id": "08-proteins-3",
+        "sceneId": "proteins",
+        "startSeconds": 11.83,
+        "endSeconds": 13.66,
+        "placement": "lower-third",
+        "maxLines": 2,
+        "maxCharactersPerLine": 18,
+        "lines": [
+          "7/9, with 85%",
+          "bioavailability,"
+        ],
+        "text": "7/9, with 85%\nbioavailability,"
+      },
+      {
+        "id": "09-proteins-4",
+        "sceneId": "proteins",
+        "startSeconds": 13.66,
+        "endSeconds": 15.95,
+        "placement": "lower-third",
+        "maxLines": 2,
+        "maxCharactersPerLine": 18,
+        "lines": [
+          "making the protein",
+          "useful for repair"
+        ],
+        "text": "making the protein\nuseful for repair"
+      },
+      {
+        "id": "10-proteins-5",
+        "sceneId": "proteins",
+        "startSeconds": 15.95,
+        "endSeconds": 16.91,
+        "placement": "lower-third",
+        "maxLines": 2,
+        "maxCharactersPerLine": 18,
+        "lines": [
+          "and maintenance."
+        ],
+        "text": "and maintenance."
+      },
+      {
+        "id": "11-vitamins",
         "sceneId": "vitamins",
-        "startSeconds": 10.54,
-        "endSeconds": 12.64,
+        "startSeconds": 16.91,
+        "endSeconds": 19.01,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -1055,10 +2191,10 @@
         "text": "No real vitamin\nstory here."
       },
       {
-        "id": "08-minerals",
+        "id": "12-minerals",
         "sceneId": "minerals",
-        "startSeconds": 12.64,
-        "endSeconds": 14.74,
+        "startSeconds": 19.01,
+        "endSeconds": 21.11,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -1069,25 +2205,25 @@
         "text": "No real mineral\nstory here."
       },
       {
-        "id": "09-pros-1",
+        "id": "13-pros-1",
         "sceneId": "pros",
-        "startSeconds": 14.74,
-        "endSeconds": 16.75,
-        "placement": "lower-third",
+        "startSeconds": 21.11,
+        "endSeconds": 22.79,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "On the plus side:",
+          "The upsides first:",
           "usually better"
         ],
-        "text": "On the plus side:\nusually better"
+        "text": "The upsides first:\nusually better"
       },
       {
-        "id": "10-pros-2",
+        "id": "14-pros-2",
         "sceneId": "pros",
-        "startSeconds": 16.75,
-        "endSeconds": 18.25,
-        "placement": "lower-third",
+        "startSeconds": 22.79,
+        "endSeconds": 24.29,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1097,11 +2233,11 @@
         "text": "than just grabbing\ncandy."
       },
       {
-        "id": "11-pros-3",
+        "id": "15-pros-3",
         "sceneId": "pros",
-        "startSeconds": 18.25,
-        "endSeconds": 20.26,
-        "placement": "lower-third",
+        "startSeconds": 24.29,
+        "endSeconds": 26.3,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1111,11 +2247,11 @@
         "text": "The misc rules\nshould reward a"
       },
       {
-        "id": "12-pros-4",
+        "id": "16-pros-4",
         "sceneId": "pros",
-        "startSeconds": 20.26,
-        "endSeconds": 22.42,
-        "placement": "lower-third",
+        "startSeconds": 26.3,
+        "endSeconds": 28.45,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1125,11 +2261,11 @@
         "text": "functional upgrade\nwhen it is real."
       },
       {
-        "id": "13-pros-5",
+        "id": "17-pros-5",
         "sceneId": "pros",
-        "startSeconds": 22.42,
-        "endSeconds": 24.76,
-        "placement": "lower-third",
+        "startSeconds": 28.45,
+        "endSeconds": 30.79,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1139,11 +2275,11 @@
         "text": "Can still earn\npoints as a better"
       },
       {
-        "id": "14-pros-6",
+        "id": "18-pros-6",
         "sceneId": "pros",
-        "startSeconds": 24.76,
-        "endSeconds": 25.27,
-        "placement": "lower-third",
+        "startSeconds": 30.79,
+        "endSeconds": 31.3,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1152,11 +2288,11 @@
         "text": "swap."
       },
       {
-        "id": "15-pros-7",
+        "id": "19-pros-7",
         "sceneId": "pros",
-        "startSeconds": 25.27,
-        "endSeconds": 26.95,
-        "placement": "lower-third",
+        "startSeconds": 31.3,
+        "endSeconds": 32.98,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1166,11 +2302,11 @@
         "text": "The category\nshould reward harm"
       },
       {
-        "id": "16-pros-8",
+        "id": "20-pros-8",
         "sceneId": "pros",
-        "startSeconds": 26.95,
-        "endSeconds": 28.78,
-        "placement": "lower-third",
+        "startSeconds": 32.98,
+        "endSeconds": 34.81,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1180,11 +2316,11 @@
         "text": "reduction when it\nis real."
       },
       {
-        "id": "17-pros-9",
+        "id": "21-pros-9",
         "sceneId": "pros",
-        "startSeconds": 28.78,
-        "endSeconds": 30.61,
-        "placement": "lower-third",
+        "startSeconds": 34.81,
+        "endSeconds": 36.63,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1194,11 +2330,11 @@
         "text": "Context tells the\nreal story."
       },
       {
-        "id": "18-pros-10",
+        "id": "22-pros-10",
         "sceneId": "pros",
-        "startSeconds": 30.61,
-        "endSeconds": 33.09,
-        "placement": "lower-third",
+        "startSeconds": 36.63,
+        "endSeconds": 39.11,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1208,39 +2344,38 @@
         "text": "That is the whole\npoint of misc."
       },
       {
-        "id": "19-cons-1",
+        "id": "23-cons-1",
         "sceneId": "cons",
-        "startSeconds": 33.09,
-        "endSeconds": 35.07,
-        "placement": "lower-third",
+        "startSeconds": 39.11,
+        "endSeconds": 41.09,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "Now the downsides:",
-          "still easy to"
+          "Cons next: still",
+          "easy to overrate"
         ],
-        "text": "Now the downsides:\nstill easy to"
+        "text": "Cons next: still\neasy to overrate"
       },
       {
-        "id": "20-cons-2",
+        "id": "24-cons-2",
         "sceneId": "cons",
-        "startSeconds": 35.07,
-        "endSeconds": 36.87,
-        "placement": "lower-third",
+        "startSeconds": 41.09,
+        "endSeconds": 42.56,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "overrate as a",
-          "health food."
+          "as a health food."
         ],
-        "text": "overrate as a\nhealth food."
+        "text": "as a health food."
       },
       {
-        "id": "21-cons-3",
+        "id": "25-cons-3",
         "sceneId": "cons",
-        "startSeconds": 36.87,
-        "endSeconds": 39.17,
-        "placement": "lower-third",
+        "startSeconds": 42.56,
+        "endSeconds": 44.85,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1250,11 +2385,11 @@
         "text": "A protein bar is\noften a useful"
       },
       {
-        "id": "22-cons-4",
+        "id": "26-cons-4",
         "sceneId": "cons",
-        "startSeconds": 39.17,
-        "endSeconds": 40.97,
-        "placement": "lower-third",
+        "startSeconds": 44.85,
+        "endSeconds": 46.65,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1264,11 +2399,11 @@
         "text": "compromise, not a\nclean win."
       },
       {
-        "id": "23-cons-5",
+        "id": "27-cons-5",
         "sceneId": "cons",
-        "startSeconds": 40.97,
-        "endSeconds": 42.76,
-        "placement": "lower-third",
+        "startSeconds": 46.65,
+        "endSeconds": 48.44,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1278,11 +2413,11 @@
         "text": "Easy to overrate\nor misuse."
       },
       {
-        "id": "24-cons-6",
+        "id": "28-cons-6",
         "sceneId": "cons",
-        "startSeconds": 42.76,
-        "endSeconds": 44.1,
-        "placement": "lower-third",
+        "startSeconds": 48.44,
+        "endSeconds": 49.77,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1292,11 +2427,11 @@
         "text": "This category\nattracts strong"
       },
       {
-        "id": "25-cons-7",
+        "id": "29-cons-7",
         "sceneId": "cons",
-        "startSeconds": 44.1,
-        "endSeconds": 45.25,
-        "placement": "lower-third",
+        "startSeconds": 49.77,
+        "endSeconds": 50.91,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1306,11 +2441,11 @@
         "text": "marketing and\nhabits."
       },
       {
-        "id": "26-cons-8",
+        "id": "30-cons-8",
         "sceneId": "cons",
-        "startSeconds": 45.25,
-        "endSeconds": 46.26,
-        "placement": "lower-third",
+        "startSeconds": 50.91,
+        "endSeconds": 51.92,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1320,11 +2455,11 @@
         "text": "Better\nreplacements often"
       },
       {
-        "id": "27-cons-9",
+        "id": "31-cons-9",
         "sceneId": "cons",
-        "startSeconds": 46.26,
-        "endSeconds": 46.76,
-        "placement": "lower-third",
+        "startSeconds": 51.92,
+        "endSeconds": 52.42,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1333,11 +2468,11 @@
         "text": "exist."
       },
       {
-        "id": "28-cons-10",
+        "id": "32-cons-10",
         "sceneId": "cons",
-        "startSeconds": 46.76,
-        "endSeconds": 47.77,
-        "placement": "lower-third",
+        "startSeconds": 52.42,
+        "endSeconds": 53.43,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1347,11 +2482,11 @@
         "text": "That practical\ncomparison"
       },
       {
-        "id": "29-cons-11",
+        "id": "33-cons-11",
         "sceneId": "cons",
-        "startSeconds": 47.77,
-        "endSeconds": 48.27,
-        "placement": "lower-third",
+        "startSeconds": 53.43,
+        "endSeconds": 53.93,
+        "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
@@ -1360,104 +2495,92 @@
         "text": "matters."
       },
       {
-        "id": "30-final-1",
+        "id": "34-final-1",
         "sceneId": "final",
-        "startSeconds": 48.27,
-        "endSeconds": 50.77,
+        "startSeconds": 53.93,
+        "endSeconds": 56.19,
         "placement": "summary-full",
         "maxLines": 2,
-        "maxCharactersPerLine": 28,
+        "maxCharactersPerLine": 24,
         "lines": [
-          "Protein Bar (Generic) does",
-          "have a few real-world"
+          "Big strengths are",
+          "usually better than just"
         ],
-        "text": "Protein Bar (Generic) does\nhave a few real-world",
+        "text": "Big strengths are\nusually better than just",
         "role": "conclusion-summary"
       },
       {
-        "id": "31-final-2",
+        "id": "35-final-2",
         "sceneId": "final",
-        "startSeconds": 50.77,
-        "endSeconds": 51.25,
+        "startSeconds": 56.19,
+        "endSeconds": 59.08,
         "placement": "summary-full",
         "maxLines": 2,
-        "maxCharactersPerLine": 28,
+        "maxCharactersPerLine": 24,
         "lines": [
-          "upsides."
+          "grabbing candy and can",
+          "still earn points as a"
         ],
-        "text": "upsides.",
+        "text": "grabbing candy and can\nstill earn points as a",
         "role": "conclusion-summary"
       },
       {
-        "id": "32-final-3",
+        "id": "36-final-3",
         "sceneId": "final",
-        "startSeconds": 51.25,
-        "endSeconds": 54.36,
+        "startSeconds": 59.08,
+        "endSeconds": 61.33,
         "placement": "summary-full",
         "maxLines": 2,
-        "maxCharactersPerLine": 28,
+        "maxCharactersPerLine": 24,
         "lines": [
-          "but the nutrition case is",
-          "still weak and the downsides"
+          "better swap, but the",
+          "biggest weaknesses are"
         ],
-        "text": "but the nutrition case is\nstill weak and the downsides",
+        "text": "better swap, but the\nbiggest weaknesses are",
         "role": "conclusion-summary"
       },
       {
-        "id": "33-final-4",
+        "id": "37-final-4",
         "sceneId": "final",
-        "startSeconds": 54.36,
-        "endSeconds": 55.76,
+        "startSeconds": 61.33,
+        "endSeconds": 64.22,
         "placement": "summary-full",
         "maxLines": 2,
-        "maxCharactersPerLine": 28,
+        "maxCharactersPerLine": 24,
         "lines": [
-          "drag it down hard."
+          "still easy to overrate",
+          "as a health food and"
         ],
-        "text": "drag it down hard.",
+        "text": "still easy to overrate\nas a health food and",
         "role": "conclusion-summary"
       },
       {
-        "id": "34-final-5",
+        "id": "38-final-5",
         "sceneId": "final",
-        "startSeconds": 55.76,
-        "endSeconds": 58.26,
+        "startSeconds": 64.22,
+        "endSeconds": 65.98,
         "placement": "summary-full",
         "maxLines": 2,
-        "maxCharactersPerLine": 28,
+        "maxCharactersPerLine": 24,
         "lines": [
-          "best treated as an",
-          "occasional context item, not"
+          "easy to overrate or",
+          "misuse."
         ],
-        "text": "best treated as an\noccasional context item, not",
+        "text": "easy to overrate or\nmisuse.",
         "role": "conclusion-summary"
       },
       {
-        "id": "35-final-6",
+        "id": "39-final-6",
         "sceneId": "final",
-        "startSeconds": 58.26,
-        "endSeconds": 59.36,
-        "placement": "summary-full",
-        "maxLines": 2,
-        "maxCharactersPerLine": 28,
-        "lines": [
-          "a nutritional base."
-        ],
-        "text": "a nutritional base.",
-        "role": "conclusion-summary"
-      },
-      {
-        "id": "36-final-7",
-        "sceneId": "final",
-        "startSeconds": 59.36,
-        "endSeconds": 60.14,
+        "startSeconds": 65.98,
+        "endSeconds": 66.79,
         "placement": "tier-center",
         "maxLines": 2,
-        "maxCharactersPerLine": 28,
+        "maxCharactersPerLine": 24,
         "lines": [
-          "C tier."
+          "B tier."
         ],
-        "text": "C tier.",
+        "text": "B tier.",
         "role": "tier-reveal"
       }
     ]

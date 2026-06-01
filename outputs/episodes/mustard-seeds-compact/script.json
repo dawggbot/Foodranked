@@ -1,13 +1,29 @@
 {
   "status": "ok",
+  "schemaVersion": "foodranked-script.v2",
+  "narrationFormat": "elevenlabs-blocks-v1",
   "food": {
     "id": "mustard-seeds",
     "name": "Mustard Seeds",
-    "foodType": "seeds"
+    "foodType": "seeds",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "identity": null,
+    "scoreReadiness": null,
+    "sourceNotes": [
+      "Calibration benchmark sample for FoodRanked.",
+      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
+    ]
   },
   "ruleset": {
     "id": "seeds.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 508,
@@ -16,72 +32,62 @@
     "protein_g": 26.1
   },
   "hook": "Mustard Seeds ranked.",
-  "intro": "",
   "sections": [
     {
       "key": "fats",
       "title": "Fats",
-      "narration": "36.2 grams of fat. Omega 3 is 5100 milligrams, doing a lot of the work here. For seeds, the fat profile is one of the biggest reasons they earn their place.",
+      "narration": "36.2 grams of fat. Omega 3 is 5100 milligrams, supporting a more useful fat profile.",
       "displayItems": [
-        {
-          "metricKey": "saturated_fat_g",
-          "text": "saturated fat at 2g",
-          "weightedScore": 4,
-          "scoringMode": "arrow_bands",
-          "band": "↓↓",
-          "dvPercent": null,
-          "value": 2
-        },
         {
           "metricKey": "omega3_mg",
           "text": "omega 3 at 5100mg",
-          "weightedScore": 4,
+          "weightedScore": 320,
           "scoringMode": "arrow_bands",
           "band": "↑↑",
           "dvPercent": null,
           "value": 5100
         },
         {
+          "metricKey": "saturated_fat_g",
+          "text": "saturated fat at 2g",
+          "weightedScore": 200,
+          "scoringMode": "arrow_bands",
+          "band": "↓↓↓",
+          "dvPercent": null,
+          "value": 2
+        },
+        {
           "metricKey": "polyunsaturated_fat_g",
           "text": "polyunsaturated fat at 11g",
-          "weightedScore": -2,
+          "weightedScore": 120,
           "scoringMode": "arrow_bands",
           "band": "↓",
           "dvPercent": null,
           "value": 11
         }
       ],
-      "subtitleText": "36.2g of fat. Omega 3 is 5100mg, doing a lot of the work here. For seeds, the fat profile is one of the biggest reasons they earn their place.",
+      "subtitleText": "36.2g of fat. Omega 3 is 5100mg, supporting a more useful fat profile.",
       "timingHint": "short-medium",
-      "score": 66.7
+      "score": 71.1
     },
     {
       "key": "carbs",
       "title": "Carbs",
-      "narration": "28.1 grams of carbs. Fibre is 12.2 grams. 28.1 grams of carbs. Fibre is 12.2 grams, doing a lot of the work here. For a seed, you want real nutrient concentration, not just tiny-food hype.",
+      "narration": "28.1 grams of carbs. Fibre is 12.2 grams, helping with digestion and steadier meals. Starch is 7 grams, a small miss for seeds.",
       "displayItems": [
         {
           "metricKey": "fibre_g",
           "text": "fibre at 12.2g",
-          "weightedScore": 4,
+          "weightedScore": 240,
           "scoringMode": "arrow_bands",
           "band": "↑",
           "dvPercent": null,
           "value": 12.2
         },
         {
-          "metricKey": "sugar_g",
-          "text": "sugar at 6.8g",
-          "weightedScore": -2,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑",
-          "dvPercent": null,
-          "value": 6.8
-        },
-        {
           "metricKey": "starch_g",
           "text": "starch at 7g",
-          "weightedScore": 1,
+          "weightedScore": 0,
           "scoringMode": "arrow_bands",
           "band": "↑",
           "dvPercent": null,
@@ -90,91 +96,112 @@
         {
           "metricKey": "glycemic_index",
           "text": "glycemic index at 30 GI",
-          "weightedScore": 1,
+          "weightedScore": 60,
           "scoringMode": "arrow_bands",
           "band": "↓",
           "dvPercent": null,
           "value": 30
+        },
+        {
+          "metricKey": "sugar_g",
+          "text": "sugar at 6.8g",
+          "weightedScore": 20,
+          "scoringMode": "arrow_bands",
+          "band": "↑↑",
+          "dvPercent": null,
+          "value": 6.8
         }
       ],
-      "subtitleText": "28.1g of carbs. Fibre is 12.2g. 28.1g of carbs. Fibre is 12.2g, doing a lot of the work here. For a seed, you want real nutrient concentration, not just tiny-food hype.",
+      "subtitleText": "28.1g of carbs. Fibre is 12.2g, helping with digestion and steadier meals. Starch is 7g, a small miss for seeds.",
       "timingHint": "short-medium",
-      "score": 59.5
+      "score": 53.3
     },
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "Essential amino acids score is 7 out of 9. 26.1 grams of protein. Bioavailability and amino acid quality are both strong. Protein is a bonus, but not enough by itself.",
+      "narration": "26.1 grams of protein. Essential amino acids score is 7 out of 9, with 76% bioavailability, making the protein useful for repair and maintenance.",
       "displayItems": [
         {
           "metricKey": "essential_amino_acids_score",
           "text": "essential amino acids score at 7/9",
-          "weightedScore": 4,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
           "dvPercent": null,
-          "value": 7
-        },
-        {
-          "metricKey": "nonessential_amino_acids_score",
-          "text": "nonessential amino acids score at 8/11",
-          "weightedScore": 2,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑",
-          "dvPercent": null,
-          "value": 8
+          "value": 7,
+          "referenceOnly": true
         },
         {
           "metricKey": "bioavailability_percent",
           "text": "bioavailability at 76%",
-          "weightedScore": 2,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
           "dvPercent": null,
-          "value": 76
+          "value": 76,
+          "referenceOnly": true
+        },
+        {
+          "metricKey": "nonessential_amino_acids_score",
+          "text": "nonessential amino acids score at 8/11",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
+          "dvPercent": null,
+          "value": 8,
+          "referenceOnly": true
         }
       ],
-      "subtitleText": "Essential amino acids score is 7/9. 26.1g of protein. Bioavailability and amino acid quality are both strong. Protein is a bonus, but not enough by itself.",
+      "subtitleText": "26.1g of protein. Essential amino acids score is 7/9, with 76% bioavailability, making the protein useful for repair and maintenance.",
       "timingHint": "short-medium",
-      "score": 83.3
+      "score": 80
     },
     {
       "key": "vitamins",
       "title": "Vitamins",
-      "narration": "Vitamin e at 28% daily value stands out most. That is only mild support overall.",
+      "narration": "Vitamin E is 28% daily value, adding useful vitamin support.",
       "displayItems": [
         {
           "metricKey": "vitamin_e_dv",
-          "text": "vitamin e at 28% DV",
-          "weightedScore": 2,
+          "text": "vitamin E at 28% DV",
+          "weightedScore": 20,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 28,
           "value": null
         }
       ],
-      "subtitleText": "Vitamin e at 28% daily value stands out most. That is only mild support overall.",
+      "subtitleText": "Vitamin E is 28% DV, adding useful vitamin support.",
       "timingHint": "short-medium",
       "score": 20
     },
     {
       "key": "minerals",
       "title": "Minerals",
-      "narration": "Magnesium at 89% daily value, iron at 51% daily value, zinc at 46% daily value stand out most. That gives this food real mineral support.",
+      "narration": "Magnesium is 89% daily value, adding useful mineral support. Calcium is 27% daily value, a weak mark for seeds.",
       "displayItems": [
         {
           "metricKey": "magnesium_dv",
           "text": "magnesium at 89% DV",
-          "weightedScore": 24,
+          "weightedScore": 240,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 89,
           "value": null
         },
         {
+          "metricKey": "calcium_dv",
+          "text": "calcium at 27% DV",
+          "weightedScore": 40,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 27,
+          "value": null
+        },
+        {
           "metricKey": "iron_dv",
           "text": "iron at 51% DV",
-          "weightedScore": 10,
+          "weightedScore": 100,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 51,
@@ -183,104 +210,161 @@
         {
           "metricKey": "zinc_dv",
           "text": "zinc at 46% DV",
-          "weightedScore": 8,
+          "weightedScore": 80,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 46,
           "value": null
-        },
-        {
-          "metricKey": "calcium_dv",
-          "text": "calcium at 27% DV",
-          "weightedScore": 4,
-          "scoringMode": "dv_points",
-          "band": null,
-          "dvPercent": 27,
-          "value": null
         }
       ],
-      "subtitleText": "Magnesium at 89% daily value, iron at 51% daily value, zinc at 46% daily value stand out most. That gives this food real mineral support.",
+      "subtitleText": "Magnesium is 89% DV, adding useful mineral support. Calcium is 27% DV, a weak mark for seeds.",
       "timingHint": "short-medium",
       "score": 51.1
     },
     {
       "key": "pros",
       "title": "Pros",
-      "narration": "The upsides first: easy to sprinkle into meals. That practical versatility matters. Easy to sprinkle into meals for a real upgrade. Seeds often shine as support foods. Often brings dense micronutrient support. That is part of what makes the category interesting.",
+      "narration": "Positives first: easy to sprinkle into meals. That practical versatility matters. Easy to sprinkle into meals for a real upgrade. Seeds often shine as support foods. Often brings dense micronutrient support. That is part of what makes the category interesting.",
       "displayItems": [
         {
           "type": "pro",
           "title": "easy to sprinkle into meals",
           "explanation": "That practical versatility matters.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "easy to sprinkle into meals for a real upgrade",
           "explanation": "Seeds often shine as support foods.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "often brings dense micronutrient support",
           "explanation": "That is part of what makes the category interesting.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "The upsides first: easy to sprinkle into meals. That practical versatility matters. Easy to sprinkle into meals for a real upgrade. Seeds often shine as support foods. Often brings dense micronutrient support. That is part of what makes the category interesting.",
+      "subtitleText": "Positives first: easy to sprinkle into meals. That practical versatility matters. Easy to sprinkle into meals for a real upgrade. Seeds often shine as support foods. Often brings dense micronutrient support. That is part of what makes the category interesting.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     },
     {
       "key": "cons",
       "title": "Cons",
-      "narration": "Now the downsides: usually used in tiny amounts. That caps how much of the paper profile you actually get. Texture or prep can be a barrier. Not everyone uses seeds consistently. Calories concentrate quickly. Even useful support foods can get dense fast.",
+      "narration": "Cons next: usually used in tiny amounts. That caps how much of the paper profile you actually get. Texture or prep can be a barrier. Not everyone uses seeds consistently. Calories concentrate quickly. Even useful support foods can get dense fast.",
       "displayItems": [
         {
           "type": "con",
           "title": "usually used in tiny amounts",
           "explanation": "That caps how much of the paper profile you actually get.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "texture or prep can be a barrier",
           "explanation": "Not everyone uses seeds consistently.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "calories concentrate quickly",
           "explanation": "Even useful support foods can get dense fast.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "Now the downsides: usually used in tiny amounts. That caps how much of the paper profile you actually get. Texture or prep can be a barrier. Not everyone uses seeds consistently. Calories concentrate quickly. Even useful support foods can get dense fast.",
+      "subtitleText": "Cons next: usually used in tiny amounts. That caps how much of the paper profile you actually get. Texture or prep can be a barrier. Not everyone uses seeds consistently. Calories concentrate quickly. Even useful support foods can get dense fast.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     }
   ],
   "closing": {
-    "summary": "Mustard Seeds does have some solid upside. but the tradeoffs keep it from climbing higher. best as a support food that boosts meals instead of carrying them alone.",
-    "finalReveal": "B tier.",
+    "summary": "Big strengths are omega 3 and protein, but the biggest weaknesses are usually used in tiny amounts and texture or prep can be a barrier.",
+    "overview": "Big strengths are omega 3 and protein, but the biggest weaknesses are usually used in tiny amounts and texture or prep can be a barrier.",
+    "finalReveal": "A tier.",
     "useCaseNote": "Best as a support food that boosts meals instead of carrying them alone.",
     "cta": "Would you rank it the same, or nah?"
   },
-  "tier": "B",
-  "overallScore": 60,
+  "tier": "A",
+  "overallScore": 72.8,
+  "overallScoreExact": 72.8398,
+  "baseOverallScore": 53.7,
+  "baseOverallScoreExact": 53.6508,
+  "sectionOrder": [
+    "fats",
+    "carbs",
+    "proteins",
+    "vitamins",
+    "minerals",
+    "pros",
+    "cons"
+  ],
+  "narrationBlocks": [
+    {
+      "kind": "hook_food",
+      "text": "Mustard Seeds!"
+    },
+    {
+      "kind": "hook_ranked",
+      "text": "Ranked!"
+    },
+    {
+      "kind": "section",
+      "sectionKey": "fats",
+      "text": "36.2 grams of fat. Omega 3 is 5100 milligrams, supporting a more useful fat profile."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "carbs",
+      "text": "28.1 grams of carbs. Fibre is 12.2 grams, helping with digestion and steadier meals. Starch is 7 grams, a small miss for seeds."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "proteins",
+      "text": "26.1 grams of protein. Essential amino acids score is 7 out of 9, with 76% bioavailability, making the protein useful for repair and maintenance."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "vitamins",
+      "text": "Vitamin E is 28% daily value, adding useful vitamin support."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "minerals",
+      "text": "Magnesium is 89% daily value, adding useful mineral support. Calcium is 27% daily value, a weak mark for seeds."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "pros",
+      "text": "Positives first: easy to sprinkle into meals. That practical versatility matters. Easy to sprinkle into meals for a real upgrade. Seeds often shine as support foods. Often brings dense micronutrient support. That is part of what makes the category interesting."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "cons",
+      "text": "Cons next: usually used in tiny amounts. That caps how much of the paper profile you actually get. Texture or prep can be a barrier. Not everyone uses seeds consistently. Calories concentrate quickly. Even useful support foods can get dense fast."
+    },
+    {
+      "kind": "closing_summary",
+      "text": "Big strengths are omega 3 and protein, but the biggest weaknesses are usually used in tiny amounts and texture or prep can be a barrier."
+    },
+    {
+      "kind": "final_reveal",
+      "text": "A tier."
+    }
+  ],
   "explanation": {
-    "summary": "Proteins are carrying this food most, while vitamins are the biggest drag. It lands in B tier.",
-    "whyThisTier": "This food lands in B tier with an overall score of 60 from a base nutrition score of 60. Context barely changed the result.",
+    "summary": "Proteins are carrying this food most, while vitamins are holding it back most. It lands in A tier.",
+    "whyThisTier": "This food lands in A tier with an overall score of 72.8. Section scores: fats 71.1, carbs 53.3, proteins 80, vitamins 20, minerals 51.1, pros 50, cons 50.",
     "strongestSection": {
       "key": "proteins",
       "label": "Proteins",
-      "score": 83.3
+      "score": 80
     },
     "weakestSection": {
       "key": "vitamins",
@@ -293,21 +377,21 @@
         "explanation": "That practical versatility matters.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "easy to sprinkle into meals for a real upgrade",
         "explanation": "Seeds often shine as support foods.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "often brings dense micronutrient support",
         "explanation": "That is part of what makes the category interesting.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -316,27 +400,27 @@
         "explanation": "That caps how much of the paper profile you actually get.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "texture or prep can be a barrier",
         "explanation": "Not everyone uses seeds consistently.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "calories concentrate quickly",
         "explanation": "Even useful support foods can get dense fast.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
       "Strongest section: Proteins.",
       "Weakest section: Vitamins.",
-      "Final verdict: B tier."
+      "Final verdict: A tier."
     ]
   }
 }

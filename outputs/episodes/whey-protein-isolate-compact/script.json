@@ -1,13 +1,29 @@
 {
   "status": "ok",
+  "schemaVersion": "foodranked-script.v2",
+  "narrationFormat": "elevenlabs-blocks-v1",
   "food": {
     "id": "whey-protein-isolate",
     "name": "Whey Protein Isolate",
-    "foodType": "dairy"
+    "foodType": "dairy",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "identity": null,
+    "scoreReadiness": null,
+    "sourceNotes": [
+      "Calibration benchmark sample for FoodRanked.",
+      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
+    ]
   },
   "ruleset": {
     "id": "dairy.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 370,
@@ -16,146 +32,204 @@
     "protein_g": 90
   },
   "hook": "Whey Protein Isolate ranked.",
-  "intro": "",
   "sections": [
     {
       "key": "fats",
       "title": "Fats",
-      "narration": "1 gram of fat. Saturated fat is 0.5 grams. 1 gram of fat. Saturated fat is 0.5 grams. Saturated fat, cholesterol, and omega3 are doing most of the work. For dairy, the fat side can either add richness or drag the whole thing down.",
+      "narration": "1 gram of fat. Saturated fat is 0.5 grams, supporting a better fat profile. Omega 3 is 10 milligrams, a weak mark for dairy.",
       "displayItems": [
         {
           "metricKey": "saturated_fat_g",
           "text": "saturated fat at 0.5g",
-          "weightedScore": 18,
+          "weightedScore": 600,
           "scoringMode": "arrow_bands",
           "band": "↓↓↓",
           "dvPercent": null,
           "value": 0.5
         },
         {
+          "metricKey": "omega3_mg",
+          "text": "omega 3 at 10mg",
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
+          "band": "↓↓↓",
+          "dvPercent": null,
+          "value": 10
+        },
+        {
           "metricKey": "cholesterol_mg",
           "text": "cholesterol at 20mg",
-          "weightedScore": 8,
+          "weightedScore": 320,
           "scoringMode": "arrow_bands",
           "band": "↓↓",
           "dvPercent": null,
           "value": 20
         },
         {
-          "metricKey": "omega3_mg",
-          "text": "omega 3 at 10mg",
-          "weightedScore": -3,
-          "scoringMode": "arrow_bands",
-          "band": "↓↓↓",
-          "dvPercent": null,
-          "value": 10
-        },
-        {
           "metricKey": "polyunsaturated_fat_g",
           "text": "polyunsaturated fat at 0.1g",
-          "weightedScore": -3,
+          "weightedScore": 0,
           "scoringMode": "arrow_bands",
           "band": "↓↓↓",
           "dvPercent": null,
           "value": 0.1
         }
       ],
-      "subtitleText": "1g of fat. Saturated fat is 0.5g. 1g of fat. Saturated fat is 0.5g. Saturated fat, cholesterol, and omega3 are doing most of the work. For dairy, the fat side can either add richness or drag the whole thing down.",
+      "subtitleText": "1g of fat. Saturated fat is 0.5g, supporting a better fat profile. Omega 3 is 10mg, a weak mark for dairy.",
       "timingHint": "short-medium",
-      "score": 77.8
+      "score": 76.7
     },
     {
       "key": "carbs",
       "title": "Carbs",
-      "narration": "5 grams of carbs. Sugar is 1 gram. Sugar and glycemic index matter most here. For dairy, the question is whether the payoff is worth the baggage.",
+      "narration": "5 grams of carbs. Sugar is 1 gram, supporting better carb quality. Starch is 0 grams, a small miss for dairy.",
       "displayItems": [
         {
           "metricKey": "sugar_g",
           "text": "sugar at 1g",
-          "weightedScore": 12,
+          "weightedScore": 400,
           "scoringMode": "arrow_bands",
           "band": "↓↓↓",
           "dvPercent": null,
           "value": 1
         },
         {
+          "metricKey": "starch_g",
+          "text": "starch at 0g",
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
+          "band": "3_red",
+          "dvPercent": null,
+          "value": 0
+        },
+        {
           "metricKey": "glycemic_index",
           "text": "glycemic index at 30 GI",
-          "weightedScore": 4,
+          "weightedScore": 160,
           "scoringMode": "arrow_bands",
           "band": "↓↓",
           "dvPercent": null,
           "value": 30
         }
       ],
-      "subtitleText": "5g of carbs. Sugar is 1g. Sugar and glycemic index matter most here. For dairy, the question is whether the payoff is worth the baggage.",
+      "subtitleText": "5g of carbs. Sugar is 1g, supporting better carb quality. Starch is 0g, a small miss for dairy.",
       "timingHint": "short-medium",
-      "score": 94.4
+      "score": 93.3
     },
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "90 grams of protein. Essential amino acids score is 9 out of 9. Bioavailability and amino acid quality are both strong. Useful protein can rescue a lot of weaker traits here.",
+      "narration": "90 grams of protein. Essential amino acids score is 9 out of 9, with 99% bioavailability, making the protein useful for repair and maintenance. Collagen is only 0 grams, a weak mark for dairy.",
       "displayItems": [
         {
           "metricKey": "essential_amino_acids_score",
           "text": "essential amino acids score at 9/9",
-          "weightedScore": 9,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
           "dvPercent": null,
-          "value": 9
+          "value": 9,
+          "referenceOnly": true
         },
         {
           "metricKey": "bioavailability_percent",
           "text": "bioavailability at 99%",
-          "weightedScore": 9,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
           "dvPercent": null,
-          "value": 99
+          "value": 99,
+          "referenceOnly": true
+        },
+        {
+          "metricKey": "collagen_g",
+          "text": "collagen at 0g",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
+          "dvPercent": null,
+          "value": 0,
+          "referenceOnly": true
         },
         {
           "metricKey": "nonessential_amino_acids_score",
           "text": "nonessential amino acids score at 10/11",
-          "weightedScore": 3,
-          "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
           "dvPercent": null,
-          "value": 10
+          "value": 10,
+          "referenceOnly": true
         }
       ],
-      "subtitleText": "90g of protein. Essential amino acids score is 9/9. Bioavailability and amino acid quality are both strong. Useful protein can rescue a lot of weaker traits here.",
+      "subtitleText": "90g of protein. Essential amino acids score is 9/9, with 99% bioavailability, making the protein useful for repair and maintenance. Collagen is only 0g, a weak mark for dairy.",
       "timingHint": "short-medium",
       "score": 100
     },
     {
       "key": "vitamins",
       "title": "Vitamins",
-      "narration": "The rest is not doing much.",
-      "displayItems": [],
-      "subtitleText": "The rest is not doing much.",
+      "narration": "Vitamin B12 is 8% daily value, useful for nerve and blood-cell support. Vitamin A is only 0% daily value, a weak mark for dairy.",
+      "displayItems": [
+        {
+          "metricKey": "vitamin_b12_dv",
+          "text": "vitamin B12 at 8% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 8,
+          "value": null
+        },
+        {
+          "metricKey": "vitamin_a_dv",
+          "text": "vitamin A at 0% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
+        }
+      ],
+      "subtitleText": "Vitamin B12 is 8% DV, useful for nerve and blood-cell support. Vitamin A is only 0% DV, a weak mark for dairy.",
       "timingHint": "short-medium",
-      "score": null
+      "score": 0
     },
     {
       "key": "minerals",
       "title": "Minerals",
-      "narration": "Calcium at 50% daily value stands out most. That gives this food real mineral support.",
+      "narration": "Calcium is 50% daily value, adding useful mineral support. Zinc is only 2% daily value, a weak mark for dairy.",
       "displayItems": [
         {
           "metricKey": "calcium_dv",
           "text": "calcium at 50% DV",
-          "weightedScore": 15,
+          "weightedScore": 150,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 50,
           "value": null
+        },
+        {
+          "metricKey": "zinc_dv",
+          "text": "zinc at 2% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 2,
+          "value": null
+        },
+        {
+          "metricKey": "magnesium_dv",
+          "text": "magnesium at 6% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 6,
+          "value": null
         }
       ],
-      "subtitleText": "Calcium at 50% daily value stands out most. That gives this food real mineral support.",
+      "subtitleText": "Calcium is 50% DV, adding useful mineral support. Zinc is only 2% DV, a weak mark for dairy.",
       "timingHint": "short-medium",
-      "score": 50
+      "score": 30
     },
     {
       "key": "pros",
@@ -167,79 +241,145 @@
           "title": "can be a very convenient protein vehicle",
           "explanation": "Convenience is one of dairy’s strongest practical advantages.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "slots into meals very easily",
           "explanation": "Practical versatility matters a lot for dairy.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "easy to fit into familiar meals",
           "explanation": "That lowers friction for regular use.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         }
       ],
       "subtitleText": "Pros first: can be a very convenient protein vehicle. Convenience is one of dairy’s strongest practical advantages. Slots into meals very easily. Practical versatility matters a lot for dairy. Easy to fit into familiar meals. That lowers friction for regular use.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     },
     {
       "key": "cons",
       "title": "Cons",
-      "narration": "Now the downsides: very processed compared with whole dairy. It wins hard on protein, but it is not the same kind of food experience. Processing changes the category a lot. The label alone does not tell the whole story. Fat quality varies wildly across dairy. Some dairy is clean, some really is not.",
+      "narration": "Cons next: very processed compared with whole dairy. It wins hard on protein, but it is not the same kind of food experience. Processing changes the category a lot. The label alone does not tell the whole story. Fat quality varies wildly across dairy. Some dairy is clean, some really is not.",
       "displayItems": [
         {
           "type": "con",
           "title": "very processed compared with whole dairy",
           "explanation": "It wins hard on protein, but it is not the same kind of food experience.",
           "impactLevel": "major",
-          "scoreValue": -2
+          "resolvedScoreValue": 100
         },
         {
           "type": "con",
           "title": "processing changes the category a lot",
           "explanation": "The label alone does not tell the whole story.",
-          "impactLevel": "minor",
-          "scoreValue": -1
+          "impactLevel": "major",
+          "resolvedScoreValue": 100
         },
         {
           "type": "con",
           "title": "fat quality varies wildly across dairy",
           "explanation": "Some dairy is clean, some really is not.",
-          "impactLevel": "minor",
-          "scoreValue": -1
+          "impactLevel": "major",
+          "resolvedScoreValue": 100
         }
       ],
-      "subtitleText": "Now the downsides: very processed compared with whole dairy. It wins hard on protein, but it is not the same kind of food experience. Processing changes the category a lot. The label alone does not tell the whole story. Fat quality varies wildly across dairy. Some dairy is clean, some really is not.",
+      "subtitleText": "Cons next: very processed compared with whole dairy. It wins hard on protein, but it is not the same kind of food experience. Processing changes the category a lot. The label alone does not tell the whole story. Fat quality varies wildly across dairy. Some dairy is clean, some really is not.",
       "timingHint": "medium",
-      "score": 33.3
+      "score": 0
     }
   ],
   "closing": {
-    "summary": "Whey Protein Isolate has a genuinely strong overall case. the practical downsides are real, but they do not outweigh the upside. best when the protein payoff or fermentation angle outweighs the fat and sodium tradeoffs.",
-    "finalReveal": "S tier.",
+    "summary": "Big strengths are omega 3 and protein, but the biggest weaknesses are processed compared with whole dairy and processing changes the category a lot.",
+    "overview": "Big strengths are omega 3 and protein, but the biggest weaknesses are processed compared with whole dairy and processing changes the category a lot.",
+    "finalReveal": "A tier.",
     "useCaseNote": "Best when the protein payoff or fermentation angle outweighs the fat and sodium tradeoffs.",
     "cta": "Would you rank it the same, or nah?"
   },
-  "tier": "S",
-  "overallScore": 72,
+  "tier": "A",
+  "overallScore": 79.7,
+  "overallScoreExact": 79.7298,
+  "baseOverallScore": 50,
+  "baseOverallScoreExact": 50,
+  "sectionOrder": [
+    "fats",
+    "carbs",
+    "proteins",
+    "vitamins",
+    "minerals",
+    "pros",
+    "cons"
+  ],
+  "narrationBlocks": [
+    {
+      "kind": "hook_food",
+      "text": "Whey Protein Isolate!"
+    },
+    {
+      "kind": "hook_ranked",
+      "text": "Ranked!"
+    },
+    {
+      "kind": "section",
+      "sectionKey": "fats",
+      "text": "1 gram of fat. Saturated fat is 0.5 grams, supporting a better fat profile. Omega 3 is 10 milligrams, a weak mark for dairy."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "carbs",
+      "text": "5 grams of carbs. Sugar is 1 gram, supporting better carb quality. Starch is 0 grams, a small miss for dairy."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "proteins",
+      "text": "90 grams of protein. Essential amino acids score is 9 out of 9, with 99% bioavailability, making the protein useful for repair and maintenance. Collagen is only 0 grams, a weak mark for dairy."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "vitamins",
+      "text": "Vitamin B12 is 8% daily value, useful for nerve and blood-cell support. Vitamin A is only 0% daily value, a weak mark for dairy."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "minerals",
+      "text": "Calcium is 50% daily value, adding useful mineral support. Zinc is only 2% daily value, a weak mark for dairy."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "pros",
+      "text": "Pros first: can be a very convenient protein vehicle. Convenience is one of dairy’s strongest practical advantages. Slots into meals very easily. Practical versatility matters a lot for dairy. Easy to fit into familiar meals. That lowers friction for regular use."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "cons",
+      "text": "Cons next: very processed compared with whole dairy. It wins hard on protein, but it is not the same kind of food experience. Processing changes the category a lot. The label alone does not tell the whole story. Fat quality varies wildly across dairy. Some dairy is clean, some really is not."
+    },
+    {
+      "kind": "closing_summary",
+      "text": "Big strengths are omega 3 and protein, but the biggest weaknesses are processed compared with whole dairy and processing changes the category a lot."
+    },
+    {
+      "kind": "final_reveal",
+      "text": "A tier."
+    }
+  ],
   "explanation": {
-    "summary": "Proteins are carrying this food most, while minerals are the biggest drag. It lands in S tier.",
-    "whyThisTier": "This food lands in S tier with an overall score of 72 from a base nutrition score of 75. Context dragged it down by 3 points.",
+    "summary": "Proteins are carrying this food most, while cons are holding it back most. It lands in A tier.",
+    "whyThisTier": "This food lands in A tier with an overall score of 79.7. Section scores: fats 76.7, carbs 93.3, proteins 100, vitamins 0, minerals 30, pros 50, cons 0.",
     "strongestSection": {
       "key": "proteins",
       "label": "Proteins",
       "score": 100
     },
     "weakestSection": {
-      "key": "minerals",
-      "label": "Minerals",
-      "score": 50
+      "key": "cons",
+      "label": "Cons",
+      "score": 0
     },
     "topPros": [
       {
@@ -247,21 +387,21 @@
         "explanation": "Convenience is one of dairy’s strongest practical advantages.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "slots into meals very easily",
         "explanation": "Practical versatility matters a lot for dairy.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "easy to fit into familiar meals",
         "explanation": "That lowers friction for regular use.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -270,14 +410,27 @@
         "explanation": "It wins hard on protein, but it is not the same kind of food experience.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -3
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "processing changes the category a lot",
+        "explanation": "The label alone does not tell the whole story.",
+        "impactLevel": "major",
+        "side": "con",
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "fat quality varies wildly across dairy",
+        "explanation": "Some dairy is clean, some really is not.",
+        "impactLevel": "major",
+        "side": "con",
+        "resolvedScoreValue": 100
       }
     ],
     "narrationNotes": [
       "Strongest section: Proteins.",
-      "Weakest section: Minerals.",
-      "Context weakened the final tier case by 3 points.",
-      "Final verdict: S tier."
+      "Weakest section: Cons.",
+      "Final verdict: A tier."
     ]
   }
 }

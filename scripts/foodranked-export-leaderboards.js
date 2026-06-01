@@ -68,8 +68,10 @@ function sortRows(rows) {
 function groupByType(rows) {
   const grouped = {};
   for (const row of rows) {
-    if (!grouped[row.type]) grouped[row.type] = [];
-    grouped[row.type].push(row);
+    const type = row.type || row.foodType;
+    if (!type) continue;
+    if (!grouped[type]) grouped[type] = [];
+    grouped[type].push(row);
   }
   for (const type of Object.keys(grouped)) grouped[type] = sortRows(grouped[type]);
   return grouped;
@@ -106,6 +108,8 @@ function buildRichDetails() {
       tier: scored.result.tier,
       overallScore: scored.result.overallScore,
       overallScoreExact: scored.result.overallScoreExact,
+      baseOverallScore: scored.result.baseOverallScore ?? null,
+      baseOverallScoreExact: scored.result.baseOverallScoreExact ?? null,
       explanation: scored.result.explanation,
       sectionScores: scored.result.sectionScores
     });

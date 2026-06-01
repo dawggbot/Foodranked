@@ -1,13 +1,29 @@
 {
   "status": "ok",
+  "schemaVersion": "foodranked-script.v2",
+  "narrationFormat": "elevenlabs-blocks-v1",
   "food": {
     "id": "acorns",
     "name": "Acorns",
-    "foodType": "nuts"
+    "foodType": "nuts",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "identity": null,
+    "scoreReadiness": null,
+    "sourceNotes": [
+      "Calibration benchmark sample for FoodRanked.",
+      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
+    ]
   },
   "ruleset": {
     "id": "nuts.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 387,
@@ -16,258 +32,335 @@
     "protein_g": 6.2
   },
   "hook": "Acorns ranked.",
-  "intro": "",
   "sections": [
     {
       "key": "fats",
       "title": "Fats",
-      "narration": "23.9 grams of fat. Polyunsaturated fat is 4.6 grams. 23.9 grams of fat. Polyunsaturated fat is 4.6 grams, where things start to fall off. For nuts, fat quality has to justify the calorie density.",
+      "narration": "23.9 grams of fat. Saturated fat is 3.1 grams, supporting a better fat profile. Omega 3 is 40 milligrams, and for nuts, fat quality has to justify the calories.",
       "displayItems": [
-        {
-          "metricKey": "polyunsaturated_fat_g",
-          "text": "polyunsaturated fat at 4.6g",
-          "weightedScore": -6,
-          "scoringMode": "arrow_bands",
-          "band": "↓↓↓",
-          "dvPercent": null,
-          "value": 4.6
-        },
         {
           "metricKey": "saturated_fat_g",
           "text": "saturated fat at 3.1g",
-          "weightedScore": 4,
+          "weightedScore": 240,
           "scoringMode": "arrow_bands",
-          "band": "↓↓",
+          "band": "2_green",
           "dvPercent": null,
           "value": 3.1
         },
         {
           "metricKey": "omega3_mg",
           "text": "omega 3 at 40mg",
-          "weightedScore": -4,
+          "weightedScore": 100,
           "scoringMode": "arrow_bands",
-          "band": "↓↓",
+          "band": "2_red",
           "dvPercent": null,
           "value": 40
+        },
+        {
+          "metricKey": "polyunsaturated_fat_g",
+          "text": "polyunsaturated fat at 4.6g",
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
+          "band": "3_red",
+          "dvPercent": null,
+          "value": 4.6
         }
       ],
-      "subtitleText": "23.9g of fat. Polyunsaturated fat is 4.6g. 23.9g of fat. Polyunsaturated fat is 4.6g, where things start to fall off. For nuts, fat quality has to justify the calorie density.",
+      "subtitleText": "23.9g of fat. Saturated fat is 3.1g, supporting a better fat profile. Omega 3 is 40mg, and for nuts, fat quality has to justify the calories.",
       "timingHint": "short-medium",
-      "score": 33.3
+      "score": 30.9
     },
     {
       "key": "carbs",
       "title": "Carbs",
-      "narration": "40.8 grams of carbs. Sugar is 0 grams. Fibre is 9.4 grams, doing a lot of the work here. For a nut, good fats have to justify the calorie density.",
+      "narration": "40.8 grams of carbs. Sugar is 0 grams, supporting better carb quality.",
       "displayItems": [
         {
           "metricKey": "sugar_g",
           "text": "sugar at 0g",
-          "weightedScore": 6,
+          "weightedScore": 200,
           "scoringMode": "arrow_bands",
-          "band": "↓↓↓",
+          "band": "3_green",
           "dvPercent": null,
           "value": 0
         },
         {
           "metricKey": "starch_g",
           "text": "starch at 18g",
-          "weightedScore": 3,
+          "weightedScore": 50,
           "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
+          "band": "3_green",
           "dvPercent": null,
           "value": 18
         },
         {
-          "metricKey": "fibre_g",
-          "text": "fibre at 9.4g",
-          "weightedScore": 2,
-          "scoringMode": "arrow_bands",
-          "band": "↑",
-          "dvPercent": null,
-          "value": 9.4
-        },
-        {
           "metricKey": "glycemic_index",
           "text": "glycemic index at 25 GI",
-          "weightedScore": 1,
+          "weightedScore": 120,
           "scoringMode": "arrow_bands",
-          "band": "↓",
+          "band": "2_green",
           "dvPercent": null,
           "value": 25
+        },
+        {
+          "metricKey": "fibre_g",
+          "text": "fibre at 9.4g",
+          "weightedScore": 180,
+          "scoringMode": "arrow_bands",
+          "band": "1_green",
+          "dvPercent": null,
+          "value": 9.4
         }
       ],
-      "subtitleText": "40.8g of carbs. Sugar is 0g. Fibre is 9.4g, doing a lot of the work here. For a nut, good fats have to justify the calorie density.",
+      "subtitleText": "40.8g of carbs. Sugar is 0g, supporting better carb quality.",
       "timingHint": "short-medium",
-      "score": 83.3
+      "score": 78.6
     },
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "6.2 grams of protein. Essential amino acids score is 3 out of 9, where things start to fall off. Protein is support here, not the whole argument.",
+      "narration": "6.2 grams of protein. Essential amino acids score is 3 out of 9, with 55% bioavailability, making the protein useful for repair and maintenance.",
       "displayItems": [
         {
           "metricKey": "essential_amino_acids_score",
           "text": "essential amino acids score at 3/9",
-          "weightedScore": -4,
-          "scoringMode": "arrow_bands",
-          "band": "↓↓",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
           "dvPercent": null,
-          "value": 3
-        },
-        {
-          "metricKey": "nonessential_amino_acids_score",
-          "text": "nonessential amino acids score at 4/11",
-          "weightedScore": -2,
-          "scoringMode": "arrow_bands",
-          "band": "↓↓",
-          "dvPercent": null,
-          "value": 4
+          "value": 3,
+          "referenceOnly": true
         },
         {
           "metricKey": "bioavailability_percent",
           "text": "bioavailability at 55%",
-          "weightedScore": -2,
-          "scoringMode": "arrow_bands",
-          "band": "↓",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
           "dvPercent": null,
-          "value": 55
+          "value": 55,
+          "referenceOnly": true
+        },
+        {
+          "metricKey": "nonessential_amino_acids_score",
+          "text": "nonessential amino acids score at 4/11",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
+          "dvPercent": null,
+          "value": 4,
+          "referenceOnly": true
         }
       ],
-      "subtitleText": "6.2g of protein. Essential amino acids score is 3/9, where things start to fall off. Protein is support here, not the whole argument.",
+      "subtitleText": "6.2g of protein. Essential amino acids score is 3/9, with 55% bioavailability, making the protein useful for repair and maintenance.",
       "timingHint": "short-medium",
-      "score": 23.3
+      "score": 0
     },
     {
       "key": "vitamins",
       "title": "Vitamins",
-      "narration": "Vitamin e at 10% daily value stands out most. That is barely moving the needle.",
+      "narration": "Vitamin E is 10% daily value, adding useful vitamin support.",
       "displayItems": [
         {
           "metricKey": "vitamin_e_dv",
-          "text": "vitamin e at 10% DV",
-          "weightedScore": 2,
+          "text": "vitamin E at 10% DV",
+          "weightedScore": 20,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 10,
           "value": null
         }
       ],
-      "subtitleText": "Vitamin e at 10% daily value stands out most. That is barely moving the needle.",
+      "subtitleText": "Vitamin E is 10% DV, adding useful vitamin support.",
       "timingHint": "short-medium",
       "score": 10
     },
     {
       "key": "minerals",
       "title": "Minerals",
-      "narration": "Magnesium at 18% daily value, zinc at 10% daily value stand out most. Useful, but still pretty limited.",
+      "narration": "Magnesium is 18% daily value, adding useful mineral support. Iron is only 4% daily value, a weak mark for nuts.",
       "displayItems": [
         {
           "metricKey": "magnesium_dv",
           "text": "magnesium at 18% DV",
-          "weightedScore": 3,
+          "weightedScore": 30,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 18,
           "value": null
         },
         {
+          "metricKey": "iron_dv",
+          "text": "iron at 4% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 4,
+          "value": null
+        },
+        {
           "metricKey": "zinc_dv",
           "text": "zinc at 10% DV",
-          "weightedScore": 2,
+          "weightedScore": 20,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 10,
           "value": null
         }
       ],
-      "subtitleText": "Magnesium at 18% daily value, zinc at 10% daily value stand out most. Useful, but still pretty limited.",
+      "subtitleText": "Magnesium is 18% DV, adding useful mineral support. Iron is only 4% DV, a weak mark for nuts.",
       "timingHint": "short-medium",
-      "score": 10
+      "score": 8.3
     },
     {
       "key": "pros",
       "title": "Pros",
-      "narration": "On the plus side: holds up as a better snack default than most packaged options. That real-world swap value counts. Fat and texture help satiety. They can hold up better than many snack foods. Portable, practical snack food. Nuts score real points in life because they are easy to use.",
+      "narration": "The upsides first: holds up as a better snack default than most packaged options. That real-world swap value counts. Fat and texture help satiety. They can hold up better than many snack foods. Portable, practical snack food. Nuts score real points in life because they are easy to use.",
       "displayItems": [
         {
           "type": "pro",
           "title": "holds up as a better snack default than most packaged options",
           "explanation": "That real-world swap value counts.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "fat and texture help satiety",
           "explanation": "They can hold up better than many snack foods.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "portable, practical snack food",
           "explanation": "Nuts score real points in life because they are easy to use.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "On the plus side: holds up as a better snack default than most packaged options. That real-world swap value counts. Fat and texture help satiety. They can hold up better than many snack foods. Portable, practical snack food. Nuts score real points in life because they are easy to use.",
+      "subtitleText": "The upsides first: holds up as a better snack default than most packaged options. That real-world swap value counts. Fat and texture help satiety. They can hold up better than many snack foods. Portable, practical snack food. Nuts score real points in life because they are easy to use.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     },
     {
       "key": "cons",
       "title": "Cons",
-      "narration": "Now the downsides: cost or allergy issues can limit use. Practical downsides still count. Good versions can get expensive. That affects how realistic frequent use is. Calorie density is very high. That makes portion control a real issue.",
+      "narration": "Cons next: cost or allergy issues can limit use. Practical downsides still count. Good versions can get expensive. That affects how realistic frequent use is. Calorie density is very high. That makes portion control a real issue.",
       "displayItems": [
         {
           "type": "con",
           "title": "cost or allergy issues can limit use",
           "explanation": "Practical downsides still count.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "good versions can get expensive",
           "explanation": "That affects how realistic frequent use is.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "calorie density is very high",
           "explanation": "That makes portion control a real issue.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "Now the downsides: cost or allergy issues can limit use. Practical downsides still count. Good versions can get expensive. That affects how realistic frequent use is. Calorie density is very high. That makes portion control a real issue.",
+      "subtitleText": "Cons next: cost or allergy issues can limit use. Practical downsides still count. Good versions can get expensive. That affects how realistic frequent use is. Calorie density is very high. That makes portion control a real issue.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     }
   ],
   "closing": {
-    "summary": "Acorns does have a few real-world upsides. but the nutrition case is still weak and the downsides drag it down hard. best only in small amounts when the calories stay under control.",
+    "summary": "Big strengths are protein and fibre, but the biggest weaknesses are cost or allergy issues can limit use and good versions can get expensive.",
+    "overview": "Big strengths are protein and fibre, but the biggest weaknesses are cost or allergy issues can limit use and good versions can get expensive.",
     "finalReveal": "C tier.",
     "useCaseNote": "Best only in small amounts when the calories stay under control.",
     "cta": "Would you rank it the same, or nah?"
   },
   "tier": "C",
-  "overallScore": 34,
+  "overallScore": 25.5,
+  "overallScoreExact": 25.5281,
+  "baseOverallScore": 32.5,
+  "baseOverallScoreExact": 32.5448,
+  "sectionOrder": [
+    "fats",
+    "carbs",
+    "proteins",
+    "vitamins",
+    "minerals",
+    "pros",
+    "cons"
+  ],
+  "narrationBlocks": [
+    {
+      "kind": "hook_food",
+      "text": "Acorns!"
+    },
+    {
+      "kind": "hook_ranked",
+      "text": "Ranked!"
+    },
+    {
+      "kind": "section",
+      "sectionKey": "fats",
+      "text": "23.9 grams of fat. Saturated fat is 3.1 grams, supporting a better fat profile. Omega 3 is 40 milligrams, and for nuts, fat quality has to justify the calories."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "carbs",
+      "text": "40.8 grams of carbs. Sugar is 0 grams, supporting better carb quality."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "proteins",
+      "text": "6.2 grams of protein. Essential amino acids score is 3 out of 9, with 55% bioavailability, making the protein useful for repair and maintenance."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "vitamins",
+      "text": "Vitamin E is 10% daily value, adding useful vitamin support."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "minerals",
+      "text": "Magnesium is 18% daily value, adding useful mineral support. Iron is only 4% daily value, a weak mark for nuts."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "pros",
+      "text": "The upsides first: holds up as a better snack default than most packaged options. That real-world swap value counts. Fat and texture help satiety. They can hold up better than many snack foods. Portable, practical snack food. Nuts score real points in life because they are easy to use."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "cons",
+      "text": "Cons next: cost or allergy issues can limit use. Practical downsides still count. Good versions can get expensive. That affects how realistic frequent use is. Calorie density is very high. That makes portion control a real issue."
+    },
+    {
+      "kind": "closing_summary",
+      "text": "Big strengths are protein and fibre, but the biggest weaknesses are cost or allergy issues can limit use and good versions can get expensive."
+    },
+    {
+      "kind": "final_reveal",
+      "text": "C tier."
+    }
+  ],
   "explanation": {
-    "summary": "Carbs are carrying this food most, while minerals are the biggest drag. It lands in C tier.",
-    "whyThisTier": "This food lands in C tier with an overall score of 34 from a base nutrition score of 34. Context barely changed the result.",
+    "summary": "Carbs are carrying this food most, while proteins are holding it back most. It lands in C tier.",
+    "whyThisTier": "This food lands in C tier with an overall score of 25.5. Section scores: fats 30.9, carbs 78.6, proteins 0, vitamins 10, minerals 8.3, pros 50, cons 50.",
     "strongestSection": {
       "key": "carbs",
       "label": "Carbs",
-      "score": 83.3
+      "score": 78.6
     },
     "weakestSection": {
-      "key": "minerals",
-      "label": "Minerals",
-      "score": 10
+      "key": "proteins",
+      "label": "Proteins",
+      "score": 0
     },
     "topPros": [
       {
@@ -275,21 +368,21 @@
         "explanation": "That real-world swap value counts.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "fat and texture help satiety",
         "explanation": "They can hold up better than many snack foods.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "portable, practical snack food",
         "explanation": "Nuts score real points in life because they are easy to use.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -298,26 +391,26 @@
         "explanation": "Practical downsides still count.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "good versions can get expensive",
         "explanation": "That affects how realistic frequent use is.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "calorie density is very high",
         "explanation": "That makes portion control a real issue.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
       "Strongest section: Carbs.",
-      "Weakest section: Minerals.",
+      "Weakest section: Proteins.",
       "Final verdict: C tier."
     ]
   }

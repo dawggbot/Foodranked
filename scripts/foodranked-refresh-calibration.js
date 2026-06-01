@@ -13,6 +13,13 @@ const resultsMdPath = path.join(repoRoot, 'CALIBRATION-MATRIX-RESULTS.md');
 
 const tierOrder = ['S', 'A', 'B', 'C', 'D'];
 const bucketSize = 5;
+const sharedTierThresholds = [
+  { tier: 'S', min: 80, max: 100 },
+  { tier: 'A', min: 60, max: 79.9999 },
+  { tier: 'B', min: 40, max: 59.9999 },
+  { tier: 'C', min: 20, max: 39.9999 },
+  { tier: 'D', min: 0, max: 19.9999 }
+];
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
@@ -25,6 +32,10 @@ function writeJson(filePath, value) {
 
 function round4(n) {
   return Number(n.toFixed(4));
+}
+
+function round1(n) {
+  return Number(n.toFixed(1));
 }
 
 function scoreFood(foodPath, rulesetPath) {
@@ -44,14 +55,14 @@ function assignTierByRank(index) {
 }
 
 function buildThresholds(sortedRows) {
-  const sMin = round4((sortedRows[4].overallScoreExact + sortedRows[5].overallScoreExact) / 2);
-  const aMin = round4((sortedRows[9].overallScoreExact + sortedRows[10].overallScoreExact) / 2);
-  const bMin = round4((sortedRows[14].overallScoreExact + sortedRows[15].overallScoreExact) / 2);
-  const cMin = round4((sortedRows[19].overallScoreExact + sortedRows[20].overallScoreExact) / 2);
-  if (sortedRows[4].overallScoreExact === sortedRows[5].overallScoreExact ||
-      sortedRows[9].overallScoreExact === sortedRows[10].overallScoreExact ||
-      sortedRows[14].overallScoreExact === sortedRows[15].overallScoreExact ||
-      sortedRows[19].overallScoreExact === sortedRows[20].overallScoreExact) {
+  const sMin = round4((sortedRows[4].baseOverallScoreExact + sortedRows[5].baseOverallScoreExact) / 2);
+  const aMin = round4((sortedRows[9].baseOverallScoreExact + sortedRows[10].baseOverallScoreExact) / 2);
+  const bMin = round4((sortedRows[14].baseOverallScoreExact + sortedRows[15].baseOverallScoreExact) / 2);
+  const cMin = round4((sortedRows[19].baseOverallScoreExact + sortedRows[20].baseOverallScoreExact) / 2);
+  if (sortedRows[4].baseOverallScoreExact === sortedRows[5].baseOverallScoreExact ||
+      sortedRows[9].baseOverallScoreExact === sortedRows[10].baseOverallScoreExact ||
+      sortedRows[14].baseOverallScoreExact === sortedRows[15].baseOverallScoreExact ||
+      sortedRows[19].baseOverallScoreExact === sortedRows[20].baseOverallScoreExact) {
     throw new Error('Exact tie on a bucket boundary, thresholds cannot separate cleanly.');
   }
   return [
@@ -61,6 +72,39 @@ function buildThresholds(sortedRows) {
     { tier: 'C', min: cMin, max: round4(bMin - 0.0001) },
     { tier: 'D', min: 0, max: round4(cMin - 0.0001) }
   ];
+}
+
+function buildScoreCalibration(rawThresholds) {
+  const byTier = Object.fromEntries(rawThresholds.map(threshold => [threshold.tier, threshold.min]));
+  return {
+    version: 1,
+    method: 'piecewise_linear_raw_to_shared_tier_score',
+    input: 'baseOverallScore',
+    output: 'overallScore',
+    anchors: [
+      { raw: 0, calibrated: 0 },
+      { raw: byTier.C, calibrated: 20 },
+      { raw: byTier.B, calibrated: 40 },
+      { raw: byTier.A, calibrated: 60 },
+      { raw: byTier.S, calibrated: 80 },
+      { raw: 100, calibrated: 100 }
+    ],
+    notes: 'Maps category-calibrated benchmark boundaries onto shared D/C/B/A/S 20-point score bands.'
+  };
+}
+
+function applyScoreCalibration(score, calibration) {
+  const anchors = (calibration.anchors || []).slice().sort((a, b) => a.raw - b.raw);
+  if (score <= anchors[0].raw) return anchors[0].calibrated;
+  for (let i = 1; i < anchors.length; i += 1) {
+    const lower = anchors[i - 1];
+    const upper = anchors[i];
+    if (score > upper.raw) continue;
+    if (upper.raw === lower.raw) return upper.calibrated;
+    const ratio = (score - lower.raw) / (upper.raw - lower.raw);
+    return Math.max(0, Math.min(100, lower.calibrated + (ratio * (upper.calibrated - lower.calibrated))));
+  }
+  return anchors[anchors.length - 1].calibrated;
 }
 
 const foodFiles = fs.readdirSync(foodsDir)
@@ -78,8 +122,8 @@ for (const name of foodFiles) {
     name: food.name,
     foodType: food.foodType,
     foodPath: path.relative(repoRoot, foodPath),
-    overallScore: scored.overallScore,
-    overallScoreExact: scored.overallScoreExact
+    baseOverallScore: scored.baseOverallScore ?? scored.overallScore,
+    baseOverallScoreExact: scored.baseOverallScoreExact ?? scored.overallScoreExact
   };
   categoryRows[food.foodType] ??= [];
   categoryRows[food.foodType].push(row);
@@ -88,19 +132,27 @@ for (const name of foodFiles) {
 const matrix = {
   version: 1,
   basis: { value: 100, unit: 'g' },
-  methodology: 'Foods are sorted by calibrated score within each category, then assigned into fixed 5-food S/A/B/C/D buckets.',
+  methodology: 'Foods are sorted by raw ruleset score within each category, assigned into fixed 5-food S/A/B/C/D benchmark buckets, then mapped through a category-specific score calibration onto shared universal tier thresholds.',
+  sharedTierThresholds,
   categories: {}
 };
 
 for (const [foodType, rows] of Object.entries(categoryRows).sort()) {
   if (rows.length !== 25) throw new Error(`${foodType} expected 25 foods, found ${rows.length}`);
-  rows.sort((a, b) => b.overallScoreExact - a.overallScoreExact || a.name.localeCompare(b.name));
+  rows.sort((a, b) => b.baseOverallScoreExact - a.baseOverallScoreExact || a.name.localeCompare(b.name));
   rows.forEach((row, index) => { row.targetTier = assignTierByRank(index); });
 
-  const thresholds = buildThresholds(rows);
+  const rawThresholds = buildThresholds(rows);
+  const scoreCalibration = buildScoreCalibration(rawThresholds);
+  rows.forEach(row => {
+    row.overallScoreExact = round4(applyScoreCalibration(row.baseOverallScoreExact, scoreCalibration));
+    row.overallScore = round1(row.overallScoreExact);
+  });
+
   const rulesetPath = path.join(rulesetsDir, `${foodType}.v1.json`);
   const ruleset = readJson(rulesetPath);
-  ruleset.tierThresholds = thresholds;
+  ruleset.scoreCalibration = scoreCalibration;
+  ruleset.tierThresholds = sharedTierThresholds;
   fs.writeFileSync(rulesetPath, JSON.stringify(ruleset, null, 2) + '\n');
 
   for (const row of rows) {
@@ -111,10 +163,13 @@ for (const [foodType, rows] of Object.entries(categoryRows).sort()) {
   }
 
   matrix.categories[foodType] = {
-    thresholds,
+    rawThresholds,
+    scoreCalibration,
     tiers: Object.fromEntries(tierOrder.map(tier => [tier, rows.filter(row => row.targetTier === tier).map(row => ({
       id: row.id,
       name: row.name,
+      baseOverallScore: row.baseOverallScore,
+      baseOverallScoreExact: row.baseOverallScoreExact,
       overallScore: row.overallScore,
       overallScoreExact: row.overallScoreExact
     }))]))
@@ -124,14 +179,16 @@ for (const [foodType, rows] of Object.entries(categoryRows).sort()) {
 writeJson(matrixPath, matrix);
 
 let matrixMd = '# CALIBRATION-MATRIX\n\n';
-matrixMd += 'This is the durable 25-food benchmark matrix for every FoodRanked category. Each category is partitioned into fixed 5-food S/A/B/C/D anchor buckets after scoring against the current calibrated ruleset.\n';
+matrixMd += 'This is the durable 25-food benchmark matrix for every FoodRanked category. Each category is partitioned into fixed 5-food S/A/B/C/D anchor buckets from raw ruleset scores, then mapped onto shared universal tier thresholds with category-specific score calibration anchors.\n';
+matrixMd += `\nShared tier thresholds: ${sharedTierThresholds.map(t => `${t.tier} ${t.min}-${t.max}`).join(' | ')}\n`;
 for (const [foodType, config] of Object.entries(matrix.categories)) {
   matrixMd += `\n## ${foodType}\n`;
-  matrixMd += `- thresholds: ${config.thresholds.map(t => `${t.tier} ${t.min}-${t.max}`).join(' | ')}\n`;
+  matrixMd += `- raw thresholds: ${config.rawThresholds.map(t => `${t.tier} ${t.min}-${t.max}`).join(' | ')}\n`;
+  matrixMd += `- calibration anchors: ${config.scoreCalibration.anchors.map(a => `${a.raw}->${a.calibrated}`).join(' | ')}\n`;
   for (const tier of tierOrder) {
     matrixMd += `\n### ${tier}\n`;
     for (const row of config.tiers[tier]) {
-      matrixMd += `- ${row.name} (${row.id}) - ${row.overallScoreExact}\n`;
+      matrixMd += `- ${row.name} (${row.id}) - calibrated ${row.overallScoreExact}, raw ${row.baseOverallScoreExact}\n`;
     }
   }
 }
@@ -149,21 +206,28 @@ for (const [foodType, config] of Object.entries(matrix.categories)) {
       if (scored.tier === tier) {
         verification[foodType].matchCount += 1;
       } else {
-        verification[foodType].mismatches.push({ name: row.name, id: row.id, targetTier: tier, actualTier: scored.tier, overallScoreExact: scored.overallScoreExact });
+        verification[foodType].mismatches.push({
+          name: row.name,
+          id: row.id,
+          targetTier: tier,
+          actualTier: scored.tier,
+          overallScoreExact: scored.overallScoreExact,
+          baseOverallScoreExact: scored.baseOverallScoreExact
+        });
       }
     }
   }
 }
 
 let resultsMd = '# CALIBRATION-MATRIX-RESULTS\n\n';
-resultsMd += 'Verification after writing the calibration matrix and per-category thresholds.\n';
+resultsMd += 'Verification after writing the calibration matrix, category score calibrations, and shared tier thresholds.\n';
 for (const [foodType, result] of Object.entries(verification)) {
   resultsMd += `\n## ${foodType}\n`;
   resultsMd += `- matched: ${result.matchCount}/${result.total}\n`;
   if (result.mismatches.length) {
     resultsMd += '- mismatches:\n';
     for (const mismatch of result.mismatches) {
-      resultsMd += `  - ${mismatch.name} (${mismatch.id}): target ${mismatch.targetTier}, actual ${mismatch.actualTier}, score ${mismatch.overallScoreExact}\n`;
+      resultsMd += `  - ${mismatch.name} (${mismatch.id}): target ${mismatch.targetTier}, actual ${mismatch.actualTier}, calibrated ${mismatch.overallScoreExact}, raw ${mismatch.baseOverallScoreExact}\n`;
     }
   } else {
     resultsMd += '- mismatches: none\n';

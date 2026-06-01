@@ -1,13 +1,29 @@
 {
   "status": "ok",
+  "schemaVersion": "foodranked-script.v2",
+  "narrationFormat": "elevenlabs-blocks-v1",
   "food": {
     "id": "orange",
     "name": "Orange",
-    "foodType": "fruits"
+    "foodType": "fruits",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "identity": null,
+    "scoreReadiness": null,
+    "sourceNotes": [
+      "Calibration benchmark sample for FoodRanked.",
+      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
+    ]
   },
   "ruleset": {
     "id": "fruits.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 47,
@@ -16,142 +32,162 @@
     "protein_g": 0.9
   },
   "hook": "Orange ranked.",
-  "intro": "",
   "sections": [
     {
       "key": "fats",
       "title": "Fats",
-      "narration": "0.1 grams of fat. Omega 3 is 20 milligrams, doing a lot of the work here. For a fruit, this really comes down to sugar control.",
+      "narration": "0.1 grams of fat. Saturated fat is 0 grams, supporting a better fat profile. Polyunsaturated fat is 0 grams, a weak mark for fruits.",
       "displayItems": [
         {
           "metricKey": "saturated_fat_g",
           "text": "saturated fat at 0g",
-          "weightedScore": 3,
+          "weightedScore": 100,
           "scoringMode": "arrow_bands",
-          "band": "↓↓↓",
+          "band": "3_green",
+          "dvPercent": null,
+          "value": 0
+        },
+        {
+          "metricKey": "polyunsaturated_fat_g",
+          "text": "polyunsaturated fat at 0g",
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
+          "band": "3_red",
           "dvPercent": null,
           "value": 0
         },
         {
           "metricKey": "omega3_mg",
           "text": "omega 3 at 20mg",
-          "weightedScore": 3,
+          "weightedScore": 0,
           "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
+          "band": "3_green",
           "dvPercent": null,
           "value": 20
         }
       ],
-      "subtitleText": "0.1g of fat. Omega 3 is 20mg, doing a lot of the work here. For a fruit, this really comes down to sugar control.",
+      "subtitleText": "0.1g of fat. Saturated fat is 0g, supporting a better fat profile. Polyunsaturated fat is 0g, a weak mark for fruits.",
       "timingHint": "short-medium",
       "score": 100
     },
     {
       "key": "carbs",
       "title": "Carbs",
-      "narration": "11.8 grams of carbs. Fibre is 2.4 grams. 11.8 grams of carbs. Fibre is 2.4 grams, where things start to fall off. For fruit, the real question is whether the sweetness stays under control.",
+      "narration": "11.8 grams of carbs. Glycemic index is 43 GI, supporting better carb quality. Starch is 0.2 grams, a meaningful miss for fruits.",
       "displayItems": [
-        {
-          "metricKey": "fibre_g",
-          "text": "fibre at 2.4g",
-          "weightedScore": -8,
-          "scoringMode": "arrow_bands",
-          "band": "↓↓",
-          "dvPercent": null,
-          "value": 2.4
-        },
         {
           "metricKey": "glycemic_index",
           "text": "glycemic index at 43 GI",
-          "weightedScore": 8,
+          "weightedScore": 400,
           "scoringMode": "arrow_bands",
-          "band": "↓↓",
+          "band": "2_green",
           "dvPercent": null,
           "value": 43
         },
         {
+          "metricKey": "starch_g",
+          "text": "starch at 0.2g",
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
+          "band": "3_red",
+          "dvPercent": null,
+          "value": 0.2
+        },
+        {
           "metricKey": "sugar_g",
           "text": "sugar at 9.4g",
-          "weightedScore": 4,
+          "weightedScore": 300,
           "scoringMode": "arrow_bands",
-          "band": "↓",
+          "band": "1_green",
           "dvPercent": null,
           "value": 9.4
         },
         {
-          "metricKey": "starch_g",
-          "text": "starch at 0.2g",
-          "weightedScore": -3,
+          "metricKey": "fibre_g",
+          "text": "fibre at 2.4g",
+          "weightedScore": 80,
           "scoringMode": "arrow_bands",
-          "band": "↓↓↓",
+          "band": "2_red",
           "dvPercent": null,
-          "value": 0.2
+          "value": 2.4
         }
       ],
-      "subtitleText": "11.8g of carbs. Fibre is 2.4g. 11.8g of carbs. Fibre is 2.4g, where things start to fall off. For fruit, the real question is whether the sweetness stays under control.",
+      "subtitleText": "11.8g of carbs. Glycemic index is 43 GI, supporting better carb quality. Starch is 0.2g, a meaningful miss for fruits.",
       "timingHint": "short-medium",
-      "score": 51.3
+      "score": 55.7
     },
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "0.9 grams of protein. Bioavailability is 30%, one of the best parts of the protein story. For a fruit, the cleanest wins are low sugar and decent fibre.",
+      "narration": "0.9 grams of protein. Essential amino acids score is 1 out of 9, with 30% bioavailability, making the protein useful for repair and maintenance.",
       "displayItems": [
         {
           "metricKey": "essential_amino_acids_score",
           "text": "essential amino acids score at 1/9",
-          "weightedScore": -3,
+          "weightedScore": 0,
           "scoringMode": "arrow_bands",
-          "band": "↓↓↓",
+          "band": "3_red",
           "dvPercent": null,
-          "value": 1
-        },
-        {
-          "metricKey": "nonessential_amino_acids_score",
-          "text": "nonessential amino acids score at 1/11",
-          "weightedScore": -3,
-          "scoringMode": "arrow_bands",
-          "band": "↓↓↓",
-          "dvPercent": null,
-          "value": 1
+          "value": 1,
+          "referenceOnly": false
         },
         {
           "metricKey": "bioavailability_percent",
           "text": "bioavailability at 30%",
-          "weightedScore": 3,
+          "weightedScore": 0,
           "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
+          "band": "3_green",
           "dvPercent": null,
-          "value": 30
+          "value": 30,
+          "referenceOnly": false
+        },
+        {
+          "metricKey": "nonessential_amino_acids_score",
+          "text": "nonessential amino acids score at 1/11",
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
+          "band": "3_red",
+          "dvPercent": null,
+          "value": 1,
+          "referenceOnly": false
         }
       ],
-      "subtitleText": "0.9g of protein. Bioavailability is 30%, one of the best parts of the protein story. For a fruit, the cleanest wins are low sugar and decent fibre.",
+      "subtitleText": "0.9g of protein. Essential amino acids score is 1/9, with 30% bioavailability, making the protein useful for repair and maintenance.",
       "timingHint": "short-medium",
-      "score": 33.3
+      "score": null
     },
     {
       "key": "vitamins",
       "title": "Vitamins",
-      "narration": "Vitamin c at 59% daily value stands out most. That gives this food real vitamin support.",
+      "narration": "Vitamin C is 59% daily value, useful for collagen formation and antioxidant support. Vitamin A is only 5% daily value, a weak mark for fruits.",
       "displayItems": [
         {
           "metricKey": "vitamin_c_dv",
-          "text": "vitamin c at 59% DV",
-          "weightedScore": 15,
+          "text": "vitamin C at 59% DV",
+          "weightedScore": 200,
           "scoringMode": "dv_points",
           "band": null,
           "dvPercent": 59,
           "value": null
+        },
+        {
+          "metricKey": "vitamin_a_dv",
+          "text": "vitamin A at 5% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 5,
+          "value": null
         }
       ],
-      "subtitleText": "Vitamin c at 59% daily value stands out most. That gives this food real vitamin support.",
+      "subtitleText": "Vitamin C is 59% DV, useful for collagen formation and antioxidant support. Vitamin A is only 5% DV, a weak mark for fruits.",
       "timingHint": "short-medium",
-      "score": 50
+      "score": 40
     },
     {
       "key": "minerals",
       "title": "Minerals",
-      "narration": "Minerals are basically not part of the case here.",
+      "narration": "Potassium is 4% daily value, useful for fluid balance. Iron is only 0% daily value, a weak mark for fruits.",
       "displayItems": [
         {
           "metricKey": "potassium_dv",
@@ -161,9 +197,27 @@
           "band": null,
           "dvPercent": 4,
           "value": null
+        },
+        {
+          "metricKey": "iron_dv",
+          "text": "iron at 0% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 0,
+          "value": null
+        },
+        {
+          "metricKey": "magnesium_dv",
+          "text": "magnesium at 2% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "dvPercent": 2,
+          "value": null
         }
       ],
-      "subtitleText": "Minerals are basically not part of the case here.",
+      "subtitleText": "Potassium is 4% DV, useful for fluid balance. Iron is only 0% DV, a weak mark for fruits.",
       "timingHint": "short-medium",
       "score": 0
     },
@@ -177,83 +231,167 @@
           "title": "vitamin C reputation is a real strength",
           "explanation": "This is one of the clearest viewer-recognisable wins in the fruit category.",
           "impactLevel": "major",
-          "scoreValue": 2
+          "resolvedScoreValue": 100
         },
         {
           "type": "pro",
           "title": "brings a clean fruit identity",
           "explanation": "It still contributes something valuable even when it is not elite.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         },
         {
           "type": "pro",
           "title": "ingredient simplicity is hard to argue with",
           "explanation": "Whole-fruit clarity is part of the category appeal.",
           "impactLevel": "minor",
-          "scoreValue": 1
+          "resolvedScoreValue": 50
         }
       ],
       "subtitleText": "Pros first: vitamin C reputation is a real strength. That gives it a clear in-category edge. Brings a clean fruit identity. It still contributes something valuable even when it is not elite. Ingredient simplicity is hard to argue with. Whole-fruit clarity is part of the category appeal.",
       "timingHint": "medium",
-      "score": 33.3
+      "score": 66.7
     },
     {
       "key": "cons",
       "title": "Cons",
-      "narration": "On the weaker side: easy to eat quickly when it is very sweet. That can blur the line between light and sugar-heavy portions. Satiety is not especially strong. Fruit often needs help from the rest of the meal. Protein contribution is tiny. That is normal for fruit, but it still limits nutritional breadth.",
+      "narration": "Downsides next: easy to eat quickly when it is very sweet. That can blur the line between light and sugar-heavy portions. Satiety is not especially strong. Fruit often needs help from the rest of the meal. Protein contribution is tiny. That is normal for fruit, but it still limits nutritional breadth.",
       "displayItems": [
         {
           "type": "con",
           "title": "easy to eat quickly when it is very sweet",
           "explanation": "That can blur the line between light and sugar-heavy portions.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "satiety is not especially strong",
           "explanation": "Fruit often needs help from the rest of the meal.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "protein contribution is tiny",
           "explanation": "That is normal for fruit, but it still limits nutritional breadth.",
           "impactLevel": "minor",
-          "scoreValue": -1
+          "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "On the weaker side: easy to eat quickly when it is very sweet. That can blur the line between light and sugar-heavy portions. Satiety is not especially strong. Fruit often needs help from the rest of the meal. Protein contribution is tiny. That is normal for fruit, but it still limits nutritional breadth.",
+      "subtitleText": "Downsides next: easy to eat quickly when it is very sweet. That can blur the line between light and sugar-heavy portions. Satiety is not especially strong. Fruit often needs help from the rest of the meal. Protein contribution is tiny. That is normal for fruit, but it still limits nutritional breadth.",
       "timingHint": "medium",
-      "score": 0
+      "score": 50
     }
   ],
   "closing": {
-    "summary": "Orange has a genuinely strong overall case. the practical downsides are real, but they do not outweigh the upside. best when you want sweetness that still earns its place nutritionally.",
+    "summary": "Big strengths are omega 3 and carb quality, but the biggest weaknesses are easy to eat quickly when it is very sweet and satiety is not especially strong.",
+    "overview": "Big strengths are omega 3 and carb quality, but the biggest weaknesses are easy to eat quickly when it is very sweet and satiety is not especially strong.",
     "finalReveal": "A tier.",
     "useCaseNote": "Best when you want sweetness that still earns its place nutritionally.",
     "cta": "Would you rank it the same, or nah?"
   },
   "tier": "A",
-  "overallScore": 45,
+  "overallScore": 77.4,
+  "overallScoreExact": 77.4033,
+  "baseOverallScore": 52.1,
+  "baseOverallScoreExact": 52.0635,
+  "sectionOrder": [
+    "fats",
+    "carbs",
+    "proteins",
+    "vitamins",
+    "minerals",
+    "pros",
+    "cons"
+  ],
+  "narrationBlocks": [
+    {
+      "kind": "hook_food",
+      "text": "Orange!"
+    },
+    {
+      "kind": "hook_ranked",
+      "text": "Ranked!"
+    },
+    {
+      "kind": "section",
+      "sectionKey": "fats",
+      "text": "0.1 grams of fat. Saturated fat is 0 grams, supporting a better fat profile. Polyunsaturated fat is 0 grams, a weak mark for fruits."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "carbs",
+      "text": "11.8 grams of carbs. Glycemic index is 43 GI, supporting better carb quality. Starch is 0.2 grams, a meaningful miss for fruits."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "proteins",
+      "text": "0.9 grams of protein. Essential amino acids score is 1 out of 9, with 30% bioavailability, making the protein useful for repair and maintenance."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "vitamins",
+      "text": "Vitamin C is 59% daily value, useful for collagen formation and antioxidant support. Vitamin A is only 5% daily value, a weak mark for fruits."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "minerals",
+      "text": "Potassium is 4% daily value, useful for fluid balance. Iron is only 0% daily value, a weak mark for fruits."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "pros",
+      "text": "Pros first: vitamin C reputation is a real strength. That gives it a clear in-category edge. Brings a clean fruit identity. It still contributes something valuable even when it is not elite. Ingredient simplicity is hard to argue with. Whole-fruit clarity is part of the category appeal."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "cons",
+      "text": "Downsides next: easy to eat quickly when it is very sweet. That can blur the line between light and sugar-heavy portions. Satiety is not especially strong. Fruit often needs help from the rest of the meal. Protein contribution is tiny. That is normal for fruit, but it still limits nutritional breadth."
+    },
+    {
+      "kind": "closing_summary",
+      "text": "Big strengths are omega 3 and carb quality, but the biggest weaknesses are easy to eat quickly when it is very sweet and satiety is not especially strong."
+    },
+    {
+      "kind": "final_reveal",
+      "text": "A tier."
+    }
+  ],
   "explanation": {
-    "summary": "Fats are carrying this food most, while minerals are the biggest drag. It lands in A tier.",
-    "whyThisTier": "This food lands in A tier with an overall score of 45 from a base nutrition score of 42. Context lifted it by 3 points.",
+    "summary": "Fats are carrying this food most, while minerals are holding it back most. It lands in A tier.",
+    "whyThisTier": "This food lands in A tier with an overall score of 77.4. Section scores: fats 100, carbs 55.7, vitamins 40, minerals 0, pros 66.7, cons 50.",
     "strongestSection": {
       "key": "fats",
       "label": "Fats",
       "score": 100
     },
-    "weakestSection": null,
+    "weakestSection": {
+      "key": "minerals",
+      "label": "Minerals",
+      "score": 0
+    },
     "topPros": [
       {
         "title": "vitamin C reputation is a real strength",
         "explanation": "This is one of the clearest viewer-recognisable wins in the fruit category.",
         "impactLevel": "major",
         "side": "pro",
-        "resolvedScoreValue": 3
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "brings a clean fruit identity",
+        "explanation": "It still contributes something valuable even when it is not elite.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "ingredient simplicity is hard to argue with",
+        "explanation": "Whole-fruit clarity is part of the category appeal.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -262,26 +400,26 @@
         "explanation": "That can blur the line between light and sugar-heavy portions.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "satiety is not especially strong",
         "explanation": "Fruit often needs help from the rest of the meal.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "protein contribution is tiny",
         "explanation": "That is normal for fruit, but it still limits nutritional breadth.",
         "impactLevel": "minor",
         "side": "con",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
       "Strongest section: Fats.",
-      "Context improved the final tier case by 3 points.",
+      "Weakest section: Minerals.",
       "Final verdict: A tier."
     ]
   }

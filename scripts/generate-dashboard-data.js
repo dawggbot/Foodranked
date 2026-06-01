@@ -122,6 +122,9 @@ const foods = fs.readdirSync(foodsDir)
       episode: episode ? {
         mode: episode.mode,
         overallScore: score?.overallScore ?? null,
+        overallScoreExact: score?.overallScoreExact ?? null,
+        baseOverallScore: score?.baseOverallScore ?? null,
+        baseOverallScoreExact: score?.baseOverallScoreExact ?? null,
         tier: score?.tier ?? null,
         sectionScores: score?.sectionScores ?? {},
         summary: score?.explanation?.summary ?? null,

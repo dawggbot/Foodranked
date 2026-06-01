@@ -41,7 +41,11 @@
   },
   "ruleset": {
     "id": "misc.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 42,
@@ -72,9 +76,40 @@
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "No real protein story here.",
-      "displayItems": [],
-      "subtitleText": "No real protein story here.",
+      "narration": "0 grams of protein. Essential amino acids score is 0 out of 9, with 0% bioavailability, making the protein useful for repair and maintenance.",
+      "displayItems": [
+        {
+          "metricKey": "essential_amino_acids_score",
+          "text": "essential amino acids score at 0/9",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
+          "dvPercent": null,
+          "value": 0,
+          "referenceOnly": true
+        },
+        {
+          "metricKey": "bioavailability_percent",
+          "text": "bioavailability at 0%",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
+          "dvPercent": null,
+          "value": 0,
+          "referenceOnly": true
+        },
+        {
+          "metricKey": "nonessential_amino_acids_score",
+          "text": "nonessential amino acids score at 0/11",
+          "weightedScore": null,
+          "scoringMode": "reference_submacro",
+          "band": null,
+          "dvPercent": null,
+          "value": 0,
+          "referenceOnly": true
+        }
+      ],
+      "subtitleText": "0g of protein. Essential amino acids score is 0/9, with 0% bioavailability, making the protein useful for repair and maintenance.",
       "timingHint": "short-medium",
       "score": null
     },
@@ -85,7 +120,7 @@
       "displayItems": [
         {
           "metricKey": "vitamin_c_dv",
-          "text": "vitamin c at 0% DV",
+          "text": "vitamin C at 0% DV",
           "weightedScore": 0,
           "scoringMode": "dv_points",
           "band": null,
@@ -94,7 +129,7 @@
         },
         {
           "metricKey": "vitamin_e_dv",
-          "text": "vitamin e at 0% DV",
+          "text": "vitamin E at 0% DV",
           "weightedScore": 0,
           "scoringMode": "dv_points",
           "band": null,
@@ -103,7 +138,7 @@
         },
         {
           "metricKey": "vitamin_k_dv",
-          "text": "vitamin k at 0% DV",
+          "text": "vitamin K at 0% DV",
           "weightedScore": 0,
           "scoringMode": "dv_points",
           "band": null,
@@ -232,8 +267,10 @@
     "cta": "Would you rank it the same, or nah?"
   },
   "tier": "D",
-  "overallScore": 12.5,
-  "overallScoreExact": 12.5,
+  "overallScore": 17.1,
+  "overallScoreExact": 17.1429,
+  "baseOverallScore": 12.5,
+  "baseOverallScoreExact": 12.5,
   "sectionOrder": [
     "fats",
     "carbs",
@@ -265,7 +302,7 @@
     {
       "kind": "section",
       "sectionKey": "proteins",
-      "text": "No real protein story here."
+      "text": "0 grams of protein. Essential amino acids score is 0 out of 9, with 0% bioavailability, making the protein useful for repair and maintenance."
     },
     {
       "kind": "section",
@@ -298,7 +335,7 @@
   ],
   "explanation": {
     "summary": "Pros are carrying this food most, while cons are holding it back most. It lands in D tier.",
-    "whyThisTier": "This food lands in D tier with an overall score of 12.5. Section scores: vitamins 0, minerals 0, pros 50, cons 0.",
+    "whyThisTier": "This food lands in D tier with an overall score of 17.1. Section scores: vitamins 0, minerals 0, pros 50, cons 0.",
     "strongestSection": {
       "key": "pros",
       "label": "Pros",

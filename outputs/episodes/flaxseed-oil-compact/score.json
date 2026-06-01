@@ -7,7 +7,11 @@
   },
   "ruleset": {
     "id": "oils-and-fats.v1",
-    "version": 1
+    "version": 1,
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
   },
   "header": {
     "kcal": 884,
@@ -16,47 +20,32 @@
     "protein_g": 0
   },
   "sectionScores": {
-    "fats": 94,
+    "fats": 100,
     "carbs": null,
     "proteins": null,
-    "vitamins": 10,
-    "minerals": null,
-    "pros": 0,
-    "cons": 100
+    "vitamins": 4,
+    "minerals": 0,
+    "pros": 50,
+    "cons": 33.3
   },
-  "baseScore": 73,
-  "contextAdjustment": {
-    "rawAdjustment": -9,
-    "appliedAdjustment": -9,
-    "appliedItems": [
-      {
-        "itemKey": "poor_heat_stability",
-        "impactLevel": "major",
-        "scoreValue": -2,
-        "title": "not the most forgiving cooking fat",
-        "explanation": "Great chemistry on paper, but use case is narrower than the headline suggests.",
-        "evidenceType": "manual",
-        "side": "con",
-        "resolvedScoreValue": -9
-      }
-    ],
-    "ignoredItems": []
-  },
-  "overallScore": 64,
-  "tier": "A",
-  "summary": "Fats are carrying this food most, while vitamins are the biggest drag. It lands in A tier.",
+  "overallScore": 52.4,
+  "overallScoreExact": 52.3913,
+  "baseOverallScore": 37.5,
+  "baseOverallScoreExact": 37.4667,
+  "tier": "B",
+  "summary": "Fats are carrying this food most, while minerals are holding it back most. It lands in B tier.",
   "explanation": {
-    "summary": "Fats are carrying this food most, while vitamins are the biggest drag. It lands in A tier.",
-    "whyThisTier": "This food lands in A tier with an overall score of 64 from a base nutrition score of 73. Context dragged it down by 9 points.",
+    "summary": "Fats are carrying this food most, while minerals are holding it back most. It lands in B tier.",
+    "whyThisTier": "This food lands in B tier with an overall score of 52.4. Section scores: fats 100, vitamins 4, minerals 0, pros 50, cons 33.3.",
     "strongestSection": {
       "key": "fats",
       "label": "Fats",
-      "score": 94
+      "score": 100
     },
     "weakestSection": {
-      "key": "vitamins",
-      "label": "Vitamins",
-      "score": 10
+      "key": "minerals",
+      "label": "Minerals",
+      "score": 0
     },
     "topPros": [
       {
@@ -64,21 +53,21 @@
         "explanation": "Practical culinary value matters here.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "can help meals feel more complete and usable",
         "explanation": "Fats sometimes improve the whole plate, not just their own stats.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       },
       {
         "title": "small amounts can change a whole meal",
         "explanation": "That leverage matters when the fat quality is good.",
         "impactLevel": "minor",
         "side": "pro",
-        "resolvedScoreValue": 0
+        "resolvedScoreValue": 50
       }
     ],
     "topCons": [
@@ -87,14 +76,27 @@
         "explanation": "Great chemistry on paper, but use case is narrower than the headline suggests.",
         "impactLevel": "major",
         "side": "con",
-        "resolvedScoreValue": -9
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "not a complete food on its own",
+        "explanation": "Even the better fats are still just part of a meal.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "calorie density is brutally high",
+        "explanation": "Tiny serving errors matter here.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
       "Strongest section: Fats.",
-      "Weakest section: Vitamins.",
-      "Context weakened the final tier case by 9 points.",
-      "Final verdict: A tier."
+      "Weakest section: Minerals.",
+      "Final verdict: B tier."
     ]
   },
   "contextItems": {
@@ -102,52 +104,58 @@
       {
         "itemKey": "fat_culinary_use",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "highly useful in cooking",
         "explanation": "Practical culinary value matters here.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "oil_absorption_support",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "can help meals feel more complete and usable",
         "explanation": "Fats sometimes improve the whole plate, not just their own stats.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "oil_cooking_leverage",
         "impactLevel": "minor",
-        "scoreValue": 1,
         "title": "small amounts can change a whole meal",
         "explanation": "That leverage matters when the fat quality is good.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "pro",
+        "resolvedScoreValue": 50
       }
     ],
     "cons": [
       {
         "itemKey": "poor_heat_stability",
         "impactLevel": "major",
-        "scoreValue": -2,
         "title": "not the most forgiving cooking fat",
         "explanation": "Great chemistry on paper, but use case is narrower than the headline suggests.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 100
       },
       {
         "itemKey": "fat_not_complete_food",
         "impactLevel": "minor",
-        "scoreValue": -1,
         "title": "not a complete food on its own",
         "explanation": "Even the better fats are still just part of a meal.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       },
       {
         "itemKey": "oil_calorie_density_extreme",
         "impactLevel": "minor",
-        "scoreValue": -1,
         "title": "calorie density is brutally high",
         "explanation": "Tiny serving errors matter here.",
-        "evidenceType": "manual"
+        "evidenceType": "manual",
+        "side": "con",
+        "resolvedScoreValue": 50
       }
     ]
   },
@@ -158,9 +166,9 @@
       "scoringMode": "arrow_bands",
       "value": 9,
       "band": "↓↓↓",
-      "score": 3,
+      "score": 100,
       "weight": 7,
-      "weightedScore": 21
+      "weightedScore": 700
     },
     {
       "metricKey": "omega3_mg",
@@ -168,9 +176,9 @@
       "scoringMode": "arrow_bands",
       "value": 53300,
       "band": "↑↑↑",
-      "score": 3,
+      "score": 100,
       "weight": 1,
-      "weightedScore": 3
+      "weightedScore": 100
     },
     {
       "metricKey": "polyunsaturated_fat_g",
@@ -178,19 +186,29 @@
       "scoringMode": "arrow_bands",
       "value": 67.8,
       "band": "↑↑↑",
-      "score": 3,
+      "score": 100,
       "weight": 1,
-      "weightedScore": 3
+      "weightedScore": 100
     },
     {
       "metricKey": "cholesterol_mg",
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 0,
-      "band": "↓↓",
-      "score": 2,
+      "band": "↓↓↓",
+      "score": 100,
       "weight": 5,
-      "weightedScore": 10
+      "weightedScore": 500
+    },
+    {
+      "metricKey": "vitamin_e_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 2,
+      "points": 0,
+      "score": 0,
+      "weight": 2,
+      "weightedScore": 0
     },
     {
       "metricKey": "vitamin_k_dv",
@@ -198,8 +216,49 @@
       "scoringMode": "dv_points",
       "dvPercent": 10,
       "points": 1,
+      "score": 10,
       "weight": 2,
-      "weightedScore": 2
+      "weightedScore": 20
+    },
+    {
+      "metricKey": "vitamin_a_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 0,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "iron_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 0,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "magnesium_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 0,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "calcium_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 0,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
     }
   ]
 }

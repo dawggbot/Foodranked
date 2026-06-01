@@ -182,7 +182,7 @@ function buildNarrationText(script, options = {}) {
     .map(audioOnlyText)
     .map(capitalizeSentenceStarts);
 
-  return parts.join('\n\n-\n\n');
+  return parts.join('\n-\n');
 }
 
 function estimateDurationSeconds(text, wordsPerMinute = 165, floorSeconds = 1.4) {

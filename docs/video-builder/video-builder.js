@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260601-clear-reveal-micro-highlight-v1';
+  const BUILDER_BUILD_ID = '20260601-tight-narration-micro-reveal-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -20,9 +20,9 @@
   const SECTION_NARRATION_AFTER_REVEAL_PAD_SECONDS = 0.03;
   const MICRON_GRAPH_REVEAL_SECONDS = 0.08;
   const MICRON_BAR_AFTER_GRAPH_SECONDS = 0.38;
-  const MICRON_BAR_STEP_SECONDS = 0.09;
+  const MICRON_BAR_STEP_SECONDS = 0.12;
   const MICRON_STAMP_REVEAL_SECONDS = 0.28;
-  const MICRON_BAR_STAMP_REVEAL_SECONDS = 0.08;
+  const MICRON_BAR_STAMP_REVEAL_SECONDS = 0.12;
   const AUDIO_TIMELINE_SYNC_TOLERANCE_SECONDS = 0.12;
   const SECTION_HOLD_SECONDS = 0;
   const SECTION_HOLD_IDS = new Set(['fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons']);
@@ -2260,7 +2260,7 @@
         index,
         weight: captionWordWeight(word)
       }));
-      const pauseWeight = sentenceIndex === rawSentences.length - 1 ? 0 : 0.35;
+      const pauseWeight = sentenceIndex === rawSentences.length - 1 ? 0 : 0.18;
       return {
         text: sentence,
         sentenceIndex,
@@ -2699,7 +2699,7 @@
     const step = micronStepForColumn(sectionId, columnIndex);
     if (step == null) return SUBMACRO_VALUE_COLORS.red;
     if (step >= 2) return SUBMACRO_VALUE_COLORS.green;
-    return '#ffd76e';
+    return SUBMACRO_VALUE_COLORS.neutral;
   }
 
   function colorWithAlpha(color, alpha) {
@@ -2980,7 +2980,7 @@
         return micronTierRevealAnchor(scene, sectionId, 1, graphAnchor);
       }
       if (classification.kind === 'icon') {
-        return micronTierRevealAnchor(scene, sectionId, 1, graphAnchor);
+        return graphAnchor;
       }
       if (classification.kind === 'value') {
         return micronTierRevealAnchor(

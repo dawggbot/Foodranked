@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260601-tight-narration-micro-reveal-v1';
+  const BUILDER_BUILD_ID = '20260601-micro-color-icon-sync-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -820,6 +820,20 @@
       .sort((a, b) => a.centerX - b.centerX);
   }
 
+  function isMicronMicroIconLayer(layer, sectionId) {
+    if (!isSpriteLayer(layer)) return false;
+    const src = String(layer.src || '').toLowerCase();
+    const sectionName = sectionId === 'vitamins' ? 'vitamins/vitamin' : sectionId === 'minerals' ? 'minerals/mineral' : '';
+    return sectionName ? src.includes(`/micros_section/${sectionName}_micro_icon.`) : false;
+  }
+
+  function microsIconColumns(layers, sectionId) {
+    return layers
+      .filter(layer => isMicronMicroIconLayer(layer, sectionId))
+      .map(layer => ({ layer, centerX: layerCenterX(layer), items: [{ layer, centerX: layerCenterX(layer) }] }))
+      .sort((a, b) => a.centerX - b.centerX);
+  }
+
   function nearestColumn(columns, layer, fallbackIndex) {
     if (!columns.length) return null;
     const targetX = layer ? layerCenterX(layer) : null;
@@ -1211,6 +1225,7 @@
   function syncMicros(layout, food, sectionId, specs, labelPrefix, valuePrefix) {
     const layers = getSectionLayers(layout, sectionId);
     const columns = microsColumns(layers);
+    const iconColumns = microsIconColumns(layers, sectionId);
     specs.forEach((spec, index) => {
       const label = layers.find(layer => layer.id === `${labelPrefix}_${index + 1}`);
       const value = layers.find(layer => layer.id === `${valuePrefix}_${index + 1}`);
@@ -1224,6 +1239,18 @@
       column.items.forEach(item => {
         item.layer.visible = step != null && item.percent <= visiblePercent;
       });
+      if (label && !label.manualPosition) {
+        const iconColumn = nearestColumn(iconColumns, label, index);
+        const icon = iconColumn?.layer || iconColumn?.items?.[0]?.layer;
+        if (icon) {
+          const iconWidth = Number(icon.width) || 11;
+          label.width = Math.max(Number(label.width) || 0, sectionId === 'minerals' ? 7 : 5);
+          label.x = Math.round((Number(icon.x) || 0) + ((iconWidth - label.width) / 2));
+          label.y = Math.round(Number(icon.y) || 0);
+          label.z = Math.max(Number(label.z) || 0, (Number(icon.z) || 0) + 5);
+          label.align = 'left';
+        }
+      }
       if (value) {
         if (value.manualPosition) return;
         const anchorPercent = Math.max(10, visiblePercent);
@@ -2699,7 +2726,7 @@
     const step = micronStepForColumn(sectionId, columnIndex);
     if (step == null) return SUBMACRO_VALUE_COLORS.red;
     if (step >= 2) return SUBMACRO_VALUE_COLORS.green;
-    return SUBMACRO_VALUE_COLORS.neutral;
+    return SUBMACRO_VALUE_COLORS.red;
   }
 
   function colorWithAlpha(color, alpha) {
@@ -2977,7 +3004,7 @@
         return micronTierRevealAnchor(scene, sectionId, barStep, graphAnchor);
       }
       if (classification.kind === 'label') {
-        return micronTierRevealAnchor(scene, sectionId, 1, graphAnchor);
+        return graphAnchor;
       }
       if (classification.kind === 'icon') {
         return graphAnchor;

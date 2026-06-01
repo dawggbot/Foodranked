@@ -2,11 +2,11 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260601-display-spacing-submacro-highlight-v1';
+  const BUILDER_BUILD_ID = '20260601-layout-indicators-faded-highlight-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
-  const SECTION_INDICATOR_LAYOUT = { startX: 4, y: 173, stepX: 11, normalSize: 10, highlightedSize: 12 };
+  const SECTION_INDICATOR_LAYOUT = { normalSize: 10, highlightedSize: 12 };
   const CAPTION_SAFE_X = 7;
   const CAPTION_MAX_LINES = 2;
   const CAPTION_MAX_LINE_CHARS = 18;
@@ -778,12 +778,7 @@
       layer.visible = visibleSet.has(layer);
     });
     if (!visible.length) return visible;
-
-    visible.forEach((layer, index) => {
-      layer.x = SECTION_INDICATOR_LAYOUT.startX + (index * SECTION_INDICATOR_LAYOUT.stepX);
-      layer.y = SECTION_INDICATOR_LAYOUT.y;
-      layer.visible = true;
-    });
+    visible.forEach(layer => { layer.visible = true; });
     return visible;
   }
 
@@ -1852,7 +1847,7 @@
     roots.layerRoot.innerHTML = '';
 
     const layerList = layers.map(item => item.layer);
-    const activeMacroRowIndex = activeMacroSubmetricRowIndex(scene, sceneProgress);
+    const macroHighlightMap = macroSubmetricHighlightMap(scene, sceneProgress);
     layers.forEach(({ layer, index, persistent }) => {
       if (layer.visible === false) return;
       const node = document.createElement(layer.kind === 'sprite' ? 'img' : 'div');
@@ -1888,7 +1883,7 @@
         if (layer.width) node.style.width = `calc(${Number(layer.width)}px * var(--pixel-unit))`;
         node.style.textAlign = layer.align || 'left';
       }
-      applySubmacroNarrationHighlight(node, scene, revealSchedule, activeMacroRowIndex);
+      applySubmacroNarrationHighlight(node, scene, revealSchedule, macroHighlightMap);
       roots.layerRoot.appendChild(node);
     });
 
@@ -2519,16 +2514,37 @@
     };
   }
 
-  function activeMacroSubmetricRowIndex(scene, sceneProgress) {
+  function submacroHighlightStrength(scene, sceneProgress, window) {
+    const fade = clamp(0.22 / Math.max(1, sceneContentDuration(scene)), 0.018, 0.08);
+    const fadeIn = clamp((sceneProgress - window.start) / fade, 0, 1);
+    const fadeOut = clamp((window.end - sceneProgress) / fade, 0, 1);
+    return easeOutCubic(Math.min(fadeIn, fadeOut));
+  }
+
+  function macroSubmetricHighlightMap(scene, sceneProgress) {
     const sectionId = scene?.id || '';
     const specs = MACRO_SUBMETRIC_SPECS[sectionId] || [];
-    if (!specs.length) return null;
+    if (!specs.length) return new Map();
     const timing = sceneTimingModel(scene);
-    const active = specs
-      .map((spec, index) => ({ index, window: macroSubmetricNarrationWindow(scene, timing, spec) }))
-      .filter(item => item.window && sceneProgress >= item.window.start && sceneProgress <= item.window.end)
-      .sort((a, b) => b.window.start - a.window.start);
-    return active[0]?.index ?? null;
+    const fade = clamp(0.22 / Math.max(1, sceneContentDuration(scene)), 0.018, 0.08);
+    const windows = specs
+      .map((spec, index) => {
+        const window = macroSubmetricNarrationWindow(scene, timing, spec);
+        return window ? { index, window } : null;
+      })
+      .filter(Boolean)
+      .sort((a, b) => a.window.start - b.window.start);
+    const highlights = new Map();
+    windows.forEach((item, index) => {
+      const next = windows[index + 1];
+      const window = {
+        ...item.window,
+        end: next ? Math.min(item.window.end, next.window.start + fade) : item.window.end
+      };
+      const strength = submacroHighlightStrength(scene, sceneProgress, window);
+      if (strength > 0) highlights.set(item.index, { rowIndex: item.index, strength });
+    });
+    return highlights;
   }
 
   function macroSubmetricHighlightColor(sectionId, rowIndex) {
@@ -2538,14 +2554,31 @@
     return presentation.textColor || SUBMACRO_VALUE_COLORS[presentation.color] || SUBMACRO_VALUE_COLORS.neutral;
   }
 
-  function applySubmacroNarrationHighlight(node, scene, revealSchedule, activeRowIndex) {
-    if (activeRowIndex == null || revealSchedule?.family !== 'macro') return;
-    if (revealSchedule.rowIndex !== activeRowIndex) return;
+  function colorWithAlpha(color, alpha) {
+    const value = String(color || '').trim();
+    const match = value.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
+    if (!match) return value;
+    const hex = match[1].length === 3
+      ? match[1].split('').map(char => `${char}${char}`).join('')
+      : match[1];
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+    return `rgba(${r}, ${g}, ${b}, ${clamp(alpha, 0, 1).toFixed(3)})`;
+  }
+
+  function applySubmacroNarrationHighlight(node, scene, revealSchedule, highlightMap) {
+    if (!highlightMap || revealSchedule?.family !== 'macro') return;
+    const activeHighlight = highlightMap.get(revealSchedule.rowIndex);
+    if (!activeHighlight) return;
     if (!['score-card', 'arrow', 'label', 'value', 'row'].includes(revealSchedule.kind)) return;
-    const color = macroSubmetricHighlightColor(scene?.id || '', activeRowIndex);
+    const color = macroSubmetricHighlightColor(scene?.id || '', activeHighlight.rowIndex);
+    const strength = clamp(activeHighlight.strength, 0, 1);
     node.classList.add('submacro-narration-highlight');
     node.style.setProperty('--submacro-highlight', color);
-    if (node.classList.contains('text')) node.style.color = color;
+    node.style.setProperty('--submacro-highlight-strength', strength.toFixed(3));
+    node.style.setProperty('--submacro-highlight-glow', colorWithAlpha(color, 0.72 * strength));
+    node.style.setProperty('--submacro-highlight-glow-soft', colorWithAlpha(color, 0.32 * strength));
   }
 
   function macroMainSentence(scene, sectionId) {

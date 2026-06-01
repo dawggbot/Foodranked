@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260601-submacro-arrow-reveal-v1';
+  const BUILDER_BUILD_ID = '20260601-slot-arrow-reveal-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -396,13 +396,6 @@
   function easeOutCubic(value) {
     const t = clamp(value, 0, 1);
     return 1 - Math.pow(1 - t, 3);
-  }
-
-  function easeOutBack(value) {
-    const t = clamp(value, 0, 1);
-    const c1 = 1.70158;
-    const c3 = c1 + 1;
-    return 1 + (c3 * Math.pow(t - 1, 3)) + (c1 * Math.pow(t - 1, 2));
   }
 
   function formatCompactNumber(value, decimals = 1) {
@@ -2973,26 +2966,34 @@
       ? macroRevealWindowProgress(scene, revealWindowSeconds)
       : Math.min(0.18, Math.max(0.045, revealWindowSeconds / sceneDuration));
     const rawRevealProgress = (sceneProgress + revealLead - delay) / revealWindow;
-    const revealProgress = isMacroArrowReveal ? easeOutBack(rawRevealProgress) : easeOutCubic(rawRevealProgress);
-    const visible = clamp(revealProgress, 0, 1);
+    const arrowRevealProgress = clamp(rawRevealProgress, 0, 1);
+    const revealProgress = easeOutCubic(rawRevealProgress);
+    const visible = isMacroArrowReveal
+      ? easeOutCubic((arrowRevealProgress - 0.04) / 0.24)
+      : clamp(revealProgress, 0, 1);
     const revealPulse = isMacroArrowReveal
-      ? Math.sin(clamp(rawRevealProgress, 0, 1) * Math.PI)
+      ? Math.sin(arrowRevealProgress * Math.PI)
       : 0;
     const phase = state.currentTime * Math.PI * 2;
     let x = 0;
     let y = 0;
     let scale = layer.kind === 'text' ? 1 : 0.96 + (visible * 0.04);
     let clip = '';
+    let rotate = 0;
     const lockSpriteLayout = layer.kind === 'sprite' && !persistent;
 
     if (isMacroBodyReveal) {
       scale = 1;
       y += (1 - visible) * 5;
     } else if (isMacroArrowReveal) {
-      const settle = clamp(rawRevealProgress, 0, 1);
-      x += Math.sin(settle * Math.PI * 2.5) * (1 - settle) * 1.25;
-      y -= (1 - visible) * 4;
-      scale = 0.58 + (visible * 0.42) + (revealPulse * 0.14);
+      const reel = easeOutCubic(arrowRevealProgress);
+      const tick = Math.sin(arrowRevealProgress * Math.PI * 7) * Math.pow(1 - arrowRevealProgress, 1.35);
+      x += tick * 0.85;
+      y -= (1 - reel) * 18;
+      y += tick * 5.5;
+      scale = 0.94 + (visible * 0.06) + (revealPulse * 0.045);
+      rotate = tick * 5;
+      clip = `inset(${Math.round((1 - visible) * 16)}% 0 ${Math.round((1 - reel) * 20)}% 0)`;
     } else if (lockSpriteLayout) {
       scale = 1;
     } else if (scene.reveal === 'slide') {
@@ -3014,14 +3015,15 @@
     const flip = layer.flipY ? ' scaleY(-1)' : '';
     node.style.transformOrigin = isMacroArrowReveal || layer.flipY ? 'center' : 'top left';
     node.style.opacity = String(visible);
-    node.style.transform = `translate3d(calc(${x}px * var(--pixel-unit)), calc(${y}px * var(--pixel-unit)), 0) scale(${scale})${flip}`;
+    const rotation = rotate ? ` rotate(${rotate.toFixed(3)}deg)` : '';
+    node.style.transform = `translate3d(calc(${x}px * var(--pixel-unit)), calc(${y}px * var(--pixel-unit)), 0) scale(${scale})${rotation}${flip}`;
     if (clip) node.style.clipPath = clip;
     if (isMacroArrowReveal && revealPulse > 0.02) {
       const glowRgb = macroArrowGlowRgb(layer);
       node.style.filter = [
         `brightness(${(1 + revealPulse * 0.75).toFixed(3)})`,
         `saturate(${(1 + revealPulse * 0.65).toFixed(3)})`,
-        `drop-shadow(0 0 calc(${(1 + revealPulse * 2.2).toFixed(2)}px * var(--pixel-unit)) rgba(${glowRgb}, ${(0.35 + revealPulse * 0.45).toFixed(3)}))`
+        `drop-shadow(0 0 calc(${(1 + revealPulse * 2.8).toFixed(2)}px * var(--pixel-unit)) rgba(${glowRgb}, ${(0.32 + revealPulse * 0.48).toFixed(3)}))`
       ].join(' ');
     }
   }

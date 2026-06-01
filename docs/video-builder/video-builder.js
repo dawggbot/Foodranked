@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260601-plain-pro-con-highlight-v2';
+  const BUILDER_BUILD_ID = '20260601-outro-score-grade-glow-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -1273,9 +1273,86 @@
     return food?.episode?.overallScore ?? food?.overallScore ?? null;
   }
 
+  function scoreTier(food) {
+    return food?.episode?.tier || food?.tier || food?.expectedTier || '';
+  }
+
   function formatOverallScore(food) {
     const score = asNumber(overallScore(food), null);
     return score == null ? 'N/A' : formatCompactNumber(score, 0);
+  }
+
+  function hexToRgb(color) {
+    const value = String(color || '').trim();
+    const match = value.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
+    if (!match) return null;
+    const hex = match[1].length === 3
+      ? match[1].split('').map(char => `${char}${char}`).join('')
+      : match[1];
+    return {
+      r: parseInt(hex.slice(0, 2), 16),
+      g: parseInt(hex.slice(2, 4), 16),
+      b: parseInt(hex.slice(4, 6), 16)
+    };
+  }
+
+  function rgbToHex({ r, g, b }) {
+    return `#${[r, g, b].map(value => clamp(Math.round(value), 0, 255).toString(16).padStart(2, '0')).join('')}`;
+  }
+
+  function mixHexColor(from, to, amount) {
+    const start = hexToRgb(from);
+    const end = hexToRgb(to);
+    if (!start || !end) return to;
+    const t = clamp(amount, 0, 1);
+    return rgbToHex({
+      r: start.r + ((end.r - start.r) * t),
+      g: start.g + ((end.g - start.g) * t),
+      b: start.b + ((end.b - start.b) * t)
+    });
+  }
+
+  function scoreGradeColor(score) {
+    const safe = asNumber(score, null);
+    if (safe == null) return SUBMACRO_VALUE_COLORS.neutral;
+    if (safe < 20) return SUBMACRO_VALUE_COLORS.red;
+    if (safe >= 60) return SUBMACRO_VALUE_COLORS.green;
+    if (safe < 40) return mixHexColor(SUBMACRO_VALUE_COLORS.red, '#f6c65f', (safe - 20) / 20);
+    return mixHexColor('#f6c65f', SUBMACRO_VALUE_COLORS.green, (safe - 40) / 20);
+  }
+
+  function outroScoreGlowStyle(food) {
+    const tier = String(scoreTier(food)).toUpperCase();
+    const score = overallScore(food);
+    if (tier === 'S' || asNumber(score, 0) >= 80) {
+      return {
+        gradeClass: 'score-grade-s',
+        color: '#00bfa5',
+        core: 'rgba(196, 255, 246, 0.98)',
+        soft: 'rgba(0, 191, 165, 0.86)',
+        wide: 'rgba(124, 242, 167, 0.46)'
+      };
+    }
+
+    const color = scoreGradeColor(score);
+    return {
+      gradeClass: 'score-grade-standard',
+      color,
+      core: colorWithAlpha(color, 0.98),
+      soft: colorWithAlpha(color, 0.72),
+      wide: colorWithAlpha(color, 0.38)
+    };
+  }
+
+  function applyOutroScoreGlow(node, layer, food) {
+    if (String(layer?.id || '').toLowerCase() !== 'outro_score_value') return;
+    const style = outroScoreGlowStyle(food);
+    node.classList.add('outro-score-glow', style.gradeClass);
+    node.style.color = style.color;
+    node.style.setProperty('--outro-score-color', style.color);
+    node.style.setProperty('--outro-score-glow-core', style.core);
+    node.style.setProperty('--outro-score-glow-soft', style.soft);
+    node.style.setProperty('--outro-score-glow-wide', style.wide);
   }
 
   function normalizeOutroScoreLayout(layout) {
@@ -1996,6 +2073,7 @@
         node.style.fontSize = `calc(${Number(layer.fontSize) || 6}px * var(--pixel-unit))`;
         if (layer.width) node.style.width = `calc(${Number(layer.width)}px * var(--pixel-unit))`;
         node.style.textAlign = layer.align || 'left';
+        applyOutroScoreGlow(node, layer, food);
       }
       applySubmacroNarrationHighlight(node, scene, revealSchedule, macroHighlightMap);
       applyMicronNarrationHighlight(node, scene, revealSchedule, micronHighlightMap);

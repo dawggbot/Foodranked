@@ -409,6 +409,34 @@ h2 {
     0 0 0 #000;
 }
 
+.layer-node.text.outro-score-glow {
+  color: var(--outro-score-color, #ffffff);
+  animation: outro-score-glow-pulse 1.2s steps(4, end) infinite;
+  filter:
+    brightness(1.12)
+    saturate(1.18)
+    drop-shadow(0 0 calc(1px * var(--pixel-unit)) var(--outro-score-glow-core, rgba(255,255,255,.9)));
+  text-shadow:
+    0 0 calc(1px * var(--pixel-unit)) var(--outro-score-glow-core, rgba(255,255,255,.9)),
+    0 0 calc(4px * var(--pixel-unit)) var(--outro-score-glow-soft, rgba(255,255,255,.56)),
+    0 0 calc(9px * var(--pixel-unit)) var(--outro-score-glow-wide, rgba(255,255,255,.28)),
+    0 0 0 #000;
+}
+
+.layer-node.text.outro-score-glow.score-grade-s {
+  filter:
+    brightness(1.2)
+    saturate(1.24)
+    drop-shadow(0 0 calc(1px * var(--pixel-unit)) var(--outro-score-glow-core, rgba(196,255,246,.98)))
+    drop-shadow(0 0 calc(3px * var(--pixel-unit)) var(--outro-score-glow-soft, rgba(0,191,165,.72)));
+  text-shadow:
+    0 0 calc(1px * var(--pixel-unit)) var(--outro-score-glow-core, rgba(196,255,246,.98)),
+    0 0 calc(4px * var(--pixel-unit)) var(--outro-score-glow-soft, rgba(0,191,165,.88)),
+    0 0 calc(9px * var(--pixel-unit)) var(--outro-score-glow-wide, rgba(124,242,167,.52)),
+    0 0 calc(14px * var(--pixel-unit)) rgba(255,255,255,.22),
+    0 0 0 #000;
+}
+
 .layer-node.pro-con-row-resting {
   filter: brightness(.86) saturate(.92);
 }
@@ -486,6 +514,22 @@ h2 {
       brightness(1.65)
       drop-shadow(0 0 calc(1px * var(--pixel-unit)) rgba(255, 244, 184, 0.98))
       drop-shadow(0 0 calc(2px * var(--pixel-unit)) rgba(255, 255, 255, 0.7));
+  }
+}
+
+@keyframes outro-score-glow-pulse {
+  0%, 100% {
+    filter:
+      brightness(1.06)
+      saturate(1.12)
+      drop-shadow(0 0 calc(1px * var(--pixel-unit)) var(--outro-score-glow-core, rgba(255,255,255,.82)));
+  }
+  50% {
+    filter:
+      brightness(1.22)
+      saturate(1.26)
+      drop-shadow(0 0 calc(2px * var(--pixel-unit)) var(--outro-score-glow-core, rgba(255,255,255,.98)))
+      drop-shadow(0 0 calc(5px * var(--pixel-unit)) var(--outro-score-glow-soft, rgba(255,255,255,.62)));
   }
 }
 

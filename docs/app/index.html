@@ -387,6 +387,47 @@
       image-rendering: crisp-edges;
     }
     .layer-node.text { white-space: pre-line; }
+    .layer-node.text.outro-score-glow {
+      color: var(--outro-score-color, #ffffff);
+      animation: outro-score-glow-pulse 1.2s steps(4, end) infinite;
+      filter:
+        brightness(1.12)
+        saturate(1.18)
+        drop-shadow(0 0 calc(1px * var(--pixel-unit)) var(--outro-score-glow-core, rgba(255,255,255,.9)));
+      text-shadow:
+        0 0 calc(1px * var(--pixel-unit)) var(--outro-score-glow-core, rgba(255,255,255,.9)),
+        0 0 calc(4px * var(--pixel-unit)) var(--outro-score-glow-soft, rgba(255,255,255,.56)),
+        0 0 calc(9px * var(--pixel-unit)) var(--outro-score-glow-wide, rgba(255,255,255,.28)),
+        0 0 0 #000;
+    }
+    .layer-node.text.outro-score-glow.score-grade-s {
+      filter:
+        brightness(1.2)
+        saturate(1.24)
+        drop-shadow(0 0 calc(1px * var(--pixel-unit)) var(--outro-score-glow-core, rgba(196,255,246,.98)))
+        drop-shadow(0 0 calc(3px * var(--pixel-unit)) var(--outro-score-glow-soft, rgba(0,191,165,.72)));
+      text-shadow:
+        0 0 calc(1px * var(--pixel-unit)) var(--outro-score-glow-core, rgba(196,255,246,.98)),
+        0 0 calc(4px * var(--pixel-unit)) var(--outro-score-glow-soft, rgba(0,191,165,.88)),
+        0 0 calc(9px * var(--pixel-unit)) var(--outro-score-glow-wide, rgba(124,242,167,.52)),
+        0 0 calc(14px * var(--pixel-unit)) rgba(255,255,255,.22),
+        0 0 0 #000;
+    }
+    @keyframes outro-score-glow-pulse {
+      0%, 100% {
+        filter:
+          brightness(1.06)
+          saturate(1.12)
+          drop-shadow(0 0 calc(1px * var(--pixel-unit)) var(--outro-score-glow-core, rgba(255,255,255,.82)));
+      }
+      50% {
+        filter:
+          brightness(1.22)
+          saturate(1.26)
+          drop-shadow(0 0 calc(2px * var(--pixel-unit)) var(--outro-score-glow-core, rgba(255,255,255,.98)))
+          drop-shadow(0 0 calc(5px * var(--pixel-unit)) var(--outro-score-glow-soft, rgba(255,255,255,.62)));
+      }
+    }
 
     .progress-strip {
       position: absolute;
@@ -3449,6 +3490,85 @@
       return score == null ? 'N/A' : formatCompactNumber(score, 0);
     }
 
+    function hexToRgb(color) {
+      const value = String(color || '').trim();
+      const match = value.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
+      if (!match) return null;
+      const hex = match[1].length === 3
+        ? match[1].split('').map(char => `${char}${char}`).join('')
+        : match[1];
+      return {
+        r: parseInt(hex.slice(0, 2), 16),
+        g: parseInt(hex.slice(2, 4), 16),
+        b: parseInt(hex.slice(4, 6), 16)
+      };
+    }
+
+    function rgbToHex({ r, g, b }) {
+      return `#${[r, g, b].map(value => clampValue(Math.round(value), 0, 255).toString(16).padStart(2, '0')).join('')}`;
+    }
+
+    function colorWithAlpha(color, alpha) {
+      const rgb = hexToRgb(color);
+      if (!rgb) return color;
+      return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${clampValue(alpha, 0, 1).toFixed(3)})`;
+    }
+
+    function mixHexColor(from, to, amount) {
+      const start = hexToRgb(from);
+      const end = hexToRgb(to);
+      if (!start || !end) return to;
+      const t = clampValue(amount, 0, 1);
+      return rgbToHex({
+        r: start.r + ((end.r - start.r) * t),
+        g: start.g + ((end.g - start.g) * t),
+        b: start.b + ((end.b - start.b) * t)
+      });
+    }
+
+    function scoreGradeColor(score) {
+      const safe = asNumber(score, null);
+      if (safe == null) return SUBMACRO_VALUE_COLORS.neutral;
+      if (safe < 20) return SUBMACRO_VALUE_COLORS.red;
+      if (safe >= 60) return SUBMACRO_VALUE_COLORS.green;
+      if (safe < 40) return mixHexColor(SUBMACRO_VALUE_COLORS.red, '#f6c65f', (safe - 20) / 20);
+      return mixHexColor('#f6c65f', SUBMACRO_VALUE_COLORS.green, (safe - 40) / 20);
+    }
+
+    function outroScoreGlowStyle(food, stub = getSelectedFoodStub()) {
+      const tier = String(scoreTier(food, stub)).toUpperCase();
+      const score = overallScoreValue(food, stub);
+      if (tier === 'S' || asNumber(score, 0) >= 80) {
+        return {
+          gradeClass: 'score-grade-s',
+          color: '#00bfa5',
+          core: 'rgba(196, 255, 246, 0.98)',
+          soft: 'rgba(0, 191, 165, 0.86)',
+          wide: 'rgba(124, 242, 167, 0.46)'
+        };
+      }
+
+      const color = scoreGradeColor(score);
+      return {
+        gradeClass: 'score-grade-standard',
+        color,
+        core: colorWithAlpha(color, 0.98),
+        soft: colorWithAlpha(color, 0.72),
+        wide: colorWithAlpha(color, 0.38)
+      };
+    }
+
+    function applyOutroScoreGlow(node, layer, food, stub = getSelectedFoodStub()) {
+      if (String(layer?.id || '').toLowerCase() !== 'outro_score_value') return;
+      const style = outroScoreGlowStyle(food, stub);
+      node.classList.add('outro-score-glow', style.gradeClass);
+      node.style.color = style.color;
+      node.style.setProperty('--outro-score-color', style.color);
+      node.style.setProperty('--outro-score-glow-core', style.core);
+      node.style.setProperty('--outro-score-glow-soft', style.soft);
+      node.style.setProperty('--outro-score-glow-wide', style.wide);
+    }
+
     function episodeNarrationText(stub = getSelectedFoodStub()) {
       const narrationText = String(stub?.episode?.narrationText || '').trim();
       if (narrationText) return narrationText;
@@ -4254,6 +4374,7 @@
           node.style.fontSize = `calc(${layer.fontSize || 6}px * var(--pixel-unit))`;
           if (layer.width) node.style.width = `calc(${layer.width}px * var(--pixel-unit))`;
           node.style.textAlign = layer.align || 'left';
+          applyOutroScoreGlow(node, layer, state.fullFood || getSelectedFoodStub());
           node.title = 'Double-click to edit this text in the inspector';
           node.addEventListener('dblclick', event => {
             event.preventDefault();

@@ -179,7 +179,7 @@ Suggested fields:
 - cons_weight
 
 Recommended default:
-- all 7 sections use equal weights of `1/7`
+- all 7 scored content sections use equal weights of `1/7`
 - category differentiation should happen inside the ruleset, not by warping the final 7-way split
 
 ### protein_fallbacks
@@ -252,7 +252,7 @@ cons_section_score = 100 - cons_severity_score
 10. Score vitamins/minerals from DV% tiers.
 11. Score pros and cons from major/minor item levels.
 12. Apply `proteinFallback` when the proteins section would otherwise depend on weak proxy fields.
-13. Average the 7 section scores using equal top-level weights.
+13. Average the 7 scored content section scores using equal top-level weights.
 14. Map the final score to the tier.
 15. Generate derived outputs:
    - summary
@@ -264,11 +264,11 @@ cons_section_score = 100 - cons_severity_score
 
 The ruleset system should generate:
 - header-ready values
-- section-ready values for all 7 video sections
+- section-ready values for all 7 scored content sections
 - strongest positives
 - strongest negatives
 - short summary
-- all 7 section scores
+- all 7 scored content section scores
 - overall score
 - final tier
 - explanation snapshot referencing the ruleset version used

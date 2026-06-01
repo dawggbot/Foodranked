@@ -69,7 +69,7 @@ Carries both ranking identity and production-readiness context:
 
 ## `sections[]`
 
-Each of the 7 video sections includes:
+Each of the 7 scored content sections includes:
 
 - `key`
 - `title`
@@ -100,7 +100,7 @@ Each block includes:
 Typical compact order:
 1. `hook_food` → `Bacon!`
 2. `hook_ranked` → `Ranked!`
-3. 7 section blocks
+3. 7 scored content section blocks
 4. `closing_summary` → very short strengths/weaknesses overview
 5. optional `cta`
 6. `final_reveal`
@@ -148,7 +148,7 @@ Do not treat deleted food-file `scoreValue` fields as active script inputs.
 ## Lock-in status
 
 Current locked behavior:
-- 7 section order stays fixed and matched to the score structure
+- 7 scored content section order stays fixed and matched to the score structure
 - compact narration uses the `FOOD!` / `RANKED!` / section blocks / short overview / final tier reveal flow
 - the overview comes immediately before the final tier reveal
 - the final spoken block is always the tier reveal

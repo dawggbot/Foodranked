@@ -18,7 +18,7 @@ It should judge foods by **how well they perform within their category**.
 That means the scoring system has 4 layers:
 1. **Canonical facts** — raw per-100g nutrition data with explicit units
 2. **Category ruleset** — thresholds, applicability, polarity, and weights for that food type
-3. **Score computation** — 7 section scores and one final overall score
+3. **Score computation** — 7 scored content section scores and one final overall score
 4. **Narrative derivation** — pros, cons, summary, and explanation payloads
 
 ## Locked assumptions
@@ -191,7 +191,7 @@ This keeps cons as a first-class section while still making worse cons reduce th
 
 ## Step 5: score-bearing sections
 
-The scoring engine aggregates across all 7 visible video sections:
+The scoring engine aggregates across all 7 scored content sections:
 - fats
 - carbs
 - proteins
@@ -204,10 +204,10 @@ That means the on-video structure and the score structure are aligned.
 
 ## Step 6: top-level section weighting
 
-Top-level section weighting should default to an even split across all 7 sections.
+Top-level section weighting should default to an even split across all 7 scored content sections.
 
 Recommended rule:
-- all 7 section weights must sum to `1.0`
+- all 7 scored content section weights must sum to `1.0`
 - default weighting is `1/7` each (about `14.3%` per section)
 
 Final score:
@@ -357,7 +357,7 @@ The scoring engine should output:
 - section-ready metric payloads
 - resolved submacro band outcomes
 - weighted metric contributions
-- section scores for all 7 sections
+- section scores for all 7 scored content sections
 - overall score
 - final tier
 - generated pros

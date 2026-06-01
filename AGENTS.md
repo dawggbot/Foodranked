@@ -23,7 +23,7 @@ Work in sympathy with the existing repo. Read the relevant source-of-truth docs 
 ## Locked Rules
 
 - Score all foods per 100g.
-- Keep the 7-section structure: fats, carbs, proteins, vitamins, minerals, pros, cons.
+- Keep the 9-section video shell and the 7-section scoring body: fats, carbs, proteins, vitamins, minerals, pros, cons.
 - Only submacros use arrow-indicator scoring.
 - Vitamins and minerals score from DV% as `floor(DV% / 10)`, capped at 10.
 - Use exactly 3 pros and exactly 3 cons in final outputs.

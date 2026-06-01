@@ -31,9 +31,11 @@ Turn nutrition facts into a short visual story that feels:
 
 1. **Hook frame** — `SUBJECT ranked.` with the food as the first-viewport signal.
 2. **Header settle** — food name, type, per-100g, kcal, and image are visible without narration repeating them.
-3. **7-section reveal** — fats, carbs, proteins, vitamins, minerals, pros, cons.
+3. **7 scored content sections** — fats, carbs, proteins, vitamins, minerals, pros, cons.
 4. **Short overview** — the best strengths and worst weaknesses immediately before the final reveal.
-5. **Tier verdict** — D/C/B/A/S reveal with a satisfying payoff.
+5. **Tier verdict / outro** — D/C/B/A/S reveal with a satisfying payoff.
+
+The progress strip counts this as a 9-section video shell: hook, 7 scored content sections, and outro.
 
 ## Display guidance
 

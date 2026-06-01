@@ -123,7 +123,7 @@ A zero weight must mean zero contribution.
 Do not force antioxidants, pesticide risk, sodium concerns, convenience tradeoffs, and similar contextual notes into the same metric array as nutrient data.
 
 ### 5. Keep top-level section weights equal by default
-Use `sectionWeights` for all 7 sections.
+Use `sectionWeights` for all 7 scored content sections.
 
 Recommended default:
 - fats = `1/7`
@@ -149,7 +149,7 @@ The scorer should:
 2. compute vitamin/mineral section scores from DV% tiers
 3. compute pros/cons as first-class sections from major/minor levels
 4. use `proteinFallback` when direct protein-quality metrics are intentionally unavailable
-5. average all 7 section scores into the final overall score
+5. average all 7 scored content section scores into the final overall score
 6. map the final score to the tier
 
 That keeps the math explainable while matching the visible video structure.

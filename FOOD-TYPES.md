@@ -10,7 +10,7 @@ This file defines the **11 FoodRanked food types** and their category logic.
   - metric applicability
   - metric weights
   - explanation style
-- Food types do **not** change the locked 7-section video format.
+- Food types do **not** change the locked 9-section video shell or the 7-section scoring body.
 
 ## The 11 food types
 

@@ -20,7 +20,7 @@ Break work into these layers:
 ## FoodRanked locks
 
 - Score every food per 100g.
-- Preserve the 7 sections: fats, carbs, proteins, vitamins, minerals, pros, cons.
+- Preserve the 9-section video shell and the 7 scored content sections: fats, carbs, proteins, vitamins, minerals, pros, cons.
 - Keep exactly 3 pros and exactly 3 cons.
 - Use USDA FoodData Central first for whole foods and Open Food Facts second for packaged/branded foods.
 - Use `N/A` when an exact metric is not defensibly sourceable.

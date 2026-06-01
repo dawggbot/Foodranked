@@ -16,7 +16,7 @@ node scripts/foodranked-generate-script.js foods/bacon.sample.json
 
 ## What the old system already did well
 
-- kept the 7-section video order consistent
+- kept the 7 scored content section order consistent
 - generated compact narration that already sounded close to the intended voice
 - made batch episode generation possible
 

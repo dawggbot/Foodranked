@@ -37,22 +37,27 @@ The header stays visible throughout the video and should contain:
 - kcal
 - per 100g label
 
-## Section structure
+## Video section structure
 
-There are 7 sections in order:
+There are 9 video sections in order:
 
-1. fats + fat submicros
-2. carbs + carb submicros
-3. proteins + protein submicros
-4. vitamins
-5. minerals
-6. pros
-7. cons
+1. intro hook
+2. fats + fat submicros
+3. carbs + carb submicros
+4. proteins + protein submicros
+5. vitamins
+6. minerals
+7. pros
+8. cons
+9. final verdict / outro
+
+The middle 7 sections are the scored content sections.
 
 ## Progress indicator
 
-- 7 small dots near the bottom
+- 9 small dots near the bottom
 - current section is highlighted
+- intro and outro count as progress positions
 - should remain clear even on simpler / emptier background frames
 
 ## Reveal style
@@ -126,7 +131,7 @@ RANKED!
 
 -
 
-<one spoken block per section>
+<one spoken block per scored content section>
 
 -
 

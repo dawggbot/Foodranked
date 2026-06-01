@@ -58,17 +58,21 @@ Persistent header should contain:
 - per 100g label
 
 ### Section structure
-Each video uses 7 sections:
-1. fats + fat submicros
-2. carbs + carb submicros
-3. proteins + protein submicros
-4. vitamins
-5. minerals
-6. pros
-7. cons
+Each video uses 9 video sections:
+1. intro hook
+2. fats + fat submicros
+3. carbs + carb submicros
+4. proteins + protein submicros
+5. vitamins
+6. minerals
+7. pros
+8. cons
+9. final verdict / outro
+
+The middle 7 sections are the scored content sections.
 
 Additional format rules:
-- 7 progress dots indicate current section
+- 9 progress dots indicate current section, including intro and outro
 - information is revealed in sync with narration
 - macro scenes use the macro sprite plus a bar for the main macro only
 - submacros use arrow indicators only, with repeated arrow sprites for 1/2/3 strength bands
@@ -95,7 +99,7 @@ Current theme direction:
 - explanation logic
 
 ### 2. Episode structure
-- fixed 7-section format
+- fixed 9-scene video format with 7 scored content sections
 - section payloads
 - narration-friendly reveal order
 - retention pacing
@@ -136,7 +140,7 @@ There are already 10+ manually produced test videos, so the current priority is:
 ### Phase 1 — Formalise the blueprint
 - lock the 11 food types
 - lock the metric list
-- lock the 7-section format
+- lock the 9-scene video format and 7-section scoring body
 - lock header fields
 - lock tier/palette rules
 

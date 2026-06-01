@@ -158,16 +158,17 @@ The header should feel like a stat-card identity bar.
 ## Scene 8 — summary + final tier stamp
 
 This stack is locked.
+These 9 scenes are the video progress sections. The 7 middle scenes are the scored nutrition/content sections.
 
 ---
 
 # 6. Progress indicator
 
 ## Progress dots
-- **7 dots total**
+- **9 dots total**
 - centered horizontally near bottom
 - y: around **1710**
-- each dot corresponds to one section
+- each dot corresponds to one video section, including the hook and final verdict
 
 ## Dot states
 - inactive = dim grey/palette shadow

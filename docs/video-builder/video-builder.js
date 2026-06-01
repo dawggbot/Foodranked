@@ -2,12 +2,11 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260601-seven-progress-dots-v1';
+  const BUILDER_BUILD_ID = '20260601-nine-sections-no-dwell-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SECTION_INDICATOR_LAYOUT = { normalSize: 10, highlightedSize: 12 };
-  const PROGRESS_SECTION_IDS = ['fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons'];
   const CAPTION_SAFE_X = 7;
   const CAPTION_MAX_LINES = 2;
   const CAPTION_MAX_LINE_CHARS = 18;
@@ -19,7 +18,7 @@
   const SUBMACRO_REVEAL_WINDOW_SECONDS = 1.35;
   const SUBMACRO_REVEAL_WINDOW_MAX_PROGRESS = 0.28;
   const AUDIO_TIMELINE_SYNC_TOLERANCE_SECONDS = 0.12;
-  const SECTION_HOLD_SECONDS = 1;
+  const SECTION_HOLD_SECONDS = 0;
   const SECTION_HOLD_IDS = new Set(['fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons']);
   const HIDDEN_CAPTION_SECTION_IDS = new Set(['intro']);
   const MACRO_REVEAL_SECONDS = 0.2;
@@ -762,7 +761,7 @@
   }
 
   function indicatorSectionIndex(sectionId) {
-    return PROGRESS_SECTION_IDS.indexOf(sectionId);
+    return SECTIONS.findIndex(section => section.id === sectionId);
   }
 
   function compareIndicatorsByPosition(a, b) {
@@ -771,9 +770,9 @@
 
   function normalizeProgressIndicatorSlots(indicators) {
     const sorted = [...(indicators || [])].sort(compareIndicatorsByPosition);
+    const slotCount = SECTIONS.length;
     const candidateVisible = sorted.filter(layer => layer.visible !== false);
-    const visible = (candidateVisible.length >= PROGRESS_SECTION_IDS.length ? candidateVisible : sorted)
-      .slice(0, PROGRESS_SECTION_IDS.length);
+    const visible = (candidateVisible.length >= slotCount ? candidateVisible : sorted).slice(0, slotCount);
     const visibleSet = new Set(visible);
     sorted.forEach(layer => {
       layer.visible = visibleSet.has(layer);
@@ -1665,6 +1664,7 @@
 
   function buildManifest() {
     const food = selectedFood();
+    const holdDuration = totalHoldDuration();
     return {
       version: 'foodranked-video-builder-v1',
       foodId: food?.id || null,
@@ -1674,9 +1674,9 @@
       audio: audioForFood(food),
       duration: Number(totalDuration().toFixed(2)),
       narrationDuration: Number(totalNarrationDuration().toFixed(2)),
-      totalHoldSeconds: Number(totalHoldDuration().toFixed(2)),
-      holdMode: 'post-section-dwell',
-      audioHoldSeconds: Number(totalHoldDuration().toFixed(2)),
+      totalHoldSeconds: Number(holdDuration.toFixed(2)),
+      holdMode: holdDuration ? 'post-section-dwell' : null,
+      audioHoldSeconds: Number(holdDuration.toFixed(2)),
       scenes: sceneStarts().map(scene => sceneManifestEntry(scene, food))
     };
   }
@@ -3144,8 +3144,9 @@
     if (!els.audioToggle || !els.audioStatus) return;
     els.audioToggle.disabled = !audio;
     els.audioToggle.textContent = state.audioEnabled && audio ? 'Audio on' : 'Audio off';
+    const holdDuration = totalHoldDuration();
     const syncLabel = state.audioDurationSeconds
-      ? ` · synced ${state.audioDurationSeconds.toFixed(1)}s + ${totalHoldDuration().toFixed(1)}s dwell`
+      ? ` · synced ${state.audioDurationSeconds.toFixed(1)}s${holdDuration ? ` + ${holdDuration.toFixed(1)}s dwell` : ''}`
       : '';
     els.audioStatus.textContent = overrideStatus || (audio ? `${audio.take || 'Audio'} ready${syncLabel}` : 'No audio');
   }

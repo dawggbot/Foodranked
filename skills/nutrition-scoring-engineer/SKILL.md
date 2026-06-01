@@ -5,7 +5,7 @@ description: Design the data model, rulesets, scoring formulas, and ranking logi
 
 # Nutrition Scoring Engineer
 
-FoodRanked scoring is locked around defensible per-100g comparisons, 7 sections, and reproducible source-backed outputs.
+FoodRanked scoring is locked around defensible per-100g comparisons, 7 scored content sections, and reproducible source-backed outputs.
 
 Adapt the spirit of Backend Architect and Database Optimizer for this project's nutrition engine.
 
@@ -46,7 +46,7 @@ Separate these concerns:
 - Main macros (`fat_g`, `carbs_g`, `protein_g`, `kcal`) are display-first; submacros carry arrow-style scoring.
 - Only submacros use arrow indicators.
 - Vitamins and minerals score from DV% using `floor(DV% / 10)`, capped at 10.
-- Top-level structure is 7 sections: fats, carbs, proteins, vitamins, minerals, pros, cons.
+- Top-level scoring structure is 7 content sections: fats, carbs, proteins, vitamins, minerals, pros, cons.
 - Whole foods usually use raw values; meats usually use raw forms; prepared foods are ranked as they come.
 - Oats are uncooked rolled oats; white rice is uncooked white rice; yam and sweet potato are separate uncooked entries.
 - Use USDA FoodData Central first for whole foods and raw ingredients. Use Open Food Facts for packaged, processed, or branded foods when it is the better identity match.

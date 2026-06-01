@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260601-global-sync-pulse-v1';
+  const BUILDER_BUILD_ID = '20260601-no-sprite-motion-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -46,15 +46,15 @@
   };
 
   const SECTIONS = [
-    { id: 'intro', label: 'Hook', duration: 2.4, reveal: 'pop', motion: 'bob' },
-    { id: 'fats', label: 'Fats', duration: 4.2, reveal: 'cascade', motion: 'bob' },
-    { id: 'carbs', label: 'Carbs', duration: 3.8, reveal: 'cascade', motion: 'bob' },
-    { id: 'protein', label: 'Protein', duration: 4.2, reveal: 'cascade', motion: 'pulse' },
-    { id: 'vitamins', label: 'Vitamins', duration: 3.6, reveal: 'wipe', motion: 'drift' },
-    { id: 'minerals', label: 'Minerals', duration: 3.6, reveal: 'wipe', motion: 'drift' },
-    { id: 'pros', label: 'Pros', duration: 5.2, reveal: 'slide', motion: 'pulse' },
-    { id: 'cons', label: 'Cons', duration: 5.2, reveal: 'slide', motion: 'pulse' },
-    { id: 'outro', label: 'Verdict', duration: 4.0, reveal: 'pop', motion: 'bob' }
+    { id: 'intro', label: 'Hook', duration: 2.4, reveal: 'pop' },
+    { id: 'fats', label: 'Fats', duration: 4.2, reveal: 'cascade' },
+    { id: 'carbs', label: 'Carbs', duration: 3.8, reveal: 'cascade' },
+    { id: 'protein', label: 'Protein', duration: 4.2, reveal: 'cascade' },
+    { id: 'vitamins', label: 'Vitamins', duration: 3.6, reveal: 'wipe' },
+    { id: 'minerals', label: 'Minerals', duration: 3.6, reveal: 'wipe' },
+    { id: 'pros', label: 'Pros', duration: 5.2, reveal: 'slide' },
+    { id: 'cons', label: 'Cons', duration: 5.2, reveal: 'slide' },
+    { id: 'outro', label: 'Verdict', duration: 4.0, reveal: 'pop' }
   ];
 
   const VITAMIN_TEXT_SPECS = [
@@ -151,7 +151,6 @@
     sceneStatus: document.getElementById('sceneStatus'),
     sceneDuration: document.getElementById('sceneDuration'),
     revealStyle: document.getElementById('revealStyle'),
-    spriteMotion: document.getElementById('spriteMotion'),
     captionSize: document.getElementById('captionSize'),
     captionText: document.getElementById('captionText'),
     resetCaptions: document.getElementById('resetCaptions'),
@@ -1458,7 +1457,6 @@
         narrationDurationSeconds: Number(narrationDuration.toFixed(3)),
         holdSeconds,
         reveal: existing?.reveal || section.reveal,
-        motion: existing?.motion || section.motion,
         captionSize: existing?.captionSize || 22,
         caption: existing?.caption || captionFromEpisode(food, section.id),
         subtitleCues: existing?.subtitleCues || subtitleCuesForScene(food, section.id)
@@ -1680,7 +1678,7 @@
       button.type = 'button';
       button.className = `scene-button${scene.id === activeTimedScene.id ? ' active' : ''}`;
       const holdLabel = sceneHoldSeconds(scene) ? ` · ${sceneHoldSeconds(scene).toFixed(1)}s hold` : '';
-      button.innerHTML = `<strong>${escapeHtml(scene.label)}</strong><span>${scene.start.toFixed(1)}s - ${scene.end.toFixed(1)}s${holdLabel} · ${escapeHtml(scene.reveal)} · ${escapeHtml(scene.motion)}</span>`;
+      button.innerHTML = `<strong>${escapeHtml(scene.label)}</strong><span>${scene.start.toFixed(1)}s - ${scene.end.toFixed(1)}s${holdLabel} · ${escapeHtml(scene.reveal)}</span>`;
       button.addEventListener('click', () => {
         state.currentTime = scene.start + 0.02;
         state.selectedSceneId = scene.id;
@@ -1720,7 +1718,6 @@
       : '0.0s';
     els.sceneDuration.value = selected?.duration ?? '';
     els.revealStyle.value = selected?.reveal || 'cascade';
-    els.spriteMotion.value = selected?.motion || 'bob';
     els.captionSize.value = selected?.captionSize || 22;
     els.captionText.value = selected?.caption || '';
     els.playPause.textContent = state.playing ? 'Pause' : 'Play';
@@ -1778,7 +1775,6 @@
       holdStart: holdSeconds ? Number((scene.start + contentDuration).toFixed(2)) : null,
       holdEnd: holdSeconds ? Number(scene.end.toFixed(2)) : null,
       reveal: scene.reveal,
-      spriteMotion: scene.motion,
       captionSize: scene.captionSize,
       caption: scene.caption,
       captionsHidden,
@@ -2913,41 +2909,51 @@
     }
 
     if (isText) {
-      const shift = (0.2 + peak * 0.28).toFixed(2);
+      const shift = (0.12 + peak * 0.16).toFixed(2);
       node.style.textShadow = [
-        `calc(${shift}px * var(--pixel-unit)) 0 0 rgba(255,54,54,${(0.12 + power * 0.42 + peak * 0.12).toFixed(3)})`,
-        `calc(-${shift}px * var(--pixel-unit)) 0 0 rgba(95,15,15,${(0.12 + power * 0.36 + peak * 0.14).toFixed(3)})`,
-        `0 0 calc(${(1.0 + power * 4.2 + peak * 2.0).toFixed(2)}px * var(--pixel-unit)) rgba(255,54,54,${(0.24 + power * 0.68 + peak * 0.08).toFixed(3)})`,
-        `0 0 calc(${(2.2 + power * 6.8 + peak * 3.0).toFixed(2)}px * var(--pixel-unit)) rgba(255,0,0,${(0.1 + power * 0.32 + peak * 0.16).toFixed(3)})`,
+        `calc(${shift}px * var(--pixel-unit)) 0 0 rgba(255,54,54,${(0.08 + power * 0.28 + peak * 0.08).toFixed(3)})`,
+        `calc(-${shift}px * var(--pixel-unit)) 0 0 rgba(95,15,15,${(0.08 + power * 0.24 + peak * 0.08).toFixed(3)})`,
+        `0 0 calc(${(0.8 + power * 2.4 + peak * 1.0).toFixed(2)}px * var(--pixel-unit)) rgba(255,54,54,${(0.18 + power * 0.46 + peak * 0.06).toFixed(3)})`,
+        `0 0 calc(${(1.6 + power * 3.4 + peak * 1.4).toFixed(2)}px * var(--pixel-unit)) rgba(255,0,0,${(0.08 + power * 0.2 + peak * 0.08).toFixed(3)})`,
         '0 0 0 #000'
       ].join(', ');
       applyMajorConSparkVars(node, power);
     } else {
       node.style.filter = [
-        `brightness(${(1 + power * 0.2 + peak * 0.24).toFixed(3)})`,
-        `saturate(${(1 + power * 0.32 + peak * 0.28).toFixed(3)})`,
-        `contrast(${(1 + power * 0.12 + peak * 0.16).toFixed(3)})`,
-        `drop-shadow(0 0 calc(${(0.8 + power * 1.2 + peak * 2.2).toFixed(2)}px * var(--pixel-unit)) rgba(255,54,54,${(0.18 + power * 0.48 + peak * 0.18).toFixed(3)}))`,
-        `drop-shadow(0 0 calc(${(1.4 + power * 2.2 + peak * 3.0).toFixed(2)}px * var(--pixel-unit)) rgba(95,15,15,${(0.12 + power * 0.32 + peak * 0.22).toFixed(3)}))`
+        `brightness(${(1 + power * 0.12 + peak * 0.12).toFixed(3)})`,
+        `saturate(${(1 + power * 0.18 + peak * 0.14).toFixed(3)})`,
+        `contrast(${(1 + power * 0.08 + peak * 0.08).toFixed(3)})`,
+        `drop-shadow(0 0 calc(${(0.6 + power * 0.8 + peak * 1.2).toFixed(2)}px * var(--pixel-unit)) rgba(255,54,54,${(0.14 + power * 0.34 + peak * 0.1).toFixed(3)}))`,
+        `drop-shadow(0 0 calc(${(1.0 + power * 1.4 + peak * 1.8).toFixed(2)}px * var(--pixel-unit)) rgba(95,15,15,${(0.08 + power * 0.22 + peak * 0.12).toFixed(3)}))`
       ].join(' ');
     }
   }
 
   function applyMajorConSparkVars(node, power) {
     const sparkPower = clamp(power, 0, 1);
-    const baseTime = state.currentTime * 2.8;
-    const angles = [-0.95, -0.42, 0.08, 0.54, 0.96];
-    angles.forEach((angle, index) => {
-      const progress = (baseTime + (index * 0.19)) % 1;
-      const wobble = Math.sin((state.currentTime * 5.1) + index) * 0.16;
-      const distance = (1.2 + (progress * 6.4)) * sparkPower;
-      const x = Math.cos(angle + wobble) * distance;
-      const y = (Math.sin(angle + wobble) * distance) - (progress * 2.2 * sparkPower);
-      const alpha = sparkPower * Math.pow(1 - progress, 0.62);
+    const layerSeed = seededHash(node.dataset.layerId || node.dataset.renderKey || 'major-con');
+    const baseTime = state.currentTime * 1.8;
+    [0, 1, 2, 3, 4].forEach(index => {
+      const progress = (baseTime + seededUnit(layerSeed + index * 19)) % 1;
+      const drift = (progress - 0.5) * 3.2 * sparkPower;
+      const x = ((seededUnit(layerSeed + index * 37) - 0.5) * 44 + drift) * sparkPower;
+      const y = ((seededUnit(layerSeed + index * 53) - 0.5) * 13 - (progress * 2.4)) * sparkPower;
+      const alpha = sparkPower * Math.pow(1 - progress, 0.9);
       node.style.setProperty(`--major-con-spark-${index}-x`, `calc(${x.toFixed(2)}px * var(--pixel-unit))`);
       node.style.setProperty(`--major-con-spark-${index}-y`, `calc(${y.toFixed(2)}px * var(--pixel-unit))`);
-      node.style.setProperty(`--major-con-spark-${index}-color`, colorWithAlpha('#ff2d2d', 0.92 * alpha));
+      node.style.setProperty(`--major-con-spark-${index}-color`, colorWithAlpha('#ff2d2d', 0.58 * alpha));
     });
+  }
+
+  function seededHash(value) {
+    return String(value || '').split('').reduce((hash, char) => (
+      ((hash << 5) - hash + char.charCodeAt(0)) | 0
+    ), 0);
+  }
+
+  function seededUnit(seed) {
+    const value = Math.sin(seed * 12.9898) * 43758.5453;
+    return value - Math.floor(value);
   }
 
   function rowIndexFromY(layer, startY, stepY, maxIndex) {
@@ -3262,17 +3268,13 @@
     return 0.12 + (row * 0.42) + ((index % 4) * 0.035);
   }
 
-  function syncedLayerPulse(visible = 1) {
-    return Math.sin(state.currentTime * Math.PI * 1.1) * 0.0045 * clamp(visible, 0, 1);
-  }
-
   function applyLayerAnimation(node, layer, scene, sceneProgress, index, persistent = false, revealSchedule = null) {
     if (persistent) {
-      const scale = 1 + syncedLayerPulse(1);
-      const flip = layer.flipY ? ' scaleY(-1)' : '';
       node.style.opacity = '1';
-      node.style.transformOrigin = 'center';
-      node.style.transform = `scale(${scale})${flip}`;
+      if (layer.flipY) {
+        node.style.transformOrigin = 'center';
+        node.style.transform = 'scaleY(-1)';
+      }
       return;
     }
 
@@ -3283,7 +3285,6 @@
     const isMicronReveal = revealSchedule?.family === 'micron';
     const isMicronTierReveal = isMicronReveal && ['dv-bar', 'icon', 'label', 'value'].includes(revealSchedule?.kind);
     const isProConRowReveal = (revealSchedule?.family === 'pros' || revealSchedule?.family === 'cons') && revealSchedule.rowIndex != null;
-    const isPulseLayer = layer.kind === 'sprite' || layer.kind === 'text';
     const revealWindowSeconds = isMacroRowReveal
       ? SUBMACRO_REVEAL_WINDOW_SECONDS
       : isMicronTierReveal
@@ -3303,7 +3304,6 @@
     const revealPulse = isMacroArrowReveal
       ? Math.sin(visible * Math.PI)
       : 0;
-    const phase = state.currentTime * Math.PI * 2;
     let x = 0;
     let y = 0;
     let scale = layer.kind === 'text' ? 1 : 0.96 + (visible * 0.04);
@@ -3329,17 +3329,8 @@
       y += (1 - visible) * 7;
     }
 
-    if (isPulseLayer) {
-      scale += syncedLayerPulse(visible);
-    }
-
-    if (layer.kind === 'sprite' && !lockSpriteLayout) {
-      if (scene.motion === 'bob') y += Math.sin(phase + index) * 0.7;
-      if (scene.motion === 'drift') x += Math.sin(phase * 0.45 + index) * 0.55;
-    }
-
     const flip = layer.flipY ? ' scaleY(-1)' : '';
-    node.style.transformOrigin = isMacroArrowReveal || isPulseLayer || layer.flipY ? 'center' : 'top left';
+    node.style.transformOrigin = isMacroArrowReveal || layer.flipY ? 'center' : 'top left';
     node.style.opacity = String(visible);
     node.style.transform = `translate3d(calc(${x}px * var(--pixel-unit)), calc(${y}px * var(--pixel-unit)), 0) scale(${scale})${flip}`;
     if (clip) node.style.clipPath = clip;
@@ -3478,12 +3469,6 @@
   els.revealStyle.addEventListener('change', () => {
     updateSelectedScene(scene => {
       scene.reveal = els.revealStyle.value;
-    });
-  });
-
-  els.spriteMotion.addEventListener('change', () => {
-    updateSelectedScene(scene => {
-      scene.motion = els.spriteMotion.value;
     });
   });
 

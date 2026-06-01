@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260601-no-sprite-motion-v1';
+  const BUILDER_BUILD_ID = '20260601-major-con-embers-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -2001,8 +2001,8 @@
       applyMicronNarrationHighlight(node, scene, revealSchedule, micronHighlightMap);
       applyProConNarrationHighlight(node, scene, revealSchedule, proConHighlightMap);
       nextLayerNodes.appendChild(node);
-      const sparkField = majorConSparkField(layer, node, revealSchedule, proConHighlightMap);
-      if (sparkField) nextLayerNodes.appendChild(sparkField);
+      const emberField = majorConEmberField(layer, node, revealSchedule, proConHighlightMap);
+      if (emberField) nextLayerNodes.appendChild(emberField);
     });
     roots.layerRoot.replaceChildren(nextLayerNodes);
 
@@ -2913,14 +2913,18 @@
 
     if (isText) {
       const shift = (0.12 + peak * 0.16).toFixed(2);
+      node.style.color = '#fff2ed';
       node.style.textShadow = [
-        `calc(${shift}px * var(--pixel-unit)) 0 0 rgba(255,54,54,${(0.08 + power * 0.28 + peak * 0.08).toFixed(3)})`,
-        `calc(-${shift}px * var(--pixel-unit)) 0 0 rgba(95,15,15,${(0.08 + power * 0.24 + peak * 0.08).toFixed(3)})`,
-        `0 0 calc(${(0.8 + power * 2.4 + peak * 1.0).toFixed(2)}px * var(--pixel-unit)) rgba(255,54,54,${(0.18 + power * 0.46 + peak * 0.06).toFixed(3)})`,
-        `0 0 calc(${(1.6 + power * 3.4 + peak * 1.4).toFixed(2)}px * var(--pixel-unit)) rgba(255,0,0,${(0.08 + power * 0.2 + peak * 0.08).toFixed(3)})`,
+        `calc(${shift}px * var(--pixel-unit)) 0 0 rgba(255,54,54,${(0.14 + power * 0.36 + peak * 0.12).toFixed(3)})`,
+        `calc(-${shift}px * var(--pixel-unit)) 0 0 rgba(95,15,15,${(0.1 + power * 0.28 + peak * 0.1).toFixed(3)})`,
+        `0 0 calc(${(1.2 + power * 3.4 + peak * 1.8).toFixed(2)}px * var(--pixel-unit)) rgba(255,54,54,${(0.28 + power * 0.54 + peak * 0.1).toFixed(3)})`,
+        `0 0 calc(${(2.4 + power * 5.2 + peak * 2.2).toFixed(2)}px * var(--pixel-unit)) rgba(255,0,0,${(0.1 + power * 0.28 + peak * 0.12).toFixed(3)})`,
         '0 0 0 #000'
       ].join(', ');
-      node.style.filter = `brightness(${(1 + power * 0.035 + peak * 0.035).toFixed(3)})`;
+      node.style.filter = [
+        `brightness(${(1 + power * 0.09 + peak * 0.08).toFixed(3)})`,
+        `saturate(${(1 + power * 0.08 + peak * 0.06).toFixed(3)})`
+      ].join(' ');
     } else {
       node.style.filter = [
         `brightness(${(1 + power * 0.12 + peak * 0.12).toFixed(3)})`,
@@ -2932,7 +2936,7 @@
     }
   }
 
-  function majorConSparkField(layer, node, revealSchedule, highlightMap) {
+  function majorConEmberField(layer, node, revealSchedule, highlightMap) {
     if (revealSchedule?.family !== 'cons') return null;
     if (revealSchedule.rowIndex == null) return null;
     if (!['bullet', 'impact', 'item', 'row'].includes(revealSchedule.kind)) return null;
@@ -2941,13 +2945,13 @@
     if (!activeHighlight || !String(activeHighlight.impactLevel || '').toLowerCase().includes('major')) return null;
 
     const field = document.createElement('div');
-    field.className = `layer-node major-con-spark-field ${layer.kind}-spark-field`;
-    field.dataset.renderKey = `spark:${node.dataset.renderKey || layer.id || revealSchedule.rowIndex}`;
-    field.dataset.layerId = `${layer.id || revealSchedule.kind || 'layer'}_major_con_sparks`;
+    field.className = `layer-node major-con-ember-field ${layer.kind}-ember-field`;
+    field.dataset.renderKey = `ember:${node.dataset.renderKey || layer.id || revealSchedule.rowIndex}`;
+    field.dataset.layerId = `${layer.id || revealSchedule.kind || 'layer'}_major_con_embers`;
     field.style.left = node.style.left;
     field.style.top = node.style.top;
-    field.style.width = node.style.width || `calc(${majorConSparkWidth(layer)}px * var(--pixel-unit))`;
-    field.style.height = node.style.height || `calc(${majorConSparkHeight(layer)}px * var(--pixel-unit))`;
+    field.style.width = node.style.width || `calc(${majorConEmberWidth(layer)}px * var(--pixel-unit))`;
+    field.style.height = node.style.height || `calc(${majorConEmberHeight(layer)}px * var(--pixel-unit))`;
     field.style.zIndex = String((Number(layer.z) || 0) + 2);
     field.style.opacity = node.style.opacity || String(clamp(activeHighlight.strength, 0, 1));
     field.style.transform = node.style.transform || '';
@@ -2957,36 +2961,40 @@
     const strength = easeOutCubic(clamp(activeHighlight.strength, 0, 1));
     const rowSeed = seededHash(`${revealSchedule.family}:${revealSchedule.rowIndex}`);
     const elementSeed = rowSeed + seededHash(`${layer.kind}:${layer.id || layer.label || revealSchedule.kind}`);
-    const baseTime = state.currentTime * 1.7;
-    for (let index = 0; index < 6; index += 1) {
-      const spark = document.createElement('span');
-      spark.className = 'major-con-spark';
+    const baseTime = state.currentTime * 1.35;
+    for (let index = 0; index < 7; index += 1) {
+      const ember = document.createElement('span');
+      ember.className = 'major-con-ember';
       const progress = (baseTime + seededUnit(rowSeed + index * 23)) % 1;
-      const x = clamp(10 + (seededUnit(elementSeed + index * 41) * 80) + ((progress - 0.5) * 5), 5, 95);
-      const y = clamp(16 + (seededUnit(elementSeed + index * 59) * 68) - (progress * 6), 7, 93);
-      const rotate = -70 + (seededUnit(elementSeed + index * 83) * 140) + (progress * 28);
-      const alpha = strength * Math.pow(1 - progress, 0.9) * 0.62;
-      spark.style.left = `${x.toFixed(2)}%`;
-      spark.style.top = `${y.toFixed(2)}%`;
-      spark.style.opacity = alpha.toFixed(3);
-      spark.style.transform = `translate(-50%, -50%) rotate(${rotate.toFixed(2)}deg)`;
-      field.appendChild(spark);
+      const startX = 10 + (seededUnit(elementSeed + index * 41) * 80);
+      const drift = (seededUnit(elementSeed + index * 67) - 0.5) * 13 * progress;
+      const x = clamp(startX + drift, 5, 95);
+      const startY = 84 - (seededUnit(elementSeed + index * 59) * 42);
+      const y = clamp(startY - (progress * 34), 6, 94);
+      const rotate = -25 + (seededUnit(elementSeed + index * 83) * 50) + (progress * 18);
+      const scale = 0.65 + (seededUnit(elementSeed + index * 97) * 0.75);
+      const alpha = strength * Math.sin(progress * Math.PI) * 0.52;
+      ember.style.left = `${x.toFixed(2)}%`;
+      ember.style.top = `${y.toFixed(2)}%`;
+      ember.style.opacity = alpha.toFixed(3);
+      ember.style.transform = `translate(-50%, -50%) rotate(${rotate.toFixed(2)}deg) scale(${scale.toFixed(2)})`;
+      field.appendChild(ember);
     }
     return field;
   }
 
-  function majorConSparkWidth(layer) {
+  function majorConEmberWidth(layer) {
     if (asNumber(layer?.width, null) != null) return Math.max(1, asNumber(layer.width, 1));
     if (layer?.kind !== 'text') return 8;
     const fontSize = asNumber(layer?.fontSize, 5);
     return Math.max(8, String(layer?.text || '').length * fontSize * 0.55);
   }
 
-  function majorConSparkHeight(layer) {
+  function majorConEmberHeight(layer) {
     if (asNumber(layer?.height, null) != null) return Math.max(1, asNumber(layer.height, 1));
     if (layer?.kind !== 'text') return Math.max(1, asNumber(layer?.width, 8) || 8);
     const fontSize = asNumber(layer?.fontSize, 5);
-    const width = majorConSparkWidth(layer);
+    const width = majorConEmberWidth(layer);
     const charsPerLine = Math.max(4, Math.floor(width / Math.max(1, fontSize * 0.62)));
     const manualLines = String(layer?.text || '').split(/\n/).length;
     const wrappedLines = Math.ceil(String(layer?.text || '').length / charsPerLine);

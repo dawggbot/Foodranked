@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260606-canvas-display-size-v1';
+  const BUILDER_BUILD_ID = '20260606-canvas-size-sprite-scale-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -2204,7 +2204,8 @@
   function setCanvasScale() {
     const displayScale = getResponsiveAssetScale();
     document.documentElement.style.setProperty('--display-unit', String(displayScale));
-    document.documentElement.style.setProperty('--pixel-unit', String(getCanvasScaleForDisplay(displayScale)));
+    document.documentElement.style.setProperty('--canvas-unit', String(getCanvasScaleForDisplay(displayScale)));
+    document.documentElement.style.setProperty('--pixel-unit', String(displayScale));
   }
 
   async function renderDynamicBackground(field, food) {

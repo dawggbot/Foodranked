@@ -2,9 +2,10 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260606-original-display-restore-v1';
+  const BUILDER_BUILD_ID = '20260606-canvas-preview-sync-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
+  const DISPLAY_SHELL_MAX_WIDTH = 420;
   const ROOT_SPRITE_BASE = './sprites';
   const SECTION_INDICATOR_LAYOUT = { normalSize: 10, highlightedSize: 12 };
   const CAPTION_SAFE_X = 7;
@@ -2171,23 +2172,16 @@
   }
 
   function getResponsiveAssetScale() {
-    const desktopComfortable = window.innerWidth >= 1600 && window.innerHeight >= 900;
-    if (desktopComfortable) return 4;
-
     const compactLaptop = (window.innerWidth <= 1500 || window.innerHeight <= 850) && window.innerWidth > 760;
-    const laptopCanvasCrop = compactLaptop;
     const tightLaptop = window.innerWidth <= 1180 && window.innerWidth > 760;
     const reservedWidth = tightLaptop ? 530 : (compactLaptop ? 660 : 690);
     const reservedHeight = tightLaptop ? 154 : (compactLaptop ? 150 : 210);
     const minimumScale = tightLaptop ? 1.12 : (compactLaptop ? 1.30 : 1.45);
     const verticalRoom = Math.max(300, window.innerHeight - reservedHeight);
-    const scaleFromHeight = laptopCanvasCrop
-      ? (verticalRoom - 12) / (AUTHOR_GRID.height * (7 / 9))
-      : (((verticalRoom * 9) / 16) - 12) / AUTHOR_GRID.width;
-    const scaleFromWidth = laptopCanvasCrop
-      ? (Math.max(280, window.innerWidth - reservedWidth) - 24) / (AUTHOR_GRID.width * (7 / 9))
-      : (Math.max(280, window.innerWidth - reservedWidth) - 24) / AUTHOR_GRID.width;
-    return Math.max(minimumScale, Math.min(4, scaleFromHeight, scaleFromWidth));
+    const maxDisplayScale = DISPLAY_SHELL_MAX_WIDTH / AUTHOR_GRID.width;
+    const scaleFromHeight = verticalRoom / AUTHOR_GRID.height;
+    const scaleFromWidth = (Math.max(280, window.innerWidth - reservedWidth) - 24) / AUTHOR_GRID.width;
+    return Math.max(minimumScale, Math.min(maxDisplayScale, scaleFromHeight, scaleFromWidth));
   }
 
   function setCanvasScale() {

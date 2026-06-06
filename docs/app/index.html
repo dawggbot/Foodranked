@@ -31,8 +31,6 @@
       --pixel-unit: calc(var(--asset-scale) * var(--preview-scale));
       --display-unit: var(--pixel-unit);
       --canvas-unit: var(--pixel-unit);
-      --sprite-crop-x: 0;
-      --sprite-crop-y: 0;
       --canvas-width: calc(var(--grid-width) * var(--canvas-unit));
       --canvas-height: calc(var(--grid-height) * var(--canvas-unit));
       --pixel-font: "Tiny5", "Press Start 2P", "VT323", "Courier New", monospace;
@@ -360,17 +358,6 @@
       background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.10));
       pointer-events: none;
       z-index: 1;
-    }
-
-    .canvas-layer-root {
-      position: absolute;
-      inset: 0;
-      z-index: 2;
-      transform-origin: top left;
-      transform: translate(
-        calc(var(--sprite-crop-x) * -1px * var(--pixel-unit)),
-        calc(var(--sprite-crop-y) * -1px * var(--pixel-unit))
-      );
     }
 
 
@@ -1082,10 +1069,10 @@
     </aside>
   </div>
 
-  <script src="../data/foods-index.js?v=20260606-centered-sprite-crop-v1"></script>
-  <script src="./default-layout.js?v=20260606-centered-sprite-crop-v1"></script>
+  <script src="../data/foods-index.js?v=20260606-canvas-size-sprite-scale-v1"></script>
+  <script src="./default-layout.js?v=20260606-canvas-size-sprite-scale-v1"></script>
   <script>
-    const BUILDER_BUILD_ID = '20260606-centered-sprite-crop-v1';
+    const BUILDER_BUILD_ID = '20260606-canvas-size-sprite-scale-v1';
     const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
     const SECTIONS = [
       { id: 'intro', label: '1. Intro blank', chip: null, indicator: true },
@@ -4316,15 +4303,11 @@
       phoneBg.className = 'phone-bg';
       els.canvas.appendChild(phoneBg);
 
-      const layerRoot = document.createElement('div');
-      layerRoot.className = 'canvas-layer-root';
-      els.canvas.appendChild(layerRoot);
-
       const macroSection = AUTO_SECTION_PLACEHOLDERS.macroDisplay
         ? renderMacroSection(state.fullFood || getSelectedFoodStub(), state.layout.selectedSectionId)
         : null;
       if (macroSection) {
-        layerRoot.appendChild(macroSection);
+        els.canvas.appendChild(macroSection);
       }
 
 
@@ -4414,7 +4397,7 @@
           renderLayerList();
           renderSectionTextList();
         });
-        layerRoot.appendChild(node);
+        els.canvas.appendChild(node);
       }
 
     }
@@ -4602,16 +4585,6 @@
       return displayShellWidth(displayScale) / AUTHOR_GRID.width;
     }
 
-    function getSpriteCropOffset(displayScale) {
-      const canvasScale = getCanvasScaleForDisplay(displayScale);
-      const visibleWidth = AUTHOR_GRID.width * (canvasScale / displayScale);
-      const visibleHeight = AUTHOR_GRID.height * (canvasScale / displayScale);
-      return {
-        x: Math.max(0, (AUTHOR_GRID.width - visibleWidth) / 2),
-        y: Math.max(0, (AUTHOR_GRID.height - visibleHeight) / 2)
-      };
-    }
-
     function getPixelUnit() {
       const raw = getComputedStyle(document.documentElement).getPropertyValue('--pixel-unit');
       const parsed = Number.parseFloat(raw);
@@ -4622,14 +4595,11 @@
       const root = document.documentElement;
       const displayScale = getResponsiveAssetScale();
       const canvasScale = getCanvasScaleForDisplay(displayScale);
-      const crop = getSpriteCropOffset(displayScale);
       root.style.setProperty('--preview-scale', '1');
       root.style.setProperty('--display-unit', String(displayScale));
       root.style.setProperty('--canvas-unit', String(canvasScale));
       root.style.setProperty('--asset-scale', String(displayScale));
       root.style.setProperty('--pixel-unit', String(displayScale));
-      root.style.setProperty('--sprite-crop-x', String(crop.x));
-      root.style.setProperty('--sprite-crop-y', String(crop.y));
     }
 
     function attachDrag(node, layerId) {

@@ -7206,25 +7206,6 @@ window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT = {
           "align": "center"
         },
         {
-          "id": "outro_d_tier_stamp",
-          "kind": "sprite",
-          "label": "D tier verdict stamp",
-          "src": "./sprites/ui/intro_&_outro/D tier.png",
-          "x": 28.5,
-          "y": 62.5,
-          "z": 38,
-          "width": 78,
-          "height": 78,
-          "visible": true,
-          "foodDriven": false,
-          "preserveAspect": true,
-          "aspectRatio": 1,
-          "centerAnchor": "visible-canvas",
-          "centerOffsetX": 0,
-          "centerOffsetY": 0,
-          "effect": "d-tier-stamp"
-        },
-        {
           "id": "outro_indicator_1",
           "kind": "sprite",
           "label": "Section indicator",

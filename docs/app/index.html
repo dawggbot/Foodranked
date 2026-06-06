@@ -1067,7 +1067,7 @@
   </div>
 
   <script src="../data/foods-index.js?v=20260529-layout-sync-v1"></script>
-  <script src="./default-layout.js?v=20260529-layout-sync-v1"></script>
+  <script src="./default-layout.js?v=20260606-hide-generated-d-tier-v1"></script>
   <script>
     const BUILDER_BUILD_ID = '20260529-layout-sync-v1';
     const REPO_LAYOUT_VERSION = BUILDER_BUILD_ID;
@@ -1470,6 +1470,14 @@
 
     function isObsoleteOutroScoreDisplayLayer(layer) {
       return isTextLayer(layer) && /^(outro_score_label|outro_tier_label|outro_tier_value)$/.test(String(layer.id || '').toLowerCase());
+    }
+
+    function isGeneratedOutroTierStampLayer(layer) {
+      if (!isSpriteLayer(layer)) return false;
+      const fingerprint = `${layer.id || ''} ${layer.label || ''} ${layer.src || ''} ${layer.effect || ''}`.toLowerCase();
+      return fingerprint.includes('outro_d_tier_stamp')
+        || fingerprint.includes('d-tier-stamp')
+        || /\/intro_&_outro\/d(?:%20| )tier\.png/.test(fingerprint);
     }
 
     function isEmptyJunkLayer(layer) {
@@ -2483,6 +2491,7 @@
           }
           if (isMacroBarFrameOrFillSpriteLayer(layer)) return false;
           if (isObsoleteOutroScoreDisplayLayer(layer)) return false;
+          if (isGeneratedOutroTierStampLayer(layer)) return false;
           if (isEmptyJunkLayer(layer)) return false;
           if (section.id !== 'outro' && isOutroScoreDisplayLayer(layer)) return false;
           return true;

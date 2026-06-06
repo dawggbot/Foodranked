@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260606-canvas-crop-restore-v1';
+  const BUILDER_BUILD_ID = '20260606-canvas-display-size-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -2190,8 +2190,21 @@
     return Math.max(minimumScale, Math.min(4, scaleFromHeight, scaleFromWidth));
   }
 
+  function displayShellWidth(displayScale) {
+    const baseCanvasWidth = AUTHOR_GRID.width * displayScale;
+    const compactDisplay = window.innerWidth > 760 && (window.innerWidth <= 1500 || window.innerHeight <= 850);
+    const shellWidth = compactDisplay ? baseCanvasWidth * (7 / 9) : baseCanvasWidth + 12;
+    return Math.min(420, shellWidth);
+  }
+
+  function getCanvasScaleForDisplay(displayScale) {
+    return displayShellWidth(displayScale) / AUTHOR_GRID.width;
+  }
+
   function setCanvasScale() {
-    document.documentElement.style.setProperty('--pixel-unit', String(getResponsiveAssetScale()));
+    const displayScale = getResponsiveAssetScale();
+    document.documentElement.style.setProperty('--display-unit', String(displayScale));
+    document.documentElement.style.setProperty('--pixel-unit', String(getCanvasScaleForDisplay(displayScale)));
   }
 
   async function renderDynamicBackground(field, food) {

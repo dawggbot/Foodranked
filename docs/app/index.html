@@ -31,6 +31,7 @@
       --canvas-width: calc(var(--grid-width) * var(--pixel-unit));
       --canvas-height: calc(var(--grid-height) * var(--pixel-unit));
       --pixel-unit: calc(var(--asset-scale) * var(--preview-scale));
+      --display-unit: var(--pixel-unit);
       --pixel-font: "Tiny5", "Press Start 2P", "VT323", "Courier New", monospace;
     }
 
@@ -307,7 +308,7 @@
       border-radius: 16px;
     }
     .phone-shell {
-      width: min(420px, calc(var(--canvas-width) + 12px));
+      width: min(420px, calc(var(--grid-width) * var(--display-unit) + 12px));
       aspect-ratio: 9 / 16;
       position: relative;
       overflow: hidden;
@@ -323,6 +324,7 @@
     }
     .canvas {
       position: relative;
+      margin: -6px;
       width: var(--canvas-width);
       height: var(--canvas-height);
       background: #141923;
@@ -758,7 +760,7 @@
 
     @media (min-width: 761px) and (max-width: 1500px), (min-width: 761px) and (max-height: 850px) {
       .phone-shell {
-        width: min(420px, calc(var(--canvas-width) * 0.7777778));
+        width: min(420px, calc(var(--grid-width) * var(--display-unit) * 0.7777778));
       }
     }
 
@@ -1066,10 +1068,10 @@
     </aside>
   </div>
 
-  <script src="../data/foods-index.js?v=20260606-canvas-crop-restore-v1"></script>
-  <script src="./default-layout.js?v=20260606-canvas-crop-restore-v1"></script>
+  <script src="../data/foods-index.js?v=20260606-canvas-display-size-v1"></script>
+  <script src="./default-layout.js?v=20260606-canvas-display-size-v1"></script>
   <script>
-    const BUILDER_BUILD_ID = '20260606-canvas-crop-restore-v1';
+    const BUILDER_BUILD_ID = '20260606-canvas-display-size-v1';
     const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
     const SECTIONS = [
       { id: 'intro', label: '1. Intro blank', chip: null, indicator: true },
@@ -4571,6 +4573,17 @@
       return Math.max(minimumScale, Math.min(4, scaleFromHeight, scaleFromWidth));
     }
 
+    function displayShellWidth(displayScale) {
+      const baseCanvasWidth = AUTHOR_GRID.width * displayScale;
+      const compactDisplay = window.innerWidth > 760 && (window.innerWidth <= 1500 || window.innerHeight <= 850);
+      const shellWidth = compactDisplay ? baseCanvasWidth * (7 / 9) : baseCanvasWidth + 12;
+      return Math.min(420, shellWidth);
+    }
+
+    function getCanvasScaleForDisplay(displayScale) {
+      return displayShellWidth(displayScale) / AUTHOR_GRID.width;
+    }
+
     function getPixelUnit() {
       const canvasWidth = els.canvas?.getBoundingClientRect?.().width;
       if (Number.isFinite(canvasWidth) && canvasWidth > 0) return canvasWidth / AUTHOR_GRID.width;
@@ -4581,10 +4594,12 @@
 
     function setCssVars() {
       const root = document.documentElement;
-      const assetScale = getResponsiveAssetScale();
+      const displayScale = getResponsiveAssetScale();
+      const canvasScale = getCanvasScaleForDisplay(displayScale);
       root.style.setProperty('--preview-scale', '1');
-      root.style.setProperty('--asset-scale', String(assetScale));
-      root.style.setProperty('--pixel-unit', String(assetScale));
+      root.style.setProperty('--display-unit', String(displayScale));
+      root.style.setProperty('--asset-scale', String(canvasScale));
+      root.style.setProperty('--pixel-unit', String(canvasScale));
     }
 
     function attachDrag(node, layerId) {

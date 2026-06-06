@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260606-d-tier-sprite-outro-v2';
+  const BUILDER_BUILD_ID = '20260606-d-tier-sprite-outro-v3';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -1372,7 +1372,7 @@
         label: 'D tier verdict stamp',
         src: OUTRO_D_TIER_SPRITE_PATH,
         x: 28.5,
-        y: 80,
+        y: 62.5,
         z: 38,
         width: 78,
         height: 78,
@@ -1392,7 +1392,7 @@
     layer.effect = 'd-tier-stamp';
     layer.preserveAspect = true;
     layer.x = 28.5;
-    layer.y = 80;
+    layer.y = 62.5;
     layer.z = 38;
     layer.width = 78;
     layer.height = 78;
@@ -3390,7 +3390,6 @@
       const impactPulse = Math.sin(visible * Math.PI);
       scale = 1.45 - (visible * 0.45) + (impactPulse * 0.09);
       y += (1 - visible) * -18;
-      x += (1 - visible) * 3;
       rotate = (1 - visible) * -7 + (impactPulse * -1.5);
     } else if (isMacroRowReveal) {
       scale = 1;
@@ -3412,7 +3411,7 @@
     }
 
     const flip = layer.flipY ? ' scaleY(-1)' : '';
-    node.style.transformOrigin = isMacroArrowReveal || layer.flipY ? 'center' : 'top left';
+    node.style.transformOrigin = isMacroArrowReveal || isOutroTierStamp || layer.flipY ? 'center' : 'top left';
     node.style.opacity = String(visible);
     node.style.transform = `translate3d(calc(${x}px * var(--pixel-unit)), calc(${y}px * var(--pixel-unit)), 0) rotate(${rotate.toFixed(2)}deg) scale(${scale})${flip}`;
     if (clip) node.style.clipPath = clip;

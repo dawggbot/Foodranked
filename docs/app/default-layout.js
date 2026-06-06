@@ -7211,7 +7211,7 @@ window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT = {
           "label": "D tier verdict stamp",
           "src": "./sprites/ui/intro_&_outro/D tier.png",
           "x": 28.5,
-          "y": 80,
+          "y": 62.5,
           "z": 38,
           "width": 78,
           "height": 78,

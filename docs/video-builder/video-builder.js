@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260606-d-tier-sprite-outro-v4';
+  const BUILDER_BUILD_ID = '20260606-subtle-tier-intro-stamp-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -27,6 +27,7 @@
   const MICRON_BAR_STEP_SECONDS = 0.12;
   const MICRON_STAMP_REVEAL_SECONDS = 0.28;
   const MICRON_BAR_STAMP_REVEAL_SECONDS = 0.12;
+  const INTRO_STAMP_REVEAL_SECONDS = 0.22;
   const AUDIO_TIMELINE_SYNC_TOLERANCE_SECONDS = 0.12;
   const SECTION_HOLD_SECONDS = 0;
   const SECTION_HOLD_IDS = new Set(['fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons']);
@@ -3372,10 +3373,14 @@
     const isMicronReveal = revealSchedule?.family === 'micron';
     const isMicronTierReveal = isMicronReveal && ['dv-bar', 'icon', 'label', 'value'].includes(revealSchedule?.kind);
     const isProConRowReveal = (revealSchedule?.family === 'pros' || revealSchedule?.family === 'cons') && revealSchedule.rowIndex != null;
+    const isIntroStampSprite = revealSchedule?.family === 'intro'
+      && ['food-hero', 'ranked-sprite'].includes(revealSchedule?.kind);
     const isOutroTierStamp = revealSchedule?.family === 'outro'
       && revealSchedule?.kind === 'tier'
       && String(layer?.effect || '').includes('d-tier-stamp');
-    const revealWindowSeconds = isMacroRowReveal
+    const revealWindowSeconds = isIntroStampSprite
+      ? INTRO_STAMP_REVEAL_SECONDS
+      : isMacroRowReveal
       ? SUBMACRO_REVEAL_WINDOW_SECONDS
       : isMicronTierReveal
         ? MICRON_BAR_STAMP_REVEAL_SECONDS
@@ -3385,9 +3390,11 @@
     const revealLead = isMacroRowReveal || isMicronReveal ? 0 : Math.min(0.035, AUDIO_REVEAL_LEAD_SECONDS / sceneDuration);
     const revealWindow = isMacroRowReveal
       ? macroRevealWindowProgress(scene, revealWindowSeconds)
-      : isMicronReveal
-        ? Math.min(0.12, Math.max(isMicronTierReveal ? 0.008 : 0.028, revealWindowSeconds / sceneDuration))
-        : Math.min(0.18, Math.max(0.045, revealWindowSeconds / sceneDuration));
+      : isIntroStampSprite
+        ? Math.min(0.16, Math.max(0.055, revealWindowSeconds / sceneDuration))
+        : isMicronReveal
+          ? Math.min(0.12, Math.max(isMicronTierReveal ? 0.008 : 0.028, revealWindowSeconds / sceneDuration))
+          : Math.min(0.18, Math.max(0.045, revealWindowSeconds / sceneDuration));
     const rawRevealProgress = (sceneProgress + revealLead - delay) / revealWindow;
     const revealProgress = easeOutCubic(rawRevealProgress);
     const visible = clamp(revealProgress, 0, 1);
@@ -3403,9 +3410,15 @@
 
     if (isOutroTierStamp) {
       const impactPulse = Math.sin(visible * Math.PI);
-      scale = 1.45 - (visible * 0.45) + (impactPulse * 0.09);
-      y += (1 - visible) * -18;
-      rotate = (1 - visible) * -7 + (impactPulse * -1.5);
+      scale = 1.24 - (visible * 0.24) + (impactPulse * 0.045);
+      y += (1 - visible) * -9;
+      rotate = (1 - visible) * -3.5 + (impactPulse * -0.65);
+    } else if (isIntroStampSprite) {
+      const stampPulse = Math.sin(visible * Math.PI);
+      const entryTilt = revealSchedule?.kind === 'ranked-sprite' ? -2.5 : 1.8;
+      scale = 1.18 - (visible * 0.18) + (stampPulse * 0.04);
+      y += (1 - visible) * -7;
+      rotate = entryTilt * (1 - visible);
     } else if (isMacroRowReveal) {
       scale = 1;
       y += (1 - visible) * 5;
@@ -3426,7 +3439,7 @@
     }
 
     const flip = layer.flipY ? ' scaleY(-1)' : '';
-    node.style.transformOrigin = isMacroArrowReveal || isOutroTierStamp || layer.flipY ? 'center' : 'top left';
+    node.style.transformOrigin = isMacroArrowReveal || isOutroTierStamp || isIntroStampSprite || layer.flipY ? 'center' : 'top left';
     node.style.opacity = String(visible);
     node.style.transform = `translate3d(calc(${x}px * var(--pixel-unit)), calc(${y}px * var(--pixel-unit)), 0) rotate(${rotate.toFixed(2)}deg) scale(${scale})${flip}`;
     if (clip) node.style.clipPath = clip;

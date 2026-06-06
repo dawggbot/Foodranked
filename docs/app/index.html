@@ -307,11 +307,11 @@
       border-radius: 16px;
     }
     .phone-shell {
-      width: min(420px, var(--canvas-width));
-      height: var(--canvas-height);
+      width: min(420px, calc(var(--canvas-width) + 12px));
+      aspect-ratio: 9 / 16;
       position: relative;
       overflow: hidden;
-      border: 0;
+      border: 6px solid #2e3649;
       border-radius: 26px;
       box-shadow: 0 18px 50px rgba(0,0,0,.28);
       background:
@@ -321,18 +321,8 @@
       place-items: center;
       padding: 0;
     }
-    .phone-shell::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      z-index: 2;
-      pointer-events: none;
-      border-radius: inherit;
-      box-shadow: inset 0 0 0 6px #2e3649;
-    }
     .canvas {
       position: relative;
-      z-index: 1;
       width: var(--canvas-width);
       height: var(--canvas-height);
       background: #141923;
@@ -766,6 +756,12 @@
       }
     }
 
+    @media (min-width: 761px) and (max-width: 1500px), (min-width: 761px) and (max-height: 850px) {
+      .phone-shell {
+        width: min(420px, calc(var(--canvas-width) * 0.7777778));
+      }
+    }
+
     @media (max-width: 1180px) {
       :root { --asset-scale: 1.4; }
       body { overflow: hidden; }
@@ -1070,11 +1066,11 @@
     </aside>
   </div>
 
-  <script src="../data/foods-index.js?v=20260606-canvas-preview-sync-v1"></script>
-  <script src="./default-layout.js?v=20260606-canvas-preview-sync-v1"></script>
+  <script src="../data/foods-index.js?v=20260606-original-display-restore-v1"></script>
+  <script src="./default-layout.js?v=20260606-original-display-restore-v1"></script>
   <script>
-    const BUILDER_BUILD_ID = '20260606-canvas-preview-sync-v1';
-    const REPO_LAYOUT_VERSION = BUILDER_BUILD_ID;
+    const BUILDER_BUILD_ID = '20260606-original-display-restore-v1';
+    const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
     const SECTIONS = [
       { id: 'intro', label: '1. Intro blank', chip: null, indicator: true },
       { id: 'fats', label: '2. Fats', chip: 'FATS', indicator: true },
@@ -1094,7 +1090,6 @@
     const SAVED_SPRITE_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
     const MACRO_SECTION_LAYOUT_SYNC_KEY = 'macroSectionLayoutFromFatsV5';
     const AUTHOR_GRID = { width: 135, height: 240 };
-    const DISPLAY_SHELL_MAX_WIDTH = 420;
     const ROOT_SPRITE_BASE = './sprites';
     const FOOD_JSON_CACHE = new Map();
     const BATCH_RESULTS_CACHE = new Map();
@@ -4557,16 +4552,23 @@
     }
 
     function getResponsiveAssetScale() {
+      const desktopComfortable = window.innerWidth >= 1600 && window.innerHeight >= 900;
+      if (desktopComfortable) return 4;
+
       const compactLaptop = (window.innerWidth <= 1500 || window.innerHeight <= 850) && window.innerWidth > 760;
+      const laptopCanvasCrop = compactLaptop;
       const tightLaptop = window.innerWidth <= 1180 && window.innerWidth > 760;
       const reservedWidth = tightLaptop ? 530 : (compactLaptop ? 660 : 690);
       const reservedHeight = tightLaptop ? 154 : (compactLaptop ? 150 : 210);
       const minimumScale = tightLaptop ? 1.12 : (compactLaptop ? 1.30 : 1.45);
       const verticalRoom = Math.max(300, window.innerHeight - reservedHeight);
-      const maxDisplayScale = DISPLAY_SHELL_MAX_WIDTH / AUTHOR_GRID.width;
-      const scaleFromHeight = verticalRoom / AUTHOR_GRID.height;
-      const scaleFromWidth = (Math.max(280, window.innerWidth - reservedWidth) - 24) / AUTHOR_GRID.width;
-      return Math.max(minimumScale, Math.min(maxDisplayScale, scaleFromHeight, scaleFromWidth));
+      const scaleFromHeight = laptopCanvasCrop
+        ? (verticalRoom - 12) / (AUTHOR_GRID.height * (7 / 9))
+        : (((verticalRoom * 9) / 16) - 12) / AUTHOR_GRID.width;
+      const scaleFromWidth = laptopCanvasCrop
+        ? (Math.max(280, window.innerWidth - reservedWidth) - 24) / (AUTHOR_GRID.width * (7 / 9))
+        : (Math.max(280, window.innerWidth - reservedWidth) - 24) / AUTHOR_GRID.width;
+      return Math.max(minimumScale, Math.min(4, scaleFromHeight, scaleFromWidth));
     }
 
     function getPixelUnit() {

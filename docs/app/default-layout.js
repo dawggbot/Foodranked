@@ -7219,6 +7219,9 @@ window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT = {
           "foodDriven": false,
           "preserveAspect": true,
           "aspectRatio": 1,
+          "centerAnchor": "visible-canvas",
+          "centerOffsetX": 0,
+          "centerOffsetY": 0,
           "effect": "d-tier-stamp"
         },
         {

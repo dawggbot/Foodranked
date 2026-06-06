@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260606-d-tier-sprite-outro-v3';
+  const BUILDER_BUILD_ID = '20260606-d-tier-sprite-outro-v4';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -1380,6 +1380,9 @@
         foodDriven: false,
         preserveAspect: true,
         aspectRatio: 1,
+        centerAnchor: 'visible-canvas',
+        centerOffsetX: 0,
+        centerOffsetY: 0,
         effect: 'd-tier-stamp'
       };
       layers.push(layer);
@@ -1397,6 +1400,9 @@
     layer.width = 78;
     layer.height = 78;
     layer.aspectRatio = 1;
+    layer.centerAnchor = 'visible-canvas';
+    layer.centerOffsetX = 0;
+    layer.centerOffsetY = 0;
   }
 
   function normalizeOutroScoreLayout(layout) {
@@ -3322,8 +3328,17 @@
   }
 
   function applyLayerBox(node, layer) {
-    node.style.left = `calc(${Number(layer.x) || 0}px * var(--pixel-unit))`;
-    node.style.top = `calc(${Number(layer.y) || 0}px * var(--pixel-unit))`;
+    let layerX = Number(layer.x) || 0;
+    let layerY = Number(layer.y) || 0;
+    if (layer.centerAnchor === 'visible-canvas') {
+      const visible = visibleCanvasGridBounds();
+      const layerWidth = Number(layer.width) || 0;
+      const layerHeight = Number(layer.height) || 0;
+      layerX = ((visible.left + visible.right) / 2) - (layerWidth / 2) + (Number(layer.centerOffsetX) || 0);
+      layerY = ((visible.top + visible.bottom) / 2) - (layerHeight / 2) + (Number(layer.centerOffsetY) || 0);
+    }
+    node.style.left = `calc(${layerX}px * var(--pixel-unit))`;
+    node.style.top = `calc(${layerY}px * var(--pixel-unit))`;
     if (layer.width) node.style.width = `calc(${Number(layer.width)}px * var(--pixel-unit))`;
     if (layer.kind === 'sprite') {
       if (layer.height) node.style.height = `calc(${Number(layer.height)}px * var(--pixel-unit))`;

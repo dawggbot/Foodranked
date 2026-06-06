@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260606-canvas-size-sprite-scale-v1';
+  const BUILDER_BUILD_ID = '20260606-centered-sprite-crop-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -533,6 +533,8 @@
     }
 
     const pixelUnit = cssPixels(getComputedStyle(document.documentElement).getPropertyValue('--pixel-unit'), 4);
+    const cropX = cssPixels(getComputedStyle(document.documentElement).getPropertyValue('--sprite-crop-x'), 0);
+    const cropY = cssPixels(getComputedStyle(document.documentElement).getPropertyValue('--sprite-crop-y'), 0);
     const stageRect = els.videoStage.getBoundingClientRect();
     const shellRect = shell.getBoundingClientRect();
     const shellStyle = getComputedStyle(shell);
@@ -549,10 +551,10 @@
       - cssPixels(shellStyle.borderBottomWidth)
       - cssPixels(shellStyle.paddingBottom);
     return {
-      left: Math.max(0, (Math.max(stageRect.left, contentLeft) - stageRect.left) / pixelUnit),
-      right: Math.min(AUTHOR_GRID.width, (Math.min(stageRect.right, contentRight) - stageRect.left) / pixelUnit),
-      top: Math.max(0, (Math.max(stageRect.top, contentTop) - stageRect.top) / pixelUnit),
-      bottom: Math.min(AUTHOR_GRID.height, (Math.min(stageRect.bottom, contentBottom) - stageRect.top) / pixelUnit)
+      left: cropX + Math.max(0, (Math.max(stageRect.left, contentLeft) - stageRect.left) / pixelUnit),
+      right: cropX + Math.min(AUTHOR_GRID.width, (Math.min(stageRect.right, contentRight) - stageRect.left) / pixelUnit),
+      top: cropY + Math.max(0, (Math.max(stageRect.top, contentTop) - stageRect.top) / pixelUnit),
+      bottom: cropY + Math.min(AUTHOR_GRID.height, (Math.min(stageRect.bottom, contentBottom) - stageRect.top) / pixelUnit)
     };
   }
 
@@ -2201,11 +2203,24 @@
     return displayShellWidth(displayScale) / AUTHOR_GRID.width;
   }
 
+  function getSpriteCropOffset(displayScale) {
+    const canvasScale = getCanvasScaleForDisplay(displayScale);
+    const visibleWidth = AUTHOR_GRID.width * (canvasScale / displayScale);
+    const visibleHeight = AUTHOR_GRID.height * (canvasScale / displayScale);
+    return {
+      x: Math.max(0, (AUTHOR_GRID.width - visibleWidth) / 2),
+      y: Math.max(0, (AUTHOR_GRID.height - visibleHeight) / 2)
+    };
+  }
+
   function setCanvasScale() {
     const displayScale = getResponsiveAssetScale();
+    const crop = getSpriteCropOffset(displayScale);
     document.documentElement.style.setProperty('--display-unit', String(displayScale));
     document.documentElement.style.setProperty('--canvas-unit', String(getCanvasScaleForDisplay(displayScale)));
     document.documentElement.style.setProperty('--pixel-unit', String(displayScale));
+    document.documentElement.style.setProperty('--sprite-crop-x', String(crop.x));
+    document.documentElement.style.setProperty('--sprite-crop-y', String(crop.y));
   }
 
   async function renderDynamicBackground(field, food) {

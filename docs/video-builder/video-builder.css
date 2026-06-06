@@ -23,6 +23,8 @@
   --pixel-unit: 4;
   --display-unit: var(--pixel-unit);
   --canvas-unit: var(--pixel-unit);
+  --sprite-crop-x: 0;
+  --sprite-crop-y: 0;
 }
 
 * { box-sizing: border-box; }
@@ -369,6 +371,11 @@ h2 {
   position: absolute;
   inset: 0;
   z-index: 2;
+  transform-origin: top left;
+  transform: translate(
+    calc(var(--sprite-crop-x) * -1px * var(--pixel-unit)),
+    calc(var(--sprite-crop-y) * -1px * var(--pixel-unit))
+  );
 }
 
 .stage-vignette {

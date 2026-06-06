@@ -2,11 +2,10 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260606-display-fitted-canvas-v1';
+  const BUILDER_BUILD_ID = '20260606-canvas-preview-sync-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const DISPLAY_SHELL_MAX_WIDTH = 420;
-  const DISPLAY_SHELL_BORDER_SIZE = 12;
   const ROOT_SPRITE_BASE = './sprites';
   const SECTION_INDICATOR_LAYOUT = { normalSize: 10, highlightedSize: 12 };
   const CAPTION_SAFE_X = 7;
@@ -2179,8 +2178,8 @@
     const reservedHeight = tightLaptop ? 154 : (compactLaptop ? 150 : 210);
     const minimumScale = tightLaptop ? 1.12 : (compactLaptop ? 1.30 : 1.45);
     const verticalRoom = Math.max(300, window.innerHeight - reservedHeight);
-    const maxDisplayScale = (DISPLAY_SHELL_MAX_WIDTH - DISPLAY_SHELL_BORDER_SIZE) / AUTHOR_GRID.width;
-    const scaleFromHeight = (verticalRoom - 12) / AUTHOR_GRID.height;
+    const maxDisplayScale = DISPLAY_SHELL_MAX_WIDTH / AUTHOR_GRID.width;
+    const scaleFromHeight = verticalRoom / AUTHOR_GRID.height;
     const scaleFromWidth = (Math.max(280, window.innerWidth - reservedWidth) - 24) / AUTHOR_GRID.width;
     return Math.max(minimumScale, Math.min(maxDisplayScale, scaleFromHeight, scaleFromWidth));
   }

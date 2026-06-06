@@ -314,11 +314,11 @@ h2 {
 }
 
 .phone-shell {
-  width: min(420px, calc(var(--grid-width) * 1px * var(--pixel-unit) + 12px));
-  height: calc(var(--grid-height) * 1px * var(--pixel-unit) + 12px);
+  width: min(420px, calc(var(--grid-width) * 1px * var(--pixel-unit)));
+  height: calc(var(--grid-height) * 1px * var(--pixel-unit));
   position: relative;
   overflow: hidden;
-  border: 6px solid #2e3649;
+  border: 0;
   border-radius: 26px;
   box-shadow: 0 18px 50px rgba(0,0,0,.28);
   background:
@@ -330,8 +330,19 @@ h2 {
   min-height: 0;
 }
 
+.phone-shell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 6px #2e3649;
+}
+
 .video-stage {
   position: relative;
+  z-index: 1;
   width: calc(var(--grid-width) * 1px * var(--pixel-unit));
   height: calc(var(--grid-height) * 1px * var(--pixel-unit));
   aspect-ratio: 9 / 16;

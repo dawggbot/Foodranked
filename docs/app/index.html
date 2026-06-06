@@ -307,11 +307,11 @@
       border-radius: 16px;
     }
     .phone-shell {
-      width: min(420px, calc(var(--canvas-width) + 12px));
-      height: calc(var(--canvas-height) + 12px);
+      width: min(420px, var(--canvas-width));
+      height: var(--canvas-height);
       position: relative;
       overflow: hidden;
-      border: 6px solid #2e3649;
+      border: 0;
       border-radius: 26px;
       box-shadow: 0 18px 50px rgba(0,0,0,.28);
       background:
@@ -321,8 +321,18 @@
       place-items: center;
       padding: 0;
     }
+    .phone-shell::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      border-radius: inherit;
+      box-shadow: inset 0 0 0 6px #2e3649;
+    }
     .canvas {
       position: relative;
+      z-index: 1;
       width: var(--canvas-width);
       height: var(--canvas-height);
       background: #141923;
@@ -1060,10 +1070,10 @@
     </aside>
   </div>
 
-  <script src="../data/foods-index.js?v=20260606-display-fitted-canvas-v1"></script>
-  <script src="./default-layout.js?v=20260606-display-fitted-canvas-v1"></script>
+  <script src="../data/foods-index.js?v=20260606-canvas-preview-sync-v1"></script>
+  <script src="./default-layout.js?v=20260606-canvas-preview-sync-v1"></script>
   <script>
-    const BUILDER_BUILD_ID = '20260606-display-fitted-canvas-v1';
+    const BUILDER_BUILD_ID = '20260606-canvas-preview-sync-v1';
     const REPO_LAYOUT_VERSION = BUILDER_BUILD_ID;
     const SECTIONS = [
       { id: 'intro', label: '1. Intro blank', chip: null, indicator: true },
@@ -1085,7 +1095,6 @@
     const MACRO_SECTION_LAYOUT_SYNC_KEY = 'macroSectionLayoutFromFatsV5';
     const AUTHOR_GRID = { width: 135, height: 240 };
     const DISPLAY_SHELL_MAX_WIDTH = 420;
-    const DISPLAY_SHELL_BORDER_SIZE = 12;
     const ROOT_SPRITE_BASE = './sprites';
     const FOOD_JSON_CACHE = new Map();
     const BATCH_RESULTS_CACHE = new Map();
@@ -4554,8 +4563,8 @@
       const reservedHeight = tightLaptop ? 154 : (compactLaptop ? 150 : 210);
       const minimumScale = tightLaptop ? 1.12 : (compactLaptop ? 1.30 : 1.45);
       const verticalRoom = Math.max(300, window.innerHeight - reservedHeight);
-      const maxDisplayScale = (DISPLAY_SHELL_MAX_WIDTH - DISPLAY_SHELL_BORDER_SIZE) / AUTHOR_GRID.width;
-      const scaleFromHeight = (verticalRoom - 12) / AUTHOR_GRID.height;
+      const maxDisplayScale = DISPLAY_SHELL_MAX_WIDTH / AUTHOR_GRID.width;
+      const scaleFromHeight = verticalRoom / AUTHOR_GRID.height;
       const scaleFromWidth = (Math.max(280, window.innerWidth - reservedWidth) - 24) / AUTHOR_GRID.width;
       return Math.max(minimumScale, Math.min(maxDisplayScale, scaleFromHeight, scaleFromWidth));
     }

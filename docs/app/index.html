@@ -28,11 +28,10 @@
       --asset-scale: 4;
       --grid-width: 135px;
       --grid-height: 240px;
+      --canvas-width: calc(var(--grid-width) * var(--pixel-unit));
+      --canvas-height: calc(var(--grid-height) * var(--pixel-unit));
       --pixel-unit: calc(var(--asset-scale) * var(--preview-scale));
       --display-unit: var(--pixel-unit);
-      --canvas-unit: var(--pixel-unit);
-      --canvas-width: calc(var(--grid-width) * var(--canvas-unit));
-      --canvas-height: calc(var(--grid-height) * var(--canvas-unit));
       --pixel-font: "Tiny5", "Press Start 2P", "VT323", "Courier New", monospace;
     }
 
@@ -1069,10 +1068,10 @@
     </aside>
   </div>
 
-  <script src="../data/foods-index.js?v=20260606-canvas-size-sprite-scale-v1"></script>
-  <script src="./default-layout.js?v=20260606-canvas-size-sprite-scale-v1"></script>
+  <script src="../data/foods-index.js?v=20260606-canvas-display-size-v1"></script>
+  <script src="./default-layout.js?v=20260606-canvas-display-size-v1"></script>
   <script>
-    const BUILDER_BUILD_ID = '20260606-canvas-size-sprite-scale-v1';
+    const BUILDER_BUILD_ID = '20260606-canvas-display-size-v1';
     const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
     const SECTIONS = [
       { id: 'intro', label: '1. Intro blank', chip: null, indicator: true },
@@ -4586,6 +4585,8 @@
     }
 
     function getPixelUnit() {
+      const canvasWidth = els.canvas?.getBoundingClientRect?.().width;
+      if (Number.isFinite(canvasWidth) && canvasWidth > 0) return canvasWidth / AUTHOR_GRID.width;
       const raw = getComputedStyle(document.documentElement).getPropertyValue('--pixel-unit');
       const parsed = Number.parseFloat(raw);
       return Number.isFinite(parsed) && parsed > 0 ? parsed : 4;
@@ -4597,9 +4598,8 @@
       const canvasScale = getCanvasScaleForDisplay(displayScale);
       root.style.setProperty('--preview-scale', '1');
       root.style.setProperty('--display-unit', String(displayScale));
-      root.style.setProperty('--canvas-unit', String(canvasScale));
-      root.style.setProperty('--asset-scale', String(displayScale));
-      root.style.setProperty('--pixel-unit', String(displayScale));
+      root.style.setProperty('--asset-scale', String(canvasScale));
+      root.style.setProperty('--pixel-unit', String(canvasScale));
     }
 
     function attachDrag(node, layerId) {

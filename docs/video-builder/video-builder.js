@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260601-outro-score-grade-glow-v1';
+  const BUILDER_BUILD_ID = '20260606-d-tier-sprite-outro-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -34,6 +34,7 @@
   const MACRO_REVEAL_SECONDS = 0.08;
   const MACRO_ROW_AFTER_ICON_SECONDS = 0.38;
   const INTRO_RANKED_SPRITE_PATH = './sprites/ui/intro_&_outro/ranked.png';
+  const OUTRO_D_TIER_SPRITE_PATH = './sprites/ui/intro_&_outro/D tier.png';
   const INTRO_RANKED_VISIBLE_CENTER = { x: 0.5, y: 0.47 };
   const INTRO_HERO_SIZE = { ranked: 80, foodWidth: 48, foodHeight: 24 };
   const AVAILABLE_FOOD_IMAGE_IDS = new Set(['bacon']);
@@ -1355,6 +1356,43 @@
     node.style.setProperty('--outro-score-glow-wide', style.wide);
   }
 
+  function ensureOutroTierStampLayer(layout, food) {
+    const layers = getSectionLayers(layout, 'outro');
+    let layer = layers.find(item => item.id === 'outro_d_tier_stamp');
+    if (!layer) {
+      layer = {
+        id: 'outro_d_tier_stamp',
+        kind: 'sprite',
+        label: 'D tier verdict stamp',
+        src: OUTRO_D_TIER_SPRITE_PATH,
+        x: 29,
+        y: 57,
+        z: 38,
+        width: 78,
+        height: 78,
+        visible: true,
+        foodDriven: false,
+        preserveAspect: true,
+        aspectRatio: 1,
+        effect: 'd-tier-stamp'
+      };
+      layers.push(layer);
+    }
+
+    const tier = String(scoreTier(food)).trim().toUpperCase();
+    layer.src = OUTRO_D_TIER_SPRITE_PATH;
+    layer.label = 'D tier verdict stamp';
+    layer.visible = tier === 'D';
+    layer.effect = 'd-tier-stamp';
+    layer.preserveAspect = true;
+    layer.x = 29;
+    layer.y = 57;
+    layer.z = 38;
+    layer.width = 78;
+    layer.height = 78;
+    layer.aspectRatio = 1;
+  }
+
   function normalizeOutroScoreLayout(layout) {
     const layer = getSectionLayers(layout, 'outro').find(item => item.id === 'outro_score_value');
     if (!layer) return;
@@ -1370,6 +1408,7 @@
     const food = selectedFood();
     const layout = selectedLayoutBase();
     normalizeOutroScoreLayout(layout);
+    ensureOutroTierStampLayer(layout, food);
     ensureMacroTextLayers(layout);
     syncHeader(layout, food);
     syncSectionIndicators(layout, food);
@@ -2552,6 +2591,7 @@
       chunk: activeChunk.text,
       lines,
       placement: activeChunk.placement || 'lower-third',
+      role: activeChunk.role || null,
       words: chunkWords.map(word => word.text),
       activeWordIndex: activeWordIndex >= 0 ? activeWordIndex : 0,
       activeWord: activeWord.text,
@@ -2579,6 +2619,14 @@
 
   function renderCaption(container, scene, progress, precomputedFrame = null) {
     const frame = precomputedFrame || captionFrame(scene, progress);
+    if (shouldSuppressCaptionFrame(scene, frame)) {
+      container.classList.remove('summary-full', 'tier-center');
+      container.classList.add('lower-third');
+      container.dataset.captionKey = 'suppressed-tier-reveal';
+      container.removeAttribute('aria-label');
+      container.replaceChildren();
+      return;
+    }
     container.classList.toggle('summary-full', frame.placement === 'summary-full');
     container.classList.toggle('tier-center', frame.placement === 'tier-center');
     container.classList.toggle('lower-third', !['summary-full', 'tier-center'].includes(frame.placement));
@@ -2597,6 +2645,13 @@
       });
       return lineNode;
     }));
+  }
+
+  function shouldSuppressCaptionFrame(scene, frame) {
+    if (scene?.id !== 'outro') return false;
+    if (String(scoreTier(selectedFood())).trim().toUpperCase() !== 'D') return false;
+    if (frame?.role === 'tier-reveal') return true;
+    return frame?.placement === 'tier-center' && TIER_REVEAL_RE.test(subtitleOnlyCaptionText(frame?.chunk || ''));
   }
 
   function syncCaptionSafeArea(caption) {
@@ -3296,6 +3351,9 @@
     const isMicronReveal = revealSchedule?.family === 'micron';
     const isMicronTierReveal = isMicronReveal && ['dv-bar', 'icon', 'label', 'value'].includes(revealSchedule?.kind);
     const isProConRowReveal = (revealSchedule?.family === 'pros' || revealSchedule?.family === 'cons') && revealSchedule.rowIndex != null;
+    const isOutroTierStamp = revealSchedule?.family === 'outro'
+      && revealSchedule?.kind === 'tier'
+      && String(layer?.effect || '').includes('d-tier-stamp');
     const revealWindowSeconds = isMacroRowReveal
       ? SUBMACRO_REVEAL_WINDOW_SECONDS
       : isMicronTierReveal
@@ -3317,11 +3375,18 @@
       : 0;
     let x = 0;
     let y = 0;
+    let rotate = 0;
     let scale = layer.kind === 'text' ? 1 : 0.96 + (visible * 0.04);
     let clip = '';
     const lockSpriteLayout = layer.kind === 'sprite' && !persistent && !isProConRowReveal;
 
-    if (isMacroRowReveal) {
+    if (isOutroTierStamp) {
+      const impactPulse = Math.sin(visible * Math.PI);
+      scale = 1.45 - (visible * 0.45) + (impactPulse * 0.09);
+      y += (1 - visible) * -18;
+      x += (1 - visible) * 3;
+      rotate = (1 - visible) * -7 + (impactPulse * -1.5);
+    } else if (isMacroRowReveal) {
       scale = 1;
       y += (1 - visible) * 5;
     } else if (isMicronReveal) {
@@ -3343,7 +3408,7 @@
     const flip = layer.flipY ? ' scaleY(-1)' : '';
     node.style.transformOrigin = isMacroArrowReveal || layer.flipY ? 'center' : 'top left';
     node.style.opacity = String(visible);
-    node.style.transform = `translate3d(calc(${x}px * var(--pixel-unit)), calc(${y}px * var(--pixel-unit)), 0) scale(${scale})${flip}`;
+    node.style.transform = `translate3d(calc(${x}px * var(--pixel-unit)), calc(${y}px * var(--pixel-unit)), 0) rotate(${rotate.toFixed(2)}deg) scale(${scale})${flip}`;
     if (clip) node.style.clipPath = clip;
     if (isMacroArrowReveal && revealPulse > 0.02) {
       const glowRgb = macroArrowGlowRgb(layer);

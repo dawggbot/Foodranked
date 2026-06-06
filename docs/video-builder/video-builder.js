@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260606-d-tier-sprite-outro-v1';
+  const BUILDER_BUILD_ID = '20260606-d-tier-sprite-outro-v2';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -765,7 +765,13 @@
     return isSpriteLayer(layer) && (fingerprint.includes('/ui/section_indicator/') || fingerprint.includes('section indicator'));
   }
 
+  function isOutroTierStamp(layer) {
+    const fingerprint = `${layer?.id || ''} ${layer?.label || ''} ${layer?.effect || ''}`.toLowerCase();
+    return fingerprint.includes('outro_d_tier_stamp') || fingerprint.includes('d-tier-stamp');
+  }
+
   function isPersistentChrome(layer) {
+    if (isOutroTierStamp(layer)) return false;
     return isHeaderSprite(layer) || isHeaderText(layer) || (isUiSprite(layer) && !isSectionIndicator(layer));
   }
 
@@ -1365,8 +1371,8 @@
         kind: 'sprite',
         label: 'D tier verdict stamp',
         src: OUTRO_D_TIER_SPRITE_PATH,
-        x: 29,
-        y: 57,
+        x: 28.5,
+        y: 80,
         z: 38,
         width: 78,
         height: 78,
@@ -1385,8 +1391,8 @@
     layer.visible = tier === 'D';
     layer.effect = 'd-tier-stamp';
     layer.preserveAspect = true;
-    layer.x = 29;
-    layer.y = 57;
+    layer.x = 28.5;
+    layer.y = 80;
     layer.z = 38;
     layer.width = 78;
     layer.height = 78;

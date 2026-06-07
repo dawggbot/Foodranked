@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260607-five-glimmer-strong-pulse-v1';
+  const BUILDER_BUILD_ID = '20260607-weighty-stamp-shake-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -27,7 +27,8 @@
   const MICRON_BAR_STEP_SECONDS = 0.12;
   const MICRON_STAMP_REVEAL_SECONDS = 0.28;
   const MICRON_BAR_STAMP_REVEAL_SECONDS = 0.12;
-  const STAMP_REVEAL_SECONDS = 0.28;
+  const STAMP_REVEAL_SECONDS = 0.36;
+  const STAMP_SHAKE_MAX_PIXELS = 2.8;
   const AUDIO_TIMELINE_SYNC_TOLERANCE_SECONDS = 0.12;
   const SECTION_HOLD_SECONDS = 0;
   const SECTION_HOLD_IDS = new Set(['fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons']);
@@ -2074,6 +2075,10 @@
     void renderDynamicBackground(roots.bg, food);
 
     const layerList = layers.map(item => item.layer);
+    const revealSchedules = layers.map(({ layer, index, persistent }) => (
+      layer.visible === false ? null : layerRevealSchedule(layer, scene, index, persistent, layerList)
+    ));
+    applyStageShake(roots, scene, sceneProgress, revealSchedules);
     const macroHighlightMap = macroSubmetricHighlightMap(scene, narrationProgress);
     const micronHighlightMap = micronMetricHighlightMap(scene, narrationProgress);
     const proConHighlightMap = proConNarrationHighlightMap(scene, narrationProgress);
@@ -2081,7 +2086,7 @@
       Array.from(roots.layerRoot.children).map(node => [node.dataset.renderKey || '', node])
     );
     const nextLayerNodes = document.createDocumentFragment();
-    layers.forEach(({ layer, index, persistent }) => {
+    layers.forEach(({ layer, index, persistent }, renderIndex) => {
       if (layer.visible === false) return;
       const tagName = layer.kind === 'sprite' ? 'IMG' : 'DIV';
       const renderKey = `${persistent ? 'persistent' : 'scene'}:${layer.kind}:${layer.id || index}`;
@@ -2094,7 +2099,7 @@
       node.dataset.renderKey = renderKey;
       node.dataset.layerId = layer.id || '';
       node.dataset.persistent = persistent ? 'true' : 'false';
-      const revealSchedule = layerRevealSchedule(layer, scene, index, persistent, layerList);
+      const revealSchedule = revealSchedules[renderIndex];
       const revealDelay = revealSchedule.start;
       node.dataset.revealDelay = revealDelay.toFixed(3);
       node.dataset.revealFamily = revealSchedule.family;
@@ -3357,6 +3362,56 @@
     return 0.12 + (row * 0.42) + ((index % 4) * 0.035);
   }
 
+  function isStampRevealSchedule(schedule) {
+    if (!schedule) return false;
+    if (schedule.family === 'intro' && ['food-hero', 'ranked-sprite'].includes(schedule.kind)) return true;
+    return schedule.layerId === 'outro_d_tier_stamp';
+  }
+
+  function stampRevealWindowProgress(scene) {
+    const sceneDuration = Math.max(1, sceneContentDuration(scene));
+    return Math.min(0.2, Math.max(0.07, STAMP_REVEAL_SECONDS / sceneDuration));
+  }
+
+  function stampRevealRawProgress(scene, sceneProgress, schedule) {
+    const sceneDuration = Math.max(1, sceneContentDuration(scene));
+    const revealLead = Math.min(0.035, AUDIO_REVEAL_LEAD_SECONDS / sceneDuration);
+    return (sceneProgress + revealLead - schedule.start) / stampRevealWindowProgress(scene);
+  }
+
+  function stampShakeStyle(scene, sceneProgress, revealSchedules) {
+    const sceneDuration = Math.max(1, sceneContentDuration(scene));
+    let strongest = 0;
+    for (const schedule of revealSchedules) {
+      if (!isStampRevealSchedule(schedule)) continue;
+      const raw = stampRevealRawProgress(scene, sceneProgress, schedule);
+      if (raw < 0 || raw > 1.18) continue;
+      const impact = Math.sin(clamp(raw, 0, 1) * Math.PI);
+      const aftershock = raw > 1 ? Math.max(0, 1 - ((raw - 1) / 0.18)) * 0.4 : 1;
+      strongest = Math.max(strongest, impact * aftershock);
+    }
+    if (strongest <= 0.015) return { transform: '', strength: 0 };
+
+    const phase = sceneProgress * sceneDuration * 28;
+    const x = (Math.sin(phase * Math.PI * 2) + (Math.sin(phase * Math.PI * 5.4) * 0.45)) * STAMP_SHAKE_MAX_PIXELS * strongest;
+    const y = (Math.cos(phase * Math.PI * 2.3) + (Math.sin(phase * Math.PI * 4.2) * 0.35)) * STAMP_SHAKE_MAX_PIXELS * 0.72 * strongest;
+    const rotate = Math.sin(phase * Math.PI * 3.6) * 0.34 * strongest;
+    return {
+      transform: `translate3d(calc(${x.toFixed(2)}px * var(--pixel-unit)), calc(${y.toFixed(2)}px * var(--pixel-unit)), 0) rotate(${rotate.toFixed(2)}deg)`,
+      strength: strongest
+    };
+  }
+
+  function applyStageShake(roots, scene, sceneProgress, revealSchedules) {
+    const shake = stampShakeStyle(scene, sceneProgress, revealSchedules);
+    [roots.bg, roots.phoneBg, roots.layerRoot, roots.vignette, roots.caption].forEach(node => {
+      if (!node) return;
+      node.style.transformOrigin = 'center';
+      node.style.transform = shake.transform;
+    });
+    roots.layerRoot.dataset.stampShakeStrength = shake.strength.toFixed(3);
+  }
+
   function applyLayerAnimation(node, layer, scene, sceneProgress, index, persistent = false, revealSchedule = null) {
     if (persistent) {
       node.style.opacity = '1';
@@ -3392,7 +3447,7 @@
     const revealWindow = isMacroRowReveal
       ? macroRevealWindowProgress(scene, revealWindowSeconds)
       : isIntroStampSprite || isOutroTierStamp
-        ? Math.min(0.16, Math.max(0.055, revealWindowSeconds / sceneDuration))
+        ? stampRevealWindowProgress(scene)
         : isMicronReveal
           ? Math.min(0.12, Math.max(isMicronTierReveal ? 0.008 : 0.028, revealWindowSeconds / sceneDuration))
           : Math.min(0.18, Math.max(0.045, revealWindowSeconds / sceneDuration));
@@ -3407,14 +3462,16 @@
     let rotate = 0;
     let scale = layer.kind === 'text' ? 1 : 0.96 + (visible * 0.04);
     let clip = '';
+    let stampImpactPulse = 0;
     const lockSpriteLayout = layer.kind === 'sprite' && !persistent && !isProConRowReveal;
 
     if (isOutroTierStamp || isIntroStampSprite) {
       const impactPulse = Math.sin(visible * Math.PI);
+      stampImpactPulse = impactPulse;
       const entryTilt = isOutroTierStamp || revealSchedule?.kind === 'ranked-sprite' ? -4 : 4;
-      scale = 1.46 - (visible * 0.46) + (impactPulse * 0.14);
-      y += (1 - visible) * -15;
-      rotate = (entryTilt * (1 - visible)) + (impactPulse * (entryTilt < 0 ? -1 : 1));
+      scale = 1.62 - (visible * 0.62) + (impactPulse * 0.22);
+      y += (1 - visible) * -20;
+      rotate = (entryTilt * (1 - visible)) + (impactPulse * (entryTilt < 0 ? -1.4 : 1.4));
     } else if (isMacroRowReveal) {
       scale = 1;
       y += (1 - visible) * 5;
@@ -3439,7 +3496,16 @@
     node.style.opacity = String(visible);
     node.style.transform = `translate3d(calc(${x}px * var(--pixel-unit)), calc(${y}px * var(--pixel-unit)), 0) rotate(${rotate.toFixed(2)}deg) scale(${scale})${flip}`;
     if (clip) node.style.clipPath = clip;
-    if (isMacroArrowReveal && revealPulse > 0.02) {
+    if ((isOutroTierStamp || isIntroStampSprite) && stampImpactPulse > 0.02) {
+      const glowRgb = isOutroTierStamp ? '255, 113, 113' : '255, 244, 184';
+      node.style.filter = [
+        `brightness(${(1.18 + stampImpactPulse * 0.48).toFixed(3)})`,
+        `saturate(${(1.18 + stampImpactPulse * 0.38).toFixed(3)})`,
+        `contrast(${(1.08 + stampImpactPulse * 0.16).toFixed(3)})`,
+        `drop-shadow(0 0 calc(${(2.2 + stampImpactPulse * 4.8).toFixed(2)}px * var(--pixel-unit)) rgba(${glowRgb}, ${(0.50 + stampImpactPulse * 0.32).toFixed(3)}))`,
+        `drop-shadow(0 0 calc(${(7 + stampImpactPulse * 9).toFixed(2)}px * var(--pixel-unit)) rgba(255, 255, 255, ${(0.20 + stampImpactPulse * 0.22).toFixed(3)}))`
+      ].join(' ');
+    } else if (isMacroArrowReveal && revealPulse > 0.02) {
       const glowRgb = macroArrowGlowRgb(layer);
       const glowStrength = 0.35 + (revealPulse * 0.45);
       node.style.filter = [

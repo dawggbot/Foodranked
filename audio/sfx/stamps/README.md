@@ -11,4 +11,4 @@ Short, punchy files work best because the visual stamp pulse is quick and should
 
 Current file:
 
-- `freesound_community-traditional-stamp-44189.mp3`
+- `dragon-studio-distant-bang-472364.mp3`

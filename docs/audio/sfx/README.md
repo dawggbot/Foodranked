@@ -12,4 +12,4 @@ Browser-ready files should use stable lowercase names and paths that can be refe
 
 Current stamp mirror:
 
-- `stamps/freesound_community-traditional-stamp-44189.mp3`
+- `stamps/dragon-studio-distant-bang-472364.mp3`

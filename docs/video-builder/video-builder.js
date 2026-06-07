@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260607-weighty-stamp-shake-v1';
+  const BUILDER_BUILD_ID = '20260607-post-stamp-shake-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -3364,7 +3364,7 @@
 
   function isStampRevealSchedule(schedule) {
     if (!schedule) return false;
-    if (schedule.family === 'intro' && ['food-hero', 'ranked-sprite'].includes(schedule.kind)) return true;
+    if (schedule.family === 'intro' && schedule.kind === 'ranked-sprite') return true;
     return schedule.layerId === 'outro_d_tier_stamp';
   }
 
@@ -3385,10 +3385,11 @@
     for (const schedule of revealSchedules) {
       if (!isStampRevealSchedule(schedule)) continue;
       const raw = stampRevealRawProgress(scene, sceneProgress, schedule);
-      if (raw < 0 || raw > 1.18) continue;
-      const impact = Math.sin(clamp(raw, 0, 1) * Math.PI);
-      const aftershock = raw > 1 ? Math.max(0, 1 - ((raw - 1) / 0.18)) * 0.4 : 1;
-      strongest = Math.max(strongest, impact * aftershock);
+      const afterStampProgress = raw - 1;
+      if (afterStampProgress < 0 || afterStampProgress > 0.55) continue;
+      const hit = Math.sin(clamp(afterStampProgress / 0.55, 0, 1) * Math.PI);
+      const snap = Math.max(0, 1 - (afterStampProgress / 0.55));
+      strongest = Math.max(strongest, hit * (0.62 + snap * 0.38));
     }
     if (strongest <= 0.015) return { transform: '', strength: 0 };
 

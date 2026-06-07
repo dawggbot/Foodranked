@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260607-prominent-symmetric-stamps-v1';
+  const BUILDER_BUILD_ID = '20260607-stamp-pulse-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -3410,10 +3410,13 @@
 
     if (isOutroTierStamp || isIntroStampSprite) {
       const impactPulse = Math.sin(visible * Math.PI);
+      const elapsedSeconds = Math.max(0, (sceneProgress - delay) * sceneDuration);
+      const settledSeconds = Math.max(0, elapsedSeconds - revealWindowSeconds);
+      const settledPulse = visible >= 0.98 ? Math.max(0, Math.sin(settledSeconds * Math.PI * 3.2)) : 0;
       const entryTilt = isOutroTierStamp || revealSchedule?.kind === 'ranked-sprite' ? -4 : 4;
-      scale = 1.34 - (visible * 0.34) + (impactPulse * 0.07);
-      y += (1 - visible) * -11;
-      rotate = (entryTilt * (1 - visible)) + (impactPulse * (entryTilt < 0 ? -0.55 : 0.55));
+      scale = 1.38 - (visible * 0.38) + (impactPulse * 0.09) + (settledPulse * 0.055);
+      y += ((1 - visible) * -12) + (settledPulse * -1.4);
+      rotate = (entryTilt * (1 - visible)) + (impactPulse * (entryTilt < 0 ? -0.7 : 0.7));
     } else if (isMacroRowReveal) {
       scale = 1;
       y += (1 - visible) * 5;

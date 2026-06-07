@@ -142,6 +142,15 @@ RANKED!
 <X tier.>
 ```
 
+For cleaner takes, the same locked block order can be generated as separate audio files:
+
+```bash
+node scripts/foodranked-generate-voice.js <food-id> --take voice-v7 --split-blocks
+node scripts/foodranked-align-subtitles.js <food-id> --take voice-v7 --refresh
+```
+
+Split-block audio keeps the exact same spoken text and block order, but each block gets its own MP3 and forced-alignment request. The subtitle aligner then stitches block word timings into one episode timeline with controlled gaps.
+
 Rules:
 - one spoken block per section
 - abbreviations like `DV` should be spoken as `daily value`

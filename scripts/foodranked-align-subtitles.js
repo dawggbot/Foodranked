@@ -13,6 +13,7 @@ const TIER_SUBTITLE_MAX_CHARACTERS_PER_LINE = 28;
 const CUE_LEAD_SECONDS = 0.045;
 const SCENE_LEAD_SECONDS = 0.08;
 const AUDIO_TAIL_SECONDS = 0.05;
+const BLOCK_AUDIO_GAP_SECONDS = 0.08;
 
 function readJson(file) { return JSON.parse(fs.readFileSync(file, 'utf8')); }
 function writeJson(file, value) { fs.writeFileSync(file, JSON.stringify(value, null, 2) + '\n'); }
@@ -55,13 +56,13 @@ function parseArgs(argv) {
 function latestAudioTake(foodId) {
   const dir = path.join(docsAudioDir, foodId);
   if (!exists(dir)) return null;
-  const files = fs.readdirSync(dir).filter(name => /^voice-v\d+\.mp3$/i.test(name));
+  const files = fs.readdirSync(dir).filter(name => /^voice-v\d+(?:\.mp3|-blocks\.json)$/i.test(name));
   files.sort((a, b) => {
     const av = Number(a.match(/voice-v(\d+)/i)?.[1] || 0);
     const bv = Number(b.match(/voice-v(\d+)/i)?.[1] || 0);
-    return bv - av;
+    return bv - av || (a.includes('-blocks') ? -1 : 1);
   });
-  return files[0]?.replace(/\.mp3$/i, '') || null;
+  return files[0]?.replace(/(?:\.mp3|-blocks\.json)$/i, '') || null;
 }
 
 function resolveEpisodeDir(foodId) {
@@ -263,9 +264,11 @@ function applyForcedAlignment(manifest, subtitles, alignment, narrationText, ali
   manifest.scenePlan.totalEstimatedDurationSeconds = audioEnd;
   manifest.scenePlan.subtitleCues = allCues;
   manifest.scenePlan.alignment = {
-    provider: 'elevenlabs-forced-alignment',
+    provider: alignment.blockMode ? 'elevenlabs-forced-alignment-blocks' : 'elevenlabs-forced-alignment',
     source: 'word',
     alignmentPath: relative(alignmentPath),
+    audioManifestPath: alignment.audioManifestPath || null,
+    blockCount: Array.isArray(alignment.blocks) ? alignment.blocks.length : null,
     loss: alignment.loss ?? null,
     wordCount: (alignment.words || []).filter(word => hasSpeechToken(word.text)).length
   };
@@ -278,7 +281,7 @@ function applyForcedAlignment(manifest, subtitles, alignment, narrationText, ali
   return { scenes: scenes.length, cues: allCues.length, duration: audioEnd };
 }
 
-async function fetchForcedAlignment({ apiKey, audioPath, narrationPath, narrationText, alignmentPath }) {
+async function fetchForcedAlignment({ apiKey, audioPath, narrationPath, narrationText, alignmentPath, textPath = narrationPath }) {
   const form = new FormData();
   const audio = fs.readFileSync(audioPath);
   form.append('file', new Blob([audio], { type: 'audio/mpeg' }), path.basename(audioPath));
@@ -298,7 +301,7 @@ async function fetchForcedAlignment({ apiKey, audioPath, narrationPath, narratio
     schemaVersion: 'foodranked-forced-alignment.v1',
     provider: 'elevenlabs',
     audioPath: relative(audioPath),
-    textPath: relative(narrationPath),
+    textPath: relative(textPath),
     generatedAt: new Date().toISOString(),
     loss: payload.loss ?? null,
     words: payload.words || [],
@@ -306,6 +309,89 @@ async function fetchForcedAlignment({ apiKey, audioPath, narrationPath, narratio
   };
   writeJson(alignmentPath, wrapped);
   return wrapped;
+}
+
+function maxWordEnd(alignment) {
+  return Math.max(0, ...(alignment.words || []).map(word => Number(word.end) || 0));
+}
+
+async function readOrFetchBlockAlignment({ apiKey, block, audioManifestPath, episodeDir, take, refresh }) {
+  const blockAlignmentDir = path.join(episodeDir, `${take}-blocks`);
+  ensureDir(blockAlignmentDir);
+  const blockAlignmentPath = path.join(blockAlignmentDir, `${block.id}-forced-alignment.json`);
+  if (exists(blockAlignmentPath) && !refresh) return readJson(blockAlignmentPath);
+  if (!apiKey) throw new Error('ELEVENLABS_API_KEY is required to create split forced alignment');
+  const audioPath = path.join(repoRoot, block.audioFile);
+  if (!exists(audioPath)) throw new Error(`Missing split audio block: ${relative(audioPath)}`);
+  return fetchForcedAlignment({
+    apiKey,
+    audioPath,
+    narrationPath: audioManifestPath,
+    textPath: audioManifestPath,
+    narrationText: block.text,
+    alignmentPath: blockAlignmentPath
+  });
+}
+
+async function buildSplitForcedAlignment({ apiKey, audioManifestPath, episodeDir, take, alignmentPath, refresh }) {
+  if (exists(alignmentPath) && !refresh) return readJson(alignmentPath);
+  if (!exists(audioManifestPath)) throw new Error(`Missing split audio manifest: ${relative(audioManifestPath)}`);
+  const audioManifest = readJson(audioManifestPath);
+  const blocks = Array.isArray(audioManifest.blocks) ? audioManifest.blocks : [];
+  if (!blocks.length) throw new Error(`Split audio manifest has no blocks: ${relative(audioManifestPath)}`);
+
+  let offsetSeconds = 0;
+  const alignedBlocks = [];
+  const words = [];
+
+  for (const block of blocks) {
+    const blockAlignment = await readOrFetchBlockAlignment({
+      apiKey,
+      block,
+      audioManifestPath,
+      episodeDir,
+      take,
+      refresh
+    });
+    const blockDuration = roundSeconds(maxWordEnd(blockAlignment) + AUDIO_TAIL_SECONDS);
+    const offsetWords = (blockAlignment.words || []).map(word => ({
+      ...word,
+      start: roundSeconds((Number(word.start) || 0) + offsetSeconds),
+      end: roundSeconds((Number(word.end) || 0) + offsetSeconds),
+      blockId: block.id,
+      blockIndex: block.index
+    }));
+    words.push(...offsetWords);
+    alignedBlocks.push({
+      id: block.id,
+      index: block.index,
+      kind: block.kind,
+      sectionKey: block.sectionKey || null,
+      text: block.text,
+      audioPath: block.audioFile,
+      alignmentPath: relative(path.join(episodeDir, `${take}-blocks`, `${block.id}-forced-alignment.json`)),
+      offsetSeconds: roundSeconds(offsetSeconds),
+      durationSeconds: blockDuration,
+      wordCount: offsetWords.filter(word => hasSpeechToken(word.text)).length,
+      loss: blockAlignment.loss ?? null
+    });
+    offsetSeconds = roundSeconds(offsetSeconds + blockDuration + BLOCK_AUDIO_GAP_SECONDS);
+  }
+
+  const aggregate = {
+    schemaVersion: 'foodranked-forced-alignment-blocks.v1',
+    provider: 'elevenlabs',
+    blockMode: true,
+    audioManifestPath: relative(audioManifestPath),
+    generatedAt: new Date().toISOString(),
+    blockGapSeconds: BLOCK_AUDIO_GAP_SECONDS,
+    loss: null,
+    blocks: alignedBlocks,
+    words,
+    characters: []
+  };
+  writeJson(alignmentPath, aggregate);
+  return aggregate;
 }
 
 async function main() {
@@ -322,16 +408,27 @@ async function main() {
   const subtitlesPath = path.join(episodeDir, 'subtitles.json');
   const narrationPath = path.join(episodeDir, 'narration.txt');
   const audioPath = path.join(docsAudioDir, foodId, `${take}.mp3`);
-  const alignmentPath = path.join(episodeDir, `${take}-forced-alignment.json`);
+  const splitAudioManifestPath = path.join(docsAudioDir, foodId, `${take}-blocks.json`);
+  const useSplitAudio = exists(splitAudioManifestPath);
+  const alignmentPath = path.join(episodeDir, useSplitAudio ? `${take}-blocks-forced-alignment.json` : `${take}-forced-alignment.json`);
   if (!exists(manifestPath) || !exists(subtitlesPath) || !exists(narrationPath)) {
     throw new Error(`Missing generated episode files in ${relative(episodeDir)}`);
   }
-  if (!exists(audioPath)) throw new Error(`Missing audio file: ${relative(audioPath)}`);
+  if (!useSplitAudio && !exists(audioPath)) throw new Error(`Missing audio file: ${relative(audioPath)}`);
 
   const localEnv = loadLocalEnv();
   const apiKey = process.env.ELEVENLABS_API_KEY || localEnv.ELEVENLABS_API_KEY;
   let alignment;
-  if (exists(alignmentPath) && !options.refresh) {
+  if (useSplitAudio) {
+    alignment = await buildSplitForcedAlignment({
+      apiKey,
+      audioManifestPath: splitAudioManifestPath,
+      episodeDir,
+      take,
+      alignmentPath,
+      refresh: options.refresh
+    });
+  } else if (exists(alignmentPath) && !options.refresh) {
     alignment = readJson(alignmentPath);
   } else {
     if (!apiKey) throw new Error('ELEVENLABS_API_KEY is required to create forced alignment');
@@ -360,6 +457,7 @@ async function main() {
     status: 'ok',
     foodId,
     take,
+    mode: useSplitAudio ? 'split-blocks' : 'single-audio',
     alignmentPath: relative(alignmentPath),
     ...result,
     loss: alignment.loss ?? null

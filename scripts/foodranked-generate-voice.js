@@ -16,6 +16,7 @@ function usage() {
     '  --source <path>      Narration text path. Defaults to outputs/episodes/<food>-compact/narration.txt.',
     '  --config <path>      Voice config path.',
     '  --force              Regenerate even when metadata matches.',
+    '  --split-blocks       Generate one audio file per narration block.',
     '  --no-docs-mirror     Do not copy audio and metadata into docs/audio.',
     '  --no-final-sync      Do not mirror narration into production final-narration.txt.'
   ].join('\n'));
@@ -28,6 +29,7 @@ function parseArgs(argv) {
     take: 'voice-v1',
     source: null,
     force: false,
+    splitBlocks: false,
     docsMirror: true,
     finalSync: true
   };
@@ -36,6 +38,7 @@ function parseArgs(argv) {
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === '--force') options.force = true;
+    else if (arg === '--split-blocks' || arg === '--split-sections') options.splitBlocks = true;
     else if (arg === '--no-docs-mirror') options.docsMirror = false;
     else if (arg === '--no-final-sync') options.finalSync = false;
     else if (arg === '--profile') {
@@ -118,6 +121,45 @@ function metadataMatches(file, textHash, settingsHash) {
   }
 }
 
+function transcriptBlocks(text) {
+  return String(text || '')
+    .split(/\r?\n\s*-\s*\r?\n/)
+    .map(block => block.trim())
+    .filter(Boolean);
+}
+
+function safeBlockSlug(value, fallback) {
+  return String(value || fallback || 'block')
+    .toLowerCase()
+    .replace(/[^a-z0-9._-]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'block';
+}
+
+function episodeScriptPathForSource(sourcePath) {
+  const candidate = path.join(path.dirname(sourcePath), 'script.json');
+  return fs.existsSync(candidate) ? candidate : null;
+}
+
+function narrationBlockDescriptors(sourcePath, text) {
+  const textBlocks = transcriptBlocks(text);
+  const scriptPath = episodeScriptPathForSource(sourcePath);
+  const script = scriptPath ? readJson(scriptPath) : null;
+  const scriptBlocks = Array.isArray(script?.narrationBlocks) ? script.narrationBlocks : [];
+  return textBlocks.map((blockText, index) => {
+    const scriptBlock = scriptBlocks[index] || {};
+    const kind = scriptBlock.kind || `block_${index + 1}`;
+    const role = scriptBlock.sectionKey || kind;
+    const id = `${String(index + 1).padStart(2, '0')}-${safeBlockSlug(role, kind)}`;
+    return {
+      id,
+      index,
+      kind,
+      sectionKey: scriptBlock.sectionKey || null,
+      text: blockText
+    };
+  });
+}
+
 function apiErrorMessage(status, bodyText) {
   try {
     const body = JSON.parse(bodyText);
@@ -155,6 +197,151 @@ async function generateSpeech({ apiKey, profile, text, outputFile }) {
     requestId: response.headers.get('request-id') || response.headers.get('x-request-id') || null,
     historyItemId: response.headers.get('history-item-id') || response.headers.get('x-history-item-id') || null
   };
+}
+
+function splitMetadataMatches(file, textHash, settingsHash, blockCount) {
+  if (!fs.existsSync(file)) return false;
+  try {
+    const metadata = readJson(file);
+    if (metadata.textSha256 !== textHash || metadata.settingsSha256 !== settingsHash) return false;
+    if (!Array.isArray(metadata.blocks) || metadata.blocks.length !== blockCount) return false;
+    return metadata.blocks.every(block => block.audioFile && fs.existsSync(path.join(repoRoot, block.audioFile)));
+  } catch {
+    return false;
+  }
+}
+
+function mirrorSplitMetadata(metadata, docsBlocksDir, docsMetadataFile, productionMetadataFile) {
+  const docsBlocks = metadata.blocks.map(block => {
+    const productionAudioFile = path.join(repoRoot, block.audioFile);
+    const docsAudioFile = path.join(docsBlocksDir, path.basename(block.audioFile));
+    fs.copyFileSync(productionAudioFile, docsAudioFile);
+    return {
+      ...block,
+      audioFile: relativeRepoPath(docsAudioFile),
+      productionAudioFile: block.audioFile
+    };
+  });
+
+  writeJson(docsMetadataFile, {
+    ...metadata,
+    audioManifestFile: relativeRepoPath(docsMetadataFile),
+    productionAudioManifestFile: relativeRepoPath(productionMetadataFile),
+    blocks: docsBlocks,
+    mirrors: [
+      {
+        purpose: 'video-builder-preview',
+        audioManifestFile: relativeRepoPath(docsMetadataFile),
+        audioDirectory: relativeRepoPath(docsBlocksDir)
+      }
+    ]
+  });
+}
+
+async function generateSplitBlockSpeech({
+  apiKey,
+  profile,
+  profileId,
+  foodId,
+  take,
+  sourcePath,
+  text,
+  textHash,
+  settingsHash,
+  settingsForHash,
+  productionDir,
+  docsDir,
+  options
+}) {
+  const blocks = narrationBlockDescriptors(sourcePath, text);
+  if (!blocks.length) throw new Error(`No narration blocks found in ${relativeRepoPath(sourcePath)}`);
+
+  const productionBlocksDir = path.join(productionDir, `${take}-blocks`);
+  const docsBlocksDir = path.join(docsDir, `${take}-blocks`);
+  const metadataFile = path.join(productionDir, `${take}-blocks.json`);
+  const docsMetadataFile = path.join(docsDir, `${take}-blocks.json`);
+
+  if (!options.force && splitMetadataMatches(metadataFile, textHash, settingsHash, blocks.length)) {
+    const metadata = readJson(metadataFile);
+    if (options.docsMirror) {
+      ensureDir(docsBlocksDir);
+      mirrorSplitMetadata(metadata, docsBlocksDir, docsMetadataFile, metadataFile);
+    }
+    console.log(JSON.stringify({
+      status: 'skipped',
+      reason: 'split audio already matches narration and settings',
+      foodId,
+      take,
+      blockCount: blocks.length,
+      audioManifestFile: relativeRepoPath(metadataFile)
+    }, null, 2));
+    return;
+  }
+
+  if (!apiKey) throw new Error('Missing ElevenLabs API key; split audio is not cached and must be generated.');
+
+  ensureDir(productionBlocksDir);
+  if (options.docsMirror) ensureDir(docsBlocksDir);
+
+  const generatedBlocks = [];
+  for (const block of blocks) {
+    const outputFile = path.join(productionBlocksDir, `${block.id}.mp3`);
+    const blockTextHash = sha256(block.text);
+    const result = await generateSpeech({ apiKey, profile, text: block.text, outputFile });
+    generatedBlocks.push({
+      id: block.id,
+      index: block.index,
+      kind: block.kind,
+      sectionKey: block.sectionKey,
+      text: block.text,
+      textSha256: blockTextHash,
+      characterCount: block.text.length,
+      byteLength: result.bytes,
+      audioFile: relativeRepoPath(outputFile),
+      elevenLabs: {
+        requestId: result.requestId,
+        historyItemId: result.historyItemId
+      }
+    });
+  }
+
+  const metadata = {
+    schemaVersion: 'foodranked-elevenlabs-audio-blocks.v1',
+    generatedAt: new Date().toISOString(),
+    foodId,
+    take,
+    sourceNarration: relativeRepoPath(sourcePath),
+    profileId,
+    voice: {
+      label: profile.label,
+      voiceId: profile.voiceId
+    },
+    modelId: profile.modelId,
+    outputFormat: profile.outputFormat,
+    voiceSettings: profile.voiceSettings,
+    settings: settingsForHash,
+    textSha256: textHash,
+    settingsSha256: settingsHash,
+    characterCount: text.length,
+    blockCount: generatedBlocks.length,
+    audioDirectory: relativeRepoPath(productionBlocksDir),
+    audioManifestFile: relativeRepoPath(metadataFile),
+    blocks: generatedBlocks,
+    mirrors: []
+  };
+
+  writeJson(metadataFile, metadata);
+  if (options.docsMirror) mirrorSplitMetadata(metadata, docsBlocksDir, docsMetadataFile, metadataFile);
+
+  console.log(JSON.stringify({
+    status: 'generated',
+    mode: 'split-blocks',
+    foodId,
+    take,
+    blockCount: generatedBlocks.length,
+    audioManifestFile: relativeRepoPath(metadataFile),
+    docsAudioManifestFile: options.docsMirror ? relativeRepoPath(docsMetadataFile) : null
+  }, null, 2));
 }
 
 async function main() {
@@ -200,6 +387,27 @@ async function main() {
   const metadataFile = path.join(productionDir, `${take}.json`);
   const docsAudioFile = path.join(docsDir, `${take}.mp3`);
   const docsMetadataFile = path.join(docsDir, `${take}.json`);
+
+  if (options.splitBlocks) {
+    const apiKeyName = config.environment?.apiKeyVariable || 'ELEVENLABS_API_KEY';
+    const apiKey = process.env[apiKeyName];
+    await generateSplitBlockSpeech({
+      apiKey,
+      profile,
+      profileId,
+      foodId,
+      take,
+      sourcePath,
+      text,
+      textHash,
+      settingsHash,
+      settingsForHash,
+      productionDir,
+      docsDir,
+      options
+    });
+    return;
+  }
 
   if (!options.force && fs.existsSync(outputFile) && metadataMatches(metadataFile, textHash, settingsHash)) {
     if (options.docsMirror) {

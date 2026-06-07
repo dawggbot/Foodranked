@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260607-entry-stamp-sparkle-v1';
+  const BUILDER_BUILD_ID = '20260607-five-glimmer-strong-pulse-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -622,14 +622,11 @@
     const scaleX = rankedBox.width / 92;
     const scaleY = rankedBox.height / 92;
     return [
-      { x: rankedBox.x + (10 * scaleX), y: rankedBox.y + (6 * scaleY), delay: 0.02, text: '*', size: 10 },
-      { x: rankedBox.x + (74 * scaleX), y: rankedBox.y + (12 * scaleY), delay: 0.10, text: '+', size: 8 },
-      { x: rankedBox.x + (5 * scaleX), y: rankedBox.y + (66 * scaleY), delay: 0.18, text: '+', size: 8 },
-      { x: rankedBox.x + (78 * scaleX), y: rankedBox.y + (61 * scaleY), delay: 0.26, text: '*', size: 10 },
-      { x: rankedBox.x + (25 * scaleX), y: rankedBox.y + (2 * scaleY), delay: 0.34, text: '+', size: 7 },
-      { x: rankedBox.x + (88 * scaleX), y: rankedBox.y + (36 * scaleY), delay: 0.42, text: '*', size: 8 },
-      { x: rankedBox.x + (20 * scaleX), y: rankedBox.y + (82 * scaleY), delay: 0.50, text: '*', size: 8 },
-      { x: rankedBox.x + (58 * scaleX), y: rankedBox.y + (76 * scaleY), delay: 0.58, text: '+', size: 7 }
+      { x: rankedBox.x + (10 * scaleX), y: rankedBox.y + (6 * scaleY), delay: 0.02, text: '*', size: 11 },
+      { x: rankedBox.x + (74 * scaleX), y: rankedBox.y + (12 * scaleY), delay: 0.14, text: '+', size: 9 },
+      { x: rankedBox.x + (5 * scaleX), y: rankedBox.y + (66 * scaleY), delay: 0.26, text: '+', size: 9 },
+      { x: rankedBox.x + (78 * scaleX), y: rankedBox.y + (61 * scaleY), delay: 0.38, text: '*', size: 11 },
+      { x: rankedBox.x + (45 * scaleX), y: rankedBox.y + (0 * scaleY), delay: 0.50, text: '*', size: 8 }
     ].map((glimmer, index) => ({
       id: `intro_ranked_glimmer_${index + 1}`,
       kind: 'text',
@@ -3415,9 +3412,9 @@
     if (isOutroTierStamp || isIntroStampSprite) {
       const impactPulse = Math.sin(visible * Math.PI);
       const entryTilt = isOutroTierStamp || revealSchedule?.kind === 'ranked-sprite' ? -4 : 4;
-      scale = 1.38 - (visible * 0.38) + (impactPulse * 0.09);
-      y += (1 - visible) * -12;
-      rotate = (entryTilt * (1 - visible)) + (impactPulse * (entryTilt < 0 ? -0.7 : 0.7));
+      scale = 1.46 - (visible * 0.46) + (impactPulse * 0.14);
+      y += (1 - visible) * -15;
+      rotate = (entryTilt * (1 - visible)) + (impactPulse * (entryTilt < 0 ? -1 : 1));
     } else if (isMacroRowReveal) {
       scale = 1;
       y += (1 - visible) * 5;

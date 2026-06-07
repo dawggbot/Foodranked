@@ -9,3 +9,7 @@ audio/sfx/
 ```
 
 Browser-ready files should use stable lowercase names and paths that can be referenced from generated data or builder configuration.
+
+Current stamp mirror:
+
+- `stamps/freesound_community-traditional-stamp-44189.mp3`

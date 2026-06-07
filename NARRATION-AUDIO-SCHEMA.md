@@ -245,3 +245,10 @@ Use:
 - `audio/music/` for reusable music beds and stingers
 
 When the video builder needs to load a reusable sound in the browser, mirror the browser-ready file under `docs/audio/sfx/` with the same stable lowercase path.
+
+Current mirrored stamp SFX:
+
+```text
+audio/sfx/stamps/freesound_community-traditional-stamp-44189.mp3
+docs/audio/sfx/stamps/freesound_community-traditional-stamp-44189.mp3
+```

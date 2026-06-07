@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260607-audio-assets-default-on-v1';
+  const BUILDER_BUILD_ID = '20260607-stamp-sfx-sync-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -30,6 +30,9 @@
   const STAMP_REVEAL_SECONDS = 0.36;
   const FOOD_STAMP_REVEAL_SECONDS = 0.22;
   const STAMP_SHAKE_MAX_PIXELS = 2.8;
+  const STAMP_SFX_PATH = 'audio/sfx/stamps/freesound_community-traditional-stamp-44189.mp3';
+  const STAMP_SFX_VOLUME = 0.72;
+  const STAMP_SFX_POOL_SIZE = 4;
   const AUDIO_TIMELINE_SYNC_TOLERANCE_SECONDS = 0.12;
   const SECTION_HOLD_SECONDS = 0.5;
   const SECTION_HOLD_IDS = new Set(['intro', 'fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons']);
@@ -190,6 +193,9 @@
     audioTimelineKey: '',
     audioDurationSeconds: null,
     audioInHold: false,
+    stampSfxPool: [],
+    stampSfxPoolIndex: 0,
+    playedStampSfxKeys: new Set(),
     spriteFailures: new Map(),
     diagnosticsTimer: 0
   };
@@ -3422,6 +3428,72 @@
     roots.layerRoot.dataset.stampShakeStrength = shake.strength.toFixed(3);
   }
 
+  function stampSfxImpactTime(scene, schedule) {
+    const sceneDuration = Math.max(1, sceneContentDuration(scene));
+    const revealLead = Math.min(0.035, AUDIO_REVEAL_LEAD_SECONDS / sceneDuration);
+    const impactProgress = clamp(schedule.start + stampRevealWindowProgress(scene, schedule) - revealLead, 0, 1);
+    return Number((scene.start + (impactProgress * sceneContentDuration(scene))).toFixed(3));
+  }
+
+  function stampSfxEvents() {
+    return sceneStarts().flatMap(scene => (
+      sceneLayerRevealSchedule(scene)
+        .filter(isStampRevealSchedule)
+        .map(schedule => ({
+          key: `${scene.id}:${schedule.layerId || schedule.kind}:${schedule.start.toFixed(3)}`,
+          sceneId: scene.id,
+          layerId: schedule.layerId,
+          kind: schedule.kind,
+          time: stampSfxImpactTime(scene, schedule)
+        }))
+    )).sort((a, b) => a.time - b.time || a.key.localeCompare(b.key));
+  }
+
+  function nextStampSfxAudio() {
+    if (!state.stampSfxPool.length) {
+      state.stampSfxPool = Array.from({ length: STAMP_SFX_POOL_SIZE }, () => {
+        const audio = new Audio(docsAssetPath(STAMP_SFX_PATH));
+        audio.preload = 'auto';
+        audio.volume = STAMP_SFX_VOLUME;
+        return audio;
+      });
+    }
+    const audio = state.stampSfxPool[state.stampSfxPoolIndex % state.stampSfxPool.length];
+    state.stampSfxPoolIndex += 1;
+    return audio;
+  }
+
+  function playStampSfx(event) {
+    if (!state.audioEnabled || !event) return;
+    const audio = nextStampSfxAudio();
+    try {
+      audio.pause();
+      audio.currentTime = 0;
+      audio.volume = STAMP_SFX_VOLUME;
+      const playPromise = audio.play();
+      if (playPromise?.catch) playPromise.catch(() => {});
+    } catch {}
+  }
+
+  function pauseStampSfx() {
+    for (const audio of state.stampSfxPool || []) {
+      try {
+        audio.pause();
+        audio.currentTime = 0;
+      } catch {}
+    }
+  }
+
+  function triggerStampSfxBetween(previousTime, currentTime) {
+    if (!state.playing || !state.audioEnabled || currentTime <= previousTime) return;
+    for (const event of stampSfxEvents()) {
+      if (state.playedStampSfxKeys.has(event.key)) continue;
+      if (event.time <= previousTime || event.time > currentTime) continue;
+      state.playedStampSfxKeys.add(event.key);
+      playStampSfx(event);
+    }
+  }
+
   function applyLayerAnimation(node, layer, scene, sceneProgress, index, persistent = false, revealSchedule = null) {
     if (persistent) {
       node.style.opacity = '1';
@@ -3542,6 +3614,7 @@
     state.audioInHold = false;
     els.playPause.textContent = 'Play';
     if (els.narrationAudio) els.narrationAudio.pause();
+    pauseStampSfx();
   }
 
   function startPlayback() {
@@ -3550,6 +3623,7 @@
     state.playheadStart = state.currentTime;
     state.lastFrameAt = performance.now();
     state.audioInHold = false;
+    state.playedStampSfxKeys = new Set();
     els.playPause.textContent = 'Pause';
     syncAudioPlaybackState();
     requestAnimationFrame(tick);
@@ -3558,7 +3632,9 @@
   function tick(now) {
     if (!state.playing) return;
     const elapsed = (now - state.startedAt) / 1000;
+    const previousTime = state.currentTime;
     state.currentTime = state.playheadStart + elapsed;
+    triggerStampSfxBetween(previousTime, state.currentTime);
     if (state.currentTime >= totalDuration()) {
       state.currentTime = totalDuration();
       stopPlayback();
@@ -3633,7 +3709,10 @@
   els.audioToggle.addEventListener('click', () => {
     if (!audioForFood(selectedFood())) return;
     state.audioEnabled = !state.audioEnabled;
-    if (!state.audioEnabled) els.narrationAudio.pause();
+    if (!state.audioEnabled) {
+      els.narrationAudio.pause();
+      pauseStampSfx();
+    }
     else if (state.playing) syncAudioPlaybackState();
     persist();
     updateAudioControls();

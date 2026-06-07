@@ -151,6 +151,15 @@ Generated narration stays episode-specific in `production/episodes/<food-id>/voi
 
 If the video builder needs to load reusable SFX on GitHub Pages, mirror browser-ready files into `docs/audio/sfx/`.
 
+Current stamp impact SFX:
+
+```text
+audio/sfx/stamps/freesound_community-traditional-stamp-44189.mp3
+docs/audio/sfx/stamps/freesound_community-traditional-stamp-44189.mp3
+```
+
+The video builder plays this at the stamp impact point, aligned with the start of screen shake after each stamp lands.
+
 ## Narration packaging
 
 Compact narration exports should use the locked ElevenLabs block layout:

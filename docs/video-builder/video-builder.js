@@ -1711,8 +1711,10 @@
     const audio = audioForFood(food);
     return [
       food?.id || '',
+      audio?.mode || '',
       audio?.take || '',
       audio?.path || '',
+      audio?.manifestPath || '',
       audio?.generatedAt || '',
       Number.isFinite(duration) ? duration.toFixed(3) : ''
     ].join('|');
@@ -3712,10 +3714,55 @@
     });
   }
 
+  function normalizeSplitAudioBlocks(blocks) {
+    return (Array.isArray(blocks) ? blocks : [])
+      .map(block => {
+        const offsetSeconds = asNumber(block.offsetSeconds, null);
+        const durationSeconds = asNumber(block.durationSeconds, null);
+        return {
+          id: block.id || null,
+          index: asNumber(block.index, null),
+          kind: block.kind || null,
+          sectionKey: block.sectionKey || null,
+          path: block.path || null,
+          productionPath: block.productionPath || null,
+          text: block.text || '',
+          offsetSeconds,
+          durationSeconds,
+          endSeconds: offsetSeconds != null && durationSeconds != null ? offsetSeconds + durationSeconds : null
+        };
+      })
+      .filter(block => block.path && block.offsetSeconds != null && block.durationSeconds != null && block.durationSeconds > 0)
+      .sort((a, b) => a.offsetSeconds - b.offsetSeconds || (a.index ?? 0) - (b.index ?? 0));
+  }
+
   function audioForFood(food) {
+    const splitAudio = food?.episode?.splitAudio || food?.splitAudio || null;
+    const splitBlocks = normalizeSplitAudioBlocks(splitAudio?.blocks);
+    if (splitAudio?.mode === 'split-blocks' && splitBlocks.length) {
+      let durationSeconds = asNumber(splitAudio.durationSeconds, null);
+      if (durationSeconds == null) {
+        durationSeconds = Math.max(...splitBlocks.map(block => block.endSeconds || 0));
+      }
+      return {
+        mode: 'split-blocks',
+        take: splitAudio.take || null,
+        manifestPath: splitAudio.manifestPath || null,
+        productionManifestPath: splitAudio.productionManifestPath || null,
+        profileId: splitAudio.profileId || null,
+        voiceLabel: splitAudio.voiceLabel || null,
+        modelId: splitAudio.modelId || null,
+        generatedAt: splitAudio.generatedAt || null,
+        durationSeconds,
+        blockGapSeconds: asNumber(splitAudio.blockGapSeconds, null),
+        blocks: splitBlocks
+      };
+    }
+
     const audio = food?.episode?.audio || food?.audio || null;
     if (!audio?.path) return null;
     return {
+      mode: 'single-audio',
       take: audio.take || null,
       path: audio.path,
       metadataPath: audio.metadataPath || null,
@@ -3727,6 +3774,38 @@
     };
   }
 
+  function splitAudioBlockAtAudioTime(audio, audioTime) {
+    if (audio?.mode !== 'split-blocks') return null;
+    const timelineTime = asNumber(audioTime, 0);
+    for (const block of audio.blocks || []) {
+      const start = block.offsetSeconds;
+      const end = block.endSeconds;
+      if (timelineTime >= start && timelineTime < end) {
+        return {
+          block,
+          audioTime: timelineTime,
+          localTime: clamp(timelineTime - start, 0, Math.max(0, block.durationSeconds - 0.01))
+        };
+      }
+    }
+    return null;
+  }
+
+  function splitAudioPositionForVideoTime(audio, time = state.currentTime) {
+    if (audio?.mode !== 'split-blocks') return null;
+    const duration = asNumber(audio.durationSeconds, totalNarrationDuration());
+    const audioTime = clamp(videoTimeToAudioTime(time), 0, Math.max(0, duration - 0.001));
+    return splitAudioBlockAtAudioTime(audio, audioTime);
+  }
+
+  function setNarrationAudioSource(path) {
+    const nextSrc = new URL(docsAssetPath(path), window.location.href).href;
+    if (els.narrationAudio.src === nextSrc) return false;
+    els.narrationAudio.src = nextSrc;
+    els.narrationAudio.load();
+    return true;
+  }
+
   function syncAudioForFood() {
     const audio = audioForFood(selectedFood());
     if (!els.narrationAudio) return;
@@ -3736,20 +3815,29 @@
       updateAudioControls();
       return;
     }
-    const nextSrc = new URL(docsAssetPath(audio.path), window.location.href).href;
-    if (els.narrationAudio.src !== nextSrc) {
+    if (audio.mode === 'split-blocks') {
+      if (audio.durationSeconds) calibrateSceneDurationsToAudio(audio.durationSeconds);
+      syncAudioTime({ force: true });
+      updateAudioControls();
+      return;
+    }
+    const sourceChanged = setNarrationAudioSource(audio.path);
+    if (sourceChanged) {
       state.audioTimelineKey = '';
       state.audioDurationSeconds = null;
-      els.narrationAudio.src = nextSrc;
-      els.narrationAudio.load();
     }
     syncAudioTime({ force: true });
     updateAudioControls();
   }
 
   function syncAudioPlaybackState() {
-    if (!state.audioEnabled || !els.narrationAudio?.src) return;
-    if (isSceneHoldAt(state.currentTime) || isSceneNarrationDelayAt(state.currentTime)) {
+    const audio = audioForFood(selectedFood());
+    if (!state.audioEnabled || !audio) return;
+    const splitPosition = audio.mode === 'split-blocks' ? splitAudioPositionForVideoTime(audio) : null;
+    const waitingForNarration = isSceneHoldAt(state.currentTime)
+      || isSceneNarrationDelayAt(state.currentTime)
+      || (audio.mode === 'split-blocks' && !splitPosition);
+    if (waitingForNarration) {
       if (!state.audioInHold) {
         syncAudioTime({ force: true });
         state.audioInHold = true;
@@ -3768,19 +3856,33 @@
   }
 
   function syncAudioTime({ force = false } = {}) {
-    if (!els.narrationAudio?.src) return;
+    const audio = audioForFood(selectedFood());
+    if (!audio) return false;
+    if (audio.mode === 'split-blocks') {
+      const position = splitAudioPositionForVideoTime(audio);
+      if (!position?.block) return false;
+      setNarrationAudioSource(position.block.path);
+      try {
+        if (force) els.narrationAudio.currentTime = position.localTime;
+      } catch {}
+      return true;
+    }
+    if (!els.narrationAudio?.src) return false;
     const safeTime = clamp(videoTimeToAudioTime(state.currentTime), 0, Math.max(0, totalNarrationDuration() - 0.01));
     try {
       if (force) {
         els.narrationAudio.currentTime = safeTime;
       }
     } catch {}
+    return true;
   }
 
   function playAudioFromCurrentTime({ forceSync = true } = {}) {
-    if (!state.audioEnabled || !els.narrationAudio?.src) return;
+    const audio = audioForFood(selectedFood());
+    if (!state.audioEnabled || !audio) return;
     if (isSceneHoldAt(state.currentTime) || isSceneNarrationDelayAt(state.currentTime)) return;
-    syncAudioTime({ force: forceSync });
+    if (!syncAudioTime({ force: forceSync })) return;
+    if (!els.narrationAudio?.src) return;
     const playPromise = els.narrationAudio.play();
     if (playPromise?.catch) {
       playPromise.catch(() => {
@@ -3799,10 +3901,15 @@
     const syncLabel = state.audioDurationSeconds
       ? ` · synced ${state.audioDurationSeconds.toFixed(1)}s${holdDuration ? ` + ${holdDuration.toFixed(1)}s dwell` : ''}`
       : '';
-    els.audioStatus.textContent = overrideStatus || (audio ? `${audio.take || 'Audio'} ready${syncLabel}` : 'No audio');
+    const modeLabel = audio?.mode === 'split-blocks' ? ' split' : '';
+    els.audioStatus.textContent = overrideStatus || (audio ? `${audio.take || 'Audio'}${modeLabel} ready${syncLabel}` : 'No audio');
   }
 
   els.narrationAudio.addEventListener('loadedmetadata', () => {
+    if (audioForFood(selectedFood())?.mode === 'split-blocks') {
+      updateAudioControls();
+      return;
+    }
     if (calibrateSceneDurationsToAudio(els.narrationAudio.duration)) {
       syncAudioTime({ force: true });
       renderAll();

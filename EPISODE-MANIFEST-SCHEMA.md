@@ -38,6 +38,8 @@ Files:
 - `subtitles.json`
 - `episode-manifest.json`
 - `narration.txt`
+- optional `<take>-forced-alignment.json` for single-file narration alignment
+- optional `<take>-blocks-forced-alignment.json` plus `<take>-blocks/` for split-block narration alignment
 
 ## Top-level fields
 
@@ -105,6 +107,8 @@ This should stay aligned with `SCRIPT-SCHEMA.md`.
 - `mode`
 - `totalEstimatedDurationSeconds`
 - `scenes[]`
+- optional `subtitleCues[]`
+- optional `alignment`
 
 Each scene includes:
 - `id`
@@ -116,14 +120,96 @@ Each scene includes:
 - `subtitleText`
 - `visualBinding`
 - `revealPlan`
+- optional `subtitleCues[]`
+
+Subtitle cues may include:
+- `id`
+- `sceneId`
+- `startSeconds`
+- `endSeconds`
+- `lines[]`
+- `text`
+- `placement`
+- `maxLines`
+- `maxCharactersPerLine`
+- optional `wordTimings[]`
+
+`wordTimings[]` are created by the forced-alignment pass. Each entry includes:
+- `text`
+- `startSeconds`
+- `endSeconds`
+
+## `scenePlan.alignment`
+
+Forced alignment metadata is written after narration audio exists.
+
+Single-file narration alignment uses:
+
+```json
+{
+  "provider": "elevenlabs-forced-alignment",
+  "source": "word",
+  "alignmentPath": "outputs/episodes/bacon-compact/voice-v6-forced-alignment.json",
+  "audioManifestPath": null,
+  "blockCount": null,
+  "loss": 0.123,
+  "wordCount": 238
+}
+```
+
+Split-block narration alignment uses:
+
+```json
+{
+  "provider": "elevenlabs-forced-alignment-blocks",
+  "source": "word",
+  "alignmentPath": "outputs/episodes/bacon-compact/voice-v7-blocks-forced-alignment.json",
+  "audioManifestPath": "docs/audio/episodes/bacon/voice-v7-blocks.json",
+  "blockCount": 11,
+  "loss": null,
+  "wordCount": 238
+}
+```
+
+When `provider` is `elevenlabs-forced-alignment-blocks`, `alignmentPath` points to the stitched alignment artifact and `audioManifestPath` points to the docs-facing split audio manifest. The stitched alignment is the timeline source for:
+- `scenePlan.totalEstimatedDurationSeconds`
+- each scene `startSeconds`, `durationSeconds`, and `endSeconds`
+- `scenePlan.subtitleCues[]`
+- `subtitles.json`
+- subtitle `wordTimings[]`
+
+## `outputs`
+
+`outputs` includes deterministic filenames for the episode handoff:
+- `directory`
+- `scoreJson`
+- `scriptJson`
+- `manifestJson`
+- `narrationTxt`
+- `subtitlesJson`
+- optional `alignmentJson`
+
+For split-block alignment, `alignmentJson` is named:
+
+```text
+<take>-blocks-forced-alignment.json
+```
+
+Per-block forced-alignment files live in:
+
+```text
+outputs/episodes/<food-id>-compact/<take>-blocks/<block-id>-forced-alignment.json
+```
 
 ## Design rules
 
 - keep episode folders deterministic and reviewable
 - store snapshots, not references only
 - keep timing estimated rather than fake-precise
+- replace estimated timing with forced-aligned timing when alignment metadata exists
 - keep a human review step before publish
 - make the compact narration path match the ElevenLabs block layout exactly
+- make split-block narration preserve the same block order and spoken text as `narration.txt`
 - treat `outputs/episodes/<food>-compact/` as the reusable source for published website script review, rather than maintaining separate hand-copied website narration text
 
 ## Success condition

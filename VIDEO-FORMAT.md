@@ -19,14 +19,21 @@ This file describes the current FoodRanked video structure.
 
 Sequence:
 1. blurred background
-2. big food image / food pixel art
+2. big food image / food pixel art stamps in
 3. spoken block: `SUBJECT!`
-4. spoken block: `RANKED!`
+4. spoken block: `RANKED!` stamps in with the ranked sprite
 5. transition into section 1
 
 For narration-ready compact exports, the opening should be emitted as two separate ElevenLabs blocks:
 - `SUBJECT!`
 - `RANKED!`
+
+Intro stamp rules:
+- the food image stamp and ranked sprite stamp should feel symmetrical in weight
+- each stamp can pulse while it is being stamped in, then must settle completely still
+- the screen shake should happen after the sprite lands, not before
+- bacon currently uses the custom header food image sprite and should appear quickly in the hook
+- the ranked sprite carries 5 glimmer marks plus a sparkly glow; the effect should read shimmery rather than flat
 
 ## Permanent header
 
@@ -78,6 +85,12 @@ Ending should include:
 - final `S-D tier` reveal as its own spoken block (for example `C tier.`)
 - big stamped-in letter under the header on an emptier background
 
+Outro stamp rules:
+- the tier stamp uses the same heavy stamp language as the intro
+- the pulse happens during the stamp-in only
+- after the tier sprite has landed, screen shake can briefly shake the stage to sell impact
+- the sprite should remain still after the stamp/pulse/shake finishes
+
 ## Visual language
 
 ### Food-type identity
@@ -117,6 +130,8 @@ Potential asset classes:
 - use pixel-art decoration to enhance, not clutter
 - keep reveals satisfying and rhythmic
 - let the final tier reveal feel like a payoff
+- stamp motion should feel weighty enough to read on mobile, but should settle cleanly so screenshots/export frames are stable
+- sparkle/glimmer effects should enhance ranked/tier sprites without turning the whole video into a busy particle field
 
 ## Narration packaging
 
@@ -150,6 +165,8 @@ node scripts/foodranked-align-subtitles.js <food-id> --take voice-v7 --refresh
 ```
 
 Split-block audio keeps the exact same spoken text and block order, but each block gets its own MP3 and forced-alignment request. The subtitle aligner then stitches block word timings into one episode timeline with controlled gaps.
+
+Generated website data exposes split narration as `episode.splitAudio`, including each block path, offset, and duration. The video builder should prefer that timed split take when available, while keeping `episode.audio` available for older single-file takes.
 
 Rules:
 - one spoken block per section

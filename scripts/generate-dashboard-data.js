@@ -43,6 +43,11 @@ function takeRank(fileName) {
   return match ? Number(match[1]) : 0;
 }
 
+function splitTakeRank(fileName) {
+  const match = String(fileName || '').match(/voice-v(\d+)-blocks\.json$/i);
+  return match ? Number(match[1]) : 0;
+}
+
 function findEpisodeAudio(foodId) {
   const dir = path.join(docsAudioDir, foodId);
   if (!exists(dir)) return null;
@@ -64,6 +69,62 @@ function findEpisodeAudio(foodId) {
     voiceLabel: metadata?.voice?.label || null,
     modelId: metadata?.modelId || null,
     generatedAt: metadata?.generatedAt || null
+  };
+}
+
+function findEpisodeSplitAudio(foodId, episode) {
+  const dir = path.join(docsAudioDir, foodId);
+  if (!exists(dir)) return null;
+  const manifestFiles = fs.readdirSync(dir)
+    .filter(name => /^voice-v\d+-blocks\.json$/i.test(name))
+    .sort((a, b) => splitTakeRank(b) - splitTakeRank(a) || a.localeCompare(b));
+  const fileName = manifestFiles[0];
+  if (!fileName) return null;
+
+  const metadataPath = path.join(dir, fileName);
+  const metadata = readJson(metadataPath);
+  const take = String(metadata.take || fileName.replace(/-blocks\.json$/i, ''));
+  const episodeDir = episode?.outputs?.directory ? path.join(repoRoot, episode.outputs.directory) : null;
+  const alignmentPath = episodeDir && episode?.outputs?.alignmentJson
+    ? path.join(episodeDir, episode.outputs.alignmentJson)
+    : null;
+  const alignment = alignmentPath && exists(alignmentPath) ? readJson(alignmentPath) : null;
+  const alignedById = new Map((alignment?.blocks || []).map(block => [block.id, block]));
+  const blocks = (metadata.blocks || []).map(block => {
+    const aligned = alignedById.get(block.id) || {};
+    return {
+      id: block.id,
+      index: block.index,
+      kind: block.kind,
+      sectionKey: block.sectionKey || null,
+      path: String(block.audioFile || '').replace(/^docs\//, ''),
+      productionPath: block.productionAudioFile || null,
+      text: block.text || '',
+      offsetSeconds: aligned.offsetSeconds ?? null,
+      durationSeconds: aligned.durationSeconds ?? null,
+      wordCount: aligned.wordCount ?? null,
+      loss: aligned.loss ?? null
+    };
+  });
+  const timedBlocks = blocks.filter(block => Number.isFinite(Number(block.offsetSeconds)) && Number.isFinite(Number(block.durationSeconds)));
+  const durationSeconds = timedBlocks.length
+    ? Math.max(...timedBlocks.map(block => Number(block.offsetSeconds) + Number(block.durationSeconds)))
+    : null;
+
+  return {
+    mode: 'split-blocks',
+    take,
+    manifestPath: `audio/episodes/${foodId}/${fileName}`,
+    productionManifestPath: metadata.productionAudioManifestFile || null,
+    profileId: metadata.profileId || null,
+    voiceLabel: metadata.voice?.label || null,
+    modelId: metadata.modelId || null,
+    generatedAt: metadata.generatedAt || null,
+    blockCount: metadata.blockCount ?? blocks.length,
+    blockGapSeconds: alignment?.blockGapSeconds ?? null,
+    durationSeconds,
+    alignmentPath: alignmentPath && exists(alignmentPath) ? path.relative(repoRoot, alignmentPath) : null,
+    blocks
   };
 }
 
@@ -98,6 +159,7 @@ const foods = fs.readdirSync(foodsDir)
     const ruleset = exists(rulesetPath) ? readJson(rulesetPath) : null;
     const customFoodImage = findCustomFoodImage(food.id);
     const episodeAudio = findEpisodeAudio(food.id);
+    const episodeSplitAudio = findEpisodeSplitAudio(food.id, episode);
 
     return {
       id: food.id,
@@ -133,6 +195,16 @@ const foods = fs.readdirSync(foodsDir)
         outputDir: episode.outputs?.directory ?? null,
         ...(episodeAudio ? {
           audio: episodeAudio,
+          ...(episodeSplitAudio ? { splitAudio: episodeSplitAudio } : {}),
+          sceneTimings: scenes.map(scene => ({
+            id: scene.id,
+            kind: scene.kind,
+            startSeconds: scene.startSeconds,
+            endSeconds: scene.endSeconds,
+            durationSeconds: scene.durationSeconds
+          }))
+        } : episodeSplitAudio ? {
+          splitAudio: episodeSplitAudio,
           sceneTimings: scenes.map(scene => ({
             id: scene.id,
             kind: scene.kind,

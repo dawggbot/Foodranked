@@ -105,6 +105,20 @@ Typical compact order:
 5. optional `cta`
 6. `final_reveal`
 
+For compact no-CTA FoodRanked shorts, this usually produces 11 blocks:
+
+1. `hook_food`
+2. `hook_ranked`
+3. `section` with `sectionKey: fats`
+4. `section` with `sectionKey: carbs`
+5. `section` with `sectionKey: proteins`
+6. `section` with `sectionKey: vitamins`
+7. `section` with `sectionKey: minerals`
+8. `section` with `sectionKey: pros`
+9. `section` with `sectionKey: cons`
+10. `closing_summary`
+11. `final_reveal`
+
 Narration rules:
 - pros and cons should read like the narrator is directly reading the on-screen items in order
 - simple opener variation is allowed for pros/cons sections, for example `Pros first:`, `The upsides first:`, `Cons next:`, or `The drawbacks next:`
@@ -113,25 +127,48 @@ Narration rules:
 - do not narrate the overall score
 - the last spoken block must always be the tier reveal, for example `D tier.`
 
-The plain-text compact narration file is created by joining these spoken blocks with:
+The plain-text compact narration file is created by joining these spoken blocks with a separator line containing only:
 
 ```text
-
 -
-
 ```
+
+Blank lines around the separator are tolerated by the parser, but generated `narration.txt` and `final-narration.txt` should mirror the compact one-line separator form.
+
+## Split audio mapping
+
+`scripts/foodranked-generate-voice.js --split-blocks` treats `narrationBlocks[]` as the source of truth for one-MP3-per-block narration.
+
+The generated block ids are deterministic:
+
+```text
+<two-digit-index>-<section-or-kind>
+```
+
+Examples:
+- `01-hook_food`
+- `02-hook_ranked`
+- `03-fats`
+- `10-closing_summary`
+- `11-final_reveal`
+
+For section blocks, the id suffix comes from `sectionKey`; otherwise it comes from `kind`. The spoken text must be byte-for-byte equivalent to the matching block text in `narration.txt`, after splitting that file on the locked separator:
+
+```text
+-
+```
+
+Again, blank lines around the separator are tolerated for older hand-edited files.
+
+This lets voice generation, forced alignment, subtitle timing, and dashboard preview refer to the same block identity without inventing a second narration order.
 
 ## Compact narration example
 
 ```text
 Bacon!
-
 -
-
 Ranked!
-
 -
-
 37.1 grams of fat. Saturated fat is 12.6 grams, a major pressure point. For meats, fat quality matters a lot once the protein is already there.
 ```
 

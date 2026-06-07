@@ -19,6 +19,7 @@ It exists so future tools can consume stable layout data instead of trying to pa
 - palette bindings
 - special category handling
 - sync assumptions
+- motion/effect bindings for stamps, shimmer, and screen shake
 
 ## Most important concept: reveal slots
 
@@ -39,6 +40,18 @@ Examples:
   - `bullet_3`
 - closing:
   - `tier_stamp`
+
+## Motion / effect bindings
+
+Current video-builder effects that should be treated as schema-level behavior:
+
+- `food-hero` intro stamp: the food image appears quickly, pulses only during the stamp-in, then settles still
+- `ranked-sprite` intro stamp: the ranked sprite uses the same stamp weight as the food image, with a short stamp-in pulse and settled final frame
+- `ranked-glimmer`: ranked sprite sparkle marks; current target is 5 glimmer marks with a shimmery glow
+- `d-tier-stamp` / tier stamp: final reveal stamp uses the same heavy pulse language and settles still
+- stamp screen shake: stage shake is triggered after a stamp has landed, not before the stamped sprite appears
+
+These effects are driven by reveal scheduling and layer ids/effects in the builder. Future template exports should preserve enough metadata for tools to know which layers are stamp-driven, which layers are decorative glimmers, and which stage shake events are tied to stamp impact.
 
 ## Text rule
 

@@ -60,6 +60,10 @@ There are 9 video sections in order:
 
 The middle 7 sections are the scored content sections.
 
+Timing rule:
+- the video builder should insert a 0.5 second post-section dwell after every section except the final verdict/outro
+- preview audio should be on by default, pause during each dwell, then resume with the next section
+
 ## Progress indicator
 
 - 9 small dots near the bottom

@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260607-food-stamp-aftershake-v1';
+  const BUILDER_BUILD_ID = '20260607-section-dwell-audio-default-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -31,8 +31,8 @@
   const FOOD_STAMP_REVEAL_SECONDS = 0.22;
   const STAMP_SHAKE_MAX_PIXELS = 2.8;
   const AUDIO_TIMELINE_SYNC_TOLERANCE_SECONDS = 0.12;
-  const SECTION_HOLD_SECONDS = 0;
-  const SECTION_HOLD_IDS = new Set(['fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons']);
+  const SECTION_HOLD_SECONDS = 0.5;
+  const SECTION_HOLD_IDS = new Set(['intro', 'fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons']);
   const HIDDEN_CAPTION_SECTION_IDS = new Set(['intro']);
   const MACRO_REVEAL_SECONDS = 0.08;
   const MACRO_ROW_AFTER_ICON_SECONDS = 0.38;
@@ -167,12 +167,16 @@
   const foods = Array.isArray(window.FOODS_INDEX) ? window.FOODS_INDEX : [];
   const BATCH_RESULTS_CACHE = new Map();
   const savedState = readJson(localStorage.getItem(VIDEO_STATE_KEY), {});
+  if (Object.prototype.hasOwnProperty.call(savedState, 'audioEnabled')) {
+    delete savedState.audioEnabled;
+    localStorage.setItem(VIDEO_STATE_KEY, JSON.stringify(savedState));
+  }
   const state = {
     foodFilter: '',
     selectedFoodId: savedState.selectedFoodId || 'bacon',
     layoutSourceId: savedState.layoutSourceId || 'display-builder',
     selectedSceneId: savedState.selectedSceneId || 'intro',
-    audioEnabled: savedState.audioEnabled !== false,
+    audioEnabled: true,
     currentTime: 0,
     playing: false,
     startedAt: 0,
@@ -1763,8 +1767,7 @@
     localStorage.setItem(VIDEO_STATE_KEY, JSON.stringify({
       selectedFoodId: state.selectedFoodId,
       layoutSourceId: state.layoutSourceId,
-      selectedSceneId: state.selectedSceneId,
-      audioEnabled: state.audioEnabled
+      selectedSceneId: state.selectedSceneId
     }));
   }
 

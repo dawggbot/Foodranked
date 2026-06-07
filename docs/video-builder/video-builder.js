@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260606-subtle-tier-intro-stamp-v1';
+  const BUILDER_BUILD_ID = '20260607-prominent-symmetric-stamps-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -27,7 +27,7 @@
   const MICRON_BAR_STEP_SECONDS = 0.12;
   const MICRON_STAMP_REVEAL_SECONDS = 0.28;
   const MICRON_BAR_STAMP_REVEAL_SECONDS = 0.12;
-  const INTRO_STAMP_REVEAL_SECONDS = 0.22;
+  const STAMP_REVEAL_SECONDS = 0.28;
   const AUDIO_TIMELINE_SYNC_TOLERANCE_SECONDS = 0.12;
   const SECTION_HOLD_SECONDS = 0;
   const SECTION_HOLD_IDS = new Set(['fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons']);
@@ -3378,8 +3378,8 @@
     const isOutroTierStamp = revealSchedule?.family === 'outro'
       && revealSchedule?.kind === 'tier'
       && String(layer?.effect || '').includes('d-tier-stamp');
-    const revealWindowSeconds = isIntroStampSprite
-      ? INTRO_STAMP_REVEAL_SECONDS
+    const revealWindowSeconds = isIntroStampSprite || isOutroTierStamp
+      ? STAMP_REVEAL_SECONDS
       : isMacroRowReveal
       ? SUBMACRO_REVEAL_WINDOW_SECONDS
       : isMicronTierReveal
@@ -3390,7 +3390,7 @@
     const revealLead = isMacroRowReveal || isMicronReveal ? 0 : Math.min(0.035, AUDIO_REVEAL_LEAD_SECONDS / sceneDuration);
     const revealWindow = isMacroRowReveal
       ? macroRevealWindowProgress(scene, revealWindowSeconds)
-      : isIntroStampSprite
+      : isIntroStampSprite || isOutroTierStamp
         ? Math.min(0.16, Math.max(0.055, revealWindowSeconds / sceneDuration))
         : isMicronReveal
           ? Math.min(0.12, Math.max(isMicronTierReveal ? 0.008 : 0.028, revealWindowSeconds / sceneDuration))
@@ -3408,17 +3408,12 @@
     let clip = '';
     const lockSpriteLayout = layer.kind === 'sprite' && !persistent && !isProConRowReveal;
 
-    if (isOutroTierStamp) {
+    if (isOutroTierStamp || isIntroStampSprite) {
       const impactPulse = Math.sin(visible * Math.PI);
-      scale = 1.24 - (visible * 0.24) + (impactPulse * 0.045);
-      y += (1 - visible) * -9;
-      rotate = (1 - visible) * -3.5 + (impactPulse * -0.65);
-    } else if (isIntroStampSprite) {
-      const stampPulse = Math.sin(visible * Math.PI);
-      const entryTilt = revealSchedule?.kind === 'ranked-sprite' ? -2.5 : 1.8;
-      scale = 1.18 - (visible * 0.18) + (stampPulse * 0.04);
-      y += (1 - visible) * -7;
-      rotate = entryTilt * (1 - visible);
+      const entryTilt = isOutroTierStamp || revealSchedule?.kind === 'ranked-sprite' ? -4 : 4;
+      scale = 1.34 - (visible * 0.34) + (impactPulse * 0.07);
+      y += (1 - visible) * -11;
+      rotate = (entryTilt * (1 - visible)) + (impactPulse * (entryTilt < 0 ? -0.55 : 0.55));
     } else if (isMacroRowReveal) {
       scale = 1;
       y += (1 - visible) * 5;

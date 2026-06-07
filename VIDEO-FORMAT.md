@@ -158,7 +158,7 @@ audio/sfx/stamps/freesound_community-traditional-stamp-44189.mp3
 docs/audio/sfx/stamps/freesound_community-traditional-stamp-44189.mp3
 ```
 
-The video builder plays this at the stamp impact point, aligned with the start of screen shake after each stamp lands.
+The video builder plays this slightly before the stamp impact point so the hit is audible as the sprite lands. The outro stamp SFX is allowed to finish even when playback naturally reaches the end of the timeline.
 
 ## Narration packaging
 

@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260607-stamp-sfx-sync-v1';
+  const BUILDER_BUILD_ID = '20260607-stamp-sfx-lead-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -32,6 +32,7 @@
   const STAMP_SHAKE_MAX_PIXELS = 2.8;
   const STAMP_SFX_PATH = 'audio/sfx/stamps/freesound_community-traditional-stamp-44189.mp3';
   const STAMP_SFX_VOLUME = 0.72;
+  const STAMP_SFX_LEAD_SECONDS = 0.1;
   const STAMP_SFX_POOL_SIZE = 4;
   const AUDIO_TIMELINE_SYNC_TOLERANCE_SECONDS = 0.12;
   const SECTION_HOLD_SECONDS = 0.5;
@@ -3432,7 +3433,8 @@
     const sceneDuration = Math.max(1, sceneContentDuration(scene));
     const revealLead = Math.min(0.035, AUDIO_REVEAL_LEAD_SECONDS / sceneDuration);
     const impactProgress = clamp(schedule.start + stampRevealWindowProgress(scene, schedule) - revealLead, 0, 1);
-    return Number((scene.start + (impactProgress * sceneContentDuration(scene))).toFixed(3));
+    const impactTime = scene.start + (impactProgress * sceneContentDuration(scene));
+    return Number(Math.max(scene.start, impactTime - STAMP_SFX_LEAD_SECONDS).toFixed(3));
   }
 
   function stampSfxEvents() {
@@ -3609,12 +3611,12 @@
     return String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
   }
 
-  function stopPlayback() {
+  function stopPlayback({ pauseSfx = true } = {}) {
     state.playing = false;
     state.audioInHold = false;
     els.playPause.textContent = 'Play';
     if (els.narrationAudio) els.narrationAudio.pause();
-    pauseStampSfx();
+    if (pauseSfx) pauseStampSfx();
   }
 
   function startPlayback() {
@@ -3637,7 +3639,7 @@
     triggerStampSfxBetween(previousTime, state.currentTime);
     if (state.currentTime >= totalDuration()) {
       state.currentTime = totalDuration();
-      stopPlayback();
+      stopPlayback({ pauseSfx: false });
     }
     syncAudioPlaybackState();
     renderDynamic();

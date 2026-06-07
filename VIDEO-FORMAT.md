@@ -137,6 +137,20 @@ Potential asset classes:
 - stamp motion should feel weighty enough to read on mobile, but should settle cleanly so screenshots/export frames are stable
 - sparkle/glimmer effects should enhance ranked/tier sprites without turning the whole video into a busy particle field
 
+## Reusable audio assets
+
+Reusable SFX source files live in the top-level `audio/` folder:
+
+- stamp impacts: `audio/sfx/stamps/`
+- sparkle/glimmer accents: `audio/sfx/sparkles/`
+- section transitions: `audio/sfx/transitions/`
+- UI-style clicks/ticks: `audio/sfx/ui/`
+- music beds/stingers: `audio/music/`
+
+Generated narration stays episode-specific in `production/episodes/<food-id>/voice/`, with browser-preview mirrors in `docs/audio/episodes/<food-id>/`.
+
+If the video builder needs to load reusable SFX on GitHub Pages, mirror browser-ready files into `docs/audio/sfx/`.
+
 ## Narration packaging
 
 Compact narration exports should use the locked ElevenLabs block layout:

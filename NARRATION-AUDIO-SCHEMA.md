@@ -32,6 +32,14 @@ Use split-block narration when one long take sounds choppy or when subtitle timi
 
 ## File layout
 
+Reusable source audio assets:
+
+```text
+audio/sfx/
+audio/music/
+audio/narration/
+```
+
 Production voice files:
 
 ```text
@@ -48,6 +56,7 @@ docs/audio/episodes/<food-id>/<take>.mp3
 docs/audio/episodes/<food-id>/<take>.json
 docs/audio/episodes/<food-id>/<take>-blocks.json
 docs/audio/episodes/<food-id>/<take>-blocks/<block-id>.mp3
+docs/audio/sfx/
 ```
 
 Alignment files:
@@ -223,3 +232,16 @@ This keeps `docs/data/foods-index.json` and `docs/data/foods-index.js` aligned w
 - split-block `episode.splitAudio`
 
 The video builder should prefer `episode.splitAudio` when it has timed blocks, while preserving `episode.audio` as a single-file fallback for older takes.
+
+## Reusable SFX
+
+The top-level `audio/` folder is the source home for reusable sounds that are not generated per episode.
+
+Use:
+- `audio/sfx/stamps/` for intro/outro stamp impacts and screen-shake hits
+- `audio/sfx/sparkles/` for ranked glimmers and tier shimmer
+- `audio/sfx/transitions/` for section changes and reveal accents
+- `audio/sfx/ui/` for small interface-style sounds
+- `audio/music/` for reusable music beds and stingers
+
+When the video builder needs to load a reusable sound in the browser, mirror the browser-ready file under `docs/audio/sfx/` with the same stable lowercase path.

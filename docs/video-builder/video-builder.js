@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260608-varied-highlight-glow-sfx-v1';
+  const BUILDER_BUILD_ID = '20260608-good-bad-highlight-glow-sfx-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -38,10 +38,14 @@
   const STAMP_SFX_LEAD_SECONDS = 0.1;
   const STAMP_SFX_POOL_SIZE = 4;
   const HIGHLIGHT_GLOW_SFX_PATH = 'audio/sfx/ui/coghezzi-holy-aura-resonance-magical-energy-loop-533856(1).mp3';
-  const HIGHLIGHT_GLOW_SFX_VOLUME = 0.28;
+  const HIGHLIGHT_GLOW_SFX_VOLUME = 0.36;
   const HIGHLIGHT_GLOW_SFX_FADE_SPEED = 10;
-  const HIGHLIGHT_GLOW_SFX_PLAYBACK_RATE_RANGE = { min: 0.76, max: 1.28 };
-  const HIGHLIGHT_GLOW_SFX_MIN_RATE_CHANGE = 0.16;
+  const HIGHLIGHT_GLOW_SFX_PLAYBACK_RATE_RANGES = {
+    green: { min: 1.16, max: 1.42 },
+    red: { min: 0.58, max: 0.82 },
+    neutral: { min: 0.9, max: 1.12 }
+  };
+  const HIGHLIGHT_GLOW_SFX_MIN_RATE_CHANGE = 0.12;
   const HIGHLIGHT_GLOW_SFX_STOP_THRESHOLD = 0.003;
   const AUDIO_TIMELINE_SYNC_TOLERANCE_SECONDS = 0.12;
   const SECTION_HOLD_SECONDS = 0.5;
@@ -2934,20 +2938,25 @@
     const sceneId = scene?.id || 'scene';
     const candidates = [];
     for (const [rowIndex, item] of macroHighlightMap || []) {
+      const safeRowIndex = item?.rowIndex ?? rowIndex;
+      const color = macroSubmetricHighlightColor(sceneId, safeRowIndex);
       candidates.push({
-        key: `${sceneId}:macro:${item?.rowIndex ?? rowIndex}`,
+        key: `${sceneId}:macro:${safeRowIndex}`,
+        tone: highlightToneFromColor(color),
         strength: clamp(asNumber(item?.strength, 0), 0, 1)
       });
     }
     for (const [columnIndex, item] of micronHighlightMap || []) {
       candidates.push({
         key: `${sceneId}:micron:${item?.columnIndex ?? columnIndex}`,
+        tone: highlightToneFromColor(item?.color),
         strength: clamp(asNumber(item?.strength, 0), 0, 1)
       });
     }
     for (const [rowIndex, item] of proConHighlightMap || []) {
       candidates.push({
         key: `${sceneId}:${sceneId === 'cons' ? 'con' : 'pro'}:${item?.rowIndex ?? rowIndex}`,
+        tone: sceneId === 'cons' ? 'red' : sceneId === 'pros' ? 'green' : highlightToneFromColor(item?.color),
         strength: clamp(asNumber(item?.strength, 0), 0, 1)
       });
     }
@@ -2956,9 +2965,17 @@
       .sort((a, b) => b.strength - a.strength || a.key.localeCompare(b.key))[0] || { key: '', strength: 0 };
   }
 
-  function randomHighlightGlowPlaybackRate(previousRate) {
-    const min = HIGHLIGHT_GLOW_SFX_PLAYBACK_RATE_RANGE.min;
-    const max = HIGHLIGHT_GLOW_SFX_PLAYBACK_RATE_RANGE.max;
+  function highlightToneFromColor(color) {
+    const normalized = String(color || '').trim().toLowerCase();
+    if (normalized === SUBMACRO_VALUE_COLORS.green.toLowerCase() || normalized.includes('green')) return 'green';
+    if (normalized === SUBMACRO_VALUE_COLORS.red.toLowerCase() || normalized.includes('red')) return 'red';
+    return 'neutral';
+  }
+
+  function randomHighlightGlowPlaybackRate(previousRate, tone = 'neutral') {
+    const rangeSpec = HIGHLIGHT_GLOW_SFX_PLAYBACK_RATE_RANGES[tone] || HIGHLIGHT_GLOW_SFX_PLAYBACK_RATE_RANGES.neutral;
+    const min = rangeSpec.min;
+    const max = rangeSpec.max;
     const range = max - min;
     for (let attempt = 0; attempt < 10; attempt += 1) {
       const candidate = min + (Math.random() * range);
@@ -2972,7 +2989,7 @@
   function retuneHighlightGlowSfx(audio, cue) {
     const nextKey = cue?.key || '';
     if (!nextKey || nextKey === state.highlightGlowSfxKey) return;
-    const playbackRate = randomHighlightGlowPlaybackRate(state.highlightGlowSfxPlaybackRate || 1);
+    const playbackRate = randomHighlightGlowPlaybackRate(state.highlightGlowSfxPlaybackRate || 1, cue?.tone);
     state.highlightGlowSfxKey = nextKey;
     state.highlightGlowSfxPlaybackRate = playbackRate;
     try {

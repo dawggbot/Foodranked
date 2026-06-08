@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260608-softer-randomized-stamp-sfx-v1';
+  const BUILDER_BUILD_ID = '20260608-stamp-sfx-texture-randomness-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -34,6 +34,7 @@
   const STAMP_SFX_VOLUME = 0.46;
   const STAMP_SFX_VOLUME_VARIATION = 0.035;
   const STAMP_SFX_PLAYBACK_RATE_RANGE = { min: 0.96, max: 1.04 };
+  const STAMP_SFX_START_OFFSET_RANGE_SECONDS = { min: 0, max: 0.026 };
   const STAMP_SFX_LEAD_SECONDS = 0.1;
   const STAMP_SFX_POOL_SIZE = 4;
   const AUDIO_TIMELINE_SYNC_TOLERANCE_SECONDS = 0.12;
@@ -3480,6 +3481,15 @@
     );
   }
 
+  function randomStampSfxStartOffset(audio) {
+    const min = STAMP_SFX_START_OFFSET_RANGE_SECONDS.min;
+    const max = STAMP_SFX_START_OFFSET_RANGE_SECONDS.max;
+    const safeMax = Number.isFinite(audio?.duration) && audio.duration > 0
+      ? Math.min(max, Math.max(min, audio.duration - 0.08))
+      : max;
+    return min + (Math.random() * Math.max(0, safeMax - min));
+  }
+
   function allowStampSfxPitchShift(audio) {
     if ('preservesPitch' in audio) audio.preservesPitch = false;
     if ('mozPreservesPitch' in audio) audio.mozPreservesPitch = false;
@@ -3491,7 +3501,7 @@
     const audio = nextStampSfxAudio();
     try {
       audio.pause();
-      audio.currentTime = 0;
+      audio.currentTime = randomStampSfxStartOffset(audio);
       allowStampSfxPitchShift(audio);
       audio.volume = randomStampSfxVolume();
       audio.playbackRate = randomStampSfxPlaybackRate();

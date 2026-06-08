@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260608-good-bad-highlight-glow-sfx-v1';
+  const BUILDER_BUILD_ID = '20260608-sprite-placement-sync-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -1397,6 +1397,7 @@
   function ensureOutroTierStampLayer(layout, food) {
     const layers = getSectionLayers(layout, 'outro');
     let layer = layers.find(item => item.id === 'outro_d_tier_stamp');
+    const hadExistingLayer = Boolean(layer);
     if (!layer) {
       layer = {
         id: 'outro_d_tier_stamp',
@@ -1425,16 +1426,18 @@
     layer.label = 'D tier verdict stamp';
     layer.visible = tier === 'D';
     layer.effect = 'd-tier-stamp';
-    layer.preserveAspect = true;
-    layer.x = 28.5;
-    layer.y = 62.5;
-    layer.z = 38;
-    layer.width = 78;
-    layer.height = 78;
-    layer.aspectRatio = 1;
-    layer.centerAnchor = 'visible-canvas';
-    layer.centerOffsetX = 0;
-    layer.centerOffsetY = 0;
+    if (layer.preserveAspect !== false) layer.preserveAspect = true;
+    if (!Number.isFinite(Number(layer.x))) layer.x = 28.5;
+    if (!Number.isFinite(Number(layer.y))) layer.y = 62.5;
+    if (!Number.isFinite(Number(layer.z))) layer.z = 38;
+    if (!Number.isFinite(Number(layer.width))) layer.width = 78;
+    if (!Number.isFinite(Number(layer.height))) layer.height = 78;
+    if (!Number.isFinite(Number(layer.aspectRatio))) layer.aspectRatio = 1;
+    if (!hadExistingLayer && !layer.centerAnchor) layer.centerAnchor = 'visible-canvas';
+    if (layer.centerAnchor === 'visible-canvas') {
+      if (!Number.isFinite(Number(layer.centerOffsetX))) layer.centerOffsetX = 0;
+      if (!Number.isFinite(Number(layer.centerOffsetY))) layer.centerOffsetY = 0;
+    }
   }
 
   function normalizeOutroScoreLayout(layout) {
@@ -2027,10 +2030,6 @@
       layer.width = highlighted ? SECTION_INDICATOR_LAYOUT.highlightedSize : SECTION_INDICATOR_LAYOUT.normalSize;
       layer.height = highlighted ? SECTION_INDICATOR_LAYOUT.highlightedSize : SECTION_INDICATOR_LAYOUT.normalSize;
       layer.z = Math.max(Number(layer.z) || 0, highlighted ? 36 : 25);
-      if (highlighted) {
-        layer.x = (Number(layer.x) || 0) - 1;
-        layer.y = (Number(layer.y) || 0) - 1;
-      }
     });
     return layers;
   }

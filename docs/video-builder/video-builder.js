@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260608-extra-soft-stamp-sfx-v1';
+  const BUILDER_BUILD_ID = '20260608-highlight-glow-sfx-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -37,6 +37,10 @@
   const STAMP_SFX_START_OFFSET_RANGE_SECONDS = { min: 0, max: 0.045 };
   const STAMP_SFX_LEAD_SECONDS = 0.1;
   const STAMP_SFX_POOL_SIZE = 4;
+  const HIGHLIGHT_GLOW_SFX_PATH = 'audio/sfx/ui/coghezzi-holy-aura-resonance-magical-energy-loop-533856(1).mp3';
+  const HIGHLIGHT_GLOW_SFX_VOLUME = 0.08;
+  const HIGHLIGHT_GLOW_SFX_FADE_SPEED = 10;
+  const HIGHLIGHT_GLOW_SFX_STOP_THRESHOLD = 0.003;
   const AUDIO_TIMELINE_SYNC_TOLERANCE_SECONDS = 0.12;
   const SECTION_HOLD_SECONDS = 0.5;
   const SECTION_HOLD_IDS = new Set(['intro', 'fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons']);
@@ -200,6 +204,8 @@
     stampSfxPool: [],
     stampSfxPoolIndex: 0,
     playedStampSfxKeys: new Set(),
+    highlightGlowSfxAudio: null,
+    highlightGlowSfxVolume: 0,
     spriteFailures: new Map(),
     diagnosticsTimer: 0
   };
@@ -2098,6 +2104,7 @@
     const macroHighlightMap = macroSubmetricHighlightMap(scene, narrationProgress);
     const micronHighlightMap = micronMetricHighlightMap(scene, narrationProgress);
     const proConHighlightMap = proConNarrationHighlightMap(scene, narrationProgress);
+    updateHighlightGlowSfx(strongestHighlightStrength(macroHighlightMap, micronHighlightMap, proConHighlightMap));
     const existingNodes = new Map(
       Array.from(roots.layerRoot.children).map(node => [node.dataset.renderKey || '', node])
     );
@@ -2919,6 +2926,69 @@
     return highlights;
   }
 
+  function strongestHighlightStrength(...highlightMaps) {
+    return highlightMaps.reduce((maxStrength, highlightMap) => {
+      if (!highlightMap?.size) return maxStrength;
+      return Math.max(
+        maxStrength,
+        ...[...highlightMap.values()].map(item => clamp(asNumber(item?.strength, 0), 0, 1))
+      );
+    }, 0);
+  }
+
+  function ensureHighlightGlowSfxAudio() {
+    if (!state.highlightGlowSfxAudio) {
+      const audio = new Audio(docsAssetPath(HIGHLIGHT_GLOW_SFX_PATH));
+      audio.preload = 'auto';
+      audio.loop = true;
+      audio.volume = 0;
+      state.highlightGlowSfxAudio = audio;
+    }
+    return state.highlightGlowSfxAudio;
+  }
+
+  function highlightGlowFadeStep(targetStrength) {
+    const targetVolume = state.audioEnabled && state.playing
+      ? clamp(targetStrength, 0, 1) * HIGHLIGHT_GLOW_SFX_VOLUME
+      : 0;
+    const now = performance.now();
+    const deltaSeconds = clamp((now - state.lastFrameAt) / 1000, 0.016, 0.12);
+    state.lastFrameAt = now;
+    const blend = 1 - Math.exp(-HIGHLIGHT_GLOW_SFX_FADE_SPEED * deltaSeconds);
+    state.highlightGlowSfxVolume += (targetVolume - state.highlightGlowSfxVolume) * blend;
+    return state.highlightGlowSfxVolume;
+  }
+
+  function updateHighlightGlowSfx(targetStrength) {
+    const volume = highlightGlowFadeStep(targetStrength);
+    const audio = state.highlightGlowSfxAudio || (volume > HIGHLIGHT_GLOW_SFX_STOP_THRESHOLD ? ensureHighlightGlowSfxAudio() : null);
+    if (!audio) return;
+
+    audio.volume = clamp(volume, 0, 1);
+    if (volume > HIGHLIGHT_GLOW_SFX_STOP_THRESHOLD && state.audioEnabled && state.playing) {
+      const playPromise = audio.paused ? audio.play() : null;
+      if (playPromise?.catch) playPromise.catch(() => {});
+      return;
+    }
+
+    if (volume <= HIGHLIGHT_GLOW_SFX_STOP_THRESHOLD) {
+      try {
+        audio.pause();
+      } catch {}
+    }
+  }
+
+  function pauseHighlightGlowSfx({ reset = true } = {}) {
+    const audio = state.highlightGlowSfxAudio;
+    state.highlightGlowSfxVolume = 0;
+    if (!audio) return;
+    try {
+      audio.volume = 0;
+      audio.pause();
+      if (reset) audio.currentTime = 0;
+    } catch {}
+  }
+
   function macroSubmetricHighlightColor(sectionId, rowIndex) {
     const spec = MACRO_SUBMETRIC_SPECS[sectionId]?.[rowIndex];
     if (!spec) return SUBMACRO_VALUE_COLORS.neutral;
@@ -3649,6 +3719,7 @@
     state.audioInHold = false;
     els.playPause.textContent = 'Play';
     if (els.narrationAudio) els.narrationAudio.pause();
+    pauseHighlightGlowSfx();
     if (pauseSfx) pauseStampSfx();
   }
 
@@ -3747,6 +3818,7 @@
     if (!state.audioEnabled) {
       els.narrationAudio.pause();
       pauseStampSfx();
+      pauseHighlightGlowSfx();
     }
     else if (state.playing) syncAudioPlaybackState();
     persist();

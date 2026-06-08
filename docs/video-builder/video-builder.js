@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260608-clearer-highlight-glow-sfx-v1';
+  const BUILDER_BUILD_ID = '20260608-varied-highlight-glow-sfx-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -38,8 +38,10 @@
   const STAMP_SFX_LEAD_SECONDS = 0.1;
   const STAMP_SFX_POOL_SIZE = 4;
   const HIGHLIGHT_GLOW_SFX_PATH = 'audio/sfx/ui/coghezzi-holy-aura-resonance-magical-energy-loop-533856(1).mp3';
-  const HIGHLIGHT_GLOW_SFX_VOLUME = 0.18;
+  const HIGHLIGHT_GLOW_SFX_VOLUME = 0.28;
   const HIGHLIGHT_GLOW_SFX_FADE_SPEED = 10;
+  const HIGHLIGHT_GLOW_SFX_PLAYBACK_RATE_RANGE = { min: 0.76, max: 1.28 };
+  const HIGHLIGHT_GLOW_SFX_MIN_RATE_CHANGE = 0.16;
   const HIGHLIGHT_GLOW_SFX_STOP_THRESHOLD = 0.003;
   const AUDIO_TIMELINE_SYNC_TOLERANCE_SECONDS = 0.12;
   const SECTION_HOLD_SECONDS = 0.5;
@@ -206,6 +208,8 @@
     playedStampSfxKeys: new Set(),
     highlightGlowSfxAudio: null,
     highlightGlowSfxVolume: 0,
+    highlightGlowSfxKey: '',
+    highlightGlowSfxPlaybackRate: 1,
     spriteFailures: new Map(),
     diagnosticsTimer: 0
   };
@@ -2104,7 +2108,7 @@
     const macroHighlightMap = macroSubmetricHighlightMap(scene, narrationProgress);
     const micronHighlightMap = micronMetricHighlightMap(scene, narrationProgress);
     const proConHighlightMap = proConNarrationHighlightMap(scene, narrationProgress);
-    updateHighlightGlowSfx(strongestHighlightStrength(macroHighlightMap, micronHighlightMap, proConHighlightMap));
+    updateHighlightGlowSfx(strongestHighlightCue(scene, macroHighlightMap, micronHighlightMap, proConHighlightMap));
     const existingNodes = new Map(
       Array.from(roots.layerRoot.children).map(node => [node.dataset.renderKey || '', node])
     );
@@ -2926,14 +2930,57 @@
     return highlights;
   }
 
-  function strongestHighlightStrength(...highlightMaps) {
-    return highlightMaps.reduce((maxStrength, highlightMap) => {
-      if (!highlightMap?.size) return maxStrength;
-      return Math.max(
-        maxStrength,
-        ...[...highlightMap.values()].map(item => clamp(asNumber(item?.strength, 0), 0, 1))
-      );
-    }, 0);
+  function strongestHighlightCue(scene, macroHighlightMap, micronHighlightMap, proConHighlightMap) {
+    const sceneId = scene?.id || 'scene';
+    const candidates = [];
+    for (const [rowIndex, item] of macroHighlightMap || []) {
+      candidates.push({
+        key: `${sceneId}:macro:${item?.rowIndex ?? rowIndex}`,
+        strength: clamp(asNumber(item?.strength, 0), 0, 1)
+      });
+    }
+    for (const [columnIndex, item] of micronHighlightMap || []) {
+      candidates.push({
+        key: `${sceneId}:micron:${item?.columnIndex ?? columnIndex}`,
+        strength: clamp(asNumber(item?.strength, 0), 0, 1)
+      });
+    }
+    for (const [rowIndex, item] of proConHighlightMap || []) {
+      candidates.push({
+        key: `${sceneId}:${sceneId === 'cons' ? 'con' : 'pro'}:${item?.rowIndex ?? rowIndex}`,
+        strength: clamp(asNumber(item?.strength, 0), 0, 1)
+      });
+    }
+    return candidates
+      .filter(item => item.strength > 0)
+      .sort((a, b) => b.strength - a.strength || a.key.localeCompare(b.key))[0] || { key: '', strength: 0 };
+  }
+
+  function randomHighlightGlowPlaybackRate(previousRate) {
+    const min = HIGHLIGHT_GLOW_SFX_PLAYBACK_RATE_RANGE.min;
+    const max = HIGHLIGHT_GLOW_SFX_PLAYBACK_RATE_RANGE.max;
+    const range = max - min;
+    for (let attempt = 0; attempt < 10; attempt += 1) {
+      const candidate = min + (Math.random() * range);
+      if (Math.abs(candidate - previousRate) >= HIGHLIGHT_GLOW_SFX_MIN_RATE_CHANGE) return candidate;
+    }
+    const lower = clamp(previousRate - HIGHLIGHT_GLOW_SFX_MIN_RATE_CHANGE, min, max);
+    const upper = clamp(previousRate + HIGHLIGHT_GLOW_SFX_MIN_RATE_CHANGE, min, max);
+    return Math.abs(lower - previousRate) > Math.abs(upper - previousRate) ? lower : upper;
+  }
+
+  function retuneHighlightGlowSfx(audio, cue) {
+    const nextKey = cue?.key || '';
+    if (!nextKey || nextKey === state.highlightGlowSfxKey) return;
+    const playbackRate = randomHighlightGlowPlaybackRate(state.highlightGlowSfxPlaybackRate || 1);
+    state.highlightGlowSfxKey = nextKey;
+    state.highlightGlowSfxPlaybackRate = playbackRate;
+    try {
+      audio.playbackRate = playbackRate;
+      if ('preservesPitch' in audio) audio.preservesPitch = false;
+      if ('mozPreservesPitch' in audio) audio.mozPreservesPitch = false;
+      if ('webkitPreservesPitch' in audio) audio.webkitPreservesPitch = false;
+    } catch {}
   }
 
   function ensureHighlightGlowSfxAudio() {
@@ -2959,11 +3006,12 @@
     return state.highlightGlowSfxVolume;
   }
 
-  function updateHighlightGlowSfx(targetStrength) {
-    const volume = highlightGlowFadeStep(targetStrength);
+  function updateHighlightGlowSfx(cue) {
+    const volume = highlightGlowFadeStep(cue?.strength || 0);
     const audio = state.highlightGlowSfxAudio || (volume > HIGHLIGHT_GLOW_SFX_STOP_THRESHOLD ? ensureHighlightGlowSfxAudio() : null);
     if (!audio) return;
 
+    retuneHighlightGlowSfx(audio, cue);
     audio.volume = clamp(volume, 0, 1);
     if (volume > HIGHLIGHT_GLOW_SFX_STOP_THRESHOLD && state.audioEnabled && state.playing) {
       const playPromise = audio.paused ? audio.play() : null;
@@ -2981,9 +3029,12 @@
   function pauseHighlightGlowSfx({ reset = true } = {}) {
     const audio = state.highlightGlowSfxAudio;
     state.highlightGlowSfxVolume = 0;
+    state.highlightGlowSfxKey = '';
+    state.highlightGlowSfxPlaybackRate = 1;
     if (!audio) return;
     try {
       audio.volume = 0;
+      audio.playbackRate = 1;
       audio.pause();
       if (reset) audio.currentTime = 0;
     } catch {}

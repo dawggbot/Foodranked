@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260608-sprite-placement-sync-v1';
+  const BUILDER_BUILD_ID = '20260608-protein-title-placement-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -805,6 +805,10 @@
   function isPersistentChrome(layer) {
     if (isOutroTierStamp(layer)) return false;
     return isHeaderSprite(layer) || isHeaderText(layer) || (isUiSprite(layer) && !isSectionIndicator(layer));
+  }
+
+  function isHeaderChrome(layer) {
+    return isHeaderSprite(layer) || isHeaderText(layer);
   }
 
   function indicatorSectionIndex(sectionId) {
@@ -2016,9 +2020,17 @@
   function persistentChromeLayers(sectionId, food) {
     const sectionLayers = getSectionLayers(state.layout, sectionId);
     const introLayers = getSectionLayers(state.layout, 'intro');
-    const sectionChrome = sectionLayers.filter(layer => isPersistentChrome(layer) || isSectionIndicator(layer));
-    const introChrome = introLayers.filter(layer => isPersistentChrome(layer) || isSectionIndicator(layer));
-    const rawLayers = (sectionChrome.length ? sectionChrome : introChrome).map(clone);
+    const sectionHeader = sectionLayers.filter(isHeaderChrome);
+    const introHeader = introLayers.filter(isHeaderChrome);
+    const sectionUiChrome = sectionLayers.filter(layer => isPersistentChrome(layer) && !isHeaderChrome(layer));
+    const introUiChrome = introLayers.filter(layer => isPersistentChrome(layer) && !isHeaderChrome(layer));
+    const sectionIndicators = sectionLayers.filter(isSectionIndicator);
+    const introIndicators = introLayers.filter(isSectionIndicator);
+    const rawLayers = [
+      ...(introHeader.length ? introHeader : sectionHeader),
+      ...(sectionUiChrome.length ? sectionUiChrome : introUiChrome),
+      ...(sectionIndicators.length ? sectionIndicators : introIndicators)
+    ].map(clone);
     const indicators = normalizeProgressIndicatorSlots(rawLayers.filter(isSectionIndicator));
     const visibleIndicatorSet = new Set(indicators);
     const layers = rawLayers.filter(layer => !isSectionIndicator(layer) || visibleIndicatorSet.has(layer));
@@ -2030,6 +2042,10 @@
       layer.width = highlighted ? SECTION_INDICATOR_LAYOUT.highlightedSize : SECTION_INDICATOR_LAYOUT.normalSize;
       layer.height = highlighted ? SECTION_INDICATOR_LAYOUT.highlightedSize : SECTION_INDICATOR_LAYOUT.normalSize;
       layer.z = Math.max(Number(layer.z) || 0, highlighted ? 36 : 25);
+      if (highlighted) {
+        layer.x = (Number(layer.x) || 0) - 1;
+        layer.y = (Number(layer.y) || 0) - 1;
+      }
     });
     return layers;
   }
@@ -3728,7 +3744,6 @@
       rotate = (entryTilt * (1 - visible)) + (impactPulse * (entryTilt < 0 ? -1.4 : 1.4));
     } else if (isMacroRowReveal) {
       scale = 1;
-      y += (1 - visible) * 5;
     } else if (isMicronReveal) {
       const stampPulse = Math.sin(visible * Math.PI);
       scale = 0.965 + (visible * 0.035) + (stampPulse * (isMicronTierReveal ? 0.018 : 0.012));

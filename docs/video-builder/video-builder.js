@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260608-highlight-glow-sfx-v1';
+  const BUILDER_BUILD_ID = '20260608-clearer-highlight-glow-sfx-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -38,7 +38,7 @@
   const STAMP_SFX_LEAD_SECONDS = 0.1;
   const STAMP_SFX_POOL_SIZE = 4;
   const HIGHLIGHT_GLOW_SFX_PATH = 'audio/sfx/ui/coghezzi-holy-aura-resonance-magical-energy-loop-533856(1).mp3';
-  const HIGHLIGHT_GLOW_SFX_VOLUME = 0.08;
+  const HIGHLIGHT_GLOW_SFX_VOLUME = 0.18;
   const HIGHLIGHT_GLOW_SFX_FADE_SPEED = 10;
   const HIGHLIGHT_GLOW_SFX_STOP_THRESHOLD = 0.003;
   const AUDIO_TIMELINE_SYNC_TOLERANCE_SECONDS = 0.12;

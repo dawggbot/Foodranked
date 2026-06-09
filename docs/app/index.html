@@ -1415,6 +1415,17 @@
       return /_bar_(frame|fill)\.(svg|png|gif|webp)$/.test(src);
     }
 
+    function isLibrarySpriteLayer(layer) {
+      return String(layer?.label || '').startsWith('Library: ');
+    }
+
+    function isObsoleteMacroBarFrameOrFillSpriteLayer(layer) {
+      if (!isMacroBarFrameOrFillSpriteLayer(layer)) return false;
+      const src = String(layer.src).toLowerCase();
+      if (src.includes('/sprites/macros_section/')) return false;
+      return !isLibrarySpriteLayer(layer);
+    }
+
     function isArrowIndicatorSpriteLayer(layer) {
       if (!isSpriteLayer(layer)) return false;
       const fingerprint = `${layer.src || ''} ${layer.label || ''}`.toLowerCase();
@@ -2420,10 +2431,13 @@
       if (src.includes('/ui/section_indicator/')) return `${prefix}Section indicator`;
       if (src.includes('/arrow_indicators/green_arrow')) return `${prefix}Green arrow indicator`;
       if (src.includes('/arrow_indicators/red_arrow')) return `${prefix}Red arrow indicator`;
+      if (src.includes('/macros_section/macro_bar_frame')) return `${prefix}Macro bar frame`;
 
       const macroKind = detectMacroSpriteKind(layer);
       if (macroKind) {
         const sectionName = getSectionChip(macroKind) || titleCaseWords(macroKind);
+        if (src.includes('macro_bar_frame')) return `${prefix}Macro bar frame`;
+        if (src.includes('macro_bar_fill')) return `${prefix}${sectionName} macro bar fill`;
         if (src.includes('_icon')) return `${prefix}${sectionName} icon`;
         if (src.includes('submacro_bullet')) return `${prefix}${sectionName} score card sprite`;
       }
@@ -2489,7 +2503,7 @@
             layer.src = canonicalSpritePath(layer.src);
             if (layer.fallbackSrc) layer.fallbackSrc = canonicalSpritePath(layer.fallbackSrc);
           }
-          if (isMacroBarFrameOrFillSpriteLayer(layer)) return false;
+          if (isObsoleteMacroBarFrameOrFillSpriteLayer(layer)) return false;
           if (isObsoleteOutroScoreDisplayLayer(layer)) return false;
           if (isGeneratedOutroTierStampLayer(layer)) return false;
           if (isEmptyJunkLayer(layer)) return false;
@@ -3215,13 +3229,13 @@
       return `${ROOT_SPRITE_BASE}/macros_section/arrow_indicators/${safeColor}_arrow.png`;
     }
 
-    function makeSpriteLibraryItem(label, src) {
+    function makeSpriteLibraryItem(label, src, options = {}) {
       return {
         label,
         src,
         kind: 'library',
-        previewScale: 1,
-        dropScale: 0.75
+        previewScale: options.previewScale ?? 1,
+        dropScale: options.dropScale ?? 0.75
       };
     }
 
@@ -3252,6 +3266,8 @@
         ...sectionSpecific,
         ['fat icon', `${ROOT_SPRITE_BASE}/macros_section/section_1_fats/fat_icon.gif`],
         ['fat submacro bullet', `${ROOT_SPRITE_BASE}/macros_section/section_1_fats/fat_submacro_bullet_point.png`],
+        ['macro bar frame', `${ROOT_SPRITE_BASE}/macros_section/macro_bar_frame.png`, { dropScale: 1 }],
+        ['fat macro bar fill', `${ROOT_SPRITE_BASE}/macros_section/section_1_fats/fat_macro_bar_fill.gif`, { dropScale: 1 }],
         ['carb icon', `${ROOT_SPRITE_BASE}/macros_section/section_2_carbs/carb_icon.gif`],
         ['carb submacro bullet', `${ROOT_SPRITE_BASE}/macros_section/section_2_carbs/carb_submacro_bullet_point.png`],
         ['protein icon', `${ROOT_SPRITE_BASE}/macros_section/section_3_protein/protein_icon.gif`],
@@ -3269,7 +3285,7 @@
         ['food name line', `${ROOT_SPRITE_BASE}/header/header_ui/food_name_line.png`],
         ['per 100g line', `${ROOT_SPRITE_BASE}/header/header_ui/per_100g_line.png`],
         ['score plate', `${ROOT_SPRITE_BASE}/header/header_ui/score_plate.png`]
-      ].map(([label, src]) => makeSpriteLibraryItem(label, src));
+      ].map(([label, src, options]) => makeSpriteLibraryItem(label, src, options));
     }
 
     async function addLibrarySpriteToCanvas(item, clientX, clientY) {

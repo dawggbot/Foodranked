@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260609-display-builder-placement-v2';
+  const BUILDER_BUILD_ID = '20260609-pro-con-glow-step-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -2940,8 +2940,13 @@
       .filter(Boolean)
       .sort((a, b) => a.window.start - b.window.start);
     const highlights = new Map();
-    windows.forEach(item => {
-      const strength = easeOutCubic(clamp((sceneProgress - item.window.start) / fade, 0, 1));
+    windows.forEach((item, index) => {
+      const next = windows[index + 1];
+      const window = {
+        ...item.window,
+        end: next ? next.window.start + fade : 1
+      };
+      const strength = submacroHighlightStrength(scene, sceneProgress, window);
       if (strength > 0) highlights.set(item.index, {
         rowIndex: item.index,
         color: sectionId === 'pros' ? SUBMACRO_VALUE_COLORS.green : SUBMACRO_VALUE_COLORS.red,

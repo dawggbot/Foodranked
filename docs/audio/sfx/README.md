@@ -13,3 +13,7 @@ Browser-ready files should use stable lowercase names and paths that can be refe
 Current stamp mirror:
 
 - `stamps/dragon-studio-distant-bang-472364.mp3`
+
+Current transition mirror:
+
+- `transitions/oxidvideos-transition-sfx-2-409073.mp3`

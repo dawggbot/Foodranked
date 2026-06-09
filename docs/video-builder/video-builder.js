@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260609-pro-con-audio-glow-step-v1';
+  const BUILDER_BUILD_ID = '20260609-section-transition-sfx-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -37,6 +37,9 @@
   const STAMP_SFX_START_OFFSET_RANGE_SECONDS = { min: 0, max: 0.045 };
   const STAMP_SFX_LEAD_SECONDS = 0.1;
   const STAMP_SFX_POOL_SIZE = 4;
+  const SECTION_TRANSITION_SFX_PATH = 'audio/sfx/transitions/oxidvideos-transition-sfx-2-409073.mp3';
+  const SECTION_TRANSITION_SFX_VOLUME = 0.22;
+  const SECTION_TRANSITION_SFX_POOL_SIZE = 3;
   const HIGHLIGHT_GLOW_SFX_PATH = 'audio/sfx/ui/coghezzi-holy-aura-resonance-magical-energy-loop-533856(1).mp3';
   const HIGHLIGHT_GLOW_SFX_VOLUME = 0.36;
   const HIGHLIGHT_GLOW_SFX_FADE_IN_SPEED = 5.2;
@@ -211,6 +214,9 @@
     stampSfxPool: [],
     stampSfxPoolIndex: 0,
     playedStampSfxKeys: new Set(),
+    transitionSfxPool: [],
+    transitionSfxPoolIndex: 0,
+    playedTransitionSfxKeys: new Set(),
     highlightGlowSfxAudio: null,
     highlightGlowSfxVolume: 0,
     highlightGlowSfxKey: '',
@@ -3716,6 +3722,61 @@
     }
   }
 
+  function sectionTransitionSfxEvents() {
+    return sceneStarts()
+      .slice(1)
+      .map(scene => ({
+        key: `section-transition:${scene.id}:${scene.start.toFixed(3)}`,
+        sceneId: scene.id,
+        time: Number(scene.start.toFixed(3))
+      }));
+  }
+
+  function nextTransitionSfxAudio() {
+    if (!state.transitionSfxPool.length) {
+      state.transitionSfxPool = Array.from({ length: SECTION_TRANSITION_SFX_POOL_SIZE }, () => {
+        const audio = new Audio(docsAssetPath(SECTION_TRANSITION_SFX_PATH));
+        audio.preload = 'auto';
+        audio.volume = SECTION_TRANSITION_SFX_VOLUME;
+        return audio;
+      });
+    }
+    const audio = state.transitionSfxPool[state.transitionSfxPoolIndex % state.transitionSfxPool.length];
+    state.transitionSfxPoolIndex += 1;
+    return audio;
+  }
+
+  function playTransitionSfx(event) {
+    if (!state.audioEnabled || !event) return;
+    const audio = nextTransitionSfxAudio();
+    try {
+      audio.pause();
+      audio.currentTime = 0;
+      audio.volume = SECTION_TRANSITION_SFX_VOLUME;
+      const playPromise = audio.play();
+      if (playPromise?.catch) playPromise.catch(() => {});
+    } catch {}
+  }
+
+  function pauseTransitionSfx() {
+    for (const audio of state.transitionSfxPool || []) {
+      try {
+        audio.pause();
+        audio.currentTime = 0;
+      } catch {}
+    }
+  }
+
+  function triggerTransitionSfxBetween(previousTime, currentTime) {
+    if (!state.playing || !state.audioEnabled || currentTime <= previousTime) return;
+    for (const event of sectionTransitionSfxEvents()) {
+      if (state.playedTransitionSfxKeys.has(event.key)) continue;
+      if (event.time <= previousTime || event.time > currentTime) continue;
+      state.playedTransitionSfxKeys.add(event.key);
+      playTransitionSfx(event);
+    }
+  }
+
   function applyLayerAnimation(node, layer, scene, sceneProgress, index, persistent = false, revealSchedule = null) {
     if (persistent) {
       node.style.opacity = '1';
@@ -3836,7 +3897,10 @@
     els.playPause.textContent = 'Play';
     if (els.narrationAudio) els.narrationAudio.pause();
     pauseHighlightGlowSfx();
-    if (pauseSfx) pauseStampSfx();
+    if (pauseSfx) {
+      pauseStampSfx();
+      pauseTransitionSfx();
+    }
   }
 
   function startPlayback() {
@@ -3846,6 +3910,7 @@
     state.highlightGlowSfxLastFrameAt = performance.now();
     state.audioInHold = false;
     state.playedStampSfxKeys = new Set();
+    state.playedTransitionSfxKeys = new Set();
     els.playPause.textContent = 'Pause';
     syncAudioPlaybackState();
     requestAnimationFrame(tick);
@@ -3856,6 +3921,7 @@
     const elapsed = (now - state.startedAt) / 1000;
     const previousTime = state.currentTime;
     state.currentTime = state.playheadStart + elapsed;
+    triggerTransitionSfxBetween(previousTime, state.currentTime);
     triggerStampSfxBetween(previousTime, state.currentTime);
     if (state.currentTime >= totalDuration()) {
       state.currentTime = totalDuration();

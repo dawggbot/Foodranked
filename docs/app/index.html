@@ -722,26 +722,32 @@
       input[type="text"], input[type="number"], select, textarea { padding: 8px 9px; }
 
       .inspector {
-        display: grid;
-        grid-template-rows: minmax(104px, 0.42fr) minmax(0, 0.58fr);
+        display: flex;
+        flex-direction: column;
         gap: 10px;
-        overflow: hidden;
-        align-content: stretch;
+        overflow: auto;
       }
       .inspector > .stack {
-        min-height: 0;
-        overflow: hidden;
+        min-height: auto;
+        overflow: visible;
       }
-      .inspector > .stack:first-child,
-      .inspector > .stack:nth-child(2) {
-        grid-template-rows: auto minmax(0, 1fr);
-      }
-      .inspector #layerList,
-      .inspector #inspectorPanel,
-      .inspector #noSelection {
+      .inspector #layerList {
+        max-height: 150px;
         min-height: 0;
         overflow: auto;
         overflow-x: hidden;
+        padding-right: 2px;
+      }
+      .inspector #sectionTextList {
+        max-height: 190px;
+        overflow: auto;
+        overflow-x: hidden;
+        padding-right: 2px;
+      }
+      .inspector #inspectorPanel,
+      .inspector #noSelection {
+        min-height: 0;
+        overflow: visible;
         padding-right: 2px;
       }
       .inspector .layer-list { gap: 6px; }
@@ -805,6 +811,8 @@
       .card-button { padding: 8px; border-radius: 12px; }
       .tool-card { padding: 8px; }
       .toolbar-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .inspector #layerList { max-height: 116px; }
+      .inspector #sectionTextList { max-height: 150px; }
       .nudge-pad {
         grid-template-columns: repeat(3, 36px);
         grid-template-rows: repeat(3, 30px);
@@ -963,7 +971,17 @@
             <label>X <input id="propX" type="number" step="1" /></label>
             <label>Y <input id="propY" type="number" step="1" /></label>
           </div>
-          <label>Visible <select id="propVisible"><option value="true">true</option><option value="false">false</option></select></label>
+          <div class="tool-card stack">
+            <h3>Layer</h3>
+            <div class="split-2">
+              <label>Visible <select id="propVisible"><option value="true">true</option><option value="false">false</option></select></label>
+              <label>Z index <input id="propZ" type="number" step="1" /></label>
+            </div>
+            <div class="toolbar-grid two">
+              <button id="layerBringForward" type="button" title="Bring forward one layer" aria-label="Bring forward one layer">Forward</button>
+              <button id="layerSendBackward" type="button" title="Send backward one layer" aria-label="Send backward one layer">Backward</button>
+            </div>
+          </div>
           <div id="spriteControls" class="stack" hidden>
             <div id="spriteInfo" class="sprite-info"></div>
 
@@ -1015,21 +1033,6 @@
                 <button type="button" data-align="centerY">Centre Y</button>
                 <button type="button" data-align="bottom">Bottom</button>
               </div>
-            </div>
-
-            <div class="tool-card stack">
-              <h3>Layer</h3>
-              <div class="split-2">
-                <label>Z index <input id="propZ" type="number" step="1" /></label>
-                <div class="stack">
-                  <span class="tiny muted">Layer order</span>
-                  <div class="row">
-                    <button id="layerBringForward" type="button">Bring forward</button>
-                    <button id="layerSendBackward" type="button">Send backward</button>
-                  </div>
-                </div>
-              </div>
-              <button id="deleteLayer" type="button">Delete selected layer</button>
             </div>
             <div class="small muted">Controls work in authored 135×240 grid pixels. Sizes are rounded to whole pixels so sprites stay crisp.</div>
           </div>
@@ -1290,7 +1293,6 @@
       duplicateLayer: document.getElementById('duplicateLayer'),
       layerBringForward: document.getElementById('layerBringForward'),
       layerSendBackward: document.getElementById('layerSendBackward'),
-      deleteLayer: document.getElementById('deleteLayer'),
       propText: document.getElementById('propText'),
       propFontSize: document.getElementById('propFontSize'),
       propWidth: document.getElementById('propWidth'),
@@ -3483,6 +3485,25 @@
       void renderAll();
     }
 
+    function deleteSelectedLayer() {
+      const layer = getLayerById(state.selectedLayerId);
+      if (!layer) return false;
+      const sourceLayer = getSyncedGlobalSourceLayer(layer);
+      if (sourceLayer) {
+        const sourceSectionId = isHeaderLayoutLayer(sourceLayer) ? 'intro' : 'outro';
+        const sourceLayers = getSectionLayersFromLayout(state.layout, sourceSectionId);
+        const sourceIndex = sourceLayers.findIndex(item => item.id === sourceLayer.id);
+        if (sourceIndex !== -1) sourceLayers.splice(sourceIndex, 1);
+      }
+      const layers = getCurrentSectionLayers();
+      const index = layers.findIndex(item => item.id === state.selectedLayerId);
+      if (index === -1) return false;
+      layers.splice(index, 1);
+      state.selectedLayerId = null;
+      void renderAll();
+      return true;
+    }
+
     function scaleSelectedSprite(factor) {
       mutateSelectedLayer(layer => {
         const metadataWidth = layer.naturalWidth || layer.width || 1;
@@ -4523,6 +4544,7 @@
       els.propX.value = Math.round(layer.x || 0);
       els.propY.value = Math.round(layer.y || 0);
       els.propVisible.value = String(layer.visible !== false);
+      els.propZ.value = layer.z || 0;
       const isText = layer.kind === 'text';
       const isSprite = layer.kind === 'sprite';
       els.spriteControls.hidden = !isSprite;
@@ -4532,7 +4554,6 @@
         els.propSpriteWidth.value = width;
         els.propSpriteHeight.value = height;
         els.propPreserveAspect.checked = !!layer.preserveAspect;
-        els.propZ.value = layer.z || 0;
         els.spriteInfo.textContent = `${layer.label || 'Sprite'} · natural ${layer.naturalWidth || '?'}×${layer.naturalHeight || '?'} · canvas ${width}×${height} · ${layer.src || ''}`;
       }
       if (isText) {
@@ -4949,23 +4970,6 @@ async function renderAll() {
     els.propFontSize.addEventListener('input', () => updateSelectedWithoutInspectorReset(layer => layer.fontSize = Number(els.propFontSize.value) || 6));
     els.propWidth.addEventListener('input', () => updateSelectedWithoutInspectorReset(layer => layer.width = els.propWidth.value ? Number(els.propWidth.value) : undefined));
     els.propAlign.addEventListener('change', () => updateSelectedWithoutInspectorReset(layer => layer.align = els.propAlign.value));
-    els.deleteLayer.addEventListener('click', () => {
-      const layer = getLayerById(state.selectedLayerId);
-      if (!layer) return;
-      const sourceLayer = getSyncedGlobalSourceLayer(layer);
-      if (sourceLayer) {
-        const sourceSectionId = isHeaderLayoutLayer(sourceLayer) ? 'intro' : 'outro';
-        const sourceLayers = getSectionLayersFromLayout(state.layout, sourceSectionId);
-        const sourceIndex = sourceLayers.findIndex(item => item.id === sourceLayer.id);
-        if (sourceIndex !== -1) sourceLayers.splice(sourceIndex, 1);
-      }
-      const layers = getCurrentSectionLayers();
-      const index = layers.findIndex(item => item.id === state.selectedLayerId);
-      if (index === -1) return;
-      layers.splice(index, 1);
-      state.selectedLayerId = null;
-      void renderAll();
-    });
     els.copySpriteReport.addEventListener('click', async () => {
       const text = spriteDiagnosticsReport();
       try {
@@ -4993,10 +4997,13 @@ async function renderAll() {
       else if (event.key === 'ArrowRight') mutateEditableLayer(layer, current => current.x += step);
       else if (event.key === 'ArrowUp') mutateEditableLayer(layer, current => current.y -= step);
       else if (event.key === 'ArrowDown') mutateEditableLayer(layer, current => current.y += step);
+      else if (event.key === 'Delete' || event.key === 'Backspace') {
+        if (!deleteSelectedLayer()) handled = false;
+      }
       else handled = false;
       if (handled) {
         event.preventDefault();
-        void renderAll();
+        if (event.key !== 'Delete' && event.key !== 'Backspace') void renderAll();
       }
     });
 

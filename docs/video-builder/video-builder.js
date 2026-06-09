@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260609-display-builder-sprite-lock-v1';
+  const BUILDER_BUILD_ID = '20260609-display-builder-placement-v2';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -803,22 +803,6 @@
   function isOutroTierStamp(layer) {
     const fingerprint = `${layer?.id || ''} ${layer?.label || ''} ${layer?.effect || ''}`.toLowerCase();
     return fingerprint.includes('outro_d_tier_stamp') || fingerprint.includes('d-tier-stamp');
-  }
-
-  function isGeneratedVideoSprite(layer) {
-    const id = String(layer?.id || '').toLowerCase();
-    return id === 'intro_food_hero'
-      || id === 'intro_ranked_sprite'
-      || id.startsWith('intro_ranked_glimmer_')
-      || isOutroTierStamp(layer);
-  }
-
-  function cloneForVideoRender(layer) {
-    const nextLayer = clone(layer);
-    if (isSpriteLayer(nextLayer) && !isGeneratedVideoSprite(nextLayer)) {
-      nextLayer.layoutSpriteLocked = true;
-    }
-    return nextLayer;
   }
 
   function isPersistentChrome(layer) {
@@ -2049,7 +2033,7 @@
       ...(sectionHeader.length ? sectionHeader : introHeader),
       ...(sectionUiChrome.length ? sectionUiChrome : introUiChrome),
       ...(sectionIndicators.length ? sectionIndicators : introIndicators)
-    ].map(cloneForVideoRender);
+    ].map(clone);
     const indicators = normalizeProgressIndicatorSlots(rawLayers.filter(isSectionIndicator));
     const visibleIndicatorSet = new Set(indicators);
     const layers = rawLayers.filter(layer => !isSectionIndicator(layer) || visibleIndicatorSet.has(layer));
@@ -2071,8 +2055,7 @@
 
   function sceneContentLayers(sectionId) {
     const layers = getSectionLayers(state.layout, sectionId)
-      .filter(layer => !isPersistentChrome(layer) && !isSectionIndicator(layer))
-      .map(cloneForVideoRender);
+      .filter(layer => !isPersistentChrome(layer) && !isSectionIndicator(layer));
     if (sectionId === 'intro') return [...layers, ...introHookLayers(selectedFood())];
     return layers;
   }
@@ -2165,7 +2148,6 @@
       node.dataset.renderKey = renderKey;
       node.dataset.layerId = layer.id || '';
       node.dataset.persistent = persistent ? 'true' : 'false';
-      node.dataset.layoutSpriteLocked = layer.layoutSpriteLocked ? 'true' : 'false';
       const revealSchedule = revealSchedules[renderIndex];
       const revealDelay = revealSchedule.start;
       node.dataset.revealDelay = revealDelay.toFixed(3);
@@ -3187,24 +3169,25 @@
     node.style.setProperty('--submacro-highlight-glow-wide', colorWithAlpha(color, 0.3 * strength));
   }
 
-  function isLayoutSpriteLockedNode(node) {
-    return node?.dataset?.layoutSpriteLocked === 'true';
-  }
-
   function applySubmacroNarrationHighlight(node, scene, revealSchedule, highlightMap) {
-    if (isLayoutSpriteLockedNode(node)) return;
     if (!highlightMap || revealSchedule?.family !== 'macro') return;
     const activeHighlight = highlightMap.get(revealSchedule.rowIndex);
     if (!activeHighlight) return;
     if (!['score-card', 'arrow', 'label', 'value', 'row'].includes(revealSchedule.kind)) return;
-    if (revealSchedule.kind === 'arrow') return;
     const color = macroSubmetricHighlightColor(scene?.id || '', activeHighlight.rowIndex);
     const strength = clamp(activeHighlight.strength, 0, 1);
     applyNarrationHighlightStyles(node, color, strength);
+    if (revealSchedule.kind === 'arrow') {
+      node.style.filter = [
+        `brightness(${(1 + (0.24 * strength)).toFixed(3)})`,
+        `saturate(${(1 + (0.32 * strength)).toFixed(3)})`,
+        `drop-shadow(0 0 calc(${(1.2 + (1.8 * strength)).toFixed(2)}px * var(--pixel-unit)) ${colorWithAlpha(color, 0.42 + (0.42 * strength))})`,
+        `drop-shadow(0 0 calc(${(2.2 + (1.8 * strength)).toFixed(2)}px * var(--pixel-unit)) ${colorWithAlpha(color, 0.18 + (0.2 * strength))})`
+      ].join(' ');
+    }
   }
 
   function applyMicronNarrationHighlight(node, scene, revealSchedule, highlightMap) {
-    if (isLayoutSpriteLockedNode(node)) return;
     if (!highlightMap || revealSchedule?.family !== 'micron') return;
     if (revealSchedule.columnIndex == null) return;
     const activeHighlight = highlightMap.get(revealSchedule.columnIndex);
@@ -3216,7 +3199,6 @@
   }
 
   function applyProConNarrationHighlight(node, scene, revealSchedule, highlightMap) {
-    if (isLayoutSpriteLockedNode(node)) return;
     if (!highlightMap || (revealSchedule?.family !== 'pros' && revealSchedule?.family !== 'cons')) return;
     if (revealSchedule.rowIndex == null) return;
     if (!['bullet', 'impact', 'item', 'row'].includes(revealSchedule.kind)) return;
@@ -3778,7 +3760,7 @@
     let scale = layer.kind === 'text' ? 1 : 0.96 + (visible * 0.04);
     let clip = '';
     let stampImpactPulse = 0;
-    const lockSpriteLayout = layer.kind === 'sprite' && layer.layoutSpriteLocked === true;
+    const lockSpriteLayout = layer.kind === 'sprite' && !persistent && !isProConRowReveal;
 
     if (isOutroTierStamp || isIntroStampSprite) {
       const impactPulse = Math.sin(visible * Math.PI);
@@ -3806,13 +3788,6 @@
     }
 
     const flip = layer.flipY ? ' scaleY(-1)' : '';
-    if (lockSpriteLayout) {
-      node.style.transformOrigin = layer.flipY ? 'center' : 'top left';
-      node.style.opacity = String(visible);
-      node.style.transform = `translate3d(0, 0, 0) scale(1)${flip}`;
-      if (clip) node.style.clipPath = clip;
-      return;
-    }
     node.style.transformOrigin = isMacroArrowReveal || isOutroTierStamp || isIntroStampSprite || layer.flipY ? 'center' : 'top left';
     node.style.opacity = String(visible);
     node.style.transform = `translate3d(calc(${x}px * var(--pixel-unit)), calc(${y}px * var(--pixel-unit)), 0) rotate(${rotate.toFixed(2)}deg) scale(${scale})${flip}`;
@@ -3833,6 +3808,13 @@
         `brightness(${(1.08 + revealPulse * 0.28).toFixed(3)})`,
         `saturate(${(1.16 + revealPulse * 0.28).toFixed(3)})`,
         `drop-shadow(0 0 calc(${(1.15 + revealPulse * 2.1).toFixed(2)}px * var(--pixel-unit)) rgba(${glowRgb}, ${glowStrength.toFixed(3)}))`
+      ].join(' ');
+    } else if (isMacroArrowReveal) {
+      const glowRgb = macroArrowGlowRgb(layer);
+      node.style.filter = [
+        'brightness(1.08)',
+        'saturate(1.16)',
+        `drop-shadow(0 0 calc(1.15px * var(--pixel-unit)) rgba(${glowRgb}, 0.35))`
       ].join(' ');
     }
   }

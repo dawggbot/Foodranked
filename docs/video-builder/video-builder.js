@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260610-display-json-uppercase-v1';
+  const BUILDER_BUILD_ID = '20260610-macro-bar-reveal-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -18,7 +18,6 @@
   const SUBMACRO_REVEAL_WINDOW_SECONDS = 1.25;
   const SUBMACRO_REVEAL_WINDOW_MAX_PROGRESS = 0.28;
   const SECTION_NARRATION_AFTER_REVEAL_PAD_SECONDS = 0.03;
-  const MACRO_CONTINUATION_NARRATION_DELAY_SECONDS = 0.42;
   const PRO_CON_ROW_REVEAL_SECONDS = 0.18;
   const PRO_CON_ROW_STEP_SECONDS = 0.24;
   const PRO_CON_NARRATION_AFTER_REVEAL_PAD_SECONDS = 0.18;
@@ -57,7 +56,8 @@
   const SECTION_HOLD_IDS = new Set(['intro', 'fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons']);
   const HIDDEN_CAPTION_SECTION_IDS = new Set(['intro']);
   const MACRO_REVEAL_SECONDS = 0.08;
-  const MACRO_ROW_AFTER_ICON_SECONDS = 0.38;
+  const MACRO_BAR_FILL_SECONDS = 0.72;
+  const MACRO_ROW_AFTER_BAR_SECONDS = 0.14;
   const INTRO_RANKED_SPRITE_PATH = './sprites/ui/intro_&_outro/ranked.png';
   const OUTRO_D_TIER_SPRITE_PATH = './sprites/ui/intro_&_outro/D tier.png';
   const INTRO_RANKED_VISIBLE_CENTER = { x: 0.5, y: 0.47 };
@@ -69,6 +69,25 @@
     green: '#7cf2a7',
     red: '#ff6f6f',
     neutral: '#ffffff'
+  };
+
+  const MACRO_FILL_RANGES = {
+    nuts: { fats: [30, 75], carbs: [5, 30], protein: [10, 30] },
+    seeds: { fats: [25, 70], carbs: [5, 35], protein: [10, 30] },
+    grains: { fats: [1, 10], carbs: [50, 85], protein: [5, 18] },
+    legumes: { fats: [1, 10], carbs: [40, 65], protein: [15, 30] },
+    tubers: { fats: [0, 2], carbs: [15, 35], protein: [1, 5] },
+    fruits: { fats: [0, 5], carbs: [8, 25], protein: [0, 4] },
+    vegetables: { fats: [0, 3], carbs: [3, 15], protein: [1, 6] },
+    meats: { fats: [2, 35], carbs: [0, 0], protein: [15, 30] },
+    dairy: { fats: [0, 35], carbs: [3, 10], protein: [3, 25] },
+    'oils-and-fats': { fats: [80, 100], carbs: [0, 0], protein: [0, 0] }
+  };
+
+  const DEFAULT_MACRO_FILL_RANGES = {
+    fats: [0, 40],
+    carbs: [0, 50],
+    protein: [0, 35]
   };
 
   const SECTIONS = [
@@ -523,6 +542,8 @@
     if (!src || /^(data:|https?:|blob:)/i.test(src)) return src;
     return String(src)
       .replace('/header/food_image_plate/', '/header/food_plate/')
+      .replace('/macros/fats/fat_bar_frame.svg', '/macros_section/macro_bar_frame.png')
+      .replace('/macros/fats/fat_bar_fill.svg', '/macros_section/section_1_fats/fat_macro_bar_fill.gif')
       .replace('/macros/arrow_indicators/', '/macros_section/arrow_indicators/')
       .replace('/macros/fats/', '/macros_section/section_1_fats/')
       .replace('/macros/carbs/', '/macros_section/section_2_carbs/')
@@ -909,8 +930,7 @@
 
   function sectionNarrationDelaySeconds(sectionId, food = selectedFood()) {
     if (['fats', 'carbs', 'protein'].includes(sectionId)) {
-      if (sectionId === 'carbs' || sectionId === 'protein') return MACRO_CONTINUATION_NARRATION_DELAY_SECONDS;
-      return Number((MACRO_REVEAL_SECONDS + MACRO_ROW_AFTER_ICON_SECONDS + SUBMACRO_REVEAL_WINDOW_SECONDS + SECTION_NARRATION_AFTER_REVEAL_PAD_SECONDS).toFixed(3));
+      return Number((macroSubmacroRevealDelaySeconds() + SECTION_NARRATION_AFTER_REVEAL_PAD_SECONDS).toFixed(3));
     }
     if (sectionId === 'vitamins' || sectionId === 'minerals') {
       const maxStep = Math.max(1, maxMicronStepForSection(sectionId, food));
@@ -926,6 +946,31 @@
       return Number((PRO_CON_ROW_REVEAL_SECONDS + (2 * PRO_CON_ROW_STEP_SECONDS) + PRO_CON_NARRATION_AFTER_REVEAL_PAD_SECONDS).toFixed(3));
     }
     return 0;
+  }
+
+  function macroSubmacroRevealDelaySeconds() {
+    return MACRO_REVEAL_SECONDS + MACRO_BAR_FILL_SECONDS + MACRO_ROW_AFTER_BAR_SECONDS;
+  }
+
+  function macroFillRange(foodType, sectionId) {
+    const normalized = normalizeFoodType(foodType);
+    return MACRO_FILL_RANGES[normalized]?.[sectionId] || DEFAULT_MACRO_FILL_RANGES[sectionId] || [0, 30];
+  }
+
+  function macroValue(food, sectionId) {
+    const header = food?.header || {};
+    if (sectionId === 'fats') return asNumber(header.fat_g, null);
+    if (sectionId === 'carbs') return asNumber(header.carb_g, null);
+    if (sectionId === 'protein') return asNumber(header.protein_g, null);
+    return null;
+  }
+
+  function macroBarFillRatio(food, sectionId) {
+    const value = macroValue(food, sectionId);
+    if (value == null) return 0;
+    const [min, max] = macroFillRange(food?.foodType, sectionId);
+    if (max <= min) return value > 0 ? 1 : 0;
+    return clamp((value - min) / (max - min), 0, 1);
   }
 
   function syncHeader(layout, food) {
@@ -1116,6 +1161,80 @@
           value.width = binding.valueWidth;
         }
       });
+    }
+  }
+
+  function macroBarLayerSection(layer, fallbackSectionId = '') {
+    const fingerprint = `${layer?.id || ''} ${layer?.label || ''} ${layer?.src || ''}`.toLowerCase();
+    if (fingerprint.includes('section_1_fats') || /\bfat(?:s)?[_ -]?(?:macro_)?bar/.test(fingerprint)) return 'fats';
+    if (fingerprint.includes('section_2_carbs') || /\bcarb(?:s)?[_ -]?(?:macro_)?bar/.test(fingerprint)) return 'carbs';
+    if (fingerprint.includes('section_3_protein') || /\bprotein[_ -]?(?:macro_)?bar/.test(fingerprint)) return 'protein';
+    return ['fats', 'carbs', 'protein'].includes(fallbackSectionId) ? fallbackSectionId : '';
+  }
+
+  function isMacroBarFrame(layer) {
+    const fingerprint = `${layer?.id || ''} ${layer?.label || ''} ${layer?.src || ''}`.toLowerCase();
+    return isSpriteLayer(layer) && /(macro_bar_frame|bar_frame|macro bar frame)/.test(fingerprint);
+  }
+
+  function isMacroBarFill(layer) {
+    const fingerprint = `${layer?.id || ''} ${layer?.label || ''} ${layer?.src || ''}`.toLowerCase();
+    return isSpriteLayer(layer) && /(macro_bar_fill|bar_fill|macro bar fill)/.test(fingerprint);
+  }
+
+  function ensureMacroBarLayers(layout) {
+    const layers = getSectionLayers(layout, 'fats');
+    const hasFrame = layers.some(layer => isMacroBarFrame(layer) && macroBarLayerSection(layer, 'fats') === 'fats');
+    const hasFill = layers.some(layer => isMacroBarFill(layer) && macroBarLayerSection(layer, 'fats') === 'fats');
+    if (!hasFill) {
+      layers.push({
+        id: 'fats_macro_bar_fill',
+        kind: 'sprite',
+        label: 'FATS macro bar fill',
+        src: './sprites/macros_section/section_1_fats/fat_macro_bar_fill.gif',
+        x: 31,
+        y: 48,
+        z: 7,
+        width: 88,
+        height: 14,
+        visible: true,
+        foodDriven: true,
+        preserveAspect: false,
+        manualPosition: false
+      });
+    }
+    if (!hasFrame) {
+      layers.push({
+        id: 'fats_macro_bar_frame',
+        kind: 'sprite',
+        label: 'Macro bar frame',
+        src: './sprites/macros_section/macro_bar_frame.png',
+        x: 31,
+        y: 48,
+        z: 8,
+        width: 88,
+        height: 14,
+        visible: true,
+        foodDriven: false,
+        preserveAspect: false,
+        manualPosition: false
+      });
+    }
+  }
+
+  function syncMacroBars(layout, food) {
+    for (const sectionId of ['fats', 'carbs', 'protein']) {
+      for (const layer of getSectionLayers(layout, sectionId)) {
+        if (isMacroBarFrame(layer)) {
+          layer.label = layer.label || 'Macro bar frame';
+        }
+        if (!isMacroBarFill(layer)) continue;
+        const layerSection = macroBarLayerSection(layer, sectionId) || sectionId;
+        layer.label = layer.label || `${layerSection.toUpperCase()} macro bar fill`;
+        layer.fillRatio = macroBarFillRatio(food, layerSection);
+        layer.fillRange = macroFillRange(food?.foodType, layerSection);
+        layer.fillValue = macroValue(food, layerSection);
+      }
     }
   }
 
@@ -1470,9 +1589,11 @@
     normalizeOutroScoreLayout(layout);
     ensureOutroTierStampLayer(layout, food);
     ensureMacroTextLayers(layout);
+    ensureMacroBarLayers(layout);
     syncHeader(layout, food);
     syncSectionIndicators(layout, food);
     syncMacroText(layout, food);
+    syncMacroBars(layout, food);
     syncMacroArrows(layout, food);
     syncMicros(layout, food, 'vitamins', VITAMIN_TEXT_SPECS, 'vitamins_label', 'vitamins_percent');
     syncMicros(layout, food, 'minerals', MINERAL_TEXT_SPECS, 'minerals_label', 'minerals_percent');
@@ -3386,6 +3507,14 @@
     }
     if (['fats', 'carbs', 'protein'].includes(sectionId)) {
       const rowIndex = macroRowIndex(layer);
+      if (isMacroBarFill(layer)) {
+        return {
+          family: 'macro',
+          kind: 'bar-fill',
+          fillRatio: asNumber(layer?.fillRatio, null)
+        };
+      }
+      if (isMacroBarFrame(layer)) return { family: 'macro', kind: 'bar-frame' };
       if (isMacroIcon(layer)) return { family: 'macro', kind: 'icon' };
       if (rowIndex != null) {
         return {
@@ -3463,8 +3592,8 @@
     }
 
     if (['fats', 'carbs', 'protein'].includes(sectionId)) {
-      if (classification.kind === 'icon' || classification.kind === 'decor') return secondsAnchor(MACRO_REVEAL_SECONDS);
-      if (classification.rowIndex != null) return secondsAnchor(MACRO_REVEAL_SECONDS + MACRO_ROW_AFTER_ICON_SECONDS);
+      if (['icon', 'bar-frame', 'bar-fill', 'decor'].includes(classification.kind)) return secondsAnchor(MACRO_REVEAL_SECONDS);
+      if (classification.rowIndex != null) return secondsAnchor(macroSubmacroRevealDelaySeconds());
     }
 
     if (sectionId === 'vitamins' || sectionId === 'minerals') {
@@ -3534,6 +3663,7 @@
       kind: classification.kind,
       rowIndex: classification.rowIndex ?? null,
       columnIndex: classification.columnIndex ?? null,
+      fillRatio: classification.fillRatio ?? null,
       start: delay,
       startSeconds: Number((delay * Math.max(1, sceneContentDuration(scene))).toFixed(3))
     };
@@ -3791,6 +3921,7 @@
     const sceneDuration = Math.max(1, sceneContentDuration(scene));
     const isMacroRowReveal = revealSchedule?.family === 'macro' && revealSchedule.rowIndex != null;
     const isMacroArrowReveal = isMacroRowReveal && revealSchedule?.kind === 'arrow';
+    const isMacroBarFillReveal = revealSchedule?.family === 'macro' && revealSchedule?.kind === 'bar-fill';
     const isMicronReveal = revealSchedule?.family === 'micron';
     const isMicronTierReveal = isMicronReveal && ['dv-bar', 'icon', 'label', 'value'].includes(revealSchedule?.kind);
     const isProConRowReveal = (revealSchedule?.family === 'pros' || revealSchedule?.family === 'cons') && revealSchedule.rowIndex != null;
@@ -3801,6 +3932,8 @@
       && String(layer?.effect || '').includes('d-tier-stamp');
     const revealWindowSeconds = isIntroStampSprite || isOutroTierStamp
       ? STAMP_REVEAL_SECONDS
+      : isMacroBarFillReveal
+      ? MACRO_BAR_FILL_SECONDS
       : isMacroRowReveal
       ? SUBMACRO_REVEAL_WINDOW_SECONDS
       : isMicronTierReveal
@@ -3808,8 +3941,10 @@
         : isMicronReveal
           ? MICRON_STAMP_REVEAL_SECONDS
       : AUDIO_REVEAL_WINDOW_SECONDS;
-    const revealLead = isMacroRowReveal || isMicronReveal ? 0 : Math.min(0.035, AUDIO_REVEAL_LEAD_SECONDS / sceneDuration);
-    const revealWindow = isMacroRowReveal
+    const revealLead = isMacroRowReveal || isMacroBarFillReveal || isMicronReveal ? 0 : Math.min(0.035, AUDIO_REVEAL_LEAD_SECONDS / sceneDuration);
+    const revealWindow = isMacroBarFillReveal
+      ? Math.min(0.32, Math.max(0.012, revealWindowSeconds / sceneDuration))
+      : isMacroRowReveal
       ? macroRevealWindowProgress(scene, revealWindowSeconds)
       : isIntroStampSprite || isOutroTierStamp
         ? stampRevealWindowProgress(scene, revealSchedule)
@@ -3818,7 +3953,7 @@
           : Math.min(0.18, Math.max(0.045, revealWindowSeconds / sceneDuration));
     const rawRevealProgress = (sceneProgress + revealLead - delay) / revealWindow;
     const revealProgress = easeOutCubic(rawRevealProgress);
-    const visible = clamp(revealProgress, 0, 1);
+    let visible = clamp(revealProgress, 0, 1);
     const revealPulse = isMacroArrowReveal
       ? Math.sin(visible * Math.PI)
       : 0;
@@ -3830,7 +3965,13 @@
     let stampImpactPulse = 0;
     const lockSpriteLayout = layer.kind === 'sprite' && !persistent && !isProConRowReveal;
 
-    if (isOutroTierStamp || isIntroStampSprite) {
+    if (isMacroBarFillReveal) {
+      const targetFill = clamp(asNumber(layer?.fillRatio, revealSchedule?.fillRatio ?? 0), 0, 1);
+      const fillProgress = clamp(easeOutCubic(rawRevealProgress), 0, 1) * targetFill;
+      visible = rawRevealProgress > 0 ? 1 : 0;
+      scale = 1;
+      clip = `inset(0 ${Math.round((1 - fillProgress) * 100)}% 0 0)`;
+    } else if (isOutroTierStamp || isIntroStampSprite) {
       const impactPulse = Math.sin(visible * Math.PI);
       stampImpactPulse = impactPulse;
       const entryTilt = isOutroTierStamp || revealSchedule?.kind === 'ranked-sprite' ? -4 : 4;

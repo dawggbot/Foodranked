@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260610-macro-bar-value-v1';
+  const BUILDER_BUILD_ID = '20260610-display-schema-ranges-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -71,24 +71,7 @@
     neutral: '#ffffff'
   };
 
-  const MACRO_FILL_RANGES = {
-    nuts: { fats: [30, 75], carbs: [5, 30], protein: [10, 30] },
-    seeds: { fats: [25, 70], carbs: [5, 35], protein: [10, 30] },
-    grains: { fats: [1, 10], carbs: [50, 85], protein: [5, 18] },
-    legumes: { fats: [1, 10], carbs: [40, 65], protein: [15, 30] },
-    tubers: { fats: [0, 2], carbs: [15, 35], protein: [1, 5] },
-    fruits: { fats: [0, 5], carbs: [8, 25], protein: [0, 4] },
-    vegetables: { fats: [0, 3], carbs: [3, 15], protein: [1, 6] },
-    meats: { fats: [2, 44], carbs: [0, 0], protein: [15, 30] },
-    dairy: { fats: [0, 35], carbs: [3, 10], protein: [3, 25] },
-    'oils-and-fats': { fats: [80, 100], carbs: [0, 0], protein: [0, 0] }
-  };
-
-  const DEFAULT_MACRO_FILL_RANGES = {
-    fats: [0, 40],
-    carbs: [0, 50],
-    protein: [0, 35]
-  };
+  const DISPLAY_SCHEMA = window.FOODRANKED_DISPLAY_SCHEMA || {};
 
   const SECTIONS = [
     { id: 'intro', label: 'Hook', duration: 2.4, reveal: 'pop' },
@@ -953,8 +936,11 @@
   }
 
   function macroFillRange(foodType, sectionId) {
-    const normalized = normalizeFoodType(foodType);
-    return MACRO_FILL_RANGES[normalized]?.[sectionId] || DEFAULT_MACRO_FILL_RANGES[sectionId] || [0, 30];
+    if (typeof DISPLAY_SCHEMA.getMacroFillRange === 'function') {
+      return DISPLAY_SCHEMA.getMacroFillRange(foodType, sectionId);
+    }
+    const fallback = DISPLAY_SCHEMA.defaultMacroFillRanges?.[sectionId];
+    return Array.isArray(fallback) ? fallback : [0, 30];
   }
 
   function macroValue(food, sectionId) {

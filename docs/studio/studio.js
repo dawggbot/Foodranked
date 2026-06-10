@@ -17,6 +17,20 @@ const SCORING_SECTIONS = [
 ];
 
 const DISPLAY_LAYOUT_STORAGE_KEY = 'foodranked-display-builder-v4';
+const DISPLAY_SCHEMA = window.FOODRANKED_DISPLAY_SCHEMA || {};
+const DISPLAY_SCHEMA_FOOD_TYPE_ORDER = [
+  'fruits',
+  'vegetables',
+  'grains',
+  'legumes',
+  'tubers',
+  'nuts',
+  'seeds',
+  'meats',
+  'dairy',
+  'oils-and-fats',
+  'misc'
+];
 
 const state = {
   foods: [],
@@ -63,6 +77,27 @@ function typeLabel(type = 'unknown') { return String(type).replace(/-/g, ' '); }
 function value(v, suffix = '') { return v == null ? '—' : `${v}${suffix}`; }
 function cap(s) { return String(s || '').replace(/(^|\s)\S/g, m => m.toUpperCase()); }
 function spritePath(id) { return `../app/sprites/header/food_images/${id}.png`; }
+
+function formatDisplayRange(range) {
+  if (!Array.isArray(range)) return 'N/A';
+  const [min, max] = range;
+  if (Number(max) <= 0) return '0g';
+  return `${min} to ${max}g`;
+}
+
+function displayMacroRangeRows() {
+  const ranges = DISPLAY_SCHEMA.macroFillRanges || {};
+  const orderedTypes = DISPLAY_SCHEMA_FOOD_TYPE_ORDER.filter(type => ranges[type]);
+  return orderedTypes.map(type => {
+    const row = ranges[type] || {};
+    return [
+      cap(typeLabel(type)),
+      formatDisplayRange(row.fats),
+      formatDisplayRange(row.carbs),
+      formatDisplayRange(row.protein)
+    ];
+  });
+}
 
 function normalizeSectionKey(key = '') {
   return key === 'proteins' ? 'protein' : key;
@@ -542,6 +577,7 @@ function displayLayoutPayload() {
 function rulesView() {
   const tierSummary = [['S','90–100'],['A','78–89'],['B','64–77'],['C','45–63'],['D','0–44']];
   const evenSplit = '1/7 each (about 14.3%)';
+  const macroRangeRows = displayMacroRangeRows();
   const sectionWeights = [
     ['Fats', evenSplit, 'Core score section'],
     ['Carbs', evenSplit, 'Core score section'],
@@ -606,9 +642,10 @@ function rulesView() {
         </div>
       </div>
       <div class="panel">
-        <h3>Why this page matters</h3>
-        <div class="copy" style="margin-top:12px;">The internal app needs a place where James can sanity-check what the system is rewarding before turning results into scripts. This page is the “why does this score exist?” buffer between raw JSON and creative output.</div>
-        <div class="copy" style="margin-top:12px;">The important rule is that the 7 top-level sections stay evenly split, while food-type weighting changes which kinds of wins and losses matter more inside each category.</div>
+        <h3>Display macro min/max ranges</h3>
+        <div class="mini-list" style="margin-top:14px;">
+          ${macroRangeRows.map(([type, fats, carbs, protein]) => `<div class="feature-item"><div class="title-row"><strong>${type}</strong><span class="pill">${fats} fat</span></div><div class="copy">Carbs: ${carbs} · Protein: ${protein}</div></div>`).join('')}
+        </div>
       </div>
     </section>
   `, '/rules');

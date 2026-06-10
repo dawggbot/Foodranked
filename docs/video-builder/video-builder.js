@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260610-display-schema-ranges-v1';
+  const BUILDER_BUILD_ID = '20260610-macro-bar-pause-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -56,8 +56,9 @@
   const SECTION_HOLD_IDS = new Set(['intro', 'fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons']);
   const HIDDEN_CAPTION_SECTION_IDS = new Set(['intro']);
   const MACRO_REVEAL_SECONDS = 0.08;
-  const MACRO_BAR_FILL_SECONDS = 0.72;
+  const MACRO_BAR_FILL_SECONDS = 1.35;
   const MACRO_ROW_AFTER_BAR_SECONDS = 0.14;
+  const MACRO_BAR_FILL_SPRITE_VISIBLE_WIDTH_RATIO = 22 / 104;
   const INTRO_RANKED_SPRITE_PATH = './sprites/ui/intro_&_outro/ranked.png';
   const OUTRO_D_TIER_SPRITE_PATH = './sprites/ui/intro_&_outro/D tier.png';
   const INTRO_RANKED_VISIBLE_CENTER = { x: 0.5, y: 0.47 };
@@ -935,6 +936,19 @@
     return MACRO_REVEAL_SECONDS + MACRO_BAR_FILL_SECONDS + MACRO_ROW_AFTER_BAR_SECONDS;
   }
 
+  function macroBarFillEase(progress) {
+    const safeProgress = clamp(progress, 0, 1);
+    return 1 - Math.pow(1 - safeProgress, 4);
+  }
+
+  function macroBarFillColor(sectionId) {
+    return {
+      fats: '#7b5fd8',
+      carbs: '#df9f39',
+      protein: '#dd627d'
+    }[sectionId] || '#7b5fd8';
+  }
+
   function macroFillRange(foodType, sectionId) {
     if (typeof DISPLAY_SCHEMA.getMacroFillRange === 'function') {
       return DISPLAY_SCHEMA.getMacroFillRange(foodType, sectionId);
@@ -1221,7 +1235,7 @@
         src: './sprites/macros_section/section_1_fats/fat_macro_bar_fill.gif',
         x: 31,
         y: 48,
-        z: 7,
+        z: 9,
         width: 88,
         height: 14,
         visible: true,
@@ -1251,7 +1265,11 @@
 
   function syncMacroBars(layout, food) {
     for (const sectionId of ['fats', 'carbs', 'protein']) {
-      for (const layer of getSectionLayers(layout, sectionId)) {
+      const sectionLayers = getSectionLayers(layout, sectionId);
+      const frameZ = sectionLayers
+        .filter(isMacroBarFrame)
+        .reduce((maxZ, layer) => Math.max(maxZ, Number(layer.z) || 0), 0);
+      for (const layer of sectionLayers) {
         if (isMacroBarFrame(layer)) {
           layer.label = layer.label || 'Macro bar frame';
         }
@@ -1261,6 +1279,7 @@
         layer.fillRatio = macroBarFillRatio(food, layerSection);
         layer.fillRange = macroFillRange(food?.foodType, layerSection);
         layer.fillValue = macroValue(food, layerSection);
+        layer.z = Math.max(Number(layer.z) || 0, frameZ + 1);
       }
     }
   }
@@ -2293,12 +2312,13 @@
     const nextLayerNodes = document.createDocumentFragment();
     layers.forEach(({ layer, index, persistent }, renderIndex) => {
       if (layer.visible === false) return;
-      const tagName = layer.kind === 'sprite' ? 'IMG' : 'DIV';
+      const macroBarFillLayer = !persistent && isMacroBarFill(layer);
+      const tagName = macroBarFillLayer ? 'DIV' : layer.kind === 'sprite' ? 'IMG' : 'DIV';
       const renderKey = `${persistent ? 'persistent' : 'scene'}:${layer.kind}:${layer.id || index}`;
       let node = existingNodes.get(renderKey);
-      if (!node || node.tagName !== tagName) node = document.createElement(layer.kind === 'sprite' ? 'img' : 'div');
+      if (!node || node.tagName !== tagName) node = document.createElement(tagName.toLowerCase());
       const effectClass = layer.effect ? ` ${String(layer.effect).replace(/[^a-z0-9_-]+/gi, '-')}` : '';
-      node.className = `layer-node ${layer.kind}${layer.kind === 'text' ? ' pixel-text' : ''}${effectClass}`;
+      node.className = `layer-node ${layer.kind}${layer.kind === 'text' ? ' pixel-text' : ''}${macroBarFillLayer ? ' macro-bar-fill-unit' : ''}${effectClass}`;
       node.removeAttribute('style');
       if (layer.animationDelay != null) node.style.animationDelay = String(layer.animationDelay);
       node.dataset.renderKey = renderKey;
@@ -2311,8 +2331,13 @@
       node.dataset.revealKind = revealSchedule.kind;
       node.style.zIndex = String(Number(layer.z) || 0);
       applyLayerBox(node, layer);
+      if (macroBarFillLayer) updateMacroBarFillUnit(node, layer, scene);
       applyLayerAnimation(node, layer, scene, sceneProgress, index, persistent, revealSchedule);
       if (layer.kind === 'sprite') {
+        if (macroBarFillLayer) {
+          nextLayerNodes.appendChild(node);
+          return;
+        }
         const nextSpriteSrc = spritePath(layer.src);
         if (node.dataset.spriteSrc !== nextSpriteSrc) {
           node.dataset.spriteSrc = nextSpriteSrc;
@@ -3630,7 +3655,8 @@
 
     if (['fats', 'carbs', 'protein'].includes(sectionId)) {
       if (['icon', 'bar-frame', 'bar-fill', 'decor'].includes(classification.kind)) return secondsAnchor(MACRO_REVEAL_SECONDS);
-      if (classification.rowIndex != null || ['macro-label', 'macro-value'].includes(classification.kind)) {
+      if (classification.kind === 'macro-label') return secondsAnchor(MACRO_REVEAL_SECONDS);
+      if (classification.rowIndex != null || classification.kind === 'macro-value') {
         return secondsAnchor(macroSubmacroRevealDelaySeconds());
       }
     }
@@ -3730,6 +3756,54 @@
       node.style.objectFit = layer.preserveAspect ? 'contain' : 'fill';
       if (layer.preserveAspect && layer.aspectRatio) node.style.aspectRatio = String(layer.aspectRatio);
     }
+  }
+
+  function updateMacroBarFillUnit(node, layer, scene) {
+    let body = node.querySelector('[data-macro-bar-fill-body]');
+    let sprite = node.querySelector('[data-macro-bar-fill-sprite]');
+    if (!body) {
+      body = document.createElement('span');
+      body.dataset.macroBarFillBody = 'true';
+      node.appendChild(body);
+    }
+    if (!sprite) {
+      sprite = document.createElement('img');
+      sprite.dataset.macroBarFillSprite = 'true';
+      node.appendChild(sprite);
+    }
+
+    const layerSection = macroBarLayerSection(layer, scene?.id || '') || scene?.id || 'fats';
+    const barHeight = Math.max(1, Number(layer?.height) || 14);
+    const bodyInsetY = Math.min(2, Math.max(1, Math.floor(barHeight * 0.16)));
+    const bodyHeight = Math.max(1, barHeight - (bodyInsetY * 2));
+    const nextSpriteSrc = spritePath(layer.src);
+    if (sprite.dataset.spriteSrc !== nextSpriteSrc) {
+      sprite.dataset.spriteSrc = nextSpriteSrc;
+      sprite.src = nextSpriteSrc;
+    }
+    sprite.alt = layer.label || '';
+
+    node.style.overflow = 'visible';
+    node.style.pointerEvents = 'none';
+    body.style.position = 'absolute';
+    body.style.left = '0';
+    body.style.top = `calc(${bodyInsetY}px * var(--pixel-unit))`;
+    body.style.width = '0';
+    body.style.height = `calc(${bodyHeight}px * var(--pixel-unit))`;
+    body.style.background = macroBarFillColor(layerSection);
+    body.style.borderRadius = `calc(${Math.max(1, bodyHeight / 2)}px * var(--pixel-unit))`;
+    body.style.imageRendering = 'pixelated';
+    body.style.opacity = '0';
+
+    sprite.style.position = 'absolute';
+    sprite.style.left = '0';
+    sprite.style.top = '0';
+    sprite.style.width = '100%';
+    sprite.style.height = '100%';
+    sprite.style.objectFit = 'fill';
+    sprite.style.imageRendering = 'pixelated';
+    sprite.style.transformOrigin = 'left center';
+    sprite.style.opacity = '0';
   }
 
   function layerRevealDelay(layer, index) {
@@ -4006,10 +4080,26 @@
 
     if (isMacroBarFillReveal) {
       const targetFill = clamp(asNumber(layer?.fillRatio, revealSchedule?.fillRatio ?? 0), 0, 1);
-      const fillProgress = clamp(easeOutCubic(rawRevealProgress), 0, 1) * targetFill;
-      visible = rawRevealProgress > 0 ? 1 : 0;
+      const travelProgress = macroBarFillEase(rawRevealProgress);
+      const barWidth = Math.max(0, Number(layer?.width) || 0);
+      const fillSpriteWidth = barWidth * MACRO_BAR_FILL_SPRITE_VISIBLE_WIDTH_RATIO;
+      const finalX = clamp((barWidth * targetFill) - fillSpriteWidth, 0, Math.max(0, barWidth - fillSpriteWidth));
+      const fillEnd = targetFill <= 0.001
+        ? 0
+        : Math.max(fillSpriteWidth, fillSpriteWidth + finalX) * travelProgress;
+      const bodyWidth = Math.max(0, fillEnd - (fillSpriteWidth * 0.42));
+      const fillBody = node.querySelector('[data-macro-bar-fill-body]');
+      const fillSprite = node.querySelector('[data-macro-bar-fill-sprite]');
+      visible = rawRevealProgress > 0 && targetFill > 0.001 ? 1 : 0;
       scale = 1;
-      clip = `inset(0 ${Math.round((1 - fillProgress) * 100)}% 0 0)`;
+      if (fillBody) {
+        fillBody.style.width = `calc(${bodyWidth.toFixed(3)}px * var(--pixel-unit))`;
+        fillBody.style.opacity = String(visible);
+      }
+      if (fillSprite) {
+        fillSprite.style.transform = `translate3d(calc(${(finalX * travelProgress).toFixed(3)}px * var(--pixel-unit)), 0, 0)`;
+        fillSprite.style.opacity = String(visible);
+      }
     } else if (isOutroTierStamp || isIntroStampSprite) {
       const impactPulse = Math.sin(visible * Math.PI);
       stampImpactPulse = impactPulse;

@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260610-macro-bar-reveal-v1';
+  const BUILDER_BUILD_ID = '20260610-macro-bar-value-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -79,7 +79,7 @@
     tubers: { fats: [0, 2], carbs: [15, 35], protein: [1, 5] },
     fruits: { fats: [0, 5], carbs: [8, 25], protein: [0, 4] },
     vegetables: { fats: [0, 3], carbs: [3, 15], protein: [1, 6] },
-    meats: { fats: [2, 35], carbs: [0, 0], protein: [15, 30] },
+    meats: { fats: [2, 44], carbs: [0, 0], protein: [15, 30] },
     dairy: { fats: [0, 35], carbs: [3, 10], protein: [3, 25] },
     'oils-and-fats': { fats: [80, 100], carbs: [0, 0], protein: [0, 0] }
   };
@@ -1164,6 +1164,47 @@
     }
   }
 
+  function ensureMacroTotalTextLayers(layout) {
+    const layers = getSectionLayers(layout, 'fats');
+    const topZ = Math.max(9, layers.reduce((max, layer) => Math.max(max, Number(layer.z) || 0), 0) + 1);
+    const specs = [
+      { id: 'fats_macro_label', label: 'FATS macro label', x: 35, y: 43, fontSize: 8, text: 'fats', width: 40, align: 'left' },
+      { id: 'fats_macro_value', label: 'FATS macro grams', x: 35, y: 54, fontSize: 7, text: 'N/A', width: 34, align: 'left' }
+    ];
+    specs.forEach(spec => {
+      let layer = layers.find(item => item.id === spec.id);
+      if (!layer) {
+        layer = {
+          id: spec.id,
+          kind: 'text',
+          label: spec.label,
+          x: spec.x,
+          y: spec.y,
+          z: topZ,
+          visible: true,
+          text: spec.text,
+          fontSize: spec.fontSize,
+          width: spec.width,
+          align: spec.align
+        };
+        layers.push(layer);
+      }
+      layer.label = spec.label;
+      layer.fontSize = layer.fontSize || spec.fontSize;
+      layer.width = layer.width || spec.width;
+      layer.align = layer.align || spec.align;
+      layer.z = Math.max(Number(layer.z) || 0, topZ);
+    });
+  }
+
+  function syncMacroTotalText(layout, food) {
+    const layers = getSectionLayers(layout, 'fats');
+    const label = layers.find(layer => layer.id === 'fats_macro_label');
+    const value = layers.find(layer => layer.id === 'fats_macro_value');
+    if (label && !label.manualText) label.text = 'fats';
+    if (value && !value.manualText) value.text = formatMetric(food?.header?.fat_g, 'g');
+  }
+
   function macroBarLayerSection(layer, fallbackSectionId = '') {
     const fingerprint = `${layer?.id || ''} ${layer?.label || ''} ${layer?.src || ''}`.toLowerCase();
     if (fingerprint.includes('section_1_fats') || /\bfat(?:s)?[_ -]?(?:macro_)?bar/.test(fingerprint)) return 'fats';
@@ -1589,9 +1630,11 @@
     normalizeOutroScoreLayout(layout);
     ensureOutroTierStampLayer(layout, food);
     ensureMacroTextLayers(layout);
+    ensureMacroTotalTextLayers(layout);
     ensureMacroBarLayers(layout);
     syncHeader(layout, food);
     syncSectionIndicators(layout, food);
+    syncMacroTotalText(layout, food);
     syncMacroText(layout, food);
     syncMacroBars(layout, food);
     syncMacroArrows(layout, food);
@@ -3449,9 +3492,16 @@
 
   function macroTextKind(layer, sectionId) {
     const id = String(layer?.id || '').toLowerCase();
+    if (id === `${sectionId}_macro_label`) return 'macro-label';
+    if (id === `${sectionId}_macro_value`) return 'macro-value';
     if (id.startsWith(`${sectionId}_submacro_label_`)) return 'label';
     if (id.startsWith(`${sectionId}_submacro_value_`)) return 'value';
     return null;
+  }
+
+  function isMacroTotalText(layer, sectionId) {
+    const kind = macroTextKind(layer, sectionId);
+    return kind === 'macro-label' || kind === 'macro-value';
   }
 
   function isMicronTitleLayer(layer, sectionId) {
@@ -3516,6 +3566,7 @@
       }
       if (isMacroBarFrame(layer)) return { family: 'macro', kind: 'bar-frame' };
       if (isMacroIcon(layer)) return { family: 'macro', kind: 'icon' };
+      if (isMacroTotalText(layer, sectionId)) return { family: 'macro', kind: macroTextKind(layer, sectionId) };
       if (rowIndex != null) {
         return {
           family: 'macro',
@@ -3593,7 +3644,9 @@
 
     if (['fats', 'carbs', 'protein'].includes(sectionId)) {
       if (['icon', 'bar-frame', 'bar-fill', 'decor'].includes(classification.kind)) return secondsAnchor(MACRO_REVEAL_SECONDS);
-      if (classification.rowIndex != null) return secondsAnchor(macroSubmacroRevealDelaySeconds());
+      if (classification.rowIndex != null || ['macro-label', 'macro-value'].includes(classification.kind)) {
+        return secondsAnchor(macroSubmacroRevealDelaySeconds());
+      }
     }
 
     if (sectionId === 'vitamins' || sectionId === 'minerals') {
@@ -3943,7 +3996,7 @@
       : AUDIO_REVEAL_WINDOW_SECONDS;
     const revealLead = isMacroRowReveal || isMacroBarFillReveal || isMicronReveal ? 0 : Math.min(0.035, AUDIO_REVEAL_LEAD_SECONDS / sceneDuration);
     const revealWindow = isMacroBarFillReveal
-      ? Math.min(0.32, Math.max(0.012, revealWindowSeconds / sceneDuration))
+      ? Math.min(0.94, Math.max(0.001, revealWindowSeconds / sceneDuration))
       : isMacroRowReveal
       ? macroRevealWindowProgress(scene, revealWindowSeconds)
       : isIntroStampSprite || isOutroTierStamp

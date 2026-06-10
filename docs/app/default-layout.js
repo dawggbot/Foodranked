@@ -469,6 +469,32 @@ window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT = {
           "manualPosition": false
         },
         {
+          "id": "fats_macro_label",
+          "kind": "text",
+          "label": "FATS macro label",
+          "x": 35,
+          "y": 43,
+          "z": 9,
+          "visible": true,
+          "text": "fats",
+          "fontSize": 8,
+          "width": 40,
+          "align": "left"
+        },
+        {
+          "id": "fats_macro_value",
+          "kind": "text",
+          "label": "FATS macro grams",
+          "x": 35,
+          "y": 54,
+          "z": 9,
+          "visible": true,
+          "text": "N/A",
+          "fontSize": 7,
+          "width": 34,
+          "align": "left"
+        },
+        {
           "id": "lib_fat_submacro_bullet_1776259094705",
           "kind": "sprite",
           "label": "Library: FATS score card sprite",

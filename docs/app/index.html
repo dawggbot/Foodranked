@@ -218,6 +218,26 @@
       gap: 6px;
     }
     .toolbar-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .display-tabs {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+    }
+    .display-tab {
+      border-color: rgba(255,255,255,.08);
+      background: rgba(255,255,255,.08);
+      color: var(--muted);
+      min-width: 0;
+      white-space: nowrap;
+    }
+    .display-tab.active {
+      border-color: rgba(144,179,255,.74);
+      background: rgba(144,179,255,.16);
+      color: var(--ink);
+    }
+    .display-panel[hidden] {
+      display: none;
+    }
     .toolbar-grid button { padding: 8px 6px; }
     .nudge-pad {
       display: grid;
@@ -888,55 +908,65 @@
 
         <div class="stack">
           <h2>Preview</h2>
-          <label>
-            Preview scale
-            <input id="previewScale" type="range" min="1" max="1" step="1" value="1" disabled />
-          </label>
-          <label class="row"><input id="toggleGrid" type="checkbox" checked /> <span>Show pixel grid</span></label>
-          <label>
-            Background colour
-            <input id="bgColor" type="text" value="#d6d6d6" />
-          </label>
-          <div class="stack" style="padding:10px;border:1px solid rgba(255,255,255,.08);border-radius:14px;background:rgba(255,255,255,.06);">
-            <h3>Background motion</h3>
-            <label class="row"><input id="bgMotionEnabled" type="checkbox" checked /> <span>Enable falling food sprites</span></label>
-            <label>
-              Sprite pool
-              <select id="bgMotionMode">
-                <option value="foodType">Same food type</option>
-                <option value="selectedFood">Only selected food</option>
-                <option value="allFoods">All foods</option>
-              </select>
-            </label>
-            <div class="split-2">
-              <label>Density <input id="bgMotionDensity" type="range" min="4" max="24" step="1" value="12" /></label>
-              <label>Opacity <input id="bgMotionOpacity" type="range" min="0.05" max="0.4" step="0.01" value="0.18" /></label>
-            </div>
-            <div class="split-2">
-              <label>Min fall seconds <input id="bgMotionMinDuration" type="number" min="4" max="60" step="1" value="14" /></label>
-              <label>Max fall seconds <input id="bgMotionMaxDuration" type="number" min="4" max="80" step="1" value="24" /></label>
-            </div>
-            <div class="split-2">
-              <label>Min sprite px <input id="bgMotionMinSize" type="number" min="12" max="80" step="1" value="24" /></label>
-              <label>Max sprite px <input id="bgMotionMaxSize" type="number" min="12" max="120" step="1" value="40" /></label>
-            </div>
-            <label>
-              Horizontal drift
-              <input id="bgMotionDrift" type="range" min="0" max="48" step="1" value="16" />
-            </label>
-            <p class="tiny muted">This drives the whole phone background and now prefers real food sprites when available.</p>
+          <div class="display-tabs" role="tablist" aria-label="Display controls">
+            <button id="displayLayoutTab" class="display-tab active" type="button" role="tab" aria-selected="true" aria-controls="displayLayoutPanel">Layout</button>
+            <button id="displayJsonTab" class="display-tab" type="button" role="tab" aria-selected="false" aria-controls="displayJsonPanel">Display JSON</button>
           </div>
-          <div class="row">
-            <button id="resetSection">Reset section</button>
-            <button id="applyMacroTemplate" type="button">Apply fats layout to macros</button>
-            <button id="saveLocal">Save locally</button>
-            <button id="copyJson" class="primary">Copy JSON</button>
+          <div id="displayLayoutPanel" class="display-panel stack" role="tabpanel" aria-labelledby="displayLayoutTab">
+            <label>
+              Preview scale
+              <input id="previewScale" type="range" min="1" max="1" step="1" value="1" disabled />
+            </label>
+            <label class="row"><input id="toggleGrid" type="checkbox" checked /> <span>Show pixel grid</span></label>
+            <label>
+              Background colour
+              <input id="bgColor" type="text" value="#d6d6d6" />
+            </label>
+            <div class="stack" style="padding:10px;border:1px solid rgba(255,255,255,.08);border-radius:14px;background:rgba(255,255,255,.06);">
+              <h3>Background motion</h3>
+              <label class="row"><input id="bgMotionEnabled" type="checkbox" checked /> <span>Enable falling food sprites</span></label>
+              <label>
+                Sprite pool
+                <select id="bgMotionMode">
+                  <option value="foodType">Same food type</option>
+                  <option value="selectedFood">Only selected food</option>
+                  <option value="allFoods">All foods</option>
+                </select>
+              </label>
+              <div class="split-2">
+                <label>Density <input id="bgMotionDensity" type="range" min="4" max="24" step="1" value="12" /></label>
+                <label>Opacity <input id="bgMotionOpacity" type="range" min="0.05" max="0.4" step="0.01" value="0.18" /></label>
+              </div>
+              <div class="split-2">
+                <label>Min fall seconds <input id="bgMotionMinDuration" type="number" min="4" max="60" step="1" value="14" /></label>
+                <label>Max fall seconds <input id="bgMotionMaxDuration" type="number" min="4" max="80" step="1" value="24" /></label>
+              </div>
+              <div class="split-2">
+                <label>Min sprite px <input id="bgMotionMinSize" type="number" min="12" max="80" step="1" value="24" /></label>
+                <label>Max sprite px <input id="bgMotionMaxSize" type="number" min="12" max="120" step="1" value="40" /></label>
+              </div>
+              <label>
+                Horizontal drift
+                <input id="bgMotionDrift" type="range" min="0" max="48" step="1" value="16" />
+              </label>
+              <p class="tiny muted">This drives the whole phone background and now prefers real food sprites when available.</p>
+            </div>
+            <div class="row">
+              <button id="resetSection">Reset section</button>
+              <button id="applyMacroTemplate" type="button">Apply fats layout to macros</button>
+            </div>
           </div>
-          <label>
-            Layout JSON
-            <textarea id="layoutJson"></textarea>
-          </label>
-          <button id="applyJson">Apply JSON</button>
+          <div id="displayJsonPanel" class="display-panel stack" role="tabpanel" aria-labelledby="displayJsonTab" hidden>
+            <div class="row">
+              <button id="saveLocal">Save JSON locally</button>
+              <button id="copyJson" class="primary">Copy JSON</button>
+            </div>
+            <label>
+              Layout JSON
+              <textarea id="layoutJson"></textarea>
+            </label>
+            <button id="applyJson">Apply JSON</button>
+          </div>
         </div>
       </div>
     </aside>
@@ -1070,7 +1100,7 @@
   </div>
 
   <script src="../data/foods-index.js?v=20260529-layout-sync-v1"></script>
-  <script src="./default-layout.js?v=20260606-hide-generated-d-tier-v1"></script>
+  <script src="./default-layout.js?v=20260610-display-json-uppercase-v1"></script>
   <script>
     const BUILDER_BUILD_ID = '20260529-layout-sync-v1';
     const REPO_LAYOUT_VERSION = BUILDER_BUILD_ID;
@@ -1242,6 +1272,10 @@
       foodList: document.getElementById('foodList'),
       sectionList: document.getElementById('sectionList'),
       spriteLibrary: document.getElementById('spriteLibrary'),
+      displayLayoutTab: document.getElementById('displayLayoutTab'),
+      displayJsonTab: document.getElementById('displayJsonTab'),
+      displayLayoutPanel: document.getElementById('displayLayoutPanel'),
+      displayJsonPanel: document.getElementById('displayJsonPanel'),
       previewScale: document.getElementById('previewScale'),
       toggleGrid: document.getElementById('toggleGrid'),
       bgColor: document.getElementById('bgColor'),
@@ -3812,7 +3846,7 @@
     function syncHeaderTextForFood(layout, food = getSelectedFoodStub()) {
       const header = food?.header || {};
       const values = {
-        food_name_text: food?.name || 'Unknown',
+        food_name_text: String(food?.name || 'Unknown').toUpperCase(),
         kcal_value_text: String(header.kcal ?? food?.kcal ?? 'N/A'),
         basis_text: formatBasis(food),
         script_caption: prettyFoodType(food?.foodType || getSelectedFoodStub()?.foodType).toUpperCase()
@@ -4884,10 +4918,23 @@ async function renderAll() {
       applyLayerRenderStyle(node, layer);
     }
 
+    function setDisplayPanel(activePanel) {
+      const showJson = activePanel === 'json';
+      els.displayLayoutTab.classList.toggle('active', !showJson);
+      els.displayJsonTab.classList.toggle('active', showJson);
+      els.displayLayoutTab.setAttribute('aria-selected', String(!showJson));
+      els.displayJsonTab.setAttribute('aria-selected', String(showJson));
+      els.displayLayoutPanel.hidden = showJson;
+      els.displayJsonPanel.hidden = !showJson;
+      if (showJson) updateJsonOutput();
+    }
+
     els.foodSearch.addEventListener('input', () => {
       state.foodFilter = els.foodSearch.value;
       renderFoodList();
     });
+    els.displayLayoutTab.addEventListener('click', () => setDisplayPanel('layout'));
+    els.displayJsonTab.addEventListener('click', () => setDisplayPanel('json'));
     els.previewScale.addEventListener('input', () => { state.layout.canvas.previewScale = 1; void renderAll(); });
     els.toggleGrid.addEventListener('change', () => { state.layout.canvas.showGrid = els.toggleGrid.checked; void renderAll(); });
     els.bgColor.addEventListener('input', () => { state.layout.canvas.background = els.bgColor.value || '#141923'; void renderAll(); });
@@ -4919,7 +4966,7 @@ async function renderAll() {
     els.saveLocal.addEventListener('click', () => {
       saveLayout({ allowIgnoredReplacement: true });
       els.saveLocal.textContent = 'Saved';
-      setTimeout(() => els.saveLocal.textContent = 'Save locally', 1200);
+      setTimeout(() => els.saveLocal.textContent = 'Save JSON locally', 1200);
     });
     els.copyJson.addEventListener('click', async () => {
       updateJsonOutput();

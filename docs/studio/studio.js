@@ -16,6 +16,8 @@ const SCORING_SECTIONS = [
   ['cons', 'Cons context layer']
 ];
 
+const DISPLAY_LAYOUT_STORAGE_KEY = 'foodranked-display-builder-v4';
+
 const state = {
   foods: [],
   results: [],
@@ -441,6 +443,7 @@ function foodDetailView(id) {
             ${tabLink(id,'scores',routeTab)}
             ${tabLink(id,'context',routeTab)}
             ${tabLink(id,'episode',routeTab)}
+            ${tabLink(id,'display-json',routeTab, 'Display JSON')}
           </div>
           <div style="margin-top:16px;">${foodDetailTab(food, result, featured, routeTab)}</div>
         </div>
@@ -457,8 +460,8 @@ function foodDetailView(id) {
   `, '/foods');
 }
 
-function tabLink(id, tab, current) {
-  return `<a href="#/foods/${id}?tab=${tab}" class="${current === tab ? 'active' : ''}">${cap(tab)}</a>`;
+function tabLink(id, tab, current, label = cap(tab)) {
+  return `<a href="#/foods/${id}?tab=${tab}" class="${current === tab ? 'active' : ''}">${label}</a>`;
 }
 
 function foodDetailTab(food, result, featured, tab) {
@@ -496,6 +499,16 @@ function foodDetailTab(food, result, featured, tab) {
       : `<div class="empty">No polished episode script embedded for this food yet.</div>`;
   }
 
+  if (tab === 'display-json') {
+    const payload = displayLayoutPayload();
+    return `
+      <div class="panel">
+        <div class="title-row"><h4>Display JSON</h4><a class="pill" href="../app/index.html">Open display builder</a></div>
+        <div class="copy" style="margin-top:8px;">Source: ${payload.source}. The video builder reads this same display layout shape for sprite and text placement.</div>
+        <pre class="json-viewer" style="margin-top:12px;">${escapeHtml(payload.json)}</pre>
+      </div>`;
+  }
+
   return `
     <div class="grid cols-3">
       <div class="panel"><h4>Current score read</h4><div class="copy" style="margin-top:8px;">${result ? `${formatScore(result.overallScore)} overall · ${result.tier} tier.` : 'Awaiting scored batch output.'}</div></div>
@@ -511,6 +524,19 @@ function foodDetailTab(food, result, featured, tab) {
       <h4>Studio note</h4>
       <div class="copy" style="margin-top:8px;">This screen is tuned for explainability first: permanent header facts, score breakdown access, context review, and a direct path to script view. Public polish can come later.</div>
     </div>`;
+}
+
+function displayLayoutPayload() {
+  try {
+    const raw = localStorage.getItem(DISPLAY_LAYOUT_STORAGE_KEY);
+    if (raw) return { source: 'display builder saved local layout', json: JSON.stringify(JSON.parse(raw), null, 2) };
+  } catch {}
+
+  const repoDefault = window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT || null;
+  return {
+    source: repoDefault ? 'repo default layout' : 'no display layout found',
+    json: repoDefault ? JSON.stringify(repoDefault, null, 2) : '{}'
+  };
 }
 
 function rulesView() {

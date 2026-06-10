@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260609-section-transition-sfx-v1';
+  const BUILDER_BUILD_ID = '20260610-display-json-uppercase-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -930,7 +930,7 @@
 
   function syncHeader(layout, food) {
     const values = {
-      food_name_text: food?.name || 'Unknown',
+      food_name_text: String(food?.name || 'Unknown').toUpperCase(),
       kcal_value_text: String(food?.header?.kcal ?? food?.kcal ?? 'N/A'),
       basis_text: `PER\n${food?.basis?.value || 100}${String(food?.basis?.unit || 'g').toUpperCase()}`,
       script_caption: prettyFoodType(food?.foodType).toUpperCase(),

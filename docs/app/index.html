@@ -1642,6 +1642,7 @@
     function isMacroLayoutTemplateLayer(layer) {
       if (!layer) return false;
       if (isLockedUiSpriteLayer(layer) || isHeaderLayoutLayer(layer)) return false;
+      if (isTextLayer(layer) && /^fats_macro_(label|value)$/i.test(String(layer.id || ''))) return false;
       return isSpriteLayer(layer) || isTextLayer(layer);
     }
 
@@ -1891,6 +1892,32 @@
 
     function ensureFatsSubmacroTextLayers(layout) {
       ensureMacroSubmetricTextLayers(layout, 'fats');
+    }
+
+    function ensureFatsMacroTotalTextLayers(layout) {
+      const sectionLayers = getSectionLayersFromLayout(layout, 'fats');
+      const specs = [
+        { id: 'fats_macro_label', label: 'FATS macro label', x: 35, y: 43, fontSize: 8, text: 'fats', z: 27, width: 40, align: 'left' },
+        { id: 'fats_macro_value', label: 'FATS macro grams', x: 35, y: 54, fontSize: 7, text: 'N/A', z: 27, width: 34, align: 'left' }
+      ];
+
+      for (const spec of specs) {
+        let layer = sectionLayers.find(item => item.id === spec.id);
+        if (!layer) {
+          layer = text(spec.id, spec.label, spec.x, spec.y, spec.fontSize, spec.text, spec.z, spec.width, spec.align);
+          sectionLayers.push(layer);
+        } else {
+          layer.label = spec.label;
+          if (!layer.manualText && spec.id === 'fats_macro_label') layer.text = spec.text;
+        }
+        if (!layer.fontSize) layer.fontSize = spec.fontSize;
+        if (!layer.width) layer.width = spec.width;
+        if (!layer.align) layer.align = spec.align;
+        if (!layer.z) layer.z = spec.z;
+      }
+
+      layout.meta = layout.meta || {};
+      layout.meta.fatsMacroTotalTextV1 = true;
     }
 
     function isMicrosBarSpriteLayer(layer) {
@@ -2470,6 +2497,8 @@
       const mineralMatch = id.match(/^minerals_(label|percent)_(\d+)$/);
       if (mineralMatch) return `MINERALS ${mineralMatch[1] === 'label' ? 'label' : 'percent'} ${mineralMatch[2]}`;
       if (id === 'minerals_title') return 'MINERALS title';
+      if (id === 'fats_macro_label') return 'FATS macro label';
+      if (id === 'fats_macro_value') return 'FATS macro grams';
       const impactMatch = id.match(/^(pros|cons)_impact_(\d+)$/);
       if (impactMatch) return `${getSectionChip(impactMatch[1]) || titleCaseWords(impactMatch[1])} impact label ${impactMatch[2]}`;
       const itemMatch = id.match(/^(pros|cons)_item_(\d+)$/);
@@ -2515,6 +2544,7 @@
       }
       migrateMacroLayoutFromOutro(normalized);
       syncMacroSectionLayoutFromFats(normalized);
+      ensureFatsMacroTotalTextLayers(normalized);
       ensureMacroSubmetricTextLayers(normalized, 'fats');
       ensureMacroSubmetricTextLayers(normalized, 'carbs');
       ensureMacroSubmetricTextLayers(normalized, 'protein');
@@ -4200,11 +4230,30 @@
       return `${name} ranked per ${basis}. ${sections.join(' ')}`;
     }
 
+    function syncFatsMacroTotalTextForFood(layout, food = getSelectedFoodStub()) {
+      const layers = getSectionLayersFromLayout(layout, 'fats');
+      const labelLayer = layers.find(layer => layer.id === 'fats_macro_label');
+      const valueLayer = layers.find(layer => layer.id === 'fats_macro_value');
+      if (labelLayer) {
+        labelLayer.label = 'FATS macro label';
+        if (!labelLayer.manualText) labelLayer.text = 'fats';
+        labelLayer.align = labelLayer.align || 'left';
+        labelLayer.fontSize = labelLayer.fontSize || 8;
+      }
+      if (valueLayer) {
+        valueLayer.label = 'FATS macro grams';
+        if (!valueLayer.manualText) valueLayer.text = formatMetricText(food?.header?.fat_g, 'g');
+        valueLayer.align = valueLayer.align || 'left';
+        valueLayer.fontSize = valueLayer.fontSize || 7;
+      }
+    }
+
     function syncFoodIntoLayout(food, { normalize = true } = {}) {
       if (normalize) normalizeLayout(state.layout);
       syncHeaderForFood(state.layout, food || getSelectedFoodStub());
       syncSectionSeparatorsForFood(state.layout, food || getSelectedFoodStub());
       syncSectionIndicatorSprites(state.layout, food || getSelectedFoodStub());
+      syncFatsMacroTotalTextForFood(state.layout, food || getSelectedFoodStub());
       syncMacroSubmacroArrowsForFood(state.layout, food || getSelectedFoodStub());
       syncMacroSubmetricValueColors(state.layout, food || getSelectedFoodStub());
       syncManualOutroHighlightedIndicators(state.layout, food || getSelectedFoodStub());

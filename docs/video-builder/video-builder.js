@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260611-macro-bar-gif-speed-v1';
+  const BUILDER_BUILD_ID = '20260611-macro-bar-gif-frames-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -56,8 +56,9 @@
   const SECTION_HOLD_IDS = new Set(['intro', 'fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons']);
   const HIDDEN_CAPTION_SECTION_IDS = new Set(['intro']);
   const MACRO_REVEAL_SECONDS = 0.08;
-  const MACRO_BAR_FILL_SECONDS = 1.35;
+  const MACRO_BAR_FILL_SECONDS = 1.85;
   const MACRO_ROW_AFTER_BAR_SECONDS = 0.14;
+  const MACRO_BAR_GIF_FRAME_STEPS = 80;
   const MACRO_BAR_GIF_FINAL_HOLD_CENTISECONDS = 65535;
   const INTRO_RANKED_SPRITE_PATH = './sprites/ui/intro_&_outro/ranked.png';
   const OUTRO_D_TIER_SPRITE_PATH = './sprites/ui/intro_&_outro/D tier.png';
@@ -3757,8 +3758,10 @@
         if (!isMacroBarFill(layer)) continue;
         const targetRatio = clamp(asNumber(layer?.fillRatio, macroBarFillRatio(food, sectionId)), 0, 1);
         const src = spritePath(layer.src);
-        requestMacroBarGifVariant(src, { mode: 'animated', targetRatio });
-        requestMacroBarGifVariant(src, { mode: 'still', targetRatio });
+        const targetStep = Math.round(targetRatio * MACRO_BAR_GIF_FRAME_STEPS);
+        for (let step = 0; step <= targetStep; step += 1) {
+          requestMacroBarGifVariant(src, { targetRatio: step / MACRO_BAR_GIF_FRAME_STEPS });
+        }
       }
     }
   }
@@ -3768,27 +3771,24 @@
     const targetRatio = clamp(asNumber(layer?.fillRatio, revealSchedule?.fillRatio ?? 0), 0, 1);
     if (targetRatio <= 0.001) return src;
 
-    const fillEndSeconds = MACRO_REVEAL_SECONDS + MACRO_BAR_FILL_SECONDS;
     const localElapsed = Math.max(0, Number(sceneElapsed) || 0);
-    const mode = state.playing && localElapsed < fillEndSeconds ? 'animated' : 'still';
-    const progress = mode === 'still' && localElapsed < fillEndSeconds
-      ? macroBarFillEase((localElapsed - MACRO_REVEAL_SECONDS) / MACRO_BAR_FILL_SECONDS)
-      : 1;
-    const visibleRatio = mode === 'animated' ? targetRatio : targetRatio * clamp(progress, 0, 1);
-    const variantUrl = requestMacroBarGifVariant(src, { mode, targetRatio: visibleRatio });
+    const fillProgress = macroBarFillEase((localElapsed - MACRO_REVEAL_SECONDS) / MACRO_BAR_FILL_SECONDS);
+    const visibleRatio = targetRatio * clamp(fillProgress, 0, 1);
+    const variantUrl = requestMacroBarGifVariant(src, { targetRatio: visibleRatio });
     return variantUrl || src;
   }
 
   function requestMacroBarGifVariant(src, options) {
-    const ratioKey = Math.round(clamp(options.targetRatio, 0, 1) * 1000);
-    const key = `${src}|${options.mode}|${ratioKey}|${MACRO_BAR_FILL_SECONDS}`;
+    const step = Math.round(clamp(options.targetRatio, 0, 1) * MACRO_BAR_GIF_FRAME_STEPS);
+    const targetRatio = step / MACRO_BAR_GIF_FRAME_STEPS;
+    const key = `${src}|frame|${step}`;
     const cached = MACRO_BAR_GIF_VARIANT_CACHE.get(key);
     if (cached?.status === 'ready') return cached.url;
     if (cached?.status === 'pending') return null;
 
     const entry = { status: 'pending', url: null };
     MACRO_BAR_GIF_VARIANT_CACHE.set(key, entry);
-    buildMacroBarGifVariant(src, options)
+    buildMacroBarGifVariant(src, { targetRatio })
       .then(url => {
         entry.status = 'ready';
         entry.url = url;
@@ -3882,41 +3882,12 @@
   function buildMacroBarGifBytes(parsed, options) {
     const targetRatio = clamp(options.targetRatio, 0, 1);
     const targetIndex = clamp(Math.round((parsed.frames.length - 1) * targetRatio), 0, parsed.frames.length - 1);
-    const frameIndexes = options.mode === 'animated'
-      ? macroBarAnimatedFrameIndexes(targetIndex)
-      : [targetIndex];
-    const delayCs = macroBarGifFrameDelay(frameIndexes.length);
-    const leadDelayCs = Math.max(0, Math.round(MACRO_REVEAL_SECONDS * 100));
+    const frame = parsed.frames[targetIndex];
     const parts = [...parsed.leadParts];
-
-    frameIndexes.forEach((frameIndex, index) => {
-      const frame = parsed.frames[frameIndex];
-      const isLast = index === frameIndexes.length - 1;
-      const frameDelay = isLast
-        ? MACRO_BAR_GIF_FINAL_HOLD_CENTISECONDS
-        : index === 0
-          ? leadDelayCs + delayCs
-          : delayCs;
-      parts.push(gifGraphicControlWithDelay(frame.gce, frameDelay));
-      parts.push(frame.image);
-    });
+    parts.push(gifGraphicControlWithDelay(frame.gce, MACRO_BAR_GIF_FINAL_HOLD_CENTISECONDS));
+    parts.push(frame.image);
     parts.push(Uint8Array.of(0x3b));
     return concatBytes(parts);
-  }
-
-  function macroBarAnimatedFrameIndexes(targetIndex) {
-    const fillDelayCs = Math.max(1, Math.round(MACRO_BAR_FILL_SECONDS * 100));
-    const count = Math.max(2, Math.min(targetIndex + 1, Math.floor(fillDelayCs / 2) + 1));
-    return Array.from({ length: count }, (_, index) => {
-      const t = count <= 1 ? 1 : index / (count - 1);
-      return clamp(Math.round(targetIndex * macroBarFillEase(t)), 0, targetIndex);
-    });
-  }
-
-  function macroBarGifFrameDelay(frameCount) {
-    if (frameCount <= 1) return MACRO_BAR_GIF_FINAL_HOLD_CENTISECONDS;
-    const fillDelayCs = Math.max(1, Math.round(MACRO_BAR_FILL_SECONDS * 100));
-    return Math.max(2, Math.round(fillDelayCs / Math.max(1, frameCount - 1)));
   }
 
   function gifGraphicControlWithDelay(gce, delayCs) {

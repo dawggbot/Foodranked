@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260611-macro-bar-quicker-fill-v1';
+  const BUILDER_BUILD_ID = '20260611-carb-bar-fill-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -57,6 +57,7 @@
   const HIDDEN_CAPTION_SECTION_IDS = new Set(['intro']);
   const MACRO_REVEAL_SECONDS = 0.08;
   const MACRO_BAR_FILL_SECONDS = 1.55;
+  const MACRO_BAR_MIN_VISIBLE_FILL_RATIO = 0.0011;
   const MACRO_ROW_AFTER_BAR_SECONDS = 0.14;
   const MACRO_BAR_GIF_FRAME_STEPS = 80;
   const MACRO_BAR_GIF_FINAL_HOLD_CENTISECONDS = 65535;
@@ -531,6 +532,8 @@
       .replace('/header/food_image_plate/', '/header/food_plate/')
       .replace('/macros/fats/fat_bar_frame.svg', '/macros_section/macro_bar_frame.png')
       .replace('/macros/fats/fat_bar_fill.svg', '/macros_section/section_1_fats/fat_macro_bar_fill.gif')
+      .replace('/macros/carbs/carb_bar_frame.svg', '/macros_section/macro_bar_frame.png')
+      .replace('/macros/carbs/carb_bar_fill.svg', '/macros_section/section_2_carbs/carb_macro_bar_fill.gif')
       .replace('/macros/arrow_indicators/', '/macros_section/arrow_indicators/')
       .replace('/macros/fats/', '/macros_section/section_1_fats/')
       .replace('/macros/carbs/', '/macros_section/section_2_carbs/')
@@ -962,10 +965,11 @@
 
   function macroBarFillRatio(food, sectionId) {
     const value = macroValue(food, sectionId);
-    if (value == null) return 0;
+    if (value == null || value <= 0) return 0;
     const [min, max] = macroFillRange(food?.foodType, sectionId);
-    if (max <= min) return value > 0 ? 1 : 0;
-    return clamp((value - min) / (max - min), 0, 1);
+    if (max <= min) return MACRO_BAR_MIN_VISIBLE_FILL_RATIO;
+    const ratio = (value - min) / (max - min);
+    return ratio <= 0 ? MACRO_BAR_MIN_VISIBLE_FILL_RATIO : clamp(ratio, 0, 1);
   }
 
   function syncHeader(layout, food) {
@@ -1218,43 +1222,60 @@
     return isSpriteLayer(layer) && /(macro_bar_fill|bar_fill|macro bar fill)/.test(fingerprint);
   }
 
-  function ensureMacroBarLayers(layout) {
-    const layers = getSectionLayers(layout, 'fats');
-    const hasFrame = layers.some(layer => isMacroBarFrame(layer) && macroBarLayerSection(layer, 'fats') === 'fats');
-    const hasFill = layers.some(layer => isMacroBarFill(layer) && macroBarLayerSection(layer, 'fats') === 'fats');
-    if (!hasFill) {
-      layers.push({
-        id: 'fats_macro_bar_fill',
-        kind: 'sprite',
-        label: 'FATS macro bar fill',
-        src: './sprites/macros_section/section_1_fats/fat_macro_bar_fill.gif',
-        x: 31,
-        y: 48,
-        z: 9,
-        width: 88,
-        height: 14,
-        visible: true,
-        foodDriven: true,
-        preserveAspect: false,
-        manualPosition: false
-      });
+  const MACRO_BAR_LAYER_SPECS = {
+    fats: {
+      fillId: 'fats_macro_bar_fill',
+      fillLabel: 'FATS macro bar fill',
+      fillSrc: './sprites/macros_section/section_1_fats/fat_macro_bar_fill.gif',
+      frameId: 'fats_macro_bar_frame'
+    },
+    carbs: {
+      fillId: 'carbs_macro_bar_fill',
+      fillLabel: 'CARBS macro bar fill',
+      fillSrc: './sprites/macros_section/section_2_carbs/carb_macro_bar_fill.gif',
+      frameId: 'carbs_macro_bar_frame'
     }
-    if (!hasFrame) {
-      layers.push({
-        id: 'fats_macro_bar_frame',
-        kind: 'sprite',
-        label: 'Macro bar frame',
-        src: './sprites/macros_section/macro_bar_frame.png',
-        x: 31,
-        y: 48,
-        z: 8,
-        width: 88,
-        height: 14,
-        visible: true,
-        foodDriven: false,
-        preserveAspect: false,
-        manualPosition: false
-      });
+  };
+
+  function ensureMacroBarLayers(layout) {
+    for (const [sectionId, spec] of Object.entries(MACRO_BAR_LAYER_SPECS)) {
+      const layers = getSectionLayers(layout, sectionId);
+      const hasFrame = layers.some(layer => isMacroBarFrame(layer) && macroBarLayerSection(layer, sectionId) === sectionId);
+      const hasFill = layers.some(layer => isMacroBarFill(layer) && macroBarLayerSection(layer, sectionId) === sectionId);
+      if (!hasFill) {
+        layers.push({
+          id: spec.fillId,
+          kind: 'sprite',
+          label: spec.fillLabel,
+          src: spec.fillSrc,
+          x: 31,
+          y: 48,
+          z: 9,
+          width: 88,
+          height: 14,
+          visible: true,
+          foodDriven: true,
+          preserveAspect: false,
+          manualPosition: false
+        });
+      }
+      if (!hasFrame) {
+        layers.push({
+          id: spec.frameId,
+          kind: 'sprite',
+          label: 'Macro bar frame',
+          src: './sprites/macros_section/macro_bar_frame.png',
+          x: 31,
+          y: 48,
+          z: 8,
+          width: 88,
+          height: 14,
+          visible: true,
+          foodDriven: false,
+          preserveAspect: false,
+          manualPosition: false
+        });
+      }
     }
   }
 

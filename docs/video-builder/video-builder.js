@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260611-macro-bar-gif-canvas-v1';
+  const BUILDER_BUILD_ID = '20260611-macro-bar-faster-opaque-sprites-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -56,7 +56,7 @@
   const SECTION_HOLD_IDS = new Set(['intro', 'fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons']);
   const HIDDEN_CAPTION_SECTION_IDS = new Set(['intro']);
   const MACRO_REVEAL_SECONDS = 0.08;
-  const MACRO_BAR_FILL_SECONDS = 2.4;
+  const MACRO_BAR_FILL_SECONDS = 2.15;
   const MACRO_ROW_AFTER_BAR_SECONDS = 0.14;
   const MACRO_BAR_GIF_FRAME_STEPS = 80;
   const MACRO_BAR_GIF_FINAL_HOLD_CENTISECONDS = 65535;
@@ -2327,7 +2327,9 @@
       node.dataset.revealKind = revealSchedule.kind;
       node.style.zIndex = String(Number(layer.z) || 0);
       applyLayerBox(node, layer);
-      applyLayerAnimation(node, layer, scene, sceneProgress, index, persistent, revealSchedule);
+      applyLayerAnimation(node, layer, scene, sceneProgress, index, persistent, revealSchedule, {
+        opaqueSpriteReveal: shouldRevealStackedMacroSpriteOpaque(layer, revealSchedule, layerList)
+      });
       if (macroBarFillLayer) {
         drawMacroBarFillCanvas(node, layer, sceneElapsed, revealSchedule);
         nextLayerNodes.appendChild(node);
@@ -3734,6 +3736,41 @@
     return layerRevealSchedule(layer, scene, index, persistent, allLayers).start;
   }
 
+  function layerGridBox(layer) {
+    let layerX = Number(layer?.x) || 0;
+    let layerY = Number(layer?.y) || 0;
+    const layerWidth = Number(layer?.width) || 0;
+    const layerHeight = Number(layer?.height) || 0;
+    if (layer?.centerAnchor === 'visible-canvas') {
+      const visible = visibleCanvasGridBounds();
+      layerX = ((visible.left + visible.right) / 2) - (layerWidth / 2) + (Number(layer.centerOffsetX) || 0);
+      layerY = ((visible.top + visible.bottom) / 2) - (layerHeight / 2) + (Number(layer.centerOffsetY) || 0);
+    }
+    return {
+      left: layerX,
+      top: layerY,
+      right: layerX + layerWidth,
+      bottom: layerY + layerHeight
+    };
+  }
+
+  function boxesOverlap(a, b) {
+    return a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+  }
+
+  function shouldRevealStackedMacroSpriteOpaque(layer, revealSchedule, sortedLayers = []) {
+    if (revealSchedule?.family !== 'macro' || !isSpriteLayer(layer)) return false;
+    const layerIndex = sortedLayers.indexOf(layer);
+    if (layerIndex <= 0) return false;
+    const box = layerGridBox(layer);
+    if (box.right <= box.left || box.bottom <= box.top) return false;
+    return sortedLayers.slice(0, layerIndex).some(other => {
+      if (other?.visible === false || !isSpriteLayer(other)) return false;
+      const otherBox = layerGridBox(other);
+      return otherBox.right > otherBox.left && otherBox.bottom > otherBox.top && boxesOverlap(box, otherBox);
+    });
+  }
+
   function applyLayerBox(node, layer) {
     let layerX = Number(layer.x) || 0;
     let layerY = Number(layer.y) || 0;
@@ -4133,7 +4170,7 @@
     }
   }
 
-  function applyLayerAnimation(node, layer, scene, sceneProgress, index, persistent = false, revealSchedule = null) {
+  function applyLayerAnimation(node, layer, scene, sceneProgress, index, persistent = false, revealSchedule = null, options = {}) {
     if (persistent) {
       node.style.opacity = '1';
       if (layer.flipY) {
@@ -4180,6 +4217,7 @@
     const rawRevealProgress = (sceneProgress + revealLead - delay) / revealWindow;
     const revealProgress = easeOutCubic(rawRevealProgress);
     let visible = clamp(revealProgress, 0, 1);
+    let opacity = visible;
     const revealPulse = isMacroArrowReveal
       ? Math.sin(visible * Math.PI)
       : 0;
@@ -4194,6 +4232,7 @@
     if (isMacroBarFillReveal) {
       const targetFill = clamp(asNumber(layer?.fillRatio, revealSchedule?.fillRatio ?? 0), 0, 1);
       visible = rawRevealProgress > 0 && targetFill > 0.001 ? 1 : 0;
+      opacity = visible;
       scale = 1;
     } else if (isOutroTierStamp || isIntroStampSprite) {
       const impactPulse = Math.sin(visible * Math.PI);
@@ -4221,8 +4260,9 @@
     }
 
     const flip = layer.flipY ? ' scaleY(-1)' : '';
+    if (options.opaqueSpriteReveal && rawRevealProgress > 0) opacity = 1;
     node.style.transformOrigin = isMacroArrowReveal || isOutroTierStamp || isIntroStampSprite || layer.flipY ? 'center' : 'top left';
-    node.style.opacity = String(visible);
+    node.style.opacity = String(opacity);
     node.style.transform = `translate3d(calc(${x}px * var(--pixel-unit)), calc(${y}px * var(--pixel-unit)), 0) rotate(${rotate.toFixed(2)}deg) scale(${scale})${flip}`;
     if (clip) node.style.clipPath = clip;
     if ((isOutroTierStamp || isIntroStampSprite) && stampImpactPulse > 0.02) {

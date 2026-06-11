@@ -1164,44 +1164,57 @@
   }
 
   function ensureMacroTotalTextLayers(layout) {
-    const layers = getSectionLayers(layout, 'fats');
-    const topZ = Math.max(9, layers.reduce((max, layer) => Math.max(max, Number(layer.z) || 0), 0) + 1);
-    const specs = [
-      { id: 'fats_macro_label', label: 'FATS macro label', x: 35, y: 43, fontSize: 8, text: 'fats', width: 40, align: 'left' },
-      { id: 'fats_macro_value', label: 'FATS macro grams', x: 35, y: 54, fontSize: 7, text: 'N/A', width: 34, align: 'left' }
-    ];
-    specs.forEach(spec => {
-      let layer = layers.find(item => item.id === spec.id);
-      if (!layer) {
-        layer = {
-          id: spec.id,
-          kind: 'text',
-          label: spec.label,
-          x: spec.x,
-          y: spec.y,
-          z: topZ,
-          visible: true,
-          text: spec.text,
-          fontSize: spec.fontSize,
-          width: spec.width,
-          align: spec.align
-        };
-        layers.push(layer);
-      }
-      layer.label = spec.label;
-      layer.fontSize = layer.fontSize || spec.fontSize;
-      layer.width = layer.width || spec.width;
-      layer.align = layer.align || spec.align;
-      layer.z = Math.max(Number(layer.z) || 0, topZ);
-    });
+    const specsBySection = {
+      fats: [
+        { id: 'fats_macro_label', label: 'FATS macro label', x: 35, y: 43, fontSize: 8, text: 'fats', width: 40, align: 'left' },
+        { id: 'fats_macro_value', label: 'FATS macro grams', x: 35, y: 54, fontSize: 7, text: 'N/A', width: 34, align: 'left' }
+      ],
+      carbs: [
+        { id: 'carbs_macro_label', label: 'CARBS macro label', x: 35, y: 43, fontSize: 8, text: 'CARBS', width: 40, align: 'left' },
+        { id: 'carbs_macro_value', label: 'CARBS macro grams', x: 35, y: 54, fontSize: 7, text: 'N/A', width: 34, align: 'left' }
+      ]
+    };
+    for (const [sectionId, specs] of Object.entries(specsBySection)) {
+      const layers = getSectionLayers(layout, sectionId);
+      const topZ = Math.max(9, layers.reduce((max, layer) => Math.max(max, Number(layer.z) || 0), 0) + 1);
+      specs.forEach(spec => {
+        let layer = layers.find(item => item.id === spec.id);
+        if (!layer) {
+          layer = {
+            id: spec.id,
+            kind: 'text',
+            label: spec.label,
+            x: spec.x,
+            y: spec.y,
+            z: topZ,
+            visible: true,
+            text: spec.text,
+            fontSize: spec.fontSize,
+            width: spec.width,
+            align: spec.align
+          };
+          layers.push(layer);
+        }
+        layer.label = spec.label;
+        layer.fontSize = layer.fontSize || spec.fontSize;
+        layer.width = layer.width || spec.width;
+        layer.align = layer.align || spec.align;
+        layer.z = Math.max(Number(layer.z) || 0, topZ);
+      });
+    }
+  }
+
+  function syncMacroTotalTextForSection(layout, sectionId, labelText, valueText) {
+    const layers = getSectionLayers(layout, sectionId);
+    const label = layers.find(layer => layer.id === `${sectionId}_macro_label`);
+    const value = layers.find(layer => layer.id === `${sectionId}_macro_value`);
+    if (label && !label.manualText) label.text = labelText;
+    if (value && !value.manualText) value.text = valueText;
   }
 
   function syncMacroTotalText(layout, food) {
-    const layers = getSectionLayers(layout, 'fats');
-    const label = layers.find(layer => layer.id === 'fats_macro_label');
-    const value = layers.find(layer => layer.id === 'fats_macro_value');
-    if (label && !label.manualText) label.text = 'fats';
-    if (value && !value.manualText) value.text = formatMetric(food?.header?.fat_g, 'g');
+    syncMacroTotalTextForSection(layout, 'fats', 'fats', formatMetric(food?.header?.fat_g, 'g'));
+    syncMacroTotalTextForSection(layout, 'carbs', 'CARBS', 'N/A');
   }
 
   function macroBarLayerSection(layer, fallbackSectionId = '') {
@@ -1232,15 +1245,16 @@
     carbs: {
       fillId: 'carbs_macro_bar_fill',
       fillLabel: 'CARBS macro bar fill',
-      fillSrc: './sprites/macros_section/section_2_carbs/carb_macro_bar_fill.gif',
-      frameId: 'carbs_macro_bar_frame'
+      fillSrc: './sprites/macros_section/section_2_carbs/carb_macro_bar_fill.gif'
     }
   };
 
   function ensureMacroBarLayers(layout) {
     for (const [sectionId, spec] of Object.entries(MACRO_BAR_LAYER_SPECS)) {
       const layers = getSectionLayers(layout, sectionId);
-      const hasFrame = layers.some(layer => isMacroBarFrame(layer) && macroBarLayerSection(layer, sectionId) === sectionId);
+      const hasFrame = spec.frameId
+        ? layers.some(layer => isMacroBarFrame(layer) && macroBarLayerSection(layer, sectionId) === sectionId)
+        : true;
       const hasFill = layers.some(layer => isMacroBarFill(layer) && macroBarLayerSection(layer, sectionId) === sectionId);
       if (!hasFill) {
         layers.push({

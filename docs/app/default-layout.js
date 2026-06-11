@@ -1472,19 +1472,30 @@ window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT = {
           "manualPosition": false
         },
         {
-          "id": "carbs_macro_bar_frame",
-          "kind": "sprite",
-          "label": "Macro bar frame",
-          "src": "./sprites/macros_section/macro_bar_frame.png",
-          "x": 31,
-          "y": 48,
-          "z": 8,
-          "width": 88,
-          "height": 14,
+          "id": "carbs_macro_label",
+          "kind": "text",
+          "label": "CARBS macro label",
+          "x": 35,
+          "y": 43,
+          "z": 9,
           "visible": true,
-          "foodDriven": false,
-          "preserveAspect": false,
-          "manualPosition": false
+          "text": "CARBS",
+          "fontSize": 8,
+          "width": 40,
+          "align": "left"
+        },
+        {
+          "id": "carbs_macro_value",
+          "kind": "text",
+          "label": "CARBS macro grams",
+          "x": 35,
+          "y": 54,
+          "z": 9,
+          "visible": true,
+          "text": "N/A",
+          "fontSize": 7,
+          "width": 34,
+          "align": "left"
         },
         {
           "id": "lib_carb_submacro_bullet_1776259094705",

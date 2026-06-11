@@ -3,7 +3,7 @@
 Use this pack for the first launch-five narration exports.
 
 ## Global settings
-- speed: **1.10x**
+- speed: **1.15x**
 - tone: clear, confident, fair
 - energy: slightly punchy, not overhyped
 - pause style: brief pause between sections, no long dramatic silences

@@ -13,7 +13,7 @@ These are the current narration-ready launch episodes.
 Use each episode's `production/episodes/<slug>/voice/final-narration.txt` when generating voice.
 
 ## Suggested ElevenLabs defaults
-- speed: 1.10x
+- speed: 1.15x
 - delivery: clear, slightly punchy, not overacted
 - pauses: keep section breaks but do not sound robotic
 - ending: make the final `X tier.` line feel like the hard stop

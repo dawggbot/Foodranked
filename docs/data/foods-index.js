@@ -17249,174 +17249,174 @@ window.FOODS_INDEX = [
       },
       "summary": "Pros are carrying this food most, while cons are holding it back most. It lands in D tier.",
       "whyThisTier": "This food lands in D tier with an overall score of 11.8. Section scores: fats 48.9, proteins 20, vitamins 12, minerals 3.8, pros 50, cons 0.",
-      "durationSeconds": 84.781,
+      "durationSeconds": 76.744,
       "outputDir": "outputs/episodes/bacon-compact",
       "audio": {
-        "take": "voice-v6",
-        "path": "audio/episodes/bacon/voice-v6.mp3",
-        "metadataPath": "audio/episodes/bacon/voice-v6.json",
-        "productionPath": "production/episodes/bacon/voice/voice-v6.mp3",
+        "take": "voice-v8",
+        "path": "audio/episodes/bacon/voice-v8.mp3",
+        "metadataPath": "audio/episodes/bacon/voice-v8.json",
+        "productionPath": "production/episodes/bacon/voice/voice-v8.mp3",
         "profileId": "eryn_measured_v1",
         "voiceLabel": "Eryn - Informative, Neutral and Measured",
         "modelId": "eleven_multilingual_v2",
-        "generatedAt": "2026-05-31T23:59:00.520Z"
+        "generatedAt": "2026-06-11T04:14:20.494Z"
       },
       "splitAudio": {
         "mode": "split-blocks",
-        "take": "voice-v7",
-        "manifestPath": "audio/episodes/bacon/voice-v7-blocks.json",
-        "productionManifestPath": "production/episodes/bacon/voice/voice-v7-blocks.json",
+        "take": "voice-v8",
+        "manifestPath": "audio/episodes/bacon/voice-v8-blocks.json",
+        "productionManifestPath": "production/episodes/bacon/voice/voice-v8-blocks.json",
         "profileId": "eryn_measured_v1",
         "voiceLabel": "Eryn - Informative, Neutral and Measured",
         "modelId": "eleven_multilingual_v2",
-        "generatedAt": "2026-06-07T10:33:57.974Z",
+        "generatedAt": "2026-06-11T04:13:48.082Z",
         "blockCount": 11,
         "blockGapSeconds": 0.08,
-        "durationSeconds": 84.781,
-        "alignmentPath": "outputs/episodes/bacon-compact/voice-v7-blocks-forced-alignment.json",
+        "durationSeconds": 76.744,
+        "alignmentPath": "outputs/episodes/bacon-compact/voice-v8-blocks-forced-alignment.json",
         "blocks": [
           {
             "id": "01-hook_food",
             "index": 0,
             "kind": "hook_food",
             "sectionKey": null,
-            "path": "audio/episodes/bacon/voice-v7-blocks/01-hook_food.mp3",
-            "productionPath": "production/episodes/bacon/voice/voice-v7-blocks/01-hook_food.mp3",
+            "path": "audio/episodes/bacon/voice-v8-blocks/01-hook_food.mp3",
+            "productionPath": "production/episodes/bacon/voice/voice-v8-blocks/01-hook_food.mp3",
             "text": "Bacon!",
             "offsetSeconds": 0,
             "durationSeconds": 0.469,
             "wordCount": 1,
-            "loss": 0.43245887756347656
+            "loss": 0.5248578389485677
           },
           {
             "id": "02-hook_ranked",
             "index": 1,
             "kind": "hook_ranked",
             "sectionKey": null,
-            "path": "audio/episodes/bacon/voice-v7-blocks/02-hook_ranked.mp3",
-            "productionPath": "production/episodes/bacon/voice/voice-v7-blocks/02-hook_ranked.mp3",
+            "path": "audio/episodes/bacon/voice-v8-blocks/02-hook_ranked.mp3",
+            "productionPath": "production/episodes/bacon/voice/voice-v8-blocks/02-hook_ranked.mp3",
             "text": "Ranked!",
             "offsetSeconds": 0.549,
-            "durationSeconds": 0.469,
+            "durationSeconds": 0.429,
             "wordCount": 1,
-            "loss": 0.317218508039202
+            "loss": 0.4556737627301897
           },
           {
             "id": "03-fats",
             "index": 2,
             "kind": "section",
             "sectionKey": "fats",
-            "path": "audio/episodes/bacon/voice-v7-blocks/03-fats.mp3",
-            "productionPath": "production/episodes/bacon/voice/voice-v7-blocks/03-fats.mp3",
+            "path": "audio/episodes/bacon/voice-v8-blocks/03-fats.mp3",
+            "productionPath": "production/episodes/bacon/voice/voice-v8-blocks/03-fats.mp3",
             "text": "37.1 grams of fat. Polyunsaturated fat is 5.8 grams, helping with cell structure and healthy signalling. Saturated fat is 12.6 grams, and for meats, fat quality is a major tradeoff.",
-            "offsetSeconds": 1.098,
-            "durationSeconds": 12.069,
+            "offsetSeconds": 1.058,
+            "durationSeconds": 11.209,
             "wordCount": 30,
-            "loss": 0.04104466793945481
+            "loss": 0.041171314966612756
           },
           {
             "id": "04-carbs",
             "index": 3,
             "kind": "section",
             "sectionKey": "carbs",
-            "path": "audio/episodes/bacon/voice-v7-blocks/04-carbs.mp3",
-            "productionPath": "production/episodes/bacon/voice/voice-v7-blocks/04-carbs.mp3",
+            "path": "audio/episodes/bacon/voice-v8-blocks/04-carbs.mp3",
+            "productionPath": "production/episodes/bacon/voice/voice-v8-blocks/04-carbs.mp3",
             "text": "0 grams of carbs. No defensible carb submacros to call out. In this category, carbs barely matter.",
-            "offsetSeconds": 13.247,
-            "durationSeconds": 5.249,
+            "offsetSeconds": 12.347,
+            "durationSeconds": 5.229,
             "wordCount": 17,
-            "loss": 0.05279556585817921
+            "loss": 0.09459125873993854
           },
           {
             "id": "05-proteins",
             "index": 4,
             "kind": "section",
             "sectionKey": "proteins",
-            "path": "audio/episodes/bacon/voice-v7-blocks/05-proteins.mp3",
-            "productionPath": "production/episodes/bacon/voice/voice-v7-blocks/05-proteins.mp3",
+            "path": "audio/episodes/bacon/voice-v8-blocks/05-proteins.mp3",
+            "productionPath": "production/episodes/bacon/voice/voice-v8-blocks/05-proteins.mp3",
             "text": "13.7 grams of protein. Essential amino acids score is 8 out of 9, with 90% bioavailability, making the protein useful for repair and maintenance. Collagen is only 1 gram, so for meats, it is not bringing much connective-tissue protein.",
-            "offsetSeconds": 18.576,
-            "durationSeconds": 13.329,
+            "offsetSeconds": 17.656,
+            "durationSeconds": 11.97,
             "wordCount": 39,
-            "loss": 0.04745271104447385
+            "loss": 0.051546178472802996
           },
           {
             "id": "06-vitamins",
             "index": 5,
             "kind": "section",
             "sectionKey": "vitamins",
-            "path": "audio/episodes/bacon/voice-v7-blocks/06-vitamins.mp3",
-            "productionPath": "production/episodes/bacon/voice/voice-v7-blocks/06-vitamins.mp3",
+            "path": "audio/episodes/bacon/voice-v8-blocks/06-vitamins.mp3",
+            "productionPath": "production/episodes/bacon/voice/voice-v8-blocks/06-vitamins.mp3",
             "text": "Vitamin B12 is 21% daily value, useful for nerve and blood-cell support. Vitamin D is only 1% daily value, a small miss for meats.",
-            "offsetSeconds": 31.985,
-            "durationSeconds": 8.369,
+            "offsetSeconds": 29.706,
+            "durationSeconds": 7.329,
             "wordCount": 24,
-            "loss": 0.07697942715424758
+            "loss": 0.06336302390465369
           },
           {
             "id": "07-minerals",
             "index": 6,
             "kind": "section",
             "sectionKey": "minerals",
-            "path": "audio/episodes/bacon/voice-v7-blocks/07-minerals.mp3",
-            "productionPath": "production/episodes/bacon/voice/voice-v7-blocks/07-minerals.mp3",
+            "path": "audio/episodes/bacon/voice-v8-blocks/07-minerals.mp3",
+            "productionPath": "production/episodes/bacon/voice/voice-v8-blocks/07-minerals.mp3",
             "text": "Zinc is 10% daily value, useful for immune support. Iron is only 2% daily value, a weak mark for meats.",
-            "offsetSeconds": 40.434,
-            "durationSeconds": 6.05,
+            "offsetSeconds": 37.115,
+            "durationSeconds": 5.49,
             "wordCount": 20,
-            "loss": 0.0635837652150867
+            "loss": 0.036786740266003655
           },
           {
             "id": "08-pros",
             "index": 7,
             "kind": "section",
             "sectionKey": "pros",
-            "path": "audio/episodes/bacon/voice-v7-blocks/08-pros.mp3",
-            "productionPath": "production/episodes/bacon/voice/voice-v7-blocks/08-pros.mp3",
+            "path": "audio/episodes/bacon/voice-v8-blocks/08-pros.mp3",
+            "productionPath": "production/episodes/bacon/voice/voice-v8-blocks/08-pros.mp3",
             "text": "Pros first: highly palatable and appealing. A real-world reason people love it. Works as a strong flavour booster. Useful in meals even in smaller amounts. Has strong comfort-food appeal. Popular and instantly legible for content packaging.",
-            "offsetSeconds": 46.564,
-            "durationSeconds": 13.869,
+            "offsetSeconds": 42.685,
+            "durationSeconds": 12.97,
             "wordCount": 36,
-            "loss": 0.07989873439073562
+            "loss": 0.07685416986544927
           },
           {
             "id": "09-cons",
             "index": 8,
             "kind": "section",
             "sectionKey": "cons",
-            "path": "audio/episodes/bacon/voice-v7-blocks/09-cons.mp3",
-            "productionPath": "production/episodes/bacon/voice/voice-v7-blocks/09-cons.mp3",
+            "path": "audio/episodes/bacon/voice-v8-blocks/09-cons.mp3",
+            "productionPath": "production/episodes/bacon/voice/voice-v8-blocks/09-cons.mp3",
             "text": "The drawbacks next: sodium is a major drawback. A central practical health issue for bacon. Processing is a major negative. A key downside now that more processed foods are in scope. Rarely improves a meal much on its own. Usually works more as a flavour add-on than a genuinely strong meat choice.",
-            "offsetSeconds": 60.513,
-            "durationSeconds": 18.23,
+            "offsetSeconds": 55.735,
+            "durationSeconds": 15.289,
             "wordCount": 52,
-            "loss": 0.05323873630306065
+            "loss": 0.05243283910239303
           },
           {
             "id": "10-closing_summary",
             "index": 9,
             "kind": "closing_summary",
             "sectionKey": null,
-            "path": "audio/episodes/bacon/voice-v7-blocks/10-closing_summary.mp3",
-            "productionPath": "production/episodes/bacon/voice/voice-v7-blocks/10-closing_summary.mp3",
+            "path": "audio/episodes/bacon/voice-v8-blocks/10-closing_summary.mp3",
+            "productionPath": "production/episodes/bacon/voice/voice-v8-blocks/10-closing_summary.mp3",
             "text": "Big strengths are protein and palatable and appealing, but the biggest weaknesses are sodium and processing.",
-            "offsetSeconds": 78.823,
-            "durationSeconds": 5.309,
+            "offsetSeconds": 71.104,
+            "durationSeconds": 5.01,
             "wordCount": 16,
-            "loss": 0.0644961021564625
+            "loss": 0.049416549779750685
           },
           {
             "id": "11-final_reveal",
             "index": 10,
             "kind": "final_reveal",
             "sectionKey": null,
-            "path": "audio/episodes/bacon/voice-v7-blocks/11-final_reveal.mp3",
-            "productionPath": "production/episodes/bacon/voice/voice-v7-blocks/11-final_reveal.mp3",
+            "path": "audio/episodes/bacon/voice-v8-blocks/11-final_reveal.mp3",
+            "productionPath": "production/episodes/bacon/voice/voice-v8-blocks/11-final_reveal.mp3",
             "text": "D tier.",
-            "offsetSeconds": 84.212,
-            "durationSeconds": 0.569,
+            "offsetSeconds": 76.194,
+            "durationSeconds": 0.55,
             "wordCount": 2,
-            "loss": 0.4539386204310826
+            "loss": 0.5149350847516742
           }
         ]
       },
@@ -17425,64 +17425,64 @@ window.FOODS_INDEX = [
           "id": "hook",
           "kind": "hook",
           "startSeconds": 0,
-          "endSeconds": 1.137,
-          "durationSeconds": 1.137
+          "endSeconds": 1.097,
+          "durationSeconds": 1.097
         },
         {
           "id": "fats",
           "kind": "section",
-          "startSeconds": 1.137,
-          "endSeconds": 13.286,
-          "durationSeconds": 12.149
+          "startSeconds": 1.097,
+          "endSeconds": 12.686,
+          "durationSeconds": 11.589
         },
         {
           "id": "carbs",
           "kind": "section",
-          "startSeconds": 13.286,
-          "endSeconds": 18.575,
-          "durationSeconds": 5.289
+          "startSeconds": 12.686,
+          "endSeconds": 17.655,
+          "durationSeconds": 4.969
         },
         {
           "id": "proteins",
           "kind": "section",
-          "startSeconds": 18.575,
-          "endSeconds": 32.024,
-          "durationSeconds": 13.449
+          "startSeconds": 17.655,
+          "endSeconds": 29.705,
+          "durationSeconds": 12.05
         },
         {
           "id": "vitamins",
           "kind": "section",
-          "startSeconds": 32.024,
-          "endSeconds": 40.433,
-          "durationSeconds": 8.409
+          "startSeconds": 29.705,
+          "endSeconds": 37.134,
+          "durationSeconds": 7.429
         },
         {
           "id": "minerals",
           "kind": "section",
-          "startSeconds": 40.433,
-          "endSeconds": 46.583,
-          "durationSeconds": 6.15
+          "startSeconds": 37.134,
+          "endSeconds": 42.684,
+          "durationSeconds": 5.55
         },
         {
           "id": "pros",
           "kind": "section",
-          "startSeconds": 46.583,
-          "endSeconds": 60.512,
-          "durationSeconds": 13.929
+          "startSeconds": 42.684,
+          "endSeconds": 55.734,
+          "durationSeconds": 13.05
         },
         {
           "id": "cons",
           "kind": "section",
-          "startSeconds": 60.512,
-          "endSeconds": 78.862,
-          "durationSeconds": 18.35
+          "startSeconds": 55.734,
+          "endSeconds": 71.103,
+          "durationSeconds": 15.369
         },
         {
           "id": "final",
           "kind": "closing",
-          "startSeconds": 78.862,
-          "endSeconds": 84.781,
-          "durationSeconds": 5.919
+          "startSeconds": 71.103,
+          "endSeconds": 76.744,
+          "durationSeconds": 5.641
         }
       ],
       "sceneCount": 9,
@@ -17926,7 +17926,7 @@ window.FOODS_INDEX = [
           "id": "01-hook",
           "sceneId": "hook",
           "startSeconds": 0,
-          "endSeconds": 1.137,
+          "endSeconds": 1.097,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -17943,15 +17943,15 @@ window.FOODS_INDEX = [
             {
               "text": "ranked.",
               "startSeconds": 0.628,
-              "endSeconds": 0.968
+              "endSeconds": 0.928
             }
           ]
         },
         {
           "id": "02-fats-1",
           "sceneId": "fats",
-          "startSeconds": 1.137,
-          "endSeconds": 3.372,
+          "startSeconds": 1.097,
+          "endSeconds": 3.213,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -17963,26 +17963,26 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "37.1g",
-              "startSeconds": 1.217,
-              "endSeconds": 2.277
+              "startSeconds": 1.177,
+              "endSeconds": 2.158
             },
             {
               "text": "of",
-              "startSeconds": 2.318,
-              "endSeconds": 2.377
+              "startSeconds": 2.217,
+              "endSeconds": 2.257
             },
             {
               "text": "fat.",
-              "startSeconds": 2.458,
-              "endSeconds": 2.697
+              "startSeconds": 2.337,
+              "endSeconds": 2.577
             }
           ]
         },
         {
           "id": "03-fats-2",
           "sceneId": "fats",
-          "startSeconds": 3.372,
-          "endSeconds": 4.793,
+          "startSeconds": 3.213,
+          "endSeconds": 4.552,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -17994,26 +17994,26 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "Polyunsaturated",
-              "startSeconds": 3.417,
-              "endSeconds": 4.177
+              "startSeconds": 3.258,
+              "endSeconds": 3.977
             },
             {
               "text": "fat",
-              "startSeconds": 4.277,
-              "endSeconds": 4.497
+              "startSeconds": 4.058,
+              "endSeconds": 4.237
             },
             {
               "text": "is",
-              "startSeconds": 4.558,
-              "endSeconds": 4.657
+              "startSeconds": 4.298,
+              "endSeconds": 4.377
             }
           ]
         },
         {
           "id": "04-fats-3",
           "sceneId": "fats",
-          "startSeconds": 4.793,
-          "endSeconds": 6.392,
+          "startSeconds": 4.552,
+          "endSeconds": 6.072,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -18025,31 +18025,31 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "5.8g,",
-              "startSeconds": 4.838,
-              "endSeconds": 5.637
+              "startSeconds": 4.597,
+              "endSeconds": 5.377
             },
             {
               "text": "helping",
-              "startSeconds": 5.717,
-              "endSeconds": 5.998
+              "startSeconds": 5.478,
+              "endSeconds": 5.697
             },
             {
               "text": "with",
-              "startSeconds": 6.038,
-              "endSeconds": 6.117
+              "startSeconds": 5.717,
+              "endSeconds": 5.877
             },
             {
               "text": "cell",
-              "startSeconds": 6.217,
-              "endSeconds": 6.357
+              "startSeconds": 5.917,
+              "endSeconds": 6.058
             }
           ]
         },
         {
           "id": "05-fats-4",
           "sceneId": "fats",
-          "startSeconds": 6.392,
-          "endSeconds": 7.312,
+          "startSeconds": 6.072,
+          "endSeconds": 6.892,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -18061,26 +18061,26 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "structure",
-              "startSeconds": 6.437,
-              "endSeconds": 6.797
+              "startSeconds": 6.117,
+              "endSeconds": 6.417
             },
             {
               "text": "and",
-              "startSeconds": 6.897,
-              "endSeconds": 6.977
+              "startSeconds": 6.518,
+              "endSeconds": 6.597
             },
             {
               "text": "healthy",
-              "startSeconds": 7.038,
-              "endSeconds": 7.237
+              "startSeconds": 6.637,
+              "endSeconds": 6.857
             }
           ]
         },
         {
           "id": "06-fats-5",
           "sceneId": "fats",
-          "startSeconds": 7.312,
-          "endSeconds": 8.452,
+          "startSeconds": 6.892,
+          "endSeconds": 7.792,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -18091,16 +18091,16 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "signalling.",
-              "startSeconds": 7.357,
-              "endSeconds": 7.757
+              "startSeconds": 6.937,
+              "endSeconds": 7.297
             }
           ]
         },
         {
           "id": "07-fats-6",
           "sceneId": "fats",
-          "startSeconds": 8.452,
-          "endSeconds": 10.492,
+          "startSeconds": 7.792,
+          "endSeconds": 9.912,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -18112,31 +18112,31 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "Saturated",
-              "startSeconds": 8.497,
-              "endSeconds": 8.917
+              "startSeconds": 7.837,
+              "endSeconds": 8.197
             },
             {
               "text": "fat",
-              "startSeconds": 9.038,
-              "endSeconds": 9.197
+              "startSeconds": 8.297,
+              "endSeconds": 8.437
             },
             {
               "text": "is",
-              "startSeconds": 9.237,
-              "endSeconds": 9.337
+              "startSeconds": 8.498,
+              "endSeconds": 8.558
             },
             {
               "text": "12.6g,",
-              "startSeconds": 9.398,
-              "endSeconds": 10.398
+              "startSeconds": 8.617,
+              "endSeconds": 9.518
             }
           ]
         },
         {
           "id": "08-fats-7",
           "sceneId": "fats",
-          "startSeconds": 10.492,
-          "endSeconds": 12.672,
+          "startSeconds": 9.912,
+          "endSeconds": 11.818,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -18148,51 +18148,51 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "and",
-              "startSeconds": 10.537,
-              "endSeconds": 10.617
+              "startSeconds": 9.957,
+              "endSeconds": 10.038
             },
             {
               "text": "for",
-              "startSeconds": 10.697,
-              "endSeconds": 10.817
+              "startSeconds": 10.097,
+              "endSeconds": 10.157
             },
             {
               "text": "meats,",
-              "startSeconds": 10.858,
-              "endSeconds": 11.137
+              "startSeconds": 10.217,
+              "endSeconds": 10.497
             },
             {
               "text": "fat",
-              "startSeconds": 11.537,
-              "endSeconds": 11.657
+              "startSeconds": 10.717,
+              "endSeconds": 10.858
             },
             {
               "text": "quality",
-              "startSeconds": 11.757,
-              "endSeconds": 12.098
+              "startSeconds": 10.917,
+              "endSeconds": 11.297
             },
             {
               "text": "is",
-              "startSeconds": 12.157,
-              "endSeconds": 12.237
+              "startSeconds": 11.337,
+              "endSeconds": 11.438
             },
             {
               "text": "a",
-              "startSeconds": 12.297,
-              "endSeconds": 12.357
+              "startSeconds": 11.497,
+              "endSeconds": 11.537
             },
             {
               "text": "major",
-              "startSeconds": 12.417,
-              "endSeconds": 12.657
+              "startSeconds": 11.637,
+              "endSeconds": 11.818
             }
           ]
         },
         {
           "id": "09-fats-8",
           "sceneId": "fats",
-          "startSeconds": 12.672,
-          "endSeconds": 13.286,
+          "startSeconds": 11.818,
+          "endSeconds": 12.686,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -18203,16 +18203,16 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "tradeoff.",
-              "startSeconds": 12.717,
-              "endSeconds": 13.117
+              "startSeconds": 11.858,
+              "endSeconds": 12.217
             }
           ]
         },
         {
           "id": "10-carbs-1",
           "sceneId": "carbs",
-          "startSeconds": 13.286,
-          "endSeconds": 14.341,
+          "startSeconds": 12.686,
+          "endSeconds": 14.121,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -18223,26 +18223,26 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "0g",
-              "startSeconds": 13.366,
-              "endSeconds": 13.786
+              "startSeconds": 12.766,
+              "endSeconds": 13.066
             },
             {
               "text": "of",
-              "startSeconds": 13.807,
-              "endSeconds": 13.906
+              "startSeconds": 13.106,
+              "endSeconds": 13.206
             },
             {
               "text": "carbs.",
-              "startSeconds": 13.946,
-              "endSeconds": 14.266
+              "startSeconds": 13.226,
+              "endSeconds": 13.626
             }
           ]
         },
         {
           "id": "11-carbs-2",
           "sceneId": "carbs",
-          "startSeconds": 14.341,
-          "endSeconds": 16.061,
+          "startSeconds": 14.121,
+          "endSeconds": 15.626,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -18254,41 +18254,41 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "No",
-              "startSeconds": 14.386,
-              "endSeconds": 14.446
+              "startSeconds": 14.166,
+              "endSeconds": 14.226
             },
             {
               "text": "defensible",
-              "startSeconds": 14.506,
-              "endSeconds": 14.906
+              "startSeconds": 14.286,
+              "endSeconds": 14.606
             },
             {
               "text": "carb",
-              "startSeconds": 14.987,
-              "endSeconds": 15.226
+              "startSeconds": 14.686,
+              "endSeconds": 14.827
             },
             {
               "text": "submacros",
-              "startSeconds": 15.266,
-              "endSeconds": 15.727
+              "startSeconds": 14.886,
+              "endSeconds": 15.327
             },
             {
               "text": "to",
-              "startSeconds": 15.747,
-              "endSeconds": 15.846
+              "startSeconds": 15.366,
+              "endSeconds": 15.446
             },
             {
               "text": "call",
-              "startSeconds": 15.886,
-              "endSeconds": 16.046
+              "startSeconds": 15.466,
+              "endSeconds": 15.626
             }
           ]
         },
         {
           "id": "12-carbs-3",
           "sceneId": "carbs",
-          "startSeconds": 16.061,
-          "endSeconds": 16.641,
+          "startSeconds": 15.626,
+          "endSeconds": 15.807,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -18299,16 +18299,16 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "out.",
-              "startSeconds": 16.106,
-              "endSeconds": 16.286
+              "startSeconds": 15.666,
+              "endSeconds": 15.807
             }
           ]
         },
         {
           "id": "13-carbs-4",
           "sceneId": "carbs",
-          "startSeconds": 16.641,
-          "endSeconds": 18.187,
+          "startSeconds": 15.807,
+          "endSeconds": 17.287,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -18320,36 +18320,36 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "In",
-              "startSeconds": 16.686,
-              "endSeconds": 16.747
+              "startSeconds": 15.847,
+              "endSeconds": 15.906
             },
             {
               "text": "this",
-              "startSeconds": 16.786,
-              "endSeconds": 16.946
+              "startSeconds": 15.946,
+              "endSeconds": 16.066
             },
             {
               "text": "category,",
-              "startSeconds": 16.967,
-              "endSeconds": 17.406
+              "startSeconds": 16.087,
+              "endSeconds": 16.506
             },
             {
               "text": "carbs",
-              "startSeconds": 17.526,
-              "endSeconds": 17.866
+              "startSeconds": 16.546,
+              "endSeconds": 16.946
             },
             {
               "text": "barely",
-              "startSeconds": 17.906,
-              "endSeconds": 18.187
+              "startSeconds": 16.986,
+              "endSeconds": 17.287
             }
           ]
         },
         {
           "id": "14-carbs-5",
           "sceneId": "carbs",
-          "startSeconds": 18.187,
-          "endSeconds": 18.575,
+          "startSeconds": 17.287,
+          "endSeconds": 17.655,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -18360,16 +18360,16 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "matter.",
-              "startSeconds": 18.207,
-              "endSeconds": 18.446
+              "startSeconds": 17.288,
+              "endSeconds": 17.526
             }
           ]
         },
         {
           "id": "15-proteins-1",
           "sceneId": "proteins",
-          "startSeconds": 18.575,
-          "endSeconds": 20.65,
+          "startSeconds": 17.655,
+          "endSeconds": 19.91,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -18381,26 +18381,26 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "13.7g",
-              "startSeconds": 18.655,
-              "endSeconds": 19.535
+              "startSeconds": 17.735,
+              "endSeconds": 18.635
             },
             {
               "text": "of",
-              "startSeconds": 19.576,
-              "endSeconds": 19.635
+              "startSeconds": 18.675,
+              "endSeconds": 18.756
             },
             {
               "text": "protein.",
-              "startSeconds": 19.676,
-              "endSeconds": 20.056
+              "startSeconds": 18.795,
+              "endSeconds": 19.156
             }
           ]
         },
         {
           "id": "16-proteins-2",
           "sceneId": "proteins",
-          "startSeconds": 20.65,
-          "endSeconds": 22.43,
+          "startSeconds": 19.91,
+          "endSeconds": 21.43,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -18412,36 +18412,36 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "Essential",
-              "startSeconds": 20.695,
-              "endSeconds": 21.016
+              "startSeconds": 19.955,
+              "endSeconds": 20.235
             },
             {
               "text": "amino",
-              "startSeconds": 21.095,
-              "endSeconds": 21.335
+              "startSeconds": 20.295,
+              "endSeconds": 20.515
             },
             {
               "text": "acids",
-              "startSeconds": 21.395,
-              "endSeconds": 21.615
+              "startSeconds": 20.555,
+              "endSeconds": 20.755
             },
             {
               "text": "score",
-              "startSeconds": 21.715,
-              "endSeconds": 22.115
+              "startSeconds": 20.835,
+              "endSeconds": 21.136
             },
             {
               "text": "is",
-              "startSeconds": 22.175,
-              "endSeconds": 22.275
+              "startSeconds": 21.175,
+              "endSeconds": 21.295
             }
           ]
         },
         {
           "id": "17-proteins-3",
           "sceneId": "proteins",
-          "startSeconds": 22.43,
-          "endSeconds": 24.55,
+          "startSeconds": 21.43,
+          "endSeconds": 23.25,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -18453,31 +18453,31 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "8/9,",
-              "startSeconds": 22.475,
-              "endSeconds": 22.936
+              "startSeconds": 21.475,
+              "endSeconds": 21.895
             },
             {
               "text": "with",
-              "startSeconds": 22.996,
-              "endSeconds": 23.115
+              "startSeconds": 21.955,
+              "endSeconds": 22.036
             },
             {
               "text": "90%",
-              "startSeconds": 23.255,
-              "endSeconds": 23.635
+              "startSeconds": 22.195,
+              "endSeconds": 22.536
             },
             {
               "text": "bioavailability,",
-              "startSeconds": 23.675,
-              "endSeconds": 24.476
+              "startSeconds": 22.596,
+              "endSeconds": 23.215
             }
           ]
         },
         {
           "id": "18-proteins-4",
           "sceneId": "proteins",
-          "startSeconds": 24.55,
-          "endSeconds": 26.335,
+          "startSeconds": 23.25,
+          "endSeconds": 24.715,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -18489,41 +18489,41 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "making",
-              "startSeconds": 24.595,
-              "endSeconds": 24.835
+              "startSeconds": 23.295,
+              "endSeconds": 23.515
             },
             {
               "text": "the",
-              "startSeconds": 24.895,
-              "endSeconds": 24.975
+              "startSeconds": 23.535,
+              "endSeconds": 23.616
             },
             {
               "text": "protein",
-              "startSeconds": 25.016,
-              "endSeconds": 25.335
+              "startSeconds": 23.675,
+              "endSeconds": 23.955
             },
             {
               "text": "useful",
-              "startSeconds": 25.415,
-              "endSeconds": 25.735
+              "startSeconds": 24.035,
+              "endSeconds": 24.255
             },
             {
               "text": "for",
-              "startSeconds": 25.795,
-              "endSeconds": 25.915
+              "startSeconds": 24.295,
+              "endSeconds": 24.355
             },
             {
               "text": "repair",
-              "startSeconds": 25.975,
-              "endSeconds": 26.335
+              "startSeconds": 24.415,
+              "endSeconds": 24.715
             }
           ]
         },
         {
           "id": "19-proteins-5",
           "sceneId": "proteins",
-          "startSeconds": 26.335,
-          "endSeconds": 27.73,
+          "startSeconds": 24.715,
+          "endSeconds": 25.991,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -18534,21 +18534,21 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "and",
-              "startSeconds": 26.375,
-              "endSeconds": 26.495
+              "startSeconds": 24.755,
+              "endSeconds": 24.815
             },
             {
               "text": "maintenance.",
-              "startSeconds": 26.516,
-              "endSeconds": 26.975
+              "startSeconds": 24.875,
+              "endSeconds": 25.295
             }
           ]
         },
         {
           "id": "20-proteins-6",
           "sceneId": "proteins",
-          "startSeconds": 27.73,
-          "endSeconds": 29.69,
+          "startSeconds": 25.991,
+          "endSeconds": 27.71,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -18560,46 +18560,46 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "Collagen",
-              "startSeconds": 27.775,
-              "endSeconds": 28.155
+              "startSeconds": 26.036,
+              "endSeconds": 26.395
             },
             {
               "text": "is",
-              "startSeconds": 28.195,
-              "endSeconds": 28.296
+              "startSeconds": 26.435,
+              "endSeconds": 26.536
             },
             {
               "text": "only",
-              "startSeconds": 28.336,
-              "endSeconds": 28.536
+              "startSeconds": 26.576,
+              "endSeconds": 26.735
             },
             {
               "text": "1g,",
-              "startSeconds": 28.655,
-              "endSeconds": 28.975
+              "startSeconds": 26.855,
+              "endSeconds": 27.175
             },
             {
               "text": "so",
-              "startSeconds": 29.095,
-              "endSeconds": 29.155
+              "startSeconds": 27.295,
+              "endSeconds": 27.355
             },
             {
               "text": "for",
-              "startSeconds": 29.235,
-              "endSeconds": 29.295
+              "startSeconds": 27.395,
+              "endSeconds": 27.475
             },
             {
               "text": "meats,",
-              "startSeconds": 29.376,
-              "endSeconds": 29.675
+              "startSeconds": 27.515,
+              "endSeconds": 27.695
             }
           ]
         },
         {
           "id": "21-proteins-7",
           "sceneId": "proteins",
-          "startSeconds": 29.69,
-          "endSeconds": 30.735,
+          "startSeconds": 27.71,
+          "endSeconds": 28.55,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -18611,36 +18611,36 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "it",
-              "startSeconds": 29.735,
-              "endSeconds": 29.796
+              "startSeconds": 27.755,
+              "endSeconds": 27.795
             },
             {
               "text": "is",
-              "startSeconds": 29.815,
-              "endSeconds": 29.935
+              "startSeconds": 27.815,
+              "endSeconds": 27.916
             },
             {
               "text": "not",
-              "startSeconds": 29.975,
-              "endSeconds": 30.155
+              "startSeconds": 27.956,
+              "endSeconds": 28.095
             },
             {
               "text": "bringing",
-              "startSeconds": 30.175,
-              "endSeconds": 30.496
+              "startSeconds": 28.135,
+              "endSeconds": 28.376
             },
             {
               "text": "much",
-              "startSeconds": 30.515,
-              "endSeconds": 30.735
+              "startSeconds": 28.395,
+              "endSeconds": 28.536
             }
           ]
         },
         {
           "id": "22-proteins-8",
           "sceneId": "proteins",
-          "startSeconds": 30.735,
-          "endSeconds": 32.024,
+          "startSeconds": 28.55,
+          "endSeconds": 29.705,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -18652,21 +18652,21 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "connective-tissue",
-              "startSeconds": 30.775,
-              "endSeconds": 31.395
+              "startSeconds": 28.595,
+              "endSeconds": 29.136
             },
             {
               "text": "protein.",
-              "startSeconds": 31.456,
-              "endSeconds": 31.855
+              "startSeconds": 29.195,
+              "endSeconds": 29.576
             }
           ]
         },
         {
           "id": "23-vitamins-1",
           "sceneId": "vitamins",
-          "startSeconds": 32.024,
-          "endSeconds": 35.339,
+          "startSeconds": 29.705,
+          "endSeconds": 32.661,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -18678,46 +18678,46 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "Vitamin",
-              "startSeconds": 32.104,
-              "endSeconds": 32.384
+              "startSeconds": 29.785,
+              "endSeconds": 30.046
             },
             {
               "text": "B12",
-              "startSeconds": 32.464,
-              "endSeconds": 32.985
+              "startSeconds": 30.125,
+              "endSeconds": 30.545
             },
             {
               "text": "is",
-              "startSeconds": 33.024,
-              "endSeconds": 33.105
+              "startSeconds": 30.585,
+              "endSeconds": 30.685
             },
             {
               "text": "21%",
-              "startSeconds": 33.184,
-              "endSeconds": 33.804
+              "startSeconds": 30.725,
+              "endSeconds": 31.285
             },
             {
               "text": "DV,",
-              "startSeconds": 33.845,
-              "endSeconds": 34.384
+              "startSeconds": 31.326,
+              "endSeconds": 31.825
             },
             {
               "text": "useful",
-              "startSeconds": 34.824,
-              "endSeconds": 35.124
+              "startSeconds": 32.245,
+              "endSeconds": 32.465
             },
             {
               "text": "for",
-              "startSeconds": 35.205,
-              "endSeconds": 35.264
+              "startSeconds": 32.545,
+              "endSeconds": 32.605
             }
           ]
         },
         {
           "id": "24-vitamins-2",
           "sceneId": "vitamins",
-          "startSeconds": 35.339,
-          "endSeconds": 36.179,
+          "startSeconds": 32.661,
+          "endSeconds": 33.426,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -18729,26 +18729,26 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "nerve",
-              "startSeconds": 35.384,
-              "endSeconds": 35.664
+              "startSeconds": 32.706,
+              "endSeconds": 32.965
             },
             {
               "text": "and",
-              "startSeconds": 35.725,
-              "endSeconds": 35.784
+              "startSeconds": 33.005,
+              "endSeconds": 33.065
             },
             {
               "text": "blood-cell",
-              "startSeconds": 35.844,
-              "endSeconds": 36.164
+              "startSeconds": 33.105,
+              "endSeconds": 33.426
             }
           ]
         },
         {
           "id": "25-vitamins-3",
           "sceneId": "vitamins",
-          "startSeconds": 36.179,
-          "endSeconds": 37.019,
+          "startSeconds": 33.426,
+          "endSeconds": 34.18,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -18759,16 +18759,16 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "support.",
-              "startSeconds": 36.224,
-              "endSeconds": 36.584
+              "startSeconds": 33.465,
+              "endSeconds": 33.805
             }
           ]
         },
         {
           "id": "26-vitamins-4",
           "sceneId": "vitamins",
-          "startSeconds": 37.019,
-          "endSeconds": 39.604,
+          "startSeconds": 34.18,
+          "endSeconds": 36.36,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -18780,51 +18780,51 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "Vitamin",
-              "startSeconds": 37.064,
-              "endSeconds": 37.424
+              "startSeconds": 34.225,
+              "endSeconds": 34.465
             },
             {
               "text": "D",
-              "startSeconds": 37.485,
-              "endSeconds": 37.664
+              "startSeconds": 34.565,
+              "endSeconds": 34.666
             },
             {
               "text": "is",
-              "startSeconds": 37.704,
-              "endSeconds": 37.844
+              "startSeconds": 34.686,
+              "endSeconds": 34.805
             },
             {
               "text": "only",
-              "startSeconds": 37.905,
-              "endSeconds": 38.084
+              "startSeconds": 34.865,
+              "endSeconds": 35.065
             },
             {
               "text": "1%",
-              "startSeconds": 38.284,
-              "endSeconds": 38.584
+              "startSeconds": 35.186,
+              "endSeconds": 35.485
             },
             {
               "text": "DV,",
-              "startSeconds": 38.624,
-              "endSeconds": 39.144
+              "startSeconds": 35.525,
+              "endSeconds": 35.985
             },
             {
               "text": "a",
-              "startSeconds": 39.284,
-              "endSeconds": 39.344
+              "startSeconds": 36.105,
+              "endSeconds": 36.146
             },
             {
               "text": "small",
-              "startSeconds": 39.364,
-              "endSeconds": 39.604
+              "startSeconds": 36.186,
+              "endSeconds": 36.345
             }
           ]
         },
         {
           "id": "27-vitamins-5",
           "sceneId": "vitamins",
-          "startSeconds": 39.604,
-          "endSeconds": 40.433,
+          "startSeconds": 36.36,
+          "endSeconds": 37.134,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -18835,26 +18835,26 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "miss",
-              "startSeconds": 39.644,
-              "endSeconds": 39.824
+              "startSeconds": 36.405,
+              "endSeconds": 36.545
             },
             {
               "text": "for",
-              "startSeconds": 39.864,
-              "endSeconds": 39.965
+              "startSeconds": 36.585,
+              "endSeconds": 36.666
             },
             {
               "text": "meats.",
-              "startSeconds": 40.004,
-              "endSeconds": 40.304
+              "startSeconds": 36.706,
+              "endSeconds": 36.985
             }
           ]
         },
         {
           "id": "28-minerals-1",
           "sceneId": "minerals",
-          "startSeconds": 40.433,
-          "endSeconds": 42.829,
+          "startSeconds": 37.134,
+          "endSeconds": 39.229,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -18866,46 +18866,46 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "Zinc",
-              "startSeconds": 40.513,
-              "endSeconds": 40.714
+              "startSeconds": 37.214,
+              "endSeconds": 37.354
             },
             {
               "text": "is",
-              "startSeconds": 40.774,
-              "endSeconds": 40.893
+              "startSeconds": 37.395,
+              "endSeconds": 37.494
             },
             {
               "text": "10%",
-              "startSeconds": 40.934,
-              "endSeconds": 41.353
+              "startSeconds": 37.554,
+              "endSeconds": 37.954
             },
             {
               "text": "DV,",
-              "startSeconds": 41.393,
-              "endSeconds": 41.914
+              "startSeconds": 37.994,
+              "endSeconds": 38.475
             },
             {
               "text": "useful",
-              "startSeconds": 42.073,
-              "endSeconds": 42.373
+              "startSeconds": 38.634,
+              "endSeconds": 38.834
             },
             {
               "text": "for",
-              "startSeconds": 42.413,
-              "endSeconds": 42.533
+              "startSeconds": 38.914,
+              "endSeconds": 38.974
             },
             {
               "text": "immune",
-              "startSeconds": 42.593,
-              "endSeconds": 42.793
+              "startSeconds": 39.054,
+              "endSeconds": 39.194
             }
           ]
         },
         {
           "id": "29-minerals-2",
           "sceneId": "minerals",
-          "startSeconds": 42.829,
-          "endSeconds": 43.728,
+          "startSeconds": 39.229,
+          "endSeconds": 40.089,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -18916,16 +18916,16 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "support.",
-              "startSeconds": 42.874,
-              "endSeconds": 43.233
+              "startSeconds": 39.274,
+              "endSeconds": 39.615
             }
           ]
         },
         {
           "id": "30-minerals-3",
           "sceneId": "minerals",
-          "startSeconds": 43.728,
-          "endSeconds": 45.993,
+          "startSeconds": 40.089,
+          "endSeconds": 42.134,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -18937,51 +18937,51 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "Iron",
-              "startSeconds": 43.773,
-              "endSeconds": 43.993
+              "startSeconds": 40.134,
+              "endSeconds": 40.314
             },
             {
               "text": "is",
-              "startSeconds": 44.033,
-              "endSeconds": 44.133
+              "startSeconds": 40.355,
+              "endSeconds": 40.434
             },
             {
               "text": "only",
-              "startSeconds": 44.174,
-              "endSeconds": 44.393
+              "startSeconds": 40.474,
+              "endSeconds": 40.674
             },
             {
               "text": "2%",
-              "startSeconds": 44.473,
-              "endSeconds": 44.794
+              "startSeconds": 40.754,
+              "endSeconds": 41.054
             },
             {
               "text": "DV,",
-              "startSeconds": 44.834,
-              "endSeconds": 45.394
+              "startSeconds": 41.095,
+              "endSeconds": 41.595
             },
             {
               "text": "a",
-              "startSeconds": 45.513,
-              "endSeconds": 45.533
+              "startSeconds": 41.714,
+              "endSeconds": 41.734
             },
             {
               "text": "weak",
-              "startSeconds": 45.633,
-              "endSeconds": 45.793
+              "startSeconds": 41.794,
+              "endSeconds": 41.934
             },
             {
               "text": "mark",
-              "startSeconds": 45.834,
-              "endSeconds": 45.993
+              "startSeconds": 41.974,
+              "endSeconds": 42.134
             }
           ]
         },
         {
           "id": "31-minerals-4",
           "sceneId": "minerals",
-          "startSeconds": 45.993,
-          "endSeconds": 46.583,
+          "startSeconds": 42.134,
+          "endSeconds": 42.684,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -18992,21 +18992,21 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "for",
-              "startSeconds": 46.033,
-              "endSeconds": 46.093
+              "startSeconds": 42.154,
+              "endSeconds": 42.254
             },
             {
               "text": "meats.",
-              "startSeconds": 46.173,
-              "endSeconds": 46.434
+              "startSeconds": 42.274,
+              "endSeconds": 42.555
             }
           ]
         },
         {
           "id": "32-pros-1",
           "sceneId": "pros",
-          "startSeconds": 46.583,
-          "endSeconds": 48.498,
+          "startSeconds": 42.684,
+          "endSeconds": 44.504,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -19018,36 +19018,36 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "Pros",
-              "startSeconds": 46.663,
-              "endSeconds": 46.863
+              "startSeconds": 42.764,
+              "endSeconds": 42.965
             },
             {
               "text": "first:",
-              "startSeconds": 46.943,
-              "endSeconds": 47.203
+              "startSeconds": 43.044,
+              "endSeconds": 43.344
             },
             {
               "text": "highly",
-              "startSeconds": 47.503,
-              "endSeconds": 47.743
+              "startSeconds": 43.584,
+              "endSeconds": 43.844
             },
             {
               "text": "palatable",
-              "startSeconds": 47.823,
-              "endSeconds": 48.304
+              "startSeconds": 43.905,
+              "endSeconds": 44.305
             },
             {
               "text": "and",
-              "startSeconds": 48.383,
-              "endSeconds": 48.483
+              "startSeconds": 44.384,
+              "endSeconds": 44.504
             }
           ]
         },
         {
           "id": "33-pros-2",
           "sceneId": "pros",
-          "startSeconds": 48.498,
-          "endSeconds": 49.558,
+          "startSeconds": 44.504,
+          "endSeconds": 45.559,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -19058,16 +19058,16 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "appealing.",
-              "startSeconds": 48.543,
-              "endSeconds": 48.983
+              "startSeconds": 44.524,
+              "endSeconds": 44.944
             }
           ]
         },
         {
           "id": "34-pros-3",
           "sceneId": "pros",
-          "startSeconds": 49.558,
-          "endSeconds": 51.163,
+          "startSeconds": 45.559,
+          "endSeconds": 46.864,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -19079,36 +19079,36 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "A",
-              "startSeconds": 49.603,
-              "endSeconds": 49.663
+              "startSeconds": 45.604,
+              "endSeconds": 45.624
             },
             {
               "text": "real-world",
-              "startSeconds": 49.784,
-              "endSeconds": 50.263
+              "startSeconds": 45.704,
+              "endSeconds": 46.124
             },
             {
               "text": "reason",
-              "startSeconds": 50.363,
-              "endSeconds": 50.643
+              "startSeconds": 46.185,
+              "endSeconds": 46.464
             },
             {
               "text": "people",
-              "startSeconds": 50.743,
-              "endSeconds": 51.004
+              "startSeconds": 46.524,
+              "endSeconds": 46.744
             },
             {
               "text": "love",
-              "startSeconds": 51.044,
-              "endSeconds": 51.163
+              "startSeconds": 46.784,
+              "endSeconds": 46.864
             }
           ]
         },
         {
           "id": "35-pros-4",
           "sceneId": "pros",
-          "startSeconds": 51.163,
-          "endSeconds": 51.638,
+          "startSeconds": 46.864,
+          "endSeconds": 47.299,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -19119,16 +19119,16 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "it.",
-              "startSeconds": 51.203,
-              "endSeconds": 51.303
+              "startSeconds": 46.904,
+              "endSeconds": 46.984
             }
           ]
         },
         {
           "id": "36-pros-5",
           "sceneId": "pros",
-          "startSeconds": 51.638,
-          "endSeconds": 53.519,
+          "startSeconds": 47.299,
+          "endSeconds": 49.14,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -19140,41 +19140,41 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "Works",
-              "startSeconds": 51.683,
-              "endSeconds": 51.883
+              "startSeconds": 47.344,
+              "endSeconds": 47.504
             },
             {
               "text": "as",
-              "startSeconds": 51.923,
-              "endSeconds": 52.004
+              "startSeconds": 47.544,
+              "endSeconds": 47.625
             },
             {
               "text": "a",
-              "startSeconds": 52.064,
-              "endSeconds": 52.083
+              "startSeconds": 47.645,
+              "endSeconds": 47.704
             },
             {
               "text": "strong",
-              "startSeconds": 52.183,
-              "endSeconds": 52.403
+              "startSeconds": 47.744,
+              "endSeconds": 47.944
             },
             {
               "text": "flavour",
-              "startSeconds": 52.504,
-              "endSeconds": 52.723
+              "startSeconds": 48.024,
+              "endSeconds": 48.224
             },
             {
               "text": "booster.",
-              "startSeconds": 52.783,
-              "endSeconds": 53.123
+              "startSeconds": 48.264,
+              "endSeconds": 48.564
             }
           ]
         },
         {
           "id": "37-pros-6",
           "sceneId": "pros",
-          "startSeconds": 53.519,
-          "endSeconds": 55.239,
+          "startSeconds": 49.14,
+          "endSeconds": 50.679,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -19186,41 +19186,41 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "Useful",
-              "startSeconds": 53.564,
-              "endSeconds": 53.883
+              "startSeconds": 49.185,
+              "endSeconds": 49.464
             },
             {
               "text": "in",
-              "startSeconds": 53.943,
-              "endSeconds": 54.024
+              "startSeconds": 49.504,
+              "endSeconds": 49.625
             },
             {
               "text": "meals",
-              "startSeconds": 54.103,
-              "endSeconds": 54.423
+              "startSeconds": 49.665,
+              "endSeconds": 49.984
             },
             {
               "text": "even",
-              "startSeconds": 54.544,
-              "endSeconds": 54.704
+              "startSeconds": 50.104,
+              "endSeconds": 50.264
             },
             {
               "text": "in",
-              "startSeconds": 54.743,
-              "endSeconds": 54.803
+              "startSeconds": 50.284,
+              "endSeconds": 50.384
             },
             {
               "text": "smaller",
-              "startSeconds": 54.923,
-              "endSeconds": 55.204
+              "startSeconds": 50.404,
+              "endSeconds": 50.665
             }
           ]
         },
         {
           "id": "38-pros-7",
           "sceneId": "pros",
-          "startSeconds": 55.239,
-          "endSeconds": 55.939,
+          "startSeconds": 50.679,
+          "endSeconds": 51.48,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -19231,16 +19231,16 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "amounts.",
-              "startSeconds": 55.284,
-              "endSeconds": 55.663
+              "startSeconds": 50.724,
+              "endSeconds": 51.065
             }
           ]
         },
         {
           "id": "39-pros-8",
           "sceneId": "pros",
-          "startSeconds": 55.939,
-          "endSeconds": 56.944,
+          "startSeconds": 51.48,
+          "endSeconds": 52.44,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -19252,26 +19252,26 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "Has",
-              "startSeconds": 55.984,
-              "endSeconds": 56.103
+              "startSeconds": 51.525,
+              "endSeconds": 51.665
             },
             {
               "text": "strong",
-              "startSeconds": 56.163,
-              "endSeconds": 56.423
+              "startSeconds": 51.685,
+              "endSeconds": 51.945
             },
             {
               "text": "comfort-food",
-              "startSeconds": 56.484,
-              "endSeconds": 56.944
+              "startSeconds": 51.985,
+              "endSeconds": 52.404
             }
           ]
         },
         {
           "id": "40-pros-9",
           "sceneId": "pros",
-          "startSeconds": 56.944,
-          "endSeconds": 57.778,
+          "startSeconds": 52.44,
+          "endSeconds": 53.219,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -19282,16 +19282,16 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "appeal.",
-              "startSeconds": 56.984,
-              "endSeconds": 57.343
+              "startSeconds": 52.485,
+              "endSeconds": 52.804
             }
           ]
         },
         {
           "id": "41-pros-10",
           "sceneId": "pros",
-          "startSeconds": 57.778,
-          "endSeconds": 59.338,
+          "startSeconds": 53.219,
+          "endSeconds": 54.665,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -19303,31 +19303,31 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "Popular",
-              "startSeconds": 57.823,
-              "endSeconds": 58.323
+              "startSeconds": 53.264,
+              "endSeconds": 53.744
             },
             {
               "text": "and",
-              "startSeconds": 58.404,
-              "endSeconds": 58.504
+              "startSeconds": 53.824,
+              "endSeconds": 53.924
             },
             {
               "text": "instantly",
-              "startSeconds": 58.564,
-              "endSeconds": 58.923
+              "startSeconds": 53.985,
+              "endSeconds": 54.304
             },
             {
               "text": "legible",
-              "startSeconds": 59.024,
-              "endSeconds": 59.303
+              "startSeconds": 54.384,
+              "endSeconds": 54.665
             }
           ]
         },
         {
           "id": "42-pros-11",
           "sceneId": "pros",
-          "startSeconds": 59.338,
-          "endSeconds": 60.512,
+          "startSeconds": 54.665,
+          "endSeconds": 55.734,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -19339,26 +19339,26 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "for",
-              "startSeconds": 59.383,
-              "endSeconds": 59.444
+              "startSeconds": 54.704,
+              "endSeconds": 54.804
             },
             {
               "text": "content",
-              "startSeconds": 59.543,
-              "endSeconds": 59.863
+              "startSeconds": 54.844,
+              "endSeconds": 55.105
             },
             {
               "text": "packaging.",
-              "startSeconds": 59.923,
-              "endSeconds": 60.383
+              "startSeconds": 55.185,
+              "endSeconds": 55.605
             }
           ]
         },
         {
           "id": "43-cons-1",
           "sceneId": "cons",
-          "startSeconds": 60.512,
-          "endSeconds": 63.127,
+          "startSeconds": 55.734,
+          "endSeconds": 57.554,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -19370,41 +19370,41 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "The",
-              "startSeconds": 60.592,
-              "endSeconds": 60.672
+              "startSeconds": 55.814,
+              "endSeconds": 55.894
             },
             {
               "text": "drawbacks",
-              "startSeconds": 60.712,
-              "endSeconds": 61.152
+              "startSeconds": 55.934,
+              "endSeconds": 56.274
             },
             {
               "text": "next:",
-              "startSeconds": 61.232,
-              "endSeconds": 61.552
+              "startSeconds": 56.355,
+              "endSeconds": 56.654
             },
             {
               "text": "sodium",
-              "startSeconds": 62.412,
-              "endSeconds": 62.792
+              "startSeconds": 56.874,
+              "endSeconds": 57.215
             },
             {
               "text": "is",
-              "startSeconds": 62.852,
-              "endSeconds": 62.953
+              "startSeconds": 57.314,
+              "endSeconds": 57.394
             },
             {
               "text": "a",
-              "startSeconds": 63.013,
-              "endSeconds": 63.052
+              "startSeconds": 57.454,
+              "endSeconds": 57.554
             }
           ]
         },
         {
           "id": "44-cons-2",
           "sceneId": "cons",
-          "startSeconds": 63.127,
-          "endSeconds": 64.067,
+          "startSeconds": 57.554,
+          "endSeconds": 58.249,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -19415,21 +19415,21 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "major",
-              "startSeconds": 63.172,
-              "endSeconds": 63.372
+              "startSeconds": 57.595,
+              "endSeconds": 57.794
             },
             {
               "text": "drawback.",
-              "startSeconds": 63.473,
-              "endSeconds": 63.872
+              "startSeconds": 57.854,
+              "endSeconds": 58.215
             }
           ]
         },
         {
           "id": "45-cons-3",
           "sceneId": "cons",
-          "startSeconds": 64.067,
-          "endSeconds": 65.267,
+          "startSeconds": 58.249,
+          "endSeconds": 59.209,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -19441,31 +19441,31 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "A",
-              "startSeconds": 64.112,
-              "endSeconds": 64.132
+              "startSeconds": 58.294,
+              "endSeconds": 58.334
             },
             {
               "text": "central",
-              "startSeconds": 64.233,
-              "endSeconds": 64.472
+              "startSeconds": 58.374,
+              "endSeconds": 58.594
             },
             {
               "text": "practical",
-              "startSeconds": 64.572,
-              "endSeconds": 64.953
+              "startSeconds": 58.634,
+              "endSeconds": 58.975
             },
             {
               "text": "health",
-              "startSeconds": 65.013,
-              "endSeconds": 65.232
+              "startSeconds": 59.014,
+              "endSeconds": 59.195
             }
           ]
         },
         {
           "id": "46-cons-4",
           "sceneId": "cons",
-          "startSeconds": 65.267,
-          "endSeconds": 67.007,
+          "startSeconds": 59.209,
+          "endSeconds": 60.209,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -19476,26 +19476,26 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "issue",
-              "startSeconds": 65.312,
-              "endSeconds": 65.473
+              "startSeconds": 59.254,
+              "endSeconds": 59.394
             },
             {
               "text": "for",
-              "startSeconds": 65.532,
-              "endSeconds": 65.592
+              "startSeconds": 59.475,
+              "endSeconds": 59.534
             },
             {
               "text": "bacon.",
-              "startSeconds": 65.652,
-              "endSeconds": 65.933
+              "startSeconds": 59.574,
+              "endSeconds": 59.854
             }
           ]
         },
         {
           "id": "47-cons-5",
           "sceneId": "cons",
-          "startSeconds": 67.007,
-          "endSeconds": 69.188,
+          "startSeconds": 60.209,
+          "endSeconds": 62.409,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -19507,36 +19507,36 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "Processing",
-              "startSeconds": 67.052,
-              "endSeconds": 67.652
+              "startSeconds": 60.254,
+              "endSeconds": 60.854
             },
             {
               "text": "is",
-              "startSeconds": 67.712,
-              "endSeconds": 67.852
+              "startSeconds": 60.894,
+              "endSeconds": 60.994
             },
             {
               "text": "a",
-              "startSeconds": 67.912,
-              "endSeconds": 68.032
+              "startSeconds": 61.115,
+              "endSeconds": 61.135
             },
             {
               "text": "major",
-              "startSeconds": 68.092,
-              "endSeconds": 68.292
+              "startSeconds": 61.136,
+              "endSeconds": 61.374
             },
             {
               "text": "negative.",
-              "startSeconds": 68.392,
-              "endSeconds": 68.813
+              "startSeconds": 61.414,
+              "endSeconds": 61.735
             }
           ]
         },
         {
           "id": "48-cons-6",
           "sceneId": "cons",
-          "startSeconds": 69.188,
-          "endSeconds": 70.768,
+          "startSeconds": 62.409,
+          "endSeconds": 63.874,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -19548,41 +19548,41 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "A",
-              "startSeconds": 69.233,
-              "endSeconds": 69.273
+              "startSeconds": 62.454,
+              "endSeconds": 62.494
             },
             {
               "text": "key",
-              "startSeconds": 69.332,
-              "endSeconds": 69.412
+              "startSeconds": 62.554,
+              "endSeconds": 62.655
             },
             {
               "text": "downside",
-              "startSeconds": 69.513,
-              "endSeconds": 70.032
+              "startSeconds": 62.715,
+              "endSeconds": 63.175
             },
             {
               "text": "now",
-              "startSeconds": 70.072,
-              "endSeconds": 70.273
+              "startSeconds": 63.274,
+              "endSeconds": 63.474
             },
             {
               "text": "that",
-              "startSeconds": 70.393,
-              "endSeconds": 70.552
+              "startSeconds": 63.534,
+              "endSeconds": 63.695
             },
             {
               "text": "more",
-              "startSeconds": 70.612,
-              "endSeconds": 70.752
+              "startSeconds": 63.735,
+              "endSeconds": 63.874
             }
           ]
         },
         {
           "id": "49-cons-7",
           "sceneId": "cons",
-          "startSeconds": 70.768,
-          "endSeconds": 72.567,
+          "startSeconds": 63.874,
+          "endSeconds": 65.549,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -19594,36 +19594,36 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "processed",
-              "startSeconds": 70.813,
-              "endSeconds": 71.152
+              "startSeconds": 63.914,
+              "endSeconds": 64.254
             },
             {
               "text": "foods",
-              "startSeconds": 71.252,
-              "endSeconds": 71.492
+              "startSeconds": 64.354,
+              "endSeconds": 64.595
             },
             {
               "text": "are",
-              "startSeconds": 71.552,
-              "endSeconds": 71.653
+              "startSeconds": 64.615,
+              "endSeconds": 64.735
             },
             {
               "text": "in",
-              "startSeconds": 71.672,
-              "endSeconds": 71.732
+              "startSeconds": 64.754,
+              "endSeconds": 64.854
             },
             {
               "text": "scope.",
-              "startSeconds": 71.853,
-              "endSeconds": 72.112
+              "startSeconds": 64.914,
+              "endSeconds": 65.174
             }
           ]
         },
         {
           "id": "50-cons-8",
           "sceneId": "cons",
-          "startSeconds": 72.567,
-          "endSeconds": 74.247,
+          "startSeconds": 65.549,
+          "endSeconds": 66.894,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -19635,46 +19635,46 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "Rarely",
-              "startSeconds": 72.612,
-              "endSeconds": 72.873
+              "startSeconds": 65.594,
+              "endSeconds": 65.854
             },
             {
               "text": "improves",
-              "startSeconds": 72.893,
-              "endSeconds": 73.252
+              "startSeconds": 65.874,
+              "endSeconds": 66.155
             },
             {
               "text": "a",
-              "startSeconds": 73.292,
-              "endSeconds": 73.313
+              "startSeconds": 66.195,
+              "endSeconds": 66.235
             },
             {
               "text": "meal",
-              "startSeconds": 73.412,
-              "endSeconds": 73.692
+              "startSeconds": 66.274,
+              "endSeconds": 66.434
             },
             {
               "text": "much",
-              "startSeconds": 73.732,
-              "endSeconds": 73.933
+              "startSeconds": 66.474,
+              "endSeconds": 66.635
             },
             {
               "text": "on",
-              "startSeconds": 73.992,
-              "endSeconds": 74.052
+              "startSeconds": 66.674,
+              "endSeconds": 66.755
             },
             {
               "text": "its",
-              "startSeconds": 74.092,
-              "endSeconds": 74.212
+              "startSeconds": 66.756,
+              "endSeconds": 66.894
             }
           ]
         },
         {
           "id": "51-cons-9",
           "sceneId": "cons",
-          "startSeconds": 74.247,
-          "endSeconds": 75.067,
+          "startSeconds": 66.894,
+          "endSeconds": 67.669,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -19685,16 +19685,16 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "own.",
-              "startSeconds": 74.292,
-              "endSeconds": 74.452
+              "startSeconds": 66.934,
+              "endSeconds": 67.115
             }
           ]
         },
         {
           "id": "52-cons-10",
           "sceneId": "cons",
-          "startSeconds": 75.067,
-          "endSeconds": 76.428,
+          "startSeconds": 67.669,
+          "endSeconds": 68.929,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -19706,41 +19706,41 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "Usually",
-              "startSeconds": 75.112,
-              "endSeconds": 75.332
+              "startSeconds": 67.714,
+              "endSeconds": 67.954
             },
             {
               "text": "works",
-              "startSeconds": 75.412,
-              "endSeconds": 75.612
+              "startSeconds": 67.994,
+              "endSeconds": 68.195
             },
             {
               "text": "more",
-              "startSeconds": 75.692,
-              "endSeconds": 75.832
+              "startSeconds": 68.274,
+              "endSeconds": 68.415
             },
             {
               "text": "as",
-              "startSeconds": 75.852,
-              "endSeconds": 75.953
+              "startSeconds": 68.416,
+              "endSeconds": 68.514
             },
             {
               "text": "a",
-              "startSeconds": 75.992,
-              "endSeconds": 76.052
+              "startSeconds": 68.534,
+              "endSeconds": 68.594
             },
             {
               "text": "flavour",
-              "startSeconds": 76.112,
-              "endSeconds": 76.392
+              "startSeconds": 68.634,
+              "endSeconds": 68.874
             }
           ]
         },
         {
           "id": "53-cons-11",
           "sceneId": "cons",
-          "startSeconds": 76.428,
-          "endSeconds": 78.068,
+          "startSeconds": 68.929,
+          "endSeconds": 70.429,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -19752,36 +19752,36 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "add-on",
-              "startSeconds": 76.473,
-              "endSeconds": 76.912
+              "startSeconds": 68.974,
+              "endSeconds": 69.394
             },
             {
               "text": "than",
-              "startSeconds": 76.953,
-              "endSeconds": 77.072
+              "startSeconds": 69.434,
+              "endSeconds": 69.514
             },
             {
               "text": "a",
-              "startSeconds": 77.113,
-              "endSeconds": 77.132
+              "startSeconds": 69.554,
+              "endSeconds": 69.634
             },
             {
               "text": "genuinely",
-              "startSeconds": 77.252,
-              "endSeconds": 77.672
+              "startSeconds": 69.674,
+              "endSeconds": 70.035
             },
             {
               "text": "strong",
-              "startSeconds": 77.773,
-              "endSeconds": 78.033
+              "startSeconds": 70.155,
+              "endSeconds": 70.414
             }
           ]
         },
         {
           "id": "54-cons-12",
           "sceneId": "cons",
-          "startSeconds": 78.068,
-          "endSeconds": 78.862,
+          "startSeconds": 70.429,
+          "endSeconds": 71.103,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -19792,21 +19792,21 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "meat",
-              "startSeconds": 78.113,
-              "endSeconds": 78.292
+              "startSeconds": 70.474,
+              "endSeconds": 70.615
             },
             {
               "text": "choice.",
-              "startSeconds": 78.332,
-              "endSeconds": 78.693
+              "startSeconds": 70.674,
+              "endSeconds": 70.974
             }
           ]
         },
         {
           "id": "55-final-1",
           "sceneId": "final",
-          "startSeconds": 78.862,
-          "endSeconds": 80.602,
+          "startSeconds": 71.103,
+          "endSeconds": 72.758,
           "placement": "summary-full",
           "maxLines": 2,
           "maxCharactersPerLine": 24,
@@ -19819,41 +19819,41 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "Big",
-              "startSeconds": 78.942,
-              "endSeconds": 79.022
+              "startSeconds": 71.183,
+              "endSeconds": 71.283
             },
             {
               "text": "strengths",
-              "startSeconds": 79.122,
-              "endSeconds": 79.383
+              "startSeconds": 71.343,
+              "endSeconds": 71.604
             },
             {
               "text": "are",
-              "startSeconds": 79.402,
-              "endSeconds": 79.522
+              "startSeconds": 71.623,
+              "endSeconds": 71.743
             },
             {
               "text": "protein",
-              "startSeconds": 79.542,
-              "endSeconds": 79.962
+              "startSeconds": 71.763,
+              "endSeconds": 72.143
             },
             {
               "text": "and",
-              "startSeconds": 80.022,
-              "endSeconds": 80.082
+              "startSeconds": 72.204,
+              "endSeconds": 72.323
             },
             {
               "text": "palatable",
-              "startSeconds": 80.162,
-              "endSeconds": 80.602
+              "startSeconds": 72.324,
+              "endSeconds": 72.743
             }
           ]
         },
         {
           "id": "56-final-2",
           "sceneId": "final",
-          "startSeconds": 80.602,
-          "endSeconds": 82.977,
+          "startSeconds": 72.758,
+          "endSeconds": 75.039,
           "placement": "summary-full",
           "maxLines": 2,
           "maxCharactersPerLine": 24,
@@ -19866,46 +19866,46 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "and",
-              "startSeconds": 80.642,
-              "endSeconds": 80.702
+              "startSeconds": 72.803,
+              "endSeconds": 72.903
             },
             {
               "text": "appealing,",
-              "startSeconds": 80.742,
-              "endSeconds": 81.182
+              "startSeconds": 72.923,
+              "endSeconds": 73.344
             },
             {
               "text": "but",
-              "startSeconds": 81.602,
-              "endSeconds": 81.702
+              "startSeconds": 73.804,
+              "endSeconds": 73.903
             },
             {
               "text": "the",
-              "startSeconds": 81.742,
-              "endSeconds": 81.842
+              "startSeconds": 73.943,
+              "endSeconds": 74.023
             },
             {
               "text": "biggest",
-              "startSeconds": 81.902,
-              "endSeconds": 82.122
+              "startSeconds": 74.064,
+              "endSeconds": 74.263
             },
             {
               "text": "weaknesses",
-              "startSeconds": 82.182,
-              "endSeconds": 82.702
+              "startSeconds": 74.324,
+              "endSeconds": 74.863
             },
             {
               "text": "are",
-              "startSeconds": 82.782,
-              "endSeconds": 82.882
+              "startSeconds": 74.883,
+              "endSeconds": 74.963
             }
           ]
         },
         {
           "id": "57-final-3",
           "sceneId": "final",
-          "startSeconds": 82.977,
-          "endSeconds": 84.266,
+          "startSeconds": 75.039,
+          "endSeconds": 76.248,
           "placement": "summary-full",
           "maxLines": 2,
           "maxCharactersPerLine": 24,
@@ -19917,26 +19917,26 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "sodium",
-              "startSeconds": 83.022,
-              "endSeconds": 83.362
+              "startSeconds": 75.084,
+              "endSeconds": 75.403
             },
             {
               "text": "and",
-              "startSeconds": 83.402,
-              "endSeconds": 83.482
+              "startSeconds": 75.443,
+              "endSeconds": 75.504
             },
             {
               "text": "processing.",
-              "startSeconds": 83.542,
-              "endSeconds": 84.082
+              "startSeconds": 75.584,
+              "endSeconds": 76.064
             }
           ]
         },
         {
           "id": "58-final-4",
           "sceneId": "final",
-          "startSeconds": 84.266,
-          "endSeconds": 84.781,
+          "startSeconds": 76.248,
+          "endSeconds": 76.744,
           "placement": "tier-center",
           "maxLines": 2,
           "maxCharactersPerLine": 28,
@@ -19948,13 +19948,13 @@ window.FOODS_INDEX = [
           "wordTimings": [
             {
               "text": "D",
-              "startSeconds": 84.311,
-              "endSeconds": 84.391
+              "startSeconds": 76.293,
+              "endSeconds": 76.373
             },
             {
               "text": "tier.",
-              "startSeconds": 84.451,
-              "endSeconds": 84.731
+              "startSeconds": 76.433,
+              "endSeconds": 76.694
             }
           ]
         }
@@ -304514,7 +304514,7 @@ window.FOODS_INDEX = [
   }
 ];
 window.FOODRANKED_DATA = {
-  "generatedAt": "2026-06-07T10:39:22.783Z",
+  "generatedAt": "2026-06-11T04:15:37.310Z",
   "count": 275,
   "foods": [
     {
@@ -321767,174 +321767,174 @@ window.FOODRANKED_DATA = {
         },
         "summary": "Pros are carrying this food most, while cons are holding it back most. It lands in D tier.",
         "whyThisTier": "This food lands in D tier with an overall score of 11.8. Section scores: fats 48.9, proteins 20, vitamins 12, minerals 3.8, pros 50, cons 0.",
-        "durationSeconds": 84.781,
+        "durationSeconds": 76.744,
         "outputDir": "outputs/episodes/bacon-compact",
         "audio": {
-          "take": "voice-v6",
-          "path": "audio/episodes/bacon/voice-v6.mp3",
-          "metadataPath": "audio/episodes/bacon/voice-v6.json",
-          "productionPath": "production/episodes/bacon/voice/voice-v6.mp3",
+          "take": "voice-v8",
+          "path": "audio/episodes/bacon/voice-v8.mp3",
+          "metadataPath": "audio/episodes/bacon/voice-v8.json",
+          "productionPath": "production/episodes/bacon/voice/voice-v8.mp3",
           "profileId": "eryn_measured_v1",
           "voiceLabel": "Eryn - Informative, Neutral and Measured",
           "modelId": "eleven_multilingual_v2",
-          "generatedAt": "2026-05-31T23:59:00.520Z"
+          "generatedAt": "2026-06-11T04:14:20.494Z"
         },
         "splitAudio": {
           "mode": "split-blocks",
-          "take": "voice-v7",
-          "manifestPath": "audio/episodes/bacon/voice-v7-blocks.json",
-          "productionManifestPath": "production/episodes/bacon/voice/voice-v7-blocks.json",
+          "take": "voice-v8",
+          "manifestPath": "audio/episodes/bacon/voice-v8-blocks.json",
+          "productionManifestPath": "production/episodes/bacon/voice/voice-v8-blocks.json",
           "profileId": "eryn_measured_v1",
           "voiceLabel": "Eryn - Informative, Neutral and Measured",
           "modelId": "eleven_multilingual_v2",
-          "generatedAt": "2026-06-07T10:33:57.974Z",
+          "generatedAt": "2026-06-11T04:13:48.082Z",
           "blockCount": 11,
           "blockGapSeconds": 0.08,
-          "durationSeconds": 84.781,
-          "alignmentPath": "outputs/episodes/bacon-compact/voice-v7-blocks-forced-alignment.json",
+          "durationSeconds": 76.744,
+          "alignmentPath": "outputs/episodes/bacon-compact/voice-v8-blocks-forced-alignment.json",
           "blocks": [
             {
               "id": "01-hook_food",
               "index": 0,
               "kind": "hook_food",
               "sectionKey": null,
-              "path": "audio/episodes/bacon/voice-v7-blocks/01-hook_food.mp3",
-              "productionPath": "production/episodes/bacon/voice/voice-v7-blocks/01-hook_food.mp3",
+              "path": "audio/episodes/bacon/voice-v8-blocks/01-hook_food.mp3",
+              "productionPath": "production/episodes/bacon/voice/voice-v8-blocks/01-hook_food.mp3",
               "text": "Bacon!",
               "offsetSeconds": 0,
               "durationSeconds": 0.469,
               "wordCount": 1,
-              "loss": 0.43245887756347656
+              "loss": 0.5248578389485677
             },
             {
               "id": "02-hook_ranked",
               "index": 1,
               "kind": "hook_ranked",
               "sectionKey": null,
-              "path": "audio/episodes/bacon/voice-v7-blocks/02-hook_ranked.mp3",
-              "productionPath": "production/episodes/bacon/voice/voice-v7-blocks/02-hook_ranked.mp3",
+              "path": "audio/episodes/bacon/voice-v8-blocks/02-hook_ranked.mp3",
+              "productionPath": "production/episodes/bacon/voice/voice-v8-blocks/02-hook_ranked.mp3",
               "text": "Ranked!",
               "offsetSeconds": 0.549,
-              "durationSeconds": 0.469,
+              "durationSeconds": 0.429,
               "wordCount": 1,
-              "loss": 0.317218508039202
+              "loss": 0.4556737627301897
             },
             {
               "id": "03-fats",
               "index": 2,
               "kind": "section",
               "sectionKey": "fats",
-              "path": "audio/episodes/bacon/voice-v7-blocks/03-fats.mp3",
-              "productionPath": "production/episodes/bacon/voice/voice-v7-blocks/03-fats.mp3",
+              "path": "audio/episodes/bacon/voice-v8-blocks/03-fats.mp3",
+              "productionPath": "production/episodes/bacon/voice/voice-v8-blocks/03-fats.mp3",
               "text": "37.1 grams of fat. Polyunsaturated fat is 5.8 grams, helping with cell structure and healthy signalling. Saturated fat is 12.6 grams, and for meats, fat quality is a major tradeoff.",
-              "offsetSeconds": 1.098,
-              "durationSeconds": 12.069,
+              "offsetSeconds": 1.058,
+              "durationSeconds": 11.209,
               "wordCount": 30,
-              "loss": 0.04104466793945481
+              "loss": 0.041171314966612756
             },
             {
               "id": "04-carbs",
               "index": 3,
               "kind": "section",
               "sectionKey": "carbs",
-              "path": "audio/episodes/bacon/voice-v7-blocks/04-carbs.mp3",
-              "productionPath": "production/episodes/bacon/voice/voice-v7-blocks/04-carbs.mp3",
+              "path": "audio/episodes/bacon/voice-v8-blocks/04-carbs.mp3",
+              "productionPath": "production/episodes/bacon/voice/voice-v8-blocks/04-carbs.mp3",
               "text": "0 grams of carbs. No defensible carb submacros to call out. In this category, carbs barely matter.",
-              "offsetSeconds": 13.247,
-              "durationSeconds": 5.249,
+              "offsetSeconds": 12.347,
+              "durationSeconds": 5.229,
               "wordCount": 17,
-              "loss": 0.05279556585817921
+              "loss": 0.09459125873993854
             },
             {
               "id": "05-proteins",
               "index": 4,
               "kind": "section",
               "sectionKey": "proteins",
-              "path": "audio/episodes/bacon/voice-v7-blocks/05-proteins.mp3",
-              "productionPath": "production/episodes/bacon/voice/voice-v7-blocks/05-proteins.mp3",
+              "path": "audio/episodes/bacon/voice-v8-blocks/05-proteins.mp3",
+              "productionPath": "production/episodes/bacon/voice/voice-v8-blocks/05-proteins.mp3",
               "text": "13.7 grams of protein. Essential amino acids score is 8 out of 9, with 90% bioavailability, making the protein useful for repair and maintenance. Collagen is only 1 gram, so for meats, it is not bringing much connective-tissue protein.",
-              "offsetSeconds": 18.576,
-              "durationSeconds": 13.329,
+              "offsetSeconds": 17.656,
+              "durationSeconds": 11.97,
               "wordCount": 39,
-              "loss": 0.04745271104447385
+              "loss": 0.051546178472802996
             },
             {
               "id": "06-vitamins",
               "index": 5,
               "kind": "section",
               "sectionKey": "vitamins",
-              "path": "audio/episodes/bacon/voice-v7-blocks/06-vitamins.mp3",
-              "productionPath": "production/episodes/bacon/voice/voice-v7-blocks/06-vitamins.mp3",
+              "path": "audio/episodes/bacon/voice-v8-blocks/06-vitamins.mp3",
+              "productionPath": "production/episodes/bacon/voice/voice-v8-blocks/06-vitamins.mp3",
               "text": "Vitamin B12 is 21% daily value, useful for nerve and blood-cell support. Vitamin D is only 1% daily value, a small miss for meats.",
-              "offsetSeconds": 31.985,
-              "durationSeconds": 8.369,
+              "offsetSeconds": 29.706,
+              "durationSeconds": 7.329,
               "wordCount": 24,
-              "loss": 0.07697942715424758
+              "loss": 0.06336302390465369
             },
             {
               "id": "07-minerals",
               "index": 6,
               "kind": "section",
               "sectionKey": "minerals",
-              "path": "audio/episodes/bacon/voice-v7-blocks/07-minerals.mp3",
-              "productionPath": "production/episodes/bacon/voice/voice-v7-blocks/07-minerals.mp3",
+              "path": "audio/episodes/bacon/voice-v8-blocks/07-minerals.mp3",
+              "productionPath": "production/episodes/bacon/voice/voice-v8-blocks/07-minerals.mp3",
               "text": "Zinc is 10% daily value, useful for immune support. Iron is only 2% daily value, a weak mark for meats.",
-              "offsetSeconds": 40.434,
-              "durationSeconds": 6.05,
+              "offsetSeconds": 37.115,
+              "durationSeconds": 5.49,
               "wordCount": 20,
-              "loss": 0.0635837652150867
+              "loss": 0.036786740266003655
             },
             {
               "id": "08-pros",
               "index": 7,
               "kind": "section",
               "sectionKey": "pros",
-              "path": "audio/episodes/bacon/voice-v7-blocks/08-pros.mp3",
-              "productionPath": "production/episodes/bacon/voice/voice-v7-blocks/08-pros.mp3",
+              "path": "audio/episodes/bacon/voice-v8-blocks/08-pros.mp3",
+              "productionPath": "production/episodes/bacon/voice/voice-v8-blocks/08-pros.mp3",
               "text": "Pros first: highly palatable and appealing. A real-world reason people love it. Works as a strong flavour booster. Useful in meals even in smaller amounts. Has strong comfort-food appeal. Popular and instantly legible for content packaging.",
-              "offsetSeconds": 46.564,
-              "durationSeconds": 13.869,
+              "offsetSeconds": 42.685,
+              "durationSeconds": 12.97,
               "wordCount": 36,
-              "loss": 0.07989873439073562
+              "loss": 0.07685416986544927
             },
             {
               "id": "09-cons",
               "index": 8,
               "kind": "section",
               "sectionKey": "cons",
-              "path": "audio/episodes/bacon/voice-v7-blocks/09-cons.mp3",
-              "productionPath": "production/episodes/bacon/voice/voice-v7-blocks/09-cons.mp3",
+              "path": "audio/episodes/bacon/voice-v8-blocks/09-cons.mp3",
+              "productionPath": "production/episodes/bacon/voice/voice-v8-blocks/09-cons.mp3",
               "text": "The drawbacks next: sodium is a major drawback. A central practical health issue for bacon. Processing is a major negative. A key downside now that more processed foods are in scope. Rarely improves a meal much on its own. Usually works more as a flavour add-on than a genuinely strong meat choice.",
-              "offsetSeconds": 60.513,
-              "durationSeconds": 18.23,
+              "offsetSeconds": 55.735,
+              "durationSeconds": 15.289,
               "wordCount": 52,
-              "loss": 0.05323873630306065
+              "loss": 0.05243283910239303
             },
             {
               "id": "10-closing_summary",
               "index": 9,
               "kind": "closing_summary",
               "sectionKey": null,
-              "path": "audio/episodes/bacon/voice-v7-blocks/10-closing_summary.mp3",
-              "productionPath": "production/episodes/bacon/voice/voice-v7-blocks/10-closing_summary.mp3",
+              "path": "audio/episodes/bacon/voice-v8-blocks/10-closing_summary.mp3",
+              "productionPath": "production/episodes/bacon/voice/voice-v8-blocks/10-closing_summary.mp3",
               "text": "Big strengths are protein and palatable and appealing, but the biggest weaknesses are sodium and processing.",
-              "offsetSeconds": 78.823,
-              "durationSeconds": 5.309,
+              "offsetSeconds": 71.104,
+              "durationSeconds": 5.01,
               "wordCount": 16,
-              "loss": 0.0644961021564625
+              "loss": 0.049416549779750685
             },
             {
               "id": "11-final_reveal",
               "index": 10,
               "kind": "final_reveal",
               "sectionKey": null,
-              "path": "audio/episodes/bacon/voice-v7-blocks/11-final_reveal.mp3",
-              "productionPath": "production/episodes/bacon/voice/voice-v7-blocks/11-final_reveal.mp3",
+              "path": "audio/episodes/bacon/voice-v8-blocks/11-final_reveal.mp3",
+              "productionPath": "production/episodes/bacon/voice/voice-v8-blocks/11-final_reveal.mp3",
               "text": "D tier.",
-              "offsetSeconds": 84.212,
-              "durationSeconds": 0.569,
+              "offsetSeconds": 76.194,
+              "durationSeconds": 0.55,
               "wordCount": 2,
-              "loss": 0.4539386204310826
+              "loss": 0.5149350847516742
             }
           ]
         },
@@ -321943,64 +321943,64 @@ window.FOODRANKED_DATA = {
             "id": "hook",
             "kind": "hook",
             "startSeconds": 0,
-            "endSeconds": 1.137,
-            "durationSeconds": 1.137
+            "endSeconds": 1.097,
+            "durationSeconds": 1.097
           },
           {
             "id": "fats",
             "kind": "section",
-            "startSeconds": 1.137,
-            "endSeconds": 13.286,
-            "durationSeconds": 12.149
+            "startSeconds": 1.097,
+            "endSeconds": 12.686,
+            "durationSeconds": 11.589
           },
           {
             "id": "carbs",
             "kind": "section",
-            "startSeconds": 13.286,
-            "endSeconds": 18.575,
-            "durationSeconds": 5.289
+            "startSeconds": 12.686,
+            "endSeconds": 17.655,
+            "durationSeconds": 4.969
           },
           {
             "id": "proteins",
             "kind": "section",
-            "startSeconds": 18.575,
-            "endSeconds": 32.024,
-            "durationSeconds": 13.449
+            "startSeconds": 17.655,
+            "endSeconds": 29.705,
+            "durationSeconds": 12.05
           },
           {
             "id": "vitamins",
             "kind": "section",
-            "startSeconds": 32.024,
-            "endSeconds": 40.433,
-            "durationSeconds": 8.409
+            "startSeconds": 29.705,
+            "endSeconds": 37.134,
+            "durationSeconds": 7.429
           },
           {
             "id": "minerals",
             "kind": "section",
-            "startSeconds": 40.433,
-            "endSeconds": 46.583,
-            "durationSeconds": 6.15
+            "startSeconds": 37.134,
+            "endSeconds": 42.684,
+            "durationSeconds": 5.55
           },
           {
             "id": "pros",
             "kind": "section",
-            "startSeconds": 46.583,
-            "endSeconds": 60.512,
-            "durationSeconds": 13.929
+            "startSeconds": 42.684,
+            "endSeconds": 55.734,
+            "durationSeconds": 13.05
           },
           {
             "id": "cons",
             "kind": "section",
-            "startSeconds": 60.512,
-            "endSeconds": 78.862,
-            "durationSeconds": 18.35
+            "startSeconds": 55.734,
+            "endSeconds": 71.103,
+            "durationSeconds": 15.369
           },
           {
             "id": "final",
             "kind": "closing",
-            "startSeconds": 78.862,
-            "endSeconds": 84.781,
-            "durationSeconds": 5.919
+            "startSeconds": 71.103,
+            "endSeconds": 76.744,
+            "durationSeconds": 5.641
           }
         ],
         "sceneCount": 9,
@@ -322444,7 +322444,7 @@ window.FOODRANKED_DATA = {
             "id": "01-hook",
             "sceneId": "hook",
             "startSeconds": 0,
-            "endSeconds": 1.137,
+            "endSeconds": 1.097,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -322461,15 +322461,15 @@ window.FOODRANKED_DATA = {
               {
                 "text": "ranked.",
                 "startSeconds": 0.628,
-                "endSeconds": 0.968
+                "endSeconds": 0.928
               }
             ]
           },
           {
             "id": "02-fats-1",
             "sceneId": "fats",
-            "startSeconds": 1.137,
-            "endSeconds": 3.372,
+            "startSeconds": 1.097,
+            "endSeconds": 3.213,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -322481,26 +322481,26 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "37.1g",
-                "startSeconds": 1.217,
-                "endSeconds": 2.277
+                "startSeconds": 1.177,
+                "endSeconds": 2.158
               },
               {
                 "text": "of",
-                "startSeconds": 2.318,
-                "endSeconds": 2.377
+                "startSeconds": 2.217,
+                "endSeconds": 2.257
               },
               {
                 "text": "fat.",
-                "startSeconds": 2.458,
-                "endSeconds": 2.697
+                "startSeconds": 2.337,
+                "endSeconds": 2.577
               }
             ]
           },
           {
             "id": "03-fats-2",
             "sceneId": "fats",
-            "startSeconds": 3.372,
-            "endSeconds": 4.793,
+            "startSeconds": 3.213,
+            "endSeconds": 4.552,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -322512,26 +322512,26 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "Polyunsaturated",
-                "startSeconds": 3.417,
-                "endSeconds": 4.177
+                "startSeconds": 3.258,
+                "endSeconds": 3.977
               },
               {
                 "text": "fat",
-                "startSeconds": 4.277,
-                "endSeconds": 4.497
+                "startSeconds": 4.058,
+                "endSeconds": 4.237
               },
               {
                 "text": "is",
-                "startSeconds": 4.558,
-                "endSeconds": 4.657
+                "startSeconds": 4.298,
+                "endSeconds": 4.377
               }
             ]
           },
           {
             "id": "04-fats-3",
             "sceneId": "fats",
-            "startSeconds": 4.793,
-            "endSeconds": 6.392,
+            "startSeconds": 4.552,
+            "endSeconds": 6.072,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -322543,31 +322543,31 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "5.8g,",
-                "startSeconds": 4.838,
-                "endSeconds": 5.637
+                "startSeconds": 4.597,
+                "endSeconds": 5.377
               },
               {
                 "text": "helping",
-                "startSeconds": 5.717,
-                "endSeconds": 5.998
+                "startSeconds": 5.478,
+                "endSeconds": 5.697
               },
               {
                 "text": "with",
-                "startSeconds": 6.038,
-                "endSeconds": 6.117
+                "startSeconds": 5.717,
+                "endSeconds": 5.877
               },
               {
                 "text": "cell",
-                "startSeconds": 6.217,
-                "endSeconds": 6.357
+                "startSeconds": 5.917,
+                "endSeconds": 6.058
               }
             ]
           },
           {
             "id": "05-fats-4",
             "sceneId": "fats",
-            "startSeconds": 6.392,
-            "endSeconds": 7.312,
+            "startSeconds": 6.072,
+            "endSeconds": 6.892,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -322579,26 +322579,26 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "structure",
-                "startSeconds": 6.437,
-                "endSeconds": 6.797
+                "startSeconds": 6.117,
+                "endSeconds": 6.417
               },
               {
                 "text": "and",
-                "startSeconds": 6.897,
-                "endSeconds": 6.977
+                "startSeconds": 6.518,
+                "endSeconds": 6.597
               },
               {
                 "text": "healthy",
-                "startSeconds": 7.038,
-                "endSeconds": 7.237
+                "startSeconds": 6.637,
+                "endSeconds": 6.857
               }
             ]
           },
           {
             "id": "06-fats-5",
             "sceneId": "fats",
-            "startSeconds": 7.312,
-            "endSeconds": 8.452,
+            "startSeconds": 6.892,
+            "endSeconds": 7.792,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -322609,16 +322609,16 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "signalling.",
-                "startSeconds": 7.357,
-                "endSeconds": 7.757
+                "startSeconds": 6.937,
+                "endSeconds": 7.297
               }
             ]
           },
           {
             "id": "07-fats-6",
             "sceneId": "fats",
-            "startSeconds": 8.452,
-            "endSeconds": 10.492,
+            "startSeconds": 7.792,
+            "endSeconds": 9.912,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -322630,31 +322630,31 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "Saturated",
-                "startSeconds": 8.497,
-                "endSeconds": 8.917
+                "startSeconds": 7.837,
+                "endSeconds": 8.197
               },
               {
                 "text": "fat",
-                "startSeconds": 9.038,
-                "endSeconds": 9.197
+                "startSeconds": 8.297,
+                "endSeconds": 8.437
               },
               {
                 "text": "is",
-                "startSeconds": 9.237,
-                "endSeconds": 9.337
+                "startSeconds": 8.498,
+                "endSeconds": 8.558
               },
               {
                 "text": "12.6g,",
-                "startSeconds": 9.398,
-                "endSeconds": 10.398
+                "startSeconds": 8.617,
+                "endSeconds": 9.518
               }
             ]
           },
           {
             "id": "08-fats-7",
             "sceneId": "fats",
-            "startSeconds": 10.492,
-            "endSeconds": 12.672,
+            "startSeconds": 9.912,
+            "endSeconds": 11.818,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -322666,51 +322666,51 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "and",
-                "startSeconds": 10.537,
-                "endSeconds": 10.617
+                "startSeconds": 9.957,
+                "endSeconds": 10.038
               },
               {
                 "text": "for",
-                "startSeconds": 10.697,
-                "endSeconds": 10.817
+                "startSeconds": 10.097,
+                "endSeconds": 10.157
               },
               {
                 "text": "meats,",
-                "startSeconds": 10.858,
-                "endSeconds": 11.137
+                "startSeconds": 10.217,
+                "endSeconds": 10.497
               },
               {
                 "text": "fat",
-                "startSeconds": 11.537,
-                "endSeconds": 11.657
+                "startSeconds": 10.717,
+                "endSeconds": 10.858
               },
               {
                 "text": "quality",
-                "startSeconds": 11.757,
-                "endSeconds": 12.098
+                "startSeconds": 10.917,
+                "endSeconds": 11.297
               },
               {
                 "text": "is",
-                "startSeconds": 12.157,
-                "endSeconds": 12.237
+                "startSeconds": 11.337,
+                "endSeconds": 11.438
               },
               {
                 "text": "a",
-                "startSeconds": 12.297,
-                "endSeconds": 12.357
+                "startSeconds": 11.497,
+                "endSeconds": 11.537
               },
               {
                 "text": "major",
-                "startSeconds": 12.417,
-                "endSeconds": 12.657
+                "startSeconds": 11.637,
+                "endSeconds": 11.818
               }
             ]
           },
           {
             "id": "09-fats-8",
             "sceneId": "fats",
-            "startSeconds": 12.672,
-            "endSeconds": 13.286,
+            "startSeconds": 11.818,
+            "endSeconds": 12.686,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -322721,16 +322721,16 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "tradeoff.",
-                "startSeconds": 12.717,
-                "endSeconds": 13.117
+                "startSeconds": 11.858,
+                "endSeconds": 12.217
               }
             ]
           },
           {
             "id": "10-carbs-1",
             "sceneId": "carbs",
-            "startSeconds": 13.286,
-            "endSeconds": 14.341,
+            "startSeconds": 12.686,
+            "endSeconds": 14.121,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -322741,26 +322741,26 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "0g",
-                "startSeconds": 13.366,
-                "endSeconds": 13.786
+                "startSeconds": 12.766,
+                "endSeconds": 13.066
               },
               {
                 "text": "of",
-                "startSeconds": 13.807,
-                "endSeconds": 13.906
+                "startSeconds": 13.106,
+                "endSeconds": 13.206
               },
               {
                 "text": "carbs.",
-                "startSeconds": 13.946,
-                "endSeconds": 14.266
+                "startSeconds": 13.226,
+                "endSeconds": 13.626
               }
             ]
           },
           {
             "id": "11-carbs-2",
             "sceneId": "carbs",
-            "startSeconds": 14.341,
-            "endSeconds": 16.061,
+            "startSeconds": 14.121,
+            "endSeconds": 15.626,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -322772,41 +322772,41 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "No",
-                "startSeconds": 14.386,
-                "endSeconds": 14.446
+                "startSeconds": 14.166,
+                "endSeconds": 14.226
               },
               {
                 "text": "defensible",
-                "startSeconds": 14.506,
-                "endSeconds": 14.906
+                "startSeconds": 14.286,
+                "endSeconds": 14.606
               },
               {
                 "text": "carb",
-                "startSeconds": 14.987,
-                "endSeconds": 15.226
+                "startSeconds": 14.686,
+                "endSeconds": 14.827
               },
               {
                 "text": "submacros",
-                "startSeconds": 15.266,
-                "endSeconds": 15.727
+                "startSeconds": 14.886,
+                "endSeconds": 15.327
               },
               {
                 "text": "to",
-                "startSeconds": 15.747,
-                "endSeconds": 15.846
+                "startSeconds": 15.366,
+                "endSeconds": 15.446
               },
               {
                 "text": "call",
-                "startSeconds": 15.886,
-                "endSeconds": 16.046
+                "startSeconds": 15.466,
+                "endSeconds": 15.626
               }
             ]
           },
           {
             "id": "12-carbs-3",
             "sceneId": "carbs",
-            "startSeconds": 16.061,
-            "endSeconds": 16.641,
+            "startSeconds": 15.626,
+            "endSeconds": 15.807,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -322817,16 +322817,16 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "out.",
-                "startSeconds": 16.106,
-                "endSeconds": 16.286
+                "startSeconds": 15.666,
+                "endSeconds": 15.807
               }
             ]
           },
           {
             "id": "13-carbs-4",
             "sceneId": "carbs",
-            "startSeconds": 16.641,
-            "endSeconds": 18.187,
+            "startSeconds": 15.807,
+            "endSeconds": 17.287,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -322838,36 +322838,36 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "In",
-                "startSeconds": 16.686,
-                "endSeconds": 16.747
+                "startSeconds": 15.847,
+                "endSeconds": 15.906
               },
               {
                 "text": "this",
-                "startSeconds": 16.786,
-                "endSeconds": 16.946
+                "startSeconds": 15.946,
+                "endSeconds": 16.066
               },
               {
                 "text": "category,",
-                "startSeconds": 16.967,
-                "endSeconds": 17.406
+                "startSeconds": 16.087,
+                "endSeconds": 16.506
               },
               {
                 "text": "carbs",
-                "startSeconds": 17.526,
-                "endSeconds": 17.866
+                "startSeconds": 16.546,
+                "endSeconds": 16.946
               },
               {
                 "text": "barely",
-                "startSeconds": 17.906,
-                "endSeconds": 18.187
+                "startSeconds": 16.986,
+                "endSeconds": 17.287
               }
             ]
           },
           {
             "id": "14-carbs-5",
             "sceneId": "carbs",
-            "startSeconds": 18.187,
-            "endSeconds": 18.575,
+            "startSeconds": 17.287,
+            "endSeconds": 17.655,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -322878,16 +322878,16 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "matter.",
-                "startSeconds": 18.207,
-                "endSeconds": 18.446
+                "startSeconds": 17.288,
+                "endSeconds": 17.526
               }
             ]
           },
           {
             "id": "15-proteins-1",
             "sceneId": "proteins",
-            "startSeconds": 18.575,
-            "endSeconds": 20.65,
+            "startSeconds": 17.655,
+            "endSeconds": 19.91,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -322899,26 +322899,26 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "13.7g",
-                "startSeconds": 18.655,
-                "endSeconds": 19.535
+                "startSeconds": 17.735,
+                "endSeconds": 18.635
               },
               {
                 "text": "of",
-                "startSeconds": 19.576,
-                "endSeconds": 19.635
+                "startSeconds": 18.675,
+                "endSeconds": 18.756
               },
               {
                 "text": "protein.",
-                "startSeconds": 19.676,
-                "endSeconds": 20.056
+                "startSeconds": 18.795,
+                "endSeconds": 19.156
               }
             ]
           },
           {
             "id": "16-proteins-2",
             "sceneId": "proteins",
-            "startSeconds": 20.65,
-            "endSeconds": 22.43,
+            "startSeconds": 19.91,
+            "endSeconds": 21.43,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -322930,36 +322930,36 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "Essential",
-                "startSeconds": 20.695,
-                "endSeconds": 21.016
+                "startSeconds": 19.955,
+                "endSeconds": 20.235
               },
               {
                 "text": "amino",
-                "startSeconds": 21.095,
-                "endSeconds": 21.335
+                "startSeconds": 20.295,
+                "endSeconds": 20.515
               },
               {
                 "text": "acids",
-                "startSeconds": 21.395,
-                "endSeconds": 21.615
+                "startSeconds": 20.555,
+                "endSeconds": 20.755
               },
               {
                 "text": "score",
-                "startSeconds": 21.715,
-                "endSeconds": 22.115
+                "startSeconds": 20.835,
+                "endSeconds": 21.136
               },
               {
                 "text": "is",
-                "startSeconds": 22.175,
-                "endSeconds": 22.275
+                "startSeconds": 21.175,
+                "endSeconds": 21.295
               }
             ]
           },
           {
             "id": "17-proteins-3",
             "sceneId": "proteins",
-            "startSeconds": 22.43,
-            "endSeconds": 24.55,
+            "startSeconds": 21.43,
+            "endSeconds": 23.25,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -322971,31 +322971,31 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "8/9,",
-                "startSeconds": 22.475,
-                "endSeconds": 22.936
+                "startSeconds": 21.475,
+                "endSeconds": 21.895
               },
               {
                 "text": "with",
-                "startSeconds": 22.996,
-                "endSeconds": 23.115
+                "startSeconds": 21.955,
+                "endSeconds": 22.036
               },
               {
                 "text": "90%",
-                "startSeconds": 23.255,
-                "endSeconds": 23.635
+                "startSeconds": 22.195,
+                "endSeconds": 22.536
               },
               {
                 "text": "bioavailability,",
-                "startSeconds": 23.675,
-                "endSeconds": 24.476
+                "startSeconds": 22.596,
+                "endSeconds": 23.215
               }
             ]
           },
           {
             "id": "18-proteins-4",
             "sceneId": "proteins",
-            "startSeconds": 24.55,
-            "endSeconds": 26.335,
+            "startSeconds": 23.25,
+            "endSeconds": 24.715,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -323007,41 +323007,41 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "making",
-                "startSeconds": 24.595,
-                "endSeconds": 24.835
+                "startSeconds": 23.295,
+                "endSeconds": 23.515
               },
               {
                 "text": "the",
-                "startSeconds": 24.895,
-                "endSeconds": 24.975
+                "startSeconds": 23.535,
+                "endSeconds": 23.616
               },
               {
                 "text": "protein",
-                "startSeconds": 25.016,
-                "endSeconds": 25.335
+                "startSeconds": 23.675,
+                "endSeconds": 23.955
               },
               {
                 "text": "useful",
-                "startSeconds": 25.415,
-                "endSeconds": 25.735
+                "startSeconds": 24.035,
+                "endSeconds": 24.255
               },
               {
                 "text": "for",
-                "startSeconds": 25.795,
-                "endSeconds": 25.915
+                "startSeconds": 24.295,
+                "endSeconds": 24.355
               },
               {
                 "text": "repair",
-                "startSeconds": 25.975,
-                "endSeconds": 26.335
+                "startSeconds": 24.415,
+                "endSeconds": 24.715
               }
             ]
           },
           {
             "id": "19-proteins-5",
             "sceneId": "proteins",
-            "startSeconds": 26.335,
-            "endSeconds": 27.73,
+            "startSeconds": 24.715,
+            "endSeconds": 25.991,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -323052,21 +323052,21 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "and",
-                "startSeconds": 26.375,
-                "endSeconds": 26.495
+                "startSeconds": 24.755,
+                "endSeconds": 24.815
               },
               {
                 "text": "maintenance.",
-                "startSeconds": 26.516,
-                "endSeconds": 26.975
+                "startSeconds": 24.875,
+                "endSeconds": 25.295
               }
             ]
           },
           {
             "id": "20-proteins-6",
             "sceneId": "proteins",
-            "startSeconds": 27.73,
-            "endSeconds": 29.69,
+            "startSeconds": 25.991,
+            "endSeconds": 27.71,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -323078,46 +323078,46 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "Collagen",
-                "startSeconds": 27.775,
-                "endSeconds": 28.155
+                "startSeconds": 26.036,
+                "endSeconds": 26.395
               },
               {
                 "text": "is",
-                "startSeconds": 28.195,
-                "endSeconds": 28.296
+                "startSeconds": 26.435,
+                "endSeconds": 26.536
               },
               {
                 "text": "only",
-                "startSeconds": 28.336,
-                "endSeconds": 28.536
+                "startSeconds": 26.576,
+                "endSeconds": 26.735
               },
               {
                 "text": "1g,",
-                "startSeconds": 28.655,
-                "endSeconds": 28.975
+                "startSeconds": 26.855,
+                "endSeconds": 27.175
               },
               {
                 "text": "so",
-                "startSeconds": 29.095,
-                "endSeconds": 29.155
+                "startSeconds": 27.295,
+                "endSeconds": 27.355
               },
               {
                 "text": "for",
-                "startSeconds": 29.235,
-                "endSeconds": 29.295
+                "startSeconds": 27.395,
+                "endSeconds": 27.475
               },
               {
                 "text": "meats,",
-                "startSeconds": 29.376,
-                "endSeconds": 29.675
+                "startSeconds": 27.515,
+                "endSeconds": 27.695
               }
             ]
           },
           {
             "id": "21-proteins-7",
             "sceneId": "proteins",
-            "startSeconds": 29.69,
-            "endSeconds": 30.735,
+            "startSeconds": 27.71,
+            "endSeconds": 28.55,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -323129,36 +323129,36 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "it",
-                "startSeconds": 29.735,
-                "endSeconds": 29.796
+                "startSeconds": 27.755,
+                "endSeconds": 27.795
               },
               {
                 "text": "is",
-                "startSeconds": 29.815,
-                "endSeconds": 29.935
+                "startSeconds": 27.815,
+                "endSeconds": 27.916
               },
               {
                 "text": "not",
-                "startSeconds": 29.975,
-                "endSeconds": 30.155
+                "startSeconds": 27.956,
+                "endSeconds": 28.095
               },
               {
                 "text": "bringing",
-                "startSeconds": 30.175,
-                "endSeconds": 30.496
+                "startSeconds": 28.135,
+                "endSeconds": 28.376
               },
               {
                 "text": "much",
-                "startSeconds": 30.515,
-                "endSeconds": 30.735
+                "startSeconds": 28.395,
+                "endSeconds": 28.536
               }
             ]
           },
           {
             "id": "22-proteins-8",
             "sceneId": "proteins",
-            "startSeconds": 30.735,
-            "endSeconds": 32.024,
+            "startSeconds": 28.55,
+            "endSeconds": 29.705,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -323170,21 +323170,21 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "connective-tissue",
-                "startSeconds": 30.775,
-                "endSeconds": 31.395
+                "startSeconds": 28.595,
+                "endSeconds": 29.136
               },
               {
                 "text": "protein.",
-                "startSeconds": 31.456,
-                "endSeconds": 31.855
+                "startSeconds": 29.195,
+                "endSeconds": 29.576
               }
             ]
           },
           {
             "id": "23-vitamins-1",
             "sceneId": "vitamins",
-            "startSeconds": 32.024,
-            "endSeconds": 35.339,
+            "startSeconds": 29.705,
+            "endSeconds": 32.661,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -323196,46 +323196,46 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "Vitamin",
-                "startSeconds": 32.104,
-                "endSeconds": 32.384
+                "startSeconds": 29.785,
+                "endSeconds": 30.046
               },
               {
                 "text": "B12",
-                "startSeconds": 32.464,
-                "endSeconds": 32.985
+                "startSeconds": 30.125,
+                "endSeconds": 30.545
               },
               {
                 "text": "is",
-                "startSeconds": 33.024,
-                "endSeconds": 33.105
+                "startSeconds": 30.585,
+                "endSeconds": 30.685
               },
               {
                 "text": "21%",
-                "startSeconds": 33.184,
-                "endSeconds": 33.804
+                "startSeconds": 30.725,
+                "endSeconds": 31.285
               },
               {
                 "text": "DV,",
-                "startSeconds": 33.845,
-                "endSeconds": 34.384
+                "startSeconds": 31.326,
+                "endSeconds": 31.825
               },
               {
                 "text": "useful",
-                "startSeconds": 34.824,
-                "endSeconds": 35.124
+                "startSeconds": 32.245,
+                "endSeconds": 32.465
               },
               {
                 "text": "for",
-                "startSeconds": 35.205,
-                "endSeconds": 35.264
+                "startSeconds": 32.545,
+                "endSeconds": 32.605
               }
             ]
           },
           {
             "id": "24-vitamins-2",
             "sceneId": "vitamins",
-            "startSeconds": 35.339,
-            "endSeconds": 36.179,
+            "startSeconds": 32.661,
+            "endSeconds": 33.426,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -323247,26 +323247,26 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "nerve",
-                "startSeconds": 35.384,
-                "endSeconds": 35.664
+                "startSeconds": 32.706,
+                "endSeconds": 32.965
               },
               {
                 "text": "and",
-                "startSeconds": 35.725,
-                "endSeconds": 35.784
+                "startSeconds": 33.005,
+                "endSeconds": 33.065
               },
               {
                 "text": "blood-cell",
-                "startSeconds": 35.844,
-                "endSeconds": 36.164
+                "startSeconds": 33.105,
+                "endSeconds": 33.426
               }
             ]
           },
           {
             "id": "25-vitamins-3",
             "sceneId": "vitamins",
-            "startSeconds": 36.179,
-            "endSeconds": 37.019,
+            "startSeconds": 33.426,
+            "endSeconds": 34.18,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -323277,16 +323277,16 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "support.",
-                "startSeconds": 36.224,
-                "endSeconds": 36.584
+                "startSeconds": 33.465,
+                "endSeconds": 33.805
               }
             ]
           },
           {
             "id": "26-vitamins-4",
             "sceneId": "vitamins",
-            "startSeconds": 37.019,
-            "endSeconds": 39.604,
+            "startSeconds": 34.18,
+            "endSeconds": 36.36,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -323298,51 +323298,51 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "Vitamin",
-                "startSeconds": 37.064,
-                "endSeconds": 37.424
+                "startSeconds": 34.225,
+                "endSeconds": 34.465
               },
               {
                 "text": "D",
-                "startSeconds": 37.485,
-                "endSeconds": 37.664
+                "startSeconds": 34.565,
+                "endSeconds": 34.666
               },
               {
                 "text": "is",
-                "startSeconds": 37.704,
-                "endSeconds": 37.844
+                "startSeconds": 34.686,
+                "endSeconds": 34.805
               },
               {
                 "text": "only",
-                "startSeconds": 37.905,
-                "endSeconds": 38.084
+                "startSeconds": 34.865,
+                "endSeconds": 35.065
               },
               {
                 "text": "1%",
-                "startSeconds": 38.284,
-                "endSeconds": 38.584
+                "startSeconds": 35.186,
+                "endSeconds": 35.485
               },
               {
                 "text": "DV,",
-                "startSeconds": 38.624,
-                "endSeconds": 39.144
+                "startSeconds": 35.525,
+                "endSeconds": 35.985
               },
               {
                 "text": "a",
-                "startSeconds": 39.284,
-                "endSeconds": 39.344
+                "startSeconds": 36.105,
+                "endSeconds": 36.146
               },
               {
                 "text": "small",
-                "startSeconds": 39.364,
-                "endSeconds": 39.604
+                "startSeconds": 36.186,
+                "endSeconds": 36.345
               }
             ]
           },
           {
             "id": "27-vitamins-5",
             "sceneId": "vitamins",
-            "startSeconds": 39.604,
-            "endSeconds": 40.433,
+            "startSeconds": 36.36,
+            "endSeconds": 37.134,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -323353,26 +323353,26 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "miss",
-                "startSeconds": 39.644,
-                "endSeconds": 39.824
+                "startSeconds": 36.405,
+                "endSeconds": 36.545
               },
               {
                 "text": "for",
-                "startSeconds": 39.864,
-                "endSeconds": 39.965
+                "startSeconds": 36.585,
+                "endSeconds": 36.666
               },
               {
                 "text": "meats.",
-                "startSeconds": 40.004,
-                "endSeconds": 40.304
+                "startSeconds": 36.706,
+                "endSeconds": 36.985
               }
             ]
           },
           {
             "id": "28-minerals-1",
             "sceneId": "minerals",
-            "startSeconds": 40.433,
-            "endSeconds": 42.829,
+            "startSeconds": 37.134,
+            "endSeconds": 39.229,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -323384,46 +323384,46 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "Zinc",
-                "startSeconds": 40.513,
-                "endSeconds": 40.714
+                "startSeconds": 37.214,
+                "endSeconds": 37.354
               },
               {
                 "text": "is",
-                "startSeconds": 40.774,
-                "endSeconds": 40.893
+                "startSeconds": 37.395,
+                "endSeconds": 37.494
               },
               {
                 "text": "10%",
-                "startSeconds": 40.934,
-                "endSeconds": 41.353
+                "startSeconds": 37.554,
+                "endSeconds": 37.954
               },
               {
                 "text": "DV,",
-                "startSeconds": 41.393,
-                "endSeconds": 41.914
+                "startSeconds": 37.994,
+                "endSeconds": 38.475
               },
               {
                 "text": "useful",
-                "startSeconds": 42.073,
-                "endSeconds": 42.373
+                "startSeconds": 38.634,
+                "endSeconds": 38.834
               },
               {
                 "text": "for",
-                "startSeconds": 42.413,
-                "endSeconds": 42.533
+                "startSeconds": 38.914,
+                "endSeconds": 38.974
               },
               {
                 "text": "immune",
-                "startSeconds": 42.593,
-                "endSeconds": 42.793
+                "startSeconds": 39.054,
+                "endSeconds": 39.194
               }
             ]
           },
           {
             "id": "29-minerals-2",
             "sceneId": "minerals",
-            "startSeconds": 42.829,
-            "endSeconds": 43.728,
+            "startSeconds": 39.229,
+            "endSeconds": 40.089,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -323434,16 +323434,16 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "support.",
-                "startSeconds": 42.874,
-                "endSeconds": 43.233
+                "startSeconds": 39.274,
+                "endSeconds": 39.615
               }
             ]
           },
           {
             "id": "30-minerals-3",
             "sceneId": "minerals",
-            "startSeconds": 43.728,
-            "endSeconds": 45.993,
+            "startSeconds": 40.089,
+            "endSeconds": 42.134,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -323455,51 +323455,51 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "Iron",
-                "startSeconds": 43.773,
-                "endSeconds": 43.993
+                "startSeconds": 40.134,
+                "endSeconds": 40.314
               },
               {
                 "text": "is",
-                "startSeconds": 44.033,
-                "endSeconds": 44.133
+                "startSeconds": 40.355,
+                "endSeconds": 40.434
               },
               {
                 "text": "only",
-                "startSeconds": 44.174,
-                "endSeconds": 44.393
+                "startSeconds": 40.474,
+                "endSeconds": 40.674
               },
               {
                 "text": "2%",
-                "startSeconds": 44.473,
-                "endSeconds": 44.794
+                "startSeconds": 40.754,
+                "endSeconds": 41.054
               },
               {
                 "text": "DV,",
-                "startSeconds": 44.834,
-                "endSeconds": 45.394
+                "startSeconds": 41.095,
+                "endSeconds": 41.595
               },
               {
                 "text": "a",
-                "startSeconds": 45.513,
-                "endSeconds": 45.533
+                "startSeconds": 41.714,
+                "endSeconds": 41.734
               },
               {
                 "text": "weak",
-                "startSeconds": 45.633,
-                "endSeconds": 45.793
+                "startSeconds": 41.794,
+                "endSeconds": 41.934
               },
               {
                 "text": "mark",
-                "startSeconds": 45.834,
-                "endSeconds": 45.993
+                "startSeconds": 41.974,
+                "endSeconds": 42.134
               }
             ]
           },
           {
             "id": "31-minerals-4",
             "sceneId": "minerals",
-            "startSeconds": 45.993,
-            "endSeconds": 46.583,
+            "startSeconds": 42.134,
+            "endSeconds": 42.684,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -323510,21 +323510,21 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "for",
-                "startSeconds": 46.033,
-                "endSeconds": 46.093
+                "startSeconds": 42.154,
+                "endSeconds": 42.254
               },
               {
                 "text": "meats.",
-                "startSeconds": 46.173,
-                "endSeconds": 46.434
+                "startSeconds": 42.274,
+                "endSeconds": 42.555
               }
             ]
           },
           {
             "id": "32-pros-1",
             "sceneId": "pros",
-            "startSeconds": 46.583,
-            "endSeconds": 48.498,
+            "startSeconds": 42.684,
+            "endSeconds": 44.504,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -323536,36 +323536,36 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "Pros",
-                "startSeconds": 46.663,
-                "endSeconds": 46.863
+                "startSeconds": 42.764,
+                "endSeconds": 42.965
               },
               {
                 "text": "first:",
-                "startSeconds": 46.943,
-                "endSeconds": 47.203
+                "startSeconds": 43.044,
+                "endSeconds": 43.344
               },
               {
                 "text": "highly",
-                "startSeconds": 47.503,
-                "endSeconds": 47.743
+                "startSeconds": 43.584,
+                "endSeconds": 43.844
               },
               {
                 "text": "palatable",
-                "startSeconds": 47.823,
-                "endSeconds": 48.304
+                "startSeconds": 43.905,
+                "endSeconds": 44.305
               },
               {
                 "text": "and",
-                "startSeconds": 48.383,
-                "endSeconds": 48.483
+                "startSeconds": 44.384,
+                "endSeconds": 44.504
               }
             ]
           },
           {
             "id": "33-pros-2",
             "sceneId": "pros",
-            "startSeconds": 48.498,
-            "endSeconds": 49.558,
+            "startSeconds": 44.504,
+            "endSeconds": 45.559,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -323576,16 +323576,16 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "appealing.",
-                "startSeconds": 48.543,
-                "endSeconds": 48.983
+                "startSeconds": 44.524,
+                "endSeconds": 44.944
               }
             ]
           },
           {
             "id": "34-pros-3",
             "sceneId": "pros",
-            "startSeconds": 49.558,
-            "endSeconds": 51.163,
+            "startSeconds": 45.559,
+            "endSeconds": 46.864,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -323597,36 +323597,36 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "A",
-                "startSeconds": 49.603,
-                "endSeconds": 49.663
+                "startSeconds": 45.604,
+                "endSeconds": 45.624
               },
               {
                 "text": "real-world",
-                "startSeconds": 49.784,
-                "endSeconds": 50.263
+                "startSeconds": 45.704,
+                "endSeconds": 46.124
               },
               {
                 "text": "reason",
-                "startSeconds": 50.363,
-                "endSeconds": 50.643
+                "startSeconds": 46.185,
+                "endSeconds": 46.464
               },
               {
                 "text": "people",
-                "startSeconds": 50.743,
-                "endSeconds": 51.004
+                "startSeconds": 46.524,
+                "endSeconds": 46.744
               },
               {
                 "text": "love",
-                "startSeconds": 51.044,
-                "endSeconds": 51.163
+                "startSeconds": 46.784,
+                "endSeconds": 46.864
               }
             ]
           },
           {
             "id": "35-pros-4",
             "sceneId": "pros",
-            "startSeconds": 51.163,
-            "endSeconds": 51.638,
+            "startSeconds": 46.864,
+            "endSeconds": 47.299,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -323637,16 +323637,16 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "it.",
-                "startSeconds": 51.203,
-                "endSeconds": 51.303
+                "startSeconds": 46.904,
+                "endSeconds": 46.984
               }
             ]
           },
           {
             "id": "36-pros-5",
             "sceneId": "pros",
-            "startSeconds": 51.638,
-            "endSeconds": 53.519,
+            "startSeconds": 47.299,
+            "endSeconds": 49.14,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -323658,41 +323658,41 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "Works",
-                "startSeconds": 51.683,
-                "endSeconds": 51.883
+                "startSeconds": 47.344,
+                "endSeconds": 47.504
               },
               {
                 "text": "as",
-                "startSeconds": 51.923,
-                "endSeconds": 52.004
+                "startSeconds": 47.544,
+                "endSeconds": 47.625
               },
               {
                 "text": "a",
-                "startSeconds": 52.064,
-                "endSeconds": 52.083
+                "startSeconds": 47.645,
+                "endSeconds": 47.704
               },
               {
                 "text": "strong",
-                "startSeconds": 52.183,
-                "endSeconds": 52.403
+                "startSeconds": 47.744,
+                "endSeconds": 47.944
               },
               {
                 "text": "flavour",
-                "startSeconds": 52.504,
-                "endSeconds": 52.723
+                "startSeconds": 48.024,
+                "endSeconds": 48.224
               },
               {
                 "text": "booster.",
-                "startSeconds": 52.783,
-                "endSeconds": 53.123
+                "startSeconds": 48.264,
+                "endSeconds": 48.564
               }
             ]
           },
           {
             "id": "37-pros-6",
             "sceneId": "pros",
-            "startSeconds": 53.519,
-            "endSeconds": 55.239,
+            "startSeconds": 49.14,
+            "endSeconds": 50.679,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -323704,41 +323704,41 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "Useful",
-                "startSeconds": 53.564,
-                "endSeconds": 53.883
+                "startSeconds": 49.185,
+                "endSeconds": 49.464
               },
               {
                 "text": "in",
-                "startSeconds": 53.943,
-                "endSeconds": 54.024
+                "startSeconds": 49.504,
+                "endSeconds": 49.625
               },
               {
                 "text": "meals",
-                "startSeconds": 54.103,
-                "endSeconds": 54.423
+                "startSeconds": 49.665,
+                "endSeconds": 49.984
               },
               {
                 "text": "even",
-                "startSeconds": 54.544,
-                "endSeconds": 54.704
+                "startSeconds": 50.104,
+                "endSeconds": 50.264
               },
               {
                 "text": "in",
-                "startSeconds": 54.743,
-                "endSeconds": 54.803
+                "startSeconds": 50.284,
+                "endSeconds": 50.384
               },
               {
                 "text": "smaller",
-                "startSeconds": 54.923,
-                "endSeconds": 55.204
+                "startSeconds": 50.404,
+                "endSeconds": 50.665
               }
             ]
           },
           {
             "id": "38-pros-7",
             "sceneId": "pros",
-            "startSeconds": 55.239,
-            "endSeconds": 55.939,
+            "startSeconds": 50.679,
+            "endSeconds": 51.48,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -323749,16 +323749,16 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "amounts.",
-                "startSeconds": 55.284,
-                "endSeconds": 55.663
+                "startSeconds": 50.724,
+                "endSeconds": 51.065
               }
             ]
           },
           {
             "id": "39-pros-8",
             "sceneId": "pros",
-            "startSeconds": 55.939,
-            "endSeconds": 56.944,
+            "startSeconds": 51.48,
+            "endSeconds": 52.44,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -323770,26 +323770,26 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "Has",
-                "startSeconds": 55.984,
-                "endSeconds": 56.103
+                "startSeconds": 51.525,
+                "endSeconds": 51.665
               },
               {
                 "text": "strong",
-                "startSeconds": 56.163,
-                "endSeconds": 56.423
+                "startSeconds": 51.685,
+                "endSeconds": 51.945
               },
               {
                 "text": "comfort-food",
-                "startSeconds": 56.484,
-                "endSeconds": 56.944
+                "startSeconds": 51.985,
+                "endSeconds": 52.404
               }
             ]
           },
           {
             "id": "40-pros-9",
             "sceneId": "pros",
-            "startSeconds": 56.944,
-            "endSeconds": 57.778,
+            "startSeconds": 52.44,
+            "endSeconds": 53.219,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -323800,16 +323800,16 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "appeal.",
-                "startSeconds": 56.984,
-                "endSeconds": 57.343
+                "startSeconds": 52.485,
+                "endSeconds": 52.804
               }
             ]
           },
           {
             "id": "41-pros-10",
             "sceneId": "pros",
-            "startSeconds": 57.778,
-            "endSeconds": 59.338,
+            "startSeconds": 53.219,
+            "endSeconds": 54.665,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -323821,31 +323821,31 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "Popular",
-                "startSeconds": 57.823,
-                "endSeconds": 58.323
+                "startSeconds": 53.264,
+                "endSeconds": 53.744
               },
               {
                 "text": "and",
-                "startSeconds": 58.404,
-                "endSeconds": 58.504
+                "startSeconds": 53.824,
+                "endSeconds": 53.924
               },
               {
                 "text": "instantly",
-                "startSeconds": 58.564,
-                "endSeconds": 58.923
+                "startSeconds": 53.985,
+                "endSeconds": 54.304
               },
               {
                 "text": "legible",
-                "startSeconds": 59.024,
-                "endSeconds": 59.303
+                "startSeconds": 54.384,
+                "endSeconds": 54.665
               }
             ]
           },
           {
             "id": "42-pros-11",
             "sceneId": "pros",
-            "startSeconds": 59.338,
-            "endSeconds": 60.512,
+            "startSeconds": 54.665,
+            "endSeconds": 55.734,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -323857,26 +323857,26 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "for",
-                "startSeconds": 59.383,
-                "endSeconds": 59.444
+                "startSeconds": 54.704,
+                "endSeconds": 54.804
               },
               {
                 "text": "content",
-                "startSeconds": 59.543,
-                "endSeconds": 59.863
+                "startSeconds": 54.844,
+                "endSeconds": 55.105
               },
               {
                 "text": "packaging.",
-                "startSeconds": 59.923,
-                "endSeconds": 60.383
+                "startSeconds": 55.185,
+                "endSeconds": 55.605
               }
             ]
           },
           {
             "id": "43-cons-1",
             "sceneId": "cons",
-            "startSeconds": 60.512,
-            "endSeconds": 63.127,
+            "startSeconds": 55.734,
+            "endSeconds": 57.554,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -323888,41 +323888,41 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "The",
-                "startSeconds": 60.592,
-                "endSeconds": 60.672
+                "startSeconds": 55.814,
+                "endSeconds": 55.894
               },
               {
                 "text": "drawbacks",
-                "startSeconds": 60.712,
-                "endSeconds": 61.152
+                "startSeconds": 55.934,
+                "endSeconds": 56.274
               },
               {
                 "text": "next:",
-                "startSeconds": 61.232,
-                "endSeconds": 61.552
+                "startSeconds": 56.355,
+                "endSeconds": 56.654
               },
               {
                 "text": "sodium",
-                "startSeconds": 62.412,
-                "endSeconds": 62.792
+                "startSeconds": 56.874,
+                "endSeconds": 57.215
               },
               {
                 "text": "is",
-                "startSeconds": 62.852,
-                "endSeconds": 62.953
+                "startSeconds": 57.314,
+                "endSeconds": 57.394
               },
               {
                 "text": "a",
-                "startSeconds": 63.013,
-                "endSeconds": 63.052
+                "startSeconds": 57.454,
+                "endSeconds": 57.554
               }
             ]
           },
           {
             "id": "44-cons-2",
             "sceneId": "cons",
-            "startSeconds": 63.127,
-            "endSeconds": 64.067,
+            "startSeconds": 57.554,
+            "endSeconds": 58.249,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -323933,21 +323933,21 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "major",
-                "startSeconds": 63.172,
-                "endSeconds": 63.372
+                "startSeconds": 57.595,
+                "endSeconds": 57.794
               },
               {
                 "text": "drawback.",
-                "startSeconds": 63.473,
-                "endSeconds": 63.872
+                "startSeconds": 57.854,
+                "endSeconds": 58.215
               }
             ]
           },
           {
             "id": "45-cons-3",
             "sceneId": "cons",
-            "startSeconds": 64.067,
-            "endSeconds": 65.267,
+            "startSeconds": 58.249,
+            "endSeconds": 59.209,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -323959,31 +323959,31 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "A",
-                "startSeconds": 64.112,
-                "endSeconds": 64.132
+                "startSeconds": 58.294,
+                "endSeconds": 58.334
               },
               {
                 "text": "central",
-                "startSeconds": 64.233,
-                "endSeconds": 64.472
+                "startSeconds": 58.374,
+                "endSeconds": 58.594
               },
               {
                 "text": "practical",
-                "startSeconds": 64.572,
-                "endSeconds": 64.953
+                "startSeconds": 58.634,
+                "endSeconds": 58.975
               },
               {
                 "text": "health",
-                "startSeconds": 65.013,
-                "endSeconds": 65.232
+                "startSeconds": 59.014,
+                "endSeconds": 59.195
               }
             ]
           },
           {
             "id": "46-cons-4",
             "sceneId": "cons",
-            "startSeconds": 65.267,
-            "endSeconds": 67.007,
+            "startSeconds": 59.209,
+            "endSeconds": 60.209,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -323994,26 +323994,26 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "issue",
-                "startSeconds": 65.312,
-                "endSeconds": 65.473
+                "startSeconds": 59.254,
+                "endSeconds": 59.394
               },
               {
                 "text": "for",
-                "startSeconds": 65.532,
-                "endSeconds": 65.592
+                "startSeconds": 59.475,
+                "endSeconds": 59.534
               },
               {
                 "text": "bacon.",
-                "startSeconds": 65.652,
-                "endSeconds": 65.933
+                "startSeconds": 59.574,
+                "endSeconds": 59.854
               }
             ]
           },
           {
             "id": "47-cons-5",
             "sceneId": "cons",
-            "startSeconds": 67.007,
-            "endSeconds": 69.188,
+            "startSeconds": 60.209,
+            "endSeconds": 62.409,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -324025,36 +324025,36 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "Processing",
-                "startSeconds": 67.052,
-                "endSeconds": 67.652
+                "startSeconds": 60.254,
+                "endSeconds": 60.854
               },
               {
                 "text": "is",
-                "startSeconds": 67.712,
-                "endSeconds": 67.852
+                "startSeconds": 60.894,
+                "endSeconds": 60.994
               },
               {
                 "text": "a",
-                "startSeconds": 67.912,
-                "endSeconds": 68.032
+                "startSeconds": 61.115,
+                "endSeconds": 61.135
               },
               {
                 "text": "major",
-                "startSeconds": 68.092,
-                "endSeconds": 68.292
+                "startSeconds": 61.136,
+                "endSeconds": 61.374
               },
               {
                 "text": "negative.",
-                "startSeconds": 68.392,
-                "endSeconds": 68.813
+                "startSeconds": 61.414,
+                "endSeconds": 61.735
               }
             ]
           },
           {
             "id": "48-cons-6",
             "sceneId": "cons",
-            "startSeconds": 69.188,
-            "endSeconds": 70.768,
+            "startSeconds": 62.409,
+            "endSeconds": 63.874,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -324066,41 +324066,41 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "A",
-                "startSeconds": 69.233,
-                "endSeconds": 69.273
+                "startSeconds": 62.454,
+                "endSeconds": 62.494
               },
               {
                 "text": "key",
-                "startSeconds": 69.332,
-                "endSeconds": 69.412
+                "startSeconds": 62.554,
+                "endSeconds": 62.655
               },
               {
                 "text": "downside",
-                "startSeconds": 69.513,
-                "endSeconds": 70.032
+                "startSeconds": 62.715,
+                "endSeconds": 63.175
               },
               {
                 "text": "now",
-                "startSeconds": 70.072,
-                "endSeconds": 70.273
+                "startSeconds": 63.274,
+                "endSeconds": 63.474
               },
               {
                 "text": "that",
-                "startSeconds": 70.393,
-                "endSeconds": 70.552
+                "startSeconds": 63.534,
+                "endSeconds": 63.695
               },
               {
                 "text": "more",
-                "startSeconds": 70.612,
-                "endSeconds": 70.752
+                "startSeconds": 63.735,
+                "endSeconds": 63.874
               }
             ]
           },
           {
             "id": "49-cons-7",
             "sceneId": "cons",
-            "startSeconds": 70.768,
-            "endSeconds": 72.567,
+            "startSeconds": 63.874,
+            "endSeconds": 65.549,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -324112,36 +324112,36 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "processed",
-                "startSeconds": 70.813,
-                "endSeconds": 71.152
+                "startSeconds": 63.914,
+                "endSeconds": 64.254
               },
               {
                 "text": "foods",
-                "startSeconds": 71.252,
-                "endSeconds": 71.492
+                "startSeconds": 64.354,
+                "endSeconds": 64.595
               },
               {
                 "text": "are",
-                "startSeconds": 71.552,
-                "endSeconds": 71.653
+                "startSeconds": 64.615,
+                "endSeconds": 64.735
               },
               {
                 "text": "in",
-                "startSeconds": 71.672,
-                "endSeconds": 71.732
+                "startSeconds": 64.754,
+                "endSeconds": 64.854
               },
               {
                 "text": "scope.",
-                "startSeconds": 71.853,
-                "endSeconds": 72.112
+                "startSeconds": 64.914,
+                "endSeconds": 65.174
               }
             ]
           },
           {
             "id": "50-cons-8",
             "sceneId": "cons",
-            "startSeconds": 72.567,
-            "endSeconds": 74.247,
+            "startSeconds": 65.549,
+            "endSeconds": 66.894,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -324153,46 +324153,46 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "Rarely",
-                "startSeconds": 72.612,
-                "endSeconds": 72.873
+                "startSeconds": 65.594,
+                "endSeconds": 65.854
               },
               {
                 "text": "improves",
-                "startSeconds": 72.893,
-                "endSeconds": 73.252
+                "startSeconds": 65.874,
+                "endSeconds": 66.155
               },
               {
                 "text": "a",
-                "startSeconds": 73.292,
-                "endSeconds": 73.313
+                "startSeconds": 66.195,
+                "endSeconds": 66.235
               },
               {
                 "text": "meal",
-                "startSeconds": 73.412,
-                "endSeconds": 73.692
+                "startSeconds": 66.274,
+                "endSeconds": 66.434
               },
               {
                 "text": "much",
-                "startSeconds": 73.732,
-                "endSeconds": 73.933
+                "startSeconds": 66.474,
+                "endSeconds": 66.635
               },
               {
                 "text": "on",
-                "startSeconds": 73.992,
-                "endSeconds": 74.052
+                "startSeconds": 66.674,
+                "endSeconds": 66.755
               },
               {
                 "text": "its",
-                "startSeconds": 74.092,
-                "endSeconds": 74.212
+                "startSeconds": 66.756,
+                "endSeconds": 66.894
               }
             ]
           },
           {
             "id": "51-cons-9",
             "sceneId": "cons",
-            "startSeconds": 74.247,
-            "endSeconds": 75.067,
+            "startSeconds": 66.894,
+            "endSeconds": 67.669,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -324203,16 +324203,16 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "own.",
-                "startSeconds": 74.292,
-                "endSeconds": 74.452
+                "startSeconds": 66.934,
+                "endSeconds": 67.115
               }
             ]
           },
           {
             "id": "52-cons-10",
             "sceneId": "cons",
-            "startSeconds": 75.067,
-            "endSeconds": 76.428,
+            "startSeconds": 67.669,
+            "endSeconds": 68.929,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -324224,41 +324224,41 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "Usually",
-                "startSeconds": 75.112,
-                "endSeconds": 75.332
+                "startSeconds": 67.714,
+                "endSeconds": 67.954
               },
               {
                 "text": "works",
-                "startSeconds": 75.412,
-                "endSeconds": 75.612
+                "startSeconds": 67.994,
+                "endSeconds": 68.195
               },
               {
                 "text": "more",
-                "startSeconds": 75.692,
-                "endSeconds": 75.832
+                "startSeconds": 68.274,
+                "endSeconds": 68.415
               },
               {
                 "text": "as",
-                "startSeconds": 75.852,
-                "endSeconds": 75.953
+                "startSeconds": 68.416,
+                "endSeconds": 68.514
               },
               {
                 "text": "a",
-                "startSeconds": 75.992,
-                "endSeconds": 76.052
+                "startSeconds": 68.534,
+                "endSeconds": 68.594
               },
               {
                 "text": "flavour",
-                "startSeconds": 76.112,
-                "endSeconds": 76.392
+                "startSeconds": 68.634,
+                "endSeconds": 68.874
               }
             ]
           },
           {
             "id": "53-cons-11",
             "sceneId": "cons",
-            "startSeconds": 76.428,
-            "endSeconds": 78.068,
+            "startSeconds": 68.929,
+            "endSeconds": 70.429,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -324270,36 +324270,36 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "add-on",
-                "startSeconds": 76.473,
-                "endSeconds": 76.912
+                "startSeconds": 68.974,
+                "endSeconds": 69.394
               },
               {
                 "text": "than",
-                "startSeconds": 76.953,
-                "endSeconds": 77.072
+                "startSeconds": 69.434,
+                "endSeconds": 69.514
               },
               {
                 "text": "a",
-                "startSeconds": 77.113,
-                "endSeconds": 77.132
+                "startSeconds": 69.554,
+                "endSeconds": 69.634
               },
               {
                 "text": "genuinely",
-                "startSeconds": 77.252,
-                "endSeconds": 77.672
+                "startSeconds": 69.674,
+                "endSeconds": 70.035
               },
               {
                 "text": "strong",
-                "startSeconds": 77.773,
-                "endSeconds": 78.033
+                "startSeconds": 70.155,
+                "endSeconds": 70.414
               }
             ]
           },
           {
             "id": "54-cons-12",
             "sceneId": "cons",
-            "startSeconds": 78.068,
-            "endSeconds": 78.862,
+            "startSeconds": 70.429,
+            "endSeconds": 71.103,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -324310,21 +324310,21 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "meat",
-                "startSeconds": 78.113,
-                "endSeconds": 78.292
+                "startSeconds": 70.474,
+                "endSeconds": 70.615
               },
               {
                 "text": "choice.",
-                "startSeconds": 78.332,
-                "endSeconds": 78.693
+                "startSeconds": 70.674,
+                "endSeconds": 70.974
               }
             ]
           },
           {
             "id": "55-final-1",
             "sceneId": "final",
-            "startSeconds": 78.862,
-            "endSeconds": 80.602,
+            "startSeconds": 71.103,
+            "endSeconds": 72.758,
             "placement": "summary-full",
             "maxLines": 2,
             "maxCharactersPerLine": 24,
@@ -324337,41 +324337,41 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "Big",
-                "startSeconds": 78.942,
-                "endSeconds": 79.022
+                "startSeconds": 71.183,
+                "endSeconds": 71.283
               },
               {
                 "text": "strengths",
-                "startSeconds": 79.122,
-                "endSeconds": 79.383
+                "startSeconds": 71.343,
+                "endSeconds": 71.604
               },
               {
                 "text": "are",
-                "startSeconds": 79.402,
-                "endSeconds": 79.522
+                "startSeconds": 71.623,
+                "endSeconds": 71.743
               },
               {
                 "text": "protein",
-                "startSeconds": 79.542,
-                "endSeconds": 79.962
+                "startSeconds": 71.763,
+                "endSeconds": 72.143
               },
               {
                 "text": "and",
-                "startSeconds": 80.022,
-                "endSeconds": 80.082
+                "startSeconds": 72.204,
+                "endSeconds": 72.323
               },
               {
                 "text": "palatable",
-                "startSeconds": 80.162,
-                "endSeconds": 80.602
+                "startSeconds": 72.324,
+                "endSeconds": 72.743
               }
             ]
           },
           {
             "id": "56-final-2",
             "sceneId": "final",
-            "startSeconds": 80.602,
-            "endSeconds": 82.977,
+            "startSeconds": 72.758,
+            "endSeconds": 75.039,
             "placement": "summary-full",
             "maxLines": 2,
             "maxCharactersPerLine": 24,
@@ -324384,46 +324384,46 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "and",
-                "startSeconds": 80.642,
-                "endSeconds": 80.702
+                "startSeconds": 72.803,
+                "endSeconds": 72.903
               },
               {
                 "text": "appealing,",
-                "startSeconds": 80.742,
-                "endSeconds": 81.182
+                "startSeconds": 72.923,
+                "endSeconds": 73.344
               },
               {
                 "text": "but",
-                "startSeconds": 81.602,
-                "endSeconds": 81.702
+                "startSeconds": 73.804,
+                "endSeconds": 73.903
               },
               {
                 "text": "the",
-                "startSeconds": 81.742,
-                "endSeconds": 81.842
+                "startSeconds": 73.943,
+                "endSeconds": 74.023
               },
               {
                 "text": "biggest",
-                "startSeconds": 81.902,
-                "endSeconds": 82.122
+                "startSeconds": 74.064,
+                "endSeconds": 74.263
               },
               {
                 "text": "weaknesses",
-                "startSeconds": 82.182,
-                "endSeconds": 82.702
+                "startSeconds": 74.324,
+                "endSeconds": 74.863
               },
               {
                 "text": "are",
-                "startSeconds": 82.782,
-                "endSeconds": 82.882
+                "startSeconds": 74.883,
+                "endSeconds": 74.963
               }
             ]
           },
           {
             "id": "57-final-3",
             "sceneId": "final",
-            "startSeconds": 82.977,
-            "endSeconds": 84.266,
+            "startSeconds": 75.039,
+            "endSeconds": 76.248,
             "placement": "summary-full",
             "maxLines": 2,
             "maxCharactersPerLine": 24,
@@ -324435,26 +324435,26 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "sodium",
-                "startSeconds": 83.022,
-                "endSeconds": 83.362
+                "startSeconds": 75.084,
+                "endSeconds": 75.403
               },
               {
                 "text": "and",
-                "startSeconds": 83.402,
-                "endSeconds": 83.482
+                "startSeconds": 75.443,
+                "endSeconds": 75.504
               },
               {
                 "text": "processing.",
-                "startSeconds": 83.542,
-                "endSeconds": 84.082
+                "startSeconds": 75.584,
+                "endSeconds": 76.064
               }
             ]
           },
           {
             "id": "58-final-4",
             "sceneId": "final",
-            "startSeconds": 84.266,
-            "endSeconds": 84.781,
+            "startSeconds": 76.248,
+            "endSeconds": 76.744,
             "placement": "tier-center",
             "maxLines": 2,
             "maxCharactersPerLine": 28,
@@ -324466,13 +324466,13 @@ window.FOODRANKED_DATA = {
             "wordTimings": [
               {
                 "text": "D",
-                "startSeconds": 84.311,
-                "endSeconds": 84.391
+                "startSeconds": 76.293,
+                "endSeconds": 76.373
               },
               {
                 "text": "tier.",
-                "startSeconds": 84.451,
-                "endSeconds": 84.731
+                "startSeconds": 76.433,
+                "endSeconds": 76.694
               }
             ]
           }

@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260610-macro-bar-pause-v1';
+  const BUILDER_BUILD_ID = '20260611-macro-bar-gif-speed-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -58,7 +58,7 @@
   const MACRO_REVEAL_SECONDS = 0.08;
   const MACRO_BAR_FILL_SECONDS = 1.35;
   const MACRO_ROW_AFTER_BAR_SECONDS = 0.14;
-  const MACRO_BAR_FILL_SPRITE_VISIBLE_WIDTH_RATIO = 22 / 104;
+  const MACRO_BAR_GIF_FINAL_HOLD_CENTISECONDS = 65535;
   const INTRO_RANKED_SPRITE_PATH = './sprites/ui/intro_&_outro/ranked.png';
   const OUTRO_D_TIER_SPRITE_PATH = './sprites/ui/intro_&_outro/D tier.png';
   const INTRO_RANKED_VISIBLE_CENTER = { x: 0.5, y: 0.47 };
@@ -71,6 +71,8 @@
     red: '#ff6f6f',
     neutral: '#ffffff'
   };
+  const MACRO_BAR_GIF_SOURCE_CACHE = new Map();
+  const MACRO_BAR_GIF_VARIANT_CACHE = new Map();
 
   const DISPLAY_SCHEMA = window.FOODRANKED_DISPLAY_SCHEMA || {};
 
@@ -941,14 +943,6 @@
     return 1 - Math.pow(1 - safeProgress, 4);
   }
 
-  function macroBarFillColor(sectionId) {
-    return {
-      fats: '#7b5fd8',
-      carbs: '#df9f39',
-      protein: '#dd627d'
-    }[sectionId] || '#7b5fd8';
-  }
-
   function macroFillRange(foodType, sectionId) {
     if (typeof DISPLAY_SCHEMA.getMacroFillRange === 'function') {
       return DISPLAY_SCHEMA.getMacroFillRange(foodType, sectionId);
@@ -1647,6 +1641,7 @@
     syncMicros(layout, food, 'minerals', MINERAL_TEXT_SPECS, 'minerals_label', 'minerals_percent');
     syncProsCons(layout, food);
     state.layout = layout;
+    prewarmMacroBarGifVariants(layout, food);
     const displayLayout = loadDisplayBuilderLayout();
     const layoutLabel = state.layoutSourceId === 'display-builder'
       ? displayLayout
@@ -2313,12 +2308,12 @@
     layers.forEach(({ layer, index, persistent }, renderIndex) => {
       if (layer.visible === false) return;
       const macroBarFillLayer = !persistent && isMacroBarFill(layer);
-      const tagName = macroBarFillLayer ? 'DIV' : layer.kind === 'sprite' ? 'IMG' : 'DIV';
+      const tagName = layer.kind === 'sprite' ? 'IMG' : 'DIV';
       const renderKey = `${persistent ? 'persistent' : 'scene'}:${layer.kind}:${layer.id || index}`;
       let node = existingNodes.get(renderKey);
-      if (!node || node.tagName !== tagName) node = document.createElement(tagName.toLowerCase());
+      if (!node || node.tagName !== tagName) node = document.createElement(layer.kind === 'sprite' ? 'img' : 'div');
       const effectClass = layer.effect ? ` ${String(layer.effect).replace(/[^a-z0-9_-]+/gi, '-')}` : '';
-      node.className = `layer-node ${layer.kind}${layer.kind === 'text' ? ' pixel-text' : ''}${macroBarFillLayer ? ' macro-bar-fill-unit' : ''}${effectClass}`;
+      node.className = `layer-node ${layer.kind}${layer.kind === 'text' ? ' pixel-text' : ''}${effectClass}`;
       node.removeAttribute('style');
       if (layer.animationDelay != null) node.style.animationDelay = String(layer.animationDelay);
       node.dataset.renderKey = renderKey;
@@ -2331,14 +2326,11 @@
       node.dataset.revealKind = revealSchedule.kind;
       node.style.zIndex = String(Number(layer.z) || 0);
       applyLayerBox(node, layer);
-      if (macroBarFillLayer) updateMacroBarFillUnit(node, layer, scene);
       applyLayerAnimation(node, layer, scene, sceneProgress, index, persistent, revealSchedule);
       if (layer.kind === 'sprite') {
-        if (macroBarFillLayer) {
-          nextLayerNodes.appendChild(node);
-          return;
-        }
-        const nextSpriteSrc = spritePath(layer.src);
+        const nextSpriteSrc = macroBarFillLayer
+          ? macroBarFillSpritePath(layer, scene, sceneElapsed, revealSchedule)
+          : spritePath(layer.src);
         if (node.dataset.spriteSrc !== nextSpriteSrc) {
           node.dataset.spriteSrc = nextSpriteSrc;
           node.src = nextSpriteSrc;
@@ -3758,52 +3750,194 @@
     }
   }
 
-  function updateMacroBarFillUnit(node, layer, scene) {
-    let body = node.querySelector('[data-macro-bar-fill-body]');
-    let sprite = node.querySelector('[data-macro-bar-fill-sprite]');
-    if (!body) {
-      body = document.createElement('span');
-      body.dataset.macroBarFillBody = 'true';
-      node.appendChild(body);
+  function prewarmMacroBarGifVariants(layout, food) {
+    if (!layout) return;
+    for (const sectionId of ['fats', 'carbs', 'protein']) {
+      for (const layer of getSectionLayers(layout, sectionId)) {
+        if (!isMacroBarFill(layer)) continue;
+        const targetRatio = clamp(asNumber(layer?.fillRatio, macroBarFillRatio(food, sectionId)), 0, 1);
+        const src = spritePath(layer.src);
+        requestMacroBarGifVariant(src, { mode: 'animated', targetRatio });
+        requestMacroBarGifVariant(src, { mode: 'still', targetRatio });
+      }
     }
-    if (!sprite) {
-      sprite = document.createElement('img');
-      sprite.dataset.macroBarFillSprite = 'true';
-      node.appendChild(sprite);
+  }
+
+  function macroBarFillSpritePath(layer, scene, sceneElapsed, revealSchedule) {
+    const src = spritePath(layer.src);
+    const targetRatio = clamp(asNumber(layer?.fillRatio, revealSchedule?.fillRatio ?? 0), 0, 1);
+    if (targetRatio <= 0.001) return src;
+
+    const fillEndSeconds = MACRO_REVEAL_SECONDS + MACRO_BAR_FILL_SECONDS;
+    const localElapsed = Math.max(0, Number(sceneElapsed) || 0);
+    const mode = state.playing && localElapsed < fillEndSeconds ? 'animated' : 'still';
+    const progress = mode === 'still' && localElapsed < fillEndSeconds
+      ? macroBarFillEase((localElapsed - MACRO_REVEAL_SECONDS) / MACRO_BAR_FILL_SECONDS)
+      : 1;
+    const visibleRatio = mode === 'animated' ? targetRatio : targetRatio * clamp(progress, 0, 1);
+    const variantUrl = requestMacroBarGifVariant(src, { mode, targetRatio: visibleRatio });
+    return variantUrl || src;
+  }
+
+  function requestMacroBarGifVariant(src, options) {
+    const ratioKey = Math.round(clamp(options.targetRatio, 0, 1) * 1000);
+    const key = `${src}|${options.mode}|${ratioKey}|${MACRO_BAR_FILL_SECONDS}`;
+    const cached = MACRO_BAR_GIF_VARIANT_CACHE.get(key);
+    if (cached?.status === 'ready') return cached.url;
+    if (cached?.status === 'pending') return null;
+
+    const entry = { status: 'pending', url: null };
+    MACRO_BAR_GIF_VARIANT_CACHE.set(key, entry);
+    buildMacroBarGifVariant(src, options)
+      .then(url => {
+        entry.status = 'ready';
+        entry.url = url;
+        window.requestAnimationFrame(() => {
+          if (state.layout) renderStage();
+        });
+      })
+      .catch(error => {
+        entry.status = 'error';
+        entry.error = error;
+      });
+    return null;
+  }
+
+  async function buildMacroBarGifVariant(src, options) {
+    const parsed = await macroBarGifSource(src);
+    const bytes = buildMacroBarGifBytes(parsed, options);
+    return URL.createObjectURL(new Blob([bytes], { type: 'image/gif' }));
+  }
+
+  function macroBarGifSource(src) {
+    const cached = MACRO_BAR_GIF_SOURCE_CACHE.get(src);
+    if (cached) return cached;
+    const promise = fetch(src)
+      .then(response => {
+        if (!response.ok) throw new Error(`GIF fetch failed: ${response.status}`);
+        return response.arrayBuffer();
+      })
+      .then(buffer => parseGifBytes(new Uint8Array(buffer)));
+    MACRO_BAR_GIF_SOURCE_CACHE.set(src, promise);
+    return promise;
+  }
+
+  function parseGifBytes(bytes) {
+    const signature = String.fromCharCode(...bytes.slice(0, 6));
+    if (!/^GIF8[79]a$/.test(signature)) throw new Error('Unsupported GIF signature');
+
+    const packed = bytes[10];
+    const globalColorTableSize = packed & 0x80 ? 3 * (1 << ((packed & 0x07) + 1)) : 0;
+    let pos = 13 + globalColorTableSize;
+    const leadParts = [bytes.slice(0, pos)];
+    const frames = [];
+    let pendingGce = null;
+    let sawFrame = false;
+
+    while (pos < bytes.length) {
+      const marker = bytes[pos];
+      if (marker === 0x3b) break;
+      if (marker === 0x21) {
+        const label = bytes[pos + 1];
+        const end = skipGifSubBlocks(bytes, pos + 2);
+        const block = bytes.slice(pos, end);
+        if (label === 0xf9) {
+          pendingGce = block;
+        } else if (!sawFrame) {
+          leadParts.push(block);
+        }
+        pos = end;
+        continue;
+      }
+      if (marker === 0x2c) {
+        const imageStart = pos;
+        const imagePacked = bytes[pos + 9];
+        pos += 10;
+        if (imagePacked & 0x80) pos += 3 * (1 << ((imagePacked & 0x07) + 1));
+        pos += 1;
+        pos = skipGifSubBlocks(bytes, pos);
+        frames.push({ gce: pendingGce, image: bytes.slice(imageStart, pos) });
+        pendingGce = null;
+        sawFrame = true;
+        continue;
+      }
+      throw new Error(`Unsupported GIF block 0x${marker.toString(16)}`);
     }
 
-    const layerSection = macroBarLayerSection(layer, scene?.id || '') || scene?.id || 'fats';
-    const barHeight = Math.max(1, Number(layer?.height) || 14);
-    const bodyInsetY = Math.min(2, Math.max(1, Math.floor(barHeight * 0.16)));
-    const bodyHeight = Math.max(1, barHeight - (bodyInsetY * 2));
-    const nextSpriteSrc = spritePath(layer.src);
-    if (sprite.dataset.spriteSrc !== nextSpriteSrc) {
-      sprite.dataset.spriteSrc = nextSpriteSrc;
-      sprite.src = nextSpriteSrc;
+    if (!frames.length) throw new Error('GIF has no frames');
+    return { leadParts, frames };
+  }
+
+  function skipGifSubBlocks(bytes, pos) {
+    let cursor = pos;
+    while (cursor < bytes.length) {
+      const size = bytes[cursor];
+      cursor += 1;
+      if (size === 0) break;
+      cursor += size;
     }
-    sprite.alt = layer.label || '';
+    return cursor;
+  }
 
-    node.style.overflow = 'visible';
-    node.style.pointerEvents = 'none';
-    body.style.position = 'absolute';
-    body.style.left = '0';
-    body.style.top = `calc(${bodyInsetY}px * var(--pixel-unit))`;
-    body.style.width = '0';
-    body.style.height = `calc(${bodyHeight}px * var(--pixel-unit))`;
-    body.style.background = macroBarFillColor(layerSection);
-    body.style.borderRadius = `calc(${Math.max(1, bodyHeight / 2)}px * var(--pixel-unit))`;
-    body.style.imageRendering = 'pixelated';
-    body.style.opacity = '0';
+  function buildMacroBarGifBytes(parsed, options) {
+    const targetRatio = clamp(options.targetRatio, 0, 1);
+    const targetIndex = clamp(Math.round((parsed.frames.length - 1) * targetRatio), 0, parsed.frames.length - 1);
+    const frameIndexes = options.mode === 'animated'
+      ? macroBarAnimatedFrameIndexes(targetIndex)
+      : [targetIndex];
+    const delayCs = macroBarGifFrameDelay(frameIndexes.length);
+    const leadDelayCs = Math.max(0, Math.round(MACRO_REVEAL_SECONDS * 100));
+    const parts = [...parsed.leadParts];
 
-    sprite.style.position = 'absolute';
-    sprite.style.left = '0';
-    sprite.style.top = '0';
-    sprite.style.width = '100%';
-    sprite.style.height = '100%';
-    sprite.style.objectFit = 'fill';
-    sprite.style.imageRendering = 'pixelated';
-    sprite.style.transformOrigin = 'left center';
-    sprite.style.opacity = '0';
+    frameIndexes.forEach((frameIndex, index) => {
+      const frame = parsed.frames[frameIndex];
+      const isLast = index === frameIndexes.length - 1;
+      const frameDelay = isLast
+        ? MACRO_BAR_GIF_FINAL_HOLD_CENTISECONDS
+        : index === 0
+          ? leadDelayCs + delayCs
+          : delayCs;
+      parts.push(gifGraphicControlWithDelay(frame.gce, frameDelay));
+      parts.push(frame.image);
+    });
+    parts.push(Uint8Array.of(0x3b));
+    return concatBytes(parts);
+  }
+
+  function macroBarAnimatedFrameIndexes(targetIndex) {
+    const fillDelayCs = Math.max(1, Math.round(MACRO_BAR_FILL_SECONDS * 100));
+    const count = Math.max(2, Math.min(targetIndex + 1, Math.floor(fillDelayCs / 2) + 1));
+    return Array.from({ length: count }, (_, index) => {
+      const t = count <= 1 ? 1 : index / (count - 1);
+      return clamp(Math.round(targetIndex * macroBarFillEase(t)), 0, targetIndex);
+    });
+  }
+
+  function macroBarGifFrameDelay(frameCount) {
+    if (frameCount <= 1) return MACRO_BAR_GIF_FINAL_HOLD_CENTISECONDS;
+    const fillDelayCs = Math.max(1, Math.round(MACRO_BAR_FILL_SECONDS * 100));
+    return Math.max(2, Math.round(fillDelayCs / Math.max(1, frameCount - 1)));
+  }
+
+  function gifGraphicControlWithDelay(gce, delayCs) {
+    const safeDelay = clamp(Math.round(delayCs), 1, MACRO_BAR_GIF_FINAL_HOLD_CENTISECONDS);
+    const out = gce && gce.length >= 8
+      ? new Uint8Array(gce)
+      : new Uint8Array([0x21, 0xf9, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00]);
+    out[4] = safeDelay & 0xff;
+    out[5] = (safeDelay >> 8) & 0xff;
+    return out;
+  }
+
+  function concatBytes(parts) {
+    const total = parts.reduce((sum, part) => sum + part.length, 0);
+    const out = new Uint8Array(total);
+    let offset = 0;
+    parts.forEach(part => {
+      out.set(part, offset);
+      offset += part.length;
+    });
+    return out;
   }
 
   function layerRevealDelay(layer, index) {
@@ -4080,26 +4214,8 @@
 
     if (isMacroBarFillReveal) {
       const targetFill = clamp(asNumber(layer?.fillRatio, revealSchedule?.fillRatio ?? 0), 0, 1);
-      const travelProgress = macroBarFillEase(rawRevealProgress);
-      const barWidth = Math.max(0, Number(layer?.width) || 0);
-      const fillSpriteWidth = barWidth * MACRO_BAR_FILL_SPRITE_VISIBLE_WIDTH_RATIO;
-      const finalX = clamp((barWidth * targetFill) - fillSpriteWidth, 0, Math.max(0, barWidth - fillSpriteWidth));
-      const fillEnd = targetFill <= 0.001
-        ? 0
-        : Math.max(fillSpriteWidth, fillSpriteWidth + finalX) * travelProgress;
-      const bodyWidth = Math.max(0, fillEnd - (fillSpriteWidth * 0.42));
-      const fillBody = node.querySelector('[data-macro-bar-fill-body]');
-      const fillSprite = node.querySelector('[data-macro-bar-fill-sprite]');
       visible = rawRevealProgress > 0 && targetFill > 0.001 ? 1 : 0;
       scale = 1;
-      if (fillBody) {
-        fillBody.style.width = `calc(${bodyWidth.toFixed(3)}px * var(--pixel-unit))`;
-        fillBody.style.opacity = String(visible);
-      }
-      if (fillSprite) {
-        fillSprite.style.transform = `translate3d(calc(${(finalX * travelProgress).toFixed(3)}px * var(--pixel-unit)), 0, 0)`;
-        fillSprite.style.opacity = String(visible);
-      }
     } else if (isOutroTierStamp || isIntroStampSprite) {
       const impactPulse = Math.sin(visible * Math.PI);
       stampImpactPulse = impactPulse;

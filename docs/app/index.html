@@ -1664,6 +1664,17 @@
       return isSpriteLayer(layer) || isTextLayer(layer);
     }
 
+    function isGeneratedCarbsMacroBarFrameLayer(layer) {
+      return isSpriteLayer(layer)
+        && String(layer.id || '').toLowerCase() === 'carbs_macro_bar_frame'
+        && String(layer.src || '').toLowerCase().includes('/macros_section/macro_bar_frame');
+    }
+
+    function isSharedMacroBarFrameLayer(layer) {
+      return isSpriteLayer(layer)
+        && String(layer.src || '').toLowerCase().includes('/macros_section/macro_bar_frame');
+    }
+
     function syncMacroSectionLayoutFromFats(layout, { force = false } = {}) {
       layout.meta = layout.meta || {};
       if (!force && layout.meta[MACRO_SECTION_LAYOUT_SYNC_KEY]) return;
@@ -1675,7 +1686,12 @@
 
       for (const targetKind of ['carbs', 'protein']) {
         const targetLayers = getSectionLayersFromLayout(layout, targetKind);
-        const mapped = templateLayers.map(layer => cloneMacroLayerForKind(layer, targetKind));
+        const manualCarbFrames = targetKind === 'carbs'
+          ? targetLayers.filter(layer => isSharedMacroBarFrameLayer(layer) && !isGeneratedCarbsMacroBarFrameLayer(layer)).map(cloneLayer)
+          : [];
+        const mapped = templateLayers
+          .map(layer => cloneMacroLayerForKind(layer, targetKind))
+          .filter(layer => !(targetKind === 'carbs' && isGeneratedCarbsMacroBarFrameLayer(layer)));
         const mappedIds = new Set(mapped.map(layer => layer.id).filter(Boolean));
         const existingById = new Map(targetLayers.filter(layer => layer.id).map(layer => [layer.id, layer]));
         const merged = mapped.map(mappedLayer => {
@@ -1697,7 +1713,9 @@
           if (isTextLayer(layer) && new RegExp(`^${targetKind}_submacro_(label|value)_\\d+$`, 'i').test(String(layer.id || ''))) return false;
           return true;
         });
-        layout.sections[targetKind].layers = [...preserved, ...merged];
+        const preservedIds = new Set(preserved.map(layer => layer.id).filter(Boolean));
+        const manualFrames = manualCarbFrames.filter(layer => !layer.id || !preservedIds.has(layer.id));
+        layout.sections[targetKind].layers = [...preserved, ...manualFrames, ...merged];
         ensureMacroSubmetricTextLayers(layout, targetKind);
       }
 
@@ -1912,13 +1930,8 @@
       ensureMacroSubmetricTextLayers(layout, 'fats');
     }
 
-    function ensureFatsMacroTotalTextLayers(layout) {
-      const sectionLayers = getSectionLayersFromLayout(layout, 'fats');
-      const specs = [
-        { id: 'fats_macro_label', label: 'FATS macro label', x: 35, y: 43, fontSize: 8, text: 'fats', z: 27, width: 40, align: 'left' },
-        { id: 'fats_macro_value', label: 'FATS macro grams', x: 35, y: 54, fontSize: 7, text: 'N/A', z: 27, width: 34, align: 'left' }
-      ];
-
+    function ensureMacroTotalTextLayers(layout, sectionId, specs) {
+      const sectionLayers = getSectionLayersFromLayout(layout, sectionId);
       for (const spec of specs) {
         let layer = sectionLayers.find(item => item.id === spec.id);
         if (!layer) {
@@ -1926,16 +1939,31 @@
           sectionLayers.push(layer);
         } else {
           layer.label = spec.label;
-          if (!layer.manualText && spec.id === 'fats_macro_label') layer.text = spec.text;
+          if (!layer.manualText && spec.keepStaticText) layer.text = spec.text;
         }
         if (!layer.fontSize) layer.fontSize = spec.fontSize;
         if (!layer.width) layer.width = spec.width;
         if (!layer.align) layer.align = spec.align;
         if (!layer.z) layer.z = spec.z;
       }
+    }
 
+    function ensureFatsMacroTotalTextLayers(layout) {
+      ensureMacroTotalTextLayers(layout, 'fats', [
+        { id: 'fats_macro_label', label: 'FATS macro label', x: 35, y: 43, fontSize: 8, text: 'fats', z: 27, width: 40, align: 'left', keepStaticText: true },
+        { id: 'fats_macro_value', label: 'FATS macro grams', x: 35, y: 54, fontSize: 7, text: 'N/A', z: 27, width: 34, align: 'left' }
+      ]);
       layout.meta = layout.meta || {};
       layout.meta.fatsMacroTotalTextV1 = true;
+    }
+
+    function ensureCarbsMacroTotalTextLayers(layout) {
+      ensureMacroTotalTextLayers(layout, 'carbs', [
+        { id: 'carbs_macro_label', label: 'CARBS macro label', x: 35, y: 43, fontSize: 8, text: 'CARBS', z: 27, width: 40, align: 'left', keepStaticText: true },
+        { id: 'carbs_macro_value', label: 'CARBS macro grams', x: 35, y: 54, fontSize: 7, text: 'N/A', z: 27, width: 34, align: 'left', keepStaticText: true }
+      ]);
+      layout.meta = layout.meta || {};
+      layout.meta.carbsMacroTotalTextV1 = true;
     }
 
     function isMicrosBarSpriteLayer(layer) {
@@ -2517,6 +2545,8 @@
       if (id === 'minerals_title') return 'MINERALS title';
       if (id === 'fats_macro_label') return 'FATS macro label';
       if (id === 'fats_macro_value') return 'FATS macro grams';
+      if (id === 'carbs_macro_label') return 'CARBS macro label';
+      if (id === 'carbs_macro_value') return 'CARBS macro grams';
       const impactMatch = id.match(/^(pros|cons)_impact_(\d+)$/);
       if (impactMatch) return `${getSectionChip(impactMatch[1]) || titleCaseWords(impactMatch[1])} impact label ${impactMatch[2]}`;
       const itemMatch = id.match(/^(pros|cons)_item_(\d+)$/);
@@ -2553,6 +2583,7 @@
             if (layer.fallbackSrc) layer.fallbackSrc = canonicalSpritePath(layer.fallbackSrc);
           }
           if (isObsoleteMacroBarFrameOrFillSpriteLayer(layer)) return false;
+          if (section.id === 'carbs' && isGeneratedCarbsMacroBarFrameLayer(layer)) return false;
           if (isObsoleteOutroScoreDisplayLayer(layer)) return false;
           if (isGeneratedOutroTierStampLayer(layer)) return false;
           if (isEmptyJunkLayer(layer)) return false;
@@ -2563,6 +2594,7 @@
       migrateMacroLayoutFromOutro(normalized);
       syncMacroSectionLayoutFromFats(normalized);
       ensureFatsMacroTotalTextLayers(normalized);
+      ensureCarbsMacroTotalTextLayers(normalized);
       ensureMacroSubmetricTextLayers(normalized, 'fats');
       ensureMacroSubmetricTextLayers(normalized, 'carbs');
       ensureMacroSubmetricTextLayers(normalized, 'protein');
@@ -2797,6 +2829,12 @@
               text(`minerals_percent_${index + 1}`, `MINERALS percent ${index + 1}`, anchor.valueX, anchor.y, 4.5, 'N/A', 40, anchor.valueWidth, 'right')
             ];
           })
+        );
+      }
+      if (sectionId === 'carbs') {
+        base.push(
+          text('carbs_macro_label', 'CARBS macro label', 35, 43, 8, 'CARBS', 27, 40, 'left'),
+          text('carbs_macro_value', 'CARBS macro grams', 35, 54, 7, 'N/A', 27, 34, 'left')
         );
       }
       if (['pros', 'cons'].includes(sectionId)) {
@@ -4270,12 +4308,31 @@
       }
     }
 
+    function syncCarbsMacroTotalTextForFood(layout) {
+      const layers = getSectionLayersFromLayout(layout, 'carbs');
+      const labelLayer = layers.find(layer => layer.id === 'carbs_macro_label');
+      const valueLayer = layers.find(layer => layer.id === 'carbs_macro_value');
+      if (labelLayer) {
+        labelLayer.label = 'CARBS macro label';
+        if (!labelLayer.manualText) labelLayer.text = 'CARBS';
+        labelLayer.align = labelLayer.align || 'left';
+        labelLayer.fontSize = labelLayer.fontSize || 8;
+      }
+      if (valueLayer) {
+        valueLayer.label = 'CARBS macro grams';
+        if (!valueLayer.manualText) valueLayer.text = 'N/A';
+        valueLayer.align = valueLayer.align || 'left';
+        valueLayer.fontSize = valueLayer.fontSize || 7;
+      }
+    }
+
     function syncFoodIntoLayout(food, { normalize = true } = {}) {
       if (normalize) normalizeLayout(state.layout);
       syncHeaderForFood(state.layout, food || getSelectedFoodStub());
       syncSectionSeparatorsForFood(state.layout, food || getSelectedFoodStub());
       syncSectionIndicatorSprites(state.layout, food || getSelectedFoodStub());
       syncFatsMacroTotalTextForFood(state.layout, food || getSelectedFoodStub());
+      syncCarbsMacroTotalTextForFood(state.layout);
       syncMacroSubmacroArrowsForFood(state.layout, food || getSelectedFoodStub());
       syncMacroSubmetricValueColors(state.layout, food || getSelectedFoodStub());
       syncManualOutroHighlightedIndicators(state.layout, food || getSelectedFoodStub());

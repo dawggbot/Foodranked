@@ -450,7 +450,7 @@ function buildScenePlan(script, score, template, options = {}) {
   let cursor = 0;
 
   const hookText = compact ? script.hook : [script.hook, script.intro].filter(Boolean).join(' ');
-  const hookDuration = estimateDurationSeconds(hookText, compact ? 196 : 188, compact ? 2.0 : 2.3);
+  const hookDuration = estimateDurationSeconds(hookText, compact ? 188 : 180, compact ? 2.1 : 2.4);
   const closingSummarySubtitle = subtitleOnlyText(script.closing.summary);
   const finalRevealSubtitle = subtitleOnlyText(script.closing.finalReveal);
   scenes.push({
@@ -485,7 +485,7 @@ function buildScenePlan(script, score, template, options = {}) {
   for (const section of script.sections) {
     const narrationText = compact ? narrationTextForSection(script, section) : audioOnlyText(compactSectionNarration(section, options));
     const subtitleText = subtitleOnlyText(section.subtitleText || section.narration);
-    const duration = estimateDurationSeconds(narrationText, compact ? 178 : 176, compact ? 2.0 : 2.0);
+    const duration = estimateDurationSeconds(narrationText, compact ? 170 : 168, compact ? 2.1 : 2.1);
     const visualBinding = sectionVisualBinding(section, template, spriteBindings, { ...options, foodType: script.food.foodType });
     scenes.push({
       id: section.key,
@@ -516,7 +516,7 @@ function buildScenePlan(script, score, template, options = {}) {
     : [script.closing.summary, options.includeCta ? script.closing.cta : null, script.closing.finalReveal]
       .filter(Boolean)
       .join(' ');
-  const closingDuration = estimateDurationSeconds(closingText, compact ? 190 : 178, compact ? 2.1 : 2.5);
+  const closingDuration = estimateDurationSeconds(closingText, compact ? 182 : 170, compact ? 2.2 : 2.6);
   scenes.push({
     id: 'final',
     kind: 'closing',

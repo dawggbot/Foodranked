@@ -1,15 +1,15 @@
 # Bacon Voice Notes
 
 ## Export
-- current file: `voice-v8.mp3`
-- builder mirror: `docs/audio/episodes/bacon/voice-v8.mp3`
+- current file: `voice-v5.mp3`
+- builder mirror: `docs/audio/episodes/bacon/voice-v5.mp3`
 - status: generated and wired into the video builder data index
-- saved speed target: **1.15x** for a quicker read while keeping section beats readable
+- saved speed target: **1.10x** to give clipped words and post-section dwells more breathing room
 
 ## ElevenLabs settings used
 - voice: **Eryn - Informative, Neutral and Measured**
 - model: **Eleven Multilingual v2**
-- speed: **1.15**
+- speed: **1.10**
 - stability: **50%**
 - similarity: **75%**
 - style exaggeration: **10%**
@@ -18,11 +18,11 @@
 
 ## Intent
 - clear, informative, neutral, measured
-- back at the quicker 1.15x target after review
+- slightly slower than the earlier 1.15x takes so two-second saturation holds do not clip words
 - good baseline test for narration format
 
 ## Next Retake Note
-- Keep using the saved `eryn_measured_v1` profile at **1.15x** for future bacon narration takes.
+- Keep using the saved `eryn_measured_v1` profile at **1.10x** for future bacon narration takes.
 - Keep the same voice, stability, similarity, style, and speaker boost unless the retake reveals a separate issue.
 
 ## Review checklist

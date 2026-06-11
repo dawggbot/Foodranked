@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260611-macro-bar-gif-frames-v1';
+  const BUILDER_BUILD_ID = '20260611-macro-bar-gif-canvas-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -56,7 +56,7 @@
   const SECTION_HOLD_IDS = new Set(['intro', 'fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons']);
   const HIDDEN_CAPTION_SECTION_IDS = new Set(['intro']);
   const MACRO_REVEAL_SECONDS = 0.08;
-  const MACRO_BAR_FILL_SECONDS = 1.85;
+  const MACRO_BAR_FILL_SECONDS = 2.4;
   const MACRO_ROW_AFTER_BAR_SECONDS = 0.14;
   const MACRO_BAR_GIF_FRAME_STEPS = 80;
   const MACRO_BAR_GIF_FINAL_HOLD_CENTISECONDS = 65535;
@@ -73,7 +73,7 @@
     neutral: '#ffffff'
   };
   const MACRO_BAR_GIF_SOURCE_CACHE = new Map();
-  const MACRO_BAR_GIF_VARIANT_CACHE = new Map();
+  const MACRO_BAR_GIF_FRAME_CACHE = new Map();
 
   const DISPLAY_SCHEMA = window.FOODRANKED_DISPLAY_SCHEMA || {};
 
@@ -2309,10 +2309,10 @@
     layers.forEach(({ layer, index, persistent }, renderIndex) => {
       if (layer.visible === false) return;
       const macroBarFillLayer = !persistent && isMacroBarFill(layer);
-      const tagName = layer.kind === 'sprite' ? 'IMG' : 'DIV';
+      const tagName = macroBarFillLayer ? 'CANVAS' : layer.kind === 'sprite' ? 'IMG' : 'DIV';
       const renderKey = `${persistent ? 'persistent' : 'scene'}:${layer.kind}:${layer.id || index}`;
       let node = existingNodes.get(renderKey);
-      if (!node || node.tagName !== tagName) node = document.createElement(layer.kind === 'sprite' ? 'img' : 'div');
+      if (!node || node.tagName !== tagName) node = document.createElement(tagName.toLowerCase());
       const effectClass = layer.effect ? ` ${String(layer.effect).replace(/[^a-z0-9_-]+/gi, '-')}` : '';
       node.className = `layer-node ${layer.kind}${layer.kind === 'text' ? ' pixel-text' : ''}${effectClass}`;
       node.removeAttribute('style');
@@ -2328,10 +2328,13 @@
       node.style.zIndex = String(Number(layer.z) || 0);
       applyLayerBox(node, layer);
       applyLayerAnimation(node, layer, scene, sceneProgress, index, persistent, revealSchedule);
+      if (macroBarFillLayer) {
+        drawMacroBarFillCanvas(node, layer, sceneElapsed, revealSchedule);
+        nextLayerNodes.appendChild(node);
+        return;
+      }
       if (layer.kind === 'sprite') {
-        const nextSpriteSrc = macroBarFillLayer
-          ? macroBarFillSpritePath(layer, scene, sceneElapsed, revealSchedule)
-          : spritePath(layer.src);
+        const nextSpriteSrc = spritePath(layer.src);
         if (node.dataset.spriteSrc !== nextSpriteSrc) {
           node.dataset.spriteSrc = nextSpriteSrc;
           node.src = nextSpriteSrc;
@@ -3756,57 +3759,33 @@
     for (const sectionId of ['fats', 'carbs', 'protein']) {
       for (const layer of getSectionLayers(layout, sectionId)) {
         if (!isMacroBarFill(layer)) continue;
-        const targetRatio = clamp(asNumber(layer?.fillRatio, macroBarFillRatio(food, sectionId)), 0, 1);
-        const src = spritePath(layer.src);
-        const targetStep = Math.round(targetRatio * MACRO_BAR_GIF_FRAME_STEPS);
-        for (let step = 0; step <= targetStep; step += 1) {
-          requestMacroBarGifVariant(src, { targetRatio: step / MACRO_BAR_GIF_FRAME_STEPS });
-        }
+        requestMacroBarGifFrames(spritePath(layer.src));
       }
     }
   }
 
-  function macroBarFillSpritePath(layer, scene, sceneElapsed, revealSchedule) {
+  function drawMacroBarFillCanvas(canvas, layer, sceneElapsed, revealSchedule) {
     const src = spritePath(layer.src);
     const targetRatio = clamp(asNumber(layer?.fillRatio, revealSchedule?.fillRatio ?? 0), 0, 1);
-    if (targetRatio <= 0.001) return src;
+    const frames = requestMacroBarGifFrames(src);
+    const width = frames?.width || 104;
+    const height = frames?.height || 17;
+    if (canvas.width !== width) canvas.width = width;
+    if (canvas.height !== height) canvas.height = height;
+    canvas.style.imageRendering = 'pixelated';
+
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, width, height);
+    if (!frames?.images?.length || targetRatio <= 0.001) return;
 
     const localElapsed = Math.max(0, Number(sceneElapsed) || 0);
-    const fillProgress = macroBarFillEase((localElapsed - MACRO_REVEAL_SECONDS) / MACRO_BAR_FILL_SECONDS);
-    const visibleRatio = targetRatio * clamp(fillProgress, 0, 1);
-    const variantUrl = requestMacroBarGifVariant(src, { targetRatio: visibleRatio });
-    return variantUrl || src;
-  }
-
-  function requestMacroBarGifVariant(src, options) {
-    const step = Math.round(clamp(options.targetRatio, 0, 1) * MACRO_BAR_GIF_FRAME_STEPS);
-    const targetRatio = step / MACRO_BAR_GIF_FRAME_STEPS;
-    const key = `${src}|frame|${step}`;
-    const cached = MACRO_BAR_GIF_VARIANT_CACHE.get(key);
-    if (cached?.status === 'ready') return cached.url;
-    if (cached?.status === 'pending') return null;
-
-    const entry = { status: 'pending', url: null };
-    MACRO_BAR_GIF_VARIANT_CACHE.set(key, entry);
-    buildMacroBarGifVariant(src, { targetRatio })
-      .then(url => {
-        entry.status = 'ready';
-        entry.url = url;
-        window.requestAnimationFrame(() => {
-          if (state.layout) renderStage();
-        });
-      })
-      .catch(error => {
-        entry.status = 'error';
-        entry.error = error;
-      });
-    return null;
-  }
-
-  async function buildMacroBarGifVariant(src, options) {
-    const parsed = await macroBarGifSource(src);
-    const bytes = buildMacroBarGifBytes(parsed, options);
-    return URL.createObjectURL(new Blob([bytes], { type: 'image/gif' }));
+    const progress = macroBarFillEase((localElapsed - MACRO_REVEAL_SECONDS) / MACRO_BAR_FILL_SECONDS);
+    const targetIndex = clamp(Math.round((frames.images.length - 1) * targetRatio), 0, frames.images.length - 1);
+    const currentIndex = clamp(Math.round(targetIndex * clamp(progress, 0, 1)), 0, targetIndex);
+    for (let frameIndex = 0; frameIndex <= currentIndex; frameIndex += 1) {
+      const image = frames.images[frameIndex];
+      if (image?.complete) ctx.drawImage(image, 0, 0);
+    }
   }
 
   function macroBarGifSource(src) {
@@ -3827,6 +3806,8 @@
     if (!/^GIF8[79]a$/.test(signature)) throw new Error('Unsupported GIF signature');
 
     const packed = bytes[10];
+    const width = bytes[6] | (bytes[7] << 8);
+    const height = bytes[8] | (bytes[9] << 8);
     const globalColorTableSize = packed & 0x80 ? 3 * (1 << ((packed & 0x07) + 1)) : 0;
     let pos = 13 + globalColorTableSize;
     const leadParts = [bytes.slice(0, pos)];
@@ -3865,7 +3846,7 @@
     }
 
     if (!frames.length) throw new Error('GIF has no frames');
-    return { leadParts, frames };
+    return { leadParts, frames, width, height };
   }
 
   function skipGifSubBlocks(bytes, pos) {
@@ -3879,14 +3860,41 @@
     return cursor;
   }
 
-  function buildMacroBarGifBytes(parsed, options) {
-    const targetRatio = clamp(options.targetRatio, 0, 1);
-    const targetIndex = clamp(Math.round((parsed.frames.length - 1) * targetRatio), 0, parsed.frames.length - 1);
-    const frame = parsed.frames[targetIndex];
-    const parts = [...parsed.leadParts];
-    parts.push(gifGraphicControlWithDelay(frame.gce, MACRO_BAR_GIF_FINAL_HOLD_CENTISECONDS));
-    parts.push(frame.image);
-    parts.push(Uint8Array.of(0x3b));
+  function requestMacroBarGifFrames(src) {
+    const cached = MACRO_BAR_GIF_FRAME_CACHE.get(src);
+    if (cached?.status === 'ready') return cached;
+    if (cached?.status === 'pending') return cached;
+
+    const entry = { status: 'pending', width: 104, height: 17, images: [] };
+    MACRO_BAR_GIF_FRAME_CACHE.set(src, entry);
+    macroBarGifSource(src)
+      .then(parsed => {
+        entry.width = parsed.width || entry.width;
+        entry.height = parsed.height || entry.height;
+        entry.images = parsed.frames.map((frame, index) => {
+          const image = new Image();
+          image.decoding = 'sync';
+          image.onload = () => {
+            if (state.layout) window.requestAnimationFrame(renderStage);
+          };
+          image.src = URL.createObjectURL(new Blob([buildSingleMacroBarFrameGifBytes(parsed, index)], { type: 'image/gif' }));
+          return image;
+        });
+        entry.status = 'ready';
+        window.requestAnimationFrame(() => {
+          if (state.layout) renderStage();
+        });
+      })
+      .catch(error => {
+        entry.status = 'error';
+        entry.error = error;
+      });
+    return entry;
+  }
+
+  function buildSingleMacroBarFrameGifBytes(parsed, frameIndex) {
+    const frame = parsed.frames[frameIndex];
+    const parts = [...parsed.leadParts, gifGraphicControlWithDelay(frame.gce, 100), frame.image, Uint8Array.of(0x3b)];
     return concatBytes(parts);
   }
 

@@ -1878,8 +1878,51 @@
       return clusterMacroSpriteRows(layout, 'fats');
     }
 
-    function deriveMacroSubmetricAnchors(layout, sectionId = 'fats') {
-      const rows = clusterMacroSpriteRows(layout, sectionId);
+    function clusterMacroArrowRows(layout, sectionId = 'fats') {
+      const sectionLayers = getSectionLayersFromLayout(layout, sectionId);
+      const candidates = sectionLayers
+        .filter(layer => isSpriteLayer(layer) && !isLockedUiSpriteLayer(layer))
+        .filter(layer => macroAssetRole(layer.src) !== 'icon')
+        .filter(layer => !isMacroBarFrameOrFillSpriteLayer(layer))
+        .filter(layer => (layer.height || 0) <= 40 && (layer.width || 0) <= 130)
+        .map(layer => ({
+          id: layer.id || '',
+          label: layer.label || '',
+          src: layer.src || '',
+          x: Number(layer.x) || 0,
+          y: Number(layer.y) || 0,
+          width: Number(layer.width) || 0,
+          height: Number(layer.height) || 0
+        }))
+        .sort((a, b) => a.y - b.y || a.x - b.x);
+
+      const rows = [];
+      for (const item of candidates) {
+        const centerY = item.y + ((item.height || 0) / 2);
+        const existing = rows.find(row => Math.abs(centerY - row.centerY) <= 9);
+        if (existing) {
+          existing.items.push(item);
+          existing.minX = Math.min(existing.minX, item.x);
+          existing.maxX = Math.max(existing.maxX, item.x + item.width);
+          existing.minY = Math.min(existing.minY, item.y);
+          existing.maxY = Math.max(existing.maxY, item.y + item.height);
+          existing.centerY = (existing.minY + existing.maxY) / 2;
+        } else {
+          rows.push({
+            items: [item],
+            minX: item.x,
+            maxX: item.x + item.width,
+            minY: item.y,
+            maxY: item.y + item.height,
+            centerY
+          });
+        }
+      }
+
+      return rows.sort((a, b) => a.minY - b.minY).slice(0, 4);
+    }
+
+    function anchorsFromMacroRows(rows) {
       if (rows.length === 4) {
         return rows.map(row => {
           const arrowItems = row.items.filter(item => /arrow indicator|green_arrow|red_arrow|yellow_arrow|\/arrow_indicators\//i.test(`${item.id} ${item.label} ${item.src}`));
@@ -1910,12 +1953,25 @@
       ];
     }
 
+    function deriveMacroSubmetricAnchors(layout, sectionId = 'fats') {
+      return anchorsFromMacroRows(clusterMacroSpriteRows(layout, sectionId));
+    }
+
     function deriveFatsSubmacroAnchors(layout) {
       return deriveMacroSubmetricAnchors(layout, 'fats');
     }
 
     function getMacroSubmetricRowBindings(layout, sectionId = 'fats') {
       const anchors = deriveMacroSubmetricAnchors(layout, sectionId);
+      return bindMacroSubmetricRows(anchors, sectionId);
+    }
+
+    function getMacroSubmetricArrowRowBindings(layout, sectionId = 'fats') {
+      const anchors = anchorsFromMacroRows(clusterMacroArrowRows(layout, sectionId));
+      return bindMacroSubmetricRows(anchors, sectionId);
+    }
+
+    function bindMacroSubmetricRows(anchors, sectionId = 'fats') {
       const specs = getMacroSubmetricTextSpecs(sectionId);
       const byKey = Object.fromEntries(specs.map(spec => [spec.key, spec]));
       const defaultOrders = {
@@ -4215,7 +4271,7 @@
       const scoringFood = mergedFoodForScoring(food);
       for (const sectionId of ['fats', 'carbs', 'protein']) {
         const sectionLayers = getSectionLayersFromLayout(layout, sectionId);
-        getMacroSubmetricRowBindings(layout, sectionId).forEach(binding => {
+        getMacroSubmetricArrowRowBindings(layout, sectionId).forEach(binding => {
           const arrows = arrowLayersForMacroBinding(sectionLayers, binding);
           if (!arrows.length) return;
           syncArrowLayersToPresentation(arrows, arrowPresentationForSpec(scoringFood, sectionId, binding.spec));

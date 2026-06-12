@@ -9,6 +9,7 @@ Use this folder for heavy stamp sounds:
 
 Short, punchy files work best because the visual stamp pulse is quick and should settle cleanly.
 
-Current file:
+Current files:
 
-- `dragon-studio-distant-bang-472364.mp3`
+- `impact-stamp-hit.mp3`
+- `traditional-stamp-hit.mp3`

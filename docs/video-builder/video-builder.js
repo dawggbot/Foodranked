@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260612-uploaded-protein-fill-v6';
+  const BUILDER_BUILD_ID = '20260612-bar-fill-sfx-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -29,17 +29,17 @@
   const STAMP_REVEAL_SECONDS = 0.36;
   const FOOD_STAMP_REVEAL_SECONDS = 0.22;
   const STAMP_SHAKE_MAX_PIXELS = 2.8;
-  const STAMP_SFX_PATH = 'audio/sfx/stamps/dragon-studio-distant-bang-472364.mp3';
+  const STAMP_SFX_PATH = 'audio/sfx/stamps/impact-stamp-hit.mp3';
   const STAMP_SFX_VOLUME = 0.18;
   const STAMP_SFX_VOLUME_VARIATION = 0.025;
   const STAMP_SFX_PLAYBACK_RATE_RANGE = { min: 0.93, max: 1.07 };
   const STAMP_SFX_START_OFFSET_RANGE_SECONDS = { min: 0, max: 0.045 };
   const STAMP_SFX_LEAD_SECONDS = 0.1;
   const STAMP_SFX_POOL_SIZE = 4;
-  const SECTION_TRANSITION_SFX_PATH = 'audio/sfx/transitions/oxidvideos-transition-sfx-2-409073.mp3';
+  const SECTION_TRANSITION_SFX_PATH = 'audio/sfx/transitions/section-transition-whoosh.mp3';
   const SECTION_TRANSITION_SFX_VOLUME = 0.22;
   const SECTION_TRANSITION_SFX_POOL_SIZE = 3;
-  const HIGHLIGHT_GLOW_SFX_PATH = 'audio/sfx/ui/coghezzi-holy-aura-resonance-magical-energy-loop-533856(1).mp3';
+  const HIGHLIGHT_GLOW_SFX_PATH = 'audio/sfx/ui/highlight-glow-loop.mp3';
   const HIGHLIGHT_GLOW_SFX_VOLUME = 0.36;
   const HIGHLIGHT_GLOW_SFX_FADE_IN_SPEED = 5.2;
   const HIGHLIGHT_GLOW_SFX_FADE_OUT_SPEED = 3.4;
@@ -51,12 +51,19 @@
   };
   const HIGHLIGHT_GLOW_SFX_MIN_RATE_CHANGE = 0.12;
   const HIGHLIGHT_GLOW_SFX_STOP_THRESHOLD = 0.0015;
+  const MACRO_BAR_FILL_SFX_PATH = 'audio/sfx/ui/macro-bar-fill-highscore.mp3';
+  const MACRO_BAR_FILL_SFX_SOURCE_SECONDS = 15.048;
+  const MACRO_BAR_FILL_SFX_VOLUME = 0.24;
+  const MACRO_BAR_FILL_SFX_POOL_SIZE = 3;
   const AUDIO_TIMELINE_SYNC_TOLERANCE_SECONDS = 0.12;
   const SECTION_HOLD_SECONDS = 0.5;
   const SECTION_HOLD_IDS = new Set(['intro', 'fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons']);
   const HIDDEN_CAPTION_SECTION_IDS = new Set(['intro']);
   const MACRO_REVEAL_SECONDS = 0.08;
   const MACRO_BAR_FILL_SECONDS = 1.55;
+  const MACRO_BAR_GIF_NATIVE_SECONDS = 8.1;
+  const MACRO_BAR_GIF_PLAYBACK_RATE = MACRO_BAR_GIF_NATIVE_SECONDS / MACRO_BAR_FILL_SECONDS;
+  const MACRO_BAR_FILL_SFX_PLAYBACK_RATE = MACRO_BAR_FILL_SFX_SOURCE_SECONDS / MACRO_BAR_FILL_SECONDS;
   const MACRO_BAR_MIN_VISIBLE_FILL_RATIO = 0.0011;
   const MACRO_ROW_AFTER_BAR_SECONDS = 0.14;
   const MACRO_BAR_GIF_FRAME_STEPS = 80;
@@ -226,6 +233,9 @@
     transitionSfxPool: [],
     transitionSfxPoolIndex: 0,
     playedTransitionSfxKeys: new Set(),
+    barFillSfxPool: [],
+    barFillSfxPoolIndex: 0,
+    playedBarFillSfxKeys: new Set(),
     highlightGlowSfxAudio: null,
     highlightGlowSfxVolume: 0,
     highlightGlowSfxKey: '',
@@ -4180,7 +4190,7 @@
     return min + (Math.random() * Math.max(0, safeMax - min));
   }
 
-  function allowStampSfxPitchShift(audio) {
+  function allowSfxPitchShift(audio) {
     if ('preservesPitch' in audio) audio.preservesPitch = false;
     if ('mozPreservesPitch' in audio) audio.mozPreservesPitch = false;
     if ('webkitPreservesPitch' in audio) audio.webkitPreservesPitch = false;
@@ -4192,7 +4202,7 @@
     try {
       audio.pause();
       audio.currentTime = randomStampSfxStartOffset(audio);
-      allowStampSfxPitchShift(audio);
+      allowSfxPitchShift(audio);
       audio.volume = randomStampSfxVolume();
       audio.playbackRate = randomStampSfxPlaybackRate();
       const playPromise = audio.play();
@@ -4271,6 +4281,73 @@
       if (event.time <= previousTime || event.time > currentTime) continue;
       state.playedTransitionSfxKeys.add(event.key);
       playTransitionSfx(event);
+    }
+  }
+
+  function macroBarFillSfxEvents() {
+    return sceneStarts()
+      .filter(scene => ['fats', 'carbs', 'protein'].includes(scene.id))
+      .flatMap(scene => (
+        sceneLayerRevealSchedule(scene)
+          .filter(schedule => schedule.family === 'macro' && schedule.kind === 'bar-fill' && asNumber(schedule.fillRatio, 0) > 0.001)
+          .map(schedule => ({
+            key: `macro-bar-fill:${scene.id}:${schedule.layerId || schedule.kind}:${schedule.startSeconds}`,
+            sceneId: scene.id,
+            layerId: schedule.layerId,
+            gifNativeSeconds: MACRO_BAR_GIF_NATIVE_SECONDS,
+            gifPlaybackRate: MACRO_BAR_GIF_PLAYBACK_RATE,
+            targetSeconds: MACRO_BAR_FILL_SECONDS,
+            time: Number((scene.start + schedule.startSeconds).toFixed(3))
+          }))
+      ))
+      .sort((a, b) => a.time - b.time || a.key.localeCompare(b.key));
+  }
+
+  function nextBarFillSfxAudio() {
+    if (!state.barFillSfxPool.length) {
+      state.barFillSfxPool = Array.from({ length: MACRO_BAR_FILL_SFX_POOL_SIZE }, () => {
+        const audio = new Audio(docsAssetPath(MACRO_BAR_FILL_SFX_PATH));
+        audio.preload = 'auto';
+        audio.volume = MACRO_BAR_FILL_SFX_VOLUME;
+        allowSfxPitchShift(audio);
+        return audio;
+      });
+    }
+    const audio = state.barFillSfxPool[state.barFillSfxPoolIndex % state.barFillSfxPool.length];
+    state.barFillSfxPoolIndex += 1;
+    return audio;
+  }
+
+  function playBarFillSfx(event) {
+    if (!state.audioEnabled || !event) return;
+    const audio = nextBarFillSfxAudio();
+    try {
+      audio.pause();
+      audio.currentTime = 0;
+      allowSfxPitchShift(audio);
+      audio.volume = MACRO_BAR_FILL_SFX_VOLUME;
+      audio.playbackRate = clamp(MACRO_BAR_FILL_SFX_PLAYBACK_RATE, 0.25, 16);
+      const playPromise = audio.play();
+      if (playPromise?.catch) playPromise.catch(() => {});
+    } catch {}
+  }
+
+  function pauseBarFillSfx() {
+    for (const audio of state.barFillSfxPool || []) {
+      try {
+        audio.pause();
+        audio.currentTime = 0;
+      } catch {}
+    }
+  }
+
+  function triggerBarFillSfxBetween(previousTime, currentTime) {
+    if (!state.playing || !state.audioEnabled || currentTime <= previousTime) return;
+    for (const event of macroBarFillSfxEvents()) {
+      if (state.playedBarFillSfxKeys.has(event.key)) continue;
+      if (event.time <= previousTime || event.time > currentTime) continue;
+      state.playedBarFillSfxKeys.add(event.key);
+      playBarFillSfx(event);
     }
   }
 
@@ -4409,6 +4486,7 @@
     if (pauseSfx) {
       pauseStampSfx();
       pauseTransitionSfx();
+      pauseBarFillSfx();
     }
   }
 
@@ -4420,6 +4498,7 @@
     state.audioInHold = false;
     state.playedStampSfxKeys = new Set();
     state.playedTransitionSfxKeys = new Set();
+    state.playedBarFillSfxKeys = new Set();
     els.playPause.textContent = 'Pause';
     syncAudioPlaybackState();
     requestAnimationFrame(tick);
@@ -4432,6 +4511,7 @@
     state.currentTime = state.playheadStart + elapsed;
     triggerTransitionSfxBetween(previousTime, state.currentTime);
     triggerStampSfxBetween(previousTime, state.currentTime);
+    triggerBarFillSfxBetween(previousTime, state.currentTime);
     if (state.currentTime >= totalDuration()) {
       state.currentTime = totalDuration();
       stopPlayback({ pauseSfx: false });
@@ -4516,6 +4596,8 @@
       els.narrationAudio.pause();
       pauseStampSfx();
       pauseHighlightGlowSfx();
+      pauseTransitionSfx();
+      pauseBarFillSfx();
     }
     else if (state.playing) syncAudioPlaybackState();
     persist();

@@ -154,8 +154,8 @@ If the video builder needs to load reusable SFX on GitHub Pages, mirror browser-
 Current stamp impact SFX:
 
 ```text
-audio/sfx/stamps/dragon-studio-distant-bang-472364.mp3
-docs/audio/sfx/stamps/dragon-studio-distant-bang-472364.mp3
+audio/sfx/stamps/impact-stamp-hit.mp3
+docs/audio/sfx/stamps/impact-stamp-hit.mp3
 ```
 
 The video builder plays this slightly before the stamp impact point so the hit is audible as the sprite lands. The outro stamp SFX is allowed to finish even when playback naturally reaches the end of the timeline.

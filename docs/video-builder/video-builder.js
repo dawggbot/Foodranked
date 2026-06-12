@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260612-bar-fill-sfx-v1';
+  const BUILDER_BUILD_ID = '20260612-louder-bar-fill-sfx-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -53,8 +53,9 @@
   const HIGHLIGHT_GLOW_SFX_STOP_THRESHOLD = 0.0015;
   const MACRO_BAR_FILL_SFX_PATH = 'audio/sfx/ui/macro-bar-fill-highscore.mp3';
   const MACRO_BAR_FILL_SFX_SOURCE_SECONDS = 15.048;
-  const MACRO_BAR_FILL_SFX_VOLUME = 0.24;
-  const MACRO_BAR_FILL_SFX_POOL_SIZE = 3;
+  const MACRO_BAR_FILL_SFX_VOLUME = 1;
+  const MACRO_BAR_FILL_SFX_GAIN = 1.35;
+  const MACRO_BAR_FILL_SFX_POOL_SIZE = 1;
   const AUDIO_TIMELINE_SYNC_TOLERANCE_SECONDS = 0.12;
   const SECTION_HOLD_SECONDS = 0.5;
   const SECTION_HOLD_IDS = new Set(['intro', 'fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons']);
@@ -236,6 +237,10 @@
     barFillSfxPool: [],
     barFillSfxPoolIndex: 0,
     playedBarFillSfxKeys: new Set(),
+    barFillSfxAudioContext: null,
+    barFillSfxBuffer: null,
+    barFillSfxBufferPromise: null,
+    barFillSfxSources: new Set(),
     highlightGlowSfxAudio: null,
     highlightGlowSfxVolume: 0,
     highlightGlowSfxKey: '',
@@ -4318,7 +4323,45 @@
     return audio;
   }
 
-  function playBarFillSfx(event) {
+  function ensureBarFillSfxAudioContext() {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return null;
+    if (!state.barFillSfxAudioContext) state.barFillSfxAudioContext = new AudioContextClass();
+    if (state.barFillSfxAudioContext.state === 'suspended') {
+      state.barFillSfxAudioContext.resume().catch(() => {});
+    }
+    return state.barFillSfxAudioContext;
+  }
+
+  function barFillSfxBufferPromise() {
+    if (state.barFillSfxBuffer) return Promise.resolve(state.barFillSfxBuffer);
+    if (state.barFillSfxBufferPromise) return state.barFillSfxBufferPromise;
+    const context = ensureBarFillSfxAudioContext();
+    if (!context) return null;
+    state.barFillSfxBufferPromise = fetch(docsAssetPath(MACRO_BAR_FILL_SFX_PATH))
+      .then(response => {
+        if (!response.ok) throw new Error(`Bar fill SFX fetch failed: ${response.status}`);
+        return response.arrayBuffer();
+      })
+      .then(buffer => context.decodeAudioData(buffer.slice(0)))
+      .then(decoded => {
+        state.barFillSfxBuffer = decoded;
+        return decoded;
+      })
+      .catch(error => {
+        state.barFillSfxBufferPromise = null;
+        throw error;
+      });
+    return state.barFillSfxBufferPromise;
+  }
+
+  function primeBarFillSfx() {
+    if (!state.audioEnabled) return;
+    const promise = barFillSfxBufferPromise();
+    if (promise?.catch) promise.catch(() => {});
+  }
+
+  function playBarFillHtmlSfx(event) {
     if (!state.audioEnabled || !event) return;
     const audio = nextBarFillSfxAudio();
     try {
@@ -4329,10 +4372,60 @@
       audio.playbackRate = clamp(MACRO_BAR_FILL_SFX_PLAYBACK_RATE, 0.25, 16);
       const playPromise = audio.play();
       if (playPromise?.catch) playPromise.catch(() => {});
+      window.setTimeout(() => {
+        try {
+          audio.pause();
+          audio.currentTime = 0;
+        } catch {}
+      }, Math.round(MACRO_BAR_FILL_SECONDS * 1000));
     } catch {}
   }
 
+  function playBarFillWebAudioSfx(event) {
+    const context = ensureBarFillSfxAudioContext();
+    const promise = context ? barFillSfxBufferPromise() : null;
+    if (!context || !promise) {
+      playBarFillHtmlSfx(event);
+      return;
+    }
+    if (!state.barFillSfxBuffer) {
+      promise.catch(() => {});
+      playBarFillHtmlSfx(event);
+      return;
+    }
+    promise
+      .then(buffer => {
+        if (!state.audioEnabled || !state.playing) return;
+        const source = context.createBufferSource();
+        const gain = context.createGain();
+        source.buffer = buffer;
+        source.playbackRate.value = clamp(MACRO_BAR_FILL_SFX_PLAYBACK_RATE, 0.25, 16);
+        gain.gain.value = MACRO_BAR_FILL_SFX_GAIN;
+        source.connect(gain).connect(context.destination);
+        state.barFillSfxSources.add(source);
+        source.onended = () => {
+          state.barFillSfxSources.delete(source);
+        };
+        const duration = Math.min(MACRO_BAR_FILL_SECONDS, buffer.duration / source.playbackRate.value);
+        source.start(0, 0, duration);
+      })
+      .catch(() => {
+        playBarFillHtmlSfx(event);
+      });
+  }
+
+  function playBarFillSfx(event) {
+    if (!state.audioEnabled || !event) return;
+    playBarFillWebAudioSfx(event);
+  }
+
   function pauseBarFillSfx() {
+    for (const source of state.barFillSfxSources || []) {
+      try {
+        source.stop();
+      } catch {}
+    }
+    state.barFillSfxSources.clear();
     for (const audio of state.barFillSfxPool || []) {
       try {
         audio.pause();
@@ -4500,6 +4593,7 @@
     state.playedTransitionSfxKeys = new Set();
     state.playedBarFillSfxKeys = new Set();
     els.playPause.textContent = 'Pause';
+    primeBarFillSfx();
     syncAudioPlaybackState();
     requestAnimationFrame(tick);
   }

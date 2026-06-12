@@ -1220,6 +1220,24 @@
       neutral: '#ffffff'
     };
 
+    const MACRO_BAR_LAYER_SPECS = {
+      fats: {
+        fillId: 'fats_macro_bar_fill',
+        fillLabel: 'FATS macro bar fill',
+        fillSrc: './sprites/macros_section/section_1_fats/fat_macro_bar_fill.gif'
+      },
+      carbs: {
+        fillId: 'carbs_macro_bar_fill',
+        fillLabel: 'CARBS macro bar fill',
+        fillSrc: './sprites/macros_section/section_2_carbs/carb_macro_bar_fill.gif'
+      },
+      protein: {
+        fillId: 'protein_macro_bar_fill',
+        fillLabel: 'PROTEIN macro bar fill',
+        fillSrc: './sprites/macros_section/section_3_protein/protein_macro_bar_fill.svg'
+      }
+    };
+
     const DEFAULT_LAYOUT = window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT?.sections
       ? structuredClone(window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT)
       : {
@@ -1704,24 +1722,6 @@
       const fingerprint = `${layer?.id || ''} ${layer?.label || ''} ${layer?.src || ''}`.toLowerCase();
       return isSpriteLayer(layer) && /(macro_bar_fill|bar_fill|macro bar fill)/.test(fingerprint);
     }
-
-    const MACRO_BAR_LAYER_SPECS = {
-      fats: {
-        fillId: 'fats_macro_bar_fill',
-        fillLabel: 'FATS macro bar fill',
-        fillSrc: './sprites/macros_section/section_1_fats/fat_macro_bar_fill.gif'
-      },
-      carbs: {
-        fillId: 'carbs_macro_bar_fill',
-        fillLabel: 'CARBS macro bar fill',
-        fillSrc: './sprites/macros_section/section_2_carbs/carb_macro_bar_fill.gif'
-      },
-      protein: {
-        fillId: 'protein_macro_bar_fill',
-        fillLabel: 'PROTEIN macro bar fill',
-        fillSrc: './sprites/macros_section/section_3_protein/protein_macro_bar_fill.svg'
-      }
-    };
 
     function ensureMacroBarFillLayers(layout) {
       for (const [sectionId, spec] of Object.entries(MACRO_BAR_LAYER_SPECS)) {

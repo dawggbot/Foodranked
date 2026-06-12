@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260612-uploaded-protein-fill-v5';
+  const BUILDER_BUILD_ID = '20260612-uploaded-protein-fill-v6';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -1273,7 +1273,9 @@
       const layers = getSectionLayers(layout, sectionId);
       layers.forEach(layer => {
         if (!isMacroBarFill(layer) || macroBarLayerSection(layer, sectionId) !== sectionId) return;
+        const isLibraryLayer = String(layer?.label || '').startsWith('Library: ') || /^lib_/i.test(String(layer?.id || ''));
         layer.src = spec.fillSrc;
+        if (isLibraryLayer) return;
         layer.label = spec.fillLabel;
         if (sectionId === 'protein') layer.id = spec.fillId;
       });

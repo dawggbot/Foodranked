@@ -530,9 +530,11 @@
 
   function canonicalSpritePath(src) {
     if (!src || /^(data:|https?:|blob:)/i.test(src)) return src;
-    return String(src)
+    const next = String(src)
       .replace('/header/food_image_plate/', '/header/food_plate/')
-      .replace('/macros/protein/protein_bar_fill.svg', '/macros_section/section_3_protein/protein_macro_bar_fill.svg')
+      .replace('/macros_section/section_3_protein/protein_macro_bar_fill.svg', '/macros/protein/protein_bar_fill.svg');
+    if (next.toLowerCase().includes('/macros/protein/protein_bar_fill.svg')) return next;
+    return next
       .replace('/macros/fats/fat_bar_frame.svg', '/macros_section/macro_bar_frame.png')
       .replace('/macros/fats/fat_bar_fill.svg', '/macros_section/section_1_fats/fat_macro_bar_fill.gif')
       .replace('/macros/carbs/carb_bar_frame.svg', '/macros_section/macro_bar_frame.png')
@@ -1259,7 +1261,7 @@
     protein: {
       fillId: 'protein_macro_bar_fill',
       fillLabel: 'PROTEIN macro bar fill',
-      fillSrc: './sprites/macros_section/section_3_protein/protein_macro_bar_fill.svg'
+      fillSrc: './sprites/macros/protein/protein_bar_fill.svg'
     }
   };
 

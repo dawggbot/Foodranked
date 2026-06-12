@@ -1234,7 +1234,7 @@
       protein: {
         fillId: 'protein_macro_bar_fill',
         fillLabel: 'PROTEIN macro bar fill',
-        fillSrc: './sprites/macros_section/section_3_protein/protein_macro_bar_fill.svg'
+        fillSrc: './sprites/macros/protein/protein_bar_fill.svg'
       }
     };
 
@@ -1474,6 +1474,7 @@
       if (!isMacroBarFrameOrFillSpriteLayer(layer)) return false;
       const src = String(layer.src).toLowerCase();
       if (src.includes('/sprites/macros_section/')) return false;
+      if (src.includes('/sprites/macros/protein/protein_bar_fill.svg')) return false;
       return !isLibrarySpriteLayer(layer);
     }
 
@@ -1585,7 +1586,7 @@
         },
         protein: {
           icon: `${ROOT_SPRITE_BASE}/macros_section/section_3_protein/protein_icon.gif`,
-          fill: `${ROOT_SPRITE_BASE}/macros_section/section_3_protein/protein_macro_bar_fill.svg`,
+          fill: `${ROOT_SPRITE_BASE}/macros/protein/protein_bar_fill.svg`,
           bullet: `${ROOT_SPRITE_BASE}/macros_section/section_3_protein/protein_submacro_bullet_point.png`
         }
       };
@@ -3026,9 +3027,11 @@
 
     function canonicalSpritePath(src) {
       if (!src || /^(data:|https?:|blob:)/i.test(src)) return src;
-      return String(src)
+      const next = String(src)
         .replace('/header/food_image_plate/', '/header/food_plate/')
-        .replace('/macros/protein/protein_bar_fill.svg', '/macros_section/section_3_protein/protein_macro_bar_fill.svg')
+        .replace('/macros_section/section_3_protein/protein_macro_bar_fill.svg', '/macros/protein/protein_bar_fill.svg');
+      if (next.toLowerCase().includes('/macros/protein/protein_bar_fill.svg')) return next;
+      return next
         .replace('/macros/arrow_indicators/', '/macros_section/arrow_indicators/')
         .replace('/macros/fats/', '/macros_section/section_1_fats/')
         .replace('/macros/carbs/', '/macros_section/section_2_carbs/')
@@ -3435,7 +3438,7 @@
         ['carb macro bar fill', `${ROOT_SPRITE_BASE}/macros_section/section_2_carbs/carb_macro_bar_fill.gif`],
         ['carb submacro bullet', `${ROOT_SPRITE_BASE}/macros_section/section_2_carbs/carb_submacro_bullet_point.png`],
         ['protein icon', `${ROOT_SPRITE_BASE}/macros_section/section_3_protein/protein_icon.gif`],
-        ['protein macro bar fill', `${ROOT_SPRITE_BASE}/macros_section/section_3_protein/protein_macro_bar_fill.svg`],
+        ['protein macro bar fill', `${ROOT_SPRITE_BASE}/macros/protein/protein_bar_fill.svg`],
         ['protein submacro bullet', `${ROOT_SPRITE_BASE}/macros_section/section_3_protein/protein_submacro_bullet_point.png`],
         ['vitamin icon', `${ROOT_SPRITE_BASE}/micros_section/vitamins/vitamin_icon.gif`],
         ['vitamin micro icon', `${ROOT_SPRITE_BASE}/micros_section/vitamins/vitamin_micro_icon.png`],

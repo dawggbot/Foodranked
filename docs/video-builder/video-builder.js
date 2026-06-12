@@ -196,6 +196,8 @@
   const foods = Array.isArray(window.FOODS_INDEX) ? window.FOODS_INDEX : [];
   const BATCH_RESULTS_CACHE = new Map();
   const savedState = readJson(localStorage.getItem(VIDEO_STATE_KEY), {});
+  const urlParams = new URLSearchParams(window.location.search);
+  const requestedLayoutSourceId = urlParams.get('layoutSource') || '';
   if (Object.prototype.hasOwnProperty.call(savedState, 'audioEnabled')) {
     delete savedState.audioEnabled;
     localStorage.setItem(VIDEO_STATE_KEY, JSON.stringify(savedState));
@@ -203,7 +205,7 @@
   const state = {
     foodFilter: '',
     selectedFoodId: savedState.selectedFoodId || 'bacon',
-    layoutSourceId: savedState.layoutSourceId || 'display-builder',
+    layoutSourceId: requestedLayoutSourceId || savedState.layoutSourceId || 'display-builder',
     selectedSceneId: savedState.selectedSceneId || 'intro',
     audioEnabled: true,
     currentTime: 0,
@@ -742,6 +744,7 @@
   }
 
   function layoutSourceOptions() {
+    state.savedLayouts = loadSavedLayouts();
     const rawDisplayLayout = rawDisplayBuilderLayout();
     const displayLayout = loadDisplayBuilderLayout();
     const displayLabel = ignoredDisplayBuilderLayoutInfo
@@ -4413,6 +4416,12 @@
   });
 
   window.addEventListener('storage', event => {
+    if (event.key === SAVED_LAYOUTS_KEY) {
+      state.savedLayouts = loadSavedLayouts();
+      if (state.layoutSourceId.startsWith('saved:')) hydrateLayoutForFood();
+      renderAll();
+      return;
+    }
     if (event.key !== DISPLAY_LAYOUT_KEY || state.layoutSourceId !== 'display-builder') return;
     hydrateLayoutForFood();
     renderAll();

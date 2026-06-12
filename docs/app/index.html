@@ -145,6 +145,18 @@
       color: white;
       border-color: transparent;
     }
+    .handoff-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(0,0,0,.12);
+      background: rgba(144,179,255,.16);
+      color: var(--ink);
+      border-radius: 12px;
+      padding: 9px 12px;
+      text-decoration: none;
+      line-height: 1.2;
+    }
 
     .food-list, .section-list, .layer-list, .sprite-library-grid { display: grid; gap: 8px; }
     .food-list { max-height: 220px; overflow: auto; }
@@ -876,11 +888,11 @@
             <select id="savedLayoutSelect"></select>
           </label>
           <div class="row">
-            <button id="saveSpriteLayout" type="button">Save current layout</button>
+            <button id="saveSpriteLayout" type="button">Save layout preset</button>
             <button id="loadSpriteLayout" type="button">Load selected</button>
             <button id="deleteSpriteLayout" type="button">Delete</button>
           </div>
-          <p class="tiny muted">Saves section layers only. Food choice and falling-food background settings stay untouched.</p>
+          <p class="tiny muted">Presets save section layers. The active display layout is also saved for the video builder.</p>
         </div>
 
         <div class="stack">
@@ -958,7 +970,8 @@
           </div>
           <div id="displayJsonPanel" class="display-panel stack" role="tabpanel" aria-labelledby="displayJsonTab" hidden>
             <div class="row">
-              <button id="saveLocal">Save JSON locally</button>
+              <button id="saveLocal">Save for video builder</button>
+              <a class="handoff-link" href="../video-builder/index.html?layoutSource=display-builder">Open video builder</a>
               <button id="copyJson" class="primary">Copy JSON</button>
             </div>
             <label>
@@ -2711,11 +2724,12 @@
       };
       state.savedSpriteLayouts = [entry, ...state.savedSpriteLayouts.filter(layout => layout.id !== entry.id)]
         .sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)) || a.name.localeCompare(b.name));
+      saveLayout({ allowIgnoredReplacement: true });
       persistSavedSpriteLayouts();
       renderSavedSpriteLayouts();
       els.savedLayoutSelect.value = entry.id;
       els.saveSpriteLayout.textContent = 'Saved';
-      setTimeout(() => els.saveSpriteLayout.textContent = 'Save current layout', 1200);
+      setTimeout(() => els.saveSpriteLayout.textContent = 'Save layout preset', 1200);
     }
 
     function loadSelectedSpriteLayoutPreset() {
@@ -5011,7 +5025,7 @@ async function renderAll() {
     els.saveLocal.addEventListener('click', () => {
       saveLayout({ allowIgnoredReplacement: true });
       els.saveLocal.textContent = 'Saved';
-      setTimeout(() => els.saveLocal.textContent = 'Save JSON locally', 1200);
+      setTimeout(() => els.saveLocal.textContent = 'Save for video builder', 1200);
     });
     els.copyJson.addEventListener('click', async () => {
       updateJsonOutput();

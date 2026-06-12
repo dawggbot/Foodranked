@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260612-uploaded-protein-fill-v3';
+  const BUILDER_BUILD_ID = '20260612-uploaded-protein-fill-v5';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -532,9 +532,11 @@
     if (!src || /^(data:|https?:|blob:)/i.test(src)) return src;
     const next = String(src)
       .replace('/header/food_image_plate/', '/header/food_plate/')
-      .replace(/\/macros_section\/section_3_protein\/protein_macro_bar_fill\.(svg|png|gif|webp)/i, '/macros/protein/protein_bar_fill.svg')
-      .replace(/\/macros\/protein\/protein_macro_bar_fill\.(svg|png|gif|webp)/i, '/macros/protein/protein_bar_fill.svg');
-    if (next.toLowerCase().includes('/macros/protein/protein_bar_fill.svg')) return next;
+      .replace(/\/macros\/protein\/protein_bar_fill\.(svg|png|gif|webp)/i, '/macros_section/section_3_protein/protein_macro_bar_fill.gif')
+      .replace(/\/macros_section\/section_3_protein\/protein_bar_fill\.(svg|png|gif|webp)/i, '/macros_section/section_3_protein/protein_macro_bar_fill.gif')
+      .replace(/\/macros\/protein\/protein_macro_bar_fill\.(svg|png|gif|webp)/i, '/macros_section/section_3_protein/protein_macro_bar_fill.gif')
+      .replace(/\/macros_section\/section_3_protein\/protein_macro_bar_fill\.(svg|png|gif|webp)/i, '/macros_section/section_3_protein/protein_macro_bar_fill.gif');
+    if (next.toLowerCase().includes('/macros_section/section_3_protein/protein_macro_bar_fill.gif')) return next;
     return next
       .replace('/macros/fats/fat_bar_frame.svg', '/macros_section/macro_bar_frame.png')
       .replace('/macros/fats/fat_bar_fill.svg', '/macros_section/section_1_fats/fat_macro_bar_fill.gif')
@@ -1262,7 +1264,7 @@
     protein: {
       fillId: 'protein_macro_bar_fill',
       fillLabel: 'PROTEIN macro bar fill',
-      fillSrc: './sprites/macros/protein/protein_bar_fill.svg'
+      fillSrc: './sprites/macros_section/section_3_protein/protein_macro_bar_fill.gif'
     }
   };
 
@@ -1682,6 +1684,21 @@
     layer.z = 11;
   }
 
+  function deletedLayerIdSet(layout) {
+    return new Set((Array.isArray(layout?.meta?.deletedLayerIds) ? layout.meta.deletedLayerIds : [])
+      .map(id => String(id || '').trim())
+      .filter(Boolean));
+  }
+
+  function filterDeletedLayers(layout) {
+    const deletedIds = deletedLayerIdSet(layout);
+    if (!deletedIds.size) return;
+    for (const section of SECTIONS) {
+      layout.sections[section.id].layers = getSectionLayers(layout, section.id)
+        .filter(layer => !layer.id || !deletedIds.has(String(layer.id)));
+    }
+  }
+
   function hydrateLayoutForFood() {
     const food = selectedFood();
     const layout = selectedLayoutBase();
@@ -1699,6 +1716,7 @@
     syncMicros(layout, food, 'vitamins', VITAMIN_TEXT_SPECS, 'vitamins_label', 'vitamins_percent');
     syncMicros(layout, food, 'minerals', MINERAL_TEXT_SPECS, 'minerals_label', 'minerals_percent');
     syncProsCons(layout, food);
+    filterDeletedLayers(layout);
     state.layout = layout;
     prewarmMacroBarGifVariants(layout, food);
     const displayLayout = loadDisplayBuilderLayout();

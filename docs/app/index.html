@@ -1023,6 +1023,7 @@
             <div class="toolbar-grid two">
               <button id="layerBringForward" type="button" title="Bring forward one layer" aria-label="Bring forward one layer">Forward</button>
               <button id="layerSendBackward" type="button" title="Send backward one layer" aria-label="Send backward one layer">Backward</button>
+              <button id="deleteLayer" type="button" title="Delete selected layer" aria-label="Delete selected layer">Delete</button>
             </div>
           </div>
           <div id="spriteControls" class="stack" hidden>
@@ -1114,7 +1115,7 @@
 
   <script src="../data/foods-index.js?v=20260529-layout-sync-v1"></script>
   <script src="./display-schema.js?v=20260610-display-schema-v1"></script>
-  <script src="./default-layout.js?v=20260612-uploaded-protein-fill-v3"></script>
+  <script src="./default-layout.js?v=20260612-uploaded-protein-fill-v5"></script>
   <script>
     const BUILDER_BUILD_ID = '20260529-layout-sync-v1';
     const REPO_LAYOUT_VERSION = BUILDER_BUILD_ID;
@@ -1234,7 +1235,7 @@
       protein: {
         fillId: 'protein_macro_bar_fill',
         fillLabel: 'PROTEIN macro bar fill',
-        fillSrc: './sprites/macros/protein/protein_bar_fill.svg'
+        fillSrc: './sprites/macros_section/section_3_protein/protein_macro_bar_fill.gif'
       }
     };
 
@@ -1342,6 +1343,7 @@
       duplicateLayer: document.getElementById('duplicateLayer'),
       layerBringForward: document.getElementById('layerBringForward'),
       layerSendBackward: document.getElementById('layerSendBackward'),
+      deleteLayer: document.getElementById('deleteLayer'),
       propText: document.getElementById('propText'),
       propFontSize: document.getElementById('propFontSize'),
       propWidth: document.getElementById('propWidth'),
@@ -1474,7 +1476,6 @@
       if (!isMacroBarFrameOrFillSpriteLayer(layer)) return false;
       const src = String(layer.src).toLowerCase();
       if (src.includes('/sprites/macros_section/')) return false;
-      if (src.includes('/sprites/macros/protein/protein_bar_fill.svg')) return false;
       return !isLibrarySpriteLayer(layer);
     }
 
@@ -1586,7 +1587,7 @@
         },
         protein: {
           icon: `${ROOT_SPRITE_BASE}/macros_section/section_3_protein/protein_icon.gif`,
-          fill: `${ROOT_SPRITE_BASE}/macros/protein/protein_bar_fill.svg`,
+          fill: `${ROOT_SPRITE_BASE}/macros_section/section_3_protein/protein_macro_bar_fill.gif`,
           bullet: `${ROOT_SPRITE_BASE}/macros_section/section_3_protein/protein_submacro_bullet_point.png`
         }
       };
@@ -2658,6 +2659,29 @@
       }
     }
 
+    function deletedLayerIdSet(layout) {
+      return new Set((Array.isArray(layout?.meta?.deletedLayerIds) ? layout.meta.deletedLayerIds : [])
+        .map(id => String(id || '').trim())
+        .filter(Boolean));
+    }
+
+    function filterDeletedLayers(layout) {
+      const deletedIds = deletedLayerIdSet(layout);
+      if (!deletedIds.size) return;
+      for (const section of SECTIONS) {
+        layout.sections[section.id].layers = getSectionLayersFromLayout(layout, section.id)
+          .filter(layer => !layer.id || !deletedIds.has(String(layer.id)));
+      }
+    }
+
+    function markLayerDeleted(layout, layer) {
+      if (!layer?.id) return;
+      layout.meta = layout.meta || {};
+      const deletedIds = deletedLayerIdSet(layout);
+      deletedIds.add(String(layer.id));
+      layout.meta.deletedLayerIds = [...deletedIds].sort();
+    }
+
     function normalizeLayout(layout) {
       const normalized = layout || structuredClone(DEFAULT_LAYOUT);
       normalized.meta = normalized.meta || {};
@@ -2694,6 +2718,7 @@
       syncSectionIndicatorLayoutFromIntro(normalized);
       syncLockedGlobalLayersFromOutro(normalized);
       syncHeaderLayoutFromIntro(normalized);
+      filterDeletedLayers(normalized);
       relabelLayoutLayers(normalized);
       return normalized;
     }
@@ -3051,9 +3076,11 @@
       if (!src || /^(data:|https?:|blob:)/i.test(src)) return src;
       const next = String(src)
         .replace('/header/food_image_plate/', '/header/food_plate/')
-        .replace(/\/macros_section\/section_3_protein\/protein_macro_bar_fill\.(svg|png|gif|webp)/i, '/macros/protein/protein_bar_fill.svg')
-        .replace(/\/macros\/protein\/protein_macro_bar_fill\.(svg|png|gif|webp)/i, '/macros/protein/protein_bar_fill.svg');
-      if (next.toLowerCase().includes('/macros/protein/protein_bar_fill.svg')) return next;
+        .replace(/\/macros\/protein\/protein_bar_fill\.(svg|png|gif|webp)/i, '/macros_section/section_3_protein/protein_macro_bar_fill.gif')
+        .replace(/\/macros_section\/section_3_protein\/protein_bar_fill\.(svg|png|gif|webp)/i, '/macros_section/section_3_protein/protein_macro_bar_fill.gif')
+        .replace(/\/macros\/protein\/protein_macro_bar_fill\.(svg|png|gif|webp)/i, '/macros_section/section_3_protein/protein_macro_bar_fill.gif')
+        .replace(/\/macros_section\/section_3_protein\/protein_macro_bar_fill\.(svg|png|gif|webp)/i, '/macros_section/section_3_protein/protein_macro_bar_fill.gif');
+      if (next.toLowerCase().includes('/macros_section/section_3_protein/protein_macro_bar_fill.gif')) return next;
       return next
         .replace('/macros/arrow_indicators/', '/macros_section/arrow_indicators/')
         .replace('/macros/fats/', '/macros_section/section_1_fats/')
@@ -3461,7 +3488,7 @@
         ['carb macro bar fill', `${ROOT_SPRITE_BASE}/macros_section/section_2_carbs/carb_macro_bar_fill.gif`],
         ['carb submacro bullet', `${ROOT_SPRITE_BASE}/macros_section/section_2_carbs/carb_submacro_bullet_point.png`],
         ['protein icon', `${ROOT_SPRITE_BASE}/macros_section/section_3_protein/protein_icon.gif`],
-        ['protein macro bar fill', `${ROOT_SPRITE_BASE}/macros/protein/protein_bar_fill.svg`],
+        ['protein macro bar fill', `${ROOT_SPRITE_BASE}/macros_section/section_3_protein/protein_macro_bar_fill.gif`],
         ['protein submacro bullet', `${ROOT_SPRITE_BASE}/macros_section/section_3_protein/protein_submacro_bullet_point.png`],
         ['vitamin icon', `${ROOT_SPRITE_BASE}/micros_section/vitamins/vitamin_icon.gif`],
         ['vitamin micro icon', `${ROOT_SPRITE_BASE}/micros_section/vitamins/vitamin_micro_icon.png`],
@@ -3677,8 +3704,10 @@
     function deleteSelectedLayer() {
       const layer = getLayerById(state.selectedLayerId);
       if (!layer) return false;
+      markLayerDeleted(state.layout, layer);
       const sourceLayer = getSyncedGlobalSourceLayer(layer);
       if (sourceLayer) {
+        markLayerDeleted(state.layout, sourceLayer);
         const sourceSectionId = isHeaderLayoutLayer(sourceLayer) ? 'intro' : 'outro';
         const sourceLayers = getSectionLayersFromLayout(state.layout, sourceSectionId);
         const sourceIndex = sourceLayers.findIndex(item => item.id === sourceLayer.id);
@@ -5182,6 +5211,7 @@ async function renderAll() {
     els.propZ.addEventListener('input', () => updateSelected(layer => layer.z = Number(els.propZ.value) || 0));
     els.layerBringForward.addEventListener('click', () => updateSelected(layer => layer.z = (Number(layer.z) || 0) + 1));
     els.layerSendBackward.addEventListener('click', () => updateSelected(layer => layer.z = (Number(layer.z) || 0) - 1));
+    els.deleteLayer.addEventListener('click', () => deleteSelectedLayer());
     els.propPreserveAspect.addEventListener('change', async () => {
       const layer = getLayerById(state.selectedLayerId);
       if (!layer || layer.kind !== 'sprite') return;

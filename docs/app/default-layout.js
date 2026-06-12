@@ -2310,7 +2310,7 @@ window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT = {
           "id": "protein_macro_bar_fill",
           "kind": "sprite",
           "label": "PROTEIN macro bar fill",
-          "src": "./sprites/macros/protein/protein_bar_fill.svg",
+          "src": "./sprites/macros_section/section_3_protein/protein_macro_bar_fill.gif",
           "x": 31,
           "y": 48,
           "z": 7,

@@ -1115,9 +1115,9 @@
 
   <script src="../data/foods-index.js?v=20260529-layout-sync-v1"></script>
   <script src="./display-schema.js?v=20260610-display-schema-v1"></script>
-  <script src="./default-layout.js?v=20260612-arrow-frame-reveal-v1"></script>
+  <script src="./default-layout.js?v=20260612-uploaded-protein-fill-v6"></script>
   <script>
-    const BUILDER_BUILD_ID = '20260612-arrow-frame-reveal-v1';
+    const BUILDER_BUILD_ID = '20260529-layout-sync-v1';
     const REPO_LAYOUT_VERSION = BUILDER_BUILD_ID;
     const SECTIONS = [
       { id: 'intro', label: '1. Intro blank', chip: null, indicator: true },
@@ -1568,7 +1568,6 @@
     function macroAssetRole(src = '') {
       const value = String(src).toLowerCase();
       if (value.includes('macro_bar_fill') || /bar_fill\.(svg|png|gif|webp)$/.test(value)) return 'fill';
-      if (value.includes('macro_bar_frame') || /bar_frame\.(svg|png|gif|webp)$/.test(value)) return 'frame';
       if (value.endsWith('_icon.gif')) return 'icon';
       if (value.endsWith('_submacro_bullet_point.png')) return 'bullet';
       return null;
@@ -1836,7 +1835,7 @@
       const sectionLayers = getSectionLayersFromLayout(layout, sectionId);
       const candidates = sectionLayers
         .filter(layer => isSpriteLayer(layer) && !isLockedUiSpriteLayer(layer))
-        .filter(layer => !['icon', 'fill', 'frame'].includes(macroAssetRole(layer.src)))
+        .filter(layer => macroAssetRole(layer.src) !== 'icon')
         .filter(layer => (layer.height || 0) <= 40 && (layer.width || 0) <= 130)
         .map(layer => ({
           id: layer.id || '',

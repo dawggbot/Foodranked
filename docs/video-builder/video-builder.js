@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260612-arrow-frame-reveal-v1';
+  const BUILDER_BUILD_ID = '20260612-uploaded-protein-fill-v6';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -3651,7 +3651,7 @@
           fillRatio: asNumber(layer?.fillRatio, null)
         };
       }
-      if (isMacroBarFrame(layer)) return { family: 'macro', kind: 'icon' };
+      if (isMacroBarFrame(layer)) return { family: 'macro', kind: 'bar-frame' };
       if (isMacroIcon(layer)) return { family: 'macro', kind: 'icon' };
       if (isMacroTotalText(layer, sectionId)) return { family: 'macro', kind: macroTextKind(layer, sectionId) };
       if (rowIndex != null) {
@@ -3730,7 +3730,7 @@
     }
 
     if (['fats', 'carbs', 'protein'].includes(sectionId)) {
-      if (['icon', 'bar-fill', 'decor'].includes(classification.kind)) return secondsAnchor(MACRO_REVEAL_SECONDS);
+      if (['icon', 'bar-frame', 'bar-fill', 'decor'].includes(classification.kind)) return secondsAnchor(MACRO_REVEAL_SECONDS);
       if (classification.kind === 'macro-label') return secondsAnchor(MACRO_REVEAL_SECONDS);
       if (classification.rowIndex != null || classification.kind === 'macro-value') {
         return secondsAnchor(macroSubmacroRevealDelaySeconds());

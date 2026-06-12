@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260612-uploaded-protein-fill-v2';
+  const BUILDER_BUILD_ID = '20260612-uploaded-protein-fill-v3';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -532,7 +532,8 @@
     if (!src || /^(data:|https?:|blob:)/i.test(src)) return src;
     const next = String(src)
       .replace('/header/food_image_plate/', '/header/food_plate/')
-      .replace('/macros_section/section_3_protein/protein_macro_bar_fill.svg', '/macros/protein/protein_bar_fill.svg');
+      .replace(/\/macros_section\/section_3_protein\/protein_macro_bar_fill\.(svg|png|gif|webp)/i, '/macros/protein/protein_bar_fill.svg')
+      .replace(/\/macros\/protein\/protein_macro_bar_fill\.(svg|png|gif|webp)/i, '/macros/protein/protein_bar_fill.svg');
     if (next.toLowerCase().includes('/macros/protein/protein_bar_fill.svg')) return next;
     return next
       .replace('/macros/fats/fat_bar_frame.svg', '/macros_section/macro_bar_frame.png')
@@ -1268,6 +1269,12 @@
   function ensureMacroBarLayers(layout) {
     for (const [sectionId, spec] of Object.entries(MACRO_BAR_LAYER_SPECS)) {
       const layers = getSectionLayers(layout, sectionId);
+      layers.forEach(layer => {
+        if (!isMacroBarFill(layer) || macroBarLayerSection(layer, sectionId) !== sectionId) return;
+        layer.src = spec.fillSrc;
+        layer.label = spec.fillLabel;
+        if (sectionId === 'protein') layer.id = spec.fillId;
+      });
       const hasFrame = spec.frameId
         ? layers.some(layer => isMacroBarFrame(layer) && macroBarLayerSection(layer, sectionId) === sectionId)
         : true;

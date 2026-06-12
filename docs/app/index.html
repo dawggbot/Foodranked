@@ -1114,7 +1114,7 @@
 
   <script src="../data/foods-index.js?v=20260529-layout-sync-v1"></script>
   <script src="./display-schema.js?v=20260610-display-schema-v1"></script>
-  <script src="./default-layout.js?v=20260611-carb-bar-fill-v1"></script>
+  <script src="./default-layout.js?v=20260612-protein-bar-fill-v1"></script>
   <script>
     const BUILDER_BUILD_ID = '20260529-layout-sync-v1';
     const REPO_LAYOUT_VERSION = BUILDER_BUILD_ID;
@@ -1547,6 +1547,7 @@
 
     function macroAssetRole(src = '') {
       const value = String(src).toLowerCase();
+      if (value.includes('macro_bar_fill')) return 'fill';
       if (value.endsWith('_icon.gif')) return 'icon';
       if (value.endsWith('_submacro_bullet_point.png')) return 'bullet';
       return null;
@@ -1556,14 +1557,17 @@
       const paths = {
         fats: {
           icon: `${ROOT_SPRITE_BASE}/macros_section/section_1_fats/fat_icon.gif`,
+          fill: `${ROOT_SPRITE_BASE}/macros_section/section_1_fats/fat_macro_bar_fill.gif`,
           bullet: `${ROOT_SPRITE_BASE}/macros_section/section_1_fats/fat_submacro_bullet_point.png`
         },
         carbs: {
           icon: `${ROOT_SPRITE_BASE}/macros_section/section_2_carbs/carb_icon.gif`,
+          fill: `${ROOT_SPRITE_BASE}/macros_section/section_2_carbs/carb_macro_bar_fill.gif`,
           bullet: `${ROOT_SPRITE_BASE}/macros_section/section_2_carbs/carb_submacro_bullet_point.png`
         },
         protein: {
           icon: `${ROOT_SPRITE_BASE}/macros_section/section_3_protein/protein_icon.gif`,
+          fill: `${ROOT_SPRITE_BASE}/macros_section/section_3_protein/protein_macro_bar_fill.svg`,
           bullet: `${ROOT_SPRITE_BASE}/macros_section/section_3_protein/protein_submacro_bullet_point.png`
         }
       };
@@ -1686,6 +1690,49 @@
     function isSharedMacroBarFrameLayer(layer) {
       return isSpriteLayer(layer)
         && String(layer.src || '').toLowerCase().includes('/macros_section/macro_bar_frame');
+    }
+
+    function macroBarLayerSection(layer, fallbackSectionId = '') {
+      const fingerprint = `${layer?.id || ''} ${layer?.label || ''} ${layer?.src || ''}`.toLowerCase();
+      if (fingerprint.includes('section_1_fats') || /\bfat(?:s)?[_ -]?(?:macro_)?bar/.test(fingerprint)) return 'fats';
+      if (fingerprint.includes('section_2_carbs') || /\bcarb(?:s)?[_ -]?(?:macro_)?bar/.test(fingerprint)) return 'carbs';
+      if (fingerprint.includes('section_3_protein') || /\bprotein[_ -]?(?:macro_)?bar/.test(fingerprint)) return 'protein';
+      return ['fats', 'carbs', 'protein'].includes(fallbackSectionId) ? fallbackSectionId : '';
+    }
+
+    function isMacroBarFillLayer(layer) {
+      const fingerprint = `${layer?.id || ''} ${layer?.label || ''} ${layer?.src || ''}`.toLowerCase();
+      return isSpriteLayer(layer) && /(macro_bar_fill|bar_fill|macro bar fill)/.test(fingerprint);
+    }
+
+    const MACRO_BAR_LAYER_SPECS = {
+      fats: {
+        fillId: 'fats_macro_bar_fill',
+        fillLabel: 'FATS macro bar fill',
+        fillSrc: './sprites/macros_section/section_1_fats/fat_macro_bar_fill.gif'
+      },
+      carbs: {
+        fillId: 'carbs_macro_bar_fill',
+        fillLabel: 'CARBS macro bar fill',
+        fillSrc: './sprites/macros_section/section_2_carbs/carb_macro_bar_fill.gif'
+      },
+      protein: {
+        fillId: 'protein_macro_bar_fill',
+        fillLabel: 'PROTEIN macro bar fill',
+        fillSrc: './sprites/macros_section/section_3_protein/protein_macro_bar_fill.svg'
+      }
+    };
+
+    function ensureMacroBarFillLayers(layout) {
+      for (const [sectionId, spec] of Object.entries(MACRO_BAR_LAYER_SPECS)) {
+        const sectionLayers = getSectionLayersFromLayout(layout, sectionId);
+        const hasFill = sectionLayers.some(layer => isMacroBarFillLayer(layer) && macroBarLayerSection(layer, sectionId) === sectionId);
+        if (hasFill) continue;
+        sectionLayers.push(sprite(spec.fillId, spec.fillLabel, spec.fillSrc, 31, 48, 7, 88, 14, true));
+        const layer = sectionLayers[sectionLayers.length - 1];
+        layer.preserveAspect = false;
+        layer.manualPosition = false;
+      }
     }
 
     function syncMacroSectionLayoutFromFats(layout, { force = false } = {}) {
@@ -1977,6 +2024,15 @@
       ]);
       layout.meta = layout.meta || {};
       layout.meta.carbsMacroTotalTextV1 = true;
+    }
+
+    function ensureProteinMacroTotalTextLayers(layout) {
+      ensureMacroTotalTextLayers(layout, 'protein', [
+        { id: 'protein_macro_label', label: 'PROTEIN macro label', x: 35, y: 43, fontSize: 8, text: 'PROTEIN', z: 27, width: 50, align: 'left', keepStaticText: true },
+        { id: 'protein_macro_value', label: 'PROTEIN macro grams', x: 35, y: 54, fontSize: 7, text: 'N/A', z: 27, width: 34, align: 'left' }
+      ]);
+      layout.meta = layout.meta || {};
+      layout.meta.proteinMacroTotalTextV1 = true;
     }
 
     function isMicrosBarSpriteLayer(layer) {
@@ -2560,6 +2616,8 @@
       if (id === 'fats_macro_value') return 'FATS macro grams';
       if (id === 'carbs_macro_label') return 'CARBS macro label';
       if (id === 'carbs_macro_value') return 'CARBS macro grams';
+      if (id === 'protein_macro_label') return 'PROTEIN macro label';
+      if (id === 'protein_macro_value') return 'PROTEIN macro grams';
       const impactMatch = id.match(/^(pros|cons)_impact_(\d+)$/);
       if (impactMatch) return `${getSectionChip(impactMatch[1]) || titleCaseWords(impactMatch[1])} impact label ${impactMatch[2]}`;
       const itemMatch = id.match(/^(pros|cons)_item_(\d+)$/);
@@ -2606,8 +2664,10 @@
       }
       migrateMacroLayoutFromOutro(normalized);
       syncMacroSectionLayoutFromFats(normalized);
+      ensureMacroBarFillLayers(normalized);
       ensureFatsMacroTotalTextLayers(normalized);
       ensureCarbsMacroTotalTextLayers(normalized);
+      ensureProteinMacroTotalTextLayers(normalized);
       ensureMacroSubmetricTextLayers(normalized, 'fats');
       ensureMacroSubmetricTextLayers(normalized, 'carbs');
       ensureMacroSubmetricTextLayers(normalized, 'protein');
@@ -2968,6 +3028,7 @@
       if (!src || /^(data:|https?:|blob:)/i.test(src)) return src;
       return String(src)
         .replace('/header/food_image_plate/', '/header/food_plate/')
+        .replace('/macros/protein/protein_bar_fill.svg', '/macros_section/section_3_protein/protein_macro_bar_fill.svg')
         .replace('/macros/arrow_indicators/', '/macros_section/arrow_indicators/')
         .replace('/macros/fats/', '/macros_section/section_1_fats/')
         .replace('/macros/carbs/', '/macros_section/section_2_carbs/')
@@ -3374,6 +3435,7 @@
         ['carb macro bar fill', `${ROOT_SPRITE_BASE}/macros_section/section_2_carbs/carb_macro_bar_fill.gif`],
         ['carb submacro bullet', `${ROOT_SPRITE_BASE}/macros_section/section_2_carbs/carb_submacro_bullet_point.png`],
         ['protein icon', `${ROOT_SPRITE_BASE}/macros_section/section_3_protein/protein_icon.gif`],
+        ['protein macro bar fill', `${ROOT_SPRITE_BASE}/macros_section/section_3_protein/protein_macro_bar_fill.svg`],
         ['protein submacro bullet', `${ROOT_SPRITE_BASE}/macros_section/section_3_protein/protein_submacro_bullet_point.png`],
         ['vitamin icon', `${ROOT_SPRITE_BASE}/micros_section/vitamins/vitamin_icon.gif`],
         ['vitamin micro icon', `${ROOT_SPRITE_BASE}/micros_section/vitamins/vitamin_micro_icon.png`],
@@ -4340,6 +4402,24 @@
       }
     }
 
+    function syncProteinMacroTotalTextForFood(layout, food = getSelectedFoodStub()) {
+      const layers = getSectionLayersFromLayout(layout, 'protein');
+      const labelLayer = layers.find(layer => layer.id === 'protein_macro_label');
+      const valueLayer = layers.find(layer => layer.id === 'protein_macro_value');
+      if (labelLayer) {
+        labelLayer.label = 'PROTEIN macro label';
+        if (!labelLayer.manualText) labelLayer.text = 'PROTEIN';
+        labelLayer.align = labelLayer.align || 'left';
+        labelLayer.fontSize = labelLayer.fontSize || 8;
+      }
+      if (valueLayer) {
+        valueLayer.label = 'PROTEIN macro grams';
+        if (!valueLayer.manualText) valueLayer.text = formatMetricText(food?.header?.protein_g, 'g');
+        valueLayer.align = valueLayer.align || 'left';
+        valueLayer.fontSize = valueLayer.fontSize || 7;
+      }
+    }
+
     function syncFoodIntoLayout(food, { normalize = true } = {}) {
       if (normalize) normalizeLayout(state.layout);
       syncHeaderForFood(state.layout, food || getSelectedFoodStub());
@@ -4347,6 +4427,7 @@
       syncSectionIndicatorSprites(state.layout, food || getSelectedFoodStub());
       syncFatsMacroTotalTextForFood(state.layout, food || getSelectedFoodStub());
       syncCarbsMacroTotalTextForFood(state.layout);
+      syncProteinMacroTotalTextForFood(state.layout, food || getSelectedFoodStub());
       syncMacroSubmacroArrowsForFood(state.layout, food || getSelectedFoodStub());
       syncMacroSubmetricValueColors(state.layout, food || getSelectedFoodStub());
       syncManualOutroHighlightedIndicators(state.layout, food || getSelectedFoodStub());

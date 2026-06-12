@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260611-carb-bar-fill-v1';
+  const BUILDER_BUILD_ID = '20260612-protein-bar-fill-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -532,6 +532,7 @@
     if (!src || /^(data:|https?:|blob:)/i.test(src)) return src;
     return String(src)
       .replace('/header/food_image_plate/', '/header/food_plate/')
+      .replace('/macros/protein/protein_bar_fill.svg', '/macros_section/section_3_protein/protein_macro_bar_fill.svg')
       .replace('/macros/fats/fat_bar_frame.svg', '/macros_section/macro_bar_frame.png')
       .replace('/macros/fats/fat_bar_fill.svg', '/macros_section/section_1_fats/fat_macro_bar_fill.gif')
       .replace('/macros/carbs/carb_bar_frame.svg', '/macros_section/macro_bar_frame.png')
@@ -1175,6 +1176,10 @@
       carbs: [
         { id: 'carbs_macro_label', label: 'CARBS macro label', x: 35, y: 43, fontSize: 8, text: 'CARBS', width: 40, align: 'left' },
         { id: 'carbs_macro_value', label: 'CARBS macro grams', x: 35, y: 54, fontSize: 7, text: 'N/A', width: 34, align: 'left' }
+      ],
+      protein: [
+        { id: 'protein_macro_label', label: 'PROTEIN macro label', x: 35, y: 43, fontSize: 8, text: 'PROTEIN', width: 50, align: 'left' },
+        { id: 'protein_macro_value', label: 'PROTEIN macro grams', x: 35, y: 54, fontSize: 7, text: 'N/A', width: 34, align: 'left' }
       ]
     };
     for (const [sectionId, specs] of Object.entries(specsBySection)) {
@@ -1218,6 +1223,7 @@
   function syncMacroTotalText(layout, food) {
     syncMacroTotalTextForSection(layout, 'fats', 'fats', formatMetric(food?.header?.fat_g, 'g'));
     syncMacroTotalTextForSection(layout, 'carbs', 'CARBS', 'N/A');
+    syncMacroTotalTextForSection(layout, 'protein', 'PROTEIN', formatMetric(food?.header?.protein_g, 'g'));
   }
 
   function macroBarLayerSection(layer, fallbackSectionId = '') {
@@ -1249,6 +1255,11 @@
       fillId: 'carbs_macro_bar_fill',
       fillLabel: 'CARBS macro bar fill',
       fillSrc: './sprites/macros_section/section_2_carbs/carb_macro_bar_fill.gif'
+    },
+    protein: {
+      fillId: 'protein_macro_bar_fill',
+      fillLabel: 'PROTEIN macro bar fill',
+      fillSrc: './sprites/macros_section/section_3_protein/protein_macro_bar_fill.svg'
     }
   };
 
@@ -1267,7 +1278,7 @@
           src: spec.fillSrc,
           x: 31,
           y: 48,
-          z: 9,
+          z: 7,
           width: 88,
           height: 14,
           visible: true,
@@ -3855,6 +3866,14 @@
 
     const localElapsed = Math.max(0, Number(sceneElapsed) || 0);
     const progress = macroBarFillEase((localElapsed - MACRO_REVEAL_SECONDS) / MACRO_BAR_FILL_SECONDS);
+    if (frames.static) {
+      const image = frames.images[0];
+      if (!image?.complete) return;
+      const fillWidth = clamp(Math.round(width * targetRatio * clamp(progress, 0, 1)), 0, width);
+      if (fillWidth <= 0) return;
+      ctx.drawImage(image, 0, 0, fillWidth, height, 0, 0, fillWidth, height);
+      return;
+    }
     const targetIndex = clamp(Math.round((frames.images.length - 1) * targetRatio), 0, frames.images.length - 1);
     const currentIndex = clamp(Math.round(targetIndex * clamp(progress, 0, 1)), 0, targetIndex);
     for (let frameIndex = 0; frameIndex <= currentIndex; frameIndex += 1) {
@@ -3942,6 +3961,24 @@
 
     const entry = { status: 'pending', width: 104, height: 17, images: [] };
     MACRO_BAR_GIF_FRAME_CACHE.set(src, entry);
+    if (!/\.gif(?:[?#]|$)/i.test(src)) {
+      entry.static = true;
+      const image = new Image();
+      image.decoding = 'sync';
+      image.onload = () => {
+        entry.width = image.naturalWidth || entry.width;
+        entry.height = image.naturalHeight || entry.height;
+        entry.images = [image];
+        entry.status = 'ready';
+        if (state.layout) window.requestAnimationFrame(renderStage);
+      };
+      image.onerror = error => {
+        entry.status = 'error';
+        entry.error = error;
+      };
+      image.src = src;
+      return entry;
+    }
     macroBarGifSource(src)
       .then(parsed => {
         entry.width = parsed.width || entry.width;

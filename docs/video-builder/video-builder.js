@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260613-rising-bar-fill-sfx-v1';
+  const BUILDER_BUILD_ID = '20260613-smooth-rising-bar-fill-sfx-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -56,10 +56,11 @@
   const MACRO_BAR_FILL_SFX_VOLUME = 0.72;
   const MACRO_BAR_FILL_SFX_GAIN = 0.86;
   const MACRO_BAR_FILL_SFX_POOL_SIZE = 1;
-  const MACRO_BAR_FILL_SFX_FADE_IN_SECONDS = 0.08;
-  const MACRO_BAR_FILL_SFX_FADE_OUT_SECONDS = 0.22;
+  const MACRO_BAR_FILL_SFX_FADE_IN_SECONDS = 0.035;
+  const MACRO_BAR_FILL_SFX_FADE_OUT_SECONDS = 0.18;
   const MACRO_BAR_FILL_SFX_SPEED_CURVE_STEPS = 64;
-  const MACRO_BAR_FILL_SFX_MIN_SPEED_RATIO = 0.02;
+  const MACRO_BAR_FILL_SFX_SPEED_START_RATIO = 0.9;
+  const MACRO_BAR_FILL_SFX_SPEED_END_RATIO = 1.1;
   const AUDIO_TIMELINE_SYNC_TOLERANCE_SECONDS = 0.12;
   const SECTION_HOLD_SECONDS = 0.5;
   const SECTION_HOLD_IDS = new Set(['intro', 'fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons']);
@@ -4450,8 +4451,9 @@
     const steps = Math.max(8, MACRO_BAR_FILL_SFX_SPEED_CURVE_STEPS);
     const raw = Array.from({ length: steps }, (_, index) => {
       const progress = steps === 1 ? 1 : index / (steps - 1);
-      const easeSpeed = 4 * Math.pow(progress, 3);
-      return Math.max(MACRO_BAR_FILL_SFX_MIN_SPEED_RATIO, easeSpeed);
+      const smoothProgress = progress * progress * (3 - (2 * progress));
+      return MACRO_BAR_FILL_SFX_SPEED_START_RATIO
+        + ((MACRO_BAR_FILL_SFX_SPEED_END_RATIO - MACRO_BAR_FILL_SFX_SPEED_START_RATIO) * smoothProgress);
     });
     const weightedSum = raw.reduce((sum, value, index) => {
       const weight = index === 0 || index === raw.length - 1 ? 0.5 : 1;

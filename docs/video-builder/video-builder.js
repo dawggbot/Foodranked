@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260613-micron-100-firework-sfx-v1';
+  const BUILDER_BUILD_ID = '20260613-micron-100-firework-lead-sfx-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -59,6 +59,10 @@
   const MICRON_BAR_CONFIRM_SFX_POOL_SIZE = 8;
   const MICRON_BAR_CONFIRM_SFX_PLAY_SECONDS = 0.18;
   const MICRON_BAR_CONFIRM_SFX_PLAYBACK_RATE_RANGE = { min: 0.78, max: 1.58 };
+  const MICRON_100_FIREWORK_LEAD_SFX_PATH = 'audio/sfx/sparkles/freesound_community-small-explosion-103779.mp3';
+  const MICRON_100_FIREWORK_LEAD_SFX_VOLUME = 0.2;
+  const MICRON_100_FIREWORK_LEAD_SFX_SECONDS = 0.11;
+  const MICRON_100_FIREWORK_LEAD_SFX_POOL_SIZE = 2;
   const MICRON_100_FIREWORK_SFX_PATH = 'audio/sfx/sparkles/freesound_community-firework-cluster-90480.mp3';
   const MICRON_100_FIREWORK_SFX_VOLUME = 0.28;
   const MICRON_100_FIREWORK_SFX_POOL_SIZE = 2;
@@ -268,6 +272,8 @@
     micronBarConfirmSfxPool: [],
     micronBarConfirmSfxPoolIndex: 0,
     playedMicronBarConfirmSfxKeys: new Set(),
+    micron100FireworkLeadSfxPool: [],
+    micron100FireworkLeadSfxPoolIndex: 0,
     micron100FireworkSfxPool: [],
     micron100FireworkSfxPoolIndex: 0,
     playedMicron100FireworkSfxKeys: new Set(),
@@ -4571,17 +4577,43 @@
     return sceneStarts()
       .filter(scene => scene.id === 'vitamins' || scene.id === 'minerals')
       .filter(scene => maxMicronStepForSection(scene.id) >= 10)
-      .map(scene => ({
-        key: `micron-100-firework:${scene.id}`,
-        sceneId: scene.id,
-        time: Number((
+      .flatMap(scene => {
+        const burstTime = Number((
           scene.start
           + MICRON_GRAPH_REVEAL_SECONDS
           + MICRON_BAR_AFTER_GRAPH_SECONDS
           + (9 * MICRON_BAR_STEP_SECONDS)
-        ).toFixed(3))
-      }))
+        ).toFixed(3));
+        return [
+          {
+            key: `micron-100-firework-lead:${scene.id}`,
+            sceneId: scene.id,
+            role: 'lead',
+            time: Number(Math.max(scene.start, burstTime - MICRON_100_FIREWORK_LEAD_SFX_SECONDS).toFixed(3))
+          },
+          {
+            key: `micron-100-firework:${scene.id}`,
+            sceneId: scene.id,
+            role: 'sparkle',
+            time: burstTime
+          }
+        ];
+      })
       .sort((a, b) => a.time - b.time || a.key.localeCompare(b.key));
+  }
+
+  function nextMicron100FireworkLeadSfxAudio() {
+    if (!state.micron100FireworkLeadSfxPool.length) {
+      state.micron100FireworkLeadSfxPool = Array.from({ length: MICRON_100_FIREWORK_LEAD_SFX_POOL_SIZE }, () => {
+        const audio = new Audio(docsAssetPath(MICRON_100_FIREWORK_LEAD_SFX_PATH));
+        audio.preload = 'auto';
+        audio.volume = MICRON_100_FIREWORK_LEAD_SFX_VOLUME;
+        return audio;
+      });
+    }
+    const audio = state.micron100FireworkLeadSfxPool[state.micron100FireworkLeadSfxPoolIndex % state.micron100FireworkLeadSfxPool.length];
+    state.micron100FireworkLeadSfxPoolIndex += 1;
+    return audio;
   }
 
   function nextMicron100FireworkSfxAudio() {
@@ -4600,11 +4632,12 @@
 
   function playMicron100FireworkSfx(event) {
     if (!state.audioEnabled || !event) return;
-    const audio = nextMicron100FireworkSfxAudio();
+    const isLead = event.role === 'lead';
+    const audio = isLead ? nextMicron100FireworkLeadSfxAudio() : nextMicron100FireworkSfxAudio();
     try {
       audio.pause();
       audio.currentTime = 0;
-      audio.volume = MICRON_100_FIREWORK_SFX_VOLUME;
+      audio.volume = isLead ? MICRON_100_FIREWORK_LEAD_SFX_VOLUME : MICRON_100_FIREWORK_SFX_VOLUME;
       audio.playbackRate = 1;
       const playPromise = audio.play();
       if (playPromise?.catch) playPromise.catch(() => {});
@@ -4612,6 +4645,12 @@
   }
 
   function pauseMicron100FireworkSfx() {
+    for (const audio of state.micron100FireworkLeadSfxPool || []) {
+      try {
+        audio.pause();
+        audio.currentTime = 0;
+      } catch {}
+    }
     for (const audio of state.micron100FireworkSfxPool || []) {
       try {
         audio.pause();

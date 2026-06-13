@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260613-micron-confirm-tap-sequence-v1';
+  const BUILDER_BUILD_ID = '20260613-renamed-micron-confirm-sfx-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -39,7 +39,7 @@
   const SECTION_TRANSITION_SFX_PATH = 'audio/sfx/transitions/section-transition-whoosh.mp3';
   const SECTION_TRANSITION_SFX_VOLUME = 0.22;
   const SECTION_TRANSITION_SFX_POOL_SIZE = 3;
-  const MICRON_BAR_CONFIRM_SFX_PATH = 'audio/sfx/ui/existentialtaco-confirm-tap-394001.mp3';
+  const MICRON_BAR_CONFIRM_SFX_PATH = 'audio/sfx/ui/micron-bar-confirm-tap.mp3';
   const MICRON_BAR_CONFIRM_SFX_VOLUME = 0.22;
   const MICRON_BAR_CONFIRM_SFX_POOL_SIZE = 8;
   const MICRON_BAR_CONFIRM_SFX_PLAY_SECONDS = 0.18;

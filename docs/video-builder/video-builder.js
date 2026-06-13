@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260613-brighter-micron-100-firework-v1';
+  const BUILDER_BUILD_ID = '20260613-visible-micron-100-firework-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -26,7 +26,7 @@
   const MICRON_BAR_STEP_SECONDS = 0.12;
   const MICRON_STAMP_REVEAL_SECONDS = 0.28;
   const MICRON_BAR_STAMP_REVEAL_SECONDS = 0.12;
-  const MICRON_100_FIREWORK_SECONDS = 0.95;
+  const MICRON_100_FIREWORK_SECONDS = 1.35;
   const MICRON_100_FIREWORK_SPARKS = [
     { x: -7.8, y: -7.2, color: '#fff7b0' },
     { x: -3.6, y: -10.4, color: '#ffffff' },
@@ -2564,7 +2564,7 @@
       applyProConNarrationHighlight(node, scene, revealSchedule, proConHighlightMap);
       renderParent.appendChild(node);
     });
-    appendMicron100Fireworks(nextLayerNodes, layers, revealSchedules, sceneElapsed);
+    appendMicron100Fireworks(nextLayerNodes, scene, layers, sceneElapsed);
     roots.layerRoot.replaceChildren(nextLayerNodes);
 
     syncCaptionSafeArea(roots.caption);
@@ -3973,24 +3973,39 @@
     return a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
   }
 
-  function appendMicron100Fireworks(container, layers, revealSchedules, sceneElapsed) {
-    layers.forEach(({ layer, persistent }, renderIndex) => {
-      const schedule = revealSchedules[renderIndex];
-      if (persistent || layer?.visible === false) return;
-      if (schedule?.family !== 'micron' || schedule?.kind !== 'dv-bar') return;
-      if (asNumber(schedule.percent, 0) < 100) return;
+  function appendMicron100Fireworks(container, scene, layers, sceneElapsed) {
+    const sectionId = scene?.id || '';
+    if (sectionId !== 'vitamins' && sectionId !== 'minerals') return;
+    if (maxMicronStepForSection(sectionId) < 10) return;
 
-      const burstStartSeconds = asNumber(schedule.startSeconds, 0) + (MICRON_BAR_STAMP_REVEAL_SECONDS * 0.55);
+    layers.forEach(({ layer, persistent }) => {
+      if (persistent || layer?.visible === false || !isMicrosBar(layer)) return;
+      if (asNumber(microsBarPercent(layer), 0) < 100) return;
+
+      const burstStartSeconds = MICRON_GRAPH_REVEAL_SECONDS + MICRON_BAR_AFTER_GRAPH_SECONDS + (9 * MICRON_BAR_STEP_SECONDS);
       const burstElapsed = sceneElapsed - burstStartSeconds;
       if (burstElapsed < 0 || burstElapsed > MICRON_100_FIREWORK_SECONDS) return;
 
       const progress = clamp(burstElapsed / MICRON_100_FIREWORK_SECONDS, 0, 1);
       const box = layerGridBox(layer);
+      const boxWidth = Math.max(1, box.right - box.left);
+      const boxHeight = Math.max(1, box.bottom - box.top);
       const centerX = (box.left + box.right) / 2;
       const centerY = box.top + 1.2;
       const fade = Math.sin(progress * Math.PI);
       const ringScale = easeOutCubic(progress);
-      const zIndex = Math.max((Number(layer.z) || 0) + 30, 90);
+      const zIndex = Math.max((Number(layer.z) || 0) + 50, 140);
+
+      const halo = document.createElement('div');
+      halo.className = 'micron-100-firework-halo';
+      halo.style.left = `calc(${(box.left - 2.6).toFixed(2)}px * var(--pixel-unit))`;
+      halo.style.top = `calc(${(box.top - 3.2).toFixed(2)}px * var(--pixel-unit))`;
+      halo.style.width = `calc(${(boxWidth + 5.2).toFixed(2)}px * var(--pixel-unit))`;
+      halo.style.height = `calc(${(boxHeight + 6.4).toFixed(2)}px * var(--pixel-unit))`;
+      halo.style.zIndex = String(zIndex);
+      halo.style.opacity = String(clamp((1 - (progress * 0.42)) * 0.95, 0, 1).toFixed(3));
+      halo.style.transform = `scale(${(1 + (ringScale * 0.10)).toFixed(3)})`;
+      container.appendChild(halo);
 
       const core = document.createElement('div');
       core.className = 'micron-100-firework-core';

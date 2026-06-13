@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260613-micron-confirm-taps-v1';
+  const BUILDER_BUILD_ID = '20260613-micron-confirm-tap-sequence-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -4411,25 +4411,28 @@
   }
 
   function micronBarConfirmSfxEvents() {
-    const events = new Map();
-    for (const scene of sceneStarts().filter(item => item.id === 'vitamins' || item.id === 'minerals')) {
-      for (const schedule of sceneLayerRevealSchedule(scene)) {
-        if (schedule.family !== 'micron' || schedule.kind !== 'dv-bar') continue;
-        const step = clamp(Math.round((asNumber(schedule.percent, 10) || 10) / 10), 1, 10);
-        const key = `micron-bar-confirm:${scene.id}:step-${step}`;
-        const time = Number((scene.start + schedule.startSeconds).toFixed(3));
-        const event = {
-          key,
-          sceneId: scene.id,
-          step,
-          time,
-          playbackRate: micronBarConfirmSfxPlaybackRate(step)
-        };
-        const existing = events.get(key);
-        if (!existing || event.time < existing.time) events.set(key, event);
-      }
-    }
-    return Array.from(events.values()).sort((a, b) => a.time - b.time || a.key.localeCompare(b.key));
+    return sceneStarts()
+      .filter(scene => scene.id === 'vitamins' || scene.id === 'minerals')
+      .flatMap(scene => {
+        const maxStep = maxMicronStepForSection(scene.id);
+        if (!maxStep) return [];
+        return Array.from({ length: maxStep }, (_, index) => {
+          const step = index + 1;
+          return {
+            key: `micron-bar-confirm:${scene.id}:step-${step}`,
+            sceneId: scene.id,
+            step,
+            time: Number((
+              scene.start
+              + MICRON_GRAPH_REVEAL_SECONDS
+              + MICRON_BAR_AFTER_GRAPH_SECONDS
+              + ((step - 1) * MICRON_BAR_STEP_SECONDS)
+            ).toFixed(3)),
+            playbackRate: micronBarConfirmSfxPlaybackRate(step)
+          };
+        });
+      })
+      .sort((a, b) => a.time - b.time || a.key.localeCompare(b.key));
   }
 
   function nextMicronBarConfirmSfxAudio() {

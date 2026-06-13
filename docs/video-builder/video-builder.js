@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260613-macro-head-group-reveal-v1';
+  const BUILDER_BUILD_ID = '20260613-softer-bar-fill-sfx-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -53,12 +53,13 @@
   const HIGHLIGHT_GLOW_SFX_STOP_THRESHOLD = 0.0015;
   const MACRO_BAR_FILL_SFX_PATH = 'audio/sfx/ui/macro-bar-fill-highscore.mp3';
   const MACRO_BAR_FILL_SFX_SOURCE_SECONDS = 15.048;
-  const MACRO_BAR_FILL_SFX_VOLUME = 0.34;
-  const MACRO_BAR_FILL_SFX_GAIN = 0.34;
-  const MACRO_BAR_FILL_SFX_FILTER_HZ = 4800;
+  const MACRO_BAR_FILL_SFX_VOLUME = 0.31;
+  const MACRO_BAR_FILL_SFX_GAIN = 0.31;
+  const MACRO_BAR_FILL_SFX_FILTER_HZ = 3600;
+  const MACRO_BAR_FILL_SFX_FILTER_Q = 0.25;
   const MACRO_BAR_FILL_SFX_POOL_SIZE = 1;
-  const MACRO_BAR_FILL_SFX_FADE_IN_SECONDS = 0.035;
-  const MACRO_BAR_FILL_SFX_FADE_OUT_SECONDS = 0.14;
+  const MACRO_BAR_FILL_SFX_FADE_IN_SECONDS = 0.045;
+  const MACRO_BAR_FILL_SFX_FADE_OUT_SECONDS = 0.18;
   const MACRO_BAR_FILL_SFX_ENVELOPE_STEPS = 96;
   const AUDIO_TIMELINE_SYNC_TOLERANCE_SECONDS = 0.12;
   const SECTION_HOLD_SECONDS = 0.5;
@@ -4615,7 +4616,7 @@
         source.playbackRate.value = timing.playbackRate;
         filter.type = 'lowpass';
         filter.frequency.value = MACRO_BAR_FILL_SFX_FILTER_HZ;
-        filter.Q.value = 0.4;
+        filter.Q.value = MACRO_BAR_FILL_SFX_FILTER_Q;
         applyBarFillWebAudioEnvelope(gain, context, timing);
         source.connect(filter).connect(gain).connect(context.destination);
         state.barFillSfxSources.add(source);

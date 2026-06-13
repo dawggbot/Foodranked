@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260613-softer-bar-fill-sfx-v1';
+  const BUILDER_BUILD_ID = '20260613-micron-confirm-taps-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -39,6 +39,11 @@
   const SECTION_TRANSITION_SFX_PATH = 'audio/sfx/transitions/section-transition-whoosh.mp3';
   const SECTION_TRANSITION_SFX_VOLUME = 0.22;
   const SECTION_TRANSITION_SFX_POOL_SIZE = 3;
+  const MICRON_BAR_CONFIRM_SFX_PATH = 'audio/sfx/ui/existentialtaco-confirm-tap-394001.mp3';
+  const MICRON_BAR_CONFIRM_SFX_VOLUME = 0.22;
+  const MICRON_BAR_CONFIRM_SFX_POOL_SIZE = 8;
+  const MICRON_BAR_CONFIRM_SFX_PLAY_SECONDS = 0.18;
+  const MICRON_BAR_CONFIRM_SFX_PLAYBACK_RATE_RANGE = { min: 0.78, max: 1.58 };
   const HIGHLIGHT_GLOW_SFX_PATH = 'audio/sfx/ui/highlight-glow-loop.mp3';
   const HIGHLIGHT_GLOW_SFX_VOLUME = 0.36;
   const HIGHLIGHT_GLOW_SFX_FADE_IN_SPEED = 5.2;
@@ -52,7 +57,7 @@
   const HIGHLIGHT_GLOW_SFX_MIN_RATE_CHANGE = 0.12;
   const HIGHLIGHT_GLOW_SFX_STOP_THRESHOLD = 0.0015;
   const MACRO_BAR_FILL_SFX_PATH = 'audio/sfx/ui/macro-bar-fill-highscore.mp3';
-  const MACRO_BAR_FILL_SFX_SOURCE_SECONDS = 15.048;
+  const MACRO_BAR_FILL_SFX_SOURCE_SECONDS = 9.408;
   const MACRO_BAR_FILL_SFX_VOLUME = 0.31;
   const MACRO_BAR_FILL_SFX_GAIN = 0.31;
   const MACRO_BAR_FILL_SFX_FILTER_HZ = 3600;
@@ -242,6 +247,9 @@
     transitionSfxPool: [],
     transitionSfxPoolIndex: 0,
     playedTransitionSfxKeys: new Set(),
+    micronBarConfirmSfxPool: [],
+    micronBarConfirmSfxPoolIndex: 0,
+    playedMicronBarConfirmSfxKeys: new Set(),
     barFillSfxPool: [],
     barFillSfxPoolIndex: 0,
     playedBarFillSfxKeys: new Set(),
@@ -4396,6 +4404,92 @@
     }
   }
 
+  function micronBarConfirmSfxPlaybackRate(step) {
+    const safeStep = clamp(Math.round(asNumber(step, 1)), 1, 10);
+    const range = MICRON_BAR_CONFIRM_SFX_PLAYBACK_RATE_RANGE.max - MICRON_BAR_CONFIRM_SFX_PLAYBACK_RATE_RANGE.min;
+    return MICRON_BAR_CONFIRM_SFX_PLAYBACK_RATE_RANGE.min + (((safeStep - 1) / 9) * range);
+  }
+
+  function micronBarConfirmSfxEvents() {
+    const events = new Map();
+    for (const scene of sceneStarts().filter(item => item.id === 'vitamins' || item.id === 'minerals')) {
+      for (const schedule of sceneLayerRevealSchedule(scene)) {
+        if (schedule.family !== 'micron' || schedule.kind !== 'dv-bar') continue;
+        const step = clamp(Math.round((asNumber(schedule.percent, 10) || 10) / 10), 1, 10);
+        const key = `micron-bar-confirm:${scene.id}:step-${step}`;
+        const time = Number((scene.start + schedule.startSeconds).toFixed(3));
+        const event = {
+          key,
+          sceneId: scene.id,
+          step,
+          time,
+          playbackRate: micronBarConfirmSfxPlaybackRate(step)
+        };
+        const existing = events.get(key);
+        if (!existing || event.time < existing.time) events.set(key, event);
+      }
+    }
+    return Array.from(events.values()).sort((a, b) => a.time - b.time || a.key.localeCompare(b.key));
+  }
+
+  function nextMicronBarConfirmSfxAudio() {
+    if (!state.micronBarConfirmSfxPool.length) {
+      state.micronBarConfirmSfxPool = Array.from({ length: MICRON_BAR_CONFIRM_SFX_POOL_SIZE }, () => {
+        const audio = new Audio(docsAssetPath(MICRON_BAR_CONFIRM_SFX_PATH));
+        audio.preload = 'auto';
+        audio.volume = MICRON_BAR_CONFIRM_SFX_VOLUME;
+        allowSfxPitchShift(audio);
+        return audio;
+      });
+    }
+    const audio = state.micronBarConfirmSfxPool[state.micronBarConfirmSfxPoolIndex % state.micronBarConfirmSfxPool.length];
+    state.micronBarConfirmSfxPoolIndex += 1;
+    return audio;
+  }
+
+  function playMicronBarConfirmSfx(event) {
+    if (!state.audioEnabled || !event) return;
+    const audio = nextMicronBarConfirmSfxAudio();
+    const token = `${event.key}:${performance.now().toFixed(3)}`;
+    try {
+      audio.pause();
+      audio.currentTime = 0;
+      audio.dataset.playToken = token;
+      allowSfxPitchShift(audio);
+      audio.volume = MICRON_BAR_CONFIRM_SFX_VOLUME;
+      audio.playbackRate = event.playbackRate;
+      const playPromise = audio.play();
+      if (playPromise?.catch) playPromise.catch(() => {});
+      window.setTimeout(() => {
+        if (audio.dataset.playToken !== token) return;
+        try {
+          audio.pause();
+          audio.currentTime = 0;
+        } catch {}
+      }, Math.round(MICRON_BAR_CONFIRM_SFX_PLAY_SECONDS * 1000));
+    } catch {}
+  }
+
+  function pauseMicronBarConfirmSfx() {
+    for (const audio of state.micronBarConfirmSfxPool || []) {
+      try {
+        audio.pause();
+        audio.currentTime = 0;
+        audio.dataset.playToken = '';
+      } catch {}
+    }
+  }
+
+  function triggerMicronBarConfirmSfxBetween(previousTime, currentTime) {
+    if (!state.playing || !state.audioEnabled || currentTime <= previousTime) return;
+    for (const event of micronBarConfirmSfxEvents()) {
+      if (state.playedMicronBarConfirmSfxKeys.has(event.key)) continue;
+      if (event.time <= previousTime || event.time > currentTime) continue;
+      state.playedMicronBarConfirmSfxKeys.add(event.key);
+      playMicronBarConfirmSfx(event);
+    }
+  }
+
   function macroBarFillSfxEvents() {
     return sceneStarts()
       .filter(scene => ['fats', 'carbs', 'protein'].includes(scene.id))
@@ -4799,6 +4893,7 @@
     if (pauseSfx) {
       pauseStampSfx();
       pauseTransitionSfx();
+      pauseMicronBarConfirmSfx();
       pauseBarFillSfx();
     }
   }
@@ -4811,6 +4906,7 @@
     state.audioInHold = false;
     state.playedStampSfxKeys = new Set();
     state.playedTransitionSfxKeys = new Set();
+    state.playedMicronBarConfirmSfxKeys = new Set();
     state.playedBarFillSfxKeys = new Set();
     els.playPause.textContent = 'Pause';
     primeBarFillSfx();
@@ -4825,6 +4921,7 @@
     state.currentTime = state.playheadStart + elapsed;
     triggerTransitionSfxBetween(previousTime, state.currentTime);
     triggerStampSfxBetween(previousTime, state.currentTime);
+    triggerMicronBarConfirmSfxBetween(previousTime, state.currentTime);
     triggerBarFillSfxBetween(previousTime, state.currentTime);
     if (state.currentTime >= totalDuration()) {
       state.currentTime = totalDuration();

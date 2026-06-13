@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260613-bar-fill-sfx-envelope-v1';
+  const BUILDER_BUILD_ID = '20260613-dynamic-bar-fill-sfx-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -53,8 +53,8 @@
   const HIGHLIGHT_GLOW_SFX_STOP_THRESHOLD = 0.0015;
   const MACRO_BAR_FILL_SFX_PATH = 'audio/sfx/ui/macro-bar-fill-highscore.mp3';
   const MACRO_BAR_FILL_SFX_SOURCE_SECONDS = 15.048;
-  const MACRO_BAR_FILL_SFX_VOLUME = 1;
-  const MACRO_BAR_FILL_SFX_GAIN = 1.35;
+  const MACRO_BAR_FILL_SFX_VOLUME = 0.72;
+  const MACRO_BAR_FILL_SFX_GAIN = 0.86;
   const MACRO_BAR_FILL_SFX_POOL_SIZE = 1;
   const MACRO_BAR_FILL_SFX_FADE_IN_SECONDS = 0.08;
   const MACRO_BAR_FILL_SFX_FADE_OUT_SECONDS = 0.22;
@@ -65,10 +65,6 @@
   const MACRO_REVEAL_SECONDS = 0.08;
   const MACRO_BAR_FILL_SECONDS = 1.55;
   const MACRO_BAR_GIF_NATIVE_SECONDS = 8.1;
-  const MACRO_BAR_GIF_PLAYBACK_RATE = MACRO_BAR_GIF_NATIVE_SECONDS / MACRO_BAR_FILL_SECONDS;
-  const MACRO_BAR_FILL_SFX_SLICE_SECONDS = Math.min(MACRO_BAR_FILL_SFX_SOURCE_SECONDS, MACRO_BAR_GIF_NATIVE_SECONDS);
-  const MACRO_BAR_FILL_SFX_PLAYBACK_RATE = MACRO_BAR_GIF_PLAYBACK_RATE;
-  const MACRO_BAR_FILL_SFX_PLAY_SECONDS = MACRO_BAR_FILL_SFX_SLICE_SECONDS / MACRO_BAR_FILL_SFX_PLAYBACK_RATE;
   const MACRO_BAR_MIN_VISIBLE_FILL_RATIO = 0.0011;
   const MACRO_ROW_AFTER_BAR_SECONDS = 0.14;
   const MACRO_BAR_GIF_FRAME_STEPS = 80;
@@ -3667,7 +3663,8 @@
         return {
           family: 'macro',
           kind: 'bar-fill',
-          fillRatio: asNumber(layer?.fillRatio, null)
+          fillRatio: asNumber(layer?.fillRatio, null),
+          src: layer?.src || null
         };
       }
       if (isMacroBarFrame(layer)) return { family: 'macro', kind: 'bar-frame' };
@@ -3819,6 +3816,7 @@
     return {
       layerId: layer?.id || null,
       label: layer?.label || null,
+      src: layer?.src || null,
       family: classification.family,
       kind: classification.kind,
       rowIndex: classification.rowIndex ?? null,
@@ -3988,7 +3986,14 @@
     }
 
     if (!frames.length) throw new Error('GIF has no frames');
-    return { leadParts, frames, width, height };
+    const nativeSeconds = frames.reduce((sum, frame) => sum + gifFrameDelayCentiseconds(frame.gce), 0) / 100;
+    return { leadParts, frames, width, height, nativeSeconds };
+  }
+
+  function gifFrameDelayCentiseconds(gce) {
+    if (!gce || gce.length < 8) return 10;
+    const delay = gce[4] | (gce[5] << 8);
+    return delay > 0 ? delay : 10;
   }
 
   function skipGifSubBlocks(bytes, pos) {
@@ -4031,6 +4036,7 @@
       .then(parsed => {
         entry.width = parsed.width || entry.width;
         entry.height = parsed.height || entry.height;
+        entry.nativeSeconds = asNumber(parsed.nativeSeconds, null) || MACRO_BAR_GIF_NATIVE_SECONDS;
         entry.images = parsed.frames.map((frame, index) => {
           const image = new Image();
           image.decoding = 'sync';
@@ -4301,14 +4307,17 @@
           .filter(schedule => schedule.family === 'macro' && schedule.kind === 'bar-fill' && asNumber(schedule.fillRatio, 0) > 0.001)
           .map(schedule => {
             const fillRatio = clamp(asNumber(schedule.fillRatio, 0), 0, 1);
+            const gifNativeSeconds = macroBarGifNativeSecondsForSrc(schedule.src);
+            const sourceSliceSeconds = macroBarFillSfxSourceSliceSeconds(fillRatio, gifNativeSeconds);
             return {
               key: `macro-bar-fill:${scene.id}:${schedule.layerId || schedule.kind}:${schedule.startSeconds}`,
               sceneId: scene.id,
               layerId: schedule.layerId,
               fillRatio,
-              sourceOffsetSeconds: macroBarFillSfxSourceOffset(scene.id, schedule.layerId || schedule.kind, fillRatio),
-              gifNativeSeconds: MACRO_BAR_GIF_NATIVE_SECONDS,
-              gifPlaybackRate: MACRO_BAR_GIF_PLAYBACK_RATE,
+              sourceOffsetSeconds: macroBarFillSfxSourceOffset(scene.id, schedule.layerId || schedule.kind, fillRatio, sourceSliceSeconds),
+              sourceSliceSeconds,
+              gifNativeSeconds,
+              gifPlaybackRate: macroBarFillSfxPlaybackRate(fillRatio, gifNativeSeconds),
               targetSeconds: MACRO_BAR_FILL_SECONDS,
               time: Number((scene.start + schedule.startSeconds).toFixed(3))
             };
@@ -4317,13 +4326,32 @@
       .sort((a, b) => a.time - b.time || a.key.localeCompare(b.key));
   }
 
-  function macroBarFillSfxSourceOffset(sceneId, layerId, fillRatio) {
-    const maxOffset = Math.max(0, MACRO_BAR_FILL_SFX_SOURCE_SECONDS - MACRO_BAR_FILL_SFX_SLICE_SECONDS);
+  function macroBarGifNativeSecondsForSrc(src) {
+    if (!src) return MACRO_BAR_GIF_NATIVE_SECONDS;
+    const frames = requestMacroBarGifFrames(spritePath(src));
+    return asNumber(frames?.nativeSeconds, null) || MACRO_BAR_GIF_NATIVE_SECONDS;
+  }
+
+  function macroBarFillSfxSourceSliceSeconds(fillRatio, gifNativeSeconds = MACRO_BAR_GIF_NATIVE_SECONDS) {
+    const sourceRatio = clamp(asNumber(fillRatio, 1), 0.001, 1);
+    const nativeSeconds = Math.max(0.001, asNumber(gifNativeSeconds, MACRO_BAR_GIF_NATIVE_SECONDS));
+    return Math.min(MACRO_BAR_FILL_SFX_SOURCE_SECONDS, nativeSeconds * sourceRatio);
+  }
+
+  function macroBarFillSfxPlaybackRate(fillRatio, gifNativeSeconds = MACRO_BAR_GIF_NATIVE_SECONDS) {
+    const sourceSliceSeconds = macroBarFillSfxSourceSliceSeconds(fillRatio, gifNativeSeconds);
+    return clamp(sourceSliceSeconds / MACRO_BAR_FILL_SECONDS, 0.25, 16);
+  }
+
+  function macroBarFillSfxSourceOffset(sceneId, layerId, fillRatio, sourceSliceSeconds) {
+    const maxOffset = Math.max(0, MACRO_BAR_FILL_SFX_SOURCE_SECONDS - Math.max(0.001, asNumber(sourceSliceSeconds, MACRO_BAR_GIF_NATIVE_SECONDS)));
     if (maxOffset <= 0) return 0;
     const food = selectedFood();
     const foodKey = food?.id || food?.slug || food?.name || 'food';
     const ratioKey = Math.round(clamp(fillRatio, 0, 1) * 1000);
-    return Number((maxOffset * hashStringToUnit(`${foodKey}:${sceneId}:${layerId}:${ratioKey}`)).toFixed(3));
+    const sectionBase = { fats: 0.08, carbs: 0.48, protein: 0.88 }[sceneId] ?? 0.5;
+    const jitter = (hashStringToUnit(`${foodKey}:${sceneId}:${layerId}:${ratioKey}`) - 0.5) * 0.16;
+    return Number((maxOffset * clamp(sectionBase + jitter, 0, 1)).toFixed(3));
   }
 
   function hashStringToUnit(value) {
@@ -4390,15 +4418,19 @@
 
   function macroBarFillSfxTiming(event, sourceDuration = MACRO_BAR_FILL_SFX_SOURCE_SECONDS) {
     const safeDuration = Math.max(0.001, asNumber(sourceDuration, MACRO_BAR_FILL_SFX_SOURCE_SECONDS));
-    const sourceSliceSeconds = Math.min(MACRO_BAR_FILL_SFX_SLICE_SECONDS, safeDuration);
+    const sourceSliceSeconds = Math.min(
+      asNumber(event?.sourceSliceSeconds, null) ?? macroBarFillSfxSourceSliceSeconds(event?.fillRatio, event?.gifNativeSeconds),
+      safeDuration
+    );
     const sourceOffsetSeconds = clamp(
       asNumber(event?.sourceOffsetSeconds, 0),
       0,
       Math.max(0, safeDuration - sourceSliceSeconds)
     );
-    const playbackRate = clamp(MACRO_BAR_FILL_SFX_PLAYBACK_RATE, 0.25, 16);
+    const playbackRate = clamp(asNumber(event?.gifPlaybackRate, null) ?? (sourceSliceSeconds / MACRO_BAR_FILL_SECONDS), 0.25, 16);
     const playSeconds = Math.min(
-      MACRO_BAR_FILL_SFX_PLAY_SECONDS,
+      MACRO_BAR_FILL_SECONDS,
+      Math.max(0.001, sourceSliceSeconds / playbackRate),
       Math.max(0.001, (safeDuration - sourceOffsetSeconds) / playbackRate)
     );
     return {
@@ -4411,7 +4443,7 @@
   }
 
   function barFillSfxEnvelope(elapsedSeconds, timing) {
-    const playSeconds = Math.max(0.001, timing?.playSeconds || MACRO_BAR_FILL_SFX_PLAY_SECONDS);
+    const playSeconds = Math.max(0.001, timing?.playSeconds || MACRO_BAR_FILL_SECONDS);
     const fadeInSeconds = Math.max(0, timing?.fadeInSeconds || 0);
     const fadeOutSeconds = Math.max(0, timing?.fadeOutSeconds || 0);
     const fadeIn = fadeInSeconds > 0 ? clamp(elapsedSeconds / fadeInSeconds, 0, 1) : 1;

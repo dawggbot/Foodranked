@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260613-micron-100-firework-lead-pop-v1';
+  const BUILDER_BUILD_ID = '20260613-micron-100-firework-crackle-delay-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -65,6 +65,7 @@
   const MICRON_100_FIREWORK_LEAD_SFX_POOL_SIZE = 2;
   const MICRON_100_FIREWORK_SFX_PATH = 'audio/sfx/sparkles/freesound_community-firework-cluster-90480.mp3';
   const MICRON_100_FIREWORK_SFX_VOLUME = 0.28;
+  const MICRON_100_FIREWORK_SFX_DELAY_SECONDS = 0.04;
   const MICRON_100_FIREWORK_SFX_POOL_SIZE = 2;
   const HIGHLIGHT_GLOW_SFX_PATH = 'audio/sfx/ui/highlight-glow-loop.mp3';
   const HIGHLIGHT_GLOW_SFX_VOLUME = 0.36;
@@ -4595,7 +4596,7 @@
             key: `micron-100-firework:${scene.id}`,
             sceneId: scene.id,
             role: 'sparkle',
-            time: burstTime
+            time: Number((burstTime + MICRON_100_FIREWORK_SFX_DELAY_SECONDS).toFixed(3))
           }
         ];
       })

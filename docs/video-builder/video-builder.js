@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260613-dynamic-bar-fill-sfx-v1';
+  const BUILDER_BUILD_ID = '20260613-sync-bar-fill-sfx-speed-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -58,6 +58,8 @@
   const MACRO_BAR_FILL_SFX_POOL_SIZE = 1;
   const MACRO_BAR_FILL_SFX_FADE_IN_SECONDS = 0.08;
   const MACRO_BAR_FILL_SFX_FADE_OUT_SECONDS = 0.22;
+  const MACRO_BAR_FILL_SFX_SPEED_CURVE_STEPS = 64;
+  const MACRO_BAR_FILL_SFX_MIN_SPEED_RATIO = 0.02;
   const AUDIO_TIMELINE_SYNC_TOLERANCE_SECONDS = 0.12;
   const SECTION_HOLD_SECONDS = 0.5;
   const SECTION_HOLD_IDS = new Set(['intro', 'fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons']);
@@ -4340,7 +4342,7 @@
 
   function macroBarFillSfxPlaybackRate(fillRatio, gifNativeSeconds = MACRO_BAR_GIF_NATIVE_SECONDS) {
     const sourceSliceSeconds = macroBarFillSfxSourceSliceSeconds(fillRatio, gifNativeSeconds);
-    return clamp(sourceSliceSeconds / MACRO_BAR_FILL_SECONDS, 0.25, 16);
+    return Math.max(0.001, sourceSliceSeconds / MACRO_BAR_FILL_SECONDS);
   }
 
   function macroBarFillSfxSourceOffset(sceneId, layerId, fillRatio, sourceSliceSeconds) {
@@ -4418,6 +4420,7 @@
 
   function macroBarFillSfxTiming(event, sourceDuration = MACRO_BAR_FILL_SFX_SOURCE_SECONDS) {
     const safeDuration = Math.max(0.001, asNumber(sourceDuration, MACRO_BAR_FILL_SFX_SOURCE_SECONDS));
+    const targetSeconds = Math.max(0.001, asNumber(event?.targetSeconds, MACRO_BAR_FILL_SECONDS));
     const sourceSliceSeconds = Math.min(
       asNumber(event?.sourceSliceSeconds, null) ?? macroBarFillSfxSourceSliceSeconds(event?.fillRatio, event?.gifNativeSeconds),
       safeDuration
@@ -4427,9 +4430,9 @@
       0,
       Math.max(0, safeDuration - sourceSliceSeconds)
     );
-    const playbackRate = clamp(asNumber(event?.gifPlaybackRate, null) ?? (sourceSliceSeconds / MACRO_BAR_FILL_SECONDS), 0.25, 16);
+    const playbackRate = Math.max(0.001, asNumber(event?.gifPlaybackRate, null) ?? (sourceSliceSeconds / targetSeconds));
     const playSeconds = Math.min(
-      MACRO_BAR_FILL_SECONDS,
+      targetSeconds,
       Math.max(0.001, sourceSliceSeconds / playbackRate),
       Math.max(0.001, (safeDuration - sourceOffsetSeconds) / playbackRate)
     );
@@ -4437,9 +4440,33 @@
       playbackRate,
       playSeconds,
       sourceOffsetSeconds,
+      speedCurve: macroBarFillSfxSpeedCurve(playbackRate),
       fadeInSeconds: Math.min(MACRO_BAR_FILL_SFX_FADE_IN_SECONDS, playSeconds * 0.4),
       fadeOutSeconds: Math.min(MACRO_BAR_FILL_SFX_FADE_OUT_SECONDS, playSeconds * 0.45)
     };
+  }
+
+  function macroBarFillSfxSpeedCurve(basePlaybackRate) {
+    const steps = Math.max(8, MACRO_BAR_FILL_SFX_SPEED_CURVE_STEPS);
+    const raw = Array.from({ length: steps }, (_, index) => {
+      const progress = steps === 1 ? 1 : index / (steps - 1);
+      const easeSpeed = 4 * Math.pow(1 - progress, 3);
+      return Math.max(MACRO_BAR_FILL_SFX_MIN_SPEED_RATIO, easeSpeed);
+    });
+    const weightedSum = raw.reduce((sum, value, index) => {
+      const weight = index === 0 || index === raw.length - 1 ? 0.5 : 1;
+      return sum + (value * weight);
+    }, 0);
+    const average = weightedSum / Math.max(1, raw.length - 1) || 1;
+    return Float32Array.from(raw, value => Math.max(0.001, (basePlaybackRate * value) / average));
+  }
+
+  function macroBarFillSfxPlaybackRateAt(elapsedSeconds, timing) {
+    const curve = timing?.speedCurve;
+    if (!curve?.length) return Math.max(0.001, timing?.playbackRate || 1);
+    const progress = clamp(elapsedSeconds / Math.max(0.001, timing.playSeconds || MACRO_BAR_FILL_SECONDS), 0, 1);
+    const index = clamp(Math.floor(progress * curve.length), 0, curve.length - 1);
+    return Math.max(0.001, curve[index]);
   }
 
   function barFillSfxEnvelope(elapsedSeconds, timing) {
@@ -4456,6 +4483,7 @@
     const step = () => {
       if (audio.paused) return;
       const elapsedSeconds = (performance.now() - startMs) / 1000;
+      audio.playbackRate = macroBarFillSfxPlaybackRateAt(elapsedSeconds, timing);
       audio.volume = MACRO_BAR_FILL_SFX_VOLUME * barFillSfxEnvelope(elapsedSeconds, timing);
       if (elapsedSeconds < timing.playSeconds) window.requestAnimationFrame(step);
     };
@@ -4475,6 +4503,16 @@
     gain.gain.linearRampToValueAtTime(0, end);
   }
 
+  function applyBarFillWebAudioPlaybackRate(source, context, timing) {
+    const now = context.currentTime;
+    source.playbackRate.cancelScheduledValues(now);
+    if (timing.speedCurve?.length && timing.playSeconds > 0) {
+      source.playbackRate.setValueCurveAtTime(timing.speedCurve, now, timing.playSeconds);
+      return;
+    }
+    source.playbackRate.setValueAtTime(Math.max(0.001, timing.playbackRate || 1), now);
+  }
+
   function playBarFillHtmlSfx(event) {
     if (!state.audioEnabled || !event) return;
     const audio = nextBarFillSfxAudio();
@@ -4484,7 +4522,7 @@
       audio.currentTime = timing.sourceOffsetSeconds;
       allowSfxPitchShift(audio);
       audio.volume = 0;
-      audio.playbackRate = timing.playbackRate;
+      audio.playbackRate = macroBarFillSfxPlaybackRateAt(0, timing);
       const playPromise = audio.play();
       if (playPromise?.catch) playPromise.catch(() => {});
       applyBarFillHtmlSfxEnvelope(audio, timing);
@@ -4516,7 +4554,7 @@
         const gain = context.createGain();
         const timing = macroBarFillSfxTiming(event, buffer.duration);
         source.buffer = buffer;
-        source.playbackRate.value = timing.playbackRate;
+        applyBarFillWebAudioPlaybackRate(source, context, timing);
         applyBarFillWebAudioEnvelope(gain, context, timing);
         source.connect(gain).connect(context.destination);
         state.barFillSfxSources.add(source);

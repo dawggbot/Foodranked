@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260613-bar-fill-dwell-smooth-sfx-v1';
+  const BUILDER_BUILD_ID = '20260613-proportional-bar-fill-sfx-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -60,8 +60,7 @@
   const MACRO_BAR_FILL_SFX_FADE_OUT_SECONDS = 0.26;
   const MACRO_BAR_FILL_SFX_ENVELOPE_STEPS = 96;
   const MACRO_BAR_FILL_SFX_SPEED_CURVE_STEPS = 64;
-  const MACRO_BAR_FILL_SFX_SPEED_START_RATIO = 0.9;
-  const MACRO_BAR_FILL_SFX_SPEED_END_RATIO = 1.1;
+  const MACRO_BAR_FILL_SFX_LAST_QUARTER_SPEED_RATIO = 0.94;
   const AUDIO_TIMELINE_SYNC_TOLERANCE_SECONDS = 0.12;
   const SECTION_HOLD_SECONDS = 0.5;
   const SECTION_HOLD_IDS = new Set(['intro', 'fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons']);
@@ -70,6 +69,7 @@
   const MACRO_BAR_START_DWELL_SECONDS = 0.5;
   const MACRO_BAR_FILL_SECONDS = 1.55;
   const MACRO_BAR_GIF_NATIVE_SECONDS = 8.1;
+  const MACRO_BAR_FULL_SFX_SOURCE_SECONDS = Math.min(MACRO_BAR_FILL_SFX_SOURCE_SECONDS, MACRO_BAR_GIF_NATIVE_SECONDS);
   const MACRO_BAR_MIN_VISIBLE_FILL_RATIO = 0.0011;
   const MACRO_ROW_AFTER_BAR_SECONDS = 0.14;
   const MACRO_BAR_GIF_FRAME_STEPS = 80;
@@ -949,7 +949,7 @@
 
   function sectionNarrationDelaySeconds(sectionId, food = selectedFood()) {
     if (['fats', 'carbs', 'protein'].includes(sectionId)) {
-      return Number((macroSubmacroRevealDelaySeconds() + SECTION_NARRATION_AFTER_REVEAL_PAD_SECONDS).toFixed(3));
+      return Number((macroSubmacroRevealDelaySeconds(sectionId, food) + SECTION_NARRATION_AFTER_REVEAL_PAD_SECONDS).toFixed(3));
     }
     if (sectionId === 'vitamins' || sectionId === 'minerals') {
       const maxStep = Math.max(1, maxMicronStepForSection(sectionId, food));
@@ -967,13 +967,19 @@
     return 0;
   }
 
-  function macroSubmacroRevealDelaySeconds() {
-    return MACRO_REVEAL_SECONDS + MACRO_BAR_START_DWELL_SECONDS + MACRO_BAR_FILL_SECONDS + MACRO_ROW_AFTER_BAR_SECONDS;
+  function macroSubmacroRevealDelaySeconds(sectionId = null, food = selectedFood()) {
+    return MACRO_REVEAL_SECONDS
+      + MACRO_BAR_START_DWELL_SECONDS
+      + macroBarFillDurationSeconds(sectionId ? macroBarFillRatio(food, sectionId) : 1)
+      + MACRO_ROW_AFTER_BAR_SECONDS;
+  }
+
+  function macroBarFillDurationSeconds(fillRatio) {
+    return MACRO_BAR_FILL_SECONDS * clamp(asNumber(fillRatio, 1), MACRO_BAR_MIN_VISIBLE_FILL_RATIO, 1);
   }
 
   function macroBarFillEase(progress) {
-    const safeProgress = clamp(progress, 0, 1);
-    return 1 - Math.pow(1 - safeProgress, 4);
+    return clamp(progress, 0, 1);
   }
 
   function macroFillRange(foodType, sectionId) {
@@ -3754,7 +3760,7 @@
       if (['icon', 'bar-frame', 'bar-fill', 'decor'].includes(classification.kind)) return secondsAnchor(MACRO_REVEAL_SECONDS);
       if (classification.kind === 'macro-label') return secondsAnchor(MACRO_REVEAL_SECONDS);
       if (classification.rowIndex != null || classification.kind === 'macro-value') {
-        return secondsAnchor(macroSubmacroRevealDelaySeconds());
+        return secondsAnchor(macroSubmacroRevealDelaySeconds(sectionId));
       }
     }
 
@@ -3917,16 +3923,17 @@
 
     const localElapsed = Math.max(0, Number(sceneElapsed) || 0);
     const progress = macroBarFillEase((localElapsed - MACRO_REVEAL_SECONDS - MACRO_BAR_START_DWELL_SECONDS) / MACRO_BAR_FILL_SECONDS);
+    const currentFillRatio = Math.min(targetRatio, clamp(progress, 0, 1));
     if (frames.static) {
       const image = frames.images[0];
       if (!image?.complete) return;
-      const fillWidth = clamp(Math.round(width * targetRatio * clamp(progress, 0, 1)), 0, width);
+      const fillWidth = clamp(Math.round(width * currentFillRatio), 0, width);
       if (fillWidth <= 0) return;
       ctx.drawImage(image, 0, 0, fillWidth, height, 0, 0, fillWidth, height);
       return;
     }
     const targetIndex = clamp(Math.round((frames.images.length - 1) * targetRatio), 0, frames.images.length - 1);
-    const currentIndex = clamp(Math.round(targetIndex * clamp(progress, 0, 1)), 0, targetIndex);
+    const currentIndex = clamp(Math.round((frames.images.length - 1) * currentFillRatio), 0, targetIndex);
     for (let frameIndex = 0; frameIndex <= currentIndex; frameIndex += 1) {
       const image = frames.images[frameIndex];
       if (image?.complete) ctx.drawImage(image, 0, 0);
@@ -4313,17 +4320,20 @@
           .map(schedule => {
             const fillRatio = clamp(asNumber(schedule.fillRatio, 0), 0, 1);
             const gifNativeSeconds = macroBarGifNativeSecondsForSrc(schedule.src);
+            const fullSourceSeconds = macroBarFillSfxFullSourceSeconds(gifNativeSeconds);
             const sourceSliceSeconds = macroBarFillSfxSourceSliceSeconds(fillRatio, gifNativeSeconds);
+            const targetSeconds = macroBarFillDurationSeconds(fillRatio);
             return {
               key: `macro-bar-fill:${scene.id}:${schedule.layerId || schedule.kind}:${schedule.startSeconds}`,
               sceneId: scene.id,
               layerId: schedule.layerId,
               fillRatio,
-              sourceOffsetSeconds: macroBarFillSfxSourceOffset(scene.id, schedule.layerId || schedule.kind, fillRatio, sourceSliceSeconds),
+              sourceOffsetSeconds: 0,
+              fullSourceSeconds,
               sourceSliceSeconds,
               gifNativeSeconds,
               gifPlaybackRate: macroBarFillSfxPlaybackRate(fillRatio, gifNativeSeconds),
-              targetSeconds: MACRO_BAR_FILL_SECONDS,
+              targetSeconds,
               time: Number((scene.start + schedule.startSeconds + MACRO_BAR_START_DWELL_SECONDS).toFixed(3))
             };
           })
@@ -4337,35 +4347,20 @@
     return asNumber(frames?.nativeSeconds, null) || MACRO_BAR_GIF_NATIVE_SECONDS;
   }
 
+  function macroBarFillSfxFullSourceSeconds(gifNativeSeconds = MACRO_BAR_GIF_NATIVE_SECONDS) {
+    return Math.min(
+      MACRO_BAR_FILL_SFX_SOURCE_SECONDS,
+      Math.max(0.001, asNumber(gifNativeSeconds, MACRO_BAR_FULL_SFX_SOURCE_SECONDS))
+    );
+  }
+
   function macroBarFillSfxSourceSliceSeconds(fillRatio, gifNativeSeconds = MACRO_BAR_GIF_NATIVE_SECONDS) {
     const sourceRatio = clamp(asNumber(fillRatio, 1), 0.001, 1);
-    const nativeSeconds = Math.max(0.001, asNumber(gifNativeSeconds, MACRO_BAR_GIF_NATIVE_SECONDS));
-    return Math.min(MACRO_BAR_FILL_SFX_SOURCE_SECONDS, nativeSeconds * sourceRatio);
+    return macroBarFillSfxFullSourceSeconds(gifNativeSeconds) * sourceRatio;
   }
 
   function macroBarFillSfxPlaybackRate(fillRatio, gifNativeSeconds = MACRO_BAR_GIF_NATIVE_SECONDS) {
-    const sourceSliceSeconds = macroBarFillSfxSourceSliceSeconds(fillRatio, gifNativeSeconds);
-    return Math.max(0.001, sourceSliceSeconds / MACRO_BAR_FILL_SECONDS);
-  }
-
-  function macroBarFillSfxSourceOffset(sceneId, layerId, fillRatio, sourceSliceSeconds) {
-    const maxOffset = Math.max(0, MACRO_BAR_FILL_SFX_SOURCE_SECONDS - Math.max(0.001, asNumber(sourceSliceSeconds, MACRO_BAR_GIF_NATIVE_SECONDS)));
-    if (maxOffset <= 0) return 0;
-    const food = selectedFood();
-    const foodKey = food?.id || food?.slug || food?.name || 'food';
-    const ratioKey = Math.round(clamp(fillRatio, 0, 1) * 1000);
-    const sectionBase = { fats: 0.08, carbs: 0.48, protein: 0.88 }[sceneId] ?? 0.5;
-    const jitter = (hashStringToUnit(`${foodKey}:${sceneId}:${layerId}:${ratioKey}`) - 0.5) * 0.16;
-    return Number((maxOffset * clamp(sectionBase + jitter, 0, 1)).toFixed(3));
-  }
-
-  function hashStringToUnit(value) {
-    let hash = 2166136261;
-    for (let index = 0; index < String(value).length; index += 1) {
-      hash ^= String(value).charCodeAt(index);
-      hash = Math.imul(hash, 16777619);
-    }
-    return (hash >>> 0) / 4294967295;
+    return Math.max(0.001, macroBarFillSfxFullSourceSeconds(gifNativeSeconds) / MACRO_BAR_FILL_SECONDS);
   }
 
   function nextBarFillSfxAudio() {
@@ -4453,22 +4448,18 @@
     const steps = Math.max(8, MACRO_BAR_FILL_SFX_SPEED_CURVE_STEPS);
     const raw = Array.from({ length: steps }, (_, index) => {
       const progress = steps === 1 ? 1 : index / (steps - 1);
-      const smoothProgress = progress * progress * (3 - (2 * progress));
-      return MACRO_BAR_FILL_SFX_SPEED_START_RATIO
-        + ((MACRO_BAR_FILL_SFX_SPEED_END_RATIO - MACRO_BAR_FILL_SFX_SPEED_START_RATIO) * smoothProgress);
+      if (progress <= 0.75) return 1;
+      const tailProgress = (progress - 0.75) / 0.25;
+      const smoothProgress = tailProgress * tailProgress * (3 - (2 * tailProgress));
+      return 1 - ((1 - MACRO_BAR_FILL_SFX_LAST_QUARTER_SPEED_RATIO) * smoothProgress);
     });
-    const weightedSum = raw.reduce((sum, value, index) => {
-      const weight = index === 0 || index === raw.length - 1 ? 0.5 : 1;
-      return sum + (value * weight);
-    }, 0);
-    const average = weightedSum / Math.max(1, raw.length - 1) || 1;
-    return Float32Array.from(raw, value => Math.max(0.001, (basePlaybackRate * value) / average));
+    return Float32Array.from(raw, value => Math.max(0.001, basePlaybackRate * value));
   }
 
   function macroBarFillSfxPlaybackRateAt(elapsedSeconds, timing) {
     const curve = timing?.speedCurve;
     if (!curve?.length) return Math.max(0.001, timing?.playbackRate || 1);
-    const progress = clamp(elapsedSeconds / Math.max(0.001, timing.playSeconds || MACRO_BAR_FILL_SECONDS), 0, 1);
+    const progress = clamp(elapsedSeconds / MACRO_BAR_FILL_SECONDS, 0, 1);
     const index = clamp(Math.floor(progress * curve.length), 0, curve.length - 1);
     return Math.max(0.001, curve[index]);
   }
@@ -4634,7 +4625,7 @@
     const revealWindowSeconds = isIntroStampSprite || isOutroTierStamp
       ? STAMP_REVEAL_SECONDS
       : isMacroBarFillReveal
-      ? MACRO_BAR_START_DWELL_SECONDS + MACRO_BAR_FILL_SECONDS
+      ? MACRO_BAR_START_DWELL_SECONDS + macroBarFillDurationSeconds(layer?.fillRatio ?? revealSchedule?.fillRatio)
       : isMacroRowReveal
       ? SUBMACRO_REVEAL_WINDOW_SECONDS
       : isMicronTierReveal

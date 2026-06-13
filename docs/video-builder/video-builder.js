@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260613-micron-100-firework-v1';
+  const BUILDER_BUILD_ID = '20260613-brighter-micron-100-firework-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -26,16 +26,20 @@
   const MICRON_BAR_STEP_SECONDS = 0.12;
   const MICRON_STAMP_REVEAL_SECONDS = 0.28;
   const MICRON_BAR_STAMP_REVEAL_SECONDS = 0.12;
-  const MICRON_100_FIREWORK_SECONDS = 0.72;
+  const MICRON_100_FIREWORK_SECONDS = 0.95;
   const MICRON_100_FIREWORK_SPARKS = [
-    { x: -5.2, y: -5.8, color: '#fff7b0' },
-    { x: -2.4, y: -8.1, color: '#ffffff' },
-    { x: 1.8, y: -7.5, color: '#7cf2a7' },
-    { x: 5.4, y: -4.8, color: '#fff7b0' },
-    { x: 6.2, y: 0.4, color: '#88d7ff' },
-    { x: 2.2, y: 4.5, color: '#ffffff' },
-    { x: -3.8, y: 3.6, color: '#7cf2a7' },
-    { x: -6.4, y: -0.7, color: '#88d7ff' }
+    { x: -7.8, y: -7.2, color: '#fff7b0' },
+    { x: -3.6, y: -10.4, color: '#ffffff' },
+    { x: 1.4, y: -10.8, color: '#7cf2a7' },
+    { x: 6.8, y: -7.0, color: '#fff7b0' },
+    { x: 8.8, y: -1.4, color: '#88d7ff' },
+    { x: 5.2, y: 4.8, color: '#ffffff' },
+    { x: -1.6, y: 6.2, color: '#7cf2a7' },
+    { x: -7.5, y: 2.4, color: '#88d7ff' },
+    { x: -9.4, y: -2.8, color: '#ffffff' },
+    { x: 9.6, y: 3.3, color: '#fff7b0' },
+    { x: -4.8, y: 7.5, color: '#fff7b0' },
+    { x: 3.2, y: 8.0, color: '#88d7ff' }
   ];
   const STAMP_REVEAL_SECONDS = 0.36;
   const FOOD_STAMP_REVEAL_SECONDS = 0.22;
@@ -3986,23 +3990,34 @@
       const centerY = box.top + 1.2;
       const fade = Math.sin(progress * Math.PI);
       const ringScale = easeOutCubic(progress);
-      const zIndex = (Number(layer.z) || 0) + 9;
+      const zIndex = Math.max((Number(layer.z) || 0) + 30, 90);
+
+      const core = document.createElement('div');
+      core.className = 'micron-100-firework-core';
+      core.style.left = `calc(${centerX.toFixed(2)}px * var(--pixel-unit))`;
+      core.style.top = `calc(${centerY.toFixed(2)}px * var(--pixel-unit))`;
+      core.style.width = `calc(${(2.4 + ((1 - progress) * 1.4)).toFixed(2)}px * var(--pixel-unit))`;
+      core.style.height = core.style.width;
+      core.style.zIndex = String(zIndex + MICRON_100_FIREWORK_SPARKS.length + 1);
+      core.style.opacity = String(clamp((1 - progress) * 1.2, 0, 1).toFixed(3));
+      core.style.transform = `translate3d(-50%, -50%, 0) scale(${(1 + (ringScale * 0.42)).toFixed(3)})`;
+      container.appendChild(core);
 
       MICRON_100_FIREWORK_SPARKS.forEach((spark, sparkIndex) => {
         const node = document.createElement('div');
-        const twinkle = sparkIndex % 2 === 0 ? Math.sin(progress * Math.PI * 5) * 0.8 : Math.cos(progress * Math.PI * 4) * 0.7;
-        const driftX = spark.x * (0.28 + (ringScale * 0.92));
-        const driftY = spark.y * (0.28 + (ringScale * 0.92)) + (progress * progress * 2.2);
-        const size = 1 + (sparkIndex % 3 === 0 && progress < 0.45 ? 0.35 : 0);
+        const twinkle = sparkIndex % 2 === 0 ? Math.sin(progress * Math.PI * 5) * 0.65 : Math.cos(progress * Math.PI * 4) * 0.55;
+        const driftX = spark.x * (0.22 + (ringScale * 1.05));
+        const driftY = spark.y * (0.22 + (ringScale * 1.05)) + (progress * progress * 2.6);
+        const size = 1.55 + (sparkIndex % 3 === 0 && progress < 0.5 ? 0.65 : 0);
         node.className = 'micron-100-firework-spark';
         node.style.left = `calc(${(centerX + driftX).toFixed(2)}px * var(--pixel-unit))`;
         node.style.top = `calc(${(centerY + driftY).toFixed(2)}px * var(--pixel-unit))`;
         node.style.width = `calc(${size.toFixed(2)}px * var(--pixel-unit))`;
         node.style.height = `calc(${size.toFixed(2)}px * var(--pixel-unit))`;
         node.style.zIndex = String(zIndex + sparkIndex);
-        node.style.opacity = String(clamp((fade * 0.92) + (twinkle * 0.08), 0, 1).toFixed(3));
+        node.style.opacity = String(clamp((fade * 1.18) + (twinkle * 0.12), 0, 1).toFixed(3));
         node.style.background = spark.color;
-        node.style.transform = `translate3d(-50%, -50%, 0) scale(${(1.18 - (progress * 0.42)).toFixed(3)})`;
+        node.style.transform = `translate3d(-50%, -50%, 0) scale(${(1.24 - (progress * 0.34)).toFixed(3)})`;
         container.appendChild(node);
       });
     });

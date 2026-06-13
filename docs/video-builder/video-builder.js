@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260613-renamed-micron-confirm-sfx-v1';
+  const BUILDER_BUILD_ID = '20260613-micron-100-firework-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -26,6 +26,17 @@
   const MICRON_BAR_STEP_SECONDS = 0.12;
   const MICRON_STAMP_REVEAL_SECONDS = 0.28;
   const MICRON_BAR_STAMP_REVEAL_SECONDS = 0.12;
+  const MICRON_100_FIREWORK_SECONDS = 0.72;
+  const MICRON_100_FIREWORK_SPARKS = [
+    { x: -5.2, y: -5.8, color: '#fff7b0' },
+    { x: -2.4, y: -8.1, color: '#ffffff' },
+    { x: 1.8, y: -7.5, color: '#7cf2a7' },
+    { x: 5.4, y: -4.8, color: '#fff7b0' },
+    { x: 6.2, y: 0.4, color: '#88d7ff' },
+    { x: 2.2, y: 4.5, color: '#ffffff' },
+    { x: -3.8, y: 3.6, color: '#7cf2a7' },
+    { x: -6.4, y: -0.7, color: '#88d7ff' }
+  ];
   const STAMP_REVEAL_SECONDS = 0.36;
   const FOOD_STAMP_REVEAL_SECONDS = 0.22;
   const STAMP_SHAKE_MAX_PIXELS = 2.8;
@@ -2549,6 +2560,7 @@
       applyProConNarrationHighlight(node, scene, revealSchedule, proConHighlightMap);
       renderParent.appendChild(node);
     });
+    appendMicron100Fireworks(nextLayerNodes, layers, revealSchedules, sceneElapsed);
     roots.layerRoot.replaceChildren(nextLayerNodes);
 
     syncCaptionSafeArea(roots.caption);
@@ -3955,6 +3967,45 @@
 
   function boxesOverlap(a, b) {
     return a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+  }
+
+  function appendMicron100Fireworks(container, layers, revealSchedules, sceneElapsed) {
+    layers.forEach(({ layer, persistent }, renderIndex) => {
+      const schedule = revealSchedules[renderIndex];
+      if (persistent || layer?.visible === false) return;
+      if (schedule?.family !== 'micron' || schedule?.kind !== 'dv-bar') return;
+      if (asNumber(schedule.percent, 0) < 100) return;
+
+      const burstStartSeconds = asNumber(schedule.startSeconds, 0) + (MICRON_BAR_STAMP_REVEAL_SECONDS * 0.55);
+      const burstElapsed = sceneElapsed - burstStartSeconds;
+      if (burstElapsed < 0 || burstElapsed > MICRON_100_FIREWORK_SECONDS) return;
+
+      const progress = clamp(burstElapsed / MICRON_100_FIREWORK_SECONDS, 0, 1);
+      const box = layerGridBox(layer);
+      const centerX = (box.left + box.right) / 2;
+      const centerY = box.top + 1.2;
+      const fade = Math.sin(progress * Math.PI);
+      const ringScale = easeOutCubic(progress);
+      const zIndex = (Number(layer.z) || 0) + 9;
+
+      MICRON_100_FIREWORK_SPARKS.forEach((spark, sparkIndex) => {
+        const node = document.createElement('div');
+        const twinkle = sparkIndex % 2 === 0 ? Math.sin(progress * Math.PI * 5) * 0.8 : Math.cos(progress * Math.PI * 4) * 0.7;
+        const driftX = spark.x * (0.28 + (ringScale * 0.92));
+        const driftY = spark.y * (0.28 + (ringScale * 0.92)) + (progress * progress * 2.2);
+        const size = 1 + (sparkIndex % 3 === 0 && progress < 0.45 ? 0.35 : 0);
+        node.className = 'micron-100-firework-spark';
+        node.style.left = `calc(${(centerX + driftX).toFixed(2)}px * var(--pixel-unit))`;
+        node.style.top = `calc(${(centerY + driftY).toFixed(2)}px * var(--pixel-unit))`;
+        node.style.width = `calc(${size.toFixed(2)}px * var(--pixel-unit))`;
+        node.style.height = `calc(${size.toFixed(2)}px * var(--pixel-unit))`;
+        node.style.zIndex = String(zIndex + sparkIndex);
+        node.style.opacity = String(clamp((fade * 0.92) + (twinkle * 0.08), 0, 1).toFixed(3));
+        node.style.background = spark.color;
+        node.style.transform = `translate3d(-50%, -50%, 0) scale(${(1.18 - (progress * 0.42)).toFixed(3)})`;
+        container.appendChild(node);
+      });
+    });
   }
 
   function shouldRevealStackedMacroSpriteOpaque(layer, revealSchedule, sortedLayers = []) {

@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260613-soft-micron-100-firework-core-v1';
+  const BUILDER_BUILD_ID = '20260613-micron-100-firework-sfx-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -59,6 +59,9 @@
   const MICRON_BAR_CONFIRM_SFX_POOL_SIZE = 8;
   const MICRON_BAR_CONFIRM_SFX_PLAY_SECONDS = 0.18;
   const MICRON_BAR_CONFIRM_SFX_PLAYBACK_RATE_RANGE = { min: 0.78, max: 1.58 };
+  const MICRON_100_FIREWORK_SFX_PATH = 'audio/sfx/sparkles/freesound_community-firework-cluster-90480.mp3';
+  const MICRON_100_FIREWORK_SFX_VOLUME = 0.28;
+  const MICRON_100_FIREWORK_SFX_POOL_SIZE = 2;
   const HIGHLIGHT_GLOW_SFX_PATH = 'audio/sfx/ui/highlight-glow-loop.mp3';
   const HIGHLIGHT_GLOW_SFX_VOLUME = 0.36;
   const HIGHLIGHT_GLOW_SFX_FADE_IN_SPEED = 5.2;
@@ -265,6 +268,9 @@
     micronBarConfirmSfxPool: [],
     micronBarConfirmSfxPoolIndex: 0,
     playedMicronBarConfirmSfxKeys: new Set(),
+    micron100FireworkSfxPool: [],
+    micron100FireworkSfxPoolIndex: 0,
+    playedMicron100FireworkSfxKeys: new Set(),
     barFillSfxPool: [],
     barFillSfxPoolIndex: 0,
     playedBarFillSfxKeys: new Set(),
@@ -4561,6 +4567,69 @@
     }
   }
 
+  function micron100FireworkSfxEvents() {
+    return sceneStarts()
+      .filter(scene => scene.id === 'vitamins' || scene.id === 'minerals')
+      .filter(scene => maxMicronStepForSection(scene.id) >= 10)
+      .map(scene => ({
+        key: `micron-100-firework:${scene.id}`,
+        sceneId: scene.id,
+        time: Number((
+          scene.start
+          + MICRON_GRAPH_REVEAL_SECONDS
+          + MICRON_BAR_AFTER_GRAPH_SECONDS
+          + (9 * MICRON_BAR_STEP_SECONDS)
+        ).toFixed(3))
+      }))
+      .sort((a, b) => a.time - b.time || a.key.localeCompare(b.key));
+  }
+
+  function nextMicron100FireworkSfxAudio() {
+    if (!state.micron100FireworkSfxPool.length) {
+      state.micron100FireworkSfxPool = Array.from({ length: MICRON_100_FIREWORK_SFX_POOL_SIZE }, () => {
+        const audio = new Audio(docsAssetPath(MICRON_100_FIREWORK_SFX_PATH));
+        audio.preload = 'auto';
+        audio.volume = MICRON_100_FIREWORK_SFX_VOLUME;
+        return audio;
+      });
+    }
+    const audio = state.micron100FireworkSfxPool[state.micron100FireworkSfxPoolIndex % state.micron100FireworkSfxPool.length];
+    state.micron100FireworkSfxPoolIndex += 1;
+    return audio;
+  }
+
+  function playMicron100FireworkSfx(event) {
+    if (!state.audioEnabled || !event) return;
+    const audio = nextMicron100FireworkSfxAudio();
+    try {
+      audio.pause();
+      audio.currentTime = 0;
+      audio.volume = MICRON_100_FIREWORK_SFX_VOLUME;
+      audio.playbackRate = 1;
+      const playPromise = audio.play();
+      if (playPromise?.catch) playPromise.catch(() => {});
+    } catch {}
+  }
+
+  function pauseMicron100FireworkSfx() {
+    for (const audio of state.micron100FireworkSfxPool || []) {
+      try {
+        audio.pause();
+        audio.currentTime = 0;
+      } catch {}
+    }
+  }
+
+  function triggerMicron100FireworkSfxBetween(previousTime, currentTime) {
+    if (!state.playing || !state.audioEnabled || currentTime <= previousTime) return;
+    for (const event of micron100FireworkSfxEvents()) {
+      if (state.playedMicron100FireworkSfxKeys.has(event.key)) continue;
+      if (event.time <= previousTime || event.time > currentTime) continue;
+      state.playedMicron100FireworkSfxKeys.add(event.key);
+      playMicron100FireworkSfx(event);
+    }
+  }
+
   function macroBarFillSfxEvents() {
     return sceneStarts()
       .filter(scene => ['fats', 'carbs', 'protein'].includes(scene.id))
@@ -4965,6 +5034,7 @@
       pauseStampSfx();
       pauseTransitionSfx();
       pauseMicronBarConfirmSfx();
+      pauseMicron100FireworkSfx();
       pauseBarFillSfx();
     }
   }
@@ -4978,6 +5048,7 @@
     state.playedStampSfxKeys = new Set();
     state.playedTransitionSfxKeys = new Set();
     state.playedMicronBarConfirmSfxKeys = new Set();
+    state.playedMicron100FireworkSfxKeys = new Set();
     state.playedBarFillSfxKeys = new Set();
     els.playPause.textContent = 'Pause';
     primeBarFillSfx();
@@ -4993,6 +5064,7 @@
     triggerTransitionSfxBetween(previousTime, state.currentTime);
     triggerStampSfxBetween(previousTime, state.currentTime);
     triggerMicronBarConfirmSfxBetween(previousTime, state.currentTime);
+    triggerMicron100FireworkSfxBetween(previousTime, state.currentTime);
     triggerBarFillSfxBetween(previousTime, state.currentTime);
     if (state.currentTime >= totalDuration()) {
       state.currentTime = totalDuration();

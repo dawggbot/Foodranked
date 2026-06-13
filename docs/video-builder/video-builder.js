@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260613-last-quarter-bar-slowdown-v1';
+  const BUILDER_BUILD_ID = '20260613-quieter-bar-fill-sfx-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -53,11 +53,11 @@
   const HIGHLIGHT_GLOW_SFX_STOP_THRESHOLD = 0.0015;
   const MACRO_BAR_FILL_SFX_PATH = 'audio/sfx/ui/macro-bar-fill-highscore.mp3';
   const MACRO_BAR_FILL_SFX_SOURCE_SECONDS = 15.048;
-  const MACRO_BAR_FILL_SFX_VOLUME = 0.72;
-  const MACRO_BAR_FILL_SFX_GAIN = 0.86;
+  const MACRO_BAR_FILL_SFX_VOLUME = 0.36;
+  const MACRO_BAR_FILL_SFX_GAIN = 0.36;
   const MACRO_BAR_FILL_SFX_POOL_SIZE = 1;
-  const MACRO_BAR_FILL_SFX_FADE_IN_SECONDS = 0.06;
-  const MACRO_BAR_FILL_SFX_FADE_OUT_SECONDS = 0.26;
+  const MACRO_BAR_FILL_SFX_FADE_IN_SECONDS = 0.025;
+  const MACRO_BAR_FILL_SFX_FADE_OUT_SECONDS = 0.11;
   const MACRO_BAR_FILL_SFX_ENVELOPE_STEPS = 96;
   const AUDIO_TIMELINE_SYNC_TOLERANCE_SECONDS = 0.12;
   const SECTION_HOLD_SECONDS = 0.5;

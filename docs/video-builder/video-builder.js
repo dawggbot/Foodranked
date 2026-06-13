@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260613-smooth-rising-bar-fill-sfx-v1';
+  const BUILDER_BUILD_ID = '20260613-bar-fill-dwell-smooth-sfx-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -56,8 +56,9 @@
   const MACRO_BAR_FILL_SFX_VOLUME = 0.72;
   const MACRO_BAR_FILL_SFX_GAIN = 0.86;
   const MACRO_BAR_FILL_SFX_POOL_SIZE = 1;
-  const MACRO_BAR_FILL_SFX_FADE_IN_SECONDS = 0.035;
-  const MACRO_BAR_FILL_SFX_FADE_OUT_SECONDS = 0.18;
+  const MACRO_BAR_FILL_SFX_FADE_IN_SECONDS = 0.06;
+  const MACRO_BAR_FILL_SFX_FADE_OUT_SECONDS = 0.26;
+  const MACRO_BAR_FILL_SFX_ENVELOPE_STEPS = 96;
   const MACRO_BAR_FILL_SFX_SPEED_CURVE_STEPS = 64;
   const MACRO_BAR_FILL_SFX_SPEED_START_RATIO = 0.9;
   const MACRO_BAR_FILL_SFX_SPEED_END_RATIO = 1.1;
@@ -66,6 +67,7 @@
   const SECTION_HOLD_IDS = new Set(['intro', 'fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons']);
   const HIDDEN_CAPTION_SECTION_IDS = new Set(['intro']);
   const MACRO_REVEAL_SECONDS = 0.08;
+  const MACRO_BAR_START_DWELL_SECONDS = 0.5;
   const MACRO_BAR_FILL_SECONDS = 1.55;
   const MACRO_BAR_GIF_NATIVE_SECONDS = 8.1;
   const MACRO_BAR_MIN_VISIBLE_FILL_RATIO = 0.0011;
@@ -966,7 +968,7 @@
   }
 
   function macroSubmacroRevealDelaySeconds() {
-    return MACRO_REVEAL_SECONDS + MACRO_BAR_FILL_SECONDS + MACRO_ROW_AFTER_BAR_SECONDS;
+    return MACRO_REVEAL_SECONDS + MACRO_BAR_START_DWELL_SECONDS + MACRO_BAR_FILL_SECONDS + MACRO_ROW_AFTER_BAR_SECONDS;
   }
 
   function macroBarFillEase(progress) {
@@ -3914,7 +3916,7 @@
     if (!frames?.images?.length || targetRatio <= 0.001) return;
 
     const localElapsed = Math.max(0, Number(sceneElapsed) || 0);
-    const progress = macroBarFillEase((localElapsed - MACRO_REVEAL_SECONDS) / MACRO_BAR_FILL_SECONDS);
+    const progress = macroBarFillEase((localElapsed - MACRO_REVEAL_SECONDS - MACRO_BAR_START_DWELL_SECONDS) / MACRO_BAR_FILL_SECONDS);
     if (frames.static) {
       const image = frames.images[0];
       if (!image?.complete) return;
@@ -4322,7 +4324,7 @@
               gifNativeSeconds,
               gifPlaybackRate: macroBarFillSfxPlaybackRate(fillRatio, gifNativeSeconds),
               targetSeconds: MACRO_BAR_FILL_SECONDS,
-              time: Number((scene.start + schedule.startSeconds).toFixed(3))
+              time: Number((scene.start + schedule.startSeconds + MACRO_BAR_START_DWELL_SECONDS).toFixed(3))
             };
           })
       ))
@@ -4475,9 +4477,14 @@
     const playSeconds = Math.max(0.001, timing?.playSeconds || MACRO_BAR_FILL_SECONDS);
     const fadeInSeconds = Math.max(0, timing?.fadeInSeconds || 0);
     const fadeOutSeconds = Math.max(0, timing?.fadeOutSeconds || 0);
-    const fadeIn = fadeInSeconds > 0 ? clamp(elapsedSeconds / fadeInSeconds, 0, 1) : 1;
-    const fadeOut = fadeOutSeconds > 0 ? clamp((playSeconds - elapsedSeconds) / fadeOutSeconds, 0, 1) : 1;
+    const fadeIn = fadeInSeconds > 0 ? smoothstep(clamp(elapsedSeconds / fadeInSeconds, 0, 1)) : 1;
+    const fadeOut = fadeOutSeconds > 0 ? smoothstep(clamp((playSeconds - elapsedSeconds) / fadeOutSeconds, 0, 1)) : 1;
     return Math.min(fadeIn, fadeOut);
+  }
+
+  function smoothstep(progress) {
+    const safeProgress = clamp(progress, 0, 1);
+    return safeProgress * safeProgress * (3 - (2 * safeProgress));
   }
 
   function applyBarFillHtmlSfxEnvelope(audio, timing) {
@@ -4495,14 +4502,14 @@
   function applyBarFillWebAudioEnvelope(gain, context, timing) {
     const now = context.currentTime;
     const playSeconds = Math.max(0.001, timing.playSeconds);
-    const fadeInEnd = now + Math.max(0, timing.fadeInSeconds);
-    const fadeOutStart = now + Math.max(Math.max(0, timing.fadeInSeconds), playSeconds - Math.max(0, timing.fadeOutSeconds));
-    const end = now + playSeconds;
+    const steps = Math.max(8, MACRO_BAR_FILL_SFX_ENVELOPE_STEPS);
+    const curve = Float32Array.from({ length: steps }, (_, index) => {
+      const elapsedSeconds = playSeconds * (index / Math.max(1, steps - 1));
+      return MACRO_BAR_FILL_SFX_GAIN * barFillSfxEnvelope(elapsedSeconds, timing);
+    });
     gain.gain.cancelScheduledValues(now);
     gain.gain.setValueAtTime(0, now);
-    gain.gain.linearRampToValueAtTime(MACRO_BAR_FILL_SFX_GAIN, fadeInEnd);
-    gain.gain.setValueAtTime(MACRO_BAR_FILL_SFX_GAIN, fadeOutStart);
-    gain.gain.linearRampToValueAtTime(0, end);
+    gain.gain.setValueCurveAtTime(curve, now, playSeconds);
   }
 
   function applyBarFillWebAudioPlaybackRate(source, context, timing) {
@@ -4627,7 +4634,7 @@
     const revealWindowSeconds = isIntroStampSprite || isOutroTierStamp
       ? STAMP_REVEAL_SECONDS
       : isMacroBarFillReveal
-      ? MACRO_BAR_FILL_SECONDS
+      ? MACRO_BAR_START_DWELL_SECONDS + MACRO_BAR_FILL_SECONDS
       : isMacroRowReveal
       ? SUBMACRO_REVEAL_WINDOW_SECONDS
       : isMicronTierReveal

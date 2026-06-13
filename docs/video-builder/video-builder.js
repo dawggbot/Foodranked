@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260613-visible-micron-100-firework-v1';
+  const BUILDER_BUILD_ID = '20260613-clean-micron-100-firework-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -3988,24 +3988,11 @@
 
       const progress = clamp(burstElapsed / MICRON_100_FIREWORK_SECONDS, 0, 1);
       const box = layerGridBox(layer);
-      const boxWidth = Math.max(1, box.right - box.left);
-      const boxHeight = Math.max(1, box.bottom - box.top);
       const centerX = (box.left + box.right) / 2;
       const centerY = box.top + 1.2;
       const fade = Math.sin(progress * Math.PI);
       const ringScale = easeOutCubic(progress);
       const zIndex = Math.max((Number(layer.z) || 0) + 50, 140);
-
-      const halo = document.createElement('div');
-      halo.className = 'micron-100-firework-halo';
-      halo.style.left = `calc(${(box.left - 2.6).toFixed(2)}px * var(--pixel-unit))`;
-      halo.style.top = `calc(${(box.top - 3.2).toFixed(2)}px * var(--pixel-unit))`;
-      halo.style.width = `calc(${(boxWidth + 5.2).toFixed(2)}px * var(--pixel-unit))`;
-      halo.style.height = `calc(${(boxHeight + 6.4).toFixed(2)}px * var(--pixel-unit))`;
-      halo.style.zIndex = String(zIndex);
-      halo.style.opacity = String(clamp((1 - (progress * 0.42)) * 0.95, 0, 1).toFixed(3));
-      halo.style.transform = `scale(${(1 + (ringScale * 0.10)).toFixed(3)})`;
-      container.appendChild(halo);
 
       const core = document.createElement('div');
       core.className = 'micron-100-firework-core';

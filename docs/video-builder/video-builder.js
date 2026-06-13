@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260613-quieter-bar-fill-sfx-v1';
+  const BUILDER_BUILD_ID = '20260613-smooth-head-reveal-sfx-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -53,17 +53,19 @@
   const HIGHLIGHT_GLOW_SFX_STOP_THRESHOLD = 0.0015;
   const MACRO_BAR_FILL_SFX_PATH = 'audio/sfx/ui/macro-bar-fill-highscore.mp3';
   const MACRO_BAR_FILL_SFX_SOURCE_SECONDS = 15.048;
-  const MACRO_BAR_FILL_SFX_VOLUME = 0.36;
-  const MACRO_BAR_FILL_SFX_GAIN = 0.36;
+  const MACRO_BAR_FILL_SFX_VOLUME = 0.34;
+  const MACRO_BAR_FILL_SFX_GAIN = 0.34;
+  const MACRO_BAR_FILL_SFX_FILTER_HZ = 4800;
   const MACRO_BAR_FILL_SFX_POOL_SIZE = 1;
-  const MACRO_BAR_FILL_SFX_FADE_IN_SECONDS = 0.025;
-  const MACRO_BAR_FILL_SFX_FADE_OUT_SECONDS = 0.11;
+  const MACRO_BAR_FILL_SFX_FADE_IN_SECONDS = 0.035;
+  const MACRO_BAR_FILL_SFX_FADE_OUT_SECONDS = 0.14;
   const MACRO_BAR_FILL_SFX_ENVELOPE_STEPS = 96;
   const AUDIO_TIMELINE_SYNC_TOLERANCE_SECONDS = 0.12;
   const SECTION_HOLD_SECONDS = 0.5;
   const SECTION_HOLD_IDS = new Set(['intro', 'fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons']);
   const HIDDEN_CAPTION_SECTION_IDS = new Set(['intro']);
   const MACRO_REVEAL_SECONDS = 0.08;
+  const MACRO_HEAD_REVEAL_SECONDS = 0.22;
   const MACRO_BAR_START_DWELL_SECONDS = 0.5;
   const MACRO_BAR_FILL_SECONDS = 1.55;
   const MACRO_BAR_LAST_QUARTER_DURATION_MULTIPLIER = 1.65;
@@ -3703,6 +3705,9 @@
     }
     if (['fats', 'carbs', 'protein'].includes(sectionId)) {
       const rowIndex = macroRowIndex(layer);
+      if (isMacroBarFrame(layer)) return { family: 'macro', kind: 'bar-frame' };
+      if (isMacroIcon(layer)) return { family: 'macro', kind: 'icon' };
+      if (macroTextKind(layer, sectionId) === 'macro-label') return { family: 'macro', kind: 'macro-label' };
       if (isMacroBarFill(layer)) {
         return {
           family: 'macro',
@@ -3711,8 +3716,6 @@
           src: layer?.src || null
         };
       }
-      if (isMacroBarFrame(layer)) return { family: 'macro', kind: 'bar-frame' };
-      if (isMacroIcon(layer)) return { family: 'macro', kind: 'icon' };
       if (isMacroTotalText(layer, sectionId)) return { family: 'macro', kind: macroTextKind(layer, sectionId) };
       if (rowIndex != null) {
         return {
@@ -3762,6 +3765,11 @@
       graphAnchor,
       0.94
     );
+  }
+
+  function isMacroHeadRevealSchedule(schedule) {
+    return schedule?.family === 'macro'
+      && ['icon', 'bar-frame', 'bar-fill', 'macro-label'].includes(schedule?.kind);
   }
 
   function revealAnchorForLayer(layer, scene, classification, timing, index = 0) {
@@ -4558,11 +4566,15 @@
         if (!state.audioEnabled || !state.playing) return;
         const source = context.createBufferSource();
         const gain = context.createGain();
+        const filter = context.createBiquadFilter();
         const timing = macroBarFillSfxTiming(event, buffer.duration);
         source.buffer = buffer;
         source.playbackRate.value = timing.playbackRate;
+        filter.type = 'lowpass';
+        filter.frequency.value = MACRO_BAR_FILL_SFX_FILTER_HZ;
+        filter.Q.value = 0.4;
         applyBarFillWebAudioEnvelope(gain, context, timing);
-        source.connect(gain).connect(context.destination);
+        source.connect(filter).connect(gain).connect(context.destination);
         state.barFillSfxSources.add(source);
         source.onended = () => {
           state.barFillSfxSources.delete(source);
@@ -4620,6 +4632,7 @@
     const isMacroRowReveal = revealSchedule?.family === 'macro' && revealSchedule.rowIndex != null;
     const isMacroArrowReveal = isMacroRowReveal && revealSchedule?.kind === 'arrow';
     const isMacroBarFillReveal = revealSchedule?.family === 'macro' && revealSchedule?.kind === 'bar-fill';
+    const isMacroHeadReveal = isMacroHeadRevealSchedule(revealSchedule);
     const isMicronReveal = revealSchedule?.family === 'micron';
     const isMicronTierReveal = isMicronReveal && ['dv-bar', 'icon', 'label', 'value'].includes(revealSchedule?.kind);
     const isProConRowReveal = (revealSchedule?.family === 'pros' || revealSchedule?.family === 'cons') && revealSchedule.rowIndex != null;
@@ -4630,8 +4643,8 @@
       && String(layer?.effect || '').includes('d-tier-stamp');
     const revealWindowSeconds = isIntroStampSprite || isOutroTierStamp
       ? STAMP_REVEAL_SECONDS
-      : isMacroBarFillReveal
-      ? MACRO_BAR_START_DWELL_SECONDS + macroBarFillDurationSeconds(layer?.fillRatio ?? revealSchedule?.fillRatio)
+      : isMacroHeadReveal
+      ? MACRO_HEAD_REVEAL_SECONDS
       : isMacroRowReveal
       ? SUBMACRO_REVEAL_WINDOW_SECONDS
       : isMicronTierReveal
@@ -4639,8 +4652,8 @@
         : isMicronReveal
           ? MICRON_STAMP_REVEAL_SECONDS
       : AUDIO_REVEAL_WINDOW_SECONDS;
-    const revealLead = isMacroRowReveal || isMacroBarFillReveal || isMicronReveal ? 0 : Math.min(0.035, AUDIO_REVEAL_LEAD_SECONDS / sceneDuration);
-    const revealWindow = isMacroBarFillReveal
+    const revealLead = isMacroRowReveal || isMacroHeadReveal || isMicronReveal ? 0 : Math.min(0.035, AUDIO_REVEAL_LEAD_SECONDS / sceneDuration);
+    const revealWindow = isMacroHeadReveal
       ? Math.min(0.94, Math.max(0.001, revealWindowSeconds / sceneDuration))
       : isMacroRowReveal
       ? macroRevealWindowProgress(scene, revealWindowSeconds)
@@ -4664,9 +4677,9 @@
     let stampImpactPulse = 0;
     const lockSpriteLayout = layer.kind === 'sprite' && !persistent && !isProConRowReveal;
 
-    if (isMacroBarFillReveal) {
+    if (isMacroHeadReveal) {
       const targetFill = clamp(asNumber(layer?.fillRatio, revealSchedule?.fillRatio ?? 0), 0, 1);
-      visible = rawRevealProgress > 0 && targetFill > 0.001 ? 1 : 0;
+      visible = isMacroBarFillReveal && targetFill <= 0.001 ? 0 : visible;
       opacity = visible;
       scale = 1;
     } else if (isOutroTierStamp || isIntroStampSprite) {
@@ -4695,7 +4708,7 @@
     }
 
     const flip = layer.flipY ? ' scaleY(-1)' : '';
-    if (options.opaqueSpriteReveal && rawRevealProgress > 0) opacity = 1;
+    if (options.opaqueSpriteReveal && rawRevealProgress > 0 && !isMacroHeadReveal) opacity = 1;
     node.style.transformOrigin = isMacroArrowReveal || isOutroTierStamp || isIntroStampSprite || layer.flipY ? 'center' : 'top left';
     node.style.opacity = String(opacity);
     node.style.transform = `translate3d(calc(${x}px * var(--pixel-unit)), calc(${y}px * var(--pixel-unit)), 0) rotate(${rotate.toFixed(2)}deg) scale(${scale})${flip}`;

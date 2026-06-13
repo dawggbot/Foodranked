@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260613-micron-100-firework-lead-sfx-v1';
+  const BUILDER_BUILD_ID = '20260613-micron-100-firework-lead-pop-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -59,9 +59,9 @@
   const MICRON_BAR_CONFIRM_SFX_POOL_SIZE = 8;
   const MICRON_BAR_CONFIRM_SFX_PLAY_SECONDS = 0.18;
   const MICRON_BAR_CONFIRM_SFX_PLAYBACK_RATE_RANGE = { min: 0.78, max: 1.58 };
-  const MICRON_100_FIREWORK_LEAD_SFX_PATH = 'audio/sfx/sparkles/freesound_community-small-explosion-103779.mp3';
+  const MICRON_100_FIREWORK_LEAD_SFX_PATH = 'audio/sfx/sparkles/micron-100-firework-lead-pop.mp3';
   const MICRON_100_FIREWORK_LEAD_SFX_VOLUME = 0.2;
-  const MICRON_100_FIREWORK_LEAD_SFX_SECONDS = 0.11;
+  const MICRON_100_FIREWORK_LEAD_SFX_SECONDS = 0.06;
   const MICRON_100_FIREWORK_LEAD_SFX_POOL_SIZE = 2;
   const MICRON_100_FIREWORK_SFX_PATH = 'audio/sfx/sparkles/freesound_community-firework-cluster-90480.mp3';
   const MICRON_100_FIREWORK_SFX_VOLUME = 0.28;

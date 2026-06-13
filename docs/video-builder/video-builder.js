@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260613-macro-head-occlusion-v1';
+  const BUILDER_BUILD_ID = '20260613-macro-head-group-reveal-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -66,7 +66,6 @@
   const HIDDEN_CAPTION_SECTION_IDS = new Set(['intro']);
   const MACRO_REVEAL_SECONDS = 0.08;
   const MACRO_HEAD_REVEAL_SECONDS = 0.22;
-  const MACRO_HEAD_OCCLUSION_PADDING_PX = 2;
   const MACRO_BAR_START_DWELL_SECONDS = 0.5;
   const MACRO_BAR_FILL_SECONDS = 1.55;
   const MACRO_BAR_LAST_QUARTER_DURATION_MULTIPLIER = 1.65;
@@ -1301,14 +1300,6 @@
     return ['fats', 'carbs', 'protein'].includes(fallbackSectionId) ? fallbackSectionId : '';
   }
 
-  function macroAssetSection(layer, fallbackSectionId = '') {
-    const fingerprint = `${layer?.id || ''} ${layer?.label || ''} ${layer?.src || ''}`.toLowerCase();
-    if (fingerprint.includes('section_1_fats') || /\bfats?\b/.test(fingerprint) || /\bfat[_ -]?icon\b/.test(fingerprint)) return 'fats';
-    if (fingerprint.includes('section_2_carbs') || /\bcarbs?\b/.test(fingerprint) || /\bcarb[_ -]?icon\b/.test(fingerprint)) return 'carbs';
-    if (fingerprint.includes('section_3_protein') || /\bprotein\b/.test(fingerprint)) return 'protein';
-    return ['fats', 'carbs', 'protein'].includes(fallbackSectionId) ? fallbackSectionId : '';
-  }
-
   function isMacroBarFrame(layer) {
     const fingerprint = `${layer?.id || ''} ${layer?.label || ''} ${layer?.src || ''}`.toLowerCase();
     return isSpriteLayer(layer) && /(macro_bar_frame|bar_frame|macro bar frame)/.test(fingerprint);
@@ -2451,9 +2442,37 @@
     const proConHighlightMap = proConNarrationHighlightMap(scene, narrationProgress);
     updateHighlightGlowSfx(strongestHighlightCue(scene, macroHighlightMap, micronHighlightMap, proConHighlightMap));
     const existingNodes = new Map(
-      Array.from(roots.layerRoot.children).map(node => [node.dataset.renderKey || '', node])
+      Array.from(roots.layerRoot.querySelectorAll('[data-render-key]')).map(node => [node.dataset.renderKey || '', node])
     );
     const nextLayerNodes = document.createDocumentFragment();
+    const macroHeadSchedules = revealSchedules.filter(isMacroHeadRevealSchedule);
+    const macroHeadMaxZ = layers.reduce((maxZ, { layer }, scheduleIndex) => (
+      isMacroHeadRevealSchedule(revealSchedules[scheduleIndex])
+        ? Math.max(maxZ, Number(layer.z) || 0)
+        : maxZ
+    ), 0);
+    const macroHeadGroupKey = `scene:macro-head-group:${scene.id}`;
+    let macroHeadGroup = null;
+    if (macroHeadSchedules.length) {
+      macroHeadGroup = existingNodes.get(macroHeadGroupKey);
+      if (!macroHeadGroup || !macroHeadGroup.classList?.contains('macro-head-group')) {
+        macroHeadGroup = document.createElement('div');
+      }
+      macroHeadGroup.replaceChildren();
+      macroHeadGroup.removeAttribute('style');
+      macroHeadGroup.className = 'layer-group macro-head-group';
+      macroHeadGroup.dataset.renderKey = macroHeadGroupKey;
+      macroHeadGroup.dataset.revealFamily = 'macro';
+      macroHeadGroup.dataset.revealKind = 'macro-head-group';
+      macroHeadGroup.style.position = 'absolute';
+      macroHeadGroup.style.inset = '0';
+      macroHeadGroup.style.pointerEvents = 'none';
+      macroHeadGroup.style.isolation = 'isolate';
+      macroHeadGroup.style.willChange = 'opacity';
+      macroHeadGroup.style.opacity = String(macroHeadRevealOpacity(scene, sceneProgress, revealSchedules));
+      macroHeadGroup.style.zIndex = String(macroHeadMaxZ);
+      nextLayerNodes.appendChild(macroHeadGroup);
+    }
     layers.forEach(({ layer, index, persistent }, renderIndex) => {
       if (layer.visible === false) return;
       const macroBarFillLayer = !persistent && isMacroBarFill(layer);
@@ -2473,15 +2492,21 @@
       node.dataset.revealDelay = revealDelay.toFixed(3);
       node.dataset.revealFamily = revealSchedule.family;
       node.dataset.revealKind = revealSchedule.kind;
-      node.style.zIndex = String(Number(layer.z) || 0);
+      const groupedMacroHeadReveal = Boolean(macroHeadGroup && isMacroHeadRevealSchedule(revealSchedule));
+      node.style.zIndex = String(
+        groupedMacroHeadReveal && revealSchedule.kind === 'icon'
+          ? macroHeadMaxZ + 2
+          : Number(layer.z) || 0
+      );
       applyLayerBox(node, layer);
       applyLayerAnimation(node, layer, scene, sceneProgress, index, persistent, revealSchedule, {
-        occlusionClipPath: macroHeadOcclusionClipPath(layer, revealSchedule, layerList, scene.id),
+        groupedReveal: groupedMacroHeadReveal,
         opaqueSpriteReveal: shouldRevealStackedMacroSpriteOpaque(layer, revealSchedule, layerList)
       });
+      const renderParent = groupedMacroHeadReveal ? macroHeadGroup : nextLayerNodes;
       if (macroBarFillLayer) {
         drawMacroBarFillCanvas(node, layer, sceneElapsed, revealSchedule);
-        nextLayerNodes.appendChild(node);
+        renderParent.appendChild(node);
         return;
       }
       if (layer.kind === 'sprite') {
@@ -2513,7 +2538,7 @@
       applySubmacroNarrationHighlight(node, scene, revealSchedule, macroHighlightMap);
       applyMicronNarrationHighlight(node, scene, revealSchedule, micronHighlightMap);
       applyProConNarrationHighlight(node, scene, revealSchedule, proConHighlightMap);
-      nextLayerNodes.appendChild(node);
+      renderParent.appendChild(node);
     });
     roots.layerRoot.replaceChildren(nextLayerNodes);
 
@@ -3782,6 +3807,14 @@
       && ['icon', 'bar-frame', 'bar-fill', 'macro-label'].includes(schedule?.kind);
   }
 
+  function macroHeadRevealOpacity(scene, sceneProgress, revealSchedules = []) {
+    const schedule = revealSchedules.find(isMacroHeadRevealSchedule);
+    if (!schedule) return 1;
+    const sceneDuration = Math.max(1, sceneContentDuration(scene));
+    const revealWindow = Math.min(0.94, Math.max(0.001, MACRO_HEAD_REVEAL_SECONDS / sceneDuration));
+    return clamp(easeOutCubic((sceneProgress - schedule.start) / revealWindow), 0, 1);
+  }
+
   function revealAnchorForLayer(layer, scene, classification, timing, index = 0) {
     const sectionId = scene?.id || '';
     const segments = timing.sentences || sceneTimedSentences(scene);
@@ -3913,36 +3946,6 @@
 
   function boxesOverlap(a, b) {
     return a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
-  }
-
-  function macroHeadOcclusionClipPath(layer, revealSchedule, sortedLayers = [], fallbackSectionId = '') {
-    if (revealSchedule?.family !== 'macro' || (!isMacroBarFill(layer) && !isMacroBarFrame(layer))) return '';
-    const sectionId = macroAssetSection(layer, fallbackSectionId);
-    if (!sectionId) return '';
-    const box = layerGridBox(layer);
-    if (box.right <= box.left || box.bottom <= box.top) return '';
-
-    let leftInset = 0;
-    for (const other of sortedLayers) {
-      if (other === layer || other?.visible === false || !isMacroIcon(other)) continue;
-      if (macroAssetSection(other, fallbackSectionId) !== sectionId) continue;
-      const otherBox = layerGridBox(other);
-      const occluder = {
-        left: otherBox.left - MACRO_HEAD_OCCLUSION_PADDING_PX,
-        top: otherBox.top - MACRO_HEAD_OCCLUSION_PADDING_PX,
-        right: otherBox.right + MACRO_HEAD_OCCLUSION_PADDING_PX,
-        bottom: otherBox.bottom + MACRO_HEAD_OCCLUSION_PADDING_PX
-      };
-      if (occluder.right <= occluder.left || occluder.bottom <= occluder.top || !boxesOverlap(box, occluder)) continue;
-      const overlapLeft = Math.max(box.left, occluder.left);
-      const overlapRight = Math.min(box.right, occluder.right);
-      if (overlapLeft <= box.left + MACRO_HEAD_OCCLUSION_PADDING_PX) {
-        leftInset = Math.max(leftInset, overlapRight - box.left);
-      }
-    }
-
-    if (leftInset <= 0) return '';
-    return `inset(0 0 0 calc(${leftInset.toFixed(2)}px * var(--pixel-unit)))`;
   }
 
   function shouldRevealStackedMacroSpriteOpaque(layer, revealSchedule, sortedLayers = []) {
@@ -4719,7 +4722,9 @@
 
     if (isMacroHeadReveal) {
       const targetFill = clamp(asNumber(layer?.fillRatio, revealSchedule?.fillRatio ?? 0), 0, 1);
-      visible = isMacroBarFillReveal && targetFill <= 0.001 ? 0 : visible;
+      visible = options.groupedReveal
+        ? (isMacroBarFillReveal && targetFill <= 0.001 ? 0 : 1)
+        : (isMacroBarFillReveal && targetFill <= 0.001 ? 0 : visible);
       opacity = visible;
       scale = 1;
     } else if (isOutroTierStamp || isIntroStampSprite) {
@@ -4749,7 +4754,6 @@
 
     const flip = layer.flipY ? ' scaleY(-1)' : '';
     if (options.opaqueSpriteReveal && rawRevealProgress > 0 && !isMacroHeadReveal) opacity = 1;
-    if (options.occlusionClipPath) clip = options.occlusionClipPath;
     node.style.transformOrigin = isMacroArrowReveal || isOutroTierStamp || isIntroStampSprite || layer.flipY ? 'center' : 'top left';
     node.style.opacity = String(opacity);
     node.style.transform = `translate3d(calc(${x}px * var(--pixel-unit)), calc(${y}px * var(--pixel-unit)), 0) rotate(${rotate.toFixed(2)}deg) scale(${scale})${flip}`;

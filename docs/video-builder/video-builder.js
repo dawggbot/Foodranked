@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260613-slower-bar-fill-sfx-v1';
+  const BUILDER_BUILD_ID = '20260613-gif-speed-bar-fill-sfx-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -53,7 +53,6 @@
   const HIGHLIGHT_GLOW_SFX_STOP_THRESHOLD = 0.0015;
   const MACRO_BAR_FILL_SFX_PATH = 'audio/sfx/ui/macro-bar-fill-highscore.mp3';
   const MACRO_BAR_FILL_SFX_SOURCE_SECONDS = 15.048;
-  const MACRO_BAR_FILL_SFX_TARGET_SECONDS = 3.6;
   const MACRO_BAR_FILL_SFX_VOLUME = 1;
   const MACRO_BAR_FILL_SFX_GAIN = 1.35;
   const MACRO_BAR_FILL_SFX_POOL_SIZE = 1;
@@ -65,7 +64,9 @@
   const MACRO_BAR_FILL_SECONDS = 1.55;
   const MACRO_BAR_GIF_NATIVE_SECONDS = 8.1;
   const MACRO_BAR_GIF_PLAYBACK_RATE = MACRO_BAR_GIF_NATIVE_SECONDS / MACRO_BAR_FILL_SECONDS;
-  const MACRO_BAR_FILL_SFX_PLAYBACK_RATE = MACRO_BAR_FILL_SFX_SOURCE_SECONDS / MACRO_BAR_FILL_SFX_TARGET_SECONDS;
+  const MACRO_BAR_FILL_SFX_SLICE_SECONDS = Math.min(MACRO_BAR_FILL_SFX_SOURCE_SECONDS, MACRO_BAR_GIF_NATIVE_SECONDS);
+  const MACRO_BAR_FILL_SFX_PLAYBACK_RATE = MACRO_BAR_GIF_PLAYBACK_RATE;
+  const MACRO_BAR_FILL_SFX_PLAY_SECONDS = MACRO_BAR_FILL_SFX_SLICE_SECONDS / MACRO_BAR_FILL_SFX_PLAYBACK_RATE;
   const MACRO_BAR_MIN_VISIBLE_FILL_RATIO = 0.0011;
   const MACRO_ROW_AFTER_BAR_SECONDS = 0.14;
   const MACRO_BAR_GIF_FRAME_STEPS = 80;
@@ -4378,7 +4379,7 @@
           audio.pause();
           audio.currentTime = 0;
         } catch {}
-      }, Math.round(MACRO_BAR_FILL_SECONDS * 1000));
+      }, Math.round(MACRO_BAR_FILL_SFX_PLAY_SECONDS * 1000));
     } catch {}
   }
 
@@ -4407,8 +4408,9 @@
         source.onended = () => {
           state.barFillSfxSources.delete(source);
         };
-        const duration = Math.min(MACRO_BAR_FILL_SECONDS, buffer.duration / source.playbackRate.value);
-        source.start(0, 0, duration);
+        const playSeconds = Math.min(MACRO_BAR_FILL_SFX_PLAY_SECONDS, buffer.duration / source.playbackRate.value);
+        source.start(0, 0);
+        source.stop(context.currentTime + playSeconds);
       })
       .catch(() => {
         playBarFillHtmlSfx(event);

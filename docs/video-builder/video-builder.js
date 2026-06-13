@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260613-sync-bar-fill-sfx-speed-v1';
+  const BUILDER_BUILD_ID = '20260613-rising-bar-fill-sfx-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -4450,7 +4450,7 @@
     const steps = Math.max(8, MACRO_BAR_FILL_SFX_SPEED_CURVE_STEPS);
     const raw = Array.from({ length: steps }, (_, index) => {
       const progress = steps === 1 ? 1 : index / (steps - 1);
-      const easeSpeed = 4 * Math.pow(1 - progress, 3);
+      const easeSpeed = 4 * Math.pow(progress, 3);
       return Math.max(MACRO_BAR_FILL_SFX_MIN_SPEED_RATIO, easeSpeed);
     });
     const weightedSum = raw.reduce((sum, value, index) => {

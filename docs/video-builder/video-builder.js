@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260613-clean-micron-100-firework-v1';
+  const BUILDER_BUILD_ID = '20260613-soft-micron-100-firework-core-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -3998,11 +3998,11 @@
       core.className = 'micron-100-firework-core';
       core.style.left = `calc(${centerX.toFixed(2)}px * var(--pixel-unit))`;
       core.style.top = `calc(${centerY.toFixed(2)}px * var(--pixel-unit))`;
-      core.style.width = `calc(${(2.4 + ((1 - progress) * 1.4)).toFixed(2)}px * var(--pixel-unit))`;
+      core.style.width = `calc(${(0.9 + ((1 - progress) * 0.45)).toFixed(2)}px * var(--pixel-unit))`;
       core.style.height = core.style.width;
       core.style.zIndex = String(zIndex + MICRON_100_FIREWORK_SPARKS.length + 1);
-      core.style.opacity = String(clamp((1 - progress) * 1.2, 0, 1).toFixed(3));
-      core.style.transform = `translate3d(-50%, -50%, 0) scale(${(1 + (ringScale * 0.42)).toFixed(3)})`;
+      core.style.opacity = String(clamp((1 - progress) * 0.42, 0, 0.42).toFixed(3));
+      core.style.transform = `translate3d(-50%, -50%, 0) scale(${(1 + (ringScale * 0.18)).toFixed(3)})`;
       container.appendChild(core);
 
       MICRON_100_FIREWORK_SPARKS.forEach((spark, sparkIndex) => {

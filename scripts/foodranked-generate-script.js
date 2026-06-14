@@ -19,6 +19,11 @@ const PROTEIN_SUBMACRO_KEYS = [
   'nonessential_amino_acids_score',
   'collagen_g'
 ];
+const PROTEIN_QUALITY_METRIC_KEYS = new Set([
+  'essential_amino_acids_score',
+  'bioavailability_percent',
+  'nonessential_amino_acids_score'
+]);
 
 function scoreFood(foodPath, rulesetPath) {
   const res = spawnSync(process.execPath, [scorerPath, foodPath, rulesetPath], {
@@ -137,6 +142,8 @@ function rawProteinSubmetrics(result, limit = 4) {
       const value = rawMetrics[metricKey];
       if (value === null || value === undefined) return null;
       const scored = scoredMetrics.get(metricKey);
+      if (PROTEIN_QUALITY_METRIC_KEYS.has(metricKey) && !scored) return null;
+      if (PROTEIN_QUALITY_METRIC_KEYS.has(metricKey) && result.proteinQualityGate?.eligible === false) return null;
       return {
         metricKey,
         text: metricDisplayText({ metricKey, value, scoringMode: scored?.scoringMode || 'reference_submacro' }),
@@ -173,13 +180,13 @@ function topMetricsForSection(result, sectionKey, limit = 3, options = {}) {
   if (sectionKey === 'proteins') {
     const nonFallbackMetrics = scoredMetrics.filter(metric => metric.metricKey !== 'protein_g_fallback');
     const referenceMetrics = rawProteinSubmetrics(result, limit);
-    const referenceKeys = new Set(referenceMetrics.map(metric => metric.metricKey));
     const merged = [
       ...nonFallbackMetrics,
-      ...referenceMetrics.filter(metric => !nonFallbackMetrics.some(item => item.metricKey === metric.metricKey))
+      ...referenceMetrics.filter(metric => !nonFallbackMetrics.some(item => item.metricKey === metric.metricKey)),
+      ...scoredMetrics.filter(metric => metric.metricKey === 'protein_g_fallback')
     ];
     if (merged.length) return merged.slice(0, limit);
-    return scoredMetrics.filter(metric => !referenceKeys.has(metric.metricKey) && metric.metricKey !== 'protein_g_fallback').slice(0, limit);
+    return scoredMetrics.slice(0, limit);
   }
 
   return scoredMetrics.slice(0, limit);
@@ -245,15 +252,7 @@ function uniqueMetrics(metrics, limit = 4) {
 
 function outstandingMacroMetrics(result, sectionKey, limit = 4) {
   if (sectionKey === 'proteins') {
-    const proteinSubmetrics = rawProteinSubmetrics(result, limit);
-    const byKey = key => proteinSubmetrics.find(metric => metric.metricKey === key);
-    return uniqueMetrics([
-      byKey('essential_amino_acids_score'),
-      byKey('bioavailability_percent'),
-      byKey('collagen_g'),
-      byKey('nonessential_amino_acids_score'),
-      ...proteinSubmetrics
-    ], limit);
+    return topMetricsForSection(result, sectionKey, limit);
   }
 
   const metrics = scoredMetricsForSection(result, sectionKey);
@@ -412,11 +411,13 @@ function strongestMetricLine(result, sectionKey) {
   }
 
   if (sectionKey === 'proteins') {
-    const proteinSubmetrics = rawProteinSubmetrics(result, 4);
-    const bioavailability = proteinSubmetrics.find(metric => metric.metricKey === 'bioavailability_percent');
-    const essentialAmino = proteinSubmetrics.find(metric => metric.metricKey === 'essential_amino_acids_score');
-    const nonessentialAmino = proteinSubmetrics.find(metric => metric.metricKey === 'nonessential_amino_acids_score');
-    const collagen = proteinSubmetrics.find(metric => metric.metricKey === 'collagen_g');
+    const proteinMetrics = topMetricsForSection(result, sectionKey, 4);
+    const proteinAmount = proteinMetrics.find(metric => metric.metricKey === 'protein_g_fallback');
+    const bioavailability = proteinMetrics.find(metric => metric.metricKey === 'bioavailability_percent');
+    const essentialAmino = proteinMetrics.find(metric => metric.metricKey === 'essential_amino_acids_score');
+    const nonessentialAmino = proteinMetrics.find(metric => metric.metricKey === 'nonessential_amino_acids_score');
+    const collagen = proteinMetrics.find(metric => metric.metricKey === 'collagen_g');
+    if (proteinAmount) return `${metricValuePhrase(proteinAmount)}, so the protein score is about useful amount rather than amino acid presence`;
     if (essentialAmino && bioavailability) {
       return `${metricValuePhrase(essentialAmino)}, with ${metricValueText(bioavailability)} bioavailability`;
     }
@@ -516,6 +517,17 @@ function weakMetricLine(metric, result, sectionKey) {
   return `${metricValuePhrase(metric)}, ${context}`;
 }
 
+function proteinFallbackContext(result, score) {
+  const foodType = result.food.foodType;
+  if (score >= 60) return 'that amount is useful enough to count';
+  if (foodType === 'meats') return 'for meats, that is lower than you want';
+  if (foodType === 'dairy') return 'a modest protein point, but not the whole argument';
+  if (foodType === 'seeds' || foodType === 'nuts') return 'protein is support here, not the main reason to pick it';
+  if (foodType === 'grains') return 'not enough to make protein the main story';
+  if (foodType === 'tubers') return 'so protein is barely part of the case';
+  return 'not enough to make protein a serious strength';
+}
+
 function outstandingMacroLine(result, sectionKey) {
   const metrics = outstandingMacroMetrics(result, sectionKey, 4);
   if (!metrics.length) {
@@ -525,9 +537,17 @@ function outstandingMacroLine(result, sectionKey) {
 
   if (sectionKey === 'proteins') {
     const byKey = key => metrics.find(metric => metric.metricKey === key);
+    const proteinAmount = byKey('protein_g_fallback');
     const essentialAmino = byKey('essential_amino_acids_score');
     const bioavailability = byKey('bioavailability_percent');
     const collagen = byKey('collagen_g');
+    if (proteinAmount) {
+      const score = result.sectionScores?.proteins ?? null;
+      return joinShort([
+        proteinFallbackContext(result, score),
+        collagen ? weakMetricLine(collagen, result, sectionKey) : null
+      ]).replace(/[.]$/g, '');
+    }
     const best = essentialAmino && bioavailability
       ? `${metricValuePhrase(essentialAmino)}, with ${metricValueText(bioavailability)} bioavailability, making the protein useful for repair and maintenance`
       : bestMetricLine(essentialAmino || bioavailability || metrics[0], sectionKey);

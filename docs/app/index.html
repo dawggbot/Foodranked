@@ -1799,6 +1799,12 @@
       layout.meta[MACRO_SECTION_LAYOUT_SYNC_KEY] = true;
     }
 
+    const PROTEIN_QUALITY_METRIC_KEYS = new Set([
+      'essential_amino_acids_score',
+      'nonessential_amino_acids_score',
+      'bioavailability_percent'
+    ]);
+
     function getMacroSubmetricTextSpecs(sectionId) {
       const specs = {
         fats: [
@@ -1814,10 +1820,10 @@
           { key: 'glycemic_index', metricKey: 'glycemic_index', label: 'GI', value: food => formatMetricText(food?.metrics?.glycemic_index, '') }
         ],
         protein: [
+          { key: 'protein_amount', metricKey: 'protein_g_fallback', displayMetricKeys: ['protein_g'], label: 'AMOUNT', value: food => formatMetricText(food?.header?.protein_g, 'g') },
           { key: 'collagen', metricKey: 'collagen_g', label: 'COLLAGEN', value: food => formatMetricText(food?.metrics?.collagen_g, 'g') },
-          { key: 'eaa', metricKey: 'essential_amino_acids_score', label: 'EAA', value: food => formatRatioMetricText(food?.metrics?.essential_amino_acids_score, 9) },
-          { key: 'non_eaa', metricKey: 'nonessential_amino_acids_score', label: 'N-EAA', value: food => formatRatioMetricText(food?.metrics?.nonessential_amino_acids_score, 11) },
-          { key: 'bioavailability', metricKey: 'bioavailability_percent', label: 'BIOAVAIL.', value: food => formatMetricText(food?.metrics?.bioavailability_percent, '%') }
+          { key: 'bioavailability', metricKey: 'bioavailability_percent', label: 'BIOAVAIL.', value: food => formatMetricText(food?.metrics?.bioavailability_percent, '%') },
+          { key: 'eaa', metricKey: 'essential_amino_acids_score', label: 'EAA', value: food => formatRatioMetricText(food?.metrics?.essential_amino_acids_score, 9) }
         ]
       };
       return specs[sectionId] || [];
@@ -1977,7 +1983,7 @@
       const defaultOrders = {
         fats: ['sat_fat', 'poly_fat', 'omega3', 'cholesterol'],
         carbs: ['fibre', 'sugar', 'starch', 'glycemic_index'],
-        protein: ['collagen', 'eaa', 'non_eaa', 'bioavailability']
+        protein: ['protein_amount', 'collagen', 'bioavailability', 'eaa']
       };
       const defaultOrder = defaultOrders[sectionId] || specs.map(spec => spec.key);
       const remaining = [...defaultOrder];
@@ -1993,11 +1999,12 @@
         else if (/sugar/.test(fingerprint)) key = 'sugar';
         else if (/starch/.test(fingerprint)) key = 'starch';
         else if (/glycemic|\bgi\b/.test(fingerprint)) key = 'glycemic_index';
+        else if (/protein[ _-]?(amount|quantity)|\bamount\b|protein_g/.test(fingerprint)) key = 'protein_amount';
         else if (/collagen/.test(fingerprint)) key = 'collagen';
         else if (/bioavail/.test(fingerprint)) key = 'bioavailability';
         else if (/non[ _-]?eaa|nonessential/.test(fingerprint)) key = 'non_eaa';
         else if (/\beaa\b|essential/.test(fingerprint)) key = 'eaa';
-        else if (/protein/.test(fingerprint)) key = 'collagen';
+        else if (/protein/.test(fingerprint)) key = 'protein_amount';
 
         if (!key || !remaining.includes(key)) key = remaining[0];
         remaining.splice(remaining.indexOf(key), 1);
@@ -4122,9 +4129,9 @@
     }
 
     function getMetricRuleForSpec(food, sectionId, spec) {
-      if (spec.metricKey === 'protein_g' && food?.ruleset?.proteinFallback) {
+      if (sectionId === 'protein' && ['protein_g', 'protein_g_fallback'].includes(spec.metricKey) && food?.ruleset?.proteinFallback) {
         return {
-          metricKey: 'protein_g',
+          metricKey: food.ruleset.proteinFallback.metricKey || 'protein_g_fallback',
           sectionKey: 'proteins',
           scoringMode: 'arrow_bands',
           polarity: 'higher_better',
@@ -4140,19 +4147,25 @@
       }) || null;
     }
 
-    function rawMetricValueForSpec(food, spec) {
-      if (spec.metricKey === 'protein_g') return asNumber(food?.header?.protein_g, null);
+    function proteinQualitySpecAllowed(food, sectionId, spec) {
+      if (sectionId !== 'protein' || !PROTEIN_QUALITY_METRIC_KEYS.has(spec.metricKey)) return true;
+      return !!getEpisodeDisplayItemForSpec(food, sectionId, spec) || !!getBatchMetricBreakdownItemForSpec(food, sectionId, spec);
+    }
+
+    function rawMetricValueForSpec(food, sectionId, spec) {
+      if (!proteinQualitySpecAllowed(food, sectionId, spec)) return null;
+      if (sectionId === 'protein' && ['protein_g', 'protein_g_fallback'].includes(spec.metricKey)) return asNumber(food?.header?.protein_g, null);
       return asNumber(food?.metrics?.[spec.metricKey], null);
     }
 
     function ruleBandForValue(rule, value) {
       if (!rule || value == null) return null;
-      return (rule.bands || []).find(band => {
-        const aboveMin = band.min == null || value >= Number(band.min);
-        const belowMax = band.max == null || value < Number(band.max);
-        return aboveMin && belowMax;
-      }) || null;
-    }
+    return (rule.bands || []).find(band => {
+      const aboveMin = band.min == null || value >= Number(band.min);
+      const belowMax = band.max == null || value <= Number(band.max);
+      return aboveMin && belowMax;
+    }) || null;
+  }
 
     function arrowBandForSpec(food, sectionId, spec) {
       const displayItem = getEpisodeDisplayItemForSpec(food, sectionId, spec);
@@ -4160,16 +4173,17 @@
       const batchBreakdownItem = getBatchMetricBreakdownItemForSpec(food, sectionId, spec);
       if (batchBreakdownItem?.band) return batchBreakdownItem.band;
       const rule = getMetricRuleForSpec(food, sectionId, spec);
-      return ruleBandForValue(rule, rawMetricValueForSpec(food, spec))?.label || null;
+      return ruleBandForValue(rule, rawMetricValueForSpec(food, sectionId, spec))?.label || null;
     }
 
     function arrowPresentationForSpec(food, sectionId, spec) {
       const rule = getMetricRuleForSpec(food, sectionId, spec);
       const parsed = parseArrowBand(arrowBandForSpec(food, sectionId, spec), rule?.polarity);
       const higherWorse = rule?.polarity === 'higher_worse';
-      const proteinReferenceValue = sectionId === 'protein' ? rawMetricValueForSpec(food, spec) : null;
+      const usesProteinReferenceFallback = sectionId === 'protein' && !['protein_g', 'protein_g_fallback'].includes(spec.metricKey);
+      const proteinReferenceValue = usesProteinReferenceFallback ? rawMetricValueForSpec(food, sectionId, spec) : null;
       const proteinReferenceColor = proteinReferenceTextColor(spec.metricKey, proteinReferenceValue);
-      const proteinReferenceArrow = sectionId === 'protein'
+      const proteinReferenceArrow = usesProteinReferenceFallback
         ? proteinReferenceArrowPresentation(spec.metricKey, proteinReferenceValue)
         : null;
       const count = parsed.count || proteinReferenceArrow?.count || 0;
@@ -4556,7 +4570,10 @@
             labelLayer.fontSize = labelLayer.fontSize || 4;
           }
           if (valueLayer) {
-            if (!valueLayer.manualText) valueLayer.text = spec.value(food || {});
+            if (!valueLayer.manualText) {
+              const scoringFood = mergedFoodForScoring(food || getSelectedFoodStub());
+              valueLayer.text = proteinQualitySpecAllowed(scoringFood, sectionId, spec) ? spec.value(food || {}) : 'N/A';
+            }
             valueLayer.label = `${getSectionChip(sectionId) || sectionId} score card value ${index + 1}`;
             valueLayer.align = 'right';
             valueLayer.fontSize = valueLayer.fontSize || 4;

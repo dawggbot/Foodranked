@@ -183,7 +183,7 @@ Recommended default:
 - category differentiation should happen inside the ruleset, not by warping the final 7-way split
 
 ### protein_fallbacks
-Bridge policy for the proteins section when amino-acid or bioavailability fields are weak, missing, or intentionally withheld.
+Bridge policy for the proteins section when amino-acid or bioavailability fields are weak, missing, intentionally withheld, or below a useful protein amount.
 
 Suggested fields:
 - id
@@ -192,6 +192,8 @@ Suggested fields:
 - weight
 - bands
 - notes nullable
+
+Protein quality fields should only score when the protein amount is useful enough for the category. Otherwise, do not let amino-acid presence create a misleading protein-quality win.
 
 ### score_calibrations
 Category-specific mapping from raw ruleset score to the shared final score scale.

@@ -192,12 +192,17 @@
       { key: 'glycemic_index', label: 'GI', value: food => formatMetric(food?.metrics?.glycemic_index, '') }
     ],
     protein: [
+      { key: 'protein_g_fallback', label: 'AMOUNT', value: food => formatMetric(food?.header?.protein_g, 'g'), displayMetricKeys: ['protein_g'] },
       { key: 'collagen_g', label: 'COLLAGEN', value: food => formatMetric(food?.metrics?.collagen_g, 'g') },
-      { key: 'essential_amino_acids_score', label: 'EAA', value: food => formatRatio(food?.metrics?.essential_amino_acids_score, 9) },
-      { key: 'nonessential_amino_acids_score', label: 'N-EAA', value: food => formatRatio(food?.metrics?.nonessential_amino_acids_score, 11) },
-      { key: 'bioavailability_percent', label: 'BIOAVAIL.', value: food => formatMetric(food?.metrics?.bioavailability_percent, '%') }
+      { key: 'bioavailability_percent', label: 'BIOAVAIL.', value: food => formatMetric(food?.metrics?.bioavailability_percent, '%') },
+      { key: 'essential_amino_acids_score', label: 'EAA', value: food => formatRatio(food?.metrics?.essential_amino_acids_score, 9) }
     ]
   };
+  const PROTEIN_QUALITY_METRIC_KEYS = new Set([
+    'essential_amino_acids_score',
+    'nonessential_amino_acids_score',
+    'bioavailability_percent'
+  ]);
 
   const METRIC_SPEECH_TERMS = {
     saturated_fat_g: ['saturated fat', 'sat fat'],
@@ -208,6 +213,7 @@
     sugar_g: ['sugar'],
     starch_g: ['starch'],
     glycemic_index: ['glycemic index', 'gi'],
+    protein_g_fallback: ['protein amount', 'protein quantity', 'protein'],
     collagen_g: ['collagen'],
     essential_amino_acids_score: ['essential amino', 'eaa'],
     nonessential_amino_acids_score: ['nonessential amino', 'non essential amino', 'n eaa'],
@@ -1169,7 +1175,7 @@
         const value = layers.find(layer => layer.id === `${sectionId}_submacro_value_${index + 1}`);
         if (label && !label.manualText) label.text = spec.label;
         if (value) {
-          if (!value.manualText) value.text = spec.value(food);
+          if (!value.manualText) value.text = proteinQualitySpecAllowed(food, sectionId, spec) ? spec.value(food) : 'N/A';
           value.color = macroArrowPresentation(food, sectionId, spec).textColor;
         }
       });
@@ -1481,17 +1487,28 @@
   function episodeDisplayItemForSpec(food, sectionId, spec) {
     const sectionKey = ruleSectionKey(sectionId);
     const section = food?.episode?.script?.sections?.find(item => item.key === sectionId || item.key === sectionKey);
-    return (section?.displayItems || []).find(item => item.metricKey === spec.key) || null;
+    const metricKeys = [spec.key, ...(spec.displayMetricKeys || [])];
+    return (section?.displayItems || []).find(item => metricKeys.includes(item.metricKey)) || null;
   }
 
   function metricRuleForSpec(food, sectionId, spec) {
+    if (sectionId === 'protein' && ['protein_g', 'protein_g_fallback'].includes(spec.key) && food?.ruleset?.proteinFallback) {
+      return {
+        metricKey: food.ruleset.proteinFallback.metricKey || 'protein_g_fallback',
+        sectionKey: 'proteins',
+        scoringMode: 'arrow_bands',
+        polarity: 'higher_better',
+        bands: food.ruleset.proteinFallback.bands || []
+      };
+    }
     const sectionKey = ruleSectionKey(sectionId);
     const bySection = food?.ruleset?.metricRulesBySection?.[sectionKey] || food?.ruleset?.metricRulesBySection?.[sectionId] || [];
     return bySection.find(rule => rule.metricKey === spec.key) || null;
   }
 
   function rawMetricValueForSpec(food, sectionId, spec) {
-    if (sectionId === 'protein' && spec.key === 'protein_g') return asNumber(food?.header?.protein_g, null);
+    if (!proteinQualitySpecAllowed(food, sectionId, spec)) return null;
+    if (sectionId === 'protein' && ['protein_g', 'protein_g_fallback'].includes(spec.key)) return asNumber(food?.header?.protein_g, null);
     return asNumber(food?.metrics?.[spec.key], null);
   }
 
@@ -1499,7 +1516,7 @@
     if (!rule || value == null) return null;
     return (rule.bands || []).find(band => {
       const aboveMin = band.min == null || value >= Number(band.min);
-      const belowMax = band.max == null || value < Number(band.max);
+      const belowMax = band.max == null || value <= Number(band.max);
       return aboveMin && belowMax;
     }) || null;
   }
@@ -1511,6 +1528,11 @@
     return breakdown.find(item => {
       return metricKeys.includes(item.metricKey) && (!item.sectionKey || item.sectionKey === sectionId || item.sectionKey === sectionKey);
     }) || null;
+  }
+
+  function proteinQualitySpecAllowed(food, sectionId, spec) {
+    if (sectionId !== 'protein' || !PROTEIN_QUALITY_METRIC_KEYS.has(spec.key)) return true;
+    return !!episodeDisplayItemForSpec(food, sectionId, spec) || !!batchMetricBreakdownItemForSpec(food, sectionId, spec);
   }
 
   function arrowBandForSpec(food, sectionId, spec) {
@@ -1538,9 +1560,10 @@
     const rule = metricRuleForSpec(food, sectionId, spec);
     const parsed = parseArrowBand(arrowBandForSpec(food, sectionId, spec), rule?.polarity);
     const higherWorse = rule?.polarity === 'higher_worse';
-    const proteinReferenceValue = sectionId === 'protein' ? rawMetricValueForSpec(food, sectionId, spec) : null;
+    const usesProteinReferenceFallback = sectionId === 'protein' && !['protein_g', 'protein_g_fallback'].includes(spec.key);
+    const proteinReferenceValue = usesProteinReferenceFallback ? rawMetricValueForSpec(food, sectionId, spec) : null;
     const proteinReferenceColor = proteinReferenceTextColor(spec.key, proteinReferenceValue);
-    const proteinReferenceArrow = sectionId === 'protein'
+    const proteinReferenceArrow = usesProteinReferenceFallback
       ? proteinReferenceArrowPresentation(spec.key, proteinReferenceValue)
       : null;
     const count = parsed.count || proteinReferenceArrow?.count || 0;

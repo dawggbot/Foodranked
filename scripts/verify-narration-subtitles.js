@@ -210,8 +210,6 @@ function checkScript(failures, file, script) {
       addFailure(failures, file, `${section.key} subtitleText contains unit word`);
     }
     if (section.key === 'proteins') {
-      const hasProteinFallbackItem = (section.displayItems || []).some(item => item.metricKey === 'protein_g_fallback');
-      if (hasProteinFallbackItem) addFailure(failures, file, 'proteins section displays protein amount fallback instead of a submacro');
       if (PROTEIN_FALLBACK_RE.test(String(section.narration || '')) || PROTEIN_FALLBACK_RE.test(String(section.subtitleText || ''))) {
         addFailure(failures, file, 'proteins section repeats protein amount fallback instead of a submacro');
       }

@@ -62,7 +62,7 @@ const baseContexts = {
     ],
     cons: [
       { itemKey: 'grain_carb_ceiling', impactLevel: 'minor', title: 'carb load stays high', explanation: 'That is the basic tradeoff almost every grain has to manage.' },
-      { itemKey: 'grain_pairing_need', impactLevel: 'minor', title: 'rarely finishes the meal alone', explanation: 'Most grains still need pairing to feel nutritionally complete.' },
+      { itemKey: 'grain_pairing_quality_variance', impactLevel: 'minor', title: 'pairing quality changes the result', explanation: 'The same grain can be helpful or weak depending on what it is served with.' },
       { itemKey: 'grain_processing_sensitivity', impactLevel: 'minor', title: 'quality drops quickly with refinement', explanation: 'Processing can wipe out a lot of the category’s upside.' }
     ]
   },
@@ -123,7 +123,7 @@ const baseContexts = {
     cons: [
       { itemKey: 'fat_calorie_density', impactLevel: 'minor', title: 'calorie density is brutal by default', explanation: 'Tiny serving errors matter here.' },
       { itemKey: 'fat_overpour_risk', impactLevel: 'minor', title: 'easy to overpour without noticing', explanation: 'Liquid calories are slippery in the kitchen.' },
-      { itemKey: 'fat_not_complete_food', impactLevel: 'minor', title: 'still only part of a meal', explanation: 'Even the better fats are not complete foods on their own.' }
+      { itemKey: 'fat_portion_precision_needed', impactLevel: 'minor', title: 'small serving errors matter quickly', explanation: 'A little extra oil or fat can move the calorie math fast.' }
     ]
   },
   seeds: {
@@ -157,8 +157,8 @@ const baseContexts = {
       { itemKey: 'veg_volume', impactLevel: 'minor', title: 'good volume for the calories', explanation: 'That practicality matters for everyday eating.' }
     ],
     cons: [
-      { itemKey: 'veg_low_energy', impactLevel: 'minor', title: 'energy density stays low', explanation: 'That is useful sometimes, but not enough on its own.' },
-      { itemKey: 'veg_needs_pairing', impactLevel: 'minor', title: 'usually needs pairing to make a full meal', explanation: 'Most vegetables are still support players.' },
+      { itemKey: 'vegetable_prep_friction', impactLevel: 'minor', title: 'prep can decide whether it actually gets eaten', explanation: 'Vegetables can lose practical value when washing, chopping, or cooking becomes a barrier.' },
+      { itemKey: 'vegetable_texture_or_flavour_limit', impactLevel: 'minor', title: 'texture or flavour can limit repeat use', explanation: 'Strong nutrition still has to survive normal eating habits.' },
       { itemKey: 'veg_prep_friction', impactLevel: 'minor', title: 'freshness and prep can add friction', explanation: 'A strong paper profile still needs real-world repeat use.' }
     ]
   }

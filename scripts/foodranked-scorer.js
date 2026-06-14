@@ -14,6 +14,12 @@ function round1(n) {
   return Number(n.toFixed(1));
 }
 
+const PROTEIN_QUALITY_METRIC_KEYS = new Set([
+  'essential_amino_acids_score',
+  'nonessential_amino_acids_score',
+  'bioavailability_percent'
+]);
+
 function scoreFromBands(value, bands) {
   if (value === null || value === undefined || !Array.isArray(bands) || bands.length === 0) return null;
   for (const band of bands) {
@@ -213,10 +219,45 @@ function validateExactContextCount(food, ruleset) {
   return errors;
 }
 
+function firstUsefulProteinBandMin(ruleset) {
+  const band = (ruleset.proteinFallback?.bands || [])
+    .find(item => Number(item.score) >= 60 && typeof item.min === 'number');
+  return typeof band?.min === 'number' ? band.min : null;
+}
+
+function buildProteinQualityGate(food, ruleset) {
+  const configuredMin = ruleset.proteinQualityGate?.minimumProteinG;
+  const fallbackMin = firstUsefulProteinBandMin(ruleset);
+  const minimumProteinG = typeof configuredMin === 'number'
+    ? configuredMin
+    : typeof fallbackMin === 'number'
+      ? fallbackMin
+      : 5;
+  const proteinG = Number(food.header?.protein_g);
+  return {
+    proteinG: Number.isFinite(proteinG) ? proteinG : null,
+    minimumProteinG,
+    eligible: Number.isFinite(proteinG) && proteinG >= minimumProteinG,
+    skippedMetricKeys: []
+  };
+}
+
+function shouldSkipProteinQualityRule(rule, gate) {
+  if (!PROTEIN_QUALITY_METRIC_KEYS.has(rule.metricKey)) return false;
+  const weight = rule.weight ?? 1;
+  if (weight <= 0) return true;
+  return !gate.eligible;
+}
+
+function trackSkippedProteinQuality(gate, rule) {
+  if (!PROTEIN_QUALITY_METRIC_KEYS.has(rule.metricKey)) return;
+  if (!gate.skippedMetricKeys.includes(rule.metricKey)) gate.skippedMetricKeys.push(rule.metricKey);
+}
+
 function maybeApplyProteinFallback(food, ruleset, sectionMetricScores, metricBreakdown) {
   const fallback = ruleset.proteinFallback;
   if (!fallback) return;
-  if ((sectionMetricScores.proteins || []).length) return;
+  if ((sectionMetricScores.proteins || []).some(item => (item.weight ?? 1) > 0)) return;
 
   const proteinGrams = food.header?.protein_g;
   if (proteinGrams === null || proteinGrams === undefined) return;
@@ -259,10 +300,15 @@ function main() {
   const sectionMetricScores = { fats: [], carbs: [], proteins: [], vitamins: [], minerals: [] };
   const missingRequired = [];
   const metricBreakdown = [];
+  const proteinQualityGate = buildProteinQualityGate(food, ruleset);
 
   for (const rule of ruleset.metricRules || []) {
     if (rule.scoringRole !== 'scored') continue;
     if (rule.applicability === 'not_applicable') continue;
+    if (shouldSkipProteinQualityRule(rule, proteinQualityGate)) {
+      trackSkippedProteinQuality(proteinQualityGate, rule);
+      continue;
+    }
 
     const value = food.metrics?.[rule.metricKey];
     if ((value === null || value === undefined) && rule.applicability === 'required') {
@@ -369,6 +415,7 @@ function main() {
       } : null
     },
     header: food.header,
+    proteinQualityGate,
     sectionScores: Object.fromEntries(Object.entries(sectionScores).map(([k, v]) => [k, v === null ? null : round1(v)])),
     overallScore,
     overallScoreExact: Number(calibratedOverallScoreExact.toFixed(4)),

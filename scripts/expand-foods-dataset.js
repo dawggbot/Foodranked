@@ -71,13 +71,13 @@ const library = {
         { itemKey: 'volume_for_calories', impactLevel: 'minor', title: 'good volume for the calories', explanation: 'That matters for satiety and general usefulness.' }
       ],
       cons: [
-        { itemKey: 'veg_low_energy', impactLevel: 'minor', title: 'energy density is very low', explanation: 'Good for some use cases, but not enough on its own.' },
-        { itemKey: 'veg_needs_pairing', impactLevel: 'minor', title: 'usually needs pairing to make a full meal', explanation: 'Most vegetables are not complete by themselves.' },
+        { itemKey: 'vegetable_prep_friction', impactLevel: 'minor', title: 'prep can decide whether it actually gets eaten', explanation: 'Vegetables can lose practical value when washing, chopping, or cooking becomes a barrier.' },
+        { itemKey: 'vegetable_texture_or_flavour_limit', impactLevel: 'minor', title: 'texture or flavour can limit repeat use', explanation: 'Strong nutrition still has to survive normal eating habits.' },
         { itemKey: 'storage_or_prep_cost', impactLevel: 'minor', title: 'freshness and prep can matter', explanation: 'Practical friction is still a real downside.' }
       ]
     },
     foods: [
-      ['kale', 'Kale', { kcal: 49, fat_g: 0.9, carb_g: 8.8, protein_g: 4.3 }, { saturated_fat_g: 0.1, omega3_mg: 180, polyunsaturated_fat_g: 0.3, starch_g: 0.0, fibre_g: 4.1, sugar_g: 2.3, glycemic_index: 15, essential_amino_acids_score: 4, nonessential_amino_acids_score: 5, bioavailability_percent: 45, vitamin_a_dv: 57, vitamin_c_dv: 80, vitamin_k_dv: 570, iron_dv: 8, magnesium_dv: 8, zinc_dv: 3, calcium_dv: 11, potassium_dv: 7 }, 'S', { pros: [{ itemKey: 'micronutrient_monster', impactLevel: 'major', title: 'micronutrient density is ridiculous', explanation: 'This is the kind of vegetable profile that can clearly carry a category.' }] }],
+      ['kale', 'Kale', { kcal: 49, fat_g: 0.9, carb_g: 8.8, protein_g: 4.3 }, { saturated_fat_g: 0.1, omega3_mg: 180, polyunsaturated_fat_g: 0.3, starch_g: 0.0, fibre_g: 4.1, sugar_g: 2.3, glycemic_index: 15, essential_amino_acids_score: 4, nonessential_amino_acids_score: 5, bioavailability_percent: 45, vitamin_a_dv: 57, vitamin_c_dv: 80, vitamin_k_dv: 570, iron_dv: 8, magnesium_dv: 8, zinc_dv: 3, calcium_dv: 11, potassium_dv: 7 }, 'S', { pros: [{ itemKey: 'micronutrient_monster', impactLevel: 'major', title: 'micronutrient density is ridiculous', explanation: 'This is the kind of vegetable profile that can clearly carry a category.' }], cons: [{ itemKey: 'kale_tough_texture', impactLevel: 'minor', title: 'raw texture can be a barrier', explanation: 'Kale often needs chopping, cooking, or massaging before it feels easy to use.' }, { itemKey: 'strong_leafy_flavour', impactLevel: 'minor', title: 'strong leafy flavour is not universal', explanation: 'The nutrition case is strong, but the bitterness can reduce repeat use.' }] }],
       ['red-bell-pepper', 'Red Bell Pepper', { kcal: 31, fat_g: 0.3, carb_g: 6.0, protein_g: 1.0 }, { saturated_fat_g: 0.0, omega3_mg: 10, polyunsaturated_fat_g: 0.1, starch_g: 0.0, fibre_g: 2.1, sugar_g: 4.2, glycemic_index: 15, essential_amino_acids_score: 2, nonessential_amino_acids_score: 2, bioavailability_percent: 35, vitamin_a_dv: 35, vitamin_c_dv: 140, vitamin_k_dv: 6, iron_dv: 2, magnesium_dv: 3, zinc_dv: 1, calcium_dv: 1, potassium_dv: 4 }, 'A'],
       ['cauliflower', 'Cauliflower', { kcal: 25, fat_g: 0.3, carb_g: 5.0, protein_g: 1.9 }, { saturated_fat_g: 0.0, omega3_mg: 20, polyunsaturated_fat_g: 0.1, starch_g: 0.0, fibre_g: 2.0, sugar_g: 1.9, glycemic_index: 15, essential_amino_acids_score: 2, nonessential_amino_acids_score: 3, bioavailability_percent: 40, vitamin_a_dv: 0, vitamin_c_dv: 54, vitamin_k_dv: 13, iron_dv: 2, magnesium_dv: 4, zinc_dv: 2, calcium_dv: 2, potassium_dv: 6 }, 'A'],
       ['cabbage', 'Cabbage', { kcal: 25, fat_g: 0.1, carb_g: 5.8, protein_g: 1.3 }, { saturated_fat_g: 0.0, omega3_mg: 35, polyunsaturated_fat_g: 0.1, starch_g: 0.0, fibre_g: 2.5, sugar_g: 3.2, glycemic_index: 10, essential_amino_acids_score: 2, nonessential_amino_acids_score: 2, bioavailability_percent: 35, vitamin_a_dv: 2, vitamin_c_dv: 40, vitamin_k_dv: 63, iron_dv: 2, magnesium_dv: 3, zinc_dv: 1, calcium_dv: 3, potassium_dv: 5 }, 'A'],
@@ -161,7 +161,7 @@ const library = {
       ['taro', 'Taro', { kcal: 112, fat_g: 0.2, carb_g: 26.5, protein_g: 1.5 }, { saturated_fat_g: 0.1, omega3_mg: 20, polyunsaturated_fat_g: 0.1, starch_g: 19, fibre_g: 4.1, sugar_g: 0.4, glycemic_index: 54, essential_amino_acids_score: 2, nonessential_amino_acids_score: 3, bioavailability_percent: 45, vitamin_a_dv: 0, vitamin_c_dv: 7, vitamin_e_dv: 1, vitamin_k_dv: 1, iron_dv: 2, magnesium_dv: 8, zinc_dv: 1, calcium_dv: 4, potassium_dv: 13 }, 'A'],
       ['parsnip', 'Parsnip', { kcal: 75, fat_g: 0.3, carb_g: 18.0, protein_g: 1.2 }, { saturated_fat_g: 0.1, omega3_mg: 20, polyunsaturated_fat_g: 0.1, starch_g: 7, fibre_g: 4.9, sugar_g: 4.8, glycemic_index: 52, essential_amino_acids_score: 2, nonessential_amino_acids_score: 3, bioavailability_percent: 45, vitamin_a_dv: 0, vitamin_c_dv: 19, vitamin_e_dv: 2, vitamin_k_dv: 17, iron_dv: 3, magnesium_dv: 7, zinc_dv: 3, calcium_dv: 4, potassium_dv: 11 }, 'A'],
       ['rutabaga', 'Rutabaga', { kcal: 37, fat_g: 0.1, carb_g: 8.6, protein_g: 1.1 }, { saturated_fat_g: 0.0, omega3_mg: 10, polyunsaturated_fat_g: 0.0, starch_g: 4, fibre_g: 2.3, sugar_g: 4.5, glycemic_index: 72, essential_amino_acids_score: 2, nonessential_amino_acids_score: 2, bioavailability_percent: 40, vitamin_a_dv: 0, vitamin_c_dv: 42, vitamin_e_dv: 1, vitamin_k_dv: 0, iron_dv: 2, magnesium_dv: 4, zinc_dv: 2, calcium_dv: 4, potassium_dv: 9 }, 'B'],
-      ['beetroot', 'Beetroot', { kcal: 43, fat_g: 0.2, carb_g: 9.6, protein_g: 1.6 }, { saturated_fat_g: 0.0, omega3_mg: 20, polyunsaturated_fat_g: 0.1, starch_g: 0.1, fibre_g: 2.8, sugar_g: 6.8, glycemic_index: 64, essential_amino_acids_score: 2, nonessential_amino_acids_score: 3, bioavailability_percent: 42, vitamin_a_dv: 0, vitamin_c_dv: 8, vitamin_e_dv: 0, vitamin_k_dv: 0, iron_dv: 4, magnesium_dv: 6, zinc_dv: 2, calcium_dv: 1, potassium_dv: 9 }, 'B'],
+      ['beetroot', 'Beetroot', { kcal: 43, fat_g: 0.2, carb_g: 9.6, protein_g: 1.6 }, { saturated_fat_g: 0.0, omega3_mg: 20, polyunsaturated_fat_g: 0.1, starch_g: 0.1, fibre_g: 2.8, sugar_g: 6.8, glycemic_index: 64, essential_amino_acids_score: 2, nonessential_amino_acids_score: 3, bioavailability_percent: 42, vitamin_a_dv: 0, vitamin_c_dv: 8, vitamin_e_dv: 0, vitamin_k_dv: 0, iron_dv: 4, magnesium_dv: 6, zinc_dv: 2, calcium_dv: 1, potassium_dv: 9 }, 'B', { pros: [{ itemKey: 'dietary_nitrate_angle', impactLevel: 'major', title: 'dietary nitrates give it a nitric-oxide angle', explanation: 'That is a beetroot-specific point beyond the basic carb and micronutrient table.' }] }],
       ['jerusalem-artichoke', 'Jerusalem Artichoke', { kcal: 73, fat_g: 0.0, carb_g: 17.4, protein_g: 2.0 }, { saturated_fat_g: 0.0, omega3_mg: 10, polyunsaturated_fat_g: 0.0, starch_g: 0.1, fibre_g: 1.6, sugar_g: 9.6, glycemic_index: 50, essential_amino_acids_score: 2, nonessential_amino_acids_score: 3, bioavailability_percent: 42, vitamin_a_dv: 0, vitamin_c_dv: 6, vitamin_e_dv: 0, vitamin_k_dv: 0, iron_dv: 2, magnesium_dv: 4, zinc_dv: 1, calcium_dv: 1, potassium_dv: 9 }, 'C'],
       ['turnip', 'Turnip', { kcal: 28, fat_g: 0.1, carb_g: 6.4, protein_g: 0.9 }, { saturated_fat_g: 0.0, omega3_mg: 10, polyunsaturated_fat_g: 0.0, starch_g: 0.5, fibre_g: 1.8, sugar_g: 3.8, glycemic_index: 30, essential_amino_acids_score: 1, nonessential_amino_acids_score: 2, bioavailability_percent: 40, vitamin_a_dv: 0, vitamin_c_dv: 23, vitamin_e_dv: 0, vitamin_k_dv: 0, iron_dv: 1, magnesium_dv: 3, zinc_dv: 1, calcium_dv: 2, potassium_dv: 5 }, 'B'],
       ['cassava-boiled', 'Cassava (Boiled)', { kcal: 112, fat_g: 0.4, carb_g: 27.8, protein_g: 1.4 }, { saturated_fat_g: 0.1, omega3_mg: 20, polyunsaturated_fat_g: 0.1, starch_g: 24, fibre_g: 1.8, sugar_g: 1.7, glycemic_index: 72, essential_amino_acids_score: 2, nonessential_amino_acids_score: 2, bioavailability_percent: 40, vitamin_a_dv: 0, vitamin_c_dv: 17, vitamin_e_dv: 0, vitamin_k_dv: 2, iron_dv: 2, magnesium_dv: 5, zinc_dv: 1, calcium_dv: 2, potassium_dv: 6 }, 'C']
@@ -308,7 +308,7 @@ const library = {
       cons: [
         { itemKey: 'fat_dense_by_default', impactLevel: 'minor', title: 'extremely calorie dense by default', explanation: 'That is the unavoidable category burden.' },
         { itemKey: 'fat_easy_to_overpour', impactLevel: 'minor', title: 'easy to overpour without noticing', explanation: 'Practical portion creep is real.' },
-        { itemKey: 'fat_not_complete_food', impactLevel: 'minor', title: 'not a complete food on its own', explanation: 'Even the better fats are still just part of a meal.' }
+        { itemKey: 'fat_portion_precision_needed', impactLevel: 'minor', title: 'small serving errors matter quickly', explanation: 'A little extra oil or fat can move the calorie math fast.' }
       ]
     },
     foods: [
@@ -345,7 +345,7 @@ function supplementalContext(type) {
       ],
       cons: [
         { itemKey: 'veg_palatability_limit', impactLevel: 'minor', title: 'taste and texture can limit compliance', explanation: 'A strong paper profile still needs real-world repeatability.' },
-        { itemKey: 'veg_underpowered_alone', impactLevel: 'minor', title: 'rarely carries a meal by itself', explanation: 'That is normal here, but still part of the tradeoff.' }
+        { itemKey: 'vegetable_texture_or_flavour_limit', impactLevel: 'minor', title: 'texture or flavour can limit repeat use', explanation: 'Strong nutrition still has to survive normal eating habits.' }
       ]
     },
     grains: {
@@ -355,7 +355,7 @@ function supplementalContext(type) {
       ],
       cons: [
         { itemKey: 'grain_overeating_risk', impactLevel: 'minor', title: 'easy to overshoot portions', explanation: 'Staple carbs can pile up fast without much friction.' },
-        { itemKey: 'grain_needs_pairing_quality', impactLevel: 'minor', title: 'needs strong pairings to feel complete', explanation: 'The grain rarely finishes the nutrition job alone.' }
+        { itemKey: 'grain_pairing_quality_variance', impactLevel: 'minor', title: 'pairing quality changes the result', explanation: 'The same grain can be helpful or weak depending on what it is served with.' }
       ]
     },
     legumes: {

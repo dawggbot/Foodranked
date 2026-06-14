@@ -2,6 +2,23 @@
   "id": "bacon",
   "name": "Bacon",
   "foodType": "meats",
+  "identity": {
+    "canonicalName": "Pork bacon, cured, unprepared",
+    "commonName": "Bacon",
+    "form": "streaky cured bacon slices",
+    "state": "raw / unprepared",
+    "ediblePortion": "as sold",
+    "basisReason": "Raw per-100g as-sold basis matches package-label style nutrition and avoids cooked-water-loss distortion.",
+    "includes": [
+      "plain cured sliced bacon as sold"
+    ],
+    "excludes": [
+      "cooked bacon values",
+      "turkey bacon",
+      "reduced-fat bacon variants",
+      "bacon-flavored products"
+    ]
+  },
   "basis": {
     "value": 100,
     "unit": "g"
@@ -37,12 +54,38 @@
     "calcium_dv": 1,
     "potassium_dv": 4
   },
+  "metricProvenance": {
+    "header": "USDA SR Legacy style pork bacon cured unprepared entry, normalized to per 100 g as sold",
+    "saturated_fat_g": "same canonical source family as header",
+    "omega3_mg": "derived fatty-acid field from the same source family; useful as supporting context, not the main story",
+    "polyunsaturated_fat_g": "same canonical source family as header",
+    "cholesterol_mg": "same canonical source family as header",
+    "starch_g": "not applicable for this food",
+    "fibre_g": "not applicable for this food",
+    "sugar_g": "not applicable for this food",
+    "glycemic_index": "not applicable for this food",
+    "collagen_g": "current value is still a rough calibration-era proxy, not a locked source-backed bacon-specific fact",
+    "essential_amino_acids_score": "current value is still a calibration proxy rather than an exact-source amino-acid profile for this chosen bacon form",
+    "nonessential_amino_acids_score": "current value is still a calibration proxy rather than an exact-source amino-acid profile for this chosen bacon form",
+    "bioavailability_percent": "current value is still a proxy estimate, not a locked canonical percent for this exact bacon entry",
+    "vitamin_a_dv": "same canonical source family as header",
+    "vitamin_c_dv": "same canonical source family as header",
+    "vitamin_d_dv": "same canonical source family as header",
+    "vitamin_e_dv": "same canonical source family as header",
+    "vitamin_k_dv": "same canonical source family as header",
+    "vitamin_b12_dv": "same canonical source family as header",
+    "iron_dv": "same canonical source family as header",
+    "magnesium_dv": "same canonical source family as header",
+    "zinc_dv": "same canonical source family as header",
+    "calcium_dv": "same canonical source family as header",
+    "potassium_dv": "same canonical source family as header"
+  },
+  "processingPenalty": 25,
   "contextItems": {
     "pros": [
       {
         "itemKey": "high_palability",
         "impactLevel": "minor",
-        "scoreValue": 0,
         "title": "highly palatable and appealing",
         "explanation": "A real-world reason people love it.",
         "evidenceType": "manual"
@@ -50,7 +93,6 @@
       {
         "itemKey": "convenient_flavouring",
         "impactLevel": "minor",
-        "scoreValue": 0,
         "title": "works as a strong flavour booster",
         "explanation": "Useful in meals even in smaller amounts.",
         "evidenceType": "manual"
@@ -58,7 +100,6 @@
       {
         "itemKey": "culinary_popularity",
         "impactLevel": "minor",
-        "scoreValue": 0,
         "title": "has strong comfort-food appeal",
         "explanation": "Popular and instantly legible for content packaging.",
         "evidenceType": "manual"
@@ -68,7 +109,6 @@
       {
         "itemKey": "high_sodium",
         "impactLevel": "major",
-        "scoreValue": -3,
         "title": "sodium is a major drawback",
         "explanation": "A central practical health issue for bacon.",
         "evidenceType": "manual"
@@ -76,25 +116,32 @@
       {
         "itemKey": "processing_penalty",
         "impactLevel": "major",
-        "scoreValue": -3,
         "title": "processing is a major negative",
         "explanation": "A key downside now that more processed foods are in scope.",
         "evidenceType": "manual"
       },
       {
-        "itemKey": "weak_meal_anchor",
+        "itemKey": "salty_fatty_portion_creep",
         "impactLevel": "major",
-        "scoreValue": -3,
-        "title": "rarely improves a meal much on its own",
-        "explanation": "Usually works more as a flavour add-on than a genuinely strong meat choice.",
+        "title": "salty-fatty profile encourages portion creep",
+        "explanation": "The flavour is a strength, but it also makes moderation harder.",
         "evidenceType": "manual"
       }
     ]
   },
+  "scoreReadiness": {
+    "status": "near-production-safe",
+    "summary": "Core raw bacon nutrition is coherent enough for launch scripting, but a few protein-quality style fields are still older calibration proxies rather than locked source facts.",
+    "blockers": [
+      "collagen and protein-quality proxy metrics still need either exact-source backing or deliberate removal",
+      "cured bacon product variability means exact sodium-forward real-world burden is broader than this simplified nutrition record captures"
+    ]
+  },
   "expectedTier": "D",
   "sourceNotes": [
-    "Calibration sample for FoodRanked.",
-    "Values aligned to USDA SR Legacy pork, cured, bacon, unprepared (per 100g raw) for core nutrition fields.",
-    "Raw basis, not cooked values."
+    "Production-lane cleanup pass.",
+    "Identity locked to cured pork bacon, unprepared, per 100 g as sold.",
+    "Core nutrient values align with USDA SR Legacy style pork bacon cured unprepared entries.",
+    "Raw basis kept intentionally, not cooked bacon values."
   ]
 }

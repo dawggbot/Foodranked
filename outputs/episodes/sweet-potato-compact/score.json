@@ -19,6 +19,12 @@
     "carb_g": 20.1,
     "protein_g": 1.6
   },
+  "proteinQualityGate": {
+    "proteinG": 1.6,
+    "minimumProteinG": 3,
+    "eligible": false,
+    "skippedMetricKeys": []
+  },
   "sectionScores": {
     "fats": 100,
     "carbs": 60,
@@ -86,8 +92,8 @@
         "resolvedScoreValue": 50
       },
       {
-        "title": "protein contribution is light",
-        "explanation": "Like most tubers, it is not doing much in the protein lane.",
+        "title": "large portions push carbs up fast",
+        "explanation": "It is still a carb food, so the serving size matters.",
         "impactLevel": "minor",
         "side": "con",
         "resolvedScoreValue": 50
@@ -149,10 +155,10 @@
         "resolvedScoreValue": 50
       },
       {
-        "itemKey": "protein_light",
+        "itemKey": "portion_carb_creep",
         "impactLevel": "minor",
-        "title": "protein contribution is light",
-        "explanation": "Like most tubers, it is not doing much in the protein lane.",
+        "title": "large portions push carbs up fast",
+        "explanation": "It is still a carb food, so the serving size matters.",
         "evidenceType": "manual",
         "side": "con",
         "resolvedScoreValue": 50
@@ -231,36 +237,6 @@
       "weightedScore": 320
     },
     {
-      "metricKey": "essential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 2,
-      "band": "↓↓",
-      "score": 20,
-      "weight": 1,
-      "weightedScore": 20
-    },
-    {
-      "metricKey": "nonessential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 4,
-      "band": "1_green",
-      "score": 60,
-      "weight": 0,
-      "weightedScore": 0
-    },
-    {
-      "metricKey": "bioavailability_percent",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 35,
-      "band": "3_green",
-      "score": 100,
-      "weight": 0,
-      "weightedScore": 0
-    },
-    {
       "metricKey": "vitamin_a_dv",
       "sectionKey": "vitamins",
       "scoringMode": "dv_points",
@@ -309,6 +285,17 @@
       "score": 0,
       "weight": 1,
       "weightedScore": 0
+    },
+    {
+      "metricKey": "protein_g_fallback",
+      "sectionKey": "proteins",
+      "scoringMode": "protein_fallback",
+      "value": 1.6,
+      "band": "2_red",
+      "score": 20,
+      "weight": 1,
+      "weightedScore": 20,
+      "fallbackApplied": true
     }
   ]
 }

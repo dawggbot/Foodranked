@@ -55,30 +55,30 @@
     "potassium_dv": 6
   },
   "metricProvenance": {
-    "header": "USDA FoodData Central style raw chicken-thigh meat-only entry, normalized to per 100 g edible portion",
-    "saturated_fat_g": "same canonical source family as header",
-    "omega3_mg": "derived fatty-acid field from the same source family; acceptable as supporting data but not a key meat-scoring fact",
-    "polyunsaturated_fat_g": "same canonical source family as header",
-    "cholesterol_mg": "same canonical source family as header",
-    "starch_g": "not applicable for this food",
-    "fibre_g": "not applicable for this food",
-    "sugar_g": "not applicable for this food",
-    "glycemic_index": "not applicable for this food",
-    "collagen_g": "withheld, exact cut-specific value not locked from a canonical source",
-    "essential_amino_acids_score": "withheld, proxy score removed until exact amino-acid-source backing is attached",
-    "nonessential_amino_acids_score": "withheld, proxy score removed until exact amino-acid-source backing is attached",
-    "bioavailability_percent": "withheld, protein quality is directionally true but the percent figure was still a proxy",
-    "vitamin_a_dv": "same canonical source family as header",
-    "vitamin_c_dv": "same canonical source family as header",
-    "vitamin_d_dv": "same canonical source family as header",
-    "vitamin_e_dv": "same canonical source family as header",
-    "vitamin_k_dv": "same canonical source family as header",
-    "vitamin_b12_dv": "same canonical source family as header",
-    "iron_dv": "same canonical source family as header",
-    "magnesium_dv": "same canonical source family as header",
-    "zinc_dv": "same canonical source family as header",
-    "calcium_dv": "same canonical source family as header",
-    "potassium_dv": "same canonical source family as header"
+    "header": "Per-100g values cross-checked against nutritionDataSources.",
+    "saturated_fat_g": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "omega3_mg": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "polyunsaturated_fat_g": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "cholesterol_mg": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "starch_g": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "fibre_g": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "sugar_g": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "glycemic_index": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "collagen_g": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "essential_amino_acids_score": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "nonessential_amino_acids_score": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "bioavailability_percent": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "vitamin_a_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "vitamin_c_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "vitamin_d_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "vitamin_e_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "vitamin_k_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "vitamin_b12_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "iron_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "magnesium_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "zinc_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "calcium_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "potassium_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources."
   },
   "contextItems": {
     "pros": [
@@ -136,17 +136,54 @@
   },
   "scoreReadiness": {
     "status": "near-production-safe",
-    "summary": "Identity and core raw nutrient fields are much cleaner now, but the meats ruleset still leans on removed protein-quality proxy metrics for polished scoring output.",
+    "summary": "Identity and core raw nutrient fields are much cleaner now, but the meats ruleset still leans on removed protein-quality unsupported protein-quality fields for polished scoring output.",
     "blockers": [
-      "meats ruleset still expects amino-acid and bioavailability proxy fields that were not honest enough to keep",
       "would benefit from exact source record attachment for the chosen skinless meat-only raw form"
+    ],
+    "caveats": [
+      "Real foods vary by cultivar, brand, season, and preparation; this record is a canonical comparison entry rather than a guarantee for every product."
     ]
   },
   "sourceNotes": [
-    "Production-lane cleanup pass.",
-    "Identity locked to chicken thigh, meat only, raw, per 100 g edible portion.",
-    "Core nutrient values were tightened toward common USDA FoodData Central style raw chicken thigh meat-only entries.",
-    "Weak proxy metrics were removed rather than preserved as fake certainty."
+    "Production-lane source audit pass.",
+    "All displayed nutrition values are stored and checked on a per-100g basis.",
+    "Primary and cross-check nutrition references are listed in nutritionDataSources.",
+    "Contextual GI and protein-quality fields are optional when not canonical nutrient facts."
   ],
-  "expectedTier": "C"
+  "expectedTier": "C",
+  "nutritionDataSources": [
+    {
+      "sourceName": "USDA FoodData Central - Foundation Foods",
+      "sourceType": "primary",
+      "recordId": "FDC 100305",
+      "url": "https://fdc.nal.usda.gov/food-details/100305/nutrients",
+      "basis": {
+        "value": 100,
+        "unit": "g"
+      },
+      "checkedAt": "2026-06-14"
+    },
+    {
+      "sourceName": "MyFoodData Nutrition Data Tools",
+      "sourceType": "cross_check",
+      "recordId": "FDC 2646171 mirror",
+      "url": "https://tools.myfooddata.com/nutrition-facts/2646171/wt1",
+      "basis": {
+        "value": 100,
+        "unit": "g"
+      },
+      "checkedAt": "2026-06-14"
+    },
+    {
+      "sourceName": "USDA FoodData Central search cross-check",
+      "sourceType": "cross_check",
+      "recordId": "chicken thigh boneless skinless raw",
+      "url": "https://fdc.nal.usda.gov/food-search?query=chicken%20thigh%20boneless%20skinless%20raw",
+      "basis": {
+        "value": 100,
+        "unit": "g"
+      },
+      "checkedAt": "2026-06-14"
+    }
+  ]
 }

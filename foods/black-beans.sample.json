@@ -22,9 +22,9 @@
     "sugar_g": 2.1,
     "glycemic_index": 30,
     "collagen_g": null,
-    "essential_amino_acids_score": 6,
-    "nonessential_amino_acids_score": 8,
-    "bioavailability_percent": 72,
+    "essential_amino_acids_score": null,
+    "nonessential_amino_acids_score": null,
+    "bioavailability_percent": null,
     "vitamin_a_dv": 0,
     "vitamin_c_dv": 0,
     "vitamin_d_dv": null,
@@ -40,54 +40,148 @@
   "contextItems": {
     "pros": [
       {
-        "itemKey": "legume_staple_value",
-        "impactLevel": "minor",
-        "title": "cheap staple with real payoff",
-        "explanation": "This matters because a food is stronger when people can actually use it often.",
-        "evidenceType": "manual"
+        "itemKey": "slow_carb_fibre_backbone",
+        "impactLevel": "major",
+        "title": "slow-carb fibre backbone",
+        "explanation": "The bean value comes from carbs that arrive with a lot of fibre support.",
+        "evidenceType": "manual",
+        "confidence": "medium"
       },
       {
-        "itemKey": "legume_satiety",
+        "itemKey": "budget_shelf_staple",
         "impactLevel": "minor",
-        "title": "filling for the calories",
-        "explanation": "Legumes usually earn a lot of practical value from satiety.",
-        "evidenceType": "manual"
+        "title": "cheap shelf-stable nutrition",
+        "explanation": "Dry black beans are easy to store and scale, which matters for real diets.",
+        "evidenceType": "manual",
+        "confidence": "medium"
       },
       {
-        "itemKey": "legume_budget_protein",
+        "itemKey": "bean_polyphenol_angle",
         "impactLevel": "minor",
-        "title": "one of the cheaper ways to buy useful nutrition",
-        "explanation": "That matters for real diets, not just theory.",
-        "evidenceType": "manual"
+        "title": "dark seed coat adds a polyphenol angle",
+        "explanation": "The black seed coat gives them a more specific plant-compound story than plain starch.",
+        "evidenceType": "manual",
+        "confidence": "medium"
       }
     ],
     "cons": [
       {
-        "itemKey": "legume_prep_time",
+        "itemKey": "soaking_cooking_time",
         "impactLevel": "minor",
-        "title": "can take planning or prep",
-        "explanation": "That is a small but real friction cost.",
-        "evidenceType": "manual"
+        "title": "takes planning to cook from dry",
+        "explanation": "The strongest version is not instant food.",
+        "evidenceType": "manual",
+        "confidence": "medium"
       },
       {
-        "itemKey": "legume_prep_time",
+        "itemKey": "digestive_tolerance",
         "impactLevel": "minor",
-        "title": "prep time can still be a barrier",
-        "explanation": "Dry legumes especially ask more from the cook.",
-        "evidenceType": "manual"
+        "title": "digestive tolerance varies",
+        "explanation": "The same fibre and oligosaccharides that help the score can bother some people.",
+        "evidenceType": "manual",
+        "confidence": "medium"
       },
       {
-        "itemKey": "legume_texture_limit",
+        "itemKey": "canned_sodium_variance",
         "impactLevel": "minor",
-        "title": "texture is not universally loved",
-        "explanation": "That can reduce how often people actually use them.",
-        "evidenceType": "manual"
+        "title": "canned versions can add sodium",
+        "explanation": "The plain dry record is clean, but common convenience versions can change the downside.",
+        "evidenceType": "manual",
+        "confidence": "medium"
       }
     ]
   },
   "expectedTier": "A",
   "sourceNotes": [
-    "Calibration benchmark sample for FoodRanked.",
-    "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
-  ]
+    "Production-lane source audit pass.",
+    "All displayed nutrition values are stored and checked on a per-100g basis.",
+    "Primary and cross-check nutrition references are listed in nutritionDataSources.",
+    "Contextual GI and protein-quality fields are optional when not canonical nutrient facts."
+  ],
+  "identity": {
+    "canonicalName": "Beans, black, mature seeds, raw",
+    "commonName": "Black Beans",
+    "form": "dry mature black beans",
+    "state": "raw dry seeds",
+    "ediblePortion": "dry edible seeds",
+    "basisReason": "Dry per-100g as-sold basis matches the stored staple ingredient and keeps dilution from soaking/cooking out of the base ranking.",
+    "includes": [
+      "plain dry black beans"
+    ],
+    "excludes": [
+      "canned black beans",
+      "refried black beans",
+      "seasoned bean dishes",
+      "cooked drained values"
+    ]
+  },
+  "nutritionDataSources": [
+    {
+      "sourceName": "USDA FoodData Central - SR Legacy",
+      "sourceType": "primary",
+      "recordId": "FDC 173734",
+      "url": "https://fdc.nal.usda.gov/food-details/173734/nutrients",
+      "basis": {
+        "value": 100,
+        "unit": "g"
+      },
+      "checkedAt": "2026-06-14"
+    },
+    {
+      "sourceName": "MyFoodData Nutrition Data Tools",
+      "sourceType": "cross_check",
+      "recordId": "FDC 173734 mirror",
+      "url": "https://tools.myfooddata.com/nutrition-facts/173734/wt1",
+      "basis": {
+        "value": 100,
+        "unit": "g"
+      },
+      "checkedAt": "2026-06-14"
+    },
+    {
+      "sourceName": "USDA FoodData Central - black turtle bean cross-check",
+      "sourceType": "cross_check",
+      "recordId": "FDC 175186",
+      "url": "https://fdc.nal.usda.gov/food-details/175186/nutrients",
+      "basis": {
+        "value": 100,
+        "unit": "g"
+      },
+      "checkedAt": "2026-06-14"
+    }
+  ],
+  "metricProvenance": {
+    "header": "Per-100g values cross-checked against nutritionDataSources.",
+    "saturated_fat_g": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "omega3_mg": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "polyunsaturated_fat_g": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "cholesterol_mg": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "starch_g": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "fibre_g": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "sugar_g": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "glycemic_index": "Preparation-sensitive glycemic-index context value used only as an optional scoring signal.",
+    "collagen_g": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "essential_amino_acids_score": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "nonessential_amino_acids_score": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "bioavailability_percent": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "vitamin_a_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "vitamin_c_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "vitamin_d_dv": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "vitamin_e_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "vitamin_k_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "vitamin_b12_dv": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "iron_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "magnesium_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "zinc_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "calcium_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "potassium_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources."
+  },
+  "scoreReadiness": {
+    "status": "production-safe",
+    "summary": "Representative finalisation sample with per-100g basis, structured source references, and current scoring/display guardrails applied.",
+    "blockers": [],
+    "caveats": [
+      "Real foods vary by cultivar, brand, season, and preparation; this record is a canonical comparison entry rather than a guarantee for every product."
+    ]
+  }
 }

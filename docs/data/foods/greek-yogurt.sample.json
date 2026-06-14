@@ -9,91 +9,179 @@
   "header": {
     "kcal": 97,
     "fat_g": 5,
-    "carb_g": 3.9,
+    "carb_g": 4,
     "protein_g": 9
   },
   "metrics": {
-    "saturated_fat_g": 3,
+    "saturated_fat_g": 2.4,
     "omega3_mg": 40,
     "polyunsaturated_fat_g": 0.2,
     "cholesterol_mg": 13,
     "starch_g": 0,
     "fibre_g": 0,
-    "sugar_g": 3.6,
+    "sugar_g": 4,
     "glycemic_index": 11,
     "collagen_g": null,
-    "essential_amino_acids_score": 8,
-    "nonessential_amino_acids_score": 10,
-    "bioavailability_percent": 92,
+    "essential_amino_acids_score": null,
+    "nonessential_amino_acids_score": null,
+    "bioavailability_percent": null,
     "vitamin_a_dv": 2,
     "vitamin_c_dv": 0,
     "vitamin_d_dv": 0,
     "vitamin_e_dv": 0,
     "vitamin_k_dv": 0,
-    "vitamin_b12_dv": 22,
+    "vitamin_b12_dv": 31,
     "iron_dv": 0,
     "magnesium_dv": 3,
     "zinc_dv": 5,
-    "calcium_dv": 11,
-    "potassium_dv": 4
+    "calcium_dv": 8,
+    "potassium_dv": 3
   },
   "contextItems": {
     "pros": [
       {
-        "itemKey": "fermented_food_bonus",
+        "itemKey": "fermented_culture_angle",
         "impactLevel": "major",
-        "scoreValue": 3,
         "title": "fermented-food angle adds extra value",
-        "explanation": "That gives it a practical benefit beyond the visible protein and fat numbers alone.",
-        "evidenceType": "manual"
+        "explanation": "Plain Greek yogurt can bring live-culture context that plain milk does not.",
+        "evidenceType": "manual",
+        "confidence": "medium"
       },
       {
-        "itemKey": "high_satiety",
-        "impactLevel": "minor",
-        "scoreValue": 0,
-        "title": "quite filling for the calories",
-        "explanation": "The protein density gives it strong practical satiety value.",
-        "evidenceType": "manual"
+        "itemKey": "thick_texture_satiety",
+        "impactLevel": "major",
+        "title": "thick texture helps satiety",
+        "explanation": "The strained texture makes it more filling than many softer dairy options.",
+        "evidenceType": "manual",
+        "confidence": "medium"
       },
       {
-        "itemKey": "easy_high_protein_use",
+        "itemKey": "unsweetened_protein_base",
         "impactLevel": "minor",
-        "scoreValue": 0,
-        "title": "easy high-protein staple",
-        "explanation": "Very easy to build meals or snacks around.",
-        "evidenceType": "manual"
+        "title": "easy unsweetened protein base",
+        "explanation": "It works in meals without needing added sugar.",
+        "evidenceType": "manual",
+        "confidence": "medium"
       }
     ],
     "cons": [
       {
-        "itemKey": "satfat_not_low",
+        "itemKey": "dairy_tolerance",
         "impactLevel": "minor",
-        "scoreValue": 0,
-        "title": "saturated fat is not trivial",
-        "explanation": "Still much cleaner than weak dairy foods, but not ultra-low-fat.",
-        "evidenceType": "manual"
+        "title": "dairy tolerance is not universal",
+        "explanation": "Lactose sensitivity or dairy avoidance can make it a poor fit for some people.",
+        "evidenceType": "manual",
+        "confidence": "medium"
       },
       {
-        "itemKey": "lactose_context",
+        "itemKey": "sweetened_version_drift",
         "impactLevel": "minor",
-        "scoreValue": 0,
-        "title": "not suitable for everyone",
-        "explanation": "Lactose tolerance and dairy tolerance vary.",
-        "evidenceType": "manual"
+        "title": "sweetened versions change the profile fast",
+        "explanation": "The plain record is strong, but common flavoured tubs can add a lot of sugar.",
+        "evidenceType": "manual",
+        "confidence": "medium"
       },
       {
-        "itemKey": "topping_dependency",
+        "itemKey": "satfat_style_variance",
         "impactLevel": "minor",
-        "scoreValue": 0,
-        "title": "healthiness can shift with toppings",
-        "explanation": "Sugary add-ins can change the practical outcome fast.",
-        "evidenceType": "manual"
+        "title": "saturated fat varies by style",
+        "explanation": "Whole-milk versions carry more saturated fat than low-fat or nonfat versions.",
+        "evidenceType": "manual",
+        "confidence": "medium"
       }
     ]
   },
-  "expectedTier": "S",
+  "expectedTier": "A",
   "sourceNotes": [
-    "Calibration sample for FoodRanked.",
-    "Values are approximate placeholders for tuning only."
-  ]
+    "Production-lane source audit pass.",
+    "All displayed nutrition values are stored and checked on a per-100g basis.",
+    "Primary and cross-check nutrition references are listed in nutritionDataSources.",
+    "Contextual GI and protein-quality fields are optional when not canonical nutrient facts."
+  ],
+  "identity": {
+    "canonicalName": "Yogurt, Greek, plain, whole milk",
+    "commonName": "Greek Yogurt",
+    "form": "plain whole-milk Greek yogurt",
+    "state": "ready to eat",
+    "ediblePortion": "as sold",
+    "basisReason": "Per-100g ready-to-eat basis matches dairy labeling and excludes sweetened or flavoured variants.",
+    "includes": [
+      "plain whole-milk Greek yogurt"
+    ],
+    "excludes": [
+      "nonfat Greek yogurt",
+      "sweetened Greek yogurt",
+      "flavoured yogurt",
+      "yogurt with toppings"
+    ]
+  },
+  "nutritionDataSources": [
+    {
+      "sourceName": "USDA FoodData Central - SR Legacy",
+      "sourceType": "primary",
+      "recordId": "FDC 171304",
+      "url": "https://fdc.nal.usda.gov/food-details/171304/nutrients",
+      "basis": {
+        "value": 100,
+        "unit": "g"
+      },
+      "checkedAt": "2026-06-14"
+    },
+    {
+      "sourceName": "USDA FoodData Central - Foundation Foods cross-check",
+      "sourceType": "cross_check",
+      "recordId": "FDC 2259794",
+      "url": "https://fdc.nal.usda.gov/food-details/2259794/nutrients",
+      "basis": {
+        "value": 100,
+        "unit": "g"
+      },
+      "checkedAt": "2026-06-14"
+    },
+    {
+      "sourceName": "MyFoodData Nutrition Data Tools",
+      "sourceType": "cross_check",
+      "recordId": "FDC 171304 mirror",
+      "url": "https://tools.myfooddata.com/nutrition-facts/171304/100g",
+      "basis": {
+        "value": 100,
+        "unit": "g"
+      },
+      "checkedAt": "2026-06-14"
+    }
+  ],
+  "metricProvenance": {
+    "header": "Per-100g values cross-checked against nutritionDataSources.",
+    "saturated_fat_g": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "omega3_mg": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "polyunsaturated_fat_g": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "cholesterol_mg": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "starch_g": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "fibre_g": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "sugar_g": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "glycemic_index": "Preparation-sensitive glycemic-index context value used only as an optional scoring signal.",
+    "collagen_g": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "essential_amino_acids_score": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "nonessential_amino_acids_score": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "bioavailability_percent": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "vitamin_a_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "vitamin_c_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "vitamin_d_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "vitamin_e_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "vitamin_k_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "vitamin_b12_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "iron_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "magnesium_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "zinc_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "calcium_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "potassium_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources."
+  },
+  "scoreReadiness": {
+    "status": "production-safe",
+    "summary": "Representative finalisation sample with per-100g basis, structured source references, and current scoring/display guardrails applied.",
+    "blockers": [],
+    "caveats": [
+      "Real foods vary by cultivar, brand, season, and preparation; this record is a canonical comparison entry rather than a guarantee for every product."
+    ]
+  }
 }

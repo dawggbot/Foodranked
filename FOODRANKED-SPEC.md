@@ -176,5 +176,3 @@ There are already 10+ manually produced test videos, so the current priority is:
 
 Do not reinvent the format from scratch.
 Formalise, clean up, and systemise the format that already works.
-rmat from scratch.
-Formalise, clean up, and systemise the format that already works.

@@ -39,9 +39,9 @@
     "sugar_g": 10.6,
     "glycemic_index": 63,
     "collagen_g": null,
-    "essential_amino_acids_score": 0,
-    "nonessential_amino_acids_score": 0,
-    "bioavailability_percent": 0,
+    "essential_amino_acids_score": null,
+    "nonessential_amino_acids_score": null,
+    "bioavailability_percent": null,
     "vitamin_a_dv": 0,
     "vitamin_c_dv": 0,
     "vitamin_d_dv": null,
@@ -55,29 +55,30 @@
     "potassium_dv": 0
   },
   "metricProvenance": {
-    "header": "Generic regular-cola nutrition-label style entry, normalized to per 100 g beverage",
-    "saturated_fat_g": "not applicable for this beverage",
-    "omega3_mg": "not applicable for this beverage",
-    "polyunsaturated_fat_g": "not applicable for this beverage",
-    "cholesterol_mg": "not applicable for this beverage",
-    "starch_g": "not applicable for this beverage",
-    "fibre_g": "not applicable for this beverage",
-    "sugar_g": "same label-style source family as header",
-    "glycemic_index": "representative sugary-soft-drink GI value; not the main reason the item scores poorly",
-    "essential_amino_acids_score": "not applicable for this beverage",
-    "nonessential_amino_acids_score": "not applicable for this beverage",
-    "bioavailability_percent": "not applicable for this beverage",
-    "vitamin_a_dv": "generic label-style source family as header",
-    "vitamin_c_dv": "generic label-style source family as header",
-    "vitamin_d_dv": "not a meaningful nutrient field for this generic cola entry",
-    "vitamin_e_dv": "generic label-style source family as header",
-    "vitamin_k_dv": "generic label-style source family as header",
-    "vitamin_b12_dv": "not a meaningful nutrient field for this generic cola entry",
-    "iron_dv": "generic label-style source family as header",
-    "magnesium_dv": "generic label-style source family as header",
-    "zinc_dv": "generic label-style source family as header",
-    "calcium_dv": "generic label-style source family as header",
-    "potassium_dv": "generic label-style source family as header"
+    "header": "Per-100g values cross-checked against nutritionDataSources.",
+    "saturated_fat_g": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "omega3_mg": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "polyunsaturated_fat_g": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "cholesterol_mg": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "starch_g": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "fibre_g": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "sugar_g": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "glycemic_index": "Preparation-sensitive glycemic-index context value used only as an optional scoring signal.",
+    "collagen_g": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "essential_amino_acids_score": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "nonessential_amino_acids_score": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "bioavailability_percent": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "vitamin_a_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "vitamin_c_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "vitamin_d_dv": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "vitamin_e_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "vitamin_k_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "vitamin_b12_dv": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "iron_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "magnesium_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "zinc_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "calcium_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "potassium_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources."
   },
   "contextItems": {
     "pros": [
@@ -129,14 +130,52 @@
   },
   "scoreReadiness": {
     "status": "production-safe",
-    "summary": "This generic regular-cola record is simple and stable enough for launch scripting because the core story is just sugar delivery plus minimal nutrition.",
-    "blockers": []
+    "summary": "Representative finalisation sample with per-100g basis, structured source references, and current scoring/display guardrails applied.",
+    "blockers": [],
+    "caveats": [
+      "Real foods vary by cultivar, brand, season, and preparation; this record is a canonical comparison entry rather than a guarantee for every product."
+    ]
   },
   "expectedTier": "D",
   "sourceNotes": [
-    "Production-lane cleanup pass.",
-    "Identity locked to standard sugar-sweetened regular cola, per 100 g as sold.",
-    "Core nutrient values align with generic beverage nutrition-label style cola entries.",
-    "This is intentionally a generic regular-cola record rather than a specific brand SKU."
+    "Production-lane source audit pass.",
+    "All displayed nutrition values are stored and checked on a per-100g basis.",
+    "Primary and cross-check nutrition references are listed in nutritionDataSources.",
+    "Contextual GI and protein-quality fields are optional when not canonical nutrient facts."
+  ],
+  "nutritionDataSources": [
+    {
+      "sourceName": "USDA FoodData Central - SR Legacy",
+      "sourceType": "primary",
+      "recordId": "FDC 174852",
+      "url": "https://fdc.nal.usda.gov/food-details/174852/nutrients",
+      "basis": {
+        "value": 100,
+        "unit": "g"
+      },
+      "checkedAt": "2026-06-14"
+    },
+    {
+      "sourceName": "MyFoodData Nutrition Data Tools",
+      "sourceType": "cross_check",
+      "recordId": "FDC 174852 mirror",
+      "url": "https://tools.myfooddata.com/nutrition-facts/174852/wt3",
+      "basis": {
+        "value": 100,
+        "unit": "g"
+      },
+      "checkedAt": "2026-06-14"
+    },
+    {
+      "sourceName": "USDA FoodData Central - caffeine-free cola contrast",
+      "sourceType": "context_cross_check",
+      "recordId": "FDC 174851",
+      "url": "https://fdc.nal.usda.gov/food-details/174851/nutrients",
+      "basis": {
+        "value": 100,
+        "unit": "g"
+      },
+      "checkedAt": "2026-06-14"
+    }
   ]
 }

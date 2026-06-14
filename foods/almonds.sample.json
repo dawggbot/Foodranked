@@ -22,9 +22,9 @@
     "sugar_g": 4.4,
     "glycemic_index": 15,
     "collagen_g": null,
-    "essential_amino_acids_score": 6,
-    "nonessential_amino_acids_score": 8,
-    "bioavailability_percent": 60,
+    "essential_amino_acids_score": null,
+    "nonessential_amino_acids_score": null,
+    "bioavailability_percent": null,
     "vitamin_a_dv": 0,
     "vitamin_c_dv": 0,
     "vitamin_d_dv": 0,
@@ -40,56 +40,148 @@
   "contextItems": {
     "pros": [
       {
-        "itemKey": "high_satiety",
-        "impactLevel": "minor",
-        "title": "fairly satiating for the portion",
-        "explanation": "Dense texture and fibre can help fullness.",
-        "evidenceType": "manual"
+        "itemKey": "vitamin_e_standout",
+        "impactLevel": "major",
+        "title": "vitamin E is the standout identity",
+        "explanation": "Almonds have a clearer vitamin E story than most nuts.",
+        "evidenceType": "manual",
+        "confidence": "medium"
       },
       {
-        "itemKey": "versatile_snack",
+        "itemKey": "magnesium_mineral_support",
         "impactLevel": "minor",
-        "title": "easy to use as a practical wholefood snack",
-        "explanation": "Convenient and shelf-stable enough to fit many routines.",
-        "evidenceType": "manual"
+        "title": "magnesium support adds real value",
+        "explanation": "The mineral side helps justify the calorie density.",
+        "evidenceType": "manual",
+        "confidence": "medium"
       },
       {
-        "itemKey": "polyphenol_support",
+        "itemKey": "portable_whole_food_fat_snack",
         "impactLevel": "minor",
-        "title": "contains useful polyphenols",
-        "explanation": "Adds extra plant-compound value beyond the standard nutrient table.",
-        "evidenceType": "manual"
+        "title": "portable whole-food fat snack",
+        "explanation": "They are easy to use without turning into a more processed snack.",
+        "evidenceType": "manual",
+        "confidence": "medium"
       }
     ],
     "cons": [
       {
-        "itemKey": "anti_nutrients",
+        "itemKey": "calorie_density_portion_risk",
         "impactLevel": "minor",
-        "title": "contains some anti-nutrients",
-        "explanation": "Phytates may reduce mineral absorption somewhat.",
-        "evidenceType": "manual"
+        "title": "calorie density makes portions matter",
+        "explanation": "Small handful changes can move the energy load quickly.",
+        "evidenceType": "manual",
+        "confidence": "medium"
       },
       {
-        "itemKey": "easy_to_overeat",
+        "itemKey": "phytate_oxalate_caveat",
         "impactLevel": "minor",
-        "title": "easy to overeat calories quickly",
-        "explanation": "Energy density can add up fast in large handfuls.",
-        "evidenceType": "manual"
+        "title": "phytates and oxalates add a mineral caveat",
+        "explanation": "The minerals are useful, but absorption is not perfectly straightforward.",
+        "evidenceType": "manual",
+        "confidence": "medium"
       },
       {
-        "itemKey": "allergen_risk",
+        "itemKey": "tree_nut_allergy",
         "impactLevel": "minor",
-        "title": "not suitable for everyone",
-        "explanation": "Tree nut allergy risk matters in practice.",
-        "evidenceType": "manual"
+        "title": "tree-nut allergy limits use",
+        "explanation": "For some people, almonds are simply not a usable option.",
+        "evidenceType": "manual",
+        "confidence": "medium"
       }
     ]
   },
   "sourceNotes": [
-    "Calibration benchmark sample for FoodRanked.",
-    "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database.",
-    "Sample data for FoodRanked test pack.",
-    "Values are approximate and should be replaced with canonical source data later."
+    "Production-lane source audit pass.",
+    "All displayed nutrition values are stored and checked on a per-100g basis.",
+    "Primary and cross-check nutrition references are listed in nutritionDataSources.",
+    "Contextual GI and protein-quality fields are optional when not canonical nutrient facts."
   ],
-  "expectedTier": "S"
+  "expectedTier": "S",
+  "identity": {
+    "canonicalName": "Nuts, almonds",
+    "commonName": "Almonds",
+    "form": "raw whole almond kernels",
+    "state": "raw / unroasted",
+    "ediblePortion": "shelled kernels",
+    "basisReason": "Raw per-100g edible-kernel basis matches plain almond comparison and avoids salted, roasted, or sweetened variants.",
+    "includes": [
+      "plain raw almonds"
+    ],
+    "excludes": [
+      "roasted salted almonds",
+      "almond butter",
+      "sweetened almonds",
+      "flavored almond snacks"
+    ]
+  },
+  "nutritionDataSources": [
+    {
+      "sourceName": "USDA FoodData Central - SR Legacy",
+      "sourceType": "primary",
+      "recordId": "FDC 170567",
+      "url": "https://fdc.nal.usda.gov/food-details/170567/nutrients",
+      "basis": {
+        "value": 100,
+        "unit": "g"
+      },
+      "checkedAt": "2026-06-14"
+    },
+    {
+      "sourceName": "MyFoodData Nutrition Data Tools",
+      "sourceType": "cross_check",
+      "recordId": "FDC 170567 mirror",
+      "url": "https://tools.myfooddata.com/nutrition-facts/170567/wt5",
+      "basis": {
+        "value": 100,
+        "unit": "g"
+      },
+      "checkedAt": "2026-06-14"
+    },
+    {
+      "sourceName": "Harvard T.H. Chan Nutrition Source",
+      "sourceType": "context_cross_check",
+      "recordId": "almonds feature",
+      "url": "https://nutritionsource.hsph.harvard.edu/food-features/almonds/",
+      "basis": {
+        "value": 100,
+        "unit": "g"
+      },
+      "checkedAt": "2026-06-14"
+    }
+  ],
+  "metricProvenance": {
+    "header": "Per-100g values cross-checked against nutritionDataSources.",
+    "saturated_fat_g": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "omega3_mg": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "polyunsaturated_fat_g": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "cholesterol_mg": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "starch_g": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "fibre_g": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "sugar_g": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "glycemic_index": "Preparation-sensitive glycemic-index context value used only as an optional scoring signal.",
+    "collagen_g": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "essential_amino_acids_score": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "nonessential_amino_acids_score": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "bioavailability_percent": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "vitamin_a_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "vitamin_c_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "vitamin_d_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "vitamin_e_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "vitamin_k_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "vitamin_b12_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "iron_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "magnesium_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "zinc_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "calcium_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "potassium_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources."
+  },
+  "scoreReadiness": {
+    "status": "production-safe",
+    "summary": "Representative finalisation sample with per-100g basis, structured source references, and current scoring/display guardrails applied.",
+    "blockers": [],
+    "caveats": [
+      "Real foods vary by cultivar, brand, season, and preparation; this record is a canonical comparison entry rather than a guarantee for every product."
+    ]
+  }
 }

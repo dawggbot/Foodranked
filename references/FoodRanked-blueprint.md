@@ -16,7 +16,7 @@
 * 7 small dots near the bottom, displaying what section we are on by highlighting the corresponding dot. 
 * Empty background like start of video 
 * Brief summary of strengths, weakness and specific uses 
-* “S-D tier” (ending hook for loyal viewers, rank food on a scale of S,A,B,C,D) - big letter that gets stamped in on empty background bellow the permanent header 
+* “S-D tier” (ending hook for loyal viewers, rank food on a scale of S,A,B,C,D) - big letter that gets stamped in on empty background below the permanent header
 * End of video 
 * Overall all aesthetics will be like a pixel rpg game stat sheet or a pokemon entry from a pokedex. A kind of cozy atmosphere, but also aesthetically pleasing. My own animated sprites created in aseprite will be used. 
 * This format is locked for all videos
@@ -964,7 +964,7 @@ S=platinum,gold
 * Macro: fat (g) 
 * Submacro: saturated fat (g) 
 * Submacro: omega 3 (mg) 
-* Submacro: poly unsaturated fat (g) 
+* Submacro: polyunsaturated fat (g)
 * Submacro: cholesterol (mg)
 
 **Section 2: carbs**
@@ -980,7 +980,7 @@ S=platinum,gold
 * Macro: protein (g) 
 * Submacro: collagen (g) 
 * Submacro: essential amino acids (/9) 
-* Submacro: nonessential amino acids (/11) 
+* Submacro: non-essential amino acids (/11)
 * Submacro: bioavailability (%) 
 * (EAAs and NEAAS get counted based off how meaningful the amounts are, if an amount is not meaningful, don't count it)
 
@@ -1044,15 +1044,15 @@ S=platinum,gold
 
 # ranking
 
-* Macros don't get scored, they are entirely visual, just their to inform viewer of their amounts 
+* Macros don't get scored, they are entirely visual; they are there to inform the viewer of their amounts
 * submacros, scores based on what arrow indicator is displayed 
 * Vitamins and minerals get scored off what bar % is filled. 
-* Major pros give more points then minor 
+* Major pros give more points than minor
 * Major cons deduct more points than minor 
 * All these score metrics are locked and universal, what changes them slightly would be food type weighting 
 * Food types get recognised for what they are strong in. More score weighting in certain areas. Would save stuff like tubers getting penalised for having 0.9g of saturated fat. However this also gives more penalisation for underperforming. 
-* Let ai sort out tier thresh holds? 
-* Misc submracros don't get ranked, vitamins and minerals and pros and cons get scored heavier instead. 
+* Let AI sort out tier thresholds?
+* Misc submacros don't get ranked; vitamins, minerals, pros, and cons get scored heavier instead.
 * None of the scoring will be displayed on the video, only the tier 
 * All sections contribute towards the score fairly 
 

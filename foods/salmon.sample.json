@@ -38,10 +38,10 @@
     "fibre_g": null,
     "sugar_g": null,
     "glycemic_index": null,
-    "collagen_g": 0.8,
-    "essential_amino_acids_score": 9,
-    "nonessential_amino_acids_score": 11,
-    "bioavailability_percent": 95,
+    "collagen_g": null,
+    "essential_amino_acids_score": null,
+    "nonessential_amino_acids_score": null,
+    "bioavailability_percent": null,
     "vitamin_a_dv": 2,
     "vitamin_c_dv": 0,
     "vitamin_d_dv": 66,
@@ -55,30 +55,30 @@
     "potassium_dv": 8
   },
   "metricProvenance": {
-    "header": "USDA FoodData Central style raw Atlantic-salmon entry, normalized to per 100 g edible portion",
-    "saturated_fat_g": "same canonical source family as header",
-    "omega3_mg": "derived fatty-acid field from the same source family and directionally central to why salmon scores well",
-    "polyunsaturated_fat_g": "same canonical source family as header",
-    "cholesterol_mg": "same canonical source family as header",
-    "starch_g": "not applicable for this food",
-    "fibre_g": "not applicable for this food",
-    "sugar_g": "not applicable for this food",
-    "glycemic_index": "not applicable for this food",
-    "collagen_g": "current value is still a rough calibration-era proxy, not a locked salmon-cut-specific source field",
-    "essential_amino_acids_score": "current value is still a calibration proxy rather than an exact-source amino-acid profile for this chosen salmon form",
-    "nonessential_amino_acids_score": "current value is still a calibration proxy rather than an exact-source amino-acid profile for this chosen salmon form",
-    "bioavailability_percent": "current value is still a proxy estimate, not a locked canonical percent for this exact salmon entry",
-    "vitamin_a_dv": "same canonical source family as header",
-    "vitamin_c_dv": "same canonical source family as header",
-    "vitamin_d_dv": "same canonical source family as header",
-    "vitamin_e_dv": "same canonical source family as header",
-    "vitamin_k_dv": "same canonical source family as header",
-    "vitamin_b12_dv": "same canonical source family as header",
-    "iron_dv": "same canonical source family as header",
-    "magnesium_dv": "same canonical source family as header",
-    "zinc_dv": "same canonical source family as header",
-    "calcium_dv": "same canonical source family as header",
-    "potassium_dv": "same canonical source family as header"
+    "header": "Per-100g values cross-checked against nutritionDataSources.",
+    "saturated_fat_g": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "omega3_mg": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "polyunsaturated_fat_g": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "cholesterol_mg": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "starch_g": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "fibre_g": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "sugar_g": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "glycemic_index": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "collagen_g": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "essential_amino_acids_score": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "nonessential_amino_acids_score": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "bioavailability_percent": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "vitamin_a_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "vitamin_c_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "vitamin_d_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "vitamin_e_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "vitamin_k_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "vitamin_b12_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "iron_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "magnesium_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "zinc_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "calcium_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "potassium_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources."
   },
   "contextItems": {
     "pros": [
@@ -132,15 +132,52 @@
     "status": "near-production-safe",
     "summary": "Strong enough for launch scripting as a raw salmon baseline, but a few protein-quality style fields are still legacy calibration proxies and salmon source variation can move the fat profile.",
     "blockers": [
-      "collagen and protein-quality proxy metrics still need either exact-source backing or deliberate removal",
       "wild-versus-farmed and species variation can shift the exact fat and omega-3 profile meaningfully"
+    ],
+    "caveats": [
+      "Real foods vary by cultivar, brand, season, and preparation; this record is a canonical comparison entry rather than a guarantee for every product."
     ]
   },
   "expectedTier": "S",
   "sourceNotes": [
-    "Production-lane cleanup pass.",
-    "Identity locked to raw salmon flesh, using Atlantic salmon style per-100 g baseline values.",
-    "Core nutrient values align with USDA FoodData Central style raw Atlantic salmon entries.",
-    "Raw basis kept intentionally, not cooked salmon values."
+    "Production-lane source audit pass.",
+    "All displayed nutrition values are stored and checked on a per-100g basis.",
+    "Primary and cross-check nutrition references are listed in nutritionDataSources.",
+    "Contextual GI and protein-quality fields are optional when not canonical nutrient facts."
+  ],
+  "nutritionDataSources": [
+    {
+      "sourceName": "USDA FoodData Central - SR Legacy",
+      "sourceType": "primary",
+      "recordId": "FDC 175167",
+      "url": "https://fdc.nal.usda.gov/food-details/175167/nutrients",
+      "basis": {
+        "value": 100,
+        "unit": "g"
+      },
+      "checkedAt": "2026-06-14"
+    },
+    {
+      "sourceName": "MyFoodData Nutrition Data Tools",
+      "sourceType": "cross_check",
+      "recordId": "FDC 175167 mirror",
+      "url": "https://tools.myfooddata.com/nutrition-facts/175167/wt1",
+      "basis": {
+        "value": 100,
+        "unit": "g"
+      },
+      "checkedAt": "2026-06-14"
+    },
+    {
+      "sourceName": "Purdue / USDA SR salmon factsheet",
+      "sourceType": "cross_check",
+      "recordId": "NDB 15236",
+      "url": "https://www.purdue.edu/hhs/nutr/fish4health/HealthBenefits/salmon%28Atlantic%29.pdf",
+      "basis": {
+        "value": 100,
+        "unit": "g"
+      },
+      "checkedAt": "2026-06-14"
+    }
   ]
 }

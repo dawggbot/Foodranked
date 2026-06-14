@@ -1503,7 +1503,11 @@
     }
     const sectionKey = ruleSectionKey(sectionId);
     const bySection = food?.ruleset?.metricRulesBySection?.[sectionKey] || food?.ruleset?.metricRulesBySection?.[sectionId] || [];
-    return bySection.find(rule => rule.metricKey === spec.key) || null;
+    return bySection.find(rule => (
+      rule.metricKey === spec.key
+      && rule.applicability !== 'not_applicable'
+      && (rule.weight ?? 1) > 0
+    )) || null;
   }
 
   function rawMetricValueForSpec(food, sectionId, spec) {

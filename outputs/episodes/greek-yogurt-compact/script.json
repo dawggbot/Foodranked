@@ -10,11 +10,36 @@
       "value": 100,
       "unit": "g"
     },
-    "identity": null,
-    "scoreReadiness": null,
+    "identity": {
+      "canonicalName": "Yogurt, Greek, plain, whole milk",
+      "commonName": "Greek Yogurt",
+      "form": "plain whole-milk Greek yogurt",
+      "state": "ready to eat",
+      "ediblePortion": "as sold",
+      "basisReason": "Per-100g ready-to-eat basis matches dairy labeling and excludes sweetened or flavoured variants.",
+      "includes": [
+        "plain whole-milk Greek yogurt"
+      ],
+      "excludes": [
+        "nonfat Greek yogurt",
+        "sweetened Greek yogurt",
+        "flavoured yogurt",
+        "yogurt with toppings"
+      ]
+    },
+    "scoreReadiness": {
+      "status": "production-safe",
+      "summary": "Representative finalisation sample with per-100g basis, structured source references, and current scoring/display guardrails applied.",
+      "blockers": [],
+      "caveats": [
+        "Real foods vary by cultivar, brand, season, and preparation; this record is a canonical comparison entry rather than a guarantee for every product."
+      ]
+    },
     "sourceNotes": [
-      "Calibration benchmark sample for FoodRanked.",
-      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
+      "Production-lane source audit pass.",
+      "All displayed nutrition values are stored and checked on a per-100g basis.",
+      "Primary and cross-check nutrition references are listed in nutritionDataSources.",
+      "Contextual GI and protein-quality fields are optional when not canonical nutrient facts."
     ]
   },
   "ruleset": {
@@ -28,7 +53,7 @@
   "header": {
     "kcal": 97,
     "fat_g": 5,
-    "carb_g": 3.9,
+    "carb_g": 4,
     "protein_g": 9
   },
   "hook": "Greek Yogurt ranked.",
@@ -58,12 +83,12 @@
         },
         {
           "metricKey": "saturated_fat_g",
-          "text": "saturated fat at 3g",
+          "text": "saturated fat at 2.4g",
           "weightedScore": 360,
           "scoringMode": "arrow_bands",
           "band": "↓",
           "dvPercent": null,
-          "value": 3
+          "value": 2.4
         },
         {
           "metricKey": "omega3_mg",
@@ -82,25 +107,16 @@
     {
       "key": "carbs",
       "title": "Carbs",
-      "narration": "3.9 grams of carbs. Sugar is 3.6 grams, supporting better carb quality. Starch is 0 grams, a small miss for dairy.",
+      "narration": "4 grams of carbs. Sugar is 4 grams, supporting better carb quality.",
       "displayItems": [
         {
           "metricKey": "sugar_g",
-          "text": "sugar at 3.6g",
+          "text": "sugar at 4g",
           "weightedScore": 320,
           "scoringMode": "arrow_bands",
           "band": "↓↓",
           "dvPercent": null,
-          "value": 3.6
-        },
-        {
-          "metricKey": "starch_g",
-          "text": "starch at 0g",
-          "weightedScore": 0,
-          "scoringMode": "arrow_bands",
-          "band": "3_red",
-          "dvPercent": null,
-          "value": 0
+          "value": 4
         },
         {
           "metricKey": "glycemic_index",
@@ -112,7 +128,7 @@
           "value": 11
         }
       ],
-      "subtitleText": "3.9g of carbs. Sugar is 3.6g, supporting better carb quality. Starch is 0g, a small miss for dairy.",
+      "subtitleText": "4g of carbs. Sugar is 4g, supporting better carb quality.",
       "timingHint": "short-medium",
       "score": 86.7
     },
@@ -138,15 +154,15 @@
     {
       "key": "vitamins",
       "title": "Vitamins",
-      "narration": "Vitamin B12 is 22% daily value, useful for nerve and blood-cell support. Vitamin A is only 2% daily value, a weak mark for dairy.",
+      "narration": "Vitamin B12 is 31% daily value, useful for nerve and blood-cell support. Vitamin A is only 2% daily value, a weak mark for dairy.",
       "displayItems": [
         {
           "metricKey": "vitamin_b12_dv",
-          "text": "vitamin B12 at 22% DV",
-          "weightedScore": 40,
+          "text": "vitamin B12 at 31% DV",
+          "weightedScore": 60,
           "scoringMode": "dv_points",
           "band": null,
-          "dvPercent": 22,
+          "dvPercent": 31,
           "value": null
         },
         {
@@ -159,22 +175,22 @@
           "value": null
         }
       ],
-      "subtitleText": "Vitamin B12 is 22% DV, useful for nerve and blood-cell support. Vitamin A is only 2% DV, a weak mark for dairy.",
+      "subtitleText": "Vitamin B12 is 31% DV, useful for nerve and blood-cell support. Vitamin A is only 2% DV, a weak mark for dairy.",
       "timingHint": "short-medium",
-      "score": 13.3
+      "score": 20
     },
     {
       "key": "minerals",
       "title": "Minerals",
-      "narration": "Calcium is 11% daily value, adding useful mineral support. Magnesium is only 3% daily value, a weak mark for dairy.",
+      "narration": "Calcium is 8% daily value, adding useful mineral support. Magnesium is only 3% daily value, a weak mark for dairy.",
       "displayItems": [
         {
           "metricKey": "calcium_dv",
-          "text": "calcium at 11% DV",
-          "weightedScore": 30,
+          "text": "calcium at 8% DV",
+          "weightedScore": 0,
           "scoringMode": "dv_points",
           "band": null,
-          "dvPercent": 11,
+          "dvPercent": 8,
           "value": null
         },
         {
@@ -196,85 +212,85 @@
           "value": null
         }
       ],
-      "subtitleText": "Calcium is 11% DV, adding useful mineral support. Magnesium is only 3% DV, a weak mark for dairy.",
+      "subtitleText": "Calcium is 8% DV, adding useful mineral support. Magnesium is only 3% DV, a weak mark for dairy.",
       "timingHint": "short-medium",
-      "score": 6
+      "score": 0
     },
     {
       "key": "pros",
       "title": "Pros",
-      "narration": "The upsides first: fermented-food angle adds extra value. That gives it a practical benefit beyond the visible protein and fat numbers alone. Quite filling for the calories. The protein density gives it strong practical satiety value. Easy high-protein staple. Very easy to build meals or snacks around.",
+      "narration": "The upsides first: fermented-food angle adds extra value. Plain Greek yogurt can bring live-culture context that plain milk does not. Thick texture helps satiety. The strained texture makes it more filling than many softer dairy options. Easy unsweetened protein base. It works in meals without needing added sugar.",
       "displayItems": [
         {
           "type": "pro",
           "title": "fermented-food angle adds extra value",
-          "explanation": "That gives it a practical benefit beyond the visible protein and fat numbers alone.",
+          "explanation": "Plain Greek yogurt can bring live-culture context that plain milk does not.",
           "impactLevel": "major",
           "resolvedScoreValue": 100
         },
         {
           "type": "pro",
-          "title": "quite filling for the calories",
-          "explanation": "The protein density gives it strong practical satiety value.",
+          "title": "thick texture helps satiety",
+          "explanation": "The strained texture makes it more filling than many softer dairy options.",
           "impactLevel": "major",
           "resolvedScoreValue": 100
         },
         {
           "type": "pro",
-          "title": "easy high-protein staple",
-          "explanation": "Very easy to build meals or snacks around.",
+          "title": "easy unsweetened protein base",
+          "explanation": "It works in meals without needing added sugar.",
           "impactLevel": "minor",
           "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "The upsides first: fermented-food angle adds extra value. That gives it a practical benefit beyond the visible protein and fat numbers alone. Quite filling for the calories. The protein density gives it strong practical satiety value. Easy high-protein staple. Very easy to build meals or snacks around.",
+      "subtitleText": "The upsides first: fermented-food angle adds extra value. Plain Greek yogurt can bring live-culture context that plain milk does not. Thick texture helps satiety. The strained texture makes it more filling than many softer dairy options. Easy unsweetened protein base. It works in meals without needing added sugar.",
       "timingHint": "medium",
       "score": 83.3
     },
     {
       "key": "cons",
       "title": "Cons",
-      "narration": "Cons next: saturated fat is not trivial. Still much cleaner than weak dairy foods, but not ultra-low-fat. Not suitable for everyone. Lactose tolerance and dairy tolerance vary. Healthiness can shift with toppings. Sugary add-ins can change the practical outcome fast.",
+      "narration": "Cons next: dairy tolerance is not universal. Lactose sensitivity or dairy avoidance can make it a poor fit for some people. Sweetened versions change the profile fast. The plain record is strong, but common flavoured tubs can add a lot of sugar. Saturated fat varies by style. Whole-milk versions carry more saturated fat than low-fat or nonfat versions.",
       "displayItems": [
         {
           "type": "con",
-          "title": "saturated fat is not trivial",
-          "explanation": "Still much cleaner than weak dairy foods, but not ultra-low-fat.",
+          "title": "dairy tolerance is not universal",
+          "explanation": "Lactose sensitivity or dairy avoidance can make it a poor fit for some people.",
           "impactLevel": "minor",
           "resolvedScoreValue": 50
         },
         {
           "type": "con",
-          "title": "not suitable for everyone",
-          "explanation": "Lactose tolerance and dairy tolerance vary.",
+          "title": "sweetened versions change the profile fast",
+          "explanation": "The plain record is strong, but common flavoured tubs can add a lot of sugar.",
           "impactLevel": "minor",
           "resolvedScoreValue": 50
         },
         {
           "type": "con",
-          "title": "healthiness can shift with toppings",
-          "explanation": "Sugary add-ins can change the practical outcome fast.",
+          "title": "saturated fat varies by style",
+          "explanation": "Whole-milk versions carry more saturated fat than low-fat or nonfat versions.",
           "impactLevel": "minor",
           "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "Cons next: saturated fat is not trivial. Still much cleaner than weak dairy foods, but not ultra-low-fat. Not suitable for everyone. Lactose tolerance and dairy tolerance vary. Healthiness can shift with toppings. Sugary add-ins can change the practical outcome fast.",
+      "subtitleText": "Cons next: dairy tolerance is not universal. Lactose sensitivity or dairy avoidance can make it a poor fit for some people. Sweetened versions change the profile fast. The plain record is strong, but common flavoured tubs can add a lot of sugar. Saturated fat varies by style. Whole-milk versions carry more saturated fat than low-fat or nonfat versions.",
       "timingHint": "medium",
       "score": 50
     }
   ],
   "closing": {
-    "summary": "Big strengths are omega 3 and protein, but the biggest weaknesses are saturated fat is not trivial and not suitable for everyone.",
-    "overview": "Big strengths are omega 3 and protein, but the biggest weaknesses are saturated fat is not trivial and not suitable for everyone.",
+    "summary": "Big strengths are omega 3 and protein, but the biggest weaknesses are dairy tolerance is not universal and sweetened versions change the profile fast.",
+    "overview": "Big strengths are omega 3 and protein, but the biggest weaknesses are dairy tolerance is not universal and sweetened versions change the profile fast.",
     "finalReveal": "A tier.",
     "useCaseNote": "Best when the protein payoff or fermentation angle outweighs the fat and sodium tradeoffs.",
     "cta": "Would you rank it the same, or nah?"
   },
   "tier": "A",
-  "overallScore": 76.7,
-  "overallScoreExact": 76.6668,
-  "baseOverallScore": 49.2,
-  "baseOverallScoreExact": 49.1905,
+  "overallScore": 77,
+  "overallScoreExact": 77.0271,
+  "baseOverallScore": 49.3,
+  "baseOverallScoreExact": 49.2857,
   "sectionOrder": [
     "fats",
     "carbs",
@@ -301,7 +317,7 @@
     {
       "kind": "section",
       "sectionKey": "carbs",
-      "text": "3.9 grams of carbs. Sugar is 3.6 grams, supporting better carb quality. Starch is 0 grams, a small miss for dairy."
+      "text": "4 grams of carbs. Sugar is 4 grams, supporting better carb quality."
     },
     {
       "kind": "section",
@@ -311,26 +327,26 @@
     {
       "kind": "section",
       "sectionKey": "vitamins",
-      "text": "Vitamin B12 is 22% daily value, useful for nerve and blood-cell support. Vitamin A is only 2% daily value, a weak mark for dairy."
+      "text": "Vitamin B12 is 31% daily value, useful for nerve and blood-cell support. Vitamin A is only 2% daily value, a weak mark for dairy."
     },
     {
       "kind": "section",
       "sectionKey": "minerals",
-      "text": "Calcium is 11% daily value, adding useful mineral support. Magnesium is only 3% daily value, a weak mark for dairy."
+      "text": "Calcium is 8% daily value, adding useful mineral support. Magnesium is only 3% daily value, a weak mark for dairy."
     },
     {
       "kind": "section",
       "sectionKey": "pros",
-      "text": "The upsides first: fermented-food angle adds extra value. That gives it a practical benefit beyond the visible protein and fat numbers alone. Quite filling for the calories. The protein density gives it strong practical satiety value. Easy high-protein staple. Very easy to build meals or snacks around."
+      "text": "The upsides first: fermented-food angle adds extra value. Plain Greek yogurt can bring live-culture context that plain milk does not. Thick texture helps satiety. The strained texture makes it more filling than many softer dairy options. Easy unsweetened protein base. It works in meals without needing added sugar."
     },
     {
       "kind": "section",
       "sectionKey": "cons",
-      "text": "Cons next: saturated fat is not trivial. Still much cleaner than weak dairy foods, but not ultra-low-fat. Not suitable for everyone. Lactose tolerance and dairy tolerance vary. Healthiness can shift with toppings. Sugary add-ins can change the practical outcome fast."
+      "text": "Cons next: dairy tolerance is not universal. Lactose sensitivity or dairy avoidance can make it a poor fit for some people. Sweetened versions change the profile fast. The plain record is strong, but common flavoured tubs can add a lot of sugar. Saturated fat varies by style. Whole-milk versions carry more saturated fat than low-fat or nonfat versions."
     },
     {
       "kind": "closing_summary",
-      "text": "Big strengths are omega 3 and protein, but the biggest weaknesses are saturated fat is not trivial and not suitable for everyone."
+      "text": "Big strengths are omega 3 and protein, but the biggest weaknesses are dairy tolerance is not universal and sweetened versions change the profile fast."
     },
     {
       "kind": "final_reveal",
@@ -339,7 +355,7 @@
   ],
   "explanation": {
     "summary": "Carbs are carrying this food most, while minerals are holding it back most. It lands in A tier.",
-    "whyThisTier": "This food lands in A tier with an overall score of 76.7. Section scores: fats 65, carbs 86.7, proteins 40, vitamins 13.3, minerals 6, pros 83.3, cons 50.",
+    "whyThisTier": "This food lands in A tier with an overall score of 77. Section scores: fats 65, carbs 86.7, proteins 40, vitamins 20, minerals 0, pros 83.3, cons 50.",
     "strongestSection": {
       "key": "carbs",
       "label": "Carbs",
@@ -348,26 +364,26 @@
     "weakestSection": {
       "key": "minerals",
       "label": "Minerals",
-      "score": 6
+      "score": 0
     },
     "topPros": [
       {
         "title": "fermented-food angle adds extra value",
-        "explanation": "That gives it a practical benefit beyond the visible protein and fat numbers alone.",
+        "explanation": "Plain Greek yogurt can bring live-culture context that plain milk does not.",
         "impactLevel": "major",
         "side": "pro",
         "resolvedScoreValue": 100
       },
       {
-        "title": "quite filling for the calories",
-        "explanation": "The protein density gives it strong practical satiety value.",
+        "title": "thick texture helps satiety",
+        "explanation": "The strained texture makes it more filling than many softer dairy options.",
         "impactLevel": "major",
         "side": "pro",
         "resolvedScoreValue": 100
       },
       {
-        "title": "easy high-protein staple",
-        "explanation": "Very easy to build meals or snacks around.",
+        "title": "easy unsweetened protein base",
+        "explanation": "It works in meals without needing added sugar.",
         "impactLevel": "minor",
         "side": "pro",
         "resolvedScoreValue": 50
@@ -375,22 +391,22 @@
     ],
     "topCons": [
       {
-        "title": "saturated fat is not trivial",
-        "explanation": "Still much cleaner than weak dairy foods, but not ultra-low-fat.",
+        "title": "dairy tolerance is not universal",
+        "explanation": "Lactose sensitivity or dairy avoidance can make it a poor fit for some people.",
         "impactLevel": "minor",
         "side": "con",
         "resolvedScoreValue": 50
       },
       {
-        "title": "not suitable for everyone",
-        "explanation": "Lactose tolerance and dairy tolerance vary.",
+        "title": "sweetened versions change the profile fast",
+        "explanation": "The plain record is strong, but common flavoured tubs can add a lot of sugar.",
         "impactLevel": "minor",
         "side": "con",
         "resolvedScoreValue": 50
       },
       {
-        "title": "healthiness can shift with toppings",
-        "explanation": "Sugary add-ins can change the practical outcome fast.",
+        "title": "saturated fat varies by style",
+        "explanation": "Whole-milk versions carry more saturated fat than low-fat or nonfat versions.",
         "impactLevel": "minor",
         "side": "con",
         "resolvedScoreValue": 50

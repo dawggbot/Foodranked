@@ -10,11 +10,36 @@
       "value": 100,
       "unit": "g"
     },
-    "identity": null,
-    "scoreReadiness": null,
+    "identity": {
+      "canonicalName": "Kale, raw",
+      "commonName": "Kale",
+      "form": "fresh kale leaves",
+      "state": "raw",
+      "ediblePortion": "edible leaves",
+      "basisReason": "Raw per-100g edible-portion basis matches whole-vegetable comparison and avoids cooked-water-loss distortion.",
+      "includes": [
+        "plain raw kale leaves"
+      ],
+      "excludes": [
+        "cooked kale",
+        "kale chips",
+        "seasoned kale salads",
+        "baby-food purees"
+      ]
+    },
+    "scoreReadiness": {
+      "status": "production-safe",
+      "summary": "Representative finalisation sample with per-100g basis, structured source references, and current scoring/display guardrails applied.",
+      "blockers": [],
+      "caveats": [
+        "Real foods vary by cultivar, brand, season, and preparation; this record is a canonical comparison entry rather than a guarantee for every product."
+      ]
+    },
     "sourceNotes": [
-      "Calibration benchmark sample for FoodRanked.",
-      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
+      "Production-lane source audit pass.",
+      "All displayed nutrition values are stored and checked on a per-100g basis.",
+      "Primary and cross-check nutrition references are listed in nutritionDataSources.",
+      "Contextual GI and protein-quality fields are optional when not canonical nutrient facts."
     ]
   },
   "ruleset": {
@@ -36,26 +61,8 @@
     {
       "key": "fats",
       "title": "Fats",
-      "narration": "0.9 grams of fat. Omega 3 is 180 milligrams, supporting a more useful fat profile. Polyunsaturated fat is 0.3 grams, a weak mark for vegetables.",
+      "narration": "0.9 grams of fat. Saturated fat is 0.1 grams, supporting a better fat profile.",
       "displayItems": [
-        {
-          "metricKey": "omega3_mg",
-          "text": "omega 3 at 180mg",
-          "weightedScore": 0,
-          "scoringMode": "arrow_bands",
-          "band": "3_green",
-          "dvPercent": null,
-          "value": 180
-        },
-        {
-          "metricKey": "polyunsaturated_fat_g",
-          "text": "polyunsaturated fat at 0.3g",
-          "weightedScore": 0,
-          "scoringMode": "arrow_bands",
-          "band": "3_red",
-          "dvPercent": null,
-          "value": 0.3
-        },
         {
           "metricKey": "saturated_fat_g",
           "text": "saturated fat at 0.1g",
@@ -66,14 +73,14 @@
           "value": 0.1
         }
       ],
-      "subtitleText": "0.9g of fat. Omega 3 is 180mg, supporting a more useful fat profile. Polyunsaturated fat is 0.3g, a weak mark for vegetables.",
+      "subtitleText": "0.9g of fat. Saturated fat is 0.1g, supporting a better fat profile.",
       "timingHint": "short-medium",
       "score": 100
     },
     {
       "key": "carbs",
       "title": "Carbs",
-      "narration": "8.8 grams of carbs. Glycemic index is 15 GI, supporting better carb quality. Starch is 0 grams, a small miss for vegetables.",
+      "narration": "8.8 grams of carbs. Glycemic index is 15 GI, supporting better carb quality.",
       "displayItems": [
         {
           "metricKey": "glycemic_index",
@@ -83,15 +90,6 @@
           "band": "↓↓↓",
           "dvPercent": null,
           "value": 15
-        },
-        {
-          "metricKey": "starch_g",
-          "text": "starch at 0g",
-          "weightedScore": 0,
-          "scoringMode": "arrow_bands",
-          "band": "3_red",
-          "dvPercent": null,
-          "value": 0
         },
         {
           "metricKey": "fibre_g",
@@ -112,7 +110,7 @@
           "value": 2.3
         }
       ],
-      "subtitleText": "8.8g of carbs. Glycemic index is 15 GI, supporting better carb quality. Starch is 0g, a small miss for vegetables.",
+      "subtitleText": "8.8g of carbs. Glycemic index is 15 GI, supporting better carb quality.",
       "timingHint": "short-medium",
       "score": 86.7
     },
@@ -211,78 +209,78 @@
     {
       "key": "pros",
       "title": "Pros",
-      "narration": "Pros first: micronutrient density is ridiculous. This is the kind of vegetable profile that can clearly carry a category. Easy to build meals around. A practical plus because good foods need realistic use cases. Very low downside whole food. Vegetables win a lot simply by offering clean nutritional payoff.",
+      "narration": "Pros first: glucosinolate-rich brassica profile. Kale brings a brassica-specific phytochemical angle beyond its vitamin bars. Huge vitamin K and carotenoid story. The standout micronutrient identity is the real reason kale scores so strongly. Leafy volume with very low calorie pressure. It adds a lot of plate volume without much energy load.",
       "displayItems": [
         {
           "type": "pro",
-          "title": "micronutrient density is ridiculous",
-          "explanation": "This is the kind of vegetable profile that can clearly carry a category.",
+          "title": "glucosinolate-rich brassica profile",
+          "explanation": "Kale brings a brassica-specific phytochemical angle beyond its vitamin bars.",
           "impactLevel": "major",
           "resolvedScoreValue": 100
         },
         {
           "type": "pro",
-          "title": "easy to build meals around",
-          "explanation": "A practical plus because good foods need realistic use cases.",
-          "impactLevel": "minor",
-          "resolvedScoreValue": 50
+          "title": "huge vitamin K and carotenoid story",
+          "explanation": "The standout micronutrient identity is the real reason kale scores so strongly.",
+          "impactLevel": "major",
+          "resolvedScoreValue": 100
         },
         {
           "type": "pro",
-          "title": "very low downside whole food",
-          "explanation": "Vegetables win a lot simply by offering clean nutritional payoff.",
+          "title": "leafy volume with very low calorie pressure",
+          "explanation": "It adds a lot of plate volume without much energy load.",
           "impactLevel": "minor",
           "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "Pros first: micronutrient density is ridiculous. This is the kind of vegetable profile that can clearly carry a category. Easy to build meals around. A practical plus because good foods need realistic use cases. Very low downside whole food. Vegetables win a lot simply by offering clean nutritional payoff.",
+      "subtitleText": "Pros first: glucosinolate-rich brassica profile. Kale brings a brassica-specific phytochemical angle beyond its vitamin bars. Huge vitamin K and carotenoid story. The standout micronutrient identity is the real reason kale scores so strongly. Leafy volume with very low calorie pressure. It adds a lot of plate volume without much energy load.",
       "timingHint": "medium",
-      "score": 66.7
+      "score": 83.3
     },
     {
       "key": "cons",
       "title": "Cons",
-      "narration": "Cons next: freshness and prep can matter. Practical friction is still a real downside. Raw texture can be a barrier. Kale often needs chopping, cooking, or massaging before it feels easy to use. Strong leafy flavour is not universal. The nutrition case is strong, but the bitterness can reduce repeat use.",
+      "narration": "Cons next: freshness and prep can matter. Older or badly prepared kale can turn tough and bitter fast. Raw texture can be a barrier. The chewy texture makes it less automatic than softer greens. Strong leafy flavour is not universal. It is nutrient-dense, but not an easy flavour win for everyone.",
       "displayItems": [
         {
           "type": "con",
           "title": "freshness and prep can matter",
-          "explanation": "Practical friction is still a real downside.",
+          "explanation": "Older or badly prepared kale can turn tough and bitter fast.",
           "impactLevel": "minor",
           "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "raw texture can be a barrier",
-          "explanation": "Kale often needs chopping, cooking, or massaging before it feels easy to use.",
+          "explanation": "The chewy texture makes it less automatic than softer greens.",
           "impactLevel": "minor",
           "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "strong leafy flavour is not universal",
-          "explanation": "The nutrition case is strong, but the bitterness can reduce repeat use.",
+          "explanation": "It is nutrient-dense, but not an easy flavour win for everyone.",
           "impactLevel": "minor",
           "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "Cons next: freshness and prep can matter. Practical friction is still a real downside. Raw texture can be a barrier. Kale often needs chopping, cooking, or massaging before it feels easy to use. Strong leafy flavour is not universal. The nutrition case is strong, but the bitterness can reduce repeat use.",
+      "subtitleText": "Cons next: freshness and prep can matter. Older or badly prepared kale can turn tough and bitter fast. Raw texture can be a barrier. The chewy texture makes it less automatic than softer greens. Strong leafy flavour is not universal. It is nutrient-dense, but not an easy flavour win for everyone.",
       "timingHint": "medium",
       "score": 50
     }
   ],
   "closing": {
-    "summary": "Big strengths are omega 3 and fibre, but the biggest weaknesses are freshness and prep can matter and raw texture can be a barrier.",
-    "overview": "Big strengths are omega 3 and fibre, but the biggest weaknesses are freshness and prep can matter and raw texture can be a barrier.",
+    "summary": "Big strengths are fibre and vitamin K, but the biggest weaknesses are freshness and prep can matter and raw texture can be a barrier.",
+    "overview": "Big strengths are fibre and vitamin K, but the biggest weaknesses are freshness and prep can matter and raw texture can be a barrier.",
     "finalReveal": "S tier.",
     "useCaseNote": "Best when you want low downside and easy micronutrient support.",
     "cta": "Would you rank it the same, or nah?"
   },
   "tier": "S",
-  "overallScore": 82.5,
-  "overallScoreExact": 82.4873,
-  "baseOverallScore": 64.2,
-  "baseOverallScoreExact": 64.1667,
+  "overallScore": 83.8,
+  "overallScoreExact": 83.8448,
+  "baseOverallScore": 66.9,
+  "baseOverallScoreExact": 66.9444,
   "sectionOrder": [
     "fats",
     "carbs",
@@ -304,12 +302,12 @@
     {
       "kind": "section",
       "sectionKey": "fats",
-      "text": "0.9 grams of fat. Omega 3 is 180 milligrams, supporting a more useful fat profile. Polyunsaturated fat is 0.3 grams, a weak mark for vegetables."
+      "text": "0.9 grams of fat. Saturated fat is 0.1 grams, supporting a better fat profile."
     },
     {
       "kind": "section",
       "sectionKey": "carbs",
-      "text": "8.8 grams of carbs. Glycemic index is 15 GI, supporting better carb quality. Starch is 0 grams, a small miss for vegetables."
+      "text": "8.8 grams of carbs. Glycemic index is 15 GI, supporting better carb quality."
     },
     {
       "kind": "section",
@@ -329,16 +327,16 @@
     {
       "kind": "section",
       "sectionKey": "pros",
-      "text": "Pros first: micronutrient density is ridiculous. This is the kind of vegetable profile that can clearly carry a category. Easy to build meals around. A practical plus because good foods need realistic use cases. Very low downside whole food. Vegetables win a lot simply by offering clean nutritional payoff."
+      "text": "Pros first: glucosinolate-rich brassica profile. Kale brings a brassica-specific phytochemical angle beyond its vitamin bars. Huge vitamin K and carotenoid story. The standout micronutrient identity is the real reason kale scores so strongly. Leafy volume with very low calorie pressure. It adds a lot of plate volume without much energy load."
     },
     {
       "kind": "section",
       "sectionKey": "cons",
-      "text": "Cons next: freshness and prep can matter. Practical friction is still a real downside. Raw texture can be a barrier. Kale often needs chopping, cooking, or massaging before it feels easy to use. Strong leafy flavour is not universal. The nutrition case is strong, but the bitterness can reduce repeat use."
+      "text": "Cons next: freshness and prep can matter. Older or badly prepared kale can turn tough and bitter fast. Raw texture can be a barrier. The chewy texture makes it less automatic than softer greens. Strong leafy flavour is not universal. It is nutrient-dense, but not an easy flavour win for everyone."
     },
     {
       "kind": "closing_summary",
-      "text": "Big strengths are omega 3 and fibre, but the biggest weaknesses are freshness and prep can matter and raw texture can be a barrier."
+      "text": "Big strengths are fibre and vitamin K, but the biggest weaknesses are freshness and prep can matter and raw texture can be a barrier."
     },
     {
       "kind": "final_reveal",
@@ -347,7 +345,7 @@
   ],
   "explanation": {
     "summary": "Fats are carrying this food most, while minerals are holding it back most. It lands in S tier.",
-    "whyThisTier": "This food lands in S tier with an overall score of 82.5. Section scores: fats 100, carbs 86.7, vitamins 80, minerals 1.7, pros 66.7, cons 50.",
+    "whyThisTier": "This food lands in S tier with an overall score of 83.8. Section scores: fats 100, carbs 86.7, vitamins 80, minerals 1.7, pros 83.3, cons 50.",
     "strongestSection": {
       "key": "fats",
       "label": "Fats",
@@ -360,22 +358,22 @@
     },
     "topPros": [
       {
-        "title": "micronutrient density is ridiculous",
-        "explanation": "This is the kind of vegetable profile that can clearly carry a category.",
+        "title": "glucosinolate-rich brassica profile",
+        "explanation": "Kale brings a brassica-specific phytochemical angle beyond its vitamin bars.",
         "impactLevel": "major",
         "side": "pro",
         "resolvedScoreValue": 100
       },
       {
-        "title": "easy to build meals around",
-        "explanation": "A practical plus because good foods need realistic use cases.",
-        "impactLevel": "minor",
+        "title": "huge vitamin K and carotenoid story",
+        "explanation": "The standout micronutrient identity is the real reason kale scores so strongly.",
+        "impactLevel": "major",
         "side": "pro",
-        "resolvedScoreValue": 50
+        "resolvedScoreValue": 100
       },
       {
-        "title": "very low downside whole food",
-        "explanation": "Vegetables win a lot simply by offering clean nutritional payoff.",
+        "title": "leafy volume with very low calorie pressure",
+        "explanation": "It adds a lot of plate volume without much energy load.",
         "impactLevel": "minor",
         "side": "pro",
         "resolvedScoreValue": 50
@@ -384,21 +382,21 @@
     "topCons": [
       {
         "title": "freshness and prep can matter",
-        "explanation": "Practical friction is still a real downside.",
+        "explanation": "Older or badly prepared kale can turn tough and bitter fast.",
         "impactLevel": "minor",
         "side": "con",
         "resolvedScoreValue": 50
       },
       {
         "title": "raw texture can be a barrier",
-        "explanation": "Kale often needs chopping, cooking, or massaging before it feels easy to use.",
+        "explanation": "The chewy texture makes it less automatic than softer greens.",
         "impactLevel": "minor",
         "side": "con",
         "resolvedScoreValue": 50
       },
       {
         "title": "strong leafy flavour is not universal",
-        "explanation": "The nutrition case is strong, but the bitterness can reduce repeat use.",
+        "explanation": "It is nutrient-dense, but not an easy flavour win for everyone.",
         "impactLevel": "minor",
         "side": "con",
         "resolvedScoreValue": 50

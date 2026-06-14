@@ -10,11 +10,37 @@
       "value": 100,
       "unit": "g"
     },
-    "identity": null,
-    "scoreReadiness": null,
+    "identity": {
+      "canonicalName": "Sweet potato, raw, unprepared",
+      "commonName": "Sweet Potato",
+      "form": "orange-fleshed sweet potato",
+      "state": "raw / unprepared",
+      "ediblePortion": "flesh and skin as normally eaten",
+      "basisReason": "Raw per-100g basis matches the locked tuber identity and avoids cooking-method changes to water and glycemic behavior.",
+      "includes": [
+        "plain raw sweet potato"
+      ],
+      "excludes": [
+        "yam",
+        "purple sweet potato",
+        "fried sweet potato",
+        "candied sweet potato",
+        "cooked mashed values"
+      ]
+    },
+    "scoreReadiness": {
+      "status": "production-safe",
+      "summary": "Representative finalisation sample with per-100g basis, structured source references, and current scoring/display guardrails applied.",
+      "blockers": [],
+      "caveats": [
+        "Real foods vary by cultivar, brand, season, and preparation; this record is a canonical comparison entry rather than a guarantee for every product."
+      ]
+    },
     "sourceNotes": [
-      "Calibration benchmark sample for FoodRanked.",
-      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
+      "Production-lane source audit pass.",
+      "All displayed nutrition values are stored and checked on a per-100g basis.",
+      "Primary and cross-check nutrition references are listed in nutritionDataSources.",
+      "Contextual GI and protein-quality fields are optional when not canonical nutrient facts."
     ]
   },
   "ruleset": {
@@ -36,26 +62,8 @@
     {
       "key": "fats",
       "title": "Fats",
-      "narration": "0.1 grams of fat. Omega 3 is 5 milligrams, supporting a more useful fat profile. Polyunsaturated fat is 0 grams, a weak mark for tubers.",
+      "narration": "0.1 grams of fat. Saturated fat is 0 grams, supporting a better fat profile.",
       "displayItems": [
-        {
-          "metricKey": "omega3_mg",
-          "text": "omega 3 at 5mg",
-          "weightedScore": 0,
-          "scoringMode": "arrow_bands",
-          "band": "2_green",
-          "dvPercent": null,
-          "value": 5
-        },
-        {
-          "metricKey": "polyunsaturated_fat_g",
-          "text": "polyunsaturated fat at 0g",
-          "weightedScore": 0,
-          "scoringMode": "arrow_bands",
-          "band": "3_red",
-          "dvPercent": null,
-          "value": 0
-        },
         {
           "metricKey": "saturated_fat_g",
           "text": "saturated fat at 0g",
@@ -66,7 +74,7 @@
           "value": 0
         }
       ],
-      "subtitleText": "0.1g of fat. Omega 3 is 5mg, supporting a more useful fat profile. Polyunsaturated fat is 0g, a weak mark for tubers.",
+      "subtitleText": "0.1g of fat. Saturated fat is 0g, supporting a better fat profile.",
       "timingHint": "short-medium",
       "score": 100
     },
@@ -203,69 +211,69 @@
     {
       "key": "pros",
       "title": "Pros",
-      "narration": "The upsides first: carotenoid content gives it extra value. That adds a useful plant-pigment angle beyond the basic carb role most tubers play. Fairly filling for the calories. A practical strength for an energy food. Easy to use as a wholefood staple. Works cleanly in meals without needing much rescue from toppings or processing.",
+      "narration": "The upsides first: beta-carotene is the signature upside. The orange flesh gives sweet potato a clear carotenoid identity. Better fibre support than many tubers. The fibre helps the carb package look more useful. Naturally sweet without added sugar. It brings sweetness without needing a processed dessert format.",
       "displayItems": [
         {
           "type": "pro",
-          "title": "carotenoid content gives it extra value",
-          "explanation": "That adds a useful plant-pigment angle beyond the basic carb role most tubers play.",
+          "title": "beta-carotene is the signature upside",
+          "explanation": "The orange flesh gives sweet potato a clear carotenoid identity.",
           "impactLevel": "major",
           "resolvedScoreValue": 100
         },
         {
           "type": "pro",
-          "title": "fairly filling for the calories",
-          "explanation": "A practical strength for an energy food.",
+          "title": "better fibre support than many tubers",
+          "explanation": "The fibre helps the carb package look more useful.",
           "impactLevel": "minor",
           "resolvedScoreValue": 50
         },
         {
           "type": "pro",
-          "title": "easy to use as a wholefood staple",
-          "explanation": "Works cleanly in meals without needing much rescue from toppings or processing.",
+          "title": "naturally sweet without added sugar",
+          "explanation": "It brings sweetness without needing a processed dessert format.",
           "impactLevel": "minor",
           "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "The upsides first: carotenoid content gives it extra value. That adds a useful plant-pigment angle beyond the basic carb role most tubers play. Fairly filling for the calories. A practical strength for an energy food. Easy to use as a wholefood staple. Works cleanly in meals without needing much rescue from toppings or processing.",
+      "subtitleText": "The upsides first: beta-carotene is the signature upside. The orange flesh gives sweet potato a clear carotenoid identity. Better fibre support than many tubers. The fibre helps the carb package look more useful. Naturally sweet without added sugar. It brings sweetness without needing a processed dessert format.",
       "timingHint": "medium",
       "score": 66.7
     },
     {
       "key": "cons",
       "title": "Cons",
-      "narration": "The drawbacks next: naturally sweeter than some tubers. Still fine, but it is not the lowest-sugar energy food in the category. Healthiness depends on preparation. Heavy added fats or sugary toppings can change the practical outcome. Large portions push carbs up fast. It is still a carb food, so the serving size matters.",
+      "narration": "The drawbacks next: glycemic impact changes with cooking method. Baking, boiling, cooling, and mashing can change the real-world carb behaviour. Large portions push carbs up fast. It is still a starchy tuber, so the carb load can climb quickly. Protein is barely part of the case. The tuber job is energy and carotenoids, not meaningful protein.",
       "displayItems": [
         {
           "type": "con",
-          "title": "naturally sweeter than some tubers",
-          "explanation": "Still fine, but it is not the lowest-sugar energy food in the category.",
-          "impactLevel": "minor",
-          "resolvedScoreValue": 50
-        },
-        {
-          "type": "con",
-          "title": "healthiness depends on preparation",
-          "explanation": "Heavy added fats or sugary toppings can change the practical outcome.",
+          "title": "glycemic impact changes with cooking method",
+          "explanation": "Baking, boiling, cooling, and mashing can change the real-world carb behaviour.",
           "impactLevel": "minor",
           "resolvedScoreValue": 50
         },
         {
           "type": "con",
           "title": "large portions push carbs up fast",
-          "explanation": "It is still a carb food, so the serving size matters.",
+          "explanation": "It is still a starchy tuber, so the carb load can climb quickly.",
+          "impactLevel": "minor",
+          "resolvedScoreValue": 50
+        },
+        {
+          "type": "con",
+          "title": "protein is barely part of the case",
+          "explanation": "The tuber job is energy and carotenoids, not meaningful protein.",
           "impactLevel": "minor",
           "resolvedScoreValue": 50
         }
       ],
-      "subtitleText": "The drawbacks next: naturally sweeter than some tubers. Still fine, but it is not the lowest-sugar energy food in the category. Healthiness depends on preparation. Heavy added fats or sugary toppings can change the practical outcome. Large portions push carbs up fast. It is still a carb food, so the serving size matters.",
+      "subtitleText": "The drawbacks next: glycemic impact changes with cooking method. Baking, boiling, cooling, and mashing can change the real-world carb behaviour. Large portions push carbs up fast. It is still a starchy tuber, so the carb load can climb quickly. Protein is barely part of the case. The tuber job is energy and carotenoids, not meaningful protein.",
       "timingHint": "medium",
       "score": 50
     }
   ],
   "closing": {
-    "summary": "Big strengths are omega 3 and fibre, but the biggest weaknesses are naturally sweeter than some tubers and healthiness depends on preparation.",
-    "overview": "Big strengths are omega 3 and fibre, but the biggest weaknesses are naturally sweeter than some tubers and healthiness depends on preparation.",
+    "summary": "Big strengths are fibre and vitamin A, but the biggest weaknesses are glycemic impact changes with cooking method and large portions push carbs up fast.",
+    "overview": "Big strengths are fibre and vitamin A, but the biggest weaknesses are glycemic impact changes with cooking method and large portions push carbs up fast.",
     "finalReveal": "S tier.",
     "useCaseNote": "Best when you want practical carbs and the rest of the profile is still reasonably clean.",
     "cta": "Would you rank it the same, or nah?"
@@ -296,7 +304,7 @@
     {
       "kind": "section",
       "sectionKey": "fats",
-      "text": "0.1 grams of fat. Omega 3 is 5 milligrams, supporting a more useful fat profile. Polyunsaturated fat is 0 grams, a weak mark for tubers."
+      "text": "0.1 grams of fat. Saturated fat is 0 grams, supporting a better fat profile."
     },
     {
       "kind": "section",
@@ -321,16 +329,16 @@
     {
       "kind": "section",
       "sectionKey": "pros",
-      "text": "The upsides first: carotenoid content gives it extra value. That adds a useful plant-pigment angle beyond the basic carb role most tubers play. Fairly filling for the calories. A practical strength for an energy food. Easy to use as a wholefood staple. Works cleanly in meals without needing much rescue from toppings or processing."
+      "text": "The upsides first: beta-carotene is the signature upside. The orange flesh gives sweet potato a clear carotenoid identity. Better fibre support than many tubers. The fibre helps the carb package look more useful. Naturally sweet without added sugar. It brings sweetness without needing a processed dessert format."
     },
     {
       "kind": "section",
       "sectionKey": "cons",
-      "text": "The drawbacks next: naturally sweeter than some tubers. Still fine, but it is not the lowest-sugar energy food in the category. Healthiness depends on preparation. Heavy added fats or sugary toppings can change the practical outcome. Large portions push carbs up fast. It is still a carb food, so the serving size matters."
+      "text": "The drawbacks next: glycemic impact changes with cooking method. Baking, boiling, cooling, and mashing can change the real-world carb behaviour. Large portions push carbs up fast. It is still a starchy tuber, so the carb load can climb quickly. Protein is barely part of the case. The tuber job is energy and carotenoids, not meaningful protein."
     },
     {
       "kind": "closing_summary",
-      "text": "Big strengths are omega 3 and fibre, but the biggest weaknesses are naturally sweeter than some tubers and healthiness depends on preparation."
+      "text": "Big strengths are fibre and vitamin A, but the biggest weaknesses are glycemic impact changes with cooking method and large portions push carbs up fast."
     },
     {
       "kind": "final_reveal",
@@ -352,22 +360,22 @@
     },
     "topPros": [
       {
-        "title": "carotenoid content gives it extra value",
-        "explanation": "That adds a useful plant-pigment angle beyond the basic carb role most tubers play.",
+        "title": "beta-carotene is the signature upside",
+        "explanation": "The orange flesh gives sweet potato a clear carotenoid identity.",
         "impactLevel": "major",
         "side": "pro",
         "resolvedScoreValue": 100
       },
       {
-        "title": "fairly filling for the calories",
-        "explanation": "A practical strength for an energy food.",
+        "title": "better fibre support than many tubers",
+        "explanation": "The fibre helps the carb package look more useful.",
         "impactLevel": "minor",
         "side": "pro",
         "resolvedScoreValue": 50
       },
       {
-        "title": "easy to use as a wholefood staple",
-        "explanation": "Works cleanly in meals without needing much rescue from toppings or processing.",
+        "title": "naturally sweet without added sugar",
+        "explanation": "It brings sweetness without needing a processed dessert format.",
         "impactLevel": "minor",
         "side": "pro",
         "resolvedScoreValue": 50
@@ -375,22 +383,22 @@
     ],
     "topCons": [
       {
-        "title": "naturally sweeter than some tubers",
-        "explanation": "Still fine, but it is not the lowest-sugar energy food in the category.",
-        "impactLevel": "minor",
-        "side": "con",
-        "resolvedScoreValue": 50
-      },
-      {
-        "title": "healthiness depends on preparation",
-        "explanation": "Heavy added fats or sugary toppings can change the practical outcome.",
+        "title": "glycemic impact changes with cooking method",
+        "explanation": "Baking, boiling, cooling, and mashing can change the real-world carb behaviour.",
         "impactLevel": "minor",
         "side": "con",
         "resolvedScoreValue": 50
       },
       {
         "title": "large portions push carbs up fast",
-        "explanation": "It is still a carb food, so the serving size matters.",
+        "explanation": "It is still a starchy tuber, so the carb load can climb quickly.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "protein is barely part of the case",
+        "explanation": "The tuber job is energy and carotenoids, not meaningful protein.",
         "impactLevel": "minor",
         "side": "con",
         "resolvedScoreValue": 50

@@ -57,31 +57,32 @@
     "potassium_dv": 12
   },
   "metricProvenance": {
-    "header": "USDA FoodData Central style raw dry rolled-oats entry, normalized to per 100 g edible portion",
-    "saturated_fat_g": "same canonical source family as header",
-    "omega3_mg": "derived from ALA value when present in source family; acceptable but not a ranking-critical metric here",
-    "polyunsaturated_fat_g": "same canonical source family as header",
-    "cholesterol_mg": "plant food default, canonical expectation confirmed by source family",
-    "starch_g": "same canonical source family as header",
-    "fibre_g": "same canonical source family as header",
-    "sugar_g": "same canonical source family as header",
-    "glycemic_index": "withheld, too preparation-dependent to treat as a locked canonical fact for dry rolled oats",
-    "essential_amino_acids_score": "withheld, proxy score not yet backed by a locked amino-acid source table for this exact food form",
-    "nonessential_amino_acids_score": "withheld, proxy score not yet backed by a locked amino-acid source table for this exact food form",
-    "bioavailability_percent": "withheld, proxy estimate not production-safe for this plant food entry",
-    "vitamin_a_dv": "same canonical source family as header",
-    "vitamin_c_dv": "same canonical source family as header",
-    "vitamin_d_dv": "same canonical source family as header",
-    "vitamin_e_dv": "same canonical source family as header",
-    "vitamin_k_dv": "same canonical source family as header",
-    "vitamin_b1_dv": "same canonical source family as header",
-    "vitamin_b3_dv": "same canonical source family as header",
-    "vitamin_b12_dv": "same canonical source family as header",
-    "iron_dv": "same canonical source family as header",
-    "magnesium_dv": "same canonical source family as header",
-    "zinc_dv": "same canonical source family as header",
-    "calcium_dv": "same canonical source family as header",
-    "potassium_dv": "same canonical source family as header"
+    "header": "Per-100g values cross-checked against nutritionDataSources.",
+    "saturated_fat_g": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "omega3_mg": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "polyunsaturated_fat_g": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "cholesterol_mg": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "starch_g": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "fibre_g": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "sugar_g": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "glycemic_index": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "collagen_g": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "essential_amino_acids_score": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "nonessential_amino_acids_score": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "bioavailability_percent": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "vitamin_a_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "vitamin_c_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "vitamin_d_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "vitamin_e_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "vitamin_k_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "vitamin_b1_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "vitamin_b3_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "vitamin_b12_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "iron_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "magnesium_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "zinc_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "calcium_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "potassium_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources."
   },
   "contextItems": {
     "pros": [
@@ -138,18 +139,53 @@
     ]
   },
   "scoreReadiness": {
-    "status": "near-production-safe",
-    "summary": "Identity, basis, macros, fibre, starch, and core micronutrients are solid enough to use. Grain scoring still needs a locked GI policy for dry oats versus prepared oats.",
-    "blockers": [
-      "glycemic_index intentionally withheld because it is preparation-dependent",
-      "grain protein proxy metrics were removed until exact-source amino acid data is attached"
+    "status": "production-safe",
+    "summary": "Representative finalisation sample with per-100g basis, structured source references, and current scoring/display guardrails applied.",
+    "blockers": [],
+    "caveats": [
+      "Real foods vary by cultivar, brand, season, and preparation; this record is a canonical comparison entry rather than a guarantee for every product."
     ]
   },
   "sourceNotes": [
-    "Production-lane cleanup pass.",
-    "Identity locked to plain rolled oats, dry, per 100 g as sold.",
-    "Core nutrient values align with common USDA FoodData Central style entries for dry oats/rolled oats.",
-    "Weak proxy metrics were removed rather than preserved as fake certainty."
+    "Production-lane source audit pass.",
+    "All displayed nutrition values are stored and checked on a per-100g basis.",
+    "Primary and cross-check nutrition references are listed in nutritionDataSources.",
+    "Contextual GI and protein-quality fields are optional when not canonical nutrient facts."
   ],
-  "expectedTier": "S"
+  "expectedTier": "S",
+  "nutritionDataSources": [
+    {
+      "sourceName": "USDA FoodData Central - SR Legacy",
+      "sourceType": "primary",
+      "recordId": "FDC 169705",
+      "url": "https://fdc.nal.usda.gov/food-details/169705/nutrients",
+      "basis": {
+        "value": 100,
+        "unit": "g"
+      },
+      "checkedAt": "2026-06-14"
+    },
+    {
+      "sourceName": "USDA FoodData Central - Foundation Foods cross-check",
+      "sourceType": "cross_check",
+      "recordId": "FDC 2346396",
+      "url": "https://fdc.nal.usda.gov/food-details/2346396/nutrients",
+      "basis": {
+        "value": 100,
+        "unit": "g"
+      },
+      "checkedAt": "2026-06-14"
+    },
+    {
+      "sourceName": "MyFoodData Nutrition Data Tools",
+      "sourceType": "cross_check",
+      "recordId": "FDC 169705 mirror",
+      "url": "https://tools.myfooddata.com/nutrition-facts/169705/wt1",
+      "basis": {
+        "value": 100,
+        "unit": "g"
+      },
+      "checkedAt": "2026-06-14"
+    }
+  ]
 }

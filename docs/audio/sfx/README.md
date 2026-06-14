@@ -23,3 +23,9 @@ Current UI mirrors:
 
 - `ui/highlight-glow-loop.mp3`
 - `ui/macro-bar-fill-highscore.mp3`
+
+Current sparkle mirrors:
+
+- `sparkles/major-pro-sparkle-shine.mp3`
+- `sparkles/micron-100-firework-lead-pop.mp3`
+- `sparkles/micron-100-firework-cluster.mp3`

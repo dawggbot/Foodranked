@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260614-major-pro-sparkle-v8';
+  const BUILDER_BUILD_ID = '20260614-major-pro-sparkle-sfx-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -79,10 +79,14 @@
   const MICRON_100_FIREWORK_LEAD_SFX_VOLUME = 0.2;
   const MICRON_100_FIREWORK_LEAD_SFX_SECONDS = 0.06;
   const MICRON_100_FIREWORK_LEAD_SFX_POOL_SIZE = 2;
-  const MICRON_100_FIREWORK_SFX_PATH = 'audio/sfx/sparkles/freesound_community-firework-cluster-90480.mp3';
+  const MICRON_100_FIREWORK_SFX_PATH = 'audio/sfx/sparkles/micron-100-firework-cluster.mp3';
   const MICRON_100_FIREWORK_SFX_VOLUME = 0.28;
   const MICRON_100_FIREWORK_CLUSTER_SFX_DELAY_SECONDS = 0.22;
   const MICRON_100_FIREWORK_SFX_POOL_SIZE = 2;
+  const MAJOR_PRO_SPARKLE_SFX_PATH = 'audio/sfx/sparkles/major-pro-sparkle-shine.mp3';
+  const MAJOR_PRO_SPARKLE_SFX_VOLUME = 0.24;
+  const MAJOR_PRO_SPARKLE_SFX_POOL_SIZE = 4;
+  const MAJOR_PRO_SPARKLE_SFX_PLAYBACK_RATE_RANGE = { min: 0.96, max: 1.08 };
   const HIGHLIGHT_GLOW_SFX_PATH = 'audio/sfx/ui/highlight-glow-loop.mp3';
   const HIGHLIGHT_GLOW_SFX_VOLUME = 0.36;
   const HIGHLIGHT_GLOW_SFX_FADE_IN_SPEED = 5.2;
@@ -294,6 +298,9 @@
     micron100FireworkSfxPool: [],
     micron100FireworkSfxPoolIndex: 0,
     playedMicron100FireworkSfxKeys: new Set(),
+    majorProSparkleSfxPool: [],
+    majorProSparkleSfxPoolIndex: 0,
+    playedMajorProSparkleSfxKeys: new Set(),
     barFillSfxPool: [],
     barFillSfxPoolIndex: 0,
     playedBarFillSfxKeys: new Set(),
@@ -4760,6 +4767,81 @@
     }
   }
 
+  function majorProSparkleSfxEvents() {
+    const pros = selectedFood()?.contextItems?.pros || [];
+    return sceneStarts()
+      .filter(scene => scene.id === 'pros')
+      .flatMap(scene => {
+        const timing = sceneTimingModel(scene);
+        return pros
+          .map((item, rowIndex) => ({ item, rowIndex }))
+          .filter(({ item, rowIndex }) => rowIndex < 3 && String(item?.impactLevel || '').toLowerCase() === 'major')
+          .map(({ rowIndex }) => {
+            const window = proConNarrationWindow(scene, timing, 'pros', rowIndex);
+            if (!window) return null;
+            return {
+              key: `major-pro-sparkle:${selectedFood()?.id || 'food'}:${rowIndex}`,
+              sceneId: scene.id,
+              rowIndex,
+              time: Number((scene.start + sceneNarrationDelaySeconds(scene) + (window.start * sceneNarrationDuration(scene))).toFixed(3))
+            };
+          })
+          .filter(Boolean);
+      })
+      .sort((a, b) => a.time - b.time || a.key.localeCompare(b.key));
+  }
+
+  function nextMajorProSparkleSfxAudio() {
+    if (!state.majorProSparkleSfxPool.length) {
+      state.majorProSparkleSfxPool = Array.from({ length: MAJOR_PRO_SPARKLE_SFX_POOL_SIZE }, () => {
+        const audio = new Audio(docsAssetPath(MAJOR_PRO_SPARKLE_SFX_PATH));
+        audio.preload = 'auto';
+        audio.volume = MAJOR_PRO_SPARKLE_SFX_VOLUME;
+        return audio;
+      });
+    }
+    const audio = state.majorProSparkleSfxPool[state.majorProSparkleSfxPoolIndex % state.majorProSparkleSfxPool.length];
+    state.majorProSparkleSfxPoolIndex += 1;
+    return audio;
+  }
+
+  function majorProSparklePlaybackRate() {
+    const range = MAJOR_PRO_SPARKLE_SFX_PLAYBACK_RATE_RANGE.max - MAJOR_PRO_SPARKLE_SFX_PLAYBACK_RATE_RANGE.min;
+    return MAJOR_PRO_SPARKLE_SFX_PLAYBACK_RATE_RANGE.min + (Math.random() * range);
+  }
+
+  function playMajorProSparkleSfx(event) {
+    if (!state.audioEnabled || !event) return;
+    const audio = nextMajorProSparkleSfxAudio();
+    try {
+      audio.pause();
+      audio.currentTime = 0;
+      audio.volume = MAJOR_PRO_SPARKLE_SFX_VOLUME;
+      audio.playbackRate = majorProSparklePlaybackRate();
+      const playPromise = audio.play();
+      if (playPromise?.catch) playPromise.catch(() => {});
+    } catch {}
+  }
+
+  function pauseMajorProSparkleSfx() {
+    for (const audio of state.majorProSparkleSfxPool || []) {
+      try {
+        audio.pause();
+        audio.currentTime = 0;
+      } catch {}
+    }
+  }
+
+  function triggerMajorProSparkleSfxBetween(previousTime, currentTime) {
+    if (!state.playing || !state.audioEnabled || currentTime <= previousTime) return;
+    for (const event of majorProSparkleSfxEvents()) {
+      if (state.playedMajorProSparkleSfxKeys.has(event.key)) continue;
+      if (event.time <= previousTime || event.time > currentTime) continue;
+      state.playedMajorProSparkleSfxKeys.add(event.key);
+      playMajorProSparkleSfx(event);
+    }
+  }
+
   function macroBarFillSfxEvents() {
     return sceneStarts()
       .filter(scene => ['fats', 'carbs', 'protein'].includes(scene.id))
@@ -5165,6 +5247,7 @@
       pauseTransitionSfx();
       pauseMicronBarConfirmSfx();
       pauseMicron100FireworkSfx();
+      pauseMajorProSparkleSfx();
       pauseBarFillSfx();
     }
   }
@@ -5179,6 +5262,7 @@
     state.playedTransitionSfxKeys = new Set();
     state.playedMicronBarConfirmSfxKeys = new Set();
     state.playedMicron100FireworkSfxKeys = new Set();
+    state.playedMajorProSparkleSfxKeys = new Set();
     state.playedBarFillSfxKeys = new Set();
     els.playPause.textContent = 'Pause';
     primeBarFillSfx();
@@ -5195,6 +5279,7 @@
     triggerStampSfxBetween(previousTime, state.currentTime);
     triggerMicronBarConfirmSfxBetween(previousTime, state.currentTime);
     triggerMicron100FireworkSfxBetween(previousTime, state.currentTime);
+    triggerMajorProSparkleSfxBetween(previousTime, state.currentTime);
     triggerBarFillSfxBetween(previousTime, state.currentTime);
     if (state.currentTime >= totalDuration()) {
       state.currentTime = totalDuration();

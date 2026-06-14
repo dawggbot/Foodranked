@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260614-major-pro-sparkle-v2';
+  const BUILDER_BUILD_ID = '20260614-major-pro-sparkle-v3';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -4085,22 +4085,7 @@
       const phase = (sceneElapsed * 1.55 + (row.rowIndex * 0.21)) % 1;
       const rowHeight = Math.max(1, row.rowBox.bottom - row.rowBox.top);
       const rowWidth = Math.max(1, row.rowBox.right - row.rowBox.left);
-      const padX = Math.min(2.8, rowWidth * 0.04);
-      const padY = Math.min(2.2, rowHeight * 0.18);
-      const centerX = row.rowBox.left + (rowWidth * 0.5);
-      const centerY = row.rowBox.top + (rowHeight * 0.5);
       const zIndex = 170 + (row.rowIndex * 8);
-
-      const core = document.createElement('div');
-      core.className = 'major-pro-sparkle-core';
-      core.style.left = `calc(${centerX.toFixed(2)}px * var(--pixel-unit))`;
-      core.style.top = `calc(${centerY.toFixed(2)}px * var(--pixel-unit))`;
-      core.style.width = `calc(${(rowWidth + (padX * 2)).toFixed(2)}px * var(--pixel-unit))`;
-      core.style.height = `calc(${(rowHeight + (padY * 2)).toFixed(2)}px * var(--pixel-unit))`;
-      core.style.zIndex = String(zIndex + MAJOR_PRO_SPARKLES.length + 1);
-      core.style.opacity = String(clamp(activeStrength * 0.22, 0, 0.22).toFixed(3));
-      core.style.transform = `translate3d(-50%, -50%, 0) scale(${(0.985 + (activeStrength * 0.025)).toFixed(3)})`;
-      container.appendChild(core);
 
       MAJOR_PRO_SPARKLES.forEach((spark, sparkIndex) => {
         const seed = seededHash(`major-pro-sparkle:${row.rowIndex}:${sparkIndex}`);
@@ -4118,7 +4103,7 @@
         node.style.width = `calc(${size.toFixed(2)}px * var(--pixel-unit))`;
         node.style.height = `calc(${size.toFixed(2)}px * var(--pixel-unit))`;
         node.style.zIndex = String(zIndex + sparkIndex);
-        node.style.opacity = String(clamp(activeStrength * twinkle, 0, 1).toFixed(3));
+        node.style.opacity = String(clamp(activeStrength * twinkle * 0.52, 0, 0.58).toFixed(3));
         node.style.background = spark.color;
         node.style.transform = `translate3d(-50%, -50%, 0) rotate(${sparkIndex % 2 ? 45 : 0}deg) scale(${(0.92 + (activeStrength * 0.18)).toFixed(3)})`;
         container.appendChild(node);

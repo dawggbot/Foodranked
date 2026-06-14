@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260614-major-con-beam-siren-v1';
+  const BUILDER_BUILD_ID = '20260614-major-con-tight-beam-siren-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -58,10 +58,9 @@
     { x: 13.4, y: -0.4, color: '#7cf2a7', size: 1.08, delay: 0.60 }
   ];
   const MAJOR_CON_SIREN_BEAMS = [
-    { y: 0.13, width: 0.84, height: 3.1, delay: 0.00 },
-    { y: 0.35, width: 0.94, height: 3.5, delay: 0.13 },
-    { y: 0.58, width: 1.00, height: 3.8, delay: 0.27 },
-    { y: 0.80, width: 0.88, height: 3.2, delay: 0.41 }
+    { y: 0.20, width: 0.62, height: 2.0, delay: 0.00 },
+    { y: 0.50, width: 0.78, height: 2.5, delay: 0.18 },
+    { y: 0.78, width: 0.58, height: 1.8, delay: 0.36 }
   ];
   const STAMP_REVEAL_SECONDS = 0.36;
   const FOOD_STAMP_REVEAL_SECONDS = 0.22;
@@ -4150,10 +4149,10 @@
 
       const rowHeight = Math.max(1, row.rowBox.bottom - row.rowBox.top);
       const rowWidth = Math.max(1, row.rowBox.right - row.rowBox.left);
-      const spreadLeft = Math.min(10, rowWidth * 0.16);
-      const spreadRight = Math.min(15, rowWidth * 0.23);
-      const spreadTop = Math.min(7, rowHeight * 0.8);
-      const spreadBottom = Math.min(8, rowHeight * 0.9);
+      const spreadLeft = Math.min(7, rowWidth * 0.11);
+      const spreadRight = Math.min(11, rowWidth * 0.17);
+      const spreadTop = Math.min(5, rowHeight * 0.6);
+      const spreadBottom = Math.min(6, rowHeight * 0.7);
       const sirenLeft = row.rowBox.left - spreadLeft;
       const sirenTop = row.rowBox.top - spreadTop;
       const sirenWidth = rowWidth + spreadLeft + spreadRight;
@@ -4172,11 +4171,11 @@
         node.style.left = `calc(${(sirenLeft + (sirenWidth * (0.18 + (beamPhase * 0.64)))).toFixed(2)}px * var(--pixel-unit))`;
         node.style.top = `calc(${(sirenTop + (sirenHeight * beam.y) + (Math.sin((sceneProgress * Math.PI * 12) + beamIndex) * 0.9)).toFixed(2)}px * var(--pixel-unit))`;
         node.style.width = `calc(${(sirenWidth * beam.width).toFixed(2)}px * var(--pixel-unit))`;
-        node.style.height = `calc(${(beam.height + (activeStrength * 1.3)).toFixed(2)}px * var(--pixel-unit))`;
+        node.style.height = `calc(${(beam.height + (activeStrength * 0.8)).toFixed(2)}px * var(--pixel-unit))`;
         node.style.zIndex = String(zIndex);
         node.style.opacity = String(clamp(activeStrength * (0.60 + (Math.sin(beamPhase * Math.PI) * 0.35)), 0, 0.96).toFixed(3));
         node.style.background = `radial-gradient(ellipse at 50% 50%, rgba(255, 246, 220, ${coreAlpha}) 0%, rgba(255, 124, 92, ${midAlpha}) 28%, rgba(255, 54, 64, ${edgeAlpha}) 58%, rgba(255, 34, 52, 0.10) 78%, rgba(255, 34, 52, 0) 100%)`;
-        node.style.transform = `translate3d(-50%, -50%, 0) skewX(-18deg) scaleX(${(0.94 + (activeStrength * 0.42)).toFixed(3)})`;
+        node.style.transform = `translate3d(-50%, -50%, 0) skewX(-18deg) scaleX(${(0.82 + (activeStrength * 0.28)).toFixed(3)})`;
         container.appendChild(node);
       });
     }

@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260614-major-con-siren-v1';
+  const BUILDER_BUILD_ID = '20260614-major-con-soft-red-siren-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -4173,9 +4173,10 @@
 
       MAJOR_CON_SIREN_BEAMS.forEach((beam, beamIndex) => {
         const beamPhase = (phase + beam.delay) % 1;
-        const color = (Math.floor(beamPhase * 4) + beamIndex) % 2 === 0
-          ? 'rgba(255, 65, 80, 0.90)'
-          : 'rgba(82, 176, 255, 0.86)';
+        const warmPulse = 0.5 + (Math.sin((beamPhase * Math.PI * 2) + beamIndex) * 0.5);
+        const coreAlpha = (0.50 + (activeStrength * 0.18)).toFixed(3);
+        const midAlpha = (0.34 + (warmPulse * 0.16)).toFixed(3);
+        const edgeAlpha = (0.10 + (activeStrength * 0.08)).toFixed(3);
         const node = document.createElement('div');
         node.className = 'major-con-siren-beam';
         node.style.left = `calc(${(sirenLeft + (sirenWidth * (0.18 + (beamPhase * 0.64)))).toFixed(2)}px * var(--pixel-unit))`;
@@ -4184,7 +4185,7 @@
         node.style.height = `calc(${(beam.height + (activeStrength * 0.8)).toFixed(2)}px * var(--pixel-unit))`;
         node.style.zIndex = String(zIndex);
         node.style.opacity = String(clamp(activeStrength * (0.42 + (Math.sin(beamPhase * Math.PI) * 0.36)), 0, 0.88).toFixed(3));
-        node.style.background = `linear-gradient(90deg, transparent 0%, ${color} 38%, rgba(255,255,255,0.90) 50%, ${color} 62%, transparent 100%)`;
+        node.style.background = `radial-gradient(ellipse at 50% 50%, rgba(255, 246, 220, ${coreAlpha}) 0%, rgba(255, 96, 82, ${midAlpha}) 34%, rgba(255, 46, 62, ${edgeAlpha}) 68%, rgba(255, 46, 62, 0) 100%)`;
         node.style.transform = `translate3d(-50%, -50%, 0) skewX(-18deg) scaleX(${(0.82 + (activeStrength * 0.28)).toFixed(3)})`;
         container.appendChild(node);
       });
@@ -4193,7 +4194,6 @@
         const seed = seededHash(`major-con-siren:${row.rowIndex}:${pipIndex}`);
         const pipPhase = (phase + pip.delay + (pipIndex * 0.061)) % 1;
         const pulse = 0.62 + (Math.sin((pipPhase * Math.PI * 2) + pipIndex) * 0.38);
-        const color = (pipIndex + Math.floor(phase * 4)) % 2 === 0 ? '#ff4150' : '#52b0ff';
         const node = document.createElement('div');
         node.className = 'major-con-siren-pip';
         node.style.left = `calc(${(sirenLeft + (sirenWidth * pip.x) + (Math.sin((sceneProgress * Math.PI * 9) + seed) * 1.2)).toFixed(2)}px * var(--pixel-unit))`;
@@ -4202,8 +4202,8 @@
         node.style.height = node.style.width;
         node.style.zIndex = String(zIndex);
         node.style.opacity = String(clamp(activeStrength * pulse, 0, 1).toFixed(3));
-        node.style.color = color;
-        node.style.background = color;
+        node.style.color = '#ff4150';
+        node.style.background = 'radial-gradient(circle, rgba(255, 246, 220, 0.82) 0%, rgba(255, 91, 86, 0.68) 34%, rgba(255, 44, 62, 0.24) 68%, rgba(255, 44, 62, 0) 100%)';
         node.style.transform = `translate3d(-50%, -50%, 0) scale(${(0.9 + (activeStrength * 0.28)).toFixed(3)})`;
         container.appendChild(node);
       });

@@ -239,9 +239,9 @@ The top-level `audio/` folder is the source home for reusable sounds that are no
 
 Use:
 - `audio/sfx/stamps/` for intro/outro stamp impacts and screen-shake hits
-- `audio/sfx/sparkles/` for ranked glimmers and tier shimmer
+- `audio/sfx/sections/` for section-specific macro, micron, pro, and con reveal accents
 - `audio/sfx/transitions/` for section changes and reveal accents
-- `audio/sfx/ui/` for small interface-style sounds
+- `audio/sfx/ui/` for general interface-style sounds shared across sections
 - `audio/music/` for reusable music beds and stingers
 
 When the video builder needs to load a reusable sound in the browser, mirror the browser-ready file under `docs/audio/sfx/` with the same stable lowercase path.

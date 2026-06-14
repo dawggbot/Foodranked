@@ -4,10 +4,10 @@ Drop reusable special effects sounds here.
 
 Suggested subfolders:
 
+- `sections/` - section-specific reveal sounds, grouped by macro/micron/pro/con section
 - `stamps/` - intro food stamp, ranked stamp, tier stamp, impact hits
-- `sparkles/` - ranked sprite glimmers, tier shimmer, reward twinkles
 - `transitions/` - section changes, wipes, whooshes
-- `ui/` - small clicks, toggles, selection sounds
+- `ui/` - general interface-style sounds shared across sections
 
 Recommended formats:
 
@@ -17,6 +17,6 @@ Recommended formats:
 Naming examples:
 
 - `heavy-stamp-01.wav`
-- `ranked-glimmer-01.wav`
-- `section-pop-01.wav`
+- `sections/pros/major-pro-sparkle-shine.mp3`
+- `sections/microns/micron-100-firework-cluster.mp3`
 - `tier-reveal-hit-01.wav`

@@ -142,9 +142,9 @@ Potential asset classes:
 Reusable SFX source files live in the top-level `audio/` folder:
 
 - stamp impacts: `audio/sfx/stamps/`
-- sparkle/glimmer accents: `audio/sfx/sparkles/`
+- section-specific reveal accents: `audio/sfx/sections/`
 - section transitions: `audio/sfx/transitions/`
-- UI-style clicks/ticks: `audio/sfx/ui/`
+- general UI-style clicks/ticks: `audio/sfx/ui/`
 - music beds/stingers: `audio/music/`
 
 Generated narration stays episode-specific in `production/episodes/<food-id>/voice/`, with browser-preview mirrors in `docs/audio/episodes/<food-id>/`.

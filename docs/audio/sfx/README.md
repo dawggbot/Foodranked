@@ -22,11 +22,12 @@ Current transition mirror:
 Current UI mirrors:
 
 - `ui/highlight-glow-loop.mp3`
-- `ui/macro-bar-fill-highscore.mp3`
 
-Current sparkle mirrors:
+Current section mirrors:
 
-- `sparkles/major-con-siren-buzzer.mp3`
-- `sparkles/major-pro-sparkle-shine.mp3`
-- `sparkles/micron-100-firework-lead-pop.mp3`
-- `sparkles/micron-100-firework-cluster.mp3`
+- `sections/macros/macro-bar-fill-highscore.mp3`
+- `sections/microns/micron-bar-confirm-tap.mp3`
+- `sections/microns/micron-100-firework-lead-pop.mp3`
+- `sections/microns/micron-100-firework-cluster.mp3`
+- `sections/pros/major-pro-sparkle-shine.mp3`
+- `sections/cons/major-con-siren-buzzer.mp3`

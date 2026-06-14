@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260614-major-con-tight-beam-siren-v1';
+  const BUILDER_BUILD_ID = '20260614-major-con-siren-sfx-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -92,6 +92,10 @@
   const MAJOR_PRO_SPARKLE_SFX_VOLUME = 0.24;
   const MAJOR_PRO_SPARKLE_SFX_POOL_SIZE = 4;
   const MAJOR_PRO_SPARKLE_SFX_PLAYBACK_RATE_RANGE = { min: 0.96, max: 1.08 };
+  const MAJOR_CON_SIREN_SFX_PATH = 'audio/sfx/sparkles/major-con-siren-buzzer.mp3';
+  const MAJOR_CON_SIREN_SFX_VOLUME = 0.20;
+  const MAJOR_CON_SIREN_SFX_POOL_SIZE = 4;
+  const MAJOR_CON_SIREN_SFX_PLAYBACK_RATE_RANGE = { min: 0.92, max: 1.06 };
   const HIGHLIGHT_GLOW_SFX_PATH = 'audio/sfx/ui/highlight-glow-loop.mp3';
   const HIGHLIGHT_GLOW_SFX_VOLUME = 0.36;
   const HIGHLIGHT_GLOW_SFX_FADE_IN_SPEED = 5.2;
@@ -306,6 +310,9 @@
     majorProSparkleSfxPool: [],
     majorProSparkleSfxPoolIndex: 0,
     playedMajorProSparkleSfxKeys: new Set(),
+    majorConSirenSfxPool: [],
+    majorConSirenSfxPoolIndex: 0,
+    playedMajorConSirenSfxKeys: new Set(),
     barFillSfxPool: [],
     barFillSfxPoolIndex: 0,
     playedBarFillSfxKeys: new Set(),
@@ -4888,6 +4895,81 @@
     }
   }
 
+  function majorConSirenSfxEvents() {
+    const cons = selectedFood()?.contextItems?.cons || [];
+    return sceneStarts()
+      .filter(scene => scene.id === 'cons')
+      .flatMap(scene => {
+        const timing = sceneTimingModel(scene);
+        return cons
+          .map((item, rowIndex) => ({ item, rowIndex }))
+          .filter(({ item, rowIndex }) => rowIndex < 3 && String(item?.impactLevel || '').toLowerCase() === 'major')
+          .map(({ rowIndex }) => {
+            const window = proConNarrationWindow(scene, timing, 'cons', rowIndex);
+            if (!window) return null;
+            return {
+              key: `major-con-siren:${selectedFood()?.id || 'food'}:${rowIndex}`,
+              sceneId: scene.id,
+              rowIndex,
+              time: Number((scene.start + sceneNarrationDelaySeconds(scene) + (window.start * sceneNarrationDuration(scene))).toFixed(3))
+            };
+          })
+          .filter(Boolean);
+      })
+      .sort((a, b) => a.time - b.time || a.key.localeCompare(b.key));
+  }
+
+  function nextMajorConSirenSfxAudio() {
+    if (!state.majorConSirenSfxPool.length) {
+      state.majorConSirenSfxPool = Array.from({ length: MAJOR_CON_SIREN_SFX_POOL_SIZE }, () => {
+        const audio = new Audio(docsAssetPath(MAJOR_CON_SIREN_SFX_PATH));
+        audio.preload = 'auto';
+        audio.volume = MAJOR_CON_SIREN_SFX_VOLUME;
+        return audio;
+      });
+    }
+    const audio = state.majorConSirenSfxPool[state.majorConSirenSfxPoolIndex % state.majorConSirenSfxPool.length];
+    state.majorConSirenSfxPoolIndex += 1;
+    return audio;
+  }
+
+  function majorConSirenPlaybackRate() {
+    const range = MAJOR_CON_SIREN_SFX_PLAYBACK_RATE_RANGE.max - MAJOR_CON_SIREN_SFX_PLAYBACK_RATE_RANGE.min;
+    return MAJOR_CON_SIREN_SFX_PLAYBACK_RATE_RANGE.min + (Math.random() * range);
+  }
+
+  function playMajorConSirenSfx(event) {
+    if (!state.audioEnabled || !event) return;
+    const audio = nextMajorConSirenSfxAudio();
+    try {
+      audio.pause();
+      audio.currentTime = 0;
+      audio.volume = MAJOR_CON_SIREN_SFX_VOLUME;
+      audio.playbackRate = majorConSirenPlaybackRate();
+      const playPromise = audio.play();
+      if (playPromise?.catch) playPromise.catch(() => {});
+    } catch {}
+  }
+
+  function pauseMajorConSirenSfx() {
+    for (const audio of state.majorConSirenSfxPool || []) {
+      try {
+        audio.pause();
+        audio.currentTime = 0;
+      } catch {}
+    }
+  }
+
+  function triggerMajorConSirenSfxBetween(previousTime, currentTime) {
+    if (!state.playing || !state.audioEnabled || currentTime <= previousTime) return;
+    for (const event of majorConSirenSfxEvents()) {
+      if (state.playedMajorConSirenSfxKeys.has(event.key)) continue;
+      if (event.time <= previousTime || event.time > currentTime) continue;
+      state.playedMajorConSirenSfxKeys.add(event.key);
+      playMajorConSirenSfx(event);
+    }
+  }
+
   function macroBarFillSfxEvents() {
     return sceneStarts()
       .filter(scene => ['fats', 'carbs', 'protein'].includes(scene.id))
@@ -5294,6 +5376,7 @@
       pauseMicronBarConfirmSfx();
       pauseMicron100FireworkSfx();
       pauseMajorProSparkleSfx();
+      pauseMajorConSirenSfx();
       pauseBarFillSfx();
     }
   }
@@ -5309,6 +5392,7 @@
     state.playedMicronBarConfirmSfxKeys = new Set();
     state.playedMicron100FireworkSfxKeys = new Set();
     state.playedMajorProSparkleSfxKeys = new Set();
+    state.playedMajorConSirenSfxKeys = new Set();
     state.playedBarFillSfxKeys = new Set();
     els.playPause.textContent = 'Pause';
     primeBarFillSfx();
@@ -5326,6 +5410,7 @@
     triggerMicronBarConfirmSfxBetween(previousTime, state.currentTime);
     triggerMicron100FireworkSfxBetween(previousTime, state.currentTime);
     triggerMajorProSparkleSfxBetween(previousTime, state.currentTime);
+    triggerMajorConSirenSfxBetween(previousTime, state.currentTime);
     triggerBarFillSfxBetween(previousTime, state.currentTime);
     if (state.currentTime >= totalDuration()) {
       state.currentTime = totalDuration();
@@ -5412,6 +5497,9 @@
       pauseStampSfx();
       pauseHighlightGlowSfx();
       pauseTransitionSfx();
+      pauseMicron100FireworkSfx();
+      pauseMajorProSparkleSfx();
+      pauseMajorConSirenSfx();
       pauseBarFillSfx();
     }
     else if (state.playing) syncAudioPlaybackState();

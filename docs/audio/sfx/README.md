@@ -26,6 +26,7 @@ Current UI mirrors:
 
 Current sparkle mirrors:
 
+- `sparkles/major-con-siren-buzzer.mp3`
 - `sparkles/major-pro-sparkle-shine.mp3`
 - `sparkles/micron-100-firework-lead-pop.mp3`
 - `sparkles/micron-100-firework-cluster.mp3`

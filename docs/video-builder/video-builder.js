@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260614-major-pro-sparkle-v1';
+  const BUILDER_BUILD_ID = '20260614-major-pro-sparkle-v2';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -41,7 +41,6 @@
     { x: -4.8, y: 7.5, color: '#fff7b0' },
     { x: 3.2, y: 8.0, color: '#88d7ff' }
   ];
-  const MAJOR_PRO_SPARKLE_SECONDS = 1.05;
   const MAJOR_PRO_SPARKLES = [
     { x: -10.2, y: -5.5, color: '#fff8be', size: 1.5, delay: 0.00 },
     { x: -6.8, y: 3.4, color: '#ffffff', size: 1.2, delay: 0.08 },
@@ -2591,7 +2590,7 @@
       renderParent.appendChild(node);
     });
     appendMicron100Fireworks(nextLayerNodes, scene, layers, sceneElapsed);
-    appendMajorProSparkles(nextLayerNodes, scene, layers, sceneElapsed);
+    appendMajorProSparkles(nextLayerNodes, scene, layers, sceneElapsed, sceneProgress, proConHighlightMap);
     roots.layerRoot.replaceChildren(nextLayerNodes);
 
     syncCaptionSafeArea(roots.caption);
@@ -4072,54 +4071,56 @@
           right: Math.max(box.right, item.right),
           bottom: Math.max(box.bottom, item.bottom)
         }), boxes[0]);
-        const revealSeconds = PRO_CON_ROW_REVEAL_SECONDS + (rowIndex * PRO_CON_ROW_STEP_SECONDS);
-        return { rowIndex, rowBox, revealSeconds };
+        return { rowIndex, rowBox };
       })
       .filter(Boolean);
   }
 
-  function appendMajorProSparkles(container, scene, layers, sceneElapsed) {
+  function appendMajorProSparkles(container, scene, layers, sceneElapsed, sceneProgress, proConHighlightMap) {
     for (const row of majorProSparkleRows(scene, layers)) {
-      const elapsed = sceneElapsed - row.revealSeconds;
-      if (elapsed < 0 || elapsed > MAJOR_PRO_SPARKLE_SECONDS) continue;
+      const activeHighlight = proConHighlightMap?.get(row.rowIndex);
+      const activeStrength = clamp(asNumber(activeHighlight?.cueStrength ?? activeHighlight?.strength, 0), 0, 1);
+      if (activeStrength <= 0.015) continue;
 
-      const progress = clamp(elapsed / MAJOR_PRO_SPARKLE_SECONDS, 0, 1);
+      const phase = (sceneElapsed * 1.55 + (row.rowIndex * 0.21)) % 1;
       const rowHeight = Math.max(1, row.rowBox.bottom - row.rowBox.top);
-      const centerX = row.rowBox.left + Math.min(18, Math.max(7, (row.rowBox.right - row.rowBox.left) * 0.12));
-      const centerY = row.rowBox.top + (rowHeight * 0.48);
-      const flash = Math.sin(progress * Math.PI);
-      const travel = easeOutCubic(progress);
+      const rowWidth = Math.max(1, row.rowBox.right - row.rowBox.left);
+      const padX = Math.min(2.8, rowWidth * 0.04);
+      const padY = Math.min(2.2, rowHeight * 0.18);
+      const centerX = row.rowBox.left + (rowWidth * 0.5);
+      const centerY = row.rowBox.top + (rowHeight * 0.5);
       const zIndex = 170 + (row.rowIndex * 8);
 
       const core = document.createElement('div');
       core.className = 'major-pro-sparkle-core';
       core.style.left = `calc(${centerX.toFixed(2)}px * var(--pixel-unit))`;
       core.style.top = `calc(${centerY.toFixed(2)}px * var(--pixel-unit))`;
-      core.style.width = `calc(${(3.6 + (flash * 2.8)).toFixed(2)}px * var(--pixel-unit))`;
-      core.style.height = core.style.width;
+      core.style.width = `calc(${(rowWidth + (padX * 2)).toFixed(2)}px * var(--pixel-unit))`;
+      core.style.height = `calc(${(rowHeight + (padY * 2)).toFixed(2)}px * var(--pixel-unit))`;
       core.style.zIndex = String(zIndex + MAJOR_PRO_SPARKLES.length + 1);
-      core.style.opacity = String(clamp((1 - progress) * 0.36, 0, 0.36).toFixed(3));
-      core.style.transform = `translate3d(-50%, -50%, 0) rotate(45deg) scale(${(0.72 + (travel * 0.58)).toFixed(3)})`;
+      core.style.opacity = String(clamp(activeStrength * 0.22, 0, 0.22).toFixed(3));
+      core.style.transform = `translate3d(-50%, -50%, 0) scale(${(0.985 + (activeStrength * 0.025)).toFixed(3)})`;
       container.appendChild(core);
 
       MAJOR_PRO_SPARKLES.forEach((spark, sparkIndex) => {
-        const localProgress = clamp((progress - spark.delay) / Math.max(0.1, 1 - spark.delay), 0, 1);
-        if (localProgress <= 0) return;
-        const twinkle = 0.74 + (Math.sin((localProgress * Math.PI * 7) + sparkIndex) * 0.26);
-        const spread = 0.18 + (easeOutCubic(localProgress) * 0.96);
-        const driftX = spark.x * spread;
-        const driftY = (spark.y * spread) - (localProgress * 2.8);
-        const size = spark.size + (Math.sin(localProgress * Math.PI) * 0.7);
+        const seed = seededHash(`major-pro-sparkle:${row.rowIndex}:${sparkIndex}`);
+        const xRatio = clamp((sparkIndex + 0.45 + (seededUnit(seed) * 0.28)) / MAJOR_PRO_SPARKLES.length, 0.03, 0.97);
+        const yRatio = 0.18 + (seededUnit(seed + 11) * 0.64);
+        const twinklePhase = (phase + spark.delay + (sparkIndex * 0.073)) % 1;
+        const twinkle = 0.58 + (Math.sin((twinklePhase * Math.PI * 2) + sparkIndex) * 0.42);
+        const driftX = Math.sin((sceneProgress * Math.PI * 10) + seed) * 0.95 + (spark.x * 0.055);
+        const driftY = Math.cos((sceneProgress * Math.PI * 8) + seed) * 0.55 + (spark.y * 0.035);
+        const size = spark.size + (activeStrength * 0.45) + (twinkle * 0.32);
         const node = document.createElement('div');
         node.className = 'major-pro-sparkle';
-        node.style.left = `calc(${(centerX + driftX).toFixed(2)}px * var(--pixel-unit))`;
-        node.style.top = `calc(${(centerY + driftY).toFixed(2)}px * var(--pixel-unit))`;
+        node.style.left = `calc(${(row.rowBox.left + (rowWidth * xRatio) + driftX).toFixed(2)}px * var(--pixel-unit))`;
+        node.style.top = `calc(${(row.rowBox.top + (rowHeight * yRatio) + driftY).toFixed(2)}px * var(--pixel-unit))`;
         node.style.width = `calc(${size.toFixed(2)}px * var(--pixel-unit))`;
         node.style.height = `calc(${size.toFixed(2)}px * var(--pixel-unit))`;
         node.style.zIndex = String(zIndex + sparkIndex);
-        node.style.opacity = String(clamp(Math.sin(localProgress * Math.PI) * twinkle, 0, 1).toFixed(3));
+        node.style.opacity = String(clamp(activeStrength * twinkle, 0, 1).toFixed(3));
         node.style.background = spark.color;
-        node.style.transform = `translate3d(-50%, -50%, 0) rotate(${sparkIndex % 2 ? 45 : 0}deg) scale(${(1.1 - (localProgress * 0.18)).toFixed(3)})`;
+        node.style.transform = `translate3d(-50%, -50%, 0) rotate(${sparkIndex % 2 ? 45 : 0}deg) scale(${(0.92 + (activeStrength * 0.18)).toFixed(3)})`;
         container.appendChild(node);
       });
     }

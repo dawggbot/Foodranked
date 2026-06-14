@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260614-major-pro-con-sfx-volume-rates-v1';
+  const BUILDER_BUILD_ID = '20260614-major-sfx-quiet-pitch-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -89,10 +89,10 @@
   const MICRON_100_FIREWORK_CLUSTER_SFX_DELAY_SECONDS = 0.22;
   const MICRON_100_FIREWORK_SFX_POOL_SIZE = 2;
   const MAJOR_PRO_SPARKLE_SFX_PATH = 'audio/sfx/sparkles/major-pro-sparkle-shine.mp3';
-  const MAJOR_PRO_SPARKLE_SFX_VOLUME = 0.36;
+  const MAJOR_PRO_SPARKLE_SFX_VOLUME = 0.24;
   const MAJOR_PRO_SPARKLE_SFX_POOL_SIZE = 4;
   const MAJOR_CON_SIREN_SFX_PATH = 'audio/sfx/sparkles/major-con-siren-buzzer.mp3';
-  const MAJOR_CON_SIREN_SFX_VOLUME = 0.36;
+  const MAJOR_CON_SIREN_SFX_VOLUME = 0.20;
   const MAJOR_CON_SIREN_SFX_POOL_SIZE = 4;
   const HIGHLIGHT_GLOW_SFX_PATH = 'audio/sfx/ui/highlight-glow-loop.mp3';
   const HIGHLIGHT_GLOW_SFX_VOLUME = 0.36;
@@ -3439,6 +3439,14 @@
     return Math.abs(lower - previousRate) > Math.abs(upper - previousRate) ? lower : upper;
   }
 
+  function disableAudioPitchPreservation(audio) {
+    try {
+      if ('preservesPitch' in audio) audio.preservesPitch = false;
+      if ('mozPreservesPitch' in audio) audio.mozPreservesPitch = false;
+      if ('webkitPreservesPitch' in audio) audio.webkitPreservesPitch = false;
+    } catch {}
+  }
+
   function retuneHighlightGlowSfx(audio, cue) {
     const nextKey = cue?.key || '';
     if (!nextKey || nextKey === state.highlightGlowSfxKey) return;
@@ -3448,11 +3456,7 @@
     );
     state.highlightGlowSfxKey = nextKey;
     state.highlightGlowSfxTargetPlaybackRate = playbackRate;
-    try {
-      if ('preservesPitch' in audio) audio.preservesPitch = false;
-      if ('mozPreservesPitch' in audio) audio.mozPreservesPitch = false;
-      if ('webkitPreservesPitch' in audio) audio.webkitPreservesPitch = false;
-    } catch {}
+    disableAudioPitchPreservation(audio);
   }
 
   function ensureHighlightGlowSfxAudio() {
@@ -4871,6 +4875,7 @@
       audio.pause();
       audio.currentTime = 0;
       audio.volume = MAJOR_PRO_SPARKLE_SFX_VOLUME;
+      disableAudioPitchPreservation(audio);
       audio.playbackRate = majorProSparklePlaybackRate();
       const playPromise = audio.play();
       if (playPromise?.catch) playPromise.catch(() => {});
@@ -4947,6 +4952,7 @@
       audio.pause();
       audio.currentTime = 0;
       audio.volume = MAJOR_CON_SIREN_SFX_VOLUME;
+      disableAudioPitchPreservation(audio);
       audio.playbackRate = majorConSirenPlaybackRate();
       const playPromise = audio.play();
       if (playPromise?.catch) playPromise.catch(() => {});

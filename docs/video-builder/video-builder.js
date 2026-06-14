@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260614-major-pro-sparkle-v5';
+  const BUILDER_BUILD_ID = '20260614-major-pro-sparkle-v6';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -4100,7 +4100,7 @@
         const twinkle = 0.58 + (Math.sin((twinklePhase * Math.PI * 2) + sparkIndex) * 0.42);
         const driftX = Math.sin((sceneProgress * Math.PI * 10) + seed) * 0.95 + (spark.x * 0.055);
         const driftY = Math.cos((sceneProgress * Math.PI * 8) + seed) * 0.55 + (spark.y * 0.035);
-        const size = spark.size + (activeStrength * 0.56) + (twinkle * 0.4);
+        const size = spark.size + (activeStrength * 0.64) + (twinkle * 0.46);
         const node = document.createElement('div');
         node.className = 'major-pro-sparkle';
         node.style.left = `calc(${(row.rowBox.left + (rowWidth * xRatio) + driftX).toFixed(2)}px * var(--pixel-unit))`;
@@ -4108,7 +4108,7 @@
         node.style.width = `calc(${size.toFixed(2)}px * var(--pixel-unit))`;
         node.style.height = `calc(${size.toFixed(2)}px * var(--pixel-unit))`;
         node.style.zIndex = String(zIndex);
-        node.style.opacity = String(clamp(activeStrength * twinkle * 0.78, 0, 0.82).toFixed(3));
+        node.style.opacity = String(clamp(activeStrength * twinkle * 0.9, 0, 0.9).toFixed(3));
         node.style.background = spark.color;
         node.style.transform = `translate3d(-50%, -50%, 0) rotate(${sparkIndex % 2 ? 45 : 0}deg) scale(${(0.92 + (activeStrength * 0.18)).toFixed(3)})`;
         container.appendChild(node);

@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260614-major-con-siren-sfx-v1';
+  const BUILDER_BUILD_ID = '20260614-major-pro-con-sfx-volume-rates-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -89,13 +89,11 @@
   const MICRON_100_FIREWORK_CLUSTER_SFX_DELAY_SECONDS = 0.22;
   const MICRON_100_FIREWORK_SFX_POOL_SIZE = 2;
   const MAJOR_PRO_SPARKLE_SFX_PATH = 'audio/sfx/sparkles/major-pro-sparkle-shine.mp3';
-  const MAJOR_PRO_SPARKLE_SFX_VOLUME = 0.24;
+  const MAJOR_PRO_SPARKLE_SFX_VOLUME = 0.36;
   const MAJOR_PRO_SPARKLE_SFX_POOL_SIZE = 4;
-  const MAJOR_PRO_SPARKLE_SFX_PLAYBACK_RATE_RANGE = { min: 0.96, max: 1.08 };
   const MAJOR_CON_SIREN_SFX_PATH = 'audio/sfx/sparkles/major-con-siren-buzzer.mp3';
-  const MAJOR_CON_SIREN_SFX_VOLUME = 0.20;
+  const MAJOR_CON_SIREN_SFX_VOLUME = 0.36;
   const MAJOR_CON_SIREN_SFX_POOL_SIZE = 4;
-  const MAJOR_CON_SIREN_SFX_PLAYBACK_RATE_RANGE = { min: 0.92, max: 1.06 };
   const HIGHLIGHT_GLOW_SFX_PATH = 'audio/sfx/ui/highlight-glow-loop.mp3';
   const HIGHLIGHT_GLOW_SFX_VOLUME = 0.36;
   const HIGHLIGHT_GLOW_SFX_FADE_IN_SPEED = 5.2;
@@ -309,9 +307,11 @@
     playedMicron100FireworkSfxKeys: new Set(),
     majorProSparkleSfxPool: [],
     majorProSparkleSfxPoolIndex: 0,
+    majorProSparkleSfxPlaybackRate: 1,
     playedMajorProSparkleSfxKeys: new Set(),
     majorConSirenSfxPool: [],
     majorConSirenSfxPoolIndex: 0,
+    majorConSirenSfxPlaybackRate: 1,
     playedMajorConSirenSfxKeys: new Set(),
     barFillSfxPool: [],
     barFillSfxPoolIndex: 0,
@@ -4859,8 +4859,9 @@
   }
 
   function majorProSparklePlaybackRate() {
-    const range = MAJOR_PRO_SPARKLE_SFX_PLAYBACK_RATE_RANGE.max - MAJOR_PRO_SPARKLE_SFX_PLAYBACK_RATE_RANGE.min;
-    return MAJOR_PRO_SPARKLE_SFX_PLAYBACK_RATE_RANGE.min + (Math.random() * range);
+    const playbackRate = randomHighlightGlowPlaybackRate(state.majorProSparkleSfxPlaybackRate || 1, 'green');
+    state.majorProSparkleSfxPlaybackRate = playbackRate;
+    return playbackRate;
   }
 
   function playMajorProSparkleSfx(event) {
@@ -4934,8 +4935,9 @@
   }
 
   function majorConSirenPlaybackRate() {
-    const range = MAJOR_CON_SIREN_SFX_PLAYBACK_RATE_RANGE.max - MAJOR_CON_SIREN_SFX_PLAYBACK_RATE_RANGE.min;
-    return MAJOR_CON_SIREN_SFX_PLAYBACK_RATE_RANGE.min + (Math.random() * range);
+    const playbackRate = randomHighlightGlowPlaybackRate(state.majorConSirenSfxPlaybackRate || 1, 'red');
+    state.majorConSirenSfxPlaybackRate = playbackRate;
+    return playbackRate;
   }
 
   function playMajorConSirenSfx(event) {

@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260613-micron-100-firework-cluster-fizzle-v1';
+  const BUILDER_BUILD_ID = '20260614-major-pro-sparkle-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -40,6 +40,19 @@
     { x: 9.6, y: 3.3, color: '#fff7b0' },
     { x: -4.8, y: 7.5, color: '#fff7b0' },
     { x: 3.2, y: 8.0, color: '#88d7ff' }
+  ];
+  const MAJOR_PRO_SPARKLE_SECONDS = 1.05;
+  const MAJOR_PRO_SPARKLES = [
+    { x: -10.2, y: -5.5, color: '#fff8be', size: 1.5, delay: 0.00 },
+    { x: -6.8, y: 3.4, color: '#ffffff', size: 1.2, delay: 0.08 },
+    { x: -1.9, y: -8.5, color: '#7cf2a7', size: 1.35, delay: 0.13 },
+    { x: 3.8, y: 5.6, color: '#fff8be', size: 1.1, delay: 0.20 },
+    { x: 8.6, y: -3.9, color: '#ffffff', size: 1.45, delay: 0.05 },
+    { x: 12.0, y: 2.8, color: '#88d7ff', size: 1.15, delay: 0.18 },
+    { x: -12.4, y: 7.6, color: '#7cf2a7', size: 1.0, delay: 0.27 },
+    { x: -4.4, y: 9.0, color: '#fff8be', size: 1.35, delay: 0.32 },
+    { x: 6.0, y: -9.2, color: '#ffffff', size: 1.0, delay: 0.24 },
+    { x: 11.0, y: 8.2, color: '#fff8be', size: 1.25, delay: 0.36 }
   ];
   const STAMP_REVEAL_SECONDS = 0.36;
   const FOOD_STAMP_REVEAL_SECONDS = 0.22;
@@ -2578,6 +2591,7 @@
       renderParent.appendChild(node);
     });
     appendMicron100Fireworks(nextLayerNodes, scene, layers, sceneElapsed);
+    appendMajorProSparkles(nextLayerNodes, scene, layers, sceneElapsed);
     roots.layerRoot.replaceChildren(nextLayerNodes);
 
     syncCaptionSafeArea(roots.caption);
@@ -4036,6 +4050,79 @@
         container.appendChild(node);
       });
     });
+  }
+
+  function majorProSparkleRows(scene, layers) {
+    if (scene?.id !== 'pros') return [];
+    const pros = selectedFood()?.contextItems?.pros || [];
+    return pros
+      .map((item, rowIndex) => ({ item, rowIndex }))
+      .filter(({ item, rowIndex }) => rowIndex < 3 && String(item?.impactLevel || '').toLowerCase() === 'major')
+      .map(({ rowIndex }) => {
+        const allLayers = layers.map(item => item.layer);
+        const rowLayers = layers
+          .filter(({ layer, persistent }) => !persistent && layer?.visible !== false)
+          .map(({ layer }) => ({ layer, classification: layerRevealClassification(layer, scene, false, allLayers) }))
+          .filter(item => item.classification.family === 'pros' && item.classification.rowIndex === rowIndex);
+        const boxes = rowLayers.map(({ layer }) => layerGridBox(layer));
+        if (!boxes.length) return null;
+        const rowBox = boxes.reduce((box, item) => ({
+          left: Math.min(box.left, item.left),
+          top: Math.min(box.top, item.top),
+          right: Math.max(box.right, item.right),
+          bottom: Math.max(box.bottom, item.bottom)
+        }), boxes[0]);
+        const revealSeconds = PRO_CON_ROW_REVEAL_SECONDS + (rowIndex * PRO_CON_ROW_STEP_SECONDS);
+        return { rowIndex, rowBox, revealSeconds };
+      })
+      .filter(Boolean);
+  }
+
+  function appendMajorProSparkles(container, scene, layers, sceneElapsed) {
+    for (const row of majorProSparkleRows(scene, layers)) {
+      const elapsed = sceneElapsed - row.revealSeconds;
+      if (elapsed < 0 || elapsed > MAJOR_PRO_SPARKLE_SECONDS) continue;
+
+      const progress = clamp(elapsed / MAJOR_PRO_SPARKLE_SECONDS, 0, 1);
+      const rowHeight = Math.max(1, row.rowBox.bottom - row.rowBox.top);
+      const centerX = row.rowBox.left + Math.min(18, Math.max(7, (row.rowBox.right - row.rowBox.left) * 0.12));
+      const centerY = row.rowBox.top + (rowHeight * 0.48);
+      const flash = Math.sin(progress * Math.PI);
+      const travel = easeOutCubic(progress);
+      const zIndex = 170 + (row.rowIndex * 8);
+
+      const core = document.createElement('div');
+      core.className = 'major-pro-sparkle-core';
+      core.style.left = `calc(${centerX.toFixed(2)}px * var(--pixel-unit))`;
+      core.style.top = `calc(${centerY.toFixed(2)}px * var(--pixel-unit))`;
+      core.style.width = `calc(${(3.6 + (flash * 2.8)).toFixed(2)}px * var(--pixel-unit))`;
+      core.style.height = core.style.width;
+      core.style.zIndex = String(zIndex + MAJOR_PRO_SPARKLES.length + 1);
+      core.style.opacity = String(clamp((1 - progress) * 0.36, 0, 0.36).toFixed(3));
+      core.style.transform = `translate3d(-50%, -50%, 0) rotate(45deg) scale(${(0.72 + (travel * 0.58)).toFixed(3)})`;
+      container.appendChild(core);
+
+      MAJOR_PRO_SPARKLES.forEach((spark, sparkIndex) => {
+        const localProgress = clamp((progress - spark.delay) / Math.max(0.1, 1 - spark.delay), 0, 1);
+        if (localProgress <= 0) return;
+        const twinkle = 0.74 + (Math.sin((localProgress * Math.PI * 7) + sparkIndex) * 0.26);
+        const spread = 0.18 + (easeOutCubic(localProgress) * 0.96);
+        const driftX = spark.x * spread;
+        const driftY = (spark.y * spread) - (localProgress * 2.8);
+        const size = spark.size + (Math.sin(localProgress * Math.PI) * 0.7);
+        const node = document.createElement('div');
+        node.className = 'major-pro-sparkle';
+        node.style.left = `calc(${(centerX + driftX).toFixed(2)}px * var(--pixel-unit))`;
+        node.style.top = `calc(${(centerY + driftY).toFixed(2)}px * var(--pixel-unit))`;
+        node.style.width = `calc(${size.toFixed(2)}px * var(--pixel-unit))`;
+        node.style.height = `calc(${size.toFixed(2)}px * var(--pixel-unit))`;
+        node.style.zIndex = String(zIndex + sparkIndex);
+        node.style.opacity = String(clamp(Math.sin(localProgress * Math.PI) * twinkle, 0, 1).toFixed(3));
+        node.style.background = spark.color;
+        node.style.transform = `translate3d(-50%, -50%, 0) rotate(${sparkIndex % 2 ? 45 : 0}deg) scale(${(1.1 - (localProgress * 0.18)).toFixed(3)})`;
+        container.appendChild(node);
+      });
+    }
   }
 
   function shouldRevealStackedMacroSpriteOpaque(layer, revealSchedule, sortedLayers = []) {

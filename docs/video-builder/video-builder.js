@@ -2,7 +2,7 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260614-major-pro-sparkle-sfx-v1';
+  const BUILDER_BUILD_ID = '20260614-major-con-siren-v1';
   const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -56,6 +56,22 @@
     { x: -0.6, y: 8.4, color: '#88d7ff', size: 1.05, delay: 0.48 },
     { x: 4.9, y: -5.8, color: '#fff8be', size: 1.32, delay: 0.54 },
     { x: 13.4, y: -0.4, color: '#7cf2a7', size: 1.08, delay: 0.60 }
+  ];
+  const MAJOR_CON_SIREN_BEAMS = [
+    { y: 0.20, width: 0.62, height: 2.0, delay: 0.00 },
+    { y: 0.50, width: 0.78, height: 2.5, delay: 0.18 },
+    { y: 0.78, width: 0.58, height: 1.8, delay: 0.36 }
+  ];
+  const MAJOR_CON_SIREN_PIPS = [
+    { x: 0.02, y: 0.18, size: 1.4, delay: 0.00 },
+    { x: 0.10, y: 0.86, size: 1.1, delay: 0.20 },
+    { x: 0.20, y: 0.08, size: 1.0, delay: 0.42 },
+    { x: 0.34, y: 0.76, size: 1.25, delay: 0.12 },
+    { x: 0.48, y: 0.16, size: 1.15, delay: 0.34 },
+    { x: 0.62, y: 0.88, size: 1.35, delay: 0.08 },
+    { x: 0.74, y: 0.10, size: 1.0, delay: 0.30 },
+    { x: 0.88, y: 0.70, size: 1.2, delay: 0.50 },
+    { x: 0.98, y: 0.24, size: 1.45, delay: 0.16 }
   ];
   const STAMP_REVEAL_SECONDS = 0.36;
   const FOOD_STAMP_REVEAL_SECONDS = 0.22;
@@ -2602,6 +2618,7 @@
     });
     appendMicron100Fireworks(nextLayerNodes, scene, layers, sceneElapsed);
     appendMajorProSparkles(nextLayerNodes, scene, layers, sceneElapsed, sceneProgress, proConHighlightMap);
+    appendMajorConSirenVfx(nextLayerNodes, scene, layers, sceneElapsed, sceneProgress, proConHighlightMap);
     roots.layerRoot.replaceChildren(nextLayerNodes);
 
     syncCaptionSafeArea(roots.caption);
@@ -4062,10 +4079,10 @@
     });
   }
 
-  function majorProSparkleRows(scene, layers) {
-    if (scene?.id !== 'pros') return [];
-    const pros = selectedFood()?.contextItems?.pros || [];
-    return pros
+  function majorContextRows(scene, layers, sectionId) {
+    if (scene?.id !== sectionId) return [];
+    const items = selectedFood()?.contextItems?.[sectionId] || [];
+    return items
       .map((item, rowIndex) => ({ item, rowIndex }))
       .filter(({ item, rowIndex }) => rowIndex < 3 && String(item?.impactLevel || '').toLowerCase() === 'major')
       .map(({ rowIndex }) => {
@@ -4073,7 +4090,7 @@
         const rowLayers = layers
           .filter(({ layer, persistent }) => !persistent && layer?.visible !== false)
           .map(({ layer }) => ({ layer, classification: layerRevealClassification(layer, scene, false, allLayers) }))
-          .filter(item => item.classification.family === 'pros' && item.classification.rowIndex === rowIndex);
+          .filter(item => item.classification.family === sectionId && item.classification.rowIndex === rowIndex);
         const boxes = rowLayers.map(({ layer }) => layerGridBox(layer));
         if (!boxes.length) return null;
         const rowBox = boxes.reduce((box, item) => ({
@@ -4086,14 +4103,14 @@
           .filter(item => item.classification.kind === 'item' && item.layer.kind === 'text')
           .map(item => asNumber(item.layer.z, null))
           .filter(value => value != null);
-        const sparkleZIndex = Math.max(0, (itemTextZ.length ? Math.min(...itemTextZ) : 11) - 1);
-        return { rowIndex, rowBox, sparkleZIndex };
+        const effectZIndex = Math.max(0, (itemTextZ.length ? Math.min(...itemTextZ) : 11) - 1);
+        return { rowIndex, rowBox, effectZIndex };
       })
       .filter(Boolean);
   }
 
   function appendMajorProSparkles(container, scene, layers, sceneElapsed, sceneProgress, proConHighlightMap) {
-    for (const row of majorProSparkleRows(scene, layers)) {
+    for (const row of majorContextRows(scene, layers, 'pros')) {
       const activeHighlight = proConHighlightMap?.get(row.rowIndex);
       const activeStrength = clamp(asNumber(activeHighlight?.cueStrength ?? activeHighlight?.strength, 0), 0, 1);
       if (activeStrength <= 0.015) continue;
@@ -4109,7 +4126,7 @@
       const sparkleTop = row.rowBox.top - spreadTop;
       const sparkleWidth = rowWidth + spreadLeft + spreadRight;
       const sparkleHeight = rowHeight + spreadTop + spreadBottom;
-      const zIndex = row.sparkleZIndex;
+      const zIndex = row.effectZIndex;
 
       MAJOR_PRO_SPARKLES.forEach((spark, sparkIndex) => {
         const seed = seededHash(`major-pro-sparkle:${row.rowIndex}:${sparkIndex}`);
@@ -4130,6 +4147,64 @@
         node.style.opacity = String(clamp(activeStrength * twinkle, 0, 1).toFixed(3));
         node.style.background = spark.color;
         node.style.transform = `translate3d(-50%, -50%, 0) rotate(${sparkIndex % 2 ? 45 : 0}deg) scale(${(0.92 + (activeStrength * 0.18)).toFixed(3)})`;
+        container.appendChild(node);
+      });
+    }
+  }
+
+  function appendMajorConSirenVfx(container, scene, layers, sceneElapsed, sceneProgress, proConHighlightMap) {
+    for (const row of majorContextRows(scene, layers, 'cons')) {
+      const activeHighlight = proConHighlightMap?.get(row.rowIndex);
+      const activeStrength = clamp(asNumber(activeHighlight?.cueStrength ?? activeHighlight?.strength, 0), 0, 1);
+      if (activeStrength <= 0.015) continue;
+
+      const rowHeight = Math.max(1, row.rowBox.bottom - row.rowBox.top);
+      const rowWidth = Math.max(1, row.rowBox.right - row.rowBox.left);
+      const spreadLeft = Math.min(7, rowWidth * 0.11);
+      const spreadRight = Math.min(11, rowWidth * 0.17);
+      const spreadTop = Math.min(5, rowHeight * 0.6);
+      const spreadBottom = Math.min(6, rowHeight * 0.7);
+      const sirenLeft = row.rowBox.left - spreadLeft;
+      const sirenTop = row.rowBox.top - spreadTop;
+      const sirenWidth = rowWidth + spreadLeft + spreadRight;
+      const sirenHeight = rowHeight + spreadTop + spreadBottom;
+      const zIndex = row.effectZIndex;
+      const phase = (sceneElapsed * 3.8 + (row.rowIndex * 0.27)) % 1;
+
+      MAJOR_CON_SIREN_BEAMS.forEach((beam, beamIndex) => {
+        const beamPhase = (phase + beam.delay) % 1;
+        const color = (Math.floor(beamPhase * 4) + beamIndex) % 2 === 0
+          ? 'rgba(255, 65, 80, 0.90)'
+          : 'rgba(82, 176, 255, 0.86)';
+        const node = document.createElement('div');
+        node.className = 'major-con-siren-beam';
+        node.style.left = `calc(${(sirenLeft + (sirenWidth * (0.18 + (beamPhase * 0.64)))).toFixed(2)}px * var(--pixel-unit))`;
+        node.style.top = `calc(${(sirenTop + (sirenHeight * beam.y) + (Math.sin((sceneProgress * Math.PI * 12) + beamIndex) * 0.9)).toFixed(2)}px * var(--pixel-unit))`;
+        node.style.width = `calc(${(sirenWidth * beam.width).toFixed(2)}px * var(--pixel-unit))`;
+        node.style.height = `calc(${(beam.height + (activeStrength * 0.8)).toFixed(2)}px * var(--pixel-unit))`;
+        node.style.zIndex = String(zIndex);
+        node.style.opacity = String(clamp(activeStrength * (0.42 + (Math.sin(beamPhase * Math.PI) * 0.36)), 0, 0.88).toFixed(3));
+        node.style.background = `linear-gradient(90deg, transparent 0%, ${color} 38%, rgba(255,255,255,0.90) 50%, ${color} 62%, transparent 100%)`;
+        node.style.transform = `translate3d(-50%, -50%, 0) skewX(-18deg) scaleX(${(0.82 + (activeStrength * 0.28)).toFixed(3)})`;
+        container.appendChild(node);
+      });
+
+      MAJOR_CON_SIREN_PIPS.forEach((pip, pipIndex) => {
+        const seed = seededHash(`major-con-siren:${row.rowIndex}:${pipIndex}`);
+        const pipPhase = (phase + pip.delay + (pipIndex * 0.061)) % 1;
+        const pulse = 0.62 + (Math.sin((pipPhase * Math.PI * 2) + pipIndex) * 0.38);
+        const color = (pipIndex + Math.floor(phase * 4)) % 2 === 0 ? '#ff4150' : '#52b0ff';
+        const node = document.createElement('div');
+        node.className = 'major-con-siren-pip';
+        node.style.left = `calc(${(sirenLeft + (sirenWidth * pip.x) + (Math.sin((sceneProgress * Math.PI * 9) + seed) * 1.2)).toFixed(2)}px * var(--pixel-unit))`;
+        node.style.top = `calc(${(sirenTop + (sirenHeight * pip.y) + (Math.cos((sceneProgress * Math.PI * 7) + seed) * 0.9)).toFixed(2)}px * var(--pixel-unit))`;
+        node.style.width = `calc(${(pip.size + (activeStrength * 0.8)).toFixed(2)}px * var(--pixel-unit))`;
+        node.style.height = node.style.width;
+        node.style.zIndex = String(zIndex);
+        node.style.opacity = String(clamp(activeStrength * pulse, 0, 1).toFixed(3));
+        node.style.color = color;
+        node.style.background = color;
+        node.style.transform = `translate3d(-50%, -50%, 0) scale(${(0.9 + (activeStrength * 0.28)).toFixed(3)})`;
         container.appendChild(node);
       });
     }

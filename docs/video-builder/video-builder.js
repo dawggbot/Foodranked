@@ -197,22 +197,22 @@
 
   const MACRO_SUBMETRIC_SPECS = {
     fats: [
-      { key: 'saturated_fat_g', label: 'SAT FAT', value: food => formatMetric(food?.metrics?.saturated_fat_g, 'g') },
-      { key: 'polyunsaturated_fat_g', label: 'POLY FAT', value: food => formatMetric(food?.metrics?.polyunsaturated_fat_g, 'g') },
-      { key: 'omega3_mg', label: 'OMEGA 3', value: food => formatMetric(food?.metrics?.omega3_mg, 'mg') },
-      { key: 'cholesterol_mg', label: 'CHOLEST.', value: food => formatMetric(food?.metrics?.cholesterol_mg, 'mg') }
+      { key: 'saturated_fat_g', label: 'SAT FAT', value: food => formatMacroMetric(food, 'fats', 'saturated_fat_g', 'g') },
+      { key: 'polyunsaturated_fat_g', label: 'POLY FAT', value: food => formatMacroMetric(food, 'fats', 'polyunsaturated_fat_g', 'g') },
+      { key: 'omega3_mg', label: 'OMEGA 3', value: food => formatMacroMetric(food, 'fats', 'omega3_mg', 'mg') },
+      { key: 'cholesterol_mg', label: 'CHOLEST.', value: food => formatMacroMetric(food, 'fats', 'cholesterol_mg', 'mg') }
     ],
     carbs: [
-      { key: 'fibre_g', label: 'FIBRE', value: food => formatMetric(food?.metrics?.fibre_g, 'g') },
-      { key: 'sugar_g', label: 'SUGAR', value: food => formatMetric(food?.metrics?.sugar_g, 'g') },
-      { key: 'starch_g', label: 'STARCH', value: food => formatMetric(food?.metrics?.starch_g, 'g') },
-      { key: 'glycemic_index', label: 'GI', value: food => formatMetric(food?.metrics?.glycemic_index, '') }
+      { key: 'fibre_g', label: 'FIBRE', value: food => formatMacroMetric(food, 'carbs', 'fibre_g', 'g') },
+      { key: 'sugar_g', label: 'SUGAR', value: food => formatMacroMetric(food, 'carbs', 'sugar_g', 'g') },
+      { key: 'starch_g', label: 'STARCH', value: food => formatMacroMetric(food, 'carbs', 'starch_g', 'g') },
+      { key: 'glycemic_index', label: 'GI', value: food => formatMacroMetric(food, 'carbs', 'glycemic_index', '') }
     ],
     protein: [
-      { key: 'collagen_g', label: 'COLLAGEN', value: food => formatMetric(food?.metrics?.collagen_g, 'g') },
-      { key: 'essential_amino_acids_score', label: 'EAA', value: food => formatRatio(food?.metrics?.essential_amino_acids_score, 9) },
-      { key: 'nonessential_amino_acids_score', label: 'NEAA', value: food => formatRatio(food?.metrics?.nonessential_amino_acids_score, 10) },
-      { key: 'bioavailability_percent', label: 'BIOAVAIL.', value: food => formatProteinMetric(food, 'bioavailability_percent', '%') }
+      { key: 'collagen_g', label: 'COLLAGEN', value: food => formatMacroMetric(food, 'protein', 'collagen_g', 'g') },
+      { key: 'essential_amino_acids_score', label: 'EAA', value: food => formatMacroRatio(food, 'protein', 'essential_amino_acids_score', 9) },
+      { key: 'nonessential_amino_acids_score', label: 'NEAA', value: food => formatMacroRatio(food, 'protein', 'nonessential_amino_acids_score', 10) },
+      { key: 'bioavailability_percent', label: 'BIOAVAIL.', value: food => formatMacroMetric(food, 'protein', 'bioavailability_percent', '%') }
     ]
   };
   const PROTEIN_QUALITY_METRIC_KEYS = new Set([
@@ -582,15 +582,40 @@
     return `${formatCompactNumber(safe)}${unit}`;
   }
 
+  function macroTotalValue(food, sectionId) {
+    const header = food?.header || {};
+    if (sectionId === 'fats') return asNumber(header.fat_g, null);
+    if (sectionId === 'carbs') return asNumber(header.carb_g ?? header.carbs_g, null);
+    if (sectionId === 'protein') return asNumber(header.protein_g, null);
+    return null;
+  }
+
+  function hasDisplayedMacro(food, sectionId) {
+    return macroTotalValue(food, sectionId) != null;
+  }
+
+  function macroSubmetricDisplayValue(food, sectionId, metricKey) {
+    const value = asNumber(food?.metrics?.[metricKey], null);
+    if (value != null) return value;
+    return hasDisplayedMacro(food, sectionId) ? 0 : null;
+  }
+
+  function formatMacroMetric(food, sectionId, metricKey, unit = '') {
+    return formatMetric(macroSubmetricDisplayValue(food, sectionId, metricKey), unit);
+  }
+
+  function formatMacroRatio(food, sectionId, metricKey, denominator) {
+    const safe = macroSubmetricDisplayValue(food, sectionId, metricKey);
+    if (safe == null) return 'N/A';
+    return `${formatCompactNumber(Math.min(safe, denominator), 0)}/${denominator}`;
+  }
+
   function hasDisplayedProteinMacro(food) {
-    return asNumber(food?.header?.protein_g, null) != null;
+    return hasDisplayedMacro(food, 'protein');
   }
 
   function proteinMetricDisplayValue(food, metricKey) {
-    const value = asNumber(food?.metrics?.[metricKey], null);
-    if (value != null) return value;
-    if (metricKey === 'bioavailability_percent' && hasDisplayedProteinMacro(food)) return 0;
-    return null;
+    return macroSubmetricDisplayValue(food, 'protein', metricKey);
   }
 
   function formatProteinMetric(food, metricKey, unit = '') {
@@ -1143,11 +1168,7 @@
   }
 
   function macroValue(food, sectionId) {
-    const header = food?.header || {};
-    if (sectionId === 'fats') return asNumber(header.fat_g, null);
-    if (sectionId === 'carbs') return asNumber(header.carb_g, null);
-    if (sectionId === 'protein') return asNumber(header.protein_g, null);
-    return null;
+    return macroTotalValue(food, sectionId);
   }
 
   function macroBarFillRatio(food, sectionId) {
@@ -1405,7 +1426,7 @@
 
   function syncMacroTotalText(layout, food) {
     syncMacroTotalTextForSection(layout, 'fats', 'fats', formatMetric(food?.header?.fat_g, 'g'));
-    syncMacroTotalTextForSection(layout, 'carbs', 'CARBS', 'N/A');
+    syncMacroTotalTextForSection(layout, 'carbs', 'CARBS', formatMetric(macroTotalValue(food, 'carbs'), 'g'));
     syncMacroTotalTextForSection(layout, 'protein', 'PROTEIN', formatMetric(food?.header?.protein_g, 'g'));
   }
 
@@ -1493,17 +1514,25 @@
       fillId: 'fats_macro_bar_fill',
       fillLabel: 'FATS macro bar fill',
       fillSrc: './sprites/macros_section/section_1_fats/fat_macro_bar_fill.gif',
-      frameId: 'fats_macro_bar_frame'
+      frameId: 'fats_macro_bar_frame',
+      frameLabel: 'Macro bar frame',
+      frameSrc: './sprites/macros_section/macro_bar_frame.png'
     },
     carbs: {
       fillId: 'carbs_macro_bar_fill',
       fillLabel: 'CARBS macro bar fill',
-      fillSrc: './sprites/macros_section/section_2_carbs/carb_macro_bar_fill.gif'
+      fillSrc: './sprites/macros_section/section_2_carbs/carb_macro_bar_fill.gif',
+      frameId: 'carbs_macro_bar_frame',
+      frameLabel: 'Macro bar frame',
+      frameSrc: './sprites/macros_section/macro_bar_frame.png'
     },
     protein: {
       fillId: 'protein_macro_bar_fill',
       fillLabel: 'PROTEIN macro bar fill',
-      fillSrc: './sprites/macros_section/section_3_protein/protein_macro_bar_fill.gif'
+      fillSrc: './sprites/macros_section/section_3_protein/protein_macro_bar_fill.gif',
+      frameId: 'protein_macro_bar_frame',
+      frameLabel: 'Macro bar frame',
+      frameSrc: './sprites/macros_section/macro_bar_frame.png'
     }
   };
 
@@ -1543,8 +1572,8 @@
         layers.push({
           id: spec.frameId,
           kind: 'sprite',
-          label: 'Macro bar frame',
-          src: './sprites/macros_section/macro_bar_frame.png',
+          label: spec.frameLabel,
+          src: spec.frameSrc,
           x: 31,
           y: 48,
           z: 8,
@@ -1613,7 +1642,7 @@
   function rawMetricValueForSpec(food, sectionId, spec) {
     if (!proteinQualitySpecAllowed(food, sectionId, spec)) return null;
     if (sectionId === 'protein' && ['protein_g', 'protein_g_fallback'].includes(spec.key)) return asNumber(food?.header?.protein_g, null);
-    if (sectionId === 'protein' && spec.key === 'bioavailability_percent') return proteinMetricDisplayValue(food, spec.key);
+    if (['fats', 'carbs', 'protein'].includes(sectionId)) return macroSubmetricDisplayValue(food, sectionId, spec.key);
     return asNumber(food?.metrics?.[spec.key], null);
   }
 

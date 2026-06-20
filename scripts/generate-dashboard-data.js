@@ -7,6 +7,7 @@ const foodsDir = path.join(repoRoot, 'foods');
 const rulesetsDir = path.join(repoRoot, 'rulesets');
 const outputsDir = path.join(repoRoot, 'outputs', 'episodes');
 const outDir = path.join(repoRoot, 'docs', 'data');
+const publishedFoodsDir = path.join(outDir, 'foods');
 const docsAppDir = path.join(repoRoot, 'docs', 'app');
 const docsAudioDir = path.join(repoRoot, 'docs', 'audio', 'episodes');
 const sourceSpritesDir = path.join(repoRoot, 'sprites');
@@ -152,6 +153,21 @@ const foods = fs.readdirSync(foodsDir)
   .map(name => {
     const file = path.join(foodsDir, name);
     const food = readJson(file);
+    const publishedFoodFile = path.join(publishedFoodsDir, name);
+    const publishedFood = exists(publishedFoodFile) ? readJson(publishedFoodFile) : null;
+    // The builders fetch item.path from docs/data/foods; keep indexed nutrition in step with that public copy.
+    const displayFood = publishedFood ? {
+      ...food,
+      identity: publishedFood.identity ?? food.identity,
+      basis: publishedFood.basis || food.basis,
+      header: publishedFood.header || food.header,
+      metrics: publishedFood.metrics || food.metrics,
+      metricProvenance: publishedFood.metricProvenance || food.metricProvenance,
+      nutritionDataSources: publishedFood.nutritionDataSources || food.nutritionDataSources,
+      sourceNotes: publishedFood.sourceNotes || food.sourceNotes,
+      scoreReadiness: publishedFood.scoreReadiness || food.scoreReadiness,
+      contextItems: publishedFood.contextItems || food.contextItems
+    } : food;
     const episode = findEpisode(food.id);
     const score = episode?.scoreSnapshot || null;
     const scenes = episode?.scenePlan?.scenes || [];
@@ -163,19 +179,19 @@ const foods = fs.readdirSync(foodsDir)
 
     return {
       id: food.id,
-      name: food.name,
-      foodType: food.foodType,
-      foodTypeLabel: titleCase(food.foodType),
-      identity: food.identity || null,
-      basis: food.basis,
-      kcal: food.header?.kcal ?? null,
-      header: food.header || {},
-      metrics: food.metrics || {},
-      metricProvenance: food.metricProvenance || {},
-      nutritionDataSources: food.nutritionDataSources || [],
-      sourceNotes: food.sourceNotes || [],
-      scoreReadiness: food.scoreReadiness || null,
-      contextItems: food.contextItems || { pros: [], cons: [] },
+      name: displayFood.name || food.name,
+      foodType: displayFood.foodType || food.foodType,
+      foodTypeLabel: titleCase(displayFood.foodType || food.foodType),
+      identity: displayFood.identity || null,
+      basis: displayFood.basis,
+      kcal: displayFood.header?.kcal ?? null,
+      header: displayFood.header || {},
+      metrics: displayFood.metrics || {},
+      metricProvenance: displayFood.metricProvenance || {},
+      nutritionDataSources: displayFood.nutritionDataSources || [],
+      sourceNotes: displayFood.sourceNotes || [],
+      scoreReadiness: displayFood.scoreReadiness || null,
+      contextItems: displayFood.contextItems || { pros: [], cons: [] },
       path: `data/foods/${name}`,
       sourceFile: path.relative(repoRoot, file),
       ...(customFoodImage ? { assets: { customFoodImage } } : {}),

@@ -1113,7 +1113,7 @@
     </aside>
   </div>
 
-  <script src="../data/foods-index.js?v=20260620-layout-restore-v1"></script>
+  <script src="../data/foods-index.js?v=20260620-macro-display-data-v1"></script>
   <script src="./display-schema.js?v=20260610-display-schema-v1"></script>
   <script src="./default-layout.js?v=20260612-uploaded-protein-fill-v6"></script>
   <script>
@@ -1242,17 +1242,26 @@
       fats: {
         fillId: 'fats_macro_bar_fill',
         fillLabel: 'FATS macro bar fill',
-        fillSrc: './sprites/macros_section/section_1_fats/fat_macro_bar_fill.gif'
+        fillSrc: './sprites/macros_section/section_1_fats/fat_macro_bar_fill.gif',
+        frameId: 'fats_macro_bar_frame',
+        frameLabel: 'Macro bar frame',
+        frameSrc: './sprites/macros_section/macro_bar_frame.png'
       },
       carbs: {
         fillId: 'carbs_macro_bar_fill',
         fillLabel: 'CARBS macro bar fill',
-        fillSrc: './sprites/macros_section/section_2_carbs/carb_macro_bar_fill.gif'
+        fillSrc: './sprites/macros_section/section_2_carbs/carb_macro_bar_fill.gif',
+        frameId: 'carbs_macro_bar_frame',
+        frameLabel: 'Macro bar frame',
+        frameSrc: './sprites/macros_section/macro_bar_frame.png'
       },
       protein: {
         fillId: 'protein_macro_bar_fill',
         fillLabel: 'PROTEIN macro bar fill',
-        fillSrc: './sprites/macros_section/section_3_protein/protein_macro_bar_fill.gif'
+        fillSrc: './sprites/macros_section/section_3_protein/protein_macro_bar_fill.gif',
+        frameId: 'protein_macro_bar_frame',
+        frameLabel: 'Macro bar frame',
+        frameSrc: './sprites/macros_section/macro_bar_frame.png'
       }
     };
 
@@ -1723,12 +1732,6 @@
       return isSpriteLayer(layer) || isTextLayer(layer);
     }
 
-    function isGeneratedCarbsMacroBarFrameLayer(layer) {
-      return isSpriteLayer(layer)
-        && String(layer.id || '').toLowerCase() === 'carbs_macro_bar_frame'
-        && String(layer.src || '').toLowerCase().includes('/macros_section/macro_bar_frame');
-    }
-
     function isSharedMacroBarFrameLayer(layer) {
       return isSpriteLayer(layer)
         && String(layer.src || '').toLowerCase().includes('/macros_section/macro_bar_frame');
@@ -1820,29 +1823,44 @@
       return changed;
     }
 
-    function normalizeMacroBarFillLayerSources(layout) {
+    function normalizeMacroBarLayerSources(layout) {
       for (const [sectionId, spec] of Object.entries(MACRO_BAR_LAYER_SPECS)) {
         for (const layer of getSectionLayersFromLayout(layout, sectionId)) {
-          if (!isMacroBarFillLayer(layer) || macroBarLayerSection(layer, sectionId) !== sectionId) continue;
           const isLibraryLayer = isLibrarySpriteLayer(layer) || /^lib_/i.test(String(layer.id || ''));
-          layer.src = spec.fillSrc;
-          if (isLibraryLayer) continue;
-          layer.label = spec.fillLabel;
-          if (sectionId === 'protein') layer.id = spec.fillId;
+          if (isMacroBarFillLayer(layer) && macroBarLayerSection(layer, sectionId) === sectionId) {
+            layer.src = spec.fillSrc;
+            if (isLibraryLayer) continue;
+            layer.label = spec.fillLabel;
+            if (sectionId === 'protein') layer.id = spec.fillId;
+          }
+          if (isSharedMacroBarFrameLayer(layer) && macroBarLayerSection(layer, sectionId) === sectionId) {
+            layer.src = spec.frameSrc;
+            if (isLibraryLayer) continue;
+            layer.label = spec.frameLabel;
+            layer.id = spec.frameId;
+          }
         }
       }
     }
 
     function ensureMacroBarFillLayers(layout) {
-      normalizeMacroBarFillLayerSources(layout);
+      normalizeMacroBarLayerSources(layout);
       for (const [sectionId, spec] of Object.entries(MACRO_BAR_LAYER_SPECS)) {
         const sectionLayers = getSectionLayersFromLayout(layout, sectionId);
         const hasFill = sectionLayers.some(layer => isMacroBarFillLayer(layer) && macroBarLayerSection(layer, sectionId) === sectionId);
-        if (hasFill) continue;
-        sectionLayers.push(sprite(spec.fillId, spec.fillLabel, spec.fillSrc, 31, 48, 7, 88, 14, true));
-        const layer = sectionLayers[sectionLayers.length - 1];
-        layer.preserveAspect = false;
-        layer.manualPosition = false;
+        if (!hasFill) {
+          sectionLayers.push(sprite(spec.fillId, spec.fillLabel, spec.fillSrc, 31, 48, 7, 88, 14, true));
+          const layer = sectionLayers[sectionLayers.length - 1];
+          layer.preserveAspect = false;
+          layer.manualPosition = false;
+        }
+        const hasFrame = sectionLayers.some(layer => isSharedMacroBarFrameLayer(layer) && macroBarLayerSection(layer, sectionId) === sectionId);
+        if (!hasFrame) {
+          sectionLayers.push(sprite(spec.frameId, spec.frameLabel, spec.frameSrc, 31, 48, 8, 88, 14, false));
+          const layer = sectionLayers[sectionLayers.length - 1];
+          layer.preserveAspect = false;
+          layer.manualPosition = false;
+        }
       }
     }
 
@@ -1857,12 +1875,8 @@
 
       for (const targetKind of ['carbs', 'protein']) {
         const targetLayers = getSectionLayersFromLayout(layout, targetKind);
-        const manualCarbFrames = targetKind === 'carbs'
-          ? targetLayers.filter(layer => isSharedMacroBarFrameLayer(layer) && !isGeneratedCarbsMacroBarFrameLayer(layer)).map(cloneLayer)
-          : [];
         const mapped = templateLayers
-          .map(layer => cloneMacroLayerForKind(layer, targetKind))
-          .filter(layer => !(targetKind === 'carbs' && isGeneratedCarbsMacroBarFrameLayer(layer)));
+          .map(layer => cloneMacroLayerForKind(layer, targetKind));
         const mappedIds = new Set(mapped.map(layer => layer.id).filter(Boolean));
         const existingById = new Map(targetLayers.filter(layer => layer.id).map(layer => [layer.id, layer]));
         const merged = mapped.map(mappedLayer => {
@@ -1884,9 +1898,7 @@
           if (isTextLayer(layer) && new RegExp(`^${targetKind}_submacro_(label|value)_\\d+$`, 'i').test(String(layer.id || ''))) return false;
           return true;
         });
-        const preservedIds = new Set(preserved.map(layer => layer.id).filter(Boolean));
-        const manualFrames = manualCarbFrames.filter(layer => !layer.id || !preservedIds.has(layer.id));
-        layout.sections[targetKind].layers = [...preserved, ...manualFrames, ...merged];
+        layout.sections[targetKind].layers = [...preserved, ...merged];
         ensureMacroSubmetricTextLayers(layout, targetKind);
       }
 
@@ -1915,12 +1927,18 @@
           { key: 'glycemic_index', metricKey: 'glycemic_index', label: 'GI', value: food => formatMetricText(food?.metrics?.glycemic_index, '') }
         ],
         protein: [
-          { key: 'collagen', metricKey: 'collagen_g', label: 'COLLAGEN', value: food => formatMetricText(food?.metrics?.collagen_g, 'g') },
-          { key: 'eaa', metricKey: 'essential_amino_acids_score', label: 'EAA', value: food => formatRatioMetricText(food?.metrics?.essential_amino_acids_score, 9) },
-          { key: 'neaa', metricKey: 'nonessential_amino_acids_score', label: 'NEAA', value: food => formatRatioMetricText(food?.metrics?.nonessential_amino_acids_score, 10) },
-          { key: 'bioavailability', metricKey: 'bioavailability_percent', label: 'BIOAVAIL.', value: food => formatProteinMetricText(food, 'bioavailability_percent', '%') }
+          { key: 'collagen', metricKey: 'collagen_g', label: 'COLLAGEN', value: food => formatMacroMetricText(food, 'protein', 'collagen_g', 'g') },
+          { key: 'eaa', metricKey: 'essential_amino_acids_score', label: 'EAA', value: food => formatMacroRatioMetricText(food, 'protein', 'essential_amino_acids_score', 9) },
+          { key: 'neaa', metricKey: 'nonessential_amino_acids_score', label: 'NEAA', value: food => formatMacroRatioMetricText(food, 'protein', 'nonessential_amino_acids_score', 10) },
+          { key: 'bioavailability', metricKey: 'bioavailability_percent', label: 'BIOAVAIL.', value: food => formatMacroMetricText(food, 'protein', 'bioavailability_percent', '%') }
         ]
       };
+      specs.fats.forEach(spec => {
+        spec.value = food => formatMacroMetricText(food, 'fats', spec.metricKey, spec.metricKey.endsWith('_mg') ? 'mg' : 'g');
+      });
+      specs.carbs.forEach(spec => {
+        spec.value = food => formatMacroMetricText(food, 'carbs', spec.metricKey, spec.metricKey === 'glycemic_index' ? '' : 'g');
+      });
       return specs[sectionId] || [];
     }
 
@@ -2852,7 +2870,6 @@
             if (layer.fallbackSrc) layer.fallbackSrc = canonicalSpritePath(layer.fallbackSrc);
           }
           if (isObsoleteMacroBarFrameOrFillSpriteLayer(layer)) return false;
-          if (section.id === 'carbs' && isGeneratedCarbsMacroBarFrameLayer(layer)) return false;
           if (isObsoleteOutroScoreDisplayLayer(layer)) return false;
           if (isGeneratedOutroTierStampLayer(layer)) return false;
           if (isEmptyJunkLayer(layer)) return false;
@@ -4124,15 +4141,40 @@
       return `${formatCompactNumber(safe)}${unit}`;
     }
 
+    function macroTotalDisplayValue(food, sectionId) {
+      const header = food?.header || {};
+      if (sectionId === 'fats') return asNumber(header.fat_g, null);
+      if (sectionId === 'carbs') return asNumber(header.carb_g ?? header.carbs_g, null);
+      if (sectionId === 'protein') return asNumber(header.protein_g, null);
+      return null;
+    }
+
+    function hasDisplayedMacro(food, sectionId) {
+      return macroTotalDisplayValue(food, sectionId) != null;
+    }
+
+    function macroSubmetricDisplayValue(food, sectionId, metricKey) {
+      const value = asNumber(food?.metrics?.[metricKey], null);
+      if (value != null) return value;
+      return hasDisplayedMacro(food, sectionId) ? 0 : null;
+    }
+
+    function formatMacroMetricText(food, sectionId, metricKey, unit = '') {
+      return formatMetricText(macroSubmetricDisplayValue(food, sectionId, metricKey), unit);
+    }
+
+    function formatMacroRatioMetricText(food, sectionId, metricKey, denominator) {
+      const safe = macroSubmetricDisplayValue(food, sectionId, metricKey);
+      if (safe == null) return 'N/A';
+      return `${formatCompactNumber(Math.min(safe, denominator), 0)}/${denominator}`;
+    }
+
     function hasDisplayedProteinMacro(food) {
-      return asNumber(food?.header?.protein_g, null) != null;
+      return hasDisplayedMacro(food, 'protein');
     }
 
     function proteinMetricDisplayValue(food, metricKey) {
-      const value = asNumber(food?.metrics?.[metricKey], null);
-      if (value != null) return value;
-      if (metricKey === 'bioavailability_percent' && hasDisplayedProteinMacro(food)) return 0;
-      return null;
+      return macroSubmetricDisplayValue(food, 'protein', metricKey);
     }
 
     function formatProteinMetricText(food, metricKey, unit = '') {
@@ -4268,7 +4310,7 @@
     function rawMetricValueForSpec(food, sectionId, spec) {
       if (!proteinQualitySpecAllowed(food, sectionId, spec)) return null;
       if (sectionId === 'protein' && ['protein_g', 'protein_g_fallback'].includes(spec.metricKey)) return asNumber(food?.header?.protein_g, null);
-      if (sectionId === 'protein' && spec.metricKey === 'bioavailability_percent') return proteinMetricDisplayValue(food, spec.metricKey);
+      if (['fats', 'carbs', 'protein'].includes(sectionId)) return macroSubmetricDisplayValue(food, sectionId, spec.metricKey);
       return asNumber(food?.metrics?.[spec.metricKey], null);
     }
 
@@ -4626,7 +4668,7 @@
       }
     }
 
-    function syncCarbsMacroTotalTextForFood(layout) {
+    function syncCarbsMacroTotalTextForFood(layout, food = getSelectedFoodStub()) {
       const layers = getSectionLayersFromLayout(layout, 'carbs');
       const labelLayer = layers.find(layer => layer.id === 'carbs_macro_label');
       const valueLayer = layers.find(layer => layer.id === 'carbs_macro_value');
@@ -4638,7 +4680,7 @@
       }
       if (valueLayer) {
         valueLayer.label = 'CARBS macro grams';
-        if (!valueLayer.manualText) valueLayer.text = 'N/A';
+        if (!valueLayer.manualText) valueLayer.text = formatMetricText(macroTotalDisplayValue(food, 'carbs'), 'g');
         valueLayer.align = valueLayer.align || 'left';
         valueLayer.fontSize = valueLayer.fontSize || 7;
       }
@@ -4668,7 +4710,7 @@
       syncSectionSeparatorsForFood(state.layout, food || getSelectedFoodStub());
       syncSectionIndicatorSprites(state.layout, food || getSelectedFoodStub());
       syncFatsMacroTotalTextForFood(state.layout, food || getSelectedFoodStub());
-      syncCarbsMacroTotalTextForFood(state.layout);
+      syncCarbsMacroTotalTextForFood(state.layout, food || getSelectedFoodStub());
       syncProteinMacroTotalTextForFood(state.layout, food || getSelectedFoodStub());
       syncMacroSubmacroArrowsForFood(state.layout, food || getSelectedFoodStub());
       syncMacroSubmetricValueColors(state.layout, food || getSelectedFoodStub());

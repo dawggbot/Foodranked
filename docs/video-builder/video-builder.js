@@ -2,8 +2,8 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260614-section-sfx-folders-v1';
-  const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
+  const BUILDER_BUILD_ID = '20260620-protein-submetrics-v1';
+  const REPO_LAYOUT_VERSION = '20260620-protein-submetrics-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SECTION_INDICATOR_LAYOUT = { normalSize: 10, highlightedSize: 12 };
@@ -192,10 +192,10 @@
       { key: 'glycemic_index', label: 'GI', value: food => formatMetric(food?.metrics?.glycemic_index, '') }
     ],
     protein: [
-      { key: 'protein_g_fallback', label: 'AMOUNT', value: food => formatMetric(food?.header?.protein_g, 'g'), displayMetricKeys: ['protein_g'] },
       { key: 'collagen_g', label: 'COLLAGEN', value: food => formatMetric(food?.metrics?.collagen_g, 'g') },
-      { key: 'bioavailability_percent', label: 'BIOAVAIL.', value: food => formatMetric(food?.metrics?.bioavailability_percent, '%') },
-      { key: 'essential_amino_acids_score', label: 'EAA', value: food => formatRatio(food?.metrics?.essential_amino_acids_score, 9) }
+      { key: 'essential_amino_acids_score', label: 'EAA', value: food => formatRatio(food?.metrics?.essential_amino_acids_score, 9) },
+      { key: 'nonessential_amino_acids_score', label: 'NEAA', value: food => formatRatio(food?.metrics?.nonessential_amino_acids_score, 10) },
+      { key: 'bioavailability_percent', label: 'BIOAVAIL.', value: food => formatMetric(food?.metrics?.bioavailability_percent, '%') }
     ]
   };
   const PROTEIN_QUALITY_METRIC_KEYS = new Set([
@@ -468,7 +468,7 @@
       `ignored local layout version: ${ignored ? ignored.savedVersion : 'none'}`,
       `repo layout version: ${REPO_LAYOUT_VERSION}`,
       `committed custom food images: ${foodImageIds.join(', ') || 'none'}`,
-      `selected food has committed image: ${AVAILABLE_FOOD_IMAGE_IDS.has(String(food?.id || '').toLowerCase()) ? 'yes' : 'no, using food-type plate fallback'}`,
+      `selected food has committed image: ${hasCustomFoodImage(food) ? 'yes' : 'no, using food-type plate fallback'}`,
       `remembered failures: ${state.spriteFailures.size}`,
       `currently broken images: ${broken.length}`
     ];
@@ -1206,7 +1206,7 @@
         const value = layers.find(layer => layer.id === `${sectionId}_submacro_value_${index + 1}`);
         if (label && !label.manualText) label.text = spec.label;
         if (value) {
-          if (!value.manualText) value.text = proteinQualitySpecAllowed(food, sectionId, spec) ? spec.value(food) : 'N/A';
+          value.text = proteinQualitySpecAllowed(food, sectionId, spec) ? spec.value(food) : 'N/A';
           value.color = macroArrowPresentation(food, sectionId, spec).textColor;
         }
       });
@@ -1567,7 +1567,9 @@
 
   function proteinQualitySpecAllowed(food, sectionId, spec) {
     if (sectionId !== 'protein' || !PROTEIN_QUALITY_METRIC_KEYS.has(spec.key)) return true;
-    return !!episodeDisplayItemForSpec(food, sectionId, spec) || !!batchMetricBreakdownItemForSpec(food, sectionId, spec);
+    return asNumber(food?.metrics?.[spec.key], null) != null
+      || !!episodeDisplayItemForSpec(food, sectionId, spec)
+      || !!batchMetricBreakdownItemForSpec(food, sectionId, spec);
   }
 
   function arrowBandForSpec(food, sectionId, spec) {

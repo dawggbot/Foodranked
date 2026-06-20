@@ -1113,11 +1113,11 @@
     </aside>
   </div>
 
-  <script src="../data/foods-index.js?v=20260529-layout-sync-v1"></script>
+  <script src="../data/foods-index.js?v=20260620-protein-submetrics-v1"></script>
   <script src="./display-schema.js?v=20260610-display-schema-v1"></script>
   <script src="./default-layout.js?v=20260612-uploaded-protein-fill-v6"></script>
   <script>
-    const BUILDER_BUILD_ID = '20260529-layout-sync-v1';
+    const BUILDER_BUILD_ID = '20260620-protein-submetrics-v1';
     const REPO_LAYOUT_VERSION = BUILDER_BUILD_ID;
     const SECTIONS = [
       { id: 'intro', label: '1. Intro blank', chip: null, indicator: true },
@@ -1854,10 +1854,10 @@
           { key: 'glycemic_index', metricKey: 'glycemic_index', label: 'GI', value: food => formatMetricText(food?.metrics?.glycemic_index, '') }
         ],
         protein: [
-          { key: 'protein_amount', metricKey: 'protein_g_fallback', displayMetricKeys: ['protein_g'], label: 'AMOUNT', value: food => formatMetricText(food?.header?.protein_g, 'g') },
           { key: 'collagen', metricKey: 'collagen_g', label: 'COLLAGEN', value: food => formatMetricText(food?.metrics?.collagen_g, 'g') },
-          { key: 'bioavailability', metricKey: 'bioavailability_percent', label: 'BIOAVAIL.', value: food => formatMetricText(food?.metrics?.bioavailability_percent, '%') },
-          { key: 'eaa', metricKey: 'essential_amino_acids_score', label: 'EAA', value: food => formatRatioMetricText(food?.metrics?.essential_amino_acids_score, 9) }
+          { key: 'eaa', metricKey: 'essential_amino_acids_score', label: 'EAA', value: food => formatRatioMetricText(food?.metrics?.essential_amino_acids_score, 9) },
+          { key: 'neaa', metricKey: 'nonessential_amino_acids_score', label: 'NEAA', value: food => formatRatioMetricText(food?.metrics?.nonessential_amino_acids_score, 10) },
+          { key: 'bioavailability', metricKey: 'bioavailability_percent', label: 'BIOAVAIL.', value: food => formatMetricText(food?.metrics?.bioavailability_percent, '%') }
         ]
       };
       return specs[sectionId] || [];
@@ -2017,7 +2017,7 @@
       const defaultOrders = {
         fats: ['sat_fat', 'poly_fat', 'omega3', 'cholesterol'],
         carbs: ['fibre', 'sugar', 'starch', 'glycemic_index'],
-        protein: ['protein_amount', 'collagen', 'bioavailability', 'eaa']
+        protein: ['collagen', 'eaa', 'neaa', 'bioavailability']
       };
       const defaultOrder = defaultOrders[sectionId] || specs.map(spec => spec.key);
       const remaining = [...defaultOrder];
@@ -2033,15 +2033,15 @@
         else if (/sugar/.test(fingerprint)) key = 'sugar';
         else if (/starch/.test(fingerprint)) key = 'starch';
         else if (/glycemic|\bgi\b/.test(fingerprint)) key = 'glycemic_index';
-        else if (/protein[ _-]?(amount|quantity)|\bamount\b|protein_g/.test(fingerprint)) key = 'protein_amount';
+        else if (/protein[ _-]?(amount|quantity)|\bamount\b|protein_g/.test(fingerprint)) key = null;
         else if (/collagen/.test(fingerprint)) key = 'collagen';
         else if (/bioavail/.test(fingerprint)) key = 'bioavailability';
-        else if (/non[ _-]?eaa|nonessential/.test(fingerprint)) key = 'non_eaa';
+        else if (/non[ _-]?eaa|nonessential/.test(fingerprint)) key = 'neaa';
         else if (/\beaa\b|essential/.test(fingerprint)) key = 'eaa';
-        else if (/protein/.test(fingerprint)) key = 'protein_amount';
+        else if (/protein/.test(fingerprint)) key = null;
 
         if (!key || !remaining.includes(key)) key = remaining[0];
-        remaining.splice(remaining.indexOf(key), 1);
+        if (key) remaining.splice(remaining.indexOf(key), 1);
 
         return {
           ...anchor,
@@ -2064,6 +2064,7 @@
       bindings.forEach((binding, index) => {
         const anchor = binding;
         const spec = binding.spec;
+        if (!spec) return;
         const labelId = `${sectionId}_submacro_label_${index + 1}`;
         const valueId = `${sectionId}_submacro_value_${index + 1}`;
         let labelLayer = sectionLayers.find(layer => layer.id === labelId);
@@ -3487,12 +3488,33 @@
       }
     }
 
+    function appLocalAssetPath(path) {
+      if (!path || /^(data:|https?:|blob:)/i.test(path)) return path;
+      const raw = String(path);
+      if (raw.startsWith('app/')) return `./${raw.slice(4)}`;
+      if (raw.startsWith('./app/')) return `./${raw.slice(6)}`;
+      if (raw.startsWith('../app/')) return `./${raw.slice(7)}`;
+      if (raw.startsWith('docs/app/')) return `./${raw.slice(9)}`;
+      if (raw.startsWith('/docs/app/')) return `./${raw.slice(10)}`;
+      return raw;
+    }
+
+    function customFoodImagePath(food = getSelectedFoodStub()) {
+      return appLocalAssetPath(food?.assets?.customFoodImage?.path || food?.customFoodImage?.path || '');
+    }
+
+    function hasCustomFoodImage(food = getSelectedFoodStub()) {
+      return Boolean(customFoodImagePath(food))
+        || AVAILABLE_FOOD_IMAGE_IDS.has(String(food?.id || '').toLowerCase());
+    }
+
     function foodSpriteCandidates(food = getSelectedFoodStub()) {
       const slug = typeSpriteSlug(food?.foodType);
-      const hasFoodImage = AVAILABLE_FOOD_IMAGE_IDS.has(String(food?.id || '').toLowerCase());
+      const customPath = customFoodImagePath(food);
+      const hasFoodImage = hasCustomFoodImage(food);
       const fallback = `${ROOT_SPRITE_BASE}/header/food_plate/${slug}_food_plate.png`;
       return {
-        primary: hasFoodImage ? `./sprites/header/food_images/${food?.id}.png` : fallback,
+        primary: customPath || (hasFoodImage ? `./sprites/header/food_images/${food?.id}.png` : fallback),
         fallback
       };
     }
@@ -3992,7 +4014,7 @@
         `ignored local layout version: ${ignored ? ignored.savedVersion : 'none'}`,
         `repo layout version: ${REPO_LAYOUT_VERSION}`,
         `committed custom food images: ${foodImageIds.join(', ') || 'none'}`,
-        `selected food has committed image: ${AVAILABLE_FOOD_IMAGE_IDS.has(String(selectedFood?.id || '').toLowerCase()) ? 'yes' : 'no, using food-type plate fallback'}`,
+        `selected food has committed image: ${hasCustomFoodImage(selectedFood) ? 'yes' : 'no, using food-type plate fallback'}`,
         `remembered failures: ${state.spriteFailures.size}`,
         `currently broken images: ${broken.length}`
       ];
@@ -4163,7 +4185,9 @@
 
     function proteinQualitySpecAllowed(food, sectionId, spec) {
       if (sectionId !== 'protein' || !PROTEIN_QUALITY_METRIC_KEYS.has(spec.metricKey)) return true;
-      return !!getEpisodeDisplayItemForSpec(food, sectionId, spec) || !!getBatchMetricBreakdownItemForSpec(food, sectionId, spec);
+      return asNumber(food?.metrics?.[spec.metricKey], null) != null
+        || !!getEpisodeDisplayItemForSpec(food, sectionId, spec)
+        || !!getBatchMetricBreakdownItemForSpec(food, sectionId, spec);
     }
 
     function rawMetricValueForSpec(food, sectionId, spec) {
@@ -4300,6 +4324,7 @@
       for (const sectionId of ['fats', 'carbs', 'protein']) {
         const sectionLayers = getSectionLayersFromLayout(layout, sectionId);
         getMacroSubmetricArrowRowBindings(layout, sectionId).forEach(binding => {
+          if (!binding.spec) return;
           const arrows = arrowLayersForMacroBinding(sectionLayers, binding);
           if (!arrows.length) return;
           syncArrowLayersToPresentation(arrows, arrowPresentationForSpec(scoringFood, sectionId, binding.spec));
@@ -4316,6 +4341,7 @@
       for (const sectionId of ['fats', 'carbs', 'protein']) {
         const sectionLayers = getSectionLayersFromLayout(layout, sectionId);
         getMacroSubmetricRowBindings(layout, sectionId).forEach((binding, index) => {
+          if (!binding.spec) return;
           const valueLayer = sectionLayers.find(layer => layer.id === `${sectionId}_submacro_value_${index + 1}`);
           if (!valueLayer) return;
           valueLayer.color = arrowPresentationForSpec(scoringFood, sectionId, binding.spec).textColor;
@@ -4575,6 +4601,7 @@
         const sectionLayers = getSectionLayersFromLayout(state.layout, sectionId);
         getMacroSubmetricRowBindings(state.layout, sectionId).forEach((binding, index) => {
           const spec = binding.spec;
+          if (!spec) return;
           const labelLayer = sectionLayers.find(layer => layer.id === `${sectionId}_submacro_label_${index + 1}`);
           const valueLayer = sectionLayers.find(layer => layer.id === `${sectionId}_submacro_value_${index + 1}`);
           if (labelLayer) {
@@ -4584,10 +4611,8 @@
             labelLayer.fontSize = labelLayer.fontSize || 4;
           }
           if (valueLayer) {
-            if (!valueLayer.manualText) {
-              const scoringFood = mergedFoodForScoring(food || getSelectedFoodStub());
-              valueLayer.text = proteinQualitySpecAllowed(scoringFood, sectionId, spec) ? spec.value(food || {}) : 'N/A';
-            }
+            const scoringFood = mergedFoodForScoring(food || getSelectedFoodStub());
+            valueLayer.text = proteinQualitySpecAllowed(scoringFood, sectionId, spec) ? spec.value(scoringFood) : 'N/A';
             valueLayer.label = `${getSectionChip(sectionId) || sectionId} score card value ${index + 1}`;
             valueLayer.align = 'right';
             valueLayer.fontSize = valueLayer.fontSize || 4;
@@ -5124,7 +5149,10 @@ async function renderBackgroundSprites() {
       const stub = getSelectedFoodStub();
       await loadBatchResults();
       const fullFood = await loadFullFood(stub) || stub || null;
-      state.fullFood = attachBatchResult(fullFood);
+      const foodWithIndexAssets = fullFood
+        ? { ...stub, ...fullFood, assets: fullFood.assets || stub?.assets || null }
+        : stub;
+      state.fullFood = attachBatchResult(foodWithIndexAssets);
       syncFoodIntoLayout(state.fullFood);
       void renderAll();
     }

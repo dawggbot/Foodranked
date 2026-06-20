@@ -596,7 +596,9 @@
   }
 
   function prettyFoodType(foodType) {
-    return normalizeFoodType(foodType).replace(/-/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
+    const normalized = normalizeFoodType(foodType);
+    if (normalized === 'vegetables') return 'Veg';
+    return normalized.replace(/-/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
   }
 
   function typeSpriteSlug(foodType) {

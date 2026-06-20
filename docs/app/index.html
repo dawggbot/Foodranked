@@ -1692,44 +1692,11 @@
     }
 
     function syncHeaderLayoutFromIntro(layout) {
-      const source = getHeaderLayoutSourceLayers(layout);
-      if (!source.layers.length) return;
-
-      for (const section of SECTIONS) {
-        if (section.id === source.sectionId) continue;
-        const currentLayers = getSectionLayersFromLayout(layout, section.id);
-        const preserved = currentLayers.filter(layer => !isHeaderLayoutLayer(layer) || layer.manualPosition);
-        const preservedIds = new Set(preserved.map(layer => layer.id).filter(Boolean));
-        layout.sections[section.id].layers = [
-          ...preserved,
-          ...source.layers.filter(layer => !preservedIds.has(layer.id)).map(cloneLayer)
-        ];
-      }
+      // Layouts are intentionally editable per section; do not mirror header positions.
     }
 
     function syncLockedGlobalLayersFromOutro(layout) {
-      const outroLayers = getSectionLayersFromLayout(layout, 'outro');
-      const lockedSpriteLayers = outroLayers.filter(layer => isLockedUiSpriteLayer(layer) && !isHeaderSpriteLayer(layer) && !isSectionIndicatorSpriteLayer(layer));
-      const lockedTextLayers = outroLayers.filter(layer => isTextLayer(layer) && !isHeaderTextLayer(layer) && !isOutroScoreDisplayLayer(layer));
-      if (!lockedSpriteLayers.length && !lockedTextLayers.length) return;
-      const lockedSpriteIds = new Set(lockedSpriteLayers.map(layer => layer.id).filter(Boolean));
-      const lockedTextIds = new Set(lockedTextLayers.map(layer => layer.id).filter(Boolean));
-      for (const section of SECTIONS) {
-        if (section.id === 'outro') continue;
-        const currentLayers = getSectionLayersFromLayout(layout, section.id);
-        const preserved = currentLayers.filter(layer => {
-          if (layer.manualPosition) return true;
-          if (isLockedUiSpriteLayer(layer) && layer.id && lockedSpriteIds.has(layer.id)) return false;
-          if (section.id !== 'fats' && isTextLayer(layer) && lockedTextIds.has(layer.id)) return false;
-          return true;
-        });
-        const preservedIds = new Set(preserved.map(layer => layer.id).filter(Boolean));
-        const layersToClone = [
-          ...lockedSpriteLayers.filter(layer => !preservedIds.has(layer.id)).map(cloneLayer),
-          ...(section.id === 'fats' ? [] : lockedTextLayers.filter(layer => !preservedIds.has(layer.id)).map(cloneLayer))
-        ];
-        layout.sections[section.id].layers = [...preserved, ...layersToClone];
-      }
+      // Layouts are intentionally editable per section; do not mirror global UI layers.
     }
 
     function isMacroLayoutTemplateLayer(layer) {
@@ -2997,24 +2964,7 @@
     }
 
     function getSyncedGlobalSourceLayer(layer) {
-      if (!layer) return null;
-      if (isSpriteLayer(layer)) return null;
-
-      if (isHeaderLayoutLayer(layer)) {
-        if (state.layout.selectedSectionId === 'intro') return null;
-        return getSectionLayersFromLayout(state.layout, 'intro').find(source => source.id && source.id === layer.id) || null;
-      }
-
-      if (isSectionIndicatorSpriteLayer(layer)) {
-        if (state.layout.selectedSectionId === 'intro') return null;
-        const sourceIndex = sectionIndicatorLayersForSection(state.layout, state.layout.selectedSectionId)
-          .findIndex(item => item === layer || (item.id && item.id === layer.id));
-        return sectionIndicatorLayersForSection(state.layout, 'intro')[sourceIndex] || null;
-      }
-
-      if (state.layout.selectedSectionId === 'outro') return null;
-      if (!isLockedGlobalSourceLayer(layer)) return null;
-      return getSectionLayersFromLayout(state.layout, 'outro').find(source => source.id && source.id === layer.id) || null;
+      return null;
     }
 
     function mirrorLayerValues(fromLayer, toLayer) {
@@ -3466,23 +3416,7 @@
     }
 
     function syncSectionIndicatorLayoutFromIntro(layout) {
-      const sourceIndicators = sectionIndicatorLayersForSection(layout, 'intro');
-      if (sourceIndicators.length < SECTION_INDICATOR_COUNT) return;
-      for (const section of SECTIONS) {
-        if (section.id === 'intro') continue;
-        const indicators = sectionIndicatorLayersForSection(layout, section.id);
-        indicators.forEach((layer, index) => {
-          if (layer.manualPosition) return;
-          const source = sourceIndicators[index];
-          if (!source) return;
-          layer.x = source.x;
-          layer.y = source.y;
-          layer.z = source.z || 25;
-          layer.visible = source.visible !== false;
-          layer.width = SECTION_INDICATOR_LAYOUT.normalSize;
-          layer.height = SECTION_INDICATOR_LAYOUT.normalSize;
-        });
-      }
+      // Layouts are intentionally editable per section; do not mirror indicator positions.
     }
 
     function renderedSectionIndicatorSrc(layer, sectionId, food = getSelectedFoodStub()) {
@@ -4086,6 +4020,7 @@
 
     function prettyFoodType(foodType) {
       const normalized = normalizeFoodType(foodType) || 'misc';
+      if (normalized === 'vegetables') return 'Veg';
       return normalized.replace(/-/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
     }
 

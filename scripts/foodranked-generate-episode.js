@@ -216,7 +216,7 @@ function metricDisplayValue(item) {
   if (key.endsWith('_g')) return `${item.value}g`;
   if (key.endsWith('_percent')) return `${item.value}%`;
   if (key === 'essential_amino_acids_score') return `${item.value}/9`;
-  if (key === 'nonessential_amino_acids_score') return `${item.value}/11`;
+  if (key === 'nonessential_amino_acids_score') return `${item.value}/${item.denominator || 10}`;
   if (key.endsWith('_score')) return `${item.value}/10`;
   if (/glycemic/i.test(key)) return `${item.value} GI`;
   return String(item.value);

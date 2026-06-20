@@ -2710,7 +2710,7 @@ window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT = {
           "y": 111,
           "z": 27,
           "visible": true,
-          "text": "10/11",
+          "text": "10/10",
           "fontSize": 6,
           "width": 24,
           "align": "right",

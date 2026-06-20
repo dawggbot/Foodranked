@@ -196,7 +196,7 @@ Suggested fields:
 - bands
 - notes nullable
 
-Protein quality fields should only score when the protein amount is useful enough for the category. Otherwise, do not let amino-acid presence create a misleading protein-quality win.
+Protein quality fields should only score when the protein amount is useful enough for the category and the food has source-backed `amino_acids_mg` values. EAA/NEAA scores must be derived by counting only amino-acid groups that clear the useful-amount thresholds in `config/amino-acid-thresholds.v1.json`; do not let amino-acid presence or old aggregate proxy fields create a misleading protein-quality win.
 
 ### score_calibrations
 Category-specific mapping from raw ruleset score to the shared final score scale.

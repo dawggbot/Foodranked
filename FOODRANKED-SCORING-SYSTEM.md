@@ -261,11 +261,16 @@ That matters for metrics kept in the schema for display, future use, or category
 Protein-quality proxies are still uneven across the current food library.
 When amino-acid or bioavailability fields are missing, weak, intentionally withheld, or not present in a useful protein amount, the ruleset may use a `proteinFallback` based on plain `protein_g` from the header.
 
-Amino-acid quality must not be counted unless an amino-acid proxy exists **and** the food has a category-useful amount of protein. If the food does not provide enough protein for amino-acid quality to matter, or does not provide source-backed protein-quality metrics, the protein section should score and narrate protein amount instead.
+Amino-acid quality must not be counted from presence alone. The scorer only counts EAAs/NEAAs when source-backed `amino_acids_mg` values show that the specific amino-acid group clears the current useful-amount threshold in `config/amino-acid-thresholds.v1.json`.
+
+For v1, essential amino-acid groups use a 70kg adult reference and count only when 100g of the food supplies about 25% of the adult amino-acid RDA for that group. Nonessential amino acids do not have the same official adult requirement pattern, so v1 uses a material 500mg-per-100g threshold for each measurable nonessential/conditionally-essential group.
+
+If the food does not provide enough protein for amino-acid quality to matter, lacks source-backed specific amino-acid amounts, or only has old aggregate proxy fields, the protein section should score and narrate protein amount instead.
 
 This is the intended bridge rule for v1:
-- prefer direct protein submetrics when they are genuinely source-backed and trusted
+- prefer direct protein submetrics when they are genuinely source-backed and trusted at the specific amino-acid level
 - skip amino-acid and bioavailability scoring below the food type's useful-protein gate
+- skip aggregate amino-acid proxy scores unless they were derived from source-backed `amino_acids_mg`
 - otherwise leave those protein-quality values as `N/A`
 - let a category-specific `proteinFallback` keep the proteins section alive in a stable, auditable arrow-band way
 

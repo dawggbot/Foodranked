@@ -8,6 +8,8 @@ const rulesetsDir = path.join(repoRoot, 'rulesets');
 const episodesDir = path.join(repoRoot, 'outputs', 'episodes');
 const dataDir = path.join(repoRoot, 'docs', 'data');
 const finalisationConfig = path.join(repoRoot, 'config', 'finalisation-sample-foods.v1.json');
+const aminoAcidThresholdsPath = path.join(repoRoot, 'config', 'amino-acid-thresholds.v1.json');
+const aminoAcidThresholds = fs.existsSync(aminoAcidThresholdsPath) ? readJson(aminoAcidThresholdsPath) : null;
 
 const args = new Set(process.argv.slice(2));
 const scopeArg = process.argv.find(arg => arg.startsWith('--scope='));
@@ -15,6 +17,7 @@ const scope = scopeArg ? scopeArg.split('=')[1] : 'all';
 
 const HEADER_KEYS = ['kcal', 'fat_g', 'carb_g', 'protein_g'];
 const CONTEXT_SIDES = ['pros', 'cons'];
+const AMINO_ACID_SCORE_KEYS = ['essential_amino_acids_score', 'nonessential_amino_acids_score'];
 const LABEL_SCORES = {
   '3_red': 0,
   '2_red': 20,
@@ -118,6 +121,63 @@ function nutritionSources(food) {
   return Array.isArray(direct) ? direct : [];
 }
 
+function finiteNumber(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+}
+
+function hasSpecificAminoAcidProfile(food) {
+  const aminoAcids = food.metrics?.amino_acids_mg;
+  return Boolean(aminoAcids && typeof aminoAcids === 'object' && !Array.isArray(aminoAcids)
+    && Object.values(aminoAcids).some(value => finiteNumber(value) !== null));
+}
+
+function aminoAcidMetricValue(food, metricKey) {
+  return finiteNumber(food.metrics?.amino_acids_mg?.[metricKey]);
+}
+
+function aminoGroupScore(food, groups) {
+  return (groups || []).filter(group => {
+    const values = (group.metricKeys || []).map(metricKey => aminoAcidMetricValue(food, metricKey));
+    if (values.every(value => value === null)) return false;
+    const amountMg = values.reduce((sum, value) => sum + (value || 0), 0);
+    return amountMg >= Number(group.thresholdMg);
+  }).length;
+}
+
+function auditAminoAcidScoring(food, file, errors) {
+  const hasProfile = hasSpecificAminoAcidProfile(food);
+  if (food.metrics?.amino_acids_mg && !hasProfile) {
+    issue(errors, file, 'metrics.amino_acids_mg must contain numeric mg values when present');
+  }
+
+  for (const key of AMINO_ACID_SCORE_KEYS) {
+    if (typeof food.metrics?.[key] === 'number' && !hasProfile) {
+      issue(errors, file, `${key} cannot be a numeric proxy without source-backed amino_acids_mg`);
+    }
+  }
+
+  if (typeof food.metrics?.bioavailability_percent === 'number' && !hasProfile) {
+    issue(errors, file, 'bioavailability_percent cannot be numeric without source-backed amino_acids_mg');
+  }
+
+  if (!hasProfile || !aminoAcidThresholds) return;
+  const expectedEssential = aminoGroupScore(food, aminoAcidThresholds.essentialGroups);
+  const expectedNonessential = aminoGroupScore(food, aminoAcidThresholds.nonessentialGroups);
+  if (food.metrics.essential_amino_acids_score !== expectedEssential) {
+    issue(errors, file, 'essential_amino_acids_score must match useful-amount amino acid threshold calculation', {
+      expected: expectedEssential,
+      actual: food.metrics.essential_amino_acids_score
+    });
+  }
+  if (food.metrics.nonessential_amino_acids_score !== expectedNonessential) {
+    issue(errors, file, 'nonessential_amino_acids_score must match useful-amount amino acid threshold calculation', {
+      expected: expectedNonessential,
+      actual: food.metrics.nonessential_amino_acids_score
+    });
+  }
+}
+
 function hasTwoDistinctNutritionSources(food) {
   const distinct = new Set();
   for (const source of nutritionSources(food)) {
@@ -181,10 +241,21 @@ function auditFoods(errors, warnings) {
     }
 
     for (const [key, value] of Object.entries(food.metrics || {})) {
+      if (key === 'amino_acids_mg') {
+        if (!value || typeof value !== 'object' || Array.isArray(value)) {
+          issue(errors, file, 'metrics.amino_acids_mg must be an object of mg values');
+          continue;
+        }
+        for (const [aminoKey, aminoValue] of Object.entries(value)) {
+          if (typeof aminoValue !== 'number') issue(errors, file, `metrics.amino_acids_mg.${aminoKey} must be a number`);
+        }
+        continue;
+      }
       if (value !== null && typeof value !== 'number') {
         issue(errors, file, `metrics.${key} must be number or null`);
       }
     }
+    auditAminoAcidScoring(food, file, errors);
 
     for (const side of CONTEXT_SIDES) {
       const items = food.contextItems?.[side] || [];

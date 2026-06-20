@@ -19,30 +19,78 @@
     "carb_g": 18.7,
     "protein_g": 1.7
   },
+  "foodMetrics": {
+    "saturated_fat_g": 0.1,
+    "omega3_mg": 20,
+    "polyunsaturated_fat_g": 0.1,
+    "cholesterol_mg": null,
+    "starch_g": 0,
+    "fibre_g": 4,
+    "sugar_g": 13.7,
+    "glycemic_index": 35,
+    "collagen_g": null,
+    "essential_amino_acids_score": null,
+    "nonessential_amino_acids_score": null,
+    "bioavailability_percent": null,
+    "vitamin_a_dv": 0,
+    "vitamin_c_dv": 12,
+    "vitamin_d_dv": null,
+    "vitamin_e_dv": null,
+    "vitamin_k_dv": null,
+    "vitamin_b12_dv": null,
+    "iron_dv": 2,
+    "magnesium_dv": 3,
+    "zinc_dv": null,
+    "calcium_dv": null,
+    "potassium_dv": 5
+  },
+  "aminoAcidScoring": {
+    "policyId": "foodranked-amino-acid-thresholds.v1",
+    "profileAvailable": false,
+    "sourceMetric": "amino_acids_mg",
+    "essential": {
+      "value": null,
+      "denominator": 9,
+      "details": []
+    },
+    "nonessential": {
+      "value": null,
+      "denominator": 10,
+      "details": []
+    }
+  },
   "proteinQualityGate": {
     "proteinG": 1.7,
     "minimumProteinG": 1.5,
     "eligible": true,
-    "skippedMetricKeys": []
+    "aminoAcidProfileAvailable": false,
+    "usefulEssentialAminoAcidGroups": null,
+    "usefulNonessentialAminoAcidGroups": null,
+    "aminoAcidThresholdPolicy": "foodranked-amino-acid-thresholds.v1",
+    "skippedMetricKeys": [
+      "essential_amino_acids_score",
+      "nonessential_amino_acids_score",
+      "bioavailability_percent"
+    ]
   },
   "sectionScores": {
     "fats": 33.3,
     "carbs": 64,
-    "proteins": 0,
+    "proteins": 60,
     "vitamins": 8,
     "minerals": 0,
     "pros": 50,
     "cons": 50
   },
-  "overallScore": 13.6,
-  "overallScoreExact": 13.5534,
-  "baseOverallScore": 29.3,
-  "baseOverallScoreExact": 29.3333,
+  "overallScore": 17.5,
+  "overallScoreExact": 17.5138,
+  "baseOverallScore": 37.9,
+  "baseOverallScoreExact": 37.9048,
   "tier": "D",
   "summary": "Carbs are carrying this food most, while minerals are holding it back most. It lands in D tier.",
   "explanation": {
     "summary": "Carbs are carrying this food most, while minerals are holding it back most. It lands in D tier.",
-    "whyThisTier": "This food lands in D tier with an overall score of 13.6. Section scores: fats 33.3, carbs 64, proteins 0, vitamins 8, minerals 0, pros 50, cons 50.",
+    "whyThisTier": "This food lands in D tier with an overall score of 17.5. Section scores: fats 33.3, carbs 64, proteins 60, vitamins 8, minerals 0, pros 50, cons 50.",
     "strongestSection": {
       "key": "carbs",
       "label": "Carbs",
@@ -244,39 +292,6 @@
       "weightedScore": 500
     },
     {
-      "metricKey": "essential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 1,
-      "band": "↓↓↓",
-      "polarity": "higher_better",
-      "score": 0,
-      "weight": 2,
-      "weightedScore": 0
-    },
-    {
-      "metricKey": "nonessential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 2,
-      "band": "↓↓↓",
-      "polarity": "higher_better",
-      "score": 0,
-      "weight": 1,
-      "weightedScore": 0
-    },
-    {
-      "metricKey": "bioavailability_percent",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 30,
-      "band": "↓↓↓",
-      "polarity": "higher_better",
-      "score": 0,
-      "weight": 2,
-      "weightedScore": 0
-    },
-    {
       "metricKey": "vitamin_c_dv",
       "sectionKey": "vitamins",
       "scoringMode": "dv_points",
@@ -325,6 +340,18 @@
       "score": 0,
       "weight": 1,
       "weightedScore": 0
+    },
+    {
+      "metricKey": "protein_g_fallback",
+      "sectionKey": "proteins",
+      "scoringMode": "arrow_bands",
+      "value": 1.7,
+      "band": "↑",
+      "polarity": "higher_better",
+      "score": 60,
+      "weight": 2,
+      "weightedScore": 120,
+      "fallbackApplied": true
     }
   ]
 }

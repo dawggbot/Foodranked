@@ -19,34 +19,82 @@
     "carb_g": 4.1,
     "protein_g": 14.2
   },
+  "foodMetrics": {
+    "saturated_fat_g": 14.9,
+    "omega3_mg": 100,
+    "polyunsaturated_fat_g": 0.6,
+    "cholesterol_mg": 89,
+    "starch_g": 0,
+    "fibre_g": 0,
+    "sugar_g": 4.1,
+    "glycemic_index": 27,
+    "collagen_g": 0,
+    "essential_amino_acids_score": null,
+    "nonessential_amino_acids_score": null,
+    "bioavailability_percent": null,
+    "vitamin_a_dv": 14,
+    "vitamin_c_dv": 0,
+    "vitamin_d_dv": 1,
+    "vitamin_e_dv": 1,
+    "vitamin_k_dv": 2,
+    "vitamin_b12_dv": 27,
+    "iron_dv": 4,
+    "magnesium_dv": 5,
+    "zinc_dv": 19,
+    "calcium_dv": 37,
+    "potassium_dv": 2
+  },
+  "aminoAcidScoring": {
+    "policyId": "foodranked-amino-acid-thresholds.v1",
+    "profileAvailable": false,
+    "sourceMetric": "amino_acids_mg",
+    "essential": {
+      "value": null,
+      "denominator": 9,
+      "details": []
+    },
+    "nonessential": {
+      "value": null,
+      "denominator": 10,
+      "details": []
+    }
+  },
   "proteinQualityGate": {
     "proteinG": 14.2,
     "minimumProteinG": 9,
     "eligible": true,
-    "skippedMetricKeys": []
+    "aminoAcidProfileAvailable": false,
+    "usefulEssentialAminoAcidGroups": null,
+    "usefulNonessentialAminoAcidGroups": null,
+    "aminoAcidThresholdPolicy": "foodranked-amino-acid-thresholds.v1",
+    "skippedMetricKeys": [
+      "essential_amino_acids_score",
+      "nonessential_amino_acids_score",
+      "bioavailability_percent"
+    ]
   },
   "sectionScores": {
     "fats": 13.3,
     "carbs": 72.5,
-    "proteins": 88,
+    "proteins": 80,
     "vitamins": 16.7,
     "minerals": 20,
     "pros": 50,
     "cons": 50
   },
-  "overallScore": 58.2,
-  "overallScoreExact": 58.231,
-  "baseOverallScore": 44.4,
-  "baseOverallScoreExact": 44.3571,
+  "overallScore": 53.5,
+  "overallScoreExact": 53.5135,
+  "baseOverallScore": 43.2,
+  "baseOverallScoreExact": 43.2143,
   "tier": "B",
   "summary": "Proteins are carrying this food most, while fats are holding it back most. It lands in B tier.",
   "explanation": {
     "summary": "Proteins are carrying this food most, while fats are holding it back most. It lands in B tier.",
-    "whyThisTier": "This food lands in B tier with an overall score of 58.2. Section scores: fats 13.3, carbs 72.5, proteins 88, vitamins 16.7, minerals 20, pros 50, cons 50.",
+    "whyThisTier": "This food lands in B tier with an overall score of 53.5. Section scores: fats 13.3, carbs 72.5, proteins 80, vitamins 16.7, minerals 20, pros 50, cons 50.",
     "strongestSection": {
       "key": "proteins",
       "label": "Proteins",
-      "score": 88
+      "score": 80
     },
     "weakestSection": {
       "key": "fats",
@@ -255,39 +303,6 @@
       "weightedScore": 160
     },
     {
-      "metricKey": "essential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 8,
-      "band": "↑↑",
-      "polarity": "higher_better",
-      "score": 80,
-      "weight": 2,
-      "weightedScore": 160
-    },
-    {
-      "metricKey": "nonessential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 9,
-      "band": "↑↑",
-      "polarity": "higher_better",
-      "score": 80,
-      "weight": 1,
-      "weightedScore": 80
-    },
-    {
-      "metricKey": "bioavailability_percent",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 92,
-      "band": "↑↑↑",
-      "polarity": "higher_better",
-      "score": 100,
-      "weight": 2,
-      "weightedScore": 200
-    },
-    {
       "metricKey": "vitamin_b12_dv",
       "sectionKey": "vitamins",
       "scoringMode": "dv_points",
@@ -336,6 +351,18 @@
       "score": 0,
       "weight": 1,
       "weightedScore": 0
+    },
+    {
+      "metricKey": "protein_g_fallback",
+      "sectionKey": "proteins",
+      "scoringMode": "arrow_bands",
+      "value": 14.2,
+      "band": "2_green",
+      "polarity": "higher_better",
+      "score": 80,
+      "weight": 3,
+      "weightedScore": 240,
+      "fallbackApplied": true
     }
   ]
 }

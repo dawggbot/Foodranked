@@ -166,9 +166,10 @@ The scorer should:
 1. compute submacro section scores from resolved color bands
 2. compute vitamin/mineral section scores from DV% tiers
 3. compute pros/cons as first-class sections from major/minor levels
-4. use `proteinFallback` when direct protein-quality metrics are intentionally unavailable or the food fails the useful-protein gate, so protein amount still resolves to an arrow band
-5. average all 7 scored content section scores into `baseOverallScore`
-6. apply `scoreCalibration` to produce the calibrated display `overallScore`
-7. map the calibrated `overallScore` to the tier with shared `tierThresholds`
+4. derive EAA/NEAA scores from source-backed `amino_acids_mg` and the useful-amount threshold policy, never from trace presence or old aggregate proxy fields
+5. use `proteinFallback` when direct protein-quality metrics are intentionally unavailable or the food fails the useful-protein gate, so protein amount still resolves to an arrow band
+6. average all 7 scored content section scores into `baseOverallScore`
+7. apply `scoreCalibration` to produce the calibrated display `overallScore`
+8. map the calibrated `overallScore` to the tier with shared `tierThresholds`
 
 That keeps the math explainable while matching the visible video structure.

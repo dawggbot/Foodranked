@@ -25,6 +25,11 @@ const allMetricKeys = [
 function metrics(base, overrides={}) {
   const out = Object.fromEntries(allMetricKeys.map(k => [k, null]));
   Object.assign(out, deepClone(base), deepClone(overrides));
+  if (!out.amino_acids_mg) {
+    out.essential_amino_acids_score = null;
+    out.nonessential_amino_acids_score = null;
+    out.bioavailability_percent = null;
+  }
   return out;
 }
 

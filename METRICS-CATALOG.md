@@ -135,7 +135,7 @@ These are important for the video UI and viewer understanding, but do not direct
 - Default section: proteins
 - Default polarity: `higher_better`
 - V1 role: scored where meaningful
-- Notes: blueprint suggests `/9` style framing; scoring should reflect meaningful amount, not mere presence
+- Notes: `/9` useful-amount score derived from source-backed `amino_acids_mg`; each amino-acid group must clear the v1 threshold rather than merely be present
 
 ### nonessential_amino_acids_score
 - Display name: Non-essential Amino Acids
@@ -143,7 +143,7 @@ These are important for the video UI and viewer understanding, but do not direct
 - Default section: proteins
 - Default polarity: `higher_better`
 - V1 role: scored where meaningful
-- Notes: blueprint suggests `/11` style framing
+- Notes: `/10` useful-amount score derived from source-backed `amino_acids_mg`; no official adult DRI exists for nonessential amino acids, so v1 uses a material 500mg-per-100g threshold
 
 ### bioavailability_percent
 - Display name: Bioavailability

@@ -19,6 +19,11 @@ const PROTEIN_QUALITY_METRIC_KEYS = new Set([
   'nonessential_amino_acids_score',
   'bioavailability_percent'
 ]);
+const AMINO_ACID_SCORE_METRIC_KEYS = new Set([
+  'essential_amino_acids_score',
+  'nonessential_amino_acids_score'
+]);
+const aminoAcidThresholds = readJson(path.join(__dirname, '..', 'config', 'amino-acid-thresholds.v1.json'));
 
 function scoreFromBands(value, bands) {
   if (value === null || value === undefined || !Array.isArray(bands) || bands.length === 0) return null;
@@ -225,7 +230,75 @@ function firstUsefulProteinBandMin(ruleset) {
   return typeof band?.min === 'number' ? band.min : null;
 }
 
-function buildProteinQualityGate(food, ruleset) {
+function toFiniteNumber(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+}
+
+function aminoAcidValueMg(food, metricKey) {
+  const aminoAcids = food.metrics?.amino_acids_mg || {};
+  const nested = toFiniteNumber(aminoAcids[metricKey]);
+  if (nested !== null) return nested;
+  return toFiniteNumber(food.metrics?.[metricKey]);
+}
+
+function scoreAminoAcidGroups(food, groups) {
+  const details = (groups || []).map(group => {
+    const values = (group.metricKeys || [])
+      .map(metricKey => ({ metricKey, valueMg: aminoAcidValueMg(food, metricKey) }));
+    const presentValues = values.filter(item => item.valueMg !== null);
+    const amountMg = presentValues.length
+      ? round1(presentValues.reduce((sum, item) => sum + item.valueMg, 0))
+      : null;
+    const thresholdMg = toFiniteNumber(group.thresholdMg);
+    return {
+      key: group.key,
+      label: group.label,
+      metricKeys: group.metricKeys || [],
+      amountMg,
+      thresholdMg,
+      useful: amountMg !== null && thresholdMg !== null && amountMg >= thresholdMg,
+      missingMetricKeys: values.filter(item => item.valueMg === null).map(item => item.metricKey)
+    };
+  });
+
+  return {
+    value: details.filter(item => item.useful).length,
+    denominator: details.length,
+    details
+  };
+}
+
+function buildAminoAcidScoring(food) {
+  const aminoAcids = food.metrics?.amino_acids_mg || {};
+  const profileAvailable = Object.values(aminoAcids).some(value => toFiniteNumber(value) !== null);
+  if (!profileAvailable) {
+    return {
+      policyId: aminoAcidThresholds.id,
+      profileAvailable: false,
+      sourceMetric: 'amino_acids_mg',
+      essential: { value: null, denominator: aminoAcidThresholds.essentialGroups?.length || 9, details: [] },
+      nonessential: { value: null, denominator: aminoAcidThresholds.nonessentialGroups?.length || 10, details: [] }
+    };
+  }
+
+  return {
+    policyId: aminoAcidThresholds.id,
+    profileAvailable: true,
+    sourceMetric: 'amino_acids_mg',
+    essential: scoreAminoAcidGroups(food, aminoAcidThresholds.essentialGroups || []),
+    nonessential: scoreAminoAcidGroups(food, aminoAcidThresholds.nonessentialGroups || [])
+  };
+}
+
+function derivedAminoAcidMetric(aminoAcidScoring, metricKey) {
+  if (!aminoAcidScoring?.profileAvailable) return null;
+  if (metricKey === 'essential_amino_acids_score') return aminoAcidScoring.essential;
+  if (metricKey === 'nonessential_amino_acids_score') return aminoAcidScoring.nonessential;
+  return null;
+}
+
+function buildProteinQualityGate(food, ruleset, aminoAcidScoring) {
   const configuredMin = ruleset.proteinQualityGate?.minimumProteinG;
   const fallbackMin = firstUsefulProteinBandMin(ruleset);
   const minimumProteinG = typeof configuredMin === 'number'
@@ -238,6 +311,10 @@ function buildProteinQualityGate(food, ruleset) {
     proteinG: Number.isFinite(proteinG) ? proteinG : null,
     minimumProteinG,
     eligible: Number.isFinite(proteinG) && proteinG >= minimumProteinG,
+    aminoAcidProfileAvailable: Boolean(aminoAcidScoring?.profileAvailable),
+    usefulEssentialAminoAcidGroups: aminoAcidScoring?.essential?.value ?? null,
+    usefulNonessentialAminoAcidGroups: aminoAcidScoring?.nonessential?.value ?? null,
+    aminoAcidThresholdPolicy: aminoAcidScoring?.policyId || null,
     skippedMetricKeys: []
   };
 }
@@ -245,7 +322,8 @@ function buildProteinQualityGate(food, ruleset) {
 function shouldSkipProteinQualityRule(rule, gate) {
   if (!PROTEIN_QUALITY_METRIC_KEYS.has(rule.metricKey)) return false;
   const weight = rule.weight ?? 1;
-  return weight <= 0 || !gate.eligible;
+  if (weight <= 0 || !gate.eligible) return true;
+  return !gate.aminoAcidProfileAvailable;
 }
 
 function trackSkippedProteinQuality(gate, rule) {
@@ -300,7 +378,8 @@ function main() {
   const sectionMetricScores = { fats: [], carbs: [], proteins: [], vitamins: [], minerals: [] };
   const missingRequired = [];
   const metricBreakdown = [];
-  const proteinQualityGate = buildProteinQualityGate(food, ruleset);
+  const aminoAcidScoring = buildAminoAcidScoring(food);
+  const proteinQualityGate = buildProteinQualityGate(food, ruleset, aminoAcidScoring);
 
   for (const rule of ruleset.metricRules || []) {
     if (rule.scoringRole !== 'scored') continue;
@@ -310,7 +389,10 @@ function main() {
       continue;
     }
 
-    const value = food.metrics?.[rule.metricKey];
+    const derivedAminoAcid = AMINO_ACID_SCORE_METRIC_KEYS.has(rule.metricKey)
+      ? derivedAminoAcidMetric(aminoAcidScoring, rule.metricKey)
+      : null;
+    const value = derivedAminoAcid ? derivedAminoAcid.value : food.metrics?.[rule.metricKey];
     if ((value === null || value === undefined) && rule.applicability === 'required') {
       missingRequired.push(rule.metricKey);
       continue;
@@ -348,6 +430,12 @@ function main() {
       weight: rule.weight ?? 1,
       weightedScore: bandResult.score * (rule.weight ?? 1)
     };
+    if (derivedAminoAcid) {
+      row.denominator = derivedAminoAcid.denominator;
+      row.derivedFrom = aminoAcidScoring.sourceMetric;
+      row.aminoAcidThresholdPolicy = aminoAcidScoring.policyId;
+      row.aminoAcidGroups = derivedAminoAcid.details;
+    }
     metricBreakdown.push(row);
     sectionMetricScores[rule.sectionKey].push(row);
   }
@@ -416,6 +504,8 @@ function main() {
       } : null
     },
     header: food.header,
+    foodMetrics: food.metrics || {},
+    aminoAcidScoring,
     proteinQualityGate,
     sectionScores: Object.fromEntries(Object.entries(sectionScores).map(([k, v]) => [k, v === null ? null : round1(v)])),
     overallScore,

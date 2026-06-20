@@ -19,6 +19,11 @@ function round1(n) {
 function metrics(overrides = {}) {
   const out = Object.fromEntries(allMetricKeys.map(k => [k, null]));
   Object.assign(out, overrides);
+  if (!out.amino_acids_mg) {
+    out.essential_amino_acids_score = null;
+    out.nonessential_amino_acids_score = null;
+    out.bioavailability_percent = null;
+  }
   return out;
 }
 

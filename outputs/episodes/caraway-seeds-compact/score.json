@@ -19,30 +19,78 @@
     "carb_g": 49.9,
     "protein_g": 19.8
   },
+  "foodMetrics": {
+    "saturated_fat_g": 0.6,
+    "omega3_mg": 300,
+    "polyunsaturated_fat_g": 3.3,
+    "cholesterol_mg": null,
+    "starch_g": 9,
+    "fibre_g": 38,
+    "sugar_g": 7.2,
+    "glycemic_index": 25,
+    "collagen_g": null,
+    "essential_amino_acids_score": null,
+    "nonessential_amino_acids_score": null,
+    "bioavailability_percent": null,
+    "vitamin_a_dv": 7,
+    "vitamin_c_dv": 36,
+    "vitamin_d_dv": null,
+    "vitamin_e_dv": 17,
+    "vitamin_k_dv": 11,
+    "vitamin_b12_dv": null,
+    "iron_dv": 91,
+    "magnesium_dv": 68,
+    "zinc_dv": 41,
+    "calcium_dv": 69,
+    "potassium_dv": 38
+  },
+  "aminoAcidScoring": {
+    "policyId": "foodranked-amino-acid-thresholds.v1",
+    "profileAvailable": false,
+    "sourceMetric": "amino_acids_mg",
+    "essential": {
+      "value": null,
+      "denominator": 9,
+      "details": []
+    },
+    "nonessential": {
+      "value": null,
+      "denominator": 10,
+      "details": []
+    }
+  },
   "proteinQualityGate": {
     "proteinG": 19.8,
     "minimumProteinG": 18,
     "eligible": true,
-    "skippedMetricKeys": []
+    "aminoAcidProfileAvailable": false,
+    "usefulEssentialAminoAcidGroups": null,
+    "usefulNonessentialAminoAcidGroups": null,
+    "aminoAcidThresholdPolicy": "foodranked-amino-acid-thresholds.v1",
+    "skippedMetricKeys": [
+      "essential_amino_acids_score",
+      "nonessential_amino_acids_score",
+      "bioavailability_percent"
+    ]
   },
   "sectionScores": {
     "fats": 40,
     "carbs": 77.1,
-    "proteins": 52,
+    "proteins": 60,
     "vitamins": 10,
     "minerals": 62.2,
     "pros": 50,
     "cons": 50
   },
-  "overallScore": 37.3,
-  "overallScoreExact": 37.3483,
-  "baseOverallScore": 48.8,
-  "baseOverallScoreExact": 48.7664,
+  "overallScore": 39.6,
+  "overallScoreExact": 39.5501,
+  "baseOverallScore": 49.9,
+  "baseOverallScoreExact": 49.9093,
   "tier": "C",
   "summary": "Carbs are carrying this food most, while vitamins are holding it back most. It lands in C tier.",
   "explanation": {
     "summary": "Carbs are carrying this food most, while vitamins are holding it back most. It lands in C tier.",
-    "whyThisTier": "This food lands in C tier with an overall score of 37.3. Section scores: fats 40, carbs 77.1, proteins 52, vitamins 10, minerals 62.2, pros 50, cons 50.",
+    "whyThisTier": "This food lands in C tier with an overall score of 39.6. Section scores: fats 40, carbs 77.1, proteins 60, vitamins 10, minerals 62.2, pros 50, cons 50.",
     "strongestSection": {
       "key": "carbs",
       "label": "Carbs",
@@ -244,39 +292,6 @@
       "weightedScore": 60
     },
     {
-      "metricKey": "essential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 6,
-      "band": "↓",
-      "polarity": "higher_better",
-      "score": 40,
-      "weight": 2,
-      "weightedScore": 80
-    },
-    {
-      "metricKey": "nonessential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 8,
-      "band": "↑",
-      "polarity": "higher_better",
-      "score": 60,
-      "weight": 1,
-      "weightedScore": 60
-    },
-    {
-      "metricKey": "bioavailability_percent",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 74,
-      "band": "↑",
-      "polarity": "higher_better",
-      "score": 60,
-      "weight": 2,
-      "weightedScore": 120
-    },
-    {
       "metricKey": "vitamin_e_dv",
       "sectionKey": "vitamins",
       "scoringMode": "dv_points",
@@ -325,6 +340,18 @@
       "score": 60,
       "weight": 2,
       "weightedScore": 120
+    },
+    {
+      "metricKey": "protein_g_fallback",
+      "sectionKey": "proteins",
+      "scoringMode": "arrow_bands",
+      "value": 19.8,
+      "band": "1_green",
+      "polarity": "higher_better",
+      "score": 60,
+      "weight": 2,
+      "weightedScore": 120,
+      "fallbackApplied": true
     }
   ]
 }

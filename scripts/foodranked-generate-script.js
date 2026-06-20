@@ -121,8 +121,8 @@ function metricValueText(metric) {
   if (key.endsWith('_mcg')) return `${metric.value}mcg`;
   if (key.endsWith('_kg')) return `${metric.value}kg`;
   if (key.endsWith('_percent')) return `${metric.value}%`;
-  if (key === 'essential_amino_acids_score') return `${metric.value}/9`;
-  if (key === 'nonessential_amino_acids_score') return `${metric.value}/11`;
+  if (key === 'essential_amino_acids_score') return `${metric.value}/${metric.denominator || 9}`;
+  if (key === 'nonessential_amino_acids_score') return `${metric.value}/${metric.denominator || 10}`;
   if (key.endsWith('_score')) return `${metric.value}/10`;
   if (/glycemic/i.test(key)) return `${metric.value} GI`;
   return String(metric.value);
@@ -152,6 +152,7 @@ function rawProteinSubmetrics(result, limit = 4) {
         band: scored?.band || null,
         dvPercent: scored?.dvPercent ?? null,
         value,
+        denominator: scored?.denominator ?? null,
         referenceOnly: !scored
       };
     })
@@ -170,7 +171,9 @@ function scoredMetricsForSection(result, sectionKey, options = {}) {
       band: metric.band || null,
       polarity: metric.polarity || null,
       dvPercent: metric.dvPercent ?? null,
-      value: metric.value ?? null
+      value: metric.value ?? null,
+      score: metric.score ?? null,
+      denominator: metric.denominator ?? null
     }));
 }
 
@@ -427,6 +430,9 @@ function strongestMetricLine(result, sectionKey) {
     const nonessentialAmino = proteinMetrics.find(metric => metric.metricKey === 'nonessential_amino_acids_score');
     const collagen = proteinMetrics.find(metric => metric.metricKey === 'collagen_g');
     if (proteinAmount) return `${metricValuePhrase(proteinAmount)}, so the protein score is about useful amount rather than amino acid presence`;
+    if (essentialAmino && Number(essentialAmino.value) < 6) {
+      return `${metricValuePhrase(essentialAmino)}, after trace amino acids are filtered out`;
+    }
     if (essentialAmino && bioavailability) {
       return `${metricValuePhrase(essentialAmino)}, with ${metricValueText(bioavailability)} bioavailability`;
     }
@@ -462,7 +468,9 @@ function bestMetricContext(metric, sectionKey) {
     polyunsaturated_fat_g: 'helping with cell structure and healthy signalling',
     omega3_mg: 'supporting a more useful fat profile',
     fibre_g: 'helping with digestion and steadier meals',
-    essential_amino_acids_score: 'making the protein useful for repair and maintenance',
+    essential_amino_acids_score: Number(metric?.value) >= 6
+      ? 'making the protein useful for repair and maintenance'
+      : 'after trace amino acids are filtered out',
     bioavailability_percent: 'helping more of that protein count',
     vitamin_b12_dv: 'useful for nerve and blood-cell support',
     vitamin_d_dv: 'useful for bone and immune support',
@@ -557,7 +565,9 @@ function outstandingMacroLine(result, sectionKey) {
         collagen ? weakMetricLine(collagen, result, sectionKey) : null
       ]).replace(/[.]$/g, '');
     }
-    const best = essentialAmino && bioavailability
+    const best = essentialAmino && Number(essentialAmino.value) < 6
+      ? `${metricValuePhrase(essentialAmino)}, counting only amino-acid groups above the useful-amount threshold`
+      : essentialAmino && bioavailability
       ? `${metricValuePhrase(essentialAmino)}, with ${metricValueText(bioavailability)} bioavailability, making the protein useful for repair and maintenance`
       : bestMetricLine(essentialAmino || bioavailability || metrics[0], sectionKey);
     return joinShort([

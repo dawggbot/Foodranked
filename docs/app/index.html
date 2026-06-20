@@ -1138,13 +1138,29 @@
     const FOOD_LAYOUTS_STORAGE_KEY = 'foodranked-display-builder-food-layouts-v1';
     const SAVED_SPRITE_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
     const MACRO_SECTION_LAYOUT_SYNC_KEY = 'macroSectionLayoutFromFatsV5';
+    const MACRO_BAR_PLACEMENT_SOURCE_FOOD_ID = 'bacon';
+    const MACRO_BAR_PLACEMENT_SOURCE_SECTION_ID = 'fats';
+    const MACRO_BAR_PLACEMENT_SECTIONS = ['fats', 'carbs', 'protein'];
+    const MACRO_BAR_PLACEMENT_KEYS = [
+      'x',
+      'y',
+      'z',
+      'width',
+      'height',
+      'preserveAspect',
+      'manualPosition',
+      'centerAnchor',
+      'centerOffsetX',
+      'centerOffsetY',
+      'aspectRatio'
+    ];
     const AUTHOR_GRID = { width: 135, height: 240 };
     const ROOT_SPRITE_BASE = './sprites';
     const FOOD_JSON_CACHE = new Map();
     const BATCH_RESULTS_CACHE = new Map();
     const SPRITE_EXISTENCE_CACHE = new Map();
     const SPRITE_METADATA_CACHE = new Map();
-    const AVAILABLE_FOOD_IMAGE_IDS = new Set(['bacon']);
+    const AVAILABLE_FOOD_IMAGE_IDS = new Set(['bacon', 'kale']);
     const BACKDROP_PALETTES = {
       vegetables: { top: '#dff4cf', bottom: '#bfd8b0', glowA: 'rgba(219,255,183,.78)', glowB: 'rgba(108,169,104,.38)' },
       fruits: { top: '#ffe0dc', bottom: '#e7b8b5', glowA: 'rgba(255,173,165,.78)', glowB: 'rgba(219,109,101,.34)' },
@@ -1446,6 +1462,7 @@
         selectedFoodId: foodId,
         meta: { ...(layout.meta || {}), repoLayoutVersion: REPO_LAYOUT_VERSION }
       };
+      applyBaconMacroBarPlacementToFoodLayoutMap(map, map[foodId]);
       persistFoodLayoutMap(map);
     }
 
@@ -1728,6 +1745,79 @@
     function isMacroBarFillLayer(layer) {
       const fingerprint = `${layer?.id || ''} ${layer?.label || ''} ${layer?.src || ''}`.toLowerCase();
       return isSpriteLayer(layer) && /(macro_bar_fill|bar_fill|macro bar fill)/.test(fingerprint);
+    }
+
+    function macroBarPlacementLayer(layout, sectionId, layerKind) {
+      const layers = getSectionLayersFromLayout(layout, sectionId);
+      if (layerKind === 'fill') {
+        return layers.find(layer => isMacroBarFillLayer(layer) && macroBarLayerSection(layer, sectionId) === sectionId) || null;
+      }
+      if (layerKind === 'frame') {
+        return layers.find(layer => isSharedMacroBarFrameLayer(layer) && macroBarLayerSection(layer, sectionId) === sectionId) || null;
+      }
+      return null;
+    }
+
+    function macroBarPlacementSnapshot(layer) {
+      if (!layer) return null;
+      const placement = {};
+      for (const key of MACRO_BAR_PLACEMENT_KEYS) {
+        if (Object.prototype.hasOwnProperty.call(layer, key)) placement[key] = layer[key];
+      }
+      return Object.keys(placement).length ? placement : null;
+    }
+
+    function baconFatsMacroBarPlacementTemplateFromLayout(layout) {
+      if (!layout?.sections) return null;
+      const fill = macroBarPlacementSnapshot(macroBarPlacementLayer(layout, MACRO_BAR_PLACEMENT_SOURCE_SECTION_ID, 'fill'));
+      const frame = macroBarPlacementSnapshot(macroBarPlacementLayer(layout, MACRO_BAR_PLACEMENT_SOURCE_SECTION_ID, 'frame'));
+      return fill || frame ? { fill, frame } : null;
+    }
+
+    function savedBaconMacroBarPlacementTemplate(map = loadFoodLayoutMap()) {
+      const layout = map?.[MACRO_BAR_PLACEMENT_SOURCE_FOOD_ID];
+      return baconFatsMacroBarPlacementTemplateFromLayout(layout);
+    }
+
+    function baconMacroBarPlacementTemplateForLayout(layout) {
+      if (layout?.selectedFoodId === MACRO_BAR_PLACEMENT_SOURCE_FOOD_ID) {
+        return baconFatsMacroBarPlacementTemplateFromLayout(layout);
+      }
+      return savedBaconMacroBarPlacementTemplate();
+    }
+
+    function applyMacroBarPlacementToLayer(layer, placement) {
+      if (!layer || !placement) return false;
+      let changed = false;
+      for (const key of MACRO_BAR_PLACEMENT_KEYS) {
+        if (!Object.prototype.hasOwnProperty.call(placement, key)) continue;
+        if (layer[key] === placement[key]) continue;
+        layer[key] = placement[key];
+        changed = true;
+      }
+      return changed;
+    }
+
+    function applyBaconMacroBarPlacementTemplate(layout, template) {
+      if (!layout?.sections || !template) return false;
+      let changed = false;
+      for (const sectionId of MACRO_BAR_PLACEMENT_SECTIONS) {
+        changed = applyMacroBarPlacementToLayer(macroBarPlacementLayer(layout, sectionId, 'fill'), template.fill) || changed;
+        changed = applyMacroBarPlacementToLayer(macroBarPlacementLayer(layout, sectionId, 'frame'), template.frame) || changed;
+      }
+      return changed;
+    }
+
+    function applyBaconMacroBarPlacementToFoodLayoutMap(map, sourceLayout = null) {
+      const template = sourceLayout?.selectedFoodId === MACRO_BAR_PLACEMENT_SOURCE_FOOD_ID
+        ? baconFatsMacroBarPlacementTemplateFromLayout(sourceLayout)
+        : savedBaconMacroBarPlacementTemplate(map);
+      if (!template) return false;
+      let changed = false;
+      for (const layout of Object.values(map || {})) {
+        changed = applyBaconMacroBarPlacementTemplate(layout, template) || changed;
+      }
+      return changed;
     }
 
     function normalizeMacroBarFillLayerSources(layout) {
@@ -2771,8 +2861,8 @@
         });
       }
       migrateMacroLayoutFromOutro(normalized);
-      syncMacroSectionLayoutFromFats(normalized);
       ensureMacroBarFillLayers(normalized);
+      applyBaconMacroBarPlacementTemplate(normalized, baconMacroBarPlacementTemplateForLayout(normalized));
       ensureFatsMacroTotalTextLayers(normalized);
       ensureCarbsMacroTotalTextLayers(normalized);
       ensureProteinMacroTotalTextLayers(normalized);

@@ -334,7 +334,10 @@ function trackSkippedProteinQuality(gate, rule) {
 function maybeApplyProteinFallback(food, ruleset, sectionMetricScores, metricBreakdown) {
   const fallback = ruleset.proteinFallback;
   if (!fallback) return;
-  if ((sectionMetricScores.proteins || []).some(item => (item.weight ?? 1) > 0)) return;
+  const proteinRows = sectionMetricScores.proteins || [];
+  const fallbackMetricKey = fallback.metricKey || 'protein_g_fallback';
+  if (proteinRows.some(item => item.metricKey === fallbackMetricKey)) return;
+  if (proteinRows.some(item => PROTEIN_QUALITY_METRIC_KEYS.has(item.metricKey) && (item.weight ?? 1) > 0)) return;
 
   const proteinGrams = food.header?.protein_g;
   if (proteinGrams === null || proteinGrams === undefined) return;
@@ -343,7 +346,7 @@ function maybeApplyProteinFallback(food, ruleset, sectionMetricScores, metricBre
   if (!bandResult) return;
 
   const row = {
-    metricKey: fallback.metricKey || 'protein_g_fallback',
+    metricKey: fallbackMetricKey,
     sectionKey: 'proteins',
     scoringMode: 'arrow_bands',
     value: proteinGrams,

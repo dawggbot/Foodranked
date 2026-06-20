@@ -2,8 +2,8 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260620-protein-submetrics-v1';
-  const REPO_LAYOUT_VERSION = '20260620-protein-submetrics-v1';
+  const BUILDER_BUILD_ID = '20260620-protein-submetrics-v2';
+  const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SECTION_INDICATOR_LAYOUT = { normalSize: 10, highlightedSize: 12 };
@@ -195,7 +195,7 @@
       { key: 'collagen_g', label: 'COLLAGEN', value: food => formatMetric(food?.metrics?.collagen_g, 'g') },
       { key: 'essential_amino_acids_score', label: 'EAA', value: food => formatRatio(food?.metrics?.essential_amino_acids_score, 9) },
       { key: 'nonessential_amino_acids_score', label: 'NEAA', value: food => formatRatio(food?.metrics?.nonessential_amino_acids_score, 10) },
-      { key: 'bioavailability_percent', label: 'BIOAVAIL.', value: food => formatMetric(food?.metrics?.bioavailability_percent, '%') }
+      { key: 'bioavailability_percent', label: 'BIOAVAIL.', value: food => formatProteinMetric(food, 'bioavailability_percent', '%') }
     ]
   };
   const PROTEIN_QUALITY_METRIC_KEYS = new Set([
@@ -563,6 +563,21 @@
     const safe = asNumber(value, null);
     if (safe == null) return 'N/A';
     return `${formatCompactNumber(safe)}${unit}`;
+  }
+
+  function hasDisplayedProteinMacro(food) {
+    return asNumber(food?.header?.protein_g, null) != null;
+  }
+
+  function proteinMetricDisplayValue(food, metricKey) {
+    const value = asNumber(food?.metrics?.[metricKey], null);
+    if (value != null) return value;
+    if (metricKey === 'bioavailability_percent' && hasDisplayedProteinMacro(food)) return 0;
+    return null;
+  }
+
+  function formatProteinMetric(food, metricKey, unit = '') {
+    return formatMetric(proteinMetricDisplayValue(food, metricKey), unit);
   }
 
   function formatRatio(value, denominator) {
@@ -1544,6 +1559,7 @@
   function rawMetricValueForSpec(food, sectionId, spec) {
     if (!proteinQualitySpecAllowed(food, sectionId, spec)) return null;
     if (sectionId === 'protein' && ['protein_g', 'protein_g_fallback'].includes(spec.key)) return asNumber(food?.header?.protein_g, null);
+    if (sectionId === 'protein' && spec.key === 'bioavailability_percent') return proteinMetricDisplayValue(food, spec.key);
     return asNumber(food?.metrics?.[spec.key], null);
   }
 
@@ -1567,7 +1583,7 @@
 
   function proteinQualitySpecAllowed(food, sectionId, spec) {
     if (sectionId !== 'protein' || !PROTEIN_QUALITY_METRIC_KEYS.has(spec.key)) return true;
-    return asNumber(food?.metrics?.[spec.key], null) != null
+    return proteinMetricDisplayValue(food, spec.key) != null
       || !!episodeDisplayItemForSpec(food, sectionId, spec)
       || !!batchMetricBreakdownItemForSpec(food, sectionId, spec);
   }

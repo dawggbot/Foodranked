@@ -2,8 +2,8 @@
   const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260620-protein-submetrics-v2';
-  const REPO_LAYOUT_VERSION = '20260529-layout-sync-v1';
+  const BUILDER_BUILD_ID = '20260620-layout-restore-v1';
+  const REPO_LAYOUT_VERSION = BUILDER_BUILD_ID;
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SECTION_INDICATOR_LAYOUT = { normalSize: 10, highlightedSize: 12 };
@@ -932,35 +932,6 @@
     const fingerprint = `${layer.id || ''} ${layer.label || ''}`.toLowerCase();
     if (['food_name_text', 'kcal_label_text', 'kcal_value_text', 'basis_text', 'script_caption', 'subline_c'].includes(id)) return true;
     return /header/.test(fingerprint) && /(food|name|type|basis|100g|per|calorie|kcal|score|tier)/.test(fingerprint);
-  }
-
-  function isFoodTypeTextLayer(layer) {
-    if (!isTextLayer(layer)) return false;
-    const id = String(layer.id || '').toLowerCase();
-    const label = String(layer.label || '').toLowerCase();
-    return id === 'script_caption' || /header food type|food[ _-]?type/.test(label);
-  }
-
-  function foodTypeTextPlacementSource(layout) {
-    for (const sectionId of ['intro', 'fats']) {
-      const layer = getSectionLayers(layout, sectionId).find(isFoodTypeTextLayer);
-      if (layer) return layer;
-    }
-    return null;
-  }
-
-  function syncFoodTypeTextPlacementFromFirstSection(layout) {
-    const source = foodTypeTextPlacementSource(layout);
-    if (!source) return;
-    const placementKeys = ['x', 'y', 'z', 'width', 'height', 'fontSize', 'align', 'visible'];
-    for (const section of SECTIONS) {
-      for (const layer of getSectionLayers(layout, section.id)) {
-        if (layer === source || !isFoodTypeTextLayer(layer)) continue;
-        for (const key of placementKeys) {
-          if (source[key] !== undefined) layer[key] = source[key];
-        }
-      }
-    }
   }
 
   function isUiSprite(layer) {
@@ -1918,7 +1889,6 @@
     ensureMacroTextLayers(layout);
     ensureMacroTotalTextLayers(layout);
     ensureMacroBarLayers(layout);
-    syncFoodTypeTextPlacementFromFirstSection(layout);
     syncHeader(layout, food);
     syncSectionIndicators(layout, food);
     syncMacroTotalText(layout, food);

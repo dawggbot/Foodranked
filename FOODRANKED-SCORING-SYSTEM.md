@@ -261,10 +261,11 @@ That matters for metrics kept in the schema for display, future use, or category
 Protein-quality proxies are still uneven across the current food library.
 When amino-acid or bioavailability fields are missing, weak, intentionally withheld, or not present in a useful protein amount, the ruleset may use a `proteinFallback` based on plain `protein_g` from the header.
 
-Amino-acid quality must not be counted unless an amino acid proxy exists. If the food does not provide source-backed protein-quality metrics, the protein section should score and narrate protein amount instead.
+Amino-acid quality must not be counted unless an amino-acid proxy exists **and** the food has a category-useful amount of protein. If the food does not provide enough protein for amino-acid quality to matter, or does not provide source-backed protein-quality metrics, the protein section should score and narrate protein amount instead.
 
 This is the intended bridge rule for v1:
 - prefer direct protein submetrics when they are genuinely source-backed and trusted
+- skip amino-acid and bioavailability scoring below the food type's useful-protein gate
 - otherwise leave those protein-quality values as `N/A`
 - let a category-specific `proteinFallback` keep the proteins section alive in a stable, auditable arrow-band way
 

@@ -26,6 +26,16 @@ const LABEL_SCORES = {
 const PLACEHOLDER_NOTE_RE = /placeholder|calibration benchmark|not a clinical nutrient database|tuning only/i;
 const BAD_TEXT_PATTERNS = [
   { pattern: /\bnot a complete food on its own\b/i, message: 'generic complete-food con' },
+  { pattern: /\bnot complete\b/i, message: 'generic complete-food con' },
+  { pattern: /\bcomplete by themselves\b/i, message: 'generic complete-food con' },
+  { pattern: /\bmake a full meal\b/i, message: 'generic full-meal con' },
+  { pattern: /\bnot enough on its own\b/i, message: 'generic standalone con' },
+  { pattern: /\brarely carries a meal by itself\b/i, message: 'generic standalone con' },
+  { pattern: /\bstandalone nutrition\b/i, message: 'generic standalone nutrition con' },
+  { pattern: /\bstand-alone\b/i, message: 'generic standalone con' },
+  { pattern: /\bfoundation-food status\b/i, message: 'generic foundation-food con' },
+  { pattern: /\btreated as a foundation food\b/i, message: 'generic foundation-food con' },
+  { pattern: /\bdeserves foundation food\b/i, message: 'generic foundation-food con' },
   { pattern: /\bnitrous oxide\b/i, message: 'use nitric oxide for dietary nitrate context' },
   { pattern: /\bpoly unsaturated\b/i, message: 'standard term is polyunsaturated' },
   { pattern: /\bthresh holds\b/i, message: 'standard term is thresholds' },

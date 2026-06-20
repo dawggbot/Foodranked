@@ -97,7 +97,7 @@ const baseContexts = {
       { itemKey: 'misc_real_world_role', impactLevel: 'minor', title: 'clear real-world role', explanation: 'A misc item does not have to be a nutrition star to matter at all.' }
     ],
     cons: [
-      { itemKey: 'misc_low_foundational_value', impactLevel: 'minor', title: 'rarely deserves foundation-food status', explanation: 'Most misc items are situational rather than core.' },
+      { itemKey: 'misc_low_nutrient_payoff', impactLevel: 'minor', title: 'low raw nutrient payoff', explanation: 'Most of the value is contextual, not from a strong nutrient profile.' },
       { itemKey: 'misc_health_halo', impactLevel: 'minor', title: 'easy to oversell beyond the evidence', explanation: 'This category attracts a lot of exaggeration.' },
       { itemKey: 'misc_easy_to_misuse', impactLevel: 'minor', title: 'easy to use badly', explanation: 'Many misc foods or drinks look better in theory than in practice.' }
     ]

@@ -245,7 +245,7 @@ function buildProteinQualityGate(food, ruleset) {
 function shouldSkipProteinQualityRule(rule, gate) {
   if (!PROTEIN_QUALITY_METRIC_KEYS.has(rule.metricKey)) return false;
   const weight = rule.weight ?? 1;
-  return weight <= 0;
+  return weight <= 0 || !gate.eligible;
 }
 
 function trackSkippedProteinQuality(gate, rule) {

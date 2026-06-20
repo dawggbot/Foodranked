@@ -1699,6 +1699,35 @@
       // Layouts are intentionally editable per section; do not mirror global UI layers.
     }
 
+    function isFoodTypeTextLayer(layer) {
+      if (!isTextLayer(layer)) return false;
+      const id = String(layer.id || '').toLowerCase();
+      const label = String(layer.label || '').toLowerCase();
+      return id === 'script_caption' || /header food type|food[ _-]?type/.test(label);
+    }
+
+    function foodTypeTextPlacementSource(layout) {
+      for (const sectionId of ['intro', 'fats']) {
+        const layer = getSectionLayersFromLayout(layout, sectionId).find(isFoodTypeTextLayer);
+        if (layer) return layer;
+      }
+      return null;
+    }
+
+    function syncFoodTypeTextPlacementFromFirstSection(layout) {
+      const source = foodTypeTextPlacementSource(layout);
+      if (!source) return;
+      const placementKeys = ['x', 'y', 'z', 'width', 'height', 'fontSize', 'align', 'visible'];
+      for (const section of SECTIONS) {
+        for (const layer of getSectionLayersFromLayout(layout, section.id)) {
+          if (layer === source || !isFoodTypeTextLayer(layer)) continue;
+          for (const key of placementKeys) {
+            if (source[key] !== undefined) layer[key] = source[key];
+          }
+        }
+      }
+    }
+
     function isMacroLayoutTemplateLayer(layer) {
       if (!layer) return false;
       if (isLockedUiSpriteLayer(layer) || isHeaderLayoutLayer(layer)) return false;
@@ -2785,6 +2814,7 @@
       ensureOutroScoreDisplayLayers(normalized);
       ensureSectionIndicatorLayers(normalized);
       syncSectionIndicatorLayoutFromIntro(normalized);
+      syncFoodTypeTextPlacementFromFirstSection(normalized);
       syncLockedGlobalLayersFromOutro(normalized);
       syncHeaderLayoutFromIntro(normalized);
       filterDeletedLayers(normalized);

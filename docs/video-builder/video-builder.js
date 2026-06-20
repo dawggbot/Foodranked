@@ -919,6 +919,35 @@
     return /header/.test(fingerprint) && /(food|name|type|basis|100g|per|calorie|kcal|score|tier)/.test(fingerprint);
   }
 
+  function isFoodTypeTextLayer(layer) {
+    if (!isTextLayer(layer)) return false;
+    const id = String(layer.id || '').toLowerCase();
+    const label = String(layer.label || '').toLowerCase();
+    return id === 'script_caption' || /header food type|food[ _-]?type/.test(label);
+  }
+
+  function foodTypeTextPlacementSource(layout) {
+    for (const sectionId of ['intro', 'fats']) {
+      const layer = getSectionLayers(layout, sectionId).find(isFoodTypeTextLayer);
+      if (layer) return layer;
+    }
+    return null;
+  }
+
+  function syncFoodTypeTextPlacementFromFirstSection(layout) {
+    const source = foodTypeTextPlacementSource(layout);
+    if (!source) return;
+    const placementKeys = ['x', 'y', 'z', 'width', 'height', 'fontSize', 'align', 'visible'];
+    for (const section of SECTIONS) {
+      for (const layer of getSectionLayers(layout, section.id)) {
+        if (layer === source || !isFoodTypeTextLayer(layer)) continue;
+        for (const key of placementKeys) {
+          if (source[key] !== undefined) layer[key] = source[key];
+        }
+      }
+    }
+  }
+
   function isUiSprite(layer) {
     return isSpriteLayer(layer) && String(layer.src || '').toLowerCase().includes('/ui/');
   }
@@ -1871,6 +1900,7 @@
     ensureMacroTextLayers(layout);
     ensureMacroTotalTextLayers(layout);
     ensureMacroBarLayers(layout);
+    syncFoodTypeTextPlacementFromFirstSection(layout);
     syncHeader(layout, food);
     syncSectionIndicators(layout, food);
     syncMacroTotalText(layout, food);

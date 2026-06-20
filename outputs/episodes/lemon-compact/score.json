@@ -23,26 +23,30 @@
     "proteinG": 1.1,
     "minimumProteinG": 1.5,
     "eligible": false,
-    "skippedMetricKeys": []
+    "skippedMetricKeys": [
+      "essential_amino_acids_score",
+      "nonessential_amino_acids_score",
+      "bioavailability_percent"
+    ]
   },
   "sectionScores": {
     "fats": 40,
     "carbs": 78.7,
-    "proteins": 0,
+    "proteins": 40,
     "vitamins": 40,
     "minerals": 0,
     "pros": 50,
     "cons": 50
   },
-  "overallScore": 17.1,
-  "overallScoreExact": 17.0737,
-  "baseOverallScore": 37,
-  "baseOverallScoreExact": 36.9524,
+  "overallScore": 19.7,
+  "overallScoreExact": 19.714,
+  "baseOverallScore": 42.7,
+  "baseOverallScoreExact": 42.6667,
   "tier": "D",
   "summary": "Carbs are carrying this food most, while minerals are holding it back most. It lands in D tier.",
   "explanation": {
     "summary": "Carbs are carrying this food most, while minerals are holding it back most. It lands in D tier.",
-    "whyThisTier": "This food lands in D tier with an overall score of 17.1. Section scores: fats 40, carbs 78.7, proteins 0, vitamins 40, minerals 0, pros 50, cons 50.",
+    "whyThisTier": "This food lands in D tier with an overall score of 19.7. Section scores: fats 40, carbs 78.7, proteins 40, vitamins 40, minerals 0, pros 50, cons 50.",
     "strongestSection": {
       "key": "carbs",
       "label": "Carbs",
@@ -78,8 +82,8 @@
     ],
     "topCons": [
       {
-        "title": "rarely eaten as a stand-alone fruit",
-        "explanation": "That weakens the real-world staple argument.",
+        "title": "usually used in tiny amounts",
+        "explanation": "That limits how much of the vitamin C and polyphenol upside you actually get per use.",
         "impactLevel": "minor",
         "side": "con",
         "resolvedScoreValue": 50
@@ -137,10 +141,10 @@
     ],
     "cons": [
       {
-        "itemKey": "not_eaten_standalone_often",
+        "itemKey": "small_serving_size_limit",
         "impactLevel": "minor",
-        "title": "rarely eaten as a stand-alone fruit",
-        "explanation": "That weakens the real-world staple argument.",
+        "title": "usually used in tiny amounts",
+        "explanation": "That limits how much of the vitamin C and polyphenol upside you actually get per use.",
         "evidenceType": "manual",
         "side": "con",
         "resolvedScoreValue": 50
@@ -244,39 +248,6 @@
       "weightedScore": 500
     },
     {
-      "metricKey": "essential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 1,
-      "band": "↓↓↓",
-      "polarity": "higher_better",
-      "score": 0,
-      "weight": 2,
-      "weightedScore": 0
-    },
-    {
-      "metricKey": "nonessential_amino_acids_score",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 2,
-      "band": "↓↓↓",
-      "polarity": "higher_better",
-      "score": 0,
-      "weight": 1,
-      "weightedScore": 0
-    },
-    {
-      "metricKey": "bioavailability_percent",
-      "sectionKey": "proteins",
-      "scoringMode": "arrow_bands",
-      "value": 30,
-      "band": "↓↓↓",
-      "polarity": "higher_better",
-      "score": 0,
-      "weight": 2,
-      "weightedScore": 0
-    },
-    {
       "metricKey": "vitamin_c_dv",
       "sectionKey": "vitamins",
       "scoringMode": "dv_points",
@@ -325,6 +296,18 @@
       "score": 0,
       "weight": 1,
       "weightedScore": 0
+    },
+    {
+      "metricKey": "protein_g_fallback",
+      "sectionKey": "proteins",
+      "scoringMode": "arrow_bands",
+      "value": 1.1,
+      "band": "↓",
+      "polarity": "higher_better",
+      "score": 40,
+      "weight": 2,
+      "weightedScore": 80,
+      "fallbackApplied": true
     }
   ]
 }

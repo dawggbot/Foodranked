@@ -166,7 +166,7 @@ The scorer should:
 1. compute submacro section scores from resolved color bands
 2. compute vitamin/mineral section scores from DV% tiers
 3. compute pros/cons as first-class sections from major/minor levels
-4. use `proteinFallback` when direct protein-quality metrics are intentionally unavailable, so protein amount still resolves to an arrow band
+4. use `proteinFallback` when direct protein-quality metrics are intentionally unavailable or the food fails the useful-protein gate, so protein amount still resolves to an arrow band
 5. average all 7 scored content section scores into `baseOverallScore`
 6. apply `scoreCalibration` to produce the calibrated display `overallScore`
 7. map the calibrated `overallScore` to the tier with shared `tierThresholds`

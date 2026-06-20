@@ -19,28 +19,34 @@
     "carb_g": 3.9,
     "protein_g": 2.2
   },
+  "proteinQualityGate": {
+    "proteinG": 2.2,
+    "minimumProteinG": 3,
+    "eligible": false,
+    "skippedMetricKeys": []
+  },
   "sectionScores": {
-    "fats": 100,
-    "carbs": 73.3,
-    "proteins": null,
+    "fats": 40,
+    "carbs": 76,
+    "proteins": 20,
     "vitamins": 15.7,
     "minerals": 1.7,
     "pros": 50,
     "cons": 50
   },
-  "overallScore": 54,
-  "overallScoreExact": 54.025,
-  "baseOverallScore": 48.5,
-  "baseOverallScoreExact": 48.4524,
-  "tier": "B",
-  "summary": "Fats are carrying this food most, while minerals are holding it back most. It lands in B tier.",
+  "overallScore": 16.5,
+  "overallScoreExact": 16.5249,
+  "baseOverallScore": 36.2,
+  "baseOverallScoreExact": 36.1973,
+  "tier": "D",
+  "summary": "Carbs are carrying this food most, while minerals are holding it back most. It lands in D tier.",
   "explanation": {
-    "summary": "Fats are carrying this food most, while minerals are holding it back most. It lands in B tier.",
-    "whyThisTier": "This food lands in B tier with an overall score of 54. Section scores: fats 100, carbs 73.3, vitamins 15.7, minerals 1.7, pros 50, cons 50.",
+    "summary": "Carbs are carrying this food most, while minerals are holding it back most. It lands in D tier.",
+    "whyThisTier": "This food lands in D tier with an overall score of 16.5. Section scores: fats 40, carbs 76, proteins 20, vitamins 15.7, minerals 1.7, pros 50, cons 50.",
     "strongestSection": {
-      "key": "fats",
-      "label": "Fats",
-      "score": 100
+      "key": "carbs",
+      "label": "Carbs",
+      "score": 76
     },
     "weakestSection": {
       "key": "minerals",
@@ -72,15 +78,15 @@
     ],
     "topCons": [
       {
-        "title": "energy density is very low",
-        "explanation": "Good for some use cases, but not enough on its own.",
+        "title": "very light profile can feel underpowered",
+        "explanation": "For some vegetables, the practical payoff is more volume and texture than a big nutrient payload.",
         "impactLevel": "minor",
         "side": "con",
         "resolvedScoreValue": 50
       },
       {
-        "title": "usually needs pairing to make a full meal",
-        "explanation": "Most vegetables are not complete by themselves.",
+        "title": "prep can decide whether it actually gets eaten",
+        "explanation": "Vegetables can lose practical value when washing, chopping, or cooking becomes a barrier.",
         "impactLevel": "minor",
         "side": "con",
         "resolvedScoreValue": 50
@@ -94,9 +100,9 @@
       }
     ],
     "narrationNotes": [
-      "Strongest section: Fats.",
+      "Strongest section: Carbs.",
       "Weakest section: Minerals.",
-      "Final verdict: B tier."
+      "Final verdict: D tier."
     ]
   },
   "contextItems": {
@@ -131,19 +137,19 @@
     ],
     "cons": [
       {
-        "itemKey": "veg_low_energy",
+        "itemKey": "vegetable_light_payload_context",
         "impactLevel": "minor",
-        "title": "energy density is very low",
-        "explanation": "Good for some use cases, but not enough on its own.",
+        "title": "very light profile can feel underpowered",
+        "explanation": "For some vegetables, the practical payoff is more volume and texture than a big nutrient payload.",
         "evidenceType": "manual",
         "side": "con",
         "resolvedScoreValue": 50
       },
       {
-        "itemKey": "veg_needs_pairing",
+        "itemKey": "vegetable_prep_friction",
         "impactLevel": "minor",
-        "title": "usually needs pairing to make a full meal",
-        "explanation": "Most vegetables are not complete by themselves.",
+        "title": "prep can decide whether it actually gets eaten",
+        "explanation": "Vegetables can lose practical value when washing, chopping, or cooking becomes a barrier.",
         "evidenceType": "manual",
         "side": "con",
         "resolvedScoreValue": 50
@@ -166,6 +172,7 @@
       "scoringMode": "arrow_bands",
       "value": 0,
       "band": "↓↓↓",
+      "polarity": "higher_worse",
       "score": 100,
       "weight": 1,
       "weightedScore": 100
@@ -175,19 +182,21 @@
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 40,
-      "band": "3_green",
-      "score": 100,
-      "weight": 0,
-      "weightedScore": 0
+      "band": "↓↓",
+      "polarity": "higher_better",
+      "score": 20,
+      "weight": 1,
+      "weightedScore": 20
     },
     {
       "metricKey": "polyunsaturated_fat_g",
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 0.1,
-      "band": "3_red",
+      "band": "↓↓↓",
+      "polarity": "higher_better",
       "score": 0,
-      "weight": 0,
+      "weight": 1,
       "weightedScore": 0
     },
     {
@@ -195,10 +204,11 @@
       "sectionKey": "carbs",
       "scoringMode": "arrow_bands",
       "value": 0,
-      "band": "3_red",
-      "score": 0,
-      "weight": 0,
-      "weightedScore": 0
+      "band": "↓↓↓",
+      "polarity": "higher_worse",
+      "score": 100,
+      "weight": 1,
+      "weightedScore": 100
     },
     {
       "metricKey": "fibre_g",
@@ -206,6 +216,7 @@
       "scoringMode": "arrow_bands",
       "value": 2.1,
       "band": "↓",
+      "polarity": "higher_better",
       "score": 40,
       "weight": 3,
       "weightedScore": 120
@@ -216,6 +227,7 @@
       "scoringMode": "arrow_bands",
       "value": 1.9,
       "band": "↓↓",
+      "polarity": "higher_worse",
       "score": 80,
       "weight": 3,
       "weightedScore": 240
@@ -226,6 +238,7 @@
       "scoringMode": "arrow_bands",
       "value": 15,
       "band": "↓↓↓",
+      "polarity": "higher_worse",
       "score": 100,
       "weight": 3,
       "weightedScore": 300
@@ -235,30 +248,33 @@
       "sectionKey": "proteins",
       "scoringMode": "arrow_bands",
       "value": 3,
-      "band": "1_red",
-      "score": 40,
-      "weight": 0,
-      "weightedScore": 0
+      "band": "↓↓",
+      "polarity": "higher_better",
+      "score": 20,
+      "weight": 2,
+      "weightedScore": 40
     },
     {
       "metricKey": "nonessential_amino_acids_score",
       "sectionKey": "proteins",
       "scoringMode": "arrow_bands",
       "value": 4,
-      "band": "1_green",
-      "score": 60,
-      "weight": 0,
-      "weightedScore": 0
+      "band": "↓↓",
+      "polarity": "higher_better",
+      "score": 20,
+      "weight": 1,
+      "weightedScore": 20
     },
     {
       "metricKey": "bioavailability_percent",
       "sectionKey": "proteins",
       "scoringMode": "arrow_bands",
       "value": 40,
-      "band": "3_green",
-      "score": 100,
-      "weight": 0,
-      "weightedScore": 0
+      "band": "↓↓",
+      "polarity": "higher_better",
+      "score": 20,
+      "weight": 2,
+      "weightedScore": 40
     },
     {
       "metricKey": "vitamin_a_dv",

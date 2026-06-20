@@ -1,6 +1,6 @@
 {
   "id": "chicken-thigh-episode-v1",
-  "generatedAt": "2026-06-01T22:53:45.255Z",
+  "generatedAt": "2026-06-20T01:10:33.663Z",
   "status": "draft",
   "mode": "compact",
   "food": {
@@ -30,17 +30,19 @@
     },
     "scoreReadiness": {
       "status": "near-production-safe",
-      "summary": "Identity and core raw nutrient fields are much cleaner now, but the meats ruleset still leans on removed protein-quality proxy metrics for polished scoring output.",
+      "summary": "Identity and core raw nutrient fields are much cleaner now, but the meats ruleset still leans on removed protein-quality unsupported protein-quality fields for polished scoring output.",
       "blockers": [
-        "meats ruleset still expects amino-acid and bioavailability proxy fields that were not honest enough to keep",
         "would benefit from exact source record attachment for the chosen skinless meat-only raw form"
+      ],
+      "caveats": [
+        "Real foods vary by cultivar, brand, season, and preparation; this record is a canonical comparison entry rather than a guarantee for every product."
       ]
     },
     "sourceNotes": [
-      "Production-lane cleanup pass.",
-      "Identity locked to chicken thigh, meat only, raw, per 100 g edible portion.",
-      "Core nutrient values were tightened toward common USDA FoodData Central style raw chicken thigh meat-only entries.",
-      "Weak proxy metrics were removed rather than preserved as fake certainty."
+      "Production-lane source audit pass.",
+      "All displayed nutrition values are stored and checked on a per-100g basis.",
+      "Primary and cross-check nutrition references are listed in nutritionDataSources.",
+      "Contextual GI and protein-quality fields are optional when not canonical nutrient facts."
     ],
     "sourceFile": "foods/chicken-thigh.sample.json"
   },
@@ -200,8 +202,8 @@
     "narrationFormat": "elevenlabs-blocks-v1",
     "hook": "Chicken Thigh ranked.",
     "closing": {
-      "summary": "Big strengths are dark meat stays flavorful and forgiving to cook and usually a reasonably affordable whole-food protein, but the biggest weaknesses are fattier than lean poultry options like breast meat and the final health profile changes a lot with cooking method.",
-      "overview": "Big strengths are dark meat stays flavorful and forgiving to cook and usually a reasonably affordable whole-food protein, but the biggest weaknesses are fattier than lean poultry options like breast meat and the final health profile changes a lot with cooking method.",
+      "summary": "Big strengths are protein and dark meat stays flavorful and forgiving to cook, but the biggest weaknesses are fattier than lean poultry options like breast meat and the final health profile changes a lot with cooking method.",
+      "overview": "Big strengths are protein and dark meat stays flavorful and forgiving to cook, but the biggest weaknesses are fattier than lean poultry options like breast meat and the final health profile changes a lot with cooking method.",
       "finalReveal": "C tier.",
       "useCaseNote": "Best only if convenience, budget, or taste matters more than getting the cleanest meat option.",
       "cta": "Would you rank it the same, or nah?"
@@ -583,7 +585,7 @@
       "maxLines": 2,
       "maxCharactersPerLine": 18
     },
-    "totalEstimatedDurationSeconds": 106.25,
+    "totalEstimatedDurationSeconds": 98.95,
     "scenes": [
       {
         "id": "hook",
@@ -722,6 +724,7 @@
               "weightedScore": 240,
               "scoringMode": "arrow_bands",
               "band": "2_green",
+              "polarity": "higher_worse",
               "dvPercent": null,
               "value": 2.3
             },
@@ -731,6 +734,7 @@
               "weightedScore": 60,
               "scoringMode": "arrow_bands",
               "band": "2_red",
+              "polarity": "higher_better",
               "dvPercent": null,
               "value": 70
             },
@@ -740,6 +744,7 @@
               "weightedScore": 120,
               "scoringMode": "arrow_bands",
               "band": "1_green",
+              "polarity": "higher_worse",
               "dvPercent": null,
               "value": 93
             },
@@ -749,6 +754,7 @@
               "weightedScore": 40,
               "scoringMode": "arrow_bands",
               "band": "1_red",
+              "polarity": "higher_better",
               "dvPercent": null,
               "value": 1.7
             }
@@ -1105,10 +1111,10 @@
         "kind": "section",
         "narrativeRole": "macro-foundation",
         "startSeconds": 17.98,
-        "durationSeconds": 9.53,
-        "endSeconds": 27.51,
-        "narrationText": "24 grams of protein. No defensible protein submacros to call out. Strong protein is expected here, so the rest of the profile decides how high it climbs.",
-        "subtitleText": "24g of protein. No defensible protein submacros to call out. Strong protein is expected here, so the rest of the profile decides how high it climbs.",
+        "durationSeconds": 3.88,
+        "endSeconds": 21.86,
+        "narrationText": "24 grams of protein. That amount is useful enough to count.",
+        "subtitleText": "24g of protein. That amount is useful enough to count.",
         "subtitlePlacement": "lower-third",
         "visualBinding": {
           "sectionKey": "proteins",
@@ -1121,7 +1127,18 @@
             "submetric_3",
             "commentary_note"
           ],
-          "displayItems": [],
+          "displayItems": [
+            {
+              "metricKey": "protein_g_fallback",
+              "text": "protein amount at 24g",
+              "weightedScore": 320,
+              "scoringMode": "arrow_bands",
+              "band": "2_green",
+              "polarity": "higher_better",
+              "dvPercent": null,
+              "value": 24
+            }
+          ],
           "timingHint": "short-medium",
           "narrativeRole": "macro-foundation",
           "macroLayout": "stacked",
@@ -1151,7 +1168,19 @@
               "value": null,
               "emphasis": "standard"
             },
-            "macroSlots": [],
+            "macroSlots": [
+              {
+                "slotId": "submetric_1",
+                "metricKey": "protein_g_fallback",
+                "label": "protein amount",
+                "displayValue": "24",
+                "scoringMode": "arrow_bands",
+                "band": "2_green",
+                "weightedScore": 320,
+                "spriteRole": "proteins",
+                "text": "protein amount at 24g"
+              }
+            ],
             "micronutrientRows": [],
             "commentaryNote": null
           }
@@ -1195,7 +1224,7 @@
             "id": "13-proteins-1",
             "sceneId": "proteins",
             "startSeconds": 17.98,
-            "endSeconds": 19.3,
+            "endSeconds": 19.29,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1207,71 +1236,29 @@
           {
             "id": "14-proteins-2",
             "sceneId": "proteins",
-            "startSeconds": 19.3,
-            "endSeconds": 20.68,
+            "startSeconds": 19.29,
+            "endSeconds": 21.34,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "No defensible",
-              "protein submacros"
+              "That amount is",
+              "useful enough to"
             ],
-            "text": "No defensible\nprotein submacros"
+            "text": "That amount is\nuseful enough to"
           },
           {
             "id": "15-proteins-3",
             "sceneId": "proteins",
-            "startSeconds": 20.68,
-            "endSeconds": 21.87,
+            "startSeconds": 21.34,
+            "endSeconds": 21.86,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "to call out."
+              "count."
             ],
-            "text": "to call out."
-          },
-          {
-            "id": "16-proteins-4",
-            "sceneId": "proteins",
-            "startSeconds": 21.87,
-            "endSeconds": 23.93,
-            "placement": "lower-third",
-            "maxLines": 2,
-            "maxCharactersPerLine": 18,
-            "lines": [
-              "Strong protein is",
-              "expected here, so"
-            ],
-            "text": "Strong protein is\nexpected here, so"
-          },
-          {
-            "id": "17-proteins-5",
-            "sceneId": "proteins",
-            "startSeconds": 23.93,
-            "endSeconds": 25.98,
-            "placement": "lower-third",
-            "maxLines": 2,
-            "maxCharactersPerLine": 18,
-            "lines": [
-              "the rest of the",
-              "profile decides"
-            ],
-            "text": "the rest of the\nprofile decides"
-          },
-          {
-            "id": "18-proteins-6",
-            "sceneId": "proteins",
-            "startSeconds": 25.98,
-            "endSeconds": 27.51,
-            "placement": "lower-third",
-            "maxLines": 2,
-            "maxCharactersPerLine": 18,
-            "lines": [
-              "how high it",
-              "climbs."
-            ],
-            "text": "how high it\nclimbs."
+            "text": "count."
           }
         ]
       },
@@ -1279,9 +1266,9 @@
         "id": "vitamins",
         "kind": "section",
         "narrativeRole": "micronutrient-proof",
-        "startSeconds": 27.51,
+        "startSeconds": 21.86,
         "durationSeconds": 8.47,
-        "endSeconds": 35.98,
+        "endSeconds": 30.33,
         "narrationText": "Vitamin B12 is 12% daily value, useful for nerve and blood-cell support. Vitamin D is only 0% daily value, a small miss for meats.",
         "subtitleText": "Vitamin B12 is 12% DV, useful for nerve and blood-cell support. Vitamin D is only 0% DV, a small miss for meats.",
         "subtitlePlacement": "lower-third",
@@ -1301,6 +1288,7 @@
               "weightedScore": 30,
               "scoringMode": "dv_points",
               "band": null,
+              "polarity": null,
               "dvPercent": 12,
               "value": null
             },
@@ -1310,6 +1298,7 @@
               "weightedScore": 0,
               "scoringMode": "dv_points",
               "band": null,
+              "polarity": null,
               "dvPercent": 0,
               "value": null
             }
@@ -1386,10 +1375,10 @@
         ],
         "subtitleCues": [
           {
-            "id": "19-vitamins-1",
+            "id": "16-vitamins-1",
             "sceneId": "vitamins",
-            "startSeconds": 27.51,
-            "endSeconds": 30.22,
+            "startSeconds": 21.86,
+            "endSeconds": 24.57,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1400,10 +1389,10 @@
             "text": "Vitamin B12 is 12%\nDV, useful for"
           },
           {
-            "id": "20-vitamins-2",
+            "id": "17-vitamins-2",
             "sceneId": "vitamins",
-            "startSeconds": 30.22,
-            "endSeconds": 31.3,
+            "startSeconds": 24.57,
+            "endSeconds": 25.65,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1414,10 +1403,10 @@
             "text": "nerve and\nblood-cell"
           },
           {
-            "id": "21-vitamins-3",
+            "id": "18-vitamins-3",
             "sceneId": "vitamins",
-            "startSeconds": 31.3,
-            "endSeconds": 31.83,
+            "startSeconds": 25.65,
+            "endSeconds": 26.18,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1427,10 +1416,10 @@
             "text": "support."
           },
           {
-            "id": "22-vitamins-4",
+            "id": "19-vitamins-4",
             "sceneId": "vitamins",
-            "startSeconds": 31.83,
-            "endSeconds": 34.76,
+            "startSeconds": 26.18,
+            "endSeconds": 29.11,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1441,10 +1430,10 @@
             "text": "Vitamin D is only\n0% DV, a small"
           },
           {
-            "id": "23-vitamins-5",
+            "id": "20-vitamins-5",
             "sceneId": "vitamins",
-            "startSeconds": 34.76,
-            "endSeconds": 35.98,
+            "startSeconds": 29.11,
+            "endSeconds": 30.33,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1459,9 +1448,9 @@
         "id": "minerals",
         "kind": "section",
         "narrativeRole": "micronutrient-proof",
-        "startSeconds": 35.98,
+        "startSeconds": 30.33,
         "durationSeconds": 7.06,
-        "endSeconds": 43.04,
+        "endSeconds": 37.39,
         "narrationText": "Zinc is 14% daily value, useful for immune support. Iron is only 5% daily value, a weak mark for meats.",
         "subtitleText": "Zinc is 14% DV, useful for immune support. Iron is only 5% DV, a weak mark for meats.",
         "subtitlePlacement": "lower-third",
@@ -1481,6 +1470,7 @@
               "weightedScore": 30,
               "scoringMode": "dv_points",
               "band": null,
+              "polarity": null,
               "dvPercent": 14,
               "value": null
             },
@@ -1490,6 +1480,7 @@
               "weightedScore": 0,
               "scoringMode": "dv_points",
               "band": null,
+              "polarity": null,
               "dvPercent": 5,
               "value": null
             },
@@ -1499,6 +1490,7 @@
               "weightedScore": 0,
               "scoringMode": "dv_points",
               "band": null,
+              "polarity": null,
               "dvPercent": 6,
               "value": null
             }
@@ -1575,10 +1567,10 @@
         ],
         "subtitleCues": [
           {
-            "id": "24-minerals-1",
+            "id": "21-minerals-1",
             "sceneId": "minerals",
-            "startSeconds": 35.98,
-            "endSeconds": 38.61,
+            "startSeconds": 30.33,
+            "endSeconds": 32.96,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1589,10 +1581,10 @@
             "text": "Zinc is 14% DV,\nuseful for immune"
           },
           {
-            "id": "25-minerals-2",
+            "id": "22-minerals-2",
             "sceneId": "minerals",
-            "startSeconds": 38.61,
-            "endSeconds": 39.16,
+            "startSeconds": 32.96,
+            "endSeconds": 33.51,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1602,10 +1594,10 @@
             "text": "support."
           },
           {
-            "id": "26-minerals-3",
+            "id": "23-minerals-3",
             "sceneId": "minerals",
-            "startSeconds": 39.16,
-            "endSeconds": 42.14,
+            "startSeconds": 33.51,
+            "endSeconds": 36.49,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1616,10 +1608,10 @@
             "text": "Iron is only 5%\nDV, a weak mark"
           },
           {
-            "id": "27-minerals-4",
+            "id": "24-minerals-4",
             "sceneId": "minerals",
-            "startSeconds": 42.14,
-            "endSeconds": 43.04,
+            "startSeconds": 36.49,
+            "endSeconds": 37.39,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1634,9 +1626,9 @@
         "id": "pros",
         "kind": "section",
         "narrativeRole": "real-world-upside",
-        "startSeconds": 43.04,
+        "startSeconds": 37.39,
         "durationSeconds": 22.94,
-        "endSeconds": 65.98,
+        "endSeconds": 60.33,
         "narrationText": "Pros first: dark meat stays flavorful and forgiving to cook. That makes chicken thigh easier to use well in real meals than drier leaner cuts. Usually a reasonably affordable whole-food protein. Chicken thigh is often cheaper than premium animal proteins while still providing a substantial protein serving. Easy to build complete meals around. It works as an actual centrepiece protein rather than a garnish ingredient.",
         "subtitleText": "Pros first: dark meat stays flavorful and forgiving to cook. That makes chicken thigh easier to use well in real meals than drier leaner cuts. Usually a reasonably affordable whole-food protein. Chicken thigh is often cheaper than premium animal proteins while still providing a substantial protein serving. Easy to build complete meals around. It works as an actual centrepiece protein rather than a garnish ingredient.",
         "subtitlePlacement": "high-lower-third",
@@ -1717,10 +1709,10 @@
         ],
         "subtitleCues": [
           {
-            "id": "28-pros-1",
+            "id": "25-pros-1",
             "sceneId": "pros",
-            "startSeconds": 43.04,
-            "endSeconds": 44.73,
+            "startSeconds": 37.39,
+            "endSeconds": 39.08,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1731,10 +1723,10 @@
             "text": "Pros first: dark\nmeat stays"
           },
           {
-            "id": "29-pros-2",
+            "id": "26-pros-2",
             "sceneId": "pros",
-            "startSeconds": 44.73,
-            "endSeconds": 46.56,
+            "startSeconds": 39.08,
+            "endSeconds": 40.91,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1745,10 +1737,10 @@
             "text": "flavorful and\nforgiving to cook."
           },
           {
-            "id": "30-pros-3",
+            "id": "27-pros-3",
             "sceneId": "pros",
-            "startSeconds": 46.56,
-            "endSeconds": 48.57,
+            "startSeconds": 40.91,
+            "endSeconds": 42.92,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1759,10 +1751,10 @@
             "text": "That makes chicken\nthigh easier to"
           },
           {
-            "id": "31-pros-4",
+            "id": "28-pros-4",
             "sceneId": "pros",
-            "startSeconds": 48.57,
-            "endSeconds": 50.92,
+            "startSeconds": 42.92,
+            "endSeconds": 45.27,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1773,10 +1765,10 @@
             "text": "use well in real\nmeals than drier"
           },
           {
-            "id": "32-pros-5",
+            "id": "29-pros-5",
             "sceneId": "pros",
-            "startSeconds": 50.92,
-            "endSeconds": 51.76,
+            "startSeconds": 45.27,
+            "endSeconds": 46.11,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1786,10 +1778,10 @@
             "text": "leaner cuts."
           },
           {
-            "id": "33-pros-6",
+            "id": "30-pros-6",
             "sceneId": "pros",
-            "startSeconds": 51.76,
-            "endSeconds": 52.79,
+            "startSeconds": 46.11,
+            "endSeconds": 47.14,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1800,10 +1792,10 @@
             "text": "Usually a\nreasonably"
           },
           {
-            "id": "34-pros-7",
+            "id": "31-pros-7",
             "sceneId": "pros",
-            "startSeconds": 52.79,
-            "endSeconds": 53.49,
+            "startSeconds": 47.14,
+            "endSeconds": 47.84,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1814,10 +1806,10 @@
             "text": "affordable\nwhole-food"
           },
           {
-            "id": "35-pros-8",
+            "id": "32-pros-8",
             "sceneId": "pros",
-            "startSeconds": 53.49,
-            "endSeconds": 54,
+            "startSeconds": 47.84,
+            "endSeconds": 48.35,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1827,10 +1819,10 @@
             "text": "protein."
           },
           {
-            "id": "36-pros-9",
+            "id": "33-pros-9",
             "sceneId": "pros",
-            "startSeconds": 54,
-            "endSeconds": 56.01,
+            "startSeconds": 48.35,
+            "endSeconds": 50.36,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1841,10 +1833,10 @@
             "text": "Chicken thigh is\noften cheaper than"
           },
           {
-            "id": "37-pros-10",
+            "id": "34-pros-10",
             "sceneId": "pros",
-            "startSeconds": 56.01,
-            "endSeconds": 57.37,
+            "startSeconds": 50.36,
+            "endSeconds": 51.72,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1855,10 +1847,10 @@
             "text": "premium animal\nproteins while"
           },
           {
-            "id": "38-pros-11",
+            "id": "35-pros-11",
             "sceneId": "pros",
-            "startSeconds": 57.37,
-            "endSeconds": 58.73,
+            "startSeconds": 51.72,
+            "endSeconds": 53.08,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1869,10 +1861,10 @@
             "text": "still providing a\nsubstantial"
           },
           {
-            "id": "39-pros-12",
+            "id": "36-pros-12",
             "sceneId": "pros",
-            "startSeconds": 58.73,
-            "endSeconds": 59.57,
+            "startSeconds": 53.08,
+            "endSeconds": 53.92,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1882,10 +1874,10 @@
             "text": "protein serving."
           },
           {
-            "id": "40-pros-13",
+            "id": "37-pros-13",
             "sceneId": "pros",
-            "startSeconds": 59.57,
-            "endSeconds": 61.25,
+            "startSeconds": 53.92,
+            "endSeconds": 55.6,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1896,10 +1888,10 @@
             "text": "Easy to build\ncomplete meals"
           },
           {
-            "id": "41-pros-14",
+            "id": "38-pros-14",
             "sceneId": "pros",
-            "startSeconds": 61.25,
-            "endSeconds": 61.77,
+            "startSeconds": 55.6,
+            "endSeconds": 56.12,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1909,10 +1901,10 @@
             "text": "around."
           },
           {
-            "id": "42-pros-15",
+            "id": "39-pros-15",
             "sceneId": "pros",
-            "startSeconds": 61.77,
-            "endSeconds": 63.78,
+            "startSeconds": 56.12,
+            "endSeconds": 58.13,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1923,10 +1915,10 @@
             "text": "It works as an\nactual centrepiece"
           },
           {
-            "id": "43-pros-16",
+            "id": "40-pros-16",
             "sceneId": "pros",
-            "startSeconds": 63.78,
-            "endSeconds": 65.47,
+            "startSeconds": 58.13,
+            "endSeconds": 59.82,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1937,10 +1929,10 @@
             "text": "protein rather\nthan a garnish"
           },
           {
-            "id": "44-pros-17",
+            "id": "41-pros-17",
             "sceneId": "pros",
-            "startSeconds": 65.47,
-            "endSeconds": 65.98,
+            "startSeconds": 59.82,
+            "endSeconds": 60.33,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1955,9 +1947,9 @@
         "id": "cons",
         "kind": "section",
         "narrativeRole": "real-world-downside",
-        "startSeconds": 65.98,
+        "startSeconds": 60.33,
         "durationSeconds": 25.76,
-        "endSeconds": 91.74,
+        "endSeconds": 86.09,
         "narrationText": "Cons next: fattier than lean poultry options like breast meat. That tradeoff is part of why thigh tastes better but is not the cleanest poultry profile. The final health profile changes a lot with cooking method. Breading, deep frying, or skin-on preparation can shift the outcome substantially from this base record. Raw poultry needs careful handling. Food-safety friction is a practical downside versus foods that are safer or easier to store and prep.",
         "subtitleText": "Cons next: fattier than lean poultry options like breast meat. That tradeoff is part of why thigh tastes better but is not the cleanest poultry profile. The final health profile changes a lot with cooking method. Breading, deep frying, or skin-on preparation can shift the outcome substantially from this base record. Raw poultry needs careful handling. Food-safety friction is a practical downside versus foods that are safer or easier to store and prep.",
         "subtitlePlacement": "high-lower-third",
@@ -2038,10 +2030,10 @@
         ],
         "subtitleCues": [
           {
-            "id": "45-cons-1",
+            "id": "42-cons-1",
             "sceneId": "cons",
-            "startSeconds": 65.98,
-            "endSeconds": 68.02,
+            "startSeconds": 60.33,
+            "endSeconds": 62.37,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -2052,10 +2044,10 @@
             "text": "Cons next: fattier\nthan lean poultry"
           },
           {
-            "id": "46-cons-2",
+            "id": "43-cons-2",
             "sceneId": "cons",
-            "startSeconds": 68.02,
-            "endSeconds": 69.53,
+            "startSeconds": 62.37,
+            "endSeconds": 63.88,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -2066,10 +2058,10 @@
             "text": "options like\nbreast meat."
           },
           {
-            "id": "47-cons-3",
+            "id": "44-cons-3",
             "sceneId": "cons",
-            "startSeconds": 69.53,
-            "endSeconds": 71.9,
+            "startSeconds": 63.88,
+            "endSeconds": 66.25,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -2080,10 +2072,10 @@
             "text": "That tradeoff is\npart of why thigh"
           },
           {
-            "id": "48-cons-4",
+            "id": "45-cons-4",
             "sceneId": "cons",
-            "startSeconds": 71.9,
-            "endSeconds": 73.94,
+            "startSeconds": 66.25,
+            "endSeconds": 68.29,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -2094,10 +2086,10 @@
             "text": "tastes better but\nis not the"
           },
           {
-            "id": "49-cons-5",
+            "id": "46-cons-5",
             "sceneId": "cons",
-            "startSeconds": 73.94,
-            "endSeconds": 75.12,
+            "startSeconds": 68.29,
+            "endSeconds": 69.47,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -2108,10 +2100,10 @@
             "text": "cleanest poultry\nprofile."
           },
           {
-            "id": "50-cons-6",
+            "id": "47-cons-6",
             "sceneId": "cons",
-            "startSeconds": 75.12,
-            "endSeconds": 77.16,
+            "startSeconds": 69.47,
+            "endSeconds": 71.51,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -2122,10 +2114,10 @@
             "text": "The final health\nprofile changes a"
           },
           {
-            "id": "51-cons-7",
+            "id": "48-cons-7",
             "sceneId": "cons",
-            "startSeconds": 77.16,
-            "endSeconds": 78.67,
+            "startSeconds": 71.51,
+            "endSeconds": 73.02,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -2136,10 +2128,10 @@
             "text": "lot with cooking\nmethod."
           },
           {
-            "id": "52-cons-8",
+            "id": "49-cons-8",
             "sceneId": "cons",
-            "startSeconds": 78.67,
-            "endSeconds": 80.38,
+            "startSeconds": 73.02,
+            "endSeconds": 74.73,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -2150,10 +2142,10 @@
             "text": "Breading, deep\nfrying, or skin-on"
           },
           {
-            "id": "53-cons-9",
+            "id": "50-cons-9",
             "sceneId": "cons",
-            "startSeconds": 80.38,
-            "endSeconds": 82.08,
+            "startSeconds": 74.73,
+            "endSeconds": 76.43,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -2164,10 +2156,10 @@
             "text": "preparation can\nshift the outcome"
           },
           {
-            "id": "54-cons-10",
+            "id": "51-cons-10",
             "sceneId": "cons",
-            "startSeconds": 82.08,
-            "endSeconds": 83.93,
+            "startSeconds": 76.43,
+            "endSeconds": 78.28,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -2178,10 +2170,10 @@
             "text": "substantially from\nthis base record."
           },
           {
-            "id": "55-cons-11",
+            "id": "52-cons-11",
             "sceneId": "cons",
-            "startSeconds": 83.93,
-            "endSeconds": 85.78,
+            "startSeconds": 78.28,
+            "endSeconds": 80.13,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -2192,10 +2184,10 @@
             "text": "Raw poultry needs\ncareful handling."
           },
           {
-            "id": "56-cons-12",
+            "id": "53-cons-12",
             "sceneId": "cons",
-            "startSeconds": 85.78,
-            "endSeconds": 87.15,
+            "startSeconds": 80.13,
+            "endSeconds": 81.5,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -2206,10 +2198,10 @@
             "text": "Food-safety\nfriction is a"
           },
           {
-            "id": "57-cons-13",
+            "id": "54-cons-13",
             "sceneId": "cons",
-            "startSeconds": 87.15,
-            "endSeconds": 88.85,
+            "startSeconds": 81.5,
+            "endSeconds": 83.2,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -2220,10 +2212,10 @@
             "text": "practical downside\nversus foods that"
           },
           {
-            "id": "58-cons-14",
+            "id": "55-cons-14",
             "sceneId": "cons",
-            "startSeconds": 88.85,
-            "endSeconds": 90.89,
+            "startSeconds": 83.2,
+            "endSeconds": 85.24,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -2234,10 +2226,10 @@
             "text": "are safer or\neasier to store"
           },
           {
-            "id": "59-cons-15",
+            "id": "56-cons-15",
             "sceneId": "cons",
-            "startSeconds": 90.89,
-            "endSeconds": 91.74,
+            "startSeconds": 85.24,
+            "endSeconds": 86.09,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -2252,15 +2244,15 @@
         "id": "final",
         "kind": "closing",
         "narrativeRole": "verdict-payoff",
-        "startSeconds": 91.74,
-        "durationSeconds": 14.51,
-        "endSeconds": 106.25,
-        "narrationText": "Big strengths are dark meat stays flavorful and forgiving to cook and usually a reasonably affordable whole-food protein, but the biggest weaknesses are fattier than lean poultry options like breast meat and the final health profile changes a lot with cooking method. C tier.",
-        "subtitleText": "Big strengths are dark meat stays flavorful and forgiving to cook and usually a reasonably affordable whole-food protein, but the biggest weaknesses are fattier than lean poultry options like breast meat and the final health profile changes a lot with cooking method. C tier.",
+        "startSeconds": 86.09,
+        "durationSeconds": 12.86,
+        "endSeconds": 98.95,
+        "narrationText": "Big strengths are protein and dark meat stays flavorful and forgiving to cook, but the biggest weaknesses are fattier than lean poultry options like breast meat and the final health profile changes a lot with cooking method. C tier.",
+        "subtitleText": "Big strengths are protein and dark meat stays flavorful and forgiving to cook, but the biggest weaknesses are fattier than lean poultry options like breast meat and the final health profile changes a lot with cooking method. C tier.",
         "subtitleSequence": [
           {
             "role": "conclusion-summary",
-            "text": "Big strengths are dark meat stays flavorful and forgiving to cook and usually a reasonably affordable whole-food protein, but the biggest weaknesses are fattier than lean poultry options like breast meat and the final health profile changes a lot with cooking method.",
+            "text": "Big strengths are protein and dark meat stays flavorful and forgiving to cook, but the biggest weaknesses are fattier than lean poultry options like breast meat and the final health profile changes a lot with cooking method.",
             "placement": "summary-full",
             "maxCharactersPerLine": 24
           },
@@ -2316,100 +2308,99 @@
         ],
         "subtitleCues": [
           {
-            "id": "60-final-1",
+            "id": "57-final-1",
             "sceneId": "final",
-            "startSeconds": 91.74,
-            "endSeconds": 94.32,
+            "startSeconds": 86.09,
+            "endSeconds": 88.34,
             "placement": "summary-full",
             "maxLines": 2,
             "maxCharactersPerLine": 24,
             "lines": [
-              "Big strengths are dark",
-              "meat stays flavorful and"
+              "Big strengths are",
+              "protein and dark meat"
             ],
-            "text": "Big strengths are dark\nmeat stays flavorful and",
+            "text": "Big strengths are\nprotein and dark meat",
             "role": "conclusion-summary"
           },
           {
-            "id": "61-final-2",
+            "id": "58-final-2",
             "sceneId": "final",
-            "startSeconds": 94.32,
-            "endSeconds": 96.58,
+            "startSeconds": 88.34,
+            "endSeconds": 90.59,
             "placement": "summary-full",
             "maxLines": 2,
             "maxCharactersPerLine": 24,
             "lines": [
-              "forgiving to cook and",
-              "usually a reasonably"
+              "stays flavorful and",
+              "forgiving to cook, but"
             ],
-            "text": "forgiving to cook and\nusually a reasonably",
+            "text": "stays flavorful and\nforgiving to cook, but",
             "role": "conclusion-summary"
           },
           {
-            "id": "62-final-3",
+            "id": "59-final-3",
             "sceneId": "final",
-            "startSeconds": 96.58,
-            "endSeconds": 98.52,
+            "startSeconds": 90.59,
+            "endSeconds": 92.84,
             "placement": "summary-full",
             "maxLines": 2,
             "maxCharactersPerLine": 24,
             "lines": [
-              "affordable whole-food",
-              "protein, but the biggest"
+              "the biggest weaknesses",
+              "are fattier than lean"
             ],
-            "text": "affordable whole-food\nprotein, but the biggest",
+            "text": "the biggest weaknesses\nare fattier than lean",
             "role": "conclusion-summary"
           },
           {
-            "id": "63-final-4",
+            "id": "60-final-4",
             "sceneId": "final",
-            "startSeconds": 98.52,
-            "endSeconds": 100.47,
+            "startSeconds": 92.84,
+            "endSeconds": 95.09,
             "placement": "summary-full",
             "maxLines": 2,
             "maxCharactersPerLine": 24,
             "lines": [
-              "weaknesses are fattier",
-              "than lean poultry"
+              "poultry options like",
+              "breast meat and the"
             ],
-            "text": "weaknesses are fattier\nthan lean poultry",
+            "text": "poultry options like\nbreast meat and the",
             "role": "conclusion-summary"
           },
           {
-            "id": "64-final-5",
+            "id": "61-final-5",
             "sceneId": "final",
-            "startSeconds": 100.47,
-            "endSeconds": 103.04,
+            "startSeconds": 95.09,
+            "endSeconds": 97.34,
             "placement": "summary-full",
             "maxLines": 2,
             "maxCharactersPerLine": 24,
             "lines": [
-              "options like breast meat",
-              "and the final health"
+              "final health profile",
+              "changes a lot with"
             ],
-            "text": "options like breast meat\nand the final health",
+            "text": "final health profile\nchanges a lot with",
             "role": "conclusion-summary"
           },
           {
-            "id": "65-final-6",
+            "id": "62-final-6",
             "sceneId": "final",
-            "startSeconds": 103.04,
-            "endSeconds": 105.44,
+            "startSeconds": 97.34,
+            "endSeconds": 98.14,
             "placement": "summary-full",
             "maxLines": 2,
             "maxCharactersPerLine": 24,
             "lines": [
-              "profile changes a lot",
-              "with cooking method."
+              "cooking method."
             ],
-            "text": "profile changes a lot\nwith cooking method.",
+            "text": "cooking method.",
             "role": "conclusion-summary"
           },
           {
-            "id": "66-final-7",
+            "id": "63-final-7",
             "sceneId": "final",
-            "startSeconds": 105.44,
-            "endSeconds": 106.25,
+            "startSeconds": 98.14,
+            "endSeconds": 98.95,
             "placement": "tier-center",
             "maxLines": 2,
             "maxCharactersPerLine": 24,
@@ -2590,7 +2581,7 @@
         "id": "13-proteins-1",
         "sceneId": "proteins",
         "startSeconds": 17.98,
-        "endSeconds": 19.3,
+        "endSeconds": 19.29,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2602,77 +2593,35 @@
       {
         "id": "14-proteins-2",
         "sceneId": "proteins",
-        "startSeconds": 19.3,
-        "endSeconds": 20.68,
+        "startSeconds": 19.29,
+        "endSeconds": 21.34,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "No defensible",
-          "protein submacros"
+          "That amount is",
+          "useful enough to"
         ],
-        "text": "No defensible\nprotein submacros"
+        "text": "That amount is\nuseful enough to"
       },
       {
         "id": "15-proteins-3",
         "sceneId": "proteins",
-        "startSeconds": 20.68,
-        "endSeconds": 21.87,
+        "startSeconds": 21.34,
+        "endSeconds": 21.86,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "to call out."
+          "count."
         ],
-        "text": "to call out."
+        "text": "count."
       },
       {
-        "id": "16-proteins-4",
-        "sceneId": "proteins",
-        "startSeconds": 21.87,
-        "endSeconds": 23.93,
-        "placement": "lower-third",
-        "maxLines": 2,
-        "maxCharactersPerLine": 18,
-        "lines": [
-          "Strong protein is",
-          "expected here, so"
-        ],
-        "text": "Strong protein is\nexpected here, so"
-      },
-      {
-        "id": "17-proteins-5",
-        "sceneId": "proteins",
-        "startSeconds": 23.93,
-        "endSeconds": 25.98,
-        "placement": "lower-third",
-        "maxLines": 2,
-        "maxCharactersPerLine": 18,
-        "lines": [
-          "the rest of the",
-          "profile decides"
-        ],
-        "text": "the rest of the\nprofile decides"
-      },
-      {
-        "id": "18-proteins-6",
-        "sceneId": "proteins",
-        "startSeconds": 25.98,
-        "endSeconds": 27.51,
-        "placement": "lower-third",
-        "maxLines": 2,
-        "maxCharactersPerLine": 18,
-        "lines": [
-          "how high it",
-          "climbs."
-        ],
-        "text": "how high it\nclimbs."
-      },
-      {
-        "id": "19-vitamins-1",
+        "id": "16-vitamins-1",
         "sceneId": "vitamins",
-        "startSeconds": 27.51,
-        "endSeconds": 30.22,
+        "startSeconds": 21.86,
+        "endSeconds": 24.57,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2683,10 +2632,10 @@
         "text": "Vitamin B12 is 12%\nDV, useful for"
       },
       {
-        "id": "20-vitamins-2",
+        "id": "17-vitamins-2",
         "sceneId": "vitamins",
-        "startSeconds": 30.22,
-        "endSeconds": 31.3,
+        "startSeconds": 24.57,
+        "endSeconds": 25.65,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2697,10 +2646,10 @@
         "text": "nerve and\nblood-cell"
       },
       {
-        "id": "21-vitamins-3",
+        "id": "18-vitamins-3",
         "sceneId": "vitamins",
-        "startSeconds": 31.3,
-        "endSeconds": 31.83,
+        "startSeconds": 25.65,
+        "endSeconds": 26.18,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2710,10 +2659,10 @@
         "text": "support."
       },
       {
-        "id": "22-vitamins-4",
+        "id": "19-vitamins-4",
         "sceneId": "vitamins",
-        "startSeconds": 31.83,
-        "endSeconds": 34.76,
+        "startSeconds": 26.18,
+        "endSeconds": 29.11,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2724,10 +2673,10 @@
         "text": "Vitamin D is only\n0% DV, a small"
       },
       {
-        "id": "23-vitamins-5",
+        "id": "20-vitamins-5",
         "sceneId": "vitamins",
-        "startSeconds": 34.76,
-        "endSeconds": 35.98,
+        "startSeconds": 29.11,
+        "endSeconds": 30.33,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2737,10 +2686,10 @@
         "text": "miss for meats."
       },
       {
-        "id": "24-minerals-1",
+        "id": "21-minerals-1",
         "sceneId": "minerals",
-        "startSeconds": 35.98,
-        "endSeconds": 38.61,
+        "startSeconds": 30.33,
+        "endSeconds": 32.96,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2751,10 +2700,10 @@
         "text": "Zinc is 14% DV,\nuseful for immune"
       },
       {
-        "id": "25-minerals-2",
+        "id": "22-minerals-2",
         "sceneId": "minerals",
-        "startSeconds": 38.61,
-        "endSeconds": 39.16,
+        "startSeconds": 32.96,
+        "endSeconds": 33.51,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2764,10 +2713,10 @@
         "text": "support."
       },
       {
-        "id": "26-minerals-3",
+        "id": "23-minerals-3",
         "sceneId": "minerals",
-        "startSeconds": 39.16,
-        "endSeconds": 42.14,
+        "startSeconds": 33.51,
+        "endSeconds": 36.49,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2778,10 +2727,10 @@
         "text": "Iron is only 5%\nDV, a weak mark"
       },
       {
-        "id": "27-minerals-4",
+        "id": "24-minerals-4",
         "sceneId": "minerals",
-        "startSeconds": 42.14,
-        "endSeconds": 43.04,
+        "startSeconds": 36.49,
+        "endSeconds": 37.39,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2791,10 +2740,10 @@
         "text": "for meats."
       },
       {
-        "id": "28-pros-1",
+        "id": "25-pros-1",
         "sceneId": "pros",
-        "startSeconds": 43.04,
-        "endSeconds": 44.73,
+        "startSeconds": 37.39,
+        "endSeconds": 39.08,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2805,10 +2754,10 @@
         "text": "Pros first: dark\nmeat stays"
       },
       {
-        "id": "29-pros-2",
+        "id": "26-pros-2",
         "sceneId": "pros",
-        "startSeconds": 44.73,
-        "endSeconds": 46.56,
+        "startSeconds": 39.08,
+        "endSeconds": 40.91,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2819,10 +2768,10 @@
         "text": "flavorful and\nforgiving to cook."
       },
       {
-        "id": "30-pros-3",
+        "id": "27-pros-3",
         "sceneId": "pros",
-        "startSeconds": 46.56,
-        "endSeconds": 48.57,
+        "startSeconds": 40.91,
+        "endSeconds": 42.92,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2833,10 +2782,10 @@
         "text": "That makes chicken\nthigh easier to"
       },
       {
-        "id": "31-pros-4",
+        "id": "28-pros-4",
         "sceneId": "pros",
-        "startSeconds": 48.57,
-        "endSeconds": 50.92,
+        "startSeconds": 42.92,
+        "endSeconds": 45.27,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2847,10 +2796,10 @@
         "text": "use well in real\nmeals than drier"
       },
       {
-        "id": "32-pros-5",
+        "id": "29-pros-5",
         "sceneId": "pros",
-        "startSeconds": 50.92,
-        "endSeconds": 51.76,
+        "startSeconds": 45.27,
+        "endSeconds": 46.11,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2860,10 +2809,10 @@
         "text": "leaner cuts."
       },
       {
-        "id": "33-pros-6",
+        "id": "30-pros-6",
         "sceneId": "pros",
-        "startSeconds": 51.76,
-        "endSeconds": 52.79,
+        "startSeconds": 46.11,
+        "endSeconds": 47.14,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2874,10 +2823,10 @@
         "text": "Usually a\nreasonably"
       },
       {
-        "id": "34-pros-7",
+        "id": "31-pros-7",
         "sceneId": "pros",
-        "startSeconds": 52.79,
-        "endSeconds": 53.49,
+        "startSeconds": 47.14,
+        "endSeconds": 47.84,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2888,10 +2837,10 @@
         "text": "affordable\nwhole-food"
       },
       {
-        "id": "35-pros-8",
+        "id": "32-pros-8",
         "sceneId": "pros",
-        "startSeconds": 53.49,
-        "endSeconds": 54,
+        "startSeconds": 47.84,
+        "endSeconds": 48.35,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2901,10 +2850,10 @@
         "text": "protein."
       },
       {
-        "id": "36-pros-9",
+        "id": "33-pros-9",
         "sceneId": "pros",
-        "startSeconds": 54,
-        "endSeconds": 56.01,
+        "startSeconds": 48.35,
+        "endSeconds": 50.36,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2915,10 +2864,10 @@
         "text": "Chicken thigh is\noften cheaper than"
       },
       {
-        "id": "37-pros-10",
+        "id": "34-pros-10",
         "sceneId": "pros",
-        "startSeconds": 56.01,
-        "endSeconds": 57.37,
+        "startSeconds": 50.36,
+        "endSeconds": 51.72,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2929,10 +2878,10 @@
         "text": "premium animal\nproteins while"
       },
       {
-        "id": "38-pros-11",
+        "id": "35-pros-11",
         "sceneId": "pros",
-        "startSeconds": 57.37,
-        "endSeconds": 58.73,
+        "startSeconds": 51.72,
+        "endSeconds": 53.08,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2943,10 +2892,10 @@
         "text": "still providing a\nsubstantial"
       },
       {
-        "id": "39-pros-12",
+        "id": "36-pros-12",
         "sceneId": "pros",
-        "startSeconds": 58.73,
-        "endSeconds": 59.57,
+        "startSeconds": 53.08,
+        "endSeconds": 53.92,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2956,10 +2905,10 @@
         "text": "protein serving."
       },
       {
-        "id": "40-pros-13",
+        "id": "37-pros-13",
         "sceneId": "pros",
-        "startSeconds": 59.57,
-        "endSeconds": 61.25,
+        "startSeconds": 53.92,
+        "endSeconds": 55.6,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2970,10 +2919,10 @@
         "text": "Easy to build\ncomplete meals"
       },
       {
-        "id": "41-pros-14",
+        "id": "38-pros-14",
         "sceneId": "pros",
-        "startSeconds": 61.25,
-        "endSeconds": 61.77,
+        "startSeconds": 55.6,
+        "endSeconds": 56.12,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2983,10 +2932,10 @@
         "text": "around."
       },
       {
-        "id": "42-pros-15",
+        "id": "39-pros-15",
         "sceneId": "pros",
-        "startSeconds": 61.77,
-        "endSeconds": 63.78,
+        "startSeconds": 56.12,
+        "endSeconds": 58.13,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2997,10 +2946,10 @@
         "text": "It works as an\nactual centrepiece"
       },
       {
-        "id": "43-pros-16",
+        "id": "40-pros-16",
         "sceneId": "pros",
-        "startSeconds": 63.78,
-        "endSeconds": 65.47,
+        "startSeconds": 58.13,
+        "endSeconds": 59.82,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -3011,10 +2960,10 @@
         "text": "protein rather\nthan a garnish"
       },
       {
-        "id": "44-pros-17",
+        "id": "41-pros-17",
         "sceneId": "pros",
-        "startSeconds": 65.47,
-        "endSeconds": 65.98,
+        "startSeconds": 59.82,
+        "endSeconds": 60.33,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -3024,10 +2973,10 @@
         "text": "ingredient."
       },
       {
-        "id": "45-cons-1",
+        "id": "42-cons-1",
         "sceneId": "cons",
-        "startSeconds": 65.98,
-        "endSeconds": 68.02,
+        "startSeconds": 60.33,
+        "endSeconds": 62.37,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -3038,10 +2987,10 @@
         "text": "Cons next: fattier\nthan lean poultry"
       },
       {
-        "id": "46-cons-2",
+        "id": "43-cons-2",
         "sceneId": "cons",
-        "startSeconds": 68.02,
-        "endSeconds": 69.53,
+        "startSeconds": 62.37,
+        "endSeconds": 63.88,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -3052,10 +3001,10 @@
         "text": "options like\nbreast meat."
       },
       {
-        "id": "47-cons-3",
+        "id": "44-cons-3",
         "sceneId": "cons",
-        "startSeconds": 69.53,
-        "endSeconds": 71.9,
+        "startSeconds": 63.88,
+        "endSeconds": 66.25,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -3066,10 +3015,10 @@
         "text": "That tradeoff is\npart of why thigh"
       },
       {
-        "id": "48-cons-4",
+        "id": "45-cons-4",
         "sceneId": "cons",
-        "startSeconds": 71.9,
-        "endSeconds": 73.94,
+        "startSeconds": 66.25,
+        "endSeconds": 68.29,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -3080,10 +3029,10 @@
         "text": "tastes better but\nis not the"
       },
       {
-        "id": "49-cons-5",
+        "id": "46-cons-5",
         "sceneId": "cons",
-        "startSeconds": 73.94,
-        "endSeconds": 75.12,
+        "startSeconds": 68.29,
+        "endSeconds": 69.47,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -3094,10 +3043,10 @@
         "text": "cleanest poultry\nprofile."
       },
       {
-        "id": "50-cons-6",
+        "id": "47-cons-6",
         "sceneId": "cons",
-        "startSeconds": 75.12,
-        "endSeconds": 77.16,
+        "startSeconds": 69.47,
+        "endSeconds": 71.51,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -3108,10 +3057,10 @@
         "text": "The final health\nprofile changes a"
       },
       {
-        "id": "51-cons-7",
+        "id": "48-cons-7",
         "sceneId": "cons",
-        "startSeconds": 77.16,
-        "endSeconds": 78.67,
+        "startSeconds": 71.51,
+        "endSeconds": 73.02,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -3122,10 +3071,10 @@
         "text": "lot with cooking\nmethod."
       },
       {
-        "id": "52-cons-8",
+        "id": "49-cons-8",
         "sceneId": "cons",
-        "startSeconds": 78.67,
-        "endSeconds": 80.38,
+        "startSeconds": 73.02,
+        "endSeconds": 74.73,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -3136,10 +3085,10 @@
         "text": "Breading, deep\nfrying, or skin-on"
       },
       {
-        "id": "53-cons-9",
+        "id": "50-cons-9",
         "sceneId": "cons",
-        "startSeconds": 80.38,
-        "endSeconds": 82.08,
+        "startSeconds": 74.73,
+        "endSeconds": 76.43,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -3150,10 +3099,10 @@
         "text": "preparation can\nshift the outcome"
       },
       {
-        "id": "54-cons-10",
+        "id": "51-cons-10",
         "sceneId": "cons",
-        "startSeconds": 82.08,
-        "endSeconds": 83.93,
+        "startSeconds": 76.43,
+        "endSeconds": 78.28,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -3164,10 +3113,10 @@
         "text": "substantially from\nthis base record."
       },
       {
-        "id": "55-cons-11",
+        "id": "52-cons-11",
         "sceneId": "cons",
-        "startSeconds": 83.93,
-        "endSeconds": 85.78,
+        "startSeconds": 78.28,
+        "endSeconds": 80.13,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -3178,10 +3127,10 @@
         "text": "Raw poultry needs\ncareful handling."
       },
       {
-        "id": "56-cons-12",
+        "id": "53-cons-12",
         "sceneId": "cons",
-        "startSeconds": 85.78,
-        "endSeconds": 87.15,
+        "startSeconds": 80.13,
+        "endSeconds": 81.5,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -3192,10 +3141,10 @@
         "text": "Food-safety\nfriction is a"
       },
       {
-        "id": "57-cons-13",
+        "id": "54-cons-13",
         "sceneId": "cons",
-        "startSeconds": 87.15,
-        "endSeconds": 88.85,
+        "startSeconds": 81.5,
+        "endSeconds": 83.2,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -3206,10 +3155,10 @@
         "text": "practical downside\nversus foods that"
       },
       {
-        "id": "58-cons-14",
+        "id": "55-cons-14",
         "sceneId": "cons",
-        "startSeconds": 88.85,
-        "endSeconds": 90.89,
+        "startSeconds": 83.2,
+        "endSeconds": 85.24,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -3220,10 +3169,10 @@
         "text": "are safer or\neasier to store"
       },
       {
-        "id": "59-cons-15",
+        "id": "56-cons-15",
         "sceneId": "cons",
-        "startSeconds": 90.89,
-        "endSeconds": 91.74,
+        "startSeconds": 85.24,
+        "endSeconds": 86.09,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -3233,100 +3182,99 @@
         "text": "and prep."
       },
       {
-        "id": "60-final-1",
+        "id": "57-final-1",
         "sceneId": "final",
-        "startSeconds": 91.74,
-        "endSeconds": 94.32,
+        "startSeconds": 86.09,
+        "endSeconds": 88.34,
         "placement": "summary-full",
         "maxLines": 2,
         "maxCharactersPerLine": 24,
         "lines": [
-          "Big strengths are dark",
-          "meat stays flavorful and"
+          "Big strengths are",
+          "protein and dark meat"
         ],
-        "text": "Big strengths are dark\nmeat stays flavorful and",
+        "text": "Big strengths are\nprotein and dark meat",
         "role": "conclusion-summary"
       },
       {
-        "id": "61-final-2",
+        "id": "58-final-2",
         "sceneId": "final",
-        "startSeconds": 94.32,
-        "endSeconds": 96.58,
+        "startSeconds": 88.34,
+        "endSeconds": 90.59,
         "placement": "summary-full",
         "maxLines": 2,
         "maxCharactersPerLine": 24,
         "lines": [
-          "forgiving to cook and",
-          "usually a reasonably"
+          "stays flavorful and",
+          "forgiving to cook, but"
         ],
-        "text": "forgiving to cook and\nusually a reasonably",
+        "text": "stays flavorful and\nforgiving to cook, but",
         "role": "conclusion-summary"
       },
       {
-        "id": "62-final-3",
+        "id": "59-final-3",
         "sceneId": "final",
-        "startSeconds": 96.58,
-        "endSeconds": 98.52,
+        "startSeconds": 90.59,
+        "endSeconds": 92.84,
         "placement": "summary-full",
         "maxLines": 2,
         "maxCharactersPerLine": 24,
         "lines": [
-          "affordable whole-food",
-          "protein, but the biggest"
+          "the biggest weaknesses",
+          "are fattier than lean"
         ],
-        "text": "affordable whole-food\nprotein, but the biggest",
+        "text": "the biggest weaknesses\nare fattier than lean",
         "role": "conclusion-summary"
       },
       {
-        "id": "63-final-4",
+        "id": "60-final-4",
         "sceneId": "final",
-        "startSeconds": 98.52,
-        "endSeconds": 100.47,
+        "startSeconds": 92.84,
+        "endSeconds": 95.09,
         "placement": "summary-full",
         "maxLines": 2,
         "maxCharactersPerLine": 24,
         "lines": [
-          "weaknesses are fattier",
-          "than lean poultry"
+          "poultry options like",
+          "breast meat and the"
         ],
-        "text": "weaknesses are fattier\nthan lean poultry",
+        "text": "poultry options like\nbreast meat and the",
         "role": "conclusion-summary"
       },
       {
-        "id": "64-final-5",
+        "id": "61-final-5",
         "sceneId": "final",
-        "startSeconds": 100.47,
-        "endSeconds": 103.04,
+        "startSeconds": 95.09,
+        "endSeconds": 97.34,
         "placement": "summary-full",
         "maxLines": 2,
         "maxCharactersPerLine": 24,
         "lines": [
-          "options like breast meat",
-          "and the final health"
+          "final health profile",
+          "changes a lot with"
         ],
-        "text": "options like breast meat\nand the final health",
+        "text": "final health profile\nchanges a lot with",
         "role": "conclusion-summary"
       },
       {
-        "id": "65-final-6",
+        "id": "62-final-6",
         "sceneId": "final",
-        "startSeconds": 103.04,
-        "endSeconds": 105.44,
+        "startSeconds": 97.34,
+        "endSeconds": 98.14,
         "placement": "summary-full",
         "maxLines": 2,
         "maxCharactersPerLine": 24,
         "lines": [
-          "profile changes a lot",
-          "with cooking method."
+          "cooking method."
         ],
-        "text": "profile changes a lot\nwith cooking method.",
+        "text": "cooking method.",
         "role": "conclusion-summary"
       },
       {
-        "id": "66-final-7",
+        "id": "63-final-7",
         "sceneId": "final",
-        "startSeconds": 105.44,
-        "endSeconds": 106.25,
+        "startSeconds": 98.14,
+        "endSeconds": 98.95,
         "placement": "tier-center",
         "maxLines": 2,
         "maxCharactersPerLine": 24,

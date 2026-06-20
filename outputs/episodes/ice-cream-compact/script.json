@@ -36,7 +36,7 @@
     {
       "key": "fats",
       "title": "Fats",
-      "narration": "11 grams of fat. Cholesterol is 44 milligrams, supporting a better fat profile.",
+      "narration": "11 grams of fat. Cholesterol is 44 milligrams, supporting a better fat profile. Saturated fat is 7 grams, a weak mark for dairy.",
       "displayItems": [
         {
           "metricKey": "cholesterol_mg",
@@ -44,6 +44,7 @@
           "weightedScore": 240,
           "scoringMode": "arrow_bands",
           "band": "↓",
+          "polarity": "higher_worse",
           "dvPercent": null,
           "value": 44
         },
@@ -53,6 +54,7 @@
           "weightedScore": 120,
           "scoringMode": "arrow_bands",
           "band": "↑↑",
+          "polarity": "higher_worse",
           "dvPercent": null,
           "value": 7
         },
@@ -62,6 +64,7 @@
           "weightedScore": 20,
           "scoringMode": "arrow_bands",
           "band": "↓↓",
+          "polarity": "higher_better",
           "dvPercent": null,
           "value": 30
         },
@@ -71,34 +74,37 @@
           "weightedScore": 20,
           "scoringMode": "arrow_bands",
           "band": "↓↓",
+          "polarity": "higher_better",
           "dvPercent": null,
           "value": 0.4
         }
       ],
-      "subtitleText": "11g of fat. Cholesterol is 44mg, supporting a better fat profile.",
+      "subtitleText": "11g of fat. Cholesterol is 44mg, supporting a better fat profile. Saturated fat is 7g, a weak mark for dairy.",
       "timingHint": "short-medium",
       "score": 33.3
     },
     {
       "key": "carbs",
       "title": "Carbs",
-      "narration": "24 grams of carbs. Glycemic index is 61 GI, supporting better carb quality. Starch is 0 grams, a small miss for dairy.",
+      "narration": "24 grams of carbs. Starch is 0 grams, supporting better carb quality. Fibre is 0 grams, a small miss for dairy.",
       "displayItems": [
-        {
-          "metricKey": "glycemic_index",
-          "text": "glycemic index at 61 GI",
-          "weightedScore": 80,
-          "scoringMode": "arrow_bands",
-          "band": "↑",
-          "dvPercent": null,
-          "value": 61
-        },
         {
           "metricKey": "starch_g",
           "text": "starch at 0g",
+          "weightedScore": 100,
+          "scoringMode": "arrow_bands",
+          "band": "↓↓↓",
+          "polarity": "higher_worse",
+          "dvPercent": null,
+          "value": 0
+        },
+        {
+          "metricKey": "fibre_g",
+          "text": "fibre at 0g",
           "weightedScore": 0,
           "scoringMode": "arrow_bands",
-          "band": "3_red",
+          "band": "↓↓↓",
+          "polarity": "higher_better",
           "dvPercent": null,
           "value": 0
         },
@@ -108,13 +114,24 @@
           "weightedScore": 0,
           "scoringMode": "arrow_bands",
           "band": "↑↑↑",
+          "polarity": "higher_worse",
           "dvPercent": null,
           "value": 21
+        },
+        {
+          "metricKey": "glycemic_index",
+          "text": "glycemic index at 61 GI",
+          "weightedScore": 80,
+          "scoringMode": "arrow_bands",
+          "band": "↑",
+          "polarity": "higher_worse",
+          "dvPercent": null,
+          "value": 61
         }
       ],
-      "subtitleText": "24g of carbs. Glycemic index is 61 GI, supporting better carb quality. Starch is 0g, a small miss for dairy.",
+      "subtitleText": "24g of carbs. Starch is 0g, supporting better carb quality. Fibre is 0g, a small miss for dairy.",
       "timingHint": "short-medium",
-      "score": 13.3
+      "score": 22.5
     },
     {
       "key": "proteins",
@@ -122,39 +139,39 @@
       "narration": "3.5 grams of protein. Essential amino acids score is 4 out of 9, with 70% bioavailability, making the protein useful for repair and maintenance.",
       "displayItems": [
         {
-          "metricKey": "essential_amino_acids_score",
-          "text": "essential amino acids score at 4/9",
-          "weightedScore": null,
-          "scoringMode": "reference_submacro",
-          "band": null,
-          "dvPercent": null,
-          "value": 4,
-          "referenceOnly": true
-        },
-        {
           "metricKey": "bioavailability_percent",
           "text": "bioavailability at 70%",
-          "weightedScore": null,
-          "scoringMode": "reference_submacro",
-          "band": null,
+          "weightedScore": 120,
+          "scoringMode": "arrow_bands",
+          "band": "↑",
+          "polarity": "higher_better",
           "dvPercent": null,
-          "value": 70,
-          "referenceOnly": true
+          "value": 70
+        },
+        {
+          "metricKey": "essential_amino_acids_score",
+          "text": "essential amino acids score at 4/9",
+          "weightedScore": 40,
+          "scoringMode": "arrow_bands",
+          "band": "↓↓",
+          "polarity": "higher_better",
+          "dvPercent": null,
+          "value": 4
         },
         {
           "metricKey": "nonessential_amino_acids_score",
           "text": "nonessential amino acids score at 6/11",
-          "weightedScore": null,
-          "scoringMode": "reference_submacro",
-          "band": null,
+          "weightedScore": 40,
+          "scoringMode": "arrow_bands",
+          "band": "↓",
+          "polarity": "higher_better",
           "dvPercent": null,
-          "value": 6,
-          "referenceOnly": true
+          "value": 6
         }
       ],
       "subtitleText": "3.5g of protein. Essential amino acids score is 4/9, with 70% bioavailability, making the protein useful for repair and maintenance.",
       "timingHint": "short-medium",
-      "score": 20
+      "score": 40
     },
     {
       "key": "vitamins",
@@ -167,6 +184,7 @@
           "weightedScore": 0,
           "scoringMode": "dv_points",
           "band": null,
+          "polarity": null,
           "dvPercent": 8,
           "value": null
         },
@@ -176,6 +194,7 @@
           "weightedScore": 0,
           "scoringMode": "dv_points",
           "band": null,
+          "polarity": null,
           "dvPercent": 6,
           "value": null
         }
@@ -195,6 +214,7 @@
           "weightedScore": 30,
           "scoringMode": "dv_points",
           "band": null,
+          "polarity": null,
           "dvPercent": 13,
           "value": null
         },
@@ -204,6 +224,7 @@
           "weightedScore": 0,
           "scoringMode": "dv_points",
           "band": null,
+          "polarity": null,
           "dvPercent": 2,
           "value": null
         },
@@ -213,6 +234,7 @@
           "weightedScore": 0,
           "scoringMode": "dv_points",
           "band": null,
+          "polarity": null,
           "dvPercent": 3,
           "value": null
         }
@@ -292,10 +314,10 @@
     "cta": "Would you rank it the same, or nah?"
   },
   "tier": "D",
-  "overallScore": 9.6,
-  "overallScoreExact": 9.5864,
-  "baseOverallScore": 17.5,
-  "baseOverallScoreExact": 17.5238,
+  "overallScore": 11.9,
+  "overallScoreExact": 11.8658,
+  "baseOverallScore": 21.7,
+  "baseOverallScoreExact": 21.6905,
   "sectionOrder": [
     "fats",
     "carbs",
@@ -317,12 +339,12 @@
     {
       "kind": "section",
       "sectionKey": "fats",
-      "text": "11 grams of fat. Cholesterol is 44 milligrams, supporting a better fat profile."
+      "text": "11 grams of fat. Cholesterol is 44 milligrams, supporting a better fat profile. Saturated fat is 7 grams, a weak mark for dairy."
     },
     {
       "kind": "section",
       "sectionKey": "carbs",
-      "text": "24 grams of carbs. Glycemic index is 61 GI, supporting better carb quality. Starch is 0 grams, a small miss for dairy."
+      "text": "24 grams of carbs. Starch is 0 grams, supporting better carb quality. Fibre is 0 grams, a small miss for dairy."
     },
     {
       "kind": "section",
@@ -360,7 +382,7 @@
   ],
   "explanation": {
     "summary": "Pros are carrying this food most, while cons are holding it back most. It lands in D tier.",
-    "whyThisTier": "This food lands in D tier with an overall score of 9.6. Section scores: fats 33.3, carbs 13.3, proteins 20, vitamins 0, minerals 6, pros 50, cons 0.",
+    "whyThisTier": "This food lands in D tier with an overall score of 11.9. Section scores: fats 33.3, carbs 22.5, proteins 40, vitamins 0, minerals 6, pros 50, cons 0.",
     "strongestSection": {
       "key": "pros",
       "label": "Pros",

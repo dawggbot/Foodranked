@@ -232,6 +232,17 @@ function auditFoods(errors, warnings) {
 
 function auditRulesets(errors) {
   const ruleFiles = listJson(rulesetsDir);
+  const foods = listJson(foodsDir).map(readJson);
+  const numericMetricValuesByType = {};
+  for (const food of foods) {
+    numericMetricValuesByType[food.foodType] ??= {};
+    for (const [metricKey, value] of Object.entries(food.metrics || {})) {
+      if (typeof value !== 'number') continue;
+      numericMetricValuesByType[food.foodType][metricKey] ??= 0;
+      numericMetricValuesByType[food.foodType][metricKey] += 1;
+    }
+  }
+
   for (const file of ruleFiles) {
     const ruleset = readJson(file);
     const weights = Object.values(ruleset.sectionWeights || {});
@@ -244,8 +255,18 @@ function auditRulesets(errors) {
       }
 
       const bands = rule.bands || [];
-      if (rule.scoringRole === 'scored' && rule.applicability !== 'not_applicable' && bands.length && bands.length !== 6) {
+      if (rule.scoringRole === 'scored' && rule.scoringMode === 'arrow_bands' && rule.applicability !== 'not_applicable' && bands.length !== 6) {
         issue(errors, file, 'scored arrow metric should use six bands', { metricKey: rule.metricKey, bandCount: bands.length });
+      }
+
+      if (rule.scoringRole === 'scored' && rule.scoringMode === 'arrow_bands' && rule.applicability === 'not_applicable') {
+        const numericCount = numericMetricValuesByType[ruleset.foodType]?.[rule.metricKey] || 0;
+        if (numericCount > 0) {
+          issue(errors, file, 'numeric submacro metric cannot be not_applicable; use bands or make the food value N/A', {
+            metricKey: rule.metricKey,
+            numericCount
+          });
+        }
       }
 
       for (let index = 0; index < bands.length; index += 1) {
@@ -267,6 +288,23 @@ function auditRulesets(errors) {
             current: band.label,
             previousMax: previous.max,
             currentMin: band.min
+          });
+        }
+      }
+    }
+
+    if (ruleset.proteinFallback) {
+      const bands = ruleset.proteinFallback.bands || [];
+      if (bands.length !== 6) {
+        issue(errors, file, 'protein fallback should use six arrow bands', { bandCount: bands.length });
+      }
+      for (const band of bands) {
+        const expected = expectedScoreForArrowLabel(band.label, 'higher_better');
+        if (expected !== null && expected !== band.score) {
+          issue(errors, file, 'protein fallback arrow label score does not match higher-better rules', {
+            label: band.label,
+            score: band.score,
+            expected
           });
         }
       }

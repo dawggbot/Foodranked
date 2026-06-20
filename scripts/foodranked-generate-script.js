@@ -168,6 +168,7 @@ function scoredMetricsForSection(result, sectionKey, options = {}) {
       weightedScore: metric.weightedScore,
       scoringMode: metric.scoringMode,
       band: metric.band || null,
+      polarity: metric.polarity || null,
       dvPercent: metric.dvPercent ?? null,
       value: metric.value ?? null
     }));
@@ -201,9 +202,17 @@ function metricHasDefensibleValue(metric) {
 }
 
 function arrowBand(metric) {
-  const match = String(metric?.band || '').match(/^(\d+)_(green|red)$/i);
-  if (!match) return null;
-  return { level: Number(match[1]) || 0, color: match[2].toLowerCase() };
+  const value = String(metric?.band || '').trim().toLowerCase();
+  const named = value.match(/^(\d+)_(green|red)$/i);
+  if (named) return { level: Number(named[1]) || 0, color: named[2].toLowerCase() };
+
+  const up = (value.match(/↑/g) || []).length;
+  const down = (value.match(/↓/g) || []).length;
+  if (!up && !down) return null;
+
+  const higherWorse = metric?.polarity === 'higher_worse';
+  if (up) return { level: up, color: higherWorse ? 'red' : 'green' };
+  return { level: down, color: higherWorse ? 'green' : 'red' };
 }
 
 function positiveMetricRank(metric) {
@@ -855,9 +864,6 @@ function buildClosing(result) {
 }
 
 function sectionNarration(result, sectionKey) {
-  if (result.food.foodType === 'misc' && sectionKey === 'fats') return 'simple one.';
-  if (result.food.foodType === 'misc' && sectionKey === 'carbs') return joinShort([macroLine(result, sectionKey), 'and that is basically the whole nutrition story']);
-
   if (['fats', 'carbs', 'proteins'].includes(sectionKey)) return buildMacroSection(result, sectionKey);
   if (sectionKey === 'vitamins') return buildMicrosSection(result, 'vitamins');
   if (sectionKey === 'minerals') return buildMicrosSection(result, 'minerals');

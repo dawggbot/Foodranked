@@ -32,15 +32,17 @@
       "status": "near-production-safe",
       "summary": "Identity, basis, and core raw nutrient fields are strong enough. Final grain ranking still needs a canonical GI handling rule for dry rice versus cooked rice reality.",
       "blockers": [
-        "glycemic_index intentionally withheld because preparation and variety matter too much",
-        "grain protein proxy metrics were removed until exact-source amino acid data is attached"
+        "glycemic_index intentionally withheld because preparation and variety matter too much"
+      ],
+      "caveats": [
+        "Real foods vary by cultivar, brand, season, and preparation; this record is a canonical comparison entry rather than a guarantee for every product."
       ]
     },
     "sourceNotes": [
-      "Production-lane cleanup pass.",
-      "Identity locked to plain unenriched long-grain white rice, dry, per 100 g as sold.",
-      "Core nutrient values align with common USDA FoodData Central style entries for raw white rice.",
-      "Weak proxy metrics were removed rather than preserved as fake certainty."
+      "Production-lane source audit pass.",
+      "All displayed nutrition values are stored and checked on a per-100g basis.",
+      "Primary and cross-check nutrition references are listed in nutritionDataSources.",
+      "Contextual GI and protein-quality fields are optional when not canonical nutrient facts."
     ]
   },
   "ruleset": {
@@ -70,6 +72,7 @@
           "weightedScore": 100,
           "scoringMode": "arrow_bands",
           "band": "3_green",
+          "polarity": "higher_worse",
           "dvPercent": null,
           "value": 0.2
         },
@@ -79,8 +82,19 @@
           "weightedScore": 0,
           "scoringMode": "arrow_bands",
           "band": "3_red",
+          "polarity": "higher_better",
           "dvPercent": null,
           "value": 20
+        },
+        {
+          "metricKey": "cholesterol_mg",
+          "text": "cholesterol at 0mg",
+          "weightedScore": 100,
+          "scoringMode": "arrow_bands",
+          "band": "↓↓↓",
+          "polarity": "higher_worse",
+          "dvPercent": null,
+          "value": 0
         },
         {
           "metricKey": "polyunsaturated_fat_g",
@@ -88,13 +102,14 @@
           "weightedScore": 0,
           "scoringMode": "arrow_bands",
           "band": "3_red",
+          "polarity": "higher_better",
           "dvPercent": null,
           "value": 0.2
         }
       ],
       "subtitleText": "0.7g of fat. Saturated fat is 0.2g, supporting a better fat profile. Omega 3 is 20mg, a weak mark for grains.",
       "timingHint": "short-medium",
-      "score": 33.3
+      "score": 50
     },
     {
       "key": "carbs",
@@ -107,6 +122,7 @@
           "weightedScore": 200,
           "scoringMode": "arrow_bands",
           "band": "3_green",
+          "polarity": "higher_worse",
           "dvPercent": null,
           "value": 0.1
         },
@@ -116,6 +132,7 @@
           "weightedScore": 100,
           "scoringMode": "arrow_bands",
           "band": "2_red",
+          "polarity": "higher_better",
           "dvPercent": null,
           "value": 1.3
         },
@@ -125,6 +142,7 @@
           "weightedScore": 80,
           "scoringMode": "arrow_bands",
           "band": "2_green",
+          "polarity": "higher_better",
           "dvPercent": null,
           "value": 63
         }
@@ -136,9 +154,20 @@
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "7.1 grams of protein. No defensible protein submacros to call out. Protein helps, but not enough if the carb side is weak.",
-      "displayItems": [],
-      "subtitleText": "7.1g of protein. No defensible protein submacros to call out. Protein helps, but not enough if the carb side is weak.",
+      "narration": "7.1 grams of protein. Not enough to make protein the main story.",
+      "displayItems": [
+        {
+          "metricKey": "protein_g_fallback",
+          "text": "protein amount at 7.1g",
+          "weightedScore": 40,
+          "scoringMode": "arrow_bands",
+          "band": "2_red",
+          "polarity": "higher_better",
+          "dvPercent": null,
+          "value": 7.1
+        }
+      ],
+      "subtitleText": "7.1g of protein. Not enough to make protein the main story.",
       "timingHint": "short-medium",
       "score": 20
     },
@@ -153,6 +182,7 @@
           "weightedScore": 30,
           "scoringMode": "dv_points",
           "band": null,
+          "polarity": null,
           "dvPercent": 10,
           "value": null
         },
@@ -162,6 +192,7 @@
           "weightedScore": 0,
           "scoringMode": "dv_points",
           "band": null,
+          "polarity": null,
           "dvPercent": 0,
           "value": null
         },
@@ -171,6 +202,7 @@
           "weightedScore": 0,
           "scoringMode": "dv_points",
           "band": null,
+          "polarity": null,
           "dvPercent": 6,
           "value": null
         }
@@ -190,6 +222,7 @@
           "weightedScore": 40,
           "scoringMode": "dv_points",
           "band": null,
+          "polarity": null,
           "dvPercent": 10,
           "value": null
         },
@@ -199,6 +232,7 @@
           "weightedScore": 0,
           "scoringMode": "dv_points",
           "band": null,
+          "polarity": null,
           "dvPercent": 1,
           "value": null
         },
@@ -208,6 +242,7 @@
           "weightedScore": 0,
           "scoringMode": "dv_points",
           "band": null,
+          "polarity": null,
           "dvPercent": 6,
           "value": null
         },
@@ -217,6 +252,7 @@
           "weightedScore": 0,
           "scoringMode": "dv_points",
           "band": null,
+          "polarity": null,
           "dvPercent": 2,
           "value": null
         }
@@ -296,10 +332,10 @@
     "cta": "Would you rank it the same, or nah?"
   },
   "tier": "D",
-  "overallScore": 16.8,
-  "overallScoreExact": 16.7656,
-  "baseOverallScore": 27.2,
-  "baseOverallScoreExact": 27.2262,
+  "overallScore": 18.2,
+  "overallScoreExact": 18.2317,
+  "baseOverallScore": 29.6,
+  "baseOverallScoreExact": 29.6071,
   "sectionOrder": [
     "fats",
     "carbs",
@@ -331,7 +367,7 @@
     {
       "kind": "section",
       "sectionKey": "proteins",
-      "text": "7.1 grams of protein. No defensible protein submacros to call out. Protein helps, but not enough if the carb side is weak."
+      "text": "7.1 grams of protein. Not enough to make protein the main story."
     },
     {
       "kind": "section",
@@ -363,11 +399,11 @@
     }
   ],
   "explanation": {
-    "summary": "Pros are carrying this food most, while minerals are holding it back most. It lands in D tier.",
-    "whyThisTier": "This food lands in D tier with an overall score of 16.8. Section scores: fats 33.3, carbs 47.5, proteins 20, vitamins 3.8, minerals 2.7, pros 50, cons 33.3.",
+    "summary": "Fats are carrying this food most, while minerals are holding it back most. It lands in D tier.",
+    "whyThisTier": "This food lands in D tier with an overall score of 18.2. Section scores: fats 50, carbs 47.5, proteins 20, vitamins 3.8, minerals 2.7, pros 50, cons 33.3.",
     "strongestSection": {
-      "key": "pros",
-      "label": "Pros",
+      "key": "fats",
+      "label": "Fats",
       "score": 50
     },
     "weakestSection": {
@@ -422,7 +458,7 @@
       }
     ],
     "narrationNotes": [
-      "Strongest section: Pros.",
+      "Strongest section: Fats.",
       "Weakest section: Minerals.",
       "Final verdict: D tier."
     ]

@@ -1,6 +1,6 @@
 {
   "id": "banana-episode-v1",
-  "generatedAt": "2026-06-01T22:53:41.354Z",
+  "generatedAt": "2026-06-20T01:10:29.813Z",
   "status": "draft",
   "mode": "compact",
   "food": {
@@ -34,24 +34,24 @@
     "subtitlesJson": "subtitles.json"
   },
   "scoreSnapshot": {
-    "overallScore": 30.7,
-    "overallScoreExact": 30.7203,
-    "baseOverallScore": 44.3,
-    "baseOverallScoreExact": 44.3492,
-    "tier": "C",
+    "overallScore": 14.6,
+    "overallScoreExact": 14.5875,
+    "baseOverallScore": 31.6,
+    "baseOverallScoreExact": 31.5714,
+    "tier": "D",
     "sectionScores": {
-      "fats": 100,
-      "carbs": 41.4,
-      "proteins": null,
+      "fats": 55,
+      "carbs": 41.3,
+      "proteins": 0,
       "vitamins": 8,
       "minerals": 0,
       "pros": 66.7,
       "cons": 50
     },
     "strongestSection": {
-      "key": "fats",
-      "label": "Fats",
-      "score": 100
+      "key": "pros",
+      "label": "Pros",
+      "score": 66.7
     },
     "weakestSection": {
       "key": "minerals",
@@ -105,12 +105,12 @@
       }
     ],
     "explanation": {
-      "summary": "Fats are carrying this food most, while minerals are holding it back most. It lands in C tier.",
-      "whyThisTier": "This food lands in C tier with an overall score of 30.7. Section scores: fats 100, carbs 41.4, vitamins 8, minerals 0, pros 66.7, cons 50.",
+      "summary": "Pros are carrying this food most, while minerals are holding it back most. It lands in D tier.",
+      "whyThisTier": "This food lands in D tier with an overall score of 14.6. Section scores: fats 55, carbs 41.3, proteins 0, vitamins 8, minerals 0, pros 66.7, cons 50.",
       "strongestSection": {
-        "key": "fats",
-        "label": "Fats",
-        "score": 100
+        "key": "pros",
+        "label": "Pros",
+        "score": 66.7
       },
       "weakestSection": {
         "key": "minerals",
@@ -164,9 +164,9 @@
         }
       ],
       "narrationNotes": [
-        "Strongest section: Fats.",
+        "Strongest section: Pros.",
         "Weakest section: Minerals.",
-        "Final verdict: C tier."
+        "Final verdict: D tier."
       ]
     }
   },
@@ -175,9 +175,9 @@
     "narrationFormat": "elevenlabs-blocks-v1",
     "hook": "Banana ranked.",
     "closing": {
-      "summary": "Big strengths are omega 3 and practical everyday fruit, but the biggest weaknesses are sugar load is fairly high and fibre is only modest.",
-      "overview": "Big strengths are omega 3 and practical everyday fruit, but the biggest weaknesses are sugar load is fairly high and fibre is only modest.",
-      "finalReveal": "C tier.",
+      "summary": "Big strengths are omega 3 and protein, but the biggest weaknesses are sugar load is fairly high and fibre is only modest.",
+      "overview": "Big strengths are omega 3 and protein, but the biggest weaknesses are sugar load is fairly high and fibre is only modest.",
+      "finalReveal": "D tier.",
       "useCaseNote": "Best only when the convenience or taste matters more than the nutrition return.",
       "cta": "Would you rank it the same, or nah?"
     },
@@ -196,7 +196,7 @@
     "templateId": "foodranked-visual-template.v1",
     "aspectRatio": "9:16",
     "categoryAccent": "Bright Red",
-    "tierColor": "green",
+    "tierColor": "purple",
     "visualProfile": {
       "name": "balanced",
       "description": "Default launch profile: readable, centered, and close to the locked storyboard.",
@@ -558,7 +558,7 @@
       "maxLines": 2,
       "maxCharactersPerLine": 18
     },
-    "totalEstimatedDurationSeconds": 83.36,
+    "totalEstimatedDurationSeconds": 82.7,
     "scenes": [
       {
         "id": "hook",
@@ -681,7 +681,7 @@
         "visualBinding": {
           "sectionKey": "fats",
           "title": "Fats",
-          "score": 100,
+          "score": 55,
           "templateSlots": [
             "macro_headline",
             "submetric_1",
@@ -696,6 +696,7 @@
               "weightedScore": 100,
               "scoringMode": "arrow_bands",
               "band": "3_green",
+              "polarity": "higher_worse",
               "dvPercent": null,
               "value": 0.1
             },
@@ -704,16 +705,28 @@
               "text": "polyunsaturated fat at 0.1g",
               "weightedScore": 0,
               "scoringMode": "arrow_bands",
-              "band": "3_red",
+              "band": "↓↓↓",
+              "polarity": "higher_better",
               "dvPercent": null,
               "value": 0.1
             },
             {
+              "metricKey": "cholesterol_mg",
+              "text": "cholesterol at 0mg",
+              "weightedScore": 100,
+              "scoringMode": "arrow_bands",
+              "band": "↓↓↓",
+              "polarity": "higher_worse",
+              "dvPercent": null,
+              "value": 0
+            },
+            {
               "metricKey": "omega3_mg",
               "text": "omega 3 at 30mg",
-              "weightedScore": 0,
+              "weightedScore": 20,
               "scoringMode": "arrow_bands",
-              "band": "3_green",
+              "band": "↓↓",
+              "polarity": "higher_better",
               "dvPercent": null,
               "value": 30
             }
@@ -765,25 +778,25 @@
                 "label": "polyunsaturated fat",
                 "displayValue": "0.1g",
                 "scoringMode": "arrow_bands",
-                "band": "3_red",
+                "band": "↓↓↓",
                 "weightedScore": 0,
                 "spriteRole": "fats",
                 "text": "polyunsaturated fat at 0.1g"
               },
               {
                 "slotId": "submetric_3",
-                "metricKey": "omega3_mg",
-                "label": "omega 3",
-                "displayValue": "30mg",
+                "metricKey": "cholesterol_mg",
+                "label": "cholesterol",
+                "displayValue": "0mg",
                 "scoringMode": "arrow_bands",
-                "band": "3_green",
-                "weightedScore": 0,
+                "band": "↓↓↓",
+                "weightedScore": 100,
                 "spriteRole": "fats",
-                "text": "omega 3 at 30mg"
+                "text": "cholesterol at 0mg"
               }
             ],
             "micronutrientRows": [],
-            "commentaryNote": null
+            "commentaryNote": "Overflow metrics stay off-screen unless the edit intentionally promotes them."
           }
         },
         "revealPlan": [
@@ -932,7 +945,7 @@
         "visualBinding": {
           "sectionKey": "carbs",
           "title": "Carbs",
-          "score": 41.4,
+          "score": 41.3,
           "templateSlots": [
             "macro_headline",
             "submetric_1",
@@ -947,6 +960,7 @@
               "weightedScore": 300,
               "scoringMode": "arrow_bands",
               "band": "1_green",
+              "polarity": "higher_worse",
               "dvPercent": null,
               "value": 51
             },
@@ -956,17 +970,9 @@
               "weightedScore": 200,
               "scoringMode": "arrow_bands",
               "band": "1_red",
+              "polarity": "higher_worse",
               "dvPercent": null,
               "value": 12.2
-            },
-            {
-              "metricKey": "starch_g",
-              "text": "starch at 5.4g",
-              "weightedScore": 0,
-              "scoringMode": "arrow_bands",
-              "band": "3_green",
-              "dvPercent": null,
-              "value": 5.4
             },
             {
               "metricKey": "fibre_g",
@@ -974,8 +980,19 @@
               "weightedScore": 80,
               "scoringMode": "arrow_bands",
               "band": "2_red",
+              "polarity": "higher_better",
               "dvPercent": null,
               "value": 2.6
+            },
+            {
+              "metricKey": "starch_g",
+              "text": "starch at 5.4g",
+              "weightedScore": 40,
+              "scoringMode": "arrow_bands",
+              "band": "↑",
+              "polarity": "higher_worse",
+              "dvPercent": null,
+              "value": 5.4
             }
           ],
           "timingHint": "short-medium",
@@ -1032,14 +1049,14 @@
               },
               {
                 "slotId": "submetric_3",
-                "metricKey": "starch_g",
-                "label": "starch",
-                "displayValue": "5.4g",
+                "metricKey": "fibre_g",
+                "label": "fibre",
+                "displayValue": "2.6g",
                 "scoringMode": "arrow_bands",
-                "band": "3_green",
-                "weightedScore": 0,
+                "band": "2_red",
+                "weightedScore": 80,
                 "spriteRole": "carbs",
-                "text": "starch at 5.4g"
+                "text": "fibre at 2.6g"
               }
             ],
             "micronutrientRows": [],
@@ -1166,7 +1183,7 @@
         "visualBinding": {
           "sectionKey": "proteins",
           "title": "Proteins",
-          "score": null,
+          "score": 0,
           "templateSlots": [
             "macro_headline",
             "submetric_1",
@@ -1180,30 +1197,30 @@
               "text": "essential amino acids score at 1/9",
               "weightedScore": 0,
               "scoringMode": "arrow_bands",
-              "band": "3_red",
+              "band": "↓↓↓",
+              "polarity": "higher_better",
               "dvPercent": null,
-              "value": 1,
-              "referenceOnly": false
-            },
-            {
-              "metricKey": "bioavailability_percent",
-              "text": "bioavailability at 30%",
-              "weightedScore": 0,
-              "scoringMode": "arrow_bands",
-              "band": "3_green",
-              "dvPercent": null,
-              "value": 30,
-              "referenceOnly": false
+              "value": 1
             },
             {
               "metricKey": "nonessential_amino_acids_score",
               "text": "nonessential amino acids score at 2/11",
               "weightedScore": 0,
               "scoringMode": "arrow_bands",
-              "band": "2_red",
+              "band": "↓↓↓",
+              "polarity": "higher_better",
               "dvPercent": null,
-              "value": 2,
-              "referenceOnly": false
+              "value": 2
+            },
+            {
+              "metricKey": "bioavailability_percent",
+              "text": "bioavailability at 30%",
+              "weightedScore": 0,
+              "scoringMode": "arrow_bands",
+              "band": "↓↓↓",
+              "polarity": "higher_better",
+              "dvPercent": null,
+              "value": 30
             }
           ],
           "timingHint": "short-medium",
@@ -1242,32 +1259,32 @@
                 "label": "essential amino acids score",
                 "displayValue": "1/9",
                 "scoringMode": "arrow_bands",
-                "band": "3_red",
+                "band": "↓↓↓",
                 "weightedScore": 0,
                 "spriteRole": "proteins",
                 "text": "essential amino acids score at 1/9"
               },
               {
                 "slotId": "submetric_2",
-                "metricKey": "bioavailability_percent",
-                "label": "bioavailability",
-                "displayValue": "30%",
-                "scoringMode": "arrow_bands",
-                "band": "3_green",
-                "weightedScore": 0,
-                "spriteRole": "proteins",
-                "text": "bioavailability at 30%"
-              },
-              {
-                "slotId": "submetric_3",
                 "metricKey": "nonessential_amino_acids_score",
                 "label": "nonessential amino acids score",
                 "displayValue": "2/11",
                 "scoringMode": "arrow_bands",
-                "band": "2_red",
+                "band": "↓↓↓",
                 "weightedScore": 0,
                 "spriteRole": "proteins",
                 "text": "nonessential amino acids score at 2/11"
+              },
+              {
+                "slotId": "submetric_3",
+                "metricKey": "bioavailability_percent",
+                "label": "bioavailability",
+                "displayValue": "30%",
+                "scoringMode": "arrow_bands",
+                "band": "↓↓↓",
+                "weightedScore": 0,
+                "spriteRole": "proteins",
+                "text": "bioavailability at 30%"
               }
             ],
             "micronutrientRows": [],
@@ -1406,6 +1423,7 @@
               "weightedScore": 40,
               "scoringMode": "dv_points",
               "band": null,
+              "polarity": null,
               "dvPercent": 10,
               "value": null
             },
@@ -1415,6 +1433,7 @@
               "weightedScore": 0,
               "scoringMode": "dv_points",
               "band": null,
+              "polarity": null,
               "dvPercent": 1,
               "value": null
             }
@@ -1586,6 +1605,7 @@
               "weightedScore": 0,
               "scoringMode": "dv_points",
               "band": null,
+              "polarity": null,
               "dvPercent": 8,
               "value": null
             },
@@ -1595,6 +1615,7 @@
               "weightedScore": 0,
               "scoringMode": "dv_points",
               "band": null,
+              "polarity": null,
               "dvPercent": 1,
               "value": null
             },
@@ -1604,6 +1625,7 @@
               "weightedScore": 0,
               "scoringMode": "dv_points",
               "band": null,
+              "polarity": null,
               "dvPercent": 7,
               "value": null
             }
@@ -2219,28 +2241,28 @@
         "kind": "closing",
         "narrativeRole": "verdict-payoff",
         "startSeconds": 74.79,
-        "durationSeconds": 8.57,
-        "endSeconds": 83.36,
-        "narrationText": "Big strengths are omega 3 and practical everyday fruit, but the biggest weaknesses are sugar load is fairly high and fibre is only modest. C tier.",
-        "subtitleText": "Big strengths are omega 3 and practical everyday fruit, but the biggest weaknesses are sugar load is fairly high and fibre is only modest. C tier.",
+        "durationSeconds": 7.91,
+        "endSeconds": 82.7,
+        "narrationText": "Big strengths are omega 3 and protein, but the biggest weaknesses are sugar load is fairly high and fibre is only modest. D tier.",
+        "subtitleText": "Big strengths are omega 3 and protein, but the biggest weaknesses are sugar load is fairly high and fibre is only modest. D tier.",
         "subtitleSequence": [
           {
             "role": "conclusion-summary",
-            "text": "Big strengths are omega 3 and practical everyday fruit, but the biggest weaknesses are sugar load is fairly high and fibre is only modest.",
+            "text": "Big strengths are omega 3 and protein, but the biggest weaknesses are sugar load is fairly high and fibre is only modest.",
             "placement": "summary-full",
             "maxCharactersPerLine": 24
           },
           {
             "role": "tier-reveal",
-            "text": "C tier.",
+            "text": "D tier.",
             "placement": "tier-center",
             "maxCharactersPerLine": 24
           }
         ],
         "subtitlePlacement": "subtitle-floor",
         "visualBinding": {
-          "tier": "C",
-          "tierColor": "green",
+          "tier": "D",
+          "tierColor": "purple",
           "scorePlate": {
             "path": "sprites/header/header_ui/score_plate.png",
             "format": "png"
@@ -2285,59 +2307,59 @@
             "id": "50-final-1",
             "sceneId": "final",
             "startSeconds": 74.79,
-            "endSeconds": 77.42,
+            "endSeconds": 77.71,
             "placement": "summary-full",
             "maxLines": 2,
             "maxCharactersPerLine": 24,
             "lines": [
               "Big strengths are omega",
-              "3 and practical everyday"
+              "3 and protein, but the"
             ],
-            "text": "Big strengths are omega\n3 and practical everyday",
+            "text": "Big strengths are omega\n3 and protein, but the",
             "role": "conclusion-summary"
           },
           {
             "id": "51-final-2",
             "sceneId": "final",
-            "startSeconds": 77.42,
-            "endSeconds": 79.62,
+            "startSeconds": 77.71,
+            "endSeconds": 79.9,
             "placement": "summary-full",
             "maxLines": 2,
             "maxCharactersPerLine": 24,
             "lines": [
-              "fruit, but the biggest",
-              "weaknesses are sugar"
+              "biggest weaknesses are",
+              "sugar load is fairly"
             ],
-            "text": "fruit, but the biggest\nweaknesses are sugar",
+            "text": "biggest weaknesses are\nsugar load is fairly",
             "role": "conclusion-summary"
           },
           {
             "id": "52-final-3",
             "sceneId": "final",
-            "startSeconds": 79.62,
-            "endSeconds": 82.57,
+            "startSeconds": 79.9,
+            "endSeconds": 81.92,
             "placement": "summary-full",
             "maxLines": 2,
             "maxCharactersPerLine": 24,
             "lines": [
-              "load is fairly high and",
-              "fibre is only modest."
+              "high and fibre is only",
+              "modest."
             ],
-            "text": "load is fairly high and\nfibre is only modest.",
+            "text": "high and fibre is only\nmodest.",
             "role": "conclusion-summary"
           },
           {
             "id": "53-final-4",
             "sceneId": "final",
-            "startSeconds": 82.57,
-            "endSeconds": 83.36,
+            "startSeconds": 81.92,
+            "endSeconds": 82.7,
             "placement": "tier-center",
             "maxLines": 2,
             "maxCharactersPerLine": 24,
             "lines": [
-              "C tier."
+              "D tier."
             ],
-            "text": "C tier.",
+            "text": "D tier.",
             "role": "tier-reveal"
           }
         ]
@@ -3021,59 +3043,59 @@
         "id": "50-final-1",
         "sceneId": "final",
         "startSeconds": 74.79,
-        "endSeconds": 77.42,
+        "endSeconds": 77.71,
         "placement": "summary-full",
         "maxLines": 2,
         "maxCharactersPerLine": 24,
         "lines": [
           "Big strengths are omega",
-          "3 and practical everyday"
+          "3 and protein, but the"
         ],
-        "text": "Big strengths are omega\n3 and practical everyday",
+        "text": "Big strengths are omega\n3 and protein, but the",
         "role": "conclusion-summary"
       },
       {
         "id": "51-final-2",
         "sceneId": "final",
-        "startSeconds": 77.42,
-        "endSeconds": 79.62,
+        "startSeconds": 77.71,
+        "endSeconds": 79.9,
         "placement": "summary-full",
         "maxLines": 2,
         "maxCharactersPerLine": 24,
         "lines": [
-          "fruit, but the biggest",
-          "weaknesses are sugar"
+          "biggest weaknesses are",
+          "sugar load is fairly"
         ],
-        "text": "fruit, but the biggest\nweaknesses are sugar",
+        "text": "biggest weaknesses are\nsugar load is fairly",
         "role": "conclusion-summary"
       },
       {
         "id": "52-final-3",
         "sceneId": "final",
-        "startSeconds": 79.62,
-        "endSeconds": 82.57,
+        "startSeconds": 79.9,
+        "endSeconds": 81.92,
         "placement": "summary-full",
         "maxLines": 2,
         "maxCharactersPerLine": 24,
         "lines": [
-          "load is fairly high and",
-          "fibre is only modest."
+          "high and fibre is only",
+          "modest."
         ],
-        "text": "load is fairly high and\nfibre is only modest.",
+        "text": "high and fibre is only\nmodest.",
         "role": "conclusion-summary"
       },
       {
         "id": "53-final-4",
         "sceneId": "final",
-        "startSeconds": 82.57,
-        "endSeconds": 83.36,
+        "startSeconds": 81.92,
+        "endSeconds": 82.7,
         "placement": "tier-center",
         "maxLines": 2,
         "maxCharactersPerLine": 24,
         "lines": [
-          "C tier."
+          "D tier."
         ],
-        "text": "C tier.",
+        "text": "D tier.",
         "role": "tier-reveal"
       }
     ]

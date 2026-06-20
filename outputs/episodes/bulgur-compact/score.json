@@ -19,24 +19,30 @@
     "carb_g": 75.9,
     "protein_g": 12.3
   },
+  "proteinQualityGate": {
+    "proteinG": 12.3,
+    "minimumProteinG": 10,
+    "eligible": true,
+    "skippedMetricKeys": []
+  },
   "sectionScores": {
     "fats": 46.7,
     "carbs": 83.1,
-    "proteins": 60,
+    "proteins": 32,
     "vitamins": 0,
     "minerals": 20,
     "pros": 50,
     "cons": 50
   },
-  "overallScore": 42.9,
-  "overallScoreExact": 42.8852,
-  "baseOverallScore": 44.2,
-  "baseOverallScoreExact": 44.2491,
-  "tier": "B",
-  "summary": "Carbs are carrying this food most, while vitamins are holding it back most. It lands in B tier.",
+  "overallScore": 34,
+  "overallScoreExact": 33.9684,
+  "baseOverallScore": 40.2,
+  "baseOverallScoreExact": 40.2491,
+  "tier": "C",
+  "summary": "Carbs are carrying this food most, while vitamins are holding it back most. It lands in C tier.",
   "explanation": {
-    "summary": "Carbs are carrying this food most, while vitamins are holding it back most. It lands in B tier.",
-    "whyThisTier": "This food lands in B tier with an overall score of 42.9. Section scores: fats 46.7, carbs 83.1, proteins 60, vitamins 0, minerals 20, pros 50, cons 50.",
+    "summary": "Carbs are carrying this food most, while vitamins are holding it back most. It lands in C tier.",
+    "whyThisTier": "This food lands in C tier with an overall score of 34. Section scores: fats 46.7, carbs 83.1, proteins 32, vitamins 0, minerals 20, pros 50, cons 50.",
     "strongestSection": {
       "key": "carbs",
       "label": "Carbs",
@@ -96,7 +102,7 @@
     "narrationNotes": [
       "Strongest section: Carbs.",
       "Weakest section: Vitamins.",
-      "Final verdict: B tier."
+      "Final verdict: C tier."
     ]
   },
   "contextItems": {
@@ -166,6 +172,7 @@
       "scoringMode": "arrow_bands",
       "value": 0.2,
       "band": "3_green",
+      "polarity": "higher_worse",
       "score": 100,
       "weight": 1,
       "weightedScore": 100
@@ -176,6 +183,7 @@
       "scoringMode": "arrow_bands",
       "value": 40,
       "band": "2_red",
+      "polarity": "higher_better",
       "score": 20,
       "weight": 1,
       "weightedScore": 20
@@ -186,6 +194,7 @@
       "scoringMode": "arrow_bands",
       "value": 0.5,
       "band": "2_red",
+      "polarity": "higher_better",
       "score": 20,
       "weight": 1,
       "weightedScore": 20
@@ -196,6 +205,7 @@
       "scoringMode": "arrow_bands",
       "value": 58,
       "band": "2_green",
+      "polarity": "higher_better",
       "score": 80,
       "weight": 1,
       "weightedScore": 80
@@ -206,6 +216,7 @@
       "scoringMode": "arrow_bands",
       "value": 12.5,
       "band": "3_green",
+      "polarity": "higher_better",
       "score": 100,
       "weight": 5,
       "weightedScore": 500
@@ -216,6 +227,7 @@
       "scoringMode": "arrow_bands",
       "value": 0.4,
       "band": "3_green",
+      "polarity": "higher_worse",
       "score": 100,
       "weight": 2,
       "weightedScore": 200
@@ -226,9 +238,43 @@
       "scoringMode": "arrow_bands",
       "value": 48,
       "band": "1_green",
+      "polarity": "higher_worse",
       "score": 60,
       "weight": 5,
       "weightedScore": 300
+    },
+    {
+      "metricKey": "essential_amino_acids_score",
+      "sectionKey": "proteins",
+      "scoringMode": "arrow_bands",
+      "value": 4,
+      "band": "↓↓",
+      "polarity": "higher_better",
+      "score": 20,
+      "weight": 2,
+      "weightedScore": 40
+    },
+    {
+      "metricKey": "nonessential_amino_acids_score",
+      "sectionKey": "proteins",
+      "scoringMode": "arrow_bands",
+      "value": 6,
+      "band": "↓",
+      "polarity": "higher_better",
+      "score": 40,
+      "weight": 1,
+      "weightedScore": 40
+    },
+    {
+      "metricKey": "bioavailability_percent",
+      "sectionKey": "proteins",
+      "scoringMode": "arrow_bands",
+      "value": 58,
+      "band": "↓",
+      "polarity": "higher_better",
+      "score": 40,
+      "weight": 2,
+      "weightedScore": 80
     },
     {
       "metricKey": "vitamin_e_dv",
@@ -279,17 +325,6 @@
       "score": 10,
       "weight": 2,
       "weightedScore": 20
-    },
-    {
-      "metricKey": "protein_g_fallback",
-      "sectionKey": "proteins",
-      "scoringMode": "protein_fallback",
-      "value": 12.3,
-      "band": "1_green",
-      "score": 60,
-      "weight": 2,
-      "weightedScore": 120,
-      "fallbackApplied": true
     }
   ]
 }

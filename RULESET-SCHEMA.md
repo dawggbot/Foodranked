@@ -57,8 +57,11 @@ Do not assume every metric has a fully universal meaning.
 Use this model instead:
 - `higher_better`
 - `higher_worse`
-- `neutral_display_only`
 - `not_applicable`
+
+`neutral_display_only` is reserved for non-submacro display values such as kcal and macro totals.
+Source-backed numeric submacros must use `higher_better` or `higher_worse` with a six-band arrow ladder.
+Only N/A submacro values may remain neutral/no-arrow.
 
 ## Main entities
 
@@ -251,6 +254,7 @@ Important:
 - this is a resolved **good/bad color outcome** scale
 - it is not a literal arrow-direction scale
 - lower-is-better metrics can still resolve to green when low
+- there is no neutral middle band; a numeric submacro must resolve to red or green
 
 ## Default context scoring
 

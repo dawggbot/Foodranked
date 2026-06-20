@@ -132,8 +132,10 @@ Use:
 - `optional`
 - `not_applicable`
 
-If a metric is parked for future use but should not score today, keep `weight: 0` or move it to `not_applicable`.
+If a source-backed submacro has a numeric value for any food in that food type, it must not be parked as `not_applicable`; give it a six-band arrow ladder so it displays as red or green.
+Use `not_applicable` only when the metric is genuinely N/A for that food type's entries.
 A zero weight must mean zero contribution.
+Only N/A submacro rows may display without an arrow indicator.
 
 ### 4. Keep context items separate from nutrient metrics
 Do not force antioxidants, pesticide risk, sodium concerns, convenience tradeoffs, and similar contextual notes into the same metric array as nutrient data.
@@ -164,7 +166,7 @@ The scorer should:
 1. compute submacro section scores from resolved color bands
 2. compute vitamin/mineral section scores from DV% tiers
 3. compute pros/cons as first-class sections from major/minor levels
-4. use `proteinFallback` when direct protein-quality metrics are intentionally unavailable
+4. use `proteinFallback` when direct protein-quality metrics are intentionally unavailable, so protein amount still resolves to an arrow band
 5. average all 7 scored content section scores into `baseOverallScore`
 6. apply `scoreCalibration` to produce the calibrated display `overallScore`
 7. map the calibrated `overallScore` to the tier with shared `tierThresholds`

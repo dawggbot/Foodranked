@@ -19,28 +19,34 @@
     "carb_g": 78,
     "protein_g": 12.9
   },
+  "proteinQualityGate": {
+    "proteinG": 12.9,
+    "minimumProteinG": 10,
+    "eligible": true,
+    "skippedMetricKeys": []
+  },
   "sectionScores": {
     "fats": 53.3,
     "carbs": 78.5,
-    "proteins": 80,
+    "proteins": 32,
     "vitamins": 0,
     "minerals": 18,
     "pros": 50,
     "cons": 50
   },
-  "overallScore": 55.7,
-  "overallScoreExact": 55.7048,
-  "baseOverallScore": 47.1,
-  "baseOverallScoreExact": 47.1136,
-  "tier": "B",
-  "summary": "Proteins are carrying this food most, while vitamins are holding it back most. It lands in B tier.",
+  "overallScore": 34,
+  "overallScoreExact": 33.9815,
+  "baseOverallScore": 40.3,
+  "baseOverallScoreExact": 40.2564,
+  "tier": "C",
+  "summary": "Carbs are carrying this food most, while vitamins are holding it back most. It lands in C tier.",
   "explanation": {
-    "summary": "Proteins are carrying this food most, while vitamins are holding it back most. It lands in B tier.",
-    "whyThisTier": "This food lands in B tier with an overall score of 55.7. Section scores: fats 53.3, carbs 78.5, proteins 80, vitamins 0, minerals 18, pros 50, cons 50.",
+    "summary": "Carbs are carrying this food most, while vitamins are holding it back most. It lands in C tier.",
+    "whyThisTier": "This food lands in C tier with an overall score of 34. Section scores: fats 53.3, carbs 78.5, proteins 32, vitamins 0, minerals 18, pros 50, cons 50.",
     "strongestSection": {
-      "key": "proteins",
-      "label": "Proteins",
-      "score": 80
+      "key": "carbs",
+      "label": "Carbs",
+      "score": 78.5
     },
     "weakestSection": {
       "key": "vitamins",
@@ -86,17 +92,17 @@
         "resolvedScoreValue": 50
       },
       {
-        "title": "needs strong pairings to feel complete",
-        "explanation": "The grain rarely finishes the nutrition job alone.",
+        "title": "pairing quality changes the result",
+        "explanation": "The same grain can be helpful or weak depending on what it is served with.",
         "impactLevel": "minor",
         "side": "con",
         "resolvedScoreValue": 50
       }
     ],
     "narrationNotes": [
-      "Strongest section: Proteins.",
+      "Strongest section: Carbs.",
       "Weakest section: Vitamins.",
-      "Final verdict: B tier."
+      "Final verdict: C tier."
     ]
   },
   "contextItems": {
@@ -149,10 +155,10 @@
         "resolvedScoreValue": 50
       },
       {
-        "itemKey": "grain_needs_pairing_quality",
+        "itemKey": "grain_pairing_quality_variance",
         "impactLevel": "minor",
-        "title": "needs strong pairings to feel complete",
-        "explanation": "The grain rarely finishes the nutrition job alone.",
+        "title": "pairing quality changes the result",
+        "explanation": "The same grain can be helpful or weak depending on what it is served with.",
         "evidenceType": "manual",
         "side": "con",
         "resolvedScoreValue": 50
@@ -166,6 +172,7 @@
       "scoringMode": "arrow_bands",
       "value": 0.6,
       "band": "2_green",
+      "polarity": "higher_worse",
       "score": 80,
       "weight": 1,
       "weightedScore": 80
@@ -176,6 +183,7 @@
       "scoringMode": "arrow_bands",
       "value": 40,
       "band": "2_red",
+      "polarity": "higher_better",
       "score": 20,
       "weight": 1,
       "weightedScore": 20
@@ -186,6 +194,7 @@
       "scoringMode": "arrow_bands",
       "value": 2.1,
       "band": "1_green",
+      "polarity": "higher_better",
       "score": 60,
       "weight": 1,
       "weightedScore": 60
@@ -196,6 +205,7 @@
       "scoringMode": "arrow_bands",
       "value": 50,
       "band": "1_green",
+      "polarity": "higher_better",
       "score": 60,
       "weight": 1,
       "weightedScore": 60
@@ -206,6 +216,7 @@
       "scoringMode": "arrow_bands",
       "value": 14.5,
       "band": "3_green",
+      "polarity": "higher_better",
       "score": 100,
       "weight": 5,
       "weightedScore": 500
@@ -216,6 +227,7 @@
       "scoringMode": "arrow_bands",
       "value": 0.9,
       "band": "2_green",
+      "polarity": "higher_worse",
       "score": 80,
       "weight": 2,
       "weightedScore": 160
@@ -226,9 +238,43 @@
       "scoringMode": "arrow_bands",
       "value": 55,
       "band": "1_green",
+      "polarity": "higher_worse",
       "score": 60,
       "weight": 5,
       "weightedScore": 300
+    },
+    {
+      "metricKey": "essential_amino_acids_score",
+      "sectionKey": "proteins",
+      "scoringMode": "arrow_bands",
+      "value": 4,
+      "band": "↓↓",
+      "polarity": "higher_better",
+      "score": 20,
+      "weight": 2,
+      "weightedScore": 40
+    },
+    {
+      "metricKey": "nonessential_amino_acids_score",
+      "sectionKey": "proteins",
+      "scoringMode": "arrow_bands",
+      "value": 6,
+      "band": "↓",
+      "polarity": "higher_better",
+      "score": 40,
+      "weight": 1,
+      "weightedScore": 40
+    },
+    {
+      "metricKey": "bioavailability_percent",
+      "sectionKey": "proteins",
+      "scoringMode": "arrow_bands",
+      "value": 55,
+      "band": "↓",
+      "polarity": "higher_better",
+      "score": 40,
+      "weight": 2,
+      "weightedScore": 80
     },
     {
       "metricKey": "vitamin_e_dv",
@@ -279,17 +325,6 @@
       "score": 0,
       "weight": 2,
       "weightedScore": 0
-    },
-    {
-      "metricKey": "protein_g_fallback",
-      "sectionKey": "proteins",
-      "scoringMode": "protein_fallback",
-      "value": 12.9,
-      "band": "2_green",
-      "score": 80,
-      "weight": 2,
-      "weightedScore": 160,
-      "fallbackApplied": true
     }
   ]
 }

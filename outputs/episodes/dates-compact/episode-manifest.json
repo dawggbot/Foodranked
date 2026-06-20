@@ -1,6 +1,6 @@
 {
   "id": "dates-episode-v1",
-  "generatedAt": "2026-06-01T22:53:47.275Z",
+  "generatedAt": "2026-06-20T01:10:35.671Z",
   "status": "draft",
   "mode": "compact",
   "food": {
@@ -34,15 +34,15 @@
     "subtitlesJson": "subtitles.json"
   },
   "scoreSnapshot": {
-    "overallScore": 15,
-    "overallScoreExact": 14.989,
-    "baseOverallScore": 32.4,
-    "baseOverallScoreExact": 32.4405,
+    "overallScore": 10.6,
+    "overallScoreExact": 10.6161,
+    "baseOverallScore": 23,
+    "baseOverallScoreExact": 22.9762,
     "tier": "D",
     "sectionScores": {
-      "fats": 100,
-      "carbs": 37.1,
-      "proteins": null,
+      "fats": 50,
+      "carbs": 41.3,
+      "proteins": 12,
       "vitamins": 0,
       "minerals": 7.5,
       "pros": 50,
@@ -51,7 +51,7 @@
     "strongestSection": {
       "key": "fats",
       "label": "Fats",
-      "score": 100
+      "score": 50
     },
     "weakestSection": {
       "key": "cons",
@@ -106,11 +106,11 @@
     ],
     "explanation": {
       "summary": "Fats are carrying this food most, while cons are holding it back most. It lands in D tier.",
-      "whyThisTier": "This food lands in D tier with an overall score of 15. Section scores: fats 100, carbs 37.1, vitamins 0, minerals 7.5, pros 50, cons 0.",
+      "whyThisTier": "This food lands in D tier with an overall score of 10.6. Section scores: fats 50, carbs 41.3, proteins 12, vitamins 0, minerals 7.5, pros 50, cons 0.",
       "strongestSection": {
         "key": "fats",
         "label": "Fats",
-        "score": 100
+        "score": 50
       },
       "weakestSection": {
         "key": "cons",
@@ -175,8 +175,8 @@
     "narrationFormat": "elevenlabs-blocks-v1",
     "hook": "Dates ranked.",
     "closing": {
-      "summary": "Big strengths are omega 3 and still brings some useful minerals, but the biggest weaknesses are sugar density is a major category problem and glycemic behaviour is rough for fruit.",
-      "overview": "Big strengths are omega 3 and still brings some useful minerals, but the biggest weaknesses are sugar density is a major category problem and glycemic behaviour is rough for fruit.",
+      "summary": "Big strengths are protein and still brings some useful minerals, but the biggest weaknesses are sugar density is a major category problem and glycemic behaviour is rough for fruit.",
+      "overview": "Big strengths are protein and still brings some useful minerals, but the biggest weaknesses are sugar density is a major category problem and glycemic behaviour is rough for fruit.",
       "finalReveal": "D tier.",
       "useCaseNote": "Best only when the convenience or taste matters more than the nutrition return.",
       "cta": "Would you rank it the same, or nah?"
@@ -558,7 +558,7 @@
       "maxLines": 2,
       "maxCharactersPerLine": 18
     },
-    "totalEstimatedDurationSeconds": 92.42,
+    "totalEstimatedDurationSeconds": 92.09,
     "scenes": [
       {
         "id": "hook",
@@ -675,13 +675,13 @@
         "startSeconds": 2.1,
         "durationSeconds": 8.47,
         "endSeconds": 10.57,
-        "narrationText": "0.4 grams of fat. Saturated fat is 0 grams, supporting a better fat profile. Polyunsaturated fat is 0 grams, a weak mark for fruits.",
-        "subtitleText": "0.4g of fat. Saturated fat is 0g, supporting a better fat profile. Polyunsaturated fat is 0g, a weak mark for fruits.",
+        "narrationText": "0.4 grams of fat. Saturated fat is 0 grams, supporting a better fat profile. Omega 3 is 10 milligrams, a weak mark for fruits.",
+        "subtitleText": "0.4g of fat. Saturated fat is 0g, supporting a better fat profile. Omega 3 is 10mg, a weak mark for fruits.",
         "subtitlePlacement": "lower-third",
         "visualBinding": {
           "sectionKey": "fats",
           "title": "Fats",
-          "score": 100,
+          "score": 50,
           "templateSlots": [
             "macro_headline",
             "submetric_1",
@@ -696,15 +696,7 @@
               "weightedScore": 100,
               "scoringMode": "arrow_bands",
               "band": "3_green",
-              "dvPercent": null,
-              "value": 0
-            },
-            {
-              "metricKey": "polyunsaturated_fat_g",
-              "text": "polyunsaturated fat at 0g",
-              "weightedScore": 0,
-              "scoringMode": "arrow_bands",
-              "band": "3_red",
+              "polarity": "higher_worse",
               "dvPercent": null,
               "value": 0
             },
@@ -713,9 +705,30 @@
               "text": "omega 3 at 10mg",
               "weightedScore": 0,
               "scoringMode": "arrow_bands",
-              "band": "3_green",
+              "band": "↓↓↓",
+              "polarity": "higher_better",
               "dvPercent": null,
               "value": 10
+            },
+            {
+              "metricKey": "cholesterol_mg",
+              "text": "cholesterol at 0mg",
+              "weightedScore": 100,
+              "scoringMode": "arrow_bands",
+              "band": "↓↓↓",
+              "polarity": "higher_worse",
+              "dvPercent": null,
+              "value": 0
+            },
+            {
+              "metricKey": "polyunsaturated_fat_g",
+              "text": "polyunsaturated fat at 0g",
+              "weightedScore": 0,
+              "scoringMode": "arrow_bands",
+              "band": "↓↓↓",
+              "polarity": "higher_better",
+              "dvPercent": null,
+              "value": 0
             }
           ],
           "timingHint": "short-medium",
@@ -761,29 +774,29 @@
               },
               {
                 "slotId": "submetric_2",
-                "metricKey": "polyunsaturated_fat_g",
-                "label": "polyunsaturated fat",
-                "displayValue": "0g",
-                "scoringMode": "arrow_bands",
-                "band": "3_red",
-                "weightedScore": 0,
-                "spriteRole": "fats",
-                "text": "polyunsaturated fat at 0g"
-              },
-              {
-                "slotId": "submetric_3",
                 "metricKey": "omega3_mg",
                 "label": "omega 3",
                 "displayValue": "10mg",
                 "scoringMode": "arrow_bands",
-                "band": "3_green",
+                "band": "↓↓↓",
                 "weightedScore": 0,
                 "spriteRole": "fats",
                 "text": "omega 3 at 10mg"
+              },
+              {
+                "slotId": "submetric_3",
+                "metricKey": "cholesterol_mg",
+                "label": "cholesterol",
+                "displayValue": "0mg",
+                "scoringMode": "arrow_bands",
+                "band": "↓↓↓",
+                "weightedScore": 100,
+                "spriteRole": "fats",
+                "text": "cholesterol at 0mg"
               }
             ],
             "micronutrientRows": [],
-            "commentaryNote": null
+            "commentaryNote": "Overflow metrics stay off-screen unless the edit intentionally promotes them."
           }
         },
         "revealPlan": [
@@ -825,7 +838,7 @@
             "id": "02-fats-1",
             "sceneId": "fats",
             "startSeconds": 2.1,
-            "endSeconds": 3.49,
+            "endSeconds": 3.46,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -838,8 +851,8 @@
           {
             "id": "03-fats-2",
             "sceneId": "fats",
-            "startSeconds": 3.49,
-            "endSeconds": 5.78,
+            "startSeconds": 3.46,
+            "endSeconds": 5.72,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -852,8 +865,8 @@
           {
             "id": "04-fats-3",
             "sceneId": "fats",
-            "startSeconds": 5.78,
-            "endSeconds": 7.03,
+            "startSeconds": 5.72,
+            "endSeconds": 6.95,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -866,29 +879,29 @@
           {
             "id": "05-fats-4",
             "sceneId": "fats",
-            "startSeconds": 7.03,
-            "endSeconds": 9.32,
+            "startSeconds": 6.95,
+            "endSeconds": 10.03,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "Polyunsaturated",
-              "fat is 0g, a weak"
+              "Omega 3 is 10mg, a",
+              "weak mark for"
             ],
-            "text": "Polyunsaturated\nfat is 0g, a weak"
+            "text": "Omega 3 is 10mg, a\nweak mark for"
           },
           {
             "id": "06-fats-5",
             "sceneId": "fats",
-            "startSeconds": 9.32,
+            "startSeconds": 10.03,
             "endSeconds": 10.57,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "mark for fruits."
+              "fruits."
             ],
-            "text": "mark for fruits."
+            "text": "fruits."
           }
         ]
       },
@@ -899,13 +912,13 @@
         "startSeconds": 10.57,
         "durationSeconds": 8.12,
         "endSeconds": 18.69,
-        "narrationText": "75 grams of carbs. Fibre is 8 grams, helping with digestion and steadier meals. Starch is 0 grams, a meaningful miss for fruits.",
-        "subtitleText": "75g of carbs. Fibre is 8g, helping with digestion and steadier meals. Starch is 0g, a meaningful miss for fruits.",
+        "narrationText": "75 grams of carbs. Fibre is 8 grams, helping with digestion and steadier meals. Sugar is 63.4 grams, a meaningful miss for fruits.",
+        "subtitleText": "75g of carbs. Fibre is 8g, helping with digestion and steadier meals. Sugar is 63.4g, a meaningful miss for fruits.",
         "subtitlePlacement": "lower-third",
         "visualBinding": {
           "sectionKey": "carbs",
           "title": "Carbs",
-          "score": 37.1,
+          "score": 41.3,
           "templateSlots": [
             "macro_headline",
             "submetric_1",
@@ -920,15 +933,27 @@
               "weightedScore": 320,
               "scoringMode": "arrow_bands",
               "band": "2_green",
+              "polarity": "higher_better",
               "dvPercent": null,
               "value": 8
             },
             {
-              "metricKey": "starch_g",
-              "text": "starch at 0g",
+              "metricKey": "sugar_g",
+              "text": "sugar at 63.4g",
               "weightedScore": 0,
               "scoringMode": "arrow_bands",
               "band": "3_red",
+              "polarity": "higher_worse",
+              "dvPercent": null,
+              "value": 63.4
+            },
+            {
+              "metricKey": "starch_g",
+              "text": "starch at 0g",
+              "weightedScore": 100,
+              "scoringMode": "arrow_bands",
+              "band": "↓↓↓",
+              "polarity": "higher_worse",
               "dvPercent": null,
               "value": 0
             },
@@ -938,17 +963,9 @@
               "weightedScore": 200,
               "scoringMode": "arrow_bands",
               "band": "1_red",
+              "polarity": "higher_worse",
               "dvPercent": null,
               "value": 62
-            },
-            {
-              "metricKey": "sugar_g",
-              "text": "sugar at 63.4g",
-              "weightedScore": 0,
-              "scoringMode": "arrow_bands",
-              "band": "3_red",
-              "dvPercent": null,
-              "value": 63.4
             }
           ],
           "timingHint": "short-medium",
@@ -994,25 +1011,25 @@
               },
               {
                 "slotId": "submetric_2",
-                "metricKey": "starch_g",
-                "label": "starch",
-                "displayValue": "0g",
+                "metricKey": "sugar_g",
+                "label": "sugar",
+                "displayValue": "63.4g",
                 "scoringMode": "arrow_bands",
                 "band": "3_red",
                 "weightedScore": 0,
                 "spriteRole": "carbs",
-                "text": "starch at 0g"
+                "text": "sugar at 63.4g"
               },
               {
                 "slotId": "submetric_3",
-                "metricKey": "glycemic_index",
-                "label": "glycemic index",
-                "displayValue": "62 GI",
+                "metricKey": "starch_g",
+                "label": "starch",
+                "displayValue": "0g",
                 "scoringMode": "arrow_bands",
-                "band": "1_red",
-                "weightedScore": 200,
+                "band": "↓↓↓",
+                "weightedScore": 100,
                 "spriteRole": "carbs",
-                "text": "glycemic index at 62 GI"
+                "text": "starch at 0g"
               }
             ],
             "micronutrientRows": [],
@@ -1099,28 +1116,29 @@
             "id": "10-carbs-4",
             "sceneId": "carbs",
             "startSeconds": 15.5,
-            "endSeconds": 17.79,
+            "endSeconds": 17.09,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "Starch is 0g, a",
-              "meaningful miss"
+              "Sugar is",
+              "63.4g, a"
             ],
-            "text": "Starch is 0g, a\nmeaningful miss"
+            "text": "Sugar is\n63.4g, a"
           },
           {
             "id": "11-carbs-5",
             "sceneId": "carbs",
-            "startSeconds": 17.79,
+            "startSeconds": 17.09,
             "endSeconds": 18.69,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
+              "meaningful miss",
               "for fruits."
             ],
-            "text": "for fruits."
+            "text": "meaningful miss\nfor fruits."
           }
         ]
       },
@@ -1137,7 +1155,7 @@
         "visualBinding": {
           "sectionKey": "proteins",
           "title": "Proteins",
-          "score": null,
+          "score": 12,
           "templateSlots": [
             "macro_headline",
             "submetric_1",
@@ -1147,34 +1165,34 @@
           ],
           "displayItems": [
             {
-              "metricKey": "essential_amino_acids_score",
-              "text": "essential amino acids score at 2/9",
-              "weightedScore": 0,
-              "scoringMode": "arrow_bands",
-              "band": "2_red",
-              "dvPercent": null,
-              "value": 2,
-              "referenceOnly": false
-            },
-            {
               "metricKey": "bioavailability_percent",
               "text": "bioavailability at 32%",
-              "weightedScore": 0,
+              "weightedScore": 40,
               "scoringMode": "arrow_bands",
-              "band": "3_green",
+              "band": "↓↓",
+              "polarity": "higher_better",
               "dvPercent": null,
-              "value": 32,
-              "referenceOnly": false
+              "value": 32
             },
             {
               "metricKey": "nonessential_amino_acids_score",
               "text": "nonessential amino acids score at 3/11",
+              "weightedScore": 20,
+              "scoringMode": "arrow_bands",
+              "band": "↓↓",
+              "polarity": "higher_better",
+              "dvPercent": null,
+              "value": 3
+            },
+            {
+              "metricKey": "essential_amino_acids_score",
+              "text": "essential amino acids score at 2/9",
               "weightedScore": 0,
               "scoringMode": "arrow_bands",
-              "band": "1_red",
+              "band": "↓↓↓",
+              "polarity": "higher_better",
               "dvPercent": null,
-              "value": 3,
-              "referenceOnly": false
+              "value": 2
             }
           ],
           "timingHint": "short-medium",
@@ -1209,36 +1227,36 @@
             "macroSlots": [
               {
                 "slotId": "submetric_1",
-                "metricKey": "essential_amino_acids_score",
-                "label": "essential amino acids score",
-                "displayValue": "2/9",
-                "scoringMode": "arrow_bands",
-                "band": "2_red",
-                "weightedScore": 0,
-                "spriteRole": "proteins",
-                "text": "essential amino acids score at 2/9"
-              },
-              {
-                "slotId": "submetric_2",
                 "metricKey": "bioavailability_percent",
                 "label": "bioavailability",
                 "displayValue": "32%",
                 "scoringMode": "arrow_bands",
-                "band": "3_green",
-                "weightedScore": 0,
+                "band": "↓↓",
+                "weightedScore": 40,
                 "spriteRole": "proteins",
                 "text": "bioavailability at 32%"
               },
               {
-                "slotId": "submetric_3",
+                "slotId": "submetric_2",
                 "metricKey": "nonessential_amino_acids_score",
                 "label": "nonessential amino acids score",
                 "displayValue": "3/11",
                 "scoringMode": "arrow_bands",
-                "band": "1_red",
-                "weightedScore": 0,
+                "band": "↓↓",
+                "weightedScore": 20,
                 "spriteRole": "proteins",
                 "text": "nonessential amino acids score at 3/11"
+              },
+              {
+                "slotId": "submetric_3",
+                "metricKey": "essential_amino_acids_score",
+                "label": "essential amino acids score",
+                "displayValue": "2/9",
+                "scoringMode": "arrow_bands",
+                "band": "↓↓↓",
+                "weightedScore": 0,
+                "spriteRole": "proteins",
+                "text": "essential amino acids score at 2/9"
               }
             ],
             "micronutrientRows": [],
@@ -1377,6 +1395,7 @@
               "weightedScore": 0,
               "scoringMode": "dv_points",
               "band": null,
+              "polarity": null,
               "dvPercent": 3,
               "value": null
             },
@@ -1386,6 +1405,7 @@
               "weightedScore": 0,
               "scoringMode": "dv_points",
               "band": null,
+              "polarity": null,
               "dvPercent": 0,
               "value": null
             }
@@ -1544,6 +1564,7 @@
               "weightedScore": 20,
               "scoringMode": "dv_points",
               "band": null,
+              "polarity": null,
               "dvPercent": 15,
               "value": null
             },
@@ -1553,6 +1574,7 @@
               "weightedScore": 0,
               "scoringMode": "dv_points",
               "band": null,
+              "polarity": null,
               "dvPercent": 6,
               "value": null
             },
@@ -1562,6 +1584,7 @@
               "weightedScore": 10,
               "scoringMode": "dv_points",
               "band": null,
+              "polarity": null,
               "dvPercent": 11,
               "value": null
             }
@@ -2259,14 +2282,14 @@
         "kind": "closing",
         "narrativeRole": "verdict-payoff",
         "startSeconds": 81.87,
-        "durationSeconds": 10.55,
-        "endSeconds": 92.42,
-        "narrationText": "Big strengths are omega 3 and still brings some useful minerals, but the biggest weaknesses are sugar density is a major category problem and glycemic behaviour is rough for fruit. D tier.",
-        "subtitleText": "Big strengths are omega 3 and still brings some useful minerals, but the biggest weaknesses are sugar density is a major category problem and glycemic behaviour is rough for fruit. D tier.",
+        "durationSeconds": 10.22,
+        "endSeconds": 92.09,
+        "narrationText": "Big strengths are protein and still brings some useful minerals, but the biggest weaknesses are sugar density is a major category problem and glycemic behaviour is rough for fruit. D tier.",
+        "subtitleText": "Big strengths are protein and still brings some useful minerals, but the biggest weaknesses are sugar density is a major category problem and glycemic behaviour is rough for fruit. D tier.",
         "subtitleSequence": [
           {
             "role": "conclusion-summary",
-            "text": "Big strengths are omega 3 and still brings some useful minerals, but the biggest weaknesses are sugar density is a major category problem and glycemic behaviour is rough for fruit.",
+            "text": "Big strengths are protein and still brings some useful minerals, but the biggest weaknesses are sugar density is a major category problem and glycemic behaviour is rough for fruit.",
             "placement": "summary-full",
             "maxCharactersPerLine": 24
           },
@@ -2325,67 +2348,81 @@
             "id": "53-final-1",
             "sceneId": "final",
             "startSeconds": 81.87,
-            "endSeconds": 84.83,
+            "endSeconds": 84.1,
             "placement": "summary-full",
             "maxLines": 2,
             "maxCharactersPerLine": 24,
             "lines": [
-              "Big strengths are omega",
-              "3 and still brings some"
+              "Big strengths are",
+              "protein and still brings"
             ],
-            "text": "Big strengths are omega\n3 and still brings some",
+            "text": "Big strengths are\nprotein and still brings",
             "role": "conclusion-summary"
           },
           {
             "id": "54-final-2",
             "sceneId": "final",
-            "startSeconds": 84.83,
-            "endSeconds": 87.05,
+            "startSeconds": 84.1,
+            "endSeconds": 86.02,
             "placement": "summary-full",
             "maxLines": 2,
             "maxCharactersPerLine": 24,
             "lines": [
-              "useful minerals, but the",
-              "biggest weaknesses are"
+              "some useful minerals,",
+              "but the biggest"
             ],
-            "text": "useful minerals, but the\nbiggest weaknesses are",
+            "text": "some useful minerals,\nbut the biggest",
             "role": "conclusion-summary"
           },
           {
             "id": "55-final-3",
             "sceneId": "final",
-            "startSeconds": 87.05,
-            "endSeconds": 89.58,
+            "startSeconds": 86.02,
+            "endSeconds": 88.26,
             "placement": "summary-full",
             "maxLines": 2,
             "maxCharactersPerLine": 24,
             "lines": [
-              "sugar density is a major",
-              "category problem and"
+              "weaknesses are sugar",
+              "density is a major"
             ],
-            "text": "sugar density is a major\ncategory problem and",
+            "text": "weaknesses are sugar\ndensity is a major",
             "role": "conclusion-summary"
           },
           {
             "id": "56-final-4",
             "sceneId": "final",
-            "startSeconds": 89.58,
-            "endSeconds": 91.63,
+            "startSeconds": 88.26,
+            "endSeconds": 90.18,
             "placement": "summary-full",
             "maxLines": 2,
             "maxCharactersPerLine": 24,
             "lines": [
-              "glycemic behaviour is",
-              "rough for fruit."
+              "category problem and",
+              "glycemic behaviour is"
             ],
-            "text": "glycemic behaviour is\nrough for fruit.",
+            "text": "category problem and\nglycemic behaviour is",
             "role": "conclusion-summary"
           },
           {
             "id": "57-final-5",
             "sceneId": "final",
-            "startSeconds": 91.63,
-            "endSeconds": 92.42,
+            "startSeconds": 90.18,
+            "endSeconds": 91.29,
+            "placement": "summary-full",
+            "maxLines": 2,
+            "maxCharactersPerLine": 24,
+            "lines": [
+              "rough for fruit."
+            ],
+            "text": "rough for fruit.",
+            "role": "conclusion-summary"
+          },
+          {
+            "id": "58-final-6",
+            "sceneId": "final",
+            "startSeconds": 91.29,
+            "endSeconds": 92.09,
             "placement": "tier-center",
             "maxLines": 2,
             "maxCharactersPerLine": 24,
@@ -2416,7 +2453,7 @@
         "id": "02-fats-1",
         "sceneId": "fats",
         "startSeconds": 2.1,
-        "endSeconds": 3.49,
+        "endSeconds": 3.46,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2429,8 +2466,8 @@
       {
         "id": "03-fats-2",
         "sceneId": "fats",
-        "startSeconds": 3.49,
-        "endSeconds": 5.78,
+        "startSeconds": 3.46,
+        "endSeconds": 5.72,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2443,8 +2480,8 @@
       {
         "id": "04-fats-3",
         "sceneId": "fats",
-        "startSeconds": 5.78,
-        "endSeconds": 7.03,
+        "startSeconds": 5.72,
+        "endSeconds": 6.95,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2457,29 +2494,29 @@
       {
         "id": "05-fats-4",
         "sceneId": "fats",
-        "startSeconds": 7.03,
-        "endSeconds": 9.32,
+        "startSeconds": 6.95,
+        "endSeconds": 10.03,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "Polyunsaturated",
-          "fat is 0g, a weak"
+          "Omega 3 is 10mg, a",
+          "weak mark for"
         ],
-        "text": "Polyunsaturated\nfat is 0g, a weak"
+        "text": "Omega 3 is 10mg, a\nweak mark for"
       },
       {
         "id": "06-fats-5",
         "sceneId": "fats",
-        "startSeconds": 9.32,
+        "startSeconds": 10.03,
         "endSeconds": 10.57,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "mark for fruits."
+          "fruits."
         ],
-        "text": "mark for fruits."
+        "text": "fruits."
       },
       {
         "id": "07-carbs-1",
@@ -2526,28 +2563,29 @@
         "id": "10-carbs-4",
         "sceneId": "carbs",
         "startSeconds": 15.5,
-        "endSeconds": 17.79,
+        "endSeconds": 17.09,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "Starch is 0g, a",
-          "meaningful miss"
+          "Sugar is",
+          "63.4g, a"
         ],
-        "text": "Starch is 0g, a\nmeaningful miss"
+        "text": "Sugar is\n63.4g, a"
       },
       {
         "id": "11-carbs-5",
         "sceneId": "carbs",
-        "startSeconds": 17.79,
+        "startSeconds": 17.09,
         "endSeconds": 18.69,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
+          "meaningful miss",
           "for fruits."
         ],
-        "text": "for fruits."
+        "text": "meaningful miss\nfor fruits."
       },
       {
         "id": "12-proteins-1",
@@ -3116,67 +3154,81 @@
         "id": "53-final-1",
         "sceneId": "final",
         "startSeconds": 81.87,
-        "endSeconds": 84.83,
+        "endSeconds": 84.1,
         "placement": "summary-full",
         "maxLines": 2,
         "maxCharactersPerLine": 24,
         "lines": [
-          "Big strengths are omega",
-          "3 and still brings some"
+          "Big strengths are",
+          "protein and still brings"
         ],
-        "text": "Big strengths are omega\n3 and still brings some",
+        "text": "Big strengths are\nprotein and still brings",
         "role": "conclusion-summary"
       },
       {
         "id": "54-final-2",
         "sceneId": "final",
-        "startSeconds": 84.83,
-        "endSeconds": 87.05,
+        "startSeconds": 84.1,
+        "endSeconds": 86.02,
         "placement": "summary-full",
         "maxLines": 2,
         "maxCharactersPerLine": 24,
         "lines": [
-          "useful minerals, but the",
-          "biggest weaknesses are"
+          "some useful minerals,",
+          "but the biggest"
         ],
-        "text": "useful minerals, but the\nbiggest weaknesses are",
+        "text": "some useful minerals,\nbut the biggest",
         "role": "conclusion-summary"
       },
       {
         "id": "55-final-3",
         "sceneId": "final",
-        "startSeconds": 87.05,
-        "endSeconds": 89.58,
+        "startSeconds": 86.02,
+        "endSeconds": 88.26,
         "placement": "summary-full",
         "maxLines": 2,
         "maxCharactersPerLine": 24,
         "lines": [
-          "sugar density is a major",
-          "category problem and"
+          "weaknesses are sugar",
+          "density is a major"
         ],
-        "text": "sugar density is a major\ncategory problem and",
+        "text": "weaknesses are sugar\ndensity is a major",
         "role": "conclusion-summary"
       },
       {
         "id": "56-final-4",
         "sceneId": "final",
-        "startSeconds": 89.58,
-        "endSeconds": 91.63,
+        "startSeconds": 88.26,
+        "endSeconds": 90.18,
         "placement": "summary-full",
         "maxLines": 2,
         "maxCharactersPerLine": 24,
         "lines": [
-          "glycemic behaviour is",
-          "rough for fruit."
+          "category problem and",
+          "glycemic behaviour is"
         ],
-        "text": "glycemic behaviour is\nrough for fruit.",
+        "text": "category problem and\nglycemic behaviour is",
         "role": "conclusion-summary"
       },
       {
         "id": "57-final-5",
         "sceneId": "final",
-        "startSeconds": 91.63,
-        "endSeconds": 92.42,
+        "startSeconds": 90.18,
+        "endSeconds": 91.29,
+        "placement": "summary-full",
+        "maxLines": 2,
+        "maxCharactersPerLine": 24,
+        "lines": [
+          "rough for fruit."
+        ],
+        "text": "rough for fruit.",
+        "role": "conclusion-summary"
+      },
+      {
+        "id": "58-final-6",
+        "sceneId": "final",
+        "startSeconds": 91.29,
+        "endSeconds": 92.09,
         "placement": "tier-center",
         "maxLines": 2,
         "maxCharactersPerLine": 24,

@@ -245,8 +245,7 @@ function buildProteinQualityGate(food, ruleset) {
 function shouldSkipProteinQualityRule(rule, gate) {
   if (!PROTEIN_QUALITY_METRIC_KEYS.has(rule.metricKey)) return false;
   const weight = rule.weight ?? 1;
-  if (weight <= 0) return true;
-  return !gate.eligible;
+  return weight <= 0;
 }
 
 function trackSkippedProteinQuality(gate, rule) {
@@ -268,9 +267,10 @@ function maybeApplyProteinFallback(food, ruleset, sectionMetricScores, metricBre
   const row = {
     metricKey: fallback.metricKey || 'protein_g_fallback',
     sectionKey: 'proteins',
-    scoringMode: 'protein_fallback',
+    scoringMode: 'arrow_bands',
     value: proteinGrams,
     band: bandResult.label,
+    polarity: 'higher_better',
     score: bandResult.score,
     weight: fallback.weight ?? 1,
     weightedScore: bandResult.score * (fallback.weight ?? 1),
@@ -343,6 +343,7 @@ function main() {
       scoringMode: 'arrow_bands',
       value,
       band: bandResult.label,
+      polarity: rule.polarity || null,
       score: bandResult.score,
       weight: rule.weight ?? 1,
       weightedScore: bandResult.score * (rule.weight ?? 1)

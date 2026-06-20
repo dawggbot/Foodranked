@@ -78,7 +78,6 @@ Do not treat every metric as universally meaningful in every category.
 Use these states:
 - `higher_better`
 - `higher_worse`
-- `neutral_display_only`
 - `not_applicable`
 
 Examples:
@@ -87,7 +86,7 @@ Examples:
 - glycemic index: usually `higher_worse`
 - collagen: often `not_applicable` for plant categories
 - cholesterol: often `not_applicable` for plant categories
-- macro grams: usually `neutral_display_only`
+- macro totals: display-only, outside submacro arrow scoring
 
 ## Step 2: submacro band system
 
@@ -120,6 +119,9 @@ Numeric mapping:
 
 There is no neutral middle band on purpose.
 Every scored submacro should land in a clearly good or clearly bad visual state for its category.
+If a submacro has a defensible numeric value for a food, an arrow indicator must be displayed.
+Only `N/A` submacro values may remain visually neutral/no-arrow.
+Do not park a source-backed numeric submacro as `not_applicable`; either give it a category-specific 6-band ladder or make the food value `N/A` when it is not defensibly sourceable.
 
 ## Step 3: vitamin and mineral DV scoring
 
@@ -259,12 +261,12 @@ That matters for metrics kept in the schema for display, future use, or category
 Protein-quality proxies are still uneven across the current food library.
 When amino-acid or bioavailability fields are missing, weak, intentionally withheld, or not present in a useful protein amount, the ruleset may use a `proteinFallback` based on plain `protein_g` from the header.
 
-Amino-acid quality must not be counted just because an amino acid proxy exists. If the food does not provide a category-useful amount of protein, the protein section should score and narrate protein amount instead, or show no meaningful protein submacro.
+Amino-acid quality must not be counted unless an amino acid proxy exists. If the food does not provide source-backed protein-quality metrics, the protein section should score and narrate protein amount instead.
 
 This is the intended bridge rule for v1:
 - prefer direct protein submetrics when they are genuinely source-backed and trusted
-- otherwise mark those protein-quality metrics `not_applicable`
-- let a category-specific `proteinFallback` keep the proteins section alive in a stable, auditable way
+- otherwise leave those protein-quality values as `N/A`
+- let a category-specific `proteinFallback` keep the proteins section alive in a stable, auditable arrow-band way
 
 That is stronger than forcing fake precision from shaky proxy fields.
 

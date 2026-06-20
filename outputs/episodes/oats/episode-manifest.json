@@ -1,6 +1,6 @@
 {
   "id": "oats-episode-v1",
-  "generatedAt": "2026-06-01T22:53:54.534Z",
+  "generatedAt": "2026-06-20T01:10:42.798Z",
   "status": "draft",
   "mode": "standard",
   "food": {
@@ -29,18 +29,18 @@
       ]
     },
     "scoreReadiness": {
-      "status": "near-production-safe",
-      "summary": "Identity, basis, macros, fibre, starch, and core micronutrients are solid enough to use. Grain scoring still needs a locked GI policy for dry oats versus prepared oats.",
-      "blockers": [
-        "glycemic_index intentionally withheld because it is preparation-dependent",
-        "grain protein proxy metrics were removed until exact-source amino acid data is attached"
+      "status": "production-safe",
+      "summary": "Representative finalisation sample with per-100g basis, structured source references, and current scoring/display guardrails applied.",
+      "blockers": [],
+      "caveats": [
+        "Real foods vary by cultivar, brand, season, and preparation; this record is a canonical comparison entry rather than a guarantee for every product."
       ]
     },
     "sourceNotes": [
-      "Production-lane cleanup pass.",
-      "Identity locked to plain rolled oats, dry, per 100 g as sold.",
-      "Core nutrient values align with common USDA FoodData Central style entries for dry oats/rolled oats.",
-      "Weak proxy metrics were removed rather than preserved as fake certainty."
+      "Production-lane source audit pass.",
+      "All displayed nutrition values are stored and checked on a per-100g basis.",
+      "Primary and cross-check nutrition references are listed in nutritionDataSources.",
+      "Contextual GI and protein-quality fields are optional when not canonical nutrient facts."
     ],
     "sourceFile": "foods/oats.sample.json"
   },
@@ -59,13 +59,13 @@
     "subtitlesJson": "subtitles.json"
   },
   "scoreSnapshot": {
-    "overallScore": 81.8,
-    "overallScoreExact": 81.7567,
-    "baseOverallScore": 58.2,
-    "baseOverallScoreExact": 58.1667,
+    "overallScore": 82.4,
+    "overallScoreExact": 82.3797,
+    "baseOverallScore": 59.6,
+    "baseOverallScoreExact": 59.5952,
     "tier": "S",
     "sectionScores": {
-      "fats": 60,
+      "fats": 70,
       "carbs": 77.5,
       "proteins": 100,
       "vitamins": 25,
@@ -131,7 +131,7 @@
     ],
     "explanation": {
       "summary": "Proteins are carrying this food most, while vitamins are holding it back most. It lands in S tier.",
-      "whyThisTier": "This food lands in S tier with an overall score of 81.8. Section scores: fats 60, carbs 77.5, proteins 100, vitamins 25, minerals 28, pros 66.7, cons 50.",
+      "whyThisTier": "This food lands in S tier with an overall score of 82.4. Section scores: fats 70, carbs 77.5, proteins 100, vitamins 25, minerals 28, pros 66.7, cons 50.",
       "strongestSection": {
         "key": "proteins",
         "label": "Proteins",
@@ -200,8 +200,8 @@
     "narrationFormat": "elevenlabs-blocks-v1",
     "hook": "Oats ranked.",
     "closing": {
-      "summary": "Big strengths are omega 3 and fibre, but the biggest weaknesses are phytates can modestly reduce mineral uptake and the bowl can get worse fast with sugary add-ons.",
-      "overview": "Big strengths are omega 3 and fibre, but the biggest weaknesses are phytates can modestly reduce mineral uptake and the bowl can get worse fast with sugary add-ons.",
+      "summary": "Big strengths are omega 3 and protein, but the biggest weaknesses are phytates can modestly reduce mineral uptake and the bowl can get worse fast with sugary add-ons.",
+      "overview": "Big strengths are omega 3 and protein, but the biggest weaknesses are phytates can modestly reduce mineral uptake and the bowl can get worse fast with sugary add-ons.",
       "finalReveal": "S tier.",
       "useCaseNote": "Best when you want a staple carb that actually brings something useful with it.",
       "cta": "Would you rank it the same, or nah?"
@@ -583,7 +583,7 @@
       "maxLines": 2,
       "maxCharactersPerLine": 18
     },
-    "totalEstimatedDurationSeconds": 99.79,
+    "totalEstimatedDurationSeconds": 98.32,
     "scenes": [
       {
         "id": "hook",
@@ -698,15 +698,15 @@
         "kind": "section",
         "narrativeRole": "macro-foundation",
         "startSeconds": 2.4,
-        "durationSeconds": 5,
-        "endSeconds": 7.4,
-        "narrationText": "6.9 grams of fat. Saturated fat is 1.2 grams, supporting a better fat profile.",
-        "subtitleText": "6.9g of fat. Saturated fat is 1.2g, supporting a better fat profile.",
+        "durationSeconds": 4.64,
+        "endSeconds": 7.04,
+        "narrationText": "6.9 grams of fat. Cholesterol is 0 milligrams, supporting a better fat profile.",
+        "subtitleText": "6.9g of fat. Cholesterol is 0mg, supporting a better fat profile.",
         "subtitlePlacement": "lower-third",
         "visualBinding": {
           "sectionKey": "fats",
           "title": "Fats",
-          "score": 60,
+          "score": 70,
           "templateSlots": [
             "macro_headline",
             "submetric_1",
@@ -716,11 +716,22 @@
           ],
           "displayItems": [
             {
+              "metricKey": "cholesterol_mg",
+              "text": "cholesterol at 0mg",
+              "weightedScore": 100,
+              "scoringMode": "arrow_bands",
+              "band": "↓↓↓",
+              "polarity": "higher_worse",
+              "dvPercent": null,
+              "value": 0
+            },
+            {
               "metricKey": "saturated_fat_g",
               "text": "saturated fat at 1.2g",
               "weightedScore": 60,
               "scoringMode": "arrow_bands",
               "band": "1_green",
+              "polarity": "higher_worse",
               "dvPercent": null,
               "value": 1.2
             },
@@ -730,6 +741,7 @@
               "weightedScore": 60,
               "scoringMode": "arrow_bands",
               "band": "1_green",
+              "polarity": "higher_better",
               "dvPercent": null,
               "value": 111
             },
@@ -739,6 +751,7 @@
               "weightedScore": 60,
               "scoringMode": "arrow_bands",
               "band": "1_green",
+              "polarity": "higher_better",
               "dvPercent": null,
               "value": 2.5
             }
@@ -775,6 +788,17 @@
             "macroSlots": [
               {
                 "slotId": "submetric_1",
+                "metricKey": "cholesterol_mg",
+                "label": "cholesterol",
+                "displayValue": "0mg",
+                "scoringMode": "arrow_bands",
+                "band": "↓↓↓",
+                "weightedScore": 100,
+                "spriteRole": "fats",
+                "text": "cholesterol at 0mg"
+              },
+              {
+                "slotId": "submetric_2",
                 "metricKey": "saturated_fat_g",
                 "label": "saturated fat",
                 "displayValue": "1.2g",
@@ -785,7 +809,7 @@
                 "text": "saturated fat at 1.2g"
               },
               {
-                "slotId": "submetric_2",
+                "slotId": "submetric_3",
                 "metricKey": "omega3_mg",
                 "label": "omega 3",
                 "displayValue": "111mg",
@@ -794,21 +818,10 @@
                 "weightedScore": 60,
                 "spriteRole": "fats",
                 "text": "omega 3 at 111mg"
-              },
-              {
-                "slotId": "submetric_3",
-                "metricKey": "polyunsaturated_fat_g",
-                "label": "polyunsaturated fat",
-                "displayValue": "2.5g",
-                "scoringMode": "arrow_bands",
-                "band": "1_green",
-                "weightedScore": 60,
-                "spriteRole": "fats",
-                "text": "polyunsaturated fat at 2.5g"
               }
             ],
             "micronutrientRows": [],
-            "commentaryNote": null
+            "commentaryNote": "Overflow metrics stay off-screen unless the edit intentionally promotes them."
           }
         },
         "revealPlan": [
@@ -850,7 +863,7 @@
             "id": "02-fats-1",
             "sceneId": "fats",
             "startSeconds": 2.4,
-            "endSeconds": 3.79,
+            "endSeconds": 3.8,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -863,43 +876,30 @@
           {
             "id": "03-fats-2",
             "sceneId": "fats",
-            "startSeconds": 3.79,
-            "endSeconds": 5.39,
+            "startSeconds": 3.8,
+            "endSeconds": 5.77,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "Saturated fat is",
-              "1.2g,"
+              "Cholesterol is",
+              "0mg, supporting a"
             ],
-            "text": "Saturated fat is\n1.2g,"
+            "text": "Cholesterol is\n0mg, supporting a"
           },
           {
             "id": "04-fats-3",
             "sceneId": "fats",
-            "startSeconds": 5.39,
-            "endSeconds": 6.85,
+            "startSeconds": 5.77,
+            "endSeconds": 7.04,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "supporting a",
-              "better fat"
-            ],
-            "text": "supporting a\nbetter fat"
-          },
-          {
-            "id": "05-fats-4",
-            "sceneId": "fats",
-            "startSeconds": 6.85,
-            "endSeconds": 7.4,
-            "placement": "lower-third",
-            "maxLines": 2,
-            "maxCharactersPerLine": 18,
-            "lines": [
+              "better fat",
               "profile."
             ],
-            "text": "profile."
+            "text": "better fat\nprofile."
           }
         ]
       },
@@ -907,9 +907,9 @@
         "id": "carbs",
         "kind": "section",
         "narrativeRole": "macro-foundation",
-        "startSeconds": 7.4,
+        "startSeconds": 7.04,
         "durationSeconds": 5,
-        "endSeconds": 12.4,
+        "endSeconds": 12.04,
         "narrationText": "66.3 grams of carbs. Fibre is 10.6 grams, helping with digestion and steadier meals.",
         "subtitleText": "66.3g of carbs. Fibre is 10.6g, helping with digestion and steadier meals.",
         "subtitlePlacement": "lower-third",
@@ -931,6 +931,7 @@
               "weightedScore": 400,
               "scoringMode": "arrow_bands",
               "band": "2_green",
+              "polarity": "higher_better",
               "dvPercent": null,
               "value": 10.6
             },
@@ -940,6 +941,7 @@
               "weightedScore": 160,
               "scoringMode": "arrow_bands",
               "band": "2_green",
+              "polarity": "higher_worse",
               "dvPercent": null,
               "value": 1
             },
@@ -949,6 +951,7 @@
               "weightedScore": 60,
               "scoringMode": "arrow_bands",
               "band": "1_green",
+              "polarity": "higher_better",
               "dvPercent": null,
               "value": 55
             }
@@ -1057,10 +1060,10 @@
         ],
         "subtitleCues": [
           {
-            "id": "06-carbs-1",
+            "id": "05-carbs-1",
             "sceneId": "carbs",
-            "startSeconds": 7.4,
-            "endSeconds": 8.79,
+            "startSeconds": 7.04,
+            "endSeconds": 8.43,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1071,10 +1074,10 @@
             "text": "66.3g of\ncarbs."
           },
           {
-            "id": "07-carbs-2",
+            "id": "06-carbs-2",
             "sceneId": "carbs",
-            "startSeconds": 8.79,
-            "endSeconds": 10.03,
+            "startSeconds": 8.43,
+            "endSeconds": 9.67,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1085,10 +1088,10 @@
             "text": "Fibre is\n10.6g,"
           },
           {
-            "id": "08-carbs-3",
+            "id": "07-carbs-3",
             "sceneId": "carbs",
-            "startSeconds": 10.03,
-            "endSeconds": 11.5,
+            "startSeconds": 9.67,
+            "endSeconds": 11.14,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1099,10 +1102,10 @@
             "text": "helping with\ndigestion and"
           },
           {
-            "id": "09-carbs-4",
+            "id": "08-carbs-4",
             "sceneId": "carbs",
-            "startSeconds": 11.5,
-            "endSeconds": 12.4,
+            "startSeconds": 11.14,
+            "endSeconds": 12.04,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1117,11 +1120,11 @@
         "id": "proteins",
         "kind": "section",
         "narrativeRole": "macro-foundation",
-        "startSeconds": 12.4,
-        "durationSeconds": 7.86,
-        "endSeconds": 20.26,
-        "narrationText": "16.9 grams of protein. No defensible protein submacros to call out. Protein helps, but not enough if the carb side is weak.",
-        "subtitleText": "16.9g of protein. No defensible protein submacros to call out. Protein helps, but not enough if the carb side is weak.",
+        "startSeconds": 12.04,
+        "durationSeconds": 3.93,
+        "endSeconds": 15.97,
+        "narrationText": "16.9 grams of protein. That amount is useful enough to count.",
+        "subtitleText": "16.9g of protein. That amount is useful enough to count.",
         "subtitlePlacement": "lower-third",
         "visualBinding": {
           "sectionKey": "proteins",
@@ -1134,7 +1137,18 @@
             "submetric_3",
             "commentary_note"
           ],
-          "displayItems": [],
+          "displayItems": [
+            {
+              "metricKey": "protein_g_fallback",
+              "text": "protein amount at 16.9g",
+              "weightedScore": 200,
+              "scoringMode": "arrow_bands",
+              "band": "3_green",
+              "polarity": "higher_better",
+              "dvPercent": null,
+              "value": 16.9
+            }
+          ],
           "timingHint": "short-medium",
           "narrativeRole": "macro-foundation",
           "macroLayout": "stacked",
@@ -1164,7 +1178,19 @@
               "value": null,
               "emphasis": "standard"
             },
-            "macroSlots": [],
+            "macroSlots": [
+              {
+                "slotId": "submetric_1",
+                "metricKey": "protein_g_fallback",
+                "label": "protein amount",
+                "displayValue": "16.9",
+                "scoringMode": "arrow_bands",
+                "band": "3_green",
+                "weightedScore": 200,
+                "spriteRole": "proteins",
+                "text": "protein amount at 16.9g"
+              }
+            ],
             "micronutrientRows": [],
             "commentaryNote": null
           }
@@ -1205,10 +1231,10 @@
         ],
         "subtitleCues": [
           {
-            "id": "10-proteins-1",
+            "id": "09-proteins-1",
             "sceneId": "proteins",
-            "startSeconds": 12.4,
-            "endSeconds": 13.73,
+            "startSeconds": 12.04,
+            "endSeconds": 13.37,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1219,58 +1245,31 @@
             "text": "16.9g of\nprotein."
           },
           {
-            "id": "11-proteins-2",
+            "id": "10-proteins-2",
             "sceneId": "proteins",
-            "startSeconds": 13.73,
-            "endSeconds": 15.12,
+            "startSeconds": 13.37,
+            "endSeconds": 15.44,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "No defensible",
-              "protein submacros"
+              "That amount is",
+              "useful enough to"
             ],
-            "text": "No defensible\nprotein submacros"
+            "text": "That amount is\nuseful enough to"
           },
           {
-            "id": "12-proteins-3",
+            "id": "11-proteins-3",
             "sceneId": "proteins",
-            "startSeconds": 15.12,
-            "endSeconds": 16.32,
+            "startSeconds": 15.44,
+            "endSeconds": 15.97,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "to call out."
+              "count."
             ],
-            "text": "to call out."
-          },
-          {
-            "id": "13-proteins-4",
-            "sceneId": "proteins",
-            "startSeconds": 16.32,
-            "endSeconds": 18.72,
-            "placement": "lower-third",
-            "maxLines": 2,
-            "maxCharactersPerLine": 18,
-            "lines": [
-              "Protein helps, but",
-              "not enough if the"
-            ],
-            "text": "Protein helps, but\nnot enough if the"
-          },
-          {
-            "id": "14-proteins-5",
-            "sceneId": "proteins",
-            "startSeconds": 18.72,
-            "endSeconds": 20.26,
-            "placement": "lower-third",
-            "maxLines": 2,
-            "maxCharactersPerLine": 18,
-            "lines": [
-              "carb side is weak."
-            ],
-            "text": "carb side is weak."
+            "text": "count."
           }
         ]
       },
@@ -1278,9 +1277,9 @@
         "id": "vitamins",
         "kind": "section",
         "narrativeRole": "micronutrient-proof",
-        "startSeconds": 20.26,
+        "startSeconds": 15.97,
         "durationSeconds": 7.86,
-        "endSeconds": 28.12,
+        "endSeconds": 23.83,
         "narrationText": "Vitamin b1 is 51% daily value, adding useful vitamin support. Vitamin E is only 3% daily value, a weak mark for grains.",
         "subtitleText": "Vitamin b1 is 51% DV, adding useful vitamin support. Vitamin E is only 3% DV, a weak mark for grains.",
         "subtitlePlacement": "lower-third",
@@ -1300,6 +1299,7 @@
               "weightedScore": 200,
               "scoringMode": "dv_points",
               "band": null,
+              "polarity": null,
               "dvPercent": 51,
               "value": null
             },
@@ -1309,6 +1309,7 @@
               "weightedScore": 0,
               "scoringMode": "dv_points",
               "band": null,
+              "polarity": null,
               "dvPercent": 3,
               "value": null
             },
@@ -1318,6 +1319,7 @@
               "weightedScore": 0,
               "scoringMode": "dv_points",
               "band": null,
+              "polarity": null,
               "dvPercent": 6,
               "value": null
             }
@@ -1394,10 +1396,10 @@
         ],
         "subtitleCues": [
           {
-            "id": "15-vitamins-1",
+            "id": "12-vitamins-1",
             "sceneId": "vitamins",
-            "startSeconds": 20.26,
-            "endSeconds": 23.02,
+            "startSeconds": 15.97,
+            "endSeconds": 18.73,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1408,10 +1410,10 @@
             "text": "Vitamin b1 is 51%\nDV, adding useful"
           },
           {
-            "id": "16-vitamins-2",
+            "id": "13-vitamins-2",
             "sceneId": "vitamins",
-            "startSeconds": 23.02,
-            "endSeconds": 23.91,
+            "startSeconds": 18.73,
+            "endSeconds": 19.62,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1421,10 +1423,10 @@
             "text": "vitamin support."
           },
           {
-            "id": "17-vitamins-3",
+            "id": "14-vitamins-3",
             "sceneId": "vitamins",
-            "startSeconds": 23.91,
-            "endSeconds": 27.23,
+            "startSeconds": 19.62,
+            "endSeconds": 22.94,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1435,10 +1437,10 @@
             "text": "Vitamin E is only\n3% DV, a weak mark"
           },
           {
-            "id": "18-vitamins-4",
+            "id": "15-vitamins-4",
             "sceneId": "vitamins",
-            "startSeconds": 27.23,
-            "endSeconds": 28.12,
+            "startSeconds": 22.94,
+            "endSeconds": 23.83,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1453,9 +1455,9 @@
         "id": "minerals",
         "kind": "section",
         "narrativeRole": "micronutrient-proof",
-        "startSeconds": 28.12,
+        "startSeconds": 23.83,
         "durationSeconds": 6.79,
-        "endSeconds": 34.91,
+        "endSeconds": 30.62,
         "narrationText": "Magnesium is 44% daily value, adding useful mineral support. Potassium is 12% daily value, a weak mark for grains.",
         "subtitleText": "Magnesium is 44% DV, adding useful mineral support. Potassium is 12% DV, a weak mark for grains.",
         "subtitlePlacement": "lower-third",
@@ -1475,6 +1477,7 @@
               "weightedScore": 200,
               "scoringMode": "dv_points",
               "band": null,
+              "polarity": null,
               "dvPercent": 44,
               "value": null
             },
@@ -1484,6 +1487,7 @@
               "weightedScore": 20,
               "scoringMode": "dv_points",
               "band": null,
+              "polarity": null,
               "dvPercent": 12,
               "value": null
             },
@@ -1493,6 +1497,7 @@
               "weightedScore": 120,
               "scoringMode": "dv_points",
               "band": null,
+              "polarity": null,
               "dvPercent": 36,
               "value": null
             },
@@ -1502,6 +1507,7 @@
               "weightedScore": 80,
               "scoringMode": "dv_points",
               "band": null,
+              "polarity": null,
               "dvPercent": 26,
               "value": null
             }
@@ -1578,10 +1584,10 @@
         ],
         "subtitleCues": [
           {
-            "id": "19-minerals-1",
+            "id": "16-minerals-1",
             "sceneId": "minerals",
-            "startSeconds": 28.12,
-            "endSeconds": 30.43,
+            "startSeconds": 23.83,
+            "endSeconds": 26.14,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1592,10 +1598,10 @@
             "text": "Magnesium is 44%\nDV, adding useful"
           },
           {
-            "id": "20-minerals-2",
+            "id": "17-minerals-2",
             "sceneId": "minerals",
-            "startSeconds": 30.43,
-            "endSeconds": 31.34,
+            "startSeconds": 26.14,
+            "endSeconds": 27.05,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1605,10 +1611,10 @@
             "text": "mineral support."
           },
           {
-            "id": "21-minerals-3",
+            "id": "18-minerals-3",
             "sceneId": "minerals",
-            "startSeconds": 31.34,
-            "endSeconds": 34,
+            "startSeconds": 27.05,
+            "endSeconds": 29.71,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1619,10 +1625,10 @@
             "text": "Potassium is 12%\nDV, a weak mark"
           },
           {
-            "id": "22-minerals-4",
+            "id": "19-minerals-4",
             "sceneId": "minerals",
-            "startSeconds": 34,
-            "endSeconds": 34.91,
+            "startSeconds": 29.71,
+            "endSeconds": 30.62,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1637,9 +1643,9 @@
         "id": "pros",
         "kind": "section",
         "narrativeRole": "real-world-upside",
-        "startSeconds": 34.91,
+        "startSeconds": 30.62,
         "durationSeconds": 26.79,
-        "endSeconds": 61.7,
+        "endSeconds": 57.41,
         "narrationText": "Pros first: contains meaningful beta-glucan soluble fibre. Oats are unusual among common grains for their beta-glucan content, which makes the fibre story more specific than just the fibre grams already shown. Easy whole-grain staple to use regularly. Plain rolled oats are cheap, familiar, and realistic for repeated use, which matters for an everyday grain. Plain oats start unsweetened. That gives them a cleaner baseline than sweetened instant oatmeal products, which are excluded from this entry.",
         "subtitleText": "Pros first: contains meaningful beta-glucan soluble fibre. Oats are unusual among common grains for their beta-glucan content, which makes the fibre story more specific than just the fibre numbers already shown. Easy whole-grain staple to use regularly. Plain rolled oats are cheap, familiar, and realistic for repeated use, which matters for an everyday grain. Plain oats start unsweetened. That gives them a cleaner baseline than sweetened instant oatmeal products, which are excluded from this entry.",
         "subtitlePlacement": "high-lower-third",
@@ -1720,10 +1726,10 @@
         ],
         "subtitleCues": [
           {
-            "id": "23-pros-1",
+            "id": "20-pros-1",
             "sceneId": "pros",
-            "startSeconds": 34.91,
-            "endSeconds": 35.96,
+            "startSeconds": 30.62,
+            "endSeconds": 31.67,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1734,10 +1740,10 @@
             "text": "Pros first:\ncontains"
           },
           {
-            "id": "24-pros-2",
+            "id": "21-pros-2",
             "sceneId": "pros",
-            "startSeconds": 35.96,
-            "endSeconds": 36.67,
+            "startSeconds": 31.67,
+            "endSeconds": 32.38,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1748,10 +1754,10 @@
             "text": "meaningful\nbeta-glucan"
           },
           {
-            "id": "25-pros-3",
+            "id": "22-pros-3",
             "sceneId": "pros",
-            "startSeconds": 36.67,
-            "endSeconds": 37.52,
+            "startSeconds": 32.38,
+            "endSeconds": 33.23,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1761,10 +1767,10 @@
             "text": "soluble fibre."
           },
           {
-            "id": "26-pros-4",
+            "id": "23-pros-4",
             "sceneId": "pros",
-            "startSeconds": 37.52,
-            "endSeconds": 39.24,
+            "startSeconds": 33.23,
+            "endSeconds": 34.95,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1775,10 +1781,10 @@
             "text": "Oats are unusual\namong common"
           },
           {
-            "id": "27-pros-5",
+            "id": "24-pros-5",
             "sceneId": "pros",
-            "startSeconds": 39.24,
-            "endSeconds": 40.62,
+            "startSeconds": 34.95,
+            "endSeconds": 36.33,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1789,10 +1795,10 @@
             "text": "grains for their\nbeta-glucan"
           },
           {
-            "id": "28-pros-6",
+            "id": "25-pros-6",
             "sceneId": "pros",
-            "startSeconds": 40.62,
-            "endSeconds": 42.34,
+            "startSeconds": 36.33,
+            "endSeconds": 38.05,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1803,10 +1809,10 @@
             "text": "content, which\nmakes the fibre"
           },
           {
-            "id": "29-pros-7",
+            "id": "26-pros-7",
             "sceneId": "pros",
-            "startSeconds": 42.34,
-            "endSeconds": 44.06,
+            "startSeconds": 38.05,
+            "endSeconds": 39.77,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1817,10 +1823,10 @@
             "text": "story more\nspecific than just"
           },
           {
-            "id": "30-pros-8",
+            "id": "27-pros-8",
             "sceneId": "pros",
-            "startSeconds": 44.06,
-            "endSeconds": 45.92,
+            "startSeconds": 39.77,
+            "endSeconds": 41.63,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1831,10 +1837,10 @@
             "text": "the fibre numbers\nalready shown."
           },
           {
-            "id": "31-pros-9",
+            "id": "28-pros-9",
             "sceneId": "pros",
-            "startSeconds": 45.92,
-            "endSeconds": 47.64,
+            "startSeconds": 41.63,
+            "endSeconds": 43.35,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1845,10 +1851,10 @@
             "text": "Easy whole-grain\nstaple to use"
           },
           {
-            "id": "32-pros-10",
+            "id": "29-pros-10",
             "sceneId": "pros",
-            "startSeconds": 47.64,
-            "endSeconds": 48.16,
+            "startSeconds": 43.35,
+            "endSeconds": 43.87,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1858,10 +1864,10 @@
             "text": "regularly."
           },
           {
-            "id": "33-pros-11",
+            "id": "30-pros-11",
             "sceneId": "pros",
-            "startSeconds": 48.16,
-            "endSeconds": 49.87,
+            "startSeconds": 43.87,
+            "endSeconds": 45.58,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1872,10 +1878,10 @@
             "text": "Plain rolled oats\nare cheap,"
           },
           {
-            "id": "34-pros-12",
+            "id": "31-pros-12",
             "sceneId": "pros",
-            "startSeconds": 49.87,
-            "endSeconds": 51.26,
+            "startSeconds": 45.58,
+            "endSeconds": 46.97,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1886,10 +1892,10 @@
             "text": "familiar, and\nrealistic for"
           },
           {
-            "id": "35-pros-13",
+            "id": "32-pros-13",
             "sceneId": "pros",
-            "startSeconds": 51.26,
-            "endSeconds": 52.97,
+            "startSeconds": 46.97,
+            "endSeconds": 48.68,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1900,10 +1906,10 @@
             "text": "repeated use,\nwhich matters for"
           },
           {
-            "id": "36-pros-14",
+            "id": "33-pros-14",
             "sceneId": "pros",
-            "startSeconds": 52.97,
-            "endSeconds": 54.17,
+            "startSeconds": 48.68,
+            "endSeconds": 49.88,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1913,10 +1919,10 @@
             "text": "an everyday grain."
           },
           {
-            "id": "37-pros-15",
+            "id": "34-pros-15",
             "sceneId": "pros",
-            "startSeconds": 54.17,
-            "endSeconds": 55.69,
+            "startSeconds": 49.88,
+            "endSeconds": 51.4,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1927,10 +1933,10 @@
             "text": "Plain oats start\nunsweetened."
           },
           {
-            "id": "38-pros-16",
+            "id": "35-pros-16",
             "sceneId": "pros",
-            "startSeconds": 55.69,
-            "endSeconds": 57.74,
+            "startSeconds": 51.4,
+            "endSeconds": 53.45,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1941,10 +1947,10 @@
             "text": "That gives them a\ncleaner baseline"
           },
           {
-            "id": "39-pros-17",
+            "id": "36-pros-17",
             "sceneId": "pros",
-            "startSeconds": 57.74,
-            "endSeconds": 59.13,
+            "startSeconds": 53.45,
+            "endSeconds": 54.84,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1955,10 +1961,10 @@
             "text": "than sweetened\ninstant oatmeal"
           },
           {
-            "id": "40-pros-18",
+            "id": "37-pros-18",
             "sceneId": "pros",
-            "startSeconds": 59.13,
-            "endSeconds": 60.84,
+            "startSeconds": 54.84,
+            "endSeconds": 56.55,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1969,10 +1975,10 @@
             "text": "products, which\nare excluded from"
           },
           {
-            "id": "41-pros-19",
+            "id": "38-pros-19",
             "sceneId": "pros",
-            "startSeconds": 60.84,
-            "endSeconds": 61.7,
+            "startSeconds": 56.55,
+            "endSeconds": 57.41,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1987,9 +1993,9 @@
         "id": "cons",
         "kind": "section",
         "narrativeRole": "real-world-downside",
-        "startSeconds": 61.7,
+        "startSeconds": 57.41,
         "durationSeconds": 27.5,
-        "endSeconds": 89.2,
+        "endSeconds": 84.91,
         "narrationText": "Downsides next: phytates can modestly reduce mineral uptake. That caveat is real for oats, even if it does not erase their mineral content. The bowl can get worse fast with sugary add-ons. The plain ingredient is solid, but common preparation choices can change the real meal a lot. Texture and tolerance are not universal wins. Some people dislike the texture or do not tolerate oats especially well, which is a real usability downside for a staple food.",
         "subtitleText": "Downsides next: phytates can modestly reduce mineral uptake. That caveat is real for oats, even if it does not erase their mineral content. The bowl can get worse fast with sugary add-ons. The plain ingredient is solid, but common preparation choices can change the real meal a lot. Texture and tolerance are not universal wins. Some people dislike the texture or do not tolerate oats especially well, which is a real usability downside for a staple food.",
         "subtitlePlacement": "high-lower-third",
@@ -2070,10 +2076,10 @@
         ],
         "subtitleCues": [
           {
-            "id": "42-cons-1",
+            "id": "39-cons-1",
             "sceneId": "cons",
-            "startSeconds": 61.7,
-            "endSeconds": 63.09,
+            "startSeconds": 57.41,
+            "endSeconds": 58.8,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -2084,10 +2090,10 @@
             "text": "Downsides next:\nphytates can"
           },
           {
-            "id": "43-cons-2",
+            "id": "40-cons-2",
             "sceneId": "cons",
-            "startSeconds": 63.09,
-            "endSeconds": 64.62,
+            "startSeconds": 58.8,
+            "endSeconds": 60.33,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -2098,10 +2104,10 @@
             "text": "modestly reduce\nmineral uptake."
           },
           {
-            "id": "44-cons-3",
+            "id": "41-cons-3",
             "sceneId": "cons",
-            "startSeconds": 64.62,
-            "endSeconds": 66.68,
+            "startSeconds": 60.33,
+            "endSeconds": 62.39,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -2112,10 +2118,10 @@
             "text": "That caveat is\nreal for oats,"
           },
           {
-            "id": "45-cons-4",
+            "id": "42-cons-4",
             "sceneId": "cons",
-            "startSeconds": 66.68,
-            "endSeconds": 69.08,
+            "startSeconds": 62.39,
+            "endSeconds": 64.79,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -2126,10 +2132,10 @@
             "text": "even if it does\nnot erase their"
           },
           {
-            "id": "46-cons-5",
+            "id": "43-cons-5",
             "sceneId": "cons",
-            "startSeconds": 69.08,
-            "endSeconds": 69.94,
+            "startSeconds": 64.79,
+            "endSeconds": 65.65,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -2139,10 +2145,10 @@
             "text": "mineral content."
           },
           {
-            "id": "47-cons-6",
+            "id": "44-cons-6",
             "sceneId": "cons",
-            "startSeconds": 69.94,
-            "endSeconds": 72.34,
+            "startSeconds": 65.65,
+            "endSeconds": 68.05,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -2153,10 +2159,10 @@
             "text": "The bowl can get\nworse fast with"
           },
           {
-            "id": "48-cons-7",
+            "id": "45-cons-7",
             "sceneId": "cons",
-            "startSeconds": 72.34,
-            "endSeconds": 73.2,
+            "startSeconds": 68.05,
+            "endSeconds": 68.91,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -2166,10 +2172,10 @@
             "text": "sugary add-ons."
           },
           {
-            "id": "49-cons-8",
+            "id": "46-cons-8",
             "sceneId": "cons",
-            "startSeconds": 73.2,
-            "endSeconds": 74.59,
+            "startSeconds": 68.91,
+            "endSeconds": 70.3,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -2180,10 +2186,10 @@
             "text": "The plain\ningredient is"
           },
           {
-            "id": "50-cons-9",
+            "id": "47-cons-9",
             "sceneId": "cons",
-            "startSeconds": 74.59,
-            "endSeconds": 75.98,
+            "startSeconds": 70.3,
+            "endSeconds": 71.69,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -2194,10 +2200,10 @@
             "text": "solid, but common\npreparation"
           },
           {
-            "id": "51-cons-10",
+            "id": "48-cons-10",
             "sceneId": "cons",
-            "startSeconds": 75.98,
-            "endSeconds": 78.37,
+            "startSeconds": 71.69,
+            "endSeconds": 74.08,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -2208,10 +2214,10 @@
             "text": "choices can change\nthe real meal a"
           },
           {
-            "id": "52-cons-11",
+            "id": "49-cons-11",
             "sceneId": "cons",
-            "startSeconds": 78.37,
-            "endSeconds": 78.9,
+            "startSeconds": 74.08,
+            "endSeconds": 74.61,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -2221,10 +2227,10 @@
             "text": "lot."
           },
           {
-            "id": "53-cons-12",
+            "id": "50-cons-12",
             "sceneId": "cons",
-            "startSeconds": 78.9,
-            "endSeconds": 80.62,
+            "startSeconds": 74.61,
+            "endSeconds": 76.33,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -2235,10 +2241,10 @@
             "text": "Texture and\ntolerance are not"
           },
           {
-            "id": "54-cons-13",
+            "id": "51-cons-13",
             "sceneId": "cons",
-            "startSeconds": 80.62,
-            "endSeconds": 81.48,
+            "startSeconds": 76.33,
+            "endSeconds": 77.19,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -2248,10 +2254,10 @@
             "text": "universal wins."
           },
           {
-            "id": "55-cons-14",
+            "id": "52-cons-14",
             "sceneId": "cons",
-            "startSeconds": 81.48,
-            "endSeconds": 82.87,
+            "startSeconds": 77.19,
+            "endSeconds": 78.58,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -2262,10 +2268,10 @@
             "text": "Some people\ndislike the"
           },
           {
-            "id": "56-cons-15",
+            "id": "53-cons-15",
             "sceneId": "cons",
-            "startSeconds": 82.87,
-            "endSeconds": 84.93,
+            "startSeconds": 78.58,
+            "endSeconds": 80.64,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -2276,10 +2282,10 @@
             "text": "texture or do not\ntolerate oats"
           },
           {
-            "id": "57-cons-16",
+            "id": "54-cons-16",
             "sceneId": "cons",
-            "startSeconds": 84.93,
-            "endSeconds": 86.99,
+            "startSeconds": 80.64,
+            "endSeconds": 82.7,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -2290,10 +2296,10 @@
             "text": "especially well,\nwhich is a real"
           },
           {
-            "id": "58-cons-17",
+            "id": "55-cons-17",
             "sceneId": "cons",
-            "startSeconds": 86.99,
-            "endSeconds": 89.2,
+            "startSeconds": 82.7,
+            "endSeconds": 84.91,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -2309,15 +2315,15 @@
         "id": "final",
         "kind": "closing",
         "narrativeRole": "verdict-payoff",
-        "startSeconds": 89.2,
-        "durationSeconds": 10.59,
-        "endSeconds": 99.79,
-        "narrationText": "Big strengths are omega 3 and fibre, but the biggest weaknesses are phytates can modestly reduce mineral uptake and the bowl can get worse fast with sugary add-ons. S tier.",
-        "subtitleText": "Big strengths are omega 3 and fibre, but the biggest weaknesses are phytates can modestly reduce mineral uptake and the bowl can get worse fast with sugary add-ons. S tier.",
+        "startSeconds": 84.91,
+        "durationSeconds": 13.41,
+        "endSeconds": 98.32,
+        "narrationText": "Big strengths are omega 3 and protein, but the biggest weaknesses are phytates can modestly reduce mineral uptake and the bowl can get worse fast with sugary add-ons. Would you rank it the same, or nah? S tier.",
+        "subtitleText": "Big strengths are omega 3 and protein, but the biggest weaknesses are phytates can modestly reduce mineral uptake and the bowl can get worse fast with sugary add-ons. S tier.",
         "subtitleSequence": [
           {
             "role": "conclusion-summary",
-            "text": "Big strengths are omega 3 and fibre, but the biggest weaknesses are phytates can modestly reduce mineral uptake and the bowl can get worse fast with sugary add-ons.",
+            "text": "Big strengths are omega 3 and protein, but the biggest weaknesses are phytates can modestly reduce mineral uptake and the bowl can get worse fast with sugary add-ons.",
             "placement": "summary-full",
             "maxCharactersPerLine": 24
           },
@@ -2373,25 +2379,25 @@
         ],
         "subtitleCues": [
           {
-            "id": "59-final-1",
+            "id": "56-final-1",
             "sceneId": "final",
-            "startSeconds": 89.2,
-            "endSeconds": 92.36,
+            "startSeconds": 84.91,
+            "endSeconds": 88.91,
             "placement": "summary-full",
             "maxLines": 2,
             "maxCharactersPerLine": 24,
             "lines": [
               "Big strengths are omega",
-              "3 and fibre, but the"
+              "3 and protein, but the"
             ],
-            "text": "Big strengths are omega\n3 and fibre, but the",
+            "text": "Big strengths are omega\n3 and protein, but the",
             "role": "conclusion-summary"
           },
           {
-            "id": "60-final-2",
+            "id": "57-final-2",
             "sceneId": "final",
-            "startSeconds": 92.36,
-            "endSeconds": 94.4,
+            "startSeconds": 88.91,
+            "endSeconds": 91.49,
             "placement": "summary-full",
             "maxLines": 2,
             "maxCharactersPerLine": 24,
@@ -2403,10 +2409,10 @@
             "role": "conclusion-summary"
           },
           {
-            "id": "61-final-3",
+            "id": "58-final-3",
             "sceneId": "final",
-            "startSeconds": 94.4,
-            "endSeconds": 97.1,
+            "startSeconds": 91.49,
+            "endSeconds": 94.91,
             "placement": "summary-full",
             "maxLines": 2,
             "maxCharactersPerLine": 24,
@@ -2418,10 +2424,10 @@
             "role": "conclusion-summary"
           },
           {
-            "id": "62-final-4",
+            "id": "59-final-4",
             "sceneId": "final",
-            "startSeconds": 97.1,
-            "endSeconds": 98.94,
+            "startSeconds": 94.91,
+            "endSeconds": 97.25,
             "placement": "summary-full",
             "maxLines": 2,
             "maxCharactersPerLine": 24,
@@ -2433,10 +2439,10 @@
             "role": "conclusion-summary"
           },
           {
-            "id": "63-final-5",
+            "id": "60-final-5",
             "sceneId": "final",
-            "startSeconds": 98.94,
-            "endSeconds": 99.79,
+            "startSeconds": 97.25,
+            "endSeconds": 98.32,
             "placement": "tier-center",
             "maxLines": 2,
             "maxCharactersPerLine": 24,
@@ -2467,7 +2473,7 @@
         "id": "02-fats-1",
         "sceneId": "fats",
         "startSeconds": 2.4,
-        "endSeconds": 3.79,
+        "endSeconds": 3.8,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2480,49 +2486,36 @@
       {
         "id": "03-fats-2",
         "sceneId": "fats",
-        "startSeconds": 3.79,
-        "endSeconds": 5.39,
+        "startSeconds": 3.8,
+        "endSeconds": 5.77,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "Saturated fat is",
-          "1.2g,"
+          "Cholesterol is",
+          "0mg, supporting a"
         ],
-        "text": "Saturated fat is\n1.2g,"
+        "text": "Cholesterol is\n0mg, supporting a"
       },
       {
         "id": "04-fats-3",
         "sceneId": "fats",
-        "startSeconds": 5.39,
-        "endSeconds": 6.85,
+        "startSeconds": 5.77,
+        "endSeconds": 7.04,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "supporting a",
-          "better fat"
-        ],
-        "text": "supporting a\nbetter fat"
-      },
-      {
-        "id": "05-fats-4",
-        "sceneId": "fats",
-        "startSeconds": 6.85,
-        "endSeconds": 7.4,
-        "placement": "lower-third",
-        "maxLines": 2,
-        "maxCharactersPerLine": 18,
-        "lines": [
+          "better fat",
           "profile."
         ],
-        "text": "profile."
+        "text": "better fat\nprofile."
       },
       {
-        "id": "06-carbs-1",
+        "id": "05-carbs-1",
         "sceneId": "carbs",
-        "startSeconds": 7.4,
-        "endSeconds": 8.79,
+        "startSeconds": 7.04,
+        "endSeconds": 8.43,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2533,10 +2526,10 @@
         "text": "66.3g of\ncarbs."
       },
       {
-        "id": "07-carbs-2",
+        "id": "06-carbs-2",
         "sceneId": "carbs",
-        "startSeconds": 8.79,
-        "endSeconds": 10.03,
+        "startSeconds": 8.43,
+        "endSeconds": 9.67,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2547,10 +2540,10 @@
         "text": "Fibre is\n10.6g,"
       },
       {
-        "id": "08-carbs-3",
+        "id": "07-carbs-3",
         "sceneId": "carbs",
-        "startSeconds": 10.03,
-        "endSeconds": 11.5,
+        "startSeconds": 9.67,
+        "endSeconds": 11.14,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2561,10 +2554,10 @@
         "text": "helping with\ndigestion and"
       },
       {
-        "id": "09-carbs-4",
+        "id": "08-carbs-4",
         "sceneId": "carbs",
-        "startSeconds": 11.5,
-        "endSeconds": 12.4,
+        "startSeconds": 11.14,
+        "endSeconds": 12.04,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2574,10 +2567,10 @@
         "text": "steadier meals."
       },
       {
-        "id": "10-proteins-1",
+        "id": "09-proteins-1",
         "sceneId": "proteins",
-        "startSeconds": 12.4,
-        "endSeconds": 13.73,
+        "startSeconds": 12.04,
+        "endSeconds": 13.37,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2588,64 +2581,37 @@
         "text": "16.9g of\nprotein."
       },
       {
-        "id": "11-proteins-2",
+        "id": "10-proteins-2",
         "sceneId": "proteins",
-        "startSeconds": 13.73,
-        "endSeconds": 15.12,
+        "startSeconds": 13.37,
+        "endSeconds": 15.44,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "No defensible",
-          "protein submacros"
+          "That amount is",
+          "useful enough to"
         ],
-        "text": "No defensible\nprotein submacros"
+        "text": "That amount is\nuseful enough to"
       },
       {
-        "id": "12-proteins-3",
+        "id": "11-proteins-3",
         "sceneId": "proteins",
-        "startSeconds": 15.12,
-        "endSeconds": 16.32,
+        "startSeconds": 15.44,
+        "endSeconds": 15.97,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "to call out."
+          "count."
         ],
-        "text": "to call out."
+        "text": "count."
       },
       {
-        "id": "13-proteins-4",
-        "sceneId": "proteins",
-        "startSeconds": 16.32,
-        "endSeconds": 18.72,
-        "placement": "lower-third",
-        "maxLines": 2,
-        "maxCharactersPerLine": 18,
-        "lines": [
-          "Protein helps, but",
-          "not enough if the"
-        ],
-        "text": "Protein helps, but\nnot enough if the"
-      },
-      {
-        "id": "14-proteins-5",
-        "sceneId": "proteins",
-        "startSeconds": 18.72,
-        "endSeconds": 20.26,
-        "placement": "lower-third",
-        "maxLines": 2,
-        "maxCharactersPerLine": 18,
-        "lines": [
-          "carb side is weak."
-        ],
-        "text": "carb side is weak."
-      },
-      {
-        "id": "15-vitamins-1",
+        "id": "12-vitamins-1",
         "sceneId": "vitamins",
-        "startSeconds": 20.26,
-        "endSeconds": 23.02,
+        "startSeconds": 15.97,
+        "endSeconds": 18.73,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2656,10 +2622,10 @@
         "text": "Vitamin b1 is 51%\nDV, adding useful"
       },
       {
-        "id": "16-vitamins-2",
+        "id": "13-vitamins-2",
         "sceneId": "vitamins",
-        "startSeconds": 23.02,
-        "endSeconds": 23.91,
+        "startSeconds": 18.73,
+        "endSeconds": 19.62,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2669,10 +2635,10 @@
         "text": "vitamin support."
       },
       {
-        "id": "17-vitamins-3",
+        "id": "14-vitamins-3",
         "sceneId": "vitamins",
-        "startSeconds": 23.91,
-        "endSeconds": 27.23,
+        "startSeconds": 19.62,
+        "endSeconds": 22.94,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2683,10 +2649,10 @@
         "text": "Vitamin E is only\n3% DV, a weak mark"
       },
       {
-        "id": "18-vitamins-4",
+        "id": "15-vitamins-4",
         "sceneId": "vitamins",
-        "startSeconds": 27.23,
-        "endSeconds": 28.12,
+        "startSeconds": 22.94,
+        "endSeconds": 23.83,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2696,10 +2662,10 @@
         "text": "for grains."
       },
       {
-        "id": "19-minerals-1",
+        "id": "16-minerals-1",
         "sceneId": "minerals",
-        "startSeconds": 28.12,
-        "endSeconds": 30.43,
+        "startSeconds": 23.83,
+        "endSeconds": 26.14,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2710,10 +2676,10 @@
         "text": "Magnesium is 44%\nDV, adding useful"
       },
       {
-        "id": "20-minerals-2",
+        "id": "17-minerals-2",
         "sceneId": "minerals",
-        "startSeconds": 30.43,
-        "endSeconds": 31.34,
+        "startSeconds": 26.14,
+        "endSeconds": 27.05,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2723,10 +2689,10 @@
         "text": "mineral support."
       },
       {
-        "id": "21-minerals-3",
+        "id": "18-minerals-3",
         "sceneId": "minerals",
-        "startSeconds": 31.34,
-        "endSeconds": 34,
+        "startSeconds": 27.05,
+        "endSeconds": 29.71,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2737,10 +2703,10 @@
         "text": "Potassium is 12%\nDV, a weak mark"
       },
       {
-        "id": "22-minerals-4",
+        "id": "19-minerals-4",
         "sceneId": "minerals",
-        "startSeconds": 34,
-        "endSeconds": 34.91,
+        "startSeconds": 29.71,
+        "endSeconds": 30.62,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2750,10 +2716,10 @@
         "text": "for grains."
       },
       {
-        "id": "23-pros-1",
+        "id": "20-pros-1",
         "sceneId": "pros",
-        "startSeconds": 34.91,
-        "endSeconds": 35.96,
+        "startSeconds": 30.62,
+        "endSeconds": 31.67,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2764,10 +2730,10 @@
         "text": "Pros first:\ncontains"
       },
       {
-        "id": "24-pros-2",
+        "id": "21-pros-2",
         "sceneId": "pros",
-        "startSeconds": 35.96,
-        "endSeconds": 36.67,
+        "startSeconds": 31.67,
+        "endSeconds": 32.38,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2778,10 +2744,10 @@
         "text": "meaningful\nbeta-glucan"
       },
       {
-        "id": "25-pros-3",
+        "id": "22-pros-3",
         "sceneId": "pros",
-        "startSeconds": 36.67,
-        "endSeconds": 37.52,
+        "startSeconds": 32.38,
+        "endSeconds": 33.23,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2791,10 +2757,10 @@
         "text": "soluble fibre."
       },
       {
-        "id": "26-pros-4",
+        "id": "23-pros-4",
         "sceneId": "pros",
-        "startSeconds": 37.52,
-        "endSeconds": 39.24,
+        "startSeconds": 33.23,
+        "endSeconds": 34.95,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2805,10 +2771,10 @@
         "text": "Oats are unusual\namong common"
       },
       {
-        "id": "27-pros-5",
+        "id": "24-pros-5",
         "sceneId": "pros",
-        "startSeconds": 39.24,
-        "endSeconds": 40.62,
+        "startSeconds": 34.95,
+        "endSeconds": 36.33,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2819,10 +2785,10 @@
         "text": "grains for their\nbeta-glucan"
       },
       {
-        "id": "28-pros-6",
+        "id": "25-pros-6",
         "sceneId": "pros",
-        "startSeconds": 40.62,
-        "endSeconds": 42.34,
+        "startSeconds": 36.33,
+        "endSeconds": 38.05,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2833,10 +2799,10 @@
         "text": "content, which\nmakes the fibre"
       },
       {
-        "id": "29-pros-7",
+        "id": "26-pros-7",
         "sceneId": "pros",
-        "startSeconds": 42.34,
-        "endSeconds": 44.06,
+        "startSeconds": 38.05,
+        "endSeconds": 39.77,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2847,10 +2813,10 @@
         "text": "story more\nspecific than just"
       },
       {
-        "id": "30-pros-8",
+        "id": "27-pros-8",
         "sceneId": "pros",
-        "startSeconds": 44.06,
-        "endSeconds": 45.92,
+        "startSeconds": 39.77,
+        "endSeconds": 41.63,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2861,10 +2827,10 @@
         "text": "the fibre numbers\nalready shown."
       },
       {
-        "id": "31-pros-9",
+        "id": "28-pros-9",
         "sceneId": "pros",
-        "startSeconds": 45.92,
-        "endSeconds": 47.64,
+        "startSeconds": 41.63,
+        "endSeconds": 43.35,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2875,10 +2841,10 @@
         "text": "Easy whole-grain\nstaple to use"
       },
       {
-        "id": "32-pros-10",
+        "id": "29-pros-10",
         "sceneId": "pros",
-        "startSeconds": 47.64,
-        "endSeconds": 48.16,
+        "startSeconds": 43.35,
+        "endSeconds": 43.87,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2888,10 +2854,10 @@
         "text": "regularly."
       },
       {
-        "id": "33-pros-11",
+        "id": "30-pros-11",
         "sceneId": "pros",
-        "startSeconds": 48.16,
-        "endSeconds": 49.87,
+        "startSeconds": 43.87,
+        "endSeconds": 45.58,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2902,10 +2868,10 @@
         "text": "Plain rolled oats\nare cheap,"
       },
       {
-        "id": "34-pros-12",
+        "id": "31-pros-12",
         "sceneId": "pros",
-        "startSeconds": 49.87,
-        "endSeconds": 51.26,
+        "startSeconds": 45.58,
+        "endSeconds": 46.97,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2916,10 +2882,10 @@
         "text": "familiar, and\nrealistic for"
       },
       {
-        "id": "35-pros-13",
+        "id": "32-pros-13",
         "sceneId": "pros",
-        "startSeconds": 51.26,
-        "endSeconds": 52.97,
+        "startSeconds": 46.97,
+        "endSeconds": 48.68,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2930,10 +2896,10 @@
         "text": "repeated use,\nwhich matters for"
       },
       {
-        "id": "36-pros-14",
+        "id": "33-pros-14",
         "sceneId": "pros",
-        "startSeconds": 52.97,
-        "endSeconds": 54.17,
+        "startSeconds": 48.68,
+        "endSeconds": 49.88,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2943,10 +2909,10 @@
         "text": "an everyday grain."
       },
       {
-        "id": "37-pros-15",
+        "id": "34-pros-15",
         "sceneId": "pros",
-        "startSeconds": 54.17,
-        "endSeconds": 55.69,
+        "startSeconds": 49.88,
+        "endSeconds": 51.4,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2957,10 +2923,10 @@
         "text": "Plain oats start\nunsweetened."
       },
       {
-        "id": "38-pros-16",
+        "id": "35-pros-16",
         "sceneId": "pros",
-        "startSeconds": 55.69,
-        "endSeconds": 57.74,
+        "startSeconds": 51.4,
+        "endSeconds": 53.45,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2971,10 +2937,10 @@
         "text": "That gives them a\ncleaner baseline"
       },
       {
-        "id": "39-pros-17",
+        "id": "36-pros-17",
         "sceneId": "pros",
-        "startSeconds": 57.74,
-        "endSeconds": 59.13,
+        "startSeconds": 53.45,
+        "endSeconds": 54.84,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2985,10 +2951,10 @@
         "text": "than sweetened\ninstant oatmeal"
       },
       {
-        "id": "40-pros-18",
+        "id": "37-pros-18",
         "sceneId": "pros",
-        "startSeconds": 59.13,
-        "endSeconds": 60.84,
+        "startSeconds": 54.84,
+        "endSeconds": 56.55,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2999,10 +2965,10 @@
         "text": "products, which\nare excluded from"
       },
       {
-        "id": "41-pros-19",
+        "id": "38-pros-19",
         "sceneId": "pros",
-        "startSeconds": 60.84,
-        "endSeconds": 61.7,
+        "startSeconds": 56.55,
+        "endSeconds": 57.41,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -3012,10 +2978,10 @@
         "text": "this entry."
       },
       {
-        "id": "42-cons-1",
+        "id": "39-cons-1",
         "sceneId": "cons",
-        "startSeconds": 61.7,
-        "endSeconds": 63.09,
+        "startSeconds": 57.41,
+        "endSeconds": 58.8,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -3026,10 +2992,10 @@
         "text": "Downsides next:\nphytates can"
       },
       {
-        "id": "43-cons-2",
+        "id": "40-cons-2",
         "sceneId": "cons",
-        "startSeconds": 63.09,
-        "endSeconds": 64.62,
+        "startSeconds": 58.8,
+        "endSeconds": 60.33,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -3040,10 +3006,10 @@
         "text": "modestly reduce\nmineral uptake."
       },
       {
-        "id": "44-cons-3",
+        "id": "41-cons-3",
         "sceneId": "cons",
-        "startSeconds": 64.62,
-        "endSeconds": 66.68,
+        "startSeconds": 60.33,
+        "endSeconds": 62.39,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -3054,10 +3020,10 @@
         "text": "That caveat is\nreal for oats,"
       },
       {
-        "id": "45-cons-4",
+        "id": "42-cons-4",
         "sceneId": "cons",
-        "startSeconds": 66.68,
-        "endSeconds": 69.08,
+        "startSeconds": 62.39,
+        "endSeconds": 64.79,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -3068,10 +3034,10 @@
         "text": "even if it does\nnot erase their"
       },
       {
-        "id": "46-cons-5",
+        "id": "43-cons-5",
         "sceneId": "cons",
-        "startSeconds": 69.08,
-        "endSeconds": 69.94,
+        "startSeconds": 64.79,
+        "endSeconds": 65.65,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -3081,10 +3047,10 @@
         "text": "mineral content."
       },
       {
-        "id": "47-cons-6",
+        "id": "44-cons-6",
         "sceneId": "cons",
-        "startSeconds": 69.94,
-        "endSeconds": 72.34,
+        "startSeconds": 65.65,
+        "endSeconds": 68.05,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -3095,10 +3061,10 @@
         "text": "The bowl can get\nworse fast with"
       },
       {
-        "id": "48-cons-7",
+        "id": "45-cons-7",
         "sceneId": "cons",
-        "startSeconds": 72.34,
-        "endSeconds": 73.2,
+        "startSeconds": 68.05,
+        "endSeconds": 68.91,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -3108,10 +3074,10 @@
         "text": "sugary add-ons."
       },
       {
-        "id": "49-cons-8",
+        "id": "46-cons-8",
         "sceneId": "cons",
-        "startSeconds": 73.2,
-        "endSeconds": 74.59,
+        "startSeconds": 68.91,
+        "endSeconds": 70.3,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -3122,10 +3088,10 @@
         "text": "The plain\ningredient is"
       },
       {
-        "id": "50-cons-9",
+        "id": "47-cons-9",
         "sceneId": "cons",
-        "startSeconds": 74.59,
-        "endSeconds": 75.98,
+        "startSeconds": 70.3,
+        "endSeconds": 71.69,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -3136,10 +3102,10 @@
         "text": "solid, but common\npreparation"
       },
       {
-        "id": "51-cons-10",
+        "id": "48-cons-10",
         "sceneId": "cons",
-        "startSeconds": 75.98,
-        "endSeconds": 78.37,
+        "startSeconds": 71.69,
+        "endSeconds": 74.08,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -3150,10 +3116,10 @@
         "text": "choices can change\nthe real meal a"
       },
       {
-        "id": "52-cons-11",
+        "id": "49-cons-11",
         "sceneId": "cons",
-        "startSeconds": 78.37,
-        "endSeconds": 78.9,
+        "startSeconds": 74.08,
+        "endSeconds": 74.61,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -3163,10 +3129,10 @@
         "text": "lot."
       },
       {
-        "id": "53-cons-12",
+        "id": "50-cons-12",
         "sceneId": "cons",
-        "startSeconds": 78.9,
-        "endSeconds": 80.62,
+        "startSeconds": 74.61,
+        "endSeconds": 76.33,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -3177,10 +3143,10 @@
         "text": "Texture and\ntolerance are not"
       },
       {
-        "id": "54-cons-13",
+        "id": "51-cons-13",
         "sceneId": "cons",
-        "startSeconds": 80.62,
-        "endSeconds": 81.48,
+        "startSeconds": 76.33,
+        "endSeconds": 77.19,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -3190,10 +3156,10 @@
         "text": "universal wins."
       },
       {
-        "id": "55-cons-14",
+        "id": "52-cons-14",
         "sceneId": "cons",
-        "startSeconds": 81.48,
-        "endSeconds": 82.87,
+        "startSeconds": 77.19,
+        "endSeconds": 78.58,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -3204,10 +3170,10 @@
         "text": "Some people\ndislike the"
       },
       {
-        "id": "56-cons-15",
+        "id": "53-cons-15",
         "sceneId": "cons",
-        "startSeconds": 82.87,
-        "endSeconds": 84.93,
+        "startSeconds": 78.58,
+        "endSeconds": 80.64,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -3218,10 +3184,10 @@
         "text": "texture or do not\ntolerate oats"
       },
       {
-        "id": "57-cons-16",
+        "id": "54-cons-16",
         "sceneId": "cons",
-        "startSeconds": 84.93,
-        "endSeconds": 86.99,
+        "startSeconds": 80.64,
+        "endSeconds": 82.7,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -3232,10 +3198,10 @@
         "text": "especially well,\nwhich is a real"
       },
       {
-        "id": "58-cons-17",
+        "id": "55-cons-17",
         "sceneId": "cons",
-        "startSeconds": 86.99,
-        "endSeconds": 89.2,
+        "startSeconds": 82.7,
+        "endSeconds": 84.91,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -3246,25 +3212,25 @@
         "text": "usability downside\nfor a staple food."
       },
       {
-        "id": "59-final-1",
+        "id": "56-final-1",
         "sceneId": "final",
-        "startSeconds": 89.2,
-        "endSeconds": 92.36,
+        "startSeconds": 84.91,
+        "endSeconds": 88.91,
         "placement": "summary-full",
         "maxLines": 2,
         "maxCharactersPerLine": 24,
         "lines": [
           "Big strengths are omega",
-          "3 and fibre, but the"
+          "3 and protein, but the"
         ],
-        "text": "Big strengths are omega\n3 and fibre, but the",
+        "text": "Big strengths are omega\n3 and protein, but the",
         "role": "conclusion-summary"
       },
       {
-        "id": "60-final-2",
+        "id": "57-final-2",
         "sceneId": "final",
-        "startSeconds": 92.36,
-        "endSeconds": 94.4,
+        "startSeconds": 88.91,
+        "endSeconds": 91.49,
         "placement": "summary-full",
         "maxLines": 2,
         "maxCharactersPerLine": 24,
@@ -3276,10 +3242,10 @@
         "role": "conclusion-summary"
       },
       {
-        "id": "61-final-3",
+        "id": "58-final-3",
         "sceneId": "final",
-        "startSeconds": 94.4,
-        "endSeconds": 97.1,
+        "startSeconds": 91.49,
+        "endSeconds": 94.91,
         "placement": "summary-full",
         "maxLines": 2,
         "maxCharactersPerLine": 24,
@@ -3291,10 +3257,10 @@
         "role": "conclusion-summary"
       },
       {
-        "id": "62-final-4",
+        "id": "59-final-4",
         "sceneId": "final",
-        "startSeconds": 97.1,
-        "endSeconds": 98.94,
+        "startSeconds": 94.91,
+        "endSeconds": 97.25,
         "placement": "summary-full",
         "maxLines": 2,
         "maxCharactersPerLine": 24,
@@ -3306,10 +3272,10 @@
         "role": "conclusion-summary"
       },
       {
-        "id": "63-final-5",
+        "id": "60-final-5",
         "sceneId": "final",
-        "startSeconds": 98.94,
-        "endSeconds": 99.79,
+        "startSeconds": 97.25,
+        "endSeconds": 98.32,
         "placement": "tier-center",
         "maxLines": 2,
         "maxCharactersPerLine": 24,

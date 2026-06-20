@@ -257,9 +257,10 @@ These are not canonical nutrient facts and should not be mixed into the raw data
 - Notes: one short synthesis line for narration and end sequence
 
 ## Applicability reminders
-- `cholesterol_mg` is usually `not_applicable` for plant categories
-- `collagen_g` is usually `not_applicable` for plant categories
-- `fibre_g` is usually `not_applicable` for meats and most dairy
+- Use `not_applicable` only when a submacro is genuinely N/A for that food type's entries.
+- If a submacro has a defensible numeric value, it must use a red/green arrow band.
+- `cholesterol_mg` is usually N/A for plant categories, but a sourced `0mg` value should still resolve to a green low-cholesterol arrow.
+- `collagen_g` is usually N/A for plant categories.
 - `starch_g` is category-dependent and should not be treated as universally positive
 - macro totals are always display-only in v1
 

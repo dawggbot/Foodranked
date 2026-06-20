@@ -31,15 +31,17 @@
       "status": "near-production-safe",
       "summary": "Strong enough for launch scripting as a raw salmon baseline, but a few protein-quality style fields are still legacy calibration proxies and salmon source variation can move the fat profile.",
       "blockers": [
-        "collagen and protein-quality proxy metrics still need either exact-source backing or deliberate removal",
         "wild-versus-farmed and species variation can shift the exact fat and omega-3 profile meaningfully"
+      ],
+      "caveats": [
+        "Real foods vary by cultivar, brand, season, and preparation; this record is a canonical comparison entry rather than a guarantee for every product."
       ]
     },
     "sourceNotes": [
-      "Production-lane cleanup pass.",
-      "Identity locked to raw salmon flesh, using Atlantic salmon style per-100 g baseline values.",
-      "Core nutrient values align with USDA FoodData Central style raw Atlantic salmon entries.",
-      "Raw basis kept intentionally, not cooked salmon values."
+      "Production-lane source audit pass.",
+      "All displayed nutrition values are stored and checked on a per-100g basis.",
+      "Primary and cross-check nutrition references are listed in nutritionDataSources.",
+      "Contextual GI and protein-quality fields are optional when not canonical nutrient facts."
     ]
   },
   "ruleset": {
@@ -69,6 +71,7 @@
           "weightedScore": 300,
           "scoringMode": "arrow_bands",
           "band": "3_green",
+          "polarity": "higher_better",
           "dvPercent": null,
           "value": 2200
         },
@@ -78,6 +81,7 @@
           "weightedScore": 160,
           "scoringMode": "arrow_bands",
           "band": "2_green",
+          "polarity": "higher_worse",
           "dvPercent": null,
           "value": 55
         },
@@ -87,6 +91,7 @@
           "weightedScore": 180,
           "scoringMode": "arrow_bands",
           "band": "1_green",
+          "polarity": "higher_worse",
           "dvPercent": null,
           "value": 3.1
         },
@@ -96,6 +101,7 @@
           "weightedScore": 80,
           "scoringMode": "arrow_bands",
           "band": "2_green",
+          "polarity": "higher_better",
           "dvPercent": null,
           "value": 3.9
         }
@@ -116,50 +122,20 @@
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "20.4 grams of protein. Essential amino acids score is 9 out of 9, with 95% bioavailability, making the protein useful for repair and maintenance. Collagen is only 0.8 grams, so for meats, it is not bringing much connective-tissue protein.",
+      "narration": "20.4 grams of protein. That amount is useful enough to count.",
       "displayItems": [
         {
-          "metricKey": "essential_amino_acids_score",
-          "text": "essential amino acids score at 9/9",
-          "weightedScore": null,
-          "scoringMode": "reference_submacro",
-          "band": null,
+          "metricKey": "protein_g_fallback",
+          "text": "protein amount at 20.4g",
+          "weightedScore": 240,
+          "scoringMode": "arrow_bands",
+          "band": "1_green",
+          "polarity": "higher_better",
           "dvPercent": null,
-          "value": 9,
-          "referenceOnly": true
-        },
-        {
-          "metricKey": "bioavailability_percent",
-          "text": "bioavailability at 95%",
-          "weightedScore": null,
-          "scoringMode": "reference_submacro",
-          "band": null,
-          "dvPercent": null,
-          "value": 95,
-          "referenceOnly": true
-        },
-        {
-          "metricKey": "collagen_g",
-          "text": "collagen at 0.8g",
-          "weightedScore": null,
-          "scoringMode": "reference_submacro",
-          "band": null,
-          "dvPercent": null,
-          "value": 0.8,
-          "referenceOnly": true
-        },
-        {
-          "metricKey": "nonessential_amino_acids_score",
-          "text": "nonessential amino acids score at 11/11",
-          "weightedScore": null,
-          "scoringMode": "reference_submacro",
-          "band": null,
-          "dvPercent": null,
-          "value": 11,
-          "referenceOnly": true
+          "value": 20.4
         }
       ],
-      "subtitleText": "20.4g of protein. Essential amino acids score is 9/9, with 95% bioavailability, making the protein useful for repair and maintenance. Collagen is only 0.8g, so for meats, it is not bringing much connective-tissue protein.",
+      "subtitleText": "20.4g of protein. That amount is useful enough to count.",
       "timingHint": "short-medium",
       "score": 60
     },
@@ -174,6 +150,7 @@
           "weightedScore": 300,
           "scoringMode": "dv_points",
           "band": null,
+          "polarity": null,
           "dvPercent": 117,
           "value": null
         },
@@ -183,6 +160,7 @@
           "weightedScore": 120,
           "scoringMode": "dv_points",
           "band": null,
+          "polarity": null,
           "dvPercent": 66,
           "value": null
         }
@@ -202,6 +180,7 @@
           "weightedScore": 0,
           "scoringMode": "dv_points",
           "band": null,
+          "polarity": null,
           "dvPercent": 8,
           "value": null
         },
@@ -211,6 +190,7 @@
           "weightedScore": 0,
           "scoringMode": "dv_points",
           "band": null,
+          "polarity": null,
           "dvPercent": 4,
           "value": null
         },
@@ -220,6 +200,7 @@
           "weightedScore": 0,
           "scoringMode": "dv_points",
           "band": null,
+          "polarity": null,
           "dvPercent": 4,
           "value": null
         }
@@ -334,7 +315,7 @@
     {
       "kind": "section",
       "sectionKey": "proteins",
-      "text": "20.4 grams of protein. Essential amino acids score is 9 out of 9, with 95% bioavailability, making the protein useful for repair and maintenance. Collagen is only 0.8 grams, so for meats, it is not bringing much connective-tissue protein."
+      "text": "20.4 grams of protein. That amount is useful enough to count."
     },
     {
       "kind": "section",

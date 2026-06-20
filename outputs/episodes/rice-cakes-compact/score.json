@@ -19,8 +19,14 @@
     "carb_g": 81.5,
     "protein_g": 7
   },
+  "proteinQualityGate": {
+    "proteinG": 7,
+    "minimumProteinG": 10,
+    "eligible": false,
+    "skippedMetricKeys": []
+  },
   "sectionScores": {
-    "fats": 40,
+    "fats": 55,
     "carbs": 35.4,
     "proteins": 20,
     "vitamins": 0,
@@ -28,19 +34,19 @@
     "pros": 50,
     "cons": 0
   },
-  "overallScore": 13.1,
-  "overallScoreExact": 13.0827,
-  "baseOverallScore": 21.2,
-  "baseOverallScoreExact": 21.2454,
+  "overallScore": 14.4,
+  "overallScoreExact": 14.4022,
+  "baseOverallScore": 23.4,
+  "baseOverallScoreExact": 23.3883,
   "tier": "D",
-  "summary": "Pros are carrying this food most, while cons are holding it back most. It lands in D tier.",
+  "summary": "Fats are carrying this food most, while cons are holding it back most. It lands in D tier.",
   "explanation": {
-    "summary": "Pros are carrying this food most, while cons are holding it back most. It lands in D tier.",
-    "whyThisTier": "This food lands in D tier with an overall score of 13.1. Section scores: fats 40, carbs 35.4, proteins 20, vitamins 0, minerals 3.3, pros 50, cons 0.",
+    "summary": "Fats are carrying this food most, while cons are holding it back most. It lands in D tier.",
+    "whyThisTier": "This food lands in D tier with an overall score of 14.4. Section scores: fats 55, carbs 35.4, proteins 20, vitamins 0, minerals 3.3, pros 50, cons 0.",
     "strongestSection": {
-      "key": "pros",
-      "label": "Pros",
-      "score": 50
+      "key": "fats",
+      "label": "Fats",
+      "score": 55
     },
     "weakestSection": {
       "key": "cons",
@@ -94,7 +100,7 @@
       }
     ],
     "narrationNotes": [
-      "Strongest section: Pros.",
+      "Strongest section: Fats.",
       "Weakest section: Cons.",
       "Final verdict: D tier."
     ]
@@ -166,6 +172,7 @@
       "scoringMode": "arrow_bands",
       "value": 0.6,
       "band": "2_green",
+      "polarity": "higher_worse",
       "score": 80,
       "weight": 1,
       "weightedScore": 80
@@ -176,6 +183,7 @@
       "scoringMode": "arrow_bands",
       "value": 20,
       "band": "3_red",
+      "polarity": "higher_better",
       "score": 0,
       "weight": 1,
       "weightedScore": 0
@@ -186,9 +194,21 @@
       "scoringMode": "arrow_bands",
       "value": 1.1,
       "band": "1_red",
+      "polarity": "higher_better",
       "score": 40,
       "weight": 1,
       "weightedScore": 40
+    },
+    {
+      "metricKey": "cholesterol_mg",
+      "sectionKey": "fats",
+      "scoringMode": "arrow_bands",
+      "value": 0,
+      "band": "↓↓↓",
+      "polarity": "higher_worse",
+      "score": 100,
+      "weight": 1,
+      "weightedScore": 100
     },
     {
       "metricKey": "starch_g",
@@ -196,6 +216,7 @@
       "scoringMode": "arrow_bands",
       "value": 77,
       "band": "3_green",
+      "polarity": "higher_better",
       "score": 100,
       "weight": 1,
       "weightedScore": 100
@@ -206,6 +227,7 @@
       "scoringMode": "arrow_bands",
       "value": 4.3,
       "band": "1_red",
+      "polarity": "higher_better",
       "score": 40,
       "weight": 5,
       "weightedScore": 200
@@ -216,6 +238,7 @@
       "scoringMode": "arrow_bands",
       "value": 0.7,
       "band": "2_green",
+      "polarity": "higher_worse",
       "score": 80,
       "weight": 2,
       "weightedScore": 160
@@ -226,6 +249,7 @@
       "scoringMode": "arrow_bands",
       "value": 82,
       "band": "3_red",
+      "polarity": "higher_worse",
       "score": 0,
       "weight": 5,
       "weightedScore": 0
@@ -283,9 +307,10 @@
     {
       "metricKey": "protein_g_fallback",
       "sectionKey": "proteins",
-      "scoringMode": "protein_fallback",
+      "scoringMode": "arrow_bands",
       "value": 7,
       "band": "2_red",
+      "polarity": "higher_better",
       "score": 20,
       "weight": 2,
       "weightedScore": 40,

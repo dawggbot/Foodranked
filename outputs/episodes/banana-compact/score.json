@@ -19,28 +19,34 @@
     "carb_g": 22.8,
     "protein_g": 1.1
   },
+  "proteinQualityGate": {
+    "proteinG": 1.1,
+    "minimumProteinG": 1.5,
+    "eligible": false,
+    "skippedMetricKeys": []
+  },
   "sectionScores": {
-    "fats": 100,
-    "carbs": 41.4,
-    "proteins": null,
+    "fats": 55,
+    "carbs": 41.3,
+    "proteins": 0,
     "vitamins": 8,
     "minerals": 0,
     "pros": 66.7,
     "cons": 50
   },
-  "overallScore": 30.7,
-  "overallScoreExact": 30.7203,
-  "baseOverallScore": 44.3,
-  "baseOverallScoreExact": 44.3492,
-  "tier": "C",
-  "summary": "Fats are carrying this food most, while minerals are holding it back most. It lands in C tier.",
+  "overallScore": 14.6,
+  "overallScoreExact": 14.5875,
+  "baseOverallScore": 31.6,
+  "baseOverallScoreExact": 31.5714,
+  "tier": "D",
+  "summary": "Pros are carrying this food most, while minerals are holding it back most. It lands in D tier.",
   "explanation": {
-    "summary": "Fats are carrying this food most, while minerals are holding it back most. It lands in C tier.",
-    "whyThisTier": "This food lands in C tier with an overall score of 30.7. Section scores: fats 100, carbs 41.4, vitamins 8, minerals 0, pros 66.7, cons 50.",
+    "summary": "Pros are carrying this food most, while minerals are holding it back most. It lands in D tier.",
+    "whyThisTier": "This food lands in D tier with an overall score of 14.6. Section scores: fats 55, carbs 41.3, proteins 0, vitamins 8, minerals 0, pros 66.7, cons 50.",
     "strongestSection": {
-      "key": "fats",
-      "label": "Fats",
-      "score": 100
+      "key": "pros",
+      "label": "Pros",
+      "score": 66.7
     },
     "weakestSection": {
       "key": "minerals",
@@ -94,9 +100,9 @@
       }
     ],
     "narrationNotes": [
-      "Strongest section: Fats.",
+      "Strongest section: Pros.",
       "Weakest section: Minerals.",
-      "Final verdict: C tier."
+      "Final verdict: D tier."
     ]
   },
   "contextItems": {
@@ -166,6 +172,7 @@
       "scoringMode": "arrow_bands",
       "value": 0.1,
       "band": "3_green",
+      "polarity": "higher_worse",
       "score": 100,
       "weight": 1,
       "weightedScore": 100
@@ -175,30 +182,44 @@
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 30,
-      "band": "3_green",
-      "score": 100,
-      "weight": 0,
-      "weightedScore": 0
+      "band": "↓↓",
+      "polarity": "higher_better",
+      "score": 20,
+      "weight": 1,
+      "weightedScore": 20
     },
     {
       "metricKey": "polyunsaturated_fat_g",
       "sectionKey": "fats",
       "scoringMode": "arrow_bands",
       "value": 0.1,
-      "band": "3_red",
+      "band": "↓↓↓",
+      "polarity": "higher_better",
       "score": 0,
-      "weight": 0,
+      "weight": 1,
       "weightedScore": 0
+    },
+    {
+      "metricKey": "cholesterol_mg",
+      "sectionKey": "fats",
+      "scoringMode": "arrow_bands",
+      "value": 0,
+      "band": "↓↓↓",
+      "polarity": "higher_worse",
+      "score": 100,
+      "weight": 1,
+      "weightedScore": 100
     },
     {
       "metricKey": "starch_g",
       "sectionKey": "carbs",
       "scoringMode": "arrow_bands",
       "value": 5.4,
-      "band": "3_green",
-      "score": 100,
-      "weight": 0,
-      "weightedScore": 0
+      "band": "↑",
+      "polarity": "higher_worse",
+      "score": 40,
+      "weight": 1,
+      "weightedScore": 40
     },
     {
       "metricKey": "fibre_g",
@@ -206,6 +227,7 @@
       "scoringMode": "arrow_bands",
       "value": 2.6,
       "band": "2_red",
+      "polarity": "higher_better",
       "score": 20,
       "weight": 4,
       "weightedScore": 80
@@ -216,6 +238,7 @@
       "scoringMode": "arrow_bands",
       "value": 12.2,
       "band": "1_red",
+      "polarity": "higher_worse",
       "score": 40,
       "weight": 5,
       "weightedScore": 200
@@ -226,6 +249,7 @@
       "scoringMode": "arrow_bands",
       "value": 51,
       "band": "1_green",
+      "polarity": "higher_worse",
       "score": 60,
       "weight": 5,
       "weightedScore": 300
@@ -235,9 +259,10 @@
       "sectionKey": "proteins",
       "scoringMode": "arrow_bands",
       "value": 1,
-      "band": "3_red",
+      "band": "↓↓↓",
+      "polarity": "higher_better",
       "score": 0,
-      "weight": 0,
+      "weight": 2,
       "weightedScore": 0
     },
     {
@@ -245,9 +270,10 @@
       "sectionKey": "proteins",
       "scoringMode": "arrow_bands",
       "value": 2,
-      "band": "2_red",
-      "score": 20,
-      "weight": 0,
+      "band": "↓↓↓",
+      "polarity": "higher_better",
+      "score": 0,
+      "weight": 1,
       "weightedScore": 0
     },
     {
@@ -255,9 +281,10 @@
       "sectionKey": "proteins",
       "scoringMode": "arrow_bands",
       "value": 30,
-      "band": "3_green",
-      "score": 100,
-      "weight": 0,
+      "band": "↓↓↓",
+      "polarity": "higher_better",
+      "score": 0,
+      "weight": 2,
       "weightedScore": 0
     },
     {

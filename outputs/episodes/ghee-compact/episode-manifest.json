@@ -1,6 +1,6 @@
 {
   "id": "ghee-episode-v1",
-  "generatedAt": "2026-06-14T15:37:26.513Z",
+  "generatedAt": "2026-06-20T01:10:37.173Z",
   "status": "draft",
   "mode": "compact",
   "food": {
@@ -34,15 +34,15 @@
     "subtitlesJson": "subtitles.json"
   },
   "scoreSnapshot": {
-    "overallScore": 16.5,
-    "overallScoreExact": 16.5473,
-    "baseOverallScore": 22.5,
-    "baseOverallScoreExact": 22.4571,
+    "overallScore": 13.8,
+    "overallScoreExact": 13.7895,
+    "baseOverallScore": 18.7,
+    "baseOverallScoreExact": 18.7143,
     "tier": "D",
     "sectionScores": {
       "fats": 4.3,
       "carbs": null,
-      "proteins": null,
+      "proteins": 0,
       "vitamins": 8,
       "minerals": 0,
       "pros": 50,
@@ -106,7 +106,7 @@
     ],
     "explanation": {
       "summary": "Pros are carrying this food most, while minerals are holding it back most. It lands in D tier.",
-      "whyThisTier": "This food lands in D tier with an overall score of 16.5. Section scores: fats 4.3, vitamins 8, minerals 0, pros 50, cons 50.",
+      "whyThisTier": "This food lands in D tier with an overall score of 13.8. Section scores: fats 4.3, proteins 0, vitamins 8, minerals 0, pros 50, cons 50.",
       "strongestSection": {
         "key": "pros",
         "label": "Pros",
@@ -558,7 +558,7 @@
       "maxLines": 2,
       "maxCharactersPerLine": 18
     },
-    "totalEstimatedDurationSeconds": 82.76,
+    "totalEstimatedDurationSeconds": 81.71,
     "scenes": [
       {
         "id": "hook",
@@ -696,6 +696,7 @@
               "weightedScore": 40,
               "scoringMode": "arrow_bands",
               "band": "↓",
+              "polarity": "higher_better",
               "dvPercent": null,
               "value": 500
             },
@@ -705,17 +706,9 @@
               "weightedScore": 0,
               "scoringMode": "arrow_bands",
               "band": "↑↑↑",
+              "polarity": "higher_worse",
               "dvPercent": null,
               "value": 62
-            },
-            {
-              "metricKey": "polyunsaturated_fat_g",
-              "text": "polyunsaturated fat at 4g",
-              "weightedScore": 20,
-              "scoringMode": "arrow_bands",
-              "band": "↓↓",
-              "dvPercent": null,
-              "value": 4
             },
             {
               "metricKey": "cholesterol_mg",
@@ -723,8 +716,19 @@
               "weightedScore": 0,
               "scoringMode": "arrow_bands",
               "band": "↑↑↑",
+              "polarity": "higher_worse",
               "dvPercent": null,
               "value": 256
+            },
+            {
+              "metricKey": "polyunsaturated_fat_g",
+              "text": "polyunsaturated fat at 4g",
+              "weightedScore": 20,
+              "scoringMode": "arrow_bands",
+              "band": "↓↓",
+              "polarity": "higher_better",
+              "dvPercent": null,
+              "value": 4
             }
           ],
           "timingHint": "short-medium",
@@ -781,14 +785,14 @@
               },
               {
                 "slotId": "submetric_3",
-                "metricKey": "polyunsaturated_fat_g",
-                "label": "polyunsaturated fat",
-                "displayValue": "4g",
+                "metricKey": "cholesterol_mg",
+                "label": "cholesterol",
+                "displayValue": "256mg",
                 "scoringMode": "arrow_bands",
-                "band": "↓↓",
-                "weightedScore": 20,
+                "band": "↑↑↑",
+                "weightedScore": 0,
                 "spriteRole": "fats",
-                "text": "polyunsaturated fat at 4g"
+                "text": "cholesterol at 256mg"
               }
             ],
             "micronutrientRows": [],
@@ -1052,15 +1056,15 @@
         "kind": "section",
         "narrativeRole": "macro-foundation",
         "startSeconds": 17.28,
-        "durationSeconds": 5.29,
-        "endSeconds": 22.57,
-        "narrationText": "0 grams of protein. No defensible protein submacros to call out. Also not relevant here.",
-        "subtitleText": "0g of protein. No defensible protein submacros to call out. Also not relevant here.",
+        "durationSeconds": 4.24,
+        "endSeconds": 21.52,
+        "narrationText": "0 grams of protein. Not enough to make protein a serious strength.",
+        "subtitleText": "0g of protein. Not enough to make protein a serious strength.",
         "subtitlePlacement": "lower-third",
         "visualBinding": {
           "sectionKey": "proteins",
           "title": "Proteins",
-          "score": null,
+          "score": 0,
           "templateSlots": [
             "macro_headline",
             "submetric_1",
@@ -1068,7 +1072,18 @@
             "submetric_3",
             "commentary_note"
           ],
-          "displayItems": [],
+          "displayItems": [
+            {
+              "metricKey": "protein_g_fallback",
+              "text": "protein amount at 0g",
+              "weightedScore": 0,
+              "scoringMode": "arrow_bands",
+              "band": "↓↓↓",
+              "polarity": "higher_better",
+              "dvPercent": null,
+              "value": 0
+            }
+          ],
           "timingHint": "short-medium",
           "narrativeRole": "macro-foundation",
           "macroLayout": "stacked",
@@ -1098,7 +1113,19 @@
               "value": null,
               "emphasis": "standard"
             },
-            "macroSlots": [],
+            "macroSlots": [
+              {
+                "slotId": "submetric_1",
+                "metricKey": "protein_g_fallback",
+                "label": "protein amount",
+                "displayValue": "0",
+                "scoringMode": "arrow_bands",
+                "band": "↓↓↓",
+                "weightedScore": 0,
+                "spriteRole": "proteins",
+                "text": "protein amount at 0g"
+              }
+            ],
             "micronutrientRows": [],
             "commentaryNote": null
           }
@@ -1142,7 +1169,7 @@
             "id": "11-proteins-1",
             "sceneId": "proteins",
             "startSeconds": 17.28,
-            "endSeconds": 18.57,
+            "endSeconds": 18.6,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1154,43 +1181,29 @@
           {
             "id": "12-proteins-2",
             "sceneId": "proteins",
-            "startSeconds": 18.57,
-            "endSeconds": 19.92,
+            "startSeconds": 18.6,
+            "endSeconds": 21,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "No defensible",
-              "protein submacros"
+              "Not enough to make",
+              "protein a serious"
             ],
-            "text": "No defensible\nprotein submacros"
+            "text": "Not enough to make\nprotein a serious"
           },
           {
             "id": "13-proteins-3",
             "sceneId": "proteins",
-            "startSeconds": 19.92,
-            "endSeconds": 21.08,
+            "startSeconds": 21,
+            "endSeconds": 21.52,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
             "lines": [
-              "to call out."
+              "strength."
             ],
-            "text": "to call out."
-          },
-          {
-            "id": "14-proteins-4",
-            "sceneId": "proteins",
-            "startSeconds": 21.08,
-            "endSeconds": 22.57,
-            "placement": "lower-third",
-            "maxLines": 2,
-            "maxCharactersPerLine": 18,
-            "lines": [
-              "Also not relevant",
-              "here."
-            ],
-            "text": "Also not relevant\nhere."
+            "text": "strength."
           }
         ]
       },
@@ -1198,9 +1211,9 @@
         "id": "vitamins",
         "kind": "section",
         "narrativeRole": "micronutrient-proof",
-        "startSeconds": 22.57,
+        "startSeconds": 21.52,
         "durationSeconds": 8.82,
-        "endSeconds": 31.39,
+        "endSeconds": 30.34,
         "narrationText": "Vitamin A is 43% daily value, useful for vision and immune support. Vitamin K is 8% daily value, a weak mark for oils and fats.",
         "subtitleText": "Vitamin A is 43% DV, useful for vision and immune support. Vitamin K is 8% DV, a weak mark for oils and fats.",
         "subtitlePlacement": "lower-third",
@@ -1220,6 +1233,7 @@
               "weightedScore": 40,
               "scoringMode": "dv_points",
               "band": null,
+              "polarity": null,
               "dvPercent": 43,
               "value": null
             },
@@ -1229,6 +1243,7 @@
               "weightedScore": 0,
               "scoringMode": "dv_points",
               "band": null,
+              "polarity": null,
               "dvPercent": 8,
               "value": null
             },
@@ -1238,6 +1253,7 @@
               "weightedScore": 0,
               "scoringMode": "dv_points",
               "band": null,
+              "polarity": null,
               "dvPercent": 9,
               "value": null
             }
@@ -1314,10 +1330,10 @@
         ],
         "subtitleCues": [
           {
-            "id": "15-vitamins-1",
+            "id": "14-vitamins-1",
             "sceneId": "vitamins",
-            "startSeconds": 22.57,
-            "endSeconds": 25.21,
+            "startSeconds": 21.52,
+            "endSeconds": 24.16,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1328,10 +1344,10 @@
             "text": "Vitamin A is 43%\nDV, useful for"
           },
           {
-            "id": "16-vitamins-2",
+            "id": "15-vitamins-2",
             "sceneId": "vitamins",
-            "startSeconds": 25.21,
-            "endSeconds": 26.8,
+            "startSeconds": 24.16,
+            "endSeconds": 25.75,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1342,10 +1358,10 @@
             "text": "vision and immune\nsupport."
           },
           {
-            "id": "17-vitamins-3",
+            "id": "16-vitamins-3",
             "sceneId": "vitamins",
-            "startSeconds": 26.8,
-            "endSeconds": 29.79,
+            "startSeconds": 25.75,
+            "endSeconds": 28.74,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1356,10 +1372,10 @@
             "text": "Vitamin K is 8%\nDV, a weak mark"
           },
           {
-            "id": "18-vitamins-4",
+            "id": "17-vitamins-4",
             "sceneId": "vitamins",
-            "startSeconds": 29.79,
-            "endSeconds": 31.39,
+            "startSeconds": 28.74,
+            "endSeconds": 30.34,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1374,9 +1390,9 @@
         "id": "minerals",
         "kind": "section",
         "narrativeRole": "micronutrient-proof",
-        "startSeconds": 31.39,
+        "startSeconds": 30.34,
         "durationSeconds": 7.76,
-        "endSeconds": 39.15,
+        "endSeconds": 38.1,
         "narrationText": "Iron is 0% daily value, useful for oxygen transport. Magnesium is only 0% daily value, a weak mark for oils and fats.",
         "subtitleText": "Iron is 0% DV, useful for oxygen transport. Magnesium is only 0% DV, a weak mark for oils and fats.",
         "subtitlePlacement": "lower-third",
@@ -1396,6 +1412,7 @@
               "weightedScore": 0,
               "scoringMode": "dv_points",
               "band": null,
+              "polarity": null,
               "dvPercent": 0,
               "value": null
             },
@@ -1405,6 +1422,7 @@
               "weightedScore": 0,
               "scoringMode": "dv_points",
               "band": null,
+              "polarity": null,
               "dvPercent": 0,
               "value": null
             },
@@ -1414,6 +1432,7 @@
               "weightedScore": 0,
               "scoringMode": "dv_points",
               "band": null,
+              "polarity": null,
               "dvPercent": 0,
               "value": null
             }
@@ -1490,10 +1509,10 @@
         ],
         "subtitleCues": [
           {
-            "id": "19-minerals-1",
+            "id": "18-minerals-1",
             "sceneId": "minerals",
-            "startSeconds": 31.39,
-            "endSeconds": 34.02,
+            "startSeconds": 30.34,
+            "endSeconds": 32.97,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1504,10 +1523,10 @@
             "text": "Iron is 0% DV,\nuseful for oxygen"
           },
           {
-            "id": "20-minerals-2",
+            "id": "19-minerals-2",
             "sceneId": "minerals",
-            "startSeconds": 34.02,
-            "endSeconds": 34.57,
+            "startSeconds": 32.97,
+            "endSeconds": 33.52,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1517,10 +1536,10 @@
             "text": "transport."
           },
           {
-            "id": "21-minerals-3",
+            "id": "20-minerals-3",
             "sceneId": "minerals",
-            "startSeconds": 34.57,
-            "endSeconds": 37.55,
+            "startSeconds": 33.52,
+            "endSeconds": 36.5,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1531,10 +1550,10 @@
             "text": "Magnesium is only\n0% DV, a weak mark"
           },
           {
-            "id": "22-minerals-4",
+            "id": "21-minerals-4",
             "sceneId": "minerals",
-            "startSeconds": 37.55,
-            "endSeconds": 39.15,
+            "startSeconds": 36.5,
+            "endSeconds": 38.1,
             "placement": "lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1549,9 +1568,9 @@
         "id": "pros",
         "kind": "section",
         "narrativeRole": "real-world-upside",
-        "startSeconds": 39.15,
+        "startSeconds": 38.1,
         "durationSeconds": 17.65,
-        "endSeconds": 56.8,
+        "endSeconds": 55.75,
         "narrationText": "The upsides first: small amounts can change a whole meal. That leverage matters when the fat quality is good. Can help meals feel more complete and usable. Fats sometimes improve the whole plate, not just their own stats. Efficient energy source. That can be a strength in the right context.",
         "subtitleText": "The upsides first: small amounts can change a whole meal. That leverage matters when the fat quality is good. Can help meals feel more complete and usable. Fats sometimes improve the whole plate, not just their own stats. Efficient energy source. That can be a strength in the right context.",
         "subtitlePlacement": "high-lower-third",
@@ -1632,10 +1651,10 @@
         ],
         "subtitleCues": [
           {
-            "id": "23-pros-1",
+            "id": "22-pros-1",
             "sceneId": "pros",
-            "startSeconds": 39.15,
-            "endSeconds": 41.15,
+            "startSeconds": 38.1,
+            "endSeconds": 40.1,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1646,10 +1665,10 @@
             "text": "The upsides first:\nsmall amounts can"
           },
           {
-            "id": "24-pros-2",
+            "id": "23-pros-2",
             "sceneId": "pros",
-            "startSeconds": 41.15,
-            "endSeconds": 42.64,
+            "startSeconds": 40.1,
+            "endSeconds": 41.59,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1660,10 +1679,10 @@
             "text": "change a whole\nmeal."
           },
           {
-            "id": "25-pros-3",
+            "id": "24-pros-3",
             "sceneId": "pros",
-            "startSeconds": 42.64,
-            "endSeconds": 44.32,
+            "startSeconds": 41.59,
+            "endSeconds": 43.27,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1674,10 +1693,10 @@
             "text": "That leverage\nmatters when the"
           },
           {
-            "id": "26-pros-4",
+            "id": "25-pros-4",
             "sceneId": "pros",
-            "startSeconds": 44.32,
-            "endSeconds": 45.81,
+            "startSeconds": 43.27,
+            "endSeconds": 44.76,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1688,10 +1707,10 @@
             "text": "fat quality is\ngood."
           },
           {
-            "id": "27-pros-5",
+            "id": "26-pros-5",
             "sceneId": "pros",
-            "startSeconds": 45.81,
-            "endSeconds": 47.81,
+            "startSeconds": 44.76,
+            "endSeconds": 46.76,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1702,10 +1721,10 @@
             "text": "Can help meals\nfeel more complete"
           },
           {
-            "id": "28-pros-6",
+            "id": "27-pros-6",
             "sceneId": "pros",
-            "startSeconds": 47.81,
-            "endSeconds": 48.65,
+            "startSeconds": 46.76,
+            "endSeconds": 47.6,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1715,10 +1734,10 @@
             "text": "and usable."
           },
           {
-            "id": "29-pros-7",
+            "id": "28-pros-7",
             "sceneId": "pros",
-            "startSeconds": 48.65,
-            "endSeconds": 50.33,
+            "startSeconds": 47.6,
+            "endSeconds": 49.28,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1729,10 +1748,10 @@
             "text": "Fats sometimes\nimprove the whole"
           },
           {
-            "id": "30-pros-8",
+            "id": "29-pros-8",
             "sceneId": "pros",
-            "startSeconds": 50.33,
-            "endSeconds": 52.47,
+            "startSeconds": 49.28,
+            "endSeconds": 51.42,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1743,10 +1762,10 @@
             "text": "plate, not just\ntheir own stats."
           },
           {
-            "id": "31-pros-9",
+            "id": "30-pros-9",
             "sceneId": "pros",
-            "startSeconds": 52.47,
-            "endSeconds": 53.63,
+            "startSeconds": 51.42,
+            "endSeconds": 52.58,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1757,10 +1776,10 @@
             "text": "Efficient energy\nsource."
           },
           {
-            "id": "32-pros-10",
+            "id": "31-pros-10",
             "sceneId": "pros",
-            "startSeconds": 53.63,
-            "endSeconds": 55.96,
+            "startSeconds": 52.58,
+            "endSeconds": 54.91,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1771,10 +1790,10 @@
             "text": "That can be a\nstrength in the"
           },
           {
-            "id": "33-pros-11",
+            "id": "32-pros-11",
             "sceneId": "pros",
-            "startSeconds": 55.96,
-            "endSeconds": 56.8,
+            "startSeconds": 54.91,
+            "endSeconds": 55.75,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1789,9 +1808,9 @@
         "id": "cons",
         "kind": "section",
         "narrativeRole": "real-world-downside",
-        "startSeconds": 56.8,
+        "startSeconds": 55.75,
         "durationSeconds": 13.76,
-        "endSeconds": 70.56,
+        "endSeconds": 69.51,
         "narrationText": "Downsides next: small serving errors matter quickly. A little extra oil or fat can move the calorie math fast. Calorie density is brutally high. Tiny serving errors matter here. Easy to overpour without noticing. Practical portion creep is real.",
         "subtitleText": "Downsides next: small serving errors matter quickly. A little extra oil or fat can move the calorie math fast. Calorie density is brutally high. Tiny serving errors matter here. Easy to overpour without noticing. Practical portion creep is real.",
         "subtitlePlacement": "high-lower-third",
@@ -1872,10 +1891,10 @@
         ],
         "subtitleCues": [
           {
-            "id": "34-cons-1",
+            "id": "33-cons-1",
             "sceneId": "cons",
-            "startSeconds": 56.8,
-            "endSeconds": 58.13,
+            "startSeconds": 55.75,
+            "endSeconds": 57.08,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1886,10 +1905,10 @@
             "text": "Downsides next:\nsmall serving"
           },
           {
-            "id": "35-cons-2",
+            "id": "34-cons-2",
             "sceneId": "cons",
-            "startSeconds": 58.13,
-            "endSeconds": 59.27,
+            "startSeconds": 57.08,
+            "endSeconds": 58.22,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1900,10 +1919,10 @@
             "text": "errors matter\nquickly."
           },
           {
-            "id": "36-cons-3",
+            "id": "35-cons-3",
             "sceneId": "cons",
-            "startSeconds": 59.27,
-            "endSeconds": 61.89,
+            "startSeconds": 58.22,
+            "endSeconds": 60.84,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1914,10 +1933,10 @@
             "text": "A little extra oil\nor fat can move"
           },
           {
-            "id": "37-cons-4",
+            "id": "36-cons-4",
             "sceneId": "cons",
-            "startSeconds": 61.89,
-            "endSeconds": 63.36,
+            "startSeconds": 60.84,
+            "endSeconds": 62.31,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1928,10 +1947,10 @@
             "text": "the calorie math\nfast."
           },
           {
-            "id": "38-cons-5",
+            "id": "37-cons-5",
             "sceneId": "cons",
-            "startSeconds": 63.36,
-            "endSeconds": 65.15,
+            "startSeconds": 62.31,
+            "endSeconds": 64.1,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1942,10 +1961,10 @@
             "text": "Calorie density is\nbrutally high."
           },
           {
-            "id": "39-cons-6",
+            "id": "38-cons-6",
             "sceneId": "cons",
-            "startSeconds": 65.15,
-            "endSeconds": 66.48,
+            "startSeconds": 64.1,
+            "endSeconds": 65.43,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1956,10 +1975,10 @@
             "text": "Tiny serving\nerrors matter"
           },
           {
-            "id": "40-cons-7",
+            "id": "39-cons-7",
             "sceneId": "cons",
-            "startSeconds": 66.48,
-            "endSeconds": 66.98,
+            "startSeconds": 65.43,
+            "endSeconds": 65.93,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1969,10 +1988,10 @@
             "text": "here."
           },
           {
-            "id": "41-cons-8",
+            "id": "40-cons-8",
             "sceneId": "cons",
-            "startSeconds": 66.98,
-            "endSeconds": 68.77,
+            "startSeconds": 65.93,
+            "endSeconds": 67.72,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -1983,10 +2002,10 @@
             "text": "Easy to overpour\nwithout noticing."
           },
           {
-            "id": "42-cons-9",
+            "id": "41-cons-9",
             "sceneId": "cons",
-            "startSeconds": 68.77,
-            "endSeconds": 70.56,
+            "startSeconds": 67.72,
+            "endSeconds": 69.51,
             "placement": "high-lower-third",
             "maxLines": 2,
             "maxCharactersPerLine": 18,
@@ -2002,9 +2021,9 @@
         "id": "final",
         "kind": "closing",
         "narrativeRole": "verdict-payoff",
-        "startSeconds": 70.56,
+        "startSeconds": 69.51,
         "durationSeconds": 12.2,
-        "endSeconds": 82.76,
+        "endSeconds": 81.71,
         "narrationText": "Big strengths are small amounts can change a whole meal and can help meals feel more complete and usable, but the biggest weaknesses are small serving errors matter quickly and calorie density is brutally high. D tier.",
         "subtitleText": "Big strengths are small amounts can change a whole meal and can help meals feel more complete and usable, but the biggest weaknesses are small serving errors matter quickly and calorie density is brutally high. D tier.",
         "subtitleSequence": [
@@ -2066,10 +2085,10 @@
         ],
         "subtitleCues": [
           {
-            "id": "43-final-1",
+            "id": "42-final-1",
             "sceneId": "final",
-            "startSeconds": 70.56,
-            "endSeconds": 73.13,
+            "startSeconds": 69.51,
+            "endSeconds": 72.08,
             "placement": "summary-full",
             "maxLines": 2,
             "maxCharactersPerLine": 24,
@@ -2081,10 +2100,10 @@
             "role": "conclusion-summary"
           },
           {
-            "id": "44-final-2",
+            "id": "43-final-2",
             "sceneId": "final",
-            "startSeconds": 73.13,
-            "endSeconds": 76.01,
+            "startSeconds": 72.08,
+            "endSeconds": 74.96,
             "placement": "summary-full",
             "maxLines": 2,
             "maxCharactersPerLine": 24,
@@ -2096,10 +2115,10 @@
             "role": "conclusion-summary"
           },
           {
-            "id": "45-final-3",
+            "id": "44-final-3",
             "sceneId": "final",
-            "startSeconds": 76.01,
-            "endSeconds": 78.26,
+            "startSeconds": 74.96,
+            "endSeconds": 77.21,
             "placement": "summary-full",
             "maxLines": 2,
             "maxCharactersPerLine": 24,
@@ -2111,10 +2130,10 @@
             "role": "conclusion-summary"
           },
           {
-            "id": "46-final-4",
+            "id": "45-final-4",
             "sceneId": "final",
-            "startSeconds": 78.26,
-            "endSeconds": 80.2,
+            "startSeconds": 77.21,
+            "endSeconds": 79.15,
             "placement": "summary-full",
             "maxLines": 2,
             "maxCharactersPerLine": 24,
@@ -2126,10 +2145,10 @@
             "role": "conclusion-summary"
           },
           {
-            "id": "47-final-5",
+            "id": "46-final-5",
             "sceneId": "final",
-            "startSeconds": 80.2,
-            "endSeconds": 81.95,
+            "startSeconds": 79.15,
+            "endSeconds": 80.9,
             "placement": "summary-full",
             "maxLines": 2,
             "maxCharactersPerLine": 24,
@@ -2141,10 +2160,10 @@
             "role": "conclusion-summary"
           },
           {
-            "id": "48-final-6",
+            "id": "47-final-6",
             "sceneId": "final",
-            "startSeconds": 81.95,
-            "endSeconds": 82.76,
+            "startSeconds": 80.9,
+            "endSeconds": 81.71,
             "placement": "tier-center",
             "maxLines": 2,
             "maxCharactersPerLine": 24,
@@ -2297,7 +2316,7 @@
         "id": "11-proteins-1",
         "sceneId": "proteins",
         "startSeconds": 17.28,
-        "endSeconds": 18.57,
+        "endSeconds": 18.6,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2309,49 +2328,35 @@
       {
         "id": "12-proteins-2",
         "sceneId": "proteins",
-        "startSeconds": 18.57,
-        "endSeconds": 19.92,
+        "startSeconds": 18.6,
+        "endSeconds": 21,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "No defensible",
-          "protein submacros"
+          "Not enough to make",
+          "protein a serious"
         ],
-        "text": "No defensible\nprotein submacros"
+        "text": "Not enough to make\nprotein a serious"
       },
       {
         "id": "13-proteins-3",
         "sceneId": "proteins",
-        "startSeconds": 19.92,
-        "endSeconds": 21.08,
+        "startSeconds": 21,
+        "endSeconds": 21.52,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
         "lines": [
-          "to call out."
+          "strength."
         ],
-        "text": "to call out."
+        "text": "strength."
       },
       {
-        "id": "14-proteins-4",
-        "sceneId": "proteins",
-        "startSeconds": 21.08,
-        "endSeconds": 22.57,
-        "placement": "lower-third",
-        "maxLines": 2,
-        "maxCharactersPerLine": 18,
-        "lines": [
-          "Also not relevant",
-          "here."
-        ],
-        "text": "Also not relevant\nhere."
-      },
-      {
-        "id": "15-vitamins-1",
+        "id": "14-vitamins-1",
         "sceneId": "vitamins",
-        "startSeconds": 22.57,
-        "endSeconds": 25.21,
+        "startSeconds": 21.52,
+        "endSeconds": 24.16,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2362,10 +2367,10 @@
         "text": "Vitamin A is 43%\nDV, useful for"
       },
       {
-        "id": "16-vitamins-2",
+        "id": "15-vitamins-2",
         "sceneId": "vitamins",
-        "startSeconds": 25.21,
-        "endSeconds": 26.8,
+        "startSeconds": 24.16,
+        "endSeconds": 25.75,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2376,10 +2381,10 @@
         "text": "vision and immune\nsupport."
       },
       {
-        "id": "17-vitamins-3",
+        "id": "16-vitamins-3",
         "sceneId": "vitamins",
-        "startSeconds": 26.8,
-        "endSeconds": 29.79,
+        "startSeconds": 25.75,
+        "endSeconds": 28.74,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2390,10 +2395,10 @@
         "text": "Vitamin K is 8%\nDV, a weak mark"
       },
       {
-        "id": "18-vitamins-4",
+        "id": "17-vitamins-4",
         "sceneId": "vitamins",
-        "startSeconds": 29.79,
-        "endSeconds": 31.39,
+        "startSeconds": 28.74,
+        "endSeconds": 30.34,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2403,10 +2408,10 @@
         "text": "for oils and fats."
       },
       {
-        "id": "19-minerals-1",
+        "id": "18-minerals-1",
         "sceneId": "minerals",
-        "startSeconds": 31.39,
-        "endSeconds": 34.02,
+        "startSeconds": 30.34,
+        "endSeconds": 32.97,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2417,10 +2422,10 @@
         "text": "Iron is 0% DV,\nuseful for oxygen"
       },
       {
-        "id": "20-minerals-2",
+        "id": "19-minerals-2",
         "sceneId": "minerals",
-        "startSeconds": 34.02,
-        "endSeconds": 34.57,
+        "startSeconds": 32.97,
+        "endSeconds": 33.52,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2430,10 +2435,10 @@
         "text": "transport."
       },
       {
-        "id": "21-minerals-3",
+        "id": "20-minerals-3",
         "sceneId": "minerals",
-        "startSeconds": 34.57,
-        "endSeconds": 37.55,
+        "startSeconds": 33.52,
+        "endSeconds": 36.5,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2444,10 +2449,10 @@
         "text": "Magnesium is only\n0% DV, a weak mark"
       },
       {
-        "id": "22-minerals-4",
+        "id": "21-minerals-4",
         "sceneId": "minerals",
-        "startSeconds": 37.55,
-        "endSeconds": 39.15,
+        "startSeconds": 36.5,
+        "endSeconds": 38.1,
         "placement": "lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2457,10 +2462,10 @@
         "text": "for oils and fats."
       },
       {
-        "id": "23-pros-1",
+        "id": "22-pros-1",
         "sceneId": "pros",
-        "startSeconds": 39.15,
-        "endSeconds": 41.15,
+        "startSeconds": 38.1,
+        "endSeconds": 40.1,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2471,10 +2476,10 @@
         "text": "The upsides first:\nsmall amounts can"
       },
       {
-        "id": "24-pros-2",
+        "id": "23-pros-2",
         "sceneId": "pros",
-        "startSeconds": 41.15,
-        "endSeconds": 42.64,
+        "startSeconds": 40.1,
+        "endSeconds": 41.59,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2485,10 +2490,10 @@
         "text": "change a whole\nmeal."
       },
       {
-        "id": "25-pros-3",
+        "id": "24-pros-3",
         "sceneId": "pros",
-        "startSeconds": 42.64,
-        "endSeconds": 44.32,
+        "startSeconds": 41.59,
+        "endSeconds": 43.27,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2499,10 +2504,10 @@
         "text": "That leverage\nmatters when the"
       },
       {
-        "id": "26-pros-4",
+        "id": "25-pros-4",
         "sceneId": "pros",
-        "startSeconds": 44.32,
-        "endSeconds": 45.81,
+        "startSeconds": 43.27,
+        "endSeconds": 44.76,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2513,10 +2518,10 @@
         "text": "fat quality is\ngood."
       },
       {
-        "id": "27-pros-5",
+        "id": "26-pros-5",
         "sceneId": "pros",
-        "startSeconds": 45.81,
-        "endSeconds": 47.81,
+        "startSeconds": 44.76,
+        "endSeconds": 46.76,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2527,10 +2532,10 @@
         "text": "Can help meals\nfeel more complete"
       },
       {
-        "id": "28-pros-6",
+        "id": "27-pros-6",
         "sceneId": "pros",
-        "startSeconds": 47.81,
-        "endSeconds": 48.65,
+        "startSeconds": 46.76,
+        "endSeconds": 47.6,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2540,10 +2545,10 @@
         "text": "and usable."
       },
       {
-        "id": "29-pros-7",
+        "id": "28-pros-7",
         "sceneId": "pros",
-        "startSeconds": 48.65,
-        "endSeconds": 50.33,
+        "startSeconds": 47.6,
+        "endSeconds": 49.28,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2554,10 +2559,10 @@
         "text": "Fats sometimes\nimprove the whole"
       },
       {
-        "id": "30-pros-8",
+        "id": "29-pros-8",
         "sceneId": "pros",
-        "startSeconds": 50.33,
-        "endSeconds": 52.47,
+        "startSeconds": 49.28,
+        "endSeconds": 51.42,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2568,10 +2573,10 @@
         "text": "plate, not just\ntheir own stats."
       },
       {
-        "id": "31-pros-9",
+        "id": "30-pros-9",
         "sceneId": "pros",
-        "startSeconds": 52.47,
-        "endSeconds": 53.63,
+        "startSeconds": 51.42,
+        "endSeconds": 52.58,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2582,10 +2587,10 @@
         "text": "Efficient energy\nsource."
       },
       {
-        "id": "32-pros-10",
+        "id": "31-pros-10",
         "sceneId": "pros",
-        "startSeconds": 53.63,
-        "endSeconds": 55.96,
+        "startSeconds": 52.58,
+        "endSeconds": 54.91,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2596,10 +2601,10 @@
         "text": "That can be a\nstrength in the"
       },
       {
-        "id": "33-pros-11",
+        "id": "32-pros-11",
         "sceneId": "pros",
-        "startSeconds": 55.96,
-        "endSeconds": 56.8,
+        "startSeconds": 54.91,
+        "endSeconds": 55.75,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2609,10 +2614,10 @@
         "text": "right context."
       },
       {
-        "id": "34-cons-1",
+        "id": "33-cons-1",
         "sceneId": "cons",
-        "startSeconds": 56.8,
-        "endSeconds": 58.13,
+        "startSeconds": 55.75,
+        "endSeconds": 57.08,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2623,10 +2628,10 @@
         "text": "Downsides next:\nsmall serving"
       },
       {
-        "id": "35-cons-2",
+        "id": "34-cons-2",
         "sceneId": "cons",
-        "startSeconds": 58.13,
-        "endSeconds": 59.27,
+        "startSeconds": 57.08,
+        "endSeconds": 58.22,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2637,10 +2642,10 @@
         "text": "errors matter\nquickly."
       },
       {
-        "id": "36-cons-3",
+        "id": "35-cons-3",
         "sceneId": "cons",
-        "startSeconds": 59.27,
-        "endSeconds": 61.89,
+        "startSeconds": 58.22,
+        "endSeconds": 60.84,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2651,10 +2656,10 @@
         "text": "A little extra oil\nor fat can move"
       },
       {
-        "id": "37-cons-4",
+        "id": "36-cons-4",
         "sceneId": "cons",
-        "startSeconds": 61.89,
-        "endSeconds": 63.36,
+        "startSeconds": 60.84,
+        "endSeconds": 62.31,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2665,10 +2670,10 @@
         "text": "the calorie math\nfast."
       },
       {
-        "id": "38-cons-5",
+        "id": "37-cons-5",
         "sceneId": "cons",
-        "startSeconds": 63.36,
-        "endSeconds": 65.15,
+        "startSeconds": 62.31,
+        "endSeconds": 64.1,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2679,10 +2684,10 @@
         "text": "Calorie density is\nbrutally high."
       },
       {
-        "id": "39-cons-6",
+        "id": "38-cons-6",
         "sceneId": "cons",
-        "startSeconds": 65.15,
-        "endSeconds": 66.48,
+        "startSeconds": 64.1,
+        "endSeconds": 65.43,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2693,10 +2698,10 @@
         "text": "Tiny serving\nerrors matter"
       },
       {
-        "id": "40-cons-7",
+        "id": "39-cons-7",
         "sceneId": "cons",
-        "startSeconds": 66.48,
-        "endSeconds": 66.98,
+        "startSeconds": 65.43,
+        "endSeconds": 65.93,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2706,10 +2711,10 @@
         "text": "here."
       },
       {
-        "id": "41-cons-8",
+        "id": "40-cons-8",
         "sceneId": "cons",
-        "startSeconds": 66.98,
-        "endSeconds": 68.77,
+        "startSeconds": 65.93,
+        "endSeconds": 67.72,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2720,10 +2725,10 @@
         "text": "Easy to overpour\nwithout noticing."
       },
       {
-        "id": "42-cons-9",
+        "id": "41-cons-9",
         "sceneId": "cons",
-        "startSeconds": 68.77,
-        "endSeconds": 70.56,
+        "startSeconds": 67.72,
+        "endSeconds": 69.51,
         "placement": "high-lower-third",
         "maxLines": 2,
         "maxCharactersPerLine": 18,
@@ -2734,10 +2739,10 @@
         "text": "Practical portion\ncreep is real."
       },
       {
-        "id": "43-final-1",
+        "id": "42-final-1",
         "sceneId": "final",
-        "startSeconds": 70.56,
-        "endSeconds": 73.13,
+        "startSeconds": 69.51,
+        "endSeconds": 72.08,
         "placement": "summary-full",
         "maxLines": 2,
         "maxCharactersPerLine": 24,
@@ -2749,10 +2754,10 @@
         "role": "conclusion-summary"
       },
       {
-        "id": "44-final-2",
+        "id": "43-final-2",
         "sceneId": "final",
-        "startSeconds": 73.13,
-        "endSeconds": 76.01,
+        "startSeconds": 72.08,
+        "endSeconds": 74.96,
         "placement": "summary-full",
         "maxLines": 2,
         "maxCharactersPerLine": 24,
@@ -2764,10 +2769,10 @@
         "role": "conclusion-summary"
       },
       {
-        "id": "45-final-3",
+        "id": "44-final-3",
         "sceneId": "final",
-        "startSeconds": 76.01,
-        "endSeconds": 78.26,
+        "startSeconds": 74.96,
+        "endSeconds": 77.21,
         "placement": "summary-full",
         "maxLines": 2,
         "maxCharactersPerLine": 24,
@@ -2779,10 +2784,10 @@
         "role": "conclusion-summary"
       },
       {
-        "id": "46-final-4",
+        "id": "45-final-4",
         "sceneId": "final",
-        "startSeconds": 78.26,
-        "endSeconds": 80.2,
+        "startSeconds": 77.21,
+        "endSeconds": 79.15,
         "placement": "summary-full",
         "maxLines": 2,
         "maxCharactersPerLine": 24,
@@ -2794,10 +2799,10 @@
         "role": "conclusion-summary"
       },
       {
-        "id": "47-final-5",
+        "id": "46-final-5",
         "sceneId": "final",
-        "startSeconds": 80.2,
-        "endSeconds": 81.95,
+        "startSeconds": 79.15,
+        "endSeconds": 80.9,
         "placement": "summary-full",
         "maxLines": 2,
         "maxCharactersPerLine": 24,
@@ -2809,10 +2814,10 @@
         "role": "conclusion-summary"
       },
       {
-        "id": "48-final-6",
+        "id": "47-final-6",
         "sceneId": "final",
-        "startSeconds": 81.95,
-        "endSeconds": 82.76,
+        "startSeconds": 80.9,
+        "endSeconds": 81.71,
         "placement": "tier-center",
         "maxLines": 2,
         "maxCharactersPerLine": 24,

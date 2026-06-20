@@ -133,7 +133,7 @@
   const MACRO_BAR_GIF_FRAME_STEPS = 80;
   const MACRO_BAR_GIF_FINAL_HOLD_CENTISECONDS = 65535;
   const INTRO_RANKED_SPRITE_PATH = './sprites/ui/intro_&_outro/ranked.png';
-  const OUTRO_D_TIER_SPRITE_PATH = './sprites/ui/intro_&_outro/D tier.png';
+  const OUTRO_D_TIER_SPRITE_PATH = './sprites/ui/intro_&_outro/D_tier.png';
   const INTRO_RANKED_VISIBLE_CENTER = { x: 0.5, y: 0.47 };
   const INTRO_HERO_SIZE = { ranked: 80, foodWidth: 48, foodHeight: 24 };
   const AVAILABLE_FOOD_IMAGE_IDS = new Set(['bacon']);

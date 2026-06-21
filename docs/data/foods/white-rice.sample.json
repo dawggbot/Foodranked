@@ -40,8 +40,8 @@
     "sugar_g": 0.1,
     "glycemic_index": null,
     "collagen_g": null,
-    "essential_amino_acids_score": null,
-    "nonessential_amino_acids_score": null,
+    "essential_amino_acids_score": 2,
+    "nonessential_amino_acids_score": 3,
     "bioavailability_percent": null,
     "vitamin_a_dv": 0,
     "vitamin_c_dv": 0,
@@ -55,7 +55,27 @@
     "magnesium_dv": 6,
     "zinc_dv": 10,
     "calcium_dv": 1,
-    "potassium_dv": 2
+    "potassium_dv": 2,
+    "amino_acids_mg": {
+      "tryptophan_mg": 83,
+      "threonine_mg": 255,
+      "isoleucine_mg": 308,
+      "leucine_mg": 589,
+      "lysine_mg": 258,
+      "methionine_mg": 168,
+      "cystine_mg": 146,
+      "phenylalanine_mg": 381,
+      "tyrosine_mg": 238,
+      "valine_mg": 435,
+      "arginine_mg": 594,
+      "histidine_mg": 168,
+      "alanine_mg": 413,
+      "aspartic_acid_mg": 670,
+      "glutamic_acid_mg": 1389,
+      "glycine_mg": 325,
+      "proline_mg": 335,
+      "serine_mg": 375
+    }
   },
   "metricProvenance": {
     "header": "Per-100g values cross-checked against nutritionDataSources.",
@@ -68,8 +88,8 @@
     "sugar_g": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
     "glycemic_index": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
     "collagen_g": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
-    "essential_amino_acids_score": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
-    "nonessential_amino_acids_score": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
+    "essential_amino_acids_score": "Derived from source-backed amino_acids_mg using config/amino-acid-thresholds.v1.json; only amino-acid groups meeting useful amount thresholds count.",
+    "nonessential_amino_acids_score": "Derived from source-backed amino_acids_mg using config/amino-acid-thresholds.v1.json; only amino-acid groups meeting useful amount thresholds count.",
     "bioavailability_percent": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
     "vitamin_a_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
     "vitamin_c_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
@@ -83,7 +103,8 @@
     "magnesium_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
     "zinc_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
     "calcium_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
-    "potassium_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources."
+    "potassium_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "amino_acids_mg": "USDA FoodData Central amino-acid nutrient rows converted from g to mg per 100g."
   },
   "processingPenalty": 15,
   "contextItems": {
@@ -108,7 +129,7 @@
         "itemKey": "neutral_pairing_food",
         "impactLevel": "minor",
         "title": "neutral enough to pair with almost anything",
-        "explanation": "That flexibility helps explain why it stays common even when its standalone nutrition case is weak.",
+        "explanation": "That flexibility helps explain why it stays common even when its nutrient density is limited.",
         "evidenceType": "manual",
         "confidence": "high"
       }
@@ -123,10 +144,10 @@
         "confidence": "high"
       },
       {
-        "itemKey": "weak_standalone_nutrition",
+        "itemKey": "low_fibre_micronutrient_payload",
         "impactLevel": "minor",
-        "title": "it is mostly starch with limited standalone nutrition",
-        "explanation": "The protein, fibre, and micronutrient payload are all modest for the calories.",
+        "title": "low fibre and modest micronutrient payload",
+        "explanation": "Refining leaves the carb base much stronger than the supporting nutrition.",
         "evidenceType": "manual",
         "confidence": "high"
       },
@@ -191,5 +212,14 @@
       },
       "checkedAt": "2026-06-14"
     }
-  ]
+  ],
+  "aminoAcidDataSource": {
+    "sourceName": "USDA FoodData Central - SR Legacy",
+    "sourceType": "primary",
+    "recordId": "FDC 169756",
+    "url": "https://fdc.nal.usda.gov/food-details/169756/nutrients",
+    "fetchedAt": "2026-06-20",
+    "thresholdPolicy": "config/amino-acid-thresholds.v1.json",
+    "fdcDescription": "Rice, white, long-grain, regular, raw, unenriched"
+  }
 }

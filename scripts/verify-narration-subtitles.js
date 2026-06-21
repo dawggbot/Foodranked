@@ -39,6 +39,7 @@ function addFailure(failures, file, message) {
 
 function compactMetricValue(item) {
   if (!item) return null;
+  if (item.displayValue === 'N/A' || item.notApplicableReason === 'main_macro_zero') return null;
   if (item.dvPercent != null) return `${item.dvPercent}% DV`;
   if (item.value === null || item.value === undefined) return null;
 
@@ -49,7 +50,7 @@ function compactMetricValue(item) {
   if (key.endsWith('_kg')) return `${item.value}kg`;
   if (key.endsWith('_percent')) return `${item.value}%`;
   if (key === 'essential_amino_acids_score') return `${item.value}/9`;
-  if (key === 'nonessential_amino_acids_score') return `${item.value}/${item.denominator || 10}`;
+  if (key === 'nonessential_amino_acids_score') return `${item.value}/${item.denominator || 11}`;
   if (key.endsWith('_score')) return `${item.value}/10`;
   if (/glycemic/i.test(key)) return `${item.value} GI`;
   return String(item.value);

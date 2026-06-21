@@ -209,14 +209,15 @@ function metricLabel(metricKey) {
 }
 
 function metricDisplayValue(item) {
+  if (item?.displayValue != null) return item.displayValue;
   if (item?.dvPercent != null) return `${item.dvPercent}% DV`;
-  if (item?.value == null) return null;
+  if (item?.value == null) return 'N/A';
   const key = String(item.metricKey || '');
   if (key.endsWith('_mg')) return `${item.value}mg`;
   if (key.endsWith('_g')) return `${item.value}g`;
   if (key.endsWith('_percent')) return `${item.value}%`;
   if (key === 'essential_amino_acids_score') return `${item.value}/9`;
-  if (key === 'nonessential_amino_acids_score') return `${item.value}/${item.denominator || 10}`;
+  if (key === 'nonessential_amino_acids_score') return `${item.value}/${item.denominator || 11}`;
   if (key.endsWith('_score')) return `${item.value}/10`;
   if (/glycemic/i.test(key)) return `${item.value} GI`;
   return String(item.value);

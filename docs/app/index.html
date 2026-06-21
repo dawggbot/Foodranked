@@ -1929,7 +1929,7 @@
         protein: [
           { key: 'collagen', metricKey: 'collagen_g', label: 'COLLAGEN', value: food => formatMacroMetricText(food, 'protein', 'collagen_g', 'g') },
           { key: 'eaa', metricKey: 'essential_amino_acids_score', label: 'EAA', value: food => formatMacroRatioMetricText(food, 'protein', 'essential_amino_acids_score', 9) },
-          { key: 'neaa', metricKey: 'nonessential_amino_acids_score', label: 'NEAA', value: food => formatMacroRatioMetricText(food, 'protein', 'nonessential_amino_acids_score', 10) },
+          { key: 'neaa', metricKey: 'nonessential_amino_acids_score', label: 'NEAA', value: food => formatMacroRatioMetricText(food, 'protein', 'nonessential_amino_acids_score', 11) },
           { key: 'bioavailability', metricKey: 'bioavailability_percent', label: 'BIOAVAIL.', value: food => formatMacroMetricText(food, 'protein', 'bioavailability_percent', '%') }
         ]
       };
@@ -4149,14 +4149,26 @@
       return null;
     }
 
+    function formatMacroTotalMetricText(food, sectionId) {
+      const safe = macroTotalDisplayValue(food, sectionId);
+      if (safe == null || safe === 0) return 'N/A';
+      return `${formatCompactNumber(safe)}g`;
+    }
+
     function hasDisplayedMacro(food, sectionId) {
-      return macroTotalDisplayValue(food, sectionId) != null;
+      const safe = macroTotalDisplayValue(food, sectionId);
+      return safe != null && safe > 0;
+    }
+
+    function macroSectionIsZero(food, sectionId) {
+      return macroTotalDisplayValue(food, sectionId) === 0;
     }
 
     function macroSubmetricDisplayValue(food, sectionId, metricKey) {
+      if (macroSectionIsZero(food, sectionId)) return null;
       const value = asNumber(food?.metrics?.[metricKey], null);
       if (value != null) return value;
-      return hasDisplayedMacro(food, sectionId) ? 0 : null;
+      return null;
     }
 
     function formatMacroMetricText(food, sectionId, metricKey, unit = '') {
@@ -4533,7 +4545,7 @@
           <div class="macro-bubble"><img src="${spec.icon}" alt="${escapeHtml(spec.label)} icon" /></div>
           <div class="macro-bar-stack">
             <div class="macro-title-row">
-              <div class="macro-amount pixel-text">${escapeHtml(formatCompactNumber(value))}g</div>
+              <div class="macro-amount pixel-text">${escapeHtml(formatMacroTotalMetricText(food, sectionId))}</div>
               <div class="macro-label">macro<br>total</div>
             </div>
             <div class="macro-bar-meter">
@@ -4565,29 +4577,29 @@
           caption: `${fallbackName} ranked. This opening page is intentionally blank except for the permanent header so the intro animation can be added cleanly in CapCut or later in the site.`
         },
         fats: {
-          headline: `${header.fat_g ?? '—'}G FATS`,
+          headline: `${formatMacroTotalMetricText(food, 'fats')} FATS`,
           lines: [
-            `Saturated fat ${metrics.saturated_fat_g ?? '—'}g ${metricArrows(metrics.saturated_fat_g, 'down')}`,
-            `Polyunsaturated ${metrics.polyunsaturated_fat_g ?? '—'}g ${metricArrows(metrics.polyunsaturated_fat_g, 'up')}`,
-            `Omega 3 ${metrics.omega3_mg ?? '—'}mg ${metricArrows(metrics.omega3_mg, 'up')}`
+            `Saturated fat ${formatMacroMetricText(food, 'fats', 'saturated_fat_g', 'g')} ${metricArrows(macroSubmetricDisplayValue(food, 'fats', 'saturated_fat_g'), 'down')}`,
+            `Polyunsaturated ${formatMacroMetricText(food, 'fats', 'polyunsaturated_fat_g', 'g')} ${metricArrows(macroSubmetricDisplayValue(food, 'fats', 'polyunsaturated_fat_g'), 'up')}`,
+            `Omega 3 ${formatMacroMetricText(food, 'fats', 'omega3_mg', 'mg')} ${metricArrows(macroSubmetricDisplayValue(food, 'fats', 'omega3_mg'), 'up')}`
           ],
           caption: `The fats section shows whether the fat profile looks helpful, mixed, or rough once saturated fat is factored in.`
         },
         carbs: {
-          headline: `${header.carb_g ?? '—'}G CARBS`,
+          headline: `${formatMacroTotalMetricText(food, 'carbs')} CARBS`,
           lines: [
-            `Sugar ${metrics.sugar_g ?? '—'}g ${metricArrows(metrics.sugar_g, 'down')}`,
-            `Fibre ${metrics.fibre_g ?? '—'}g ${metricArrows(metrics.fibre_g, 'up')}`,
-            `Glycemic index ${metrics.glycemic_index ?? '—'} ${metricArrows(metrics.glycemic_index, 'down')}`
+            `Sugar ${formatMacroMetricText(food, 'carbs', 'sugar_g', 'g')} ${metricArrows(macroSubmetricDisplayValue(food, 'carbs', 'sugar_g'), 'down')}`,
+            `Fibre ${formatMacroMetricText(food, 'carbs', 'fibre_g', 'g')} ${metricArrows(macroSubmetricDisplayValue(food, 'carbs', 'fibre_g'), 'up')}`,
+            `Glycemic index ${formatMacroMetricText(food, 'carbs', 'glycemic_index', '')} ${metricArrows(macroSubmetricDisplayValue(food, 'carbs', 'glycemic_index'), 'down')}`
           ],
           caption: `Carbs gets framed through sugar, fibre, and how hard this food tends to spike blood sugar.`
         },
         protein: {
-          headline: `${header.protein_g ?? '—'}G PROTEIN`,
+          headline: `${formatMacroTotalMetricText(food, 'protein')} PROTEIN`,
           lines: [
-            `Essential amino score ${metrics.essential_amino_acids_score ?? '—'}`,
-            `Bioavailability ${metrics.bioavailability_percent ?? '—'}%`,
-            `Collagen ${metrics.collagen_g ?? '—'}g`
+            `Essential amino score ${formatMacroRatioMetricText(food, 'protein', 'essential_amino_acids_score', 9)}`,
+            `Bioavailability ${formatMacroMetricText(food, 'protein', 'bioavailability_percent', '%')}`,
+            `Collagen ${formatMacroMetricText(food, 'protein', 'collagen_g', 'g')}`
           ],
           caption: `Protein is not just grams. This section calls out amino quality, usability, and whether the protein is actually meaningful.`
         },
@@ -4662,7 +4674,7 @@
       }
       if (valueLayer) {
         valueLayer.label = 'FATS macro grams';
-        if (!valueLayer.manualText) valueLayer.text = formatMetricText(food?.header?.fat_g, 'g');
+        if (!valueLayer.manualText) valueLayer.text = formatMacroTotalMetricText(food, 'fats');
         valueLayer.align = valueLayer.align || 'left';
         valueLayer.fontSize = valueLayer.fontSize || 7;
       }
@@ -4680,7 +4692,7 @@
       }
       if (valueLayer) {
         valueLayer.label = 'CARBS macro grams';
-        if (!valueLayer.manualText) valueLayer.text = formatMetricText(macroTotalDisplayValue(food, 'carbs'), 'g');
+        if (!valueLayer.manualText) valueLayer.text = formatMacroTotalMetricText(food, 'carbs');
         valueLayer.align = valueLayer.align || 'left';
         valueLayer.fontSize = valueLayer.fontSize || 7;
       }
@@ -4698,7 +4710,7 @@
       }
       if (valueLayer) {
         valueLayer.label = 'PROTEIN macro grams';
-        if (!valueLayer.manualText) valueLayer.text = formatMetricText(food?.header?.protein_g, 'g');
+        if (!valueLayer.manualText) valueLayer.text = formatMacroTotalMetricText(food, 'protein');
         valueLayer.align = valueLayer.align || 'left';
         valueLayer.fontSize = valueLayer.fontSize || 7;
       }

@@ -24,6 +24,21 @@ const PROTEIN_QUALITY_METRIC_KEYS = new Set([
   'bioavailability_percent',
   'nonessential_amino_acids_score'
 ]);
+const MACRO_SECTION_HEADER_KEYS = {
+  fats: 'fat_g',
+  carbs: 'carb_g',
+  proteins: 'protein_g'
+};
+const MACRO_SECTION_LABELS = {
+  fats: 'fat',
+  carbs: 'carbs',
+  proteins: 'protein'
+};
+const MACRO_SECTION_SUBMACRO_KEYS = {
+  fats: ['saturated_fat_g', 'polyunsaturated_fat_g', 'omega3_mg', 'cholesterol_mg'],
+  carbs: ['fibre_g', 'sugar_g', 'starch_g', 'glycemic_index'],
+  proteins: ['collagen_g', 'essential_amino_acids_score', 'nonessential_amino_acids_score', 'bioavailability_percent']
+};
 
 function scoreFood(foodPath, rulesetPath) {
   const res = spawnSync(process.execPath, [scorerPath, foodPath, rulesetPath], {
@@ -122,7 +137,7 @@ function metricValueText(metric) {
   if (key.endsWith('_kg')) return `${metric.value}kg`;
   if (key.endsWith('_percent')) return `${metric.value}%`;
   if (key === 'essential_amino_acids_score') return `${metric.value}/${metric.denominator || 9}`;
-  if (key === 'nonessential_amino_acids_score') return `${metric.value}/${metric.denominator || 10}`;
+  if (key === 'nonessential_amino_acids_score') return `${metric.value}/${metric.denominator || 11}`;
   if (key.endsWith('_score')) return `${metric.value}/10`;
   if (/glycemic/i.test(key)) return `${metric.value} GI`;
   return String(metric.value);
@@ -263,6 +278,8 @@ function uniqueMetrics(metrics, limit = 4) {
 }
 
 function outstandingMacroMetrics(result, sectionKey, limit = 4) {
+  if (macroSectionIsZero(result, sectionKey)) return [];
+
   if (sectionKey === 'proteins') {
     return topMetricsForSection(result, sectionKey, limit);
   }
@@ -292,15 +309,27 @@ function headerMacro(result, key) {
   return Number(v);
 }
 
+function macroValueForSection(result, sectionKey) {
+  const headerKey = MACRO_SECTION_HEADER_KEYS[sectionKey];
+  if (!headerKey) return null;
+  return headerMacro(result, headerKey);
+}
+
+function macroSectionIsZero(result, sectionKey) {
+  return macroValueForSection(result, sectionKey) === 0;
+}
+
+function macroDisplayValue(result, sectionKey) {
+  const value = macroValueForSection(result, sectionKey);
+  if (value === null || value === undefined || value === 0) return 'N/A';
+  return `${value}g`;
+}
+
 function macroLine(result, key) {
-  const map = {
-    fats: ['fat_g', 'fat'],
-    carbs: ['carb_g', 'carbs'],
-    proteins: ['protein_g', 'protein']
-  };
-  const [headerKey, label] = map[key] || [];
-  const value = headerMacro(result, headerKey);
+  const label = MACRO_SECTION_LABELS[key];
+  const value = macroValueForSection(result, key);
   if (value === null || value === undefined) return null;
+  if (value === 0) return null;
   return `${value}g of ${label}`;
 }
 
@@ -902,12 +931,36 @@ function displayItemsForSection(result, sectionKey) {
     }));
   }
   if (['fats', 'carbs', 'proteins'].includes(sectionKey)) {
+    if (macroSectionIsZero(result, sectionKey)) return naMacroDisplayItems(sectionKey);
     return outstandingMacroMetrics(result, sectionKey, 4);
   }
   if (sectionKey === 'vitamins' || sectionKey === 'minerals') {
     return outstandingMicronMetrics(result, sectionKey, 4, { speakDailyValue: false });
   }
   return topMetricsForSection(result, sectionKey, 4);
+}
+
+function denominatorForMetric(metricKey) {
+  if (metricKey === 'essential_amino_acids_score') return 9;
+  if (metricKey === 'nonessential_amino_acids_score') return 11;
+  return null;
+}
+
+function naMacroDisplayItems(sectionKey) {
+  return (MACRO_SECTION_SUBMACRO_KEYS[sectionKey] || []).map(metricKey => ({
+    metricKey,
+    text: `${formatMetricKey(metricKey)} at N/A`,
+    weightedScore: null,
+    scoringMode: 'not_applicable',
+    band: null,
+    polarity: null,
+    dvPercent: null,
+    value: null,
+    score: null,
+    denominator: denominatorForMetric(metricKey),
+    displayValue: 'N/A',
+    notApplicableReason: 'main_macro_zero'
+  }));
 }
 
 function buildSections(result) {
@@ -920,6 +973,7 @@ function buildSections(result) {
       title: titleForSection(key),
       narration: polishNarration(audioOnlyText(sourceText)),
       displayItems: displayItemsForSection(result, key),
+      macroDisplayValue: ['fats', 'carbs', 'proteins'].includes(key) ? macroDisplayValue(result, key) : null,
       subtitleText,
       timingHint: timingHintForSection(key),
       score: result.sectionScores?.[key] ?? null

@@ -23,6 +23,11 @@ const AMINO_ACID_SCORE_METRIC_KEYS = new Set([
   'essential_amino_acids_score',
   'nonessential_amino_acids_score'
 ]);
+const MACRO_SECTION_HEADER_KEYS = {
+  fats: 'fat_g',
+  carbs: 'carb_g',
+  proteins: 'protein_g'
+};
 const aminoAcidThresholds = readJson(path.join(__dirname, '..', 'config', 'amino-acid-thresholds.v1.json'));
 
 function scoreFromBands(value, bands) {
@@ -235,6 +240,17 @@ function toFiniteNumber(value) {
   return Number.isFinite(number) ? number : null;
 }
 
+function aminoAcidDisplayDenominator(kind, fallback) {
+  const configured = toFiniteNumber(aminoAcidThresholds.displayDenominators?.[kind]);
+  return configured ?? fallback;
+}
+
+function sectionMainMacroIsZero(food, sectionKey) {
+  const headerKey = MACRO_SECTION_HEADER_KEYS[sectionKey];
+  if (!headerKey) return false;
+  return toFiniteNumber(food.header?.[headerKey]) === 0;
+}
+
 function aminoAcidValueMg(food, metricKey) {
   const aminoAcids = food.metrics?.amino_acids_mg || {};
   const nested = toFiniteNumber(aminoAcids[metricKey]);
@@ -242,7 +258,7 @@ function aminoAcidValueMg(food, metricKey) {
   return toFiniteNumber(food.metrics?.[metricKey]);
 }
 
-function scoreAminoAcidGroups(food, groups) {
+function scoreAminoAcidGroups(food, groups, denominator = null) {
   const details = (groups || []).map(group => {
     const values = (group.metricKeys || [])
       .map(metricKey => ({ metricKey, valueMg: aminoAcidValueMg(food, metricKey) }));
@@ -264,7 +280,7 @@ function scoreAminoAcidGroups(food, groups) {
 
   return {
     value: details.filter(item => item.useful).length,
-    denominator: details.length,
+    denominator: denominator ?? details.length,
     details
   };
 }
@@ -272,13 +288,15 @@ function scoreAminoAcidGroups(food, groups) {
 function buildAminoAcidScoring(food) {
   const aminoAcids = food.metrics?.amino_acids_mg || {};
   const profileAvailable = Object.values(aminoAcids).some(value => toFiniteNumber(value) !== null);
+  const essentialDenominator = aminoAcidDisplayDenominator('essential', aminoAcidThresholds.essentialGroups?.length || 9);
+  const nonessentialDenominator = aminoAcidDisplayDenominator('nonessential', 11);
   if (!profileAvailable) {
     return {
       policyId: aminoAcidThresholds.id,
       profileAvailable: false,
       sourceMetric: 'amino_acids_mg',
-      essential: { value: null, denominator: aminoAcidThresholds.essentialGroups?.length || 9, details: [] },
-      nonessential: { value: null, denominator: aminoAcidThresholds.nonessentialGroups?.length || 10, details: [] }
+      essential: { value: null, denominator: essentialDenominator, details: [] },
+      nonessential: { value: null, denominator: nonessentialDenominator, details: [] }
     };
   }
 
@@ -286,8 +304,8 @@ function buildAminoAcidScoring(food) {
     policyId: aminoAcidThresholds.id,
     profileAvailable: true,
     sourceMetric: 'amino_acids_mg',
-    essential: scoreAminoAcidGroups(food, aminoAcidThresholds.essentialGroups || []),
-    nonessential: scoreAminoAcidGroups(food, aminoAcidThresholds.nonessentialGroups || [])
+    essential: scoreAminoAcidGroups(food, aminoAcidThresholds.essentialGroups || [], essentialDenominator),
+    nonessential: scoreAminoAcidGroups(food, aminoAcidThresholds.nonessentialGroups || [], nonessentialDenominator)
   };
 }
 
@@ -334,6 +352,7 @@ function trackSkippedProteinQuality(gate, rule) {
 function maybeApplyProteinFallback(food, ruleset, sectionMetricScores, metricBreakdown) {
   const fallback = ruleset.proteinFallback;
   if (!fallback) return;
+  if (sectionMainMacroIsZero(food, 'proteins')) return;
   const proteinRows = sectionMetricScores.proteins || [];
   const fallbackMetricKey = fallback.metricKey || 'protein_g_fallback';
   if (proteinRows.some(item => item.metricKey === fallbackMetricKey)) return;
@@ -387,6 +406,7 @@ function main() {
   for (const rule of ruleset.metricRules || []) {
     if (rule.scoringRole !== 'scored') continue;
     if (rule.applicability === 'not_applicable') continue;
+    if (sectionMainMacroIsZero(food, rule.sectionKey)) continue;
     if (shouldSkipProteinQualityRule(rule, proteinQualityGate)) {
       trackSkippedProteinQuality(proteinQualityGate, rule);
       continue;

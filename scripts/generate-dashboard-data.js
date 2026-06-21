@@ -200,6 +200,7 @@ const foods = fs.readdirSync(foodsDir)
         version: ruleset.version,
         sectionWeights: ruleset.sectionWeights || {},
         contextRules: ruleset.contextRules || {},
+        proteinFallback: ruleset.proteinFallback || null,
         metricRulesBySection: ruleSummary(ruleset)
       } : null,
       episode: episode ? {

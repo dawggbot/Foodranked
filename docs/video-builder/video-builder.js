@@ -4385,6 +4385,20 @@
     }
   }
 
+  function spriteLayerRotation(layer) {
+    if (layer?.kind !== 'sprite') return 0;
+    const rotation = Number(layer.rotation ?? layer.rotate ?? 0);
+    return Number.isFinite(rotation) ? rotation : 0;
+  }
+
+  function spriteLayerStaticTransform(layer) {
+    const transforms = [];
+    const rotation = spriteLayerRotation(layer);
+    if (rotation) transforms.push(`rotate(${rotation}deg)`);
+    if (layer?.flipY) transforms.push('scaleY(-1)');
+    return transforms.join(' ');
+  }
+
   function prewarmMacroBarGifVariants(layout, food) {
     if (!layout) return;
     for (const sectionId of ['fats', 'carbs', 'protein']) {
@@ -5406,9 +5420,10 @@
   function applyLayerAnimation(node, layer, scene, sceneProgress, index, persistent = false, revealSchedule = null, options = {}) {
     if (persistent) {
       node.style.opacity = '1';
-      if (layer.flipY) {
+      const staticTransform = spriteLayerStaticTransform(layer);
+      if (staticTransform) {
         node.style.transformOrigin = 'center';
-        node.style.transform = 'scaleY(-1)';
+        node.style.transform = staticTransform;
       }
       return;
     }
@@ -5495,11 +5510,13 @@
       y += (1 - visible) * 7;
     }
 
+    const baseRotation = spriteLayerRotation(layer);
+    const totalRotation = rotate + baseRotation;
     const flip = layer.flipY ? ' scaleY(-1)' : '';
     if (options.opaqueSpriteReveal && rawRevealProgress > 0 && !isMacroHeadReveal) opacity = 1;
-    node.style.transformOrigin = isMacroArrowReveal || isOutroTierStamp || isIntroStampSprite || layer.flipY ? 'center' : 'top left';
+    node.style.transformOrigin = isMacroArrowReveal || isOutroTierStamp || isIntroStampSprite || layer.flipY || baseRotation ? 'center' : 'top left';
     node.style.opacity = String(opacity);
-    node.style.transform = `translate3d(calc(${x}px * var(--pixel-unit)), calc(${y}px * var(--pixel-unit)), 0) rotate(${rotate.toFixed(2)}deg) scale(${scale})${flip}`;
+    node.style.transform = `translate3d(calc(${x}px * var(--pixel-unit)), calc(${y}px * var(--pixel-unit)), 0) rotate(${totalRotation.toFixed(2)}deg) scale(${scale})${flip}`;
     if (clip) node.style.clipPath = clip;
     if ((isOutroTierStamp || isIntroStampSprite) && stampImpactPulse > 0.02) {
       const glowRgb = isOutroTierStamp ? '255, 113, 113' : '255, 244, 184';

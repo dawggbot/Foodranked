@@ -1068,6 +1068,20 @@
             </div>
 
             <div class="tool-card stack">
+              <h3>Rotate</h3>
+              <label>Degrees <input id="propSpriteRotation" type="number" step="1" /></label>
+              <div class="toolbar-grid">
+                <button type="button" data-rotate="-90">-90°</button>
+                <button type="button" data-rotate="-15">-15°</button>
+                <button type="button" data-rotate="-1">-1°</button>
+                <button type="button" data-rotate="1">+1°</button>
+                <button type="button" data-rotate="15">+15°</button>
+                <button type="button" data-rotate="90">+90°</button>
+              </div>
+              <button id="spriteResetRotation" type="button">Reset rotation</button>
+            </div>
+
+            <div class="tool-card stack">
               <h3>Align</h3>
               <div class="toolbar-grid">
                 <button type="button" data-align="left">Left</button>
@@ -1360,11 +1374,13 @@
       propVisible: document.getElementById('propVisible'),
       propSpriteWidth: document.getElementById('propSpriteWidth'),
       propSpriteHeight: document.getElementById('propSpriteHeight'),
+      propSpriteRotation: document.getElementById('propSpriteRotation'),
       propPreserveAspect: document.getElementById('propPreserveAspect'),
       propZ: document.getElementById('propZ'),
       spriteNudgeSmaller: document.getElementById('spriteNudgeSmaller'),
       spriteNudgeLarger: document.getElementById('spriteNudgeLarger'),
       spriteResetNatural: document.getElementById('spriteResetNatural'),
+      spriteResetRotation: document.getElementById('spriteResetRotation'),
       spriteCenterCanvas: document.getElementById('spriteCenterCanvas'),
       duplicateLayer: document.getElementById('duplicateLayer'),
       layerBringForward: document.getElementById('layerBringForward'),
@@ -4482,13 +4498,28 @@
       }
     }
 
+    function spriteRotation(layer) {
+      const rotation = Number(layer?.rotation ?? layer?.rotate ?? 0);
+      return Number.isFinite(rotation) ? rotation : 0;
+    }
+
+    function spriteTransform(layer) {
+      if (layer.kind !== 'sprite') return '';
+      const transforms = [];
+      const rotation = spriteRotation(layer);
+      if (rotation) transforms.push(`rotate(${rotation}deg)`);
+      if (layer.flipY) transforms.push('scaleY(-1)');
+      return transforms.join(' ');
+    }
+
     function applyLayerRenderStyle(node, layer) {
       if (layer.kind === 'text') {
         node.style.color = layer.color || '';
         return;
       }
-      if (layer.kind === 'sprite' && layer.flipY) {
-        node.style.transform = 'scaleY(-1)';
+      const transform = spriteTransform(layer);
+      if (transform) {
+        node.style.transform = transform;
         node.style.transformOrigin = 'center';
         return;
       }
@@ -5078,8 +5109,9 @@
         const { width, height } = spriteSize(layer);
         els.propSpriteWidth.value = width;
         els.propSpriteHeight.value = height;
+        els.propSpriteRotation.value = spriteRotation(layer);
         els.propPreserveAspect.checked = !!layer.preserveAspect;
-        els.spriteInfo.textContent = `${layer.label || 'Sprite'} · natural ${layer.naturalWidth || '?'}×${layer.naturalHeight || '?'} · canvas ${width}×${height} · ${layer.src || ''}`;
+        els.spriteInfo.textContent = `${layer.label || 'Sprite'} · natural ${layer.naturalWidth || '?'}×${layer.naturalHeight || '?'} · canvas ${width}×${height} · rotate ${spriteRotation(layer)}° · ${layer.src || ''}`;
       }
       if (isText) {
         if (document.activeElement !== els.propText) els.propText.value = layer.text || '';
@@ -5458,6 +5490,7 @@ async function renderAll() {
     els.propVisible.addEventListener('change', () => updateSelected(layer => layer.visible = els.propVisible.value === 'true'));
     els.propSpriteWidth.addEventListener('input', () => updateSelected(layer => resizeSpriteLayer(layer, els.propSpriteWidth.value || layer.width || 1, layer.height || 1, 'width')));
     els.propSpriteHeight.addEventListener('input', () => updateSelected(layer => resizeSpriteLayer(layer, layer.width || 1, els.propSpriteHeight.value || layer.height || 1, 'height')));
+    els.propSpriteRotation.addEventListener('input', () => updateSelected(layer => layer.rotation = Number(els.propSpriteRotation.value) || 0));
     els.propZ.addEventListener('input', () => updateSelected(layer => layer.z = Number(els.propZ.value) || 0));
     els.layerBringForward.addEventListener('click', () => updateSelected(layer => layer.z = (Number(layer.z) || 0) + 1));
     els.layerSendBackward.addEventListener('click', () => updateSelected(layer => layer.z = (Number(layer.z) || 0) - 1));
@@ -5476,6 +5509,7 @@ async function renderAll() {
     });
     els.spriteNudgeSmaller.addEventListener('click', () => updateSelected(layer => resizeSpriteLayer(layer, (layer.width || 1) - 1, (layer.height || 1) - 1, 'width')));
     els.spriteNudgeLarger.addEventListener('click', () => updateSelected(layer => resizeSpriteLayer(layer, (layer.width || 1) + 1, (layer.height || 1) + 1, 'width')));
+    els.spriteResetRotation.addEventListener('click', () => updateSelected(layer => layer.rotation = 0));
     els.spriteResetNatural.addEventListener('click', async () => {
       const layer = getLayerById(state.selectedLayerId);
       if (!layer || layer.kind !== 'sprite') return;
@@ -5501,6 +5535,11 @@ async function renderAll() {
     });
     document.querySelectorAll('[data-scale]').forEach(button => {
       button.addEventListener('click', () => scaleSelectedSprite(Number(button.dataset.scale) || 1));
+    });
+    document.querySelectorAll('[data-rotate]').forEach(button => {
+      button.addEventListener('click', () => updateSelected(layer => {
+        layer.rotation = spriteRotation(layer) + (Number(button.dataset.rotate) || 0);
+      }));
     });
     document.querySelectorAll('[data-align]').forEach(button => {
       button.addEventListener('click', () => alignSelectedSprite(button.dataset.align));

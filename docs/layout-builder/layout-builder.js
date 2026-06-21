@@ -18,7 +18,7 @@
   const LOCAL_STORAGE_KEY = 'foodranked-layout-builder-universal-layout-v1';
   const DISPLAY_BUILDER_STORAGE_KEY = 'foodranked-display-builder-v4';
   const DISPLAY_BUILDER_REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
-  const LAYOUT_BUILDER_VERSION = '20260621-layout-builder-v3';
+  const LAYOUT_BUILDER_VERSION = '20260621-layout-builder-v4';
 
   const DEFAULT_LAYOUT = window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT || {
     canvas: { ...AUTHOR_GRID, background: '#d6d6d6', showGrid: true },

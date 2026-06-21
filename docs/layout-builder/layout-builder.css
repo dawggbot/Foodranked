@@ -1,3 +1,11 @@
+@font-face {
+  font-family: "Tiny5";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../assets/fonts/tiny5-v3.ttf") format("truetype");
+}
+
 :root {
   --bg: #161713;
   --panel: #24251f;
@@ -8,9 +16,14 @@
   --accent: #9fd46f;
   --accent-2: #ffb35c;
   --danger: #ff766d;
-  --canvas-scale: 3;
-  --canvas-w: 135px;
-  --canvas-h: 240px;
+  --preview-scale: 1;
+  --asset-scale: 4;
+  --grid-width: 135px;
+  --grid-height: 240px;
+  --pixel-unit: calc(var(--asset-scale) * var(--preview-scale));
+  --canvas-width: calc(var(--grid-width) * var(--pixel-unit));
+  --canvas-height: calc(var(--grid-height) * var(--pixel-unit));
+  --pixel-font: "Tiny5", "Press Start 2P", "VT323", "Courier New", monospace;
 }
 
 * { box-sizing: border-box; }
@@ -232,30 +245,87 @@ header,
   display: grid;
   place-items: center;
   overflow: auto;
-  padding: 14px;
-  background: #10110d;
+  padding: 16px;
+  background: rgba(11, 13, 18, .44);
+  border-top: 1px solid rgba(255, 255, 255, .06);
+}
+
+.phone-shell {
+  width: min(420px, calc(var(--canvas-width) + 12px));
+  aspect-ratio: 9 / 16;
+  position: relative;
+  overflow: hidden;
+  border: 6px solid #2e3649;
+  border-radius: 26px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, .28);
+  background:
+    radial-gradient(circle at top, rgba(213, 90, 90, .14), transparent 35%),
+    linear-gradient(180deg, #1b2030 0%, #121724 100%);
+  display: grid;
+  place-items: center;
+  padding: 0;
 }
 
 .canvas {
   position: relative;
-  width: calc(var(--canvas-w) * var(--canvas-scale));
-  height: calc(var(--canvas-h) * var(--canvas-scale));
-  background: #d6d6d6;
+  width: var(--canvas-width);
+  height: var(--canvas-height);
+  background: #141923;
   image-rendering: pixelated;
   overflow: hidden;
-  box-shadow: 0 0 0 1px #000, 0 18px 45px rgba(0, 0, 0, .35);
-}
-
-.canvas.show-grid {
+  border-radius: 0;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .08);
   background-image:
-    linear-gradient(rgba(0, 0, 0, .10) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 0, 0, .10) 1px, transparent 1px);
-  background-size: calc(1px * var(--canvas-scale)) calc(1px * var(--canvas-scale));
+    linear-gradient(to right, rgba(255, 255, 255, .04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, .04) 1px, transparent 1px);
+  background-size: calc(1px * var(--pixel-unit)) calc(1px * var(--pixel-unit));
 }
 
-.layout-layer {
+.canvas.hide-grid {
+  background-image: none;
+}
+
+.canvas-bg-field {
   position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(255, 188, 196, .72), transparent 24%),
+    radial-gradient(circle at 82% 16%, rgba(146, 61, 73, .28), transparent 28%),
+    linear-gradient(180deg, #f2d0d3 0%, #c08a90 100%);
+  z-index: 0;
+}
+
+.phone-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .04), rgba(0, 0, 0, .10));
+  pointer-events: none;
+  z-index: 1;
+}
+
+.pixel-text {
+  font-family: var(--pixel-font);
+  color: #ffffff;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: 0;
+  -webkit-font-smoothing: none;
+  font-smooth: never;
+  text-rendering: optimizeSpeed;
+  -webkit-text-stroke: calc(1.3px * var(--pixel-unit)) #000;
+  paint-order: stroke fill;
+  text-shadow: 0 0 0 #000;
+}
+
+.layout-layer,
+.layer-node {
+  position: absolute;
+  transform-origin: top left;
   user-select: none;
+  -webkit-user-drag: none;
+  cursor: grab;
   image-rendering: pixelated;
 }
 
@@ -264,26 +334,26 @@ header,
   filter: grayscale(1);
 }
 
-.layout-layer.sprite-layer {
-  object-fit: contain;
+.layout-layer.sprite-layer,
+.layer-node.sprite {
+  display: block;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  object-fit: fill;
   pointer-events: auto;
 }
 
-.layout-layer.text-layer {
-  display: flex;
-  align-items: flex-start;
-  overflow: hidden;
-  color: #171811;
-  line-height: 1.05;
-  white-space: pre-wrap;
+.layout-layer.text-layer,
+.layer-node.text {
+  white-space: pre-line;
   overflow-wrap: anywhere;
   pointer-events: auto;
-  font-family: "SFMono-Regular", Consolas, monospace;
 }
 
-.layout-layer.selected {
-  outline: 2px solid var(--accent-2);
-  outline-offset: 0;
+.layout-layer.selected,
+.layer-node.selected {
+  outline: 2px solid rgba(255, 179, 92, .96);
+  outline-offset: 2px;
 }
 
 .bounds-box {
@@ -321,5 +391,9 @@ header,
 
   .canvas-wrap {
     min-height: 760px;
+  }
+
+  .phone-shell {
+    width: min(420px, calc(var(--canvas-width) * .7777778));
   }
 }

@@ -12,11 +12,26 @@
   ];
 
   const AUTHOR_GRID = { width: 135, height: 240 };
-  const SCALE = 3;
+  const SCALE = 4;
+  const SECTION_INDICATOR_COUNT = SECTIONS.length;
+  const SECTION_INDICATOR_LAYOUT = { normalSize: 10, highlightedSize: 12 };
   const LOCAL_STORAGE_KEY = 'foodranked-layout-builder-universal-layout-v1';
   const DISPLAY_BUILDER_STORAGE_KEY = 'foodranked-display-builder-v4';
   const DISPLAY_BUILDER_REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
-  const LAYOUT_BUILDER_VERSION = '20260621-layout-builder-v1';
+  const LAYOUT_BUILDER_VERSION = '20260621-layout-builder-v2';
+  const BACKDROP_PALETTES = {
+    vegetables: { top: '#dff4cf', bottom: '#bfd8b0', glowA: 'rgba(219,255,183,.78)', glowB: 'rgba(108,169,104,.38)' },
+    fruits: { top: '#ffe0dc', bottom: '#e7b8b5', glowA: 'rgba(255,173,165,.78)', glowB: 'rgba(219,109,101,.34)' },
+    grains: { top: '#f6e7bf', bottom: '#dbc48a', glowA: 'rgba(255,235,163,.78)', glowB: 'rgba(199,151,66,.30)' },
+    legumes: { top: '#e5d8c9', bottom: '#c0a78a', glowA: 'rgba(234,204,163,.76)', glowB: 'rgba(142,102,62,.28)' },
+    tubers: { top: '#f5d7bf', bottom: '#d2a17d', glowA: 'rgba(255,196,144,.74)', glowB: 'rgba(182,106,58,.28)' },
+    nuts: { top: '#ead8c8', bottom: '#c39b7f', glowA: 'rgba(243,207,175,.76)', glowB: 'rgba(128,77,47,.28)' },
+    seeds: { top: '#f2e2c8', bottom: '#cfb48f', glowA: 'rgba(255,231,188,.76)', glowB: 'rgba(162,128,80,.26)' },
+    meats: { top: '#f2d0d3', bottom: '#c08a90', glowA: 'rgba(255,188,196,.72)', glowB: 'rgba(146,61,73,.28)' },
+    dairy: { top: '#f4f0e8', bottom: '#d9d2c2', glowA: 'rgba(255,255,255,.68)', glowB: 'rgba(214,196,155,.22)' },
+    'oils-and-fats': { top: '#f6e7a9', bottom: '#d1b851', glowA: 'rgba(255,235,135,.74)', glowB: 'rgba(175,138,28,.28)' },
+    misc: { top: '#ece7e2', bottom: '#cfc5bc', glowA: 'rgba(255,255,255,.66)', glowB: 'rgba(140,120,108,.22)' }
+  };
 
   const DEFAULT_LAYOUT = window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT || {
     canvas: { ...AUTHOR_GRID, background: '#d6d6d6', showGrid: true },
@@ -187,6 +202,126 @@
     return raw;
   }
 
+  function canvasPixel(value) {
+    return `calc(${Number(value) || 0}px * var(--pixel-unit))`;
+  }
+
+  function normalizeFoodType(foodType) {
+    const raw = String(foodType || '').trim().toLowerCase().replace(/[_\s]+/g, '-');
+    const aliases = {
+      meat: 'meats',
+      vegetable: 'vegetables',
+      fruit: 'fruits',
+      grain: 'grains',
+      legume: 'legumes',
+      tuber: 'tubers',
+      nut: 'nuts',
+      seed: 'seeds',
+      oil: 'oils-and-fats',
+      fat: 'oils-and-fats',
+      oils: 'oils-and-fats',
+      fats: 'oils-and-fats',
+      'oil-fat': 'oils-and-fats',
+      'oils-and-fat': 'oils-and-fats'
+    };
+    return aliases[raw] || raw || 'meats';
+  }
+
+  function foodTypeFromSpriteSlug(slug) {
+    const normalized = String(slug || '').trim().toLowerCase().replace(/-/g, '_');
+    const foodTypes = {
+      vegetable: 'vegetables',
+      fruit: 'fruits',
+      grain: 'grains',
+      legume: 'legumes',
+      tuber: 'tubers',
+      nut: 'nuts',
+      seed: 'seeds',
+      meat: 'meats',
+      dairy: 'dairy',
+      oil_fat: 'oils-and-fats',
+      misc: 'misc'
+    };
+    return foodTypes[normalized] || '';
+  }
+
+  function inferFoodTypeFromLayerAssets() {
+    const sections = Object.values(state.layout?.sections || {});
+    for (const section of sections) {
+      const layers = Array.isArray(section.layers) ? section.layers : [];
+      for (const layer of layers) {
+        const haystack = `${layer.src || ''} ${layer.fallbackSrc || ''}`;
+        const indicator = haystack.match(/\/ui\/section_indicator\/([^/]+?)_(?:highlighted_)?section_indicator\.png/i);
+        if (indicator) return foodTypeFromSpriteSlug(indicator[1]);
+        const header = haystack.match(/\/header\/(?:food_type_plate|food_plate|calorie_bubble)\/([^/]+?)_(?:type_plate|food_plate|calorie_bubble)\.png/i);
+        if (header) return foodTypeFromSpriteSlug(header[1]);
+      }
+    }
+    return '';
+  }
+
+  function selectedFoodType() {
+    return normalizeFoodType(state.layout.foodType || state.layout.selectedFoodType || state.layout.selectedFood?.foodType || inferFoodTypeFromLayerAssets() || 'meats');
+  }
+
+  function backdropPalette() {
+    return BACKDROP_PALETTES[selectedFoodType()] || BACKDROP_PALETTES.misc;
+  }
+
+  function typeSpriteSlug(foodType = selectedFoodType()) {
+    const slugs = {
+      vegetables: 'vegetable',
+      fruits: 'fruit',
+      grains: 'grain',
+      legumes: 'legume',
+      tubers: 'tuber',
+      nuts: 'nut',
+      seeds: 'seed',
+      meats: 'meat',
+      dairy: 'dairy',
+      'oils-and-fats': 'oil_fat',
+      misc: 'misc'
+    };
+    return slugs[normalizeFoodType(foodType)] || 'meat';
+  }
+
+  function sectionIndicatorSpritePath(highlighted = false) {
+    return `./sprites/ui/section_indicator/${typeSpriteSlug()}_${highlighted ? 'highlighted_' : ''}section_indicator.png`;
+  }
+
+  function isHighlightedSectionIndicatorSrc(src = '') {
+    return /\/ui\/section_indicator\/[^/]+_highlighted_section_indicator\.png$/i.test(String(src));
+  }
+
+  function isSectionIndicatorSpriteLayer(layer) {
+    if (!layer || layer.kind !== 'sprite') return false;
+    const fingerprint = `${layer.src || ''} ${layer.fallbackSrc || ''} ${layer.label || ''}`.toLowerCase();
+    return fingerprint.includes('/ui/section_indicator/') || /section indicator/.test(fingerprint);
+  }
+
+  function sectionIndicatorLayers() {
+    return currentLayers()
+      .filter(isSectionIndicatorSpriteLayer)
+      .sort((a, b) => (finiteNumber(a.x) - finiteNumber(b.x)) || (finiteNumber(a.y) - finiteNumber(b.y)) || String(a.id).localeCompare(String(b.id)))
+      .slice(0, SECTION_INDICATOR_COUNT);
+  }
+
+  function activeSectionIndicatorIndex() {
+    return Math.max(0, SECTIONS.findIndex(section => section.id === state.selectedSectionId));
+  }
+
+  function isActiveSectionIndicatorLayer(layer) {
+    if (!isSectionIndicatorSpriteLayer(layer)) return false;
+    const indicators = sectionIndicatorLayers();
+    const index = indicators.findIndex(item => item === layer || item.id === layer.id);
+    return index === activeSectionIndicatorIndex();
+  }
+
+  function renderedSectionIndicatorSrc(layer) {
+    if (!isSectionIndicatorSpriteLayer(layer)) return layer?.src || '';
+    return sectionIndicatorSpritePath(isActiveSectionIndicatorLayer(layer));
+  }
+
   function setStatus(message) {
     els.status.textContent = message;
   }
@@ -264,9 +399,19 @@
   function renderCanvas() {
     els.canvas.innerHTML = '';
     els.canvas.style.backgroundColor = state.layout.canvas.background || '#d6d6d6';
-    els.canvas.classList.toggle('show-grid', els.showGrid.checked);
+    els.canvas.classList.toggle('hide-grid', !els.showGrid.checked);
     els.sectionTitle.textContent = currentSection().label;
     els.canvasMeta.textContent = `${currentLayers().length} layers | ${AUTHOR_GRID.width} x ${AUTHOR_GRID.height}`;
+
+    const bgField = document.createElement('div');
+    bgField.className = 'canvas-bg-field';
+    const palette = backdropPalette();
+    bgField.style.background = `radial-gradient(circle at 18% 12%, ${palette.glowA}, transparent 24%), radial-gradient(circle at 82% 16%, ${palette.glowB}, transparent 28%), linear-gradient(180deg, ${palette.top} 0%, ${palette.bottom} 100%)`;
+    els.canvas.appendChild(bgField);
+
+    const phoneBg = document.createElement('div');
+    phoneBg.className = 'phone-bg';
+    els.canvas.appendChild(phoneBg);
 
     const layers = currentLayers().slice().sort(layerSort);
     for (const layer of layers) {
@@ -286,40 +431,60 @@
     }
   }
 
-  function layerStyle(node, layer) {
+  function layerStyle(node, layer, options = {}) {
     node.classList.add('layout-layer');
-    node.style.left = `${layer.x * SCALE}px`;
-    node.style.top = `${layer.y * SCALE}px`;
-    node.style.width = `${layer.width * SCALE}px`;
-    node.style.height = `${layer.height * SCALE}px`;
-    node.style.zIndex = String(finiteNumber(layer.z));
+    const x = finiteNumber(layer.x) + finiteNumber(options.offsetX);
+    const y = finiteNumber(layer.y) + finiteNumber(options.offsetY);
+    node.style.left = canvasPixel(x);
+    node.style.top = canvasPixel(y);
+    if (options.width != null || layer.width) node.style.width = canvasPixel(options.width ?? layer.width);
+    if (options.includeHeight !== false && (options.height != null || layer.height)) {
+      node.style.height = canvasPixel(options.height ?? layer.height);
+    }
+    node.style.zIndex = String(finiteNumber(layer.z) + finiteNumber(options.zOffset));
   }
 
   function renderSpriteLayer(layer) {
     const img = document.createElement('img');
-    img.className = 'sprite-layer';
+    const isIndicator = isSectionIndicatorSpriteLayer(layer);
+    const renderedSrc = isIndicator ? renderedSectionIndicatorSrc(layer) : (layer.src || layer.fallbackSrc);
+    const isHighlightedIndicator = isIndicator && isHighlightedSectionIndicatorSrc(renderedSrc);
+    const indicatorSize = isHighlightedIndicator ? SECTION_INDICATOR_LAYOUT.highlightedSize : SECTION_INDICATOR_LAYOUT.normalSize;
+    img.className = 'layer-node sprite sprite-layer';
     img.alt = layer.label || layer.id;
     img.draggable = false;
-    img.src = resolveSpriteSrc(layer.src || layer.fallbackSrc);
+    img.src = resolveSpriteSrc(renderedSrc);
     if (layer.fallbackSrc) {
       img.addEventListener('error', () => {
         const fallback = resolveSpriteSrc(layer.fallbackSrc);
         if (fallback && img.src !== fallback) img.src = fallback;
       }, { once: true });
     }
-    layerStyle(img, layer);
+    layerStyle(img, layer, {
+      offsetX: isHighlightedIndicator ? -1 : 0,
+      offsetY: isHighlightedIndicator ? -1 : 0,
+      zOffset: isHighlightedIndicator ? 10 : 0,
+      width: isIndicator ? indicatorSize : layer.width,
+      height: isIndicator ? indicatorSize : layer.height
+    });
+    if (layer.preserveAspect && layer.aspectRatio) img.style.aspectRatio = String(layer.aspectRatio);
+    img.style.objectFit = layer.preserveAspect ? 'contain' : 'fill';
+    img.style.objectPosition = layer.preserveAspect ? 'center' : '';
+    if (layer.flipY) {
+      img.style.transform = 'scaleY(-1)';
+      img.style.transformOrigin = 'center';
+    }
     return img;
   }
 
   function renderTextLayer(layer) {
     const div = document.createElement('div');
-    div.className = 'text-layer';
+    div.className = 'layer-node text text-layer pixel-text';
     div.textContent = layer.text || '';
-    div.style.fontSize = `${finiteNumber(layer.fontSize, 4) * SCALE}px`;
+    div.style.fontSize = canvasPixel(finiteNumber(layer.fontSize, 4));
     div.style.textAlign = layer.align || 'left';
-    div.style.justifyContent = layer.align === 'right' ? 'flex-end' : layer.align === 'center' ? 'center' : 'flex-start';
     if (layer.color) div.style.color = layer.color;
-    layerStyle(div, layer);
+    layerStyle(div, layer, { includeHeight: false });
     return div;
   }
 
@@ -333,10 +498,10 @@
     const maxY = c.maxY ?? layer.y;
     const maxWidth = c.maxWidth ?? layer.width;
     const maxHeight = c.maxHeight ?? layer.height;
-    box.style.left = `${minX * SCALE}px`;
-    box.style.top = `${minY * SCALE}px`;
-    box.style.width = `${Math.max(1, (maxX - minX) + maxWidth) * SCALE}px`;
-    box.style.height = `${Math.max(1, (maxY - minY) + maxHeight) * SCALE}px`;
+    box.style.left = canvasPixel(minX);
+    box.style.top = canvasPixel(minY);
+    box.style.width = canvasPixel(Math.max(1, (maxX - minX) + maxWidth));
+    box.style.height = canvasPixel(Math.max(1, (maxY - minY) + maxHeight));
     box.style.zIndex = selected ? '999' : '998';
     els.canvas.appendChild(box);
   }

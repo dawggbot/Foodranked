@@ -9,6 +9,7 @@
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   let selectedSavedLayoutId = '';
   let syncTimer = null;
+  let syncFrame = 0;
 
   function getFrameWindow() {
     try {
@@ -79,6 +80,14 @@
     return doc.querySelector('#layerList .card-button.active[data-layer-id]')?.dataset.layerId
       || doc.querySelector('#canvas .layer-node.selected')?.dataset.layerId
       || '';
+  }
+
+  function scheduleLayoutBuilderUiUpdate(doc) {
+    if (syncFrame) return;
+    syncFrame = requestAnimationFrame(() => {
+      syncFrame = 0;
+      if (doc?.body) updateLayoutBuilderUi(doc);
+    });
   }
 
   function filenameFromPath(path) {
@@ -318,6 +327,165 @@
 
     doc.getElementById('canvas')?.addEventListener('pointerdown', clearTypingFocus, true);
     doc.getElementById('layerList')?.addEventListener('pointerdown', clearTypingFocus, true);
+  }
+
+  function bindLayerListImmediateSync(doc) {
+    const layerList = doc.getElementById('layerList');
+    if (!layerList || layerList.dataset.layoutBuilderObserverBound) return;
+
+    layerList.dataset.layoutBuilderObserverBound = 'true';
+    const observer = new MutationObserver(() => scheduleLayoutBuilderUiUpdate(doc));
+    observer.observe(layerList, { childList: true });
+  }
+
+  function normalizeSpriteSrc(doc, src) {
+    const raw = String(src || '');
+    if (!raw) return '';
+    if (/^\.\/?sprites\//.test(raw)) return raw;
+    try {
+      const url = new URL(raw, doc.location.href);
+      if (url.origin === doc.location.origin) {
+        const spriteIndex = url.pathname.indexOf('/sprites/');
+        if (spriteIndex >= 0) return `.${url.pathname.slice(spriteIndex)}`;
+      }
+    } catch {}
+    return raw;
+  }
+
+  function spriteItemFromChip(doc, chip) {
+    const image = chip?.querySelector('img');
+    const label = collapseText(chip?.querySelector('strong')?.textContent || image?.alt || 'sprite');
+    const src = normalizeSpriteSrc(doc, image?.getAttribute('src') || image?.src || '');
+    if (!src) return null;
+    return { label, src };
+  }
+
+  function setSpriteDragGhostPosition(ghost, x, y) {
+    ghost.style.transform = `translate(${Math.round(x + 12)}px, ${Math.round(y + 12)}px)`;
+  }
+
+  function createSpriteDragGhost(doc, item, startX, startY) {
+    const ghost = doc.createElement('div');
+    ghost.className = 'layout-builder-drag-ghost';
+    const image = doc.createElement('img');
+    image.src = item.src;
+    image.alt = '';
+    const label = doc.createElement('span');
+    label.textContent = item.label;
+    ghost.append(image, label);
+    doc.body.appendChild(ghost);
+    setSpriteDragGhostPosition(ghost, startX, startY);
+    return ghost;
+  }
+
+  function dispatchSpriteDrop(doc, item, clientX, clientY) {
+    const canvas = doc.getElementById('canvas');
+    if (!canvas) return false;
+
+    const payload = JSON.stringify(item);
+    let event;
+    try {
+      const dataTransfer = new DataTransfer();
+      dataTransfer.setData('application/json', payload);
+      event = new DragEvent('drop', {
+        bubbles: true,
+        cancelable: true,
+        clientX,
+        clientY,
+        dataTransfer
+      });
+    } catch {
+      event = new Event('drop', { bubbles: true, cancelable: true });
+      Object.defineProperties(event, {
+        clientX: { value: clientX },
+        clientY: { value: clientY },
+        dataTransfer: {
+          value: {
+            dropEffect: 'copy',
+            getData: type => type === 'application/json' ? payload : ''
+          }
+        }
+      });
+    }
+
+    const dropped = canvas.dispatchEvent(event);
+    window.setTimeout(() => scheduleLayoutBuilderUiUpdate(doc), 120);
+    return dropped;
+  }
+
+  function bindSpriteLibraryPointerDrop(doc) {
+    const library = doc.getElementById('spriteLibrary');
+    const canvas = doc.getElementById('canvas');
+    if (!library || !canvas || library.dataset.layoutBuilderPointerDropBound) return;
+
+    library.dataset.layoutBuilderPointerDropBound = 'true';
+
+    library.addEventListener('click', event => {
+      const chip = event.target.closest('.sprite-chip');
+      if (!chip?.dataset.layoutBuilderSuppressClick) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      delete chip.dataset.layoutBuilderSuppressClick;
+    }, true);
+
+    library.addEventListener('pointerdown', event => {
+      const chip = event.target.closest('.sprite-chip');
+      if (!chip || event.button !== 0) return;
+
+      const item = spriteItemFromChip(doc, chip);
+      if (!item) return;
+
+      chip.draggable = false;
+      chip.querySelectorAll('img').forEach(image => image.draggable = false);
+
+      const startX = event.clientX;
+      const startY = event.clientY;
+      let dragging = false;
+      let ghost = null;
+
+      const cleanup = () => {
+        doc.removeEventListener('pointermove', handleMove, true);
+        doc.removeEventListener('pointerup', handleUp, true);
+        doc.removeEventListener('pointercancel', handleCancel, true);
+        canvas.classList.remove('drop-target');
+        ghost?.remove();
+      };
+
+      const handleMove = moveEvent => {
+        const distance = Math.hypot(moveEvent.clientX - startX, moveEvent.clientY - startY);
+        if (!dragging && distance < 6) return;
+
+        if (!dragging) {
+          dragging = true;
+          chip.dataset.layoutBuilderSuppressClick = 'true';
+          ghost = createSpriteDragGhost(doc, item, moveEvent.clientX, moveEvent.clientY);
+        }
+
+        moveEvent.preventDefault();
+        setSpriteDragGhostPosition(ghost, moveEvent.clientX, moveEvent.clientY);
+        const dropTarget = doc.elementFromPoint(moveEvent.clientX, moveEvent.clientY)?.closest('#canvas');
+        canvas.classList.toggle('drop-target', dropTarget === canvas);
+      };
+
+      const handleUp = upEvent => {
+        cleanup();
+        if (!dragging) return;
+
+        upEvent.preventDefault();
+        const dropTarget = doc.elementFromPoint(upEvent.clientX, upEvent.clientY)?.closest('#canvas');
+        if (dropTarget === canvas) dispatchSpriteDrop(doc, item, upEvent.clientX, upEvent.clientY);
+        window.setTimeout(() => delete chip.dataset.layoutBuilderSuppressClick, 0);
+      };
+
+      const handleCancel = () => {
+        cleanup();
+        window.setTimeout(() => delete chip.dataset.layoutBuilderSuppressClick, 0);
+      };
+
+      doc.addEventListener('pointermove', handleMove, true);
+      doc.addEventListener('pointerup', handleUp, true);
+      doc.addEventListener('pointercancel', handleCancel, true);
+    }, true);
   }
 
   function updateRotateCard(doc) {
@@ -619,6 +787,39 @@
       body.layout-builder-mode #${ROTATE_CARD_ID}[hidden] {
         display: none !important;
       }
+
+      body.layout-builder-mode .layout-builder-drag-ghost {
+        align-items: center;
+        background: rgba(18, 22, 31, .92);
+        border: 1px solid rgba(255, 255, 255, .18);
+        border-radius: 8px;
+        box-shadow: 0 10px 26px rgba(0, 0, 0, .3);
+        color: var(--ink);
+        display: inline-flex;
+        gap: 8px;
+        left: 0;
+        max-width: 180px;
+        padding: 7px 9px;
+        pointer-events: none;
+        position: fixed;
+        top: 0;
+        z-index: 9999;
+      }
+
+      body.layout-builder-mode .layout-builder-drag-ghost img {
+        height: 32px;
+        image-rendering: pixelated;
+        object-fit: contain;
+        width: 32px;
+      }
+
+      body.layout-builder-mode .layout-builder-drag-ghost span {
+        font-size: 11px;
+        line-height: 1.15;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
     `;
     doc.head.appendChild(style);
   }
@@ -636,6 +837,8 @@
     ensureSavedLayoutControls(doc);
     bindKeyboardNudging(doc);
     bindSelectionFocusExit(doc);
+    bindLayerListImmediateSync(doc);
+    bindSpriteLibraryPointerDrop(doc);
     updateLayerLabels(doc);
     updateLayerOrderCard(doc);
     updateRotateCard(doc);

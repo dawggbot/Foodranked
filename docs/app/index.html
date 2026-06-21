@@ -4771,14 +4771,14 @@
           if (labelLayer) {
             if (!labelLayer.manualText) labelLayer.text = spec.label;
             labelLayer.label = `${getSectionChip(sectionId) || sectionId} score card label ${index + 1}`;
-            labelLayer.align = 'left';
+            labelLayer.align = labelLayer.align || 'left';
             labelLayer.fontSize = labelLayer.fontSize || 4;
           }
           if (valueLayer) {
             const scoringFood = mergedFoodForScoring(food || getSelectedFoodStub());
-            valueLayer.text = spec.value(scoringFood);
+            if (!valueLayer.manualText) valueLayer.text = spec.value(scoringFood);
             valueLayer.label = `${getSectionChip(sectionId) || sectionId} score card value ${index + 1}`;
-            valueLayer.align = 'right';
+            valueLayer.align = valueLayer.align || 'right';
             valueLayer.fontSize = valueLayer.fontSize || 4;
             valueLayer.color = arrowPresentationForSpec(mergedFoodForScoring(food || getSelectedFoodStub()), sectionId, spec).textColor;
           }

@@ -243,7 +243,8 @@ header,
 .canvas-wrap {
   min-height: 0;
   display: grid;
-  place-items: center;
+  align-content: start;
+  justify-items: center;
   overflow: auto;
   padding: 16px;
   background: rgba(11, 13, 18, .44);
@@ -251,16 +252,14 @@ header,
 }
 
 .phone-shell {
-  width: min(420px, calc(var(--canvas-width) + 12px));
-  aspect-ratio: 9 / 16;
+  width: calc(var(--canvas-width) + 12px);
+  height: calc(var(--canvas-height) + 12px);
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   border: 6px solid #2e3649;
-  border-radius: 26px;
+  border-radius: 10px;
   box-shadow: 0 18px 50px rgba(0, 0, 0, .28);
-  background:
-    radial-gradient(circle at top, rgba(213, 90, 90, .14), transparent 35%),
-    linear-gradient(180deg, #1b2030 0%, #121724 100%);
+  background: #11151f;
   display: grid;
   place-items: center;
   padding: 0;
@@ -276,33 +275,13 @@ header,
   border-radius: 0;
   box-shadow: 0 10px 30px rgba(0, 0, 0, .08);
   background-image:
-    linear-gradient(to right, rgba(255, 255, 255, .04) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, .04) 1px, transparent 1px);
+    linear-gradient(to right, rgba(0, 0, 0, .16) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, .16) 1px, transparent 1px);
   background-size: calc(1px * var(--pixel-unit)) calc(1px * var(--pixel-unit));
 }
 
 .canvas.hide-grid {
   background-image: none;
-}
-
-.canvas-bg-field {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-  background:
-    radial-gradient(circle at 18% 12%, rgba(255, 188, 196, .72), transparent 24%),
-    radial-gradient(circle at 82% 16%, rgba(146, 61, 73, .28), transparent 28%),
-    linear-gradient(180deg, #f2d0d3 0%, #c08a90 100%);
-  z-index: 0;
-}
-
-.phone-bg {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(255, 255, 255, .04), rgba(0, 0, 0, .10));
-  pointer-events: none;
-  z-index: 1;
 }
 
 .pixel-text {
@@ -394,6 +373,7 @@ header,
   }
 
   .phone-shell {
-    width: min(420px, calc(var(--canvas-width) * .7777778));
+    width: calc(var(--canvas-width) + 12px);
+    height: calc(var(--canvas-height) + 12px);
   }
 }

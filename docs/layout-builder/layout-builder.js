@@ -1,8 +1,22 @@
 (function () {
   const frame = document.getElementById('displayBuilderFrame');
   const MODE_STYLE_ID = 'layoutBuilderModeStyles';
-  const TEXT_TOOLS_ID = 'layoutBuilderTextSizeTools';
+  const LAYER_ORDER_CARD_ID = 'layoutBuilderLayerOrderCard';
+  const LAYER_INDEX_ID = 'layoutBuilderLayerIndex';
+  const ROTATE_CARD_ID = 'layoutBuilderRotateCard';
+  const SAVED_LAYOUT_NAME_ID = 'layoutBuilderSavedLayoutName';
+  const SAVED_LAYOUT_MESSAGE_ID = 'layoutBuilderSavedLayoutMessage';
+  const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
+  let selectedSavedLayoutId = '';
   let syncTimer = null;
+
+  function getFrameWindow() {
+    try {
+      return frame.contentWindow || null;
+    } catch {
+      return null;
+    }
+  }
 
   function getFrameDocument() {
     try {
@@ -18,77 +32,548 @@
     if (stack) stack.dataset.layoutBuilderHidden = 'true';
   }
 
-  function hideStackByHeading(doc, text) {
+  function stackByHeading(doc, selector, text) {
     const normalized = text.trim().toLowerCase();
-    const heading = Array.from(doc.querySelectorAll('h2, h3'))
+    const heading = Array.from(doc.querySelectorAll(selector))
       .find(node => node.textContent.trim().toLowerCase() === normalized);
-    const stack = heading?.closest('.stack');
+    return heading?.closest('.stack') || null;
+  }
+
+  function hideStackByHeading(doc, selector, text) {
+    const stack = stackByHeading(doc, selector, text);
     if (stack) stack.dataset.layoutBuilderHidden = 'true';
+    return stack;
   }
 
-  function setInputValue(input, value) {
-    if (!input) return;
-    input.value = String(value);
-    input.dispatchEvent(new Event('input', { bubbles: true }));
+  function currentLayout(doc) {
+    const textarea = doc.getElementById('layoutJson');
+    if (textarea?.value) {
+      try {
+        return JSON.parse(textarea.value);
+      } catch {}
+    }
+    try {
+      const raw = getFrameWindow()?.localStorage.getItem('foodranked-display-builder-v4');
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
   }
 
-  function nudgeNumber(doc, inputId, delta, fallback, min = 1) {
-    const input = doc.getElementById(inputId);
-    if (!input) return;
-    const current = Number(input.value);
-    const next = Math.max(min, (Number.isFinite(current) ? current : fallback) + delta);
-    setInputValue(input, Number.isInteger(next) ? next : next.toFixed(1));
+  function clone(value) {
+    return structuredClone(value);
   }
 
-  function addTextSizingTools(doc) {
-    const textControls = doc.getElementById('textControls');
-    if (!textControls || doc.getElementById(TEXT_TOOLS_ID)) return;
+  function currentSectionLayers(layout) {
+    const sectionId = layout?.selectedSectionId || 'intro';
+    return Array.isArray(layout?.sections?.[sectionId]?.layers) ? layout.sections[sectionId].layers : [];
+  }
+
+  function layerSortBackToFront(layers) {
+    return layers
+      .map((layer, originalIndex) => ({ layer, originalIndex }))
+      .sort((a, b) => (Number(a.layer.z) || 0) - (Number(b.layer.z) || 0) || a.originalIndex - b.originalIndex);
+  }
+
+  function selectedLayerId(doc) {
+    return doc.querySelector('#layerList .card-button.active[data-layer-id]')?.dataset.layerId
+      || doc.querySelector('#canvas .layer-node.selected')?.dataset.layerId
+      || '';
+  }
+
+  function filenameFromPath(path) {
+    const clean = String(path || '').split(/[?#]/)[0];
+    const name = clean.split('/').filter(Boolean).pop() || '';
+    return name || '';
+  }
+
+  function collapseText(text) {
+    return String(text || '').trim().replace(/\s+/g, ' ');
+  }
+
+  function truncateLabel(label, max = 46) {
+    if (label.length <= max) return label;
+    return `${label.slice(0, Math.max(1, max - 3)).trimEnd()}...`;
+  }
+
+  function friendlyLayerName(layer) {
+    if (!layer) return '';
+    if (layer.kind === 'text') {
+      const text = collapseText(layer.text);
+      return text ? truncateLabel(text) : 'Empty text';
+    }
+    if (layer.kind === 'sprite') {
+      return filenameFromPath(layer.src || layer.fallbackSrc) || 'Unnamed sprite';
+    }
+    return layer.label || layer.id || 'Unnamed layer';
+  }
+
+  function friendlyLayerMap(layout) {
+    const layers = currentSectionLayers(layout);
+    return new Map(layers.map(layer => [layer.id, { layer, label: friendlyLayerName(layer) }]));
+  }
+
+  function updateLayerLabels(doc) {
+    const layout = currentLayout(doc);
+    if (!layout) return;
+    const layers = currentSectionLayers(layout);
+    const labels = friendlyLayerMap(layout);
+    const displayOrder = [...layers].sort((a, b) => (Number(b.z) || 0) - (Number(a.z) || 0));
+    const buttons = Array.from(doc.querySelectorAll('#layerList .card-button'));
+
+    buttons.forEach((button, index) => {
+      const layer = displayOrder[index];
+      if (!layer) return;
+      button.dataset.layerId = layer.id || '';
+      const strong = button.querySelector('strong');
+      if (strong) strong.textContent = labels.get(layer.id)?.label || friendlyLayerName(layer);
+    });
+
+    const selectedId = selectedLayerId(doc);
+    const selected = labels.get(selectedId);
+    const chip = doc.getElementById('selectionChip');
+    if (selected && chip) chip.textContent = `Selected: ${selected.label}`;
+  }
+
+  function applyLayoutJson(doc, layout, restoreSelectionId = '') {
+    const textarea = doc.getElementById('layoutJson');
+    const applyButton = doc.getElementById('applyJson');
+    if (!textarea || !applyButton) return;
+
+    textarea.value = JSON.stringify(layout, null, 2);
+    applyButton.click();
+
+    window.setTimeout(() => {
+      updateLayoutBuilderUi(doc);
+      if (!restoreSelectionId) return;
+      const target = doc.querySelector(`#canvas .layer-node[data-layer-id="${CSS.escape(restoreSelectionId)}"]`)
+        || doc.querySelector(`#layerList .card-button[data-layer-id="${CSS.escape(restoreSelectionId)}"]`);
+      target?.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+      window.setTimeout(() => updateLayoutBuilderUi(doc), 80);
+    }, 140);
+  }
+
+  function ensureLayerOrderCard(doc) {
+    const panel = doc.getElementById('inspectorPanel');
+    if (!panel || doc.getElementById(LAYER_ORDER_CARD_ID)) return;
 
     const card = doc.createElement('div');
-    card.id = TEXT_TOOLS_ID;
+    card.id = LAYER_ORDER_CARD_ID;
     card.className = 'tool-card stack';
-    card.hidden = true;
     card.innerHTML = `
-      <h3>Text box size</h3>
-      <div class="layout-text-size-readout" id="layoutTextSizeReadout">No text selected</div>
-      <div class="layout-text-size-grid" aria-label="Text size controls">
-        <button type="button" data-layout-font="-0.5">Font -0.5</button>
-        <button type="button" data-layout-font="0.5">Font +0.5</button>
-        <button type="button" data-layout-width="-1">Width -1</button>
-        <button type="button" data-layout-width="1">Width +1</button>
-        <button type="button" data-layout-width="-4">Width -4</button>
-        <button type="button" data-layout-width="4">Width +4</button>
+      <h3>Layer order</h3>
+      <div id="${LAYER_INDEX_ID}" class="layout-builder-index">No layer selected</div>
+      <div class="toolbar-grid two">
+        <button id="layoutBuilderBringForward" type="button">Bring forward</button>
+        <button id="layoutBuilderBringBack" type="button">Bring back</button>
       </div>
     `;
 
-    textControls.prepend(card);
-    card.querySelectorAll('[data-layout-font]').forEach(button => {
-      button.addEventListener('click', () => {
-        nudgeNumber(doc, 'propFontSize', Number(button.dataset.layoutFont) || 0, 6, 1);
-        syncTextSizingTools(doc);
-      });
-    });
-    card.querySelectorAll('[data-layout-width]').forEach(button => {
-      button.addEventListener('click', () => {
-        nudgeNumber(doc, 'propWidth', Number(button.dataset.layoutWidth) || 0, 40, 1);
-        syncTextSizingTools(doc);
-      });
-    });
+    const firstControls = panel.querySelector('.split-2');
+    if (firstControls?.nextSibling) panel.insertBefore(card, firstControls.nextSibling);
+    else panel.prepend(card);
+
+    card.querySelector('#layoutBuilderBringForward').addEventListener('click', () => reorderSelectedLayer(doc, 1));
+    card.querySelector('#layoutBuilderBringBack').addEventListener('click', () => reorderSelectedLayer(doc, -1));
   }
 
-  function syncTextSizingTools(doc) {
-    const card = doc.getElementById(TEXT_TOOLS_ID);
-    const textControls = doc.getElementById('textControls');
-    if (!card || !textControls) return;
+  function updateLayerOrderCard(doc) {
+    const layout = currentLayout(doc);
+    const readout = doc.getElementById(LAYER_INDEX_ID);
+    const forward = doc.getElementById('layoutBuilderBringForward');
+    const back = doc.getElementById('layoutBuilderBringBack');
+    if (!layout || !readout || !forward || !back) return;
 
-    const isTextSelected = !textControls.hidden;
-    card.hidden = !isTextSelected;
-    if (!isTextSelected) return;
+    const layers = currentSectionLayers(layout);
+    const sorted = layerSortBackToFront(layers);
+    const selectedId = selectedLayerId(doc);
+    const index = sorted.findIndex(item => item.layer.id === selectedId);
+    const hasSelection = index >= 0;
 
-    const font = doc.getElementById('propFontSize')?.value || '6';
-    const width = doc.getElementById('propWidth')?.value || 'auto';
-    const readout = doc.getElementById('layoutTextSizeReadout');
-    if (readout) readout.textContent = `Font ${font} | width ${width}`;
+    readout.textContent = hasSelection ? `Index ${index + 1} of ${sorted.length}` : 'No layer selected';
+    back.disabled = !hasSelection || index <= 0;
+    forward.disabled = !hasSelection || index >= sorted.length - 1;
+  }
+
+  function reorderSelectedLayer(doc, direction) {
+    const layout = currentLayout(doc);
+    if (!layout) return;
+
+    const sectionId = layout.selectedSectionId || 'intro';
+    const layers = currentSectionLayers(layout);
+    const selectedId = selectedLayerId(doc);
+    const sorted = layerSortBackToFront(layers);
+    const currentIndex = sorted.findIndex(item => item.layer.id === selectedId);
+    const targetIndex = currentIndex + direction;
+    if (currentIndex < 0 || targetIndex < 0 || targetIndex >= sorted.length) return;
+
+    const nextOrder = [...sorted];
+    [nextOrder[currentIndex], nextOrder[targetIndex]] = [nextOrder[targetIndex], nextOrder[currentIndex]];
+    const currentLayer = sorted[currentIndex].layer;
+    const targetLayer = sorted[targetIndex].layer;
+    const currentZ = Number(currentLayer.z) || 0;
+    const targetZ = Number(targetLayer.z) || 0;
+    if (currentZ !== targetZ) {
+      currentLayer.z = targetZ;
+      targetLayer.z = currentZ;
+    }
+    layout.sections[sectionId].layers = nextOrder.map(item => item.layer);
+    applyLayoutJson(doc, layout, selectedId);
+  }
+
+  function ensureRotateCard(doc) {
+    const spriteControls = doc.getElementById('spriteControls');
+    if (!spriteControls || doc.getElementById(ROTATE_CARD_ID)) return;
+
+    const card = doc.createElement('div');
+    card.id = ROTATE_CARD_ID;
+    card.className = 'tool-card stack';
+    card.innerHTML = '<button id="layoutBuilderRotate90" type="button">Rotate 90°</button>';
+
+    const spriteInfo = doc.getElementById('spriteInfo');
+    if (spriteInfo?.nextSibling) spriteControls.insertBefore(card, spriteInfo.nextSibling);
+    else spriteControls.prepend(card);
+
+    card.querySelector('#layoutBuilderRotate90').addEventListener('click', () => rotateSelectedSprite(doc));
+  }
+
+  function normalizeQuarterRotation(value) {
+    const number = Number(value);
+    if (!Number.isFinite(number)) return 0;
+    return ((Math.round(number / 90) * 90) % 360 + 360) % 360;
+  }
+
+  function rotateSelectedSprite(doc) {
+    const spriteControls = doc.getElementById('spriteControls');
+    const input = doc.getElementById('propSpriteRotation');
+    if (!input || !spriteControls || spriteControls.hidden) return;
+
+    const next = (normalizeQuarterRotation(input.value) + 90) % 360;
+    input.value = String(next);
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    window.setTimeout(() => updateLayoutBuilderUi(doc), 60);
+  }
+
+  function isTypingTarget(node) {
+    const tagName = node?.tagName;
+    return tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT' || node?.isContentEditable;
+  }
+
+  function nudgeSelectedLayer(doc, deltaX, deltaY) {
+    if (!selectedLayerId(doc)) return false;
+
+    const inputX = doc.getElementById('propX');
+    const inputY = doc.getElementById('propY');
+    if (!inputX || !inputY) return false;
+
+    if (deltaX) {
+      inputX.value = String((Number(inputX.value) || 0) + deltaX);
+      inputX.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+    if (deltaY) {
+      inputY.value = String((Number(inputY.value) || 0) + deltaY);
+      inputY.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
+    window.setTimeout(() => updateLayoutBuilderUi(doc), 60);
+    return true;
+  }
+
+  function bindKeyboardNudging(doc) {
+    if (doc.body.dataset.layoutBuilderKeyboardBound) return;
+
+    const win = getFrameWindow();
+    if (!win) return;
+
+    doc.body.dataset.layoutBuilderKeyboardBound = 'true';
+
+    win.addEventListener('keydown', event => {
+      if (isTypingTarget(doc.activeElement) || isTypingTarget(event.target)) return;
+
+      const step = event.shiftKey ? 10 : 1;
+      const directions = {
+        ArrowLeft: [-step, 0],
+        ArrowRight: [step, 0],
+        ArrowUp: [0, -step],
+        ArrowDown: [0, step]
+      };
+      const direction = directions[event.key];
+      if (!direction) return;
+
+      if (nudgeSelectedLayer(doc, direction[0], direction[1])) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+      }
+    }, true);
+  }
+
+  function bindSelectionFocusExit(doc) {
+    if (doc.body.dataset.layoutBuilderSelectionFocusBound) return;
+    doc.body.dataset.layoutBuilderSelectionFocusBound = 'true';
+
+    const clearTypingFocus = event => {
+      if (isTypingTarget(event.target)) return;
+      if (isTypingTarget(doc.activeElement)) doc.activeElement.blur();
+    };
+
+    doc.getElementById('canvas')?.addEventListener('pointerdown', clearTypingFocus, true);
+    doc.getElementById('layerList')?.addEventListener('pointerdown', clearTypingFocus, true);
+  }
+
+  function updateRotateCard(doc) {
+    const card = doc.getElementById(ROTATE_CARD_ID);
+    const spriteControls = doc.getElementById('spriteControls');
+    if (!card || !spriteControls) return;
+    card.hidden = !!spriteControls.hidden;
+  }
+
+  function readSavedLayouts(win) {
+    try {
+      const raw = win.localStorage.getItem(SAVED_LAYOUTS_KEY);
+      const parsed = raw ? JSON.parse(raw) : [];
+      const entries = Array.isArray(parsed) ? parsed : Object.values(parsed || {});
+      return entries
+        .filter(entry => entry && entry.id && entry.sections && typeof entry.sections === 'object')
+        .map(entry => ({
+          id: String(entry.id),
+          name: String(entry.name || 'Untitled layout'),
+          createdAt: entry.createdAt || new Date().toISOString(),
+          updatedAt: entry.updatedAt || entry.createdAt || new Date().toISOString(),
+          selectedSectionId: entry.selectedSectionId || 'intro',
+          sections: clone(entry.sections)
+        }))
+        .sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)) || a.name.localeCompare(b.name));
+    } catch {
+      return [];
+    }
+  }
+
+  function persistSavedLayouts(win, entries) {
+    win.localStorage.setItem(SAVED_LAYOUTS_KEY, JSON.stringify(entries));
+  }
+
+  function setSavedLayoutMessage(doc, message, isError = false) {
+    const node = doc.getElementById(SAVED_LAYOUT_MESSAGE_ID);
+    if (!node) return;
+    node.textContent = message;
+    node.dataset.state = isError ? 'error' : 'success';
+  }
+
+  function ensureSavedLayoutControls(doc) {
+    const select = doc.getElementById('savedLayoutSelect');
+    const saveButton = doc.getElementById('saveSpriteLayout');
+    const loadButton = doc.getElementById('loadSpriteLayout');
+    const deleteButton = doc.getElementById('deleteSpriteLayout');
+    const stack = select?.closest('.stack');
+    if (!select || !saveButton || !loadButton || !deleteButton || !stack) return;
+
+    const heading = stack.querySelector('h2');
+    if (heading) heading.textContent = 'Saved layouts';
+    saveButton.textContent = 'Save layout';
+
+    if (!doc.getElementById(SAVED_LAYOUT_NAME_ID)) {
+      const label = doc.createElement('label');
+      label.textContent = 'Layout name';
+      const input = doc.createElement('input');
+      input.id = SAVED_LAYOUT_NAME_ID;
+      input.type = 'text';
+      input.autocomplete = 'off';
+      input.placeholder = 'Layout name';
+      label.appendChild(input);
+      stack.insertBefore(label, select.closest('label'));
+
+      const message = doc.createElement('div');
+      message.id = SAVED_LAYOUT_MESSAGE_ID;
+      message.className = 'layout-builder-save-message';
+      message.setAttribute('aria-live', 'polite');
+      stack.insertBefore(message, stack.querySelector('p.tiny.muted'));
+
+      input.addEventListener('keydown', event => {
+        if (event.key !== 'Enter') return;
+        event.preventDefault();
+        saveCurrentLayoutPreset(doc);
+      });
+    }
+
+    if (!stack.dataset.layoutBuilderSavedLayoutBound) {
+      stack.dataset.layoutBuilderSavedLayoutBound = 'true';
+      saveButton.addEventListener('click', event => {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        saveCurrentLayoutPreset(doc);
+      }, true);
+      loadButton.addEventListener('click', event => {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        loadSelectedLayoutPreset(doc);
+      }, true);
+      deleteButton.addEventListener('click', event => {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        deleteSelectedLayoutPreset(doc);
+      }, true);
+      select.addEventListener('change', event => {
+        event.stopImmediatePropagation();
+        selectedSavedLayoutId = select.value;
+        populateSelectedLayoutName(doc);
+        window.setTimeout(() => populateSelectedLayoutName(doc), 0);
+      }, true);
+    }
+
+    renderSavedLayoutSelect(doc);
+  }
+
+  function renderSavedLayoutSelect(doc, selectedId = null) {
+    const win = getFrameWindow();
+    const select = doc.getElementById('savedLayoutSelect');
+    if (!win || !select) return;
+
+    const currentSelection = selectedId ?? (select.value || selectedSavedLayoutId);
+    const entries = readSavedLayouts(win);
+    const signature = JSON.stringify(entries.map(entry => [entry.id, entry.name, entry.updatedAt]));
+    const nextSignature = `${signature}|${currentSelection}`;
+    const optionValues = Array.from(select.options).map(option => [option.value, option.textContent]);
+    const hasExpectedOptions = optionValues.length === entries.length + 1
+      && optionValues[0]?.[0] === ''
+      && entries.every(entry => optionValues.some(([value, text]) => value === entry.id && text === entry.name));
+    if (select.dataset.layoutBuilderSignature === nextSignature && hasExpectedOptions) {
+      if (entries.some(entry => entry.id === currentSelection)) select.value = currentSelection;
+      selectedSavedLayoutId = select.value;
+      const hasSelection = !!select.value;
+      const loadButton = doc.getElementById('loadSpriteLayout');
+      const deleteButton = doc.getElementById('deleteSpriteLayout');
+      if (loadButton) loadButton.disabled = !hasSelection;
+      if (deleteButton) deleteButton.disabled = !hasSelection;
+      populateSelectedLayoutName(doc);
+      return;
+    }
+
+    select.innerHTML = '';
+
+    const placeholder = doc.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = entries.length ? 'Select a saved layout' : 'No saved layouts yet';
+    select.appendChild(placeholder);
+
+    entries.forEach(entry => {
+      const option = doc.createElement('option');
+      option.value = entry.id;
+      option.textContent = entry.name;
+      select.appendChild(option);
+    });
+
+    if (entries.some(entry => entry.id === currentSelection)) select.value = currentSelection;
+    selectedSavedLayoutId = select.value;
+
+    const hasSelection = !!select.value;
+    const loadButton = doc.getElementById('loadSpriteLayout');
+    const deleteButton = doc.getElementById('deleteSpriteLayout');
+    if (loadButton) loadButton.disabled = !hasSelection;
+    if (deleteButton) deleteButton.disabled = !hasSelection;
+    select.dataset.layoutBuilderSignature = `${signature}|${select.value}`;
+    populateSelectedLayoutName(doc);
+  }
+
+  function populateSelectedLayoutName(doc) {
+    const win = getFrameWindow();
+    const input = doc.getElementById(SAVED_LAYOUT_NAME_ID);
+    const select = doc.getElementById('savedLayoutSelect');
+    if (!win || !input || !select) return;
+
+    const entry = readSavedLayouts(win).find(item => item.id === select.value);
+    if (doc.activeElement === input) return;
+    input.value = entry ? entry.name : input.value;
+  }
+
+  function saveCurrentLayoutPreset(doc) {
+    const win = getFrameWindow();
+    const input = doc.getElementById(SAVED_LAYOUT_NAME_ID);
+    const select = doc.getElementById('savedLayoutSelect');
+    const layout = currentLayout(doc);
+    if (!win || !input || !select || !layout?.sections) return;
+
+    const name = collapseText(input.value);
+    if (!name) {
+      setSavedLayoutMessage(doc, 'Enter a layout name', true);
+      input.focus();
+      return;
+    }
+
+    const now = new Date().toISOString();
+    const entries = readSavedLayouts(win);
+    const selectedId = select.value;
+    const existingIndex = entries.findIndex(entry => entry.id === selectedId);
+    const existing = existingIndex >= 0 ? entries[existingIndex] : null;
+    const id = existing?.id || `layout_${Date.now().toString(36)}`;
+    const entry = {
+      id,
+      name,
+      createdAt: existing?.createdAt || now,
+      updatedAt: now,
+      selectedSectionId: layout.selectedSectionId || 'intro',
+      sections: clone(layout.sections)
+    };
+
+    if (existingIndex >= 0) entries[existingIndex] = entry;
+    else entries.push(entry);
+
+    persistSavedLayouts(win, entries);
+    renderSavedLayoutSelect(doc, id);
+    setSavedLayoutMessage(doc, 'Layout saved');
+  }
+
+  function loadSelectedLayoutPreset(doc) {
+    const win = getFrameWindow();
+    const select = doc.getElementById('savedLayoutSelect');
+    const layout = currentLayout(doc);
+    if (!win || !select || !layout) return;
+
+    const entry = readSavedLayouts(win).find(item => item.id === select.value);
+    if (!entry) {
+      setSavedLayoutMessage(doc, 'Select a saved layout', true);
+      return;
+    }
+
+    const next = {
+      ...layout,
+      selectedSectionId: entry.selectedSectionId || layout.selectedSectionId || 'intro',
+      sections: clone(entry.sections)
+    };
+    applyLayoutJson(doc, next);
+    renderSavedLayoutSelect(doc, entry.id);
+    setSavedLayoutMessage(doc, 'Layout loaded');
+  }
+
+  function deleteSelectedLayoutPreset(doc) {
+    const win = getFrameWindow();
+    const select = doc.getElementById('savedLayoutSelect');
+    if (!win || !select?.value) {
+      setSavedLayoutMessage(doc, 'Select a saved layout', true);
+      return;
+    }
+
+    const deletedId = select.value;
+    const entries = readSavedLayouts(win).filter(entry => entry.id !== deletedId);
+    persistSavedLayouts(win, entries);
+    renderSavedLayoutSelect(doc, entries[0]?.id || '');
+    setSavedLayoutMessage(doc, 'Layout deleted');
+  }
+
+  function hideDisplayBuilderControls(doc) {
+    hideStackByChild(doc, '#foodSearch');
+    hideStackByChild(doc, '#foodList');
+    hideStackByHeading(doc, 'h2', 'Selected food script');
+    hideStackByHeading(doc, 'h2', 'Nutritional info');
+    hideStackByHeading(doc, 'h3', 'Background motion');
+    hideStackByHeading(doc, 'h3', 'Move on canvas');
+    hideStackByHeading(doc, 'h3', 'Size');
+    hideStackByHeading(doc, 'h3', 'Align');
+    hideStackByHeading(doc, 'h3', 'Rotate');
+    hideStackByHeading(doc, 'h3', 'Layer');
+    hideStackByHeading(doc, 'h2', 'Text boxes in this section');
+
+    const staleTextSizer = doc.getElementById('layoutBuilderTextSizeTools');
+    staleTextSizer?.remove();
   }
 
   function injectModeStyle(doc) {
@@ -116,53 +601,55 @@
         background-image: none !important;
       }
 
-      body.layout-builder-mode #${TEXT_TOOLS_ID}[hidden] {
-        display: none !important;
-      }
-
-      body.layout-builder-mode #${TEXT_TOOLS_ID} {
-        border-color: rgba(111, 198, 184, .36);
-        background: rgba(111, 198, 184, .08);
-      }
-
-      body.layout-builder-mode .layout-text-size-readout {
+      body.layout-builder-mode .layout-builder-index,
+      body.layout-builder-mode .layout-builder-save-message {
         color: var(--muted);
         font-size: 12px;
         font-variant-numeric: tabular-nums;
       }
 
-      body.layout-builder-mode .layout-text-size-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 8px;
+      body.layout-builder-mode .layout-builder-save-message[data-state="success"] {
+        color: var(--good);
+      }
+
+      body.layout-builder-mode .layout-builder-save-message[data-state="error"] {
+        color: var(--warn);
+      }
+
+      body.layout-builder-mode #${ROTATE_CARD_ID}[hidden] {
+        display: none !important;
       }
     `;
     doc.head.appendChild(style);
   }
 
-  function applyLayoutBuilderMode() {
-    const doc = getFrameDocument();
-    if (!doc?.body) return;
-
+  function updateLayoutBuilderUi(doc) {
     injectModeStyle(doc);
     doc.body.classList.add('layout-builder-mode');
 
     const heading = doc.querySelector('.sidebar-panel > .stack:first-child h1');
     if (heading) heading.textContent = 'Layout builder';
 
-    hideStackByChild(doc, '#foodSearch');
-    hideStackByChild(doc, '#foodList');
-    hideStackByHeading(doc, 'Selected food script');
-    hideStackByHeading(doc, 'Nutritional info');
-    hideStackByHeading(doc, 'Background motion');
-    addTextSizingTools(doc);
-    syncTextSizingTools(doc);
+    hideDisplayBuilderControls(doc);
+    ensureLayerOrderCard(doc);
+    ensureRotateCard(doc);
+    ensureSavedLayoutControls(doc);
+    bindKeyboardNudging(doc);
+    bindSelectionFocusExit(doc);
+    updateLayerLabels(doc);
+    updateLayerOrderCard(doc);
+    updateRotateCard(doc);
   }
 
   function startModeSync() {
     window.clearInterval(syncTimer);
-    syncTimer = window.setInterval(applyLayoutBuilderMode, 250);
-    applyLayoutBuilderMode();
+    syncTimer = window.setInterval(() => {
+      const doc = getFrameDocument();
+      if (doc?.body) updateLayoutBuilderUi(doc);
+    }, 250);
+
+    const doc = getFrameDocument();
+    if (doc?.body) updateLayoutBuilderUi(doc);
   }
 
   frame.addEventListener('load', startModeSync);

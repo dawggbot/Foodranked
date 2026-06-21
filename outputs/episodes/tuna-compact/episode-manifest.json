@@ -1,6 +1,6 @@
 {
   "id": "tuna-episode-v1",
-  "generatedAt": "2026-06-21T04:59:25.669Z",
+  "generatedAt": "2026-06-21T05:31:00.524Z",
   "status": "draft",
   "mode": "compact",
   "food": {
@@ -700,7 +700,9 @@
               "dvPercent": null,
               "value": 0.2,
               "score": 100,
-              "denominator": null
+              "denominator": null,
+              "displayValue": "0.2g",
+              "displaySource": "scored"
             },
             {
               "metricKey": "polyunsaturated_fat_g",
@@ -712,19 +714,9 @@
               "dvPercent": null,
               "value": 0.2,
               "score": 0,
-              "denominator": null
-            },
-            {
-              "metricKey": "cholesterol_mg",
-              "text": "cholesterol at 47mg",
-              "weightedScore": 200,
-              "scoringMode": "arrow_bands",
-              "band": "3_green",
-              "polarity": "higher_worse",
-              "dvPercent": null,
-              "value": 47,
-              "score": 100,
-              "denominator": null
+              "denominator": null,
+              "displayValue": "0.2g",
+              "displaySource": "scored"
             },
             {
               "metricKey": "omega3_mg",
@@ -736,7 +728,23 @@
               "dvPercent": null,
               "value": 240,
               "score": 40,
-              "denominator": null
+              "denominator": null,
+              "displayValue": "240mg",
+              "displaySource": "scored"
+            },
+            {
+              "metricKey": "cholesterol_mg",
+              "text": "cholesterol at 47mg",
+              "weightedScore": 200,
+              "scoringMode": "arrow_bands",
+              "band": "3_green",
+              "polarity": "higher_worse",
+              "dvPercent": null,
+              "value": 47,
+              "score": 100,
+              "denominator": null,
+              "displayValue": "47mg",
+              "displaySource": "scored"
             }
           ],
           "timingHint": "short-medium",
@@ -793,14 +801,14 @@
               },
               {
                 "slotId": "submetric_3",
-                "metricKey": "cholesterol_mg",
-                "label": "cholesterol",
-                "displayValue": "47mg",
+                "metricKey": "omega3_mg",
+                "label": "omega 3",
+                "displayValue": "240mg",
                 "scoringMode": "arrow_bands",
-                "band": "3_green",
-                "weightedScore": 200,
+                "band": "1_red",
+                "weightedScore": 120,
                 "spriteRole": "fats",
-                "text": "cholesterol at 47mg"
+                "text": "omega 3 at 240mg"
               }
             ],
             "micronutrientRows": [],
@@ -1211,19 +1219,51 @@
               "dvPercent": null,
               "value": 0.3,
               "score": 0,
-              "denominator": null
+              "denominator": null,
+              "displayValue": "0.3g",
+              "displaySource": "scored"
             },
             {
-              "metricKey": "protein_g_fallback",
-              "text": "protein amount at 28g",
-              "weightedScore": 400,
-              "scoringMode": "arrow_bands",
-              "band": "3_green",
+              "metricKey": "essential_amino_acids_score",
+              "text": "essential amino acids score at 0/9",
+              "weightedScore": null,
+              "scoringMode": "display_fallback",
+              "band": "↓↓↓",
               "polarity": "higher_better",
               "dvPercent": null,
-              "value": 28,
-              "score": 100,
-              "denominator": null
+              "value": 0,
+              "score": 0,
+              "denominator": 9,
+              "displaySource": "macro_numeric_fallback",
+              "displayValue": "0/9"
+            },
+            {
+              "metricKey": "nonessential_amino_acids_score",
+              "text": "nonessential amino acids score at 0/11",
+              "weightedScore": null,
+              "scoringMode": "display_fallback",
+              "band": "↓↓↓",
+              "polarity": "higher_better",
+              "dvPercent": null,
+              "value": 0,
+              "score": 0,
+              "denominator": 11,
+              "displaySource": "macro_numeric_fallback",
+              "displayValue": "0/11"
+            },
+            {
+              "metricKey": "bioavailability_percent",
+              "text": "bioavailability at 0%",
+              "weightedScore": null,
+              "scoringMode": "display_fallback",
+              "band": "↓↓↓",
+              "polarity": "higher_better",
+              "dvPercent": null,
+              "value": 0,
+              "score": 0,
+              "denominator": null,
+              "displaySource": "macro_numeric_fallback",
+              "displayValue": "0%"
             }
           ],
           "timingHint": "short-medium",
@@ -1269,18 +1309,29 @@
               },
               {
                 "slotId": "submetric_2",
-                "metricKey": "protein_g_fallback",
-                "label": "protein amount",
-                "displayValue": "28",
-                "scoringMode": "arrow_bands",
-                "band": "3_green",
-                "weightedScore": 400,
+                "metricKey": "essential_amino_acids_score",
+                "label": "essential amino acids score",
+                "displayValue": "0/9",
+                "scoringMode": "display_fallback",
+                "band": "↓↓↓",
+                "weightedScore": null,
                 "spriteRole": "proteins",
-                "text": "protein amount at 28g"
+                "text": "essential amino acids score at 0/9"
+              },
+              {
+                "slotId": "submetric_3",
+                "metricKey": "nonessential_amino_acids_score",
+                "label": "nonessential amino acids score",
+                "displayValue": "0/11",
+                "scoringMode": "display_fallback",
+                "band": "↓↓↓",
+                "weightedScore": null,
+                "spriteRole": "proteins",
+                "text": "nonessential amino acids score at 0/11"
               }
             ],
             "micronutrientRows": [],
-            "commentaryNote": null
+            "commentaryNote": "Overflow metrics stay off-screen unless the edit intentionally promotes them."
           }
         },
         "revealPlan": [

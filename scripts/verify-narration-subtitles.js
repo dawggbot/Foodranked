@@ -40,6 +40,7 @@ function addFailure(failures, file, message) {
 function compactMetricValue(item) {
   if (!item) return null;
   if (item.displayValue === 'N/A' || item.notApplicableReason === 'main_macro_zero') return null;
+  if (item.displaySource === 'macro_numeric_fallback' || item.scoringMode === 'display_fallback') return null;
   if (item.dvPercent != null) return `${item.dvPercent}% DV`;
   if (item.value === null || item.value === undefined) return null;
 

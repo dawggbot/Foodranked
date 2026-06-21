@@ -62,6 +62,7 @@ Use this model instead:
 `neutral_display_only` is reserved for non-submacro display values such as kcal and macro totals.
 Source-backed numeric submacros must use `higher_better` or `higher_worse` with a six-band arrow ladder.
 Only N/A submacro values may remain neutral/no-arrow.
+Shared submacro metrics must keep the same polarity in every food type so viewers do not have to relearn arrow direction. Use category weights, thresholds, or `not_applicable` for food-type differences instead of flipping polarity.
 
 ## Main entities
 

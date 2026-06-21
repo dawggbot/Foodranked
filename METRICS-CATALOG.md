@@ -261,7 +261,7 @@ These are not canonical nutrient facts and should not be mixed into the raw data
 - If a submacro has a defensible numeric value, it must use a red/green arrow band.
 - `cholesterol_mg` is usually N/A for plant categories, but a sourced `0mg` value should still resolve to a green low-cholesterol arrow.
 - `collagen_g` is usually N/A for plant categories.
-- `starch_g` is category-dependent and should not be treated as universally positive
+- `starch_g` is consistently `higher_better` for viewer-facing arrows; food-type rules may tune its importance with weights, thresholds, or applicability
 - macro totals are always display-only in v1
 
 ## Context item examples

@@ -39,6 +39,36 @@ const MACRO_SECTION_SUBMACRO_KEYS = {
   carbs: ['fibre_g', 'sugar_g', 'starch_g', 'glycemic_index'],
   proteins: ['collagen_g', 'essential_amino_acids_score', 'nonessential_amino_acids_score', 'bioavailability_percent']
 };
+const DEFAULT_SUBMACRO_POLARITIES = {
+  saturated_fat_g: 'higher_worse',
+  polyunsaturated_fat_g: 'higher_better',
+  omega3_mg: 'higher_better',
+  cholesterol_mg: 'higher_worse',
+  fibre_g: 'higher_better',
+  sugar_g: 'higher_worse',
+  starch_g: 'higher_better',
+  glycemic_index: 'higher_worse',
+  collagen_g: 'higher_better',
+  essential_amino_acids_score: 'higher_better',
+  nonessential_amino_acids_score: 'higher_better',
+  bioavailability_percent: 'higher_better'
+};
+const DEFAULT_HIGHER_BETTER_BANDS = [
+  { label: '3_red', max: 0, score: 0 },
+  { label: '2_red', min: 0, max: 1, score: 20 },
+  { label: '1_red', min: 1, max: 2, score: 40 },
+  { label: '1_green', min: 2, max: 3, score: 60 },
+  { label: '2_green', min: 3, max: 5, score: 80 },
+  { label: '3_green', min: 5, score: 100 }
+];
+const DEFAULT_HIGHER_WORSE_BANDS = [
+  { label: '3_green', max: 0, score: 100 },
+  { label: '2_green', min: 0, max: 1, score: 80 },
+  { label: '1_green', min: 1, max: 2, score: 60 },
+  { label: '1_red', min: 2, max: 3, score: 40 },
+  { label: '2_red', min: 3, max: 5, score: 20 },
+  { label: '3_red', min: 5, score: 0 }
+];
 
 function scoreFood(foodPath, rulesetPath) {
   const res = spawnSync(process.execPath, [scorerPath, foodPath, rulesetPath], {
@@ -141,6 +171,23 @@ function metricValueText(metric) {
   if (key.endsWith('_score')) return `${metric.value}/10`;
   if (/glycemic/i.test(key)) return `${metric.value} GI`;
   return String(metric.value);
+}
+
+function toFiniteNumber(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+}
+
+function scoreFromBands(value, bands) {
+  if (value === null || value === undefined || !Array.isArray(bands) || bands.length === 0) return null;
+  for (const band of bands) {
+    const hasMin = Object.prototype.hasOwnProperty.call(band, 'min');
+    const hasMax = Object.prototype.hasOwnProperty.call(band, 'max');
+    const minOk = !hasMin || value >= band.min;
+    const maxOk = !hasMax || value <= band.max;
+    if (minOk && maxOk) return { label: band.label, score: band.score };
+  }
+  return null;
 }
 
 function metricValuePhrase(metric) {
@@ -278,7 +325,7 @@ function uniqueMetrics(metrics, limit = 4) {
 }
 
 function outstandingMacroMetrics(result, sectionKey, limit = 4) {
-  if (macroSectionIsZero(result, sectionKey)) return [];
+  if (macroSectionDisplaysNa(result, sectionKey)) return [];
 
   if (sectionKey === 'proteins') {
     return topMetricsForSection(result, sectionKey, limit);
@@ -317,6 +364,11 @@ function macroValueForSection(result, sectionKey) {
 
 function macroSectionIsZero(result, sectionKey) {
   return macroValueForSection(result, sectionKey) === 0;
+}
+
+function macroSectionDisplaysNa(result, sectionKey) {
+  const value = macroValueForSection(result, sectionKey);
+  return value === null || value === undefined || value === 0;
 }
 
 function macroDisplayValue(result, sectionKey) {
@@ -931,8 +983,8 @@ function displayItemsForSection(result, sectionKey) {
     }));
   }
   if (['fats', 'carbs', 'proteins'].includes(sectionKey)) {
-    if (macroSectionIsZero(result, sectionKey)) return naMacroDisplayItems(sectionKey);
-    return outstandingMacroMetrics(result, sectionKey, 4);
+    if (macroSectionDisplaysNa(result, sectionKey)) return naMacroDisplayItems(sectionKey);
+    return completeMacroDisplayItems(result, sectionKey);
   }
   if (sectionKey === 'vitamins' || sectionKey === 'minerals') {
     return outstandingMicronMetrics(result, sectionKey, 4, { speakDailyValue: false });
@@ -944,6 +996,84 @@ function denominatorForMetric(metricKey) {
   if (metricKey === 'essential_amino_acids_score') return 9;
   if (metricKey === 'nonessential_amino_acids_score') return 11;
   return null;
+}
+
+function displayDenominatorForMetric(result, metricKey, scored = null) {
+  if (scored?.denominator) return scored.denominator;
+  if (metricKey === 'essential_amino_acids_score') return result.aminoAcidScoring?.essential?.denominator || 9;
+  if (metricKey === 'nonessential_amino_acids_score') return result.aminoAcidScoring?.nonessential?.denominator || 11;
+  return null;
+}
+
+function displayValueForSubmacro(result, metricKey) {
+  if (metricKey === 'essential_amino_acids_score') {
+    return toFiniteNumber(result.aminoAcidScoring?.essential?.value)
+      ?? toFiniteNumber(result.foodMetrics?.[metricKey])
+      ?? 0;
+  }
+  if (metricKey === 'nonessential_amino_acids_score') {
+    return toFiniteNumber(result.aminoAcidScoring?.nonessential?.value)
+      ?? toFiniteNumber(result.foodMetrics?.[metricKey])
+      ?? 0;
+  }
+  return toFiniteNumber(result.foodMetrics?.[metricKey]) ?? 0;
+}
+
+function displayRuleForSubmacro(result, sectionKey, metricKey) {
+  const rules = result.rulesetConfig?.metricRules || [];
+  const rule = rules.find(item => (
+    item.metricKey === metricKey
+    && item.sectionKey === sectionKey
+    && item.scoringMode === 'arrow_bands'
+    && item.applicability !== 'not_applicable'
+    && Array.isArray(item.bands)
+    && item.bands.length
+  ));
+  if (rule) return rule;
+  const polarity = DEFAULT_SUBMACRO_POLARITIES[metricKey] || 'higher_better';
+  return {
+    metricKey,
+    sectionKey,
+    scoringMode: 'arrow_bands',
+    polarity,
+    bands: polarity === 'higher_worse' ? DEFAULT_HIGHER_WORSE_BANDS : DEFAULT_HIGHER_BETTER_BANDS
+  };
+}
+
+function completeMacroDisplayItems(result, sectionKey) {
+  const scoredByKey = new Map(scoredMetricsForSection(result, sectionKey).map(metric => [metric.metricKey, metric]));
+  return (MACRO_SECTION_SUBMACRO_KEYS[sectionKey] || []).map(metricKey => {
+    const scored = scoredByKey.get(metricKey);
+    const denominator = displayDenominatorForMetric(result, metricKey, scored);
+    if (scored) {
+      return {
+        ...scored,
+        denominator,
+        displayValue: metricValueText({ ...scored, denominator }),
+        displaySource: 'scored'
+      };
+    }
+
+    const value = displayValueForSubmacro(result, metricKey);
+    const rule = displayRuleForSubmacro(result, sectionKey, metricKey);
+    const bandResult = scoreFromBands(value, rule.bands || []);
+    const row = {
+      metricKey,
+      text: null,
+      weightedScore: null,
+      scoringMode: 'display_fallback',
+      band: bandResult?.label || null,
+      polarity: rule.polarity || DEFAULT_SUBMACRO_POLARITIES[metricKey] || null,
+      dvPercent: null,
+      value,
+      score: bandResult?.score ?? null,
+      denominator,
+      displaySource: 'macro_numeric_fallback'
+    };
+    row.text = metricDisplayText(row, { speakDailyValue: false });
+    row.displayValue = metricValueText(row);
+    return row;
+  });
 }
 
 function naMacroDisplayItems(sectionKey) {
@@ -1011,6 +1141,7 @@ function main() {
   const result = scoreFood(foodPath, rulesetPath);
   result.foodMetrics = food.metrics || {};
   result.metricProvenance = food.metricProvenance || {};
+  result.rulesetConfig = readJson(rulesetPath);
   const sections = buildSections(result);
 
   const script = {

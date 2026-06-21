@@ -1911,6 +1911,36 @@
       'nonessential_amino_acids_score',
       'bioavailability_percent'
     ]);
+    const DEFAULT_SUBMACRO_POLARITIES = {
+      saturated_fat_g: 'higher_worse',
+      polyunsaturated_fat_g: 'higher_better',
+      omega3_mg: 'higher_better',
+      cholesterol_mg: 'higher_worse',
+      fibre_g: 'higher_better',
+      sugar_g: 'higher_worse',
+      starch_g: 'higher_better',
+      glycemic_index: 'higher_worse',
+      collagen_g: 'higher_better',
+      essential_amino_acids_score: 'higher_better',
+      nonessential_amino_acids_score: 'higher_better',
+      bioavailability_percent: 'higher_better'
+    };
+    const DEFAULT_HIGHER_BETTER_BANDS = [
+      { label: '3_red', max: 0, score: 0 },
+      { label: '2_red', min: 0, max: 1, score: 20 },
+      { label: '1_red', min: 1, max: 2, score: 40 },
+      { label: '1_green', min: 2, max: 3, score: 60 },
+      { label: '2_green', min: 3, max: 5, score: 80 },
+      { label: '3_green', min: 5, score: 100 }
+    ];
+    const DEFAULT_HIGHER_WORSE_BANDS = [
+      { label: '3_green', max: 0, score: 100 },
+      { label: '2_green', min: 0, max: 1, score: 80 },
+      { label: '1_green', min: 1, max: 2, score: 60 },
+      { label: '1_red', min: 2, max: 3, score: 40 },
+      { label: '2_red', min: 3, max: 5, score: 20 },
+      { label: '3_red', min: 5, score: 0 }
+    ];
 
     function getMacroSubmetricTextSpecs(sectionId) {
       const specs = {
@@ -4164,11 +4194,21 @@
       return macroTotalDisplayValue(food, sectionId) === 0;
     }
 
+    function getEpisodeDisplayItemForMetric(food, sectionId, metricKey) {
+      const sectionKey = sectionId === 'protein' ? 'proteins' : sectionId;
+      const sections = food?.episode?.script?.sections || [];
+      const section = sections.find(item => item.key === sectionId || item.key === sectionKey);
+      return (section?.displayItems || []).find(item => item.metricKey === metricKey) || null;
+    }
+
     function macroSubmetricDisplayValue(food, sectionId, metricKey) {
-      if (macroSectionIsZero(food, sectionId)) return null;
+      if (!hasDisplayedMacro(food, sectionId)) return null;
+      const displayItem = getEpisodeDisplayItemForMetric(food, sectionId, metricKey);
+      const displayItemValue = asNumber(displayItem?.value, null);
+      if (displayItemValue != null) return displayItemValue;
       const value = asNumber(food?.metrics?.[metricKey], null);
       if (value != null) return value;
-      return null;
+      return 0;
     }
 
     function formatMacroMetricText(food, sectionId, metricKey, unit = '') {
@@ -4307,16 +4347,24 @@
       const bySection = food?.ruleset?.metricRulesBySection?.[sectionKey] || food?.ruleset?.metricRulesBySection?.[sectionId] || [];
       const fromSection = bySection.find(rule => rule.metricKey === spec.metricKey);
       if (fromSection) return fromSection;
-      return (food?.ruleset?.metricRules || []).find(rule => {
+      const fromRuleset = (food?.ruleset?.metricRules || []).find(rule => {
         return rule.metricKey === spec.metricKey && (!rule.sectionKey || rule.sectionKey === sectionKey || rule.sectionKey === sectionId);
-      }) || null;
+      });
+      if (fromRuleset) return fromRuleset;
+      const polarity = DEFAULT_SUBMACRO_POLARITIES[spec.metricKey];
+      if (!polarity) return null;
+      return {
+        metricKey: spec.metricKey,
+        sectionKey,
+        scoringMode: 'arrow_bands',
+        polarity,
+        bands: polarity === 'higher_worse' ? DEFAULT_HIGHER_WORSE_BANDS : DEFAULT_HIGHER_BETTER_BANDS
+      };
     }
 
     function proteinQualitySpecAllowed(food, sectionId, spec) {
       if (sectionId !== 'protein' || !PROTEIN_QUALITY_METRIC_KEYS.has(spec.metricKey)) return true;
-      return proteinMetricDisplayValue(food, spec.metricKey) != null
-        || !!getEpisodeDisplayItemForSpec(food, sectionId, spec)
-        || !!getBatchMetricBreakdownItemForSpec(food, sectionId, spec);
+      return hasDisplayedMacro(food, 'protein');
     }
 
     function rawMetricValueForSpec(food, sectionId, spec) {
@@ -4348,15 +4396,9 @@
       const rule = getMetricRuleForSpec(food, sectionId, spec);
       const parsed = parseArrowBand(arrowBandForSpec(food, sectionId, spec), rule?.polarity);
       const higherWorse = rule?.polarity === 'higher_worse';
-      const usesProteinReferenceFallback = sectionId === 'protein' && !['protein_g', 'protein_g_fallback'].includes(spec.metricKey);
-      const proteinReferenceValue = usesProteinReferenceFallback ? rawMetricValueForSpec(food, sectionId, spec) : null;
-      const proteinReferenceColor = proteinReferenceTextColor(spec.metricKey, proteinReferenceValue);
-      const proteinReferenceArrow = usesProteinReferenceFallback
-        ? proteinReferenceArrowPresentation(spec.metricKey, proteinReferenceValue)
-        : null;
-      const count = parsed.count || proteinReferenceArrow?.count || 0;
-      const color = parsed.count ? parsed.color : proteinReferenceArrow?.color || parsed.color;
-      const direction = parsed.count ? parsed.direction : proteinReferenceArrow?.direction || parsed.direction;
+      const count = parsed.count || 0;
+      const color = parsed.color;
+      const direction = parsed.direction;
       const pointsDown = direction ? direction === 'down' : color === 'green' ? higherWorse : !higherWorse;
       return {
         ...parsed,
@@ -4366,47 +4408,8 @@
         flipY: !!count && pointsDown,
         textColor: parsed.count
           ? (SUBMACRO_VALUE_COLORS[color] || SUBMACRO_VALUE_COLORS.neutral)
-          : proteinReferenceValue != null
-            ? proteinReferenceColor
-            : SUBMACRO_VALUE_COLORS.neutral
+          : SUBMACRO_VALUE_COLORS.neutral
       };
-    }
-
-    function proteinReferenceTextColor(metricKey, value) {
-      const safe = asNumber(value, null);
-      if (safe == null) return SUBMACRO_VALUE_COLORS.neutral;
-      if (metricKey === 'collagen_g') return safe >= 3 ? SUBMACRO_VALUE_COLORS.green : SUBMACRO_VALUE_COLORS.red;
-      if (metricKey === 'essential_amino_acids_score') return safe >= 3 ? SUBMACRO_VALUE_COLORS.green : SUBMACRO_VALUE_COLORS.red;
-      if (metricKey === 'nonessential_amino_acids_score') return safe >= 4 ? SUBMACRO_VALUE_COLORS.green : SUBMACRO_VALUE_COLORS.red;
-      if (metricKey === 'bioavailability_percent') return safe >= 40 ? SUBMACRO_VALUE_COLORS.green : SUBMACRO_VALUE_COLORS.red;
-      return SUBMACRO_VALUE_COLORS.green;
-    }
-
-    function proteinReferenceArrowPresentation(metricKey, value) {
-      const safe = asNumber(value, null);
-      if (safe == null) return null;
-      if (metricKey === 'collagen_g') return safe >= 3
-        ? { count: 2, color: 'green', direction: null }
-        : { count: 1, color: 'red', direction: null };
-      if (metricKey === 'essential_amino_acids_score') {
-        if (safe >= 8) return { count: 3, color: 'green', direction: null };
-        if (safe >= 6) return { count: 2, color: 'green', direction: null };
-        if (safe >= 3) return { count: 1, color: 'green', direction: null };
-        return { count: 3, color: 'red', direction: null };
-      }
-      if (metricKey === 'nonessential_amino_acids_score') {
-        if (safe >= 10) return { count: 3, color: 'green', direction: null };
-        if (safe >= 8) return { count: 2, color: 'green', direction: null };
-        if (safe >= 4) return { count: 1, color: 'green', direction: null };
-        return { count: 3, color: 'red', direction: null };
-      }
-      if (metricKey === 'bioavailability_percent') {
-        if (safe >= 85) return { count: 3, color: 'green', direction: null };
-        if (safe >= 60) return { count: 2, color: 'green', direction: null };
-        if (safe >= 40) return { count: 1, color: 'green', direction: null };
-        return { count: 3, color: 'red', direction: null };
-      }
-      return { count: 1, color: 'green', direction: null };
     }
 
     function parseArrowBand(band, polarity = null) {
@@ -4742,7 +4745,7 @@
           }
           if (valueLayer) {
             const scoringFood = mergedFoodForScoring(food || getSelectedFoodStub());
-            valueLayer.text = proteinQualitySpecAllowed(scoringFood, sectionId, spec) ? spec.value(scoringFood) : 'N/A';
+            valueLayer.text = spec.value(scoringFood);
             valueLayer.label = `${getSectionChip(sectionId) || sectionId} score card value ${index + 1}`;
             valueLayer.align = 'right';
             valueLayer.fontSize = valueLayer.fontSize || 4;

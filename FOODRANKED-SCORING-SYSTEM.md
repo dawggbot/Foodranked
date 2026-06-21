@@ -81,12 +81,15 @@ Use these states:
 - `not_applicable`
 
 Examples:
-- sugar: usually `higher_worse`
-- fibre: usually `higher_better`
-- glycemic index: usually `higher_worse`
+- sugar: `higher_worse`
+- fibre: `higher_better`
+- starch: `higher_better`
+- glycemic index: `higher_worse`
 - collagen: often `not_applicable` for plant categories
 - cholesterol: often `not_applicable` for plant categories
 - macro totals: display-only, outside submacro arrow scoring
+
+Viewer-facing arrow direction is metric-level stable. Do not flip the same submacro between `higher_better` and `higher_worse` by food type; tune category importance with weights, thresholds, or `not_applicable` instead.
 
 ## Step 2: submacro band system
 
@@ -122,6 +125,7 @@ Every scored submacro should land in a clearly good or clearly bad visual state 
 If a submacro has a defensible numeric value for a food, an arrow indicator must be displayed.
 Only `N/A` submacro values may remain visually neutral/no-arrow.
 Do not park a source-backed numeric submacro as `not_applicable`; either give it a category-specific 6-band ladder or make the food value `N/A` when it is not defensibly sourceable.
+If a main macro displays as a number instead of `N/A`, every submacro row in that macro section must display a numeric value too. Use `N/A` submacro rows only when the main macro itself displays `N/A`.
 
 ## Step 3: vitamin and mineral DV scoring
 

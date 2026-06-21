@@ -26,6 +26,20 @@ const LABEL_SCORES = {
   '2_green': 80,
   '3_green': 100
 };
+const EXPECTED_METRIC_POLARITIES = {
+  saturated_fat_g: 'higher_worse',
+  polyunsaturated_fat_g: 'higher_better',
+  omega3_mg: 'higher_better',
+  cholesterol_mg: 'higher_worse',
+  fibre_g: 'higher_better',
+  sugar_g: 'higher_worse',
+  starch_g: 'higher_better',
+  glycemic_index: 'higher_worse',
+  collagen_g: 'higher_better',
+  essential_amino_acids_score: 'higher_better',
+  nonessential_amino_acids_score: 'higher_better',
+  bioavailability_percent: 'higher_better'
+};
 const PLACEHOLDER_NOTE_RE = /placeholder|calibration benchmark|not a clinical nutrient database|tuning only/i;
 const BAD_TEXT_PATTERNS = [
   { pattern: /\bnot a complete food on its own\b/i, message: 'generic complete-food con' },
@@ -331,6 +345,15 @@ function auditRulesets(errors) {
     if (Math.abs(sum - 1) > 0.00001) issue(errors, file, 'section weights must sum to 1', { sum });
 
     for (const rule of ruleset.metricRules || []) {
+      const expectedPolarity = EXPECTED_METRIC_POLARITIES[rule.metricKey];
+      if (expectedPolarity && rule.polarity !== expectedPolarity) {
+        issue(errors, file, 'shared submacro polarity must stay constant across food types', {
+          metricKey: rule.metricKey,
+          expected: expectedPolarity,
+          actual: rule.polarity || null
+        });
+      }
+
       if (rule.scoringRole === 'scored' && rule.weight === 0 && rule.applicability !== 'not_applicable') {
         issue(errors, file, 'zero-weight scored metric must be not_applicable', { metricKey: rule.metricKey });
       }

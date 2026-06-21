@@ -126,6 +126,9 @@ If included, they should be:
 - `scoringRole: display_only`
 - no score contribution
 
+### 2a. Keep shared submacro polarity stable
+A given submacro keeps the same viewer-facing polarity in every food type. For example, `starch_g` stays `higher_better`; categories that care less about starch should adjust weight, thresholds, or applicability instead of flipping the arrow direction.
+
 ### 3. Prefer explicit applicability
 Use:
 - `required`

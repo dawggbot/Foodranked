@@ -39,18 +39,6 @@
       "narration": "34 grams of fat. Polyunsaturated fat is 1.4 grams, helping with cell structure and healthy signalling. Saturated fat is 19 grams, a weak mark for dairy.",
       "displayItems": [
         {
-          "metricKey": "polyunsaturated_fat_g",
-          "text": "polyunsaturated fat at 1.4g",
-          "weightedScore": 60,
-          "scoringMode": "arrow_bands",
-          "band": "↑",
-          "polarity": "higher_better",
-          "dvPercent": null,
-          "value": 1.4,
-          "score": 60,
-          "denominator": null
-        },
-        {
           "metricKey": "saturated_fat_g",
           "text": "saturated fat at 19g",
           "weightedScore": 0,
@@ -60,19 +48,23 @@
           "dvPercent": null,
           "value": 19,
           "score": 0,
-          "denominator": null
+          "denominator": null,
+          "displayValue": "19g",
+          "displaySource": "scored"
         },
         {
-          "metricKey": "cholesterol_mg",
-          "text": "cholesterol at 110mg",
-          "weightedScore": 0,
+          "metricKey": "polyunsaturated_fat_g",
+          "text": "polyunsaturated fat at 1.4g",
+          "weightedScore": 60,
           "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
-          "polarity": "higher_worse",
+          "band": "↑",
+          "polarity": "higher_better",
           "dvPercent": null,
-          "value": 110,
-          "score": 0,
-          "denominator": null
+          "value": 1.4,
+          "score": 60,
+          "denominator": null,
+          "displayValue": "1.4g",
+          "displaySource": "scored"
         },
         {
           "metricKey": "omega3_mg",
@@ -84,7 +76,23 @@
           "dvPercent": null,
           "value": 120,
           "score": 40,
-          "denominator": null
+          "denominator": null,
+          "displayValue": "120mg",
+          "displaySource": "scored"
+        },
+        {
+          "metricKey": "cholesterol_mg",
+          "text": "cholesterol at 110mg",
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
+          "band": "↑↑↑",
+          "polarity": "higher_worse",
+          "dvPercent": null,
+          "value": 110,
+          "score": 0,
+          "denominator": null,
+          "displayValue": "110mg",
+          "displaySource": "scored"
         }
       ],
       "macroDisplayValue": "34g",
@@ -95,20 +103,8 @@
     {
       "key": "carbs",
       "title": "Carbs",
-      "narration": "6.2 grams of carbs. Sugar is 3.8 grams, supporting better carb quality. Fibre is 0 grams, a small miss for dairy.",
+      "narration": "6.2 grams of carbs. Sugar is 3.8 grams, supporting better carb quality. Starch is 0 grams, a small miss for dairy.",
       "displayItems": [
-        {
-          "metricKey": "sugar_g",
-          "text": "sugar at 3.8g",
-          "weightedScore": 320,
-          "scoringMode": "arrow_bands",
-          "band": "↓↓",
-          "polarity": "higher_worse",
-          "dvPercent": null,
-          "value": 3.8,
-          "score": 80,
-          "denominator": null
-        },
         {
           "metricKey": "fibre_g",
           "text": "fibre at 0g",
@@ -119,19 +115,37 @@
           "dvPercent": null,
           "value": 0,
           "score": 0,
-          "denominator": null
+          "denominator": null,
+          "displayValue": "0g",
+          "displaySource": "scored"
+        },
+        {
+          "metricKey": "sugar_g",
+          "text": "sugar at 3.8g",
+          "weightedScore": 320,
+          "scoringMode": "arrow_bands",
+          "band": "↓↓",
+          "polarity": "higher_worse",
+          "dvPercent": null,
+          "value": 3.8,
+          "score": 80,
+          "denominator": null,
+          "displayValue": "3.8g",
+          "displaySource": "scored"
         },
         {
           "metricKey": "starch_g",
           "text": "starch at 0g",
-          "weightedScore": 100,
+          "weightedScore": 0,
           "scoringMode": "arrow_bands",
-          "band": "↓↓↓",
-          "polarity": "higher_worse",
+          "band": "3_red",
+          "polarity": "higher_better",
           "dvPercent": null,
           "value": 0,
-          "score": 100,
-          "denominator": null
+          "score": 0,
+          "denominator": null,
+          "displayValue": "0g",
+          "displaySource": "scored"
         },
         {
           "metricKey": "glycemic_index",
@@ -143,13 +157,15 @@
           "dvPercent": null,
           "value": 27,
           "score": 80,
-          "denominator": null
+          "denominator": null,
+          "displayValue": "27 GI",
+          "displaySource": "scored"
         }
       ],
       "macroDisplayValue": "6.2g",
-      "subtitleText": "6.2g of carbs. Sugar is 3.8g, supporting better carb quality. Fibre is 0g, a small miss for dairy.",
+      "subtitleText": "6.2g of carbs. Sugar is 3.8g, supporting better carb quality. Starch is 0g, a small miss for dairy.",
       "timingHint": "short-medium",
-      "score": 72.5
+      "score": 60
     },
     {
       "key": "proteins",
@@ -160,24 +176,57 @@
           "metricKey": "collagen_g",
           "text": "collagen at 0g",
           "weightedScore": null,
-          "scoringMode": "reference_submacro",
-          "band": null,
-          "dvPercent": null,
-          "value": 0,
-          "denominator": null,
-          "referenceOnly": true
-        },
-        {
-          "metricKey": "protein_g_fallback",
-          "text": "protein amount at 6.2g",
-          "weightedScore": 120,
-          "scoringMode": "arrow_bands",
-          "band": "1_red",
+          "scoringMode": "display_fallback",
+          "band": "3_red",
           "polarity": "higher_better",
           "dvPercent": null,
-          "value": 6.2,
-          "score": 40,
-          "denominator": null
+          "value": 0,
+          "score": 0,
+          "denominator": null,
+          "displaySource": "macro_numeric_fallback",
+          "displayValue": "0g"
+        },
+        {
+          "metricKey": "essential_amino_acids_score",
+          "text": "essential amino acids score at 0/9",
+          "weightedScore": null,
+          "scoringMode": "display_fallback",
+          "band": "↓↓↓",
+          "polarity": "higher_better",
+          "dvPercent": null,
+          "value": 0,
+          "score": 0,
+          "denominator": 9,
+          "displaySource": "macro_numeric_fallback",
+          "displayValue": "0/9"
+        },
+        {
+          "metricKey": "nonessential_amino_acids_score",
+          "text": "nonessential amino acids score at 0/11",
+          "weightedScore": null,
+          "scoringMode": "display_fallback",
+          "band": "↓↓↓",
+          "polarity": "higher_better",
+          "dvPercent": null,
+          "value": 0,
+          "score": 0,
+          "denominator": 11,
+          "displaySource": "macro_numeric_fallback",
+          "displayValue": "0/11"
+        },
+        {
+          "metricKey": "bioavailability_percent",
+          "text": "bioavailability at 0%",
+          "weightedScore": null,
+          "scoringMode": "display_fallback",
+          "band": "↓↓↓",
+          "polarity": "higher_better",
+          "dvPercent": null,
+          "value": 0,
+          "score": 0,
+          "denominator": null,
+          "displaySource": "macro_numeric_fallback",
+          "displayValue": "0%"
         }
       ],
       "macroDisplayValue": "6.2g",
@@ -340,10 +389,10 @@
     "cta": "Would you rank it the same, or nah?"
   },
   "tier": "D",
-  "overallScore": 18.8,
-  "overallScoreExact": 18.7691,
-  "baseOverallScore": 34.3,
-  "baseOverallScoreExact": 34.3095,
+  "overallScore": 17.8,
+  "overallScoreExact": 17.7922,
+  "baseOverallScore": 32.5,
+  "baseOverallScoreExact": 32.5238,
   "sectionOrder": [
     "fats",
     "carbs",
@@ -370,7 +419,7 @@
     {
       "kind": "section",
       "sectionKey": "carbs",
-      "text": "6.2 grams of carbs. Sugar is 3.8 grams, supporting better carb quality. Fibre is 0 grams, a small miss for dairy."
+      "text": "6.2 grams of carbs. Sugar is 3.8 grams, supporting better carb quality. Starch is 0 grams, a small miss for dairy."
     },
     {
       "kind": "section",
@@ -408,11 +457,11 @@
   ],
   "explanation": {
     "summary": "Carbs are carrying this food most, while minerals are holding it back most. It lands in D tier.",
-    "whyThisTier": "This food lands in D tier with an overall score of 18.8. Section scores: fats 8.3, carbs 72.5, proteins 40, vitamins 13.3, minerals 6, pros 50, cons 50.",
+    "whyThisTier": "This food lands in D tier with an overall score of 17.8. Section scores: fats 8.3, carbs 60, proteins 40, vitamins 13.3, minerals 6, pros 50, cons 50.",
     "strongestSection": {
       "key": "carbs",
       "label": "Carbs",
-      "score": 72.5
+      "score": 60
     },
     "weakestSection": {
       "key": "minerals",

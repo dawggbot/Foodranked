@@ -1,6 +1,6 @@
 {
   "id": "anchovies-episode-v1",
-  "generatedAt": "2026-06-21T04:59:03.877Z",
+  "generatedAt": "2026-06-21T05:30:37.990Z",
   "status": "draft",
   "mode": "compact",
   "food": {
@@ -691,18 +691,6 @@
           ],
           "displayItems": [
             {
-              "metricKey": "omega3_mg",
-              "text": "omega 3 at 2100mg",
-              "weightedScore": 300,
-              "scoringMode": "arrow_bands",
-              "band": "3_green",
-              "polarity": "higher_better",
-              "dvPercent": null,
-              "value": 2100,
-              "score": 100,
-              "denominator": null
-            },
-            {
               "metricKey": "saturated_fat_g",
               "text": "saturated fat at 2.3g",
               "weightedScore": 240,
@@ -712,7 +700,9 @@
               "dvPercent": null,
               "value": 2.3,
               "score": 80,
-              "denominator": null
+              "denominator": null,
+              "displayValue": "2.3g",
+              "displaySource": "scored"
             },
             {
               "metricKey": "polyunsaturated_fat_g",
@@ -724,7 +714,23 @@
               "dvPercent": null,
               "value": 3.7,
               "score": 80,
-              "denominator": null
+              "denominator": null,
+              "displayValue": "3.7g",
+              "displaySource": "scored"
+            },
+            {
+              "metricKey": "omega3_mg",
+              "text": "omega 3 at 2100mg",
+              "weightedScore": 300,
+              "scoringMode": "arrow_bands",
+              "band": "3_green",
+              "polarity": "higher_better",
+              "dvPercent": null,
+              "value": 2100,
+              "score": 100,
+              "denominator": null,
+              "displayValue": "2100mg",
+              "displaySource": "scored"
             },
             {
               "metricKey": "cholesterol_mg",
@@ -736,7 +742,9 @@
               "dvPercent": null,
               "value": 85,
               "score": 60,
-              "denominator": null
+              "denominator": null,
+              "displayValue": "85mg",
+              "displaySource": "scored"
             }
           ],
           "timingHint": "short-medium",
@@ -771,17 +779,6 @@
             "macroSlots": [
               {
                 "slotId": "submetric_1",
-                "metricKey": "omega3_mg",
-                "label": "omega 3",
-                "displayValue": "2100mg",
-                "scoringMode": "arrow_bands",
-                "band": "3_green",
-                "weightedScore": 300,
-                "spriteRole": "fats",
-                "text": "omega 3 at 2100mg"
-              },
-              {
-                "slotId": "submetric_2",
                 "metricKey": "saturated_fat_g",
                 "label": "saturated fat",
                 "displayValue": "2.3g",
@@ -792,7 +789,7 @@
                 "text": "saturated fat at 2.3g"
               },
               {
-                "slotId": "submetric_3",
+                "slotId": "submetric_2",
                 "metricKey": "polyunsaturated_fat_g",
                 "label": "polyunsaturated fat",
                 "displayValue": "3.7g",
@@ -801,6 +798,17 @@
                 "weightedScore": 80,
                 "spriteRole": "fats",
                 "text": "polyunsaturated fat at 3.7g"
+              },
+              {
+                "slotId": "submetric_3",
+                "metricKey": "omega3_mg",
+                "label": "omega 3",
+                "displayValue": "2100mg",
+                "scoringMode": "arrow_bands",
+                "band": "3_green",
+                "weightedScore": 300,
+                "spriteRole": "fats",
+                "text": "omega 3 at 2100mg"
               }
             ],
             "micronutrientRows": [],
@@ -1155,19 +1163,51 @@
               "dvPercent": null,
               "value": 1.2,
               "score": 40,
-              "denominator": null
+              "denominator": null,
+              "displayValue": "1.2g",
+              "displaySource": "scored"
             },
             {
-              "metricKey": "protein_g_fallback",
-              "text": "protein amount at 29g",
-              "weightedScore": 400,
-              "scoringMode": "arrow_bands",
-              "band": "3_green",
+              "metricKey": "essential_amino_acids_score",
+              "text": "essential amino acids score at 0/9",
+              "weightedScore": null,
+              "scoringMode": "display_fallback",
+              "band": "↓↓↓",
               "polarity": "higher_better",
               "dvPercent": null,
-              "value": 29,
-              "score": 100,
-              "denominator": null
+              "value": 0,
+              "score": 0,
+              "denominator": 9,
+              "displaySource": "macro_numeric_fallback",
+              "displayValue": "0/9"
+            },
+            {
+              "metricKey": "nonessential_amino_acids_score",
+              "text": "nonessential amino acids score at 0/11",
+              "weightedScore": null,
+              "scoringMode": "display_fallback",
+              "band": "↓↓↓",
+              "polarity": "higher_better",
+              "dvPercent": null,
+              "value": 0,
+              "score": 0,
+              "denominator": 11,
+              "displaySource": "macro_numeric_fallback",
+              "displayValue": "0/11"
+            },
+            {
+              "metricKey": "bioavailability_percent",
+              "text": "bioavailability at 0%",
+              "weightedScore": null,
+              "scoringMode": "display_fallback",
+              "band": "↓↓↓",
+              "polarity": "higher_better",
+              "dvPercent": null,
+              "value": 0,
+              "score": 0,
+              "denominator": null,
+              "displaySource": "macro_numeric_fallback",
+              "displayValue": "0%"
             }
           ],
           "timingHint": "short-medium",
@@ -1213,18 +1253,29 @@
               },
               {
                 "slotId": "submetric_2",
-                "metricKey": "protein_g_fallback",
-                "label": "protein amount",
-                "displayValue": "29",
-                "scoringMode": "arrow_bands",
-                "band": "3_green",
-                "weightedScore": 400,
+                "metricKey": "essential_amino_acids_score",
+                "label": "essential amino acids score",
+                "displayValue": "0/9",
+                "scoringMode": "display_fallback",
+                "band": "↓↓↓",
+                "weightedScore": null,
                 "spriteRole": "proteins",
-                "text": "protein amount at 29g"
+                "text": "essential amino acids score at 0/9"
+              },
+              {
+                "slotId": "submetric_3",
+                "metricKey": "nonessential_amino_acids_score",
+                "label": "nonessential amino acids score",
+                "displayValue": "0/11",
+                "scoringMode": "display_fallback",
+                "band": "↓↓↓",
+                "weightedScore": null,
+                "spriteRole": "proteins",
+                "text": "nonessential amino acids score at 0/11"
               }
             ],
             "micronutrientRows": [],
-            "commentaryNote": null
+            "commentaryNote": "Overflow metrics stay off-screen unless the edit intentionally promotes them."
           }
         },
         "revealPlan": [

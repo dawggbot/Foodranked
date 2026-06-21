@@ -18,6 +18,10 @@ const scope = scopeArg ? scopeArg.split('=')[1] : 'all';
 const HEADER_KEYS = ['kcal', 'fat_g', 'carb_g', 'protein_g'];
 const CONTEXT_SIDES = ['pros', 'cons'];
 const AMINO_ACID_SCORE_KEYS = ['essential_amino_acids_score', 'nonessential_amino_acids_score'];
+const EXPECTED_AMINO_ACID_GROUP_COUNTS = {
+  essentialGroups: 9,
+  nonessentialGroups: 11
+};
 const LABEL_SCORES = {
   '3_red': 0,
   '2_red': 20,
@@ -425,6 +429,38 @@ function auditRulesets(errors) {
   return { ruleFiles: ruleFiles.length };
 }
 
+function auditAminoAcidThresholdConfig(errors) {
+  if (!aminoAcidThresholds) {
+    issue(errors, aminoAcidThresholdsPath, 'amino acid threshold config is missing');
+    return { aminoAcidThresholdConfig: 0 };
+  }
+
+  for (const [groupKey, expectedCount] of Object.entries(EXPECTED_AMINO_ACID_GROUP_COUNTS)) {
+    const groups = aminoAcidThresholds[groupKey] || [];
+    if (groups.length !== expectedCount) {
+      issue(errors, aminoAcidThresholdsPath, `${groupKey} must contain ${expectedCount} groups`, {
+        actual: groups.length
+      });
+    }
+  }
+
+  const denominators = aminoAcidThresholds.displayDenominators || {};
+  if (denominators.essential !== EXPECTED_AMINO_ACID_GROUP_COUNTS.essentialGroups) {
+    issue(errors, aminoAcidThresholdsPath, 'essential display denominator must match essential group count', {
+      expected: EXPECTED_AMINO_ACID_GROUP_COUNTS.essentialGroups,
+      actual: denominators.essential ?? null
+    });
+  }
+  if (denominators.nonessential !== EXPECTED_AMINO_ACID_GROUP_COUNTS.nonessentialGroups) {
+    issue(errors, aminoAcidThresholdsPath, 'nonessential display denominator must match nonessential group count', {
+      expected: EXPECTED_AMINO_ACID_GROUP_COUNTS.nonessentialGroups,
+      actual: denominators.nonessential ?? null
+    });
+  }
+
+  return { aminoAcidThresholdConfig: 1 };
+}
+
 function generatedEpisodeIdsForScope() {
   if (!fs.existsSync(episodesDir)) return new Set();
   const finalIds = finalisationIds();
@@ -477,6 +513,7 @@ function main() {
   const errors = [];
   const warnings = [];
   const foodStats = auditFoods(errors, warnings);
+  const aminoAcidThresholdStats = auditAminoAcidThresholdConfig(errors);
   const ruleStats = auditRulesets(errors);
   const generatedStats = auditGeneratedText(errors);
   const result = {
@@ -487,6 +524,7 @@ function main() {
       errors: errors.length,
       warnings: warnings.length,
       ...foodStats,
+      ...aminoAcidThresholdStats,
       ...ruleStats,
       ...generatedStats
     },

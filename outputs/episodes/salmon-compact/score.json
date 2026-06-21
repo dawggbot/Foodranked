@@ -28,9 +28,9 @@
     "fibre_g": null,
     "sugar_g": null,
     "glycemic_index": null,
-    "collagen_g": null,
+    "collagen_g": 0.3,
     "essential_amino_acids_score": 9,
-    "nonessential_amino_acids_score": 8,
+    "nonessential_amino_acids_score": 10,
     "bioavailability_percent": null,
     "vitamin_a_dv": 2,
     "vitamin_c_dv": 0,
@@ -177,7 +177,7 @@
       ]
     },
     "nonessential": {
-      "value": 8,
+      "value": 10,
       "denominator": 11,
       "details": [
         {
@@ -203,8 +203,19 @@
           "missingMetricKeys": []
         },
         {
-          "key": "aspartic_acid_asparagine",
-          "label": "aspartic acid / asparagine proxy",
+          "key": "aspartic_acid",
+          "label": "aspartic acid",
+          "metricKeys": [
+            "aspartic_acid_mg"
+          ],
+          "amountMg": 2025,
+          "thresholdMg": 500,
+          "useful": true,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "asparagine_proxy",
+          "label": "asparagine proxy",
           "metricKeys": [
             "aspartic_acid_mg"
           ],
@@ -225,8 +236,19 @@
           "missingMetricKeys": []
         },
         {
-          "key": "glutamic_acid_glutamine",
-          "label": "glutamic acid / glutamine proxy",
+          "key": "glutamic_acid",
+          "label": "glutamic acid",
+          "metricKeys": [
+            "glutamic_acid_mg"
+          ],
+          "amountMg": 2830,
+          "thresholdMg": 500,
+          "useful": true,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "glutamine_proxy",
+          "label": "glutamine proxy",
           "metricKeys": [
             "glutamic_acid_mg"
           ],
@@ -278,17 +300,6 @@
           "thresholdMg": 500,
           "useful": true,
           "missingMetricKeys": []
-        },
-        {
-          "key": "hydroxyproline",
-          "label": "hydroxyproline",
-          "metricKeys": [
-            "hydroxyproline_mg"
-          ],
-          "amountMg": 42,
-          "thresholdMg": 500,
-          "useful": false,
-          "missingMetricKeys": []
         }
       ]
     }
@@ -299,32 +310,32 @@
     "eligible": true,
     "aminoAcidProfileAvailable": true,
     "usefulEssentialAminoAcidGroups": 9,
-    "usefulNonessentialAminoAcidGroups": 8,
+    "usefulNonessentialAminoAcidGroups": 10,
     "aminoAcidThresholdPolicy": "foodranked-amino-acid-thresholds.v1",
     "skippedMetricKeys": []
   },
   "sectionScores": {
     "fats": 80,
     "carbs": null,
-    "proteins": 86.7,
+    "proteins": 70,
     "vitamins": 84,
     "minerals": 0,
     "pros": 66.7,
     "cons": 50
   },
-  "overallScore": 82.4,
-  "overallScoreExact": 82.3515,
-  "baseOverallScore": 61.2,
-  "baseOverallScoreExact": 61.2222,
+  "overallScore": 81.1,
+  "overallScoreExact": 81.0873,
+  "baseOverallScore": 58.4,
+  "baseOverallScoreExact": 58.4444,
   "tier": "S",
-  "summary": "Proteins are carrying this food most, while minerals are holding it back most. It lands in S tier.",
+  "summary": "Vitamins are carrying this food most, while minerals are holding it back most. It lands in S tier.",
   "explanation": {
-    "summary": "Proteins are carrying this food most, while minerals are holding it back most. It lands in S tier.",
-    "whyThisTier": "This food lands in S tier with an overall score of 82.4. Section scores: fats 80, proteins 86.7, vitamins 84, minerals 0, pros 66.7, cons 50.",
+    "summary": "Vitamins are carrying this food most, while minerals are holding it back most. It lands in S tier.",
+    "whyThisTier": "This food lands in S tier with an overall score of 81.1. Section scores: fats 80, proteins 70, vitamins 84, minerals 0, pros 66.7, cons 50.",
     "strongestSection": {
-      "key": "proteins",
-      "label": "Proteins",
-      "score": 86.7
+      "key": "vitamins",
+      "label": "Vitamins",
+      "score": 84
     },
     "weakestSection": {
       "key": "minerals",
@@ -378,7 +389,7 @@
       }
     ],
     "narrationNotes": [
-      "Strongest section: Proteins.",
+      "Strongest section: Vitamins.",
       "Weakest section: Minerals.",
       "Final verdict: S tier."
     ]
@@ -487,6 +498,17 @@
       "score": 80,
       "weight": 2,
       "weightedScore": 160
+    },
+    {
+      "metricKey": "collagen_g",
+      "sectionKey": "proteins",
+      "scoringMode": "arrow_bands",
+      "value": 0.3,
+      "band": "↓↓↓",
+      "polarity": "higher_better",
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
     },
     {
       "metricKey": "essential_amino_acids_score",
@@ -609,12 +631,12 @@
       "metricKey": "nonessential_amino_acids_score",
       "sectionKey": "proteins",
       "scoringMode": "arrow_bands",
-      "value": 8,
-      "band": "↑",
+      "value": 10,
+      "band": "↑↑",
       "polarity": "higher_better",
-      "score": 60,
+      "score": 80,
       "weight": 1,
-      "weightedScore": 60,
+      "weightedScore": 80,
       "denominator": 11,
       "derivedFrom": "amino_acids_mg",
       "aminoAcidThresholdPolicy": "foodranked-amino-acid-thresholds.v1",
@@ -642,8 +664,19 @@
           "missingMetricKeys": []
         },
         {
-          "key": "aspartic_acid_asparagine",
-          "label": "aspartic acid / asparagine proxy",
+          "key": "aspartic_acid",
+          "label": "aspartic acid",
+          "metricKeys": [
+            "aspartic_acid_mg"
+          ],
+          "amountMg": 2025,
+          "thresholdMg": 500,
+          "useful": true,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "asparagine_proxy",
+          "label": "asparagine proxy",
           "metricKeys": [
             "aspartic_acid_mg"
           ],
@@ -664,8 +697,19 @@
           "missingMetricKeys": []
         },
         {
-          "key": "glutamic_acid_glutamine",
-          "label": "glutamic acid / glutamine proxy",
+          "key": "glutamic_acid",
+          "label": "glutamic acid",
+          "metricKeys": [
+            "glutamic_acid_mg"
+          ],
+          "amountMg": 2830,
+          "thresholdMg": 500,
+          "useful": true,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "glutamine_proxy",
+          "label": "glutamine proxy",
           "metricKeys": [
             "glutamic_acid_mg"
           ],
@@ -716,17 +760,6 @@
           "amountMg": 759,
           "thresholdMg": 500,
           "useful": true,
-          "missingMetricKeys": []
-        },
-        {
-          "key": "hydroxyproline",
-          "label": "hydroxyproline",
-          "metricKeys": [
-            "hydroxyproline_mg"
-          ],
-          "amountMg": 42,
-          "thresholdMg": 500,
-          "useful": false,
           "missingMetricKeys": []
         }
       ]

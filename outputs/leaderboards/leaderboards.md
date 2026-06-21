@@ -54,7 +54,7 @@
 
 # grains
 - Amaranth — S (83.2)
-- Oats — S (81.5)
+- Oats — S (82)
 - Teff — S (80.5)
 - Quinoa — S (80.2)
 - Farro — S (80)
@@ -86,8 +86,8 @@
 - Tofu (Firm) — S (80.5)
 - Chickpeas — A (79.3)
 - Lentils — A (72.9)
+- Black Beans — A (65.8)
 - Navy Beans — A (65.8)
-- Black Beans — A (62.6)
 - Lima Beans — A (60.6)
 - Kidney Beans — B (59.5)
 - Pinto Beans — B (59.2)
@@ -106,8 +106,8 @@
 - Baked Beans — D (12.8)
 
 # meats
-- Salmon — S (82.4)
 - Anchovies — S (81.6)
+- Salmon — S (81.1)
 - Sardines — S (80.3)
 - Mackerel — A (77.2)
 - Trout — A (75.5)
@@ -160,7 +160,7 @@
 - Processed Honey — D (13.7)
 
 # nuts
-- Almonds — S (83.4)
+- Almonds — S (83.7)
 - Hazelnuts — S (82.2)
 - Almond Butter (Unsweetened) — S (81.2)
 - Peanuts — S (81.1)

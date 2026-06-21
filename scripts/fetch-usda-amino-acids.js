@@ -29,6 +29,7 @@ const FDC_NUTRIENTS = {
   521: 'hydroxyproline_mg'
 };
 const MIN_AMINO_ACID_ROWS_FOR_PROFILE = 8;
+const HYDROXYPROLINE_TO_COLLAGEN_FRACTION = 0.135;
 
 function readJson(file) {
   return JSON.parse(fs.readFileSync(file, 'utf8'));
@@ -150,6 +151,12 @@ function aminoGroupScore(food, groups) {
   }).length;
 }
 
+function collagenGramsFromHydroxyproline(food) {
+  const hydroxyprolineMg = finiteMetric(food, 'hydroxyproline_mg');
+  if (hydroxyprolineMg === null) return null;
+  return Number((hydroxyprolineMg / 1000 / HYDROXYPROLINE_TO_COLLAGEN_FRACTION).toFixed(1));
+}
+
 function applyDerivedProteinScores(food, hasExactAminoProfile) {
   food.metrics ||= {};
   food.metricProvenance ||= {};
@@ -157,6 +164,11 @@ function applyDerivedProteinScores(food, hasExactAminoProfile) {
   if (hasExactAminoProfile) {
     food.metrics.essential_amino_acids_score = aminoGroupScore(food, aminoAcidThresholds.essentialGroups);
     food.metrics.nonessential_amino_acids_score = aminoGroupScore(food, aminoAcidThresholds.nonessentialGroups);
+    const collagenG = collagenGramsFromHydroxyproline(food);
+    if (collagenG !== null) {
+      food.metrics.collagen_g = collagenG;
+      food.metricProvenance.collagen_g = 'Derived from source-backed USDA hydroxyproline using the standard collagen conversion assumption that hydroxyproline is about 13.5% of collagen by weight.';
+    }
     food.metricProvenance.essential_amino_acids_score = `Derived from source-backed amino_acids_mg using ${path.relative(repoRoot, thresholdPath)}; only amino-acid groups meeting useful amount thresholds count.`;
     food.metricProvenance.nonessential_amino_acids_score = `Derived from source-backed amino_acids_mg using ${path.relative(repoRoot, thresholdPath)}; only amino-acid groups meeting useful amount thresholds count.`;
     food.metricProvenance.amino_acids_mg = 'USDA FoodData Central amino-acid nutrient rows converted from g to mg per 100g.';

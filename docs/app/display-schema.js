@@ -32,11 +32,6 @@
     states: ['inactive', 'active', 'completed'],
     source: 'templates/visual-template.v1.json#progressIndicator'
   };
-  const SECTION_INDICATOR_SPRITE = {
-    normalSize: 10,
-    highlightedSize: 12,
-    gap: 1
-  };
 
   const FOOD_TYPE_ALIASES = {
     vegetable: 'vegetables',
@@ -89,29 +84,23 @@
   function getSectionIndicatorLayout() {
     const xScale = AUTHOR_GRID.width / TEMPLATE_CANVAS.width;
     const yScale = AUTHOR_GRID.height / TEMPLATE_CANVAS.height;
-    const normalSize = SECTION_INDICATOR_SPRITE.normalSize;
-    const stepX = normalSize + SECTION_INDICATOR_SPRITE.gap;
-    const templateRowWidth = TEMPLATE_PROGRESS_INDICATOR.count * TEMPLATE_PROGRESS_INDICATOR.dotSize
-      + (TEMPLATE_PROGRESS_INDICATOR.count - 1) * TEMPLATE_PROGRESS_INDICATOR.gap;
-    const rowCenterX = (TEMPLATE_PROGRESS_INDICATOR.x + (templateRowWidth / 2)) * xScale;
-    const renderedRowWidth = normalSize + ((TEMPLATE_PROGRESS_INDICATOR.count - 1) * stepX);
+    const normalSize = roundGrid(TEMPLATE_PROGRESS_INDICATOR.dotSize * xScale);
     return {
       source: TEMPLATE_PROGRESS_INDICATOR.source,
       count: TEMPLATE_PROGRESS_INDICATOR.count,
-      startX: roundGrid(rowCenterX - (renderedRowWidth / 2)),
+      startX: roundGrid(TEMPLATE_PROGRESS_INDICATOR.x * xScale),
       y: roundGrid(TEMPLATE_PROGRESS_INDICATOR.y * yScale),
-      stepX,
+      stepX: roundGrid((TEMPLATE_PROGRESS_INDICATOR.dotSize + TEMPLATE_PROGRESS_INDICATOR.gap) * xScale),
       normalSize,
-      highlightedSize: SECTION_INDICATOR_SPRITE.highlightedSize
+      highlightedSize: roundGrid(normalSize * 1.2)
     };
   }
 
   window.FOODRANKED_DISPLAY_SCHEMA = {
-    version: '20260622-display-schema-v3',
+    version: '20260622-display-schema-v2',
     templateCanvas: TEMPLATE_CANVAS,
     authorGrid: AUTHOR_GRID,
     progressIndicator: TEMPLATE_PROGRESS_INDICATOR,
-    sectionIndicatorSprite: SECTION_INDICATOR_SPRITE,
     sectionIndicatorLayout: getSectionIndicatorLayout(),
     macroFillRanges: MACRO_FILL_RANGES,
     defaultMacroFillRanges: DEFAULT_MACRO_FILL_RANGES,

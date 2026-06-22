@@ -1593,7 +1593,10 @@
     function isSectionIndicatorSpriteLayer(layer) {
       if (!isSpriteLayer(layer)) return false;
       const fingerprint = `${layer.src || ''} ${layer.label || ''}`.toLowerCase();
-      return fingerprint.includes('/ui/section_indicator/') || /section indicator/.test(fingerprint);
+      if (!fingerprint.includes('/ui/section_indicator/') && !/section indicator/.test(fingerprint)) return false;
+      const id = String(layer.id || '').toLowerCase();
+      const label = String(layer.label || '').toLowerCase();
+      return !label.startsWith('library:') && !id.startsWith('lib_section_indicator_');
     }
 
     function isTextLayer(layer) {
@@ -3764,7 +3767,8 @@
       clampLayerToCanvas(newLayer);
       getCurrentSectionLayers().push(newLayer);
       state.selectedLayerId = newLayer.id;
-      void renderAll();
+      await renderAll();
+      focusCanvasForKeyboard();
     }
 
     function renderSpriteLibrary() {
@@ -3882,6 +3886,15 @@
       layer.y = clampValue(Math.round(Number(layer.y) || 0), 0, Math.max(0, AUTHOR_GRID.height - height));
     }
 
+    function focusCanvasForKeyboard() {
+      if (!els.canvas) return;
+      try {
+        els.canvas.focus({ preventScroll: true });
+      } catch {
+        els.canvas.focus();
+      }
+    }
+
     function mutateSelectedLayer(mutator, { clamp = false } = {}) {
       const layer = getLayerById(state.selectedLayerId);
       if (!layer) return;
@@ -3920,7 +3933,7 @@
       clampLayerToCanvas(duplicate);
       getCurrentSectionLayers().push(duplicate);
       state.selectedLayerId = duplicate.id;
-      void renderAll();
+      void renderAll().then(focusCanvasForKeyboard);
     }
 
     function deleteSelectedLayer() {
@@ -4991,6 +5004,7 @@
         node.addEventListener('click', event => {
           event.stopPropagation();
           state.selectedLayerId = layer.id;
+          focusCanvasForKeyboard();
           renderInspector();
           void renderCanvas();
           renderLayerList();
@@ -5029,6 +5043,7 @@
         button.innerHTML = `<strong>${layer.label}</strong><div class="tiny muted">${layer.kind} · x ${Math.round(layer.x || 0)}, y ${Math.round(layer.y || 0)} · z ${layer.z || 0}</div>`;
         button.addEventListener('click', () => {
           state.selectedLayerId = layer.id;
+          focusCanvasForKeyboard();
           renderInspector();
           void renderCanvas();
           renderLayerList();
@@ -5062,6 +5077,7 @@
         header.innerHTML = `<strong>${escapeHtml(layer.label || layer.id || 'Text layer')}</strong><div class="tiny muted">x ${Math.round(layer.x || 0)}, y ${Math.round(layer.y || 0)} · z ${layer.z || 0}</div>`;
         header.addEventListener('click', () => {
           state.selectedLayerId = layer.id;
+          focusCanvasForKeyboard();
           renderInspector();
           void renderCanvas();
           renderLayerList();
@@ -5197,6 +5213,7 @@
         event.stopPropagation();
         node.setPointerCapture(event.pointerId);
         state.selectedLayerId = layerId;
+        focusCanvasForKeyboard();
         const layer = getLayerById(layerId);
         if (!layer) return;
         const sourceLayer = getSyncedGlobalSourceLayer(layer);
@@ -5571,7 +5588,14 @@ async function renderAll() {
     window.addEventListener('keydown', event => {
       const layer = getLayerById(state.selectedLayerId);
       if (!layer) return;
-      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) return;
+      const activeElement = document.activeElement;
+      const activeTag = activeElement?.tagName;
+      const activeInputType = String(activeElement?.type || '').toLowerCase();
+      const numericInspectorInput = activeTag === 'INPUT'
+        && activeInputType === 'number'
+        && activeElement.closest?.('#inspectorPanel');
+      const isArrowKey = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key);
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(activeTag) && (!numericInspectorInput || !isArrowKey)) return;
       const step = event.shiftKey ? 10 : 1;
       let handled = true;
       if (event.key === 'ArrowLeft') mutateEditableLayer(layer, current => current.x -= step);

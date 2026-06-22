@@ -19,6 +19,20 @@
     protein: [0, 35]
   };
 
+  const TEMPLATE_CANVAS = { width: 1080, height: 1920 };
+  const AUTHOR_GRID = { width: 135, height: 240 };
+  const TEMPLATE_PROGRESS_INDICATOR = {
+    id: 'progress_dots',
+    type: 'dotRow',
+    count: 9,
+    x: 343,
+    y: 1710,
+    dotSize: 26,
+    gap: 20,
+    states: ['inactive', 'active', 'completed'],
+    source: 'templates/visual-template.v1.json#progressIndicator'
+  };
+
   const FOOD_TYPE_ALIASES = {
     vegetable: 'vegetables',
     vegetables: 'vegetables',
@@ -63,12 +77,36 @@
       || [0, 30];
   }
 
+  function roundGrid(value) {
+    return Math.round(value * 1000) / 1000;
+  }
+
+  function getSectionIndicatorLayout() {
+    const xScale = AUTHOR_GRID.width / TEMPLATE_CANVAS.width;
+    const yScale = AUTHOR_GRID.height / TEMPLATE_CANVAS.height;
+    const normalSize = roundGrid(TEMPLATE_PROGRESS_INDICATOR.dotSize * xScale);
+    return {
+      source: TEMPLATE_PROGRESS_INDICATOR.source,
+      count: TEMPLATE_PROGRESS_INDICATOR.count,
+      startX: roundGrid(TEMPLATE_PROGRESS_INDICATOR.x * xScale),
+      y: roundGrid(TEMPLATE_PROGRESS_INDICATOR.y * yScale),
+      stepX: roundGrid((TEMPLATE_PROGRESS_INDICATOR.dotSize + TEMPLATE_PROGRESS_INDICATOR.gap) * xScale),
+      normalSize,
+      highlightedSize: roundGrid(normalSize * 1.2)
+    };
+  }
+
   window.FOODRANKED_DISPLAY_SCHEMA = {
-    version: '20260610-display-schema-v1',
+    version: '20260622-display-schema-v2',
+    templateCanvas: TEMPLATE_CANVAS,
+    authorGrid: AUTHOR_GRID,
+    progressIndicator: TEMPLATE_PROGRESS_INDICATOR,
+    sectionIndicatorLayout: getSectionIndicatorLayout(),
     macroFillRanges: MACRO_FILL_RANGES,
     defaultMacroFillRanges: DEFAULT_MACRO_FILL_RANGES,
     foodTypeAliases: FOOD_TYPE_ALIASES,
     normalizeFoodType,
-    getMacroFillRange
+    getMacroFillRange,
+    getSectionIndicatorLayout
   };
 })();

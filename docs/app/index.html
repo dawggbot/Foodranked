@@ -246,6 +246,15 @@
       white-space: nowrap;
     }
 
+    .layer-node.layout-builder-hidden-arrow {
+      filter: grayscale(.2);
+      opacity: .38;
+    }
+
+    .layer-node.layout-builder-hidden-arrow.selected {
+      opacity: .74;
+    }
+
     .sprite-chip:focus-visible,
     .card-button:focus-visible,
     button:focus-visible,
@@ -1166,8 +1175,8 @@
   </div>
 
   <script src="../data/foods-index.js?v=20260620-macro-display-data-v1"></script>
-  <script src="./display-schema.js?v=20260610-display-schema-v1"></script>
-  <script src="./default-layout.js?v=20260622-section-indicators-v1"></script>
+  <script src="./display-schema.js?v=20260622-display-schema-v2"></script>
+  <script src="./default-layout.js?v=20260622-section-indicators-v2"></script>
   <script>
     const BUILDER_BUILD_ID = '20260620-layout-restore-v1';
     const REPO_LAYOUT_VERSION = BUILDER_BUILD_ID;
@@ -1184,7 +1193,7 @@
     ];
 
     const SECTION_INDICATOR_COUNT = SECTIONS.length;
-    const SECTION_INDICATOR_LAYOUT = { startX: 4, y: 173, stepX: 11, normalSize: 10, highlightedSize: 12 };
+    const SECTION_INDICATOR_LAYOUT = window.FOODRANKED_DISPLAY_SCHEMA?.sectionIndicatorLayout || { startX: 42.875, y: 213.75, stepX: 5.75, normalSize: 3.25, highlightedSize: 3.9 };
 
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     const STORAGE_PREFIX = APP_MODE === 'layout-builder' ? 'foodranked-layout-builder' : 'foodranked-display-builder';
@@ -1603,6 +1612,11 @@
       if (!isSpriteLayer(layer)) return false;
       const fingerprint = `${layer.src || ''} ${layer.label || ''}`.toLowerCase();
       return fingerprint.includes('/arrow_indicators/') || /arrow indicator/.test(fingerprint);
+    }
+
+    function isManualLibraryArrowLayer(layer) {
+      return isArrowIndicatorSpriteLayer(layer)
+        && (!!layer.manualLibraryArrow || String(layer.label || '').startsWith('Library: '));
     }
 
     function isHeaderSpriteLayer(layer) {
@@ -2091,6 +2105,7 @@
       const sectionLayers = getSectionLayersFromLayout(layout, sectionId);
       const candidates = sectionLayers
         .filter(layer => isSpriteLayer(layer) && !isLockedUiSpriteLayer(layer))
+        .filter(layer => !isManualLibraryArrowLayer(layer))
         .filter(layer => macroAssetRole(layer.src) !== 'icon')
         .filter(layer => !isMacroBarFrameOrFillSpriteLayer(layer))
         .filter(layer => (layer.height || 0) <= 40 && (layer.width || 0) <= 130)
@@ -3261,6 +3276,10 @@
       return Array.from({ length: SECTION_INDICATOR_COUNT }, (_, index) => createSectionIndicatorLayer(sectionId, index));
     }
 
+    function sectionIndicatorHighlightOffset() {
+      return Math.max(0, (Number(SECTION_INDICATOR_LAYOUT.highlightedSize) - Number(SECTION_INDICATOR_LAYOUT.normalSize)) / 2);
+    }
+
     function getSectionChip(sectionId) {
       const chip = SECTIONS.find(section => section.id === sectionId)?.chip;
       return chip ? chip.toUpperCase() : '';
@@ -3748,8 +3767,8 @@
         ...microsBarSpriteItems(),
         ['pro bullet', `${ROOT_SPRITE_BASE}/pros_and_cons/pros/pro_bullet_point.png`],
         ['con bullet', `${ROOT_SPRITE_BASE}/pros_and_cons/cons/con_bullet_point.png`],
-        ['green arrow', `${ROOT_SPRITE_BASE}/macros_section/arrow_indicators/green_arrow.png`],
-        ['red arrow', `${ROOT_SPRITE_BASE}/macros_section/arrow_indicators/red_arrow.png`],
+        ['green arrow', `${ROOT_SPRITE_BASE}/macros_section/arrow_indicators/green_arrow.png`, { dropScale: 1 }],
+        ['red arrow', `${ROOT_SPRITE_BASE}/macros_section/arrow_indicators/red_arrow.png`, { dropScale: 1 }],
         ['ranked intro lockup', `${ROOT_SPRITE_BASE}/ui/intro_&_outro/ranked.png`],
         ['food name line', `${ROOT_SPRITE_BASE}/header/header_ui/food_name_line.png`],
         ['per 100g line', `${ROOT_SPRITE_BASE}/header/header_ui/per_100g_line.png`],
@@ -3790,6 +3809,7 @@
       newLayer.naturalWidth = naturalWidth;
       newLayer.naturalHeight = naturalHeight;
       newLayer.aspectRatio = naturalHeight ? naturalWidth / naturalHeight : null;
+      if (isArrowIndicatorSpriteLayer(newLayer)) newLayer.manualLibraryArrow = true;
       clampLayerToCanvas(newLayer);
       getCurrentSectionLayers().push(newLayer);
       state.selectedLayerId = newLayer.id;
@@ -4599,10 +4619,12 @@
 
     function arrowLayersForMacroBinding(sectionLayers, binding) {
       const rowIds = new Set((binding.items || []).map(item => item.id).filter(Boolean));
-      const fromRow = sectionLayers.filter(layer => rowIds.has(layer.id) && isArrowIndicatorSpriteLayer(layer));
+      const fromRow = sectionLayers.filter(layer => rowIds.has(layer.id) && isArrowIndicatorSpriteLayer(layer) && !isManualLibraryArrowLayer(layer));
       if (fromRow.length) return fromRow;
       return sectionLayers.filter(layer => {
-        return isArrowIndicatorSpriteLayer(layer) && Math.abs((Number(layer.y) || 0) - ((Number(binding.y) || 0) - 3)) <= 5;
+        return isArrowIndicatorSpriteLayer(layer)
+          && !isManualLibraryArrowLayer(layer)
+          && Math.abs((Number(layer.y) || 0) - ((Number(binding.y) || 0) - 3)) <= 5;
       });
     }
 
@@ -4663,6 +4685,11 @@
       }
       node.style.removeProperty('transform');
       node.style.removeProperty('transform-origin');
+    }
+
+    function shouldRenderLayerOnCanvas(layer) {
+      if (layer.visible !== false) return true;
+      return APP_MODE === 'layout-builder' && isArrowIndicatorSpriteLayer(layer);
     }
 
     function getMacroFillRange(foodType, sectionId) {
@@ -5050,9 +5077,10 @@
 
       const layers = [...getCurrentSectionLayers()].sort((a,b) => (a.z || 0) - (b.z || 0));
       for (const layer of layers) {
-        if (!layer.visible) continue;
+        if (!shouldRenderLayerOnCanvas(layer)) continue;
         const node = document.createElement(layer.kind === 'sprite' ? 'img' : 'div');
-        node.className = `layer-node ${layer.kind}${layer.kind === 'text' ? ' pixel-text' : ''}${state.selectedLayerId === layer.id ? ' selected' : ''}`;
+        const isHiddenEditableArrow = APP_MODE === 'layout-builder' && layer.visible === false && isArrowIndicatorSpriteLayer(layer);
+        node.className = `layer-node ${layer.kind}${layer.kind === 'text' ? ' pixel-text' : ''}${isHiddenEditableArrow ? ' layout-builder-hidden-arrow' : ''}${state.selectedLayerId === layer.id ? ' selected' : ''}`;
         node.dataset.layerId = layer.id;
         node.style.zIndex = String(layer.z || 0);
         applyLayerRenderStyle(node, layer);
@@ -5061,8 +5089,9 @@
           const isActiveIndicator = isActiveSectionIndicatorLayer(layer, state.layout.selectedSectionId);
           const renderedSrc = renderedSectionIndicatorSrc(layer, state.layout.selectedSectionId, state.fullFood || getSelectedFoodStub());
           const isHighlightedIndicator = isIndicatorLayer && (isActiveIndicator || isHighlightedSectionIndicatorSrc(renderedSrc));
-          node.style.left = `calc(${Number(layer.x || 0) + (isHighlightedIndicator ? -1 : 0)}px * var(--pixel-unit))`;
-          node.style.top = `calc(${Number(layer.y || 0) + (isHighlightedIndicator ? -1 : 0)}px * var(--pixel-unit))`;
+          const indicatorOffset = isHighlightedIndicator ? sectionIndicatorHighlightOffset() : 0;
+          node.style.left = `calc(${Number(layer.x || 0) - indicatorOffset}px * var(--pixel-unit))`;
+          node.style.top = `calc(${Number(layer.y || 0) - indicatorOffset}px * var(--pixel-unit))`;
           if (isHighlightedIndicator) node.style.zIndex = String((Number(layer.z) || 0) + 10);
           node.src = renderedSrc;
           node.alt = layer.label;

@@ -413,7 +413,7 @@ Palette should guide identity, not overwhelm readability.
 ## Core universal assets
 - panel corners / borders
 - section title chips
-- 7 progress dots states
+- 9 progress dot states
 - tier stamp set
 - subtitle backing strip optional
 

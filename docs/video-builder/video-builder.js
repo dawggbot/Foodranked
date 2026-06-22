@@ -7,7 +7,7 @@
   const REPO_LAYOUT_VERSION = BUILDER_BUILD_ID;
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
-  const SECTION_INDICATOR_LAYOUT = { normalSize: 10, highlightedSize: 12 };
+  const SECTION_INDICATOR_LAYOUT = { normalSize: 3.25, highlightedSize: 3.9 };
   const CAPTION_SAFE_X = 7;
   const CAPTION_MAX_LINES = 2;
   const CAPTION_MAX_LINE_CHARS = 18;
@@ -877,6 +877,10 @@
 
   function indicatorPath(food, highlighted = false) {
     return appSpritePath(`ui/section_indicator/${typeSpriteSlug(food?.foodType)}_${highlighted ? 'highlighted_' : ''}section_indicator.png`);
+  }
+
+  function sectionIndicatorHighlightOffset() {
+    return Math.max(0, (SECTION_INDICATOR_LAYOUT.highlightedSize - SECTION_INDICATOR_LAYOUT.normalSize) / 2);
   }
 
   function defaultLayout() {
@@ -2588,8 +2592,9 @@
       layer.height = highlighted ? SECTION_INDICATOR_LAYOUT.highlightedSize : SECTION_INDICATOR_LAYOUT.normalSize;
       layer.z = Math.max(Number(layer.z) || 0, highlighted ? 36 : 25);
       if (highlighted) {
-        layer.x = (Number(layer.x) || 0) - 1;
-        layer.y = (Number(layer.y) || 0) - 1;
+        const offset = sectionIndicatorHighlightOffset();
+        layer.x = (Number(layer.x) || 0) - offset;
+        layer.y = (Number(layer.y) || 0) - offset;
       }
     });
     return layers;

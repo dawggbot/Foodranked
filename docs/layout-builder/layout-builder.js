@@ -422,12 +422,7 @@
 
     library.addEventListener('click', event => {
       const chip = event.target.closest('.sprite-chip');
-      const suppressAt = Number(chip?.dataset.layoutBuilderSuppressClick || 0);
-      if (!suppressAt) return;
-      if (Date.now() - suppressAt > 1200) {
-        delete chip.dataset.layoutBuilderSuppressClick;
-        return;
-      }
+      if (!chip?.dataset.layoutBuilderSuppressClick) return;
       event.preventDefault();
       event.stopImmediatePropagation();
       delete chip.dataset.layoutBuilderSuppressClick;
@@ -440,10 +435,6 @@
       const item = spriteItemFromChip(doc, chip);
       if (!item) return;
 
-      const win = doc.defaultView || getFrameWindow();
-      const originalChipDraggable = chip.draggable;
-      const imageDragState = Array.from(chip.querySelectorAll('img'))
-        .map(image => [image, image.draggable]);
       chip.draggable = false;
       chip.querySelectorAll('img').forEach(image => image.draggable = false);
 
@@ -456,11 +447,6 @@
         doc.removeEventListener('pointermove', handleMove, true);
         doc.removeEventListener('pointerup', handleUp, true);
         doc.removeEventListener('pointercancel', handleCancel, true);
-        win?.removeEventListener('blur', handleCancel, true);
-        chip.draggable = originalChipDraggable;
-        imageDragState.forEach(([image, draggable]) => {
-          image.draggable = draggable;
-        });
         canvas.classList.remove('drop-target');
         ghost?.remove();
       };
@@ -471,12 +457,7 @@
 
         if (!dragging) {
           dragging = true;
-          chip.dataset.layoutBuilderSuppressClick = String(Date.now());
-          window.setTimeout(() => {
-            if (Number(chip.dataset.layoutBuilderSuppressClick || 0) && Date.now() - Number(chip.dataset.layoutBuilderSuppressClick) > 1200) {
-              delete chip.dataset.layoutBuilderSuppressClick;
-            }
-          }, 1400);
+          chip.dataset.layoutBuilderSuppressClick = 'true';
           ghost = createSpriteDragGhost(doc, item, moveEvent.clientX, moveEvent.clientY);
         }
 
@@ -504,7 +485,6 @@
       doc.addEventListener('pointermove', handleMove, true);
       doc.addEventListener('pointerup', handleUp, true);
       doc.addEventListener('pointercancel', handleCancel, true);
-      win?.addEventListener('blur', handleCancel, true);
     }, true);
   }
 
@@ -855,10 +835,8 @@
     ensureLayerOrderCard(doc);
     ensureRotateCard(doc);
     ensureSavedLayoutControls(doc);
-    bindKeyboardNudging(doc);
     bindSelectionFocusExit(doc);
     bindLayerListImmediateSync(doc);
-    bindSpriteLibraryPointerDrop(doc);
     updateLayerLabels(doc);
     updateLayerOrderCard(doc);
     updateRotateCard(doc);

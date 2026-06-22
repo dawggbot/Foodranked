@@ -7,7 +7,8 @@
   const REPO_LAYOUT_VERSION = BUILDER_BUILD_ID;
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
-  const SECTION_INDICATOR_LAYOUT = { normalSize: 3.25, highlightedSize: 3.9 };
+  const SECTION_INDICATOR_LAYOUT = { normalSize: 10, highlightedSize: 12 };
+  const ARROW_INDICATOR_ORIGINAL_SIZE = { width: 7, height: 14 };
   const CAPTION_SAFE_X = 7;
   const CAPTION_MAX_LINES = 2;
   const CAPTION_MAX_LINE_CHARS = 18;
@@ -883,6 +884,16 @@
     return Math.max(0, (SECTION_INDICATOR_LAYOUT.highlightedSize - SECTION_INDICATOR_LAYOUT.normalSize) / 2);
   }
 
+  function ensureArrowIndicatorOriginalSize(layer) {
+    if (!isMacroArrow(layer)) return;
+    layer.width = ARROW_INDICATOR_ORIGINAL_SIZE.width;
+    layer.height = ARROW_INDICATOR_ORIGINAL_SIZE.height;
+    layer.naturalWidth = ARROW_INDICATOR_ORIGINAL_SIZE.width;
+    layer.naturalHeight = ARROW_INDICATOR_ORIGINAL_SIZE.height;
+    layer.aspectRatio = ARROW_INDICATOR_ORIGINAL_SIZE.width / ARROW_INDICATOR_ORIGINAL_SIZE.height;
+    layer.preserveAspect = true;
+  }
+
   function defaultLayout() {
     return clone(window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT || {
       canvas: { width: AUTHOR_GRID.width, height: AUTHOR_GRID.height, background: '#d6d6d6' },
@@ -960,6 +971,7 @@
       if (!isSpriteLayer(layer)) return;
       layer.src = canonicalSpritePath(layer.src);
       if (layer.fallbackSrc) layer.fallbackSrc = canonicalSpritePath(layer.fallbackSrc);
+      ensureArrowIndicatorOriginalSize(layer);
     });
     return layout.sections[sectionId].layers;
   }
@@ -1780,6 +1792,7 @@
           layer.label = `${presentation.color === 'red' ? 'Red' : 'Green'} ${presentation.flipY ? 'down' : 'up'} arrow indicator`;
           layer.flipY = !!presentation.flipY;
           layer.visible = visibleIndexes.has(index);
+          ensureArrowIndicatorOriginalSize(layer);
         });
       });
     }
@@ -1993,7 +2006,7 @@
     if (!deletedIds.size) return;
     for (const section of SECTIONS) {
       layout.sections[section.id].layers = getSectionLayers(layout, section.id)
-        .filter(layer => !layer.id || !deletedIds.has(String(layer.id)));
+        .filter(layer => isSectionIndicator(layer) || !layer.id || !deletedIds.has(String(layer.id)));
     }
   }
 

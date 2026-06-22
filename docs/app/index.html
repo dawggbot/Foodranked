@@ -193,6 +193,10 @@
       color: var(--ink);
     }
 
+    .sprite-chip.dragging {
+      cursor: grabbing;
+    }
+
     .sprite-chip img {
       width: 100%;
       height: 56px;
@@ -208,6 +212,40 @@
     }
 
     .sprite-chip .tiny { color: var(--muted); }
+
+    .sprite-drag-ghost {
+      align-items: center;
+      background: rgba(18, 22, 31, .92);
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 8px;
+      box-shadow: 0 10px 26px rgba(0,0,0,.3);
+      color: var(--ink);
+      display: inline-flex;
+      gap: 8px;
+      left: 0;
+      max-width: 180px;
+      padding: 7px 9px;
+      pointer-events: none;
+      position: fixed;
+      top: 0;
+      z-index: 9999;
+    }
+
+    .sprite-drag-ghost img {
+      height: 32px;
+      image-rendering: pixelated;
+      object-fit: contain;
+      width: 32px;
+    }
+
+    .sprite-drag-ghost span {
+      font-size: 11px;
+      line-height: 1.15;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
     .sprite-chip:focus-visible,
     .card-button:focus-visible,
     button:focus-visible,
@@ -1129,7 +1167,7 @@
 
   <script src="../data/foods-index.js?v=20260620-macro-display-data-v1"></script>
   <script src="./display-schema.js?v=20260610-display-schema-v1"></script>
-  <script src="./default-layout.js?v=20260612-uploaded-protein-fill-v6"></script>
+  <script src="./default-layout.js?v=20260622-section-indicators-v1"></script>
   <script>
     const BUILDER_BUILD_ID = '20260620-layout-restore-v1';
     const REPO_LAYOUT_VERSION = BUILDER_BUILD_ID;
@@ -1148,9 +1186,11 @@
     const SECTION_INDICATOR_COUNT = SECTIONS.length;
     const SECTION_INDICATOR_LAYOUT = { startX: 4, y: 173, stepX: 11, normalSize: 10, highlightedSize: 12 };
 
-    const LOCAL_STORAGE_KEY = 'foodranked-display-builder-v4';
-    const FOOD_LAYOUTS_STORAGE_KEY = 'foodranked-display-builder-food-layouts-v1';
-    const SAVED_SPRITE_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
+    const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
+    const STORAGE_PREFIX = APP_MODE === 'layout-builder' ? 'foodranked-layout-builder' : 'foodranked-display-builder';
+    const LOCAL_STORAGE_KEY = `${STORAGE_PREFIX}-v4`;
+    const FOOD_LAYOUTS_STORAGE_KEY = `${STORAGE_PREFIX}-food-layouts-v1`;
+    const SAVED_SPRITE_LAYOUTS_KEY = `${STORAGE_PREFIX}-sprite-layouts-v1`;
     const MACRO_SECTION_LAYOUT_SYNC_KEY = 'macroSectionLayoutFromFatsV5';
     const MACRO_BAR_PLACEMENT_SOURCE_FOOD_ID = 'bacon';
     const MACRO_BAR_PLACEMENT_SOURCE_SECTION_ID = 'fats';
@@ -1590,10 +1630,14 @@
       return String(layer.src).toLowerCase().includes('/sprites/ui/');
     }
 
-    function isSectionIndicatorSpriteLayer(layer) {
+    function isSectionIndicatorAssetLayer(layer) {
       if (!isSpriteLayer(layer)) return false;
       const fingerprint = `${layer.src || ''} ${layer.label || ''}`.toLowerCase();
       return fingerprint.includes('/ui/section_indicator/') || /section indicator/.test(fingerprint);
+    }
+
+    function isSectionIndicatorSpriteLayer(layer) {
+      return isSectionIndicatorAssetLayer(layer);
     }
 
     function isTextLayer(layer) {
@@ -3392,14 +3436,13 @@
     }
 
     function sectionIndicatorLayersForSection(layout, sectionId) {
-      const indicators = getSectionLayersFromLayout(layout, sectionId).filter(isSectionIndicatorSpriteLayer);
-      const hasManualIndicators = indicators.some(layer => isManualSectionIndicatorLayer(layer, sectionId));
-      if (hasManualIndicators) return indicators.sort(compareSectionIndicatorsByPosition);
-      return indicators.sort((a, b) => sectionIndicatorLayerIndex(a) - sectionIndicatorLayerIndex(b));
+      return getSectionLayersFromLayout(layout, sectionId)
+        .filter(layer => isManagedSectionIndicatorLayer(layer, sectionId))
+        .sort((a, b) => sectionIndicatorLayerIndex(a) - sectionIndicatorLayerIndex(b));
     }
 
     function sectionIndicatorLayersInSectionOrder(layout, sectionId) {
-      return getSectionLayersFromLayout(layout, sectionId).filter(isSectionIndicatorSpriteLayer);
+      return sectionIndicatorLayersForSection(layout, sectionId);
     }
 
     function sectionIndicatorLayerIndex(layer) {
@@ -3548,24 +3591,12 @@
 
     function ensureSectionIndicatorLayers(layout) {
       for (const section of SECTIONS) {
-        pruneSectionIndicatorLayers(layout, section.id);
         const sectionLayers = getSectionLayersFromLayout(layout, section.id);
-        let indicators = sectionIndicatorLayersInSectionOrder(layout, section.id);
-        while (indicators.length < SECTION_INDICATOR_COUNT) {
-          const layer = createRecoveredSectionIndicatorLayer(section.id, indicators.length, indicators, sectionLayers);
-          sectionLayers.push(layer);
-          indicators = sectionIndicatorLayersInSectionOrder(layout, section.id);
-        }
-        indicators = sectionIndicatorLayersForSection(layout, section.id);
-        if (shouldResetSectionIndicatorPositions(indicators)) {
-          applyDefaultSectionIndicatorLayerPositions(indicators);
-        } else {
-          indicators.forEach(layer => {
-            layer.width = SECTION_INDICATOR_LAYOUT.normalSize;
-            layer.height = SECTION_INDICATOR_LAYOUT.normalSize;
-            layer.z = layer.z || 25;
-          });
-        }
+        const nonIndicators = sectionLayers.filter(layer => !isSectionIndicatorAssetLayer(layer));
+        layout.sections[section.id].layers = [
+          ...createSectionIndicatorLayers(section.id),
+          ...nonIndicators
+        ];
       }
     }
 
@@ -3690,8 +3721,6 @@
       const slug = typeSpriteSlug(selectedFood?.foodType);
       const sectionSpecific = [
         [`section separator ${slug.replace('_', ' ')}`, `./sprites/ui/section_separator/${slug}_section_separator.png`],
-        [`section indicator ${slug.replace('_', ' ')}`, `./sprites/ui/section_indicator/${slug}_section_indicator.png`],
-        [`section indicator ${slug.replace('_', ' ')} highlighted`, `./sprites/ui/section_indicator/${slug}_highlighted_section_indicator.png`],
         [`food image plate ${slug.replace('_', ' ')}`, `${ROOT_SPRITE_BASE}/header/food_plate/${slug}_food_plate.png`],
         [`food type ${slug.replace('_', ' ')}`, `${ROOT_SPRITE_BASE}/header/food_type_plate/${slug}_type_plate.png`],
         [`calorie bubble ${slug.replace('_', ' ')}`, `${ROOT_SPRITE_BASE}/header/calorie_bubble/${slug}_calorie_bubble.png`]
@@ -3767,6 +3796,112 @@
       void renderAll();
     }
 
+    function setSpriteDragGhostPosition(ghost, x, y) {
+      if (!ghost) return;
+      ghost.style.transform = `translate(${Math.round(x + 12)}px, ${Math.round(y + 12)}px)`;
+    }
+
+    function createSpriteDragGhost(item, startX, startY) {
+      const ghost = document.createElement('div');
+      ghost.className = 'sprite-drag-ghost';
+      const image = document.createElement('img');
+      image.src = item.src;
+      image.alt = '';
+      const label = document.createElement('span');
+      label.textContent = item.label;
+      ghost.append(image, label);
+      document.body.appendChild(ghost);
+      setSpriteDragGhostPosition(ghost, startX, startY);
+      return ghost;
+    }
+
+    function setSpriteClickSuppress(button) {
+      button.dataset.spriteSuppressClickUntil = String(Date.now() + 500);
+    }
+
+    function shouldSuppressSpriteClick(button) {
+      const until = Number(button.dataset.spriteSuppressClickUntil || 0);
+      if (!until) return false;
+      if (Date.now() <= until) {
+        delete button.dataset.spriteSuppressClickUntil;
+        return true;
+      }
+      delete button.dataset.spriteSuppressClickUntil;
+      return false;
+    }
+
+    function bindSpriteChipPointerDrag(button, item) {
+      button.addEventListener('pointerdown', event => {
+        if (event.button !== 0) return;
+
+        const startX = event.clientX;
+        const startY = event.clientY;
+        const originalButtonDraggable = button.draggable;
+        const imageDraggableStates = Array.from(button.querySelectorAll('img')).map(image => [image, image.draggable]);
+        let dragging = false;
+        let ghost = null;
+
+        button.draggable = false;
+        imageDraggableStates.forEach(([image]) => {
+          image.draggable = false;
+        });
+
+        const cleanup = () => {
+          document.removeEventListener('pointermove', handleMove, true);
+          document.removeEventListener('pointerup', handleUp, true);
+          document.removeEventListener('pointercancel', handleCancel, true);
+          window.removeEventListener('blur', handleCancel, true);
+          els.canvas.classList.remove('drop-target');
+          button.classList.remove('dragging');
+          button.draggable = originalButtonDraggable;
+          imageDraggableStates.forEach(([image, draggable]) => {
+            image.draggable = draggable;
+          });
+          ghost?.remove();
+        };
+
+        const handleMove = moveEvent => {
+          const distance = Math.hypot(moveEvent.clientX - startX, moveEvent.clientY - startY);
+          if (!dragging && distance < 6) return;
+
+          if (!dragging) {
+            dragging = true;
+            setSpriteClickSuppress(button);
+            button.classList.add('dragging');
+            ghost = createSpriteDragGhost(item, moveEvent.clientX, moveEvent.clientY);
+          }
+
+          moveEvent.preventDefault();
+          setSpriteDragGhostPosition(ghost, moveEvent.clientX, moveEvent.clientY);
+          const dropTarget = document.elementFromPoint(moveEvent.clientX, moveEvent.clientY)?.closest('#canvas');
+          els.canvas.classList.toggle('drop-target', dropTarget === els.canvas);
+        };
+
+        const handleUp = upEvent => {
+          cleanup();
+          if (!dragging) return;
+
+          upEvent.preventDefault();
+          upEvent.stopPropagation();
+          setSpriteClickSuppress(button);
+          const dropTarget = document.elementFromPoint(upEvent.clientX, upEvent.clientY)?.closest('#canvas');
+          if (dropTarget === els.canvas) {
+            addLibrarySpriteToCanvas(item, upEvent.clientX, upEvent.clientY);
+          }
+        };
+
+        const handleCancel = () => {
+          cleanup();
+          if (dragging) setSpriteClickSuppress(button);
+        };
+
+        document.addEventListener('pointermove', handleMove, true);
+        document.addEventListener('pointerup', handleUp, true);
+        document.addEventListener('pointercancel', handleCancel, true);
+        window.addEventListener('blur', handleCancel, true);
+      }, true);
+    }
+
     function renderSpriteLibrary() {
       els.spriteLibrary.innerHTML = '';
       for (const item of spriteLibraryItems()) {
@@ -3777,6 +3912,7 @@
         const img = document.createElement('img');
         img.src = item.src;
         img.alt = item.label;
+        img.draggable = false;
         img.onerror = () => {
           recordSpriteFailure(img.currentSrc || img.src || item.src, '', item.label);
           img.onerror = null;
@@ -3799,9 +3935,11 @@
           event.dataTransfer.effectAllowed = 'copy';
         });
         button.addEventListener('click', () => {
+          if (shouldSuppressSpriteClick(button)) return;
           const rect = els.canvas.getBoundingClientRect();
           addLibrarySpriteToCanvas(item, rect.left + rect.width / 2, rect.top + rect.height / 2);
         });
+        bindSpriteChipPointerDrag(button, item);
         els.spriteLibrary.appendChild(button);
       }
     }

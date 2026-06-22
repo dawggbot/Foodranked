@@ -6,7 +6,8 @@
   const ROTATE_CARD_ID = 'layoutBuilderRotateCard';
   const SAVED_LAYOUT_NAME_ID = 'layoutBuilderSavedLayoutName';
   const SAVED_LAYOUT_MESSAGE_ID = 'layoutBuilderSavedLayoutMessage';
-  const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
+  const LAYOUT_STORAGE_KEY = 'foodranked-layout-builder-v4';
+  const SAVED_LAYOUTS_KEY = 'foodranked-layout-builder-sprite-layouts-v1';
   let selectedSavedLayoutId = '';
   let syncTimer = null;
   let syncFrame = 0;
@@ -54,7 +55,7 @@
       } catch {}
     }
     try {
-      const raw = getFrameWindow()?.localStorage.getItem('foodranked-display-builder-v4');
+      const raw = getFrameWindow()?.localStorage.getItem(LAYOUT_STORAGE_KEY);
       return raw ? JSON.parse(raw) : null;
     } catch {
       return null;

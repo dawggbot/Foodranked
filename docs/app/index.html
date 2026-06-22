@@ -3789,7 +3789,10 @@
       const metadata = await loadSpriteMetadata(itemSrc);
       const naturalWidth = metadata?.width || 18;
       const naturalHeight = metadata?.height || 18;
-      const defaultScale = Number.isFinite(item.dropScale) ? item.dropScale : 0.75;
+      const itemFingerprint = `${itemSrc || ''} ${itemLabel || ''}`.toLowerCase();
+      const useLayoutBuilderArrowScale = APP_MODE === 'layout-builder'
+        && (itemFingerprint.includes('/arrow_indicators/') || /arrow indicator|green arrow|red arrow/.test(itemFingerprint));
+      const defaultScale = useLayoutBuilderArrowScale ? 0.75 : Number.isFinite(item.dropScale) ? item.dropScale : 0.75;
       const width = Math.max(1, Math.round(naturalWidth * defaultScale));
       const height = Math.max(1, Math.round(naturalHeight * defaultScale));
       const pointerX = Math.round((clientX - rect.left) / unit);

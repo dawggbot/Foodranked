@@ -1180,7 +1180,7 @@
   <script>
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     const BUILDER_BUILD_ID = APP_MODE === 'layout-builder'
-      ? '20260624-layout-text-recovery-v1'
+      ? '20260624-layout-header-edit-v1'
       : '20260624-section-indicators-disabled-v1';
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
     const SECTIONS = [
@@ -4511,6 +4511,7 @@
       for (const section of SECTIONS) {
         for (const layer of getSectionLayersFromLayout(layout, section.id)) {
           if (!isTextLayer(layer) || !(layer.id in values)) continue;
+          if (APP_MODE === 'layout-builder' && layer.layoutBuilderManualText) continue;
           layer.text = values[layer.id];
         }
       }
@@ -5290,6 +5291,12 @@
       return Math.max(1, String(value || '').split(/\r\n|\r|\n/).length);
     }
 
+    function markTextLayerManual(layer) {
+      if (!isTextLayer(layer)) return;
+      layer.manualText = true;
+      if (APP_MODE === 'layout-builder') layer.layoutBuilderManualText = true;
+    }
+
     function defaultTextLayerBoxHeight(layer) {
       const fontSize = Number(layer?.fontSize) || 6;
       return Math.max(1, Math.ceil(fontSize * TEXT_LAYER_LINE_HEIGHT * textLayerLineCount(layer?.text)));
@@ -5337,7 +5344,7 @@
       if (!current) return;
       layoutBuilderTextBoxHeight(current);
       current.text = textFromEditableNode(node);
-      current.manualText = true;
+      markTextLayerManual(current);
       state.selectedLayerId = current.id;
       if (document.activeElement !== els.propText) els.propText.value = current.text || '';
       updateJsonOutput();
@@ -5381,7 +5388,7 @@
           const current = getCurrentSectionLayers().find(item => item.id === layer.id);
           if (!current) return;
           current.text = textarea.value;
-          current.manualText = true;
+          markTextLayerManual(current);
           state.selectedLayerId = current.id;
           updateLiveLayerNode(current);
           saveLayout({ normalize: false });
@@ -5851,7 +5858,7 @@ async function renderAll() {
     });
     els.propText.addEventListener('input', () => updateSelectedWithoutInspectorReset(layer => {
       layer.text = els.propText.value;
-      layer.manualText = true;
+      markTextLayerManual(layer);
     }));
     els.propFontSize.addEventListener('input', () => updateSelectedWithoutInspectorReset(layer => layer.fontSize = Number(els.propFontSize.value) || 6));
     els.propWidth.addEventListener('input', () => updateSelectedWithoutInspectorReset(layer => layer.width = els.propWidth.value ? Number(els.propWidth.value) : undefined));

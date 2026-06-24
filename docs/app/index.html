@@ -1180,7 +1180,7 @@
   <script>
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     const BUILDER_BUILD_ID = APP_MODE === 'layout-builder'
-      ? '20260624-layout-fats-template-v1'
+      ? '20260624-layout-no-submacro-colors-v1'
       : '20260624-section-indicators-disabled-v1';
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
     const SECTIONS = [
@@ -4753,6 +4753,10 @@
     }
 
     function syncMacroSubmetricValueColors(layout, food = getSelectedFoodStub()) {
+      if (APP_MODE === 'layout-builder') {
+        clearMacroSubmetricValueColors(layout);
+        return;
+      }
       const scoringFood = mergedFoodForScoring(food);
       for (const sectionId of ['fats', 'carbs', 'protein']) {
         const sectionLayers = getSectionLayersFromLayout(layout, sectionId);
@@ -4762,6 +4766,19 @@
           if (!valueLayer) return;
           valueLayer.color = arrowPresentationForSpec(scoringFood, sectionId, binding.spec).textColor;
         });
+      }
+    }
+
+    function isMacroSubmetricValueLayer(layer) {
+      if (!isTextLayer(layer)) return false;
+      return /^(fats|carbs|protein)_submacro_value_\d+$/i.test(String(layer.id || ''));
+    }
+
+    function clearMacroSubmetricValueColors(layout) {
+      for (const sectionId of ['fats', 'carbs', 'protein']) {
+        for (const layer of getSectionLayersFromLayout(layout, sectionId)) {
+          if (isMacroSubmetricValueLayer(layer)) delete layer.color;
+        }
       }
     }
 
@@ -4781,7 +4798,7 @@
 
     function applyLayerRenderStyle(node, layer) {
       if (layer.kind === 'text') {
-        node.style.color = layer.color || '';
+        node.style.color = APP_MODE === 'layout-builder' && isMacroSubmetricValueLayer(layer) ? '' : (layer.color || '');
         return;
       }
       const transform = spriteTransform(layer);
@@ -5052,7 +5069,8 @@
             valueLayer.label = `${getSectionChip(sectionId) || sectionId} score card value ${index + 1}`;
             valueLayer.align = valueLayer.align || 'right';
             valueLayer.fontSize = valueLayer.fontSize || 4;
-            valueLayer.color = arrowPresentationForSpec(mergedFoodForScoring(food || getSelectedFoodStub()), sectionId, spec).textColor;
+            if (APP_MODE === 'layout-builder') delete valueLayer.color;
+            else valueLayer.color = arrowPresentationForSpec(mergedFoodForScoring(food || getSelectedFoodStub()), sectionId, spec).textColor;
           }
         });
       }

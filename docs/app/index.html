@@ -1180,7 +1180,7 @@
   <script>
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     const BUILDER_BUILD_ID = APP_MODE === 'layout-builder'
-      ? '20260624-layout-no-submacro-colors-v1'
+      ? '20260624-layout-arrow-library-v1'
       : '20260624-section-indicators-disabled-v1';
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
     const SECTIONS = [
@@ -1226,6 +1226,7 @@
     const TEXT_LAYER_LINE_HEIGHT = 1.15;
     const TEXT_LAYER_CLIP_BLEED = 2;
     const LAYOUT_BUILDER_TEXT_RECOVERY_META_KEY = 'layoutBuilderTextRecoveryV1';
+    const LAYOUT_BUILDER_MACRO_TEXTBOX_REPAIR_META_KEY = 'layoutBuilderMacroTextboxRepairV1';
     const FOOD_JSON_CACHE = new Map();
     const BATCH_RESULTS_CACHE = new Map();
     const SPRITE_EXISTENCE_CACHE = new Map();
@@ -3068,6 +3069,42 @@
       layout.meta[LAYOUT_BUILDER_TEXT_RECOVERY_META_KEY] = true;
     }
 
+    function repairLayoutBuilderMacroTextBoxes(layout) {
+      if (APP_MODE !== 'layout-builder') return;
+      layout.meta = layout.meta || {};
+      if (layout.meta[LAYOUT_BUILDER_MACRO_TEXTBOX_REPAIR_META_KEY]) return;
+
+      ensureMacroSubmetricTextLayers(layout, 'carbs');
+      ensureMacroSubmetricTextLayers(layout, 'protein');
+
+      const sourceLayer = getSectionLayersFromLayout(layout, 'fats')
+        .find(layer => layer.id === 'fats_submacro_value_2');
+      const sourceWidth = Number(sourceLayer?.width);
+      const repairedIds = [];
+
+      for (const sectionId of ['carbs', 'protein']) {
+        const layer = getSectionLayersFromLayout(layout, sectionId)
+          .find(item => item.id === `${sectionId}_submacro_value_2`);
+        if (!layer) continue;
+        repairedIds.push(layer.id);
+        const width = Number(layer.width);
+        if (!Number.isFinite(width) || width < 4) {
+          layer.width = Number.isFinite(sourceWidth) && sourceWidth >= 4 ? sourceWidth : 22;
+        }
+        const textBoxHeight = Number(layer.textBoxHeight);
+        const minimumHeight = defaultTextLayerBoxHeight(layer);
+        if (Number.isFinite(textBoxHeight) && textBoxHeight < minimumHeight) {
+          delete layer.textBoxHeight;
+        }
+        if (!layer.align) layer.align = 'right';
+        if (!layer.fontSize) layer.fontSize = 4;
+        delete layer.color;
+      }
+
+      restoreDeletedLayerIds(layout, repairedIds);
+      layout.meta[LAYOUT_BUILDER_MACRO_TEXTBOX_REPAIR_META_KEY] = true;
+    }
+
     function normalizeLayout(layout) {
       const normalized = layout || structuredClone(DEFAULT_LAYOUT);
       normalized.meta = normalized.meta || {};
@@ -3108,6 +3145,7 @@
       syncLockedGlobalLayersFromOutro(normalized);
       syncHeaderLayoutFromIntro(normalized);
       recoverLayoutBuilderDeletedTextLayers(normalized);
+      repairLayoutBuilderMacroTextBoxes(normalized);
       filterDeletedLayers(normalized);
       relabelLayoutLayers(normalized);
       return normalized;
@@ -3853,6 +3891,12 @@
         [`section indicator ${slug.replace('_', ' ')}`, `${ROOT_SPRITE_BASE}/ui/section_indicator/${slug}_section_indicator.png`, { dropScale: SPRITE_LIBRARY_DEFAULT_DROP_SCALE }],
         [`highlighted section indicator ${slug.replace('_', ' ')}`, `${ROOT_SPRITE_BASE}/ui/section_indicator/${slug}_highlighted_section_indicator.png`, { dropScale: SPRITE_LIBRARY_DEFAULT_DROP_SCALE }]
       ] : [];
+      const layoutBuilderArrowItems = APP_MODE === 'layout-builder' ? [
+        ['green 2-arrow indicator', `${ROOT_SPRITE_BASE}/macros_section/arrow_indicators/green_arrow_2.png`],
+        ['green 3-arrow indicator', `${ROOT_SPRITE_BASE}/macros_section/arrow_indicators/green_arrow_3.png`],
+        ['red 2-arrow indicator', `${ROOT_SPRITE_BASE}/macros_section/arrow_indicators/red_arrow_2.png`],
+        ['red 3-arrow indicator', `${ROOT_SPRITE_BASE}/macros_section/arrow_indicators/red_arrow_3.png`]
+      ] : [];
       const foodCandidates = selectedFood ? [
         ['selected food image', foodSpriteCandidates(selectedFood).primary]
       ] : [];
@@ -3879,6 +3923,7 @@
         ['con bullet', `${ROOT_SPRITE_BASE}/pros_and_cons/cons/con_bullet_point.png`],
         ['green arrow', `${ROOT_SPRITE_BASE}/macros_section/arrow_indicators/green_arrow.png`],
         ['red arrow', `${ROOT_SPRITE_BASE}/macros_section/arrow_indicators/red_arrow.png`],
+        ...layoutBuilderArrowItems,
         ['ranked intro lockup', `${ROOT_SPRITE_BASE}/ui/intro_&_outro/ranked.png`],
         ['food name line', `${ROOT_SPRITE_BASE}/header/header_ui/food_name_line.png`],
         ['per 100g line', `${ROOT_SPRITE_BASE}/header/header_ui/per_100g_line.png`],

@@ -142,12 +142,35 @@
     return Number.isFinite(width) && width > 0 ? Math.min(fallbackWidth, width) : fallbackWidth;
   }
 
+  function clearLayoutBuilderDisplayFit(shell) {
+    shell.style.removeProperty('width');
+    shell.style.removeProperty('height');
+    shell.style.removeProperty('aspect-ratio');
+    shell.style.removeProperty('border');
+    shell.style.removeProperty('border-radius');
+    shell.style.removeProperty('box-shadow');
+    shell.style.removeProperty('background');
+    shell.style.removeProperty('padding');
+  }
+
+  function fitDisplayToCanvas(shell, canvasWidth, canvasHeight) {
+    shell.style.width = `${canvasWidth.toFixed(3)}px`;
+    shell.style.height = `${canvasHeight.toFixed(3)}px`;
+    shell.style.aspectRatio = 'auto';
+    shell.style.border = '0';
+    shell.style.borderRadius = '0';
+    shell.style.boxShadow = 'none';
+    shell.style.background = 'transparent';
+    shell.style.padding = '0';
+  }
+
   function syncCanvasToVisibleDisplay(doc) {
     const shell = doc.querySelector('.phone-shell');
     const canvas = doc.getElementById('canvas');
     if (!shell || !canvas) return;
 
     const win = doc.defaultView || window;
+    clearLayoutBuilderDisplayFit(shell);
     const shellRect = shell.getBoundingClientRect();
     if (!shellRect.width || !shellRect.height) return;
 
@@ -166,6 +189,7 @@
     canvas.style.width = `${canvasWidth.toFixed(3)}px`;
     canvas.style.height = `${canvasHeight.toFixed(3)}px`;
     canvas.style.setProperty('--pixel-unit', String(pixelUnit));
+    fitDisplayToCanvas(shell, canvasWidth, canvasHeight);
   }
 
   function filenameFromPath(path) {

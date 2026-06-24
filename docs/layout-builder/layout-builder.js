@@ -91,6 +91,49 @@
     });
   }
 
+  function cssPixels(value) {
+    const parsed = Number.parseFloat(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+
+  function authorGrid() {
+    const schemaGrid = getFrameWindow()?.FOODRANKED_DISPLAY_SCHEMA?.authorGrid;
+    const width = Number(schemaGrid?.width);
+    const height = Number(schemaGrid?.height);
+    return {
+      width: Number.isFinite(width) && width > 0 ? width : 135,
+      height: Number.isFinite(height) && height > 0 ? height : 240
+    };
+  }
+
+  function syncCanvasToVisibleDisplay(doc) {
+    const shell = doc.querySelector('.phone-shell');
+    const canvas = doc.getElementById('canvas');
+    if (!shell || !canvas) return;
+
+    const win = doc.defaultView || window;
+    const shellRect = shell.getBoundingClientRect();
+    if (!shellRect.width || !shellRect.height) return;
+
+    const shellStyle = win.getComputedStyle(shell);
+    const displayWidth = shellRect.width
+      - cssPixels(shellStyle.borderLeftWidth)
+      - cssPixels(shellStyle.borderRightWidth)
+      - cssPixels(shellStyle.paddingLeft)
+      - cssPixels(shellStyle.paddingRight);
+    const displayHeight = shellRect.height
+      - cssPixels(shellStyle.borderTopWidth)
+      - cssPixels(shellStyle.borderBottomWidth)
+      - cssPixels(shellStyle.paddingTop)
+      - cssPixels(shellStyle.paddingBottom);
+    const grid = authorGrid();
+    const pixelUnit = Math.max(0.1, Math.min(displayWidth / grid.width, displayHeight / grid.height));
+
+    canvas.style.width = `${(grid.width * pixelUnit).toFixed(3)}px`;
+    canvas.style.height = `${(grid.height * pixelUnit).toFixed(3)}px`;
+    canvas.style.setProperty('--pixel-unit', String(pixelUnit));
+  }
+
   function filenameFromPath(path) {
     const clean = String(path || '').split(/[?#]/)[0];
     const name = clean.split('/').filter(Boolean).pop() || '';
@@ -833,6 +876,7 @@
     if (heading) heading.textContent = 'Layout builder';
 
     hideDisplayBuilderControls(doc);
+    syncCanvasToVisibleDisplay(doc);
     ensureLayerOrderCard(doc);
     ensureRotateCard(doc);
     ensureSavedLayoutControls(doc);

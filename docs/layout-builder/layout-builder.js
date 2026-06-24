@@ -910,7 +910,13 @@
       }
 
       body.layout-builder-mode .layer-node.text {
+        box-sizing: border-box;
         cursor: text;
+        overflow: hidden;
+        overflow-wrap: anywhere;
+        user-select: text;
+        white-space: pre-wrap;
+        word-break: break-word;
       }
 
       body.layout-builder-mode .layer-node.text[contenteditable="plaintext-only"] {

@@ -1178,7 +1178,10 @@
   <script src="./display-schema.js?v=20260624-section-indicator-no-canvas-v1"></script>
   <script src="./default-layout.js?v=20260624-arrow-default-scale-v1"></script>
   <script>
-    const BUILDER_BUILD_ID = '20260624-layout-text-edit-indicators-v1';
+    const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
+    const BUILDER_BUILD_ID = APP_MODE === 'layout-builder'
+      ? '20260624-layout-text-box-clamp-v1'
+      : '20260624-section-indicators-disabled-v1';
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
     const SECTIONS = [
       { id: 'intro', label: '1. Intro blank', chip: null, indicator: true },
@@ -1195,7 +1198,6 @@
     const SECTION_INDICATOR_COUNT = SECTIONS.length;
     const SECTION_INDICATOR_LAYOUT = window.FOODRANKED_DISPLAY_SCHEMA?.sectionIndicatorLayout || { startX: 42.875, y: 178, stepX: 5.75, normalSize: 3.25, highlightedSize: 3.9 };
 
-    const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     const STORAGE_PREFIX = APP_MODE === 'layout-builder' ? 'foodranked-layout-builder' : 'foodranked-display-builder';
     const LOCAL_STORAGE_KEY = `${STORAGE_PREFIX}-v4`;
     const FOOD_LAYOUTS_STORAGE_KEY = `${STORAGE_PREFIX}-food-layouts-v1`;
@@ -1220,6 +1222,7 @@
     const AUTHOR_GRID = { width: 135, height: 240 };
     const ROOT_SPRITE_BASE = './sprites';
     const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
+    const TEXT_LAYER_LINE_HEIGHT = 1.15;
     const FOOD_JSON_CACHE = new Map();
     const BATCH_RESULTS_CACHE = new Map();
     const SPRITE_EXISTENCE_CACHE = new Map();
@@ -3742,7 +3745,7 @@
         src,
         kind: 'library',
         previewScale: options.previewScale ?? 1,
-        dropScale: options.dropScale ?? 0.75
+        dropScale: options.dropScale ?? SPRITE_LIBRARY_DEFAULT_DROP_SCALE
       };
     }
 
@@ -3764,8 +3767,8 @@
         [`calorie bubble ${slug.replace('_', ' ')}`, `${ROOT_SPRITE_BASE}/header/calorie_bubble/${slug}_calorie_bubble.png`]
       ];
       const sectionIndicatorItems = APP_MODE === 'layout-builder' ? [
-        [`section indicator ${slug.replace('_', ' ')}`, `${ROOT_SPRITE_BASE}/ui/section_indicator/${slug}_section_indicator.png`],
-        [`highlighted section indicator ${slug.replace('_', ' ')}`, `${ROOT_SPRITE_BASE}/ui/section_indicator/${slug}_highlighted_section_indicator.png`]
+        [`section indicator ${slug.replace('_', ' ')}`, `${ROOT_SPRITE_BASE}/ui/section_indicator/${slug}_section_indicator.png`, { dropScale: SPRITE_LIBRARY_DEFAULT_DROP_SCALE }],
+        [`highlighted section indicator ${slug.replace('_', ' ')}`, `${ROOT_SPRITE_BASE}/ui/section_indicator/${slug}_highlighted_section_indicator.png`, { dropScale: SPRITE_LIBRARY_DEFAULT_DROP_SCALE }]
       ] : [];
       const foodCandidates = selectedFood ? [
         ['selected food image', foodSpriteCandidates(selectedFood).primary]
@@ -5161,7 +5164,7 @@
         } else {
           node.textContent = layer.text || '';
           node.style.fontSize = `calc(${layer.fontSize || 6}px * var(--pixel-unit))`;
-          if (layer.width) node.style.width = `calc(${layer.width}px * var(--pixel-unit))`;
+          applyTextLayerBoxStyle(node, layer);
           node.style.textAlign = layer.align || 'left';
           applyOutroScoreGlow(node, layer, state.fullFood || getSelectedFoodStub());
           if (APP_MODE === 'layout-builder') {
@@ -5246,6 +5249,40 @@
       });
     }
 
+    function textLayerLineCount(value) {
+      return Math.max(1, String(value || '').split(/\r\n|\r|\n/).length);
+    }
+
+    function defaultTextLayerBoxHeight(layer) {
+      const fontSize = Number(layer?.fontSize) || 6;
+      return Math.max(1, Math.ceil(fontSize * TEXT_LAYER_LINE_HEIGHT * textLayerLineCount(layer?.text)));
+    }
+
+    function layoutBuilderTextBoxHeight(layer) {
+      if (APP_MODE !== 'layout-builder' || !isTextLayer(layer)) return null;
+      const savedHeight = Number(layer.textBoxHeight);
+      if (Number.isFinite(savedHeight) && savedHeight > 0) return savedHeight;
+      const nextHeight = defaultTextLayerBoxHeight(layer);
+      layer.textBoxHeight = nextHeight;
+      return nextHeight;
+    }
+
+    function applyTextLayerBoxStyle(node, layer) {
+      if (layer.width) node.style.width = `calc(${layer.width}px * var(--pixel-unit))`;
+      else node.style.removeProperty('width');
+
+      const boxHeight = layoutBuilderTextBoxHeight(layer);
+      if (boxHeight) {
+        node.style.height = `calc(${boxHeight}px * var(--pixel-unit))`;
+        node.style.maxHeight = `calc(${boxHeight}px * var(--pixel-unit))`;
+        node.style.overflow = 'hidden';
+      } else {
+        node.style.removeProperty('height');
+        node.style.removeProperty('max-height');
+        node.style.removeProperty('overflow');
+      }
+    }
+
     function textFromEditableNode(node) {
       const text = 'innerText' in node ? node.innerText : node.textContent;
       return String(text || '').replace(/\n$/, '');
@@ -5254,6 +5291,7 @@
     function syncEditableTextLayerFromNode(node, layer) {
       const current = getLayerById(layer.id);
       if (!current) return;
+      layoutBuilderTextBoxHeight(current);
       current.text = textFromEditableNode(node);
       current.manualText = true;
       state.selectedLayerId = current.id;
@@ -5605,10 +5643,9 @@ async function renderAll() {
       node.style.top = `calc(${layer.y}px * var(--pixel-unit))`;
       node.style.zIndex = String(layer.z || 0);
       if (layer.kind === 'text') {
+        applyTextLayerBoxStyle(node, layer);
         node.textContent = layer.text || '';
         node.style.fontSize = `calc(${layer.fontSize || 6}px * var(--pixel-unit))`;
-        if (layer.width) node.style.width = `calc(${layer.width}px * var(--pixel-unit))`;
-        else node.style.removeProperty('width');
         node.style.textAlign = layer.align || 'left';
       }
       if (layer.kind === 'sprite') {

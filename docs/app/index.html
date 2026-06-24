@@ -386,7 +386,7 @@
       border-radius: 16px;
     }
     .phone-shell {
-      width: min(420px, calc(var(--canvas-width) + 12px));
+      width: calc(var(--canvas-width) + 12px);
       aspect-ratio: 9 / 16;
       position: relative;
       overflow: hidden;
@@ -841,12 +841,6 @@
       }
     }
 
-    @media (min-width: 761px) and (max-width: 1500px), (min-width: 761px) and (max-height: 850px) {
-      .phone-shell {
-        width: min(420px, calc(var(--canvas-width) * 0.7777778));
-      }
-    }
-
     @media (max-width: 1180px) {
       :root { --asset-scale: 1.4; }
       body { overflow: hidden; }
@@ -1178,7 +1172,7 @@
   <script src="./display-schema.js?v=20260622-display-schema-v2"></script>
   <script src="./default-layout.js?v=20260624-arrow-default-scale-v1"></script>
   <script>
-    const BUILDER_BUILD_ID = '20260624-arrow-default-scale-v1';
+    const BUILDER_BUILD_ID = '20260624-section-indicator-visible-v2';
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
     const SECTIONS = [
       { id: 'intro', label: '1. Intro blank', chip: null, indicator: true },
@@ -2972,9 +2966,13 @@
     function filterDeletedLayers(layout) {
       const deletedIds = deletedLayerIdSet(layout);
       if (!deletedIds.size) return;
+      const activeDeletedIds = new Set([...deletedIds].filter(id => !isAnyManagedSectionIndicatorId(id)));
+      if (activeDeletedIds.size !== deletedIds.size && layout.meta) {
+        layout.meta.deletedLayerIds = [...activeDeletedIds].sort();
+      }
       for (const section of SECTIONS) {
         layout.sections[section.id].layers = getSectionLayersFromLayout(layout, section.id)
-          .filter(layer => !layer.id || !deletedIds.has(String(layer.id)));
+          .filter(layer => !layer.id || !activeDeletedIds.has(String(layer.id)));
       }
     }
 
@@ -3491,8 +3489,16 @@
       return match ? Number(match[1]) - 1 : 999;
     }
 
+    function isManagedSectionIndicatorLayerId(id, sectionId) {
+      return new RegExp(`^${sectionId}_indicator_\\d+$`, 'i').test(String(id || ''));
+    }
+
+    function isAnyManagedSectionIndicatorId(id) {
+      return SECTIONS.some(section => isManagedSectionIndicatorLayerId(id, section.id));
+    }
+
     function isManagedSectionIndicatorLayer(layer, sectionId) {
-      return new RegExp(`^${sectionId}_indicator_\\d+$`, 'i').test(String(layer?.id || ''));
+      return isManagedSectionIndicatorLayerId(layer?.id, sectionId);
     }
 
     function isManualSectionIndicatorLayer(layer, sectionId) {
@@ -5344,23 +5350,15 @@
     }
 
     function getResponsiveAssetScale() {
-      const desktopComfortable = window.innerWidth >= 1600 && window.innerHeight >= 900;
-      if (desktopComfortable) return 4;
-
       const compactLaptop = (window.innerWidth <= 1500 || window.innerHeight <= 850) && window.innerWidth > 760;
-      const laptopCanvasCrop = compactLaptop;
       const tightLaptop = window.innerWidth <= 1180 && window.innerWidth > 760;
       const reservedWidth = tightLaptop ? 530 : (compactLaptop ? 660 : 690);
       const reservedHeight = tightLaptop ? 154 : (compactLaptop ? 150 : 210);
-      const minimumScale = tightLaptop ? 1.12 : (compactLaptop ? 1.30 : 1.45);
       const verticalRoom = Math.max(300, window.innerHeight - reservedHeight);
-      const scaleFromHeight = laptopCanvasCrop
-        ? (verticalRoom - 12) / (AUTHOR_GRID.height * (7 / 9))
-        : (((verticalRoom * 9) / 16) - 12) / AUTHOR_GRID.width;
-      const scaleFromWidth = laptopCanvasCrop
-        ? (Math.max(280, window.innerWidth - reservedWidth) - 24) / (AUTHOR_GRID.width * (7 / 9))
-        : (Math.max(280, window.innerWidth - reservedWidth) - 24) / AUTHOR_GRID.width;
-      return Math.max(minimumScale, Math.min(4, scaleFromHeight, scaleFromWidth));
+      const horizontalRoom = Math.max(280, window.innerWidth - reservedWidth);
+      const scaleFromHeight = (verticalRoom - 12) / AUTHOR_GRID.height;
+      const scaleFromWidth = (horizontalRoom - 24) / AUTHOR_GRID.width;
+      return Math.max(0.9, Math.min(4, scaleFromHeight, scaleFromWidth));
     }
 
     function getPixelUnit() {

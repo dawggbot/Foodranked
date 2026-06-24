@@ -3,7 +3,7 @@
   const FOOD_LAYOUTS_STORAGE_KEY = 'foodranked-display-builder-food-layouts-v1';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260624-section-indicator-recovery-v1';
+  const BUILDER_BUILD_ID = '20260624-section-indicator-visible-v2';
   const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -1020,6 +1020,14 @@
   function isSectionIndicator(layer) {
     const fingerprint = `${layer?.src || ''} ${layer?.label || ''} ${layer?.id || ''}`.toLowerCase();
     return isSpriteLayer(layer) && (fingerprint.includes('/ui/section_indicator/') || fingerprint.includes('section indicator'));
+  }
+
+  function isManagedSectionIndicatorId(id, sectionId) {
+    return new RegExp(`^${sectionId}_indicator_\\d+$`, 'i').test(String(id || ''));
+  }
+
+  function isAnyManagedSectionIndicatorId(id) {
+    return SECTIONS.some(section => isManagedSectionIndicatorId(id, section.id));
   }
 
   function isOutroTierStamp(layer) {
@@ -2056,9 +2064,13 @@
   function filterDeletedLayers(layout) {
     const deletedIds = deletedLayerIdSet(layout);
     if (!deletedIds.size) return;
+    const activeDeletedIds = new Set([...deletedIds].filter(id => !isAnyManagedSectionIndicatorId(id)));
+    if (activeDeletedIds.size !== deletedIds.size && layout.meta) {
+      layout.meta.deletedLayerIds = [...activeDeletedIds].sort();
+    }
     for (const section of SECTIONS) {
       layout.sections[section.id].layers = getSectionLayers(layout, section.id)
-        .filter(layer => !layer.id || !deletedIds.has(String(layer.id)));
+        .filter(layer => !layer.id || !activeDeletedIds.has(String(layer.id)));
     }
   }
 
@@ -2886,23 +2898,15 @@
   }
 
   function getResponsiveAssetScale() {
-    const desktopComfortable = window.innerWidth >= 1600 && window.innerHeight >= 900;
-    if (desktopComfortable) return 4;
-
     const compactLaptop = (window.innerWidth <= 1500 || window.innerHeight <= 850) && window.innerWidth > 760;
-    const laptopCanvasCrop = compactLaptop;
     const tightLaptop = window.innerWidth <= 1180 && window.innerWidth > 760;
     const reservedWidth = tightLaptop ? 530 : (compactLaptop ? 660 : 690);
     const reservedHeight = tightLaptop ? 154 : (compactLaptop ? 150 : 210);
-    const minimumScale = tightLaptop ? 1.12 : (compactLaptop ? 1.30 : 1.45);
     const verticalRoom = Math.max(300, window.innerHeight - reservedHeight);
-    const scaleFromHeight = laptopCanvasCrop
-      ? (verticalRoom - 12) / (AUTHOR_GRID.height * (7 / 9))
-      : (((verticalRoom * 9) / 16) - 12) / AUTHOR_GRID.width;
-    const scaleFromWidth = laptopCanvasCrop
-      ? (Math.max(280, window.innerWidth - reservedWidth) - 24) / (AUTHOR_GRID.width * (7 / 9))
-      : (Math.max(280, window.innerWidth - reservedWidth) - 24) / AUTHOR_GRID.width;
-    return Math.max(minimumScale, Math.min(4, scaleFromHeight, scaleFromWidth));
+    const horizontalRoom = Math.max(280, window.innerWidth - reservedWidth);
+    const scaleFromHeight = (verticalRoom - 12) / AUTHOR_GRID.height;
+    const scaleFromWidth = (horizontalRoom - 24) / AUTHOR_GRID.width;
+    return Math.max(0.9, Math.min(4, scaleFromHeight, scaleFromWidth));
   }
 
   function setCanvasScale() {

@@ -127,10 +127,10 @@
       - cssPixels(shellStyle.paddingTop)
       - cssPixels(shellStyle.paddingBottom);
     const grid = authorGrid();
-    const pixelUnit = Math.max(0.1, Math.min(displayWidth / grid.width, displayHeight / grid.height));
+    const pixelUnit = Math.max(0.1, displayWidth / grid.width);
 
-    canvas.style.width = `${(grid.width * pixelUnit).toFixed(3)}px`;
-    canvas.style.height = `${(grid.height * pixelUnit).toFixed(3)}px`;
+    canvas.style.width = `${displayWidth.toFixed(3)}px`;
+    canvas.style.height = `${displayHeight.toFixed(3)}px`;
     canvas.style.setProperty('--pixel-unit', String(pixelUnit));
   }
 

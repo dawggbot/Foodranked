@@ -8,7 +8,7 @@
   const SAVED_LAYOUT_MESSAGE_ID = 'layoutBuilderSavedLayoutMessage';
   const LAYOUT_STORAGE_KEY = 'foodranked-layout-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-layout-builder-sprite-layouts-v1';
-  const CANVAS_VIEW_ZOOM = 1.22;
+  const CANVAS_VIEW_ZOOM = 1.34;
   let selectedSavedLayoutId = '';
   let syncTimer = null;
   let syncFrame = 0;
@@ -216,8 +216,13 @@
 
     const framePadding = 8;
     const editorRect = editor?.getBoundingClientRect();
-    const maxZoomByWidth = editorRect?.width ? (editorRect.width - framePadding) / canvasWidth : CANVAS_VIEW_ZOOM;
-    const maxZoomByHeight = editorRect?.height ? (editorRect.height - framePadding) / canvasHeight : CANVAS_VIEW_ZOOM;
+    const editorStyle = editor ? doc.defaultView?.getComputedStyle(editor) : null;
+    const editorPaddingX = cssPixels(editorStyle?.paddingLeft) + cssPixels(editorStyle?.paddingRight);
+    const editorPaddingY = cssPixels(editorStyle?.paddingTop) + cssPixels(editorStyle?.paddingBottom);
+    const editorContentWidth = editorRect?.width ? editorRect.width - editorPaddingX : 0;
+    const editorContentHeight = editorRect?.height ? editorRect.height - editorPaddingY : 0;
+    const maxZoomByWidth = editorContentWidth ? (editorContentWidth - framePadding) / canvasWidth : CANVAS_VIEW_ZOOM;
+    const maxZoomByHeight = editorContentHeight ? (editorContentHeight - framePadding) / canvasHeight : CANVAS_VIEW_ZOOM;
     const zoom = Math.max(1, Math.min(CANVAS_VIEW_ZOOM, maxZoomByWidth, maxZoomByHeight));
 
     wrap.dataset.layoutBuilderCanvasZoom = 'true';
@@ -907,11 +912,13 @@
 
       body.layout-builder-mode .editor {
         align-content: center;
-        grid-template-rows: minmax(0, 1fr) !important;
+        grid-template-rows: auto !important;
+        padding: 4px !important;
       }
 
       body.layout-builder-mode .editor > .row:first-child,
-      body.layout-builder-mode #canvasMeta {
+      body.layout-builder-mode #canvasMeta,
+      body.layout-builder-mode .diagnostics-row {
         display: none !important;
       }
 
@@ -919,7 +926,7 @@
         align-self: center;
         justify-self: center;
         max-width: 100%;
-        max-height: 100%;
+        max-height: none !important;
         padding: 4px !important;
         overflow: visible !important;
       }

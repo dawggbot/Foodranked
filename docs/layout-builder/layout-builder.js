@@ -8,10 +8,6 @@
   const SAVED_LAYOUT_MESSAGE_ID = 'layoutBuilderSavedLayoutMessage';
   const LAYOUT_STORAGE_KEY = 'foodranked-layout-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-layout-builder-sprite-layouts-v1';
-  const LOCKED_CANVAS_GRID_WIDTH = 125;
-  const LOCKED_CANVAS_WIDTH = 304.5;
-  const LOCKED_CANVAS_HEIGHT = LOCKED_CANVAS_WIDTH * (16 / 9);
-  const LOCKED_PIXEL_UNIT = LOCKED_CANVAS_WIDTH / LOCKED_CANVAS_GRID_WIDTH;
   let selectedSavedLayoutId = '';
   let syncTimer = null;
   let syncFrame = 0;
@@ -95,6 +91,68 @@
     });
   }
 
+  function cssPixels(value) {
+    const parsed = Number.parseFloat(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+
+  function authorGrid() {
+    const schemaGrid = getFrameWindow()?.FOODRANKED_DISPLAY_SCHEMA?.authorGrid;
+    const width = Number(schemaGrid?.width);
+    const height = Number(schemaGrid?.height);
+    return {
+      width: Number.isFinite(width) && width > 0 ? width : 135,
+      height: Number.isFinite(height) && height > 0 ? height : 240
+    };
+  }
+
+  function layerRight(layer) {
+    return (Number(layer?.x) || 0) + (Number(layer?.width) || 0);
+  }
+
+  function sectionLayersForCurrentLayout(doc) {
+    const layout = currentLayout(doc);
+    const sectionId = layout?.selectedSectionId || 'protein';
+    const layers = layout?.sections?.[sectionId]?.layers;
+    return Array.isArray(layers) ? { sectionId, layers } : { sectionId, layers: [] };
+  }
+
+  function isSectionSeparatorLayer(layer) {
+    const fingerprint = `${layer?.id || ''} ${layer?.label || ''} ${layer?.src || ''}`.toLowerCase();
+    return fingerprint.includes('/ui/section_separator/') || fingerprint.includes('section separator');
+  }
+
+  function isMainSectionIndicatorLayer(layer, sectionId) {
+    const fingerprint = `${layer?.id || ''} ${layer?.label || ''} ${layer?.src || ''}`.toLowerCase();
+    return fingerprint.includes(`${sectionId}_macro_bar_frame`)
+      || fingerprint.includes(`${sectionId}_macro_bar_fill`)
+      || fingerprint.includes('macro bar frame')
+      || fingerprint.includes('macro bar fill');
+  }
+
+  function alignedCanvasGridWidth(doc, fallbackWidth) {
+    const { sectionId, layers } = sectionLayersForCurrentLayout(doc);
+    const separators = layers.filter(isSectionSeparatorLayer);
+    const sectionIndicators = layers.filter(layer => isMainSectionIndicatorLayer(layer, sectionId));
+    if (!separators.length || !sectionIndicators.length) return fallbackWidth;
+
+    const separatorLeft = Math.min(...separators.map(layer => Number(layer.x) || 0));
+    const indicatorRight = Math.max(...sectionIndicators.map(layerRight));
+    const width = separatorLeft + indicatorRight;
+    return Number.isFinite(width) && width > 0 ? Math.min(fallbackWidth, width) : fallbackWidth;
+  }
+
+  function clearLayoutBuilderDisplayFit(shell) {
+    shell.style.removeProperty('width');
+    shell.style.removeProperty('height');
+    shell.style.removeProperty('aspect-ratio');
+    shell.style.removeProperty('border');
+    shell.style.removeProperty('border-radius');
+    shell.style.removeProperty('box-shadow');
+    shell.style.removeProperty('background');
+    shell.style.removeProperty('padding');
+  }
+
   function fitDisplayToCanvas(shell, canvasWidth, canvasHeight) {
     shell.style.width = `${canvasWidth.toFixed(3)}px`;
     shell.style.height = `${canvasHeight.toFixed(3)}px`;
@@ -106,15 +164,32 @@
     shell.style.padding = '0';
   }
 
-  function lockCanvasAndDisplaySize(doc) {
+  function syncCanvasToVisibleDisplay(doc) {
     const shell = doc.querySelector('.phone-shell');
     const canvas = doc.getElementById('canvas');
     if (!shell || !canvas) return;
 
-    canvas.style.width = `${LOCKED_CANVAS_WIDTH.toFixed(3)}px`;
-    canvas.style.height = `${LOCKED_CANVAS_HEIGHT.toFixed(3)}px`;
-    canvas.style.setProperty('--pixel-unit', String(LOCKED_PIXEL_UNIT));
-    fitDisplayToCanvas(shell, LOCKED_CANVAS_WIDTH, LOCKED_CANVAS_HEIGHT);
+    const win = doc.defaultView || window;
+    clearLayoutBuilderDisplayFit(shell);
+    const shellRect = shell.getBoundingClientRect();
+    if (!shellRect.width || !shellRect.height) return;
+
+    const shellStyle = win.getComputedStyle(shell);
+    const displayWidth = shellRect.width
+      - cssPixels(shellStyle.borderLeftWidth)
+      - cssPixels(shellStyle.borderRightWidth)
+      - cssPixels(shellStyle.paddingLeft)
+      - cssPixels(shellStyle.paddingRight);
+    const grid = authorGrid();
+    const pixelUnit = Math.max(0.1, displayWidth / grid.width);
+    const canvasGridWidth = alignedCanvasGridWidth(doc, grid.width);
+    const canvasWidth = canvasGridWidth * pixelUnit;
+    const canvasHeight = canvasWidth * (16 / 9);
+
+    canvas.style.width = `${canvasWidth.toFixed(3)}px`;
+    canvas.style.height = `${canvasHeight.toFixed(3)}px`;
+    canvas.style.setProperty('--pixel-unit', String(pixelUnit));
+    fitDisplayToCanvas(shell, canvasWidth, canvasHeight);
   }
 
   function filenameFromPath(path) {
@@ -859,7 +934,7 @@
     if (heading) heading.textContent = 'Layout builder';
 
     hideDisplayBuilderControls(doc);
-    lockCanvasAndDisplaySize(doc);
+    syncCanvasToVisibleDisplay(doc);
     ensureLayerOrderCard(doc);
     ensureRotateCard(doc);
     ensureSavedLayoutControls(doc);

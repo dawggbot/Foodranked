@@ -871,6 +871,17 @@
         background-image: none !important;
       }
 
+      body.layout-builder-mode .canvas-wrap {
+        align-self: center;
+        justify-self: center;
+        width: max-content;
+        height: max-content;
+        max-width: 100%;
+        max-height: 100%;
+        padding: 4px !important;
+        overflow: visible !important;
+      }
+
       body.layout-builder-mode .layout-builder-index,
       body.layout-builder-mode .layout-builder-save-message {
         color: var(--muted);

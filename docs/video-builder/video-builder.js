@@ -3,12 +3,12 @@
   const FOOD_LAYOUTS_STORAGE_KEY = 'foodranked-display-builder-food-layouts-v1';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260624-arrow-default-scale-v1';
+  const BUILDER_BUILD_ID = '20260624-section-indicator-recovery-v1';
   const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
-  const SECTION_INDICATOR_LAYOUT = { normalSize: 3.25, highlightedSize: 3.9 };
+  const SECTION_INDICATOR_LAYOUT = window.FOODRANKED_DISPLAY_SCHEMA?.sectionIndicatorLayout || { startX: 42.875, y: 213.75, stepX: 5.75, normalSize: 3.25, highlightedSize: 3.9 };
   const CAPTION_SAFE_X = 7;
   const CAPTION_MAX_LINES = 2;
   const CAPTION_MAX_LINE_CHARS = 18;
@@ -1040,6 +1040,43 @@
     return SECTIONS.findIndex(section => section.id === sectionId);
   }
 
+  function defaultSectionIndicatorPosition(index) {
+    return {
+      x: SECTION_INDICATOR_LAYOUT.startX + (index * SECTION_INDICATOR_LAYOUT.stepX),
+      y: SECTION_INDICATOR_LAYOUT.y
+    };
+  }
+
+  function createSectionIndicatorLayer(sectionId, index, food) {
+    const position = defaultSectionIndicatorPosition(index);
+    return {
+      id: `${sectionId}_indicator_${index + 1}`,
+      kind: 'sprite',
+      label: 'Section indicator',
+      src: indicatorPath(food, false),
+      x: position.x,
+      y: position.y,
+      z: 25,
+      width: SECTION_INDICATOR_LAYOUT.normalSize,
+      height: SECTION_INDICATOR_LAYOUT.normalSize,
+      visible: true,
+      foodDriven: true,
+      preserveAspect: false
+    };
+  }
+
+  function ensureSectionIndicatorLayers(layout, food) {
+    for (const section of SECTIONS) {
+      const sectionLayers = getSectionLayers(layout, section.id);
+      const indicators = normalizeProgressIndicatorSlots(sectionLayers.filter(isSectionIndicator));
+      for (let index = indicators.length; index < SECTIONS.length; index += 1) {
+        const layer = createSectionIndicatorLayer(section.id, index, food);
+        indicators.push(layer);
+        sectionLayers.push(layer);
+      }
+    }
+  }
+
   function compareIndicatorsByPosition(a, b) {
     return (Number(a.x) || 0) - (Number(b.x) || 0) || (Number(a.y) || 0) - (Number(b.y) || 0);
   }
@@ -2033,6 +2070,7 @@
     ensureMacroTextLayers(layout);
     ensureMacroTotalTextLayers(layout);
     ensureMacroBarLayers(layout);
+    ensureSectionIndicatorLayers(layout, food);
     syncHeader(layout, food);
     syncSectionIndicators(layout, food);
     syncMacroTotalText(layout, food);

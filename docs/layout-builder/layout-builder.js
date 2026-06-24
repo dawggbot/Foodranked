@@ -8,7 +8,7 @@
   const SAVED_LAYOUT_MESSAGE_ID = 'layoutBuilderSavedLayoutMessage';
   const LAYOUT_STORAGE_KEY = 'foodranked-layout-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-layout-builder-sprite-layouts-v1';
-  const CANVAS_VIEW_ZOOM = 1.34;
+  const CANVAS_VIEW_ZOOM = 1.52;
   let selectedSavedLayoutId = '';
   let syncTimer = null;
   let syncFrame = 0;
@@ -214,7 +214,7 @@
     const canvasHeight = Number.parseFloat(canvas.style.height || canvasStyle?.height || '');
     if (!Number.isFinite(canvasWidth) || !Number.isFinite(canvasHeight)) return;
 
-    const framePadding = 8;
+    const framePadding = 0;
     const editorRect = editor?.getBoundingClientRect();
     const editorStyle = editor ? doc.defaultView?.getComputedStyle(editor) : null;
     const editorPaddingX = cssPixels(editorStyle?.paddingLeft) + cssPixels(editorStyle?.paddingRight);
@@ -910,10 +910,16 @@
         background-image: none !important;
       }
 
+      body.layout-builder-mode .app {
+        gap: 4px !important;
+        padding: 2px !important;
+      }
+
       body.layout-builder-mode .editor {
         align-content: center;
         grid-template-rows: auto !important;
-        padding: 4px !important;
+        max-height: none !important;
+        padding: 0 !important;
       }
 
       body.layout-builder-mode .editor > .row:first-child,
@@ -927,7 +933,7 @@
         justify-self: center;
         max-width: 100%;
         max-height: none !important;
-        padding: 4px !important;
+        padding: 0 !important;
         overflow: visible !important;
       }
 

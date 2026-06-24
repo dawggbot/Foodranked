@@ -1180,7 +1180,7 @@
   <script>
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     const BUILDER_BUILD_ID = APP_MODE === 'layout-builder'
-      ? '20260624-layout-header-edit-v1'
+      ? '20260624-layout-text-fit-v1'
       : '20260624-section-indicators-disabled-v1';
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
     const SECTIONS = [
@@ -5209,8 +5209,15 @@
             node.contentEditable = 'plaintext-only';
             node.spellcheck = false;
             node.title = 'Edit this text directly';
-            node.addEventListener('input', () => {
-              syncEditableTextLayerFromNode(node, layer);
+            node.dataset.layoutBuilderLastFitText = layer.text || '';
+            node.addEventListener('beforeinput', event => {
+              handleEditableTextBeforeInput(event, node, layer);
+            });
+            node.addEventListener('paste', event => {
+              handleEditableTextPaste(event, node);
+            });
+            node.addEventListener('input', event => {
+              syncEditableTextLayerFromNode(node, layer, { allowOverflow: isTextDeletingInput(event) });
             });
             node.addEventListener('blur', () => {
               syncEditableTextLayerFromNode(node, layer);
@@ -5241,6 +5248,9 @@
           event.stopPropagation();
           state.selectedLayerId = layer.id;
           renderInspector();
+          if (APP_MODE === 'layout-builder' && layer.kind === 'text') {
+            node.focus({ preventScroll: true });
+          }
           if (!(APP_MODE === 'layout-builder' && layer.kind === 'text')) void renderCanvas();
           renderLayerList();
           renderSectionTextList();
@@ -5339,14 +5349,168 @@
       return String(text || '').replace(/\n$/, '');
     }
 
-    function syncEditableTextLayerFromNode(node, layer) {
+    function editableSelectionOffsets(node) {
+      const text = textFromEditableNode(node);
+      const selection = window.getSelection();
+      if (!selection || !selection.rangeCount) return { start: text.length, end: text.length };
+      const range = selection.getRangeAt(0);
+      if (!node.contains(range.startContainer) || !node.contains(range.endContainer)) {
+        return { start: text.length, end: text.length };
+      }
+      const startRange = range.cloneRange();
+      startRange.selectNodeContents(node);
+      startRange.setEnd(range.startContainer, range.startOffset);
+      const endRange = range.cloneRange();
+      endRange.selectNodeContents(node);
+      endRange.setEnd(range.endContainer, range.endOffset);
+      const start = startRange.toString().length;
+      const end = endRange.toString().length;
+      return {
+        start: Math.max(0, Math.min(start, end)),
+        end: Math.max(0, Math.max(start, end))
+      };
+    }
+
+    function textControlSelectionOffsets(control) {
+      const text = String(control?.value || '');
+      const start = Number.isFinite(control?.selectionStart) ? control.selectionStart : text.length;
+      const end = Number.isFinite(control?.selectionEnd) ? control.selectionEnd : start;
+      return {
+        start: Math.max(0, Math.min(start, end)),
+        end: Math.max(0, Math.max(start, end))
+      };
+    }
+
+    function replaceTextRange(text, range, replacement) {
+      const source = String(text || '');
+      const insert = String(replacement || '').replace(/\r\n|\r/g, '\n');
+      return source.slice(0, range.start) + insert + source.slice(range.end);
+    }
+
+    function inputEventText(event) {
+      if (typeof event.data === 'string') return event.data;
+      const transferText = event.dataTransfer?.getData?.('text/plain');
+      if (typeof transferText === 'string') return transferText;
+      const clipboardText = event.clipboardData?.getData?.('text/plain');
+      if (typeof clipboardText === 'string') return clipboardText;
+      return '';
+    }
+
+    function placeCaretAtTextEnd(node) {
+      if (!node || document.activeElement !== node) return;
+      const range = document.createRange();
+      range.selectNodeContents(node);
+      range.collapse(false);
+      const selection = window.getSelection();
+      selection?.removeAllRanges();
+      selection?.addRange(range);
+    }
+
+    function editableTextFitsNode(node, text) {
+      if (APP_MODE !== 'layout-builder') return true;
+      if (!node?.parentNode || !node.isConnected) return true;
+      const width = node.clientWidth;
+      const height = node.clientHeight;
+      if (!width || !height) return true;
+      const probe = node.cloneNode(false);
+      probe.classList.remove('selected');
+      probe.removeAttribute('id');
+      probe.setAttribute('aria-hidden', 'true');
+      probe.contentEditable = 'false';
+      probe.textContent = String(text || '');
+      probe.style.visibility = 'hidden';
+      probe.style.pointerEvents = 'none';
+      probe.style.userSelect = 'none';
+      probe.style.zIndex = '-1';
+      node.parentNode.appendChild(probe);
+      const fits = probe.scrollWidth <= probe.clientWidth
+        && probe.scrollHeight <= probe.clientHeight;
+      probe.remove();
+      return fits;
+    }
+
+    function textFitsCurrentLayerBox(layer, text) {
+      if (APP_MODE !== 'layout-builder' || !isTextLayer(layer)) return true;
+      const node = els.canvas.querySelector(`.layer-node.text[data-layer-id="${CSS.escape(layer.id)}"]`);
+      if (!node) return true;
+      return editableTextFitsNode(node, text);
+    }
+
+    function candidateTextForEditableInput(node, replacement) {
+      return replaceTextRange(textFromEditableNode(node), editableSelectionOffsets(node), replacement);
+    }
+
+    function candidateTextForControlInput(control, replacement) {
+      return replaceTextRange(control.value, textControlSelectionOffsets(control), replacement);
+    }
+
+    function isTextDeletingInput(event) {
+      return String(event?.inputType || '').startsWith('delete');
+    }
+
+    function blockTextInputIfTooLarge(event, layer, candidateText) {
+      if (APP_MODE !== 'layout-builder' || !isTextLayer(layer)) return false;
+      if (textFitsCurrentLayerBox(layer, candidateText)) return false;
+      event.preventDefault();
+      return true;
+    }
+
+    function handleEditableTextBeforeInput(event, node, layer) {
+      if (APP_MODE !== 'layout-builder') return;
+      node.dataset.layoutBuilderLastInputType = event.inputType || '';
+      if (isTextDeletingInput(event)) return;
+      if (event.inputType === 'insertParagraph' || event.inputType === 'insertLineBreak') {
+        event.preventDefault();
+        return;
+      }
+      const replacement = inputEventText(event);
+      const candidate = candidateTextForEditableInput(node, replacement);
+      if (!editableTextFitsNode(node, candidate)) event.preventDefault();
+    }
+
+    function handleEditableTextPaste(event, node) {
+      if (APP_MODE !== 'layout-builder') return;
+      const replacement = inputEventText(event);
+      if (!replacement) return;
+      const candidate = candidateTextForEditableInput(node, replacement);
+      if (!editableTextFitsNode(node, candidate)) event.preventDefault();
+    }
+
+    function handleTextControlBeforeInput(event, control, layer) {
+      if (APP_MODE !== 'layout-builder') return;
+      if (isTextDeletingInput(event)) return;
+      if (event.inputType === 'insertParagraph' || event.inputType === 'insertLineBreak') {
+        event.preventDefault();
+        return;
+      }
+      blockTextInputIfTooLarge(event, layer, candidateTextForControlInput(control, inputEventText(event)));
+    }
+
+    function handleTextControlPaste(event, control, layer) {
+      if (APP_MODE !== 'layout-builder') return;
+      const replacement = inputEventText(event);
+      if (!replacement) return;
+      blockTextInputIfTooLarge(event, layer, candidateTextForControlInput(control, replacement));
+    }
+
+    function syncEditableTextLayerFromNode(node, layer, { allowOverflow = false } = {}) {
       const current = getLayerById(layer.id);
       if (!current) return;
       layoutBuilderTextBoxHeight(current);
-      current.text = textFromEditableNode(node);
+      let nextText = textFromEditableNode(node);
+      const fits = editableTextFitsNode(node, nextText);
+      if (!allowOverflow && !fits) {
+        nextText = node.dataset.layoutBuilderLastFitText ?? current.text ?? '';
+        node.textContent = nextText;
+        placeCaretAtTextEnd(node);
+      }
+      current.text = nextText;
       markTextLayerManual(current);
       state.selectedLayerId = current.id;
       if (document.activeElement !== els.propText) els.propText.value = current.text || '';
+      if (editableTextFitsNode(node, current.text)) {
+        node.dataset.layoutBuilderLastFitText = current.text || '';
+      }
       updateJsonOutput();
       saveLayout({ normalize: false });
     }
@@ -5384,9 +5548,23 @@
         const textarea = document.createElement('textarea');
         textarea.value = layer.text || '';
         textarea.rows = Math.max(2, Math.min(5, String(layer.text || '').split('\n').length + 1));
+        textarea.addEventListener('beforeinput', event => {
+          const current = getCurrentSectionLayers().find(item => item.id === layer.id);
+          if (!current) return;
+          handleTextControlBeforeInput(event, textarea, current);
+        });
+        textarea.addEventListener('paste', event => {
+          const current = getCurrentSectionLayers().find(item => item.id === layer.id);
+          if (!current) return;
+          handleTextControlPaste(event, textarea, current);
+        });
         textarea.addEventListener('input', () => {
           const current = getCurrentSectionLayers().find(item => item.id === layer.id);
           if (!current) return;
+          if (!textFitsCurrentLayerBox(current, textarea.value)) {
+            textarea.value = current.text || '';
+            return;
+          }
           current.text = textarea.value;
           markTextLayerManual(current);
           state.selectedLayerId = current.id;
@@ -5696,6 +5874,9 @@ async function renderAll() {
       if (layer.kind === 'text') {
         applyTextLayerBoxStyle(node, layer);
         node.textContent = layer.text || '';
+        if (editableTextFitsNode(node, layer.text || '')) {
+          node.dataset.layoutBuilderLastFitText = layer.text || '';
+        }
         node.style.fontSize = `calc(${layer.fontSize || 6}px * var(--pixel-unit))`;
         node.style.textAlign = layer.align || 'left';
       }
@@ -5856,10 +6037,27 @@ async function renderAll() {
     document.querySelectorAll('[data-align]').forEach(button => {
       button.addEventListener('click', () => alignSelectedSprite(button.dataset.align));
     });
-    els.propText.addEventListener('input', () => updateSelectedWithoutInspectorReset(layer => {
-      layer.text = els.propText.value;
-      markTextLayerManual(layer);
-    }));
+    els.propText.addEventListener('beforeinput', event => {
+      const layer = getLayerById(state.selectedLayerId);
+      if (!layer) return;
+      handleTextControlBeforeInput(event, els.propText, layer);
+    });
+    els.propText.addEventListener('paste', event => {
+      const layer = getLayerById(state.selectedLayerId);
+      if (!layer) return;
+      handleTextControlPaste(event, els.propText, layer);
+    });
+    els.propText.addEventListener('input', () => {
+      const layer = getLayerById(state.selectedLayerId);
+      if (layer && !textFitsCurrentLayerBox(layer, els.propText.value)) {
+        els.propText.value = layer.text || '';
+        return;
+      }
+      updateSelectedWithoutInspectorReset(layer => {
+        layer.text = els.propText.value;
+        markTextLayerManual(layer);
+      });
+    });
     els.propFontSize.addEventListener('input', () => updateSelectedWithoutInspectorReset(layer => layer.fontSize = Number(els.propFontSize.value) || 6));
     els.propWidth.addEventListener('input', () => updateSelectedWithoutInspectorReset(layer => layer.width = els.propWidth.value ? Number(els.propWidth.value) : undefined));
     els.propAlign.addEventListener('change', () => updateSelectedWithoutInspectorReset(layer => layer.align = els.propAlign.value));
@@ -5884,6 +6082,7 @@ async function renderAll() {
       const layer = getLayerById(state.selectedLayerId);
       if (!layer) return;
       if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) return;
+      if (document.activeElement?.isContentEditable) return;
       const step = event.shiftKey ? 10 : 1;
       let handled = true;
       if (event.key === 'ArrowLeft') mutateEditableLayer(layer, current => current.x -= step);

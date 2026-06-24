@@ -1176,10 +1176,10 @@
 
   <script src="../data/foods-index.js?v=20260620-macro-display-data-v1"></script>
   <script src="./display-schema.js?v=20260622-display-schema-v2"></script>
-  <script src="./default-layout.js?v=20260622-section-indicators-v2"></script>
+  <script src="./default-layout.js?v=20260624-arrow-native-size-v1"></script>
   <script>
-    const BUILDER_BUILD_ID = '20260620-layout-restore-v1';
-    const REPO_LAYOUT_VERSION = BUILDER_BUILD_ID;
+    const BUILDER_BUILD_ID = '20260624-arrow-native-size-v1';
+    const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
     const SECTIONS = [
       { id: 'intro', label: '1. Intro blank', chip: null, indicator: true },
       { id: 'fats', label: '2. Fats', chip: 'FATS', indicator: true },
@@ -1219,6 +1219,7 @@
     ];
     const AUTHOR_GRID = { width: 135, height: 240 };
     const ROOT_SPRITE_BASE = './sprites';
+    const ARROW_INDICATOR_NATIVE_SIZE = { width: 7, height: 14 };
     const FOOD_JSON_CACHE = new Map();
     const BATCH_RESULTS_CACHE = new Map();
     const SPRITE_EXISTENCE_CACHE = new Map();
@@ -1612,6 +1613,24 @@
       if (!isSpriteLayer(layer)) return false;
       const fingerprint = `${layer.src || ''} ${layer.label || ''}`.toLowerCase();
       return fingerprint.includes('/arrow_indicators/') || /arrow indicator/.test(fingerprint);
+    }
+
+    function normalizeArrowIndicatorSpriteSize(layer) {
+      if (!isArrowIndicatorSpriteLayer(layer)) return;
+      const nextWidth = ARROW_INDICATOR_NATIVE_SIZE.width;
+      const nextHeight = ARROW_INDICATOR_NATIVE_SIZE.height;
+      const oldWidth = Number.isFinite(Number(layer.width)) ? Number(layer.width) : nextWidth;
+      const oldHeight = Number.isFinite(Number(layer.height)) ? Number(layer.height) : nextHeight;
+      if (oldWidth !== nextWidth || oldHeight !== nextHeight) {
+        layer.x = Number(layer.x || 0) + ((oldWidth - nextWidth) / 2);
+        layer.y = Number(layer.y || 0) + ((oldHeight - nextHeight) / 2);
+      }
+      layer.width = nextWidth;
+      layer.height = nextHeight;
+      layer.naturalWidth = nextWidth;
+      layer.naturalHeight = nextHeight;
+      layer.aspectRatio = nextWidth / nextHeight;
+      layer.preserveAspect = true;
     }
 
     function isManualLibraryArrowLayer(layer) {
@@ -2973,6 +2992,7 @@
           if (isSpriteLayer(layer)) {
             layer.src = canonicalSpritePath(layer.src);
             if (layer.fallbackSrc) layer.fallbackSrc = canonicalSpritePath(layer.fallbackSrc);
+            normalizeArrowIndicatorSpriteSize(layer);
           }
           if (isObsoleteMacroBarFrameOrFillSpriteLayer(layer)) return false;
           if (isObsoleteOutroScoreDisplayLayer(layer)) return false;

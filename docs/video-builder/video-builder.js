@@ -3,10 +3,11 @@
   const FOOD_LAYOUTS_STORAGE_KEY = 'foodranked-display-builder-food-layouts-v1';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260620-layout-restore-v1';
-  const REPO_LAYOUT_VERSION = BUILDER_BUILD_ID;
+  const BUILDER_BUILD_ID = '20260624-arrow-native-size-v1';
+  const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
+  const ARROW_INDICATOR_NATIVE_SIZE = { width: 7, height: 14 };
   const SECTION_INDICATOR_LAYOUT = { normalSize: 3.25, highlightedSize: 3.9 };
   const CAPTION_SAFE_X = 7;
   const CAPTION_MAX_LINES = 2;
@@ -960,6 +961,7 @@
       if (!isSpriteLayer(layer)) return;
       layer.src = canonicalSpritePath(layer.src);
       if (layer.fallbackSrc) layer.fallbackSrc = canonicalSpritePath(layer.fallbackSrc);
+      normalizeArrowIndicatorSpriteSize(layer);
     });
     return layout.sections[sectionId].layers;
   }
@@ -970,6 +972,30 @@
 
   function isTextLayer(layer) {
     return layer?.kind === 'text';
+  }
+
+  function isArrowIndicatorSpriteLayer(layer) {
+    if (!isSpriteLayer(layer)) return false;
+    const fingerprint = `${layer?.id || ''} ${layer?.label || ''} ${layer?.src || ''}`.toLowerCase();
+    return fingerprint.includes('/arrow_indicators/') || /arrow indicator|green_arrow|red_arrow|yellow_arrow/.test(fingerprint);
+  }
+
+  function normalizeArrowIndicatorSpriteSize(layer) {
+    if (!isArrowIndicatorSpriteLayer(layer)) return;
+    const nextWidth = ARROW_INDICATOR_NATIVE_SIZE.width;
+    const nextHeight = ARROW_INDICATOR_NATIVE_SIZE.height;
+    const oldWidth = Number.isFinite(Number(layer.width)) ? Number(layer.width) : nextWidth;
+    const oldHeight = Number.isFinite(Number(layer.height)) ? Number(layer.height) : nextHeight;
+    if (oldWidth !== nextWidth || oldHeight !== nextHeight) {
+      layer.x = Number(layer.x || 0) + ((oldWidth - nextWidth) / 2);
+      layer.y = Number(layer.y || 0) + ((oldHeight - nextHeight) / 2);
+    }
+    layer.width = nextWidth;
+    layer.height = nextHeight;
+    layer.naturalWidth = nextWidth;
+    layer.naturalHeight = nextHeight;
+    layer.aspectRatio = nextWidth / nextHeight;
+    layer.preserveAspect = true;
   }
 
   function isHeaderSprite(layer) {

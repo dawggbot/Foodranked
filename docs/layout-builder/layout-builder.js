@@ -8,6 +8,7 @@
   const SAVED_LAYOUT_MESSAGE_ID = 'layoutBuilderSavedLayoutMessage';
   const LAYOUT_STORAGE_KEY = 'foodranked-layout-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-layout-builder-sprite-layouts-v1';
+  const CANVAS_VIEW_ZOOM = 1.22;
   let selectedSavedLayoutId = '';
   let syncTimer = null;
   let syncFrame = 0;
@@ -164,12 +165,22 @@
     shell.style.padding = '0';
   }
 
+  function clearCanvasViewZoom(doc) {
+    const wrap = doc.querySelector('.canvas-wrap');
+    if (!wrap) return;
+    wrap.removeAttribute('data-layout-builder-canvas-zoom');
+    wrap.style.removeProperty('width');
+    wrap.style.removeProperty('height');
+    wrap.style.removeProperty('--layout-builder-canvas-view-zoom');
+  }
+
   function syncCanvasToVisibleDisplay(doc) {
     const shell = doc.querySelector('.phone-shell');
     const canvas = doc.getElementById('canvas');
     if (!shell || !canvas) return;
 
     const win = doc.defaultView || window;
+    clearCanvasViewZoom(doc);
     clearLayoutBuilderDisplayFit(shell);
     const shellRect = shell.getBoundingClientRect();
     if (!shellRect.width || !shellRect.height) return;
@@ -190,6 +201,29 @@
     canvas.style.height = `${canvasHeight.toFixed(3)}px`;
     canvas.style.setProperty('--pixel-unit', String(pixelUnit));
     fitDisplayToCanvas(shell, canvasWidth, canvasHeight);
+  }
+
+  function syncCanvasViewZoom(doc) {
+    const wrap = doc.querySelector('.canvas-wrap');
+    const editor = doc.querySelector('.editor');
+    const canvas = doc.getElementById('canvas');
+    if (!wrap || !canvas) return;
+
+    const canvasStyle = doc.defaultView?.getComputedStyle(canvas);
+    const canvasWidth = Number.parseFloat(canvas.style.width || canvasStyle?.width || '');
+    const canvasHeight = Number.parseFloat(canvas.style.height || canvasStyle?.height || '');
+    if (!Number.isFinite(canvasWidth) || !Number.isFinite(canvasHeight)) return;
+
+    const framePadding = 8;
+    const editorRect = editor?.getBoundingClientRect();
+    const maxZoomByWidth = editorRect?.width ? (editorRect.width - framePadding) / canvasWidth : CANVAS_VIEW_ZOOM;
+    const maxZoomByHeight = editorRect?.height ? (editorRect.height - framePadding) / canvasHeight : CANVAS_VIEW_ZOOM;
+    const zoom = Math.max(1, Math.min(CANVAS_VIEW_ZOOM, maxZoomByWidth, maxZoomByHeight));
+
+    wrap.dataset.layoutBuilderCanvasZoom = 'true';
+    wrap.style.setProperty('--layout-builder-canvas-view-zoom', String(zoom));
+    wrap.style.width = `${((canvasWidth * zoom) + framePadding).toFixed(3)}px`;
+    wrap.style.height = `${((canvasHeight * zoom) + framePadding).toFixed(3)}px`;
   }
 
   function filenameFromPath(path) {
@@ -871,15 +905,29 @@
         background-image: none !important;
       }
 
+      body.layout-builder-mode .editor {
+        align-content: center;
+        grid-template-rows: minmax(0, 1fr) !important;
+      }
+
+      body.layout-builder-mode .editor > .row:first-child,
+      body.layout-builder-mode #canvasMeta {
+        display: none !important;
+      }
+
       body.layout-builder-mode .canvas-wrap {
         align-self: center;
         justify-self: center;
-        width: max-content;
-        height: max-content;
         max-width: 100%;
         max-height: 100%;
         padding: 4px !important;
         overflow: visible !important;
+      }
+
+      body.layout-builder-mode .canvas-wrap[data-layout-builder-canvas-zoom="true"] .phone-shell {
+        transform: scale(var(--layout-builder-canvas-view-zoom, ${CANVAS_VIEW_ZOOM}));
+        transform-origin: center center;
+        will-change: transform;
       }
 
       body.layout-builder-mode .layout-builder-index,
@@ -946,6 +994,7 @@
 
     hideDisplayBuilderControls(doc);
     syncCanvasToVisibleDisplay(doc);
+    syncCanvasViewZoom(doc);
     ensureLayerOrderCard(doc);
     ensureRotateCard(doc);
     ensureSavedLayoutControls(doc);

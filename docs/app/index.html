@@ -1178,7 +1178,7 @@
   <script src="./display-schema.js?v=20260624-section-indicator-no-canvas-v1"></script>
   <script src="./default-layout.js?v=20260624-arrow-default-scale-v1"></script>
   <script>
-    const BUILDER_BUILD_ID = '20260624-section-indicators-disabled-v1';
+    const BUILDER_BUILD_ID = '20260624-layout-text-edit-indicators-v1';
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
     const SECTIONS = [
       { id: 'intro', label: '1. Intro blank', chip: null, indicator: true },
@@ -3763,12 +3763,17 @@
         [`food type ${slug.replace('_', ' ')}`, `${ROOT_SPRITE_BASE}/header/food_type_plate/${slug}_type_plate.png`],
         [`calorie bubble ${slug.replace('_', ' ')}`, `${ROOT_SPRITE_BASE}/header/calorie_bubble/${slug}_calorie_bubble.png`]
       ];
+      const sectionIndicatorItems = APP_MODE === 'layout-builder' ? [
+        [`section indicator ${slug.replace('_', ' ')}`, `${ROOT_SPRITE_BASE}/ui/section_indicator/${slug}_section_indicator.png`],
+        [`highlighted section indicator ${slug.replace('_', ' ')}`, `${ROOT_SPRITE_BASE}/ui/section_indicator/${slug}_highlighted_section_indicator.png`]
+      ] : [];
       const foodCandidates = selectedFood ? [
         ['selected food image', foodSpriteCandidates(selectedFood).primary]
       ] : [];
       return [
         ...foodCandidates,
         ...sectionSpecific,
+        ...sectionIndicatorItems,
         ['fat icon', `${ROOT_SPRITE_BASE}/macros_section/section_1_fats/fat_icon.gif`],
         ['fat submacro bullet', `${ROOT_SPRITE_BASE}/macros_section/section_1_fats/fat_submacro_bullet_point.png`],
         ['macro bar frame', `${ROOT_SPRITE_BASE}/macros_section/macro_bar_frame.png`],
@@ -3799,12 +3804,8 @@
       const rect = els.canvas.getBoundingClientRect();
       const unit = getPixelUnit();
       const idBase = item.label.toLowerCase().replace(/[^a-z0-9]+/g, '_');
-      const itemSrc = state.layout.selectedSectionId === 'outro' && isNormalSectionIndicatorSrc(item.src)
-        ? highlightedSectionIndicatorSrcFor(item.src, getSelectedFoodStub())
-        : item.src;
-      const itemLabel = itemSrc !== item.src && /section indicator/i.test(item.label)
-        ? `${item.label} highlighted`
-        : item.label;
+      const itemSrc = item.src;
+      const itemLabel = item.label;
       const metadata = await loadSpriteMetadata(itemSrc);
       const naturalWidth = metadata?.width || 18;
       const naturalHeight = metadata?.height || 18;
@@ -5163,22 +5164,43 @@
           if (layer.width) node.style.width = `calc(${layer.width}px * var(--pixel-unit))`;
           node.style.textAlign = layer.align || 'left';
           applyOutroScoreGlow(node, layer, state.fullFood || getSelectedFoodStub());
-          node.title = 'Double-click to edit this text in the inspector';
-          node.addEventListener('dblclick', event => {
-            event.preventDefault();
-            event.stopPropagation();
-            state.selectedLayerId = layer.id;
-            renderInspector();
-            els.propText.focus();
-            els.propText.select();
-          });
+          if (APP_MODE === 'layout-builder') {
+            node.contentEditable = 'plaintext-only';
+            node.spellcheck = false;
+            node.title = 'Edit this text directly';
+            node.addEventListener('input', () => {
+              syncEditableTextLayerFromNode(node, layer);
+            });
+            node.addEventListener('blur', () => {
+              syncEditableTextLayerFromNode(node, layer);
+              renderSectionTextList();
+            });
+            node.addEventListener('keydown', event => {
+              if (event.key === 'Escape') {
+                event.preventDefault();
+                node.blur();
+              }
+            });
+          } else {
+            node.title = 'Double-click to edit this text in the inspector';
+            node.addEventListener('dblclick', event => {
+              event.preventDefault();
+              event.stopPropagation();
+              state.selectedLayerId = layer.id;
+              renderInspector();
+              els.propText.focus();
+              els.propText.select();
+            });
+          }
         }
-        attachDrag(node, layer.id);
+        if (!(APP_MODE === 'layout-builder' && layer.kind === 'text')) {
+          attachDrag(node, layer.id);
+        }
         node.addEventListener('click', event => {
           event.stopPropagation();
           state.selectedLayerId = layer.id;
           renderInspector();
-          void renderCanvas();
+          if (!(APP_MODE === 'layout-builder' && layer.kind === 'text')) void renderCanvas();
           renderLayerList();
           renderSectionTextList();
         });
@@ -5222,6 +5244,22 @@
         });
         els.layerList.appendChild(button);
       });
+    }
+
+    function textFromEditableNode(node) {
+      const text = 'innerText' in node ? node.innerText : node.textContent;
+      return String(text || '').replace(/\n$/, '');
+    }
+
+    function syncEditableTextLayerFromNode(node, layer) {
+      const current = getLayerById(layer.id);
+      if (!current) return;
+      current.text = textFromEditableNode(node);
+      current.manualText = true;
+      state.selectedLayerId = current.id;
+      if (document.activeElement !== els.propText) els.propText.value = current.text || '';
+      updateJsonOutput();
+      saveLayout({ normalize: false });
     }
 
     function renderSectionTextList() {

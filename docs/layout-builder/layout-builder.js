@@ -880,8 +880,6 @@
     hideStackByHeading(doc, 'h3', 'Align');
     hideStackByHeading(doc, 'h3', 'Rotate');
     hideStackByHeading(doc, 'h3', 'Layer');
-    hideStackByHeading(doc, 'h2', 'Text boxes in this section');
-
     const staleTextSizer = doc.getElementById('layoutBuilderTextSizeTools');
     staleTextSizer?.remove();
   }
@@ -909,6 +907,14 @@
 
       body.layout-builder-mode #canvas.hide-grid {
         background-image: none !important;
+      }
+
+      body.layout-builder-mode .layer-node.text {
+        cursor: text;
+      }
+
+      body.layout-builder-mode .layer-node.text[contenteditable="plaintext-only"] {
+        caret-color: #ffffff;
       }
 
       body.layout-builder-mode .app {

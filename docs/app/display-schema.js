@@ -26,7 +26,7 @@
     type: 'dotRow',
     count: 9,
     x: 343,
-    y: 1710,
+    y: 1424,
     dotSize: 26,
     gap: 20,
     states: ['inactive', 'active', 'completed'],
@@ -97,7 +97,7 @@
   }
 
   window.FOODRANKED_DISPLAY_SCHEMA = {
-    version: '20260622-display-schema-v2',
+    version: '20260624-section-indicator-no-canvas-v1',
     templateCanvas: TEMPLATE_CANVAS,
     authorGrid: AUTHOR_GRID,
     progressIndicator: TEMPLATE_PROGRESS_INDICATOR,

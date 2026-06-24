@@ -314,7 +314,7 @@ h2 {
 }
 
 .phone-shell {
-  width: calc(var(--grid-width) * 1px * var(--pixel-unit) + 12px);
+  width: min(420px, calc(var(--grid-width) * 1px * var(--pixel-unit) + 12px));
   aspect-ratio: 9 / 16;
   position: relative;
   overflow: hidden;
@@ -328,6 +328,12 @@ h2 {
   place-items: center;
   padding: 0;
   min-height: 0;
+}
+
+@media (min-width: 761px) and (max-width: 1500px), (min-width: 761px) and (max-height: 850px) {
+  .phone-shell {
+    width: min(420px, calc(var(--grid-width) * 1px * var(--pixel-unit) * 0.7777778));
+  }
 }
 
 .video-stage {

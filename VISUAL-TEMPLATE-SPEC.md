@@ -167,7 +167,7 @@ These 9 scenes are the video progress sections. The 7 middle scenes are the scor
 ## Progress dots
 - **9 dots total**
 - centered horizontally near bottom
-- y: around **1710**
+- y: around **1424**
 - each dot corresponds to one video section, including the hook and final verdict
 
 ## Dot states

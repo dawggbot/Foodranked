@@ -3,12 +3,12 @@
   const FOOD_LAYOUTS_STORAGE_KEY = 'foodranked-display-builder-food-layouts-v1';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260624-section-indicator-visible-v2';
+  const BUILDER_BUILD_ID = '20260624-section-indicator-no-canvas-v1';
   const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
-  const SECTION_INDICATOR_LAYOUT = window.FOODRANKED_DISPLAY_SCHEMA?.sectionIndicatorLayout || { startX: 42.875, y: 213.75, stepX: 5.75, normalSize: 3.25, highlightedSize: 3.9 };
+  const SECTION_INDICATOR_LAYOUT = window.FOODRANKED_DISPLAY_SCHEMA?.sectionIndicatorLayout || { startX: 42.875, y: 178, stepX: 5.75, normalSize: 3.25, highlightedSize: 3.9 };
   const CAPTION_SAFE_X = 7;
   const CAPTION_MAX_LINES = 2;
   const CAPTION_MAX_LINE_CHARS = 18;
@@ -1073,6 +1073,13 @@
     };
   }
 
+  function syncManagedSectionIndicatorPosition(layer, sectionId, index) {
+    if (!isManagedSectionIndicatorId(layer?.id, sectionId)) return;
+    const position = defaultSectionIndicatorPosition(index);
+    layer.x = position.x;
+    layer.y = position.y;
+  }
+
   function ensureSectionIndicatorLayers(layout, food) {
     for (const section of SECTIONS) {
       const sectionLayers = getSectionLayers(layout, section.id);
@@ -1295,6 +1302,7 @@
       const activeIndex = indicatorSectionIndex(section.id);
       layers.forEach((layer, index) => {
         const highlighted = index === activeIndex;
+        syncManagedSectionIndicatorPosition(layer, section.id, index);
         layer.src = indicatorPath(food, highlighted);
         layer.width = highlighted ? SECTION_INDICATOR_LAYOUT.highlightedSize : SECTION_INDICATOR_LAYOUT.normalSize;
         layer.height = highlighted ? SECTION_INDICATOR_LAYOUT.highlightedSize : SECTION_INDICATOR_LAYOUT.normalSize;
@@ -2898,15 +2906,23 @@
   }
 
   function getResponsiveAssetScale() {
+    const desktopComfortable = window.innerWidth >= 1600 && window.innerHeight >= 900;
+    if (desktopComfortable) return 4;
+
     const compactLaptop = (window.innerWidth <= 1500 || window.innerHeight <= 850) && window.innerWidth > 760;
+    const laptopCanvasCrop = compactLaptop;
     const tightLaptop = window.innerWidth <= 1180 && window.innerWidth > 760;
     const reservedWidth = tightLaptop ? 530 : (compactLaptop ? 660 : 690);
     const reservedHeight = tightLaptop ? 154 : (compactLaptop ? 150 : 210);
+    const minimumScale = tightLaptop ? 1.12 : (compactLaptop ? 1.30 : 1.45);
     const verticalRoom = Math.max(300, window.innerHeight - reservedHeight);
-    const horizontalRoom = Math.max(280, window.innerWidth - reservedWidth);
-    const scaleFromHeight = (verticalRoom - 12) / AUTHOR_GRID.height;
-    const scaleFromWidth = (horizontalRoom - 24) / AUTHOR_GRID.width;
-    return Math.max(0.9, Math.min(4, scaleFromHeight, scaleFromWidth));
+    const scaleFromHeight = laptopCanvasCrop
+      ? (verticalRoom - 12) / (AUTHOR_GRID.height * (7 / 9))
+      : (((verticalRoom * 9) / 16) - 12) / AUTHOR_GRID.width;
+    const scaleFromWidth = laptopCanvasCrop
+      ? (Math.max(280, window.innerWidth - reservedWidth) - 24) / (AUTHOR_GRID.width * (7 / 9))
+      : (Math.max(280, window.innerWidth - reservedWidth) - 24) / AUTHOR_GRID.width;
+    return Math.max(minimumScale, Math.min(4, scaleFromHeight, scaleFromWidth));
   }
 
   function setCanvasScale() {

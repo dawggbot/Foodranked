@@ -8,6 +8,7 @@
   const SAVED_LAYOUT_MESSAGE_ID = 'layoutBuilderSavedLayoutMessage';
   const LAYOUT_STORAGE_KEY = 'foodranked-layout-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-layout-builder-sprite-layouts-v1';
+  // Locked approved view zoom: do not change without an explicit layout-builder zoom request.
   const CANVAS_VIEW_ZOOM = 1.52;
   let selectedSavedLayoutId = '';
   let syncTimer = null;

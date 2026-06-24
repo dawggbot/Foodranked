@@ -954,7 +954,7 @@
         <div class="stack">
           <h2>Display sections</h2>
           <div id="sectionList" class="section-list"></div>
-          <p class="small muted">Video flow now uses 9 steps total: intro blank, fats, carbs, protein, vitamins, minerals, pros, cons, outro blank/verdict. The 9 section indicators highlight exactly the current section.</p>
+          <p class="small muted">Video flow uses 9 steps total: intro blank, fats, carbs, protein, vitamins, minerals, pros, cons, outro blank/verdict. Section indicators are disabled while the row is rebuilt.</p>
         </div>
 
         <div class="stack">
@@ -1178,7 +1178,7 @@
   <script src="./display-schema.js?v=20260624-section-indicator-no-canvas-v1"></script>
   <script src="./default-layout.js?v=20260624-arrow-default-scale-v1"></script>
   <script>
-    const BUILDER_BUILD_ID = '20260624-section-indicator-no-canvas-v1';
+    const BUILDER_BUILD_ID = '20260624-section-indicators-disabled-v1';
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
     const SECTIONS = [
       { id: 'intro', label: '1. Intro blank', chip: null, indicator: true },
@@ -2972,10 +2972,7 @@
     function filterDeletedLayers(layout) {
       const deletedIds = deletedLayerIdSet(layout);
       if (!deletedIds.size) return;
-      const activeDeletedIds = new Set([...deletedIds].filter(id => !isAnyManagedSectionIndicatorId(id)));
-      if (activeDeletedIds.size !== deletedIds.size && layout.meta) {
-        layout.meta.deletedLayerIds = [...activeDeletedIds].sort();
-      }
+      const activeDeletedIds = deletedIds;
       for (const section of SECTIONS) {
         layout.sections[section.id].layers = getSectionLayersFromLayout(layout, section.id)
           .filter(layer => !layer.id || !activeDeletedIds.has(String(layer.id)));
@@ -3001,6 +2998,7 @@
             normalizeArrowIndicatorSpriteSize(layer);
           }
           if (isObsoleteMacroBarFrameOrFillSpriteLayer(layer)) return false;
+          if (isLegacyAutoSectionIndicatorLayer(layer, section.id)) return false;
           if (isObsoleteOutroScoreDisplayLayer(layer)) return false;
           if (isGeneratedOutroTierStampLayer(layer)) return false;
           if (isEmptyJunkLayer(layer)) return false;
@@ -3022,8 +3020,6 @@
       ensureImpactTextLayers(normalized, 'pros');
       ensureImpactTextLayers(normalized, 'cons');
       ensureOutroScoreDisplayLayers(normalized);
-      ensureSectionIndicatorLayers(normalized);
-      syncSectionIndicatorLayoutFromIntro(normalized);
       syncLockedGlobalLayersFromOutro(normalized);
       syncHeaderLayoutFromIntro(normalized);
       filterDeletedLayers(normalized);
@@ -3457,19 +3453,7 @@
     }
 
     function syncManualOutroHighlightedIndicators(layout, food = getSelectedFoodStub()) {
-      const outroLayers = getSectionLayersFromLayout(layout, 'outro');
-      outroLayers.forEach(layer => {
-        if (!isSectionIndicatorSpriteLayer(layer)) return;
-        const label = String(layer.label || '').toLowerCase();
-        const id = String(layer.id || '').toLowerCase();
-        const isManualLibraryIndicator = label.startsWith('library:') || id.startsWith('lib_section_indicator_');
-        if (!isManualLibraryIndicator) return;
-        layer.src = highlightedSectionIndicatorSrcFor(layer.src, food);
-        if (layer.fallbackSrc) layer.fallbackSrc = highlightedSectionIndicatorSrcFor(layer.fallbackSrc, food);
-        if ((Number(layer.width) || 0) <= SECTION_INDICATOR_LAYOUT.normalSize) layer.width = SECTION_INDICATOR_LAYOUT.highlightedSize;
-        if ((Number(layer.height) || 0) <= SECTION_INDICATOR_LAYOUT.normalSize) layer.height = SECTION_INDICATOR_LAYOUT.highlightedSize;
-        layer.label = layer.label || 'Library: section indicator highlighted';
-      });
+      // Manual replacement indicators should stay fully user-controlled.
     }
 
     function indicatorSections() {
@@ -3505,6 +3489,17 @@
 
     function isManagedSectionIndicatorLayer(layer, sectionId) {
       return isManagedSectionIndicatorLayerId(layer?.id, sectionId);
+    }
+
+    function isLegacyAutoSectionIndicatorLayer(layer, sectionId) {
+      if (!isSectionIndicatorSpriteLayer(layer)) return false;
+      const id = String(layer?.id || '').toLowerCase();
+      const label = String(layer?.label || '').trim().toLowerCase();
+      if (isManagedSectionIndicatorLayer(layer, sectionId)) return true;
+      if (new RegExp(`^${sectionId}_recovered_section_indicator_slot_\\d+`, 'i').test(id)) return true;
+      if (id.startsWith('lib_section_indicator_')) return false;
+      if (label.startsWith('library:')) return false;
+      return label === 'section indicator' || label === 'highlighted section indicator';
     }
 
     function syncManagedSectionIndicatorPosition(layer, sectionId, index) {
@@ -3682,25 +3677,7 @@
     }
 
     function syncSectionIndicatorSprites(layout, food = getSelectedFoodStub()) {
-      for (const section of SECTIONS) {
-        const activeIndex = indicatorSectionIndex(section.id);
-        let indicators = sectionIndicatorLayersForSection(layout, section.id);
-        if (indicators.length < SECTION_INDICATOR_COUNT) {
-          ensureSectionIndicatorLayers(layout);
-          syncSectionIndicatorLayoutFromIntro(layout);
-          indicators = sectionIndicatorLayersForSection(layout, section.id);
-        }
-        indicators.forEach((layer, index) => {
-          const isActive = index === activeIndex;
-          syncManagedSectionIndicatorPosition(layer, section.id, index);
-          layer.src = sectionIndicatorSpritePath(food, isActive);
-          layer.label = isActive ? 'Highlighted section indicator' : 'Section indicator';
-          layer.visible = true;
-          layer.width = isActive ? SECTION_INDICATOR_LAYOUT.highlightedSize : SECTION_INDICATOR_LAYOUT.normalSize;
-          layer.height = isActive ? SECTION_INDICATOR_LAYOUT.highlightedSize : SECTION_INDICATOR_LAYOUT.normalSize;
-          layer.z = layer.z || 25;
-        });
-      }
+      // Managed section indicators are disabled while the row is being rebuilt.
     }
 
     function appLocalAssetPath(path) {
@@ -5127,7 +5104,7 @@
         node.style.zIndex = String(layer.z || 0);
         applyLayerRenderStyle(node, layer);
         if (layer.kind === 'sprite') {
-          const isIndicatorLayer = isSectionIndicatorSpriteLayer(layer);
+          const isIndicatorLayer = isManagedSectionIndicatorLayer(layer, state.layout.selectedSectionId);
           const isActiveIndicator = isActiveSectionIndicatorLayer(layer, state.layout.selectedSectionId);
           const renderedSrc = renderedSectionIndicatorSrc(layer, state.layout.selectedSectionId, state.fullFood || getSelectedFoodStub());
           const isHighlightedIndicator = isIndicatorLayer && (isActiveIndicator || isHighlightedSectionIndicatorSrc(renderedSrc));

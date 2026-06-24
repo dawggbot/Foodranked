@@ -3,7 +3,7 @@
   const FOOD_LAYOUTS_STORAGE_KEY = 'foodranked-display-builder-food-layouts-v1';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260624-section-indicator-no-canvas-v1';
+  const BUILDER_BUILD_ID = '20260624-section-indicators-disabled-v1';
   const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -1081,15 +1081,7 @@
   }
 
   function ensureSectionIndicatorLayers(layout, food) {
-    for (const section of SECTIONS) {
-      const sectionLayers = getSectionLayers(layout, section.id);
-      const indicators = normalizeProgressIndicatorSlots(sectionLayers.filter(isSectionIndicator));
-      for (let index = indicators.length; index < SECTIONS.length; index += 1) {
-        const layer = createSectionIndicatorLayer(section.id, index, food);
-        indicators.push(layer);
-        sectionLayers.push(layer);
-      }
-    }
+    // Managed section indicators are disabled while the row is being rebuilt.
   }
 
   function compareIndicatorsByPosition(a, b) {
@@ -1297,18 +1289,7 @@
   }
 
   function syncSectionIndicators(layout, food) {
-    for (const section of SECTIONS) {
-      const layers = normalizeProgressIndicatorSlots(getSectionLayers(layout, section.id).filter(isSectionIndicator));
-      const activeIndex = indicatorSectionIndex(section.id);
-      layers.forEach((layer, index) => {
-        const highlighted = index === activeIndex;
-        syncManagedSectionIndicatorPosition(layer, section.id, index);
-        layer.src = indicatorPath(food, highlighted);
-        layer.width = highlighted ? SECTION_INDICATOR_LAYOUT.highlightedSize : SECTION_INDICATOR_LAYOUT.normalSize;
-        layer.height = highlighted ? SECTION_INDICATOR_LAYOUT.highlightedSize : SECTION_INDICATOR_LAYOUT.normalSize;
-        layer.visible = true;
-      });
-    }
+    // Managed section indicators are disabled while the row is being rebuilt.
   }
 
   function syncMacroText(layout, food) {
@@ -2659,31 +2640,10 @@
     const introHeader = introLayers.filter(isHeaderChrome);
     const sectionUiChrome = sectionLayers.filter(layer => isPersistentChrome(layer) && !isHeaderChrome(layer));
     const introUiChrome = introLayers.filter(layer => isPersistentChrome(layer) && !isHeaderChrome(layer));
-    const sectionIndicators = sectionLayers.filter(isSectionIndicator);
-    const introIndicators = introLayers.filter(isSectionIndicator);
-    const rawLayers = [
+    return [
       ...(sectionHeader.length ? sectionHeader : introHeader),
-      ...(sectionUiChrome.length ? sectionUiChrome : introUiChrome),
-      ...(sectionIndicators.length ? sectionIndicators : introIndicators)
+      ...(sectionUiChrome.length ? sectionUiChrome : introUiChrome)
     ].map(clone);
-    const indicators = normalizeProgressIndicatorSlots(rawLayers.filter(isSectionIndicator));
-    const visibleIndicatorSet = new Set(indicators);
-    const layers = rawLayers.filter(layer => !isSectionIndicator(layer) || visibleIndicatorSet.has(layer));
-    const activeIndex = indicatorSectionIndex(sectionId);
-    indicators.forEach((layer, index) => {
-      const highlighted = index === activeIndex;
-      layer.src = indicatorPath(food, highlighted);
-      layer.label = highlighted ? 'Highlighted section indicator' : 'Section indicator';
-      layer.width = highlighted ? SECTION_INDICATOR_LAYOUT.highlightedSize : SECTION_INDICATOR_LAYOUT.normalSize;
-      layer.height = highlighted ? SECTION_INDICATOR_LAYOUT.highlightedSize : SECTION_INDICATOR_LAYOUT.normalSize;
-      layer.z = Math.max(Number(layer.z) || 0, highlighted ? 36 : 25);
-      if (highlighted) {
-        const offset = sectionIndicatorHighlightOffset();
-        layer.x = (Number(layer.x) || 0) - offset;
-        layer.y = (Number(layer.y) || 0) - offset;
-      }
-    });
-    return layers;
   }
 
   function sceneContentLayers(sectionId) {

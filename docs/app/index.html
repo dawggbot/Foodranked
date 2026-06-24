@@ -1176,9 +1176,9 @@
 
   <script src="../data/foods-index.js?v=20260620-macro-display-data-v1"></script>
   <script src="./display-schema.js?v=20260622-display-schema-v2"></script>
-  <script src="./default-layout.js?v=20260624-arrow-native-size-v1"></script>
+  <script src="./default-layout.js?v=20260624-arrow-default-scale-v1"></script>
   <script>
-    const BUILDER_BUILD_ID = '20260624-arrow-native-size-v1';
+    const BUILDER_BUILD_ID = '20260624-arrow-default-scale-v1';
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
     const SECTIONS = [
       { id: 'intro', label: '1. Intro blank', chip: null, indicator: true },
@@ -1219,7 +1219,7 @@
     ];
     const AUTHOR_GRID = { width: 135, height: 240 };
     const ROOT_SPRITE_BASE = './sprites';
-    const ARROW_INDICATOR_NATIVE_SIZE = { width: 7, height: 14 };
+    const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
     const FOOD_JSON_CACHE = new Map();
     const BATCH_RESULTS_CACHE = new Map();
     const SPRITE_EXISTENCE_CACHE = new Map();
@@ -1617,8 +1617,10 @@
 
     function normalizeArrowIndicatorSpriteSize(layer) {
       if (!isArrowIndicatorSpriteLayer(layer)) return;
-      const nextWidth = ARROW_INDICATOR_NATIVE_SIZE.width;
-      const nextHeight = ARROW_INDICATOR_NATIVE_SIZE.height;
+      const naturalWidth = Number(layer.naturalWidth || layer.width || 1);
+      const naturalHeight = Number(layer.naturalHeight || layer.height || 1);
+      const nextWidth = Math.max(1, Math.round(naturalWidth * SPRITE_LIBRARY_DEFAULT_DROP_SCALE));
+      const nextHeight = Math.max(1, Math.round(naturalHeight * SPRITE_LIBRARY_DEFAULT_DROP_SCALE));
       const oldWidth = Number.isFinite(Number(layer.width)) ? Number(layer.width) : nextWidth;
       const oldHeight = Number.isFinite(Number(layer.height)) ? Number(layer.height) : nextHeight;
       if (oldWidth !== nextWidth || oldHeight !== nextHeight) {
@@ -1627,9 +1629,9 @@
       }
       layer.width = nextWidth;
       layer.height = nextHeight;
-      layer.naturalWidth = nextWidth;
-      layer.naturalHeight = nextHeight;
-      layer.aspectRatio = nextWidth / nextHeight;
+      layer.naturalWidth = naturalWidth;
+      layer.naturalHeight = naturalHeight;
+      layer.aspectRatio = naturalHeight ? naturalWidth / naturalHeight : null;
       layer.preserveAspect = true;
     }
 
@@ -3787,8 +3789,8 @@
         ...microsBarSpriteItems(),
         ['pro bullet', `${ROOT_SPRITE_BASE}/pros_and_cons/pros/pro_bullet_point.png`],
         ['con bullet', `${ROOT_SPRITE_BASE}/pros_and_cons/cons/con_bullet_point.png`],
-        ['green arrow', `${ROOT_SPRITE_BASE}/macros_section/arrow_indicators/green_arrow.png`, { dropScale: 1 }],
-        ['red arrow', `${ROOT_SPRITE_BASE}/macros_section/arrow_indicators/red_arrow.png`, { dropScale: 1 }],
+        ['green arrow', `${ROOT_SPRITE_BASE}/macros_section/arrow_indicators/green_arrow.png`],
+        ['red arrow', `${ROOT_SPRITE_BASE}/macros_section/arrow_indicators/red_arrow.png`],
         ['ranked intro lockup', `${ROOT_SPRITE_BASE}/ui/intro_&_outro/ranked.png`],
         ['food name line', `${ROOT_SPRITE_BASE}/header/header_ui/food_name_line.png`],
         ['per 100g line', `${ROOT_SPRITE_BASE}/header/header_ui/per_100g_line.png`],

@@ -3,11 +3,11 @@
   const FOOD_LAYOUTS_STORAGE_KEY = 'foodranked-display-builder-food-layouts-v1';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260624-arrow-native-size-v1';
+  const BUILDER_BUILD_ID = '20260624-arrow-default-scale-v1';
   const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
-  const ARROW_INDICATOR_NATIVE_SIZE = { width: 7, height: 14 };
+  const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
   const SECTION_INDICATOR_LAYOUT = { normalSize: 3.25, highlightedSize: 3.9 };
   const CAPTION_SAFE_X = 7;
   const CAPTION_MAX_LINES = 2;
@@ -982,8 +982,10 @@
 
   function normalizeArrowIndicatorSpriteSize(layer) {
     if (!isArrowIndicatorSpriteLayer(layer)) return;
-    const nextWidth = ARROW_INDICATOR_NATIVE_SIZE.width;
-    const nextHeight = ARROW_INDICATOR_NATIVE_SIZE.height;
+    const naturalWidth = Number(layer.naturalWidth || layer.width || 1);
+    const naturalHeight = Number(layer.naturalHeight || layer.height || 1);
+    const nextWidth = Math.max(1, Math.round(naturalWidth * SPRITE_LIBRARY_DEFAULT_DROP_SCALE));
+    const nextHeight = Math.max(1, Math.round(naturalHeight * SPRITE_LIBRARY_DEFAULT_DROP_SCALE));
     const oldWidth = Number.isFinite(Number(layer.width)) ? Number(layer.width) : nextWidth;
     const oldHeight = Number.isFinite(Number(layer.height)) ? Number(layer.height) : nextHeight;
     if (oldWidth !== nextWidth || oldHeight !== nextHeight) {
@@ -992,9 +994,9 @@
     }
     layer.width = nextWidth;
     layer.height = nextHeight;
-    layer.naturalWidth = nextWidth;
-    layer.naturalHeight = nextHeight;
-    layer.aspectRatio = nextWidth / nextHeight;
+    layer.naturalWidth = naturalWidth;
+    layer.naturalHeight = naturalHeight;
+    layer.aspectRatio = naturalHeight ? naturalWidth / naturalHeight : null;
     layer.preserveAspect = true;
   }
 

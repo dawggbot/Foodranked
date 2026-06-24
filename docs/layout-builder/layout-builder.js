@@ -106,6 +106,42 @@
     };
   }
 
+  function layerRight(layer) {
+    return (Number(layer?.x) || 0) + (Number(layer?.width) || 0);
+  }
+
+  function sectionLayersForCurrentLayout(doc) {
+    const layout = currentLayout(doc);
+    const sectionId = layout?.selectedSectionId || 'protein';
+    const layers = layout?.sections?.[sectionId]?.layers;
+    return Array.isArray(layers) ? { sectionId, layers } : { sectionId, layers: [] };
+  }
+
+  function isSectionSeparatorLayer(layer) {
+    const fingerprint = `${layer?.id || ''} ${layer?.label || ''} ${layer?.src || ''}`.toLowerCase();
+    return fingerprint.includes('/ui/section_separator/') || fingerprint.includes('section separator');
+  }
+
+  function isMainSectionIndicatorLayer(layer, sectionId) {
+    const fingerprint = `${layer?.id || ''} ${layer?.label || ''} ${layer?.src || ''}`.toLowerCase();
+    return fingerprint.includes(`${sectionId}_macro_bar_frame`)
+      || fingerprint.includes(`${sectionId}_macro_bar_fill`)
+      || fingerprint.includes('macro bar frame')
+      || fingerprint.includes('macro bar fill');
+  }
+
+  function alignedCanvasGridWidth(doc, fallbackWidth) {
+    const { sectionId, layers } = sectionLayersForCurrentLayout(doc);
+    const separators = layers.filter(isSectionSeparatorLayer);
+    const sectionIndicators = layers.filter(layer => isMainSectionIndicatorLayer(layer, sectionId));
+    if (!separators.length || !sectionIndicators.length) return fallbackWidth;
+
+    const separatorLeft = Math.min(...separators.map(layer => Number(layer.x) || 0));
+    const indicatorRight = Math.max(...sectionIndicators.map(layerRight));
+    const width = separatorLeft + indicatorRight;
+    return Number.isFinite(width) && width > 0 ? Math.min(fallbackWidth, width) : fallbackWidth;
+  }
+
   function syncCanvasToVisibleDisplay(doc) {
     const shell = doc.querySelector('.phone-shell');
     const canvas = doc.getElementById('canvas');
@@ -128,8 +164,10 @@
       - cssPixels(shellStyle.paddingBottom);
     const grid = authorGrid();
     const pixelUnit = Math.max(0.1, displayWidth / grid.width);
+    const canvasGridWidth = alignedCanvasGridWidth(doc, grid.width);
+    const canvasWidth = canvasGridWidth * pixelUnit;
 
-    canvas.style.width = `${displayWidth.toFixed(3)}px`;
+    canvas.style.width = `${canvasWidth.toFixed(3)}px`;
     canvas.style.height = `${displayHeight.toFixed(3)}px`;
     canvas.style.setProperty('--pixel-unit', String(pixelUnit));
   }

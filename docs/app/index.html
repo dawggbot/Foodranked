@@ -1180,7 +1180,7 @@
   <script>
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     const BUILDER_BUILD_ID = APP_MODE === 'layout-builder'
-      ? '20260624-layout-text-fit-v1'
+      ? '20260624-layout-fats-template-v1'
       : '20260624-section-indicators-disabled-v1';
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
     const SECTIONS = [
@@ -1202,7 +1202,8 @@
     const LOCAL_STORAGE_KEY = `${STORAGE_PREFIX}-v4`;
     const FOOD_LAYOUTS_STORAGE_KEY = `${STORAGE_PREFIX}-food-layouts-v1`;
     const SAVED_SPRITE_LAYOUTS_KEY = `${STORAGE_PREFIX}-sprite-layouts-v1`;
-    const MACRO_SECTION_LAYOUT_SYNC_KEY = 'macroSectionLayoutFromFatsV5';
+    const MACRO_SECTION_LAYOUT_SYNC_KEY = 'macroSectionLayoutFromFatsV6';
+    const HEADER_LAYOUT_SYNC_KEY = 'headerLayoutFromFatsV1';
     const MACRO_BAR_PLACEMENT_SOURCE_FOOD_ID = 'bacon';
     const MACRO_BAR_PLACEMENT_SOURCE_SECTION_ID = 'fats';
     const MACRO_BAR_PLACEMENT_SECTIONS = ['fats', 'carbs', 'protein'];
@@ -1821,6 +1822,34 @@
       // Layouts are intentionally editable per section; do not mirror header positions.
     }
 
+    function syncHeaderLayoutFromFats(layout, { force = false } = {}) {
+      if (APP_MODE !== 'layout-builder') return false;
+      layout.meta = layout.meta || {};
+      if (!force && layout.meta[HEADER_LAYOUT_SYNC_KEY]) return false;
+
+      const sourceLayers = getSectionLayersFromLayout(layout, 'fats').filter(isHeaderLayoutLayer);
+      if (!sourceLayers.length) return false;
+      const sourceIds = sourceLayers.map(layer => layer.id).filter(Boolean);
+      let changed = false;
+
+      for (const section of SECTIONS) {
+        if (section.id === 'fats') continue;
+        const sectionLayers = getSectionLayersFromLayout(layout, section.id);
+        const nextLayers = sectionLayers.filter(layer => {
+          if (isHeaderLayoutLayer(layer)) return false;
+          if (layer.id && sourceIds.includes(layer.id)) return false;
+          return true;
+        });
+        nextLayers.push(...sourceLayers.map(cloneLayer));
+        layout.sections[section.id].layers = nextLayers;
+        changed = true;
+      }
+
+      restoreDeletedLayerIds(layout, sourceIds);
+      layout.meta[HEADER_LAYOUT_SYNC_KEY] = true;
+      return changed;
+    }
+
     function syncLockedGlobalLayersFromOutro(layout) {
       // Layouts are intentionally editable per section; do not mirror global UI layers.
     }
@@ -1828,7 +1857,6 @@
     function isMacroLayoutTemplateLayer(layer) {
       if (!layer) return false;
       if (isLockedUiSpriteLayer(layer) || isHeaderLayoutLayer(layer)) return false;
-      if (isTextLayer(layer) && /^fats_macro_(label|value)$/i.test(String(layer.id || ''))) return false;
       return isSpriteLayer(layer) || isTextLayer(layer);
     }
 
@@ -1999,6 +2027,7 @@
           return true;
         });
         layout.sections[targetKind].layers = [...preserved, ...merged];
+        restoreDeletedLayerIds(layout, [...mappedIds]);
         ensureMacroSubmetricTextLayers(layout, targetKind);
       }
 
@@ -2992,6 +3021,19 @@
       layout.meta.deletedLayerIds = [...deletedIds].sort();
     }
 
+    function restoreDeletedLayerIds(layout, ids) {
+      const deletedIds = deletedLayerIdSet(layout);
+      if (!deletedIds.size || !ids?.length) return;
+      let changed = false;
+      for (const id of ids) {
+        if (!deletedIds.delete(String(id))) continue;
+        changed = true;
+      }
+      if (!changed) return;
+      if (deletedIds.size) layout.meta.deletedLayerIds = [...deletedIds].sort();
+      else delete layout.meta.deletedLayerIds;
+    }
+
     function recoverLayoutBuilderDeletedTextLayers(layout) {
       if (APP_MODE !== 'layout-builder') return;
       layout.meta = layout.meta || {};
@@ -3059,6 +3101,10 @@
       ensureImpactTextLayers(normalized, 'pros');
       ensureImpactTextLayers(normalized, 'cons');
       ensureOutroScoreDisplayLayers(normalized);
+      if (APP_MODE === 'layout-builder') {
+        syncMacroSectionLayoutFromFats(normalized);
+        syncHeaderLayoutFromFats(normalized);
+      }
       syncLockedGlobalLayersFromOutro(normalized);
       syncHeaderLayoutFromIntro(normalized);
       recoverLayoutBuilderDeletedTextLayers(normalized);
@@ -5925,6 +5971,7 @@ async function renderAll() {
     });
     els.applyMacroTemplate.addEventListener('click', () => {
       syncMacroSectionLayoutFromFats(state.layout, { force: true });
+      syncHeaderLayoutFromFats(state.layout, { force: true });
       syncFoodIntoLayout(state.fullFood, { normalize: false });
       state.selectedLayerId = null;
       void renderAll();

@@ -1180,7 +1180,7 @@
   <script>
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     const BUILDER_BUILD_ID = APP_MODE === 'layout-builder'
-      ? '20260624-layout-arrow-library-v1'
+      ? '20260624-layout-arrow-library-v2'
       : '20260624-section-indicators-disabled-v1';
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
     const SECTIONS = [
@@ -1622,10 +1622,18 @@
       return fingerprint.includes('/arrow_indicators/') || /arrow indicator/.test(fingerprint);
     }
 
+    function arrowIndicatorNaturalSize(layer) {
+      const src = String(layer?.src || '').toLowerCase();
+      if (/\/(?:green|red)_arrow_2\.png(?:$|[?#])/.test(src)) return { width: 12, height: 14 };
+      return {
+        width: Number(layer.naturalWidth || layer.width || 1),
+        height: Number(layer.naturalHeight || layer.height || 1)
+      };
+    }
+
     function normalizeArrowIndicatorSpriteSize(layer) {
       if (!isArrowIndicatorSpriteLayer(layer)) return;
-      const naturalWidth = Number(layer.naturalWidth || layer.width || 1);
-      const naturalHeight = Number(layer.naturalHeight || layer.height || 1);
+      const { width: naturalWidth, height: naturalHeight } = arrowIndicatorNaturalSize(layer);
       const nextWidth = Math.max(1, Math.round(naturalWidth * SPRITE_LIBRARY_DEFAULT_DROP_SCALE));
       const nextHeight = Math.max(1, Math.round(naturalHeight * SPRITE_LIBRARY_DEFAULT_DROP_SCALE));
       const oldWidth = Number.isFinite(Number(layer.width)) ? Number(layer.width) : nextWidth;
@@ -2927,6 +2935,10 @@
       if (src.includes('/ui/section_separator/')) return `${prefix}Section separator`;
       if (src.includes('/ui/section_indicator/') && src.includes('highlighted')) return `${prefix}Highlighted section indicator`;
       if (src.includes('/ui/section_indicator/')) return `${prefix}Section indicator`;
+      if (src.includes('/arrow_indicators/green_arrow_2')) return `${prefix}Green 2-arrow indicator`;
+      if (src.includes('/arrow_indicators/green_arrow_3')) return `${prefix}Green 3-arrow indicator`;
+      if (src.includes('/arrow_indicators/red_arrow_2')) return `${prefix}Red 2-arrow indicator`;
+      if (src.includes('/arrow_indicators/red_arrow_3')) return `${prefix}Red 3-arrow indicator`;
       if (src.includes('/arrow_indicators/green_arrow')) return `${prefix}Green arrow indicator`;
       if (src.includes('/arrow_indicators/red_arrow')) return `${prefix}Red arrow indicator`;
       if (src.includes('/macros_section/macro_bar_frame')) return `${prefix}Macro bar frame`;

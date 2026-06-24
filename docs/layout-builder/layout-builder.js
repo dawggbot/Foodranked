@@ -157,18 +157,14 @@
       - cssPixels(shellStyle.borderRightWidth)
       - cssPixels(shellStyle.paddingLeft)
       - cssPixels(shellStyle.paddingRight);
-    const displayHeight = shellRect.height
-      - cssPixels(shellStyle.borderTopWidth)
-      - cssPixels(shellStyle.borderBottomWidth)
-      - cssPixels(shellStyle.paddingTop)
-      - cssPixels(shellStyle.paddingBottom);
     const grid = authorGrid();
     const pixelUnit = Math.max(0.1, displayWidth / grid.width);
     const canvasGridWidth = alignedCanvasGridWidth(doc, grid.width);
     const canvasWidth = canvasGridWidth * pixelUnit;
+    const canvasHeight = canvasWidth * (16 / 9);
 
     canvas.style.width = `${canvasWidth.toFixed(3)}px`;
-    canvas.style.height = `${displayHeight.toFixed(3)}px`;
+    canvas.style.height = `${canvasHeight.toFixed(3)}px`;
     canvas.style.setProperty('--pixel-unit', String(pixelUnit));
   }
 

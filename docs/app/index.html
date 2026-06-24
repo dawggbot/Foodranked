@@ -1180,7 +1180,7 @@
   <script>
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     const BUILDER_BUILD_ID = APP_MODE === 'layout-builder'
-      ? '20260624-layout-text-clip-bleed-v1'
+      ? '20260624-layout-text-recovery-v1'
       : '20260624-section-indicators-disabled-v1';
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
     const SECTIONS = [
@@ -1224,6 +1224,7 @@
     const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
     const TEXT_LAYER_LINE_HEIGHT = 1.15;
     const TEXT_LAYER_CLIP_BLEED = 2;
+    const LAYOUT_BUILDER_TEXT_RECOVERY_META_KEY = 'layoutBuilderTextRecoveryV1';
     const FOOD_JSON_CACHE = new Map();
     const BATCH_RESULTS_CACHE = new Map();
     const SPRITE_EXISTENCE_CACHE = new Map();
@@ -2991,6 +2992,40 @@
       layout.meta.deletedLayerIds = [...deletedIds].sort();
     }
 
+    function recoverLayoutBuilderDeletedTextLayers(layout) {
+      if (APP_MODE !== 'layout-builder') return;
+      layout.meta = layout.meta || {};
+      if (layout.meta[LAYOUT_BUILDER_TEXT_RECOVERY_META_KEY]) return;
+
+      for (const section of SECTIONS) {
+        const sectionLayers = getSectionLayersFromLayout(layout, section.id);
+        const existingIds = new Set(sectionLayers.map(layer => String(layer.id || '')).filter(Boolean));
+        const defaultTextLayers = getSectionLayersFromLayout(DEFAULT_LAYOUT, section.id).filter(isTextLayer);
+        for (const defaultLayer of defaultTextLayers) {
+          if (!defaultLayer.id || existingIds.has(String(defaultLayer.id))) continue;
+          sectionLayers.push(cloneLayer(defaultLayer));
+          existingIds.add(String(defaultLayer.id));
+        }
+      }
+
+      const deletedIds = deletedLayerIdSet(layout);
+      const restoredTextIds = new Set();
+      for (const section of SECTIONS) {
+        getSectionLayersFromLayout(layout, section.id)
+          .filter(isTextLayer)
+          .forEach(layer => {
+            if (layer.id) restoredTextIds.add(String(layer.id));
+          });
+      }
+
+      const remainingDeletedIds = [...deletedIds]
+        .filter(id => !restoredTextIds.has(id))
+        .sort();
+      if (remainingDeletedIds.length) layout.meta.deletedLayerIds = remainingDeletedIds;
+      else delete layout.meta.deletedLayerIds;
+      layout.meta[LAYOUT_BUILDER_TEXT_RECOVERY_META_KEY] = true;
+    }
+
     function normalizeLayout(layout) {
       const normalized = layout || structuredClone(DEFAULT_LAYOUT);
       normalized.meta = normalized.meta || {};
@@ -3026,6 +3061,7 @@
       ensureOutroScoreDisplayLayers(normalized);
       syncLockedGlobalLayersFromOutro(normalized);
       syncHeaderLayoutFromIntro(normalized);
+      recoverLayoutBuilderDeletedTextLayers(normalized);
       filterDeletedLayers(normalized);
       relabelLayoutLayers(normalized);
       return normalized;
@@ -5847,13 +5883,13 @@ async function renderAll() {
       else if (event.key === 'ArrowRight') mutateEditableLayer(layer, current => current.x += step);
       else if (event.key === 'ArrowUp') mutateEditableLayer(layer, current => current.y -= step);
       else if (event.key === 'ArrowDown') mutateEditableLayer(layer, current => current.y += step);
-      else if (event.key === 'Delete' || event.key === 'Backspace') {
+      else if (event.key === 'Delete') {
         if (!deleteSelectedLayer()) handled = false;
       }
       else handled = false;
       if (handled) {
         event.preventDefault();
-        if (event.key !== 'Delete' && event.key !== 'Backspace') void renderAll();
+        if (event.key !== 'Delete') void renderAll();
       }
     });
 

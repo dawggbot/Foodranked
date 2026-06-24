@@ -1180,7 +1180,7 @@
   <script>
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     const BUILDER_BUILD_ID = APP_MODE === 'layout-builder'
-      ? '20260624-layout-arrow-library-v2'
+      ? '20260624-layout-arrow-grid-v1'
       : '20260624-section-indicators-disabled-v1';
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
     const SECTIONS = [
@@ -1624,7 +1624,9 @@
 
     function arrowIndicatorNaturalSize(layer) {
       const src = String(layer?.src || '').toLowerCase();
-      if (/\/(?:green|red)_arrow_2\.png(?:$|[?#])/.test(src)) return { width: 12, height: 14 };
+      if (/\/(?:green|red)_arrow_3\.png(?:$|[?#])/.test(src)) return { width: 19, height: 14 };
+      if (/\/(?:green|red)_arrow_2\.png(?:$|[?#])/.test(src)) return { width: 13, height: 14 };
+      if (/\/(?:green|red)_arrow\.png(?:$|[?#])/.test(src)) return { width: 7, height: 14 };
       return {
         width: Number(layer.naturalWidth || layer.width || 1),
         height: Number(layer.naturalHeight || layer.height || 1)
@@ -1648,6 +1650,10 @@
       layer.naturalHeight = naturalHeight;
       layer.aspectRatio = naturalHeight ? naturalWidth / naturalHeight : null;
       layer.preserveAspect = true;
+      if (APP_MODE === 'layout-builder') {
+        layer.x = Math.round(Number(layer.x) || 0);
+        layer.y = Math.round(Number(layer.y) || 0);
+      }
     }
 
     function isManualLibraryArrowLayer(layer) {

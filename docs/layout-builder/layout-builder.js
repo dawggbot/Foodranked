@@ -10,6 +10,7 @@
   const SAVED_LAYOUTS_KEY = 'foodranked-layout-builder-sprite-layouts-v1';
   // Locked approved view zoom: do not change without an explicit layout-builder zoom request.
   const CANVAS_VIEW_ZOOM = 1.52;
+  const MACRO_SECTION_IDS = ['fats', 'carbs', 'protein'];
   let selectedSavedLayoutId = '';
   let syncTimer = null;
   let syncFrame = 0;
@@ -112,13 +113,6 @@
     return (Number(layer?.x) || 0) + (Number(layer?.width) || 0);
   }
 
-  function sectionLayersForCurrentLayout(doc) {
-    const layout = currentLayout(doc);
-    const sectionId = layout?.selectedSectionId || 'protein';
-    const layers = layout?.sections?.[sectionId]?.layers;
-    return Array.isArray(layers) ? { sectionId, layers } : { sectionId, layers: [] };
-  }
-
   function isSectionSeparatorLayer(layer) {
     const fingerprint = `${layer?.id || ''} ${layer?.label || ''} ${layer?.src || ''}`.toLowerCase();
     return fingerprint.includes('/ui/section_separator/') || fingerprint.includes('section separator');
@@ -132,16 +126,30 @@
       || fingerprint.includes('macro bar fill');
   }
 
-  function alignedCanvasGridWidth(doc, fallbackWidth) {
-    const { sectionId, layers } = sectionLayersForCurrentLayout(doc);
+  function alignedWidthForLayers(sectionId, layers) {
     const separators = layers.filter(isSectionSeparatorLayer);
     const sectionIndicators = layers.filter(layer => isMainSectionIndicatorLayer(layer, sectionId));
-    if (!separators.length || !sectionIndicators.length) return fallbackWidth;
+    if (!separators.length || !sectionIndicators.length) return null;
 
     const separatorLeft = Math.min(...separators.map(layer => Number(layer.x) || 0));
     const indicatorRight = Math.max(...sectionIndicators.map(layerRight));
     const width = separatorLeft + indicatorRight;
-    return Number.isFinite(width) && width > 0 ? Math.min(fallbackWidth, width) : fallbackWidth;
+    return Number.isFinite(width) && width > 0 ? width : null;
+  }
+
+  function macroReferenceCanvasGridWidth(layout, fallbackWidth) {
+    const widths = MACRO_SECTION_IDS
+      .map(sectionId => {
+        const layers = layout?.sections?.[sectionId]?.layers;
+        return Array.isArray(layers) ? alignedWidthForLayers(sectionId, layers) : null;
+      })
+      .filter(width => Number.isFinite(width) && width > 0);
+    if (!widths.length) return fallbackWidth;
+    return Math.min(fallbackWidth, Math.max(...widths));
+  }
+
+  function alignedCanvasGridWidth(doc, fallbackWidth) {
+    return macroReferenceCanvasGridWidth(currentLayout(doc), fallbackWidth);
   }
 
   function clearLayoutBuilderDisplayFit(shell) {

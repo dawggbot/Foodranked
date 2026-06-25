@@ -360,6 +360,21 @@
     }
   }
 
+  function syncFoodText(layout, food) {
+    const values = {
+      food_name_text: String(food?.name || 'Unknown').toUpperCase(),
+      kcal_value_text: String(food?.header?.kcal ?? food?.kcal ?? 'N/A'),
+      basis_text: LOGIC.formatBasis(food),
+      script_caption: LOGIC.prettyFoodType(food?.foodType).toUpperCase()
+    };
+    for (const sectionId of Object.keys(layout.sections || {})) {
+      for (const layer of getSectionLayers(layout, sectionId)) {
+        if (!isTextLayer(layer) || !(layer.id in values)) continue;
+        layer.text = values[layer.id];
+      }
+    }
+  }
+
   function syncMacroFills(layout, food) {
     for (const sectionId of MACRO_SECTIONS) {
       for (const layer of getSectionLayers(layout, sectionId)) {
@@ -384,7 +399,9 @@
   }
 
   function shouldResolveKnownBinding(layer, binding) {
-    return !!binding && String(layer.text || '').trim() === '?';
+    if (!binding) return false;
+    if (String(layer.text || '').trim() === '?') return true;
+    return ['macroTotal', 'metricValue', 'ratioMetricValue'].includes(binding.kind);
   }
 
   function resolveTextBindings(layout, food) {
@@ -562,6 +579,7 @@
     if (!option || !validLayout(option.layout)) return null;
     const layout = cloneLayoutForRender(option);
     syncFoodSprites(layout, food);
+    syncFoodText(layout, food);
     syncMacroFills(layout, food);
     state.bindingReport.text = resolveTextBindings(layout, food);
     state.bindingReport.arrows = syncArrowRows(layout, food);
@@ -638,6 +656,7 @@
     }
     const rotation = Number(layer.rotation ?? layer.rotate ?? 0);
     if (Number.isFinite(rotation) && rotation) node.style.transform = `rotate(${rotation}deg)`;
+    if (Number.isFinite(rotation) && rotation) node.style.transformOrigin = 'center';
     node.onerror = () => handleSpriteError(node, layer);
   }
 

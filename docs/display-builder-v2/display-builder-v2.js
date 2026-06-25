@@ -9,6 +9,7 @@
   const TEST_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const FOOD_JSON_CACHE = new Map();
   const BATCH_RESULTS_CACHE = new Map();
+  const TEXT_LAYER_CLIP_BLEED = 2;
   const renderToken = { value: 0 };
 
   const DEFAULT_BACKGROUND = {
@@ -596,6 +597,7 @@
     els.displayCanvas.innerHTML = '';
     els.displayCanvas.style.backgroundColor = state.background.color || DEFAULT_BACKGROUND.color;
     updatePixelUnit();
+    renderCanvasBackground(food);
 
     if (!layout) {
       const empty = document.createElement('div');
@@ -635,6 +637,18 @@
       }
       els.displayCanvas.appendChild(node);
     }
+  }
+
+  function renderCanvasBackground(food) {
+    const bgField = document.createElement('div');
+    bgField.className = 'canvas-bg-field';
+    const palette = LOGIC.backdropPalette(food);
+    bgField.style.background = `radial-gradient(circle at 18% 12%, ${palette.glowA}, transparent 24%), radial-gradient(circle at 82% 16%, ${palette.glowB}, transparent 28%), linear-gradient(180deg, ${palette.top} 0%, ${palette.bottom} 100%)`;
+    els.displayCanvas.appendChild(bgField);
+
+    const phoneBg = document.createElement('div');
+    phoneBg.className = 'phone-bg';
+    els.displayCanvas.appendChild(phoneBg);
   }
 
   function renderSpriteNode(node, layer, food) {
@@ -680,11 +694,14 @@
     node.style.fontSize = `calc(${Number(layer.fontSize) || 6}px * var(--pixel-unit))`;
     node.style.color = isMacroSubmetricValueTextLayer(layer) ? '' : (layer.color || '');
     node.style.textAlign = layer.align || 'left';
-    if (layer.width) node.style.width = `calc(${Number(layer.width)}px * var(--pixel-unit))`;
+    if (layer.width) node.style.width = `calc(${Number(layer.width) + (TEXT_LAYER_CLIP_BLEED * 2)}px * var(--pixel-unit))`;
     const height = Number(layer.textBoxHeight || layer.height || defaultTextLayerHeight(layer));
     if (height) {
-      node.style.height = `calc(${height}px * var(--pixel-unit))`;
-      node.style.maxHeight = `calc(${height}px * var(--pixel-unit))`;
+      node.style.height = `calc(${height + (TEXT_LAYER_CLIP_BLEED * 2)}px * var(--pixel-unit))`;
+      node.style.maxHeight = `calc(${height + (TEXT_LAYER_CLIP_BLEED * 2)}px * var(--pixel-unit))`;
+      node.style.marginLeft = `calc(${-TEXT_LAYER_CLIP_BLEED}px * var(--pixel-unit))`;
+      node.style.marginTop = `calc(${-TEXT_LAYER_CLIP_BLEED}px * var(--pixel-unit))`;
+      node.style.padding = `calc(${TEXT_LAYER_CLIP_BLEED}px * var(--pixel-unit))`;
     }
   }
 

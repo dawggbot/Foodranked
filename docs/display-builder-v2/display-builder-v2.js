@@ -9,22 +9,10 @@
   const TEST_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const FOOD_JSON_CACHE = new Map();
   const BATCH_RESULTS_CACHE = new Map();
-  const SPRITE_EXISTENCE_CACHE = new Map();
   const renderToken = { value: 0 };
 
   const DEFAULT_BACKGROUND = {
-    color: '#d6d6d6',
-    motion: {
-      enabled: true,
-      mode: 'foodType',
-      density: 24,
-      opacity: 0.23,
-      minDuration: 20,
-      maxDuration: 40,
-      minSize: 40,
-      maxSize: 100,
-      drift: 48
-    }
+    color: '#d6d6d6'
   };
 
   const state = {
@@ -55,16 +43,7 @@
     foodTypePill: document.getElementById('foodTypePill'),
     activeFoodTypeTitle: document.getElementById('activeFoodTypeTitle'),
     programmerLogic: document.getElementById('programmerLogic'),
-    bgColor: document.getElementById('bgColor'),
-    bgMotionEnabled: document.getElementById('bgMotionEnabled'),
-    bgMotionMode: document.getElementById('bgMotionMode'),
-    bgMotionDensity: document.getElementById('bgMotionDensity'),
-    bgMotionOpacity: document.getElementById('bgMotionOpacity'),
-    bgMotionMinDuration: document.getElementById('bgMotionMinDuration'),
-    bgMotionMaxDuration: document.getElementById('bgMotionMaxDuration'),
-    bgMotionMinSize: document.getElementById('bgMotionMinSize'),
-    bgMotionMaxSize: document.getElementById('bgMotionMaxSize'),
-    bgMotionDrift: document.getElementById('bgMotionDrift')
+    bgColor: document.getElementById('bgColor')
   };
 
   function readTestState() {
@@ -81,7 +60,9 @@
       selectedFoodId: state.selectedFoodId,
       selectedSectionId: state.selectedSectionId,
       selectedLayoutKey: state.selectedLayoutKey,
-      background: state.background
+      background: {
+        color: state.background.color || DEFAULT_BACKGROUND.color
+      }
     };
     localStorage.setItem(TEST_STATE_KEY, JSON.stringify(payload));
   }
@@ -379,21 +360,6 @@
     }
   }
 
-  function syncFoodText(layout, food) {
-    const values = {
-      food_name_text: String(food?.name || 'Unknown').toUpperCase(),
-      kcal_value_text: String(food?.header?.kcal ?? food?.kcal ?? 'N/A'),
-      basis_text: LOGIC.formatBasis(food),
-      script_caption: LOGIC.prettyFoodType(food?.foodType).toUpperCase()
-    };
-    for (const sectionId of Object.keys(layout.sections || {})) {
-      for (const layer of getSectionLayers(layout, sectionId)) {
-        if (!isTextLayer(layer) || !(layer.id in values)) continue;
-        layer.text = values[layer.id];
-      }
-    }
-  }
-
   function syncMacroFills(layout, food) {
     for (const sectionId of MACRO_SECTIONS) {
       for (const layer of getSectionLayers(layout, sectionId)) {
@@ -418,9 +384,7 @@
   }
 
   function shouldResolveKnownBinding(layer, binding) {
-    if (!binding) return false;
-    if (String(layer.text || '').trim() === '?') return true;
-    return ['macroTotal', 'metricValue', 'ratioMetricValue'].includes(binding.kind);
+    return !!binding && String(layer.text || '').trim() === '?';
   }
 
   function resolveTextBindings(layout, food) {
@@ -442,10 +406,6 @@
         const resolvedValue = binding ? LOGIC.formatBindingValue(food, sectionId, binding) : null;
         const shouldResolve = direct ? shouldResolveKnownBinding(layer, binding) : !!fallback;
         if (binding && shouldResolve) layer.text = safeDisplayText(resolvedValue);
-        if (binding && binding.metricKey && ['metricValue', 'ratioMetricValue'].includes(binding.kind)) {
-          const presentation = LOGIC.arrowPresentationForSpec(food, sectionId, LOGIC.specForMetric(sectionId, binding.metricKey));
-          layer.color = presentation.textColor;
-        }
         if (isQuestion || (direct && shouldResolve)) {
           report.push({
             sectionId,
@@ -602,7 +562,6 @@
     if (!option || !validLayout(option.layout)) return null;
     const layout = cloneLayoutForRender(option);
     syncFoodSprites(layout, food);
-    syncFoodText(layout, food);
     syncMacroFills(layout, food);
     state.bindingReport.text = resolveTextBindings(layout, food);
     state.bindingReport.arrows = syncArrowRows(layout, food);
@@ -619,16 +578,6 @@
     els.displayCanvas.innerHTML = '';
     els.displayCanvas.style.backgroundColor = state.background.color || DEFAULT_BACKGROUND.color;
     updatePixelUnit();
-
-    const bgField = document.createElement('div');
-    bgField.className = 'canvas-bg-field';
-    const palette = LOGIC.backdropPalette(food);
-    bgField.style.background = `radial-gradient(circle at 18% 12%, ${palette.glowA}, transparent 24%), radial-gradient(circle at 82% 16%, ${palette.glowB}, transparent 28%), linear-gradient(180deg, ${palette.top} 0%, ${palette.bottom} 100%)`;
-    els.displayCanvas.appendChild(bgField);
-
-    const phoneBg = document.createElement('div');
-    phoneBg.className = 'phone-bg';
-    els.displayCanvas.appendChild(phoneBg);
 
     if (!layout) {
       const empty = document.createElement('div');
@@ -710,7 +659,7 @@
   function renderTextNode(node, layer) {
     node.textContent = safeDisplayText(layer.text || '');
     node.style.fontSize = `calc(${Number(layer.fontSize) || 6}px * var(--pixel-unit))`;
-    node.style.color = layer.color || '';
+    node.style.color = isMacroSubmetricValueTextLayer(layer) ? '' : (layer.color || '');
     node.style.textAlign = layer.align || 'left';
     if (layer.width) node.style.width = `calc(${Number(layer.width)}px * var(--pixel-unit))`;
     const height = Number(layer.textBoxHeight || layer.height || defaultTextLayerHeight(layer));
@@ -724,6 +673,10 @@
     const fontSize = Number(layer?.fontSize) || 6;
     const lines = Math.max(1, String(layer?.text || '').split(/\r\n|\r|\n/).length);
     return Math.max(1, Math.ceil(fontSize * 1.15 * lines));
+  }
+
+  function isMacroSubmetricValueTextLayer(layer) {
+    return /^(?:fats|carbs|protein)_submacro_value_\d+$/i.test(String(layer?.id || ''));
   }
 
   function handleSpriteError(node, layer) {
@@ -759,87 +712,6 @@
       report.fitsBox = fits;
       report.overflowWarning = fits ? null : 'Text overflows or clips in the designed text box.';
     });
-  }
-
-  async function renderBackgroundSprites(food) {
-    const field = els.displayCanvas.querySelector('.canvas-bg-field');
-    if (!field || !food) return;
-    field.innerHTML = '';
-    const motion = state.background.motion || DEFAULT_BACKGROUND.motion;
-    if (motion.enabled === false) return;
-
-    let pool = [];
-    if (motion.mode === 'allFoods') {
-      pool = [...state.foods];
-    } else if (motion.mode === 'selectedFood') {
-      pool = [food];
-    } else {
-      pool = [food, ...state.foods.filter(item => item.id !== food.id && LOGIC.normalizeFoodType(item.foodType) === LOGIC.normalizeFoodType(food.foodType))];
-    }
-    if (!pool.length) pool = [food];
-
-    const enriched = await Promise.all(pool.map(async item => {
-      const candidates = LOGIC.foodSpriteCandidates(item);
-      const hasPrimary = await probeSpriteExists(candidates.primary);
-      return {
-        food: item,
-        src: hasPrimary ? candidates.primary : candidates.fallback,
-        fallback: candidates.fallback,
-        hasPrimary
-      };
-    }));
-    const real = enriched.filter(item => item.hasPrimary);
-    const selectedReal = real.find(item => item.food?.id === food.id);
-    const renderPool = selectedReal ? [selectedReal, ...real.filter(item => item.food?.id !== food.id)] : (real.length ? real : enriched);
-    const onlyFallbacks = !real.length;
-    const density = Math.max(1, Number(motion.density) || DEFAULT_BACKGROUND.motion.density);
-    const minDuration = Math.max(4, Number(motion.minDuration) || DEFAULT_BACKGROUND.motion.minDuration);
-    const maxDuration = Math.max(minDuration, Number(motion.maxDuration) || DEFAULT_BACKGROUND.motion.maxDuration);
-    const minSize = Math.max(12, Number(motion.minSize) || DEFAULT_BACKGROUND.motion.minSize);
-    const maxSize = Math.max(minSize, Number(motion.maxSize) || DEFAULT_BACKGROUND.motion.maxSize);
-    const drift = Math.max(0, Number(motion.drift) || 0);
-    const opacity = Math.min(0.5, Math.max(0.04, Number(motion.opacity) || DEFAULT_BACKGROUND.motion.opacity));
-
-    Array.from({ length: density }).forEach((_, index) => {
-      const choice = renderPool[index % renderPool.length] || renderPool[0];
-      const img = document.createElement('img');
-      img.className = 'bg-sprite';
-      img.src = LOGIC.canonicalSpritePath(choice?.src || choice?.fallback || '');
-      img.alt = '';
-      const progress = density <= 1 ? 0.5 : index / (density - 1);
-      const sizeBias = onlyFallbacks ? 0.72 : 1;
-      const size = Math.round((minSize + (maxSize - minSize) * ((index % 5) / 4 || 0)) * sizeBias);
-      const duration = Math.round(minDuration + (maxDuration - minDuration) * ((index % 7) / 6 || 0) + (onlyFallbacks ? 4 : 0));
-      img.style.left = `${8 + progress * 76}%`;
-      img.style.top = `${-40 - (index % 5) * 26}px`;
-      img.style.width = `${size}px`;
-      img.style.height = `${size}px`;
-      img.style.objectFit = 'contain';
-      img.style.opacity = String(onlyFallbacks ? Math.min(opacity, 0.12) : opacity);
-      img.style.animationDuration = `${duration}s`;
-      img.style.animationDelay = `${-(index * 1.7)}s`;
-      img.style.setProperty('--drift-x', `${(index % 2 === 0 ? 1 : -1) * Math.max(2, drift - (index % 4) * 2)}px`);
-      img.onerror = () => {
-        recordSpriteFailure(img.currentSrc || img.src, LOGIC.canonicalSpritePath(choice?.fallback || ''), choice?.food?.name || '');
-        if (choice?.fallback) img.src = LOGIC.canonicalSpritePath(choice.fallback);
-        else img.remove();
-      };
-      field.appendChild(img);
-    });
-  }
-
-  function probeSpriteExists(src) {
-    const safeSrc = LOGIC.canonicalSpritePath(src);
-    if (!safeSrc) return Promise.resolve(false);
-    if (SPRITE_EXISTENCE_CACHE.has(safeSrc)) return SPRITE_EXISTENCE_CACHE.get(safeSrc);
-    const promise = new Promise(resolve => {
-      const img = new Image();
-      img.onload = () => resolve(true);
-      img.onerror = () => resolve(false);
-      img.src = safeSrc;
-    });
-    SPRITE_EXISTENCE_CACHE.set(safeSrc, promise);
-    return promise;
   }
 
   function updatePixelUnit() {
@@ -937,17 +809,7 @@
   }
 
   function updateBackgroundControls() {
-    const motion = state.background.motion;
     els.bgColor.value = state.background.color || DEFAULT_BACKGROUND.color;
-    els.bgMotionEnabled.checked = motion.enabled !== false;
-    els.bgMotionMode.value = motion.mode || 'foodType';
-    els.bgMotionDensity.value = String(motion.density ?? DEFAULT_BACKGROUND.motion.density);
-    els.bgMotionOpacity.value = String(motion.opacity ?? DEFAULT_BACKGROUND.motion.opacity);
-    els.bgMotionMinDuration.value = String(motion.minDuration ?? DEFAULT_BACKGROUND.motion.minDuration);
-    els.bgMotionMaxDuration.value = String(motion.maxDuration ?? DEFAULT_BACKGROUND.motion.maxDuration);
-    els.bgMotionMinSize.value = String(motion.minSize ?? DEFAULT_BACKGROUND.motion.minSize);
-    els.bgMotionMaxSize.value = String(motion.maxSize ?? DEFAULT_BACKGROUND.motion.maxSize);
-    els.bgMotionDrift.value = String(motion.drift ?? DEFAULT_BACKGROUND.motion.drift);
   }
 
   async function renderAll() {
@@ -959,7 +821,6 @@
     const layout = resolveLayout(layoutOption, food);
     state.renderedLayout = layout;
     renderCanvas(layout, food);
-    await renderBackgroundSprites(food);
     updateTextFitReport();
     renderProgrammerPanel(food, layoutOption);
     renderCanvasMeta(food, layoutOption);
@@ -1000,31 +861,6 @@
       writeTestState();
       await renderAll();
     });
-    els.bgMotionEnabled.addEventListener('change', async () => {
-      state.background.motion.enabled = !!els.bgMotionEnabled.checked;
-      writeTestState();
-      await renderAll();
-    });
-    els.bgMotionMode.addEventListener('change', async () => {
-      state.background.motion.mode = els.bgMotionMode.value || 'foodType';
-      writeTestState();
-      await renderAll();
-    });
-    [
-      ['bgMotionDensity', 'density', Number],
-      ['bgMotionOpacity', 'opacity', Number],
-      ['bgMotionMinDuration', 'minDuration', Number],
-      ['bgMotionMaxDuration', 'maxDuration', Number],
-      ['bgMotionMinSize', 'minSize', Number],
-      ['bgMotionMaxSize', 'maxSize', Number],
-      ['bgMotionDrift', 'drift', Number]
-    ].forEach(([id, key, caster]) => {
-      els[id].addEventListener('input', async () => {
-        state.background.motion[key] = caster(els[id].value);
-        writeTestState();
-        await renderAll();
-      });
-    });
     window.addEventListener('resize', updatePixelUnit);
     window.addEventListener('focus', async () => {
       refreshLayoutOptions();
@@ -1051,11 +887,7 @@
     state.selectedLayoutKey = saved.selectedLayoutKey || '';
     state.background = {
       ...LOGIC.clone(DEFAULT_BACKGROUND),
-      ...(saved.background || {}),
-      motion: {
-        ...DEFAULT_BACKGROUND.motion,
-        ...((saved.background || {}).motion || {})
-      }
+      ...(saved.background || {})
     };
     updateBackgroundControls();
     refreshLayoutOptions();

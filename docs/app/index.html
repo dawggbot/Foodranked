@@ -1180,7 +1180,7 @@
   <script>
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     const BUILDER_BUILD_ID = APP_MODE === 'layout-builder'
-      ? '20260625-layout-arrow-grid-v6'
+      ? '20260625-layout-macro-arrow-placement-v1'
       : '20260624-section-indicators-disabled-v1';
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
     const SECTIONS = [
@@ -1203,6 +1203,7 @@
     const FOOD_LAYOUTS_STORAGE_KEY = `${STORAGE_PREFIX}-food-layouts-v1`;
     const SAVED_SPRITE_LAYOUTS_KEY = `${STORAGE_PREFIX}-sprite-layouts-v1`;
     const MACRO_SECTION_LAYOUT_SYNC_KEY = 'macroSectionLayoutFromFatsV6';
+    const MACRO_ARROW_PLACEMENT_SYNC_KEY = 'macroArrowPlacementFromFatsV1';
     const HEADER_LAYOUT_SYNC_KEY = 'headerLayoutFromFatsV1';
     const MACRO_BAR_PLACEMENT_SOURCE_FOOD_ID = 'bacon';
     const MACRO_BAR_PLACEMENT_SOURCE_SECTION_ID = 'fats';
@@ -2082,6 +2083,62 @@
 
       layout.meta = layout.meta || {};
       layout.meta[MACRO_SECTION_LAYOUT_SYNC_KEY] = true;
+    }
+
+    function macroArrowPlacementSnapshot(layer) {
+      return {
+        x: layer.x,
+        y: layer.y,
+        z: layer.z,
+        width: layer.width,
+        height: layer.height,
+        preserveAspect: layer.preserveAspect,
+        aspectRatio: layer.aspectRatio,
+        naturalWidth: layer.naturalWidth,
+        naturalHeight: layer.naturalHeight,
+        layoutBuilderVisualInsetX: layer.layoutBuilderVisualInsetX
+      };
+    }
+
+    function applyMacroArrowPlacement(layer, placement) {
+      if (!layer || !placement) return false;
+      let changed = false;
+      for (const [key, value] of Object.entries(placement)) {
+        if (value == null) {
+          if (Object.prototype.hasOwnProperty.call(layer, key)) {
+            delete layer[key];
+            changed = true;
+          }
+          continue;
+        }
+        if (layer[key] === value) continue;
+        layer[key] = value;
+        changed = true;
+      }
+      return changed;
+    }
+
+    function syncMacroArrowPlacementFromFats(layout, { force = false } = {}) {
+      if (APP_MODE !== 'layout-builder') return false;
+      layout.meta = layout.meta || {};
+      if (!force && layout.meta[MACRO_ARROW_PLACEMENT_SYNC_KEY]) return false;
+
+      const sourceArrows = getSectionLayersFromLayout(layout, 'fats').filter(isArrowIndicatorSpriteLayer);
+      if (!sourceArrows.length) return false;
+      const sourceById = new Map(sourceArrows.filter(layer => layer.id).map(layer => [layer.id, layer]));
+      let changed = false;
+
+      for (const sectionId of ['carbs', 'protein']) {
+        const targetArrows = getSectionLayersFromLayout(layout, sectionId).filter(isArrowIndicatorSpriteLayer);
+        targetArrows.forEach((layer, index) => {
+          const source = (layer.id && sourceById.get(layer.id)) || sourceArrows[index];
+          if (!source) return;
+          changed = applyMacroArrowPlacement(layer, macroArrowPlacementSnapshot(source)) || changed;
+        });
+      }
+
+      layout.meta[MACRO_ARROW_PLACEMENT_SYNC_KEY] = true;
+      return changed;
     }
 
     const PROTEIN_QUALITY_METRIC_KEYS = new Set([
@@ -3192,6 +3249,7 @@
       ensureOutroScoreDisplayLayers(normalized);
       if (APP_MODE === 'layout-builder') {
         syncMacroSectionLayoutFromFats(normalized);
+        syncMacroArrowPlacementFromFats(normalized);
         syncHeaderLayoutFromFats(normalized);
       }
       syncLockedGlobalLayersFromOutro(normalized);
@@ -6122,6 +6180,7 @@ async function renderAll() {
     });
     els.applyMacroTemplate.addEventListener('click', () => {
       syncMacroSectionLayoutFromFats(state.layout, { force: true });
+      syncMacroArrowPlacementFromFats(state.layout, { force: true });
       syncHeaderLayoutFromFats(state.layout, { force: true });
       syncFoodIntoLayout(state.fullFood, { normalize: false });
       state.selectedLayerId = null;

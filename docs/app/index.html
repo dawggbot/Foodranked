@@ -1180,7 +1180,7 @@
   <script>
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     const BUILDER_BUILD_ID = APP_MODE === 'layout-builder'
-      ? '20260625-layout-arrow-grid-v3'
+      ? '20260625-layout-arrow-grid-v4'
       : '20260624-section-indicators-disabled-v1';
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
     const SECTIONS = [
@@ -1223,7 +1223,7 @@
     const AUTHOR_GRID = { width: 135, height: 240 };
     const ROOT_SPRITE_BASE = './sprites';
     const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
-    const LAYOUT_BUILDER_ARROW_SPRITE_VERSION = '20260625-layout-arrow-grid-v3';
+    const LAYOUT_BUILDER_ARROW_SPRITE_VERSION = '20260625-layout-arrow-grid-v4';
     const TEXT_LAYER_LINE_HEIGHT = 1.15;
     const TEXT_LAYER_CLIP_BLEED = 2;
     const LAYOUT_BUILDER_TEXT_RECOVERY_META_KEY = 'layoutBuilderTextRecoveryV1';
@@ -1639,8 +1639,8 @@
       const height = Math.max(1, Math.round(naturalHeight * SPRITE_LIBRARY_DEFAULT_DROP_SCALE));
       const defaultWidth = Math.max(1, Math.round(naturalWidth * SPRITE_LIBRARY_DEFAULT_DROP_SCALE));
       if (APP_MODE === 'layout-builder' && /\/(?:green|red)_arrow_2\.png(?:$|[?#])/.test(src)) {
-        // The 13px source rounds up at 0.75 scale, making the grouped arrow read a pixel too heavy.
-        return { width: Math.max(1, defaultWidth - 1), height };
+        // Split the 13px source round-up so the grouped arrow matches the 1- and 3-arrow visual weight.
+        return { width: Math.max(1, defaultWidth - 0.5), height };
       }
       return { width: defaultWidth, height };
     }

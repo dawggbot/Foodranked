@@ -1180,7 +1180,7 @@
   <script>
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     const BUILDER_BUILD_ID = APP_MODE === 'layout-builder'
-      ? '20260625-layout-macro-arrow-placement-v1'
+      ? '20260625-layout-macro-arrow-placement-v2'
       : '20260624-section-indicators-disabled-v1';
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
     const SECTIONS = [
@@ -1203,7 +1203,7 @@
     const FOOD_LAYOUTS_STORAGE_KEY = `${STORAGE_PREFIX}-food-layouts-v1`;
     const SAVED_SPRITE_LAYOUTS_KEY = `${STORAGE_PREFIX}-sprite-layouts-v1`;
     const MACRO_SECTION_LAYOUT_SYNC_KEY = 'macroSectionLayoutFromFatsV6';
-    const MACRO_ARROW_PLACEMENT_SYNC_KEY = 'macroArrowPlacementFromFatsV1';
+    const MACRO_ARROW_PLACEMENT_SYNC_KEY = 'macroArrowPlacementFromFatsV2';
     const HEADER_LAYOUT_SYNC_KEY = 'headerLayoutFromFatsV1';
     const MACRO_BAR_PLACEMENT_SOURCE_FOOD_ID = 'bacon';
     const MACRO_BAR_PLACEMENT_SOURCE_SECTION_ID = 'fats';
@@ -2129,12 +2129,20 @@
       let changed = false;
 
       for (const sectionId of ['carbs', 'protein']) {
-        const targetArrows = getSectionLayersFromLayout(layout, sectionId).filter(isArrowIndicatorSpriteLayer);
-        targetArrows.forEach((layer, index) => {
-          const source = (layer.id && sourceById.get(layer.id)) || sourceArrows[index];
-          if (!source) return;
-          changed = applyMacroArrowPlacement(layer, macroArrowPlacementSnapshot(source)) || changed;
+        const sectionLayers = getSectionLayersFromLayout(layout, sectionId);
+        const targetArrows = sectionLayers.filter(isArrowIndicatorSpriteLayer);
+        const targetById = new Map(targetArrows.filter(layer => layer.id).map(layer => [layer.id, layer]));
+        const nextArrows = sourceArrows.map((source, index) => {
+          const existing = (source.id && targetById.get(source.id)) || targetArrows[index] || null;
+          const layer = existing || cloneMacroLayerForKind(source, sectionId);
+          changed = applyMacroArrowPlacement(layer, macroArrowPlacementSnapshot(source)) || changed || !existing;
+          return layer;
         });
+        const nextArrowSet = new Set(nextArrows);
+        layout.sections[sectionId].layers = [
+          ...sectionLayers.filter(layer => !isArrowIndicatorSpriteLayer(layer) || nextArrowSet.has(layer)),
+          ...nextArrows.filter(layer => !sectionLayers.includes(layer))
+        ];
       }
 
       layout.meta[MACRO_ARROW_PLACEMENT_SYNC_KEY] = true;

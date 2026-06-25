@@ -1180,7 +1180,7 @@
   <script>
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     const BUILDER_BUILD_ID = APP_MODE === 'layout-builder'
-      ? '20260625-layout-arrow-grid-v5'
+      ? '20260625-layout-arrow-grid-v6'
       : '20260624-section-indicators-disabled-v1';
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
     const SECTIONS = [
@@ -1223,7 +1223,7 @@
     const AUTHOR_GRID = { width: 135, height: 240 };
     const ROOT_SPRITE_BASE = './sprites';
     const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
-    const LAYOUT_BUILDER_ARROW_SPRITE_VERSION = '20260625-layout-arrow-grid-v5';
+    const LAYOUT_BUILDER_ARROW_SPRITE_VERSION = '20260625-layout-arrow-grid-v6';
     const TEXT_LAYER_LINE_HEIGHT = 1.15;
     const TEXT_LAYER_CLIP_BLEED = 2;
     const LAYOUT_BUILDER_TEXT_RECOVERY_META_KEY = 'layoutBuilderTextRecoveryV1';
@@ -1635,9 +1635,18 @@
     }
 
     function arrowIndicatorCanvasSize(layer, naturalWidth, naturalHeight) {
+      const src = String(layer?.src || '').toLowerCase();
       const height = Math.max(1, Math.round(naturalHeight * SPRITE_LIBRARY_DEFAULT_DROP_SCALE));
       const defaultWidth = Math.max(1, Math.round(naturalWidth * SPRITE_LIBRARY_DEFAULT_DROP_SCALE));
+      if (APP_MODE === 'layout-builder' && /\/(?:green|red)_arrow\.png(?:$|[?#])/.test(src)) {
+        return { width: defaultWidth + 1, height };
+      }
       return { width: defaultWidth, height };
+    }
+
+    function isSingleArrowIndicatorSpriteLayer(layer) {
+      if (!isArrowIndicatorSpriteLayer(layer)) return false;
+      return /\/(?:green|red)_arrow\.png(?:$|[?#])/.test(String(layer?.src || '').toLowerCase());
     }
 
     function isTwoArrowIndicatorSpriteLayer(layer) {
@@ -1647,8 +1656,11 @@
 
     function syncLayoutBuilderArrowVisualInset(layer) {
       if (APP_MODE !== 'layout-builder' || !isArrowIndicatorSpriteLayer(layer)) return;
-      if (isTwoArrowIndicatorSpriteLayer(layer)) {
-        // Keep the placement box on the integer grid while matching the half-grid visual weight.
+      if (isSingleArrowIndicatorSpriteLayer(layer)) {
+        // Keep the single-arrow placement box even-width while preserving its 5px visual footprint.
+        layer.layoutBuilderVisualInsetX = 0.5;
+      } else if (isTwoArrowIndicatorSpriteLayer(layer)) {
+        // Keep the 2-arrow placement box on the integer grid while matching the half-grid visual weight.
         layer.layoutBuilderVisualInsetX = 0.25;
       } else {
         delete layer.layoutBuilderVisualInsetX;

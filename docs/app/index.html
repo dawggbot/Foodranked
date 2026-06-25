@@ -1180,7 +1180,7 @@
   <script>
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     const BUILDER_BUILD_ID = APP_MODE === 'layout-builder'
-      ? '20260624-layout-arrow-grid-v1'
+      ? '20260625-layout-arrow-grid-v2'
       : '20260624-section-indicators-disabled-v1';
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
     const SECTIONS = [
@@ -1223,6 +1223,7 @@
     const AUTHOR_GRID = { width: 135, height: 240 };
     const ROOT_SPRITE_BASE = './sprites';
     const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
+    const LAYOUT_BUILDER_ARROW_SPRITE_VERSION = '20260625-layout-arrow-grid-v2';
     const TEXT_LAYER_LINE_HEIGHT = 1.15;
     const TEXT_LAYER_CLIP_BLEED = 2;
     const LAYOUT_BUILDER_TEXT_RECOVERY_META_KEY = 'layoutBuilderTextRecoveryV1';
@@ -3525,7 +3526,7 @@
         .replace(/\/macros\/protein\/protein_macro_bar_fill\.(svg|png|gif|webp)/i, '/macros_section/section_3_protein/protein_macro_bar_fill.gif')
         .replace(/\/macros_section\/section_3_protein\/protein_macro_bar_fill\.(svg|png|gif|webp)/i, '/macros_section/section_3_protein/protein_macro_bar_fill.gif');
       if (next.toLowerCase().includes('/macros_section/section_3_protein/protein_macro_bar_fill.gif')) return next;
-      return next
+      const remapped = next
         .replace('/macros/arrow_indicators/', '/macros_section/arrow_indicators/')
         .replace('/macros/fats/', '/macros_section/section_1_fats/')
         .replace('/macros/carbs/', '/macros_section/section_2_carbs/')
@@ -3533,6 +3534,17 @@
         .replace('/micros/vitamins/', '/micros_section/vitamins/')
         .replace('/micros/minerals/', '/micros_section/minerals/')
         .replace('/pros-cons/', '/pros_and_cons/');
+      return versionLayoutBuilderArrowSpritePath(remapped);
+    }
+
+    function isArrowIndicatorSpritePath(src) {
+      return /\/arrow_indicators\/(?:green|red)_arrow(?:_[23])?\.png(?:$|[?#])/i.test(String(src || ''));
+    }
+
+    function versionLayoutBuilderArrowSpritePath(src) {
+      if (APP_MODE !== 'layout-builder' || !isArrowIndicatorSpritePath(src)) return src;
+      const clean = String(src).replace(/[?#].*$/, '');
+      return `${clean}?v=${LAYOUT_BUILDER_ARROW_SPRITE_VERSION}`;
     }
 
     function normalizeFoodType(foodType) {
@@ -3875,13 +3887,13 @@
 
     function arrowIndicatorSpritePath(color = 'green') {
       const safeColor = color === 'red' ? 'red' : 'green';
-      return `${ROOT_SPRITE_BASE}/macros_section/arrow_indicators/${safeColor}_arrow.png`;
+      return versionLayoutBuilderArrowSpritePath(`${ROOT_SPRITE_BASE}/macros_section/arrow_indicators/${safeColor}_arrow.png`);
     }
 
     function makeSpriteLibraryItem(label, src, options = {}) {
       return {
         label,
-        src,
+        src: canonicalSpritePath(src),
         kind: 'library',
         previewScale: options.previewScale ?? 1,
         dropScale: options.dropScale ?? SPRITE_LIBRARY_DEFAULT_DROP_SCALE
@@ -5793,11 +5805,22 @@
     }
 
     function getPixelUnit() {
-      const canvasWidth = els.canvas?.getBoundingClientRect?.().width;
-      if (Number.isFinite(canvasWidth) && canvasWidth > 0) return canvasWidth / AUTHOR_GRID.width;
-      const raw = getComputedStyle(document.documentElement).getPropertyValue('--pixel-unit');
+      const canvas = els.canvas;
+      const canvasStyle = canvas ? getComputedStyle(canvas) : null;
+      const raw = canvasStyle?.getPropertyValue('--pixel-unit')
+        || getComputedStyle(document.documentElement).getPropertyValue('--pixel-unit');
       const parsed = Number.parseFloat(raw);
-      return Number.isFinite(parsed) && parsed > 0 ? parsed : 4;
+      if (Number.isFinite(parsed) && parsed > 0) {
+        const visualWidth = canvas?.getBoundingClientRect?.().width || 0;
+        const layoutWidth = Number.parseFloat(canvasStyle?.width || '');
+        const visualScale = Number.isFinite(layoutWidth) && layoutWidth > 0 && visualWidth > 0
+          ? visualWidth / layoutWidth
+          : 1;
+        return parsed * visualScale;
+      }
+      const canvasWidth = canvas?.getBoundingClientRect?.().width;
+      if (Number.isFinite(canvasWidth) && canvasWidth > 0) return canvasWidth / AUTHOR_GRID.width;
+      return 4;
     }
 
     function setCssVars() {

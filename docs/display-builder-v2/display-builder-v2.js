@@ -10,6 +10,8 @@
   const FOOD_JSON_CACHE = new Map();
   const BATCH_RESULTS_CACHE = new Map();
   const TEXT_LAYER_CLIP_BLEED = 2;
+  const LAYOUT_BUILDER_CANVAS_VIEW_ZOOM = 1.52;
+  const LAYOUT_BUILDER_REFERENCE_DISPLAY_WIDTH = 408;
   const renderToken = { value: 0 };
 
   const DEFAULT_BACKGROUND = {
@@ -28,6 +30,7 @@
     bindingReport: { text: [], arrows: [], warnings: [] },
     spriteFailures: new Map(),
     background: LOGIC.clone(DEFAULT_BACKGROUND),
+    canvasMetrics: null,
     lastLogic: null,
     loadingFoodId: ''
   };
@@ -39,6 +42,7 @@
     foodSearch: document.getElementById('foodSearch'),
     foodList: document.getElementById('foodList'),
     sectionList: document.getElementById('sectionList'),
+    canvasWrap: document.querySelector('.canvas-wrap'),
     displayCanvas: document.getElementById('displayCanvas'),
     canvasMeta: document.getElementById('canvasMeta'),
     foodTypePill: document.getElementById('foodTypePill'),
@@ -321,6 +325,56 @@
     return Array.isArray(layers) ? layers : [];
   }
 
+  function layerRight(layer) {
+    return (Number(layer?.x) || 0) + (Number(layer?.width) || 0);
+  }
+
+  function isSectionSeparatorLayer(layer) {
+    const fingerprint = `${layer?.id || ''} ${layer?.label || ''} ${layer?.src || ''}`.toLowerCase();
+    return fingerprint.includes('/ui/section_separator/') || fingerprint.includes('section separator');
+  }
+
+  function isMainMacroBarLayer(layer, sectionId) {
+    const fingerprint = `${layer?.id || ''} ${layer?.label || ''} ${layer?.src || ''}`.toLowerCase();
+    return fingerprint.includes(`${sectionId}_macro_bar_frame`)
+      || fingerprint.includes(`${sectionId}_macro_bar_fill`)
+      || fingerprint.includes('macro bar frame')
+      || fingerprint.includes('macro bar fill');
+  }
+
+  function alignedWidthForLayers(sectionId, layers) {
+    const separators = layers.filter(isSectionSeparatorLayer);
+    const macroBars = layers.filter(layer => isMainMacroBarLayer(layer, sectionId));
+    if (!separators.length || !macroBars.length) return null;
+
+    const separatorLeft = Math.min(...separators.map(layer => Number(layer.x) || 0));
+    const macroBarRight = Math.max(...macroBars.map(layerRight));
+    const width = separatorLeft + macroBarRight;
+    return Number.isFinite(width) && width > 0 ? width : null;
+  }
+
+  function macroReferenceCanvasGridWidth(layout, fallbackWidth) {
+    const widths = MACRO_SECTIONS
+      .map(sectionId => alignedWidthForLayers(sectionId, getSectionLayers(layout, sectionId)))
+      .filter(width => Number.isFinite(width) && width > 0);
+    if (!widths.length) return fallbackWidth;
+    return Math.min(fallbackWidth, Math.max(...widths));
+  }
+
+  function applyLayoutBuilderCanvasMetrics(layout) {
+    const authorGrid = LOGIC.AUTHOR_GRID;
+    const gridWidth = macroReferenceCanvasGridWidth(layout, authorGrid.width);
+    const gridHeight = gridWidth * (authorGrid.height / authorGrid.width);
+    const referencePixelUnit = LAYOUT_BUILDER_REFERENCE_DISPLAY_WIDTH / authorGrid.width;
+    const displayWidth = gridWidth * referencePixelUnit * LAYOUT_BUILDER_CANVAS_VIEW_ZOOM;
+    const displayHeight = gridHeight * referencePixelUnit * LAYOUT_BUILDER_CANVAS_VIEW_ZOOM;
+    state.canvasMetrics = { gridWidth, gridHeight, displayWidth, displayHeight };
+    els.canvasWrap?.style.setProperty('--layout-builder-canvas-view-width', `${displayWidth.toFixed(3)}px`);
+    els.displayCanvas.style.setProperty('--layout-builder-canvas-grid-width', String(gridWidth));
+    els.displayCanvas.style.setProperty('--layout-builder-canvas-grid-height', String(gridHeight));
+    els.displayCanvas.style.aspectRatio = `${gridWidth} / ${gridHeight}`;
+  }
+
   function cloneLayoutForRender(option) {
     const base = LOGIC.clone(option?.layout || {});
     base.canvas = {
@@ -593,9 +647,16 @@
     return text;
   }
 
+  function formatCanvasNumber(value) {
+    const number = Number(value);
+    if (!Number.isFinite(number)) return '0';
+    return Number.isInteger(number) ? String(number) : number.toFixed(3).replace(/0+$/, '').replace(/\.$/, '');
+  }
+
   function renderCanvas(layout, food) {
     els.displayCanvas.innerHTML = '';
     els.displayCanvas.style.backgroundColor = state.background.color || DEFAULT_BACKGROUND.color;
+    applyLayoutBuilderCanvasMetrics(layout);
     updatePixelUnit();
     renderCanvasBackground(food);
 
@@ -752,7 +813,8 @@
 
   function updatePixelUnit() {
     const width = els.displayCanvas.getBoundingClientRect().width;
-    const unit = width > 0 ? width / LOGIC.AUTHOR_GRID.width : 4;
+    const gridWidth = Number(state.canvasMetrics?.gridWidth) || LOGIC.AUTHOR_GRID.width;
+    const unit = width > 0 ? width / gridWidth : 4;
     els.displayCanvas.style.setProperty('--pixel-unit', String(unit));
   }
 
@@ -866,7 +928,9 @@
   function renderCanvasMeta(food, layoutOption) {
     const section = SECTION_LABELS[state.selectedSectionId] || state.selectedSectionId;
     const layoutName = layoutOption?.name || 'No layout';
-    els.canvasMeta.textContent = `${food?.name || 'No food'} · ${section} · ${layoutName}`;
+    const gridWidth = Number(state.canvasMetrics?.gridWidth) || LOGIC.AUTHOR_GRID.width;
+    const gridHeight = Number(state.canvasMetrics?.gridHeight) || LOGIC.AUTHOR_GRID.height;
+    els.canvasMeta.textContent = `${food?.name || 'No food'} · ${section} · ${layoutName} · Canvas ${formatCanvasNumber(gridWidth)}x${formatCanvasNumber(gridHeight)}`;
   }
 
   function updateStatus(food, layoutOption) {

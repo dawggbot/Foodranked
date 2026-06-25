@@ -1180,7 +1180,7 @@
   <script>
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     const BUILDER_BUILD_ID = APP_MODE === 'layout-builder'
-      ? '20260625-layout-arrow-grid-v4'
+      ? '20260625-layout-arrow-grid-v5'
       : '20260624-section-indicators-disabled-v1';
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
     const SECTIONS = [
@@ -1223,7 +1223,7 @@
     const AUTHOR_GRID = { width: 135, height: 240 };
     const ROOT_SPRITE_BASE = './sprites';
     const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
-    const LAYOUT_BUILDER_ARROW_SPRITE_VERSION = '20260625-layout-arrow-grid-v4';
+    const LAYOUT_BUILDER_ARROW_SPRITE_VERSION = '20260625-layout-arrow-grid-v5';
     const TEXT_LAYER_LINE_HEIGHT = 1.15;
     const TEXT_LAYER_CLIP_BLEED = 2;
     const LAYOUT_BUILDER_TEXT_RECOVERY_META_KEY = 'layoutBuilderTextRecoveryV1';
@@ -1635,14 +1635,24 @@
     }
 
     function arrowIndicatorCanvasSize(layer, naturalWidth, naturalHeight) {
-      const src = String(layer?.src || '').toLowerCase();
       const height = Math.max(1, Math.round(naturalHeight * SPRITE_LIBRARY_DEFAULT_DROP_SCALE));
       const defaultWidth = Math.max(1, Math.round(naturalWidth * SPRITE_LIBRARY_DEFAULT_DROP_SCALE));
-      if (APP_MODE === 'layout-builder' && /\/(?:green|red)_arrow_2\.png(?:$|[?#])/.test(src)) {
-        // Split the 13px source round-up so the grouped arrow matches the 1- and 3-arrow visual weight.
-        return { width: Math.max(1, defaultWidth - 0.5), height };
-      }
       return { width: defaultWidth, height };
+    }
+
+    function isTwoArrowIndicatorSpriteLayer(layer) {
+      if (!isArrowIndicatorSpriteLayer(layer)) return false;
+      return /\/(?:green|red)_arrow_2\.png(?:$|[?#])/.test(String(layer?.src || '').toLowerCase());
+    }
+
+    function syncLayoutBuilderArrowVisualInset(layer) {
+      if (APP_MODE !== 'layout-builder' || !isArrowIndicatorSpriteLayer(layer)) return;
+      if (isTwoArrowIndicatorSpriteLayer(layer)) {
+        // Keep the placement box on the integer grid while matching the half-grid visual weight.
+        layer.layoutBuilderVisualInsetX = 0.25;
+      } else {
+        delete layer.layoutBuilderVisualInsetX;
+      }
     }
 
     function normalizeArrowIndicatorSpriteSize(layer) {
@@ -1661,6 +1671,7 @@
       layer.naturalHeight = naturalHeight;
       layer.aspectRatio = naturalHeight ? naturalWidth / naturalHeight : null;
       layer.preserveAspect = true;
+      syncLayoutBuilderArrowVisualInset(layer);
       if (APP_MODE === 'layout-builder') {
         layer.x = Math.round(Number(layer.x) || 0);
         layer.y = Math.round(Number(layer.y) || 0);
@@ -4003,7 +4014,10 @@
       newLayer.naturalWidth = naturalWidth;
       newLayer.naturalHeight = naturalHeight;
       newLayer.aspectRatio = naturalHeight ? naturalWidth / naturalHeight : null;
-      if (isArrowIndicatorSpriteLayer(newLayer)) newLayer.manualLibraryArrow = true;
+      if (isArrowIndicatorSpriteLayer(newLayer)) {
+        newLayer.manualLibraryArrow = true;
+        syncLayoutBuilderArrowVisualInset(newLayer);
+      }
       clampLayerToCanvas(newLayer);
       getCurrentSectionLayers().push(newLayer);
       state.selectedLayerId = newLayer.id;
@@ -4893,10 +4907,18 @@
       if (transform) {
         node.style.transform = transform;
         node.style.transformOrigin = 'center';
-        return;
+      } else {
+        node.style.removeProperty('transform');
+        node.style.removeProperty('transform-origin');
       }
-      node.style.removeProperty('transform');
-      node.style.removeProperty('transform-origin');
+      const visualInsetX = Number(layer.layoutBuilderVisualInsetX);
+      if (Number.isFinite(visualInsetX) && visualInsetX > 0) {
+        node.style.paddingLeft = `calc(${visualInsetX}px * var(--pixel-unit))`;
+        node.style.paddingRight = `calc(${visualInsetX}px * var(--pixel-unit))`;
+      } else {
+        node.style.removeProperty('padding-left');
+        node.style.removeProperty('padding-right');
+      }
     }
 
     function shouldRenderLayerOnCanvas(layer) {

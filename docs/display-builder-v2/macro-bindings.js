@@ -66,6 +66,7 @@
   };
 
   window.FOODRANKED_MACRO_BINDINGS = {
+    displaySections: ['intro', 'fats', 'carbs', 'protein'],
     macroSections: ['fats', 'carbs', 'protein'],
     textBindings: MACRO_TEXT_BINDINGS,
     textFallbackOrder: MACRO_TEXT_FALLBACK_ORDER,

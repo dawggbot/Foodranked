@@ -2,7 +2,8 @@
   const LOGIC = window.FOODRANKED_MACRO_LOGIC;
   const BINDINGS = window.FOODRANKED_MACRO_BINDINGS;
   const MACRO_SECTIONS = BINDINGS.macroSections || ['fats', 'carbs', 'protein'];
-  const SECTION_LABELS = { fats: 'Fats', carbs: 'Carbohydrates', protein: 'Protein' };
+  const DISPLAY_SECTIONS = BINDINGS.displaySections || ['intro', ...MACRO_SECTIONS];
+  const SECTION_LABELS = { intro: 'Intro', fats: 'Fats', carbs: 'Carbohydrates', protein: 'Protein' };
   const LAYOUT_BUILDER_WORKING_KEY = 'foodranked-layout-builder-v4';
   const LAYOUT_BUILDER_FOOD_LAYOUTS_KEY = 'foodranked-layout-builder-food-layouts-v1';
   const LAYOUT_BUILDER_SAVED_KEY = 'foodranked-layout-builder-sprite-layouts-v1';
@@ -31,7 +32,7 @@
     foods: Array.isArray(window.FOODS_INDEX) ? window.FOODS_INDEX : [],
     foodFilter: '',
     selectedFoodId: '',
-    selectedSectionId: 'fats',
+    selectedSectionId: 'intro',
     selectedLayoutKey: '',
     layoutOptions: [],
     fullFood: null,
@@ -93,8 +94,8 @@
     return !!layout && typeof layout === 'object' && !!layout.sections && typeof layout.sections === 'object';
   }
 
-  function countMacroLayers(layout) {
-    return MACRO_SECTIONS.reduce((sum, sectionId) => {
+  function countDisplayLayers(layout) {
+    return DISPLAY_SECTIONS.reduce((sum, sectionId) => {
       const layers = layout?.sections?.[sectionId]?.layers;
       return sum + (Array.isArray(layers) ? layers.length : 0);
     }, 0);
@@ -110,7 +111,7 @@
       updatedAt: entry.updatedAt || entry.createdAt || '',
       layout: {
         canvas: null,
-        selectedSectionId: entry.selectedSectionId || 'fats',
+        selectedSectionId: entry.selectedSectionId || 'intro',
         sections: LOGIC.clone(entry.sections),
         meta: { source: LAYOUT_BUILDER_SAVED_KEY }
       }
@@ -140,7 +141,7 @@
       .sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)) || a.name.localeCompare(b.name))
       .forEach(option => options.push(option));
 
-    state.layoutOptions = options.filter(option => countMacroLayers(option.layout) > 0);
+    state.layoutOptions = options.filter(option => countDisplayLayers(option.layout) > 0);
     if (previousKey && state.layoutOptions.some(option => option.key === previousKey)) {
       state.selectedLayoutKey = previousKey;
     } else {
@@ -171,7 +172,7 @@
     els.layoutSelect.value = state.selectedLayoutKey;
     const selected = selectedLayoutOption();
     els.layoutStatus.textContent = selected
-      ? `${selected.kind}; ${countMacroLayers(selected.layout)} macro-section layers read from layout-builder storage.`
+      ? `${selected.kind}; ${countDisplayLayers(selected.layout)} display-section layers read from layout-builder storage.`
       : '';
     els.layoutStatus.classList.remove('warn');
   }
@@ -280,7 +281,7 @@
 
   function renderSections() {
     els.sectionList.innerHTML = '';
-    for (const sectionId of MACRO_SECTIONS) {
+    for (const sectionId of DISPLAY_SECTIONS) {
       const button = document.createElement('button');
       button.type = 'button';
       button.className = `section-button${sectionId === state.selectedSectionId ? ' active' : ''}`;
@@ -309,6 +310,12 @@
     return fingerprint.includes('/arrow_indicators/') || /arrow indicator/.test(fingerprint);
   }
 
+  function isSectionIndicatorLayer(layer) {
+    if (!isSpriteLayer(layer)) return false;
+    const fingerprint = `${layer.id || ''} ${layer.label || ''} ${layer.src || ''}`.toLowerCase();
+    return fingerprint.includes('/ui/section_indicator/') || /section indicator/.test(fingerprint);
+  }
+
   function isMacroFillLayer(layer) {
     const fingerprint = `${layer?.id || ''} ${layer?.label || ''} ${layer?.src || ''}`.toLowerCase();
     return isSpriteLayer(layer) && /(macro_bar_fill|bar_fill|macro bar fill)/.test(fingerprint);
@@ -331,6 +338,19 @@
   function getSectionLayers(layout, sectionId) {
     const layers = layout?.sections?.[sectionId]?.layers;
     return Array.isArray(layers) ? layers : [];
+  }
+
+  function sectionIndicatorLayerIndex(layout, sectionId, layer) {
+    const indicators = getSectionLayers(layout, sectionId)
+      .filter(isSectionIndicatorLayer)
+      .sort((a, b) => (Number(a.x) || 0) - (Number(b.x) || 0) || (Number(a.y) || 0) - (Number(b.y) || 0));
+    return indicators.findIndex(item => item === layer || (item.id && item.id === layer.id));
+  }
+
+  function sectionIndicatorSrcForLayer(layout, sectionId, layer, food) {
+    const layerIndex = sectionIndicatorLayerIndex(layout, sectionId, layer);
+    const activeIndex = DISPLAY_SECTIONS.indexOf(sectionId);
+    return LOGIC.sectionIndicatorSpritePath(food, layerIndex >= 0 && layerIndex === activeIndex);
   }
 
   function layerRight(layer) {
@@ -393,7 +413,7 @@
     base.selectedSectionId = state.selectedSectionId;
     base.selectedFoodId = state.selectedFoodId;
     base.sections = base.sections || {};
-    for (const sectionId of MACRO_SECTIONS) {
+    for (const sectionId of DISPLAY_SECTIONS) {
       if (!base.sections[sectionId]) base.sections[sectionId] = { layers: [] };
       if (!Array.isArray(base.sections[sectionId].layers)) base.sections[sectionId].layers = [];
     }
@@ -418,6 +438,8 @@
           layer.fallbackSrc = imageCandidates.fallback;
         } else if (src.includes('/ui/section_separator/') || /^section separator$/.test(label)) {
           layer.src = LOGIC.sectionSeparatorSpritePath(food);
+        } else if (isSectionIndicatorLayer(layer)) {
+          layer.src = sectionIndicatorSrcForLayer(layout, sectionId, layer, food);
         }
       }
     }
@@ -1025,18 +1047,10 @@
   }
 
   function renderedSpriteSrc(layer, food) {
-    if (isManagedSectionIndicator(layer)) {
-      const index = Number(String(layer.id || '').match(/_(\d+)$/)?.[1] || 0) - 1;
-      const activeIndex = MACRO_SECTIONS.indexOf(state.selectedSectionId) + 1;
-      return LOGIC.sectionIndicatorSpritePath(food, index === activeIndex);
+    if (isSectionIndicatorLayer(layer)) {
+      return sectionIndicatorSrcForLayer(state.renderedLayout, state.selectedSectionId, layer, food);
     }
     return LOGIC.canonicalSpritePath(layer.src || layer.fallbackSrc || '');
-  }
-
-  function isManagedSectionIndicator(layer) {
-    return isSpriteLayer(layer)
-      && new RegExp(`^${state.selectedSectionId}_indicator_\\d+$`, 'i').test(String(layer.id || ''))
-      && String(layer.src || '').toLowerCase().includes('/section_indicator/');
   }
 
   function renderTextNode(node, layer) {
@@ -1267,7 +1281,7 @@
     state.selectedFoodId = saved.selectedFoodId && state.foods.some(food => food.id === saved.selectedFoodId)
       ? saved.selectedFoodId
       : state.foods[0]?.id || '';
-    state.selectedSectionId = MACRO_SECTIONS.includes(saved.selectedSectionId) ? saved.selectedSectionId : 'fats';
+    state.selectedSectionId = DISPLAY_SECTIONS.includes(saved.selectedSectionId) ? saved.selectedSectionId : 'intro';
     state.selectedLayoutKey = saved.selectedLayoutKey || '';
     state.background = {
       ...LOGIC.clone(DEFAULT_BACKGROUND),

@@ -2975,15 +2975,23 @@
       } else {
         layer.label = spec.label;
       }
-      layer.x = spec.x;
-      layer.y = spec.y;
-      layer.fontSize = spec.fontSize;
-      layer.width = spec.width;
-      layer.align = spec.align;
-      layer.z = spec.z;
+      applyEditableTextLayerDefaults(layer, spec);
 
       layout.meta = layout.meta || {};
       layout.meta.outroScoreDisplayLayersV4 = true;
+    }
+
+    function hasLayerNumber(value) {
+      return value !== null && value !== undefined && value !== '' && Number.isFinite(Number(value));
+    }
+
+    function applyEditableTextLayerDefaults(layer, spec) {
+      if (!layer || !spec) return;
+      ['x', 'y', 'fontSize', 'width', 'z'].forEach(key => {
+        if (!hasLayerNumber(layer[key])) layer[key] = spec[key];
+      });
+      if (!layer.align) layer.align = spec.align;
+      if (!layer.manualText && (layer.text === null || layer.text === undefined || layer.text === '')) layer.text = spec.text;
     }
 
     function migrateMacroLayoutFromOutro(layout) {
@@ -3457,9 +3465,20 @@
       const targetLayer = sourceLayer || layer;
       const beforeX = Number(targetLayer.x) || 0;
       const beforeY = Number(targetLayer.y) || 0;
+      const beforeWidth = Number(targetLayer.width) || 0;
+      const beforeHeight = Number(targetLayer.height) || 0;
+      const beforeFontSize = Number(targetLayer.fontSize) || 0;
+      const beforeZ = Number(targetLayer.z) || 0;
+      const beforeAlign = targetLayer.align || '';
       mutator(targetLayer);
       const moved = beforeX !== (Number(targetLayer.x) || 0) || beforeY !== (Number(targetLayer.y) || 0);
-      if (isSpriteLayer(targetLayer) || moved) targetLayer.manualPosition = true;
+      const resized = beforeWidth !== (Number(targetLayer.width) || 0) || beforeHeight !== (Number(targetLayer.height) || 0);
+      const restyledText = isTextLayer(targetLayer) && (
+        beforeFontSize !== (Number(targetLayer.fontSize) || 0) ||
+        beforeZ !== (Number(targetLayer.z) || 0) ||
+        beforeAlign !== (targetLayer.align || '')
+      );
+      if (isSpriteLayer(targetLayer) || moved || resized || restyledText) targetLayer.manualPosition = true;
       snapLayerToPixel(targetLayer);
       if (clamp) clampLayerToCanvas(targetLayer);
       if (sourceLayer) mirrorLayerValues(sourceLayer, layer);
@@ -3512,6 +3531,18 @@
         base.push(text('outro_score_value', 'OUTRO numerical score', 64, 24, 5, '—', 11, 5, 'center'));
       }
       return base;
+    }
+
+    function defaultSectionLayers(sectionId) {
+      const sectionLayers = getSectionLayersFromLayout(DEFAULT_LAYOUT, sectionId);
+      return sectionLayers.length ? structuredClone(sectionLayers) : createSectionLayers(sectionId);
+    }
+
+    function resetCurrentSectionLayers() {
+      const sectionId = state.layout.selectedSectionId;
+      const layers = defaultSectionLayers(sectionId);
+      state.layout.sections[sectionId].layers = layers;
+      restoreDeletedLayerIds(state.layout, layers.map(layer => layer.id).filter(Boolean));
     }
 
     function sprite(id, label, src, x, y, z, width, height, foodDriven = false) {
@@ -6181,7 +6212,7 @@ async function renderAll() {
     els.bgMotionMaxSize.addEventListener('input', () => { state.layout.canvas.backgroundMotion.maxSize = Number(els.bgMotionMaxSize.value) || DEFAULT_LAYOUT.canvas.backgroundMotion.maxSize; void renderAll(); });
     els.bgMotionDrift.addEventListener('input', () => { state.layout.canvas.backgroundMotion.drift = Number(els.bgMotionDrift.value) || DEFAULT_LAYOUT.canvas.backgroundMotion.drift; void renderAll(); });
     els.resetSection.addEventListener('click', () => {
-      state.layout.sections[state.layout.selectedSectionId].layers = createSectionLayers(state.layout.selectedSectionId);
+      resetCurrentSectionLayers();
       syncFoodIntoLayout(state.fullFood);
       state.selectedLayerId = null;
       void renderAll();

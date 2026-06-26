@@ -53,6 +53,12 @@
     return stack;
   }
 
+  function showStackByHeading(doc, selector, text) {
+    const stack = stackByHeading(doc, selector, text);
+    if (stack) delete stack.dataset.layoutBuilderHidden;
+    return stack;
+  }
+
   function currentLayout(doc) {
     const textarea = doc.getElementById('layoutJson');
     if (textarea?.value) {
@@ -1043,11 +1049,11 @@
     hideStackByHeading(doc, 'h2', 'Selected food script');
     hideStackByHeading(doc, 'h2', 'Nutritional info');
     hideStackByHeading(doc, 'h3', 'Background motion');
-    hideStackByHeading(doc, 'h3', 'Move on canvas');
-    hideStackByHeading(doc, 'h3', 'Size');
-    hideStackByHeading(doc, 'h3', 'Align');
-    hideStackByHeading(doc, 'h3', 'Rotate');
-    hideStackByHeading(doc, 'h3', 'Layer');
+    showStackByHeading(doc, 'h3', 'Move on canvas');
+    showStackByHeading(doc, 'h3', 'Size');
+    showStackByHeading(doc, 'h3', 'Align');
+    showStackByHeading(doc, 'h3', 'Rotate');
+    showStackByHeading(doc, 'h3', 'Layer');
     const staleTextSizer = doc.getElementById('layoutBuilderTextSizeTools');
     staleTextSizer?.remove();
   }

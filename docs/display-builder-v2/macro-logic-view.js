@@ -21,7 +21,6 @@
     sugar_g: 'higher_worse',
     starch_g: 'higher_better',
     glycemic_index: 'higher_worse',
-    protein_g_fallback: 'higher_better',
     collagen_g: 'higher_better',
     essential_amino_acids_score: 'higher_better',
     nonessential_amino_acids_score: 'higher_better',
@@ -253,16 +252,11 @@
 
   function macroSubmetricDisplayValue(food, sectionId, metricKey) {
     if (!hasDisplayedMacro(food, sectionId)) return null;
-    if (sectionId === 'protein' && metricKey === 'protein_g_fallback') return macroTotalValue(food, 'protein');
     const displayItem = getEpisodeDisplayItemForMetric(food, sectionId, metricKey);
     const displayItemValue = asNumber(displayItem?.value, null);
     if (displayItemValue != null) return displayItemValue;
-    const batchItem = getBatchMetricBreakdownItemForSpec(food, sectionId, { metricKey });
-    const batchItemValue = asNumber(batchItem?.value, null);
-    if (batchItemValue != null) return batchItemValue;
     const value = asNumber(food?.metrics?.[metricKey], null);
     if (value != null) return value;
-    if (sectionId === 'protein') return null;
     return 0;
   }
 
@@ -429,22 +423,17 @@
   }
 
   function textSpecForMetric(sectionId, metricKey) {
-    if (sectionId === 'protein') {
-      const proteinSpec = proteinRowSpecForMetric(metricKey);
-      if (proteinSpec?.valueBinding) return proteinSpec.valueBinding;
-    }
     const entries = Object.values(BINDINGS.textBindings?.[sectionId] || {});
     return entries.find(binding => binding.metricKey === metricKey && /Value$/.test(binding.kind)) || null;
   }
 
   function specForMetric(sectionId, metricKey) {
     const binding = textSpecForMetric(sectionId, metricKey);
-    const proteinSpec = sectionId === 'protein' ? proteinRowSpecForMetric(metricKey) : null;
     return {
       key: metricKey,
       metricKey,
-      label: proteinSpec?.longLabel || BINDINGS.arrowRows?.[sectionId]?.find(row => row.metricKey === metricKey)?.label || metricKey,
-      displayMetricKeys: binding?.displayMetricKeys || proteinSpec?.displayMetricKeys || []
+      label: BINDINGS.arrowRows?.[sectionId]?.find(row => row.metricKey === metricKey)?.label || metricKey,
+      displayMetricKeys: binding?.displayMetricKeys || []
     };
   }
 
@@ -486,7 +475,7 @@
   }
 
   function liveMetricEvaluation(food, sectionId) {
-    const rows = metricRowsForSection(food, sectionId);
+    const rows = BINDINGS.arrowRows?.[sectionId] || [];
     return rows.map(row => {
       const spec = specForMetric(sectionId, row.metricKey);
       const rule = getMetricRuleForSpec(food, sectionId, spec);
@@ -527,32 +516,6 @@
     return (food?.batchResult?.metricBreakdown || [])
       .filter(item => item.sectionKey === sectionId || item.sectionKey === sectionKey)
       .map(item => ({ ...item }));
-  }
-
-  function proteinRowSpecForMetric(metricKey) {
-    const configured = BINDINGS.proteinRows?.[metricKey];
-    if (!configured) return null;
-    return {
-      ...configured,
-      metricKey,
-      label: configured.label || configured.longLabel || metricKey,
-      longLabel: configured.longLabel || configured.label || metricKey,
-      valueBinding: configured.valueBinding ? { ...configured.valueBinding, metricKey } : null
-    };
-  }
-
-  function metricRowsForSection(food, sectionId) {
-    if (sectionId !== 'protein') return BINDINGS.arrowRows?.[sectionId] || [];
-    const seen = new Set();
-    return sectionMetricBreakdown(food, 'protein')
-      .map(item => proteinRowSpecForMetric(item.metricKey))
-      .filter(Boolean)
-      .filter(item => {
-        if (seen.has(item.metricKey)) return false;
-        seen.add(item.metricKey);
-        return true;
-      })
-      .slice(0, 4);
   }
 
   function weightedAverage(rows) {
@@ -653,8 +616,6 @@
     arrowPresentationForSpec,
     visibleArrowIndexes,
     specForMetric,
-    proteinRowSpecForMetric,
-    metricRowsForSection,
     activeRules,
     liveMetricEvaluation,
     sectionMetricBreakdown,

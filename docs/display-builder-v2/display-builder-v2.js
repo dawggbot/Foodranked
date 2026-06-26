@@ -10,7 +10,7 @@
   const FOOD_JSON_CACHE = new Map();
   const BATCH_RESULTS_CACHE = new Map();
   const TEXT_LAYER_CLIP_BLEED = 2;
-  const LAYOUT_BUILDER_CANVAS_VIEW_ZOOM = 1.52;
+  const LAYOUT_BUILDER_CANVAS_VIEW_ZOOM = 1.36;
   const LAYOUT_BUILDER_REFERENCE_DISPLAY_WIDTH = 408;
   const renderToken = { value: 0 };
 

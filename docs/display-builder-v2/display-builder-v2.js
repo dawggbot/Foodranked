@@ -3,7 +3,17 @@
   const BINDINGS = window.FOODRANKED_MACRO_BINDINGS;
   const MACRO_SECTIONS = BINDINGS.macroSections || ['fats', 'carbs', 'protein'];
   const DISPLAY_SECTIONS = BINDINGS.displaySections || ['intro', ...MACRO_SECTIONS];
-  const SECTION_LABELS = { intro: 'Intro', fats: 'Fats', carbs: 'Carbohydrates', protein: 'Protein' };
+  const SECTION_LABELS = {
+    intro: 'Intro',
+    fats: 'Fats',
+    carbs: 'Carbohydrates',
+    protein: 'Protein',
+    vitamins: 'Vitamins',
+    minerals: 'Minerals',
+    pros: 'Pros',
+    cons: 'Cons',
+    outro: 'Outro'
+  };
   const LAYOUT_BUILDER_WORKING_KEY = 'foodranked-layout-builder-v4';
   const LAYOUT_BUILDER_FOOD_LAYOUTS_KEY = 'foodranked-layout-builder-food-layouts-v1';
   const LAYOUT_BUILDER_SAVED_KEY = 'foodranked-layout-builder-sprite-layouts-v1';

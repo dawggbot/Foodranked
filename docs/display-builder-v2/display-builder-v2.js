@@ -478,6 +478,10 @@
         const resolvedValue = binding ? LOGIC.formatBindingValue(food, sectionId, binding) : null;
         const shouldResolve = direct ? shouldResolveKnownBinding(layer, binding) : !!fallback;
         if (binding && shouldResolve) layer.text = safeDisplayText(resolvedValue);
+        if (binding && binding.metricKey && ['metricValue', 'ratioMetricValue'].includes(binding.kind)) {
+          const presentation = LOGIC.arrowPresentationForSpec(food, sectionId, LOGIC.specForMetric(sectionId, binding.metricKey));
+          layer.color = presentation.textColor;
+        }
         if (isQuestion || (direct && shouldResolve)) {
           report.push({
             sectionId,
@@ -753,7 +757,7 @@
   function renderTextNode(node, layer) {
     node.textContent = safeDisplayText(layer.text || '');
     node.style.fontSize = `calc(${Number(layer.fontSize) || 6}px * var(--pixel-unit))`;
-    node.style.color = isMacroSubmetricValueTextLayer(layer) ? '' : (layer.color || '');
+    node.style.color = layer.color || '';
     node.style.textAlign = layer.align || 'left';
     if (layer.width) node.style.width = `calc(${Number(layer.width) + (TEXT_LAYER_CLIP_BLEED * 2)}px * var(--pixel-unit))`;
     const height = Number(layer.textBoxHeight || layer.height || defaultTextLayerHeight(layer));
@@ -770,10 +774,6 @@
     const fontSize = Number(layer?.fontSize) || 6;
     const lines = Math.max(1, String(layer?.text || '').split(/\r\n|\r|\n/).length);
     return Math.max(1, Math.ceil(fontSize * 1.15 * lines));
-  }
-
-  function isMacroSubmetricValueTextLayer(layer) {
-    return /^(?:fats|carbs|protein)_submacro_value_\d+$/i.test(String(layer?.id || ''));
   }
 
   function handleSpriteError(node, layer) {

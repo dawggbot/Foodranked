@@ -484,11 +484,36 @@
     }
   }
 
-  function directTextBinding(sectionId, layer) {
+  function proteinSubmacroTextLayerInfo(layer) {
+    const match = String(layer?.id || '').match(/^protein_submacro_(label|value)_(\d+)$/i);
+    if (!match) return null;
+    return { kind: match[1].toLowerCase(), index: Number(match[2]) - 1 };
+  }
+
+  function proteinTextBinding(layer, food) {
+    const info = proteinSubmacroTextLayerInfo(layer);
+    if (!info) return null;
+    const row = LOGIC.metricRowsForSection(food, 'protein')[info.index];
+    if (!row) return null;
+    if (info.kind === 'label') {
+      return { kind: 'metricLabel', metricKey: row.metricKey, label: row.label, source: 'generated protein scoring breakdown' };
+    }
+    return row.valueBinding || null;
+  }
+
+  function directTextBinding(sectionId, layer, food) {
+    if (sectionId === 'protein') {
+      const dynamic = proteinTextBinding(layer, food);
+      if (dynamic) return dynamic;
+    }
     return BINDINGS.textBindings?.[sectionId]?.[layer.id] || null;
   }
 
-  function textFallbackBinding(sectionId, fallbackIndex) {
+  function textFallbackBinding(sectionId, fallbackIndex, food) {
+    if (sectionId === 'protein') {
+      const row = LOGIC.metricRowsForSection(food, 'protein')[fallbackIndex];
+      return row?.valueBinding || null;
+    }
     const fallbackId = BINDINGS.textFallbackOrder?.[sectionId]?.[fallbackIndex];
     return fallbackId ? BINDINGS.textBindings?.[sectionId]?.[fallbackId] || null : null;
   }
@@ -496,6 +521,7 @@
   function shouldResolveKnownBinding(layer, binding) {
     if (!binding) return false;
     if (String(layer.text || '').trim() === '?') return true;
+    if (binding.kind === 'metricLabel') return binding.source === 'generated protein scoring breakdown';
     return ['macroTotal', 'metricValue', 'ratioMetricValue'].includes(binding.kind);
   }
 
@@ -509,10 +535,11 @@
       const fallbackIndexes = new Map(exactQuestionLayers.map((layer, index) => [layer, index]));
 
       for (const layer of layers.filter(isTextLayer)) {
+        if (sectionId === 'protein' && layer.visible === false && proteinSubmacroTextLayerInfo(layer)) continue;
         const isQuestion = String(layer.text || '').trim() === '?';
-        const direct = directTextBinding(sectionId, layer);
+        const direct = directTextBinding(sectionId, layer, food);
         const fallbackIndex = fallbackIndexes.get(layer);
-        const fallback = direct ? null : (isQuestion ? textFallbackBinding(sectionId, fallbackIndex) : null);
+        const fallback = direct ? null : (isQuestion ? textFallbackBinding(sectionId, fallbackIndex, food) : null);
         const binding = direct || fallback;
         const before = layer.text;
         const resolvedValue = binding ? LOGIC.formatBindingValue(food, sectionId, binding) : null;
@@ -577,9 +604,9 @@
       .slice(0, 4);
   }
 
-  function arrowRowsWithSpecs(layout, sectionId) {
+  function arrowRowsWithSpecs(layout, sectionId, food) {
     const rows = clusterArrowRows(layout, sectionId);
-    const specs = BINDINGS.arrowRows?.[sectionId] || [];
+    const specs = LOGIC.metricRowsForSection(food, sectionId);
     return rows.map((row, index) => {
       const fingerprint = row.items
         .map(item => `${item.layer.id || ''} ${item.layer.label || ''} ${item.layer.src || ''}`.toLowerCase())
@@ -607,14 +634,18 @@
   function syncArrowRows(layout, food) {
     const report = [];
     for (const sectionId of MACRO_SECTIONS) {
-      const rows = arrowRowsWithSpecs(layout, sectionId);
-      const expectedRows = BINDINGS.arrowRows?.[sectionId] || [];
+      const rows = arrowRowsWithSpecs(layout, sectionId, food);
+      const expectedRows = LOGIC.metricRowsForSection(food, sectionId);
       if (!rows.length && expectedRows.length) {
         state.bindingReport.warnings.push({ type: 'arrow', sectionId, message: 'No arrow rows found in selected layout section.' });
       }
       rows.forEach((row, rowIndex) => {
         const rowSpec = row.spec;
         if (!rowSpec) {
+          if (sectionId === 'protein') {
+            row.items.forEach(item => { item.layer.visible = false; });
+            return;
+          }
           row.items.forEach(item => {
             report.push(arrowReport(sectionId, item.layer, null, null, true));
           });
@@ -680,9 +711,31 @@
     syncFoodSprites(layout, food);
     syncFoodText(layout, food);
     syncMacroFills(layout, food);
+    syncProteinRows(layout, food);
     state.bindingReport.text = resolveTextBindings(layout, food);
     state.bindingReport.arrows = syncArrowRows(layout, food);
     return layout;
+  }
+
+  function isProteinScoreCardLayer(layer) {
+    if (!isSpriteLayer(layer)) return false;
+    const fingerprint = `${layer.id || ''} ${layer.label || ''} ${layer.src || ''}`.toLowerCase();
+    return fingerprint.includes('protein_submacro_bullet') || fingerprint.includes('protein score card');
+  }
+
+  function syncProteinRows(layout, food) {
+    const rows = LOGIC.metricRowsForSection(food, 'protein');
+    const layers = getSectionLayers(layout, 'protein');
+    for (const layer of layers) {
+      const info = proteinSubmacroTextLayerInfo(layer);
+      if (info) layer.visible = info.index < rows.length;
+    }
+    layers
+      .filter(isProteinScoreCardLayer)
+      .sort((a, b) => (Number(a.y) || 0) - (Number(b.y) || 0) || (Number(a.x) || 0) - (Number(b.x) || 0))
+      .forEach((layer, index) => {
+        layer.visible = index < rows.length;
+      });
   }
 
   function safeDisplayText(value) {

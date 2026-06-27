@@ -1225,6 +1225,7 @@
     const ROOT_SPRITE_BASE = './sprites';
     const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
     const LAYOUT_BUILDER_ARROW_SPRITE_VERSION = '20260625-layout-arrow-grid-v6';
+    const LAYOUT_BUILDER_DRAG_THRESHOLD = 10;
     const TEXT_LAYER_LINE_HEIGHT = 1.15;
     const TEXT_LAYER_CLIP_BLEED = 2;
     const LAYOUT_BUILDER_TEXT_RECOVERY_META_KEY = 'layoutBuilderTextRecoveryV1';
@@ -1233,6 +1234,7 @@
     const BATCH_RESULTS_CACHE = new Map();
     const SPRITE_EXISTENCE_CACHE = new Map();
     const SPRITE_METADATA_CACHE = new Map();
+    let suppressLayoutBuilderCanvasClickUntil = 0;
     const AVAILABLE_FOOD_IMAGE_IDS = new Set(['bacon', 'kale']);
     const BACKDROP_PALETTES = {
       vegetables: { top: '#dff4cf', bottom: '#bfd8b0', glowA: 'rgba(219,255,183,.78)', glowB: 'rgba(108,169,104,.38)' },
@@ -5502,6 +5504,7 @@
               event.preventDefault();
               event.stopPropagation();
               state.selectedLayerId = layer.id;
+              markCanvasLayerSelection(layer.id);
               renderInspector();
               renderLayerList();
               renderSectionTextList();
@@ -5522,22 +5525,30 @@
         }
         attachDrag(node, layer.id);
         node.addEventListener('click', event => {
-          if (node.dataset.layoutBuilderSuppressClick === 'true') {
-            delete node.dataset.layoutBuilderSuppressClick;
+          if (APP_MODE === 'layout-builder' && Date.now() < suppressLayoutBuilderCanvasClickUntil) {
             event.preventDefault();
             event.stopPropagation();
             return;
           }
           event.stopPropagation();
           state.selectedLayerId = layer.id;
+          if (APP_MODE === 'layout-builder') markCanvasLayerSelection(layer.id);
           renderInspector();
-          if (!(APP_MODE === 'layout-builder' && layer.kind === 'text')) void renderCanvas();
+          if (APP_MODE !== 'layout-builder') void renderCanvas();
           renderLayerList();
           renderSectionTextList();
         });
         els.canvas.appendChild(node);
       }
 
+    }
+
+    function markCanvasLayerSelection(layerId) {
+      if (APP_MODE !== 'layout-builder') return;
+      els.canvas.querySelectorAll('.layer-node.selected').forEach(item => item.classList.remove('selected'));
+      if (!layerId) return;
+      const node = els.canvas.querySelector(`.layer-node[data-layer-id="${CSS.escape(layerId)}"]`);
+      node?.classList.add('selected');
     }
 
     function renderLayerList() {
@@ -5568,8 +5579,9 @@
         button.innerHTML = `<strong>${layer.label}</strong><div class="tiny muted">${layer.kind} · x ${Math.round(layer.x || 0)}, y ${Math.round(layer.y || 0)} · z ${layer.z || 0}</div>`;
         button.addEventListener('click', () => {
           state.selectedLayerId = layer.id;
+          markCanvasLayerSelection(layer.id);
           renderInspector();
-          void renderCanvas();
+          if (APP_MODE !== 'layout-builder') void renderCanvas();
           renderLayerList();
           renderSectionTextList();
         });
@@ -5819,8 +5831,9 @@
         header.innerHTML = `<strong>${escapeHtml(layer.label || layer.id || 'Text layer')}</strong><div class="tiny muted">x ${Math.round(layer.x || 0)}, y ${Math.round(layer.y || 0)} · z ${layer.z || 0}</div>`;
         header.addEventListener('click', () => {
           state.selectedLayerId = layer.id;
+          markCanvasLayerSelection(layer.id);
           renderInspector();
-          void renderCanvas();
+          if (APP_MODE !== 'layout-builder') void renderCanvas();
           renderLayerList();
           renderSectionTextList();
         });
@@ -5983,14 +5996,10 @@
           : null;
         const useSelectedStackLayer = !!selectedNode && stackedLayerNodes.includes(selectedNode);
         const dragLayerId = useSelectedStackLayer ? state.selectedLayerId : layerId;
-        const activeNode = useSelectedStackLayer ? selectedNode : node;
         const layoutBuilderLayerDrag = APP_MODE === 'layout-builder';
         event.preventDefault();
         event.stopPropagation();
         node.setPointerCapture(event.pointerId);
-        state.selectedLayerId = dragLayerId;
-        els.canvas.querySelectorAll('.layer-node.selected').forEach(item => item.classList.remove('selected'));
-        activeNode.classList.add('selected');
         const layer = getLayerById(dragLayerId);
         if (!layer) return;
         const sourceLayer = getSyncedGlobalSourceLayer(layer);
@@ -6000,12 +6009,20 @@
         originX = dragLayer.x;
         originY = dragLayer.y;
         let dragging = !layoutBuilderLayerDrag;
+        const selectDragLayer = () => {
+          state.selectedLayerId = dragLayerId;
+          markCanvasLayerSelection(dragLayerId);
+          renderInspector();
+          renderLayerList();
+        };
+        if (!layoutBuilderLayerDrag) selectDragLayer();
         const move = e => {
           const deltaX = e.clientX - startX;
           const deltaY = e.clientY - startY;
           if (layoutBuilderLayerDrag && !dragging) {
-            if (Math.hypot(deltaX, deltaY) < 5) return;
+            if (Math.hypot(deltaX, deltaY) < LAYOUT_BUILDER_DRAG_THRESHOLD) return;
             dragging = true;
+            selectDragLayer();
             window.getSelection()?.removeAllRanges();
           }
           if (dragging) e.preventDefault();
@@ -6029,22 +6046,14 @@
           node.removeEventListener('pointermove', move);
           node.removeEventListener('pointerup', up);
           node.removeEventListener('pointercancel', up);
-          if (APP_MODE === 'layout-builder' && dragging) {
-            node.dataset.layoutBuilderSuppressClick = 'true';
-            window.setTimeout(() => {
-              delete node.dataset.layoutBuilderSuppressClick;
-            }, 250);
-          }
           if (dragging) {
-            saveLayout();
-            if (APP_MODE === 'layout-builder') void renderAll();
+            if (APP_MODE === 'layout-builder') suppressLayoutBuilderCanvasClickUntil = Date.now() + 350;
+            saveLayout({ normalize: !layoutBuilderLayerDrag });
           }
         };
         node.addEventListener('pointermove', move);
         node.addEventListener('pointerup', up);
         node.addEventListener('pointercancel', up);
-        renderInspector();
-        renderLayerList();
       });
     }
 
@@ -6286,7 +6295,19 @@ async function renderAll() {
         alert('Invalid JSON: ' + error.message);
       }
     });
-    els.canvas.addEventListener('click', () => { state.selectedLayerId = null; renderInspector(); void renderCanvas(); renderLayerList(); renderSectionTextList(); });
+    els.canvas.addEventListener('click', event => {
+      if (APP_MODE === 'layout-builder' && Date.now() < suppressLayoutBuilderCanvasClickUntil) {
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
+      state.selectedLayerId = null;
+      markCanvasLayerSelection(null);
+      renderInspector();
+      if (APP_MODE !== 'layout-builder') void renderCanvas();
+      renderLayerList();
+      renderSectionTextList();
+    });
     els.canvas.addEventListener('dragover', event => {
       event.preventDefault();
       els.canvas.classList.add('drop-target');

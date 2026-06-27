@@ -90,6 +90,10 @@
   }
 
   function selectedLayerId(doc) {
+    const explicitId = doc.body?.dataset?.selectedLayerId || '';
+    if (explicitId && doc.querySelector(`#canvas .layer-node[data-layer-id="${CSS.escape(explicitId)}"], #layerList .card-button[data-layer-id="${CSS.escape(explicitId)}"]`)) {
+      return explicitId;
+    }
     return doc.querySelector('#layerList .card-button.active[data-layer-id]')?.dataset.layerId
       || doc.querySelector('#canvas .layer-node.selected')?.dataset.layerId
       || '';

@@ -1187,7 +1187,7 @@
   <script>
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     const BUILDER_BUILD_ID = APP_MODE === 'layout-builder'
-      ? '20260627-section-textbox-v3'
+      ? '20260627-stable-selection-v4'
       : '20260624-section-indicators-disabled-v1';
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
     const SECTIONS = [
@@ -1243,6 +1243,7 @@
     const SPRITE_METADATA_CACHE = new Map();
     let suppressLayoutBuilderCanvasClickUntil = 0;
     let suppressCanvasClearUntil = 0;
+    let pendingLayerClickSelectionId = '';
     const AVAILABLE_FOOD_IMAGE_IDS = new Set(['bacon', 'kale']);
     const BACKDROP_PALETTES = {
       vegetables: { top: '#dff4cf', bottom: '#bfd8b0', glowA: 'rgba(219,255,183,.78)', glowB: 'rgba(108,169,104,.38)' },
@@ -3420,7 +3421,7 @@
       });
       markLayoutSyncedToRepo(state.layout);
       state.ignoredSavedLayout = null;
-      state.selectedLayerId = null;
+      setSelectedLayerId(null);
       void renderAll();
     }
 
@@ -4139,7 +4140,7 @@
       }
       clampLayerToCanvas(newLayer);
       getCurrentSectionLayers().push(newLayer);
-      state.selectedLayerId = newLayer.id;
+      setSelectedLayerId(newLayer.id);
       void renderAll();
     }
 
@@ -4404,7 +4405,7 @@
       duplicate.y = Math.round((Number(layer.y) || 0) + 4);
       clampLayerToCanvas(duplicate);
       getCurrentSectionLayers().push(duplicate);
-      state.selectedLayerId = duplicate.id;
+      setSelectedLayerId(duplicate.id);
       void renderAll();
     }
 
@@ -4424,7 +4425,7 @@
       const index = layers.findIndex(item => item.id === state.selectedLayerId);
       if (index === -1) return false;
       layers.splice(index, 1);
-      state.selectedLayerId = null;
+      setSelectedLayerId(null);
       void renderAll();
       return true;
     }
@@ -5383,7 +5384,7 @@
         button.addEventListener('click', async () => {
           saveLayout({ normalize: false, allowIgnoredReplacement: true });
           switchToFoodLayout(food.id);
-          state.selectedLayerId = null;
+          setSelectedLayerId(null);
           await refreshFoodData();
         });
         els.foodList.appendChild(button);
@@ -5399,7 +5400,7 @@
         button.innerHTML = `<strong>${section.label}</strong><div class="tiny muted">Editable display section</div>`;
         button.addEventListener('click', () => {
           state.layout.selectedSectionId = section.id;
-          state.selectedLayerId = null;
+          setSelectedLayerId(null);
           void renderAll();
         });
         els.sectionList.appendChild(button);
@@ -5520,7 +5521,7 @@
             node.addEventListener('dblclick', event => {
               event.preventDefault();
               event.stopPropagation();
-              state.selectedLayerId = layer.id;
+              setSelectedLayerId(layer.id);
               renderInspector();
               els.propText.focus();
               els.propText.select();
@@ -5532,10 +5533,13 @@
           if (APP_MODE === 'layout-builder' && Date.now() < suppressLayoutBuilderCanvasClickUntil) {
             event.preventDefault();
             event.stopPropagation();
+            pendingLayerClickSelectionId = '';
             return;
           }
           event.stopPropagation();
-          selectEditableLayer(layer.id);
+          const targetLayerId = pendingLayerClickSelectionId || layer.id;
+          pendingLayerClickSelectionId = '';
+          selectEditableLayer(targetLayerId);
         });
         els.canvas.appendChild(node);
       }
@@ -5559,6 +5563,14 @@
         || (APP_MODE === 'layout-builder' && Date.now() < suppressLayoutBuilderCanvasClickUntil);
     }
 
+    function setSelectedLayerId(layerId) {
+      const selectedId = layerId ? String(layerId) : '';
+      state.selectedLayerId = selectedId || null;
+      if (APP_MODE !== 'layout-builder') return;
+      if (selectedId) document.body.dataset.selectedLayerId = selectedId;
+      else delete document.body.dataset.selectedLayerId;
+    }
+
     function markSectionTextListSelection(layerId) {
       const selectedId = layerId ? String(layerId) : '';
       els.sectionTextList.querySelectorAll('.tool-card[data-layer-id]').forEach(card => {
@@ -5580,7 +5592,7 @@
     }
 
     function selectEditableLayer(layerId, { refreshCanvas = APP_MODE !== 'layout-builder', refreshSectionTextList = true } = {}) {
-      state.selectedLayerId = layerId;
+      setSelectedLayerId(layerId);
       markCanvasLayerSelection(layerId);
       renderInspector();
       if (refreshCanvas) void renderCanvas();
@@ -5614,6 +5626,7 @@
         const button = document.createElement('button');
         button.type = 'button';
         button.className = 'card-button' + (layer.id === state.selectedLayerId ? ' active' : '');
+        button.dataset.layerId = layer.id || '';
         button.innerHTML = `<strong>${layer.label}</strong><div class="tiny muted">${layer.kind} · x ${Math.round(layer.x || 0)}, y ${Math.round(layer.y || 0)} · z ${layer.z || 0}</div>`;
         button.addEventListener('click', () => {
           selectEditableLayer(layer.id);
@@ -5814,7 +5827,7 @@
       }
       current.text = nextText;
       markTextLayerManual(current);
-      state.selectedLayerId = current.id;
+      setSelectedLayerId(current.id);
       if (document.activeElement !== els.propText) els.propText.value = current.text || '';
       if (editableTextFitsNode(node, current.text)) {
         node.dataset.layoutBuilderLastFitText = current.text || '';
@@ -6015,6 +6028,7 @@
         const layoutBuilderLayerDrag = APP_MODE === 'layout-builder';
         event.preventDefault();
         event.stopPropagation();
+        pendingLayerClickSelectionId = dragLayerId || layerId;
         suppressUpcomingCanvasClear();
         node.setPointerCapture(event.pointerId);
         const layer = getLayerById(dragLayerId);
@@ -6029,7 +6043,7 @@
         const selectDragLayer = () => {
           selectEditableLayer(dragLayerId, { refreshCanvas: false, refreshSectionTextList: false });
         };
-        if (!layoutBuilderLayerDrag) selectDragLayer();
+        selectDragLayer();
         const move = e => {
           const deltaX = e.clientX - startX;
           const deltaY = e.clientY - startY;
@@ -6063,6 +6077,7 @@
           suppressUpcomingCanvasClear(dragging ? 350 : 180);
           if (dragging) {
             if (APP_MODE === 'layout-builder') suppressLayoutBuilderCanvasClickUntil = Date.now() + 350;
+            pendingLayerClickSelectionId = '';
             saveLayout({ normalize: !layoutBuilderLayerDrag });
           }
         };
@@ -6271,7 +6286,7 @@ async function renderAll() {
     els.resetSection.addEventListener('click', () => {
       resetCurrentSectionLayers();
       syncFoodIntoLayout(state.fullFood);
-      state.selectedLayerId = null;
+      setSelectedLayerId(null);
       void renderAll();
     });
     els.applyMacroTemplate.addEventListener('click', () => {
@@ -6279,7 +6294,7 @@ async function renderAll() {
       syncMacroArrowPlacementFromFats(state.layout, { force: true });
       syncHeaderLayoutFromFats(state.layout, { force: true });
       syncFoodIntoLayout(state.fullFood, { normalize: false });
-      state.selectedLayerId = null;
+      setSelectedLayerId(null);
       void renderAll();
     });
     els.saveSpriteLayout.addEventListener('click', saveCurrentSpriteLayoutPreset);
@@ -6305,18 +6320,26 @@ async function renderAll() {
       try {
         state.layout = markLayoutSyncedToRepo(normalizeLayout(JSON.parse(els.layoutJson.value)));
         state.ignoredSavedLayout = null;
-        state.selectedLayerId = null;
+        setSelectedLayerId(null);
         void renderAll();
       } catch (error) {
         alert('Invalid JSON: ' + error.message);
       }
     });
     els.canvas.addEventListener('click', event => {
-      if (isCanvasClearSuppressed()) {
+      if (event.target?.closest?.('.layer-node')) {
+        pendingLayerClickSelectionId = '';
         event.preventDefault();
         event.stopPropagation();
         return;
       }
+      if (isCanvasClearSuppressed()) {
+        pendingLayerClickSelectionId = '';
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
+      pendingLayerClickSelectionId = '';
       selectEditableLayer(null);
     });
     els.canvas.addEventListener('dragover', event => {

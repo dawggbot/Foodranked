@@ -5491,7 +5491,7 @@
           if (APP_MODE === 'layout-builder') {
             node.contentEditable = 'plaintext-only';
             node.spellcheck = false;
-            node.title = 'Edit this text directly';
+            node.title = 'Click to edit text. Drag to move this text layer.';
             node.dataset.layoutBuilderLastFitText = layer.text || '';
             node.addEventListener('beforeinput', event => {
               handleEditableTextBeforeInput(event, node, layer);
@@ -5524,10 +5524,14 @@
             });
           }
         }
-        if (!(APP_MODE === 'layout-builder' && layer.kind === 'text')) {
-          attachDrag(node, layer.id);
-        }
+        attachDrag(node, layer.id);
         node.addEventListener('click', event => {
+          if (node.dataset.layoutBuilderSuppressClick === 'true') {
+            delete node.dataset.layoutBuilderSuppressClick;
+            event.preventDefault();
+            event.stopPropagation();
+            return;
+          }
           event.stopPropagation();
           state.selectedLayerId = layer.id;
           renderInspector();
@@ -5978,11 +5982,23 @@
     function attachDrag(node, layerId) {
       let startX = 0, startY = 0, originX = 0, originY = 0;
       node.addEventListener('pointerdown', event => {
-        event.preventDefault();
+        const stackedLayerNodes = APP_MODE === 'layout-builder'
+          ? document.elementsFromPoint(event.clientX, event.clientY).filter(item => item.classList?.contains('layer-node'))
+          : [];
+        const selectedNode = state.selectedLayerId
+          ? els.canvas.querySelector(`.layer-node[data-layer-id="${CSS.escape(state.selectedLayerId)}"]`)
+          : null;
+        const useSelectedStackLayer = !!selectedNode && stackedLayerNodes.includes(selectedNode);
+        const dragLayerId = useSelectedStackLayer ? state.selectedLayerId : layerId;
+        const activeNode = useSelectedStackLayer ? selectedNode : node;
+        const pointerTextLayerDrag = APP_MODE === 'layout-builder' && node.classList.contains('text') && dragLayerId === layerId;
+        if (!pointerTextLayerDrag) event.preventDefault();
         event.stopPropagation();
         node.setPointerCapture(event.pointerId);
-        state.selectedLayerId = layerId;
-        const layer = getLayerById(layerId);
+        state.selectedLayerId = dragLayerId;
+        els.canvas.querySelectorAll('.layer-node.selected').forEach(item => item.classList.remove('selected'));
+        activeNode.classList.add('selected');
+        const layer = getLayerById(dragLayerId);
         if (!layer) return;
         const sourceLayer = getSyncedGlobalSourceLayer(layer);
         const dragLayer = sourceLayer || layer;
@@ -5990,14 +6006,29 @@
         startY = event.clientY;
         originX = dragLayer.x;
         originY = dragLayer.y;
+        let dragging = !pointerTextLayerDrag;
         const move = e => {
+          const deltaX = e.clientX - startX;
+          const deltaY = e.clientY - startY;
+          if (pointerTextLayerDrag && !dragging) {
+            if (Math.hypot(deltaX, deltaY) < 5) return;
+            dragging = true;
+            node.blur();
+            window.getSelection()?.removeAllRanges();
+          }
+          if (dragging) e.preventDefault();
           const pixelStep = getPixelUnit();
-          dragLayer.x = Math.round(originX + (e.clientX - startX) / pixelStep);
-          dragLayer.y = Math.round(originY + (e.clientY - startY) / pixelStep);
+          dragLayer.x = Math.round(originX + deltaX / pixelStep);
+          dragLayer.y = Math.round(originY + deltaY / pixelStep);
           dragLayer.manualPosition = true;
           snapLayerToPixel(dragLayer);
           if (sourceLayer) mirrorLayerValues(sourceLayer, layer);
-          void renderCanvas();
+          if (APP_MODE === 'layout-builder') {
+            updateLiveLayerNode(layer);
+            if (sourceLayer && sourceLayer !== layer) updateLiveLayerNode(sourceLayer);
+          } else {
+            void renderCanvas();
+          }
           renderInspector();
           renderLayerList();
           updateJsonOutput();
@@ -6006,7 +6037,16 @@
           node.removeEventListener('pointermove', move);
           node.removeEventListener('pointerup', up);
           node.removeEventListener('pointercancel', up);
-          saveLayout();
+          if (APP_MODE === 'layout-builder' && node.classList.contains('text') && dragging) {
+            node.dataset.layoutBuilderSuppressClick = 'true';
+            window.setTimeout(() => {
+              delete node.dataset.layoutBuilderSuppressClick;
+            }, 250);
+          }
+          if (dragging) {
+            saveLayout();
+            if (APP_MODE === 'layout-builder') void renderAll();
+          }
         };
         node.addEventListener('pointermove', move);
         node.addEventListener('pointerup', up);

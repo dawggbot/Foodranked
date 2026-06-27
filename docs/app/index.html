@@ -5489,28 +5489,24 @@
           node.style.textAlign = layer.align || 'left';
           applyOutroScoreGlow(node, layer, state.fullFood || getSelectedFoodStub());
           if (APP_MODE === 'layout-builder') {
-            node.contentEditable = 'plaintext-only';
             node.spellcheck = false;
-            node.title = 'Click to edit text. Drag to move this text layer.';
+            node.title = 'Click to select, drag to move, edit text in the inspector.';
             node.dataset.layoutBuilderLastFitText = layer.text || '';
-            node.addEventListener('beforeinput', event => {
-              handleEditableTextBeforeInput(event, node, layer);
-            });
-            node.addEventListener('paste', event => {
-              handleEditableTextPaste(event, node);
-            });
-            node.addEventListener('input', event => {
-              syncEditableTextLayerFromNode(node, layer, { allowOverflow: isTextDeletingInput(event) });
-            });
-            node.addEventListener('blur', () => {
-              syncEditableTextLayerFromNode(node, layer);
-              renderSectionTextList();
-            });
             node.addEventListener('keydown', event => {
               if (event.key === 'Escape') {
                 event.preventDefault();
                 node.blur();
               }
+            });
+            node.addEventListener('dblclick', event => {
+              event.preventDefault();
+              event.stopPropagation();
+              state.selectedLayerId = layer.id;
+              renderInspector();
+              renderLayerList();
+              renderSectionTextList();
+              els.propText.focus();
+              els.propText.select();
             });
           } else {
             node.title = 'Double-click to edit this text in the inspector';
@@ -5535,9 +5531,6 @@
           event.stopPropagation();
           state.selectedLayerId = layer.id;
           renderInspector();
-          if (APP_MODE === 'layout-builder' && layer.kind === 'text') {
-            node.focus({ preventScroll: true });
-          }
           if (!(APP_MODE === 'layout-builder' && layer.kind === 'text')) void renderCanvas();
           renderLayerList();
           renderSectionTextList();
@@ -5991,8 +5984,8 @@
         const useSelectedStackLayer = !!selectedNode && stackedLayerNodes.includes(selectedNode);
         const dragLayerId = useSelectedStackLayer ? state.selectedLayerId : layerId;
         const activeNode = useSelectedStackLayer ? selectedNode : node;
-        const pointerTextLayerDrag = APP_MODE === 'layout-builder' && node.classList.contains('text') && dragLayerId === layerId;
-        if (!pointerTextLayerDrag) event.preventDefault();
+        const layoutBuilderLayerDrag = APP_MODE === 'layout-builder';
+        event.preventDefault();
         event.stopPropagation();
         node.setPointerCapture(event.pointerId);
         state.selectedLayerId = dragLayerId;
@@ -6006,14 +5999,13 @@
         startY = event.clientY;
         originX = dragLayer.x;
         originY = dragLayer.y;
-        let dragging = !pointerTextLayerDrag;
+        let dragging = !layoutBuilderLayerDrag;
         const move = e => {
           const deltaX = e.clientX - startX;
           const deltaY = e.clientY - startY;
-          if (pointerTextLayerDrag && !dragging) {
+          if (layoutBuilderLayerDrag && !dragging) {
             if (Math.hypot(deltaX, deltaY) < 5) return;
             dragging = true;
-            node.blur();
             window.getSelection()?.removeAllRanges();
           }
           if (dragging) e.preventDefault();
@@ -6037,7 +6029,7 @@
           node.removeEventListener('pointermove', move);
           node.removeEventListener('pointerup', up);
           node.removeEventListener('pointercancel', up);
-          if (APP_MODE === 'layout-builder' && node.classList.contains('text') && dragging) {
+          if (APP_MODE === 'layout-builder' && dragging) {
             node.dataset.layoutBuilderSuppressClick = 'true';
             window.setTimeout(() => {
               delete node.dataset.layoutBuilderSuppressClick;

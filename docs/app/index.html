@@ -271,6 +271,13 @@
       border-radius: 14px;
       background: rgba(255,255,255,.06);
     }
+    .tool-card.active {
+      border-color: rgba(123,177,255,.58);
+      background: rgba(123,177,255,.10);
+    }
+    .tool-card.active textarea {
+      border-color: rgba(123,177,255,.72);
+    }
     .toolbar-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -5503,11 +5510,7 @@
             node.addEventListener('dblclick', event => {
               event.preventDefault();
               event.stopPropagation();
-              state.selectedLayerId = layer.id;
-              markCanvasLayerSelection(layer.id);
-              renderInspector();
-              renderLayerList();
-              renderSectionTextList();
+              selectEditableLayer(layer.id);
               els.propText.focus();
               els.propText.select();
             });
@@ -5531,12 +5534,7 @@
             return;
           }
           event.stopPropagation();
-          state.selectedLayerId = layer.id;
-          if (APP_MODE === 'layout-builder') markCanvasLayerSelection(layer.id);
-          renderInspector();
-          if (APP_MODE !== 'layout-builder') void renderCanvas();
-          renderLayerList();
-          renderSectionTextList();
+          selectEditableLayer(layer.id);
         });
         els.canvas.appendChild(node);
       }
@@ -5549,6 +5547,36 @@
       if (!layerId) return;
       const node = els.canvas.querySelector(`.layer-node[data-layer-id="${CSS.escape(layerId)}"]`);
       node?.classList.add('selected');
+    }
+
+    function markSectionTextListSelection(layerId) {
+      const selectedId = layerId ? String(layerId) : '';
+      els.sectionTextList.querySelectorAll('.tool-card[data-layer-id]').forEach(card => {
+        card.classList.toggle('active', !!selectedId && card.dataset.layerId === selectedId);
+      });
+      els.sectionTextList.querySelectorAll('.card-button[data-layer-id]').forEach(button => {
+        button.classList.toggle('active', !!selectedId && button.dataset.layerId === selectedId);
+      });
+    }
+
+    function syncSectionTextListLayer(layer) {
+      if (!layer?.id) return;
+      markSectionTextListSelection(layer.id);
+      if (!isTextLayer(layer)) return;
+      const textarea = els.sectionTextList.querySelector(`textarea[data-layer-id="${CSS.escape(layer.id)}"]`);
+      if (!textarea || document.activeElement === textarea) return;
+      textarea.value = layer.text || '';
+      textarea.rows = Math.max(2, Math.min(5, String(layer.text || '').split('\n').length + 1));
+    }
+
+    function selectEditableLayer(layerId, { refreshCanvas = APP_MODE !== 'layout-builder', refreshSectionTextList = true } = {}) {
+      state.selectedLayerId = layerId;
+      markCanvasLayerSelection(layerId);
+      renderInspector();
+      if (refreshCanvas) void renderCanvas();
+      renderLayerList();
+      if (refreshSectionTextList) renderSectionTextList();
+      else markSectionTextListSelection(layerId);
     }
 
     function renderLayerList() {
@@ -5578,12 +5606,7 @@
         button.className = 'card-button' + (layer.id === state.selectedLayerId ? ' active' : '');
         button.innerHTML = `<strong>${layer.label}</strong><div class="tiny muted">${layer.kind} · x ${Math.round(layer.x || 0)}, y ${Math.round(layer.y || 0)} · z ${layer.z || 0}</div>`;
         button.addEventListener('click', () => {
-          state.selectedLayerId = layer.id;
-          markCanvasLayerSelection(layer.id);
-          renderInspector();
-          if (APP_MODE !== 'layout-builder') void renderCanvas();
-          renderLayerList();
-          renderSectionTextList();
+          selectEditableLayer(layer.id);
         });
         els.layerList.appendChild(button);
       });
@@ -5768,23 +5791,6 @@
       if (!editableTextFitsNode(node, candidate)) event.preventDefault();
     }
 
-    function handleTextControlBeforeInput(event, control, layer) {
-      if (APP_MODE !== 'layout-builder') return;
-      if (isTextDeletingInput(event)) return;
-      if (event.inputType === 'insertParagraph' || event.inputType === 'insertLineBreak') {
-        event.preventDefault();
-        return;
-      }
-      blockTextInputIfTooLarge(event, layer, candidateTextForControlInput(control, inputEventText(event)));
-    }
-
-    function handleTextControlPaste(event, control, layer) {
-      if (APP_MODE !== 'layout-builder') return;
-      const replacement = inputEventText(event);
-      if (!replacement) return;
-      blockTextInputIfTooLarge(event, layer, candidateTextForControlInput(control, replacement));
-    }
-
     function syncEditableTextLayerFromNode(node, layer, { allowOverflow = false } = {}) {
       const current = getLayerById(layer.id);
       if (!current) return;
@@ -5823,44 +5829,37 @@
 
       for (const layer of textLayers) {
         const card = document.createElement('div');
-        card.className = 'tool-card stack';
+        card.className = 'tool-card stack' + (state.selectedLayerId === layer.id ? ' active' : '');
+        card.dataset.layerId = layer.id;
 
         const header = document.createElement('button');
         header.type = 'button';
         header.className = 'card-button' + (state.selectedLayerId === layer.id ? ' active' : '');
+        header.dataset.layerId = layer.id;
         header.innerHTML = `<strong>${escapeHtml(layer.label || layer.id || 'Text layer')}</strong><div class="tiny muted">x ${Math.round(layer.x || 0)}, y ${Math.round(layer.y || 0)} · z ${layer.z || 0}</div>`;
         header.addEventListener('click', () => {
-          state.selectedLayerId = layer.id;
-          markCanvasLayerSelection(layer.id);
-          renderInspector();
-          if (APP_MODE !== 'layout-builder') void renderCanvas();
-          renderLayerList();
-          renderSectionTextList();
+          selectEditableLayer(layer.id);
         });
 
         const textarea = document.createElement('textarea');
+        textarea.dataset.layerId = layer.id;
         textarea.value = layer.text || '';
         textarea.rows = Math.max(2, Math.min(5, String(layer.text || '').split('\n').length + 1));
-        textarea.addEventListener('beforeinput', event => {
-          const current = getCurrentSectionLayers().find(item => item.id === layer.id);
-          if (!current) return;
-          handleTextControlBeforeInput(event, textarea, current);
-        });
-        textarea.addEventListener('paste', event => {
-          const current = getCurrentSectionLayers().find(item => item.id === layer.id);
-          if (!current) return;
-          handleTextControlPaste(event, textarea, current);
+        textarea.addEventListener('focus', () => {
+          selectEditableLayer(layer.id, { refreshSectionTextList: false });
         });
         textarea.addEventListener('input', () => {
           const current = getCurrentSectionLayers().find(item => item.id === layer.id);
           if (!current) return;
-          if (!textFitsCurrentLayerBox(current, textarea.value)) {
-            textarea.value = current.text || '';
-            return;
-          }
           current.text = textarea.value;
           markTextLayerManual(current);
-          state.selectedLayerId = current.id;
+          if (state.selectedLayerId !== current.id) {
+            selectEditableLayer(current.id, { refreshSectionTextList: false });
+          } else {
+            markCanvasLayerSelection(current.id);
+            markSectionTextListSelection(current.id);
+          }
+          if (document.activeElement !== els.propText) els.propText.value = current.text || '';
           updateLiveLayerNode(current);
           saveLayout({ normalize: false });
           updateJsonOutput();
@@ -6010,10 +6009,7 @@
         originY = dragLayer.y;
         let dragging = !layoutBuilderLayerDrag;
         const selectDragLayer = () => {
-          state.selectedLayerId = dragLayerId;
-          markCanvasLayerSelection(dragLayerId);
-          renderInspector();
-          renderLayerList();
+          selectEditableLayer(dragLayerId, { refreshSectionTextList: false });
         };
         if (!layoutBuilderLayerDrag) selectDragLayer();
         const move = e => {
@@ -6193,8 +6189,9 @@ async function renderAll() {
       const updatedLayer = mutateEditableLayer(layer, mutator);
       updateLiveLayerNode(layer);
       if (updatedLayer && updatedLayer !== layer) updateLiveLayerNode(updatedLayer);
+      markCanvasLayerSelection(layer.id);
       renderLayerList();
-      renderSectionTextList();
+      syncSectionTextListLayer(layer);
       saveLayout({ normalize: false });
       updateJsonOutput();
     }
@@ -6301,12 +6298,7 @@ async function renderAll() {
         event.stopPropagation();
         return;
       }
-      state.selectedLayerId = null;
-      markCanvasLayerSelection(null);
-      renderInspector();
-      if (APP_MODE !== 'layout-builder') void renderCanvas();
-      renderLayerList();
-      renderSectionTextList();
+      selectEditableLayer(null);
     });
     els.canvas.addEventListener('dragover', event => {
       event.preventDefault();
@@ -6386,22 +6378,7 @@ async function renderAll() {
     document.querySelectorAll('[data-align]').forEach(button => {
       button.addEventListener('click', () => alignSelectedSprite(button.dataset.align));
     });
-    els.propText.addEventListener('beforeinput', event => {
-      const layer = getLayerById(state.selectedLayerId);
-      if (!layer) return;
-      handleTextControlBeforeInput(event, els.propText, layer);
-    });
-    els.propText.addEventListener('paste', event => {
-      const layer = getLayerById(state.selectedLayerId);
-      if (!layer) return;
-      handleTextControlPaste(event, els.propText, layer);
-    });
     els.propText.addEventListener('input', () => {
-      const layer = getLayerById(state.selectedLayerId);
-      if (layer && !textFitsCurrentLayerBox(layer, els.propText.value)) {
-        els.propText.value = layer.text || '';
-        return;
-      }
       updateSelectedWithoutInspectorReset(layer => {
         layer.text = els.propText.value;
         markTextLayerManual(layer);

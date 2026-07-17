@@ -1244,6 +1244,9 @@
     let suppressLayoutBuilderCanvasClickUntil = 0;
     let suppressCanvasClearUntil = 0;
     let pendingLayerClickSelectionId = '';
+    let pendingLayerClickSelectionUntil = 0;
+    let pendingLayerClickClientX = null;
+    let pendingLayerClickClientY = null;
     const AVAILABLE_FOOD_IMAGE_IDS = new Set(['bacon', 'kale']);
     const BACKDROP_PALETTES = {
       vegetables: { top: '#dff4cf', bottom: '#bfd8b0', glowA: 'rgba(219,255,183,.78)', glowB: 'rgba(108,169,104,.38)' },
@@ -5533,12 +5536,12 @@
           if (APP_MODE === 'layout-builder' && Date.now() < suppressLayoutBuilderCanvasClickUntil) {
             event.preventDefault();
             event.stopPropagation();
-            pendingLayerClickSelectionId = '';
+            clearPendingLayerClickSelection();
             return;
           }
           event.stopPropagation();
-          const targetLayerId = pendingLayerClickSelectionId || layer.id;
-          pendingLayerClickSelectionId = '';
+          const targetLayerId = activePendingLayerClickSelection() || layer.id;
+          clearPendingLayerClickSelection();
           selectEditableLayer(targetLayerId);
         });
         els.canvas.appendChild(node);
@@ -5548,9 +5551,12 @@
 
     function markCanvasLayerSelection(layerId) {
       if (APP_MODE !== 'layout-builder') return;
-      els.canvas.querySelectorAll('.layer-node.selected').forEach(item => item.classList.remove('selected'));
-      if (!layerId) return;
-      const node = els.canvas.querySelector(`.layer-node[data-layer-id="${CSS.escape(layerId)}"]`);
+      const selectedId = layerId ? String(layerId) : '';
+      els.canvas.querySelectorAll('.layer-node.selected').forEach(item => {
+        if (!selectedId || item.dataset.layerId !== selectedId) item.classList.remove('selected');
+      });
+      if (!selectedId) return;
+      const node = els.canvas.querySelector(`.layer-node[data-layer-id="${CSS.escape(selectedId)}"]`);
       node?.classList.add('selected');
     }
 
@@ -5563,12 +5569,49 @@
         || (APP_MODE === 'layout-builder' && Date.now() < suppressLayoutBuilderCanvasClickUntil);
     }
 
+    function setPendingLayerClickSelection(layerId, event = null, durationMs = 800) {
+      pendingLayerClickSelectionId = layerId ? String(layerId) : '';
+      pendingLayerClickSelectionUntil = pendingLayerClickSelectionId ? Date.now() + durationMs : 0;
+      pendingLayerClickClientX = Number.isFinite(event?.clientX) ? event.clientX : null;
+      pendingLayerClickClientY = Number.isFinite(event?.clientY) ? event.clientY : null;
+    }
+
+    function clearPendingLayerClickSelection() {
+      pendingLayerClickSelectionId = '';
+      pendingLayerClickSelectionUntil = 0;
+      pendingLayerClickClientX = null;
+      pendingLayerClickClientY = null;
+    }
+
+    function activePendingLayerClickSelection() {
+      if (!pendingLayerClickSelectionId) return '';
+      if (Date.now() > pendingLayerClickSelectionUntil) {
+        clearPendingLayerClickSelection();
+        return '';
+      }
+      return pendingLayerClickSelectionId;
+    }
+
+    function isPendingLayerClickEvent(event) {
+      if (!activePendingLayerClickSelection()) return false;
+      if (!Number.isFinite(pendingLayerClickClientX) || !Number.isFinite(pendingLayerClickClientY)) return true;
+      const deltaX = Number(event?.clientX) - pendingLayerClickClientX;
+      const deltaY = Number(event?.clientY) - pendingLayerClickClientY;
+      if (!Number.isFinite(deltaX) || !Number.isFinite(deltaY)) return false;
+      return Math.hypot(deltaX, deltaY) <= Math.max(10, LAYOUT_BUILDER_DRAG_THRESHOLD + 2);
+    }
+
     function setSelectedLayerId(layerId) {
       const selectedId = layerId ? String(layerId) : '';
+      const previousId = state.selectedLayerId || '';
       state.selectedLayerId = selectedId || null;
-      if (APP_MODE !== 'layout-builder') return;
-      if (selectedId) document.body.dataset.selectedLayerId = selectedId;
-      else delete document.body.dataset.selectedLayerId;
+      if (APP_MODE !== 'layout-builder') return previousId !== selectedId;
+      if (selectedId) {
+        if (document.body.dataset.selectedLayerId !== selectedId) document.body.dataset.selectedLayerId = selectedId;
+      } else if (document.body.dataset.selectedLayerId) {
+        delete document.body.dataset.selectedLayerId;
+      }
+      return previousId !== selectedId;
     }
 
     function markSectionTextListSelection(layerId) {
@@ -5592,12 +5635,12 @@
     }
 
     function selectEditableLayer(layerId, { refreshCanvas = APP_MODE !== 'layout-builder', refreshSectionTextList = true } = {}) {
-      setSelectedLayerId(layerId);
+      const selectionChanged = setSelectedLayerId(layerId);
       markCanvasLayerSelection(layerId);
       renderInspector();
       if (refreshCanvas) void renderCanvas();
-      renderLayerList();
-      if (refreshSectionTextList) renderSectionTextList();
+      if (selectionChanged) renderLayerList();
+      if (refreshSectionTextList && selectionChanged) renderSectionTextList();
       else markSectionTextListSelection(layerId);
     }
 
@@ -6028,7 +6071,7 @@
         const layoutBuilderLayerDrag = APP_MODE === 'layout-builder';
         event.preventDefault();
         event.stopPropagation();
-        pendingLayerClickSelectionId = dragLayerId || layerId;
+        setPendingLayerClickSelection(dragLayerId || layerId, event);
         suppressUpcomingCanvasClear();
         node.setPointerCapture(event.pointerId);
         const layer = getLayerById(dragLayerId);
@@ -6077,7 +6120,7 @@
           suppressUpcomingCanvasClear(dragging ? 350 : 180);
           if (dragging) {
             if (APP_MODE === 'layout-builder') suppressLayoutBuilderCanvasClickUntil = Date.now() + 350;
-            pendingLayerClickSelectionId = '';
+            clearPendingLayerClickSelection();
             saveLayout({ normalize: !layoutBuilderLayerDrag });
           }
         };
@@ -6328,18 +6371,27 @@ async function renderAll() {
     });
     els.canvas.addEventListener('click', event => {
       if (event.target?.closest?.('.layer-node')) {
-        pendingLayerClickSelectionId = '';
+        clearPendingLayerClickSelection();
         event.preventDefault();
         event.stopPropagation();
         return;
       }
+      const pendingSelectionId = activePendingLayerClickSelection();
+      if (pendingSelectionId && isPendingLayerClickEvent(event)) {
+        clearPendingLayerClickSelection();
+        event.preventDefault();
+        event.stopPropagation();
+        selectEditableLayer(pendingSelectionId);
+        return;
+      }
+      if (pendingSelectionId) clearPendingLayerClickSelection();
       if (isCanvasClearSuppressed()) {
-        pendingLayerClickSelectionId = '';
+        clearPendingLayerClickSelection();
         event.preventDefault();
         event.stopPropagation();
         return;
       }
-      pendingLayerClickSelectionId = '';
+      clearPendingLayerClickSelection();
       selectEditableLayer(null);
     });
     els.canvas.addEventListener('dragover', event => {

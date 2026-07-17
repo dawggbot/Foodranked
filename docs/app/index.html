@@ -2770,6 +2770,15 @@
         || layer.microBarTextbox === true;
     }
 
+    function isGeneratedMicroBarTextboxLayer(layer, sectionId) {
+      if (!isTextLayer(layer)) return false;
+      const id = String(layer.id || '');
+      return !!(
+        id.match(new RegExp(`^${sectionId}_bar_percent_c\\d+_\\d+$`))
+        || (layer.microBarTextbox === true && id.startsWith(`${sectionId}_`))
+      );
+    }
+
     function microBarTextboxFrame(barLayer) {
       const barWidth = Number(barLayer?.width) || 11;
       return {
@@ -2894,7 +2903,7 @@
       if (cleanupExtra) {
         const keepLayerIds = new Set(updatedLayerIds);
         layout.sections[sectionId].layers = getSectionLayersFromLayout(layout, sectionId).filter(layer => {
-          return !isMicroBarTextboxLayer(layer, sectionId) || keepLayerIds.has(String(layer.id || ''));
+          return !isGeneratedMicroBarTextboxLayer(layer, sectionId) || keepLayerIds.has(String(layer.id || ''));
         });
       }
 

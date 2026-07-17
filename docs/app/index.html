@@ -1238,8 +1238,8 @@
     const LAYOUT_BUILDER_TEXT_RECOVERY_META_KEY = 'layoutBuilderTextRecoveryV1';
     const LAYOUT_BUILDER_MACRO_TEXTBOX_REPAIR_META_KEY = 'layoutBuilderMacroTextboxRepairV1';
     const LAYOUT_BUILDER_VITAMIN_BAR_TEXTBOX_META_KEY = 'layoutBuilderVitaminBarTextboxesV2';
-    const LAYOUT_BUILDER_MINERAL_BAR_SPRITES_META_KEY = 'layoutBuilderMineralBarSpritesV1';
-    const LAYOUT_BUILDER_MINERAL_BAR_TEXTBOX_META_KEY = 'layoutBuilderMineralBarTextboxesV2';
+    const LAYOUT_BUILDER_MINERAL_BAR_SPRITES_META_KEY = 'layoutBuilderMineralBarSpritesV2';
+    const LAYOUT_BUILDER_MINERAL_BAR_TEXTBOX_META_KEY = 'layoutBuilderMineralBarTextboxesV3';
     const MICRO_BAR_TEXTBOX_TEXT = '??%';
     const MICRO_BAR_TEXTBOX_FONT_SIZE = 3;
     const MICRO_BAR_TEXTBOX_WIDTH = 11;
@@ -2828,18 +2828,25 @@
       if (layout.meta[LAYOUT_BUILDER_MINERAL_BAR_SPRITES_META_KEY]) return;
 
       const sectionLayers = getSectionLayersFromLayout(layout, 'minerals');
-      const existingKeys = new Set(
-        sectionLayers
-          .filter(layer => isSpriteLayer(layer) && String(layer.src || '').includes('/micros_section/bars/'))
-          .map(microBarSpriteKey)
-      );
+      const existingKeys = new Set();
       const addedLayerIds = [];
+
+      layout.sections.minerals.layers = sectionLayers.filter(layer => {
+        if (!isSpriteLayer(layer) || !String(layer.src || '').includes('/micros_section/bars/')) return true;
+        layer.visible = true;
+        const key = microBarSpriteKey(layer);
+        if (existingKeys.has(key)) return false;
+        existingKeys.add(key);
+        return true;
+      });
+      const dedupedSectionLayers = getSectionLayersFromLayout(layout, 'minerals');
 
       for (const defaultLayer of defaultMineralMicroBarSpriteLayers()) {
         const key = microBarSpriteKey(defaultLayer);
         if (existingKeys.has(key)) continue;
         const layer = cloneLayer(defaultLayer);
-        sectionLayers.push(layer);
+        layer.visible = true;
+        dedupedSectionLayers.push(layer);
         existingKeys.add(key);
         if (layer.id) addedLayerIds.push(String(layer.id));
       }
@@ -2848,7 +2855,7 @@
       layout.meta[LAYOUT_BUILDER_MINERAL_BAR_SPRITES_META_KEY] = true;
     }
 
-    function ensureLayoutBuilderMicroBarTextboxes(layout, { sectionId, sectionLabel, metaKey, expectedColumnCount }) {
+    function ensureLayoutBuilderMicroBarTextboxes(layout, { sectionId, sectionLabel, metaKey, expectedColumnCount, cleanupExtra = false }) {
       if (APP_MODE !== 'layout-builder') return;
       layout.meta = layout.meta || {};
       if (layout.meta[metaKey]) return;
@@ -2884,6 +2891,13 @@
         }
       });
 
+      if (cleanupExtra) {
+        const keepLayerIds = new Set(updatedLayerIds);
+        layout.sections[sectionId].layers = getSectionLayersFromLayout(layout, sectionId).filter(layer => {
+          return !isMicroBarTextboxLayer(layer, sectionId) || keepLayerIds.has(String(layer.id || ''));
+        });
+      }
+
       restoreDeletedLayerIds(layout, updatedLayerIds);
       layout.meta[metaKey] = true;
     }
@@ -2902,7 +2916,8 @@
         sectionId: 'minerals',
         sectionLabel: 'MINERALS',
         metaKey: LAYOUT_BUILDER_MINERAL_BAR_TEXTBOX_META_KEY,
-        expectedColumnCount: MINERAL_TEXT_SPECS.length
+        expectedColumnCount: MINERAL_TEXT_SPECS.length,
+        cleanupExtra: true
       });
     }
 

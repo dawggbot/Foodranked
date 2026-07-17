@@ -65,14 +65,49 @@
     ]
   };
 
+  const MICRONUTRIENT_SPECS = {
+    vitamins: [
+      { key: 'vitamin_a_dv', shortLabel: 'A', label: 'Vitamin A' },
+      { key: 'vitamin_c_dv', shortLabel: 'C', label: 'Vitamin C' },
+      { key: 'vitamin_d_dv', shortLabel: 'D', label: 'Vitamin D' },
+      { key: 'vitamin_e_dv', shortLabel: 'E', label: 'Vitamin E' },
+      { key: 'vitamin_k_dv', shortLabel: 'K', label: 'Vitamin K' },
+      { key: 'vitamin_b12_dv', shortLabel: 'B12', label: 'Vitamin B12' }
+    ],
+    minerals: [
+      { key: 'calcium_dv', shortLabel: 'Ca', label: 'Calcium' },
+      { key: 'iron_dv', shortLabel: 'Fe', label: 'Iron' },
+      { key: 'magnesium_dv', shortLabel: 'Mg', label: 'Magnesium' },
+      { key: 'potassium_dv', shortLabel: 'K', label: 'Potassium' },
+      { key: 'zinc_dv', shortLabel: 'Zn', label: 'Zinc' }
+    ]
+  };
+
+  const MICRONUTRIENT_BAR_GLOW_COLORS = {
+    10: '#8b0000',
+    20: '#c62828',
+    30: '#fb8c00',
+    40: '#ecca35',
+    50: '#fdef35',
+    60: '#a8d330',
+    70: '#7fc337',
+    80: '#41b045',
+    90: '#00e05d',
+    100: '#00bfa5'
+  };
+
   window.FOODRANKED_MACRO_BINDINGS = {
     displaySections: ['intro', 'fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons', 'outro'],
     macroSections: ['fats', 'carbs', 'protein'],
+    micronutrientSections: ['vitamins', 'minerals'],
+    micronutrientSpecs: MICRONUTRIENT_SPECS,
+    micronutrientBarGlowColors: MICRONUTRIENT_BAR_GLOW_COLORS,
     textBindings: MACRO_TEXT_BINDINGS,
     textFallbackOrder: MACRO_TEXT_FALLBACK_ORDER,
     arrowRows: MACRO_ARROW_ROWS,
     sources: {
       textBindings: 'docs/display-builder-v2/macro-bindings.js',
+      micronutrients: 'docs/display-builder-v2/macro-bindings.js micronutrientSpecs',
       arrows: 'docs/display-builder-v2/macro-bindings.js row map plus existing display-builder row clustering'
     }
   };

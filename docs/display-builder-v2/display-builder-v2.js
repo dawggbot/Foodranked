@@ -2,6 +2,7 @@
   const LOGIC = window.FOODRANKED_MACRO_LOGIC;
   const BINDINGS = window.FOODRANKED_MACRO_BINDINGS;
   const MACRO_SECTIONS = BINDINGS.macroSections || ['fats', 'carbs', 'protein'];
+  const MICRONUTRIENT_SECTIONS = BINDINGS.micronutrientSections || ['vitamins', 'minerals'];
   const DISPLAY_SECTIONS = BINDINGS.displaySections || ['intro', ...MACRO_SECTIONS];
   const SECTION_LABELS = {
     intro: 'Intro',
@@ -47,7 +48,7 @@
     layoutOptions: [],
     fullFood: null,
     renderedLayout: null,
-    bindingReport: { text: [], arrows: [], warnings: [] },
+    bindingReport: { text: [], arrows: [], micronutrientBars: [], warnings: [] },
     spriteFailures: new Map(),
     background: LOGIC.clone(DEFAULT_BACKGROUND),
     canvasMetrics: null,
@@ -167,7 +168,7 @@
       option.value = '';
       option.textContent = 'No layout-builder layouts available';
       els.layoutSelect.appendChild(option);
-      els.layoutStatus.textContent = 'Open the layout builder and save or keep a working macro layout, then refocus this tab.';
+      els.layoutStatus.textContent = 'Open the layout builder and save or keep a working display layout, then refocus this tab.';
       els.layoutStatus.classList.add('warn');
       return;
     }
@@ -331,6 +332,46 @@
     return isSpriteLayer(layer) && /(macro_bar_fill|bar_fill|macro bar fill)/.test(fingerprint);
   }
 
+  function isMicrosBarSpriteLayer(layer) {
+    const src = String(layer?.src || '').toLowerCase();
+    return isSpriteLayer(layer) && src.includes('/micros_section/bars/');
+  }
+
+  function microsDvBarPercent(layer) {
+    const src = String(layer?.src || '').toLowerCase();
+    const match = src.match(/\/(\d+)(?:%25|%)_bar\./);
+    return match ? Number(match[1]) : null;
+  }
+
+  function isMicrosDvBarSpriteLayer(layer) {
+    return isMicrosBarSpriteLayer(layer) && microsDvBarPercent(layer) != null;
+  }
+
+  function isMicroBarTextboxLayer(layer) {
+    if (!isTextLayer(layer)) return false;
+    const id = String(layer.id || '').toLowerCase();
+    return /^(vitamins|minerals)_bar_percent_c\d+_\d+$/.test(id)
+      || layer.microBarTextbox === true;
+  }
+
+  function microBarTextboxPercent(layer) {
+    const match = String(layer?.id || '').match(/_bar_percent_c\d+_(\d+)$/);
+    return match ? Number(match[1]) : null;
+  }
+
+  function microBarTextboxColumnIndex(layer, sectionId) {
+    const match = String(layer?.id || '').match(new RegExp(`^${sectionId}_bar_percent_c(\\d+)_\\d+$`));
+    return match ? Number(match[1]) - 1 : null;
+  }
+
+  function micronutrientSpecs(sectionId) {
+    return BINDINGS.micronutrientSpecs?.[sectionId] || [];
+  }
+
+  function microBarGlowColorForPercent(percent) {
+    return BINDINGS.micronutrientBarGlowColors?.[Number(percent)] || '';
+  }
+
   function macroBarLayerSection(layer, fallbackSectionId) {
     const fingerprint = `${layer?.id || ''} ${layer?.label || ''} ${layer?.src || ''}`.toLowerCase();
     if (fingerprint.includes('section_1_fats') || /\bfat(?:s)?[_ -]?(?:macro_)?bar/.test(fingerprint)) return 'fats';
@@ -365,6 +406,59 @@
 
   function layerRight(layer) {
     return (Number(layer?.x) || 0) + (Number(layer?.width) || 0);
+  }
+
+  function layerCenterX(layer) {
+    return (Number(layer?.x) || 0) + ((Number(layer?.width) || 0) / 2);
+  }
+
+  function getMicrosDvBarColumns(sectionLayers) {
+    const columns = [];
+    const barItems = sectionLayers
+      .filter(isMicrosDvBarSpriteLayer)
+      .map(layer => ({
+        layer,
+        percent: microsDvBarPercent(layer),
+        centerX: layerCenterX(layer)
+      }))
+      .sort((a, b) => a.centerX - b.centerX || a.percent - b.percent);
+
+    for (const item of barItems) {
+      const column = columns.find(candidate => Math.abs(candidate.centerX - item.centerX) <= 4);
+      if (column) {
+        column.items.push(item);
+        column.centerX = column.items.reduce((sum, current) => sum + current.centerX, 0) / column.items.length;
+      } else {
+        columns.push({ centerX: item.centerX, items: [item] });
+      }
+    }
+
+    return columns
+      .map(column => ({
+        ...column,
+        items: column.items.sort((a, b) => a.percent - b.percent)
+      }))
+      .sort((a, b) => a.centerX - b.centerX);
+  }
+
+  function nearestMicrosDvBarColumn(columns, layer, fallbackIndex) {
+    if (!columns.length) return null;
+    const targetX = layer ? layerCenterX(layer) : null;
+    if (targetX == null) return columns[fallbackIndex] || columns[0];
+    return columns.reduce((closest, column) => {
+      return Math.abs(column.centerX - targetX) < Math.abs(closest.centerX - targetX) ? column : closest;
+    }, columns[0]);
+  }
+
+  function micronutrientBarStep(value) {
+    const safe = asNumber(value, null);
+    if (safe == null || safe <= 0) return null;
+    return clamp(Math.max(1, Math.floor(safe / 10)), 1, 10);
+  }
+
+  function formatMicronutrientPercent(food, metricKey) {
+    const value = asNumber(food?.metrics?.[metricKey], null);
+    return value == null || value <= 0 ? 'N/A' : `${LOGIC.formatCompactNumber(value, 0)}%`;
   }
 
   function isSectionSeparatorLayer(layer) {
@@ -482,6 +576,143 @@
         layer.visible = fill.fillRatio > 0.001;
       }
     }
+  }
+
+  function microTextboxesForColumn(layers, sectionId, columnIndex) {
+    return layers
+      .filter(layer => isMicroBarTextboxLayer(layer))
+      .filter(layer => {
+        const idColumnIndex = microBarTextboxColumnIndex(layer, sectionId);
+        return idColumnIndex == null ? false : idColumnIndex === columnIndex;
+      })
+      .sort((a, b) => (microBarTextboxPercent(a) || 0) - (microBarTextboxPercent(b) || 0));
+  }
+
+  function chooseMicroTextboxForPercent(candidates, targetPercent) {
+    if (!candidates.length) return null;
+    return candidates.find(layer => microBarTextboxPercent(layer) === targetPercent)
+      || candidates.reduce((closest, layer) => {
+        return Math.abs((microBarTextboxPercent(layer) || 0) - targetPercent) < Math.abs((microBarTextboxPercent(closest) || 0) - targetPercent)
+          ? layer
+          : closest;
+      }, candidates[0]);
+  }
+
+  function applyMicronutrientTextLayer(layer, text, barLayer, sectionId, spec, index, mode) {
+    if (!layer) return null;
+    const before = layer.text;
+    layer.text = text;
+    layer.visible = true;
+    if (barLayer) {
+      const barWidth = Number(barLayer.width) || 11;
+      const width = Number(layer.width) || Math.max(6, Math.min(11, barWidth));
+      layer.width = width;
+      if (!isMicroBarTextboxLayer(layer)) {
+        layer.x = Math.round((Number(barLayer.x) || 0) + ((barWidth - width) / 2));
+        layer.y = clamp(Math.round((Number(barLayer.y) || 0) + 1), 44, 220);
+        layer.align = 'center';
+        layer.z = Math.max(Number(layer.z) || 0, (Number(barLayer.z) || 0) + 5);
+      }
+    }
+    if (isMicroBarTextboxLayer(layer)) {
+      layer.textGlowColor = microBarGlowColorForPercent(microBarTextboxPercent(layer));
+    }
+    return {
+      sectionId,
+      layerId: layer.id || '',
+      bindingMode: mode,
+      boundFoodDataField: `metrics.${spec.key}`,
+      metricKey: spec.key,
+      previousText: before,
+      resolvedValue: text,
+      fitsBox: null,
+      overflowWarning: null,
+      unbound: false,
+      fallbackIndex: index
+    };
+  }
+
+  function syncMicronutrientSection(layout, food, sectionId) {
+    const specs = micronutrientSpecs(sectionId);
+    const sectionLayers = getSectionLayers(layout, sectionId);
+    const textReport = [];
+    const barReport = [];
+    if (!specs.length || !sectionLayers.length) return { text: textReport, bars: barReport };
+
+    const columns = getMicrosDvBarColumns(sectionLayers).slice(0, specs.length);
+    if (!columns.length) {
+      state.bindingReport.warnings.push({ type: 'micronutrient', sectionId, message: 'No micronutrient DV bar columns found in selected layout section.' });
+    }
+
+    sectionLayers
+      .filter(layer => isMicroBarTextboxLayer(layer) && String(layer.id || '').startsWith(`${sectionId}_`))
+      .forEach(layer => { layer.visible = false; });
+
+    specs.forEach((spec, index) => {
+      const labelLayer = sectionLayers.find(layer => layer.id === `${sectionId}_label_${index + 1}`);
+      const valueLayer = sectionLayers.find(layer => layer.id === `${sectionId}_percent_${index + 1}`);
+      if (labelLayer) {
+        labelLayer.text = spec.shortLabel;
+        labelLayer.visible = true;
+      }
+
+      const column = nearestMicrosDvBarColumn(columns, valueLayer || labelLayer, index);
+      const rawValue = asNumber(food?.metrics?.[spec.key], null);
+      const visibleStep = micronutrientBarStep(rawValue);
+      const visiblePercent = visibleStep == null ? 0 : visibleStep * 10;
+      const anchorPercent = visibleStep == null ? 10 : visiblePercent;
+      const formattedValue = formatMicronutrientPercent(food || {}, spec.key);
+      let activeTextLayer = null;
+      let activeBarLayer = null;
+      let shownPercents = [];
+
+      if (column) {
+        column.items.forEach(item => {
+          item.layer.visible = visibleStep != null && item.percent <= visiblePercent;
+        });
+        shownPercents = column.items.filter(item => item.layer.visible !== false).map(item => item.percent);
+        activeBarLayer = column.items.find(item => item.percent === anchorPercent)?.layer || column.items[0]?.layer || null;
+
+        const candidates = microTextboxesForColumn(sectionLayers, sectionId, index);
+        activeTextLayer = chooseMicroTextboxForPercent(candidates, anchorPercent);
+        candidates.forEach(layer => { layer.visible = layer === activeTextLayer; });
+      }
+
+      if (activeTextLayer) {
+        if (valueLayer) valueLayer.visible = false;
+        const report = applyMicronutrientTextLayer(activeTextLayer, formattedValue, activeBarLayer, sectionId, spec, index, 'micronutrient bar textbox');
+        if (report) textReport.push(report);
+      } else if (valueLayer) {
+        valueLayer.visible = true;
+        const report = applyMicronutrientTextLayer(valueLayer, formattedValue, activeBarLayer, sectionId, spec, index, 'legacy micronutrient percent layer');
+        if (report) textReport.push(report);
+      }
+
+      barReport.push({
+        sectionId,
+        metricKey: spec.key,
+        label: spec.label || spec.shortLabel,
+        rawValue,
+        formattedValue,
+        visibleStep,
+        visiblePercent,
+        anchorPercent,
+        shownBarPercents: shownPercents,
+        activeTextLayerId: activeTextLayer?.id || valueLayer?.id || '',
+        source: 'metrics DV% -> floor(DV% / 10), capped at 10 visible bars'
+      });
+    });
+
+    return { text: textReport, bars: barReport };
+  }
+
+  function syncMicronutrients(layout, food) {
+    return MICRONUTRIENT_SECTIONS.reduce((report, sectionId) => {
+      const sectionReport = syncMicronutrientSection(layout, food, sectionId);
+      report.text.push(...sectionReport.text);
+      report.bars.push(...sectionReport.bars);
+      return report;
+    }, { text: [], bars: [] });
   }
 
   function directTextBinding(sectionId, layer) {
@@ -674,13 +905,18 @@
   }
 
   function resolveLayout(option, food) {
-    state.bindingReport = { text: [], arrows: [], warnings: [] };
+    state.bindingReport = { text: [], arrows: [], micronutrientBars: [], warnings: [] };
     if (!option || !validLayout(option.layout)) return null;
     const layout = cloneLayoutForRender(option);
     syncFoodSprites(layout, food);
     syncFoodText(layout, food);
     syncMacroFills(layout, food);
-    state.bindingReport.text = resolveTextBindings(layout, food);
+    const micronutrientReport = syncMicronutrients(layout, food);
+    state.bindingReport.text = [
+      ...resolveTextBindings(layout, food),
+      ...micronutrientReport.text
+    ];
+    state.bindingReport.micronutrientBars = micronutrientReport.bars;
     state.bindingReport.arrows = syncArrowRows(layout, food);
     return layout;
   }
@@ -762,7 +998,7 @@
     if (!layout) {
       const empty = document.createElement('div');
       empty.className = 'canvas-empty';
-      empty.textContent = 'No layout-builder macro layout is available.';
+      empty.textContent = 'No layout-builder display layout is available.';
       els.displayCanvas.appendChild(empty);
       return;
     }
@@ -771,7 +1007,7 @@
     if (!sectionLayers.length) {
       const empty = document.createElement('div');
       empty.className = 'canvas-empty';
-      empty.textContent = 'The selected layout does not contain this macro section.';
+      empty.textContent = 'The selected layout does not contain this display section.';
       els.displayCanvas.appendChild(empty);
       return;
     }
@@ -1063,11 +1299,45 @@
     return LOGIC.canonicalSpritePath(layer.src || layer.fallbackSrc || '');
   }
 
+  function hexToRgb(color) {
+    const match = String(color || '').trim().match(/^#?([a-f\d]{6})$/i);
+    if (!match) return null;
+    const hex = match[1];
+    return {
+      r: parseInt(hex.slice(0, 2), 16),
+      g: parseInt(hex.slice(2, 4), 16),
+      b: parseInt(hex.slice(4, 6), 16)
+    };
+  }
+
+  function colorWithAlpha(color, alpha) {
+    const rgb = hexToRgb(color);
+    if (!rgb) return color;
+    return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${clamp(alpha, 0, 1).toFixed(3)})`;
+  }
+
   function renderTextNode(node, layer) {
     node.textContent = safeDisplayText(layer.text || '');
     node.style.fontSize = `calc(${Number(layer.fontSize) || 6}px * var(--pixel-unit))`;
     node.style.color = layer.color || '';
     node.style.textAlign = layer.align || 'left';
+    if (isMicroBarTextboxLayer(layer)) {
+      const strokeWidth = Number(layer.textStrokeWidth);
+      const resolvedStrokeWidth = Number.isFinite(strokeWidth) && strokeWidth > 0 ? strokeWidth : 1.15;
+      const glowColor = layer.textGlowColor || microBarGlowColorForPercent(microBarTextboxPercent(layer));
+      node.style.setProperty('-webkit-text-stroke', `calc(${resolvedStrokeWidth}px * var(--pixel-unit)) #000`);
+      if (glowColor) {
+        const glowSoft = colorWithAlpha(glowColor, 0.78);
+        const glowWide = colorWithAlpha(glowColor, 0.42);
+        node.style.textShadow = [
+          `0 0 calc(1px * var(--pixel-unit)) ${glowColor}`,
+          `0 0 calc(3px * var(--pixel-unit)) ${glowSoft}`,
+          `0 0 calc(6px * var(--pixel-unit)) ${glowWide}`,
+          '0 0 0 #000'
+        ].join(', ');
+        node.style.filter = `drop-shadow(0 0 calc(1px * var(--pixel-unit)) ${glowSoft})`;
+      }
+    }
     if (layer.width) node.style.width = `calc(${Number(layer.width) + (TEXT_LAYER_CLIP_BLEED * 2)}px * var(--pixel-unit))`;
     const height = Number(layer.textBoxHeight || layer.height || defaultTextLayerHeight(layer));
     if (height) {
@@ -1148,7 +1418,8 @@
     const logic = {
       activeContext,
       mainMacroDisplayScaling: LOGIC.mainMacroScaling(food || {}),
-      activeFoodTypeMacroRules: LOGIC.activeRules(food || {}).map(rule => ({
+      micronutrientDisplay: state.bindingReport.micronutrientBars,
+      activeFoodTypeDisplayRules: LOGIC.activeRules(food || {}).map(rule => ({
         metricKey: rule.metricKey,
         section: rule.displaySection || rule.sectionKey,
         scoringRole: rule.scoringRole || 'scored',
@@ -1163,6 +1434,7 @@
       layoutBindingReport: {
         textPlaceholders: state.bindingReport.text,
         arrowLayers: state.bindingReport.arrows,
+        micronutrientBars: state.bindingReport.micronutrientBars,
         warnings: [
           ...state.bindingReport.warnings,
           ...[...state.spriteFailures.values()].map(item => ({ type: 'sprite', ...item }))
@@ -1178,11 +1450,12 @@
     const sections = [
       ['A. ACTIVE CONTEXT', logic.activeContext],
       ['B. MAIN MACRO DISPLAY SCALING', logic.mainMacroDisplayScaling],
-      ['C. ACTIVE FOOD-TYPE MACRO RULES', logic.activeFoodTypeMacroRules],
-      ['D. LIVE METRIC EVALUATION', logic.liveMetricEvaluation],
-      ['E. SECTION SCORE CALCULATION', logic.sectionScoreCalculation],
-      ['F. LAYOUT BINDING REPORT', logic.layoutBindingReport],
-      ['G. SOURCE INFORMATION', logic.sourceInformation]
+      ['C. MICRONUTRIENT DISPLAY', logic.micronutrientDisplay],
+      ['D. ACTIVE FOOD-TYPE DISPLAY RULES', logic.activeFoodTypeDisplayRules],
+      ['E. LIVE METRIC EVALUATION', logic.liveMetricEvaluation],
+      ['F. SECTION SCORE CALCULATION', logic.sectionScoreCalculation],
+      ['G. LAYOUT BINDING REPORT', logic.layoutBindingReport],
+      ['H. SOURCE INFORMATION', logic.sourceInformation]
     ];
     for (const [title, payload] of sections) {
       const card = document.createElement('section');
@@ -1204,12 +1477,14 @@
   }
 
   function collectFlags(title, payload) {
-    if (!title.startsWith('F.')) return [];
+    if (!payload || typeof payload !== 'object' || (!('textPlaceholders' in payload) && !('arrowLayers' in payload))) return [];
     const flags = [];
     const text = payload.textPlaceholders || [];
     const arrows = payload.arrowLayers || [];
+    const micronutrientBars = payload.micronutrientBars || [];
     if (text.some(item => item.unbound)) flags.push('unbound text placeholders');
     if (arrows.some(item => item.unbound)) flags.push('unbound arrow slots');
+    if (micronutrientBars.some(item => !item.shownBarPercents?.length && item.formattedValue !== 'N/A')) flags.push('micronutrient bar mismatch');
     if ((payload.warnings || []).some(item => item.type === 'sprite')) flags.push('missing sprite assets');
     if (text.some(item => item.overflowWarning)) flags.push('text overflow');
     return flags;

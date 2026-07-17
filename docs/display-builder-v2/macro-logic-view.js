@@ -3,6 +3,10 @@
   const BINDINGS = window.FOODRANKED_MACRO_BINDINGS || {};
   const ROOT_SPRITE_BASE = '../app/sprites';
   const AUTHOR_GRID = DISPLAY_SCHEMA.authorGrid || { width: 135, height: 240 };
+  const DISPLAY_RULE_SECTIONS = [...new Set([
+    ...(BINDINGS.macroSections || ['fats', 'carbs', 'protein']),
+    ...(BINDINGS.micronutrientSections || ['vitamins', 'minerals'])
+  ])];
   const MACRO_BAR_MIN_VISIBLE_FILL_RATIO = 0.0011;
   const AVAILABLE_FOOD_IMAGE_IDS = new Set(['bacon', 'kale']);
 
@@ -449,7 +453,7 @@
 
   function activeRules(food) {
     const ruleset = food?.ruleset || {};
-    const sectionIds = ['fats', 'carbs', 'protein'];
+    const sectionIds = DISPLAY_RULE_SECTIONS;
     const rules = [];
     for (const sectionId of sectionIds) {
       const sectionKey = ruleSectionKey(sectionId);
@@ -568,7 +572,7 @@
       foodTypeRuleset: 'food.ruleset embedded in generated food data, matching rulesets/*.v1.json',
       arrowResolver: 'adapted from docs/app/index.html arrowPresentationForSpec and syncArrowLayersToPresentation',
       macroFillRanges: 'FOODRANKED_DISPLAY_SCHEMA.getMacroFillRange',
-      experimentalBindingMap: 'docs/display-builder-v2/macro-bindings.js',
+      experimentalBindingMap: 'docs/display-builder-v2/macro-bindings.js macro, vitamin, and mineral bindings',
       storage: 'reads layout-builder keys only; writes foodranked-display-builder-v2-state-v1'
     };
   }

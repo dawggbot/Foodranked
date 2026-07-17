@@ -1187,7 +1187,7 @@
   <script>
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     const BUILDER_BUILD_ID = APP_MODE === 'layout-builder'
-      ? '20260717-micros-basic-controls-v12'
+      ? '20260717-micros-basic-controls-v13'
       : '20260624-section-indicators-disabled-v1';
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
     const SECTIONS = [
@@ -1237,9 +1237,9 @@
     const TEXT_LAYER_CLIP_BLEED = 2;
     const LAYOUT_BUILDER_TEXT_RECOVERY_META_KEY = 'layoutBuilderTextRecoveryV1';
     const LAYOUT_BUILDER_MACRO_TEXTBOX_REPAIR_META_KEY = 'layoutBuilderMacroTextboxRepairV1';
-    const LAYOUT_BUILDER_VITAMIN_BAR_TEXTBOX_META_KEY = 'layoutBuilderVitaminBarTextboxesV4';
+    const LAYOUT_BUILDER_VITAMIN_BAR_TEXTBOX_META_KEY = 'layoutBuilderVitaminBarTextboxesV5';
     const LAYOUT_BUILDER_MINERAL_BAR_SPRITES_META_KEY = 'layoutBuilderMineralBarSpritesV3';
-    const LAYOUT_BUILDER_MINERAL_BAR_TEXTBOX_META_KEY = 'layoutBuilderMineralBarTextboxesV5';
+    const LAYOUT_BUILDER_MINERAL_BAR_TEXTBOX_META_KEY = 'layoutBuilderMineralBarTextboxesV6';
     const MICRO_BAR_TEXTBOX_TEXT = '??%';
     const MICRO_BAR_TEXTBOX_FONT_SIZE = 3.75;
     const MICRO_BAR_TEXTBOX_WIDTH = 11;
@@ -2783,7 +2783,7 @@
       const barWidth = Number(barLayer?.width) || 11;
       return {
         x: Math.round((Number(barLayer?.x) || 0) + ((barWidth - MICRO_BAR_TEXTBOX_WIDTH) / 2)),
-        y: clampValue(Math.round((Number(barLayer?.y) || 0) + 1), 44, 220),
+        y: clampValue(Math.round(Number(barLayer?.y) || 0), 44, 220),
         width: MICRO_BAR_TEXTBOX_WIDTH
       };
     }

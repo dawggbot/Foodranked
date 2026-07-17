@@ -1187,7 +1187,7 @@
   <script>
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     const BUILDER_BUILD_ID = APP_MODE === 'layout-builder'
-      ? '20260717-micros-basic-controls-v16'
+      ? '20260717-micros-basic-controls-v17'
       : '20260624-section-indicators-disabled-v1';
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
     const SECTIONS = [
@@ -1237,7 +1237,7 @@
     const TEXT_LAYER_CLIP_BLEED = 2;
     const LAYOUT_BUILDER_TEXT_RECOVERY_META_KEY = 'layoutBuilderTextRecoveryV1';
     const LAYOUT_BUILDER_MACRO_TEXTBOX_REPAIR_META_KEY = 'layoutBuilderMacroTextboxRepairV1';
-    const LAYOUT_BUILDER_VITAMIN_BAR_TEXTBOX_META_KEY = 'layoutBuilderVitaminBarTextboxesV8';
+    const LAYOUT_BUILDER_VITAMIN_BAR_TEXTBOX_META_KEY = 'layoutBuilderVitaminBarTextboxesV9';
     const LAYOUT_BUILDER_MINERAL_BAR_SPRITES_META_KEY = 'layoutBuilderMineralBarSpritesV3';
     const LAYOUT_BUILDER_MINERAL_BAR_TEXTBOX_META_KEY = 'layoutBuilderMineralBarTextboxesV9';
     const MICRO_BAR_TEXTBOX_TEXT = '??%';
@@ -2791,6 +2791,11 @@
       );
     }
 
+    function isLegacyMicroPercentTextboxLayer(layer, sectionId) {
+      if (!isTextLayer(layer)) return false;
+      return !!String(layer.id || '').match(new RegExp(`^${sectionId}_percent_\\d+$`));
+    }
+
     function microBarGlowColorForPercent(percent) {
       return MICRO_BAR_TEXTBOX_GLOW_COLORS[Number(percent)] || '';
     }
@@ -2965,7 +2970,7 @@
       layout.meta[LAYOUT_BUILDER_MINERAL_BAR_SPRITES_META_KEY] = true;
     }
 
-    function ensureLayoutBuilderMicroBarTextboxes(layout, { sectionId, sectionLabel, metaKey, expectedColumnCount, cleanupExtra = false }) {
+    function ensureLayoutBuilderMicroBarTextboxes(layout, { sectionId, sectionLabel, metaKey, expectedColumnCount, cleanupExtra = false, cleanupLegacyPercentTextboxes = false }) {
       if (APP_MODE !== 'layout-builder') return;
       layout.meta = layout.meta || {};
       if (layout.meta[metaKey]) return;
@@ -2973,6 +2978,7 @@
       const sectionLayers = getSectionLayersFromLayout(layout, sectionId);
       const columns = getMicrosDvBarColumns(sectionLayers).slice(0, expectedColumnCount);
       const usedLayerIds = new Set();
+      const updatedLayers = new Set();
       const updatedLayerIds = [];
 
       columns.forEach((column, columnIndex) => {
@@ -2994,6 +3000,7 @@
             columnIndex,
             percent: item.percent
           });
+          updatedLayers.add(layer);
           if (layer.id) {
             usedLayerIds.add(String(layer.id));
             updatedLayerIds.push(String(layer.id));
@@ -3002,9 +3009,10 @@
       });
 
       if (cleanupExtra) {
-        const keepLayerIds = new Set(updatedLayerIds);
         layout.sections[sectionId].layers = getSectionLayersFromLayout(layout, sectionId).filter(layer => {
-          return !isGeneratedMicroBarTextboxLayer(layer, sectionId) || keepLayerIds.has(String(layer.id || ''));
+          const isExtraMicroTextbox = isGeneratedMicroBarTextboxLayer(layer, sectionId)
+            || (cleanupLegacyPercentTextboxes && isLegacyMicroPercentTextboxLayer(layer, sectionId));
+          return !isExtraMicroTextbox || updatedLayers.has(layer);
         });
       }
 
@@ -3017,7 +3025,9 @@
         sectionId: 'vitamins',
         sectionLabel: 'VITAMINS',
         metaKey: LAYOUT_BUILDER_VITAMIN_BAR_TEXTBOX_META_KEY,
-        expectedColumnCount: VITAMIN_TEXT_SPECS.length
+        expectedColumnCount: VITAMIN_TEXT_SPECS.length,
+        cleanupExtra: true,
+        cleanupLegacyPercentTextboxes: true
       });
     }
 

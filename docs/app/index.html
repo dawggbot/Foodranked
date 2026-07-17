@@ -1187,7 +1187,7 @@
   <script>
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     const BUILDER_BUILD_ID = APP_MODE === 'layout-builder'
-      ? '20260717-micros-basic-controls-v9'
+      ? '20260717-micros-basic-controls-v10'
       : '20260624-section-indicators-disabled-v1';
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
     const SECTIONS = [
@@ -1238,10 +1238,10 @@
     const LAYOUT_BUILDER_TEXT_RECOVERY_META_KEY = 'layoutBuilderTextRecoveryV1';
     const LAYOUT_BUILDER_MACRO_TEXTBOX_REPAIR_META_KEY = 'layoutBuilderMacroTextboxRepairV1';
     const LAYOUT_BUILDER_VITAMIN_BAR_TEXTBOX_META_KEY = 'layoutBuilderVitaminBarTextboxesV2';
-    const LAYOUT_BUILDER_MINERAL_BAR_SPRITES_META_KEY = 'layoutBuilderMineralBarSpritesV2';
+    const LAYOUT_BUILDER_MINERAL_BAR_SPRITES_META_KEY = 'layoutBuilderMineralBarSpritesV3';
     const LAYOUT_BUILDER_MINERAL_BAR_TEXTBOX_META_KEY = 'layoutBuilderMineralBarTextboxesV3';
     const MICRO_BAR_TEXTBOX_TEXT = '??%';
-    const MICRO_BAR_TEXTBOX_FONT_SIZE = 3;
+    const MICRO_BAR_TEXTBOX_FONT_SIZE = 3.25;
     const MICRO_BAR_TEXTBOX_WIDTH = 11;
     const MICRO_BAR_TEXTBOX_STROKE_WIDTH = 1.15;
     const FOOD_JSON_CACHE = new Map();
@@ -2816,19 +2816,66 @@
       layer.textStrokeWidth = MICRO_BAR_TEXTBOX_STROKE_WIDTH;
     }
 
-    function microBarSpriteKey(layer) {
-      return [
-        String(layer?.src || ''),
-        Math.round(Number(layer?.x) || 0),
-        Math.round(Number(layer?.y) || 0),
-        Math.round(Number(layer?.width) || 0),
-        Math.round(Number(layer?.height) || 0)
-      ].join('|');
-    }
-
     function defaultMineralMicroBarSpriteLayers() {
       return getSectionLayersFromLayout(DEFAULT_LAYOUT, 'minerals')
         .filter(layer => isSpriteLayer(layer) && String(layer.src || '').includes('/micros_section/bars/'));
+    }
+
+    function selectMineralMicroBarColumns(columns, defaultColumns) {
+      const assignments = [];
+      const usedColumns = new Set();
+      const assignedDefaultIndexes = new Set();
+      const defaultCount = Math.min(MINERAL_TEXT_SPECS.length, defaultColumns.length || MINERAL_TEXT_SPECS.length);
+
+      defaultColumns.slice(0, defaultCount).forEach((defaultColumn, defaultIndex) => {
+        let best = null;
+        columns.forEach((column, columnIndex) => {
+          if (usedColumns.has(columnIndex)) return;
+          const distance = Math.abs(column.centerX - defaultColumn.centerX);
+          if (distance > 8) return;
+          const score = distance - (Math.min(column.items.length, 10) * 0.25);
+          if (!best || score < best.score) best = { column, columnIndex, score };
+        });
+        if (!best) return;
+        assignments.push({ defaultIndex, column: best.column });
+        usedColumns.add(best.columnIndex);
+        assignedDefaultIndexes.add(defaultIndex);
+      });
+
+      const remainingColumns = columns
+        .map((column, columnIndex) => ({ column, columnIndex }))
+        .filter(item => !usedColumns.has(item.columnIndex))
+        .sort((a, b) => a.column.centerX - b.column.centerX);
+
+      for (let defaultIndex = 0; defaultIndex < defaultCount; defaultIndex += 1) {
+        if (assignedDefaultIndexes.has(defaultIndex)) continue;
+        const next = remainingColumns.shift();
+        if (!next) break;
+        assignments.push({ defaultIndex, column: next.column });
+        usedColumns.add(next.columnIndex);
+        assignedDefaultIndexes.add(defaultIndex);
+      }
+
+      return assignments.sort((a, b) => a.defaultIndex - b.defaultIndex);
+    }
+
+    function mineralBarSlotDefaultLayer(slotKey, defaultColumns, defaultBarLineLayer) {
+      if (slotKey === 'line') return defaultBarLineLayer || null;
+      const match = String(slotKey || '').match(/^bar:(\d+):(\d+)$/);
+      if (!match) return null;
+      const columnIndex = Number(match[1]);
+      const percent = Number(match[2]);
+      return defaultColumns[columnIndex]?.items.find(item => item.percent === percent)?.layer || null;
+    }
+
+    function mineralBarLayerSlotScore(layer, defaultLayer) {
+      if (!defaultLayer) return layer.visible === false ? 2 : 0;
+      const xDistance = Math.abs((layerCenterX(layer) || 0) - (layerCenterX(defaultLayer) || 0));
+      const yDistance = Math.abs((Number(layer.y) || 0) - (Number(defaultLayer.y) || 0));
+      const widthDistance = Math.abs((Number(layer.width) || 0) - (Number(defaultLayer.width) || 0));
+      const heightDistance = Math.abs((Number(layer.height) || 0) - (Number(defaultLayer.height) || 0));
+      const visibilityPenalty = layer.visible === false ? 2 : 0;
+      return xDistance + yDistance + (widthDistance * 0.5) + (heightDistance * 0.5) + visibilityPenalty;
     }
 
     function ensureLayoutBuilderMineralBarSprites(layout) {
@@ -2837,30 +2884,54 @@
       if (layout.meta[LAYOUT_BUILDER_MINERAL_BAR_SPRITES_META_KEY]) return;
 
       const sectionLayers = getSectionLayersFromLayout(layout, 'minerals');
-      const existingKeys = new Set();
-      const addedLayerIds = [];
+      const defaultLayers = defaultMineralMicroBarSpriteLayers();
+      const defaultColumns = getMicrosDvBarColumns(defaultLayers).slice(0, MINERAL_TEXT_SPECS.length);
+      const defaultBarLineLayer = defaultLayers.find(layer => String(layer.src || '').includes('/bar_line'));
+      const currentColumns = getMicrosDvBarColumns(sectionLayers);
+      const chosenBySlot = new Map();
+      const restoredLayerIds = [];
+
+      const chooseLayerForSlot = (slotKey, layer) => {
+        const defaultLayer = mineralBarSlotDefaultLayer(slotKey, defaultColumns, defaultBarLineLayer);
+        const current = chosenBySlot.get(slotKey);
+        if (!current || mineralBarLayerSlotScore(layer, defaultLayer) < mineralBarLayerSlotScore(current, defaultLayer)) {
+          chosenBySlot.set(slotKey, layer);
+        }
+      };
+
+      const barLineLayers = sectionLayers.filter(layer => isMicrosBarSpriteLayer(layer) && String(layer.src || '').includes('/bar_line'));
+      barLineLayers.forEach(layer => chooseLayerForSlot('line', layer));
+
+      selectMineralMicroBarColumns(currentColumns, defaultColumns).forEach(({ defaultIndex, column }) => {
+        column.items.forEach(item => {
+          chooseLayerForSlot(`bar:${defaultIndex}:${item.percent}`, item.layer);
+        });
+      });
+
+      const keptLayers = new Set(chosenBySlot.values());
 
       layout.sections.minerals.layers = sectionLayers.filter(layer => {
         if (!isSpriteLayer(layer) || !String(layer.src || '').includes('/micros_section/bars/')) return true;
+        if (!keptLayers.has(layer)) return false;
         layer.visible = true;
-        const key = microBarSpriteKey(layer);
-        if (existingKeys.has(key)) return false;
-        existingKeys.add(key);
+        if (layer.id) restoredLayerIds.push(String(layer.id));
         return true;
       });
       const dedupedSectionLayers = getSectionLayersFromLayout(layout, 'minerals');
 
-      for (const defaultLayer of defaultMineralMicroBarSpriteLayers()) {
-        const key = microBarSpriteKey(defaultLayer);
-        if (existingKeys.has(key)) continue;
+      for (const defaultLayer of defaultLayers) {
+        const slotKey = String(defaultLayer.src || '').includes('/bar_line')
+          ? 'line'
+          : `bar:${defaultColumns.findIndex(column => column.items.some(item => item.layer === defaultLayer))}:${microsDvBarPercent(defaultLayer)}`;
+        if (!slotKey || slotKey.includes(':-1:') || chosenBySlot.has(slotKey)) continue;
         const layer = cloneLayer(defaultLayer);
         layer.visible = true;
         dedupedSectionLayers.push(layer);
-        existingKeys.add(key);
-        if (layer.id) addedLayerIds.push(String(layer.id));
+        chosenBySlot.set(slotKey, layer);
+        if (layer.id) restoredLayerIds.push(String(layer.id));
       }
 
-      restoreDeletedLayerIds(layout, addedLayerIds);
+      restoreDeletedLayerIds(layout, restoredLayerIds);
       layout.meta[LAYOUT_BUILDER_MINERAL_BAR_SPRITES_META_KEY] = true;
     }
 

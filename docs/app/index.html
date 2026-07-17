@@ -1187,7 +1187,7 @@
   <script>
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     const BUILDER_BUILD_ID = APP_MODE === 'layout-builder'
-      ? '20260717-micros-basic-controls-v14'
+      ? '20260717-micros-basic-controls-v15'
       : '20260624-section-indicators-disabled-v1';
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
     const SECTIONS = [
@@ -1237,13 +1237,25 @@
     const TEXT_LAYER_CLIP_BLEED = 2;
     const LAYOUT_BUILDER_TEXT_RECOVERY_META_KEY = 'layoutBuilderTextRecoveryV1';
     const LAYOUT_BUILDER_MACRO_TEXTBOX_REPAIR_META_KEY = 'layoutBuilderMacroTextboxRepairV1';
-    const LAYOUT_BUILDER_VITAMIN_BAR_TEXTBOX_META_KEY = 'layoutBuilderVitaminBarTextboxesV6';
+    const LAYOUT_BUILDER_VITAMIN_BAR_TEXTBOX_META_KEY = 'layoutBuilderVitaminBarTextboxesV7';
     const LAYOUT_BUILDER_MINERAL_BAR_SPRITES_META_KEY = 'layoutBuilderMineralBarSpritesV3';
-    const LAYOUT_BUILDER_MINERAL_BAR_TEXTBOX_META_KEY = 'layoutBuilderMineralBarTextboxesV7';
+    const LAYOUT_BUILDER_MINERAL_BAR_TEXTBOX_META_KEY = 'layoutBuilderMineralBarTextboxesV8';
     const MICRO_BAR_TEXTBOX_TEXT = '??%';
     const MICRO_BAR_TEXTBOX_FONT_SIZE = 4;
     const MICRO_BAR_TEXTBOX_WIDTH = 11;
     const MICRO_BAR_TEXTBOX_STROKE_WIDTH = 1.15;
+    const MICRO_BAR_TEXTBOX_GLOW_COLORS = {
+      10: '#8b0000',
+      20: '#c62828',
+      30: '#fb8c00',
+      40: '#ecca35',
+      50: '#fdef35',
+      60: '#a8d330',
+      70: '#7fc337',
+      80: '#41b045',
+      90: '#00e05d',
+      100: '#00bfa5'
+    };
     const FOOD_JSON_CACHE = new Map();
     const BATCH_RESULTS_CACHE = new Map();
     const SPRITE_EXISTENCE_CACHE = new Map();
@@ -2779,6 +2791,23 @@
       );
     }
 
+    function microBarGlowColorForPercent(percent) {
+      return MICRO_BAR_TEXTBOX_GLOW_COLORS[Number(percent)] || '';
+    }
+
+    function microBarTextboxPercent(layer) {
+      const match = String(layer?.id || '').match(/_bar_percent_c\d+_(\d+)$/);
+      return match ? Number(match[1]) : null;
+    }
+
+    function microBarTextboxGlowColor(layer) {
+      return layer?.textGlowColor || microBarGlowColorForPercent(microBarTextboxPercent(layer));
+    }
+
+    function microBarLayerGlowColor(barLayer) {
+      return microBarGlowColorForPercent(microsDvBarPercent(barLayer));
+    }
+
     function microBarTextboxFrame(barLayer) {
       const barWidth = Number(barLayer?.width) || 11;
       return {
@@ -2814,6 +2843,7 @@
       layer.layoutBuilderManualText = true;
       layer.microBarTextbox = true;
       layer.textStrokeWidth = MICRO_BAR_TEXTBOX_STROKE_WIDTH;
+      layer.textGlowColor = microBarLayerGlowColor(barLayer);
     }
 
     function defaultMineralMicroBarSpriteLayers() {
@@ -5299,9 +5329,26 @@
           const resolvedStrokeWidth = Number.isFinite(strokeWidth) && strokeWidth > 0
             ? strokeWidth
             : MICRO_BAR_TEXTBOX_STROKE_WIDTH;
+          const glowColor = microBarTextboxGlowColor(layer);
           node.style.setProperty('-webkit-text-stroke', `calc(${resolvedStrokeWidth}px * var(--pixel-unit)) #000`);
+          if (glowColor) {
+            const glowSoft = colorWithAlpha(glowColor, 0.78);
+            const glowWide = colorWithAlpha(glowColor, 0.42);
+            node.style.textShadow = [
+              `0 0 calc(1px * var(--pixel-unit)) ${glowColor}`,
+              `0 0 calc(3px * var(--pixel-unit)) ${glowSoft}`,
+              `0 0 calc(6px * var(--pixel-unit)) ${glowWide}`,
+              '0 0 0 #000'
+            ].join(', ');
+            node.style.filter = `drop-shadow(0 0 calc(1px * var(--pixel-unit)) ${glowSoft})`;
+          } else {
+            node.style.removeProperty('text-shadow');
+            node.style.removeProperty('filter');
+          }
         } else {
           node.style.removeProperty('-webkit-text-stroke');
+          node.style.removeProperty('text-shadow');
+          node.style.removeProperty('filter');
         }
         return;
       }

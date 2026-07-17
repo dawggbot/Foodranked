@@ -1187,7 +1187,7 @@
   <script>
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     const BUILDER_BUILD_ID = APP_MODE === 'layout-builder'
-      ? '20260717-micros-basic-controls-v7'
+      ? '20260717-micros-basic-controls-v8'
       : '20260624-section-indicators-disabled-v1';
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
     const SECTIONS = [
@@ -1238,7 +1238,9 @@
     const LAYOUT_BUILDER_TEXT_RECOVERY_META_KEY = 'layoutBuilderTextRecoveryV1';
     const LAYOUT_BUILDER_MACRO_TEXTBOX_REPAIR_META_KEY = 'layoutBuilderMacroTextboxRepairV1';
     const LAYOUT_BUILDER_VITAMIN_BAR_TEXTBOX_META_KEY = 'layoutBuilderVitaminBarTextboxesV1';
-    const VITAMIN_BAR_TEXTBOX_TEXT = '??%';
+    const LAYOUT_BUILDER_MINERAL_BAR_TEXTBOX_META_KEY = 'layoutBuilderMineralBarTextboxesV1';
+    const MICRO_BAR_TEXTBOX_TEXT = '??%';
+    const MICRO_BAR_TEXTBOX_STROKE_WIDTH = 1.15;
     const FOOD_JSON_CACHE = new Map();
     const BATCH_RESULTS_CACHE = new Map();
     const SPRITE_EXISTENCE_CACHE = new Map();
@@ -2747,17 +2749,25 @@
       });
     }
 
-    function vitaminBarTextboxId(columnIndex, percent) {
-      return `vitamins_bar_percent_c${columnIndex + 1}_${percent}`;
+    function microBarTextboxId(sectionId, columnIndex, percent) {
+      return `${sectionId}_bar_percent_c${columnIndex + 1}_${percent}`;
     }
 
-    function isVitaminBarTextboxLayer(layer) {
+    function isMicroBarTextboxLayer(layer, sectionId = '') {
       if (!isTextLayer(layer)) return false;
       const id = String(layer.id || '');
-      return /^vitamins_percent_\d+$/.test(id) || /^vitamins_bar_percent_c\d+_\d+$/.test(id);
+      if (sectionId) {
+        return !!(
+          id.match(new RegExp(`^${sectionId}_percent_\\d+$`))
+          || id.match(new RegExp(`^${sectionId}_bar_percent_c\\d+_\\d+$`))
+        );
+      }
+      return /^(vitamins|minerals)_percent_\d+$/.test(id)
+        || /^(vitamins|minerals)_bar_percent_c\d+_\d+$/.test(id)
+        || layer.microBarTextbox === true;
     }
 
-    function vitaminBarTextboxFrame(barLayer) {
+    function microBarTextboxFrame(barLayer) {
       const barWidth = Number(barLayer?.width) || 11;
       return {
         x: Math.round((Number(barLayer?.x) || 0) + ((barWidth - 10) / 2)),
@@ -2766,20 +2776,20 @@
       };
     }
 
-    function findExistingVitaminBarTextbox(sectionLayers, barLayer, usedLayerIds) {
-      const frame = vitaminBarTextboxFrame(barLayer);
+    function findExistingMicroBarTextbox(sectionLayers, sectionId, barLayer, usedLayerIds) {
+      const frame = microBarTextboxFrame(barLayer);
       return sectionLayers.find(layer => {
-        if (!isVitaminBarTextboxLayer(layer)) return false;
+        if (!isMicroBarTextboxLayer(layer, sectionId)) return false;
         if (usedLayerIds.has(String(layer.id || ''))) return false;
         return Math.abs((Number(layer.x) || 0) - frame.x) <= 1
           && Math.abs((Number(layer.y) || 0) - frame.y) <= 1;
       }) || null;
     }
 
-    function applyVitaminBarTextboxDefaults(layer, barLayer, columnIndex, percent) {
-      const frame = vitaminBarTextboxFrame(barLayer);
-      layer.label = `VITAMINS ${percent}% bar textbox ${columnIndex + 1}`;
-      layer.text = VITAMIN_BAR_TEXTBOX_TEXT;
+    function applyMicroBarTextboxDefaults(layer, { sectionLabel, barLayer, columnIndex, percent }) {
+      const frame = microBarTextboxFrame(barLayer);
+      layer.label = `${sectionLabel} ${percent}% bar textbox ${columnIndex + 1}`;
+      layer.text = MICRO_BAR_TEXTBOX_TEXT;
       layer.fontSize = 2.5;
       layer.width = frame.width;
       layer.x = frame.x;
@@ -2789,32 +2799,39 @@
       layer.visible = true;
       layer.manualText = true;
       layer.layoutBuilderManualText = true;
+      layer.microBarTextbox = true;
+      layer.textStrokeWidth = MICRO_BAR_TEXTBOX_STROKE_WIDTH;
     }
 
-    function ensureLayoutBuilderVitaminBarTextboxes(layout) {
+    function ensureLayoutBuilderMicroBarTextboxes(layout, { sectionId, sectionLabel, metaKey, expectedColumnCount }) {
       if (APP_MODE !== 'layout-builder') return;
       layout.meta = layout.meta || {};
-      if (layout.meta[LAYOUT_BUILDER_VITAMIN_BAR_TEXTBOX_META_KEY]) return;
+      if (layout.meta[metaKey]) return;
 
-      const sectionLayers = getSectionLayersFromLayout(layout, 'vitamins');
-      const columns = getMicrosDvBarColumns(sectionLayers);
+      const sectionLayers = getSectionLayersFromLayout(layout, sectionId);
+      const columns = getMicrosDvBarColumns(sectionLayers).slice(0, expectedColumnCount);
       const usedLayerIds = new Set();
       const updatedLayerIds = [];
 
       columns.forEach((column, columnIndex) => {
         const items = [...column.items].sort((a, b) => a.percent - b.percent);
         for (const item of items) {
-          const id = vitaminBarTextboxId(columnIndex, item.percent);
+          const id = microBarTextboxId(sectionId, columnIndex, item.percent);
           let layer = sectionLayers.find(candidate => candidate.id === id);
           if (!layer) {
-            layer = findExistingVitaminBarTextbox(sectionLayers, item.layer, usedLayerIds);
+            layer = findExistingMicroBarTextbox(sectionLayers, sectionId, item.layer, usedLayerIds);
           }
           if (!layer) {
-            const frame = vitaminBarTextboxFrame(item.layer);
-            layer = text(id, `VITAMINS ${item.percent}% bar textbox ${columnIndex + 1}`, frame.x, frame.y, 2.5, VITAMIN_BAR_TEXTBOX_TEXT, (Number(item.layer?.z) || 0) + 5, frame.width, 'center');
+            const frame = microBarTextboxFrame(item.layer);
+            layer = text(id, `${sectionLabel} ${item.percent}% bar textbox ${columnIndex + 1}`, frame.x, frame.y, 2.5, MICRO_BAR_TEXTBOX_TEXT, (Number(item.layer?.z) || 0) + 5, frame.width, 'center');
             sectionLayers.push(layer);
           }
-          applyVitaminBarTextboxDefaults(layer, item.layer, columnIndex, item.percent);
+          applyMicroBarTextboxDefaults(layer, {
+            sectionLabel,
+            barLayer: item.layer,
+            columnIndex,
+            percent: item.percent
+          });
           if (layer.id) {
             usedLayerIds.add(String(layer.id));
             updatedLayerIds.push(String(layer.id));
@@ -2823,7 +2840,25 @@
       });
 
       restoreDeletedLayerIds(layout, updatedLayerIds);
-      layout.meta[LAYOUT_BUILDER_VITAMIN_BAR_TEXTBOX_META_KEY] = true;
+      layout.meta[metaKey] = true;
+    }
+
+    function ensureLayoutBuilderVitaminBarTextboxes(layout) {
+      ensureLayoutBuilderMicroBarTextboxes(layout, {
+        sectionId: 'vitamins',
+        sectionLabel: 'VITAMINS',
+        metaKey: LAYOUT_BUILDER_VITAMIN_BAR_TEXTBOX_META_KEY,
+        expectedColumnCount: VITAMIN_TEXT_SPECS.length
+      });
+    }
+
+    function ensureLayoutBuilderMineralBarTextboxes(layout) {
+      ensureLayoutBuilderMicroBarTextboxes(layout, {
+        sectionId: 'minerals',
+        sectionLabel: 'MINERALS',
+        metaKey: LAYOUT_BUILDER_MINERAL_BAR_TEXTBOX_META_KEY,
+        expectedColumnCount: MINERAL_TEXT_SPECS.length
+      });
     }
 
     function getDefaultMineralTextAnchors() {
@@ -3192,6 +3227,8 @@
       if (id === 'vitamins_title') return 'VITAMINS title';
       const mineralMatch = id.match(/^minerals_(label|percent)_(\d+)$/);
       if (mineralMatch) return `MINERALS ${mineralMatch[1] === 'label' ? 'label' : 'percent'} ${mineralMatch[2]}`;
+      const mineralBarTextboxMatch = id.match(/^minerals_bar_percent_c(\d+)_(\d+)$/);
+      if (mineralBarTextboxMatch) return `MINERALS ${mineralBarTextboxMatch[2]}% bar textbox ${mineralBarTextboxMatch[1]}`;
       if (id === 'minerals_title') return 'MINERALS title';
       if (id === 'fats_macro_label') return 'FATS macro label';
       if (id === 'fats_macro_value') return 'FATS macro grams';
@@ -3377,6 +3414,7 @@
       recoverLayoutBuilderDeletedTextLayers(normalized);
       repairLayoutBuilderMacroTextBoxes(normalized);
       ensureLayoutBuilderVitaminBarTextboxes(normalized);
+      ensureLayoutBuilderMineralBarTextboxes(normalized);
       filterDeletedLayers(normalized);
       relabelLayoutLayers(normalized);
       return normalized;
@@ -5115,6 +5153,15 @@
     function applyLayerRenderStyle(node, layer) {
       if (layer.kind === 'text') {
         node.style.color = APP_MODE === 'layout-builder' && isMacroSubmetricValueLayer(layer) ? '' : (layer.color || '');
+        if (isMicroBarTextboxLayer(layer)) {
+          const strokeWidth = Number(layer.textStrokeWidth);
+          const resolvedStrokeWidth = Number.isFinite(strokeWidth) && strokeWidth > 0
+            ? strokeWidth
+            : MICRO_BAR_TEXTBOX_STROKE_WIDTH;
+          node.style.setProperty('-webkit-text-stroke', `calc(${resolvedStrokeWidth}px * var(--pixel-unit)) #000`);
+        } else {
+          node.style.removeProperty('-webkit-text-stroke');
+        }
         return;
       }
       const transform = spriteTransform(layer);
@@ -6374,6 +6421,7 @@ async function renderAll() {
       node.style.top = `calc(${layer.y}px * var(--pixel-unit))`;
       node.style.zIndex = String(layer.z || 0);
       if (layer.kind === 'text') {
+        applyLayerRenderStyle(node, layer);
         applyTextLayerBoxStyle(node, layer);
         node.textContent = layer.text || '';
         if (editableTextFitsNode(node, layer.text || '')) {

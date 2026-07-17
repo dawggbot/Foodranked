@@ -538,6 +538,11 @@
     }, columns[0]);
   }
 
+  function microsDvBarColumnIndex(columns, column, fallbackIndex) {
+    const index = columns.indexOf(column);
+    return index >= 0 ? index : fallbackIndex;
+  }
+
   function micronutrientBarStep(value) {
     const safe = asNumber(value, null);
     if (safe == null || safe <= 0) return null;
@@ -748,11 +753,13 @@
       const labelLayer = sectionLayers.find(layer => layer.id === `${sectionId}_label_${index + 1}`);
       const valueLayer = sectionLayers.find(layer => layer.id === `${sectionId}_percent_${index + 1}`);
       if (labelLayer) {
-        labelLayer.text = spec.shortLabel;
+        const preserveManualLabel = labelLayer.manualText === true || labelLayer.layoutBuilderManualText === true;
+        if (!preserveManualLabel) labelLayer.text = spec.shortLabel;
         labelLayer.visible = true;
       }
 
       const column = nearestMicrosDvBarColumn(columns, valueLayer || labelLayer, index);
+      const columnIndex = column ? microsDvBarColumnIndex(columns, column, index) : index;
       const rawValue = asNumber(food?.metrics?.[spec.key], null);
       const visibleStep = micronutrientBarStep(rawValue);
       const visiblePercent = visibleStep == null ? 0 : visibleStep * 10;
@@ -767,7 +774,7 @@
         });
         shownPercents = column.items.filter(item => item.layer.visible !== false).map(item => item.percent);
 
-        const candidates = microTextboxesForColumn(sectionLayers, sectionId, index);
+        const candidates = microTextboxesForColumn(sectionLayers, sectionId, columnIndex);
         activeTextLayer = chooseMicroTextboxForPercent(candidates, anchorPercent);
         candidates.forEach(layer => { layer.visible = layer === activeTextLayer; });
       }
@@ -792,6 +799,9 @@
         visiblePercent,
         anchorPercent,
         shownBarPercents: shownPercents,
+        matchedColumnIndex: columnIndex + 1,
+        matchedColumnCenterX: column?.centerX ?? null,
+        anchorLayerId: (valueLayer || labelLayer)?.id || '',
         activeTextLayerId: activeTextLayer?.id || valueLayer?.id || '',
         activeTextLayerSource: activeTextLayer?.generatedForDisplayV2
           ? 'display-builder-v2 render fallback'

@@ -354,6 +354,11 @@
       || layer.microBarTextbox === true;
   }
 
+  function isLegacyMicronutrientPercentLayer(layer, sectionId) {
+    if (!isTextLayer(layer)) return false;
+    return new RegExp(`^${sectionId}_percent_\\d+$`).test(String(layer.id || ''));
+  }
+
   function microBarTextboxPercent(layer) {
     const match = String(layer?.id || '').match(/_bar_percent_c\d+_(\d+)$/);
     return match ? Number(match[1]) : null;
@@ -366,10 +371,6 @@
 
   function micronutrientSpecs(sectionId) {
     return BINDINGS.micronutrientSpecs?.[sectionId] || [];
-  }
-
-  function microBarGlowColorForPercent(percent) {
-    return BINDINGS.micronutrientBarGlowColors?.[Number(percent)] || '';
   }
 
   function macroBarLayerSection(layer, fallbackSectionId) {
@@ -598,25 +599,12 @@
       }, candidates[0]);
   }
 
-  function applyMicronutrientTextLayer(layer, text, barLayer, sectionId, spec, index, mode) {
+  function applyMicronutrientTextLayer(layer, text, sectionId, spec, index, mode) {
     if (!layer) return null;
     const before = layer.text;
     layer.text = text;
     layer.visible = true;
-    if (barLayer) {
-      const barWidth = Number(barLayer.width) || 11;
-      const width = Number(layer.width) || Math.max(6, Math.min(11, barWidth));
-      layer.width = width;
-      if (!isMicroBarTextboxLayer(layer)) {
-        layer.x = Math.round((Number(barLayer.x) || 0) + ((barWidth - width) / 2));
-        layer.y = clamp(Math.round((Number(barLayer.y) || 0) + 1), 44, 220);
-        layer.align = 'center';
-        layer.z = Math.max(Number(layer.z) || 0, (Number(barLayer.z) || 0) + 5);
-      }
-    }
-    if (isMicroBarTextboxLayer(layer)) {
-      layer.textGlowColor = microBarGlowColorForPercent(microBarTextboxPercent(layer));
-    }
+    delete layer.textGlowColor;
     return {
       sectionId,
       layerId: layer.id || '',
@@ -645,8 +633,19 @@
     }
 
     sectionLayers
-      .filter(layer => isMicroBarTextboxLayer(layer) && String(layer.id || '').startsWith(`${sectionId}_`))
+      .filter(layer => isMicrosDvBarSpriteLayer(layer))
       .forEach(layer => { layer.visible = false; });
+
+    sectionLayers
+      .filter(layer => {
+        const id = String(layer.id || '');
+        return (isMicroBarTextboxLayer(layer) && id.startsWith(`${sectionId}_`))
+          || isLegacyMicronutrientPercentLayer(layer, sectionId);
+      })
+      .forEach(layer => {
+        layer.visible = false;
+        delete layer.textGlowColor;
+      });
 
     specs.forEach((spec, index) => {
       const labelLayer = sectionLayers.find(layer => layer.id === `${sectionId}_label_${index + 1}`);
@@ -663,7 +662,6 @@
       const anchorPercent = visibleStep == null ? 10 : visiblePercent;
       const formattedValue = formatMicronutrientPercent(food || {}, spec.key);
       let activeTextLayer = null;
-      let activeBarLayer = null;
       let shownPercents = [];
 
       if (column) {
@@ -671,7 +669,6 @@
           item.layer.visible = visibleStep != null && item.percent <= visiblePercent;
         });
         shownPercents = column.items.filter(item => item.layer.visible !== false).map(item => item.percent);
-        activeBarLayer = column.items.find(item => item.percent === anchorPercent)?.layer || column.items[0]?.layer || null;
 
         const candidates = microTextboxesForColumn(sectionLayers, sectionId, index);
         activeTextLayer = chooseMicroTextboxForPercent(candidates, anchorPercent);
@@ -680,11 +677,11 @@
 
       if (activeTextLayer) {
         if (valueLayer) valueLayer.visible = false;
-        const report = applyMicronutrientTextLayer(activeTextLayer, formattedValue, activeBarLayer, sectionId, spec, index, 'micronutrient bar textbox');
+        const report = applyMicronutrientTextLayer(activeTextLayer, formattedValue, sectionId, spec, index, 'micronutrient bar textbox');
         if (report) textReport.push(report);
       } else if (valueLayer) {
         valueLayer.visible = true;
-        const report = applyMicronutrientTextLayer(valueLayer, formattedValue, activeBarLayer, sectionId, spec, index, 'legacy micronutrient percent layer');
+        const report = applyMicronutrientTextLayer(valueLayer, formattedValue, sectionId, spec, index, 'legacy micronutrient percent layer');
         if (report) textReport.push(report);
       }
 
@@ -1299,23 +1296,6 @@
     return LOGIC.canonicalSpritePath(layer.src || layer.fallbackSrc || '');
   }
 
-  function hexToRgb(color) {
-    const match = String(color || '').trim().match(/^#?([a-f\d]{6})$/i);
-    if (!match) return null;
-    const hex = match[1];
-    return {
-      r: parseInt(hex.slice(0, 2), 16),
-      g: parseInt(hex.slice(2, 4), 16),
-      b: parseInt(hex.slice(4, 6), 16)
-    };
-  }
-
-  function colorWithAlpha(color, alpha) {
-    const rgb = hexToRgb(color);
-    if (!rgb) return color;
-    return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${clamp(alpha, 0, 1).toFixed(3)})`;
-  }
-
   function renderTextNode(node, layer) {
     node.textContent = safeDisplayText(layer.text || '');
     node.style.fontSize = `calc(${Number(layer.fontSize) || 6}px * var(--pixel-unit))`;
@@ -1324,19 +1304,9 @@
     if (isMicroBarTextboxLayer(layer)) {
       const strokeWidth = Number(layer.textStrokeWidth);
       const resolvedStrokeWidth = Number.isFinite(strokeWidth) && strokeWidth > 0 ? strokeWidth : 1.15;
-      const glowColor = layer.textGlowColor || microBarGlowColorForPercent(microBarTextboxPercent(layer));
       node.style.setProperty('-webkit-text-stroke', `calc(${resolvedStrokeWidth}px * var(--pixel-unit)) #000`);
-      if (glowColor) {
-        const glowSoft = colorWithAlpha(glowColor, 0.78);
-        const glowWide = colorWithAlpha(glowColor, 0.42);
-        node.style.textShadow = [
-          `0 0 calc(1px * var(--pixel-unit)) ${glowColor}`,
-          `0 0 calc(3px * var(--pixel-unit)) ${glowSoft}`,
-          `0 0 calc(6px * var(--pixel-unit)) ${glowWide}`,
-          '0 0 0 #000'
-        ].join(', ');
-        node.style.filter = `drop-shadow(0 0 calc(1px * var(--pixel-unit)) ${glowSoft})`;
-      }
+      node.style.removeProperty('text-shadow');
+      node.style.removeProperty('filter');
     }
     if (layer.width) node.style.width = `calc(${Number(layer.width) + (TEXT_LAYER_CLIP_BLEED * 2)}px * var(--pixel-unit))`;
     const height = Number(layer.textBoxHeight || layer.height || defaultTextLayerHeight(layer));

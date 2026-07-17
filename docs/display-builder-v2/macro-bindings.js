@@ -83,25 +83,11 @@
     ]
   };
 
-  const MICRONUTRIENT_BAR_GLOW_COLORS = {
-    10: '#8b0000',
-    20: '#c62828',
-    30: '#fb8c00',
-    40: '#ecca35',
-    50: '#fdef35',
-    60: '#a8d330',
-    70: '#7fc337',
-    80: '#41b045',
-    90: '#00e05d',
-    100: '#00bfa5'
-  };
-
   window.FOODRANKED_MACRO_BINDINGS = {
     displaySections: ['intro', 'fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons', 'outro'],
     macroSections: ['fats', 'carbs', 'protein'],
     micronutrientSections: ['vitamins', 'minerals'],
     micronutrientSpecs: MICRONUTRIENT_SPECS,
-    micronutrientBarGlowColors: MICRONUTRIENT_BAR_GLOW_COLORS,
     textBindings: MACRO_TEXT_BINDINGS,
     textFallbackOrder: MACRO_TEXT_FALLBACK_ORDER,
     arrowRows: MACRO_ARROW_ROWS,

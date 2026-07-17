@@ -1187,7 +1187,7 @@
   <script>
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     const BUILDER_BUILD_ID = APP_MODE === 'layout-builder'
-      ? '20260717-micros-basic-controls-v8'
+      ? '20260717-micros-basic-controls-v9'
       : '20260624-section-indicators-disabled-v1';
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
     const SECTIONS = [
@@ -1237,9 +1237,12 @@
     const TEXT_LAYER_CLIP_BLEED = 2;
     const LAYOUT_BUILDER_TEXT_RECOVERY_META_KEY = 'layoutBuilderTextRecoveryV1';
     const LAYOUT_BUILDER_MACRO_TEXTBOX_REPAIR_META_KEY = 'layoutBuilderMacroTextboxRepairV1';
-    const LAYOUT_BUILDER_VITAMIN_BAR_TEXTBOX_META_KEY = 'layoutBuilderVitaminBarTextboxesV1';
-    const LAYOUT_BUILDER_MINERAL_BAR_TEXTBOX_META_KEY = 'layoutBuilderMineralBarTextboxesV1';
+    const LAYOUT_BUILDER_VITAMIN_BAR_TEXTBOX_META_KEY = 'layoutBuilderVitaminBarTextboxesV2';
+    const LAYOUT_BUILDER_MINERAL_BAR_SPRITES_META_KEY = 'layoutBuilderMineralBarSpritesV1';
+    const LAYOUT_BUILDER_MINERAL_BAR_TEXTBOX_META_KEY = 'layoutBuilderMineralBarTextboxesV2';
     const MICRO_BAR_TEXTBOX_TEXT = '??%';
+    const MICRO_BAR_TEXTBOX_FONT_SIZE = 3;
+    const MICRO_BAR_TEXTBOX_WIDTH = 11;
     const MICRO_BAR_TEXTBOX_STROKE_WIDTH = 1.15;
     const FOOD_JSON_CACHE = new Map();
     const BATCH_RESULTS_CACHE = new Map();
@@ -2770,9 +2773,9 @@
     function microBarTextboxFrame(barLayer) {
       const barWidth = Number(barLayer?.width) || 11;
       return {
-        x: Math.round((Number(barLayer?.x) || 0) + ((barWidth - 10) / 2)),
+        x: Math.round((Number(barLayer?.x) || 0) + ((barWidth - MICRO_BAR_TEXTBOX_WIDTH) / 2)),
         y: clampValue(Math.round((Number(barLayer?.y) || 0) + 1), 44, 220),
-        width: 10
+        width: MICRO_BAR_TEXTBOX_WIDTH
       };
     }
 
@@ -2790,10 +2793,11 @@
       const frame = microBarTextboxFrame(barLayer);
       layer.label = `${sectionLabel} ${percent}% bar textbox ${columnIndex + 1}`;
       layer.text = MICRO_BAR_TEXTBOX_TEXT;
-      layer.fontSize = 2.5;
+      layer.fontSize = MICRO_BAR_TEXTBOX_FONT_SIZE;
       layer.width = frame.width;
       layer.x = frame.x;
       layer.y = frame.y;
+      layer.textBoxHeight = Math.ceil(MICRO_BAR_TEXTBOX_FONT_SIZE * TEXT_LAYER_LINE_HEIGHT);
       layer.z = Math.max(Number(layer.z) || 0, (Number(barLayer?.z) || 0) + 5);
       layer.align = 'center';
       layer.visible = true;
@@ -2801,6 +2805,47 @@
       layer.layoutBuilderManualText = true;
       layer.microBarTextbox = true;
       layer.textStrokeWidth = MICRO_BAR_TEXTBOX_STROKE_WIDTH;
+    }
+
+    function microBarSpriteKey(layer) {
+      return [
+        String(layer?.src || ''),
+        Math.round(Number(layer?.x) || 0),
+        Math.round(Number(layer?.y) || 0),
+        Math.round(Number(layer?.width) || 0),
+        Math.round(Number(layer?.height) || 0)
+      ].join('|');
+    }
+
+    function defaultMineralMicroBarSpriteLayers() {
+      return getSectionLayersFromLayout(DEFAULT_LAYOUT, 'minerals')
+        .filter(layer => isSpriteLayer(layer) && String(layer.src || '').includes('/micros_section/bars/'));
+    }
+
+    function ensureLayoutBuilderMineralBarSprites(layout) {
+      if (APP_MODE !== 'layout-builder') return;
+      layout.meta = layout.meta || {};
+      if (layout.meta[LAYOUT_BUILDER_MINERAL_BAR_SPRITES_META_KEY]) return;
+
+      const sectionLayers = getSectionLayersFromLayout(layout, 'minerals');
+      const existingKeys = new Set(
+        sectionLayers
+          .filter(layer => isSpriteLayer(layer) && String(layer.src || '').includes('/micros_section/bars/'))
+          .map(microBarSpriteKey)
+      );
+      const addedLayerIds = [];
+
+      for (const defaultLayer of defaultMineralMicroBarSpriteLayers()) {
+        const key = microBarSpriteKey(defaultLayer);
+        if (existingKeys.has(key)) continue;
+        const layer = cloneLayer(defaultLayer);
+        sectionLayers.push(layer);
+        existingKeys.add(key);
+        if (layer.id) addedLayerIds.push(String(layer.id));
+      }
+
+      restoreDeletedLayerIds(layout, addedLayerIds);
+      layout.meta[LAYOUT_BUILDER_MINERAL_BAR_SPRITES_META_KEY] = true;
     }
 
     function ensureLayoutBuilderMicroBarTextboxes(layout, { sectionId, sectionLabel, metaKey, expectedColumnCount }) {
@@ -2823,7 +2868,7 @@
           }
           if (!layer) {
             const frame = microBarTextboxFrame(item.layer);
-            layer = text(id, `${sectionLabel} ${item.percent}% bar textbox ${columnIndex + 1}`, frame.x, frame.y, 2.5, MICRO_BAR_TEXTBOX_TEXT, (Number(item.layer?.z) || 0) + 5, frame.width, 'center');
+            layer = text(id, `${sectionLabel} ${item.percent}% bar textbox ${columnIndex + 1}`, frame.x, frame.y, MICRO_BAR_TEXTBOX_FONT_SIZE, MICRO_BAR_TEXTBOX_TEXT, (Number(item.layer?.z) || 0) + 5, frame.width, 'center');
             sectionLayers.push(layer);
           }
           applyMicroBarTextboxDefaults(layer, {
@@ -3414,6 +3459,7 @@
       recoverLayoutBuilderDeletedTextLayers(normalized);
       repairLayoutBuilderMacroTextBoxes(normalized);
       ensureLayoutBuilderVitaminBarTextboxes(normalized);
+      ensureLayoutBuilderMineralBarSprites(normalized);
       ensureLayoutBuilderMineralBarTextboxes(normalized);
       filterDeletedLayers(normalized);
       relabelLayoutLayers(normalized);

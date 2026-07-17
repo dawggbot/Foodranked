@@ -133,9 +133,40 @@
     };
   }
 
+  function readFoodLayoutMap() {
+    const parsed = parseStorageJson(LAYOUT_BUILDER_FOOD_LAYOUTS_KEY, {});
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+  }
+
+  function normalizeFoodLayoutOption(foodId, layout) {
+    if (!foodId || !validLayout(layout)) return null;
+    const food = state.foods.find(item => item.id === foodId);
+    return {
+      key: `food:${foodId}`,
+      id: `food-layout:${foodId}`,
+      name: `${food?.name || foodId} food layout`,
+      kind: 'layout-builder food layout',
+      updatedAt: layout.meta?.updatedAt || layout.updatedAt || '',
+      layout: {
+        ...LOGIC.clone(layout),
+        meta: {
+          ...(layout.meta || {}),
+          source: LAYOUT_BUILDER_FOOD_LAYOUTS_KEY,
+          foodId
+        }
+      }
+    };
+  }
+
   function refreshLayoutOptions({ keepSelection = true } = {}) {
     const previousKey = keepSelection ? state.selectedLayoutKey : '';
     const options = [];
+    const foodLayoutOption = normalizeFoodLayoutOption(
+      state.selectedFoodId,
+      readFoodLayoutMap()[state.selectedFoodId]
+    );
+    if (foodLayoutOption) options.push(foodLayoutOption);
+
     const working = parseStorageJson(LAYOUT_BUILDER_WORKING_KEY, null);
     if (validLayout(working)) {
       options.push({
@@ -286,6 +317,7 @@
       button.innerHTML = `<strong>${escapeHtml(food.name)}</strong><div class="tiny muted">${escapeHtml(food.foodType || 'Unknown')} · ${escapeHtml(String(food.basis?.value || 100))}${escapeHtml(food.basis?.unit || 'g')}</div>`;
       button.addEventListener('click', async () => {
         state.selectedFoodId = food.id;
+        refreshLayoutOptions({ keepSelection: false });
         writeTestState();
         renderFoodList();
         await renderAll();
@@ -1617,7 +1649,7 @@
       ...(saved.background || {})
     };
     updateBackgroundControls();
-    refreshLayoutOptions();
+    refreshLayoutOptions({ keepSelection: Boolean(saved.selectedLayoutKey && saved.selectedLayoutKey !== 'working:current') });
     renderFoodList();
     renderSections();
     bindEvents();

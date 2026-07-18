@@ -18,6 +18,7 @@ const scope = scopeArg ? scopeArg.split('=')[1] : 'all';
 const HEADER_KEYS = ['kcal', 'fat_g', 'carb_g', 'protein_g'];
 const CONTEXT_SIDES = ['pros', 'cons'];
 const AMINO_ACID_SCORE_KEYS = ['essential_amino_acids_score', 'nonessential_amino_acids_score'];
+const CANONICAL_B_VITAMIN_SCORE_KEY = 'vitamin_b12_dv';
 const EXPECTED_AMINO_ACID_GROUP_COUNTS = {
   essentialGroups: 9,
   nonessentialGroups: 11
@@ -349,6 +350,12 @@ function auditRulesets(errors) {
     if (Math.abs(sum - 1) > 0.00001) issue(errors, file, 'section weights must sum to 1', { sum });
 
     for (const rule of ruleset.metricRules || []) {
+      if (/^vitamin_b\d+_dv$/.test(rule.metricKey) && rule.metricKey !== CANONICAL_B_VITAMIN_SCORE_KEY && rule.scoringRole === 'scored') {
+        issue(errors, file, 'only vitamin_b12_dv may be a score-bearing FoodRanked Vitamin B metric', {
+          metricKey: rule.metricKey
+        });
+      }
+
       const expectedPolarity = EXPECTED_METRIC_POLARITIES[rule.metricKey];
       if (expectedPolarity && rule.polarity !== expectedPolarity) {
         issue(errors, file, 'shared submacro polarity must stay constant across food types', {

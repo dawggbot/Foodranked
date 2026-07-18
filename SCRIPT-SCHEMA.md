@@ -125,6 +125,7 @@ Narration rules:
 - protein sections should not narrate amino-acid quality unless the scorer selected it as a meaningful protein-quality item; if not, narrate protein amount or the category role instead
 - measurement units in spoken blocks use full words, for example `37.1 grams of fat` and `saturated fat is 12.6 grams`, while the matching subtitle/display text uses `37.1g` and `12.6g`
 - macro, vitamin, and mineral spoken blocks should prefer the strongest available displayed item plus the weakest available displayed item, while keeping each section compact
+- when the selected vitamin metric is `vitamin_b12_dv`, narration and subtitles must say `Vitamin B12`; never shorten it to generic `Vitamin B`
 - do not narrate the overall score
 - the last spoken block must always be the tier reveal, for example `D tier.`
 

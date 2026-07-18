@@ -129,6 +129,11 @@ If included, they should be:
 ### 2a. Keep shared submacro polarity stable
 A given submacro keeps the same viewer-facing polarity in every food type. For example, `starch_g` stays `higher_better`; categories that care less about starch should adjust weight, thresholds, or applicability instead of flipping the arrow direction.
 
+### 2b. Keep Vitamin B locked to B12
+The v1 Vitamin B score/display slot is `vitamin_b12_dv`.
+Do not add `vitamin_b1_dv`, `vitamin_b3_dv`, generic `vitamin_b_dv`, or B-complex metrics to score-bearing `metricRules` unless a future schema version explicitly adds and names those nutrients.
+Generated narration/subtitles must say `Vitamin B12` whenever `vitamin_b12_dv` is selected.
+
 ### 3. Prefer explicit applicability
 Use:
 - `required`

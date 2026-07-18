@@ -196,6 +196,7 @@ These are important for the video UI and viewer understanding, but do not direct
 - Default section: vitamins
 - Default polarity: `higher_better`
 - V1 role: scored
+- Notes: this is the only canonical FoodRanked v1 B-vitamin score/display slot. Any generic `Vitamin B` label in UI, script, subtitles, or generated data must resolve to `Vitamin B12`, not B1, B3, or a mixed B-complex score.
 
 ## Mineral metrics
 

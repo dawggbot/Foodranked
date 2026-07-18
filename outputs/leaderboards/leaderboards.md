@@ -54,13 +54,13 @@
 
 # grains
 - Amaranth — S (83.2)
-- Oats — S (82)
 - Teff — S (80.5)
-- Quinoa — S (80.2)
+- Oats — S (80.4)
 - Farro — S (80)
-- Whole Wheat — A (78.2)
+- Quinoa — A (74.9)
 - Wild Rice — A (70.7)
 - Whole-Grain Pasta — A (69.3)
+- Whole Wheat — A (64)
 - Barley — A (61.6)
 - Buckwheat — B (57.9)
 - Sorghum — B (56.1)
@@ -75,7 +75,7 @@
 - White Bread — C (21.2)
 - Instant Noodles — D (19.6)
 - Corn Flakes — D (18.2)
-- White Rice — D (18.2)
+- White Rice — D (17.9)
 - Rice Cakes — D (14.4)
 
 # legumes
@@ -106,7 +106,6 @@
 - Baked Beans — D (12.8)
 
 # meats
-- Anchovies — S (81.6)
 - Salmon — S (81.1)
 - Sardines — S (80.3)
 - Mackerel — A (77.2)
@@ -114,6 +113,7 @@
 - Venison — A (74.5)
 - Herring — A (72.7)
 - Beef Sirloin — A (68.2)
+- Anchovies — A (65.1)
 - Lean Beef — A (64.9)
 - Beef Liver — B (53.3)
 - Tuna — B (49.9)

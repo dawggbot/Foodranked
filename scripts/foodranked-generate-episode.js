@@ -197,7 +197,17 @@ function categorySpriteKey(foodType) { return HEADER_CATEGORY_KEYS[foodType] || 
 function visualProfileFor(name) { return VISUAL_PROFILES[name] || VISUAL_PROFILES.balanced; }
 
 function metricLabel(metricKey) {
-  if (metricKey === 'protein_g_fallback') return 'protein amount';
+  const labels = {
+    protein_g_fallback: 'protein amount',
+    vitamin_b12_dv: 'vitamin B12',
+    vitamin_b_dv: 'vitamin B12',
+    vitamin_a_dv: 'vitamin A',
+    vitamin_c_dv: 'vitamin C',
+    vitamin_d_dv: 'vitamin D',
+    vitamin_e_dv: 'vitamin E',
+    vitamin_k_dv: 'vitamin K'
+  };
+  if (labels[metricKey]) return labels[metricKey];
   return String(metricKey || '')
     .replace(/_dv$/i, '')
     .replace(/_g$/i, '')

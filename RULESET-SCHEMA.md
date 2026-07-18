@@ -114,6 +114,11 @@ Suggested fields:
 - description
 - display_order
 
+Important B-vitamin identity rule:
+- `vitamin_b12_dv` is the canonical v1 Vitamin B score/display metric.
+- Do not use generic `vitamin_b_dv`, `Vitamin B`, or B-complex labels in score outputs.
+- Other B-vitamin facts, such as thiamin/B1 or niacin/B3, may exist only as source-backed raw facts if explicitly added to a future schema version; they are not v1 score-bearing Vitamin B metrics.
+
 ### rulesets
 Versioned scoring policy for a food type.
 

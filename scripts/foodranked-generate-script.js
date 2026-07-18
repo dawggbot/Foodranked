@@ -69,6 +69,16 @@ const DEFAULT_HIGHER_WORSE_BANDS = [
   { label: '2_red', min: 3, max: 5, score: 20 },
   { label: '3_red', min: 5, score: 0 }
 ];
+const METRIC_DISPLAY_NAMES = {
+  protein_g_fallback: 'protein amount',
+  vitamin_b12_dv: 'vitamin B12',
+  vitamin_b_dv: 'vitamin B12',
+  vitamin_a_dv: 'vitamin A',
+  vitamin_c_dv: 'vitamin C',
+  vitamin_d_dv: 'vitamin D',
+  vitamin_e_dv: 'vitamin E',
+  vitamin_k_dv: 'vitamin K'
+};
 
 function scoreFood(foodPath, rulesetPath) {
   const res = spawnSync(process.execPath, [scorerPath, foodPath, rulesetPath], {
@@ -124,8 +134,8 @@ function timingHintForSection(key) {
 }
 
 function formatMetricKey(metricKey) {
-  if (metricKey === 'protein_g_fallback') return 'protein amount';
-  return metricKey
+  if (METRIC_DISPLAY_NAMES[metricKey]) return METRIC_DISPLAY_NAMES[metricKey];
+  return String(metricKey || '')
     .replace(/_dv$/, '')
     .replace(/_mg$/, '')
     .replace(/_g$/, '')
@@ -284,7 +294,10 @@ function positiveMetricRank(metric) {
   if (!metricHasDefensibleValue(metric)) return -Infinity;
   const band = arrowBand(metric);
   if (band?.color === 'green') return 1000 + (band.level * 100) + Math.max(0, metric.weightedScore ?? 0);
-  if (metric.scoringMode === 'dv_points') return (metric.weightedScore ?? 0) + ((metric.dvPercent ?? 0) / 100);
+  if (metric.scoringMode === 'dv_points') {
+    if ((metric.score ?? 0) <= 0) return -Infinity;
+    return (metric.weightedScore ?? 0) + ((metric.dvPercent ?? 0) / 100);
+  }
   if ((metric.weightedScore ?? 0) > 0) return metric.weightedScore;
   return -Infinity;
 }
@@ -747,8 +760,10 @@ function buildMicrosSection(result, sectionKey) {
     return sectionKey === 'vitamins' ? 'no real vitamin story here.' : 'no real mineral story here.';
   }
 
-  const best = strongestPositiveMetric(top) || top[0];
-  const weakest = weakestOutstandingMetric(top, best);
+  const positive = strongestPositiveMetric(top);
+  const best = positive || top[0];
+  const weakest = weakestOutstandingMetric(top, positive);
+  if (!positive) return joinShort([weakMetricLine(weakest || top[0], result, sectionKey)]);
   return joinShort([
     bestMetricLine(best, sectionKey),
     weakMetricLine(weakest, result, sectionKey)

@@ -6494,6 +6494,7 @@ window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT = {
           "text": "highly palatable and appealing",
           "fontSize": 5,
           "width": 65,
+          "textBoxHeight": 18,
           "align": "left"
         },
         {
@@ -6507,6 +6508,7 @@ window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT = {
           "text": "works as a strong flavour booster",
           "fontSize": 5,
           "width": 65,
+          "textBoxHeight": 18,
           "align": "left"
         },
         {
@@ -6520,6 +6522,7 @@ window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT = {
           "text": "has strong comfort-food appeal",
           "fontSize": 5,
           "width": 65,
+          "textBoxHeight": 18,
           "align": "left"
         },
         {
@@ -7022,6 +7025,7 @@ window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT = {
           "text": "sodium is a major drawback",
           "fontSize": 5,
           "width": 65,
+          "textBoxHeight": 18,
           "align": "left"
         },
         {
@@ -7035,6 +7039,7 @@ window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT = {
           "text": "processing is a major negative",
           "fontSize": 5,
           "width": 65,
+          "textBoxHeight": 18,
           "align": "left"
         },
         {
@@ -7048,6 +7053,7 @@ window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT = {
           "text": "rarely improves a meal much on its own",
           "fontSize": 5,
           "width": 65,
+          "textBoxHeight": 18,
           "align": "left"
         },
         {

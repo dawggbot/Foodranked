@@ -1240,6 +1240,7 @@
     const LAYOUT_BUILDER_VITAMIN_BAR_TEXTBOX_META_KEY = 'layoutBuilderVitaminBarTextboxesV9';
     const LAYOUT_BUILDER_MINERAL_BAR_SPRITES_META_KEY = 'layoutBuilderMineralBarSpritesV3';
     const LAYOUT_BUILDER_MINERAL_BAR_TEXTBOX_META_KEY = 'layoutBuilderMineralBarTextboxesV9';
+    const PROS_CONS_ITEM_TEXTBOX_LINES = 3;
     const MICRO_BAR_TEXTBOX_TEXT = '??%';
     const MICRO_BAR_TEXTBOX_FONT_SIZE = 4.5;
     const MICRO_BAR_TEXTBOX_WIDTH = 11;
@@ -3151,6 +3152,27 @@
       return false;
     }
 
+    function isProsConsItemTextLayer(layer, sectionId = '') {
+      if (!isTextLayer(layer)) return false;
+      const id = String(layer.id || '');
+      if (sectionId) return !!id.match(new RegExp(`^${sectionId}_item_\\d+$`));
+      return /^(pros|cons)_item_\d+$/.test(id);
+    }
+
+    function prosConsItemTextBoxHeight(layer) {
+      const fontSize = Number(layer?.fontSize) || 3.6;
+      return Math.max(1, Math.ceil(fontSize * TEXT_LAYER_LINE_HEIGHT * PROS_CONS_ITEM_TEXTBOX_LINES));
+    }
+
+    function ensureProsConsItemTextBoxHeight(layer) {
+      if (!isProsConsItemTextLayer(layer)) return;
+      const currentHeight = Number(layer.textBoxHeight);
+      const minimumHeight = prosConsItemTextBoxHeight(layer);
+      if (!Number.isFinite(currentHeight) || currentHeight < minimumHeight) {
+        layer.textBoxHeight = minimumHeight;
+      }
+    }
+
     function getDefaultImpactTextAnchors(sectionId) {
       const x = sectionId === 'cons' ? 9 : 9;
       return Array.from({ length: PRO_CON_IMPACT_COUNT }, (_, index) => ({
@@ -3245,6 +3267,7 @@
         layer.align = layer.align || 'left';
         layer.width = layer.width || anchor.width;
         layer.z = layer.z || topZ;
+        ensureProsConsItemTextBoxHeight(layer);
       }
 
       layout.meta = layout.meta || {};
@@ -5659,6 +5682,7 @@
             if (!itemLayer.manualText) itemLayer.text = items[index]?.title || `${sectionId === 'pros' ? 'Positive' : 'Negative'} point ${index + 1}`;
             itemLayer.align = itemLayer.align || 'left';
             itemLayer.fontSize = itemLayer.fontSize || 3.6;
+            ensureProsConsItemTextBoxHeight(itemLayer);
           }
         }
       }

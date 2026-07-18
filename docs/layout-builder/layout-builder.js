@@ -1091,9 +1091,9 @@
         box-sizing: border-box;
         cursor: text;
         overflow: hidden;
-        overflow-wrap: normal;
+        overflow-wrap: break-word;
         user-select: text;
-        white-space: pre;
+        white-space: pre-wrap;
         word-break: normal;
       }
 

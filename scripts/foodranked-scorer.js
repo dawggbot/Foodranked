@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 const fs = require('fs');
 const path = require('path');
+const { prosConsTitleTextIssues } = require('./lib/pros-cons-title-fit');
 
 function readJson(p) {
   return JSON.parse(fs.readFileSync(path.resolve(p), 'utf8'));
@@ -226,6 +227,13 @@ function validateExactContextCount(food, ruleset) {
   const errors = [];
   if (pros.length !== requiredPros) errors.push(`Expected exactly ${requiredPros} pros, got ${pros.length}`);
   if (cons.length !== requiredCons) errors.push(`Expected exactly ${requiredCons} cons, got ${cons.length}`);
+  for (const [side, items] of [['pros', pros], ['cons', cons]]) {
+    items.forEach((item, index) => {
+      for (const issue of prosConsTitleTextIssues(item?.title)) {
+        errors.push(`${side} item ${index + 1} ${issue.message}`);
+      }
+    });
+  }
   return errors;
 }
 

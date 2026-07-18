@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 const fs = require('fs');
 const path = require('path');
+const { prosConsTitleTextIssues } = require('./lib/pros-cons-title-fit');
 
 const repoRoot = path.resolve(__dirname, '..');
 const foodsDir = path.join(repoRoot, 'foods');
@@ -283,6 +284,14 @@ function auditFoods(errors, warnings) {
       for (const item of items) {
         if (!item.title || !item.explanation || !item.impactLevel) {
           issue(errors, file, `${side} item missing title, explanation, or impactLevel`, { itemKey: item.itemKey || null });
+        }
+        for (const titleIssue of prosConsTitleTextIssues(item.title)) {
+          issue(errors, file, `${side} item ${titleIssue.message}`, {
+            itemKey: item.itemKey || null,
+            title: item.title || null,
+            length: titleIssue.length ?? null,
+            max: titleIssue.max ?? null
+          });
         }
         const titleKey = String(item.title || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
         if (titleKey) {

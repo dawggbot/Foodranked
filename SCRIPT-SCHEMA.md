@@ -184,6 +184,14 @@ For pros/cons, keep:
 
 Do not treat deleted food-file `scoreValue` fields as active script inputs.
 
+The `title` is the on-screen textbox line. It must be bite-sized enough for the pros/cons layout:
+- maximum `64` characters
+- trimmed and single-spaced
+- no hard line breaks
+- verified against the layout-builder 3-line pro/con textbox fit check
+
+Use `explanation` for the longer spoken/context detail.
+
 ## Lock-in status
 
 Current locked behavior:

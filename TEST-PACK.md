@@ -21,6 +21,7 @@ It is meant to validate:
 - metric applicability
 - threshold band structure
 - context item scoring
+- pros/cons title fit for the 3-line layout-builder textboxes
 - sample input structure for foods
 - narration/subtitle packaging rules: subtitles stay at 2 lines max, subtitles keep compact units, spoken narration expands units, and macro sections include at least one displayed submacro value
 
@@ -37,3 +38,9 @@ Build a small scorer that:
 3. scores nutrient sections
 4. scores pros/cons context items
 5. outputs normalized section scores, overall score, tier, and summary payload
+
+Run the current pack with:
+
+```bash
+scripts/run-foodranked-test-pack.sh
+```

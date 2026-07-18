@@ -80,6 +80,7 @@ Timing rule:
 - only submacros in fats/carbs/proteins use arrow-indicator visuals
 - vitamins and minerals use DV% bar-fill visuals, not arrow-indicator visuals
 - pros and cons should end on exactly 3 bullet points each in the final output
+- pros/cons bullet text should be bite-sized source titles, capped at 64 characters and verified to fit the 3-line layout-builder textboxes
 
 ## Closing structure
 

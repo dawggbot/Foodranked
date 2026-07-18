@@ -12,6 +12,7 @@ It tests:
 - sample food input structure
 - threshold band handling
 - context-item scoring
+- pros/cons title fit for the 3-line layout-builder textboxes
 - tier assignment flow
 - narration/subtitle packaging rules for compact units, expanded spoken units, two-line subtitle cues, and macro sections with at least one displayed submacro value
 
@@ -175,6 +176,7 @@ Meats should win through protein usefulness and micronutrients, while still bein
 Use the scorer script in the workspace:
 
 - `scripts/foodranked-scorer.js`
+- `scripts/run-foodranked-test-pack.sh`
 
 Example commands:
 
@@ -182,6 +184,7 @@ Example commands:
 node scripts/foodranked-scorer.js foods/almonds.sample.json rulesets/nuts.v1.json
 node scripts/foodranked-scorer.js foods/oats.sample.json rulesets/grains.v1.json
 node scripts/foodranked-scorer.js foods/chicken-thigh.sample.json rulesets/meats.v1.json
+scripts/run-foodranked-test-pack.sh
 ```
 
 ---

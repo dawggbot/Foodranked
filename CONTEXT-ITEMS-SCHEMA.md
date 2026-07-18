@@ -26,6 +26,17 @@ A context item should only exist if it adds information that is **not already sh
 The summary section is responsible for synthesizing the whole picture.
 Pros/cons are responsible for **new evidence**.
 
+## Display title fit
+
+Context-item `title` text is the on-screen pros/cons textbox copy.
+Keep it bite-sized:
+- maximum `64` characters
+- one line of source text only, with no hard line breaks
+- trimmed and single-spaced
+- short enough to fit the 3-line pro/con textboxes in the layout builder
+
+Put supporting detail in `explanation`, not in the title. Generated scripts may read the explanation, but the title itself must remain compact enough for the canvas.
+
 ## Item types
 
 Use 4 allowed impact types:
@@ -115,11 +126,13 @@ Suggested fields:
 - maximum 3 per food
 - prefer strongest, most relevant, least redundant items
 - avoid repeating information already shown in nutrient sections
+- keep titles compact enough for the pro/con textbox fit rule
 
 ### Cons
 - maximum 3 per food
 - prefer strongest, most relevant, least redundant items
 - avoid generic filler negatives
+- keep titles compact enough for the pro/con textbox fit rule
 
 ## Normalization model
 

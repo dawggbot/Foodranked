@@ -451,6 +451,18 @@
     return formatMetricText(value, binding.unit || '');
   }
 
+  function formatImpactLevelLabel(value) {
+    const normalized = String(value || '').trim().toLowerCase();
+    if (normalized === 'major') return 'MAJOR';
+    if (normalized === 'minor') return 'MINOR';
+    return 'N/A';
+  }
+
+  function contextItemsForSection(food, sectionId) {
+    const items = food?.contextItems?.[sectionId];
+    return Array.isArray(items) ? items : [];
+  }
+
   function activeRules(food) {
     const ruleset = food?.ruleset || {};
     const sectionIds = DISPLAY_RULE_SECTIONS;
@@ -572,7 +584,7 @@
       foodTypeRuleset: 'food.ruleset embedded in generated food data, matching rulesets/*.v1.json',
       arrowResolver: 'adapted from docs/app/index.html arrowPresentationForSpec and syncArrowLayersToPresentation',
       macroFillRanges: 'FOODRANKED_DISPLAY_SCHEMA.getMacroFillRange',
-      experimentalBindingMap: 'docs/display-builder-v2/macro-bindings.js macro, vitamin, and mineral bindings',
+      experimentalBindingMap: 'docs/display-builder-v2/macro-bindings.js macro, vitamin, mineral, and pros/cons bindings',
       storage: 'reads layout-builder keys only; writes foodranked-display-builder-v2-state-v1'
     };
   }
@@ -620,6 +632,8 @@
     arrowPresentationForSpec,
     visibleArrowIndexes,
     specForMetric,
+    formatImpactLevelLabel,
+    contextItemsForSection,
     activeRules,
     liveMetricEvaluation,
     sectionMetricBreakdown,

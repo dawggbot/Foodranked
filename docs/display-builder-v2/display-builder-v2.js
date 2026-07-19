@@ -3,6 +3,8 @@
   const BINDINGS = window.FOODRANKED_MACRO_BINDINGS;
   const MACRO_SECTIONS = BINDINGS.macroSections || ['fats', 'carbs', 'protein'];
   const MICRONUTRIENT_SECTIONS = BINDINGS.micronutrientSections || ['vitamins', 'minerals'];
+  const CONTEXT_SECTIONS = BINDINGS.contextSections || ['pros', 'cons'];
+  const CONTEXT_ITEM_COUNT = Math.max(1, Number(BINDINGS.contextItemCount) || 3);
   const DISPLAY_SECTIONS = BINDINGS.displaySections || ['intro', ...MACRO_SECTIONS];
   const SECTION_LABELS = {
     intro: 'Intro',
@@ -23,6 +25,7 @@
   const BATCH_RESULTS_CACHE = new Map();
   const TEXT_LAYER_CLIP_BLEED = 2;
   const TEXT_LAYER_LINE_HEIGHT = 1.15;
+  const CONTEXT_ITEM_TEXTBOX_LINES = 3;
   const MICRO_BAR_TEXTBOX_FONT_SIZE = 4.5;
   const MICRO_BAR_TEXTBOX_WIDTH = 11;
   const MICRO_BAR_TEXTBOX_STROKE_WIDTH = 1.15;
@@ -52,7 +55,7 @@
     layoutOptions: [],
     fullFood: null,
     renderedLayout: null,
-    bindingReport: { text: [], arrows: [], micronutrientBars: [], warnings: [] },
+    bindingReport: { text: [], arrows: [], micronutrientBars: [], contextItems: [], warnings: [] },
     spriteFailures: new Map(),
     background: LOGIC.clone(DEFAULT_BACKGROUND),
     canvasMetrics: null,
@@ -393,6 +396,15 @@
   function isLegacyMicronutrientPercentLayer(layer, sectionId) {
     if (!isTextLayer(layer)) return false;
     return new RegExp(`^${sectionId}_percent_\\d+$`).test(String(layer.id || ''));
+  }
+
+  function contextLayerIndex(layer, sectionId, kind) {
+    const match = String(layer?.id || '').match(new RegExp(`^${sectionId}_${kind}_(\\d+)$`));
+    return match ? Number(match[1]) - 1 : null;
+  }
+
+  function isContextItemTextLayer(layer) {
+    return isTextLayer(layer) && /^(pros|cons)_item_\d+$/.test(String(layer.id || ''));
   }
 
   function microBarTextboxPercent(layer) {
@@ -826,6 +838,114 @@
     }, { text: [], bars: [] });
   }
 
+  function ensureContextItemTextBox(layer) {
+    if (!isContextItemTextLayer(layer)) return;
+    const fontSize = Number(layer.fontSize) || 5;
+    const minimumHeight = Math.ceil(fontSize * TEXT_LAYER_LINE_HEIGHT * CONTEXT_ITEM_TEXTBOX_LINES);
+    const currentHeight = Number(layer.textBoxHeight);
+    if (!Number.isFinite(currentHeight) || currentHeight < minimumHeight) {
+      layer.textBoxHeight = minimumHeight;
+    }
+    layer.contextItemTextbox = true;
+  }
+
+  function applyContextTextLayer(layer, text, sectionId, item, index, kind) {
+    const layerId = `${sectionId}_${kind}_${index + 1}`;
+    const dataField = `contextItems.${sectionId}[${index}].${kind === 'impact' ? 'impactLevel' : 'title'}`;
+    if (!layer) {
+      state.bindingReport.warnings.push({
+        type: 'context-layout',
+        sectionId,
+        layerId,
+        contextIndex: index + 1,
+        message: `Missing ${layerId} text layer in the selected layout section.`
+      });
+      return null;
+    }
+
+    const before = layer.text;
+    layer.text = safeDisplayText(text);
+    layer.visible = true;
+    delete layer.textGlowColor;
+    if (kind === 'item') {
+      ensureContextItemTextBox(layer);
+      layer.align = layer.align || 'left';
+    } else {
+      layer.align = layer.align || 'center';
+    }
+
+    return {
+      sectionId,
+      layerId: layer.id || '',
+      bindingMode: 'stable context item id',
+      boundFoodDataField: dataField,
+      metricKey: null,
+      contextKind: kind,
+      contextIndex: index + 1,
+      itemKey: item?.itemKey || null,
+      impactLevel: item?.impactLevel || null,
+      previousText: before,
+      resolvedValue: layer.text,
+      fitsBox: null,
+      overflowWarning: null,
+      unbound: false,
+      fallbackIndex: null
+    };
+  }
+
+  function syncContextSection(layout, food, sectionId) {
+    const sectionLayers = getSectionLayers(layout, sectionId);
+    const textReport = [];
+    const itemReport = [];
+    if (!sectionLayers.length) return { text: textReport, items: itemReport };
+
+    const items = LOGIC.contextItemsForSection(food || {}, sectionId);
+    for (let index = 0; index < CONTEXT_ITEM_COUNT; index += 1) {
+      const item = items[index] || null;
+      if (!item) {
+        state.bindingReport.warnings.push({
+          type: 'context-data',
+          sectionId,
+          contextIndex: index + 1,
+          message: `Missing ${sectionId} context item ${index + 1} for the selected food.`
+        });
+      }
+
+      const impactLayer = sectionLayers.find(layer => contextLayerIndex(layer, sectionId, 'impact') === index);
+      const itemLayer = sectionLayers.find(layer => contextLayerIndex(layer, sectionId, 'item') === index);
+      const impactText = item ? LOGIC.formatImpactLevelLabel(item.impactLevel) : 'N/A';
+      const itemText = item?.title || 'N/A';
+      const impactReport = applyContextTextLayer(impactLayer, impactText, sectionId, item, index, 'impact');
+      const titleReport = applyContextTextLayer(itemLayer, itemText, sectionId, item, index, 'item');
+      if (impactReport) textReport.push(impactReport);
+      if (titleReport) textReport.push(titleReport);
+
+      itemReport.push({
+        sectionId,
+        contextIndex: index + 1,
+        itemKey: item?.itemKey || null,
+        impactLevel: item?.impactLevel || null,
+        impactLabel: impactText,
+        title: safeDisplayText(itemText),
+        impactLayerId: impactLayer?.id || '',
+        itemLayerId: itemLayer?.id || '',
+        missingData: !item,
+        source: `food.contextItems.${sectionId}[${index}]`
+      });
+    }
+
+    return { text: textReport, items: itemReport };
+  }
+
+  function syncContextSections(layout, food) {
+    return CONTEXT_SECTIONS.reduce((report, sectionId) => {
+      const sectionReport = syncContextSection(layout, food, sectionId);
+      report.text.push(...sectionReport.text);
+      report.items.push(...sectionReport.items);
+      return report;
+    }, { text: [], items: [] });
+  }
+
   function directTextBinding(sectionId, layer) {
     return BINDINGS.textBindings?.[sectionId]?.[layer.id] || null;
   }
@@ -1016,18 +1136,21 @@
   }
 
   function resolveLayout(option, food) {
-    state.bindingReport = { text: [], arrows: [], micronutrientBars: [], warnings: [] };
+    state.bindingReport = { text: [], arrows: [], micronutrientBars: [], contextItems: [], warnings: [] };
     if (!option || !validLayout(option.layout)) return null;
     const layout = cloneLayoutForRender(option);
     syncFoodSprites(layout, food);
     syncFoodText(layout, food);
     syncMacroFills(layout, food);
     const micronutrientReport = syncMicronutrients(layout, food);
+    const contextReport = syncContextSections(layout, food);
     state.bindingReport.text = [
       ...resolveTextBindings(layout, food),
-      ...micronutrientReport.text
+      ...micronutrientReport.text,
+      ...contextReport.text
     ];
     state.bindingReport.micronutrientBars = micronutrientReport.bars;
+    state.bindingReport.contextItems = contextReport.items;
     state.bindingReport.arrows = syncArrowRows(layout, food);
     return layout;
   }
@@ -1415,6 +1538,7 @@
     node.style.fontSize = `calc(${Number(layer.fontSize) || 6}px * var(--pixel-unit))`;
     node.style.color = layer.color || '';
     node.style.textAlign = layer.align || 'left';
+    if (isContextItemTextLayer(layer)) node.classList.add('context-item-text');
     if (isMicroBarTextboxLayer(layer)) {
       const strokeWidth = Number(layer.textStrokeWidth);
       const resolvedStrokeWidth = Number.isFinite(strokeWidth) && strokeWidth > 0 ? strokeWidth : 1.15;
@@ -1503,6 +1627,7 @@
       activeContext,
       mainMacroDisplayScaling: LOGIC.mainMacroScaling(food || {}),
       micronutrientDisplay: state.bindingReport.micronutrientBars,
+      contextItemDisplay: state.bindingReport.contextItems,
       activeFoodTypeDisplayRules: LOGIC.activeRules(food || {}).map(rule => ({
         metricKey: rule.metricKey,
         section: rule.displaySection || rule.sectionKey,
@@ -1519,6 +1644,7 @@
         textPlaceholders: state.bindingReport.text,
         arrowLayers: state.bindingReport.arrows,
         micronutrientBars: state.bindingReport.micronutrientBars,
+        contextItems: state.bindingReport.contextItems,
         warnings: [
           ...state.bindingReport.warnings,
           ...[...state.spriteFailures.values()].map(item => ({ type: 'sprite', ...item }))
@@ -1535,11 +1661,12 @@
       ['A. ACTIVE CONTEXT', logic.activeContext],
       ['B. MAIN MACRO DISPLAY SCALING', logic.mainMacroDisplayScaling],
       ['C. MICRONUTRIENT DISPLAY', logic.micronutrientDisplay],
-      ['D. ACTIVE FOOD-TYPE DISPLAY RULES', logic.activeFoodTypeDisplayRules],
-      ['E. LIVE METRIC EVALUATION', logic.liveMetricEvaluation],
-      ['F. SECTION SCORE CALCULATION', logic.sectionScoreCalculation],
-      ['G. LAYOUT BINDING REPORT', logic.layoutBindingReport],
-      ['H. SOURCE INFORMATION', logic.sourceInformation]
+      ['D. PROS/CONS DISPLAY', logic.contextItemDisplay],
+      ['E. ACTIVE FOOD-TYPE DISPLAY RULES', logic.activeFoodTypeDisplayRules],
+      ['F. LIVE METRIC EVALUATION', logic.liveMetricEvaluation],
+      ['G. SECTION SCORE CALCULATION', logic.sectionScoreCalculation],
+      ['H. LAYOUT BINDING REPORT', logic.layoutBindingReport],
+      ['I. SOURCE INFORMATION', logic.sourceInformation]
     ];
     for (const [title, payload] of sections) {
       const card = document.createElement('section');
@@ -1566,10 +1693,13 @@
     const text = payload.textPlaceholders || [];
     const arrows = payload.arrowLayers || [];
     const micronutrientBars = payload.micronutrientBars || [];
+    const contextItems = payload.contextItems || [];
     if (text.some(item => item.unbound)) flags.push('unbound text placeholders');
     if (arrows.some(item => item.unbound)) flags.push('unbound arrow slots');
     if (micronutrientBars.some(item => !item.shownBarPercents?.length && item.formattedValue !== 'N/A')) flags.push('micronutrient bar mismatch');
+    if (contextItems.some(item => item.missingData)) flags.push('missing pro/con data');
     if ((payload.warnings || []).some(item => item.type === 'micronutrient-layout')) flags.push('micronutrient layout fallback');
+    if ((payload.warnings || []).some(item => item.type === 'context-layout')) flags.push('missing pro/con layers');
     if ((payload.warnings || []).some(item => item.type === 'sprite')) flags.push('missing sprite assets');
     if (text.some(item => item.overflowWarning)) flags.push('text overflow');
     return flags;

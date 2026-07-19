@@ -87,6 +87,8 @@
     displaySections: ['intro', 'fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons', 'outro'],
     macroSections: ['fats', 'carbs', 'protein'],
     micronutrientSections: ['vitamins', 'minerals'],
+    contextSections: ['pros', 'cons'],
+    contextItemCount: 3,
     micronutrientSpecs: MICRONUTRIENT_SPECS,
     textBindings: MACRO_TEXT_BINDINGS,
     textFallbackOrder: MACRO_TEXT_FALLBACK_ORDER,
@@ -94,6 +96,7 @@
     sources: {
       textBindings: 'docs/display-builder-v2/macro-bindings.js',
       micronutrients: 'docs/display-builder-v2/macro-bindings.js micronutrientSpecs',
+      contextItems: 'food.contextItems.pros/cons title + impactLevel',
       arrows: 'docs/display-builder-v2/macro-bindings.js row map plus existing display-builder row clustering'
     }
   };

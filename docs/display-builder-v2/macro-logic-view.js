@@ -267,6 +267,13 @@
     return Array.isArray(section?.displayItems) ? section.displayItems : [];
   }
 
+  function sectionDisplayPolicy(food, sectionId) {
+    const sectionKey = ruleSectionKey(sectionId);
+    const sections = food?.episode?.script?.sections || [];
+    const section = sections.find(item => item.key === sectionId || item.key === sectionKey);
+    return section?.displayPolicy && typeof section.displayPolicy === 'object' ? section.displayPolicy : null;
+  }
+
   function metricLabelForKey(sectionId, metricKey) {
     const row = BINDINGS.arrowRows?.[sectionId]?.find(item => item.metricKey === metricKey);
     return METRIC_SHORT_LABELS[metricKey] || row?.label || String(metricKey || '')
@@ -518,7 +525,7 @@
   function formatBindingValue(food, sectionId, binding) {
     if (!binding) return 'N/A';
     const displayItem = displayItemForBinding(food, sectionId, binding);
-    if (displayItem && binding.kind === 'metricLabel') return metricLabelForKey(sectionId, displayItem.metricKey);
+    if (displayItem && binding.kind === 'metricLabel') return binding.label || metricLabelForKey(sectionId, displayItem.metricKey);
     if (displayItem && ['metricValue', 'ratioMetricValue'].includes(binding.kind)) return formatDisplayItemValue(displayItem);
     if (binding.kind === 'staticLabel' || binding.kind === 'metricLabel') return binding.label || '';
     if (binding.kind === 'macroTotal') return formatMacroTotalMetricText(food, sectionId);
@@ -623,8 +630,37 @@
     };
   }
 
+  function proteinDisplayItems(food) {
+    const policy = sectionDisplayPolicy(food, 'protein');
+    const visibleRows = new Set(Array.isArray(policy?.visibleRows) ? policy.visibleRows : []);
+    const hiddenFallbackMetricKey = policy?.showProteinFallbackAsVisibleRow === true ? '' : String(policy?.hiddenFallbackMetricKey || '');
+    const maxRows = Number.isFinite(Number(policy?.rowCount)) && Number(policy.rowCount) > 0 ? Number(policy.rowCount) : 4;
+    const items = sectionDisplayItems(food, 'protein').filter(item => {
+      const metricKey = String(item?.metricKey || '');
+      if (!metricKey) return false;
+      if (hiddenFallbackMetricKey && metricKey === hiddenFallbackMetricKey) return false;
+      return !visibleRows.size || visibleRows.has(metricKey);
+    });
+    return items.slice(0, maxRows);
+  }
+
   function metricRowsForSection(food, sectionId) {
     if (sectionId !== 'protein') return BINDINGS.arrowRows?.[sectionId] || [];
+    const displayItems = proteinDisplayItems(food);
+    if (displayItems.length) {
+      return displayItems
+        .map((item, index) => {
+          const spec = proteinRowSpecForMetric(item.metricKey);
+          if (!spec) return null;
+          return {
+            ...spec,
+            displayItemIndex: index,
+            valueBinding: spec.valueBinding ? { ...spec.valueBinding, displayItemIndex: index } : null
+          };
+        })
+        .filter(Boolean);
+    }
+
     const seen = new Set();
     return sectionMetricBreakdown(food, 'protein')
       .map(item => proteinRowSpecForMetric(item.metricKey))

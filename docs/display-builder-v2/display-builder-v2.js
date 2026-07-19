@@ -1049,8 +1049,8 @@
   function shouldResolveKnownBinding(layer, binding) {
     if (!binding) return false;
     if (String(layer.text || '').trim() === '?') return true;
-    if (binding.kind === 'metricLabel') return binding.source === 'generated protein scoring breakdown';
-    return ['macroTotal', 'metricLabel', 'metricValue', 'ratioMetricValue'].includes(binding.kind);
+    if (binding.kind === 'metricLabel' || binding.kind === 'staticLabel') return false;
+    return ['macroTotal', 'metricValue', 'ratioMetricValue'].includes(binding.kind);
   }
 
   function resolveTextBindings(layout, food) {

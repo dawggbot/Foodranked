@@ -473,12 +473,14 @@ function auditRulesets(errors) {
           });
         }
         const previous = bands[index - 1];
-        if (previous && typeof previous.max === 'number' && typeof band.min === 'number' && previous.max !== band.min) {
+        const expectedMin = AMINO_ACID_SCORE_KEYS.includes(rule.metricKey) ? previous?.max + 1 : previous?.max;
+        if (previous && typeof previous.max === 'number' && typeof band.min === 'number' && expectedMin !== band.min) {
           issue(errors, file, 'band min/max should be continuous', {
             metricKey: rule.metricKey,
             previous: previous.label,
             current: band.label,
             previousMax: previous.max,
+            expectedMin,
             currentMin: band.min
           });
         }
@@ -584,6 +586,34 @@ function auditAminoAcidThresholdConfig(errors) {
       expected: EXPECTED_AMINO_ACID_GROUP_COUNTS.nonessentialGroups,
       actual: denominators.nonessential ?? null
     });
+  }
+
+  const basis = aminoAcidThresholds.basis || {};
+  const minimumEssentialMg = finiteNumber(basis.minimumEssentialMaterialThresholdMg);
+  const minimumNonessentialMg = finiteNumber(basis.nonessentialMaterialThresholdMg);
+  if (minimumEssentialMg === null || minimumEssentialMg < 100) {
+    issue(errors, aminoAcidThresholdsPath, 'minimumEssentialMaterialThresholdMg must be at least 100mg');
+  }
+  if (minimumNonessentialMg === null || minimumNonessentialMg < 500) {
+    issue(errors, aminoAcidThresholdsPath, 'nonessentialMaterialThresholdMg must be at least 500mg');
+  }
+  for (const group of aminoAcidThresholds.essentialGroups || []) {
+    if (minimumEssentialMg !== null && finiteNumber(group.thresholdMg) < minimumEssentialMg) {
+      issue(errors, aminoAcidThresholdsPath, 'essential amino acid threshold is below the material amount floor', {
+        group: group.key,
+        thresholdMg: group.thresholdMg,
+        minimumEssentialMg
+      });
+    }
+  }
+  for (const group of aminoAcidThresholds.nonessentialGroups || []) {
+    if (minimumNonessentialMg !== null && finiteNumber(group.thresholdMg) < minimumNonessentialMg) {
+      issue(errors, aminoAcidThresholdsPath, 'nonessential amino acid threshold is below the material amount floor', {
+        group: group.key,
+        thresholdMg: group.thresholdMg,
+        minimumNonessentialMg
+      });
+    }
   }
 
   return { aminoAcidThresholdConfig: 1 };

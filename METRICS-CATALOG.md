@@ -137,6 +137,7 @@ Visible v1 protein row order is locked:
 
 Rows that are missing, skipped by the useful-protein gate, intentionally withheld, or not source-backed for the exact food identity stay missing in source metrics.
 If the protein macro displays a value, generated display rows use source-backed values first, then labelled display-only estimates when available, then presentation-only defaults (`0g`, `0/9`, `0/11`, `0%`) as the final fallback.
+Display-only EAA/NEAA estimates are useful-protein-gated and floor-based, so red protein fallback bands keep amino-acid counts at `0` and borderline green estimates do not round upward.
 If the protein macro displays `N/A`, the visible protein rows may display `N/A` with no arrow.
 
 ### collagen_g
@@ -153,7 +154,7 @@ If the protein macro displays `N/A`, the visible protein rows may display `N/A` 
 - Default section: proteins
 - Default polarity: `higher_better`
 - V1 role: scored where meaningful
-- Notes: `/9` useful-amount score derived from source-backed `amino_acids_mg`; each amino-acid group must clear the v1 threshold rather than merely be present
+- Notes: `/9` useful-amount score derived from source-backed `amino_acids_mg`; each amino-acid group must clear the v1 threshold rather than merely be present. V1 uses the adult RDA pattern plus a 100mg-per-100g material floor.
 
 ### nonessential_amino_acids_score
 - Display name: Non-essential Amino Acids
@@ -161,7 +162,7 @@ If the protein macro displays `N/A`, the visible protein rows may display `N/A` 
 - Default section: proteins
 - Default polarity: `higher_better`
 - V1 role: scored where meaningful
-- Notes: `/11` useful-amount score derived from source-backed `amino_acids_mg`; no official adult DRI exists for nonessential amino acids, so v1 uses a material 500mg-per-100g threshold
+- Notes: `/11` useful-amount score derived from source-backed `amino_acids_mg`; no official adult DRI exists for nonessential amino acids, so v1 uses a material 500mg-per-100g threshold.
 
 ### bioavailability_percent
 - Display name: Bioavailability

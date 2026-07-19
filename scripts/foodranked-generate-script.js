@@ -88,6 +88,7 @@ const BIOAVAILABILITY_DISPLAY_ESTIMATES_BY_TYPE = {
   misc: 50,
   'oils-and-fats': 35
 };
+const AMINO_ACID_DISPLAY_USEFUL_SCORE_MIN = 60;
 const DEFAULT_HIGHER_BETTER_BANDS = [
   { label: '3_red', max: 0, score: 0 },
   { label: '2_red', min: 0, max: 1, score: 20 },
@@ -282,6 +283,12 @@ function proteinFallbackBandScore(result) {
   return toFiniteNumber(band?.score) ?? null;
 }
 
+function proteinDisplayUsefulProteinMin(result) {
+  const band = (result.rulesetConfig?.proteinFallback?.bands || [])
+    .find(item => Number(item.score) >= AMINO_ACID_DISPLAY_USEFUL_SCORE_MIN && typeof item.min === 'number');
+  return toFiniteNumber(band?.min);
+}
+
 function textKeyForFood(result) {
   return `${result.food?.id || ''} ${result.food?.name || ''}`.toLowerCase();
 }
@@ -316,9 +323,11 @@ function estimatedBioavailabilityDisplayValue(result) {
 }
 
 function proteinDisplayQualityScore(result) {
-  const baseScore = proteinFallbackBandScore(result);
-  if (baseScore === null) return null;
   const proteinG = proteinDisplayProteinG(result) || 0;
+  const usefulProteinMin = proteinDisplayUsefulProteinMin(result);
+  if (usefulProteinMin !== null && proteinG < usefulProteinMin) return 0;
+  const resolvedBaseScore = proteinFallbackBandScore(result);
+  const baseScore = Math.max(resolvedBaseScore ?? 0, AMINO_ACID_DISPLAY_USEFUL_SCORE_MIN);
   const key = textKeyForFood(result);
 
   if (/whey/.test(key)) return 100;
@@ -367,14 +376,14 @@ function proteinDisplayEstimate(result, metricKey) {
   if (score === null) return null;
   if (metricKey === 'essential_amino_acids_score') {
     return {
-      value: clampRounded((score / 100) * 9, 0, 9),
-      basis: 'display-only estimate from category-specific protein amount band and protein source class; not a source amino-acid profile'
+      value: clampRounded(Math.floor((score / 100) * 9), 0, 9),
+      basis: 'display-only estimate from useful-protein-gated amount band and protein source class; not a source amino-acid profile'
     };
   }
   if (metricKey === 'nonessential_amino_acids_score') {
     return {
-      value: clampRounded((score / 100) * 11, 0, 11),
-      basis: 'display-only estimate from category-specific protein amount band and protein source class; not a source amino-acid profile'
+      value: clampRounded(Math.floor((score / 100) * 11), 0, 11),
+      basis: 'display-only estimate from useful-protein-gated amount band and protein source class; not a source amino-acid profile'
     };
   }
   return null;

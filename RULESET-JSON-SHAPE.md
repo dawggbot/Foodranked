@@ -181,6 +181,7 @@ The related `proteinFallback.metricKey` is intentionally hidden from the visible
 
 Missing, skipped, or withheld protein-quality fields use source-backed values first, then labelled display-only estimates when available, then the visible row's display default when the protein macro displays a value.
 Display estimates are marked with `displaySource: protein_display_estimate` and can use the category-specific protein fallback band plus broad protein source class; they are not stored as source nutrition metrics.
+EAA/NEAA display estimates are useful-protein-gated and floor-based: if the protein fallback band is red, estimated amino-acid counts stay at `0`; when the fallback band reaches a useful green band, estimated counts are floored before the normal arrow band is resolved.
 Final display defaults are `0g` for collagen, `0/9` for essential amino acids, `0/11` for non-essential amino acids, and `0%` for bioavailability, with the normal arrow band resolved from the row's rules.
 These estimates/defaults are presentation-only and must not be written into source food metrics as if they were source-backed nutrition evidence.
 
@@ -246,7 +247,7 @@ The scorer should:
 1. compute submacro section scores from resolved color bands
 2. compute vitamin/mineral section scores from DV% tiers
 3. compute pros/cons as first-class sections from major/minor levels
-4. derive EAA/NEAA scores from source-backed `amino_acids_mg` and the useful-amount threshold policy, never from trace presence or old aggregate proxy fields
+4. derive EAA/NEAA scores from source-backed `amino_acids_mg` and the useful-amount threshold policy, never from trace presence or old aggregate proxy fields; source thresholds include a 100mg essential material floor and a 500mg nonessential material floor
 5. use `proteinFallback` when direct protein-quality metrics are intentionally unavailable or the food fails the useful-protein gate, while keeping visible protein rows controlled by `proteinDisplay`
 6. average all 7 scored content section scores into `baseOverallScore`
 7. apply `scoreCalibration` to produce `calibratedOverallScore`

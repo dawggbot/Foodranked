@@ -157,6 +157,7 @@ Rules:
 - Visible macro subrows may display `N/A` only when the main macro bubble for that section displays `N/A`.
 - If the protein macro displays a value, missing or protein-gate-skipped visible rows use source-backed values first, then labelled display-only estimates when available, then the row default (`0g`, `0/9`, `0/11`, or `0%`) as the final fallback.
 - Display estimates use `displaySource: protein_display_estimate`; final defaults use `displaySource: submacro_display_default`. Neither may be written back into food source metrics or treated as source-backed nutrition evidence.
+- EAA/NEAA display estimates are useful-protein-gated and floor-based: red protein fallback bands emit `0/9` and `0/11`, and green-band estimates use `floor()` before resolving arrow bands.
 - Protein narration may mention protein amount when fallback scoring is used, but the subtitle/body display still follows the four visible row slots above.
 
 The generator emits a proteins-section `displayPolicy` object with:

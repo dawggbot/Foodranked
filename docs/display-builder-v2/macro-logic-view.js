@@ -57,6 +57,7 @@
     misc: 50,
     'oils-and-fats': 35
   };
+  const AMINO_ACID_DISPLAY_USEFUL_SCORE_MIN = 60;
   const METRIC_SHORT_LABELS = {
     saturated_fat_g: 'SAT FAT',
     polyunsaturated_fat_g: 'POLY FAT',
@@ -395,6 +396,12 @@
     return asNumber(band?.score, null);
   }
 
+  function proteinDisplayUsefulProteinMin(food) {
+    const band = (food?.ruleset?.proteinFallback?.bands || [])
+      .find(item => Number(item.score) >= AMINO_ACID_DISPLAY_USEFUL_SCORE_MIN && typeof item.min === 'number');
+    return asNumber(band?.min, null);
+  }
+
   function textKeyForFood(food) {
     return `${food?.id || ''} ${food?.name || ''}`.toLowerCase();
   }
@@ -429,9 +436,11 @@
   }
 
   function proteinDisplayQualityScore(food) {
-    const baseScore = proteinFallbackBandScore(food);
-    if (baseScore == null) return null;
     const proteinG = proteinDisplayProteinG(food) || 0;
+    const usefulProteinMin = proteinDisplayUsefulProteinMin(food);
+    if (usefulProteinMin != null && proteinG < usefulProteinMin) return 0;
+    const resolvedBaseScore = proteinFallbackBandScore(food);
+    const baseScore = Math.max(resolvedBaseScore ?? 0, AMINO_ACID_DISPLAY_USEFUL_SCORE_MIN);
     const key = textKeyForFood(food);
 
     if (/whey/.test(key)) return 100;
@@ -466,8 +475,8 @@
     if (metricKey === 'bioavailability_percent') return estimatedBioavailabilityDisplayValue(food);
     const score = proteinDisplayQualityScore(food);
     if (score == null) return null;
-    if (metricKey === 'essential_amino_acids_score') return clampRounded((score / 100) * 9, 0, 9);
-    if (metricKey === 'nonessential_amino_acids_score') return clampRounded((score / 100) * 11, 0, 11);
+    if (metricKey === 'essential_amino_acids_score') return clampRounded(Math.floor((score / 100) * 9), 0, 9);
+    if (metricKey === 'nonessential_amino_acids_score') return clampRounded(Math.floor((score / 100) * 11), 0, 11);
     return null;
   }
 

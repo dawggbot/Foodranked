@@ -128,6 +128,7 @@ Any visible numeric subrow must resolve a red/green arrow band.
 Do not park a source-backed numeric submacro as `not_applicable`; either give it a category-specific 6-band ladder or make the food value `N/A` when it is not defensibly sourceable.
 When a visible submacro source value is missing, skipped, or intentionally withheld but the main macro displays a value, generated display rows use presentation-only fallback values.
 Protein rows may first use `displaySource: protein_display_estimate` values derived from the category-specific protein fallback band and broad protein source class; other final fallback rows use `displaySource: submacro_display_default`.
+Display-only EAA/NEAA estimates are useful-protein-gated and floor-based: if the protein fallback band is still red, amino-acid counts stay `0`; if it reaches a useful green band, estimated counts are floored rather than rounded up.
 Do not write these display estimates/defaults back into source food metrics or treat them as source-backed nutrition evidence.
 
 Protein has an additional locked display contract: the visible rows are collagen, essential amino acids, non-essential amino acids, and bioavailability. `protein_g_fallback` can score and narrate weak/ungated protein sections, but it is not a visible submacro because the macro bubble already displays protein grams.
@@ -274,7 +275,11 @@ When amino-acid or bioavailability fields are missing, weak, intentionally withh
 
 Amino-acid quality must not be counted from presence alone. The scorer only counts EAAs/NEAAs when source-backed `amino_acids_mg` values show that the specific amino-acid group clears the current useful-amount threshold in `config/amino-acid-thresholds.v1.json`.
 
-For v1, essential amino-acid groups use a 70kg adult reference and count only when 100g of the food supplies about 25% of the adult amino-acid RDA for that group. Nonessential amino acids do not have the same official adult requirement pattern, so v1 uses a material 500mg-per-100g threshold for each measurable nonessential/conditionally-essential group.
+For v1, essential amino-acid groups use a 70kg adult reference and count only when 100g of the food supplies about 25% of the adult amino-acid RDA for that group, with an absolute 100mg-per-100g material floor so trace `0.0Xg` amounts do not count. Nonessential amino acids do not have the same official adult requirement pattern, so v1 uses a material 500mg-per-100g threshold for each measurable nonessential/conditionally-essential group.
+
+EAA/NEAA arrow bands are integer count bands, not raw milligram bands:
+- EAA `/9`: `0-2` three-red, `3-4` two-red, `5` one-red, `6` one-green, `7` two-green, `8-9` three-green
+- NEAA `/11`: `0-2` three-red, `3-5` two-red, `6-7` one-red, `8` one-green, `9-10` two-green, `11` three-green
 
 If the food does not provide enough protein for amino-acid quality to matter, lacks source-backed specific amino-acid amounts, or only has old aggregate proxy fields, the protein section should score and narrate protein amount instead.
 
@@ -282,7 +287,7 @@ This is the intended bridge rule for v1:
 - prefer direct protein submetrics when they are genuinely source-backed and trusted at the specific amino-acid level
 - skip amino-acid and bioavailability scoring below the food type's useful-protein gate
 - skip aggregate amino-acid proxy scores unless they were derived from source-backed `amino_acids_mg`
-- otherwise leave those protein-quality source values as `N/A`; generated display rows may still use labelled presentation-only protein estimates/defaults when the protein macro displays a value
+- otherwise leave those protein-quality source values as `N/A`; generated display rows may still use labelled presentation-only protein estimates/defaults when the protein macro displays a value, but EAA/NEAA estimates must stay `0` until the protein fallback band reaches a useful green band
 - let a category-specific `proteinFallback` keep the proteins section alive in a stable, auditable arrow-band way
 - keep `proteinFallback` out of the visible submacro rows; visible protein display remains `collagen_g`, `essential_amino_acids_score`, `nonessential_amino_acids_score`, and `bioavailability_percent`
 

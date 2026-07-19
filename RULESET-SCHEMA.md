@@ -211,7 +211,7 @@ Suggested fields:
 - bands
 - notes nullable
 
-Protein quality fields should only score when the protein amount is useful enough for the category and the food has source-backed `amino_acids_mg` values. EAA/NEAA scores must be derived by counting only amino-acid groups that clear the useful-amount thresholds in `config/amino-acid-thresholds.v1.json`; do not let amino-acid presence or old aggregate proxy fields create a misleading protein-quality win.
+Protein quality fields should only score when the protein amount is useful enough for the category and the food has source-backed `amino_acids_mg` values. EAA/NEAA scores must be derived by counting only amino-acid groups that clear the useful-amount thresholds in `config/amino-acid-thresholds.v1.json`; do not let amino-acid presence or old aggregate proxy fields create a misleading protein-quality win. Essential groups also have a 100mg-per-100g material floor, and nonessential groups have a 500mg-per-100g material floor.
 
 Important display rule:
 - `protein_g_fallback` is a scoring and narration bridge, not a visible protein submacro row.
@@ -242,6 +242,7 @@ Protein display rules:
 - Visible protein rows may display `N/A` only when the protein macro bubble displays `N/A`.
 - If the protein macro displays a value and a visible protein row is missing, skipped, or withheld, display source-backed values first, then a labelled display-only protein estimate when available, then that row's default value as a final presentation fallback.
 - Protein display estimates are presentation-only values marked with `displaySource: protein_display_estimate`; they may be derived from the category-specific `proteinFallback` band and broad protein source class, but they are not amino-acid profile or bioavailability source evidence.
+- Display-only EAA/NEAA estimates must be useful-protein-gated and floor-based: red protein fallback bands produce `0/9` and `0/11`; useful green bands can estimate counts, but the count is floored rather than rounded up.
 - Final protein row display defaults are `0g` for collagen, `0/9` for essential amino acids, `0/11` for non-essential amino acids, and `0%` for bioavailability.
 - Display estimates/defaults are presentation-only; do not write them back into food source metrics or treat them as source-backed nutrition evidence.
 - `protein_g_fallback` may contribute to the proteins section score and narration when quality metrics are not usable, but it must not appear in `sections[].displayItems`.

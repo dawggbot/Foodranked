@@ -148,6 +148,16 @@ Only N/A submacro rows may display without an arrow indicator.
 ### 4. Keep context items separate from nutrient metrics
 Do not force antioxidants, pesticide risk, sodium concerns, convenience tradeoffs, and similar contextual notes into the same metric array as nutrient data.
 
+### 4a. Keep pros/cons out of section-recap territory
+Pros/cons should read as bonus context, practical caveats, or food-specific fun facts. They must not simply repeat visible score sections such as protein, minerals, vitamins, macro totals, or submacro arrows.
+
+Allowed context angles include:
+- absorbability and anti-nutrients
+- antioxidants, polyphenols, fermentation, or named compounds
+- sourcing, tolerance, preparation, storage, processing burden, convenience, portion behavior, meal role, texture, or culinary role
+
+Plain recap titles such as `protein contribution is tiny`, `protein is basically absent`, `protein support is weak`, `mineral density is genuinely strong`, `elite mineral density`, and `vitamin C reputation is a real strength` should be treated as invalid context copy. A nutrient-linked item is acceptable only when it adds a separate angle beyond the visible score.
+
 ### 5. Keep top-level section weights equal by default
 Use `sectionWeights` for all 7 scored content sections.
 

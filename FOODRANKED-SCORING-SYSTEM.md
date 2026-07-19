@@ -157,6 +157,8 @@ Required default structure:
 - exactly 3 pros
 - exactly 3 cons
 
+Pros and cons should behave like food-specific fun facts, practical caveats, or context notes. They must not be plain repeats of the macro, submacro, vitamin, or mineral score sections the viewer has already seen. Reusing a scored nutrient theme is only allowed when the item adds a new angle, such as absorbability, anti-nutrients, fermentation, named compounds, preparation, storage, tolerance, sourcing, processing burden, portion behavior, convenience, or meal role.
+
 Each item has a 2-tier classification:
 - `minor`
 - `major`

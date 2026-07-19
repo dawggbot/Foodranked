@@ -172,6 +172,14 @@ Suggested fields:
 - side (`pro`, `con`)
 - impact_level (`minor`, `major`)
 - score_value
+- context_angle
+- forbidden_if_plain_section_recap (`true` by default)
+
+Context item quality rule:
+- Pros/cons must be bonus context, not a restatement of visible score sections.
+- Valid `context_angle` values can include `absorbability`, `anti_nutrients`, `antioxidants`, `polyphenols`, `fermentation`, `named_compound`, `preparation`, `storage`, `convenience`, `texture`, `tolerance`, `sourcing`, `processing_burden`, `portion_behavior`, `meal_role`, and `culinary_role`.
+- Do not use `section_recap` as a context angle. Titles such as `protein contribution is tiny`, `protein is basically absent`, `protein support is weak`, `mineral density is genuinely strong`, `elite mineral density`, and `vitamin C reputation is a real strength` are invalid because those ideas belong in the protein, mineral, or vitamin sections.
+- A nutrient-linked item is valid only when it explains a separate food-specific angle beyond the visible score, such as a named compound, absorbability caveat, or distinctive meal role.
 
 ### section_weights
 Top-level section weights.

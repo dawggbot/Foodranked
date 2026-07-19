@@ -35,7 +35,8 @@ Build a repeatable system that can:
 - all food values judged per 100g
 - default to **raw** values for base foods whenever that is reasonably available
 - only use cooked / prepared / processed values when that prepared state is the actual food being ranked
-- do not let pros/cons repeat the macro, submacro, vitamin, or mineral case already shown on screen unless they add extra context such as absorbability, fermentation, antioxidants, processing burden, sourcing, tolerance, or another genuinely separate factor
+- pros/cons must feel like extra food-specific context, not a recap of macro, submacro, vitamin, or mineral sections already shown on screen
+- a pro/con may build on a previous section only when it adds a genuinely separate angle such as absorbability, fermentation, antioxidants, anti-nutrients, processing burden, sourcing, tolerance, preparation, storage, convenience, meal role, or a named food-specific compound; for example, `ALA omega-3 is the headline fat` is acceptable because it explains why chia is distinctive, while `protein contribution is tiny` and `mineral density is genuinely strong` are not acceptable because they merely summarize sections the viewer already saw
 
 ### Video identity
 - short-form vertical videos

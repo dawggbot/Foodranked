@@ -184,6 +184,15 @@ For pros/cons, keep:
 
 Do not treat deleted food-file `scoreValue` fields as active script inputs.
 
+Pros/cons are bonus-context items. They must add a new food-specific angle or a useful extension of a previous section, not simply restate what the viewer already learned from fats, carbs, proteins, vitamins, or minerals.
+
+Allowed angles include:
+- absorbability or anti-nutrients
+- antioxidants, polyphenols, fermentation, or named compounds
+- preparation, storage, convenience, texture, tolerance, sourcing, processing burden, portion behavior, meal role, or culinary role
+
+Avoid plain section recaps such as `protein contribution is tiny`, `protein is basically absent`, `protein support is weak`, `mineral density is genuinely strong`, `elite mineral density`, or `vitamin C reputation is a real strength`. A section-linked title is only acceptable when it adds context beyond the visible score, such as `ALA omega-3 is the headline fat` for chia.
+
 The `title` is the on-screen textbox line. It must be bite-sized enough for the pros/cons layout:
 - maximum `64` characters
 - trimmed and single-spaced

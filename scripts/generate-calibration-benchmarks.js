@@ -54,7 +54,7 @@ const baseContexts = {
       { itemKey: 'fruit_hydration', impactLevel: 'minor', title: 'usually comes with water and volume', explanation: 'That helps fruit behave better than pure sugar sources.' }
     ],
     cons: [
-      { itemKey: 'fruit_low_protein', impactLevel: 'minor', title: 'protein is basically absent', explanation: 'That is normal for fruit, but still caps nutritional breadth.' },
+      { itemKey: 'fruit_health_halo', impactLevel: 'minor', title: 'health halo can do too much work', explanation: 'Whole fruit is useful, but portions and pairings still matter.' },
       { itemKey: 'fruit_sugar_ceiling', impactLevel: 'minor', title: 'sweetness can stack up quickly', explanation: 'Fruit still has to manage its sugar burden.' },
       { itemKey: 'fruit_satiety_limit', impactLevel: 'minor', title: 'satiety is not usually strong on its own', explanation: 'Fruit often needs help from the rest of the meal.' }
     ]
@@ -152,7 +152,7 @@ const baseContexts = {
     cons: [
       { itemKey: 'tuber_carb_load', impactLevel: 'minor', title: 'still a carb-heavy category', explanation: 'That is the core ceiling tubers have to manage.' },
       { itemKey: 'tuber_prep_variance', impactLevel: 'minor', title: 'preparation changes outcomes a lot', explanation: 'What you do to a tuber can make or break it.' },
-      { itemKey: 'tuber_protein_gap', impactLevel: 'minor', title: 'protein support is weak', explanation: 'Tubers still need help from the rest of the meal.' }
+      { itemKey: 'tuber_prep_friction', impactLevel: 'minor', title: 'needs prep before it shines', explanation: 'Most tubers are less instant than simpler snack foods.' }
     ]
   },
   vegetables: {
@@ -197,7 +197,7 @@ const additions = {
   ],
   grains: [
     { id: 'farro', name: 'Farro', header: { kcal: 340, fat_g: 2.5, carb_g: 68.0, protein_g: 14.0 }, metrics: { saturated_fat_g: 0.4, omega3_mg: 60, polyunsaturated_fat_g: 1.0, starch_g: 49.0, fibre_g: 10.0, sugar_g: 1.0, glycemic_index: 45, essential_amino_acids_score: 4, nonessential_amino_acids_score: 6, bioavailability_percent: 58, iron_dv: 16, magnesium_dv: 29, zinc_dv: 18, potassium_dv: 10 } },
-    { id: 'amaranth', name: 'Amaranth', header: { kcal: 371, fat_g: 7.0, carb_g: 65.0, protein_g: 14.0 }, metrics: { saturated_fat_g: 1.5, omega3_mg: 80, polyunsaturated_fat_g: 2.7, starch_g: 49.0, fibre_g: 7.0, sugar_g: 1.7, glycemic_index: 35, essential_amino_acids_score: 5, nonessential_amino_acids_score: 6, bioavailability_percent: 60, iron_dv: 42, magnesium_dv: 62, zinc_dv: 27, calcium_dv: 16, potassium_dv: 14 }, extra: { pros: [{ itemKey: 'grain_mineral_outlier', impactLevel: 'major', title: 'unusually strong mineral density for a grain', explanation: 'That helps it separate upward from more ordinary staples.' }] } },
+    { id: 'amaranth', name: 'Amaranth', header: { kcal: 371, fat_g: 7.0, carb_g: 65.0, protein_g: 14.0 }, metrics: { saturated_fat_g: 1.5, omega3_mg: 80, polyunsaturated_fat_g: 2.7, starch_g: 49.0, fibre_g: 7.0, sugar_g: 1.7, glycemic_index: 35, essential_amino_acids_score: 5, nonessential_amino_acids_score: 6, bioavailability_percent: 60, iron_dv: 42, magnesium_dv: 62, zinc_dv: 27, calcium_dv: 16, potassium_dv: 14 }, extra: { pros: [{ itemKey: 'naturally_gluten_free_pseudograin', impactLevel: 'major', title: 'naturally gluten-free pseudograin', explanation: 'It behaves like a grain in meals while offering a wheat-free option.' }] } },
     { id: 'teff', name: 'Teff', header: { kcal: 367, fat_g: 2.4, carb_g: 73.0, protein_g: 13.0 }, metrics: { saturated_fat_g: 0.4, omega3_mg: 50, polyunsaturated_fat_g: 0.9, starch_g: 54.0, fibre_g: 8.0, sugar_g: 2.0, glycemic_index: 36, essential_amino_acids_score: 5, nonessential_amino_acids_score: 6, bioavailability_percent: 59, iron_dv: 41, magnesium_dv: 46, zinc_dv: 22, calcium_dv: 14, potassium_dv: 12 } },
     { id: 'sorghum', name: 'Sorghum', header: { kcal: 329, fat_g: 3.5, carb_g: 72.0, protein_g: 10.5 }, metrics: { saturated_fat_g: 0.6, omega3_mg: 30, polyunsaturated_fat_g: 1.4, starch_g: 57.0, fibre_g: 6.7, sugar_g: 2.5, glycemic_index: 62, essential_amino_acids_score: 4, nonessential_amino_acids_score: 5, bioavailability_percent: 55, iron_dv: 20, magnesium_dv: 41, zinc_dv: 15, potassium_dv: 10 } },
     { id: 'wild-rice', name: 'Wild Rice', header: { kcal: 357, fat_g: 1.1, carb_g: 75.0, protein_g: 14.0 }, metrics: { saturated_fat_g: 0.2, omega3_mg: 40, polyunsaturated_fat_g: 0.5, starch_g: 59.0, fibre_g: 6.2, sugar_g: 2.5, glycemic_index: 45, essential_amino_acids_score: 5, nonessential_amino_acids_score: 6, bioavailability_percent: 58, iron_dv: 12, magnesium_dv: 25, zinc_dv: 15, potassium_dv: 9 } },

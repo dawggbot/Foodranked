@@ -66,6 +66,15 @@ const BAD_TEXT_PATTERNS = [
   { pattern: /\bmore points then\b/i, message: 'use than for comparison' },
   { pattern: /\btheir to inform\b/i, message: 'use there to inform' }
 ];
+const SECTION_RECAP_CONTEXT_TITLE_PATTERNS = [
+  { pattern: /\bprotein contribution is tiny\b/i, message: 'plain protein-section recap in context item' },
+  { pattern: /\bprotein is basically absent\b/i, message: 'plain protein-section recap in context item' },
+  { pattern: /\bprotein support is weak\b/i, message: 'plain protein-section recap in context item' },
+  { pattern: /\bmineral density is genuinely strong\b/i, message: 'plain mineral-section recap in context item' },
+  { pattern: /\belite mineral density\b/i, message: 'plain mineral-section recap in context item' },
+  { pattern: /\bunusually strong mineral density for a grain\b/i, message: 'plain mineral-section recap in context item' },
+  { pattern: /\bvitamin c reputation is a real strength\b/i, message: 'plain vitamin-section recap in context item' }
+];
 
 function readJson(file) {
   return JSON.parse(fs.readFileSync(file, 'utf8'));
@@ -292,6 +301,14 @@ function auditFoods(errors, warnings) {
             length: titleIssue.length ?? null,
             max: titleIssue.max ?? null
           });
+        }
+        for (const recapIssue of SECTION_RECAP_CONTEXT_TITLE_PATTERNS) {
+          if (recapIssue.pattern.test(item.title || '')) {
+            issue(errors, file, `${side} item ${recapIssue.message}`, {
+              itemKey: item.itemKey || null,
+              title: item.title || null
+            });
+          }
         }
         const titleKey = String(item.title || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
         if (titleKey) {

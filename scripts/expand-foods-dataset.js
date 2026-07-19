@@ -49,14 +49,14 @@ const library = {
         { itemKey: 'antioxidant_identity', impactLevel: 'minor', title: 'brings a clean fruit identity', explanation: 'It still contributes something valuable even when it is not elite.' }
       ],
       cons: [
-        { itemKey: 'fruit_low_protein', impactLevel: 'minor', title: 'protein contribution is tiny', explanation: 'That is normal for fruit, but it still limits nutritional breadth.' },
+        { itemKey: 'fruit_health_halo', impactLevel: 'minor', title: 'health halo can do too much work', explanation: 'Whole fruit is useful, but portions and pairings still matter.' },
         { itemKey: 'fruit_sugar_ceiling', impactLevel: 'minor', title: 'sugar can climb fast', explanation: 'A lot of fruits look healthy but still lean sweet.' },
         { itemKey: 'fruit_satiety_limit', impactLevel: 'minor', title: 'satiety is not especially strong', explanation: 'Fruit often needs help from the rest of the meal.' }
       ]
     },
     foods: [
       ['apple', 'Apple', { kcal: 52, fat_g: 0.2, carb_g: 13.8, protein_g: 0.3 }, { saturated_fat_g: 0.0, omega3_mg: 10, polyunsaturated_fat_g: 0.1, starch_g: 0.1, fibre_g: 2.4, sugar_g: 10.4, glycemic_index: 36, essential_amino_acids_score: 1, nonessential_amino_acids_score: 1, bioavailability_percent: 25, vitamin_a_dv: 1, vitamin_c_dv: 5, magnesium_dv: 1, iron_dv: 1, potassium_dv: 2 }, 'B'],
-      ['orange', 'Orange', { kcal: 47, fat_g: 0.1, carb_g: 11.8, protein_g: 0.9 }, { saturated_fat_g: 0.0, omega3_mg: 20, polyunsaturated_fat_g: 0.0, starch_g: 0.2, fibre_g: 2.4, sugar_g: 9.4, glycemic_index: 43, essential_amino_acids_score: 1, nonessential_amino_acids_score: 1, bioavailability_percent: 30, vitamin_a_dv: 5, vitamin_c_dv: 59, magnesium_dv: 2, iron_dv: 0, potassium_dv: 4 }, 'A', { pros: [{ itemKey: 'vitamin_c_signature', impactLevel: 'major', title: 'vitamin C reputation is a real strength', explanation: 'This is one of the clearest viewer-recognisable wins in the fruit category.' }] }],
+      ['orange', 'Orange', { kcal: 47, fat_g: 0.1, carb_g: 11.8, protein_g: 0.9 }, { saturated_fat_g: 0.0, omega3_mg: 20, polyunsaturated_fat_g: 0.0, starch_g: 0.2, fibre_g: 2.4, sugar_g: 9.4, glycemic_index: 43, essential_amino_acids_score: 1, nonessential_amino_acids_score: 1, bioavailability_percent: 30, vitamin_a_dv: 5, vitamin_c_dv: 59, magnesium_dv: 2, iron_dv: 0, potassium_dv: 4 }, 'A', { pros: [{ itemKey: 'classic_citrus_role', impactLevel: 'major', title: 'zest and segments are both useful', explanation: 'It can work as a snack, flavour boost, or cooking ingredient.' }] }],
       ['blueberries', 'Blueberries', { kcal: 57, fat_g: 0.3, carb_g: 14.5, protein_g: 0.7 }, { saturated_fat_g: 0.0, omega3_mg: 30, polyunsaturated_fat_g: 0.1, starch_g: 0.0, fibre_g: 2.4, sugar_g: 10.0, glycemic_index: 53, essential_amino_acids_score: 1, nonessential_amino_acids_score: 1, bioavailability_percent: 28, vitamin_a_dv: 1, vitamin_c_dv: 11, magnesium_dv: 2, iron_dv: 1, potassium_dv: 2 }, 'B'],
       ['strawberries', 'Strawberries', { kcal: 32, fat_g: 0.3, carb_g: 7.7, protein_g: 0.7 }, { saturated_fat_g: 0.0, omega3_mg: 20, polyunsaturated_fat_g: 0.2, starch_g: 0.0, fibre_g: 2.0, sugar_g: 4.9, glycemic_index: 40, essential_amino_acids_score: 1, nonessential_amino_acids_score: 1, bioavailability_percent: 30, vitamin_a_dv: 0, vitamin_c_dv: 65, magnesium_dv: 3, iron_dv: 2, potassium_dv: 3 }, 'A', { pros: [{ itemKey: 'low_sugar_for_fruit', impactLevel: 'major', title: 'sweetness is kept unusually well in check', explanation: 'That makes the fruit profile much cleaner than average.' }] }],
       ['apple-pear', 'Pear', { kcal: 57, fat_g: 0.1, carb_g: 15.2, protein_g: 0.4 }, { saturated_fat_g: 0.0, omega3_mg: 10, polyunsaturated_fat_g: 0.1, starch_g: 0.0, fibre_g: 3.1, sugar_g: 9.8, glycemic_index: 38, essential_amino_acids_score: 1, nonessential_amino_acids_score: 1, bioavailability_percent: 28, vitamin_a_dv: 0, vitamin_c_dv: 5, magnesium_dv: 2, iron_dv: 1, potassium_dv: 3 }, 'B'],
@@ -156,7 +156,7 @@ const library = {
       cons: [
         { itemKey: 'tuber_carb_load', impactLevel: 'minor', title: 'still a carb-heavy category', explanation: 'That is the core ceiling tubers have to manage.' },
         { itemKey: 'tuber_preparation_variability', impactLevel: 'minor', title: 'preparation changes outcomes a lot', explanation: 'What you do to a tuber can make or break it.' },
-        { itemKey: 'tuber_protein_gap', impactLevel: 'minor', title: 'protein support is weak', explanation: 'Tubers still need help from the rest of the meal.' }
+        { itemKey: 'tuber_prep_friction', impactLevel: 'minor', title: 'needs prep before it shines', explanation: 'Most tubers are less instant than simpler snack foods.' }
       ]
     },
     foods: [

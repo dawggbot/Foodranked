@@ -30,6 +30,20 @@
     nonessential_amino_acids_score: 'higher_better',
     bioavailability_percent: 'higher_better'
   };
+  const SUBMACRO_DISPLAY_DEFAULT_VALUES = {
+    saturated_fat_g: 0,
+    polyunsaturated_fat_g: 0,
+    omega3_mg: 0,
+    cholesterol_mg: 0,
+    fibre_g: 0,
+    sugar_g: 0,
+    starch_g: 0,
+    glycemic_index: 0,
+    collagen_g: 0,
+    essential_amino_acids_score: 0,
+    nonessential_amino_acids_score: 0,
+    bioavailability_percent: 0
+  };
   const METRIC_SHORT_LABELS = {
     saturated_fat_g: 'SAT FAT',
     polyunsaturated_fat_g: 'POLY FAT',
@@ -325,6 +339,14 @@
     }));
   }
 
+  function displayDefaultValueForSubmacro(metricKey) {
+    if (Object.prototype.hasOwnProperty.call(SUBMACRO_DISPLAY_DEFAULT_VALUES, metricKey)) {
+      return SUBMACRO_DISPLAY_DEFAULT_VALUES[metricKey];
+    }
+    if (/_(g|mg|mcg|kg|percent|score)$/i.test(metricKey) || /glycemic/i.test(metricKey)) return 0;
+    return null;
+  }
+
   function macroSubmetricDisplayValue(food, sectionId, metricKey) {
     if (!hasDisplayedMacro(food, sectionId)) return null;
     if (sectionId === 'protein' && metricKey === 'protein_g_fallback') return asNumber(food?.header?.protein_g, null);
@@ -337,7 +359,7 @@
     if (batchItemValue != null) return batchItemValue;
     const value = asNumber(food?.metrics?.[metricKey], null);
     if (value != null) return value;
-    return null;
+    return displayDefaultValueForSubmacro(metricKey);
   }
 
   function formatMacroMetricText(food, sectionId, metricKey, unit = '') {
@@ -661,15 +683,9 @@
         .filter(Boolean);
     }
 
-    const seen = new Set();
-    return sectionMetricBreakdown(food, 'protein')
+    return (BINDINGS.arrowRows?.protein || [])
       .map(item => proteinRowSpecForMetric(item.metricKey))
       .filter(Boolean)
-      .filter(item => {
-        if (seen.has(item.metricKey)) return false;
-        seen.add(item.metricKey);
-        return true;
-      })
       .slice(0, 4);
   }
 

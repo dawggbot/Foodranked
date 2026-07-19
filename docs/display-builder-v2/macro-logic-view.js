@@ -397,6 +397,8 @@
   }
 
   function proteinDisplayUsefulProteinMin(food) {
+    const configuredMin = asNumber(food?.ruleset?.proteinQualityGate?.minimumProteinG, null);
+    if (configuredMin != null) return configuredMin;
     const band = (food?.ruleset?.proteinFallback?.bands || [])
       .find(item => Number(item.score) >= AMINO_ACID_DISPLAY_USEFUL_SCORE_MIN && typeof item.min === 'number');
     return asNumber(band?.min, null);

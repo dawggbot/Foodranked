@@ -128,9 +128,9 @@
 - Salami — D (20)
 - Duck Breast — D (20)
 - Pepperoni — D (20)
+- Bacon — D (20)
 - Turkey Sausage — D (20)
 - Hot Dog — D (20)
-- Bacon — D (20)
 
 # misc
 - Herbal Tea — S (100)

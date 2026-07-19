@@ -284,6 +284,8 @@ function proteinFallbackBandScore(result) {
 }
 
 function proteinDisplayUsefulProteinMin(result) {
+  const configuredMin = toFiniteNumber(result.rulesetConfig?.proteinQualityGate?.minimumProteinG);
+  if (configuredMin !== null) return configuredMin;
   const band = (result.rulesetConfig?.proteinFallback?.bands || [])
     .find(item => Number(item.score) >= AMINO_ACID_DISPLAY_USEFUL_SCORE_MIN && typeof item.min === 'number');
   return toFiniteNumber(band?.min);

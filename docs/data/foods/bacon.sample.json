@@ -38,10 +38,31 @@
     "fibre_g": null,
     "sugar_g": null,
     "glycemic_index": null,
-    "collagen_g": null,
-    "essential_amino_acids_score": null,
-    "nonessential_amino_acids_score": null,
+    "collagen_g": 0.4,
+    "essential_amino_acids_score": 9,
+    "nonessential_amino_acids_score": 10,
     "bioavailability_percent": null,
+    "amino_acids_mg": {
+      "tryptophan_mg": 168,
+      "threonine_mg": 618,
+      "isoleucine_mg": 666,
+      "leucine_mg": 1157,
+      "lysine_mg": 1250,
+      "methionine_mg": 385,
+      "cystine_mg": 159,
+      "phenylalanine_mg": 585,
+      "tyrosine_mg": 557,
+      "valine_mg": 710,
+      "arginine_mg": 905,
+      "histidine_mg": 572,
+      "alanine_mg": 805,
+      "aspartic_acid_mg": 1314,
+      "glutamic_acid_mg": 2146,
+      "glycine_mg": 635,
+      "proline_mg": 569,
+      "serine_mg": 587,
+      "hydroxyproline_mg": 49
+    },
     "vitamin_a_dv": 1,
     "vitamin_c_dv": 0,
     "vitamin_d_dv": 1,
@@ -64,10 +85,11 @@
     "fibre_g": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
     "sugar_g": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
     "glycemic_index": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
-    "collagen_g": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
-    "essential_amino_acids_score": "N/A until source-backed specific amino-acid amounts are available; trace/presence proxy scores are not used.",
-    "nonessential_amino_acids_score": "N/A until source-backed specific amino-acid amounts are available; trace/presence proxy scores are not used.",
+    "collagen_g": "Derived estimate from cooked bacon hydroxyproline in FDC 168322, scaled to raw bacon protein per 100g, using the standard collagen conversion assumption that hydroxyproline is about 13.5% of collagen by weight.",
+    "essential_amino_acids_score": "Derived from cooked bacon amino_acids_mg in FDC 168322, scaled to raw bacon protein per 100g, then counted with config/amino-acid-thresholds.v1.json useful-amount thresholds.",
+    "nonessential_amino_acids_score": "Derived from cooked bacon amino_acids_mg in FDC 168322, scaled to raw bacon protein per 100g, then counted with config/amino-acid-thresholds.v1.json useful-amount thresholds.",
     "bioavailability_percent": "N/A until protein quality is source-backed for this exact food identity.",
+    "amino_acids_mg": "Cooked-to-raw estimate: MyFoodData mirror of USDA FDC 168322 cooked pan-fried bacon amino acids for a 36g cooked serving with 12g protein, scaled by 13.7g raw protein / 12g cooked-reference protein.",
     "vitamin_a_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
     "vitamin_c_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
     "vitamin_d_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
@@ -142,7 +164,8 @@
     "Production-lane source audit pass.",
     "All displayed nutrition values are stored and checked on a per-100g basis.",
     "Primary and cross-check nutrition references are listed in nutritionDataSources.",
-    "Contextual GI and protein-quality fields are optional when not canonical nutrient facts."
+    "Contextual GI and protein-quality fields are optional when not canonical nutrient facts.",
+    "Raw bacon FDC 168277 does not expose specific amino-acid rows, so bacon amino_acids_mg uses a labelled cooked-to-raw estimate from cooked pan-fried bacon FDC 168322 scaled by protein ratio."
   ],
   "nutritionDataSources": [
     {
@@ -177,6 +200,23 @@
         "unit": "g"
       },
       "checkedAt": "2026-06-14"
+    },
+    {
+      "sourceName": "MyFoodData Nutrition Data Tools - cooked bacon amino acid mirror",
+      "sourceType": "derived_estimate",
+      "recordId": "FDC 168322 mirror",
+      "url": "https://tools.myfooddata.com/protein-calculator/168322/wt9/1",
+      "basis": {
+        "value": 36,
+        "unit": "g cooked serving"
+      },
+      "checkedAt": "2026-07-19",
+      "derivation": {
+        "method": "scale cooked bacon amino-acid milligrams by raw protein / cooked-reference protein",
+        "rawProteinGPer100g": 13.7,
+        "cookedReferenceProteinG": 12,
+        "scaleFactor": 1.1417
+      }
     }
   ]
 }

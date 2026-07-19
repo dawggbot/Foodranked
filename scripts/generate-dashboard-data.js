@@ -202,6 +202,7 @@ const foods = fs.readdirSync(foodsDir)
         tierScoreMap: ruleset.tierScoreMap || null,
         sectionWeights: ruleset.sectionWeights || {},
         contextRules: ruleset.contextRules || {},
+        proteinQualityGate: ruleset.proteinQualityGate || null,
         proteinFallback: ruleset.proteinFallback || null,
         metricRulesBySection: ruleSummary(ruleset)
       } : null,

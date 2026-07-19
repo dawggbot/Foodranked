@@ -211,6 +211,8 @@ Suggested fields:
 - bands
 - notes nullable
 
+Rulesets may also define `proteinQualityGate.minimumProteinG` as an explicit absolute protein floor for amino-acid quality scoring. When it is absent, the scorer falls back to the first useful green `proteinFallback` band. Use the explicit gate when a category's green amount band is a category-quality judgment rather than the minimum amount needed for amino acids to be nutritionally meaningful.
+
 Protein quality fields should only score when the protein amount is useful enough for the category and the food has source-backed `amino_acids_mg` values. EAA/NEAA scores must be derived by counting only amino-acid groups that clear the useful-amount thresholds in `config/amino-acid-thresholds.v1.json`; do not let amino-acid presence or old aggregate proxy fields create a misleading protein-quality win. Essential groups also have a 100mg-per-100g material floor, and nonessential groups have a 500mg-per-100g material floor.
 
 Important display rule:

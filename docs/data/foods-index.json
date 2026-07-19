@@ -135,6 +135,7 @@
           "weak_nut_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -2085,6 +2086,7 @@
           "weak_nut_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -4170,6 +4172,7 @@
           "weak_nut_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -6249,6 +6252,7 @@
           "built_to_be_topped"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -7043,6 +7047,10 @@
           "high_sodium",
           "weak_meal_anchor"
         ]
+      },
+      "proteinQualityGate": {
+        "minimumProteinG": 10,
+        "notes": "Absolute useful-protein floor for source-backed or explicitly derived amino-acid scoring. Meats below the green protein-amount fallback band can still contain meaningful amino-acid amounts, but remain low for the meat category."
       },
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
@@ -9010,6 +9018,7 @@
           "health_halo_risk"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -10969,6 +10978,7 @@
           "extreme_sugar_density"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -12923,6 +12933,7 @@
           "extreme_sugar_density"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -14932,6 +14943,7 @@
           "ultra_processed_vegetable_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -17008,6 +17020,7 @@
           "processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -18657,6 +18670,7 @@
           "extreme_sugar_density"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -20758,6 +20772,7 @@
           "processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -21131,10 +21146,31 @@
       "fibre_g": null,
       "sugar_g": null,
       "glycemic_index": null,
-      "collagen_g": null,
-      "essential_amino_acids_score": null,
-      "nonessential_amino_acids_score": null,
+      "collagen_g": 0.4,
+      "essential_amino_acids_score": 9,
+      "nonessential_amino_acids_score": 10,
       "bioavailability_percent": null,
+      "amino_acids_mg": {
+        "tryptophan_mg": 168,
+        "threonine_mg": 618,
+        "isoleucine_mg": 666,
+        "leucine_mg": 1157,
+        "lysine_mg": 1250,
+        "methionine_mg": 385,
+        "cystine_mg": 159,
+        "phenylalanine_mg": 585,
+        "tyrosine_mg": 557,
+        "valine_mg": 710,
+        "arginine_mg": 905,
+        "histidine_mg": 572,
+        "alanine_mg": 805,
+        "aspartic_acid_mg": 1314,
+        "glutamic_acid_mg": 2146,
+        "glycine_mg": 635,
+        "proline_mg": 569,
+        "serine_mg": 587,
+        "hydroxyproline_mg": 49
+      },
       "vitamin_a_dv": 1,
       "vitamin_c_dv": 0,
       "vitamin_d_dv": 1,
@@ -21157,10 +21193,11 @@
       "fibre_g": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
       "sugar_g": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
       "glycemic_index": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
-      "collagen_g": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
-      "essential_amino_acids_score": "N/A until source-backed specific amino-acid amounts are available; trace/presence proxy scores are not used.",
-      "nonessential_amino_acids_score": "N/A until source-backed specific amino-acid amounts are available; trace/presence proxy scores are not used.",
+      "collagen_g": "Derived estimate from cooked bacon hydroxyproline in FDC 168322, scaled to raw bacon protein per 100g, using the standard collagen conversion assumption that hydroxyproline is about 13.5% of collagen by weight.",
+      "essential_amino_acids_score": "Derived from cooked bacon amino_acids_mg in FDC 168322, scaled to raw bacon protein per 100g, then counted with config/amino-acid-thresholds.v1.json useful-amount thresholds.",
+      "nonessential_amino_acids_score": "Derived from cooked bacon amino_acids_mg in FDC 168322, scaled to raw bacon protein per 100g, then counted with config/amino-acid-thresholds.v1.json useful-amount thresholds.",
       "bioavailability_percent": "N/A until protein quality is source-backed for this exact food identity.",
+      "amino_acids_mg": "Cooked-to-raw estimate: MyFoodData mirror of USDA FDC 168322 cooked pan-fried bacon amino acids for a 36g cooked serving with 12g protein, scaled by 13.7g raw protein / 12g cooked-reference protein.",
       "vitamin_a_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
       "vitamin_c_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
       "vitamin_d_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
@@ -21206,13 +21243,31 @@
           "unit": "g"
         },
         "checkedAt": "2026-06-14"
+      },
+      {
+        "sourceName": "MyFoodData Nutrition Data Tools - cooked bacon amino acid mirror",
+        "sourceType": "derived_estimate",
+        "recordId": "FDC 168322 mirror",
+        "url": "https://tools.myfooddata.com/protein-calculator/168322/wt9/1",
+        "basis": {
+          "value": 36,
+          "unit": "g cooked serving"
+        },
+        "checkedAt": "2026-07-19",
+        "derivation": {
+          "method": "scale cooked bacon amino-acid milligrams by raw protein / cooked-reference protein",
+          "rawProteinGPer100g": 13.7,
+          "cookedReferenceProteinG": 12,
+          "scaleFactor": 1.1417
+        }
       }
     ],
     "sourceNotes": [
       "Production-lane source audit pass.",
       "All displayed nutrition values are stored and checked on a per-100g basis.",
       "Primary and cross-check nutrition references are listed in nutritionDataSources.",
-      "Contextual GI and protein-quality fields are optional when not canonical nutrient facts."
+      "Contextual GI and protein-quality fields are optional when not canonical nutrient facts.",
+      "Raw bacon FDC 168277 does not expose specific amino-acid rows, so bacon amino_acids_mg uses a labelled cooked-to-raw estimate from cooked pan-fried bacon FDC 168322 scaled by protein ratio."
     ],
     "scoreReadiness": {
       "status": "production-safe",
@@ -21313,6 +21368,10 @@
           "high_sodium",
           "weak_meal_anchor"
         ]
+      },
+      "proteinQualityGate": {
+        "minimumProteinG": 10,
+        "notes": "Absolute useful-protein floor for source-backed or explicitly derived amino-acid scoring. Meats below the green protein-amount fallback band can still contain meaningful amino-acid amounts, but remain low for the meat category."
       },
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
@@ -21787,29 +21846,29 @@
       "mode": "compact",
       "overallScore": 20,
       "overallScoreExact": 20,
-      "calibratedOverallScore": 11.8,
-      "calibratedOverallScoreExact": 11.786,
-      "anomalyAdjustedScore": 11.8,
-      "anomalyAdjustedScoreExact": 11.786,
-      "rankingScore": 11.8,
-      "rankingScoreExact": 11.786,
+      "calibratedOverallScore": 16.2,
+      "calibratedOverallScoreExact": 16.1629,
+      "anomalyAdjustedScore": 16.2,
+      "anomalyAdjustedScoreExact": 16.1629,
+      "rankingScore": 16.2,
+      "rankingScoreExact": 16.1629,
       "scoreAdjustmentTotal": 0,
       "scoreAdjustments": [],
-      "baseOverallScore": 22.4,
-      "baseOverallScoreExact": 22.4398,
+      "baseOverallScore": 30.8,
+      "baseOverallScoreExact": 30.7731,
       "tier": "D",
       "sectionScores": {
         "fats": 48.9,
         "carbs": null,
-        "proteins": 20,
+        "proteins": 70,
         "vitamins": 12,
         "minerals": 3.8,
         "pros": 50,
         "cons": 0
       },
-      "summary": "Pros are carrying this food most, while cons are holding it back most. It lands in D tier.",
-      "whyThisTier": "This food lands in D tier with a display score of 20. Section scores: fats 48.9, proteins 20, vitamins 12, minerals 3.8, pros 50, cons 0.",
-      "durationSeconds": 72.28,
+      "summary": "Proteins are carrying this food most, while cons are holding it back most. It lands in D tier.",
+      "whyThisTier": "This food lands in D tier with a display score of 20. Section scores: fats 48.9, proteins 70, vitamins 12, minerals 3.8, pros 50, cons 0.",
+      "durationSeconds": 80.75,
       "outputDir": "outputs/episodes/bacon-compact",
       "audio": {
         "take": "voice-v6",
@@ -22006,42 +22065,42 @@
           "id": "proteins",
           "kind": "section",
           "startSeconds": 17.28,
-          "endSeconds": 21.52,
-          "durationSeconds": 4.24
+          "endSeconds": 29.99,
+          "durationSeconds": 12.71
         },
         {
           "id": "vitamins",
           "kind": "section",
-          "startSeconds": 21.52,
-          "endSeconds": 29.99,
+          "startSeconds": 29.99,
+          "endSeconds": 38.46,
           "durationSeconds": 8.47
         },
         {
           "id": "minerals",
           "kind": "section",
-          "startSeconds": 29.99,
-          "endSeconds": 37.05,
+          "startSeconds": 38.46,
+          "endSeconds": 45.52,
           "durationSeconds": 7.06
         },
         {
           "id": "pros",
           "kind": "section",
-          "startSeconds": 37.05,
-          "endSeconds": 49.76,
+          "startSeconds": 45.52,
+          "endSeconds": 58.23,
           "durationSeconds": 12.71
         },
         {
           "id": "cons",
           "kind": "section",
-          "startSeconds": 49.76,
-          "endSeconds": 66.35,
+          "startSeconds": 58.23,
+          "endSeconds": 74.82,
           "durationSeconds": 16.59
         },
         {
           "id": "final",
           "kind": "closing",
-          "startSeconds": 66.35,
-          "endSeconds": 72.28,
+          "startSeconds": 74.82,
+          "endSeconds": 80.75,
           "durationSeconds": 5.93
         }
       ],
@@ -22089,7 +22148,8 @@
             "Production-lane source audit pass.",
             "All displayed nutrition values are stored and checked on a per-100g basis.",
             "Primary and cross-check nutrition references are listed in nutritionDataSources.",
-            "Contextual GI and protein-quality fields are optional when not canonical nutrient facts."
+            "Contextual GI and protein-quality fields are optional when not canonical nutrient facts.",
+            "Raw bacon FDC 168277 does not expose specific amino-acid rows, so bacon amino_acids_mg uses a labelled cooked-to-raw estimate from cooked pan-fried bacon FDC 168322 scaled by protein ratio."
           ]
         },
         "ruleset": {
@@ -22252,61 +22312,49 @@
           {
             "key": "proteins",
             "title": "Proteins",
-            "narration": "13.7 grams of protein. For meats, that is lower than you want.",
+            "narration": "13.7 grams of protein. Essential amino acids score is 9 out of 9, making the protein useful for repair and maintenance. Collagen is only 0.4 grams, so for meats, it is not bringing much connective-tissue protein.",
             "displayItems": [
               {
                 "metricKey": "collagen_g",
-                "text": "collagen at 1g",
-                "weightedScore": null,
-                "scoringMode": "display_fallback",
-                "band": "↓↓",
+                "text": "collagen at 0.4g",
+                "weightedScore": 0,
+                "scoringMode": "arrow_bands",
+                "band": "↓↓↓",
                 "polarity": "higher_better",
                 "dvPercent": null,
-                "value": 1,
-                "score": 20,
+                "value": 0.4,
+                "score": 0,
                 "denominator": null,
-                "displaySource": "protein_display_estimate",
-                "displayEstimated": true,
-                "displayEstimateBasis": "display-only estimate from FoodRanked protein source class; source metric remains N/A unless directly sourced",
-                "displayDefault": false,
-                "displayDefaultReason": null,
-                "displayValue": "1g"
+                "displayValue": "0.4g",
+                "displaySource": "scored"
               },
               {
                 "metricKey": "essential_amino_acids_score",
-                "text": "essential amino acids score at 0/9",
-                "weightedScore": null,
-                "scoringMode": "display_fallback",
-                "band": "↓↓↓",
+                "text": "essential amino acids score at 9/9",
+                "weightedScore": 200,
+                "scoringMode": "arrow_bands",
+                "band": "↑↑↑",
                 "polarity": "higher_better",
                 "dvPercent": null,
-                "value": 0,
-                "score": 0,
+                "value": 9,
+                "score": 100,
                 "denominator": 9,
-                "displaySource": "protein_display_estimate",
-                "displayEstimated": true,
-                "displayEstimateBasis": "display-only estimate from useful-protein-gated amount band and protein source class; not a source amino-acid profile",
-                "displayDefault": false,
-                "displayDefaultReason": null,
-                "displayValue": "0/9"
+                "displayValue": "9/9",
+                "displaySource": "scored"
               },
               {
                 "metricKey": "nonessential_amino_acids_score",
-                "text": "nonessential amino acids score at 0/11",
-                "weightedScore": null,
-                "scoringMode": "display_fallback",
-                "band": "↓↓↓",
+                "text": "nonessential amino acids score at 10/11",
+                "weightedScore": 80,
+                "scoringMode": "arrow_bands",
+                "band": "↑↑",
                 "polarity": "higher_better",
                 "dvPercent": null,
-                "value": 0,
-                "score": 0,
+                "value": 10,
+                "score": 80,
                 "denominator": 11,
-                "displaySource": "protein_display_estimate",
-                "displayEstimated": true,
-                "displayEstimateBasis": "display-only estimate from useful-protein-gated amount band and protein source class; not a source amino-acid profile",
-                "displayDefault": false,
-                "displayDefaultReason": null,
-                "displayValue": "0/11"
+                "displayValue": "10/11",
+                "displaySource": "scored"
               },
               {
                 "metricKey": "bioavailability_percent",
@@ -22328,9 +22376,9 @@
               }
             ],
             "macroDisplayValue": "13.7g",
-            "subtitleText": "13.7g of protein. For meats, that is lower than you want.",
+            "subtitleText": "13.7g of protein. Essential amino acids score is 9/9, making the protein useful for repair and maintenance. Collagen is only 0.4g, so for meats, it is not bringing much connective-tissue protein.",
             "timingHint": "short-medium",
-            "score": 20,
+            "score": 70,
             "displayPolicy": {
               "policyId": "protein-section-display.v1",
               "rowCount": 4,
@@ -22509,16 +22557,16 @@
         "tier": "D",
         "overallScore": 20,
         "overallScoreExact": 20,
-        "calibratedOverallScore": 11.8,
-        "calibratedOverallScoreExact": 11.786,
-        "anomalyAdjustedScore": 11.8,
-        "anomalyAdjustedScoreExact": 11.786,
-        "rankingScore": 11.8,
-        "rankingScoreExact": 11.786,
+        "calibratedOverallScore": 16.2,
+        "calibratedOverallScoreExact": 16.1629,
+        "anomalyAdjustedScore": 16.2,
+        "anomalyAdjustedScoreExact": 16.1629,
+        "rankingScore": 16.2,
+        "rankingScoreExact": 16.1629,
         "scoreAdjustmentTotal": 0,
         "scoreAdjustments": [],
-        "baseOverallScore": 22.4,
-        "baseOverallScoreExact": 22.4398,
+        "baseOverallScore": 30.8,
+        "baseOverallScoreExact": 30.7731,
         "sectionOrder": [
           "fats",
           "carbs",
@@ -22550,7 +22598,7 @@
           {
             "kind": "section",
             "sectionKey": "proteins",
-            "text": "13.7 grams of protein. For meats, that is lower than you want."
+            "text": "13.7 grams of protein. Essential amino acids score is 9 out of 9, making the protein useful for repair and maintenance. Collagen is only 0.4 grams, so for meats, it is not bringing much connective-tissue protein."
           },
           {
             "kind": "section",
@@ -22582,12 +22630,12 @@
           }
         ],
         "explanation": {
-          "summary": "Pros are carrying this food most, while cons are holding it back most. It lands in D tier.",
-          "whyThisTier": "This food lands in D tier with a display score of 20. Section scores: fats 48.9, proteins 20, vitamins 12, minerals 3.8, pros 50, cons 0.",
+          "summary": "Proteins are carrying this food most, while cons are holding it back most. It lands in D tier.",
+          "whyThisTier": "This food lands in D tier with a display score of 20. Section scores: fats 48.9, proteins 70, vitamins 12, minerals 3.8, pros 50, cons 0.",
           "strongestSection": {
-            "key": "pros",
-            "label": "Pros",
-            "score": 50
+            "key": "proteins",
+            "label": "Proteins",
+            "score": 70
           },
           "weakestSection": {
             "key": "cons",
@@ -22642,7 +22690,7 @@
             }
           ],
           "narrationNotes": [
-            "Strongest section: Pros.",
+            "Strongest section: Proteins.",
             "Weakest section: Cons.",
             "Final verdict: D tier."
           ]
@@ -22830,7 +22878,7 @@
           "id": "14-proteins-1",
           "sceneId": "proteins",
           "startSeconds": 17.28,
-          "endSeconds": 18.6,
+          "endSeconds": 18.74,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -22843,35 +22891,92 @@
         {
           "id": "15-proteins-2",
           "sceneId": "proteins",
-          "startSeconds": 18.6,
-          "endSeconds": 21,
+          "startSeconds": 18.74,
+          "endSeconds": 20.64,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
           "lines": [
-            "For meats, that is",
-            "lower than you"
+            "Essential amino",
+            "acids score is"
           ],
-          "text": "For meats, that is\nlower than you"
+          "text": "Essential amino\nacids score is"
         },
         {
           "id": "16-proteins-3",
           "sceneId": "proteins",
-          "startSeconds": 21,
-          "endSeconds": 21.52,
+          "startSeconds": 20.64,
+          "endSeconds": 23.05,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
           "lines": [
-            "want."
+            "9/9, making the",
+            "protein useful for"
           ],
-          "text": "want."
+          "text": "9/9, making the\nprotein useful for"
         },
         {
-          "id": "17-vitamins-1",
+          "id": "17-proteins-4",
+          "sceneId": "proteins",
+          "startSeconds": 23.05,
+          "endSeconds": 24.36,
+          "placement": "lower-third",
+          "maxLines": 2,
+          "maxCharactersPerLine": 18,
+          "lines": [
+            "repair and",
+            "maintenance."
+          ],
+          "text": "repair and\nmaintenance."
+        },
+        {
+          "id": "18-proteins-5",
+          "sceneId": "proteins",
+          "startSeconds": 24.36,
+          "endSeconds": 26.4,
+          "placement": "lower-third",
+          "maxLines": 2,
+          "maxCharactersPerLine": 18,
+          "lines": [
+            "Collagen is only",
+            "0.4g, so"
+          ],
+          "text": "Collagen is only\n0.4g, so"
+        },
+        {
+          "id": "19-proteins-6",
+          "sceneId": "proteins",
+          "startSeconds": 26.4,
+          "endSeconds": 29.04,
+          "placement": "lower-third",
+          "maxLines": 2,
+          "maxCharactersPerLine": 18,
+          "lines": [
+            "for meats, it is",
+            "not bringing much"
+          ],
+          "text": "for meats, it is\nnot bringing much"
+        },
+        {
+          "id": "20-proteins-7",
+          "sceneId": "proteins",
+          "startSeconds": 29.04,
+          "endSeconds": 29.99,
+          "placement": "lower-third",
+          "maxLines": 2,
+          "maxCharactersPerLine": 18,
+          "lines": [
+            "connective-tissue",
+            "protein."
+          ],
+          "text": "connective-tissue\nprotein."
+        },
+        {
+          "id": "21-vitamins-1",
           "sceneId": "vitamins",
-          "startSeconds": 21.52,
-          "endSeconds": 24.23,
+          "startSeconds": 29.99,
+          "endSeconds": 32.7,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -22882,10 +22987,10 @@
           "text": "Vitamin B12 is 21%\nDV, useful for"
         },
         {
-          "id": "18-vitamins-2",
+          "id": "22-vitamins-2",
           "sceneId": "vitamins",
-          "startSeconds": 24.23,
-          "endSeconds": 25.31,
+          "startSeconds": 32.7,
+          "endSeconds": 33.78,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -22896,10 +23001,10 @@
           "text": "nerve and\nblood-cell"
         },
         {
-          "id": "19-vitamins-3",
+          "id": "23-vitamins-3",
           "sceneId": "vitamins",
-          "startSeconds": 25.31,
-          "endSeconds": 25.84,
+          "startSeconds": 33.78,
+          "endSeconds": 34.31,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -22909,10 +23014,10 @@
           "text": "support."
         },
         {
-          "id": "20-vitamins-4",
+          "id": "24-vitamins-4",
           "sceneId": "vitamins",
-          "startSeconds": 25.84,
-          "endSeconds": 28.77,
+          "startSeconds": 34.31,
+          "endSeconds": 37.24,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -22923,10 +23028,10 @@
           "text": "Vitamin D is only\n1% DV, a small"
         },
         {
-          "id": "21-vitamins-5",
+          "id": "25-vitamins-5",
           "sceneId": "vitamins",
-          "startSeconds": 28.77,
-          "endSeconds": 29.99,
+          "startSeconds": 37.24,
+          "endSeconds": 38.46,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -22936,10 +23041,10 @@
           "text": "miss for meats."
         },
         {
-          "id": "22-minerals-1",
+          "id": "26-minerals-1",
           "sceneId": "minerals",
-          "startSeconds": 29.99,
-          "endSeconds": 32.62,
+          "startSeconds": 38.46,
+          "endSeconds": 41.09,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -22950,10 +23055,10 @@
           "text": "Zinc is 10% DV,\nuseful for immune"
         },
         {
-          "id": "23-minerals-2",
+          "id": "27-minerals-2",
           "sceneId": "minerals",
-          "startSeconds": 32.62,
-          "endSeconds": 33.17,
+          "startSeconds": 41.09,
+          "endSeconds": 41.64,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -22963,10 +23068,10 @@
           "text": "support."
         },
         {
-          "id": "24-minerals-3",
+          "id": "28-minerals-3",
           "sceneId": "minerals",
-          "startSeconds": 33.17,
-          "endSeconds": 36.15,
+          "startSeconds": 41.64,
+          "endSeconds": 44.62,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -22977,10 +23082,10 @@
           "text": "Iron is only 2%\nDV, a weak mark"
         },
         {
-          "id": "25-minerals-4",
+          "id": "29-minerals-4",
           "sceneId": "minerals",
-          "startSeconds": 36.15,
-          "endSeconds": 37.05,
+          "startSeconds": 44.62,
+          "endSeconds": 45.52,
           "placement": "lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -22990,10 +23095,10 @@
           "text": "for meats."
         },
         {
-          "id": "26-pros-1",
+          "id": "30-pros-1",
           "sceneId": "pros",
-          "startSeconds": 37.05,
-          "endSeconds": 38.68,
+          "startSeconds": 45.52,
+          "endSeconds": 47.15,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -23004,10 +23109,10 @@
           "text": "Pros first: highly\npalatable and"
         },
         {
-          "id": "27-pros-2",
+          "id": "31-pros-2",
           "sceneId": "pros",
-          "startSeconds": 38.68,
-          "endSeconds": 39.17,
+          "startSeconds": 47.15,
+          "endSeconds": 47.64,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -23017,10 +23122,10 @@
           "text": "appealing."
         },
         {
-          "id": "28-pros-3",
+          "id": "32-pros-3",
           "sceneId": "pros",
-          "startSeconds": 39.17,
-          "endSeconds": 40.81,
+          "startSeconds": 47.64,
+          "endSeconds": 49.28,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -23031,10 +23136,10 @@
           "text": "A real-world\nreason people love"
         },
         {
-          "id": "29-pros-4",
+          "id": "33-pros-4",
           "sceneId": "pros",
-          "startSeconds": 40.81,
-          "endSeconds": 41.3,
+          "startSeconds": 49.28,
+          "endSeconds": 49.77,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -23044,10 +23149,10 @@
           "text": "it."
         },
         {
-          "id": "30-pros-5",
+          "id": "34-pros-5",
           "sceneId": "pros",
-          "startSeconds": 41.3,
-          "endSeconds": 43.39,
+          "startSeconds": 49.77,
+          "endSeconds": 51.86,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -23058,10 +23163,10 @@
           "text": "Works as a strong\nflavour booster."
         },
         {
-          "id": "31-pros-6",
+          "id": "35-pros-6",
           "sceneId": "pros",
-          "startSeconds": 43.39,
-          "endSeconds": 45.34,
+          "startSeconds": 51.86,
+          "endSeconds": 53.81,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -23072,10 +23177,10 @@
           "text": "Useful in meals\neven in smaller"
         },
         {
-          "id": "32-pros-7",
+          "id": "36-pros-7",
           "sceneId": "pros",
-          "startSeconds": 45.34,
-          "endSeconds": 45.83,
+          "startSeconds": 53.81,
+          "endSeconds": 54.3,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -23085,10 +23190,10 @@
           "text": "amounts."
         },
         {
-          "id": "33-pros-8",
+          "id": "37-pros-8",
           "sceneId": "pros",
-          "startSeconds": 45.83,
-          "endSeconds": 46.82,
+          "startSeconds": 54.3,
+          "endSeconds": 55.29,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -23099,10 +23204,10 @@
           "text": "Has strong\ncomfort-food"
         },
         {
-          "id": "34-pros-9",
+          "id": "38-pros-9",
           "sceneId": "pros",
-          "startSeconds": 46.82,
-          "endSeconds": 47.32,
+          "startSeconds": 55.29,
+          "endSeconds": 55.79,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -23112,10 +23217,10 @@
           "text": "appeal."
         },
         {
-          "id": "35-pros-10",
+          "id": "39-pros-10",
           "sceneId": "pros",
-          "startSeconds": 47.32,
-          "endSeconds": 48.63,
+          "startSeconds": 55.79,
+          "endSeconds": 57.1,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -23126,10 +23231,10 @@
           "text": "Popular and\ninstantly legible"
         },
         {
-          "id": "36-pros-11",
+          "id": "40-pros-11",
           "sceneId": "pros",
-          "startSeconds": 48.63,
-          "endSeconds": 49.76,
+          "startSeconds": 57.1,
+          "endSeconds": 58.23,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -23140,10 +23245,10 @@
           "text": "for content\npackaging."
         },
         {
-          "id": "37-cons-1",
+          "id": "41-cons-1",
           "sceneId": "cons",
-          "startSeconds": 49.76,
-          "endSeconds": 51.75,
+          "startSeconds": 58.23,
+          "endSeconds": 60.22,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -23154,10 +23259,10 @@
           "text": "The drawbacks\nnext: sodium is a"
         },
         {
-          "id": "38-cons-2",
+          "id": "42-cons-2",
           "sceneId": "cons",
-          "startSeconds": 51.75,
-          "endSeconds": 52.59,
+          "startSeconds": 60.22,
+          "endSeconds": 61.06,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -23167,10 +23272,10 @@
           "text": "major drawback."
         },
         {
-          "id": "39-cons-3",
+          "id": "43-cons-3",
           "sceneId": "cons",
-          "startSeconds": 52.59,
-          "endSeconds": 53.93,
+          "startSeconds": 61.06,
+          "endSeconds": 62.4,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -23181,10 +23286,10 @@
           "text": "A central\npractical health"
         },
         {
-          "id": "40-cons-4",
+          "id": "44-cons-4",
           "sceneId": "cons",
-          "startSeconds": 53.93,
-          "endSeconds": 55.09,
+          "startSeconds": 62.4,
+          "endSeconds": 63.56,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -23194,10 +23299,10 @@
           "text": "issue for bacon."
         },
         {
-          "id": "41-cons-5",
+          "id": "45-cons-5",
           "sceneId": "cons",
-          "startSeconds": 55.09,
-          "endSeconds": 56.89,
+          "startSeconds": 63.56,
+          "endSeconds": 65.36,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -23208,10 +23313,10 @@
           "text": "Processing is a\nmajor negative."
         },
         {
-          "id": "42-cons-6",
+          "id": "46-cons-6",
           "sceneId": "cons",
-          "startSeconds": 56.89,
-          "endSeconds": 58.89,
+          "startSeconds": 65.36,
+          "endSeconds": 67.36,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -23222,10 +23327,10 @@
           "text": "A key downside now\nthat more"
         },
         {
-          "id": "43-cons-7",
+          "id": "47-cons-7",
           "sceneId": "cons",
-          "startSeconds": 58.89,
-          "endSeconds": 60.7,
+          "startSeconds": 67.36,
+          "endSeconds": 69.17,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -23236,10 +23341,10 @@
           "text": "processed foods\nare in scope."
         },
         {
-          "id": "44-cons-8",
+          "id": "48-cons-8",
           "sceneId": "cons",
-          "startSeconds": 60.7,
-          "endSeconds": 61.72,
+          "startSeconds": 69.17,
+          "endSeconds": 70.19,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -23250,10 +23355,10 @@
           "text": "Salty-fatty\nprofile encourages"
         },
         {
-          "id": "45-cons-9",
+          "id": "49-cons-9",
           "sceneId": "cons",
-          "startSeconds": 61.72,
-          "endSeconds": 62.55,
+          "startSeconds": 70.19,
+          "endSeconds": 71.02,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -23263,10 +23368,10 @@
           "text": "portion creep."
         },
         {
-          "id": "46-cons-10",
+          "id": "50-cons-10",
           "sceneId": "cons",
-          "startSeconds": 62.55,
-          "endSeconds": 64.87,
+          "startSeconds": 71.02,
+          "endSeconds": 73.34,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -23277,10 +23382,10 @@
           "text": "The flavour is a\nstrength, but it"
         },
         {
-          "id": "47-cons-11",
+          "id": "51-cons-11",
           "sceneId": "cons",
-          "startSeconds": 64.87,
-          "endSeconds": 66.35,
+          "startSeconds": 73.34,
+          "endSeconds": 74.82,
           "placement": "high-lower-third",
           "maxLines": 2,
           "maxCharactersPerLine": 18,
@@ -23291,10 +23396,10 @@
           "text": "also makes\nmoderation harder."
         },
         {
-          "id": "48-final-1",
+          "id": "52-final-1",
           "sceneId": "final",
-          "startSeconds": 66.35,
-          "endSeconds": 68.23,
+          "startSeconds": 74.82,
+          "endSeconds": 76.7,
           "placement": "summary-full",
           "maxLines": 2,
           "maxCharactersPerLine": 24,
@@ -23306,10 +23411,10 @@
           "role": "conclusion-summary"
         },
         {
-          "id": "49-final-2",
+          "id": "53-final-2",
           "sceneId": "final",
-          "startSeconds": 68.23,
-          "endSeconds": 70.41,
+          "startSeconds": 76.7,
+          "endSeconds": 78.88,
           "placement": "summary-full",
           "maxLines": 2,
           "maxCharactersPerLine": 24,
@@ -23321,10 +23426,10 @@
           "role": "conclusion-summary"
         },
         {
-          "id": "50-final-3",
+          "id": "54-final-3",
           "sceneId": "final",
-          "startSeconds": 70.41,
-          "endSeconds": 71.5,
+          "startSeconds": 78.88,
+          "endSeconds": 79.97,
           "placement": "summary-full",
           "maxLines": 2,
           "maxCharactersPerLine": 24,
@@ -23335,10 +23440,10 @@
           "role": "conclusion-summary"
         },
         {
-          "id": "51-final-4",
+          "id": "55-final-4",
           "sceneId": "final",
-          "startSeconds": 71.5,
-          "endSeconds": 72.28,
+          "startSeconds": 79.97,
+          "endSeconds": 80.75,
           "placement": "tier-center",
           "maxLines": 2,
           "maxCharactersPerLine": 24,
@@ -23349,7 +23454,7 @@
           "role": "tier-reveal"
         }
       ],
-      "narrationText": "Bacon!\n-\nRanked!\n-\n37.1 grams of fat. Polyunsaturated fat is 5.8 grams, helping with cell structure and healthy signalling. Saturated fat is 12.6 grams, and for meats, fat quality is a major tradeoff.\n-\nNo defensible carb submacros to call out. In this category, carbs barely matter.\n-\n13.7 grams of protein. For meats, that is lower than you want.\n-\nVitamin B12 is 21% daily value, useful for nerve and blood-cell support. Vitamin D is only 1% daily value, a small miss for meats.\n-\nZinc is 10% daily value, useful for immune support. Iron is only 2% daily value, a weak mark for meats.\n-\nPros first: highly palatable and appealing. A real-world reason people love it. Works as a strong flavour booster. Useful in meals even in smaller amounts. Has strong comfort-food appeal. Popular and instantly legible for content packaging.\n-\nThe drawbacks next: sodium is a major drawback. A central practical health issue for bacon. Processing is a major negative. A key downside now that more processed foods are in scope. Salty-fatty profile encourages portion creep. The flavour is a strength, but it also makes moderation harder.\n-\nBig strengths are protein and palatable and appealing, but the biggest weaknesses are sodium and processing.\n-\nD tier.\n"
+      "narrationText": "Bacon!\n-\nRanked!\n-\n37.1 grams of fat. Polyunsaturated fat is 5.8 grams, helping with cell structure and healthy signalling. Saturated fat is 12.6 grams, and for meats, fat quality is a major tradeoff.\n-\nNo defensible carb submacros to call out. In this category, carbs barely matter.\n-\n13.7 grams of protein. Essential amino acids score is 9 out of 9, making the protein useful for repair and maintenance. Collagen is only 0.4 grams, so for meats, it is not bringing much connective-tissue protein.\n-\nVitamin B12 is 21% daily value, useful for nerve and blood-cell support. Vitamin D is only 1% daily value, a small miss for meats.\n-\nZinc is 10% daily value, useful for immune support. Iron is only 2% daily value, a weak mark for meats.\n-\nPros first: highly palatable and appealing. A real-world reason people love it. Works as a strong flavour booster. Useful in meals even in smaller amounts. Has strong comfort-food appeal. Popular and instantly legible for content packaging.\n-\nThe drawbacks next: sodium is a major drawback. A central practical health issue for bacon. Processing is a major negative. A key downside now that more processed foods are in scope. Salty-fatty profile encourages portion creep. The flavour is a strength, but it also makes moderation harder.\n-\nBig strengths are protein and palatable and appealing, but the biggest weaknesses are sodium and processing.\n-\nD tier.\n"
     }
   },
   {
@@ -23491,6 +23596,7 @@
           "weak_protein_legume_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -25530,6 +25636,7 @@
           "extreme_sugar_density"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -27531,6 +27638,7 @@
           "health_halo_risk"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -28261,6 +28369,7 @@
           "built_to_be_topped"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -30233,6 +30342,10 @@
           "weak_meal_anchor"
         ]
       },
+      "proteinQualityGate": {
+        "minimumProteinG": 10,
+        "notes": "Absolute useful-protein floor for source-backed or explicitly derived amino-acid scoring. Meats below the green protein-amount fallback band can still contain meaningful amino-acid amounts, but remain low for the meat category."
+      },
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 4,
@@ -30840,6 +30953,7 @@
           "processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -32508,6 +32622,7 @@
           "tuber_processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -34610,6 +34725,7 @@
           "weak_protein_legume_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -36710,6 +36826,7 @@
           "weak_protein_legume_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -38722,6 +38839,7 @@
           "extreme_sugar_density"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -39427,6 +39545,7 @@
           "extreme_sugar_density"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -41463,6 +41582,7 @@
           "ultra_processed_vegetable_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -42183,6 +42303,7 @@
           "weak_nut_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -44178,6 +44299,7 @@
           "ultra_processed_vegetable_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -46100,6 +46222,7 @@
           "built_to_be_topped"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -48096,6 +48219,7 @@
           "ultra_processed_vegetable_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -50200,6 +50324,7 @@
           "built_to_be_topped"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -52159,6 +52284,7 @@
           "built_to_be_topped"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -54119,6 +54245,7 @@
           "processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -55962,6 +56089,7 @@
           "ultra_processed_vegetable_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -58007,6 +58135,7 @@
           "weak_nut_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -58714,6 +58843,7 @@
           "weak_protein_legume_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -59426,6 +59556,7 @@
           "processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -61092,6 +61223,7 @@
           "seed_dilution_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -63121,6 +63253,7 @@
           "ultra_processed_vegetable_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -65196,6 +65329,7 @@
           "weak_nut_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -65900,6 +66034,7 @@
           "weak_nut_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -67880,6 +68015,7 @@
           "tuber_processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -69869,6 +70005,7 @@
           "tuber_processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -70572,6 +70709,7 @@
           "tuber_processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -72507,6 +72645,7 @@
           "ultra_processed_vegetable_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -74557,6 +74696,7 @@
           "tuber_processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -75263,6 +75403,7 @@
           "ultra_processed_vegetable_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -75984,6 +76125,7 @@
           "ultra_processed_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -77987,6 +78129,7 @@
           "extreme_sugar_density"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -78691,6 +78834,7 @@
           "weak_nut_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -80817,6 +80961,7 @@
           "seed_dilution_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -82840,6 +82985,10 @@
           "weak_meal_anchor"
         ]
       },
+      "proteinQualityGate": {
+        "minimumProteinG": 10,
+        "notes": "Absolute useful-protein floor for source-backed or explicitly derived amino-acid scoring. Meats below the green protein-amount fallback band can still contain meaningful amino-acid amounts, but remain low for the meat category."
+      },
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 4,
@@ -83536,6 +83685,10 @@
           "high_sodium",
           "weak_meal_anchor"
         ]
+      },
+      "proteinQualityGate": {
+        "minimumProteinG": 10,
+        "notes": "Absolute useful-protein floor for source-backed or explicitly derived amino-acid scoring. Meats below the green protein-amount fallback band can still contain meaningful amino-acid amounts, but remain low for the meat category."
       },
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
@@ -85640,6 +85793,7 @@
           "weak_protein_legume_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -86355,6 +86509,7 @@
           "weak_protein_legume_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -88323,6 +88478,7 @@
           "weak_nut_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -89028,6 +89184,7 @@
           "ultra_processed_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -89734,6 +89891,7 @@
           "health_halo_risk"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -91716,6 +91874,7 @@
           "processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -93370,6 +93529,10 @@
           "weak_meal_anchor"
         ]
       },
+      "proteinQualityGate": {
+        "minimumProteinG": 10,
+        "notes": "Absolute useful-protein floor for source-backed or explicitly derived amino-acid scoring. Meats below the green protein-amount fallback band can still contain meaningful amino-acid amounts, but remain low for the meat category."
+      },
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 4,
@@ -94067,39 +94230,39 @@
               },
               {
                 "metricKey": "essential_amino_acids_score",
-                "text": "essential amino acids score at 0/9",
+                "text": "essential amino acids score at 7/9",
                 "weightedScore": null,
                 "scoringMode": "display_fallback",
-                "band": "↓↓↓",
+                "band": "↑↑",
                 "polarity": "higher_better",
                 "dvPercent": null,
-                "value": 0,
-                "score": 0,
+                "value": 7,
+                "score": 80,
                 "denominator": 9,
                 "displaySource": "protein_display_estimate",
                 "displayEstimated": true,
                 "displayEstimateBasis": "display-only estimate from useful-protein-gated amount band and protein source class; not a source amino-acid profile",
                 "displayDefault": false,
                 "displayDefaultReason": null,
-                "displayValue": "0/9"
+                "displayValue": "7/9"
               },
               {
                 "metricKey": "nonessential_amino_acids_score",
-                "text": "nonessential amino acids score at 0/11",
+                "text": "nonessential amino acids score at 8/11",
                 "weightedScore": null,
                 "scoringMode": "display_fallback",
-                "band": "↓↓↓",
+                "band": "↑",
                 "polarity": "higher_better",
                 "dvPercent": null,
-                "value": 0,
-                "score": 0,
+                "value": 8,
+                "score": 60,
                 "denominator": 11,
                 "displaySource": "protein_display_estimate",
                 "displayEstimated": true,
                 "displayEstimateBasis": "display-only estimate from useful-protein-gated amount band and protein source class; not a source amino-acid profile",
                 "displayDefault": false,
                 "displayDefaultReason": null,
-                "displayValue": "0/11"
+                "displayValue": "8/11"
               },
               {
                 "metricKey": "bioavailability_percent",
@@ -95302,6 +95465,7 @@
           "health_halo_risk"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -97355,6 +97519,7 @@
           "health_halo_risk"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -99323,6 +99488,7 @@
           "ultra_processed_vegetable_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -100045,6 +100211,7 @@
           "seed_dilution_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -100759,6 +100926,7 @@
           "built_to_be_topped"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -101471,6 +101639,7 @@
           "processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -101939,6 +102108,10 @@
           "high_sodium",
           "weak_meal_anchor"
         ]
+      },
+      "proteinQualityGate": {
+        "minimumProteinG": 10,
+        "notes": "Absolute useful-protein floor for source-backed or explicitly derived amino-acid scoring. Meats below the green protein-amount fallback band can still contain meaningful amino-acid amounts, but remain low for the meat category."
       },
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
@@ -102549,6 +102722,7 @@
           "built_to_be_topped"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -104501,6 +104675,7 @@
           "ultra_processed_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -106408,6 +106583,7 @@
           "built_to_be_topped"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -108395,6 +108571,7 @@
           "ultra_processed_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -110451,6 +110628,7 @@
           "ultra_processed_vegetable_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -111173,6 +111351,7 @@
           "seed_dilution_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -113190,6 +113369,7 @@
           "tuber_processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -113905,6 +114085,7 @@
           "health_halo_risk"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -115928,6 +116109,7 @@
           "extreme_sugar_density"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -117988,6 +118170,7 @@
           "health_halo_risk"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -118717,6 +118900,7 @@
           "extreme_sugar_density"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -119422,6 +119606,7 @@
           "extreme_sugar_density"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -120128,6 +120313,10 @@
           "weak_meal_anchor"
         ]
       },
+      "proteinQualityGate": {
+        "minimumProteinG": 10,
+        "notes": "Absolute useful-protein floor for source-backed or explicitly derived amino-acid scoring. Meats below the green protein-amount fallback band can still contain meaningful amino-acid amounts, but remain low for the meat category."
+      },
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 4,
@@ -120735,6 +120924,7 @@
           "processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -122389,6 +122579,7 @@
           "weak_protein_legume_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -124388,6 +124579,7 @@
           "ultra_processed_vegetable_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -125110,6 +125302,7 @@
           "health_halo_risk"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -127053,6 +127246,7 @@
           "health_halo_risk"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -129079,6 +129273,7 @@
           "processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -130814,6 +131009,7 @@
           "weak_protein_legume_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -131528,6 +131724,7 @@
           "built_to_be_topped"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -132242,6 +132439,7 @@
           "seed_dilution_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -132955,6 +133153,7 @@
           "ultra_processed_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -135011,6 +135210,7 @@
           "seed_dilution_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -135719,6 +135919,7 @@
           "seed_dilution_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -137608,6 +137809,7 @@
           "processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -139297,6 +139499,7 @@
           "tuber_processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -141367,6 +141570,7 @@
           "ultra_processed_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -142071,6 +142275,7 @@
           "processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -143755,6 +143960,7 @@
           "ultra_processed_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -144460,6 +144666,7 @@
           "extreme_sugar_density"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -145165,6 +145372,7 @@
           "extreme_sugar_density"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -147145,6 +147353,7 @@
           "ultra_processed_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -149213,6 +149422,7 @@
           "ultra_processed_vegetable_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -149936,6 +150146,7 @@
           "weak_protein_legume_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -151964,6 +152175,7 @@
           "health_halo_risk"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -153951,6 +154163,7 @@
           "seed_dilution_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -155911,6 +156124,7 @@
           "extreme_sugar_density"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -156616,6 +156830,7 @@
           "ultra_processed_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -157322,6 +157537,7 @@
           "tuber_processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -158026,6 +158242,7 @@
           "weak_nut_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -159990,6 +160207,7 @@
           "seed_dilution_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -161949,6 +162167,7 @@
           "health_halo_risk"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -162679,6 +162898,10 @@
           "weak_meal_anchor"
         ]
       },
+      "proteinQualityGate": {
+        "minimumProteinG": 10,
+        "notes": "Absolute useful-protein floor for source-backed or explicitly derived amino-acid scoring. Meats below the green protein-amount fallback band can still contain meaningful amino-acid amounts, but remain low for the meat category."
+      },
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 4,
@@ -163286,6 +163509,7 @@
           "weak_nut_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -163990,6 +164214,7 @@
           "weak_nut_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -164696,6 +164921,10 @@
           "weak_meal_anchor"
         ]
       },
+      "proteinQualityGate": {
+        "minimumProteinG": 10,
+        "notes": "Absolute useful-protein floor for source-backed or explicitly derived amino-acid scoring. Meats below the green protein-amount fallback band can still contain meaningful amino-acid amounts, but remain low for the meat category."
+      },
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 4,
@@ -165306,6 +165535,7 @@
           "weak_protein_legume_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -166019,6 +166249,7 @@
           "ultra_processed_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -168022,6 +168253,7 @@
           "ultra_processed_vegetable_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -170062,6 +170294,7 @@
           "tuber_processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -170768,6 +171001,7 @@
           "built_to_be_topped"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -171482,6 +171716,7 @@
           "health_halo_risk"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -173452,6 +173687,7 @@
           "tuber_processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -175403,6 +175639,7 @@
           "tuber_processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -176232,6 +176469,7 @@
           "ultra_processed_vegetable_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -178390,6 +178628,7 @@
           "ultra_processed_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -180457,6 +180696,7 @@
           "health_halo_risk"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -181188,6 +181428,7 @@
           "weak_protein_legume_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -183172,6 +183413,7 @@
           "extreme_sugar_density"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -185151,6 +185393,7 @@
           "health_halo_risk"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -187120,6 +187363,7 @@
           "ultra_processed_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -187825,6 +188069,10 @@
           "high_sodium",
           "weak_meal_anchor"
         ]
+      },
+      "proteinQualityGate": {
+        "minimumProteinG": 10,
+        "notes": "Absolute useful-protein floor for source-backed or explicitly derived amino-acid scoring. Meats below the green protein-amount fallback band can still contain meaningful amino-acid amounts, but remain low for the meat category."
       },
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
@@ -189756,6 +190004,7 @@
           "processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -191410,6 +191659,10 @@
           "high_sodium",
           "weak_meal_anchor"
         ]
+      },
+      "proteinQualityGate": {
+        "minimumProteinG": 10,
+        "notes": "Absolute useful-protein floor for source-backed or explicitly derived amino-acid scoring. Meats below the green protein-amount fallback band can still contain meaningful amino-acid amounts, but remain low for the meat category."
       },
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
@@ -193371,6 +193624,7 @@
           "extreme_sugar_density"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -195421,6 +195675,7 @@
           "weak_protein_legume_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -196136,6 +196391,7 @@
           "weak_protein_legume_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -198161,6 +198417,7 @@
           "weak_protein_legume_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -200101,6 +200358,10 @@
           "weak_meal_anchor"
         ]
       },
+      "proteinQualityGate": {
+        "minimumProteinG": 10,
+        "notes": "Absolute useful-protein floor for source-backed or explicitly derived amino-acid scoring. Meats below the green protein-amount fallback band can still contain meaningful amino-acid amounts, but remain low for the meat category."
+      },
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 4,
@@ -202011,6 +202272,7 @@
           "weak_nut_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -202715,6 +202977,7 @@
           "processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -203182,6 +203445,7 @@
           "weak_nut_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -205149,6 +205413,10 @@
           "weak_meal_anchor"
         ]
       },
+      "proteinQualityGate": {
+        "minimumProteinG": 10,
+        "notes": "Absolute useful-protein floor for source-backed or explicitly derived amino-acid scoring. Meats below the green protein-amount fallback band can still contain meaningful amino-acid amounts, but remain low for the meat category."
+      },
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 4,
@@ -207010,6 +207278,7 @@
           "extreme_sugar_density"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -209039,6 +209308,7 @@
           "health_halo_risk"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -209768,6 +210038,7 @@
           "processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -211488,6 +211759,7 @@
           "health_halo_risk"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -212216,6 +212488,7 @@
           "processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -212694,6 +212967,7 @@
           "health_halo_risk"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -213423,6 +213697,7 @@
           "ultra_processed_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -215461,6 +215736,7 @@
           "ultra_processed_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -217487,6 +217763,7 @@
           "built_to_be_topped"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -219406,6 +219683,7 @@
           "health_halo_risk"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -220134,6 +220412,7 @@
           "weak_nut_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -222083,6 +222362,7 @@
           "ultra_processed_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -224124,6 +224404,7 @@
           "weak_protein_legume_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -224838,6 +225119,7 @@
           "ultra_processed_vegetable_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -226871,6 +227153,7 @@
           "seed_dilution_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -228859,6 +229142,7 @@
           "weak_protein_legume_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -230843,6 +231127,7 @@
           "seed_dilution_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -232939,6 +233224,7 @@
           "built_to_be_topped"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -235108,6 +235394,7 @@
           "processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -235577,6 +235864,7 @@
           "ultra_processed_vegetable_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -237599,6 +237887,7 @@
           "extreme_sugar_density"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -239607,6 +239896,7 @@
           "processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -241299,6 +241589,7 @@
           "extreme_sugar_density"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -242004,6 +242295,7 @@
           "ultra_processed_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -244044,6 +244336,7 @@
           "tuber_processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -246062,6 +246355,7 @@
           "extreme_sugar_density"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -246766,6 +247060,7 @@
           "weak_nut_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -247470,6 +247765,7 @@
           "processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -249132,6 +249428,7 @@
           "weak_nut_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -251066,6 +251363,7 @@
           "weak_nut_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -252977,6 +253275,10 @@
           "weak_meal_anchor"
         ]
       },
+      "proteinQualityGate": {
+        "minimumProteinG": 10,
+        "notes": "Absolute useful-protein floor for source-backed or explicitly derived amino-acid scoring. Meats below the green protein-amount fallback band can still contain meaningful amino-acid amounts, but remain low for the meat category."
+      },
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 4,
@@ -253586,6 +253888,7 @@
           "ultra_processed_vegetable_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -254306,6 +254609,7 @@
           "weak_nut_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -255010,6 +255314,7 @@
           "weak_nut_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -256973,6 +257278,7 @@
           "extreme_sugar_density"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -258970,6 +259276,7 @@
           "weak_protein_legume_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -260941,6 +261248,7 @@
           "weak_nut_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -261645,6 +261953,7 @@
           "weak_nut_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -263637,6 +263946,7 @@
           "built_to_be_topped"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -264350,6 +264660,7 @@
           "ultra_processed_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -266391,6 +266702,7 @@
           "tuber_processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -268398,6 +268710,7 @@
           "extreme_sugar_density"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -270417,6 +270730,7 @@
           "built_to_be_topped"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -272378,6 +272692,7 @@
           "seed_dilution_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -274393,6 +274708,10 @@
           "weak_meal_anchor"
         ]
       },
+      "proteinQualityGate": {
+        "minimumProteinG": 10,
+        "notes": "Absolute useful-protein floor for source-backed or explicitly derived amino-acid scoring. Meats below the green protein-amount fallback band can still contain meaningful amino-acid amounts, but remain low for the meat category."
+      },
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 4,
@@ -276344,6 +276663,7 @@
           "tuber_processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -277049,6 +277369,7 @@
           "ultra_processed_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -277756,6 +278077,7 @@
           "health_halo_risk"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -279749,6 +280071,7 @@
           "health_halo_risk"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -281692,6 +282015,7 @@
           "seed_dilution_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -282406,6 +282730,7 @@
           "seed_dilution_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -283120,6 +283445,7 @@
           "seed_dilution_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -285133,6 +285459,7 @@
           "tuber_processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -287141,6 +287468,7 @@
           "ultra_processed_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -287841,6 +288169,7 @@
           "built_to_be_topped"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -289691,6 +290020,7 @@
           "ultra_processed_vegetable_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -290412,6 +290742,7 @@
           "extreme_sugar_density"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -291203,6 +291534,7 @@
           "extreme_sugar_density"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -293247,6 +293579,7 @@
           "health_halo_risk"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -295159,6 +295492,7 @@
           "ultra_processed_vegetable_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -297221,6 +297555,7 @@
           "weak_protein_legume_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -298018,6 +298353,7 @@
           "built_to_be_topped"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -300001,6 +300337,7 @@
           "ultra_processed_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -302041,6 +302378,7 @@
           "ultra_processed_vegetable_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -302763,6 +303101,7 @@
           "tuber_processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -304743,6 +305082,7 @@
           "built_to_be_topped"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -306698,6 +307038,7 @@
           "processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -307166,6 +307507,10 @@
           "high_sodium",
           "weak_meal_anchor"
         ]
+      },
+      "proteinQualityGate": {
+        "minimumProteinG": 10,
+        "notes": "Absolute useful-protein floor for source-backed or explicitly derived amino-acid scoring. Meats below the green protein-amount fallback band can still contain meaningful amino-acid amounts, but remain low for the meat category."
       },
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
@@ -307879,6 +308224,10 @@
           "high_sodium",
           "weak_meal_anchor"
         ]
+      },
+      "proteinQualityGate": {
+        "minimumProteinG": 10,
+        "notes": "Absolute useful-protein floor for source-backed or explicitly derived amino-acid scoring. Meats below the green protein-amount fallback band can still contain meaningful amino-acid amounts, but remain low for the meat category."
       },
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
@@ -309787,6 +310136,7 @@
           "weak_nut_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -310492,6 +310842,10 @@
           "high_sodium",
           "weak_meal_anchor"
         ]
+      },
+      "proteinQualityGate": {
+        "minimumProteinG": 10,
+        "notes": "Absolute useful-protein floor for source-backed or explicitly derived amino-acid scoring. Meats below the green protein-amount fallback band can still contain meaningful amino-acid amounts, but remain low for the meat category."
       },
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
@@ -312436,6 +312790,7 @@
           "processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -312903,6 +313258,7 @@
           "processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -314570,6 +314926,7 @@
           "seed_dilution_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -316570,6 +316927,7 @@
           "seed_dilution_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -317283,6 +317641,7 @@
           "ultra_processed_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -317988,6 +318347,10 @@
           "high_sodium",
           "weak_meal_anchor"
         ]
+      },
+      "proteinQualityGate": {
+        "minimumProteinG": 10,
+        "notes": "Absolute useful-protein floor for source-backed or explicitly derived amino-acid scoring. Meats below the green protein-amount fallback band can still contain meaningful amino-acid amounts, but remain low for the meat category."
       },
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
@@ -320007,6 +320370,7 @@
           "ultra_processed_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -320713,6 +321077,7 @@
           "built_to_be_topped"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -321428,6 +321793,7 @@
           "weak_protein_legume_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -322143,6 +322509,7 @@
           "weak_protein_legume_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -324133,6 +324500,7 @@
           "weak_protein_legume_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -324845,6 +325213,7 @@
           "processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -325310,6 +325679,7 @@
           "weak_protein_legume_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -327256,6 +327626,7 @@
           "health_halo_risk"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -327986,6 +328357,7 @@
           "ultra_processed_vegetable_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -330032,6 +330404,7 @@
           "weak_protein_legume_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -332003,6 +332376,7 @@
           "health_halo_risk"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -333935,6 +334309,7 @@
           "extreme_sugar_density"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -335926,6 +336301,7 @@
           "processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -336395,6 +336771,7 @@
           "seed_dilution_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -337109,6 +337486,7 @@
           "seed_dilution_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -337823,6 +338201,7 @@
           "seed_dilution_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -339944,6 +340323,7 @@
           "tuber_processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -342030,6 +342410,7 @@
           "seed_dilution_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -342753,6 +343134,7 @@
           "health_halo_risk"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -343482,6 +343864,7 @@
           "ultra_processed_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -344188,6 +344571,7 @@
           "seed_dilution_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -344902,6 +345286,7 @@
           "ultra_processed_vegetable_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -345623,6 +346008,7 @@
           "ultra_processed_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -346329,6 +346715,7 @@
           "seed_dilution_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -347043,6 +347430,7 @@
           "tuber_processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -347758,6 +348146,7 @@
           "tuber_processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -348464,6 +348853,7 @@
           "tuber_processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -350438,6 +350828,7 @@
           "tuber_processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -351144,6 +351535,7 @@
           "health_halo_risk"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -353073,6 +353465,7 @@
           "built_to_be_topped"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -353788,6 +354181,7 @@
           "weak_protein_legume_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -354503,6 +354897,7 @@
           "weak_protein_legume_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -355324,6 +355719,7 @@
           "ultra_processed_vegetable_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -357577,6 +357973,7 @@
           "weak_nut_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -358283,6 +358680,10 @@
           "weak_meal_anchor"
         ]
       },
+      "proteinQualityGate": {
+        "minimumProteinG": 10,
+        "notes": "Absolute useful-protein floor for source-backed or explicitly derived amino-acid scoring. Meats below the green protein-amount fallback band can still contain meaningful amino-acid amounts, but remain low for the meat category."
+      },
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 4,
@@ -358891,6 +359292,10 @@
           "high_sodium",
           "weak_meal_anchor"
         ]
+      },
+      "proteinQualityGate": {
+        "minimumProteinG": 10,
+        "notes": "Absolute useful-protein floor for source-backed or explicitly derived amino-acid scoring. Meats below the green protein-amount fallback band can still contain meaningful amino-acid amounts, but remain low for the meat category."
       },
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
@@ -360848,6 +361253,10 @@
           "weak_meal_anchor"
         ]
       },
+      "proteinQualityGate": {
+        "minimumProteinG": 10,
+        "notes": "Absolute useful-protein floor for source-backed or explicitly derived amino-acid scoring. Meats below the green protein-amount fallback band can still contain meaningful amino-acid amounts, but remain low for the meat category."
+      },
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 4,
@@ -362804,6 +363213,10 @@
           "weak_meal_anchor"
         ]
       },
+      "proteinQualityGate": {
+        "minimumProteinG": 10,
+        "notes": "Absolute useful-protein floor for source-backed or explicitly derived amino-acid scoring. Meats below the green protein-amount fallback band can still contain meaningful amino-acid amounts, but remain low for the meat category."
+      },
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 4,
@@ -363413,6 +363826,7 @@
           "tuber_processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -365394,6 +365808,7 @@
           "tuber_processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -366098,6 +366513,7 @@
           "processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -366566,6 +366982,10 @@
           "high_sodium",
           "weak_meal_anchor"
         ]
+      },
+      "proteinQualityGate": {
+        "minimumProteinG": 10,
+        "notes": "Absolute useful-protein floor for source-backed or explicitly derived amino-acid scoring. Meats below the green protein-amount fallback band can still contain meaningful amino-acid amounts, but remain low for the meat category."
       },
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
@@ -367174,6 +367594,7 @@
           "processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -367641,6 +368062,7 @@
           "weak_nut_fit"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -369566,6 +369988,7 @@
           "ultra_processed_vegetable_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -370288,6 +370711,7 @@
           "seed_dilution_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -372305,6 +372729,7 @@
           "seed_dilution_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -374318,6 +374743,7 @@
           "extreme_sugar_density"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -375023,6 +375449,7 @@
           "ultra_processed_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 3,
@@ -377046,6 +377473,7 @@
           "built_to_be_topped"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -377760,6 +378188,7 @@
           "tuber_processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -379849,6 +380278,7 @@
           "built_to_be_topped"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -382060,6 +382490,7 @@
           "built_to_be_topped"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -382774,6 +383205,7 @@
           "built_to_be_topped"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -384733,6 +385165,7 @@
           "built_to_be_topped"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,
@@ -385447,6 +385880,7 @@
           "tuber_processing_penalty"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 1,
@@ -387439,6 +387873,7 @@
           "ultra_processed_vegetable_identity"
         ]
       },
+      "proteinQualityGate": null,
       "proteinFallback": {
         "metricKey": "protein_g_fallback",
         "weight": 2,

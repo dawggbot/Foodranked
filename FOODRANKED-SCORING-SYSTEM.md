@@ -277,6 +277,8 @@ Amino-acid quality must not be counted from presence alone. The scorer only coun
 
 For v1, essential amino-acid groups use a 70kg adult reference and count only when 100g of the food supplies about 25% of the adult amino-acid RDA for that group, with an absolute 100mg-per-100g material floor so trace `0.0Xg` amounts do not count. Nonessential amino acids do not have the same official adult requirement pattern, so v1 uses a material 500mg-per-100g threshold for each measurable nonessential/conditionally-essential group.
 
+Rulesets may define `proteinQualityGate.minimumProteinG` as the absolute protein amount needed before amino-acid quality may score. If it is missing, the scorer uses the first useful green `proteinFallback` band. This lets categories keep stricter category-quality protein bands without falsely saying moderate protein foods have no meaningful amino acids.
+
 EAA/NEAA arrow bands are integer count bands, not raw milligram bands:
 - EAA `/9`: `0-2` three-red, `3-4` two-red, `5` one-red, `6` one-green, `7` two-green, `8-9` three-green
 - NEAA `/11`: `0-2` three-red, `3-5` two-red, `6-7` one-red, `8` one-green, `9-10` two-green, `11` three-green

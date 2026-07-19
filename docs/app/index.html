@@ -473,6 +473,15 @@
       image-rendering: crisp-edges;
     }
     .layer-node.text { white-space: pre-line; }
+    body.layout-builder-mode .layer-node.text {
+      box-sizing: border-box;
+      cursor: text;
+      overflow: hidden;
+      overflow-wrap: break-word;
+      user-select: text;
+      white-space: pre-wrap;
+      word-break: normal;
+    }
     .layer-node.text.outro-score-glow {
       color: var(--outro-score-color, #ffffff);
       animation: outro-score-glow-pulse 1.2s steps(4, end) infinite;
@@ -1186,8 +1195,9 @@
   <script src="./default-layout.js?v=20260624-arrow-default-scale-v1"></script>
   <script>
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
+    if (APP_MODE === 'layout-builder') document.body.classList.add('layout-builder-mode');
     const BUILDER_BUILD_ID = APP_MODE === 'layout-builder'
-      ? '20260717-micros-basic-controls-v17'
+      ? '20260719-all-textbox-rules-v1'
       : '20260624-section-indicators-disabled-v1';
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
     const SECTIONS = [

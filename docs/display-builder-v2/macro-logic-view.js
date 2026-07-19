@@ -325,6 +325,9 @@
     const displayItemValue = asNumber(displayItem?.value, null);
     if (displayItemValue != null) return displayItemValue;
     if (displayItem && (displayItem.value == null || displayItem.displayValue === 'N/A')) return null;
+    const batchItem = getBatchMetricBreakdownItemForSpec(food, sectionId, { metricKey });
+    const batchItemValue = asNumber(batchItem?.value, null);
+    if (batchItemValue != null) return batchItemValue;
     const value = asNumber(food?.metrics?.[metricKey], null);
     if (value != null) return value;
     return null;
@@ -493,17 +496,22 @@
   }
 
   function textSpecForMetric(sectionId, metricKey) {
+    if (sectionId === 'protein') {
+      const proteinSpec = proteinRowSpecForMetric(metricKey);
+      if (proteinSpec?.valueBinding) return proteinSpec.valueBinding;
+    }
     const entries = Object.values(BINDINGS.textBindings?.[sectionId] || {});
     return entries.find(binding => binding.metricKey === metricKey && /Value$/.test(binding.kind)) || null;
   }
 
   function specForMetric(sectionId, metricKey) {
     const binding = textSpecForMetric(sectionId, metricKey);
+    const proteinSpec = sectionId === 'protein' ? proteinRowSpecForMetric(metricKey) : null;
     return {
       key: metricKey,
       metricKey,
-      label: metricLabelForKey(sectionId, metricKey),
-      displayMetricKeys: binding?.displayMetricKeys || []
+      label: proteinSpec?.longLabel || metricLabelForKey(sectionId, metricKey),
+      displayMetricKeys: binding?.displayMetricKeys || proteinSpec?.displayMetricKeys || []
     };
   }
 
@@ -560,7 +568,7 @@
   }
 
   function liveMetricEvaluation(food, sectionId) {
-    const rows = BINDINGS.arrowRows?.[sectionId] || [];
+    const rows = metricRowsForSection(food, sectionId);
     return rows.map(row => {
       const spec = specForMetric(sectionId, row.metricKey);
       const rule = getMetricRuleForSpec(food, sectionId, spec);
@@ -601,6 +609,32 @@
     return (food?.batchResult?.metricBreakdown || [])
       .filter(item => item.sectionKey === sectionId || item.sectionKey === sectionKey)
       .map(item => ({ ...item }));
+  }
+
+  function proteinRowSpecForMetric(metricKey) {
+    const configured = BINDINGS.proteinRows?.[metricKey];
+    if (!configured) return null;
+    return {
+      ...configured,
+      metricKey,
+      label: configured.label || configured.longLabel || metricKey,
+      longLabel: configured.longLabel || configured.label || metricKey,
+      valueBinding: configured.valueBinding ? { ...configured.valueBinding, metricKey } : null
+    };
+  }
+
+  function metricRowsForSection(food, sectionId) {
+    if (sectionId !== 'protein') return BINDINGS.arrowRows?.[sectionId] || [];
+    const seen = new Set();
+    return sectionMetricBreakdown(food, 'protein')
+      .map(item => proteinRowSpecForMetric(item.metricKey))
+      .filter(Boolean)
+      .filter(item => {
+        if (seen.has(item.metricKey)) return false;
+        seen.add(item.metricKey);
+        return true;
+      })
+      .slice(0, 4);
   }
 
   function weightedAverage(rows) {
@@ -701,6 +735,8 @@
     arrowPresentationForSpec,
     visibleArrowIndexes,
     specForMetric,
+    proteinRowSpecForMetric,
+    metricRowsForSection,
     displayMetricSpecsForSection,
     bindingMetricKey,
     formatImpactLevelLabel,

@@ -65,6 +65,39 @@
     ]
   };
 
+  const PROTEIN_ROW_BINDINGS = {
+    protein_g_fallback: {
+      metricKey: 'protein_g_fallback',
+      label: 'AMOUNT',
+      longLabel: 'Protein amount',
+      valueBinding: { kind: 'metricValue', metricKey: 'protein_g_fallback', field: 'header.protein_g', unit: 'g', source: 'generated protein fallback scoring' }
+    },
+    collagen_g: {
+      metricKey: 'collagen_g',
+      label: 'CLGN',
+      longLabel: 'Collagen',
+      valueBinding: { kind: 'metricValue', metricKey: 'collagen_g', field: 'metrics.collagen_g', unit: 'g', source: 'generated protein scoring breakdown' }
+    },
+    essential_amino_acids_score: {
+      metricKey: 'essential_amino_acids_score',
+      label: 'EAAs',
+      longLabel: 'Essential amino acids',
+      valueBinding: { kind: 'ratioMetricValue', metricKey: 'essential_amino_acids_score', field: 'metrics.essential_amino_acids_score', denominator: 9, source: 'generated protein scoring breakdown' }
+    },
+    nonessential_amino_acids_score: {
+      metricKey: 'nonessential_amino_acids_score',
+      label: 'N-EAAs',
+      longLabel: 'Non-essential amino acids',
+      valueBinding: { kind: 'ratioMetricValue', metricKey: 'nonessential_amino_acids_score', field: 'metrics.nonessential_amino_acids_score', denominator: 11, source: 'generated protein scoring breakdown' }
+    },
+    bioavailability_percent: {
+      metricKey: 'bioavailability_percent',
+      label: 'BIO-A',
+      longLabel: 'Bioavailability',
+      valueBinding: { kind: 'metricValue', metricKey: 'bioavailability_percent', field: 'metrics.bioavailability_percent', unit: '%', source: 'generated protein scoring breakdown' }
+    }
+  };
+
   const MICRONUTRIENT_SPECS = {
     vitamins: [
       { key: 'vitamin_a_dv', shortLabel: 'A', label: 'Vitamin A' },
@@ -89,6 +122,7 @@
     micronutrientSections: ['vitamins', 'minerals'],
     contextSections: ['pros', 'cons'],
     contextItemCount: 3,
+    proteinRows: PROTEIN_ROW_BINDINGS,
     micronutrientSpecs: MICRONUTRIENT_SPECS,
     textBindings: MACRO_TEXT_BINDINGS,
     textFallbackOrder: MACRO_TEXT_FALLBACK_ORDER,

@@ -1192,12 +1192,12 @@
 
   <script src="../data/foods-index.js?v=20260719-protein-schema-v1"></script>
   <script src="./display-schema.js?v=20260624-section-indicator-no-canvas-v1"></script>
-  <script src="./default-layout.js?v=20260719-protein-text-binding-v1"></script>
+  <script src="./default-layout.js?v=20260624-arrow-default-scale-v1"></script>
   <script>
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     if (APP_MODE === 'layout-builder') document.body.classList.add('layout-builder-mode');
     const BUILDER_BUILD_ID = APP_MODE === 'layout-builder'
-      ? '20260719-protein-text-binding-v1'
+      ? '20260719-protein-layout-link-v1'
       : '20260624-section-indicators-disabled-v1';
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
     const SECTIONS = [
@@ -1251,7 +1251,6 @@
     const TEXT_LAYER_CLIP_BLEED = 2;
     const LAYOUT_BUILDER_TEXT_RECOVERY_META_KEY = 'layoutBuilderTextRecoveryV1';
     const LAYOUT_BUILDER_MACRO_TEXTBOX_REPAIR_META_KEY = 'layoutBuilderMacroTextboxRepairV1';
-    const LAYOUT_BUILDER_PROTEIN_TEXT_BINDING_META_KEY = 'layoutBuilderProteinTextBindingV1';
     const LAYOUT_BUILDER_VITAMIN_BAR_TEXTBOX_META_KEY = 'layoutBuilderVitaminBarTextboxesV9';
     const LAYOUT_BUILDER_MINERAL_BAR_SPRITES_META_KEY = 'layoutBuilderMineralBarSpritesV3';
     const LAYOUT_BUILDER_MINERAL_BAR_TEXTBOX_META_KEY = 'layoutBuilderMineralBarTextboxesV9';
@@ -3637,32 +3636,6 @@
       layout.meta[LAYOUT_BUILDER_MACRO_TEXTBOX_REPAIR_META_KEY] = true;
     }
 
-    function releaseProteinDisplayTextBindings(layout) {
-      if (APP_MODE !== 'layout-builder') return;
-      layout.meta = layout.meta || {};
-      if (layout.meta[LAYOUT_BUILDER_PROTEIN_TEXT_BINDING_META_KEY]) return;
-
-      const proteinTextIds = new Set([
-        'protein_macro_label',
-        'protein_macro_value',
-        ...Array.from({ length: 4 }, (_, index) => [
-          `protein_submacro_label_${index + 1}`,
-          `protein_submacro_value_${index + 1}`
-        ]).flat()
-      ]);
-      const releasedIds = [];
-      getSectionLayersFromLayout(layout, 'protein')
-        .filter(layer => isTextLayer(layer) && proteinTextIds.has(String(layer.id || '')))
-        .forEach(layer => {
-          delete layer.manualText;
-          delete layer.layoutBuilderManualText;
-          releasedIds.push(layer.id);
-        });
-
-      restoreDeletedLayerIds(layout, releasedIds);
-      layout.meta[LAYOUT_BUILDER_PROTEIN_TEXT_BINDING_META_KEY] = true;
-    }
-
     function normalizeLayout(layout) {
       const normalized = layout || structuredClone(DEFAULT_LAYOUT);
       normalized.meta = normalized.meta || {};
@@ -3707,7 +3680,6 @@
       syncHeaderLayoutFromIntro(normalized);
       recoverLayoutBuilderDeletedTextLayers(normalized);
       repairLayoutBuilderMacroTextBoxes(normalized);
-      releaseProteinDisplayTextBindings(normalized);
       ensureLayoutBuilderVitaminBarTextboxes(normalized);
       ensureLayoutBuilderMineralBarSprites(normalized);
       ensureLayoutBuilderMineralBarTextboxes(normalized);

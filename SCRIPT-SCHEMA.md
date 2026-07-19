@@ -155,8 +155,8 @@ Rules:
 - `protein_g` belongs in the macro bubble/header, not in the submacro rows.
 - `protein_g_fallback` may appear in scorer `metricBreakdown` and may guide narration, but it must not appear in `sections[].displayItems`.
 - Visible macro subrows may display `N/A` only when the main macro bubble for that section displays `N/A`.
-- If the protein macro displays a value, missing or protein-gate-skipped visible rows use the display default for that row (`0g`, `0/9`, `0/11`, or `0%`) and resolve the normal arrow band.
-- Display defaults are presentation-only values with `displaySource: submacro_display_default`; they must not be written back into food source metrics or treated as source-backed nutrition evidence.
+- If the protein macro displays a value, missing or protein-gate-skipped visible rows use source-backed values first, then labelled display-only estimates when available, then the row default (`0g`, `0/9`, `0/11`, or `0%`) as the final fallback.
+- Display estimates use `displaySource: protein_display_estimate`; final defaults use `displaySource: submacro_display_default`. Neither may be written back into food source metrics or treated as source-backed nutrition evidence.
 - Protein narration may mention protein amount when fallback scoring is used, but the subtitle/body display still follows the four visible row slots above.
 
 The generator emits a proteins-section `displayPolicy` object with:

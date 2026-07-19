@@ -228,6 +228,7 @@ Suggested fields:
 - visible_rows
 - hidden_fallback_metric_key (`protein_g_fallback`)
 - missing_value_display (`N/A`)
+- display_estimate_source (`protein_display_estimate`)
 - show_protein_fallback_as_visible_row (`false`)
 
 Locked v1 visible row order:
@@ -239,9 +240,10 @@ Locked v1 visible row order:
 Protein display rules:
 - Always keep those four visible row slots for the proteins section.
 - Visible protein rows may display `N/A` only when the protein macro bubble displays `N/A`.
-- If the protein macro displays a value and a visible protein row is missing, skipped, or withheld, display that row's default value and resolve the normal arrow band.
-- Protein row display defaults are `0g` for collagen, `0/9` for essential amino acids, `0/11` for non-essential amino acids, and `0%` for bioavailability.
-- Display defaults are presentation-only; do not write them back into food source metrics or treat them as source-backed nutrition evidence.
+- If the protein macro displays a value and a visible protein row is missing, skipped, or withheld, display source-backed values first, then a labelled display-only protein estimate when available, then that row's default value as a final presentation fallback.
+- Protein display estimates are presentation-only values marked with `displaySource: protein_display_estimate`; they may be derived from the category-specific `proteinFallback` band and broad protein source class, but they are not amino-acid profile or bioavailability source evidence.
+- Final protein row display defaults are `0g` for collagen, `0/9` for essential amino acids, `0/11` for non-essential amino acids, and `0%` for bioavailability.
+- Display estimates/defaults are presentation-only; do not write them back into food source metrics or treat them as source-backed nutrition evidence.
 - `protein_g_fallback` may contribute to the proteins section score and narration when quality metrics are not usable, but it must not appear in `sections[].displayItems`.
 
 ### score_calibrations

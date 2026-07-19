@@ -179,9 +179,10 @@ The related `proteinFallback.metricKey` is intentionally hidden from the visible
 - it may guide narration, because the protein amount is still relevant context
 - it must not be displayed as a protein submacro row, because the protein macro bubble already displays `protein_g`
 
-Missing, skipped, or withheld protein-quality fields use the visible row's display default when the protein macro displays a value.
-Those display defaults are `0g` for collagen, `0/9` for essential amino acids, `0/11` for non-essential amino acids, and `0%` for bioavailability, with the normal arrow band resolved from the row's rules.
-These defaults are presentation-only and must not be written into source food metrics as if they were source-backed nutrition evidence.
+Missing, skipped, or withheld protein-quality fields use source-backed values first, then labelled display-only estimates when available, then the visible row's display default when the protein macro displays a value.
+Display estimates are marked with `displaySource: protein_display_estimate` and can use the category-specific protein fallback band plus broad protein source class; they are not stored as source nutrition metrics.
+Final display defaults are `0g` for collagen, `0/9` for essential amino acids, `0/11` for non-essential amino acids, and `0%` for bioavailability, with the normal arrow band resolved from the row's rules.
+These estimates/defaults are presentation-only and must not be written into source food metrics as if they were source-backed nutrition evidence.
 
 ### 4. Keep context items separate from nutrient metrics
 Do not force antioxidants, pesticide risk, sodium concerns, convenience tradeoffs, and similar contextual notes into the same metric array as nutrient data.

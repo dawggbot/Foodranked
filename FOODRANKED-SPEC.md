@@ -80,7 +80,7 @@ Additional format rules:
 - submacros use arrow indicators only, with repeated arrow sprites for 1/2/3 strength bands
 - protein section visible submacros stay locked to collagen, essential amino acids, non-essential amino acids, and bioavailability
 - `protein_g_fallback` is hidden scoring/narration support only; it must not replace a visible protein submacro row because protein grams already appear in the macro bubble
-- missing, source-withheld, or protein-gate-skipped protein-quality rows display as `N/A`, never fake `0`
+- protein visible rows display `N/A` only when the protein macro itself displays `N/A`; otherwise missing or protein-gate-skipped protein-quality source values may use labelled display-only estimates/defaults without being written back as source nutrition
 - vitamins use their own sprite treatment while vitamins and minerals keep full-height DV bars
 - pros and cons are bullet points with major or minor labels
 - final screen stamps in the tier result

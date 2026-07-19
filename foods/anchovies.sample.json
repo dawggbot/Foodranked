@@ -39,8 +39,8 @@
     "sugar_g": null,
     "glycemic_index": null,
     "collagen_g": 1.2,
-    "essential_amino_acids_score": null,
-    "nonessential_amino_acids_score": null,
+    "essential_amino_acids_score": 9,
+    "nonessential_amino_acids_score": 10,
     "bioavailability_percent": null,
     "vitamin_a_dv": 1,
     "vitamin_c_dv": 0,
@@ -52,7 +52,27 @@
     "magnesium_dv": 16,
     "zinc_dv": 22,
     "calcium_dv": 18,
-    "potassium_dv": 12
+    "potassium_dv": 12,
+    "amino_acids_mg": {
+      "tryptophan_mg": 324,
+      "threonine_mg": 1266,
+      "isoleucine_mg": 1331,
+      "leucine_mg": 2348,
+      "lysine_mg": 2653,
+      "methionine_mg": 855,
+      "cystine_mg": 310,
+      "phenylalanine_mg": 1128,
+      "tyrosine_mg": 975,
+      "valine_mg": 1488,
+      "arginine_mg": 1729,
+      "histidine_mg": 850,
+      "alanine_mg": 1747,
+      "aspartic_acid_mg": 2958,
+      "glutamic_acid_mg": 4312,
+      "glycine_mg": 1387,
+      "proline_mg": 1021,
+      "serine_mg": 1179
+    }
   },
   "contextItems": {
     "pros": [
@@ -118,8 +138,8 @@
     "sugar_g": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
     "glycemic_index": "N/A for this food identity or intentionally withheld because it is not defensibly source-backed for this exact entry.",
     "collagen_g": "Calibration estimate retained; needs source-backed hydroxyproline before production use.",
-    "essential_amino_acids_score": "N/A until source-backed specific amino-acid amounts are available; trace/presence proxy scores are not used.",
-    "nonessential_amino_acids_score": "N/A until source-backed specific amino-acid amounts are available; trace/presence proxy scores are not used.",
+    "essential_amino_acids_score": "Derived from source-backed amino_acids_mg using config/amino-acid-thresholds.v1.json; only amino-acid groups meeting useful amount thresholds count.",
+    "nonessential_amino_acids_score": "Derived from source-backed amino_acids_mg using config/amino-acid-thresholds.v1.json; only amino-acid groups meeting useful amount thresholds count.",
     "bioavailability_percent": "N/A until protein quality is source-backed for this exact food identity.",
     "vitamin_a_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
     "vitamin_c_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
@@ -131,7 +151,8 @@
     "magnesium_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
     "zinc_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
     "calcium_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
-    "potassium_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources."
+    "potassium_dv": "Per-100g source-backed nutrient value or DV-derived value; see nutritionDataSources.",
+    "amino_acids_mg": "USDA FoodData Central amino-acid nutrient rows converted from g to mg per 100g."
   },
   "nutritionDataSources": [
     {
@@ -156,5 +177,14 @@
       },
       "checkedAt": "2026-07-18"
     }
-  ]
+  ],
+  "aminoAcidDataSource": {
+    "sourceName": "USDA FoodData Central - SR Legacy",
+    "sourceType": "primary",
+    "recordId": "FDC 174183",
+    "url": "https://fdc.nal.usda.gov/food-details/174183/nutrients",
+    "fetchedAt": "2026-07-19",
+    "thresholdPolicy": "config/amino-acid-thresholds.v1.json",
+    "fdcDescription": "Fish, anchovy, european, canned in oil, drained solids"
+  }
 }

@@ -136,7 +136,7 @@ Visible v1 protein row order is locked:
 4. `bioavailability_percent`
 
 Rows that are missing, skipped by the useful-protein gate, intentionally withheld, or not source-backed for the exact food identity stay missing in source metrics.
-If the protein macro displays a value, generated display rows use presentation-only defaults (`0g`, `0/9`, `0/11`, `0%`) and resolve the normal arrow band.
+If the protein macro displays a value, generated display rows use source-backed values first, then labelled display-only estimates when available, then presentation-only defaults (`0g`, `0/9`, `0/11`, `0%`) as the final fallback.
 If the protein macro displays `N/A`, the visible protein rows may display `N/A` with no arrow.
 
 ### collagen_g
@@ -279,7 +279,7 @@ These are not canonical nutrient facts and should not be mixed into the raw data
 - Use `not_applicable` only when a submacro is genuinely N/A for that food type's entries.
 - If a submacro has a defensible numeric value, it must use a red/green arrow band.
 - `cholesterol_mg` is usually N/A for plant categories, but a sourced `0mg` value should still resolve to a green low-cholesterol arrow.
-- `collagen_g` is usually N/A for plant categories.
+- `collagen_g` is usually N/A in plant source metrics; display payloads may still show a presentation-only `0g`/estimate when the protein macro displays a value.
 - `starch_g` is consistently `higher_better` for viewer-facing arrows; food-type rules may tune its importance with weights, thresholds, or applicability
 - macro totals are always display-only in v1
 

@@ -44,6 +44,19 @@
     nonessential_amino_acids_score: 0,
     bioavailability_percent: 0
   };
+  const BIOAVAILABILITY_DISPLAY_ESTIMATES_BY_TYPE = {
+    meats: 92,
+    dairy: 90,
+    legumes: 72,
+    grains: 62,
+    nuts: 74,
+    seeds: 74,
+    vegetables: 45,
+    tubers: 42,
+    fruits: 35,
+    misc: 50,
+    'oils-and-fats': 35
+  };
   const METRIC_SHORT_LABELS = {
     saturated_fat_g: 'SAT FAT',
     polyunsaturated_fat_g: 'POLY FAT',
@@ -367,6 +380,97 @@
     return null;
   }
 
+  function clampRounded(value, min, max) {
+    return Math.max(min, Math.min(max, Math.round(value)));
+  }
+
+  function proteinDisplayProteinG(food) {
+    return macroTotalValue(food, 'protein');
+  }
+
+  function proteinFallbackBandScore(food) {
+    const proteinG = proteinDisplayProteinG(food);
+    if (proteinG == null || proteinG <= 0) return null;
+    const band = ruleBandForValue({ bands: food?.ruleset?.proteinFallback?.bands || [] }, proteinG);
+    return asNumber(band?.score, null);
+  }
+
+  function textKeyForFood(food) {
+    return `${food?.id || ''} ${food?.name || ''}`.toLowerCase();
+  }
+
+  function estimatedCollagenDisplayValue(food) {
+    if (normalizeFoodType(food?.foodType) !== 'meats') return 0;
+    const key = textKeyForFood(food);
+    if (/chicken.*breast|turkey.*breast|cod/.test(key)) return 0.4;
+    if (/salmon|tuna/.test(key)) return 0.3;
+    if (/herring|mackerel|trout|turkey.*sausage|chicken.*thigh/.test(key)) return 0.8;
+    if (/anchov|sardine|shrimp|hot.?dog|pepperoni/.test(key)) return 1.2;
+    if (/lamb/.test(key)) return 1.4;
+    if (/bacon|corned|salami|pork|duck|venison|beef|liver/.test(key)) return 1.0;
+    return 0.8;
+  }
+
+  function estimatedBioavailabilityDisplayValue(food) {
+    const key = textKeyForFood(food);
+    if (/whey/.test(key)) return 99;
+    if (/protein.?bar/.test(key)) return 80;
+    if (/salmon|tuna|cod|trout|mackerel|sardine|herring|anchov|shrimp/.test(key)) return 94;
+    if (/hot.?dog|sausage|salami|pepperoni|bacon|corned/.test(key)) return 84;
+    if (/chicken|turkey|beef|pork|lamb|venison|duck|liver/.test(key)) return 92;
+    if (/yogurt|kefir|skyr|quark|labneh/.test(key)) return 90;
+    if (/cheese|mozzarella|parmesan|cheddar|feta|ricotta|halloumi|cottage/.test(key)) return 92;
+    if (/milk/.test(key)) return 88;
+    if (/soy|tofu|tempeh|edamame/.test(key)) return 78;
+    if (/protein/.test(key)) return 80;
+    if (/cocoa/.test(key)) return 55;
+    if (/matcha/.test(key)) return 45;
+    return BIOAVAILABILITY_DISPLAY_ESTIMATES_BY_TYPE[normalizeFoodType(food?.foodType)] ?? 50;
+  }
+
+  function proteinDisplayQualityScore(food) {
+    const baseScore = proteinFallbackBandScore(food);
+    if (baseScore == null) return null;
+    const proteinG = proteinDisplayProteinG(food) || 0;
+    const key = textKeyForFood(food);
+
+    if (/whey/.test(key)) return 100;
+    if (/salmon|tuna|cod|trout|mackerel|sardine|herring|anchov|shrimp|chicken|turkey|beef|pork|lamb|venison|duck|liver/.test(key)) {
+      if (proteinG >= 18) return 100;
+      if (proteinG >= 14) return Math.max(baseScore, 80);
+      if (proteinG >= 10) return Math.max(baseScore, 60);
+      return baseScore;
+    }
+    if (/cheese|mozzarella|parmesan|cheddar|feta|ricotta|halloumi|cottage|skyr|quark|labneh/.test(key)) {
+      if (proteinG >= 18) return 100;
+      if (proteinG >= 9) return Math.max(baseScore, 80);
+      if (proteinG >= 3) return Math.max(baseScore, 60);
+      return baseScore;
+    }
+    if (/milk|yogurt|kefir/.test(key)) {
+      if (proteinG >= 8) return Math.max(baseScore, 80);
+      if (proteinG >= 3) return Math.max(baseScore, 60);
+      return baseScore;
+    }
+    if (/soy|tofu|tempeh|edamame/.test(key)) {
+      if (proteinG >= 10) return Math.max(baseScore, 80);
+      if (proteinG >= 4) return Math.max(baseScore, 60);
+      return baseScore;
+    }
+    if (/protein.?bar|protein/.test(key)) return Math.max(baseScore, 80);
+    return baseScore;
+  }
+
+  function proteinDisplayEstimate(food, metricKey) {
+    if (metricKey === 'collagen_g') return estimatedCollagenDisplayValue(food);
+    if (metricKey === 'bioavailability_percent') return estimatedBioavailabilityDisplayValue(food);
+    const score = proteinDisplayQualityScore(food);
+    if (score == null) return null;
+    if (metricKey === 'essential_amino_acids_score') return clampRounded((score / 100) * 9, 0, 9);
+    if (metricKey === 'nonessential_amino_acids_score') return clampRounded((score / 100) * 11, 0, 11);
+    return null;
+  }
+
   function macroSubmetricDisplayValue(food, sectionId, metricKey) {
     if (!hasDisplayedMacro(food, sectionId)) return null;
     if (sectionId === 'protein' && metricKey === 'protein_g_fallback') return asNumber(food?.header?.protein_g, null);
@@ -379,6 +483,10 @@
     if (batchItemValue != null) return batchItemValue;
     const value = asNumber(food?.metrics?.[metricKey], null);
     if (value != null) return value;
+    if (sectionId === 'protein') {
+      const estimate = proteinDisplayEstimate(food, metricKey);
+      if (estimate != null) return estimate;
+    }
     return displayDefaultValueForSubmacro(metricKey);
   }
 

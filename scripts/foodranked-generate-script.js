@@ -75,6 +75,19 @@ const SUBMACRO_DISPLAY_DEFAULT_VALUES = {
   nonessential_amino_acids_score: 0,
   bioavailability_percent: 0
 };
+const BIOAVAILABILITY_DISPLAY_ESTIMATES_BY_TYPE = {
+  meats: 92,
+  dairy: 90,
+  legumes: 72,
+  grains: 62,
+  nuts: 74,
+  seeds: 74,
+  vegetables: 45,
+  tubers: 42,
+  fruits: 35,
+  misc: 50,
+  'oils-and-fats': 35
+};
 const DEFAULT_HIGHER_BETTER_BANDS = [
   { label: '3_red', max: 0, score: 0 },
   { label: '2_red', min: 0, max: 1, score: 20 },
@@ -250,6 +263,119 @@ function scoreFromBands(value, bands) {
     const minOk = !hasMin || value >= band.min;
     const maxOk = !hasMax || value <= band.max;
     if (minOk && maxOk) return { label: band.label, score: band.score };
+  }
+  return null;
+}
+
+function clampRounded(value, min, max) {
+  return Math.max(min, Math.min(max, Math.round(value)));
+}
+
+function proteinDisplayProteinG(result) {
+  return toFiniteNumber(result.header?.protein_g ?? result.proteinQualityGate?.proteinG);
+}
+
+function proteinFallbackBandScore(result) {
+  const proteinG = proteinDisplayProteinG(result);
+  if (proteinG === null || proteinG <= 0) return null;
+  const band = scoreFromBands(proteinG, result.rulesetConfig?.proteinFallback?.bands || []);
+  return toFiniteNumber(band?.score) ?? null;
+}
+
+function textKeyForFood(result) {
+  return `${result.food?.id || ''} ${result.food?.name || ''}`.toLowerCase();
+}
+
+function estimatedCollagenDisplayValue(result) {
+  if (result.food?.foodType !== 'meats') return 0;
+  const key = textKeyForFood(result);
+  if (/chicken.*breast|turkey.*breast|cod/.test(key)) return 0.4;
+  if (/salmon|tuna/.test(key)) return 0.3;
+  if (/herring|mackerel|trout|turkey.*sausage|chicken.*thigh/.test(key)) return 0.8;
+  if (/anchov|sardine|shrimp|hot.?dog|pepperoni/.test(key)) return 1.2;
+  if (/lamb/.test(key)) return 1.4;
+  if (/bacon|corned|salami|pork|duck|venison|beef|liver/.test(key)) return 1.0;
+  return 0.8;
+}
+
+function estimatedBioavailabilityDisplayValue(result) {
+  const key = textKeyForFood(result);
+  if (/whey/.test(key)) return 99;
+  if (/protein.?bar/.test(key)) return 80;
+  if (/salmon|tuna|cod|trout|mackerel|sardine|herring|anchov|shrimp/.test(key)) return 94;
+  if (/hot.?dog|sausage|salami|pepperoni|bacon|corned/.test(key)) return 84;
+  if (/chicken|turkey|beef|pork|lamb|venison|duck|liver/.test(key)) return 92;
+  if (/yogurt|kefir|skyr|quark|labneh/.test(key)) return 90;
+  if (/cheese|mozzarella|parmesan|cheddar|feta|ricotta|halloumi|cottage/.test(key)) return 92;
+  if (/milk/.test(key)) return 88;
+  if (/soy|tofu|tempeh|edamame/.test(key)) return 78;
+  if (/protein/.test(key)) return 80;
+  if (/cocoa/.test(key)) return 55;
+  if (/matcha/.test(key)) return 45;
+  return BIOAVAILABILITY_DISPLAY_ESTIMATES_BY_TYPE[result.food?.foodType] ?? 50;
+}
+
+function proteinDisplayQualityScore(result) {
+  const baseScore = proteinFallbackBandScore(result);
+  if (baseScore === null) return null;
+  const proteinG = proteinDisplayProteinG(result) || 0;
+  const key = textKeyForFood(result);
+
+  if (/whey/.test(key)) return 100;
+  if (/salmon|tuna|cod|trout|mackerel|sardine|herring|anchov|shrimp|chicken|turkey|beef|pork|lamb|venison|duck|liver/.test(key)) {
+    if (proteinG >= 18) return 100;
+    if (proteinG >= 14) return Math.max(baseScore, 80);
+    if (proteinG >= 10) return Math.max(baseScore, 60);
+    return baseScore;
+  }
+  if (/cheese|mozzarella|parmesan|cheddar|feta|ricotta|halloumi|cottage|skyr|quark|labneh/.test(key)) {
+    if (proteinG >= 18) return 100;
+    if (proteinG >= 9) return Math.max(baseScore, 80);
+    if (proteinG >= 3) return Math.max(baseScore, 60);
+    return baseScore;
+  }
+  if (/milk|yogurt|kefir/.test(key)) {
+    if (proteinG >= 8) return Math.max(baseScore, 80);
+    if (proteinG >= 3) return Math.max(baseScore, 60);
+    return baseScore;
+  }
+  if (/soy|tofu|tempeh|edamame/.test(key)) {
+    if (proteinG >= 10) return Math.max(baseScore, 80);
+    if (proteinG >= 4) return Math.max(baseScore, 60);
+    return baseScore;
+  }
+  if (/protein.?bar|protein/.test(key)) return Math.max(baseScore, 80);
+  return baseScore;
+}
+
+function proteinDisplayEstimate(result, metricKey) {
+  if (!PROTEIN_SUBMACRO_KEYS.includes(metricKey)) return null;
+  if (metricKey === 'collagen_g') {
+    return {
+      value: estimatedCollagenDisplayValue(result),
+      basis: 'display-only estimate from FoodRanked protein source class; source metric remains N/A unless directly sourced'
+    };
+  }
+  if (metricKey === 'bioavailability_percent') {
+    return {
+      value: estimatedBioavailabilityDisplayValue(result),
+      basis: 'display-only estimate from FoodRanked protein source class; not a measured digestibility value'
+    };
+  }
+
+  const score = proteinDisplayQualityScore(result);
+  if (score === null) return null;
+  if (metricKey === 'essential_amino_acids_score') {
+    return {
+      value: clampRounded((score / 100) * 9, 0, 9),
+      basis: 'display-only estimate from category-specific protein amount band and protein source class; not a source amino-acid profile'
+    };
+  }
+  if (metricKey === 'nonessential_amino_acids_score') {
+    return {
+      value: clampRounded((score / 100) * 11, 0, 11),
+      basis: 'display-only estimate from category-specific protein amount band and protein source class; not a source amino-acid profile'
+    };
   }
   return null;
 }
@@ -1138,8 +1264,16 @@ function completeMacroDisplayItems(result, sectionKey) {
     }
 
     const sourceValue = displayValueForSubmacro(result, metricKey);
-    const usedDisplayDefault = sourceValue === null || sourceValue === undefined;
-    const value = usedDisplayDefault ? displayDefaultValueForSubmacro(metricKey) : sourceValue;
+    const displayEstimate = sourceValue === null || sourceValue === undefined
+      ? proteinDisplayEstimate(result, metricKey)
+      : null;
+    const usedDisplayEstimate = displayEstimate?.value !== null && displayEstimate?.value !== undefined;
+    const usedDisplayDefault = !usedDisplayEstimate && (sourceValue === null || sourceValue === undefined);
+    const value = usedDisplayEstimate
+      ? displayEstimate.value
+      : usedDisplayDefault
+        ? displayDefaultValueForSubmacro(metricKey)
+        : sourceValue;
     if (value === null || value === undefined) return {
       metricKey,
       text: `${formatMetricKey(metricKey)} at N/A`,
@@ -1167,7 +1301,9 @@ function completeMacroDisplayItems(result, sectionKey) {
       value,
       score: bandResult?.score ?? null,
       denominator,
-      displaySource: usedDisplayDefault ? 'submacro_display_default' : 'macro_numeric_fallback',
+      displaySource: usedDisplayEstimate ? 'protein_display_estimate' : usedDisplayDefault ? 'submacro_display_default' : 'macro_numeric_fallback',
+      displayEstimated: usedDisplayEstimate || undefined,
+      displayEstimateBasis: usedDisplayEstimate ? displayEstimate.basis : undefined,
       displayDefault: usedDisplayDefault,
       displayDefaultReason: usedDisplayDefault
         ? proteinQualityMetricSkipped(result, metricKey)

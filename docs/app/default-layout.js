@@ -2639,11 +2639,10 @@ window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT = {
           "y": 75,
           "z": 27,
           "visible": true,
-          "text": "CLGN",
+          "text": "COLLAGEN",
           "fontSize": 6,
           "width": 34,
-          "align": "left",
-          "manualText": true
+          "align": "left"
         },
         {
           "id": "protein_submacro_value_1",
@@ -2653,11 +2652,10 @@ window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT = {
           "y": 75,
           "z": 27,
           "visible": true,
-          "text": "1g",
+          "text": "N/A",
           "fontSize": 6,
           "width": 24,
-          "align": "right",
-          "color": "#ff6f6f"
+          "align": "right"
         },
         {
           "id": "protein_submacro_label_2",
@@ -2667,11 +2665,10 @@ window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT = {
           "y": 93,
           "z": 27,
           "visible": true,
-          "text": "EAAs",
+          "text": "EAA",
           "fontSize": 6,
           "width": 34,
-          "align": "left",
-          "manualText": true
+          "align": "left"
         },
         {
           "id": "protein_submacro_value_2",
@@ -2681,12 +2678,10 @@ window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT = {
           "y": 93,
           "z": 27,
           "visible": true,
-          "text": "8/9",
+          "text": "N/A",
           "fontSize": 6,
           "width": 24,
-          "align": "right",
-          "color": "#7cf2a7",
-          "manualText": true
+          "align": "right"
         },
         {
           "id": "protein_submacro_label_3",
@@ -2696,11 +2691,10 @@ window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT = {
           "y": 111,
           "z": 27,
           "visible": true,
-          "text": "N-EAAs",
+          "text": "NEAA",
           "fontSize": 6,
           "width": 34,
-          "align": "left",
-          "manualText": true
+          "align": "left"
         },
         {
           "id": "protein_submacro_value_3",
@@ -2710,12 +2704,10 @@ window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT = {
           "y": 111,
           "z": 27,
           "visible": true,
-          "text": "10/11",
+          "text": "N/A",
           "fontSize": 6,
           "width": 24,
-          "align": "right",
-          "color": "#7cf2a7",
-          "manualText": true
+          "align": "right"
         },
         {
           "id": "protein_submacro_label_4",
@@ -2725,11 +2717,10 @@ window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT = {
           "y": 129,
           "z": 27,
           "visible": true,
-          "text": "BIO-A",
+          "text": "BIOAVAIL.",
           "fontSize": 6,
           "width": 34,
-          "align": "left",
-          "manualText": true
+          "align": "left"
         },
         {
           "id": "protein_submacro_value_4",
@@ -2739,11 +2730,10 @@ window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT = {
           "y": 129,
           "z": 27,
           "visible": true,
-          "text": "90%",
+          "text": "N/A",
           "fontSize": 6,
           "width": 24,
-          "align": "right",
-          "color": "#7cf2a7"
+          "align": "right"
         },
         {
           "id": "lib_section_separator_meat_1776259059548",

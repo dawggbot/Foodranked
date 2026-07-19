@@ -77,6 +77,26 @@
     { label: '3_red', min: 5, score: 0 }
   ];
 
+  function defaultBandsForPolarity(polarity) {
+    return polarity === 'higher_worse' ? DEFAULT_HIGHER_WORSE_BANDS : DEFAULT_HIGHER_BETTER_BANDS;
+  }
+
+  function displayRuleWithFallbackBands(rule, metricKey, sectionKey) {
+    const polarity = rule?.polarity || DEFAULT_SUBMACRO_POLARITIES[metricKey];
+    if (!polarity) return rule || null;
+    const bands = Array.isArray(rule?.bands) && rule.bands.length ? rule.bands : defaultBandsForPolarity(polarity);
+    return {
+      metricKey,
+      sectionKey,
+      scoringMode: 'arrow_bands',
+      polarity,
+      applicability: 'optional',
+      weight: 1,
+      ...(rule || {}),
+      bands
+    };
+  }
+
   const BACKDROP_PALETTES = {
     vegetables: { top: '#dff4cf', bottom: '#bfd8b0', glowA: 'rgba(219,255,183,.78)', glowB: 'rgba(108,169,104,.38)' },
     fruits: { top: '#ffe0dc', bottom: '#e7b8b5', glowA: 'rgba(255,173,165,.78)', glowB: 'rgba(219,109,101,.34)' },
@@ -422,22 +442,14 @@
     }
     const bySection = food?.ruleset?.metricRulesBySection?.[sectionKey] || food?.ruleset?.metricRulesBySection?.[sectionId] || [];
     const fromSection = bySection.find(rule => rule.metricKey === metricKey);
-    if (fromSection) return fromSection;
+    if (fromSection) return displayRuleWithFallbackBands(fromSection, metricKey, sectionKey);
     const fromRuleset = (food?.ruleset?.metricRules || []).find(rule => {
       return rule.metricKey === metricKey && (!rule.sectionKey || rule.sectionKey === sectionKey || rule.sectionKey === sectionId);
     });
-    if (fromRuleset) return fromRuleset;
+    if (fromRuleset) return displayRuleWithFallbackBands(fromRuleset, metricKey, sectionKey);
     const polarity = DEFAULT_SUBMACRO_POLARITIES[metricKey];
     if (!polarity) return null;
-    return {
-      metricKey,
-      sectionKey,
-      scoringMode: 'arrow_bands',
-      polarity,
-      applicability: 'optional',
-      weight: 1,
-      bands: polarity === 'higher_worse' ? DEFAULT_HIGHER_WORSE_BANDS : DEFAULT_HIGHER_BETTER_BANDS
-    };
+    return displayRuleWithFallbackBands(null, metricKey, sectionKey);
   }
 
   function proteinQualitySpecAllowed(food, sectionId, spec) {

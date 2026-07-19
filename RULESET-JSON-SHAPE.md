@@ -163,7 +163,7 @@ Use:
 If a source-backed submacro has a numeric value for any food in that food type, it must not be parked as `not_applicable`; give it a six-band arrow ladder so it displays as red or green.
 Use `not_applicable` only when the metric is genuinely N/A for that food type's entries.
 A zero weight must mean zero contribution.
-Only N/A submacro rows may display without an arrow indicator.
+Visible macro subrows may display `N/A` only when the main macro for that section also displays `N/A`; any visible numeric subrow must resolve an arrow indicator.
 
 ### 3a. Lock the protein section display contract
 The visible protein submacro rows are not inferred from whatever scored the protein section.
@@ -179,9 +179,9 @@ The related `proteinFallback.metricKey` is intentionally hidden from the visible
 - it may guide narration, because the protein amount is still relevant context
 - it must not be displayed as a protein submacro row, because the protein macro bubble already displays `protein_g`
 
-Missing, skipped, or withheld protein-quality fields display as `N/A` with no arrow.
-Do not convert `null`, skipped protein-gate rows, or non-source-backed values into `0`.
-A visible `0` is allowed only when the metric actually scored as zero or a source-backed raw metric is truly zero.
+Missing, skipped, or withheld protein-quality fields use the visible row's display default when the protein macro displays a value.
+Those display defaults are `0g` for collagen, `0/9` for essential amino acids, `0/11` for non-essential amino acids, and `0%` for bioavailability, with the normal arrow band resolved from the row's rules.
+These defaults are presentation-only and must not be written into source food metrics as if they were source-backed nutrition evidence.
 
 ### 4. Keep context items separate from nutrient metrics
 Do not force antioxidants, pesticide risk, sodium concerns, convenience tradeoffs, and similar contextual notes into the same metric array as nutrient data.

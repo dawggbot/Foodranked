@@ -61,6 +61,20 @@ const DEFAULT_SUBMACRO_POLARITIES = {
   nonessential_amino_acids_score: 'higher_better',
   bioavailability_percent: 'higher_better'
 };
+const SUBMACRO_DISPLAY_DEFAULT_VALUES = {
+  saturated_fat_g: 0,
+  polyunsaturated_fat_g: 0,
+  omega3_mg: 0,
+  cholesterol_mg: 0,
+  fibre_g: 0,
+  sugar_g: 0,
+  starch_g: 0,
+  glycemic_index: 0,
+  collagen_g: 0,
+  essential_amino_acids_score: 0,
+  nonessential_amino_acids_score: 0,
+  bioavailability_percent: 0
+};
 const DEFAULT_HIGHER_BETTER_BANDS = [
   { label: '3_red', max: 0, score: 0 },
   { label: '2_red', min: 0, max: 1, score: 20 },
@@ -1078,6 +1092,14 @@ function displayValueForSubmacro(result, metricKey) {
   return toFiniteNumber(result.foodMetrics?.[metricKey]);
 }
 
+function displayDefaultValueForSubmacro(metricKey) {
+  if (Object.prototype.hasOwnProperty.call(SUBMACRO_DISPLAY_DEFAULT_VALUES, metricKey)) {
+    return SUBMACRO_DISPLAY_DEFAULT_VALUES[metricKey];
+  }
+  if (/_(g|mg|mcg|kg|percent|score)$/i.test(metricKey) || /glycemic/i.test(metricKey)) return 0;
+  return null;
+}
+
 function displayRuleForSubmacro(result, sectionKey, metricKey) {
   const rules = result.rulesetConfig?.metricRules || [];
   const rule = rules.find(item => (
@@ -1115,25 +1137,23 @@ function completeMacroDisplayItems(result, sectionKey) {
       };
     }
 
-    const value = displayValueForSubmacro(result, metricKey);
-    if (value === null || value === undefined) {
-      const skippedByProteinGate = proteinQualityMetricSkipped(result, metricKey);
-      return {
-        metricKey,
-        text: `${formatMetricKey(metricKey)} at N/A`,
-        weightedScore: null,
-        scoringMode: 'not_applicable',
-        band: null,
-        polarity: null,
-        dvPercent: null,
-        value: null,
-        score: null,
-        denominator,
-        displaySource: skippedByProteinGate ? 'protein_quality_gate_skipped' : 'not_source_backed',
-        displayValue: 'N/A',
-        notApplicableReason: skippedByProteinGate ? 'protein_quality_gate' : 'not_source_backed'
-      };
-    }
+    const sourceValue = displayValueForSubmacro(result, metricKey);
+    const usedDisplayDefault = sourceValue === null || sourceValue === undefined;
+    const value = usedDisplayDefault ? displayDefaultValueForSubmacro(metricKey) : sourceValue;
+    if (value === null || value === undefined) return {
+      metricKey,
+      text: `${formatMetricKey(metricKey)} at N/A`,
+      weightedScore: null,
+      scoringMode: 'not_applicable',
+      band: null,
+      polarity: null,
+      dvPercent: null,
+      value: null,
+      score: null,
+      denominator,
+      displayValue: 'N/A',
+      notApplicableReason: 'no_display_default'
+    };
     const rule = displayRuleForSubmacro(result, sectionKey, metricKey);
     const bandResult = scoreFromBands(value, rule.bands || []);
     const row = {
@@ -1147,7 +1167,13 @@ function completeMacroDisplayItems(result, sectionKey) {
       value,
       score: bandResult?.score ?? null,
       denominator,
-      displaySource: 'macro_numeric_fallback'
+      displaySource: usedDisplayDefault ? 'submacro_display_default' : 'macro_numeric_fallback',
+      displayDefault: usedDisplayDefault,
+      displayDefaultReason: usedDisplayDefault
+        ? proteinQualityMetricSkipped(result, metricKey)
+          ? 'protein_quality_gate'
+          : 'missing_submacro_value'
+        : null
     };
     row.text = metricDisplayText(row, { speakDailyValue: false });
     row.displayValue = metricValueText(row);
@@ -1184,8 +1210,9 @@ function displayPolicyForSection(result, sectionKey) {
     showProteinFallbackAsVisibleRow: policy.showProteinFallbackAsVisibleRow,
     rules: {
       visibleRowsOnly: true,
-      numericRowsRequireScoredOrSourceBackedValue: true,
-      proteinQualityGateSkippedRowsDisplayNa: true,
+      visibleSubmacroRowsDisplayNaOnlyWhenMainMacroNa: true,
+      missingSubmacroRowsUseDisplayDefault: true,
+      proteinQualityGateSkippedRowsUseDisplayDefault: true,
       doNotDisplayProteinFallbackAsSubmacro: !policy.showProteinFallbackAsVisibleRow
     }
   };

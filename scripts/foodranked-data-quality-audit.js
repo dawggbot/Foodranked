@@ -27,12 +27,8 @@ const PROTEIN_VISIBLE_ROWS = [
   'nonessential_amino_acids_score',
   'bioavailability_percent'
 ];
+const MACRO_DISPLAY_SECTION_KEYS = ['fats', 'carbs', 'proteins'];
 const PROTEIN_HIDDEN_FALLBACK_METRIC_KEY = 'protein_g_fallback';
-const PROTEIN_QUALITY_DISPLAY_KEYS = new Set([
-  'essential_amino_acids_score',
-  'nonessential_amino_acids_score',
-  'bioavailability_percent'
-]);
 const EXPECTED_AMINO_ACID_GROUP_COUNTS = {
   essentialGroups: 9,
   nonessentialGroups: 11
@@ -645,6 +641,47 @@ function proteinSectionFromScript(script) {
   return (script?.sections || []).find(section => section.key === 'proteins');
 }
 
+function macroSectionMainDisplaysNa(section) {
+  return section?.macroDisplayValue === 'N/A' || section?.macroDisplayValue === null || section?.macroDisplayValue === undefined;
+}
+
+function auditMacroSubmacroDisplaySections(script, file, errors, extra = {}) {
+  const sections = script?.sections || [];
+  let checked = 0;
+
+  for (const sectionKey of MACRO_DISPLAY_SECTION_KEYS) {
+    const section = sections.find(item => item.key === sectionKey);
+    if (!section) continue;
+    checked += 1;
+
+    const mainDisplaysNa = macroSectionMainDisplaysNa(section);
+    for (const item of section.displayItems || []) {
+      if (mainDisplaysNa) continue;
+      if (item.displayValue === 'N/A') {
+        issue(errors, file, 'visible submacro row must not show N/A when the main macro displays a value', {
+          ...extra,
+          sectionKey,
+          macroDisplayValue: section.macroDisplayValue ?? null,
+          metricKey: item.metricKey || null,
+          displaySource: item.displaySource || null,
+          notApplicableReason: item.notApplicableReason || null
+        });
+      }
+      if (item.displayValue !== 'N/A' && !item.band) {
+        issue(errors, file, 'visible numeric submacro row must resolve an arrow band', {
+          ...extra,
+          sectionKey,
+          metricKey: item.metricKey || null,
+          displayValue: item.displayValue ?? null,
+          displaySource: item.displaySource || null
+        });
+      }
+    }
+  }
+
+  return checked;
+}
+
 function auditProteinDisplaySection(script, file, errors, extra = {}) {
   const section = proteinSectionFromScript(script);
   if (!section) return 0;
@@ -704,34 +741,13 @@ function auditProteinDisplaySection(script, file, errors, extra = {}) {
       issue(errors, file, 'hidden protein fallback leaked into visible protein rows', extra);
       continue;
     }
-    if ((item.displaySource === 'protein_quality_gate_skipped' || item.displaySource === 'not_source_backed') && item.displayValue !== 'N/A') {
-      issue(errors, file, 'non-source-backed protein display row must show N/A', {
-        ...extra,
-        metricKey: item.metricKey,
-        displaySource: item.displaySource,
-        displayValue: item.displayValue ?? null
-      });
-    }
-    if (item.notApplicableReason === 'protein_quality_gate' && item.displayValue !== 'N/A') {
-      issue(errors, file, 'protein-quality-gate skipped row must show N/A', {
-        ...extra,
-        metricKey: item.metricKey,
-        displayValue: item.displayValue ?? null
-      });
-    }
-    if ((item.value === null || item.value === undefined) && item.displayValue !== 'N/A') {
-      issue(errors, file, 'missing protein display row value must show N/A', {
-        ...extra,
-        metricKey: item.metricKey,
-        displayValue: item.displayValue ?? null
-      });
-    }
-    if (item.value === 0 && PROTEIN_QUALITY_DISPLAY_KEYS.has(item.metricKey) && item.displaySource !== 'scored') {
-      issue(errors, file, 'protein-quality zero must come from a scored row, not a fallback/coercion', {
+    if (item.displayValue === 'N/A' && !macroSectionMainDisplaysNa(section)) {
+      issue(errors, file, 'protein display row may show N/A only when the protein macro displays N/A', {
         ...extra,
         metricKey: item.metricKey,
         displaySource: item.displaySource || null,
-        displayValue: item.displayValue ?? null
+        displayValue: item.displayValue ?? null,
+        macroDisplayValue: section.macroDisplayValue ?? null
       });
     }
   }
@@ -748,6 +764,7 @@ function auditGeneratedProteinDisplay(errors) {
       const file = path.join(episodesDir, `${id}-${suffix}`, 'script.json');
       if (!fs.existsSync(file)) continue;
       const script = readJson(file);
+      checked += auditMacroSubmacroDisplaySections(script, file, errors, { foodId: id, mode: suffix });
       checked += auditProteinDisplaySection(script, file, errors, { foodId: id, mode: suffix });
     }
   }
@@ -756,12 +773,13 @@ function auditGeneratedProteinDisplay(errors) {
     const file = path.join(dataDir, 'foods-index.json');
     if (fs.existsSync(file)) {
       for (const food of readJson(file)) {
+        checked += auditMacroSubmacroDisplaySections(food.episode?.script, file, errors, { foodId: food.id, surface: 'foods-index' });
         checked += auditProteinDisplaySection(food.episode?.script, file, errors, { foodId: food.id, surface: 'foods-index' });
       }
     }
   }
 
-  return { proteinDisplayScripts: checked };
+  return { macroDisplayScripts: checked };
 }
 
 function main() {

@@ -123,9 +123,11 @@ Numeric mapping:
 There is no neutral middle band on purpose.
 Every scored submacro should land in a clearly good or clearly bad visual state for its category.
 If a submacro has a defensible numeric value for a food, an arrow indicator must be displayed.
-Only `N/A` submacro values may remain visually neutral/no-arrow.
+Visible macro subrows may display `N/A` only when the main macro for that section displays `N/A`.
+Any visible numeric subrow must resolve a red/green arrow band.
 Do not park a source-backed numeric submacro as `not_applicable`; either give it a category-specific 6-band ladder or make the food value `N/A` when it is not defensibly sourceable.
-Do not coerce missing, skipped, or intentionally withheld submacro values to `0` just because the main macro exists. `N/A` is the correct display when the exact submacro is not defensibly source-backed.
+When a visible submacro source value is missing, skipped, or intentionally withheld but the main macro displays a value, generated display rows use a presentation-only default and mark it with `displaySource: submacro_display_default`.
+Do not write these display defaults back into source food metrics or treat them as source-backed nutrition evidence.
 
 Protein has an additional locked display contract: the visible rows are collagen, essential amino acids, non-essential amino acids, and bioavailability. `protein_g_fallback` can score and narrate weak/ungated protein sections, but it is not a visible submacro because the macro bubble already displays protein grams.
 
@@ -279,7 +281,7 @@ This is the intended bridge rule for v1:
 - prefer direct protein submetrics when they are genuinely source-backed and trusted at the specific amino-acid level
 - skip amino-acid and bioavailability scoring below the food type's useful-protein gate
 - skip aggregate amino-acid proxy scores unless they were derived from source-backed `amino_acids_mg`
-- otherwise leave those protein-quality values as `N/A`
+- otherwise leave those protein-quality source values as `N/A`; generated display rows may still use presentation-only defaults when the protein macro displays a value
 - let a category-specific `proteinFallback` keep the proteins section alive in a stable, auditable arrow-band way
 - keep `proteinFallback` out of the visible submacro rows; visible protein display remains `collagen_g`, `essential_amino_acids_score`, `nonessential_amino_acids_score`, and `bioavailability_percent`
 

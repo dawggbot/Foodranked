@@ -61,7 +61,8 @@ Use this model instead:
 
 `neutral_display_only` is reserved for non-submacro display values such as kcal and macro totals.
 Source-backed numeric submacros must use `higher_better` or `higher_worse` with a six-band arrow ladder.
-Only N/A submacro values may remain neutral/no-arrow.
+Visible macro subrows may display `N/A` only when the main macro for that section also displays `N/A`.
+Any visible numeric subrow must resolve a red/green arrow band.
 Shared submacro metrics must keep the same polarity in every food type so viewers do not have to relearn arrow direction. Use category weights, thresholds, or `not_applicable` for food-type differences instead of flipping polarity.
 
 ## Main entities
@@ -237,10 +238,10 @@ Locked v1 visible row order:
 
 Protein display rules:
 - Always keep those four visible row slots for the proteins section.
-- A numeric protein row may display only when it is scored or defensibly source-backed for the exact food identity.
-- If the useful-protein gate skips EAA, NEAA, or bioavailability, display that row as `N/A` with no arrow.
-- If collagen is not source-backed for the exact food identity, display collagen as `N/A` with no arrow.
-- A displayed `0` is valid only when the score actually ran or a source-backed raw metric is truly zero; missing, skipped, or withheld protein-quality fields must never be converted to `0`.
+- Visible protein rows may display `N/A` only when the protein macro bubble displays `N/A`.
+- If the protein macro displays a value and a visible protein row is missing, skipped, or withheld, display that row's default value and resolve the normal arrow band.
+- Protein row display defaults are `0g` for collagen, `0/9` for essential amino acids, `0/11` for non-essential amino acids, and `0%` for bioavailability.
+- Display defaults are presentation-only; do not write them back into food source metrics or treat them as source-backed nutrition evidence.
 - `protein_g_fallback` may contribute to the proteins section score and narration when quality metrics are not usable, but it must not appear in `sections[].displayItems`.
 
 ### score_calibrations

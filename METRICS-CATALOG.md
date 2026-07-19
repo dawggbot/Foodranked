@@ -135,7 +135,9 @@ Visible v1 protein row order is locked:
 3. `nonessential_amino_acids_score`
 4. `bioavailability_percent`
 
-Rows that are missing, skipped by the useful-protein gate, intentionally withheld, or not source-backed for the exact food identity display as `N/A` with no arrow. Missing protein-quality values must never be displayed as `0`.
+Rows that are missing, skipped by the useful-protein gate, intentionally withheld, or not source-backed for the exact food identity stay missing in source metrics.
+If the protein macro displays a value, generated display rows use presentation-only defaults (`0g`, `0/9`, `0/11`, `0%`) and resolve the normal arrow band.
+If the protein macro displays `N/A`, the visible protein rows may display `N/A` with no arrow.
 
 ### collagen_g
 - Display name: Collagen

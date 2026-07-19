@@ -27,14 +27,14 @@
     protein: {
       protein_macro_label: { kind: 'staticLabel', label: 'PROTEIN', source: 'experimental binding map' },
       protein_macro_value: { kind: 'macroTotal', field: 'header.protein_g', unit: 'g', source: 'existing macro total display' },
-      protein_submacro_label_1: { kind: 'metricLabel', metricKey: 'collagen_g', label: 'COLLAGEN', source: 'existing macro submetric spec' },
-      protein_submacro_value_1: { kind: 'metricValue', metricKey: 'collagen_g', field: 'metrics.collagen_g', unit: 'g', source: 'existing macro submetric spec' },
-      protein_submacro_label_2: { kind: 'metricLabel', metricKey: 'essential_amino_acids_score', label: 'EAA', source: 'existing macro submetric spec' },
-      protein_submacro_value_2: { kind: 'ratioMetricValue', metricKey: 'essential_amino_acids_score', field: 'metrics.essential_amino_acids_score', denominator: 9, source: 'existing macro submetric spec' },
-      protein_submacro_label_3: { kind: 'metricLabel', metricKey: 'nonessential_amino_acids_score', label: 'NEAA', source: 'existing macro submetric spec' },
-      protein_submacro_value_3: { kind: 'ratioMetricValue', metricKey: 'nonessential_amino_acids_score', field: 'metrics.nonessential_amino_acids_score', denominator: 11, source: 'existing macro submetric spec' },
-      protein_submacro_label_4: { kind: 'metricLabel', metricKey: 'bioavailability_percent', label: 'BIOAVAIL.', source: 'existing macro submetric spec' },
-      protein_submacro_value_4: { kind: 'metricValue', metricKey: 'bioavailability_percent', field: 'metrics.bioavailability_percent', unit: '%', source: 'existing macro submetric spec' }
+      protein_submacro_label_1: { kind: 'metricLabel', metricKey: 'collagen_g', displayItemIndex: 0, label: 'COLLAGEN', source: 'generated protein displayItems row 1' },
+      protein_submacro_value_1: { kind: 'metricValue', metricKey: 'collagen_g', displayItemIndex: 0, field: 'metrics.collagen_g', unit: 'g', source: 'generated protein displayItems row 1' },
+      protein_submacro_label_2: { kind: 'metricLabel', metricKey: 'essential_amino_acids_score', displayItemIndex: 1, label: 'EAA', source: 'generated protein displayItems row 2' },
+      protein_submacro_value_2: { kind: 'ratioMetricValue', metricKey: 'essential_amino_acids_score', displayItemIndex: 1, field: 'metrics.essential_amino_acids_score', denominator: 9, source: 'generated protein displayItems row 2' },
+      protein_submacro_label_3: { kind: 'metricLabel', metricKey: 'nonessential_amino_acids_score', displayItemIndex: 2, label: 'NEAA', source: 'generated protein displayItems row 3' },
+      protein_submacro_value_3: { kind: 'ratioMetricValue', metricKey: 'nonessential_amino_acids_score', displayItemIndex: 2, field: 'metrics.nonessential_amino_acids_score', denominator: 11, source: 'generated protein displayItems row 3' },
+      protein_submacro_label_4: { kind: 'metricLabel', metricKey: 'bioavailability_percent', displayItemIndex: 3, label: 'BIOAVAIL.', source: 'generated protein displayItems row 4' },
+      protein_submacro_value_4: { kind: 'metricValue', metricKey: 'bioavailability_percent', displayItemIndex: 3, field: 'metrics.bioavailability_percent', unit: '%', source: 'generated protein displayItems row 4' }
     }
   };
 

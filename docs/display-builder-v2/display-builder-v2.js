@@ -958,7 +958,7 @@
   function shouldResolveKnownBinding(layer, binding) {
     if (!binding) return false;
     if (String(layer.text || '').trim() === '?') return true;
-    return ['macroTotal', 'metricValue', 'ratioMetricValue'].includes(binding.kind);
+    return ['macroTotal', 'metricLabel', 'metricValue', 'ratioMetricValue'].includes(binding.kind);
   }
 
   function resolveTextBindings(layout, food) {
@@ -981,7 +981,8 @@
         const shouldResolve = direct ? shouldResolveKnownBinding(layer, binding) : !!fallback;
         if (binding && shouldResolve) layer.text = safeDisplayText(resolvedValue);
         if (binding && binding.metricKey && ['metricValue', 'ratioMetricValue'].includes(binding.kind)) {
-          const presentation = LOGIC.arrowPresentationForSpec(food, sectionId, LOGIC.specForMetric(sectionId, binding.metricKey));
+          const metricKey = LOGIC.bindingMetricKey(food, sectionId, binding);
+          const presentation = LOGIC.arrowPresentationForSpec(food, sectionId, LOGIC.specForMetric(sectionId, metricKey));
           layer.color = presentation.textColor;
         }
         if (isQuestion || (direct && shouldResolve)) {
@@ -990,7 +991,7 @@
             layerId: layer.id || '',
             bindingMode: direct ? 'stable layer id' : fallback ? 'section visual-order fallback' : 'unbound',
             boundFoodDataField: binding?.field || binding?.kind || null,
-            metricKey: binding?.metricKey || null,
+            metricKey: binding ? LOGIC.bindingMetricKey(food, sectionId, binding) : null,
             previousText: before,
             resolvedValue: binding && shouldResolve ? safeDisplayText(resolvedValue) : before,
             fitsBox: null,
@@ -1039,9 +1040,9 @@
       .slice(0, 4);
   }
 
-  function arrowRowsWithSpecs(layout, sectionId) {
+  function arrowRowsWithSpecs(layout, sectionId, food) {
     const rows = clusterArrowRows(layout, sectionId);
-    const specs = BINDINGS.arrowRows?.[sectionId] || [];
+    const specs = LOGIC.displayMetricSpecsForSection(food, sectionId);
     return rows.map((row, index) => {
       const fingerprint = row.items
         .map(item => `${item.layer.id || ''} ${item.layer.label || ''} ${item.layer.src || ''}`.toLowerCase())
@@ -1069,7 +1070,7 @@
   function syncArrowRows(layout, food) {
     const report = [];
     for (const sectionId of MACRO_SECTIONS) {
-      const rows = arrowRowsWithSpecs(layout, sectionId);
+      const rows = arrowRowsWithSpecs(layout, sectionId, food);
       const expectedRows = BINDINGS.arrowRows?.[sectionId] || [];
       if (!rows.length && expectedRows.length) {
         state.bindingReport.warnings.push({ type: 'arrow', sectionId, message: 'No arrow rows found in selected layout section.' });

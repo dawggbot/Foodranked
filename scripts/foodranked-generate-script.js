@@ -184,6 +184,7 @@ function metricValueText(metric) {
 }
 
 function toFiniteNumber(value) {
+  if (value === null || value === undefined || value === '') return null;
   const number = Number(value);
   return Number.isFinite(number) ? number : null;
 }
@@ -1020,18 +1021,22 @@ function displayDenominatorForMetric(result, metricKey, scored = null) {
   return null;
 }
 
+function proteinQualityMetricSkipped(result, metricKey) {
+  const skipped = result.proteinQualityGate?.skippedMetricKeys;
+  return Array.isArray(skipped) && skipped.includes(metricKey);
+}
+
 function displayValueForSubmacro(result, metricKey) {
+  if (proteinQualityMetricSkipped(result, metricKey)) return null;
   if (metricKey === 'essential_amino_acids_score') {
     return toFiniteNumber(result.aminoAcidScoring?.essential?.value)
-      ?? toFiniteNumber(result.foodMetrics?.[metricKey])
-      ?? 0;
+      ?? toFiniteNumber(result.foodMetrics?.[metricKey]);
   }
   if (metricKey === 'nonessential_amino_acids_score') {
     return toFiniteNumber(result.aminoAcidScoring?.nonessential?.value)
-      ?? toFiniteNumber(result.foodMetrics?.[metricKey])
-      ?? 0;
+      ?? toFiniteNumber(result.foodMetrics?.[metricKey]);
   }
-  return toFiniteNumber(result.foodMetrics?.[metricKey]) ?? 0;
+  return toFiniteNumber(result.foodMetrics?.[metricKey]);
 }
 
 function displayRuleForSubmacro(result, sectionKey, metricKey) {
@@ -1057,7 +1062,30 @@ function displayRuleForSubmacro(result, sectionKey, metricKey) {
 
 function completeMacroDisplayItems(result, sectionKey) {
   const scoredByKey = new Map(scoredMetricsForSection(result, sectionKey).map(metric => [metric.metricKey, metric]));
-  return (MACRO_SECTION_SUBMACRO_KEYS[sectionKey] || []).map(metricKey => {
+  const proteinFallback = scoredByKey.get('protein_g_fallback');
+  const proteinQualityKeys = MACRO_SECTION_SUBMACRO_KEYS.proteins || [];
+  const fallbackPlaceholderOrder = [
+    'essential_amino_acids_score',
+    'nonessential_amino_acids_score',
+    'bioavailability_percent',
+    'collagen_g'
+  ];
+  const metricKeys = sectionKey === 'proteins' && proteinFallback
+    ? uniqueMetrics([
+      proteinFallback,
+      ...proteinQualityKeys
+        .filter(metricKey => scoredByKey.has(metricKey))
+        .map(metricKey => scoredByKey.get(metricKey)),
+      ...proteinQualityKeys
+        .filter(metricKey => !scoredByKey.has(metricKey) && displayValueForSubmacro(result, metricKey) !== null)
+        .map(metricKey => ({ metricKey })),
+      ...fallbackPlaceholderOrder
+        .filter(metricKey => !scoredByKey.has(metricKey))
+        .map(metricKey => ({ metricKey }))
+    ], 4).map(metric => metric.metricKey)
+    : (MACRO_SECTION_SUBMACRO_KEYS[sectionKey] || []);
+
+  return metricKeys.map(metricKey => {
     const scored = scoredByKey.get(metricKey);
     const denominator = displayDenominatorForMetric(result, metricKey, scored);
     if (scored) {
@@ -1070,6 +1098,24 @@ function completeMacroDisplayItems(result, sectionKey) {
     }
 
     const value = displayValueForSubmacro(result, metricKey);
+    if (value === null || value === undefined) {
+      const skippedByProteinGate = proteinQualityMetricSkipped(result, metricKey);
+      return {
+        metricKey,
+        text: `${formatMetricKey(metricKey)} at N/A`,
+        weightedScore: null,
+        scoringMode: 'not_applicable',
+        band: null,
+        polarity: null,
+        dvPercent: null,
+        value: null,
+        score: null,
+        denominator,
+        displaySource: skippedByProteinGate ? 'protein_quality_gate_skipped' : 'not_source_backed',
+        displayValue: 'N/A',
+        notApplicableReason: skippedByProteinGate ? 'protein_quality_gate' : 'not_source_backed'
+      };
+    }
     const rule = displayRuleForSubmacro(result, sectionKey, metricKey);
     const bandResult = scoreFromBands(value, rule.bands || []);
     const row = {

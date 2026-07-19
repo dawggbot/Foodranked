@@ -1190,7 +1190,7 @@
     </aside>
   </div>
 
-  <script src="../data/foods-index.js?v=20260620-macro-display-data-v1"></script>
+  <script src="../data/foods-index.js?v=20260719-protein-display-v1"></script>
   <script src="./display-schema.js?v=20260624-section-indicator-no-canvas-v1"></script>
   <script src="./default-layout.js?v=20260624-arrow-default-scale-v1"></script>
   <script>
@@ -2200,6 +2200,21 @@
       nonessential_amino_acids_score: 'higher_better',
       bioavailability_percent: 'higher_better'
     };
+    const METRIC_SHORT_LABELS = {
+      protein_g_fallback: 'AMOUNT',
+      saturated_fat_g: 'SAT FAT',
+      polyunsaturated_fat_g: 'POLY FAT',
+      omega3_mg: 'OMEGA 3',
+      cholesterol_mg: 'CHOLEST.',
+      fibre_g: 'FIBRE',
+      sugar_g: 'SUGAR',
+      starch_g: 'STARCH',
+      glycemic_index: 'GI',
+      collagen_g: 'COLLAGEN',
+      essential_amino_acids_score: 'EAA',
+      nonessential_amino_acids_score: 'NEAA',
+      bioavailability_percent: 'BIOAVAIL.'
+    };
     const DEFAULT_HIGHER_BETTER_BANDS = [
       { label: '3_red', max: 0, score: 0 },
       { label: '2_red', min: 0, max: 1, score: 20 },
@@ -2217,7 +2232,29 @@
       { label: '3_red', min: 5, score: 0 }
     ];
 
-    function getMacroSubmetricTextSpecs(sectionId) {
+    function metricLabelForKey(metricKey) {
+      return METRIC_SHORT_LABELS[metricKey] || String(metricKey || '')
+        .replace(/_dv$/i, '')
+        .replace(/_mg$/i, '')
+        .replace(/_g$/i, '')
+        .replace(/_percent$/i, '')
+        .replace(/_/g, ' ')
+        .toUpperCase();
+    }
+
+    function getMacroSubmetricTextSpecs(sectionId, food = null) {
+      const generatedItems = sectionId === 'protein'
+        ? sectionDisplayItems(food, sectionId).filter(item => item?.metricKey).slice(0, 4)
+        : [];
+      if (generatedItems.length) {
+        return generatedItems.map((item, index) => ({
+          key: item.metricKey,
+          metricKey: item.metricKey,
+          label: metricLabelForKey(item.metricKey),
+          value: currentFood => formatDisplayItemValue(sectionDisplayItems(currentFood, sectionId)[index] || item)
+        }));
+      }
+
       const specs = {
         fats: [
           { key: 'sat_fat', metricKey: 'saturated_fat_g', label: 'SAT FAT', value: food => formatMetricText(food?.metrics?.saturated_fat_g, 'g') },
@@ -2386,25 +2423,25 @@
       return deriveMacroSubmetricAnchors(layout, 'fats');
     }
 
-    function getMacroSubmetricRowBindings(layout, sectionId = 'fats') {
+    function getMacroSubmetricRowBindings(layout, sectionId = 'fats', food = null) {
       const anchors = deriveMacroSubmetricAnchors(layout, sectionId);
-      return bindMacroSubmetricRows(anchors, sectionId);
+      return bindMacroSubmetricRows(anchors, sectionId, food);
     }
 
-    function getMacroSubmetricArrowRowBindings(layout, sectionId = 'fats') {
+    function getMacroSubmetricArrowRowBindings(layout, sectionId = 'fats', food = null) {
       const anchors = anchorsFromMacroRows(clusterMacroArrowRows(layout, sectionId));
-      return bindMacroSubmetricRows(anchors, sectionId);
+      return bindMacroSubmetricRows(anchors, sectionId, food);
     }
 
-    function bindMacroSubmetricRows(anchors, sectionId = 'fats') {
-      const specs = getMacroSubmetricTextSpecs(sectionId);
+    function bindMacroSubmetricRows(anchors, sectionId = 'fats', food = null) {
+      const specs = getMacroSubmetricTextSpecs(sectionId, food);
       const byKey = Object.fromEntries(specs.map(spec => [spec.key, spec]));
       const defaultOrders = {
         fats: ['sat_fat', 'poly_fat', 'omega3', 'cholesterol'],
         carbs: ['fibre', 'sugar', 'starch', 'glycemic_index'],
         protein: ['collagen', 'eaa', 'neaa', 'bioavailability']
       };
-      const defaultOrder = defaultOrders[sectionId] || specs.map(spec => spec.key);
+      const defaultOrder = food && sectionId === 'protein' ? specs.map(spec => spec.key) : (defaultOrders[sectionId] || specs.map(spec => spec.key));
       const remaining = [...defaultOrder];
 
       return anchors.map(anchor => {
@@ -5013,21 +5050,40 @@
       return macroTotalDisplayValue(food, sectionId) === 0;
     }
 
-    function getEpisodeDisplayItemForMetric(food, sectionId, metricKey) {
-      const sectionKey = sectionId === 'protein' ? 'proteins' : sectionId;
+    function sectionDisplayItems(food, sectionId) {
+      const sectionKey = ruleSectionKey(sectionId);
       const sections = food?.episode?.script?.sections || [];
       const section = sections.find(item => item.key === sectionId || item.key === sectionKey);
-      return (section?.displayItems || []).find(item => item.metricKey === metricKey) || null;
+      return Array.isArray(section?.displayItems) ? section.displayItems : [];
+    }
+
+    function formatDisplayItemValue(item) {
+      if (!item) return 'N/A';
+      if (item.displayValue != null) return String(item.displayValue);
+      if (item.value == null) return 'N/A';
+      const key = String(item.metricKey || '');
+      if (key === 'protein_g_fallback' || key.endsWith('_g')) return formatMetricText(item.value, 'g');
+      if (key.endsWith('_mg')) return formatMetricText(item.value, 'mg');
+      if (key.endsWith('_percent')) return formatMetricText(item.value, '%');
+      if (key === 'essential_amino_acids_score') return `${formatCompactNumber(item.value, 0)}/${item.denominator || 9}`;
+      if (key === 'nonessential_amino_acids_score') return `${formatCompactNumber(item.value, 0)}/${item.denominator || 11}`;
+      return String(item.value);
+    }
+
+    function getEpisodeDisplayItemForMetric(food, sectionId, metricKey) {
+      return sectionDisplayItems(food, sectionId).find(item => item.metricKey === metricKey) || null;
     }
 
     function macroSubmetricDisplayValue(food, sectionId, metricKey) {
       if (!hasDisplayedMacro(food, sectionId)) return null;
+      if (sectionId === 'protein' && metricKey === 'protein_g_fallback') return asNumber(food?.header?.protein_g, null);
       const displayItem = getEpisodeDisplayItemForMetric(food, sectionId, metricKey);
       const displayItemValue = asNumber(displayItem?.value, null);
       if (displayItemValue != null) return displayItemValue;
+      if (displayItem && (displayItem.value == null || displayItem.displayValue === 'N/A')) return null;
       const value = asNumber(food?.metrics?.[metricKey], null);
       if (value != null) return value;
-      return 0;
+      return null;
     }
 
     function formatMacroMetricText(food, sectionId, metricKey, unit = '') {
@@ -5278,7 +5334,7 @@
       const scoringFood = mergedFoodForScoring(food);
       for (const sectionId of ['fats', 'carbs', 'protein']) {
         const sectionLayers = getSectionLayersFromLayout(layout, sectionId);
-        getMacroSubmetricArrowRowBindings(layout, sectionId).forEach(binding => {
+        getMacroSubmetricArrowRowBindings(layout, sectionId, scoringFood).forEach(binding => {
           if (!binding.spec) return;
           const arrows = arrowLayersForMacroBinding(sectionLayers, binding);
           if (!arrows.length) return;
@@ -5299,7 +5355,7 @@
       const scoringFood = mergedFoodForScoring(food);
       for (const sectionId of ['fats', 'carbs', 'protein']) {
         const sectionLayers = getSectionLayersFromLayout(layout, sectionId);
-        getMacroSubmetricRowBindings(layout, sectionId).forEach((binding, index) => {
+        getMacroSubmetricRowBindings(layout, sectionId, scoringFood).forEach((binding, index) => {
           if (!binding.spec) return;
           const valueLayer = sectionLayers.find(layer => layer.id === `${sectionId}_submacro_value_${index + 1}`);
           if (!valueLayer) return;
@@ -5610,9 +5666,10 @@
       syncMacroSubmacroArrowsForFood(state.layout, food || getSelectedFoodStub());
       syncMacroSubmetricValueColors(state.layout, food || getSelectedFoodStub());
       syncManualOutroHighlightedIndicators(state.layout, food || getSelectedFoodStub());
+      const scoringFood = mergedFoodForScoring(food || getSelectedFoodStub());
       for (const sectionId of ['fats', 'carbs', 'protein']) {
         const sectionLayers = getSectionLayersFromLayout(state.layout, sectionId);
-        getMacroSubmetricRowBindings(state.layout, sectionId).forEach((binding, index) => {
+        getMacroSubmetricRowBindings(state.layout, sectionId, scoringFood).forEach((binding, index) => {
           const spec = binding.spec;
           if (!spec) return;
           const labelLayer = sectionLayers.find(layer => layer.id === `${sectionId}_submacro_label_${index + 1}`);
@@ -5624,7 +5681,6 @@
             labelLayer.fontSize = labelLayer.fontSize || 4;
           }
           if (valueLayer) {
-            const scoringFood = mergedFoodForScoring(food || getSelectedFoodStub());
             if (!valueLayer.manualText) valueLayer.text = spec.value(scoringFood);
             valueLayer.label = `${getSectionChip(sectionId) || sectionId} score card value ${index + 1}`;
             valueLayer.align = valueLayer.align || 'right';

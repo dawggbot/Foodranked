@@ -26,6 +26,21 @@
     nonessential_amino_acids_score: 'higher_better',
     bioavailability_percent: 'higher_better'
   };
+  const METRIC_SHORT_LABELS = {
+    protein_g_fallback: 'AMOUNT',
+    saturated_fat_g: 'SAT FAT',
+    polyunsaturated_fat_g: 'POLY FAT',
+    omega3_mg: 'OMEGA 3',
+    cholesterol_mg: 'CHOLEST.',
+    fibre_g: 'FIBRE',
+    sugar_g: 'SUGAR',
+    starch_g: 'STARCH',
+    glycemic_index: 'GI',
+    collagen_g: 'COLLAGEN',
+    essential_amino_acids_score: 'EAA',
+    nonessential_amino_acids_score: 'NEAA',
+    bioavailability_percent: 'BIOAVAIL.'
+  };
 
   const DEFAULT_HIGHER_BETTER_BANDS = [
     { label: '3_red', max: 0, score: 0 },
@@ -242,22 +257,74 @@
     return sectionId === 'protein' ? 'proteins' : sectionId;
   }
 
-  function getEpisodeDisplayItemForMetric(food, sectionId, metricKey, displayMetricKeys = []) {
+  function sectionDisplayItems(food, sectionId) {
     const sectionKey = ruleSectionKey(sectionId);
     const sections = food?.episode?.script?.sections || [];
     const section = sections.find(item => item.key === sectionId || item.key === sectionKey);
+    return Array.isArray(section?.displayItems) ? section.displayItems : [];
+  }
+
+  function metricLabelForKey(sectionId, metricKey) {
+    const row = BINDINGS.arrowRows?.[sectionId]?.find(item => item.metricKey === metricKey);
+    return METRIC_SHORT_LABELS[metricKey] || row?.label || String(metricKey || '')
+      .replace(/_dv$/i, '')
+      .replace(/_mg$/i, '')
+      .replace(/_g$/i, '')
+      .replace(/_percent$/i, '')
+      .replace(/_/g, ' ')
+      .toUpperCase();
+  }
+
+  function formatDisplayItemValue(item) {
+    if (!item) return 'N/A';
+    if (item.displayValue != null) return String(item.displayValue);
+    if (item.value == null) return 'N/A';
+    const key = String(item.metricKey || '');
+    if (key === 'protein_g_fallback' || key.endsWith('_g')) return formatMetricText(item.value, 'g');
+    if (key.endsWith('_mg')) return formatMetricText(item.value, 'mg');
+    if (key.endsWith('_percent')) return formatMetricText(item.value, '%');
+    if (key === 'essential_amino_acids_score') return `${formatCompactNumber(item.value, 0)}/${item.denominator || 9}`;
+    if (key === 'nonessential_amino_acids_score') return `${formatCompactNumber(item.value, 0)}/${item.denominator || 11}`;
+    return String(item.value);
+  }
+
+  function getEpisodeDisplayItemForMetric(food, sectionId, metricKey, displayMetricKeys = []) {
     const metricKeys = [metricKey, ...displayMetricKeys];
-    return (section?.displayItems || []).find(item => metricKeys.includes(item.metricKey)) || null;
+    return sectionDisplayItems(food, sectionId).find(item => metricKeys.includes(item.metricKey)) || null;
+  }
+
+  function displayItemForBinding(food, sectionId, binding) {
+    const index = Number(binding?.displayItemIndex);
+    if (Number.isInteger(index) && index >= 0) {
+      return sectionDisplayItems(food, sectionId)[index] || null;
+    }
+    return binding?.metricKey ? getEpisodeDisplayItemForMetric(food, sectionId, binding.metricKey, binding.displayMetricKeys || []) : null;
+  }
+
+  function bindingMetricKey(food, sectionId, binding) {
+    return displayItemForBinding(food, sectionId, binding)?.metricKey || binding?.metricKey || null;
+  }
+
+  function displayMetricSpecsForSection(food, sectionId) {
+    const items = sectionDisplayItems(food, sectionId).filter(item => item?.metricKey).slice(0, 4);
+    if (!items.length) return BINDINGS.arrowRows?.[sectionId] || [];
+    return items.map(item => ({
+      metricKey: item.metricKey,
+      label: metricLabelForKey(sectionId, item.metricKey),
+      displayMetricKeys: []
+    }));
   }
 
   function macroSubmetricDisplayValue(food, sectionId, metricKey) {
     if (!hasDisplayedMacro(food, sectionId)) return null;
+    if (sectionId === 'protein' && metricKey === 'protein_g_fallback') return asNumber(food?.header?.protein_g, null);
     const displayItem = getEpisodeDisplayItemForMetric(food, sectionId, metricKey);
     const displayItemValue = asNumber(displayItem?.value, null);
     if (displayItemValue != null) return displayItemValue;
+    if (displayItem && (displayItem.value == null || displayItem.displayValue === 'N/A')) return null;
     const value = asNumber(food?.metrics?.[metricKey], null);
     if (value != null) return value;
-    return 0;
+    return null;
   }
 
   function formatMacroMetricText(food, sectionId, metricKey, unit = '') {
@@ -432,13 +499,16 @@
     return {
       key: metricKey,
       metricKey,
-      label: BINDINGS.arrowRows?.[sectionId]?.find(row => row.metricKey === metricKey)?.label || metricKey,
+      label: metricLabelForKey(sectionId, metricKey),
       displayMetricKeys: binding?.displayMetricKeys || []
     };
   }
 
   function formatBindingValue(food, sectionId, binding) {
     if (!binding) return 'N/A';
+    const displayItem = displayItemForBinding(food, sectionId, binding);
+    if (displayItem && binding.kind === 'metricLabel') return metricLabelForKey(sectionId, displayItem.metricKey);
+    if (displayItem && ['metricValue', 'ratioMetricValue'].includes(binding.kind)) return formatDisplayItemValue(displayItem);
     if (binding.kind === 'staticLabel' || binding.kind === 'metricLabel') return binding.label || '';
     if (binding.kind === 'macroTotal') return formatMacroTotalMetricText(food, sectionId);
     if (binding.kind === 'ratioMetricValue') return formatMacroRatioMetricText(food, sectionId, binding.metricKey, binding.denominator || 1);
@@ -616,6 +686,8 @@
     arrowPresentationForSpec,
     visibleArrowIndexes,
     specForMetric,
+    displayMetricSpecsForSection,
+    bindingMetricKey,
     activeRules,
     liveMetricEvaluation,
     sectionMetricBreakdown,

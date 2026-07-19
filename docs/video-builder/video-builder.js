@@ -212,9 +212,24 @@
     protein: [
       { key: 'collagen_g', label: 'COLLAGEN', value: food => formatMacroMetric(food, 'protein', 'collagen_g', 'g') },
       { key: 'essential_amino_acids_score', label: 'EAA', value: food => formatMacroRatio(food, 'protein', 'essential_amino_acids_score', 9) },
-      { key: 'nonessential_amino_acids_score', label: 'NEAA', value: food => formatMacroRatio(food, 'protein', 'nonessential_amino_acids_score', 10) },
+      { key: 'nonessential_amino_acids_score', label: 'NEAA', value: food => formatMacroRatio(food, 'protein', 'nonessential_amino_acids_score', 11) },
       { key: 'bioavailability_percent', label: 'BIOAVAIL.', value: food => formatMacroMetric(food, 'protein', 'bioavailability_percent', '%') }
     ]
+  };
+  const METRIC_SHORT_LABELS = {
+    protein_g_fallback: 'AMOUNT',
+    saturated_fat_g: 'SAT FAT',
+    polyunsaturated_fat_g: 'POLY FAT',
+    omega3_mg: 'OMEGA 3',
+    cholesterol_mg: 'CHOLEST.',
+    fibre_g: 'FIBRE',
+    sugar_g: 'SUGAR',
+    starch_g: 'STARCH',
+    glycemic_index: 'GI',
+    collagen_g: 'COLLAGEN',
+    essential_amino_acids_score: 'EAA',
+    nonessential_amino_acids_score: 'NEAA',
+    bioavailability_percent: 'BIOAVAIL.'
   };
   const PROTEIN_QUALITY_METRIC_KEYS = new Set([
     'essential_amino_acids_score',
@@ -595,10 +610,60 @@
     return macroTotalValue(food, sectionId) != null;
   }
 
+  function ruleSectionKey(sectionId) {
+    return sectionId === 'protein' ? 'proteins' : sectionId;
+  }
+
+  function sectionDisplayItems(food, sectionId) {
+    const sectionKey = ruleSectionKey(sectionId);
+    const section = food?.episode?.script?.sections?.find(item => item.key === sectionId || item.key === sectionKey);
+    return Array.isArray(section?.displayItems) ? section.displayItems : [];
+  }
+
+  function metricLabelForKey(metricKey) {
+    return METRIC_SHORT_LABELS[metricKey] || String(metricKey || '')
+      .replace(/_dv$/i, '')
+      .replace(/_mg$/i, '')
+      .replace(/_g$/i, '')
+      .replace(/_percent$/i, '')
+      .replace(/_/g, ' ')
+      .toUpperCase();
+  }
+
+  function formatDisplayItemValue(item) {
+    if (!item) return 'N/A';
+    if (item.displayValue != null) return String(item.displayValue);
+    if (item.value == null) return 'N/A';
+    const key = String(item.metricKey || '');
+    if (key === 'protein_g_fallback' || key.endsWith('_g')) return formatMetric(item.value, 'g');
+    if (key.endsWith('_mg')) return formatMetric(item.value, 'mg');
+    if (key.endsWith('_percent')) return formatMetric(item.value, '%');
+    if (key === 'essential_amino_acids_score') return `${formatCompactNumber(item.value, 0)}/${item.denominator || 9}`;
+    if (key === 'nonessential_amino_acids_score') return `${formatCompactNumber(item.value, 0)}/${item.denominator || 11}`;
+    return String(item.value);
+  }
+
+  function macroSubmetricSpecsForFood(sectionId, food) {
+    const generatedItems = sectionId === 'protein'
+      ? sectionDisplayItems(food, sectionId).filter(item => item?.metricKey).slice(0, 4)
+      : [];
+    if (!generatedItems.length) return MACRO_SUBMETRIC_SPECS[sectionId] || [];
+    return generatedItems.map((item, index) => ({
+      key: item.metricKey,
+      label: metricLabelForKey(item.metricKey),
+      value: currentFood => formatDisplayItemValue(sectionDisplayItems(currentFood, sectionId)[index] || item)
+    }));
+  }
+
   function macroSubmetricDisplayValue(food, sectionId, metricKey) {
+    if (sectionId === 'protein' && metricKey === 'protein_g_fallback') return asNumber(food?.header?.protein_g, null);
+    const displayItem = sectionDisplayItems(food, sectionId).find(item => item.metricKey === metricKey);
+    const displayItemValue = asNumber(displayItem?.value, null);
+    if (displayItemValue != null) return displayItemValue;
+    if (displayItem && (displayItem.value == null || displayItem.displayValue === 'N/A')) return null;
     const value = asNumber(food?.metrics?.[metricKey], null);
     if (value != null) return value;
-    return hasDisplayedMacro(food, sectionId) ? 0 : null;
+    return null;
   }
 
   function formatMacroMetric(food, sectionId, metricKey, unit = '') {
@@ -1295,7 +1360,7 @@
   function syncMacroText(layout, food) {
     for (const sectionId of ['fats', 'carbs', 'protein']) {
       const layers = getSectionLayers(layout, sectionId);
-      macroSubmetricBindings(layout, sectionId).forEach((binding, index) => {
+      macroSubmetricBindings(layout, sectionId, food).forEach((binding, index) => {
         const spec = binding.spec;
         const label = layers.find(layer => layer.id === `${sectionId}_submacro_label_${index + 1}`);
         const value = layers.find(layer => layer.id === `${sectionId}_submacro_value_${index + 1}`);
@@ -1348,10 +1413,10 @@
     return rows.sort((a, b) => a.minY - b.minY).slice(0, 4);
   }
 
-  function macroSubmetricBindings(layout, sectionId) {
+  function macroSubmetricBindings(layout, sectionId, food = null) {
     const layers = getSectionLayers(layout, sectionId);
     const rows = macroScoreRows(layers);
-    const specs = MACRO_SUBMETRIC_SPECS[sectionId] || [];
+    const specs = macroSubmetricSpecsForFood(sectionId, food);
     return specs.map((spec, index) => {
       const row = rows[index] || { items: [], minX: 8, maxX: 91, minY: 74 + (index * 18) };
       const arrowLayers = row.items.filter(item => isMacroArrow(item.layer)).map(item => item.layer);
@@ -1675,10 +1740,6 @@
     }
   }
 
-  function ruleSectionKey(sectionId) {
-    return sectionId === 'protein' ? 'proteins' : sectionId;
-  }
-
   function episodeDisplayItemForSpec(food, sectionId, spec) {
     const sectionKey = ruleSectionKey(sectionId);
     const section = food?.episode?.script?.sections?.find(item => item.key === sectionId || item.key === sectionKey);
@@ -1832,7 +1893,7 @@
 
   function syncMacroArrows(layout, food) {
     for (const sectionId of ['fats', 'carbs', 'protein']) {
-      macroSubmetricBindings(layout, sectionId).forEach(binding => {
+      macroSubmetricBindings(layout, sectionId, food).forEach(binding => {
         const arrows = binding.arrowLayers.sort((a, b) => (Number(a.x) || 0) - (Number(b.x) || 0));
         if (!arrows.length) return;
         const presentation = macroArrowPresentation(food, sectionId, binding.spec);

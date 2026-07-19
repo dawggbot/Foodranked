@@ -1321,7 +1321,6 @@
 
   function syncHeader(layout, food) {
     const values = {
-      food_name_text: String(food?.name || 'Unknown').toUpperCase(),
       kcal_value_text: String(food?.header?.kcal ?? food?.kcal ?? 'N/A'),
       basis_text: `PER\n${food?.basis?.value || 100}${String(food?.basis?.unit || 'g').toUpperCase()}`,
       script_caption: prettyFoodType(food?.foodType).toUpperCase(),
@@ -1330,8 +1329,12 @@
 
     for (const section of SECTIONS) {
       for (const layer of getSectionLayers(layout, section.id)) {
-        if (isTextLayer(layer) && values[layer.id] != null) {
-          layer.text = values[layer.id];
+        if (isTextLayer(layer)) {
+          if (layer.id === 'food_name_text') {
+            layer.text = headerFoodNameText(food, layer);
+          } else if (values[layer.id] != null) {
+            layer.text = values[layer.id];
+          }
         }
         if (!isSpriteLayer(layer)) continue;
         const fingerprint = `${layer.src || ''} ${layer.label || ''}`.toLowerCase();
@@ -1349,6 +1352,12 @@
         }
       }
     }
+  }
+
+  function headerFoodNameText(food, layer) {
+    return window.FOODRANKED_DISPLAY_NAME_UTILS?.compactFoodNameForHeader
+      ? window.FOODRANKED_DISPLAY_NAME_UTILS.compactFoodNameForHeader(food, layer)
+      : String(food?.name || 'Unknown').toUpperCase();
   }
 
   function syncSectionIndicators(layout, food) {

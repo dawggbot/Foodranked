@@ -381,17 +381,27 @@
 
   function syncFoodText(layout, food) {
     const values = {
-      food_name_text: String(food?.name || 'Unknown').toUpperCase(),
       kcal_value_text: String(food?.header?.kcal ?? food?.kcal ?? 'N/A'),
       basis_text: LOGIC.formatBasis(food),
       script_caption: LOGIC.prettyFoodType(food?.foodType).toUpperCase()
     };
     for (const sectionId of Object.keys(layout.sections || {})) {
       for (const layer of getSectionLayers(layout, sectionId)) {
-        if (!isTextLayer(layer) || !(layer.id in values)) continue;
+        if (!isTextLayer(layer)) continue;
+        if (layer.id === 'food_name_text') {
+          layer.text = headerFoodNameText(food, layer);
+          continue;
+        }
+        if (!(layer.id in values)) continue;
         layer.text = values[layer.id];
       }
     }
+  }
+
+  function headerFoodNameText(food, layer) {
+    return window.FOODRANKED_DISPLAY_NAME_UTILS?.compactFoodNameForHeader
+      ? window.FOODRANKED_DISPLAY_NAME_UTILS.compactFoodNameForHeader(food, layer)
+      : String(food?.name || 'Unknown').toUpperCase();
   }
 
   function syncMacroFills(layout, food) {

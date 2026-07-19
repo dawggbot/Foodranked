@@ -204,18 +204,19 @@
       "narration": "16.5 grams of protein. Protein is support here, not the main reason to pick it.",
       "displayItems": [
         {
-          "metricKey": "protein_g_fallback",
-          "text": "protein amount at 16.5g",
-          "weightedScore": 80,
-          "scoringMode": "arrow_bands",
-          "band": "1_red",
-          "polarity": "higher_better",
+          "metricKey": "collagen_g",
+          "text": "collagen at N/A",
+          "weightedScore": null,
+          "scoringMode": "not_applicable",
+          "band": null,
+          "polarity": null,
           "dvPercent": null,
-          "value": 16.5,
-          "score": 40,
+          "value": null,
+          "score": null,
           "denominator": null,
-          "displayValue": "16.5g",
-          "displaySource": "scored"
+          "displaySource": "not_source_backed",
+          "displayValue": "N/A",
+          "notApplicableReason": "not_source_backed"
         },
         {
           "metricKey": "essential_amino_acids_score",
@@ -266,7 +267,26 @@
       "macroDisplayValue": "16.5g",
       "subtitleText": "16.5g of protein. Protein is support here, not the main reason to pick it.",
       "timingHint": "short-medium",
-      "score": 40
+      "score": 40,
+      "displayPolicy": {
+        "policyId": "protein-section-display.v1",
+        "rowCount": 4,
+        "visibleRows": [
+          "collagen_g",
+          "essential_amino_acids_score",
+          "nonessential_amino_acids_score",
+          "bioavailability_percent"
+        ],
+        "hiddenFallbackMetricKey": "protein_g_fallback",
+        "missingValueDisplay": "N/A",
+        "showProteinFallbackAsVisibleRow": false,
+        "rules": {
+          "visibleRowsOnly": true,
+          "numericRowsRequireScoredOrSourceBackedValue": true,
+          "proteinQualityGateSkippedRowsDisplayNa": true,
+          "doNotDisplayProteinFallbackAsSubmacro": true
+        }
+      }
     },
     {
       "key": "vitamins",

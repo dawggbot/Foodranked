@@ -13,12 +13,20 @@ function readJson(p) {
 
 const corePhrases = readJson(path.join(phraseBanksDir, 'narration-core.json'));
 const categoryContext = readJson(path.join(phraseBanksDir, 'category-context.json'));
-const PROTEIN_SUBMACRO_KEYS = [
-  'essential_amino_acids_score',
-  'bioavailability_percent',
-  'nonessential_amino_acids_score',
-  'collagen_g'
-];
+const DEFAULT_PROTEIN_DISPLAY_POLICY = {
+  policyId: 'protein-section-display.v1',
+  rowCount: 4,
+  visibleRows: [
+    'collagen_g',
+    'essential_amino_acids_score',
+    'nonessential_amino_acids_score',
+    'bioavailability_percent'
+  ],
+  hiddenFallbackMetricKey: 'protein_g_fallback',
+  missingValueDisplay: 'N/A',
+  showProteinFallbackAsVisibleRow: false
+};
+const PROTEIN_SUBMACRO_KEYS = DEFAULT_PROTEIN_DISPLAY_POLICY.visibleRows;
 const PROTEIN_QUALITY_METRIC_KEYS = new Set([
   'essential_amino_acids_score',
   'bioavailability_percent',
@@ -95,6 +103,37 @@ function scoreFood(foodPath, rulesetPath) {
 
 function inferRulesetPath(food) {
   return path.join(repoRoot, 'rulesets', `${food.foodType}.v1.json`);
+}
+
+function configuredList(value, fallback) {
+  return Array.isArray(value) && value.length ? value : fallback;
+}
+
+function positiveInteger(value, fallback) {
+  const number = Number(value);
+  return Number.isInteger(number) && number > 0 ? number : fallback;
+}
+
+function proteinDisplayPolicy(result) {
+  const configured = result.rulesetConfig?.proteinDisplay || {};
+  return {
+    policyId: configured.policyId || DEFAULT_PROTEIN_DISPLAY_POLICY.policyId,
+    rowCount: positiveInteger(configured.rowCount, DEFAULT_PROTEIN_DISPLAY_POLICY.rowCount),
+    visibleRows: configuredList(configured.visibleRows, DEFAULT_PROTEIN_DISPLAY_POLICY.visibleRows),
+    hiddenFallbackMetricKey: configured.hiddenFallbackMetricKey
+      || result.rulesetConfig?.proteinFallback?.metricKey
+      || DEFAULT_PROTEIN_DISPLAY_POLICY.hiddenFallbackMetricKey,
+    missingValueDisplay: configured.missingValueDisplay || DEFAULT_PROTEIN_DISPLAY_POLICY.missingValueDisplay,
+    showProteinFallbackAsVisibleRow: configured.showProteinFallbackAsVisibleRow === true
+  };
+}
+
+function macroSubmetricKeysForSection(result, sectionKey) {
+  if (sectionKey === 'proteins') {
+    const policy = proteinDisplayPolicy(result);
+    return policy.visibleRows.slice(0, policy.rowCount);
+  }
+  return MACRO_SECTION_SUBMACRO_KEYS[sectionKey] || [];
 }
 
 function hashString(input) {
@@ -210,7 +249,7 @@ function metricValuePhrase(metric) {
 function rawProteinSubmetrics(result, limit = 4) {
   const rawMetrics = result.foodMetrics || {};
   const scoredMetrics = new Map((result.metricBreakdown || []).map(metric => [metric.metricKey, metric]));
-  return PROTEIN_SUBMACRO_KEYS
+  return macroSubmetricKeysForSection(result, 'proteins')
     .map(metricKey => {
       const value = rawMetrics[metricKey];
       if (value === null || value === undefined) return null;
@@ -999,7 +1038,7 @@ function displayItemsForSection(result, sectionKey) {
     }));
   }
   if (['fats', 'carbs', 'proteins'].includes(sectionKey)) {
-    if (macroSectionDisplaysNa(result, sectionKey)) return naMacroDisplayItems(sectionKey);
+    if (macroSectionDisplaysNa(result, sectionKey)) return naMacroDisplayItems(result, sectionKey);
     return completeMacroDisplayItems(result, sectionKey);
   }
   if (sectionKey === 'vitamins' || sectionKey === 'minerals') {
@@ -1062,28 +1101,7 @@ function displayRuleForSubmacro(result, sectionKey, metricKey) {
 
 function completeMacroDisplayItems(result, sectionKey) {
   const scoredByKey = new Map(scoredMetricsForSection(result, sectionKey).map(metric => [metric.metricKey, metric]));
-  const proteinFallback = scoredByKey.get('protein_g_fallback');
-  const proteinQualityKeys = MACRO_SECTION_SUBMACRO_KEYS.proteins || [];
-  const fallbackPlaceholderOrder = [
-    'essential_amino_acids_score',
-    'nonessential_amino_acids_score',
-    'bioavailability_percent',
-    'collagen_g'
-  ];
-  const metricKeys = sectionKey === 'proteins' && proteinFallback
-    ? uniqueMetrics([
-      proteinFallback,
-      ...proteinQualityKeys
-        .filter(metricKey => scoredByKey.has(metricKey))
-        .map(metricKey => scoredByKey.get(metricKey)),
-      ...proteinQualityKeys
-        .filter(metricKey => !scoredByKey.has(metricKey) && displayValueForSubmacro(result, metricKey) !== null)
-        .map(metricKey => ({ metricKey })),
-      ...fallbackPlaceholderOrder
-        .filter(metricKey => !scoredByKey.has(metricKey))
-        .map(metricKey => ({ metricKey }))
-    ], 4).map(metric => metric.metricKey)
-    : (MACRO_SECTION_SUBMACRO_KEYS[sectionKey] || []);
+  const metricKeys = macroSubmetricKeysForSection(result, sectionKey);
 
   return metricKeys.map(metricKey => {
     const scored = scoredByKey.get(metricKey);
@@ -1137,8 +1155,8 @@ function completeMacroDisplayItems(result, sectionKey) {
   });
 }
 
-function naMacroDisplayItems(sectionKey) {
-  return (MACRO_SECTION_SUBMACRO_KEYS[sectionKey] || []).map(metricKey => ({
+function naMacroDisplayItems(result, sectionKey) {
+  return macroSubmetricKeysForSection(result, sectionKey).map(metricKey => ({
     metricKey,
     text: `${formatMetricKey(metricKey)} at N/A`,
     weightedScore: null,
@@ -1154,12 +1172,31 @@ function naMacroDisplayItems(sectionKey) {
   }));
 }
 
+function displayPolicyForSection(result, sectionKey) {
+  if (sectionKey !== 'proteins') return null;
+  const policy = proteinDisplayPolicy(result);
+  return {
+    policyId: policy.policyId,
+    rowCount: policy.rowCount,
+    visibleRows: policy.visibleRows.slice(0, policy.rowCount),
+    hiddenFallbackMetricKey: policy.hiddenFallbackMetricKey,
+    missingValueDisplay: policy.missingValueDisplay,
+    showProteinFallbackAsVisibleRow: policy.showProteinFallbackAsVisibleRow,
+    rules: {
+      visibleRowsOnly: true,
+      numericRowsRequireScoredOrSourceBackedValue: true,
+      proteinQualityGateSkippedRowsDisplayNa: true,
+      doNotDisplayProteinFallbackAsSubmacro: !policy.showProteinFallbackAsVisibleRow
+    }
+  };
+}
+
 function buildSections(result) {
   const order = ['fats', 'carbs', 'proteins', 'vitamins', 'minerals', 'pros', 'cons'];
   return order.map(key => {
     const sourceText = polishNarration(sectionNarration(result, key));
     const subtitleText = polishNarration(subtitleOnlyText(sourceText));
-    return {
+    const section = {
       key,
       title: titleForSection(key),
       narration: polishNarration(audioOnlyText(sourceText)),
@@ -1169,6 +1206,9 @@ function buildSections(result) {
       timingHint: timingHintForSection(key),
       score: result.sectionScores?.[key] ?? null
     };
+    const displayPolicy = displayPolicyForSection(result, key);
+    if (displayPolicy) section.displayPolicy = displayPolicy;
+    return section;
   });
 }
 

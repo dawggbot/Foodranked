@@ -51,6 +51,14 @@ These are important for the video UI and viewer understanding, but do not direct
 - V1 role: display-only
 - Notes: main macro bubble and bar for section 3
 
+### protein_g_fallback
+- Display name: Protein Amount Fallback
+- Unit: g
+- Default section: proteins
+- Default polarity: `higher_better`
+- V1 role: hidden scoring/narration fallback
+- Notes: derived from header `protein_g` only when direct protein-quality rows are unavailable, skipped by the useful-protein gate, or intentionally withheld. It may contribute to the proteins section score and narration, but it is not a visible submacro row because `protein_g` is already displayed as the protein macro.
+
 ## Fat submetrics
 
 ### saturated_fat_g
@@ -120,6 +128,14 @@ These are important for the video UI and viewer understanding, but do not direct
 - Notes: major category signal for grains, legumes, tubers, fruits
 
 ## Protein submetrics
+
+Visible v1 protein row order is locked:
+1. `collagen_g`
+2. `essential_amino_acids_score`
+3. `nonessential_amino_acids_score`
+4. `bioavailability_percent`
+
+Rows that are missing, skipped by the useful-protein gate, intentionally withheld, or not source-backed for the exact food identity display as `N/A` with no arrow. Missing protein-quality values must never be displayed as `0`.
 
 ### collagen_g
 - Display name: Collagen

@@ -125,7 +125,9 @@ Every scored submacro should land in a clearly good or clearly bad visual state 
 If a submacro has a defensible numeric value for a food, an arrow indicator must be displayed.
 Only `N/A` submacro values may remain visually neutral/no-arrow.
 Do not park a source-backed numeric submacro as `not_applicable`; either give it a category-specific 6-band ladder or make the food value `N/A` when it is not defensibly sourceable.
-If a main macro displays as a number instead of `N/A`, every submacro row in that macro section must display a numeric value too. Use `N/A` submacro rows only when the main macro itself displays `N/A`.
+Do not coerce missing, skipped, or intentionally withheld submacro values to `0` just because the main macro exists. `N/A` is the correct display when the exact submacro is not defensibly source-backed.
+
+Protein has an additional locked display contract: the visible rows are collagen, essential amino acids, non-essential amino acids, and bioavailability. `protein_g_fallback` can score and narrate weak/ungated protein sections, but it is not a visible submacro because the macro bubble already displays protein grams.
 
 ## Step 3: vitamin and mineral DV scoring
 
@@ -279,6 +281,7 @@ This is the intended bridge rule for v1:
 - skip aggregate amino-acid proxy scores unless they were derived from source-backed `amino_acids_mg`
 - otherwise leave those protein-quality values as `N/A`
 - let a category-specific `proteinFallback` keep the proteins section alive in a stable, auditable arrow-band way
+- keep `proteinFallback` out of the visible submacro rows; visible protein display remains `collagen_g`, `essential_amino_acids_score`, `nonessential_amino_acids_score`, and `bioavailability_percent`
 
 That is stronger than forcing fake precision from shaky proxy fields.
 

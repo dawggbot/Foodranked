@@ -87,6 +87,7 @@ Each of the 7 scored content sections includes:
 - `title`
 - `narration` — audio-ready spoken text with full unit words
 - `displayItems`
+- optional `displayPolicy` — currently emitted for the proteins section to lock the visible row contract
 - `subtitleText` — on-screen subtitle copy with abbreviated units
 - `timingHint`
 - `score`
@@ -140,6 +141,31 @@ Narration rules:
 - when the selected vitamin metric is `vitamin_b12_dv`, narration and subtitles must say `Vitamin B12`; never shorten it to generic `Vitamin B`
 - do not narrate the overall score
 - the last spoken block must always be the tier reveal, for example `D tier.`
+
+## Protein display contract
+
+The proteins section has a fixed v1 display contract. `sections[].displayItems` for `key: proteins` must use exactly these four visible row slots, in order:
+
+1. `collagen_g`
+2. `essential_amino_acids_score`
+3. `nonessential_amino_acids_score`
+4. `bioavailability_percent`
+
+Rules:
+- `protein_g` belongs in the macro bubble/header, not in the submacro rows.
+- `protein_g_fallback` may appear in scorer `metricBreakdown` and may guide narration, but it must not appear in `sections[].displayItems`.
+- If `proteinQualityGate.skippedMetricKeys` includes EAA, NEAA, or bioavailability, the matching display row is `N/A` with no arrow.
+- If a protein-quality field is missing, intentionally withheld, or not source-backed for the exact food identity, the row is `N/A` with no arrow.
+- A visible `0/9`, `0/11`, `0%`, or `0g` is valid only when the metric actually scored as zero or the source-backed raw metric is truly zero. Missing or skipped values must never be coerced to `0`.
+- Protein narration may mention protein amount when fallback scoring is used, but the subtitle/body display still follows the four visible row slots above.
+
+The generator emits a proteins-section `displayPolicy` object with:
+- `policyId: protein-section-display.v1`
+- `rowCount: 4`
+- `visibleRows`
+- `hiddenFallbackMetricKey`
+- `missingValueDisplay`
+- `showProteinFallbackAsVisibleRow: false`
 
 The plain-text compact narration file is created by joining these spoken blocks with a separator line containing only:
 

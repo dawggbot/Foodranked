@@ -180,20 +180,6 @@
       "narration": "14.2 grams of protein. That amount is useful enough to count. Collagen is only 0 grams, a weak mark for dairy.",
       "displayItems": [
         {
-          "metricKey": "protein_g_fallback",
-          "text": "protein amount at 14.2g",
-          "weightedScore": 240,
-          "scoringMode": "arrow_bands",
-          "band": "2_green",
-          "polarity": "higher_better",
-          "dvPercent": null,
-          "value": 14.2,
-          "score": 80,
-          "denominator": null,
-          "displayValue": "14.2g",
-          "displaySource": "scored"
-        },
-        {
           "metricKey": "collagen_g",
           "text": "collagen at 0g",
           "weightedScore": null,
@@ -236,12 +222,46 @@
           "displaySource": "protein_quality_gate_skipped",
           "displayValue": "N/A",
           "notApplicableReason": "protein_quality_gate"
+        },
+        {
+          "metricKey": "bioavailability_percent",
+          "text": "bioavailability at N/A",
+          "weightedScore": null,
+          "scoringMode": "not_applicable",
+          "band": null,
+          "polarity": null,
+          "dvPercent": null,
+          "value": null,
+          "score": null,
+          "denominator": null,
+          "displaySource": "protein_quality_gate_skipped",
+          "displayValue": "N/A",
+          "notApplicableReason": "protein_quality_gate"
         }
       ],
       "macroDisplayValue": "14.2g",
       "subtitleText": "14.2g of protein. That amount is useful enough to count. Collagen is only 0g, a weak mark for dairy.",
       "timingHint": "short-medium",
-      "score": 80
+      "score": 80,
+      "displayPolicy": {
+        "policyId": "protein-section-display.v1",
+        "rowCount": 4,
+        "visibleRows": [
+          "collagen_g",
+          "essential_amino_acids_score",
+          "nonessential_amino_acids_score",
+          "bioavailability_percent"
+        ],
+        "hiddenFallbackMetricKey": "protein_g_fallback",
+        "missingValueDisplay": "N/A",
+        "showProteinFallbackAsVisibleRow": false,
+        "rules": {
+          "visibleRowsOnly": true,
+          "numericRowsRequireScoredOrSourceBackedValue": true,
+          "proteinQualityGateSkippedRowsDisplayNa": true,
+          "doNotDisplayProteinFallbackAsSubmacro": true
+        }
+      }
     },
     {
       "key": "vitamins",

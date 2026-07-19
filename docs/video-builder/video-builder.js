@@ -217,7 +217,6 @@
     ]
   };
   const METRIC_SHORT_LABELS = {
-    protein_g_fallback: 'AMOUNT',
     saturated_fat_g: 'SAT FAT',
     polyunsaturated_fat_g: 'POLY FAT',
     omega3_mg: 'OMEGA 3',
@@ -246,7 +245,6 @@
     sugar_g: ['sugar'],
     starch_g: ['starch'],
     glycemic_index: ['glycemic index', 'gi'],
-    protein_g_fallback: ['protein amount', 'protein quantity', 'protein'],
     collagen_g: ['collagen'],
     essential_amino_acids_score: ['essential amino', 'eaa'],
     nonessential_amino_acids_score: ['nonessential amino', 'non essential amino', 'n eaa'],

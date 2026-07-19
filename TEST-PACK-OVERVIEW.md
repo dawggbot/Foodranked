@@ -15,6 +15,7 @@ It tests:
 - pros/cons title fit for the 3-line layout-builder textboxes
 - tier assignment flow
 - narration/subtitle packaging rules for compact units, expanded spoken units, two-line subtitle cues, and macro sections with at least one displayed submacro value
+- protein display contract: visible protein rows stay locked to collagen, EAA, NEAA, and bioavailability; hidden protein fallback scoring must not replace those rows with protein amount
 
 ## Included files
 

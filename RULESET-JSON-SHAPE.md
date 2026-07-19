@@ -82,6 +82,19 @@ Keep the JSON split into:
       { "label": "3_green", "min": 15.5, "score": 100 }
     ]
   },
+  "proteinDisplay": {
+    "policyId": "protein-section-display.v1",
+    "rowCount": 4,
+    "visibleRows": [
+      "collagen_g",
+      "essential_amino_acids_score",
+      "nonessential_amino_acids_score",
+      "bioavailability_percent"
+    ],
+    "hiddenFallbackMetricKey": "protein_g_fallback",
+    "missingValueDisplay": "N/A",
+    "showProteinFallbackAsVisibleRow": false
+  },
   "scoreCalibration": {
     "version": 1,
     "method": "piecewise_linear_raw_to_shared_tier_score",
@@ -152,6 +165,24 @@ Use `not_applicable` only when the metric is genuinely N/A for that food type's 
 A zero weight must mean zero contribution.
 Only N/A submacro rows may display without an arrow indicator.
 
+### 3a. Lock the protein section display contract
+The visible protein submacro rows are not inferred from whatever scored the protein section.
+Every v1 ruleset should include `proteinDisplay`, and it should lock these four visible rows in this order:
+
+1. `collagen_g`
+2. `essential_amino_acids_score`
+3. `nonessential_amino_acids_score`
+4. `bioavailability_percent`
+
+The related `proteinFallback.metricKey` is intentionally hidden from the visible protein row list:
+- `protein_g_fallback` may score the proteins section when amino-acid quality is missing, skipped by the useful-protein gate, or intentionally withheld.
+- it may guide narration, because the protein amount is still relevant context
+- it must not be displayed as a protein submacro row, because the protein macro bubble already displays `protein_g`
+
+Missing, skipped, or withheld protein-quality fields display as `N/A` with no arrow.
+Do not convert `null`, skipped protein-gate rows, or non-source-backed values into `0`.
+A visible `0` is allowed only when the metric actually scored as zero or a source-backed raw metric is truly zero.
+
 ### 4. Keep context items separate from nutrient metrics
 Do not force antioxidants, pesticide risk, sodium concerns, convenience tradeoffs, and similar contextual notes into the same metric array as nutrient data.
 
@@ -215,7 +246,7 @@ The scorer should:
 2. compute vitamin/mineral section scores from DV% tiers
 3. compute pros/cons as first-class sections from major/minor levels
 4. derive EAA/NEAA scores from source-backed `amino_acids_mg` and the useful-amount threshold policy, never from trace presence or old aggregate proxy fields
-5. use `proteinFallback` when direct protein-quality metrics are intentionally unavailable or the food fails the useful-protein gate, so protein amount still resolves to an arrow band
+5. use `proteinFallback` when direct protein-quality metrics are intentionally unavailable or the food fails the useful-protein gate, while keeping visible protein rows controlled by `proteinDisplay`
 6. average all 7 scored content section scores into `baseOverallScore`
 7. apply `scoreCalibration` to produce `calibratedOverallScore`
 8. apply any food-specific `scoreAdjustments` to produce `anomalyAdjustedScore` / `rankingScore`

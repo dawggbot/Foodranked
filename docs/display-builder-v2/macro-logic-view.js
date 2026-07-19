@@ -31,7 +31,6 @@
     bioavailability_percent: 'higher_better'
   };
   const METRIC_SHORT_LABELS = {
-    protein_g_fallback: 'AMOUNT',
     saturated_fat_g: 'SAT FAT',
     polyunsaturated_fat_g: 'POLY FAT',
     omega3_mg: 'OMEGA 3',

@@ -212,6 +212,37 @@ Suggested fields:
 
 Protein quality fields should only score when the protein amount is useful enough for the category and the food has source-backed `amino_acids_mg` values. EAA/NEAA scores must be derived by counting only amino-acid groups that clear the useful-amount thresholds in `config/amino-acid-thresholds.v1.json`; do not let amino-acid presence or old aggregate proxy fields create a misleading protein-quality win.
 
+Important display rule:
+- `protein_g_fallback` is a scoring and narration bridge, not a visible protein submacro row.
+- The protein macro bubble already displays `protein_g`, so fallback protein grams must not be repeated as an on-screen submacro.
+
+### protein_display_policies
+Display contract for the visible protein rows.
+
+Suggested fields:
+- id
+- ruleset_id
+- policy_id (`protein-section-display.v1`)
+- row_count (`4`)
+- visible_rows
+- hidden_fallback_metric_key (`protein_g_fallback`)
+- missing_value_display (`N/A`)
+- show_protein_fallback_as_visible_row (`false`)
+
+Locked v1 visible row order:
+1. `collagen_g`
+2. `essential_amino_acids_score`
+3. `nonessential_amino_acids_score`
+4. `bioavailability_percent`
+
+Protein display rules:
+- Always keep those four visible row slots for the proteins section.
+- A numeric protein row may display only when it is scored or defensibly source-backed for the exact food identity.
+- If the useful-protein gate skips EAA, NEAA, or bioavailability, display that row as `N/A` with no arrow.
+- If collagen is not source-backed for the exact food identity, display collagen as `N/A` with no arrow.
+- A displayed `0` is valid only when the score actually ran or a source-backed raw metric is truly zero; missing, skipped, or withheld protein-quality fields must never be converted to `0`.
+- `protein_g_fallback` may contribute to the proteins section score and narration when quality metrics are not usable, but it must not appear in `sections[].displayItems`.
+
 ### score_calibrations
 Category-specific mapping from raw ruleset score to the shared comparable score scale.
 
@@ -321,7 +352,7 @@ cons_section_score = 100 - cons_severity_score
 9. Aggregate metric scores by section.
 10. Score vitamins/minerals from DV% tiers.
 11. Score pros and cons from major/minor item levels.
-12. Apply `proteinFallback` when the proteins section would otherwise depend on weak proxy fields.
+12. Apply `proteinFallback` when the proteins section would otherwise depend on weak proxy fields; keep the visible protein rows controlled by `proteinDisplay`.
 13. Average the 7 scored content section scores using equal top-level weights to produce `baseOverallScore`.
 14. Apply the active category `scoreCalibration` to produce `calibratedOverallScore`.
 15. Apply food-specific `scoreAdjustments`, when present, to produce `anomalyAdjustedScore` / `rankingScore`.

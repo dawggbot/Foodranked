@@ -20,6 +20,19 @@ const HEADER_KEYS = ['kcal', 'fat_g', 'carb_g', 'protein_g'];
 const CONTEXT_SIDES = ['pros', 'cons'];
 const AMINO_ACID_SCORE_KEYS = ['essential_amino_acids_score', 'nonessential_amino_acids_score'];
 const CANONICAL_B_VITAMIN_SCORE_KEY = 'vitamin_b12_dv';
+const PROTEIN_DISPLAY_POLICY_ID = 'protein-section-display.v1';
+const PROTEIN_VISIBLE_ROWS = [
+  'collagen_g',
+  'essential_amino_acids_score',
+  'nonessential_amino_acids_score',
+  'bioavailability_percent'
+];
+const PROTEIN_HIDDEN_FALLBACK_METRIC_KEY = 'protein_g_fallback';
+const PROTEIN_QUALITY_DISPLAY_KEYS = new Set([
+  'essential_amino_acids_score',
+  'nonessential_amino_acids_score',
+  'bioavailability_percent'
+]);
 const EXPECTED_AMINO_ACID_GROUP_COUNTS = {
   essentialGroups: 9,
   nonessentialGroups: 11
@@ -110,6 +123,13 @@ function walkFiles(dir, includeFile, results = []) {
 
 function issue(list, file, message, extra = {}) {
   list.push({ file: path.relative(repoRoot, file), message, ...extra });
+}
+
+function sameArray(left, right) {
+  return Array.isArray(left)
+    && Array.isArray(right)
+    && left.length === right.length
+    && left.every((value, index) => value === right[index]);
 }
 
 function walkStrings(value, visit, pathParts = []) {
@@ -486,6 +506,44 @@ function auditRulesets(errors) {
       }
     }
 
+    const proteinDisplay = ruleset.proteinDisplay;
+    if (!proteinDisplay) {
+      issue(errors, file, 'ruleset must define proteinDisplay visible-row policy');
+    } else {
+      if (proteinDisplay.policyId !== PROTEIN_DISPLAY_POLICY_ID) {
+        issue(errors, file, 'proteinDisplay policyId must be locked', {
+          expected: PROTEIN_DISPLAY_POLICY_ID,
+          actual: proteinDisplay.policyId || null
+        });
+      }
+      if (proteinDisplay.rowCount !== PROTEIN_VISIBLE_ROWS.length) {
+        issue(errors, file, 'proteinDisplay rowCount must match visible row contract', {
+          expected: PROTEIN_VISIBLE_ROWS.length,
+          actual: proteinDisplay.rowCount ?? null
+        });
+      }
+      if (!sameArray(proteinDisplay.visibleRows, PROTEIN_VISIBLE_ROWS)) {
+        issue(errors, file, 'proteinDisplay visibleRows must stay locked to collagen/EAA/NEAA/bioavailability', {
+          expected: PROTEIN_VISIBLE_ROWS,
+          actual: proteinDisplay.visibleRows || null
+        });
+      }
+      if (proteinDisplay.hiddenFallbackMetricKey !== (ruleset.proteinFallback?.metricKey || PROTEIN_HIDDEN_FALLBACK_METRIC_KEY)) {
+        issue(errors, file, 'proteinDisplay hiddenFallbackMetricKey must match proteinFallback.metricKey', {
+          expected: ruleset.proteinFallback?.metricKey || PROTEIN_HIDDEN_FALLBACK_METRIC_KEY,
+          actual: proteinDisplay.hiddenFallbackMetricKey || null
+        });
+      }
+      if (proteinDisplay.showProteinFallbackAsVisibleRow !== false) {
+        issue(errors, file, 'proteinDisplay must not show protein fallback as a visible row');
+      }
+      if (proteinDisplay.missingValueDisplay !== 'N/A') {
+        issue(errors, file, 'proteinDisplay missingValueDisplay must be N/A', {
+          actual: proteinDisplay.missingValueDisplay || null
+        });
+      }
+    }
+
     for (const [index, anchor] of (ruleset.scoreCalibration?.anchors || []).entries()) {
       const previous = ruleset.scoreCalibration.anchors[index - 1];
       if (!previous) continue;
@@ -583,6 +641,129 @@ function auditGeneratedText(errors) {
   return { generatedFiles: generatedFiles.length };
 }
 
+function proteinSectionFromScript(script) {
+  return (script?.sections || []).find(section => section.key === 'proteins');
+}
+
+function auditProteinDisplaySection(script, file, errors, extra = {}) {
+  const section = proteinSectionFromScript(script);
+  if (!section) return 0;
+
+  const policy = section.displayPolicy;
+  if (!policy) {
+    issue(errors, file, 'generated proteins section must include displayPolicy', extra);
+  } else {
+    if (policy.policyId !== PROTEIN_DISPLAY_POLICY_ID) {
+      issue(errors, file, 'generated protein displayPolicy has wrong policyId', {
+        ...extra,
+        expected: PROTEIN_DISPLAY_POLICY_ID,
+        actual: policy.policyId || null
+      });
+    }
+    if (policy.rowCount !== PROTEIN_VISIBLE_ROWS.length) {
+      issue(errors, file, 'generated protein displayPolicy has wrong rowCount', {
+        ...extra,
+        expected: PROTEIN_VISIBLE_ROWS.length,
+        actual: policy.rowCount ?? null
+      });
+    }
+    if (!sameArray(policy.visibleRows, PROTEIN_VISIBLE_ROWS)) {
+      issue(errors, file, 'generated protein displayPolicy visibleRows drifted', {
+        ...extra,
+        expected: PROTEIN_VISIBLE_ROWS,
+        actual: policy.visibleRows || null
+      });
+    }
+    if (policy.hiddenFallbackMetricKey !== PROTEIN_HIDDEN_FALLBACK_METRIC_KEY) {
+      issue(errors, file, 'generated protein displayPolicy hidden fallback drifted', {
+        ...extra,
+        expected: PROTEIN_HIDDEN_FALLBACK_METRIC_KEY,
+        actual: policy.hiddenFallbackMetricKey || null
+      });
+    }
+    if (policy.showProteinFallbackAsVisibleRow !== false) {
+      issue(errors, file, 'generated protein displayPolicy must keep fallback hidden', extra);
+    }
+  }
+
+  const items = section.displayItems || [];
+  const metricKeys = items.map(item => item.metricKey);
+  if (!sameArray(metricKeys, PROTEIN_VISIBLE_ROWS)) {
+    issue(errors, file, 'generated proteins displayItems must stay collagen/EAA/NEAA/bioavailability', {
+      ...extra,
+      expected: PROTEIN_VISIBLE_ROWS,
+      actual: metricKeys
+    });
+  }
+  if (metricKeys.includes(PROTEIN_HIDDEN_FALLBACK_METRIC_KEY)) {
+    issue(errors, file, 'protein_g_fallback must not appear in generated displayItems', extra);
+  }
+
+  for (const item of items) {
+    if (item.metricKey === PROTEIN_HIDDEN_FALLBACK_METRIC_KEY) {
+      issue(errors, file, 'hidden protein fallback leaked into visible protein rows', extra);
+      continue;
+    }
+    if ((item.displaySource === 'protein_quality_gate_skipped' || item.displaySource === 'not_source_backed') && item.displayValue !== 'N/A') {
+      issue(errors, file, 'non-source-backed protein display row must show N/A', {
+        ...extra,
+        metricKey: item.metricKey,
+        displaySource: item.displaySource,
+        displayValue: item.displayValue ?? null
+      });
+    }
+    if (item.notApplicableReason === 'protein_quality_gate' && item.displayValue !== 'N/A') {
+      issue(errors, file, 'protein-quality-gate skipped row must show N/A', {
+        ...extra,
+        metricKey: item.metricKey,
+        displayValue: item.displayValue ?? null
+      });
+    }
+    if ((item.value === null || item.value === undefined) && item.displayValue !== 'N/A') {
+      issue(errors, file, 'missing protein display row value must show N/A', {
+        ...extra,
+        metricKey: item.metricKey,
+        displayValue: item.displayValue ?? null
+      });
+    }
+    if (item.value === 0 && PROTEIN_QUALITY_DISPLAY_KEYS.has(item.metricKey) && item.displaySource !== 'scored') {
+      issue(errors, file, 'protein-quality zero must come from a scored row, not a fallback/coercion', {
+        ...extra,
+        metricKey: item.metricKey,
+        displaySource: item.displaySource || null,
+        displayValue: item.displayValue ?? null
+      });
+    }
+  }
+
+  return 1;
+}
+
+function auditGeneratedProteinDisplay(errors) {
+  let checked = 0;
+  const ids = generatedEpisodeIdsForScope();
+
+  for (const id of ids) {
+    for (const suffix of ['compact', 'standard']) {
+      const file = path.join(episodesDir, `${id}-${suffix}`, 'script.json');
+      if (!fs.existsSync(file)) continue;
+      const script = readJson(file);
+      checked += auditProteinDisplaySection(script, file, errors, { foodId: id, mode: suffix });
+    }
+  }
+
+  if (scope !== 'finalisation') {
+    const file = path.join(dataDir, 'foods-index.json');
+    if (fs.existsSync(file)) {
+      for (const food of readJson(file)) {
+        checked += auditProteinDisplaySection(food.episode?.script, file, errors, { foodId: food.id, surface: 'foods-index' });
+      }
+    }
+  }
+
+  return { proteinDisplayScripts: checked };
+}
+
 function main() {
   const errors = [];
   const warnings = [];
@@ -590,6 +771,7 @@ function main() {
   const aminoAcidThresholdStats = auditAminoAcidThresholdConfig(errors);
   const ruleStats = auditRulesets(errors);
   const generatedStats = auditGeneratedText(errors);
+  const proteinDisplayStats = auditGeneratedProteinDisplay(errors);
   const result = {
     status: errors.length ? 'fail' : 'ok',
     scope,
@@ -600,7 +782,8 @@ function main() {
       ...foodStats,
       ...aminoAcidThresholdStats,
       ...ruleStats,
-      ...generatedStats
+      ...generatedStats,
+      ...proteinDisplayStats
     },
     errors,
     warnings: args.has('--show-warnings') ? warnings : warnings.slice(0, 80)

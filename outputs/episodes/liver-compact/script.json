@@ -184,20 +184,6 @@
       "narration": "20.4 grams of protein. For meats, that is lower than you want. Collagen is only 0.5 grams, so for meats, it is not bringing much connective-tissue protein.",
       "displayItems": [
         {
-          "metricKey": "protein_g_fallback",
-          "text": "protein amount at 20.4g",
-          "weightedScore": 240,
-          "scoringMode": "arrow_bands",
-          "band": "1_green",
-          "polarity": "higher_better",
-          "dvPercent": null,
-          "value": 20.4,
-          "score": 60,
-          "denominator": null,
-          "displayValue": "20.4g",
-          "displaySource": "scored"
-        },
-        {
           "metricKey": "collagen_g",
           "text": "collagen at 0.5g",
           "weightedScore": 0,
@@ -240,12 +226,46 @@
           "displaySource": "protein_quality_gate_skipped",
           "displayValue": "N/A",
           "notApplicableReason": "protein_quality_gate"
+        },
+        {
+          "metricKey": "bioavailability_percent",
+          "text": "bioavailability at N/A",
+          "weightedScore": null,
+          "scoringMode": "not_applicable",
+          "band": null,
+          "polarity": null,
+          "dvPercent": null,
+          "value": null,
+          "score": null,
+          "denominator": null,
+          "displaySource": "protein_quality_gate_skipped",
+          "displayValue": "N/A",
+          "notApplicableReason": "protein_quality_gate"
         }
       ],
       "macroDisplayValue": "20.4g",
       "subtitleText": "20.4g of protein. For meats, that is lower than you want. Collagen is only 0.5g, so for meats, it is not bringing much connective-tissue protein.",
       "timingHint": "short-medium",
-      "score": 48
+      "score": 48,
+      "displayPolicy": {
+        "policyId": "protein-section-display.v1",
+        "rowCount": 4,
+        "visibleRows": [
+          "collagen_g",
+          "essential_amino_acids_score",
+          "nonessential_amino_acids_score",
+          "bioavailability_percent"
+        ],
+        "hiddenFallbackMetricKey": "protein_g_fallback",
+        "missingValueDisplay": "N/A",
+        "showProteinFallbackAsVisibleRow": false,
+        "rules": {
+          "visibleRowsOnly": true,
+          "numericRowsRequireScoredOrSourceBackedValue": true,
+          "proteinQualityGateSkippedRowsDisplayNa": true,
+          "doNotDisplayProteinFallbackAsSubmacro": true
+        }
+      }
     },
     {
       "key": "vitamins",

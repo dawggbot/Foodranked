@@ -45,6 +45,13 @@
   "ruleset": {
     "id": "dairy.v1",
     "version": 1,
+    "tierScoreMap": {
+      "D": 20,
+      "C": 40,
+      "B": 60,
+      "A": 80,
+      "S": 100
+    },
     "scoreCalibration": {
       "version": 1,
       "method": "piecewise_linear_raw_to_shared_tier_score"
@@ -297,20 +304,8 @@
     {
       "key": "minerals",
       "title": "Minerals",
-      "narration": "Calcium is 8% daily value, adding useful mineral support. Magnesium is only 3% daily value, a weak mark for dairy.",
+      "narration": "Magnesium is only 3% daily value, a weak mark for dairy.",
       "displayItems": [
-        {
-          "metricKey": "calcium_dv",
-          "text": "calcium at 8% DV",
-          "weightedScore": 0,
-          "scoringMode": "dv_points",
-          "band": null,
-          "polarity": null,
-          "dvPercent": 8,
-          "value": null,
-          "score": 0,
-          "denominator": null
-        },
         {
           "metricKey": "magnesium_dv",
           "text": "magnesium at 3% DV",
@@ -319,6 +314,18 @@
           "band": null,
           "polarity": null,
           "dvPercent": 3,
+          "value": null,
+          "score": 0,
+          "denominator": null
+        },
+        {
+          "metricKey": "calcium_dv",
+          "text": "calcium at 8% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "polarity": null,
+          "dvPercent": 8,
           "value": null,
           "score": 0,
           "denominator": null
@@ -337,7 +344,7 @@
         }
       ],
       "macroDisplayValue": null,
-      "subtitleText": "Calcium is 8% DV, adding useful mineral support. Magnesium is only 3% DV, a weak mark for dairy.",
+      "subtitleText": "Magnesium is only 3% DV, a weak mark for dairy.",
       "timingHint": "short-medium",
       "score": 0
     },
@@ -414,8 +421,16 @@
     "cta": "Would you rank it the same, or nah?"
   },
   "tier": "A",
-  "overallScore": 65.3,
-  "overallScoreExact": 65.3154,
+  "overallScore": 80,
+  "overallScoreExact": 80,
+  "calibratedOverallScore": 65.3,
+  "calibratedOverallScoreExact": 65.3154,
+  "anomalyAdjustedScore": 65.3,
+  "anomalyAdjustedScoreExact": 65.3154,
+  "rankingScore": 65.3,
+  "rankingScoreExact": 65.3154,
+  "scoreAdjustmentTotal": 0,
+  "scoreAdjustments": [],
   "baseOverallScore": 46.2,
   "baseOverallScoreExact": 46.1905,
   "sectionOrder": [
@@ -459,7 +474,7 @@
     {
       "kind": "section",
       "sectionKey": "minerals",
-      "text": "Calcium is 8% daily value, adding useful mineral support. Magnesium is only 3% daily value, a weak mark for dairy."
+      "text": "Magnesium is only 3% daily value, a weak mark for dairy."
     },
     {
       "kind": "section",
@@ -482,7 +497,7 @@
   ],
   "explanation": {
     "summary": "Pros are carrying this food most, while minerals are holding it back most. It lands in A tier.",
-    "whyThisTier": "This food lands in A tier with an overall score of 65.3. Section scores: fats 65, carbs 65, proteins 40, vitamins 20, minerals 0, pros 83.3, cons 50.",
+    "whyThisTier": "This food lands in A tier with a display score of 80. Section scores: fats 65, carbs 65, proteins 40, vitamins 20, minerals 0, pros 83.3, cons 50.",
     "strongestSection": {
       "key": "pros",
       "label": "Pros",
@@ -493,6 +508,7 @@
       "label": "Minerals",
       "score": 0
     },
+    "scoreAdjustments": [],
     "topPros": [
       {
         "title": "fermented-food angle adds extra value",

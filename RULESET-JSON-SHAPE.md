@@ -86,7 +86,7 @@ Keep the JSON split into:
     "version": 1,
     "method": "piecewise_linear_raw_to_shared_tier_score",
     "input": "baseOverallScore",
-    "output": "overallScore",
+    "output": "calibratedOverallScore",
     "anchors": [
       { "raw": 0, "calibrated": 0 },
       { "raw": 29.7171, "calibrated": 20 },
@@ -96,6 +96,13 @@ Keep the JSON split into:
       { "raw": 100, "calibrated": 100 }
     ],
     "notes": "Maps category-calibrated benchmark boundaries onto shared D/C/B/A/S 20-point score bands."
+  },
+  "tierScoreMap": {
+    "D": 20,
+    "C": 40,
+    "B": 60,
+    "A": 80,
+    "S": 100
   },
   "tierThresholds": [
     { "tier": "S", "min": 80, "max": 100 },
@@ -178,6 +185,29 @@ Food-type weighting should usually happen through:
 
 not by changing the final top-level split.
 
+### 6. Keep public score values tied to the tier
+The public `overallScore` is the tier display value, not the fine-grained ranking score:
+- `D = 20`
+- `C = 40`
+- `B = 60`
+- `A = 80`
+- `S = 100`
+
+Keep the fine-grained score in `calibratedOverallScore` and `anomalyAdjustedScore` / `rankingScore`.
+
+### 7. Use food-specific anomaly adjustments sparingly
+Food files may include `scoreAdjustments[]` when a visible 7-section score cannot fairly represent a true outlier.
+
+Each adjustment should include:
+- `itemKey`
+- `label`
+- `points`
+- `reason`
+- `source`
+- `scope`
+
+Use positive adjustments for unusually strong category-breaking traits, such as a fruit with a serious unsaturated-fat profile or a vegetable with unusually meaningful protein support. Use negative adjustments for formats where normal section math over-rewards the food, such as fried tuber snacks, sweet sauces, candy-style bars, or heavily processed convenience products.
+
 ## Implementation note
 
 The scorer should:
@@ -187,7 +217,9 @@ The scorer should:
 4. derive EAA/NEAA scores from source-backed `amino_acids_mg` and the useful-amount threshold policy, never from trace presence or old aggregate proxy fields
 5. use `proteinFallback` when direct protein-quality metrics are intentionally unavailable or the food fails the useful-protein gate, so protein amount still resolves to an arrow band
 6. average all 7 scored content section scores into `baseOverallScore`
-7. apply `scoreCalibration` to produce the calibrated display `overallScore`
-8. map the calibrated `overallScore` to the tier with shared `tierThresholds`
+7. apply `scoreCalibration` to produce `calibratedOverallScore`
+8. apply any food-specific `scoreAdjustments` to produce `anomalyAdjustedScore` / `rankingScore`
+9. map `anomalyAdjustedScore` to the tier with shared `tierThresholds`
+10. set public `overallScore` from `tierScoreMap`
 
 That keeps the math explainable while matching the visible video structure.

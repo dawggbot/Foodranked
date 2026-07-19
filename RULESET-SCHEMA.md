@@ -213,7 +213,7 @@ Suggested fields:
 Protein quality fields should only score when the protein amount is useful enough for the category and the food has source-backed `amino_acids_mg` values. EAA/NEAA scores must be derived by counting only amino-acid groups that clear the useful-amount thresholds in `config/amino-acid-thresholds.v1.json`; do not let amino-acid presence or old aggregate proxy fields create a misleading protein-quality win.
 
 ### score_calibrations
-Category-specific mapping from raw ruleset score to the shared final score scale.
+Category-specific mapping from raw ruleset score to the shared comparable score scale.
 
 Suggested fields:
 - id
@@ -221,7 +221,7 @@ Suggested fields:
 - version
 - method (`piecewise_linear_raw_to_shared_tier_score`)
 - input_score_key (`baseOverallScore`)
-- output_score_key (`overallScore`)
+- output_score_key (`calibratedOverallScore`)
 - notes nullable
 
 ### score_calibration_anchors
@@ -236,11 +236,25 @@ Suggested fields:
 
 Important note:
 - raw thresholds stay category-relative
-- calibrated scores are the comparable display/tier scores
+- calibrated scores are the comparable pre-adjustment scores
 - anchors should be refreshed from benchmark foods whenever category rule bands or metric weights change materially
 
+### score_adjustments
+Food-specific anomaly adjustments that apply after calibration and before tier lookup.
+
+Suggested fields:
+- food_id
+- item_key
+- label
+- points (positive or negative)
+- reason
+- source (`manual`, `ruleset`, or `audit`)
+- scope (`food_specific_anomaly`)
+
+Use score adjustments sparingly. They are for explicit anomalies that the normal seven scored sections cannot represent fairly, such as unusually strong protein for a vegetable, unusually strong fat quality for a fruit, or a processed/fried/sweetened format whose real-world category fit is weaker than the visible sections imply.
+
 ### tier_thresholds
-Versioned shared mapping from calibrated overall score to final tier.
+Versioned shared mapping from anomaly-adjusted overall score to final tier.
 
 Suggested fields:
 - id
@@ -248,6 +262,14 @@ Suggested fields:
 - tier_label (`S`, `A`, `B`, `C`, `D`)
 - min_score
 - max_score
+
+### tier_score_map
+Locked public display score for each final tier:
+- `D = 20`
+- `C = 40`
+- `B = 60`
+- `A = 80`
+- `S = 100`
 - notes nullable
 
 Important note:
@@ -301,13 +323,15 @@ cons_section_score = 100 - cons_severity_score
 11. Score pros and cons from major/minor item levels.
 12. Apply `proteinFallback` when the proteins section would otherwise depend on weak proxy fields.
 13. Average the 7 scored content section scores using equal top-level weights to produce `baseOverallScore`.
-14. Apply the active category `scoreCalibration` to produce the calibrated `overallScore`.
-15. Map the calibrated `overallScore` to the tier using shared `tierThresholds`.
-16. Generate derived outputs:
+14. Apply the active category `scoreCalibration` to produce `calibratedOverallScore`.
+15. Apply food-specific `scoreAdjustments`, when present, to produce `anomalyAdjustedScore` / `rankingScore`.
+16. Map `anomalyAdjustedScore` to the tier using shared `tierThresholds`.
+17. Set public `overallScore` from `tierScoreMap`.
+18. Generate derived outputs:
    - summary
    - explanation notes
    - final tier
-17. Generate video payloads.
+19. Generate video payloads.
 
 ## Required output payloads
 

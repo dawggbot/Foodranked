@@ -2,6 +2,8 @@
 
 Verification after writing the calibration matrix, category score calibrations, and shared tier thresholds.
 
+This verifies internal calibrated/ranking score tier placement. Public `overallScore` is snapped from the final tier with `D=20`, `C=40`, `B=60`, `A=80`, `S=100`.
+
 ## dairy
 - matched: 25/25
 - mismatches: none

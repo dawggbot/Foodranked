@@ -45,6 +45,13 @@
   "ruleset": {
     "id": "vegetables.v1",
     "version": 1,
+    "tierScoreMap": {
+      "D": 20,
+      "C": 40,
+      "B": 60,
+      "A": 80,
+      "S": 100
+    },
     "scoreCalibration": {
       "version": 1,
       "method": "piecewise_linear_raw_to_shared_tier_score"
@@ -433,13 +440,30 @@
   "closing": {
     "summary": "Big strengths are omega 3 and protein, but the biggest weaknesses are freshness and prep can matter and raw texture can be a barrier.",
     "overview": "Big strengths are omega 3 and protein, but the biggest weaknesses are freshness and prep can matter and raw texture can be a barrier.",
-    "finalReveal": "A tier.",
+    "finalReveal": "S tier.",
     "useCaseNote": "Best when you want low downside and easy micronutrient support.",
     "cta": "Would you rank it the same, or nah?"
   },
-  "tier": "A",
-  "overallScore": 62.5,
-  "overallScoreExact": 62.4763,
+  "tier": "S",
+  "overallScore": 100,
+  "overallScoreExact": 100,
+  "calibratedOverallScore": 62.5,
+  "calibratedOverallScoreExact": 62.4763,
+  "anomalyAdjustedScore": 82.5,
+  "anomalyAdjustedScoreExact": 82.4763,
+  "rankingScore": 82.5,
+  "rankingScoreExact": 82.4763,
+  "scoreAdjustmentTotal": 20,
+  "scoreAdjustments": [
+    {
+      "itemKey": "vegetable_protein_profile_anomaly",
+      "label": "unusual protein profile for a vegetable",
+      "points": 20,
+      "reason": "Kale has unusually meaningful protein support for a vegetable even though the useful-protein gate keeps the protein-quality section conservative.",
+      "source": "manual",
+      "scope": "food_specific_anomaly"
+    }
+  ],
   "baseOverallScore": 50.4,
   "baseOverallScoreExact": 50.4286,
   "sectionOrder": [
@@ -501,12 +525,12 @@
     },
     {
       "kind": "final_reveal",
-      "text": "A tier."
+      "text": "S tier."
     }
   ],
   "explanation": {
-    "summary": "Pros are carrying this food most, while proteins are holding it back most. It lands in A tier.",
-    "whyThisTier": "This food lands in A tier with an overall score of 62.5. Section scores: fats 60, carbs 78, proteins 0, vitamins 80, minerals 1.7, pros 83.3, cons 50.",
+    "summary": "Pros are carrying this food most, while proteins are holding it back most. It lands in S tier.",
+    "whyThisTier": "This food lands in S tier with a display score of 100. Section scores: fats 60, carbs 78, proteins 0, vitamins 80, minerals 1.7, pros 83.3, cons 50. Food-specific anomaly adjustment: +20.",
     "strongestSection": {
       "key": "pros",
       "label": "Pros",
@@ -517,6 +541,16 @@
       "label": "Proteins",
       "score": 0
     },
+    "scoreAdjustments": [
+      {
+        "itemKey": "vegetable_protein_profile_anomaly",
+        "label": "unusual protein profile for a vegetable",
+        "points": 20,
+        "reason": "Kale has unusually meaningful protein support for a vegetable even though the useful-protein gate keeps the protein-quality section conservative.",
+        "source": "manual",
+        "scope": "food_specific_anomaly"
+      }
+    ],
     "topPros": [
       {
         "title": "glucosinolate-rich brassica profile",
@@ -566,7 +600,7 @@
     "narrationNotes": [
       "Strongest section: Pros.",
       "Weakest section: Proteins.",
-      "Final verdict: A tier."
+      "Final verdict: S tier."
     ]
   }
 }

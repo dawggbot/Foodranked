@@ -29,6 +29,13 @@ const MACRO_SECTION_HEADER_KEYS = {
   carbs: 'carb_g',
   proteins: 'protein_g'
 };
+const TIER_SCORE_MAP = {
+  D: 20,
+  C: 40,
+  B: 60,
+  A: 80,
+  S: 100
+};
 const aminoAcidThresholds = readJson(path.join(__dirname, '..', 'config', 'amino-acid-thresholds.v1.json'));
 
 function scoreFromBands(value, bands) {
@@ -131,6 +138,11 @@ function getTier(score, thresholds) {
   return 'UNKNOWN';
 }
 
+function displayScoreForTier(tier, ruleset) {
+  const map = ruleset?.tierScoreMap || TIER_SCORE_MAP;
+  return map[tier] ?? TIER_SCORE_MAP[tier] ?? 0;
+}
+
 function applyScoreCalibration(score, calibration) {
   const anchors = (calibration?.anchors || [])
     .filter(anchor => typeof anchor.raw === 'number' && typeof anchor.calibrated === 'number')
@@ -149,6 +161,27 @@ function applyScoreCalibration(score, calibration) {
   }
 
   return clamp(anchors[anchors.length - 1].calibrated, 0, 100);
+}
+
+function normalizeScoreAdjustments(food) {
+  return (food.scoreAdjustments || [])
+    .map(item => {
+      const points = Number(item.points);
+      if (!Number.isFinite(points) || points === 0) return null;
+      return {
+        itemKey: item.itemKey || item.key || null,
+        label: item.label || item.title || item.itemKey || 'score adjustment',
+        points,
+        reason: item.reason || item.explanation || null,
+        source: item.source || 'manual',
+        scope: item.scope || 'food_specific_anomaly'
+      };
+    })
+    .filter(Boolean);
+}
+
+function scoreAdjustmentTotal(adjustments) {
+  return clamp(adjustments.reduce((sum, item) => sum + item.points, 0), -100, 100);
 }
 
 function capitalize(s) {
@@ -179,12 +212,16 @@ function buildSummary(sectionScores, tier) {
   return `${capitalize(prettySectionName(best[0]))} are carrying this food most, while ${prettySectionName(worst[0])} are holding it back most. It lands in ${tier} tier.`;
 }
 
-function buildTierReason(tier, overallScore, sectionScores) {
+function buildTierReason(tier, overallScore, sectionScores, scoreAdjustments = []) {
   const scoreList = Object.entries(sectionScores)
     .filter(([, score]) => typeof score === 'number')
     .map(([section, score]) => `${prettySectionName(section)} ${round1(score)}`)
     .join(', ');
-  return `This food lands in ${tier} tier with an overall score of ${overallScore}. Section scores: ${scoreList}.`;
+  const adjustmentTotal = scoreAdjustmentTotal(scoreAdjustments);
+  const adjustmentText = adjustmentTotal
+    ? ` Food-specific anomaly adjustment: ${adjustmentTotal > 0 ? '+' : ''}${round1(adjustmentTotal)}.`
+    : '';
+  return `This food lands in ${tier} tier with a display score of ${overallScore}. Section scores: ${scoreList}.${adjustmentText}`;
 }
 
 function pickSectionExtremes(sectionScores) {
@@ -497,9 +534,13 @@ function main() {
     ? (scoredSections.reduce((sum, [section, score]) => sum + (score * (typeof sectionWeights[section] === 'number' ? sectionWeights[section] : 0)), 0) / (weightedDenominator || 1))
     : 0;
   const calibratedOverallScoreExact = applyScoreCalibration(baseOverallScoreExact, ruleset.scoreCalibration);
-  const overallScore = round1(calibratedOverallScoreExact);
+  const scoreAdjustments = normalizeScoreAdjustments(food);
+  const scoreAdjustmentTotalExact = scoreAdjustmentTotal(scoreAdjustments);
+  const anomalyAdjustedScoreExact = clamp(calibratedOverallScoreExact + scoreAdjustmentTotalExact, 0, 100);
+  const rankingScoreExact = anomalyAdjustedScoreExact;
 
-  const tier = getTier(calibratedOverallScoreExact, ruleset.tierThresholds);
+  const tier = getTier(anomalyAdjustedScoreExact, ruleset.tierThresholds);
+  const overallScore = displayScoreForTier(tier, ruleset);
   const summary = buildSummary(sectionScores, tier);
   const extremes = pickSectionExtremes(sectionScores);
   const topPros = trimContextItems(contextComputation.pros, 'pro');
@@ -507,7 +548,7 @@ function main() {
 
   const explanation = {
     summary,
-    whyThisTier: buildTierReason(tier, overallScore, sectionScores),
+    whyThisTier: buildTierReason(tier, overallScore, sectionScores, scoreAdjustments),
     strongestSection: extremes.strongest ? {
       key: extremes.strongest.section,
       label: capitalize(prettySectionName(extremes.strongest.section)),
@@ -518,6 +559,7 @@ function main() {
       label: capitalize(prettySectionName(extremes.weakest.section)),
       score: round1(extremes.weakest.score)
     } : null,
+    scoreAdjustments,
     topPros,
     topCons,
     narrationNotes: buildNarrationNotes(extremes, tier)
@@ -529,6 +571,7 @@ function main() {
     ruleset: {
       id: ruleset.id,
       version: ruleset.version,
+      tierScoreMap: ruleset.tierScoreMap || TIER_SCORE_MAP,
       scoreCalibration: ruleset.scoreCalibration ? {
         version: ruleset.scoreCalibration.version ?? null,
         method: ruleset.scoreCalibration.method ?? null
@@ -540,7 +583,15 @@ function main() {
     proteinQualityGate,
     sectionScores: Object.fromEntries(Object.entries(sectionScores).map(([k, v]) => [k, v === null ? null : round1(v)])),
     overallScore,
-    overallScoreExact: Number(calibratedOverallScoreExact.toFixed(4)),
+    overallScoreExact: overallScore,
+    calibratedOverallScore: round1(calibratedOverallScoreExact),
+    calibratedOverallScoreExact: Number(calibratedOverallScoreExact.toFixed(4)),
+    anomalyAdjustedScore: round1(anomalyAdjustedScoreExact),
+    anomalyAdjustedScoreExact: Number(anomalyAdjustedScoreExact.toFixed(4)),
+    rankingScore: round1(rankingScoreExact),
+    rankingScoreExact: Number(rankingScoreExact.toFixed(4)),
+    scoreAdjustmentTotal: round1(scoreAdjustmentTotalExact),
+    scoreAdjustmentTotalExact: Number(scoreAdjustmentTotalExact.toFixed(4)),
     baseOverallScore: round1(baseOverallScoreExact),
     baseOverallScoreExact: Number(baseOverallScoreExact.toFixed(4)),
     tier,
@@ -550,6 +601,7 @@ function main() {
       pros: contextComputation.pros,
       cons: contextComputation.cons
     },
+    scoreAdjustments,
     metricBreakdown
   };
 

@@ -777,6 +777,14 @@ function buildManifest({ food, rulesetPath, foodPath, score, script, template, s
     scoreSnapshot: {
       overallScore: score.overallScore,
       overallScoreExact: score.overallScoreExact ?? score.overallScore,
+      calibratedOverallScore: score.calibratedOverallScore ?? null,
+      calibratedOverallScoreExact: score.calibratedOverallScoreExact ?? null,
+      anomalyAdjustedScore: score.anomalyAdjustedScore ?? null,
+      anomalyAdjustedScoreExact: score.anomalyAdjustedScoreExact ?? null,
+      rankingScore: score.rankingScore ?? null,
+      rankingScoreExact: score.rankingScoreExact ?? null,
+      scoreAdjustmentTotal: score.scoreAdjustmentTotal ?? 0,
+      scoreAdjustments: score.scoreAdjustments || [],
       baseOverallScore: score.baseOverallScore ?? null,
       baseOverallScoreExact: score.baseOverallScoreExact ?? null,
       tier: score.tier,
@@ -898,7 +906,8 @@ function main() {
     files: ['score.json', 'script.json', 'subtitles.json', 'episode-manifest.json', 'narration.txt'],
     estimatedDurationSeconds: scenePlan.totalEstimatedDurationSeconds,
     tier: score.tier,
-    overallScore: score.overallScore
+    overallScore: score.overallScore,
+    rankingScore: score.rankingScore ?? null
   }, null, 2));
 }
 

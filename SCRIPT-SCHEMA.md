@@ -51,9 +51,21 @@ It is the bridge between:
 - `tier`
 - `overallScore`
 - `overallScoreExact`
+- `calibratedOverallScore`
+- `calibratedOverallScoreExact`
+- `anomalyAdjustedScore`
+- `anomalyAdjustedScoreExact`
+- `rankingScore`
+- `rankingScoreExact`
+- `scoreAdjustmentTotal`
+- `scoreAdjustments[]`
+- `baseOverallScore`
+- `baseOverallScoreExact`
 - `sectionOrder[]`
 - `narrationBlocks[]`
 - `explanation`
+
+`overallScore` is the public display score and is locked to the final tier: `D=20`, `C=40`, `B=60`, `A=80`, `S=100`. Use `rankingScore` / `rankingScoreExact` for sorting and audit comparisons.
 
 ## `food`
 

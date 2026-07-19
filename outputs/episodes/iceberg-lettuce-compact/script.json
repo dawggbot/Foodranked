@@ -20,6 +20,13 @@
   "ruleset": {
     "id": "vegetables.v1",
     "version": 1,
+    "tierScoreMap": {
+      "D": 20,
+      "C": 40,
+      "B": 60,
+      "A": 80,
+      "S": 100
+    },
     "scoreCalibration": {
       "version": 1,
       "method": "piecewise_linear_raw_to_shared_tier_score"
@@ -284,20 +291,8 @@
     {
       "key": "minerals",
       "title": "Minerals",
-      "narration": "Potassium is 3% daily value, useful for fluid balance. Magnesium is only 1% daily value, a weak mark for vegetables.",
+      "narration": "Magnesium is only 1% daily value, a weak mark for vegetables.",
       "displayItems": [
-        {
-          "metricKey": "potassium_dv",
-          "text": "potassium at 3% DV",
-          "weightedScore": 0,
-          "scoringMode": "dv_points",
-          "band": null,
-          "polarity": null,
-          "dvPercent": 3,
-          "value": null,
-          "score": 0,
-          "denominator": null
-        },
         {
           "metricKey": "magnesium_dv",
           "text": "magnesium at 1% DV",
@@ -306,6 +301,18 @@
           "band": null,
           "polarity": null,
           "dvPercent": 1,
+          "value": null,
+          "score": 0,
+          "denominator": null
+        },
+        {
+          "metricKey": "potassium_dv",
+          "text": "potassium at 3% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "polarity": null,
+          "dvPercent": 3,
           "value": null,
           "score": 0,
           "denominator": null
@@ -336,7 +343,7 @@
         }
       ],
       "macroDisplayValue": null,
-      "subtitleText": "Potassium is 3% DV, useful for fluid balance. Magnesium is only 1% DV, a weak mark for vegetables.",
+      "subtitleText": "Magnesium is only 1% DV, a weak mark for vegetables.",
       "timingHint": "short-medium",
       "score": 0
     },
@@ -413,8 +420,16 @@
     "cta": "Would you rank it the same, or nah?"
   },
   "tier": "D",
-  "overallScore": 10.7,
-  "overallScoreExact": 10.7143,
+  "overallScore": 20,
+  "overallScoreExact": 20,
+  "calibratedOverallScore": 10.7,
+  "calibratedOverallScoreExact": 10.7143,
+  "anomalyAdjustedScore": 10.7,
+  "anomalyAdjustedScoreExact": 10.7143,
+  "rankingScore": 10.7,
+  "rankingScoreExact": 10.7143,
+  "scoreAdjustmentTotal": 0,
+  "scoreAdjustments": [],
   "baseOverallScore": 23.5,
   "baseOverallScoreExact": 23.4694,
   "sectionOrder": [
@@ -458,7 +473,7 @@
     {
       "kind": "section",
       "sectionKey": "minerals",
-      "text": "Potassium is 3% daily value, useful for fluid balance. Magnesium is only 1% daily value, a weak mark for vegetables."
+      "text": "Magnesium is only 1% daily value, a weak mark for vegetables."
     },
     {
       "kind": "section",
@@ -481,7 +496,7 @@
   ],
   "explanation": {
     "summary": "Carbs are carrying this food most, while cons are holding it back most. It lands in D tier.",
-    "whyThisTier": "This food lands in D tier with an overall score of 10.7. Section scores: fats 50, carbs 60, proteins 0, vitamins 4.3, minerals 0, pros 50, cons 0.",
+    "whyThisTier": "This food lands in D tier with a display score of 20. Section scores: fats 50, carbs 60, proteins 0, vitamins 4.3, minerals 0, pros 50, cons 0.",
     "strongestSection": {
       "key": "carbs",
       "label": "Carbs",
@@ -492,6 +507,7 @@
       "label": "Cons",
       "score": 0
     },
+    "scoreAdjustments": [],
     "topPros": [
       {
         "title": "adds hydrating volume",

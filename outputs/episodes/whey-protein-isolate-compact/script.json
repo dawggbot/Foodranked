@@ -20,6 +20,13 @@
   "ruleset": {
     "id": "dairy.v1",
     "version": 1,
+    "tierScoreMap": {
+      "D": 20,
+      "C": 40,
+      "B": 60,
+      "A": 80,
+      "S": 100
+    },
     "scoreCalibration": {
       "version": 1,
       "method": "piecewise_linear_raw_to_shared_tier_score"
@@ -237,20 +244,8 @@
     {
       "key": "vitamins",
       "title": "Vitamins",
-      "narration": "Vitamin B12 is 8% daily value, useful for nerve and blood-cell support. Vitamin A is only 0% daily value, a weak mark for dairy.",
+      "narration": "Vitamin A is only 0% daily value, a weak mark for dairy.",
       "displayItems": [
-        {
-          "metricKey": "vitamin_b12_dv",
-          "text": "vitamin B12 at 8% DV",
-          "weightedScore": 0,
-          "scoringMode": "dv_points",
-          "band": null,
-          "polarity": null,
-          "dvPercent": 8,
-          "value": null,
-          "score": 0,
-          "denominator": null
-        },
         {
           "metricKey": "vitamin_a_dv",
           "text": "vitamin A at 0% DV",
@@ -262,10 +257,22 @@
           "value": null,
           "score": 0,
           "denominator": null
+        },
+        {
+          "metricKey": "vitamin_b12_dv",
+          "text": "vitamin B12 at 8% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "polarity": null,
+          "dvPercent": 8,
+          "value": null,
+          "score": 0,
+          "denominator": null
         }
       ],
       "macroDisplayValue": null,
-      "subtitleText": "Vitamin B12 is 8% DV, useful for nerve and blood-cell support. Vitamin A is only 0% DV, a weak mark for dairy.",
+      "subtitleText": "Vitamin A is only 0% DV, a weak mark for dairy.",
       "timingHint": "short-medium",
       "score": 0
     },
@@ -389,8 +396,16 @@
     "cta": "Would you rank it the same, or nah?"
   },
   "tier": "A",
-  "overallScore": 67.1,
-  "overallScoreExact": 67.1172,
+  "overallScore": 80,
+  "overallScoreExact": 80,
+  "calibratedOverallScore": 67.1,
+  "calibratedOverallScoreExact": 67.1172,
+  "anomalyAdjustedScore": 67.1,
+  "anomalyAdjustedScoreExact": 67.1172,
+  "rankingScore": 67.1,
+  "rankingScoreExact": 67.1172,
+  "scoreAdjustmentTotal": 0,
+  "scoreAdjustments": [],
   "baseOverallScore": 46.7,
   "baseOverallScoreExact": 46.6667,
   "sectionOrder": [
@@ -429,7 +444,7 @@
     {
       "kind": "section",
       "sectionKey": "vitamins",
-      "text": "Vitamin B12 is 8% daily value, useful for nerve and blood-cell support. Vitamin A is only 0% daily value, a weak mark for dairy."
+      "text": "Vitamin A is only 0% daily value, a weak mark for dairy."
     },
     {
       "kind": "section",
@@ -457,7 +472,7 @@
   ],
   "explanation": {
     "summary": "Proteins are carrying this food most, while cons are holding it back most. It lands in A tier.",
-    "whyThisTier": "This food lands in A tier with an overall score of 67.1. Section scores: fats 76.7, carbs 70, proteins 100, vitamins 0, minerals 30, pros 50, cons 0.",
+    "whyThisTier": "This food lands in A tier with a display score of 80. Section scores: fats 76.7, carbs 70, proteins 100, vitamins 0, minerals 30, pros 50, cons 0.",
     "strongestSection": {
       "key": "proteins",
       "label": "Proteins",
@@ -468,6 +483,7 @@
       "label": "Cons",
       "score": 0
     },
+    "scoreAdjustments": [],
     "topPros": [
       {
         "title": "can be a very convenient protein vehicle",

@@ -20,6 +20,13 @@
   "ruleset": {
     "id": "fruits.v1",
     "version": 1,
+    "tierScoreMap": {
+      "D": 20,
+      "C": 40,
+      "B": 60,
+      "A": 80,
+      "S": 100
+    },
     "scoreCalibration": {
       "version": 1,
       "method": "piecewise_linear_raw_to_shared_tier_score"
@@ -384,13 +391,30 @@
   "closing": {
     "summary": "Big strengths are protein and fibre, but the biggest weaknesses are calorie density is much higher than most fruits and easy to waste if timing is off.",
     "overview": "Big strengths are protein and fibre, but the biggest weaknesses are calorie density is much higher than most fruits and easy to waste if timing is off.",
-    "finalReveal": "C tier.",
-    "useCaseNote": "Best only when the convenience or taste matters more than the nutrition return.",
+    "finalReveal": "S tier.",
+    "useCaseNote": "Best when you want sweetness that still earns its place nutritionally.",
     "cta": "Would you rank it the same, or nah?"
   },
-  "tier": "C",
-  "overallScore": 25.8,
-  "overallScoreExact": 25.7602,
+  "tier": "S",
+  "overallScore": 100,
+  "overallScoreExact": 100,
+  "calibratedOverallScore": 25.8,
+  "calibratedOverallScoreExact": 25.7602,
+  "anomalyAdjustedScore": 80.8,
+  "anomalyAdjustedScoreExact": 80.7602,
+  "rankingScore": 80.8,
+  "rankingScoreExact": 80.7602,
+  "scoreAdjustmentTotal": 55,
+  "scoreAdjustments": [
+    {
+      "itemKey": "fruit_fat_profile_anomaly",
+      "label": "insane fat profile for a fruit",
+      "points": 55,
+      "reason": "Avocado is a low-sugar, high-unsaturated-fat fruit outlier, so normal fruit scoring undercounts its category-breaking profile.",
+      "source": "manual",
+      "scope": "food_specific_anomaly"
+    }
+  ],
   "baseOverallScore": 43.9,
   "baseOverallScoreExact": 43.8571,
   "sectionOrder": [
@@ -452,12 +476,12 @@
     },
     {
       "kind": "final_reveal",
-      "text": "C tier."
+      "text": "S tier."
     }
   ],
   "explanation": {
-    "summary": "Carbs are carrying this food most, while minerals are holding it back most. It lands in C tier.",
-    "whyThisTier": "This food lands in C tier with an overall score of 25.8. Section scores: fats 33.3, carbs 84, proteins 60, vitamins 8, minerals 5, pros 66.7, cons 50.",
+    "summary": "Carbs are carrying this food most, while minerals are holding it back most. It lands in S tier.",
+    "whyThisTier": "This food lands in S tier with a display score of 100. Section scores: fats 33.3, carbs 84, proteins 60, vitamins 8, minerals 5, pros 66.7, cons 50. Food-specific anomaly adjustment: +55.",
     "strongestSection": {
       "key": "carbs",
       "label": "Carbs",
@@ -468,6 +492,16 @@
       "label": "Minerals",
       "score": 5
     },
+    "scoreAdjustments": [
+      {
+        "itemKey": "fruit_fat_profile_anomaly",
+        "label": "insane fat profile for a fruit",
+        "points": 55,
+        "reason": "Avocado is a low-sugar, high-unsaturated-fat fruit outlier, so normal fruit scoring undercounts its category-breaking profile.",
+        "source": "manual",
+        "scope": "food_specific_anomaly"
+      }
+    ],
     "topPros": [
       {
         "title": "a true outlier for fruit fat quality",
@@ -517,7 +551,7 @@
     "narrationNotes": [
       "Strongest section: Carbs.",
       "Weakest section: Minerals.",
-      "Final verdict: C tier."
+      "Final verdict: S tier."
     ]
   }
 }

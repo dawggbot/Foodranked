@@ -20,6 +20,13 @@
   "ruleset": {
     "id": "meats.v1",
     "version": 1,
+    "tierScoreMap": {
+      "D": 20,
+      "C": 40,
+      "B": 60,
+      "A": 80,
+      "S": 100
+    },
     "scoreCalibration": {
       "version": 1,
       "method": "piecewise_linear_raw_to_shared_tier_score"
@@ -272,20 +279,8 @@
     {
       "key": "minerals",
       "title": "Minerals",
-      "narration": "Potassium is 9% daily value, useful for fluid balance. Zinc is only 5% daily value, a weak mark for meats.",
+      "narration": "Zinc is only 5% daily value, a weak mark for meats.",
       "displayItems": [
-        {
-          "metricKey": "potassium_dv",
-          "text": "potassium at 9% DV",
-          "weightedScore": 0,
-          "scoringMode": "dv_points",
-          "band": null,
-          "polarity": null,
-          "dvPercent": 9,
-          "value": null,
-          "score": 0,
-          "denominator": null
-        },
         {
           "metricKey": "zinc_dv",
           "text": "zinc at 5% DV",
@@ -309,10 +304,22 @@
           "value": null,
           "score": 0,
           "denominator": null
+        },
+        {
+          "metricKey": "potassium_dv",
+          "text": "potassium at 9% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "polarity": null,
+          "dvPercent": 9,
+          "value": null,
+          "score": 0,
+          "denominator": null
         }
       ],
       "macroDisplayValue": null,
-      "subtitleText": "Potassium is 9% DV, useful for fluid balance. Zinc is only 5% DV, a weak mark for meats.",
+      "subtitleText": "Zinc is only 5% DV, a weak mark for meats.",
       "timingHint": "short-medium",
       "score": 0
     },
@@ -389,8 +396,16 @@
     "cta": "Would you rank it the same, or nah?"
   },
   "tier": "B",
-  "overallScore": 49.9,
-  "overallScoreExact": 49.8535,
+  "overallScore": 60,
+  "overallScoreExact": 60,
+  "calibratedOverallScore": 49.9,
+  "calibratedOverallScoreExact": 49.8535,
+  "anomalyAdjustedScore": 49.9,
+  "anomalyAdjustedScoreExact": 49.8535,
+  "rankingScore": 49.9,
+  "rankingScoreExact": 49.8535,
+  "scoreAdjustmentTotal": 0,
+  "scoreAdjustments": [],
   "baseOverallScore": 45.5,
   "baseOverallScoreExact": 45.4815,
   "sectionOrder": [
@@ -434,7 +449,7 @@
     {
       "kind": "section",
       "sectionKey": "minerals",
-      "text": "Potassium is 9% daily value, useful for fluid balance. Zinc is only 5% daily value, a weak mark for meats."
+      "text": "Zinc is only 5% daily value, a weak mark for meats."
     },
     {
       "kind": "section",
@@ -457,7 +472,7 @@
   ],
   "explanation": {
     "summary": "Proteins are carrying this food most, while minerals are holding it back most. It lands in B tier.",
-    "whyThisTier": "This food lands in B tier with an overall score of 49.9. Section scores: fats 68.9, proteins 80, vitamins 24, minerals 0, pros 50, cons 50.",
+    "whyThisTier": "This food lands in B tier with a display score of 60. Section scores: fats 68.9, proteins 80, vitamins 24, minerals 0, pros 50, cons 50.",
     "strongestSection": {
       "key": "proteins",
       "label": "Proteins",
@@ -468,6 +483,7 @@
       "label": "Minerals",
       "score": 0
     },
+    "scoreAdjustments": [],
     "topPros": [
       {
         "title": "complete protein delivery is reliable",

@@ -339,11 +339,22 @@ Current shared final tier thresholds:
 - `C`: 20 to 39.9999
 - `D`: 0 to 19.9999
 
-Each category stores `scoreCalibration` anchors that map raw benchmark boundaries onto those shared 20-point tier bands.
+Each category stores `scoreCalibration` anchors that map raw benchmark boundaries onto the shared comparable scale.
+
+Public display scores are locked to the final tier:
+- `D` tier displays `20`
+- `C` tier displays `40`
+- `B` tier displays `60`
+- `A` tier displays `80`
+- `S` tier displays `100`
+
+Food-specific anomaly adjustments may be applied after calibration and before tier lookup. Use them only for explicit cases that normal pros/cons cannot cover fairly, such as an unusually strong protein profile for a vegetable, an unusually strong fat profile for a fruit, or a processed/fried/sweetened format whose real-world category fit is weaker than the seven visible sections imply.
 
 That means:
 - do not compare uncalibrated raw scores across food types
-- use the calibrated `overallScore` for display, sorting, and tier lookup
+- use `calibratedOverallScore` for audit
+- use `anomalyAdjustedScore` / `rankingScore` for fair sorting and tier lookup
+- use `overallScore` only as the public tier-anchor display score
 - keep `baseOverallScore` for audit and calibration review
 - re-check calibration anchors whenever the ruleset architecture changes materially
 
@@ -386,7 +397,10 @@ The scoring engine should output:
 - resolved submacro band outcomes
 - weighted metric contributions
 - section scores for all 7 scored content sections
-- calibrated overall score
+- public `overallScore` snapped to the tier score map
+- `calibratedOverallScore` before food-specific anomaly adjustment
+- `anomalyAdjustedScore` / `rankingScore` after food-specific anomaly adjustment
+- explicit `scoreAdjustments[]` when any food-specific anomaly adjustment is used
 - raw base overall score for audit
 - final tier
 - generated pros

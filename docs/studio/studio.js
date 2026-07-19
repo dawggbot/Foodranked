@@ -78,6 +78,28 @@ function value(v, suffix = '') { return v == null ? '—' : `${v}${suffix}`; }
 function cap(s) { return String(s || '').replace(/(^|\s)\S/g, m => m.toUpperCase()); }
 function spritePath(id) { return `../app/sprites/header/food_images/${id}.png`; }
 
+function scoreSortValue(result, fallback = 0) {
+  const candidates = [
+    result?.rankingScoreExact,
+    result?.rankingScore,
+    result?.anomalyAdjustedScoreExact,
+    result?.anomalyAdjustedScore,
+    result?.calibratedOverallScoreExact,
+    result?.calibratedOverallScore,
+    result?.overallScoreExact,
+    result?.overallScore
+  ];
+  for (const candidate of candidates) {
+    const value = Number(candidate);
+    if (Number.isFinite(value)) return value;
+  }
+  return fallback;
+}
+
+function tierSortValue(tier) {
+  return { S: 5, A: 4, B: 3, C: 2, D: 1 }[tier] || 0;
+}
+
 function formatDisplayRange(range) {
   if (!Array.isArray(range)) return 'N/A';
   const [min, max] = range;
@@ -274,7 +296,7 @@ function foodCard(food, result) {
 function dashboardView() {
   const stats = buildDashboardStats();
   const featuredFoods = Object.keys(FEATURED_EPISODES).map(id => state.foodsById.get(id)).filter(Boolean);
-  const topScored = [...state.results].sort((a, b) => (b.overallScore || 0) - (a.overallScore || 0)).slice(0, 6);
+  const topScored = [...state.results].sort((a, b) => scoreSortValue(b, -1) - scoreSortValue(a, -1)).slice(0, 6);
   const typeCounts = groupedCounts(state.foods, item => typeLabel(item.foodType));
   const recentScored = buildFoodsWithResults().filter(item => item.result).slice(0, 8);
   return appShell(`
@@ -373,9 +395,9 @@ function foodsView() {
   });
 
   foods.sort((a, b) => {
-    if (sort === 'score-desc') return (Number(b.result?.overallScore) || -1) - (Number(a.result?.overallScore) || -1) || a.food.name.localeCompare(b.food.name);
-    if (sort === 'score-asc') return (Number(a.result?.overallScore) || 999) - (Number(b.result?.overallScore) || 999) || a.food.name.localeCompare(b.food.name);
-    if (sort === 'tier') return String(a.result?.tier || 'Z').localeCompare(String(b.result?.tier || 'Z')) || ((Number(b.result?.overallScore) || -1) - (Number(a.result?.overallScore) || -1));
+    if (sort === 'score-desc') return scoreSortValue(b.result, -1) - scoreSortValue(a.result, -1) || a.food.name.localeCompare(b.food.name);
+    if (sort === 'score-asc') return scoreSortValue(a.result, 999) - scoreSortValue(b.result, 999) || a.food.name.localeCompare(b.food.name);
+    if (sort === 'tier') return tierSortValue(b.result?.tier) - tierSortValue(a.result?.tier) || scoreSortValue(b.result, -1) - scoreSortValue(a.result, -1) || a.food.name.localeCompare(b.food.name);
     if (sort === 'type') return String(a.food.foodType).localeCompare(String(b.food.foodType)) || a.food.name.localeCompare(b.food.name);
     return a.food.name.localeCompare(b.food.name);
   });

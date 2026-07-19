@@ -24,6 +24,13 @@ const EXPECTED_AMINO_ACID_GROUP_COUNTS = {
   essentialGroups: 9,
   nonessentialGroups: 11
 };
+const EXPECTED_TIER_SCORE_MAP = {
+  D: 20,
+  C: 40,
+  B: 60,
+  A: 80,
+  S: 100
+};
 const LABEL_SCORES = {
   '3_red': 0,
   '2_red': 20,
@@ -322,6 +329,24 @@ function auditFoods(errors, warnings) {
       }
     }
 
+    for (const [index, adjustment] of (food.scoreAdjustments || []).entries()) {
+      if (!adjustment.itemKey || !adjustment.label || !adjustment.reason) {
+        issue(errors, file, 'score adjustment missing itemKey, label, or reason', { index });
+      }
+      if (typeof adjustment.points !== 'number' || !Number.isFinite(adjustment.points) || adjustment.points === 0) {
+        issue(errors, file, 'score adjustment points must be a non-zero number', {
+          index,
+          points: adjustment.points ?? null
+        });
+      }
+      if (typeof adjustment.points === 'number' && Math.abs(adjustment.points) > 60) {
+        issue(errors, file, 'score adjustment should stay within +/-60 points', {
+          index,
+          points: adjustment.points
+        });
+      }
+    }
+
     const notes = food.sourceNotes || [];
     const strictSources = needsStrictSourceEvidence(food, finalIds);
     if (strictSources && !hasTwoDistinctNutritionSources(food)) {
@@ -374,6 +399,16 @@ function auditRulesets(errors) {
     const weights = Object.values(ruleset.sectionWeights || {});
     const sum = weights.reduce((total, value) => total + Number(value || 0), 0);
     if (Math.abs(sum - 1) > 0.00001) issue(errors, file, 'section weights must sum to 1', { sum });
+
+    for (const [tier, expectedScore] of Object.entries(EXPECTED_TIER_SCORE_MAP)) {
+      if (ruleset.tierScoreMap?.[tier] !== expectedScore) {
+        issue(errors, file, 'tierScoreMap must use locked D/C/B/A/S display scores', {
+          tier,
+          expected: expectedScore,
+          actual: ruleset.tierScoreMap?.[tier] ?? null
+        });
+      }
+    }
 
     for (const rule of ruleset.metricRules || []) {
       if (/^vitamin_b\d+_dv$/.test(rule.metricKey) && rule.metricKey !== CANONICAL_B_VITAMIN_SCORE_KEY && rule.scoringRole === 'scored') {
@@ -457,6 +492,12 @@ function auditRulesets(errors) {
       if (anchor.raw < previous.raw || anchor.calibrated < previous.calibrated) {
         issue(errors, file, 'score calibration anchors must be monotonic');
       }
+    }
+
+    if (ruleset.scoreCalibration && ruleset.scoreCalibration.output !== 'calibratedOverallScore') {
+      issue(errors, file, 'score calibration output must be calibratedOverallScore', {
+        output: ruleset.scoreCalibration.output || null
+      });
     }
   }
   return { ruleFiles: ruleFiles.length };

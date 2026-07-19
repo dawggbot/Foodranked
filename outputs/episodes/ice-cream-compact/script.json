@@ -20,6 +20,13 @@
   "ruleset": {
     "id": "dairy.v1",
     "version": 1,
+    "tierScoreMap": {
+      "D": 20,
+      "C": 40,
+      "B": 60,
+      "A": 80,
+      "S": 100
+    },
     "scoreCalibration": {
       "version": 1,
       "method": "piecewise_linear_raw_to_shared_tier_score"
@@ -237,20 +244,8 @@
     {
       "key": "vitamins",
       "title": "Vitamins",
-      "narration": "Vitamin A is 8% daily value, useful for vision and immune support. Vitamin B12 is 6% daily value, a weak mark for dairy.",
+      "narration": "Vitamin B12 is 6% daily value, a weak mark for dairy.",
       "displayItems": [
-        {
-          "metricKey": "vitamin_a_dv",
-          "text": "vitamin A at 8% DV",
-          "weightedScore": 0,
-          "scoringMode": "dv_points",
-          "band": null,
-          "polarity": null,
-          "dvPercent": 8,
-          "value": null,
-          "score": 0,
-          "denominator": null
-        },
         {
           "metricKey": "vitamin_b12_dv",
           "text": "vitamin B12 at 6% DV",
@@ -262,10 +257,22 @@
           "value": null,
           "score": 0,
           "denominator": null
+        },
+        {
+          "metricKey": "vitamin_a_dv",
+          "text": "vitamin A at 8% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "polarity": null,
+          "dvPercent": 8,
+          "value": null,
+          "score": 0,
+          "denominator": null
         }
       ],
       "macroDisplayValue": null,
-      "subtitleText": "Vitamin A is 8% DV, useful for vision and immune support. Vitamin B12 is 6% DV, a weak mark for dairy.",
+      "subtitleText": "Vitamin B12 is 6% DV, a weak mark for dairy.",
       "timingHint": "short-medium",
       "score": 0
     },
@@ -389,8 +396,16 @@
     "cta": "Would you rank it the same, or nah?"
   },
   "tier": "D",
-  "overallScore": 9.3,
-  "overallScoreExact": 9.3259,
+  "overallScore": 20,
+  "overallScoreExact": 20,
+  "calibratedOverallScore": 9.3,
+  "calibratedOverallScoreExact": 9.3259,
+  "anomalyAdjustedScore": 9.3,
+  "anomalyAdjustedScoreExact": 9.3259,
+  "rankingScore": 9.3,
+  "rankingScoreExact": 9.3259,
+  "scoreAdjustmentTotal": 0,
+  "scoreAdjustments": [],
   "baseOverallScore": 17,
   "baseOverallScoreExact": 17.0476,
   "sectionOrder": [
@@ -429,7 +444,7 @@
     {
       "kind": "section",
       "sectionKey": "vitamins",
-      "text": "Vitamin A is 8% daily value, useful for vision and immune support. Vitamin B12 is 6% daily value, a weak mark for dairy."
+      "text": "Vitamin B12 is 6% daily value, a weak mark for dairy."
     },
     {
       "kind": "section",
@@ -457,7 +472,7 @@
   ],
   "explanation": {
     "summary": "Pros are carrying this food most, while cons are holding it back most. It lands in D tier.",
-    "whyThisTier": "This food lands in D tier with an overall score of 9.3. Section scores: fats 33.3, carbs 10, proteins 20, vitamins 0, minerals 6, pros 50, cons 0.",
+    "whyThisTier": "This food lands in D tier with a display score of 20. Section scores: fats 33.3, carbs 10, proteins 20, vitamins 0, minerals 6, pros 50, cons 0.",
     "strongestSection": {
       "key": "pros",
       "label": "Pros",
@@ -468,6 +483,7 @@
       "label": "Cons",
       "score": 0
     },
+    "scoreAdjustments": [],
     "topPros": [
       {
         "title": "high enjoyment factor",

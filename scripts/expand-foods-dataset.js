@@ -15,6 +15,24 @@ function hashString(input) {
   return Math.abs(h);
 }
 
+const scoreAdjustmentsById = {
+  avocado: [{ itemKey: 'fruit_fat_profile_anomaly', label: 'insane fat profile for a fruit', points: 55, reason: 'Avocado is a low-sugar, high-unsaturated-fat fruit outlier, so normal fruit scoring undercounts its category-breaking profile.', source: 'manual', scope: 'food_specific_anomaly' }],
+  kale: [{ itemKey: 'vegetable_protein_profile_anomaly', label: 'unusual protein profile for a vegetable', points: 20, reason: 'Kale has unusually meaningful protein support for a vegetable even though the useful-protein gate keeps the protein-quality section conservative.', source: 'manual', scope: 'food_specific_anomaly' }],
+  'potato-chips': [{ itemKey: 'fried_tuber_snack_penalty', label: 'fried chip format penalty', points: -50, reason: 'A fried snack-chip format should not ride normal tuber starch and protein scoring into a top tier.', source: 'manual', scope: 'food_specific_anomaly' }],
+  'instant-mashed-potatoes': [{ itemKey: 'instant_tuber_processing_penalty', label: 'instant tuber processing penalty', points: -10, reason: 'Instant processing weakens the whole-tuber case beyond what the visible pros and cons can express.', source: 'manual', scope: 'food_specific_anomaly' }],
+  fries: [{ itemKey: 'fried_tuber_format_penalty', label: 'fried tuber format penalty', points: -15, reason: 'Frying and energy density push fries below what their remaining potato nutrients suggest.', source: 'manual', scope: 'food_specific_anomaly' }],
+  'tater-tots': [{ itemKey: 'processed_fried_tuber_penalty', label: 'processed fried tuber penalty', points: -15, reason: 'Processed fried potato format needs an extra penalty outside the normal tuber section math.', source: 'manual', scope: 'food_specific_anomaly' }],
+  'taro-chips': [{ itemKey: 'fried_taro_chip_penalty', label: 'fried taro chip penalty', points: -20, reason: 'Fried chip treatment should clearly separate taro chips from cleaner whole-tuber forms.', source: 'manual', scope: 'food_specific_anomaly' }],
+  'cassava-chips': [{ itemKey: 'cassava_chip_format_penalty', label: 'cassava chip format penalty', points: -10, reason: 'Snack-chip processing makes cassava chips weaker than the normal tuber math alone shows.', source: 'manual', scope: 'food_specific_anomaly' }],
+  ketchup: [{ itemKey: 'sweet_condiment_score_penalty', label: 'sweet condiment score penalty', points: -35, reason: 'A sweet condiment should not benefit too much from low fat while giving little nutrition back.', source: 'manual', scope: 'food_specific_anomaly' }],
+  'barbecue-sauce': [{ itemKey: 'sweet_sauce_score_penalty', label: 'sweet sauce score penalty', points: -20, reason: 'A sugar-heavy sauce needs an extra score penalty beyond the normal misc section average.', source: 'manual', scope: 'food_specific_anomaly' }],
+  'maple-syrup': [{ itemKey: 'liquid_sugar_score_penalty', label: 'liquid sugar score penalty', points: -35, reason: 'Trace minerals do not rescue the fact that maple syrup is still mostly concentrated sugar.', source: 'manual', scope: 'food_specific_anomaly' }],
+  'milk-chocolate-bar': [{ itemKey: 'candy_bar_score_penalty', label: 'candy-bar score penalty', points: -30, reason: 'Candy-bar format needs to stay below what its minerals and protein traces might imply.', source: 'manual', scope: 'food_specific_anomaly' }],
+  'protein-bar-generic': [{ itemKey: 'processed_bar_score_penalty', label: 'processed protein-bar penalty', points: -30, reason: 'A protein bar can be useful, but processing keeps it from ranking like a cleaner protein food.', source: 'manual', scope: 'food_specific_anomaly' }],
+  'dark-chocolate-85': [{ itemKey: 'dense_treat_score_penalty', label: 'dense treat score penalty', points: -10, reason: 'Dark chocolate has real upside, but dense treat status should keep the score from overreaching.', source: 'manual', scope: 'food_specific_anomaly' }],
+  'sweetened-coffee-creamer': [{ itemKey: 'sweetened_creamer_score_penalty', label: 'sweetened creamer score penalty', points: -20, reason: 'Sugary fat-blend format deserves a direct penalty beyond the misc section average.', source: 'manual', scope: 'food_specific_anomaly' }]
+};
+
 const allMetricKeys = [
   'saturated_fat_g','omega3_mg','polyunsaturated_fat_g','cholesterol_mg','starch_g','fibre_g','sugar_g','glycemic_index',
   'collagen_g','essential_amino_acids_score','nonessential_amino_acids_score','bioavailability_percent',
@@ -482,7 +500,7 @@ function mergeContext(baseContext, override = {}, type, id) {
 
 function makeFood(type, tuple) {
   const [id, name, header, metricOverrides, expectedTier, contextOverride] = tuple;
-  return {
+  const food = {
     id,
     name,
     foodType: type,
@@ -496,6 +514,12 @@ function makeFood(type, tuple) {
       'Values are approximate representative placeholders for category tuning, not a clinical nutrient database.'
     ]
   };
+  const scoreAdjustments = [
+    ...(scoreAdjustmentsById[id] || []),
+    ...(contextOverride?.scoreAdjustments || [])
+  ];
+  if (scoreAdjustments.length) food.scoreAdjustments = deepClone(scoreAdjustments);
+  return food;
 }
 
 let written = 0;

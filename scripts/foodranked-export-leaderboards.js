@@ -60,7 +60,9 @@ function sortRows(rows) {
   const tierRank = { S: 5, A: 4, B: 3, C: 2, D: 1 };
   return [...rows].sort((a, b) => {
     if ((tierRank[b.tier] || 0) !== (tierRank[a.tier] || 0)) return (tierRank[b.tier] || 0) - (tierRank[a.tier] || 0);
-    if ((b.overallScore || 0) !== (a.overallScore || 0)) return (b.overallScore || 0) - (a.overallScore || 0);
+    const bRankScore = b.rankingScoreExact ?? b.anomalyAdjustedScoreExact ?? b.calibratedOverallScoreExact ?? b.overallScoreExact ?? b.overallScore ?? 0;
+    const aRankScore = a.rankingScoreExact ?? a.anomalyAdjustedScoreExact ?? a.calibratedOverallScoreExact ?? a.overallScoreExact ?? a.overallScore ?? 0;
+    if (bRankScore !== aRankScore) return bRankScore - aRankScore;
     return String(a.food).localeCompare(String(b.food));
   });
 }
@@ -82,8 +84,8 @@ function buildOverview(grouped) {
   for (const [type, rows] of Object.entries(grouped)) {
     overview[type] = {
       count: rows.length,
-      top: rows.slice(0, 3).map(r => ({ food: r.food, tier: r.tier, score: r.overallScore })),
-      bottom: rows.slice(-3).map(r => ({ food: r.food, tier: r.tier, score: r.overallScore })),
+      top: rows.slice(0, 3).map(r => ({ food: r.food, tier: r.tier, score: r.overallScore, rankingScore: r.rankingScore })),
+      bottom: rows.slice(-3).map(r => ({ food: r.food, tier: r.tier, score: r.overallScore, rankingScore: r.rankingScore })),
       tiers: rows.reduce((acc, r) => {
         acc[r.tier] = (acc[r.tier] || 0) + 1;
         return acc;
@@ -108,6 +110,14 @@ function buildRichDetails() {
       tier: scored.result.tier,
       overallScore: scored.result.overallScore,
       overallScoreExact: scored.result.overallScoreExact,
+      calibratedOverallScore: scored.result.calibratedOverallScore ?? null,
+      calibratedOverallScoreExact: scored.result.calibratedOverallScoreExact ?? null,
+      anomalyAdjustedScore: scored.result.anomalyAdjustedScore ?? null,
+      anomalyAdjustedScoreExact: scored.result.anomalyAdjustedScoreExact ?? null,
+      rankingScore: scored.result.rankingScore ?? null,
+      rankingScoreExact: scored.result.rankingScoreExact ?? null,
+      scoreAdjustmentTotal: scored.result.scoreAdjustmentTotal ?? 0,
+      scoreAdjustments: scored.result.scoreAdjustments || [],
       baseOverallScore: scored.result.baseOverallScore ?? null,
       baseOverallScoreExact: scored.result.baseOverallScoreExact ?? null,
       explanation: scored.result.explanation,

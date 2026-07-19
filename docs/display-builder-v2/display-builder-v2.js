@@ -17,6 +17,10 @@
     cons: 'Cons',
     outro: 'Outro'
   };
+  const SECTION_ID_ALIASES = {
+    carbohydrates: 'carbs',
+    proteins: 'protein'
+  };
   const LAYOUT_BUILDER_WORKING_KEY = 'foodranked-layout-builder-v4';
   const LAYOUT_BUILDER_FOOD_LAYOUTS_KEY = 'foodranked-layout-builder-food-layouts-v1';
   const LAYOUT_BUILDER_SAVED_KEY = 'foodranked-layout-builder-sprite-layouts-v1';
@@ -108,11 +112,50 @@
     }
   }
 
+  function normalizeDisplaySectionId(sectionId) {
+    const raw = String(sectionId || '').trim();
+    return SECTION_ID_ALIASES[raw] || raw;
+  }
+
+  function normalizeLayoutSections(layout) {
+    if (!layout || typeof layout !== 'object') return layout;
+    if (layout.selectedSectionId) layout.selectedSectionId = normalizeDisplaySectionId(layout.selectedSectionId);
+    if (!layout.sections || typeof layout.sections !== 'object') return layout;
+
+    const normalizedSections = {};
+    for (const [rawSectionId, section] of Object.entries(layout.sections)) {
+      const sectionId = normalizeDisplaySectionId(rawSectionId);
+      if (!normalizedSections[sectionId]) {
+        normalizedSections[sectionId] = section;
+        continue;
+      }
+
+      const currentLayers = Array.isArray(normalizedSections[sectionId]?.layers)
+        ? normalizedSections[sectionId].layers
+        : [];
+      const incomingLayers = Array.isArray(section?.layers) ? section.layers : [];
+      const currentIds = new Set(currentLayers.map(layer => layer?.id).filter(Boolean));
+      const mergedLayers = [...currentLayers];
+      incomingLayers.forEach(layer => {
+        if (layer?.id && currentIds.has(layer.id)) return;
+        mergedLayers.push(layer);
+      });
+      normalizedSections[sectionId] = {
+        ...(normalizedSections[sectionId] || {}),
+        ...(section || {}),
+        layers: mergedLayers
+      };
+    }
+    layout.sections = normalizedSections;
+    return layout;
+  }
+
   function validLayout(layout) {
     return !!layout && typeof layout === 'object' && !!layout.sections && typeof layout.sections === 'object';
   }
 
   function countDisplayLayers(layout) {
+    normalizeLayoutSections(layout);
     return DISPLAY_SECTIONS.reduce((sum, sectionId) => {
       const layers = layout?.sections?.[sectionId]?.layers;
       return sum + (Array.isArray(layers) ? layers.length : 0);
@@ -127,12 +170,12 @@
       name: String(entry.name || 'Untitled layout'),
       kind: 'saved layout preset',
       updatedAt: entry.updatedAt || entry.createdAt || '',
-      layout: {
+      layout: normalizeLayoutSections({
         canvas: null,
         selectedSectionId: entry.selectedSectionId || 'intro',
         sections: LOGIC.clone(entry.sections),
         meta: { source: LAYOUT_BUILDER_SAVED_KEY }
-      }
+      })
     };
   }
 
@@ -144,16 +187,17 @@
   function normalizeFoodLayoutOption(foodId, layout) {
     if (!foodId || !validLayout(layout)) return null;
     const food = state.foods.find(item => item.id === foodId);
+    const clonedLayout = normalizeLayoutSections(LOGIC.clone(layout));
     return {
       key: `food:${foodId}`,
       id: `food-layout:${foodId}`,
       name: `${food?.name || foodId} food layout`,
       kind: 'layout-builder food layout',
-      updatedAt: layout.meta?.updatedAt || layout.updatedAt || '',
+      updatedAt: clonedLayout.meta?.updatedAt || clonedLayout.updatedAt || '',
       layout: {
-        ...LOGIC.clone(layout),
+        ...clonedLayout,
         meta: {
-          ...(layout.meta || {}),
+          ...(clonedLayout.meta || {}),
           source: LAYOUT_BUILDER_FOOD_LAYOUTS_KEY,
           foodId
         }
@@ -178,7 +222,7 @@
         name: 'Current working layout',
         kind: 'layout-builder working layout',
         updatedAt: working.meta?.updatedAt || '',
-        layout: LOGIC.clone(working)
+        layout: normalizeLayoutSections(LOGIC.clone(working))
       });
     }
 
@@ -487,7 +531,8 @@
   }
 
   function getSectionLayers(layout, sectionId) {
-    const layers = layout?.sections?.[sectionId]?.layers;
+    const normalizedSectionId = normalizeDisplaySectionId(sectionId);
+    const layers = layout?.sections?.[normalizedSectionId]?.layers;
     return Array.isArray(layers) ? layers : [];
   }
 
@@ -613,7 +658,7 @@
   }
 
   function cloneLayoutForRender(option) {
-    const base = LOGIC.clone(option?.layout || {});
+    const base = normalizeLayoutSections(LOGIC.clone(option?.layout || {}));
     base.canvas = {
       width: LOGIC.AUTHOR_GRID.width,
       height: LOGIC.AUTHOR_GRID.height,

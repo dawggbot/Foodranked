@@ -400,6 +400,9 @@ function proteinDisplayEstimate(result, metricKey) {
 }
 
 function metricValuePhrase(metric) {
+  if (metric?.metricKey === 'glycemic_index' && metric.displayDefault) {
+    return 'glycemic index is in the strongest display band';
+  }
   const value = metricValueText(metric);
   if (!value) return formatMetricKey(metric?.metricKey);
   return `${formatMetricKey(metric.metricKey)} is ${value}`;

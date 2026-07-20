@@ -21,7 +21,7 @@
 - usually add a very brief benefit/context note for the best outstanding submacro, for example what fibre, polyunsaturated fat, omega-3, or amino-acid quality helps with
 - keep the weakest or lowest-mark explanation short and food-type based; if the lowest mark is still positive, call it softer/lowest support rather than bad
 - only mention the most important vitamins/minerals
-- vitamins and minerals follow the same pattern when defensible values exist: strongest DV-backed micronutrient, weakest or lowest DV-backed micronutrient, skip `N/A`; if every mark is weak, mention the highest low mark and the lowest low mark
+- vitamins and minerals follow the same pattern when defensible values exist: strongest DV-backed micronutrient, weakest or lowest DV-backed micronutrient, skip `N/A`; if every vitamin mark is weak, group the section as all-round low while still saying which vitamins matter for the food type
 - if the rest are weak, generalise as: `everything else is lackluster`
 - read pros and cons bullets fully, word for word
 - the closing summary should recap the strongest strengths and weaknesses from across all sections, then say what the food is good for and why

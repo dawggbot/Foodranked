@@ -32,6 +32,14 @@ const PROTEIN_QUALITY_METRIC_KEYS = new Set([
   'bioavailability_percent',
   'nonessential_amino_acids_score'
 ]);
+const DISPLAY_BACKED_NARRATION_METRIC_KEYS = new Set([
+  'glycemic_index',
+  'collagen_g',
+  'essential_amino_acids_score',
+  'nonessential_amino_acids_score',
+  'bioavailability_percent'
+]);
+const COLLAGEN_NARRATION_FOOD_TYPES = new Set(['meats']);
 const MACRO_SECTION_HEADER_KEYS = {
   fats: 'fat_g',
   carbs: 'carb_g',
@@ -485,7 +493,11 @@ function arrowBand(metric) {
 function positiveMetricRank(metric) {
   if (!metricHasDefensibleValue(metric)) return -Infinity;
   const band = arrowBand(metric);
-  if (band?.color === 'green') return 1000 + (band.level * 100) + Math.max(0, metric.weightedScore ?? 0);
+  if (band?.color === 'green') {
+    const score = Math.max(0, toFiniteNumber(metric.score) ?? 0);
+    const weighted = Math.max(0, toFiniteNumber(metric.weightedScore) ?? 0);
+    return 100000 + (band.level * 10000) + (score * 10) + weighted;
+  }
   if (metric.scoringMode === 'dv_points') {
     if ((metric.score ?? 0) <= 0) return -Infinity;
     return (metric.weightedScore ?? 0) + ((metric.dvPercent ?? 0) / 100);
@@ -497,7 +509,12 @@ function positiveMetricRank(metric) {
 function weakMetricRank(metric) {
   if (!metricHasDefensibleValue(metric)) return -Infinity;
   const band = arrowBand(metric);
-  if (band?.color === 'red') return 1000 + (band.level * 100) + Math.abs(metric.weightedScore ?? 0);
+  if (band?.color === 'red') {
+    const score = Math.max(0, 100 - (toFiniteNumber(metric.score) ?? 0));
+    const weighted = Math.abs(toFiniteNumber(metric.weightedScore) ?? 0);
+    return 100000 + (band.level * 10000) + (score * 10) + weighted;
+  }
+  if (band) return -Infinity;
   if (metric.scoringMode === 'dv_points' && metric.dvPercent !== null) {
     return 1000 - ((metric.weightedScore ?? 0) * 10) - (metric.dvPercent ?? 0);
   }
@@ -529,16 +546,49 @@ function uniqueMetrics(metrics, limit = 4) {
   return out;
 }
 
+function macroNarrationMetrics(result, sectionKey) {
+  let metrics = sectionKey === 'proteins'
+    ? topMetricsForSection(result, sectionKey, 8)
+    : scoredMetricsForSection(result, sectionKey);
+
+  if (sectionKey === 'carbs' || sectionKey === 'proteins') {
+    const byKey = new Map(metrics.map(metric => [metric.metricKey, metric]));
+    for (const displayMetric of completeMacroDisplayItems(result, sectionKey)) {
+      if (!DISPLAY_BACKED_NARRATION_METRIC_KEYS.has(displayMetric.metricKey)) continue;
+      if (!metricHasDefensibleValue(displayMetric) || displayMetric.notApplicableReason) continue;
+      if (byKey.has(displayMetric.metricKey)) continue;
+      byKey.set(displayMetric.metricKey, {
+        ...displayMetric,
+        narrationDisplayOnly: displayMetric.displaySource !== 'scored'
+      });
+    }
+    metrics = Array.from(byKey.values());
+  }
+
+  return metrics.filter(metric => metricHasDefensibleValue(metric) && !metric.notApplicableReason);
+}
+
+function weakNarrationMetrics(result, metrics, sectionKey, exclude = null) {
+  return (metrics || []).filter(metric => {
+    if (!metric || metric === exclude) return false;
+    if (
+      sectionKey === 'proteins'
+      && metric.metricKey === 'collagen_g'
+      && !COLLAGEN_NARRATION_FOOD_TYPES.has(result.food?.foodType)
+    ) {
+      return false;
+    }
+    return true;
+  });
+}
+
 function outstandingMacroMetrics(result, sectionKey, limit = 4) {
   if (macroSectionDisplaysNa(result, sectionKey)) return [];
 
-  if (sectionKey === 'proteins') {
-    return topMetricsForSection(result, sectionKey, limit);
-  }
-
-  const metrics = scoredMetricsForSection(result, sectionKey);
+  const metrics = macroNarrationMetrics(result, sectionKey);
   const best = strongestPositiveMetric(metrics);
-  const weakest = weakestOutstandingMetric(metrics, best);
+  const weakPool = weakNarrationMetrics(result, metrics, sectionKey, best);
+  const weakest = weakestOutstandingMetric(weakPool, best) || weakestAvailableMetric(weakPool, best, sectionKey);
   const remaining = [...metrics].sort((a, b) => {
     const rankDiff = Math.max(positiveMetricRank(b), weakMetricRank(b)) - Math.max(positiveMetricRank(a), weakMetricRank(a));
     return rankDiff || Math.abs(b.weightedScore ?? 0) - Math.abs(a.weightedScore ?? 0);
@@ -771,6 +821,7 @@ function bestMetricContext(metric, sectionKey) {
     vitamin_a_dv: 'useful for vision and immune support',
     zinc_dv: 'useful for immune support',
     iron_dv: 'useful for oxygen transport',
+    calcium_dv: 'useful for bone support',
     potassium_dv: 'useful for fluid balance'
   };
   if (contexts[key]) return contexts[key];
@@ -803,6 +854,7 @@ function weakMetricImpactContext(metric, sectionKey) {
     vitamin_a_dv: 'weak for vision and immune support',
     zinc_dv: 'weak for immune support',
     iron_dv: 'weak for oxygen transport',
+    calcium_dv: 'weak for bone support',
     potassium_dv: 'weak for fluid balance'
   };
   if (contexts[key]) return contexts[key];
@@ -845,6 +897,23 @@ function categoryWeakContext(foodType, sectionKey, metric = null) {
     return combine(`a weak mark for ${type || 'this category'}`);
   }
   return combine(`a weak mark for ${type || 'this category'}`);
+}
+
+function lowVitaminSectionLine(result) {
+  const foodType = result.food?.foodType;
+  const lines = {
+    grains: 'vitamins are low all round. For grains, vitamins are more of a bonus after carb quality and minerals, and this section is not adding much',
+    meats: 'vitamins are low overall. For meats, vitamin B12 and vitamin D are the main checks, so this section is a limiting point',
+    dairy: 'vitamins are low overall. For dairy, vitamin D and vitamin B12 are the main checks, so this section is not adding much',
+    fruits: 'vitamins are low overall. For fruit, vitamin C and vitamin A are the main checks, so this section is a limiting point',
+    vegetables: 'vitamins are low overall. For vegetables, vitamin A, vitamin C, and vitamin K are the main checks, so this section is a limiting point',
+    legumes: 'vitamins are low overall. For legumes, vitamin support is secondary to fibre, protein, and minerals, so this section is not adding much',
+    tubers: 'vitamins are low overall. For tubers, vitamin C and vitamin A are the main checks, so this section is a limiting point',
+    nuts: 'vitamins are low overall. For nuts, vitamin E is the main check, so this section is not adding much',
+    seeds: 'vitamins are low overall. For seeds, vitamin E is the main check, so this section is not adding much',
+    'oils-and-fats': 'vitamins are low overall. For oils and fats, vitamin E is the main check, so this section is not adding much'
+  };
+  return lines[foodType] || `vitamins are low all round. For ${foodTypeLabel(foodType) || 'this category'}, vitamin support only helps when it shows up clearly`;
 }
 
 function bestMetricLine(metric, sectionKey) {
@@ -937,11 +1006,14 @@ function secondMetricLine(metric, result, sectionKey) {
   if (weakMetricRank(metric) > -Infinity) return weakMetricLine(metric, result, sectionKey);
 
   const score = metricSectionScore(metric);
+  const context = bestMetricContext(metric, sectionKey);
   if (score !== null && score >= 80) {
-    return `${metricValuePhrase(metric)}, the lowest mark here but still a strong one`;
+    const support = context ? `${context}, but it is ` : 'it is ';
+    return `${metricValuePhrase(metric)}, ${support}the lowest mark here but still a strong one`;
   }
   if (score !== null && score >= 50) {
-    return `${metricValuePhrase(metric)}, the softer support mark in this section`;
+    const support = context ? `${context}, but it is ` : 'it is ';
+    return `${metricValuePhrase(metric)}, ${support}the softer support mark in this section`;
   }
   return weakMetricLine(metric, result, sectionKey);
 }
@@ -969,22 +1041,21 @@ function outstandingMacroLine(result, sectionKey) {
     const proteinAmount = byKey('protein_g_fallback');
     const essentialAmino = byKey('essential_amino_acids_score');
     const bioavailability = byKey('bioavailability_percent');
-    const collagen = byKey('collagen_g');
     if (proteinAmount) {
       const score = result.sectionScores?.proteins ?? null;
-      const second = weakestAvailableMetric(metrics, proteinAmount, sectionKey);
+      const secondPool = weakNarrationMetrics(result, metrics, sectionKey, proteinAmount);
+      const second = weakestAvailableMetric(secondPool, proteinAmount, sectionKey);
       return joinShort([
         proteinFallbackContext(result, score),
         secondMetricLine(second, result, sectionKey)
       ]).replace(/[.]$/g, '');
     }
     const bestMetric = essentialAmino || bioavailability || strongestAvailableMetric(metrics);
-    const second = weakestOutstandingMetric(metrics, bestMetric) || weakestAvailableMetric(metrics, bestMetric, sectionKey);
+    const secondPool = weakNarrationMetrics(result, metrics, sectionKey, bestMetric);
+    const second = weakestOutstandingMetric(secondPool, bestMetric) || weakestAvailableMetric(secondPool, bestMetric, sectionKey);
     const best = essentialAmino && Number(essentialAmino.value) < 6
       ? `${metricValuePhrase(essentialAmino)}, counting only amino-acid groups above the useful-amount threshold`
-      : essentialAmino && bioavailability
-        ? `${metricValuePhrase(essentialAmino)}, with ${metricValueText(bioavailability)} bioavailability, making the protein useful for repair and maintenance`
-        : bestAvailableMetricLine(bestMetric, sectionKey);
+      : bestAvailableMetricLine(bestMetric, sectionKey);
     return joinShort([
       best,
       secondMetricLine(second, result, sectionKey)
@@ -1081,6 +1152,9 @@ function buildMicrosSection(result, sectionKey) {
   }
 
   const positive = strongestPositiveMetric(top);
+  if (sectionKey === 'vitamins' && !positive) {
+    return `${lowVitaminSectionLine(result)}.`;
+  }
   const best = positive || strongestAvailableMetric(top);
   const weakest = weakestOutstandingMetric(top, best) || weakestAvailableMetric(top, best, sectionKey);
   return joinShort([

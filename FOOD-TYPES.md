@@ -59,7 +59,7 @@ This file defines the **11 FoodRanked food types** and their category logic.
   - fibre
   - glycemic index control
   - useful protein support
-  - supportive minerals
+  - supportive minerals, with calcium eligible as a low mineral check
 - Main penalties:
   - high glycemic index
   - weak fibre density

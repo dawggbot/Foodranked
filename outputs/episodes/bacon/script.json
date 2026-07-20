@@ -39,12 +39,20 @@
       "Production-lane source audit pass.",
       "All displayed nutrition values are stored and checked on a per-100g basis.",
       "Primary and cross-check nutrition references are listed in nutritionDataSources.",
-      "Contextual GI and protein-quality fields are optional when not canonical nutrient facts."
+      "Contextual GI and protein-quality fields are optional when not canonical nutrient facts.",
+      "Raw bacon FDC 168277 does not expose specific amino-acid rows, so bacon amino_acids_mg uses a labelled cooked-to-raw estimate from cooked pan-fried bacon FDC 168322 scaled by protein ratio."
     ]
   },
   "ruleset": {
     "id": "meats.v1",
     "version": 1,
+    "tierScoreMap": {
+      "D": 20,
+      "C": 40,
+      "B": 60,
+      "A": 80,
+      "S": 100
+    },
     "scoreCalibration": {
       "version": 1,
       "method": "piecewise_linear_raw_to_shared_tier_score"
@@ -61,7 +69,7 @@
     {
       "key": "fats",
       "title": "Fats",
-      "narration": "37.1 grams of fat. Polyunsaturated fat is 5.8 grams, helping with cell structure and healthy signalling. Saturated fat is 12.6 grams, and for meats, fat quality is a major tradeoff.",
+      "narration": "37.1 grams of fat. Polyunsaturated fat is 5.8 grams, helping with cell structure and healthy signalling. Saturated fat is 12.6 grams, working against a cleaner fat profile, and for meats, fat quality is a major tradeoff. For meats, fat quality matters a lot once the protein is already there.",
       "displayItems": [
         {
           "metricKey": "saturated_fat_g",
@@ -121,7 +129,7 @@
         }
       ],
       "macroDisplayValue": "37.1g",
-      "subtitleText": "37.1g of fat. Polyunsaturated fat is 5.8g, helping with cell structure and healthy signalling. Saturated fat is 12.6g, and for meats, fat quality is a major tradeoff.",
+      "subtitleText": "37.1g of fat. Polyunsaturated fat is 5.8g, helping with cell structure and healthy signalling. Saturated fat is 12.6g, working against a cleaner fat profile, and for meats, fat quality is a major tradeoff. For meats, fat quality matters a lot once the protein is already there.",
       "timingHint": "short-medium",
       "score": 48.9
     },
@@ -195,74 +203,98 @@
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "13.7 grams of protein. For meats, that is lower than you want.",
+      "narration": "13.7 grams of protein. Essential amino acids score is 9 out of 9, making the protein useful for repair and maintenance. Collagen is only 0.4 grams, weak for connective-tissue protein, so for meats, it is not bringing much connective-tissue protein. Strong protein is expected here, so the rest of the profile decides how high it climbs.",
       "displayItems": [
         {
           "metricKey": "collagen_g",
-          "text": "collagen at 0g",
-          "weightedScore": null,
-          "scoringMode": "display_fallback",
+          "text": "collagen at 0.4g",
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
           "band": "↓↓↓",
           "polarity": "higher_better",
           "dvPercent": null,
-          "value": 0,
+          "value": 0.4,
           "score": 0,
           "denominator": null,
-          "displaySource": "macro_numeric_fallback",
-          "displayValue": "0g"
+          "displayValue": "0.4g",
+          "displaySource": "scored"
         },
         {
           "metricKey": "essential_amino_acids_score",
-          "text": "essential amino acids score at 0/9",
-          "weightedScore": null,
-          "scoringMode": "display_fallback",
-          "band": "↓↓↓",
+          "text": "essential amino acids score at 9/9",
+          "weightedScore": 200,
+          "scoringMode": "arrow_bands",
+          "band": "↑↑↑",
           "polarity": "higher_better",
           "dvPercent": null,
-          "value": 0,
-          "score": 0,
+          "value": 9,
+          "score": 100,
           "denominator": 9,
-          "displaySource": "macro_numeric_fallback",
-          "displayValue": "0/9"
+          "displayValue": "9/9",
+          "displaySource": "scored"
         },
         {
           "metricKey": "nonessential_amino_acids_score",
-          "text": "nonessential amino acids score at 0/11",
-          "weightedScore": null,
-          "scoringMode": "display_fallback",
-          "band": "↓↓↓",
+          "text": "nonessential amino acids score at 10/11",
+          "weightedScore": 80,
+          "scoringMode": "arrow_bands",
+          "band": "↑↑",
           "polarity": "higher_better",
           "dvPercent": null,
-          "value": 0,
-          "score": 0,
+          "value": 10,
+          "score": 80,
           "denominator": 11,
-          "displaySource": "macro_numeric_fallback",
-          "displayValue": "0/11"
+          "displayValue": "10/11",
+          "displaySource": "scored"
         },
         {
           "metricKey": "bioavailability_percent",
-          "text": "bioavailability at 0%",
+          "text": "bioavailability at 84%",
           "weightedScore": null,
           "scoringMode": "display_fallback",
-          "band": "↓↓↓",
+          "band": "↑↑",
           "polarity": "higher_better",
           "dvPercent": null,
-          "value": 0,
-          "score": 0,
+          "value": 84,
+          "score": 80,
           "denominator": null,
-          "displaySource": "macro_numeric_fallback",
-          "displayValue": "0%"
+          "displaySource": "protein_display_estimate",
+          "displayEstimated": true,
+          "displayEstimateBasis": "display-only estimate from FoodRanked protein source class; not a measured digestibility value",
+          "displayDefault": false,
+          "displayDefaultReason": null,
+          "displayValue": "84%"
         }
       ],
       "macroDisplayValue": "13.7g",
-      "subtitleText": "13.7g of protein. For meats, that is lower than you want.",
+      "subtitleText": "13.7g of protein. Essential amino acids score is 9/9, making the protein useful for repair and maintenance. Collagen is only 0.4g, weak for connective-tissue protein, so for meats, it is not bringing much connective-tissue protein. Strong protein is expected here, so the rest of the profile decides how high it climbs.",
       "timingHint": "short-medium",
-      "score": 20
+      "score": 70,
+      "displayPolicy": {
+        "policyId": "protein-section-display.v1",
+        "rowCount": 4,
+        "visibleRows": [
+          "collagen_g",
+          "essential_amino_acids_score",
+          "nonessential_amino_acids_score",
+          "bioavailability_percent"
+        ],
+        "hiddenFallbackMetricKey": "protein_g_fallback",
+        "missingValueDisplay": "N/A",
+        "showProteinFallbackAsVisibleRow": false,
+        "rules": {
+          "visibleRowsOnly": true,
+          "visibleSubmacroRowsDisplayNaOnlyWhenMainMacroNa": true,
+          "missingSubmacroRowsUseDisplayDefault": true,
+          "proteinQualityGateSkippedRowsUseDisplayDefault": true,
+          "doNotDisplayProteinFallbackAsSubmacro": true
+        }
+      }
     },
     {
       "key": "vitamins",
       "title": "Vitamins",
-      "narration": "Vitamin B12 is 21% daily value, useful for nerve and blood-cell support. Vitamin D is only 1% daily value, a small miss for meats.",
+      "narration": "Vitamin B12 is 21% daily value, useful for nerve and blood-cell support. Vitamin D is only 1% daily value, weak for bone and immune support, which is a small miss for meats.",
       "displayItems": [
         {
           "metricKey": "vitamin_b12_dv",
@@ -290,14 +322,14 @@
         }
       ],
       "macroDisplayValue": null,
-      "subtitleText": "Vitamin B12 is 21% DV, useful for nerve and blood-cell support. Vitamin D is only 1% DV, a small miss for meats.",
+      "subtitleText": "Vitamin B12 is 21% DV, useful for nerve and blood-cell support. Vitamin D is only 1% DV, weak for bone and immune support, which is a small miss for meats.",
       "timingHint": "short-medium",
       "score": 12
     },
     {
       "key": "minerals",
       "title": "Minerals",
-      "narration": "Zinc is 10% daily value, useful for immune support. Iron is only 2% daily value, a weak mark for meats.",
+      "narration": "Zinc is 10% daily value, useful for immune support. Iron is only 2% daily value, weak for oxygen transport, which is a weak mark for meats.",
       "displayItems": [
         {
           "metricKey": "zinc_dv",
@@ -337,7 +369,7 @@
         }
       ],
       "macroDisplayValue": null,
-      "subtitleText": "Zinc is 10% DV, useful for immune support. Iron is only 2% DV, a weak mark for meats.",
+      "subtitleText": "Zinc is 10% DV, useful for immune support. Iron is only 2% DV, weak for oxygen transport, which is a weak mark for meats.",
       "timingHint": "short-medium",
       "score": 3.8
     },
@@ -407,17 +439,55 @@
     }
   ],
   "closing": {
-    "summary": "Big strengths are protein and palatable and appealing, but the biggest weaknesses are sodium and processing.",
-    "overview": "Big strengths are protein and palatable and appealing, but the biggest weaknesses are sodium and processing.",
+    "summary": "Big strengths are protein, palatable and appealing, and strong flavour booster, but the biggest weaknesses are low iron, low vitamin D, and saturated fat. It is good for muscles, blood and oxygen support, and immune support because protein still gives it a muscle-support angle, vitamin B12 supports the blood-and-oxygen side, and zinc gives the immune-support side a reason to exist.",
+    "overview": "Big strengths are protein, palatable and appealing, and strong flavour booster, but the biggest weaknesses are low iron, low vitamin D, and saturated fat. It is good for muscles, blood and oxygen support, and immune support because protein still gives it a muscle-support angle, vitamin B12 supports the blood-and-oxygen side, and zinc gives the immune-support side a reason to exist.",
+    "useCases": [
+      {
+        "key": "muscles",
+        "label": "muscles",
+        "reason": "protein still gives it a muscle-support angle",
+        "score": 83.7
+      },
+      {
+        "key": "blood_support",
+        "label": "blood and oxygen support",
+        "reason": "vitamin B12 supports the blood-and-oxygen side",
+        "score": 38.8
+      },
+      {
+        "key": "immune_support",
+        "label": "immune support",
+        "reason": "zinc gives the immune-support side a reason to exist",
+        "score": 26.8
+      }
+    ],
+    "strengthHighlights": [
+      "protein",
+      "palatable and appealing",
+      "strong flavour booster"
+    ],
+    "weaknessHighlights": [
+      "low iron",
+      "low vitamin D",
+      "saturated fat"
+    ],
     "finalReveal": "D tier.",
     "useCaseNote": "Best only if convenience, budget, or taste matters more than getting the cleanest meat option.",
     "cta": "Would you rank it the same, or nah?"
   },
   "tier": "D",
-  "overallScore": 11.8,
-  "overallScoreExact": 11.786,
-  "baseOverallScore": 22.4,
-  "baseOverallScoreExact": 22.4398,
+  "overallScore": 20,
+  "overallScoreExact": 20,
+  "calibratedOverallScore": 16.2,
+  "calibratedOverallScoreExact": 16.1629,
+  "anomalyAdjustedScore": 16.2,
+  "anomalyAdjustedScoreExact": 16.1629,
+  "rankingScore": 16.2,
+  "rankingScoreExact": 16.1629,
+  "scoreAdjustmentTotal": 0,
+  "scoreAdjustments": [],
+  "baseOverallScore": 30.8,
+  "baseOverallScoreExact": 30.7731,
   "sectionOrder": [
     "fats",
     "carbs",
@@ -439,7 +509,7 @@
     {
       "kind": "section",
       "sectionKey": "fats",
-      "text": "37.1 grams of fat. Polyunsaturated fat is 5.8 grams, helping with cell structure and healthy signalling. Saturated fat is 12.6 grams, and for meats, fat quality is a major tradeoff."
+      "text": "37.1 grams of fat. Polyunsaturated fat is 5.8 grams, helping with cell structure and healthy signalling. Saturated fat is 12.6 grams, working against a cleaner fat profile, and for meats, fat quality is a major tradeoff. For meats, fat quality matters a lot once the protein is already there."
     },
     {
       "kind": "section",
@@ -449,17 +519,17 @@
     {
       "kind": "section",
       "sectionKey": "proteins",
-      "text": "13.7 grams of protein. For meats, that is lower than you want."
+      "text": "13.7 grams of protein. Essential amino acids score is 9 out of 9, making the protein useful for repair and maintenance. Collagen is only 0.4 grams, weak for connective-tissue protein, so for meats, it is not bringing much connective-tissue protein. Strong protein is expected here, so the rest of the profile decides how high it climbs."
     },
     {
       "kind": "section",
       "sectionKey": "vitamins",
-      "text": "Vitamin B12 is 21% daily value, useful for nerve and blood-cell support. Vitamin D is only 1% daily value, a small miss for meats."
+      "text": "Vitamin B12 is 21% daily value, useful for nerve and blood-cell support. Vitamin D is only 1% daily value, weak for bone and immune support, which is a small miss for meats."
     },
     {
       "kind": "section",
       "sectionKey": "minerals",
-      "text": "Zinc is 10% daily value, useful for immune support. Iron is only 2% daily value, a weak mark for meats."
+      "text": "Zinc is 10% daily value, useful for immune support. Iron is only 2% daily value, weak for oxygen transport, which is a weak mark for meats."
     },
     {
       "kind": "section",
@@ -473,7 +543,7 @@
     },
     {
       "kind": "closing_summary",
-      "text": "Big strengths are protein and palatable and appealing, but the biggest weaknesses are sodium and processing."
+      "text": "Big strengths are protein, palatable and appealing, and strong flavour booster, but the biggest weaknesses are low iron, low vitamin D, and saturated fat. It is good for muscles, blood and oxygen support, and immune support because protein still gives it a muscle-support angle, vitamin B12 supports the blood-and-oxygen side, and zinc gives the immune-support side a reason to exist."
     },
     {
       "kind": "final_reveal",
@@ -481,18 +551,19 @@
     }
   ],
   "explanation": {
-    "summary": "Pros are carrying this food most, while cons are holding it back most. It lands in D tier.",
-    "whyThisTier": "This food lands in D tier with an overall score of 11.8. Section scores: fats 48.9, proteins 20, vitamins 12, minerals 3.8, pros 50, cons 0.",
+    "summary": "Proteins are carrying this food most, while cons are holding it back most. It lands in D tier.",
+    "whyThisTier": "This food lands in D tier with a display score of 20. Section scores: fats 48.9, proteins 70, vitamins 12, minerals 3.8, pros 50, cons 0.",
     "strongestSection": {
-      "key": "pros",
-      "label": "Pros",
-      "score": 50
+      "key": "proteins",
+      "label": "Proteins",
+      "score": 70
     },
     "weakestSection": {
       "key": "cons",
       "label": "Cons",
       "score": 0
     },
+    "scoreAdjustments": [],
     "topPros": [
       {
         "title": "highly palatable and appealing",
@@ -540,7 +611,7 @@
       }
     ],
     "narrationNotes": [
-      "Strongest section: Pros.",
+      "Strongest section: Proteins.",
       "Weakest section: Cons.",
       "Final verdict: D tier."
     ]

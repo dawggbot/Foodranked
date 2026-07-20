@@ -1360,6 +1360,24 @@
       : String(food?.name || 'Unknown').toUpperCase();
   }
 
+  function displayFoodNameForText(food, fallback = 'This food') {
+    const rawName = String(food?.name || fallback).trim() || fallback;
+    return window.FOODRANKED_DISPLAY_NAME_UTILS?.numberWordsToDigits
+      ? window.FOODRANKED_DISPLAY_NAME_UTILS.numberWordsToDigits(rawName)
+      : rawName;
+  }
+
+  function escapeRegExp(value) {
+    return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  function displayFoodNameInText(text, food) {
+    const rawName = String(food?.name || '').trim();
+    const displayName = displayFoodNameForText(food, rawName || 'This food');
+    if (!rawName || rawName === displayName) return String(text || '');
+    return String(text || '').replace(new RegExp(escapeRegExp(rawName), 'gi'), displayName);
+  }
+
   function syncSectionIndicators(layout, food) {
     // Managed section indicators are disabled while the row is being rebuilt.
   }
@@ -2171,7 +2189,7 @@
     if (subtitleCues.length) return subtitleCues.map(cue => cue.lines.join(' ')).join(' ');
 
     const blocks = food?.episode?.script?.narrationBlocks || [];
-    if (sectionId === 'intro') return `${food?.name || 'This food'} ranked.`;
+    if (sectionId === 'intro') return `${displayFoodNameForText(food)} ranked.`;
     if (sectionId === 'outro') {
       const summary = blocks.find(block => block.kind === 'closing_summary')?.text || food?.episode?.summary || '';
       const final = blocks.find(block => block.kind === 'final_reveal')?.text || `${food?.episode?.tier || food?.expectedTier || '—'} tier.`;
@@ -2180,7 +2198,7 @@
     const episodeKey = sectionId === 'protein' ? 'proteins' : sectionId;
     const sectionSubtitle = food?.episode?.script?.sections?.find(section => section.key === sectionId || section.key === episodeKey)?.subtitleText;
     const narrationFallback = blocks.find(block => block.kind === 'section' && (block.sectionKey === sectionId || block.sectionKey === episodeKey))?.text;
-    return subtitleOnlyCaptionText(sectionSubtitle || narrationFallback || fallbackCaption(food, sectionId));
+    return subtitleOnlyCaptionText(displayFoodNameInText(sectionSubtitle || narrationFallback || fallbackCaption(food, sectionId), food));
   }
 
   function episodeSceneId(sectionId) {
@@ -2216,14 +2234,14 @@
     if (!Array.isArray(cues)) return [];
     return cues
       .filter(cue => cue.sceneId === sceneId)
-      .map(normalizeSubtitleCue);
+      .map(cue => normalizeSubtitleCue(cue, food));
   }
 
-  function normalizeSubtitleCue(cue) {
+  function normalizeSubtitleCue(cue, food) {
     const rawLines = Array.isArray(cue?.lines) && cue.lines.length
       ? cue.lines
       : String(cue?.text || '').split(/\r?\n/);
-    const text = subtitleOnlyCaptionText(rawLines.join(' '));
+    const text = subtitleOnlyCaptionText(displayFoodNameInText(rawLines.join(' '), food));
     const placement = captionPlacementForCue(cue, text);
     const chunks = captionChunks(text, captionLineCharsForPlacement(placement));
     const firstChunk = chunks[0] || { lines: [text].filter(Boolean), text };
@@ -2261,7 +2279,7 @@
   }
 
   function fallbackCaption(food, sectionId) {
-    const name = food?.name || 'This food';
+    const name = displayFoodNameForText(food);
     const metrics = food?.metrics || {};
     const header = food?.header || {};
     const fallbacks = {

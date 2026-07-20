@@ -44,6 +44,9 @@ The header stays visible throughout the video and should contain:
 - kcal
 - per 100g label
 
+Food-name display rule:
+- on-screen food names always display number words as numerals, for example `Zero-Sugar` becomes `0-Sugar` and `Two` becomes `2`
+
 ## Video section structure
 
 There are 9 video sections in order:

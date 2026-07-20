@@ -7,7 +7,7 @@
     'fruit-yogurt-sweetened': 'Swt Fruit Yogurt',
     'chocolate-covered-peanuts': 'Choc. Peanuts',
     'electrolyte-tablet-drink': 'Electrolyte Tabs',
-    'energy-drink-zero': 'Zero-Sugar Drink',
+    'energy-drink-zero': '0-Sugar Drink',
     'extra-virgin-olive-oil': 'E.V. Olive Oil',
     'honey-roasted-peanuts': 'Honey-Rstd Pnuts',
     'instant-mashed-potatoes': 'Instant Mash Pot.',
@@ -23,13 +23,58 @@
     'sunflower-seed-butter': 'Sunflwr Sd Butter',
     'sunflower-seeds-roasted-salted': 'Sunflwr Seeds R+S',
     'sweetened-chia-pudding': 'Swt Chia Pudding',
-    'sweetened-coffee-creamer': 'Swt Coffee Cream',
+    'sweetened-coffee-creamer': 'Swt Coffee Creamr',
     'sweetened-condensed-milk': 'Swt Cond. Milk',
     'sweetened-sunflower-spread': 'Swt Sunflwr Sprd',
     'trail-mix-chocolate': 'Trail Mix Choc.',
     'watermelon-seeds-roasted-salted': 'W-Melon Seeds R+S',
     'watermelon-seeds-unsalted': 'W-Melon Seeds'
   };
+
+  const ONES_NUMBER_WORD_VALUES = {
+    one: 1,
+    two: 2,
+    three: 3,
+    four: 4,
+    five: 5,
+    six: 6,
+    seven: 7,
+    eight: 8,
+    nine: 9
+  };
+
+  const TENS_NUMBER_WORD_VALUES = {
+    twenty: 20,
+    thirty: 30,
+    forty: 40,
+    fifty: 50,
+    sixty: 60,
+    seventy: 70,
+    eighty: 80,
+    ninety: 90
+  };
+
+  const SIMPLE_NUMBER_WORD_VALUES = {
+    zero: 0,
+    ...ONES_NUMBER_WORD_VALUES,
+    ten: 10,
+    eleven: 11,
+    twelve: 12,
+    thirteen: 13,
+    fourteen: 14,
+    fifteen: 15,
+    sixteen: 16,
+    seventeen: 17,
+    eighteen: 18,
+    nineteen: 19,
+    ...TENS_NUMBER_WORD_VALUES
+  };
+
+  const COMPOUND_NUMBER_WORD_RE = new RegExp(
+    `\\b(${Object.keys(TENS_NUMBER_WORD_VALUES).join('|')})[-\\s]+(${Object.keys(ONES_NUMBER_WORD_VALUES).join('|')})\\b`,
+    'gi'
+  );
+  const SIMPLE_NUMBER_WORD_RE = new RegExp(`\\b(${Object.keys(SIMPLE_NUMBER_WORD_VALUES).join('|')})\\b`, 'gi');
 
   const PHRASE_REPLACEMENTS = [
     [/\s*\((?:plain|generic)\)\s*/gi, ' '],
@@ -75,6 +120,14 @@
       .trim();
   }
 
+  function numberWordsToDigits(value) {
+    return normalizeWhitespace(value)
+      .replace(COMPOUND_NUMBER_WORD_RE, (_, tens, ones) => {
+        return String(TENS_NUMBER_WORD_VALUES[tens.toLowerCase()] + ONES_NUMBER_WORD_VALUES[ones.toLowerCase()]);
+      })
+      .replace(SIMPLE_NUMBER_WORD_RE, match => String(SIMPLE_NUMBER_WORD_VALUES[match.toLowerCase()]));
+  }
+
   function headerNameCharLimit(layer) {
     const width = Number(layer?.width);
     const fontSize = Number(layer?.fontSize);
@@ -89,7 +142,7 @@
     for (const [pattern, replacement] of PHRASE_REPLACEMENTS) {
       text = text.replace(pattern, replacement);
     }
-    return normalizeWhitespace(text);
+    return numberWordsToDigits(text);
   }
 
   function removeSoftWords(name) {
@@ -124,12 +177,13 @@
       || food?.name
       || 'Unknown';
     const maxChars = headerNameCharLimit(layer);
-    const override = HEADER_NAME_OVERRIDES[String(food?.id || '')];
+    const override = numberWordsToDigits(HEADER_NAME_OVERRIDES[String(food?.id || '')] || '');
+    const displayRawName = numberWordsToDigits(rawName);
     const compact = compactByRules(rawName);
     const softDropped = removeSoftWords(compact);
     return bestCandidate([
       override,
-      rawName,
+      displayRawName,
       compact,
       softDropped
     ], maxChars).toUpperCase();
@@ -141,6 +195,7 @@
 
   window.FOODRANKED_DISPLAY_NAME_UTILS = {
     compactFoodNameForHeader,
-    headerNameCharLimit
+    headerNameCharLimit,
+    numberWordsToDigits
   };
 }());

@@ -1193,6 +1193,7 @@
   <script src="../data/foods-index.js?v=20260719-protein-schema-v1"></script>
   <script src="./display-schema.js?v=20260624-section-indicator-no-canvas-v1"></script>
   <script src="./default-layout.js?v=20260624-arrow-default-scale-v1"></script>
+  <script src="./display-name-utils.js?v=20260720-food-name-numerals-v1"></script>
   <script>
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     if (APP_MODE === 'layout-builder') document.body.classList.add('layout-builder-mode');
@@ -5188,18 +5189,28 @@
       }
     }
 
+    function headerFoodNameText(food, layer) {
+      return window.FOODRANKED_DISPLAY_NAME_UTILS?.compactFoodNameForHeader
+        ? window.FOODRANKED_DISPLAY_NAME_UTILS.compactFoodNameForHeader(food, layer)
+        : String(food?.name || 'Unknown').toUpperCase();
+    }
+
     function syncHeaderTextForFood(layout, food = getSelectedFoodStub()) {
       const header = food?.header || {};
       const values = {
-        food_name_text: String(food?.name || 'Unknown').toUpperCase(),
         kcal_value_text: String(header.kcal ?? food?.kcal ?? 'N/A'),
         basis_text: formatBasis(food),
         script_caption: prettyFoodType(food?.foodType || getSelectedFoodStub()?.foodType).toUpperCase()
       };
       for (const section of SECTIONS) {
         for (const layer of getSectionLayersFromLayout(layout, section.id)) {
-          if (!isTextLayer(layer) || !(layer.id in values)) continue;
+          if (!isTextLayer(layer)) continue;
           if (APP_MODE === 'layout-builder' && layer.layoutBuilderManualText) continue;
+          if (layer.id === 'food_name_text') {
+            layer.text = headerFoodNameText(food, layer);
+            continue;
+          }
+          if (!(layer.id in values)) continue;
           layer.text = values[layer.id];
         }
       }

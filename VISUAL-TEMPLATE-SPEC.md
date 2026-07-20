@@ -94,6 +94,10 @@ The header should feel like a stat-card identity bar.
 - food type = secondary coloured tag
 - per 100g = small utility label
 
+#### Food name display rules
+- on-screen food names always display number words as numerals, for example `Zero-Sugar` becomes `0-Sugar` and `Two` becomes `2`
+- compact header names may abbreviate words to fit, but must preserve the numeral form
+
 ### Right block: kcal plate
 - badge/card aligned top-right
 - x: 790–1030

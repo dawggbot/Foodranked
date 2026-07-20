@@ -29,7 +29,9 @@ It is the bridge between:
 - subtitle and display text keep abbreviated units such as `g`, `mg`, and `DV`; subtitle copy must not use full unit words like `grams`
 - macro section narration/subtitles should target two outstanding displayed submacros with numeric values: one of the best defensible visible indicators and one of the worst defensible visible indicators; for arrow submacros, stronger green/red arrow bands outrank raw weighted score when choosing what sounds outstanding
 - when only one defensible submacro is available for a macro section, mention the one that exists; the protein headline grams must not be repeated as the protein submacro
-- narration may add a very brief benefit/context phrase for the best outstanding submacro, for example what fibre, polyunsaturated fat, omega-3, or amino-acid quality helps with; keep this selective and short
+- narration should add a brief benefit or drawback phrase for the selected outstanding submacros, so the script says what the standout is good or bad for rather than only reading the number
+- every macro section should also include a brief food-type section-importance line, for example why fat quality matters for meats, why carb behaviour matters for grains or tubers, or why protein quality matters for meats and legumes
+- the best outstanding phrase should stay practical and short, for example what fibre, polyunsaturated fat, omega-3, or amino-acid quality helps with
 - the worst outstanding explanation should be short and food-type based, for example whether that weak point matters for meats, grains, vegetables, or another category
 - vitamin and mineral narration/subtitles follow the same best-outstanding plus worst-outstanding pattern for DV-backed values; skip `N/A` or weakly sourced values rather than padding the line
 - food identity and score-readiness context travel with the script payload
@@ -138,6 +140,7 @@ Narration rules:
 - protein sections should not narrate amino-acid quality unless the scorer selected it as a meaningful protein-quality item; if not, narrate protein amount or the category role instead
 - measurement units in spoken blocks use full words, for example `37.1 grams of fat` and `saturated fat is 12.6 grams`, while the matching subtitle/display text uses `37.1g` and `12.6g`
 - macro, vitamin, and mineral spoken blocks should prefer the strongest available displayed item plus the weakest available displayed item, while keeping each section compact
+- macro spoken blocks should include both standout context and food-type section importance, not just raw values
 - when the selected vitamin metric is `vitamin_b12_dv`, narration and subtitles must say `Vitamin B12`; never shorten it to generic `Vitamin B`
 - do not narrate the overall score
 - the last spoken block must always be the tier reveal, for example `D tier.`

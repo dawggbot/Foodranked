@@ -31,6 +31,7 @@ Work in sympathy with the existing repo. Read the relevant source-of-truth docs 
 - Locked identities: oats are uncooked rolled oats; white rice is uncooked white rice; yam and sweet potato are separate uncooked entries; do not add extra oats/rice variants.
 - If a metric is not defensibly sourceable for the exact food identity, display `N/A` rather than inventing a value.
 - On-screen food names always display number words as numerals, for example `Zero-Sugar` becomes `0-Sugar` and `Two` becomes `2`; familiar food-name shorthand may be preferred when it is clearer and widely understood, for example `Barbecue Sauce` becomes `BBQ Sauce`, `Apple Cider Vinegar` becomes `ACV`, and `Extra Virgin Olive Oil` becomes `XTRA VIRGIN OLIVE OIL`; for header fit, prefer full or very lightly abbreviated names with dynamic font-size shrinking before using heavier abbreviations; shrunk header food names should anchor bottom-left so they still sit on the food-name line sprite. Header food type titles keep a constant font size and abbreviate the displayed label to fit the existing textbox.
+- Macro narration should explain what selected outstanding submacros are good or bad for, and why that macro section matters to the specific food type.
 - Pros and cons must not merely repeat macro, submacro, vitamin, or mineral points already shown on screen. Prefer antioxidants, polyphenols, fermentation, anti-nutrients, absorbability, sourcing, tolerance, digestion, processing burden, satiety, convenience, and meal role.
 
 ## Video And Narration

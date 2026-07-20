@@ -210,7 +210,8 @@ Rules:
 - score-style ratios in audio should be expanded as spoken ratios, for example `8/9` becomes `8 out of 9`; subtitles and stat values should keep compact ratios like `8/9`
 - fats, carbs, and proteins narration should aim to mention two outstanding displayed submacro values from that section: one of the best defensible visible indicators and one of the worst defensible visible indicators; for arrow submacros, stronger green/red arrow bands outrank raw weighted score when choosing what sounds outstanding
 - skip `N/A` or weakly sourced values, and do not use protein headline grams as the protein submacro
-- macro narration may add a very brief benefit/context phrase for the best outstanding submacro, for example what fibre, polyunsaturated fat, omega-3, or amino-acid quality helps with; keep it selective so sections stay snappy
+- macro narration should add a very brief benefit or drawback phrase for selected outstanding submacros, for example what fibre, polyunsaturated fat, omega-3, amino-acid quality, glycemic load, or saturated fat is good or bad for
+- macro narration should include why that section matters to the food type, for example fat quality for meats/oils/nuts/seeds, carb behaviour for grains/fruits/legumes/tubers, or protein quality for meats/dairy/legumes
 - worst outstanding explanations should stay short and food-type based, for example whether the weak point matters for meats, grains, vegetables, or another category
 - vitamins and minerals follow the same best-outstanding plus worst-outstanding pattern for DV-backed values when defensible values exist
 - generated subtitle cues should be wrapped to a maximum of 2 lines, with a tight default line length so editor/import wrapping does not create a third line

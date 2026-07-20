@@ -750,12 +750,19 @@ function foodTypeLabel(foodType) {
 function bestMetricContext(metric, sectionKey) {
   const key = metric?.metricKey;
   const contexts = {
+    saturated_fat_g: 'supporting a cleaner fat profile',
     polyunsaturated_fat_g: 'helping with cell structure and healthy signalling',
     omega3_mg: 'supporting a more useful fat profile',
+    cholesterol_mg: 'keeping the fat tradeoff lighter',
     fibre_g: 'helping with digestion and steadier meals',
+    sugar_g: 'helping keep the sugar load under control',
+    starch_g: 'supporting useful staple-carb energy',
+    glycemic_index: 'helping with steadier carb behaviour',
+    collagen_g: 'supporting connective-tissue protein',
     essential_amino_acids_score: Number(metric?.value) >= 6
       ? 'making the protein useful for repair and maintenance'
       : 'after trace amino acids are filtered out',
+    nonessential_amino_acids_score: 'adding supporting amino acid coverage',
     bioavailability_percent: 'helping more of that protein count',
     vitamin_b12_dv: 'useful for nerve and blood-cell support',
     vitamin_d_dv: 'useful for bone and immune support',
@@ -774,31 +781,69 @@ function bestMetricContext(metric, sectionKey) {
   return '';
 }
 
+function weakMetricImpactContext(metric, sectionKey) {
+  const key = metric?.metricKey;
+  const contexts = {
+    saturated_fat_g: 'working against a cleaner fat profile',
+    polyunsaturated_fat_g: 'weak for unsaturated-fat support',
+    omega3_mg: 'weak for omega-3 fat support',
+    cholesterol_mg: 'adding to the cardiovascular tradeoff',
+    fibre_g: 'weak for digestion and steadier meals',
+    sugar_g: 'making sugar control harder',
+    starch_g: 'weak for useful staple-carb payoff',
+    glycemic_index: 'bad for steadier carb behaviour',
+    collagen_g: 'weak for connective-tissue protein',
+    essential_amino_acids_score: 'weak for repair-and-maintenance protein quality',
+    nonessential_amino_acids_score: 'weak for supporting amino-acid coverage',
+    bioavailability_percent: 'bad for how much protein actually counts',
+    vitamin_b12_dv: 'weak for nerve and blood-cell support',
+    vitamin_d_dv: 'weak for bone and immune support',
+    vitamin_c_dv: 'weak for collagen formation and antioxidant support',
+    vitamin_a_dv: 'weak for vision and immune support',
+    zinc_dv: 'weak for immune support',
+    iron_dv: 'weak for oxygen transport',
+    potassium_dv: 'weak for fluid balance'
+  };
+  if (contexts[key]) return contexts[key];
+  if (sectionKey === 'fats') return 'working against the fat profile';
+  if (sectionKey === 'carbs') return 'working against carb quality';
+  if (sectionKey === 'proteins') return 'weak for protein quality';
+  if (sectionKey === 'vitamins') return 'weak for vitamin support';
+  if (sectionKey === 'minerals') return 'weak for mineral support';
+  return '';
+}
+
 function categoryWeakContext(foodType, sectionKey, metric = null) {
   const type = foodTypeLabel(foodType);
+  const impact = weakMetricImpactContext(metric, sectionKey);
+  const combine = importance => impact
+    ? importance.startsWith('and ') || importance.startsWith('so ')
+      ? `${impact}, ${importance}`
+      : `${impact}, which is ${importance}`
+    : importance;
   if (sectionKey === 'fats') {
-    if (foodType === 'meats') return 'and for meats, fat quality is a major tradeoff';
-    if (foodType === 'oils-and-fats') return 'and for oils and fats, that matters a lot';
-    if (foodType === 'nuts' || foodType === 'seeds') return `and for ${type}, fat quality has to justify the calories`;
-    return `a weak mark for ${type || 'this category'}`;
+    if (foodType === 'meats') return combine('and for meats, fat quality is a major tradeoff');
+    if (foodType === 'oils-and-fats') return combine('and for oils and fats, that matters a lot');
+    if (foodType === 'nuts' || foodType === 'seeds') return combine(`and for ${type}, fat quality has to justify the calories`);
+    return combine(`a weak mark for ${type || 'this category'}`);
   }
   if (sectionKey === 'carbs') {
-    if (['grains', 'fruits', 'legumes', 'tubers'].includes(foodType)) return `a meaningful miss for ${type}`;
-    return `a small miss for ${type || 'this category'}`;
+    if (['grains', 'fruits', 'legumes', 'tubers'].includes(foodType)) return combine(`a meaningful miss for ${type}`);
+    return combine(`a small miss for ${type || 'this category'}`);
   }
   if (sectionKey === 'proteins') {
-    if (foodType === 'meats') return 'so for meats, it is not bringing much connective-tissue protein';
-    return `a weak mark for ${type || 'this category'}`;
+    if (foodType === 'meats') return combine('so for meats, it is not bringing much connective-tissue protein');
+    return combine(`a weak mark for ${type || 'this category'}`);
   }
   if (sectionKey === 'vitamins') {
-    if (foodType === 'meats') return 'a small miss for meats';
-    return `a weak mark for ${type || 'this category'}`;
+    if (foodType === 'meats') return combine('a small miss for meats');
+    return combine(`a weak mark for ${type || 'this category'}`);
   }
   if (sectionKey === 'minerals') {
-    if (foodType === 'meats') return 'a weak mark for meats';
-    return `a weak mark for ${type || 'this category'}`;
+    if (foodType === 'meats') return combine('a weak mark for meats');
+    return combine(`a weak mark for ${type || 'this category'}`);
   }
-  return `a weak mark for ${type || 'this category'}`;
+  return combine(`a weak mark for ${type || 'this category'}`);
 }
 
 function bestMetricLine(metric, sectionKey) {
@@ -932,8 +977,7 @@ function buildMacroSection(result, key) {
   };
 
   const categoryLine = categoryLines[foodType]?.[key] || sectionContextLine(foodType, `${result.food.id}:${key}`);
-  const useCategoryLine = !outstanding || /^no defensible /.test(outstanding);
-  return joinShort([macro, outstanding, useCategoryLine ? categoryLine : null]);
+  return joinShort([macro, outstanding, categoryLine]);
 }
 
 function buildMicrosSection(result, sectionKey) {

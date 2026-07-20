@@ -46,6 +46,7 @@ The header stays visible throughout the video and should contain:
 
 Food-name display rule:
 - on-screen food names always display number words as numerals, for example `Zero-Sugar` becomes `0-Sugar` and `Two` becomes `2`
+- familiar food-name shorthand may be preferred when it is clearer and widely understood, for example `Barbecue Sauce` becomes `BBQ Sauce`, `Apple Cider Vinegar` becomes `ACV`, and `Extra Virgin Olive Oil` becomes `EVOO`
 - header food names should prefer the full or very lightly abbreviated name; shrink the food-name font dynamically for longer names before falling back to heavier abbreviations
 - when the header food-name font shrinks, anchor it to the bottom-left of the textbox so it still sits on the food-name line sprite
 - header food type titles keep a constant font size; abbreviate the displayed type label so it fits inside the existing textbox

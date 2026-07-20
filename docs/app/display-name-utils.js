@@ -5,13 +5,14 @@
   const HEADER_TEXT_WIDTH_FIT_RATIO = 0.96;
 
   const HEADER_NAME_OVERRIDES = {
-    'apple-cider-vinegar': 'Apple Cider Vngr',
+    'apple-cider-vinegar': 'ACV',
+    'barbecue-sauce': 'BBQ Sauce',
     'dark-chocolate-85': 'Dark Choc 85%',
     'fruit-yogurt-sweetened': 'Swt Fruit Yogurt',
     'chocolate-covered-peanuts': 'Choc. Peanuts',
     'electrolyte-tablet-drink': 'Electrolyte Tabs',
     'energy-drink-zero': '0-Sugar Drink',
-    'extra-virgin-olive-oil': 'E.V. Olive Oil',
+    'extra-virgin-olive-oil': 'EVOO',
     'honey-roasted-peanuts': 'Honey-Rstd Pnuts',
     'instant-mashed-potatoes': 'Instant Mash Pot.',
     'jerusalem-artichoke': 'Jerusalem Artich.',
@@ -33,6 +34,12 @@
     'watermelon-seeds-roasted-salted': 'W-Melon Seeds R+S',
     'watermelon-seeds-unsalted': 'W-Melon Seeds'
   };
+
+  const FAMILIAR_HEADER_SHORTHAND_REPLACEMENTS = [
+    [/\bApple[-\s]+Cider[-\s]+Vinegar\b/gi, 'ACV'],
+    [/\bExtra[-\s]+Virgin[-\s]+Olive[-\s]+Oil\b/gi, 'EVOO'],
+    [/\bBarbecue\b/gi, 'BBQ']
+  ];
 
   const HEADER_NAME_MAX_FONT_SIZE_OVERRIDES = {
     asparagus: 7.6
@@ -91,7 +98,7 @@
     [/\s*\(sweetened\)\s*/gi, ' Sweet '],
     [/\s*\(roasted\s*&\s*salted\)\s*/gi, ' R+S '],
     [/\s*\(refined\)\s*/gi, ' Refined '],
-    [/\bExtra Virgin Olive Oil\b/gi, 'E.V. Olive Oil'],
+    [/\bExtra Virgin Olive Oil\b/gi, 'EVOO'],
     [/\bZero[- ]Sugar Energy Drink\b/gi, 'Zero-Sugar Drink'],
     [/\bWhole[- ]Wheat\b/gi, 'W-Wheat'],
     [/\bWhole[- ]Grain\b/gi, 'W-Grain'],
@@ -143,6 +150,14 @@
       .replace(SIMPLE_NUMBER_WORD_RE, match => String(SIMPLE_NUMBER_WORD_VALUES[match.toLowerCase()]));
   }
 
+  function applyFamiliarHeaderShorthand(value) {
+    let text = normalizeWhitespace(value);
+    for (const [pattern, replacement] of FAMILIAR_HEADER_SHORTHAND_REPLACEMENTS) {
+      text = text.replace(pattern, replacement);
+    }
+    return normalizeWhitespace(text);
+  }
+
   function headerNameBaseFontSize(layer) {
     const fontSize = Number(layer?.fontSize);
     return Number.isFinite(fontSize) && fontSize > 0 ? fontSize : 8;
@@ -164,19 +179,19 @@
   }
 
   function lightlyCompactByRules(name) {
-    let text = numberWordsToDigits(name);
+    let text = applyFamiliarHeaderShorthand(numberWordsToDigits(name));
     for (const [pattern, replacement] of LIGHT_PHRASE_REPLACEMENTS) {
       text = text.replace(pattern, replacement);
     }
-    return numberWordsToDigits(text);
+    return applyFamiliarHeaderShorthand(numberWordsToDigits(text));
   }
 
   function compactByRules(name) {
-    let text = normalizeWhitespace(name);
+    let text = applyFamiliarHeaderShorthand(name);
     for (const [pattern, replacement] of PHRASE_REPLACEMENTS) {
       text = text.replace(pattern, replacement);
     }
-    return numberWordsToDigits(text);
+    return applyFamiliarHeaderShorthand(numberWordsToDigits(text));
   }
 
   function removeSoftWords(name) {
@@ -238,12 +253,14 @@
       ? { ...(layer || {}), fontSize: Math.min(headerNameBaseFontSize(layer), maxFontSize) }
       : layer;
     const override = numberWordsToDigits(HEADER_NAME_OVERRIDES[foodId] || '');
-    const displayRawName = numberWordsToDigits(rawName);
+    const displayRawName = applyFamiliarHeaderShorthand(numberWordsToDigits(rawName));
+    const unshortenedRawName = numberWordsToDigits(rawName);
     const lightCompact = lightlyCompactByRules(rawName);
     const compact = compactByRules(rawName);
     const softDropped = removeSoftWords(compact);
     const result = bestFittingHeaderName([
       displayRawName,
+      unshortenedRawName,
       lightCompact,
       compact,
       softDropped,

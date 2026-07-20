@@ -415,6 +415,7 @@ function rawProteinSubmetrics(result, limit = 4) {
         band: scored?.band || null,
         dvPercent: scored?.dvPercent ?? null,
         value,
+        score: scored?.score ?? null,
         denominator: scored?.denominator ?? null,
         referenceOnly: !scored
       };
@@ -864,6 +865,87 @@ function weakMetricLine(metric, result, sectionKey) {
   return `${metricValuePhrase(metric)}, ${context}`;
 }
 
+function metricSectionScore(metric) {
+  const score = toFiniteNumber(metric?.score);
+  if (score !== null) return score;
+  if (metric?.scoringMode === 'dv_points') {
+    const dvPercent = toFiniteNumber(metric.dvPercent);
+    if (dvPercent !== null) return Math.min(100, Math.floor(dvPercent / 10) * 10);
+  }
+  const band = arrowBand(metric);
+  if (band) {
+    const bandScore = band.level <= 1 ? 60 : band.level === 2 ? 80 : 100;
+    return band.color === 'green' ? bandScore : 100 - bandScore;
+  }
+  return null;
+}
+
+function metricTieValue(metric) {
+  const weighted = toFiniteNumber(metric?.weightedScore);
+  if (weighted !== null && weighted !== 0) return weighted;
+  return toFiniteNumber(metric?.dvPercent)
+    ?? toFiniteNumber(metric?.value)
+    ?? weighted
+    ?? 0;
+}
+
+function compareMetricsByStrength(a, b) {
+  const scoreDiff = (metricSectionScore(b) ?? -Infinity) - (metricSectionScore(a) ?? -Infinity);
+  if (scoreDiff) return scoreDiff;
+  return metricTieValue(b) - metricTieValue(a);
+}
+
+function weakFallbackPriority(metric, sectionKey) {
+  if (!metric) return 99;
+  if (metric.polarity === 'higher_better') return 0;
+  if (sectionKey === 'fats' && ['omega3_mg', 'polyunsaturated_fat_g'].includes(metric.metricKey)) return 0;
+  return 1;
+}
+
+function strongestAvailableMetric(metrics, exclude = null) {
+  return (metrics || [])
+    .filter(metric => metric && metric !== exclude && metricHasDefensibleValue(metric))
+    .sort(compareMetricsByStrength)[0] || null;
+}
+
+function weakestAvailableMetric(metrics, exclude = null, sectionKey = '') {
+  return (metrics || [])
+    .filter(metric => metric && metric !== exclude && metricHasDefensibleValue(metric))
+    .sort((a, b) => {
+      const scoreDiff = (metricSectionScore(a) ?? Infinity) - (metricSectionScore(b) ?? Infinity);
+      if (scoreDiff) return scoreDiff;
+      const priorityDiff = weakFallbackPriority(a, sectionKey) - weakFallbackPriority(b, sectionKey);
+      if (priorityDiff) return priorityDiff;
+      return metricTieValue(a) - metricTieValue(b);
+    })[0] || null;
+}
+
+function bestAvailableMetricLine(metric, sectionKey) {
+  if (!metric) return null;
+  const score = metricSectionScore(metric);
+  if (score !== null && score < 20) {
+    return `${metricValuePhrase(metric)}, the best mark here but still too low to carry the section`;
+  }
+  if (score !== null && score < 50) {
+    return `${metricValuePhrase(metric)}, the best mark here but still only modest support`;
+  }
+  return bestMetricLine(metric, sectionKey);
+}
+
+function secondMetricLine(metric, result, sectionKey) {
+  if (!metric) return null;
+  if (weakMetricRank(metric) > -Infinity) return weakMetricLine(metric, result, sectionKey);
+
+  const score = metricSectionScore(metric);
+  if (score !== null && score >= 80) {
+    return `${metricValuePhrase(metric)}, the lowest mark here but still a strong one`;
+  }
+  if (score !== null && score >= 50) {
+    return `${metricValuePhrase(metric)}, the softer support mark in this section`;
+  }
+  return weakMetricLine(metric, result, sectionKey);
+}
+
 function proteinFallbackContext(result, score) {
   const foodType = result.food.foodType;
   if (score >= 60) return 'that amount is useful enough to count';
@@ -890,27 +972,30 @@ function outstandingMacroLine(result, sectionKey) {
     const collagen = byKey('collagen_g');
     if (proteinAmount) {
       const score = result.sectionScores?.proteins ?? null;
+      const second = weakestAvailableMetric(metrics, proteinAmount, sectionKey);
       return joinShort([
         proteinFallbackContext(result, score),
-        collagen ? weakMetricLine(collagen, result, sectionKey) : null
+        secondMetricLine(second, result, sectionKey)
       ]).replace(/[.]$/g, '');
     }
+    const bestMetric = essentialAmino || bioavailability || strongestAvailableMetric(metrics);
+    const second = weakestOutstandingMetric(metrics, bestMetric) || weakestAvailableMetric(metrics, bestMetric, sectionKey);
     const best = essentialAmino && Number(essentialAmino.value) < 6
       ? `${metricValuePhrase(essentialAmino)}, counting only amino-acid groups above the useful-amount threshold`
       : essentialAmino && bioavailability
-      ? `${metricValuePhrase(essentialAmino)}, with ${metricValueText(bioavailability)} bioavailability, making the protein useful for repair and maintenance`
-      : bestMetricLine(essentialAmino || bioavailability || metrics[0], sectionKey);
+        ? `${metricValuePhrase(essentialAmino)}, with ${metricValueText(bioavailability)} bioavailability, making the protein useful for repair and maintenance`
+        : bestAvailableMetricLine(bestMetric, sectionKey);
     return joinShort([
       best,
-      collagen ? weakMetricLine(collagen, result, sectionKey) : null
+      secondMetricLine(second, result, sectionKey)
     ]).replace(/[.]$/g, '');
   }
 
-  const best = strongestPositiveMetric(metrics);
-  const weakest = weakestOutstandingMetric(metrics, best);
+  const best = strongestPositiveMetric(metrics) || strongestAvailableMetric(metrics);
+  const weakest = weakestOutstandingMetric(metrics, best) || weakestAvailableMetric(metrics, best, sectionKey);
   return joinShort([
-    bestMetricLine(best, sectionKey),
-    weakMetricLine(weakest, result, sectionKey)
+    bestAvailableMetricLine(best, sectionKey),
+    secondMetricLine(weakest, result, sectionKey)
   ]).replace(/[.]$/g, '');
 }
 
@@ -996,12 +1081,11 @@ function buildMicrosSection(result, sectionKey) {
   }
 
   const positive = strongestPositiveMetric(top);
-  const best = positive || top[0];
-  const weakest = weakestOutstandingMetric(top, positive);
-  if (!positive) return joinShort([weakMetricLine(weakest || top[0], result, sectionKey)]);
+  const best = positive || strongestAvailableMetric(top);
+  const weakest = weakestOutstandingMetric(top, best) || weakestAvailableMetric(top, best, sectionKey);
   return joinShort([
-    bestMetricLine(best, sectionKey),
-    weakMetricLine(weakest, result, sectionKey)
+    positive ? bestMetricLine(best, sectionKey) : bestAvailableMetricLine(best, sectionKey),
+    secondMetricLine(weakest, result, sectionKey)
   ]);
 }
 

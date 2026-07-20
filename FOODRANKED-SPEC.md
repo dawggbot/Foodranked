@@ -85,7 +85,7 @@ Additional format rules:
 - information is revealed in sync with narration
 - macro scenes use the macro sprite plus a bar for the main macro only
 - submacros use arrow indicators only, with repeated arrow sprites for 1/2/3 strength bands
-- macro narration should explain what selected outstanding submacros are good or bad for, plus why that section matters to the food type
+- macro and micronutrient narration should try to mention the strongest and weakest/lowest defensible marks in each section when two values exist; macro narration should also explain what selected outstanding submacros are good or bad for, plus why that section matters to the food type
 - protein section visible submacros stay locked to collagen, essential amino acids, non-essential amino acids, and bioavailability
 - `protein_g_fallback` is hidden scoring/narration support only; it must not replace a visible protein submacro row because protein grams already appear in the macro bubble
 - protein visible rows display `N/A` only when the protein macro itself displays `N/A`; otherwise missing or protein-gate-skipped protein-quality source values may use labelled display-only estimates/defaults without being written back as source nutrition

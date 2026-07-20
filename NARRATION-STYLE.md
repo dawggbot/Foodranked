@@ -14,14 +14,14 @@
   - proteins
 - for each macro section, aim to mention 2 outstanding submacros:
   - 1 of the best defensible visible indicators; for arrow submacros, prefer stronger green-arrow bands over raw weighted score
-  - 1 of the worst defensible visible indicators
+  - 1 of the weakest or lowest defensible visible indicators
 - outstanding submacros should explain what the nutrient or metric is good or bad for, not just say the value
 - macro sections should also explain why that section matters to the food type, such as why fat quality matters for meats, why carb behaviour matters for grains/tubers, or why protein quality matters for meats and legumes
 - skip missing, `N/A`, or weakly sourced submacro values rather than padding the line
 - usually add a very brief benefit/context note for the best outstanding submacro, for example what fibre, polyunsaturated fat, omega-3, or amino-acid quality helps with
-- keep the worst outstanding explanation short and food-type based, for example whether it matters for meats, grains, vegetables, or another category
+- keep the weakest or lowest-mark explanation short and food-type based; if the lowest mark is still positive, call it softer/lowest support rather than bad
 - only mention the most important vitamins/minerals
-- vitamins and minerals follow the same pattern when defensible values exist: best outstanding DV-backed micronutrient, worst outstanding DV-backed micronutrient, skip `N/A`
+- vitamins and minerals follow the same pattern when defensible values exist: strongest DV-backed micronutrient, weakest or lowest DV-backed micronutrient, skip `N/A`; if every mark is weak, mention the highest low mark and the lowest low mark
 - if the rest are weak, generalise as: `everything else is lackluster`
 - read pros and cons bullets fully, word for word
 - the closing summary should recap the strongest strengths and weaknesses from across all sections, then say what the food is good for and why
@@ -43,7 +43,7 @@ Bacon is the current reference script style for educational, informative narrati
 - strongest defensible standout with a brief practical "why it matters"
 - weakest defensible standout with a short food-type relevance note
 - a food-type section-importance line so viewers understand why that section matters for this category
-- vitamins/minerals use the same best-plus-worst rhythm when values exist
+- vitamins/minerals use the same strongest-plus-weakest rhythm when values exist
 - pros/cons still read all 3 items directly
 
 Example section lines:

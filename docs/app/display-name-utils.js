@@ -5,7 +5,7 @@
   const HEADER_TEXT_WIDTH_FIT_RATIO = 0.96;
 
   const HEADER_NAME_OVERRIDES = {
-    'apple-cider-vinegar': 'Apple Cider Vnr',
+    'apple-cider-vinegar': 'Apple Cider Vngr',
     'dark-chocolate-85': 'Dark Choc 85%',
     'fruit-yogurt-sweetened': 'Swt Fruit Yogurt',
     'chocolate-covered-peanuts': 'Choc. Peanuts',
@@ -32,6 +32,10 @@
     'trail-mix-chocolate': 'Trail Mix Choc.',
     'watermelon-seeds-roasted-salted': 'W-Melon Seeds R+S',
     'watermelon-seeds-unsalted': 'W-Melon Seeds'
+  };
+
+  const HEADER_NAME_MAX_FONT_SIZE_OVERRIDES = {
+    asparagus: 7.6
   };
 
   const ONES_NUMBER_WORD_VALUES = {
@@ -228,7 +232,12 @@
       || food?.shortName
       || food?.name
       || 'Unknown';
-    const override = numberWordsToDigits(HEADER_NAME_OVERRIDES[String(food?.id || '')] || '');
+    const foodId = String(food?.id || '');
+    const maxFontSize = Number(HEADER_NAME_MAX_FONT_SIZE_OVERRIDES[foodId]);
+    const fitLayer = Number.isFinite(maxFontSize) && maxFontSize > 0
+      ? { ...(layer || {}), fontSize: Math.min(headerNameBaseFontSize(layer), maxFontSize) }
+      : layer;
+    const override = numberWordsToDigits(HEADER_NAME_OVERRIDES[foodId] || '');
     const displayRawName = numberWordsToDigits(rawName);
     const lightCompact = lightlyCompactByRules(rawName);
     const compact = compactByRules(rawName);
@@ -239,7 +248,7 @@
       compact,
       softDropped,
       override
-    ], layer);
+    ], fitLayer);
     return {
       ...result,
       text: result.text.toUpperCase()

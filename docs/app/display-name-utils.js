@@ -12,7 +12,7 @@
     'chocolate-covered-peanuts': 'Choc. Peanuts',
     'electrolyte-tablet-drink': 'Electrolyte Tabs',
     'energy-drink-zero': '0-Sugar Drink',
-    'extra-virgin-olive-oil': 'EVOO',
+    'extra-virgin-olive-oil': 'Xtra Virgin Olive Oil',
     'honey-roasted-peanuts': 'Honey-Rstd Pnuts',
     'instant-mashed-potatoes': 'Instant Mash Pot.',
     'jerusalem-artichoke': 'Jerusalem Artich.',
@@ -37,7 +37,7 @@
 
   const FAMILIAR_HEADER_SHORTHAND_REPLACEMENTS = [
     [/\bApple[-\s]+Cider[-\s]+Vinegar\b/gi, 'ACV'],
-    [/\bExtra[-\s]+Virgin[-\s]+Olive[-\s]+Oil\b/gi, 'EVOO'],
+    [/\bExtra[-\s]+Virgin[-\s]+Olive[-\s]+Oil\b/gi, 'Xtra Virgin Olive Oil'],
     [/\bBarbecue\b/gi, 'BBQ']
   ];
 
@@ -98,7 +98,7 @@
     [/\s*\(sweetened\)\s*/gi, ' Sweet '],
     [/\s*\(roasted\s*&\s*salted\)\s*/gi, ' R+S '],
     [/\s*\(refined\)\s*/gi, ' Refined '],
-    [/\bExtra Virgin Olive Oil\b/gi, 'EVOO'],
+    [/\bExtra Virgin Olive Oil\b/gi, 'Xtra Virgin Olive Oil'],
     [/\bZero[- ]Sugar Energy Drink\b/gi, 'Zero-Sugar Drink'],
     [/\bWhole[- ]Wheat\b/gi, 'W-Wheat'],
     [/\bWhole[- ]Grain\b/gi, 'W-Grain'],

@@ -719,9 +719,13 @@
   }
 
   function headerFoodNameText(food, layer) {
-    return window.FOODRANKED_DISPLAY_NAME_UTILS?.compactFoodNameForHeader
-      ? window.FOODRANKED_DISPLAY_NAME_UTILS.compactFoodNameForHeader(food, layer)
-      : String(food?.name || 'Unknown').toUpperCase();
+    const fit = window.FOODRANKED_DISPLAY_NAME_UTILS?.fitFoodNameForHeader?.(food, layer);
+    if (fit) {
+      layer.autoFontSize = fit.fontSize;
+      return fit.text;
+    }
+    delete layer.autoFontSize;
+    return String(food?.name || 'Unknown').toUpperCase();
   }
 
   function syncMacroFills(layout, food) {
@@ -1644,7 +1648,7 @@
 
   function renderTextNode(node, layer) {
     node.textContent = safeDisplayText(layer.text || '');
-    node.style.fontSize = `calc(${Number(layer.fontSize) || 6}px * var(--pixel-unit))`;
+    node.style.fontSize = `calc(${textLayerFontSize(layer)}px * var(--pixel-unit))`;
     node.style.color = layer.color || '';
     node.style.textAlign = layer.align || 'left';
     if (isContextItemTextLayer(layer)) node.classList.add('context-item-text');
@@ -1667,9 +1671,13 @@
   }
 
   function defaultTextLayerHeight(layer) {
-    const fontSize = Number(layer?.fontSize) || 6;
+    const fontSize = textLayerFontSize(layer);
     const lines = Math.max(1, String(layer?.text || '').split(/\r\n|\r|\n/).length);
     return Math.max(1, Math.ceil(fontSize * 1.15 * lines));
+  }
+
+  function textLayerFontSize(layer) {
+    return Number(layer?.autoFontSize ?? layer?.fontSize) || 6;
   }
 
   function handleSpriteError(node, layer) {

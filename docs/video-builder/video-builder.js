@@ -1355,9 +1355,13 @@
   }
 
   function headerFoodNameText(food, layer) {
-    return window.FOODRANKED_DISPLAY_NAME_UTILS?.compactFoodNameForHeader
-      ? window.FOODRANKED_DISPLAY_NAME_UTILS.compactFoodNameForHeader(food, layer)
-      : String(food?.name || 'Unknown').toUpperCase();
+    const fit = window.FOODRANKED_DISPLAY_NAME_UTILS?.fitFoodNameForHeader?.(food, layer);
+    if (fit) {
+      layer.autoFontSize = fit.fontSize;
+      return fit.text;
+    }
+    delete layer.autoFontSize;
+    return String(food?.name || 'Unknown').toUpperCase();
   }
 
   function displayFoodNameForText(food, fallback = 'This food') {
@@ -2899,7 +2903,7 @@
       } else {
         node.textContent = layer.text || '';
         node.style.color = layer.color || '#fff7e9';
-        node.style.fontSize = `calc(${Number(layer.fontSize) || 6}px * var(--pixel-unit))`;
+        node.style.fontSize = `calc(${textLayerFontSize(layer)}px * var(--pixel-unit))`;
         if (layer.width) node.style.width = `calc(${Number(layer.width)}px * var(--pixel-unit))`;
         node.style.textAlign = layer.align || 'left';
         applyOutroScoreGlow(node, layer, food);
@@ -2929,6 +2933,10 @@
         ? String(easeOutCubic(clamp((narrationElapsed + 0.05) * 4, 0, 1)))
         : '0';
     }
+  }
+
+  function textLayerFontSize(layer) {
+    return Number(layer?.autoFontSize ?? layer?.fontSize) || 6;
   }
 
   function captionFontSize(scene, frame) {

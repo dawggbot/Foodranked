@@ -1193,7 +1193,7 @@
   <script src="../data/foods-index.js?v=20260719-protein-schema-v1"></script>
   <script src="./display-schema.js?v=20260624-section-indicator-no-canvas-v1"></script>
   <script src="./default-layout.js?v=20260624-arrow-default-scale-v1"></script>
-  <script src="./display-name-utils.js?v=20260720-food-name-numerals-v1"></script>
+  <script src="./display-name-utils.js?v=20260720-dynamic-food-name-fit-v1"></script>
   <script>
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     if (APP_MODE === 'layout-builder') document.body.classList.add('layout-builder-mode');
@@ -5190,9 +5190,13 @@
     }
 
     function headerFoodNameText(food, layer) {
-      return window.FOODRANKED_DISPLAY_NAME_UTILS?.compactFoodNameForHeader
-        ? window.FOODRANKED_DISPLAY_NAME_UTILS.compactFoodNameForHeader(food, layer)
-        : String(food?.name || 'Unknown').toUpperCase();
+      const fit = window.FOODRANKED_DISPLAY_NAME_UTILS?.fitFoodNameForHeader?.(food, layer);
+      if (fit) {
+        layer.autoFontSize = fit.fontSize;
+        return fit.text;
+      }
+      delete layer.autoFontSize;
+      return String(food?.name || 'Unknown').toUpperCase();
     }
 
     function syncHeaderTextForFood(layout, food = getSelectedFoodStub()) {
@@ -5942,7 +5946,7 @@
           };
         } else {
           node.textContent = layer.text || '';
-          node.style.fontSize = `calc(${layer.fontSize || 6}px * var(--pixel-unit))`;
+          node.style.fontSize = `calc(${textLayerFontSize(layer)}px * var(--pixel-unit))`;
           applyTextLayerBoxStyle(node, layer);
           node.style.textAlign = layer.align || 'left';
           applyOutroScoreGlow(node, layer, state.fullFood || getSelectedFoodStub());
@@ -6126,6 +6130,10 @@
       return Math.max(1, String(value || '').split(/\r\n|\r|\n/).length);
     }
 
+    function textLayerFontSize(layer) {
+      return Number(layer?.autoFontSize ?? layer?.fontSize) || 6;
+    }
+
     function markTextLayerManual(layer) {
       if (!isTextLayer(layer)) return;
       layer.manualText = true;
@@ -6133,7 +6141,7 @@
     }
 
     function defaultTextLayerBoxHeight(layer) {
-      const fontSize = Number(layer?.fontSize) || 6;
+      const fontSize = textLayerFontSize(layer);
       return Math.max(1, Math.ceil(fontSize * TEXT_LAYER_LINE_HEIGHT * textLayerLineCount(layer?.text)));
     }
 
@@ -6726,12 +6734,12 @@ async function renderAll() {
       node.style.zIndex = String(layer.z || 0);
       if (layer.kind === 'text') {
         applyLayerRenderStyle(node, layer);
+        node.style.fontSize = `calc(${textLayerFontSize(layer)}px * var(--pixel-unit))`;
         applyTextLayerBoxStyle(node, layer);
         node.textContent = layer.text || '';
         if (editableTextFitsNode(node, layer.text || '')) {
           node.dataset.layoutBuilderLastFitText = layer.text || '';
         }
-        node.style.fontSize = `calc(${layer.fontSize || 6}px * var(--pixel-unit))`;
         node.style.textAlign = layer.align || 'left';
       }
       if (layer.kind === 'sprite') {

@@ -1,5 +1,8 @@
 (function () {
   const DEFAULT_HEADER_MAX_CHARS = 17;
+  const DEFAULT_HEADER_MIN_FONT_SIZE = 4.6;
+  const HEADER_FONT_WIDTH_RATIO = 0.58;
+  const HEADER_TEXT_WIDTH_FIT_RATIO = 0.96;
 
   const HEADER_NAME_OVERRIDES = {
     'apple-cider-vinegar': 'Apple Cider Vnr',
@@ -105,6 +108,14 @@
     [/\bPotatoes\b/gi, 'Pot.']
   ];
 
+  const LIGHT_PHRASE_REPLACEMENTS = [
+    [/\s*\(([^)]+)\)\s*/gi, ' $1 '],
+    [/\broasted\s*(?:&|\+|and)\s*salted\b/gi, 'R+S'],
+    [/\bextra\s+virgin\b/gi, 'Extra-Virgin'],
+    [/\bwhole\s+grain\b/gi, 'Whole-Grain'],
+    [/\bwhole\s+wheat\b/gi, 'Whole-Wheat']
+  ];
+
   const SOFT_DROP_WORDS = [
     'unsweetened',
     'plain',
@@ -128,13 +139,32 @@
       .replace(SIMPLE_NUMBER_WORD_RE, match => String(SIMPLE_NUMBER_WORD_VALUES[match.toLowerCase()]));
   }
 
-  function headerNameCharLimit(layer) {
-    const width = Number(layer?.width);
+  function headerNameBaseFontSize(layer) {
     const fontSize = Number(layer?.fontSize);
+    return Number.isFinite(fontSize) && fontSize > 0 ? fontSize : 8;
+  }
+
+  function headerNameMinFontSize(layer) {
+    const configured = Number(layer?.minFoodNameFontSize ?? layer?.minAutoFontSize);
+    return Number.isFinite(configured) && configured > 0
+      ? configured
+      : DEFAULT_HEADER_MIN_FONT_SIZE;
+  }
+
+  function headerNameCharLimit(layer, fontSize = headerNameBaseFontSize(layer)) {
+    const width = Number(layer?.width);
     if (!Number.isFinite(width) || width <= 0 || !Number.isFinite(fontSize) || fontSize <= 0) {
       return DEFAULT_HEADER_MAX_CHARS;
     }
-    return clamp(Math.floor(width / Math.max(1, fontSize * 0.58)), 10, 22);
+    return clamp(Math.floor(width / Math.max(1, fontSize * 0.58)), 10, 36);
+  }
+
+  function lightlyCompactByRules(name) {
+    let text = numberWordsToDigits(name);
+    for (const [pattern, replacement] of LIGHT_PHRASE_REPLACEMENTS) {
+      text = text.replace(pattern, replacement);
+    }
+    return numberWordsToDigits(text);
   }
 
   function compactByRules(name) {
@@ -163,38 +193,74 @@
     return `${text.slice(0, start)}...${text.slice(-end)}`;
   }
 
-  function bestCandidate(candidates, maxChars) {
-    const clean = candidates.map(normalizeWhitespace).filter(Boolean);
-    const fitting = clean.find(text => text.length <= maxChars);
-    if (fitting) return fitting;
-    return truncateMiddle(clean[clean.length - 1] || 'Unknown', maxChars);
+  function headerNameFitForText(text, layer) {
+    const baseFontSize = headerNameBaseFontSize(layer);
+    const minFontSize = Math.min(baseFontSize, headerNameMinFontSize(layer));
+    const width = Number(layer?.width);
+    const clean = normalizeWhitespace(text);
+    if (!clean || !Number.isFinite(width) || width <= 0) {
+      return { fontSize: roundFontSize(baseFontSize), fits: true };
+    }
+
+    const requiredFontSize = (width * HEADER_TEXT_WIDTH_FIT_RATIO) / Math.max(1, clean.length * HEADER_FONT_WIDTH_RATIO);
+    return {
+      fontSize: roundFontSize(clamp(requiredFontSize, minFontSize, baseFontSize)),
+      fits: requiredFontSize >= minFontSize
+    };
   }
 
-  function compactFoodNameForHeader(food, layer) {
+  function bestFittingHeaderName(candidates, layer) {
+    const clean = candidates.map(normalizeWhitespace).filter(Boolean);
+    for (const text of clean) {
+      const fit = headerNameFitForText(text, layer);
+      if (fit.fits) return { text, fontSize: fit.fontSize };
+    }
+
+    const fallback = clean[clean.length - 1] || 'Unknown';
+    const maxChars = headerNameCharLimit(layer, headerNameMinFontSize(layer));
+    const text = truncateMiddle(fallback, maxChars);
+    return { text, fontSize: headerNameFitForText(text, layer).fontSize };
+  }
+
+  function fitFoodNameForHeader(food, layer) {
     const rawName = food?.header?.displayName
       || food?.displayName
       || food?.shortName
       || food?.name
       || 'Unknown';
-    const maxChars = headerNameCharLimit(layer);
     const override = numberWordsToDigits(HEADER_NAME_OVERRIDES[String(food?.id || '')] || '');
     const displayRawName = numberWordsToDigits(rawName);
+    const lightCompact = lightlyCompactByRules(rawName);
     const compact = compactByRules(rawName);
     const softDropped = removeSoftWords(compact);
-    return bestCandidate([
-      override,
+    const result = bestFittingHeaderName([
       displayRawName,
+      lightCompact,
       compact,
-      softDropped
-    ], maxChars).toUpperCase();
+      softDropped,
+      override
+    ], layer);
+    return {
+      ...result,
+      text: result.text.toUpperCase()
+    };
+  }
+
+  function compactFoodNameForHeader(food, layer) {
+    return fitFoodNameForHeader(food, layer).text;
   }
 
   function clamp(value, min, max) {
     return Math.min(max, Math.max(min, value));
   }
 
+  function roundFontSize(value) {
+    return Math.round(value * 10) / 10;
+  }
+
   window.FOODRANKED_DISPLAY_NAME_UTILS = {
     compactFoodNameForHeader,
+    fitFoodNameForHeader,
     headerNameCharLimit,
     numberWordsToDigits
   };

@@ -96,7 +96,8 @@ The header should feel like a stat-card identity bar.
 
 #### Food name display rules
 - on-screen food names always display number words as numerals, for example `Zero-Sugar` becomes `0-Sugar` and `Two` becomes `2`
-- compact header names may abbreviate words to fit, but must preserve the numeral form
+- header food names should prefer the full or very lightly abbreviated name; shrink the food-name font dynamically for longer names before falling back to heavier abbreviations
+- compact header fallback names may abbreviate words to fit, but must preserve the numeral form
 
 ### Right block: kcal plate
 - badge/card aligned top-right

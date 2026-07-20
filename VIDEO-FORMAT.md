@@ -46,6 +46,7 @@ The header stays visible throughout the video and should contain:
 
 Food-name display rule:
 - on-screen food names always display number words as numerals, for example `Zero-Sugar` becomes `0-Sugar` and `Two` becomes `2`
+- header food names should prefer the full or very lightly abbreviated name; shrink the food-name font dynamically for longer names before falling back to heavier abbreviations
 
 ## Video section structure
 

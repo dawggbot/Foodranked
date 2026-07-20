@@ -62,6 +62,7 @@ Persistent header should contain:
 Food-name display rule:
 - on-screen food names always display number words as numerals, for example `Zero-Sugar` becomes `0-Sugar` and `Two` becomes `2`
 - header food names should prefer the full or very lightly abbreviated name; shrink the food-name font dynamically for longer names before falling back to heavier abbreviations
+- when the header food-name font shrinks, anchor it to the bottom-left of the textbox so it still sits on the food-name line sprite
 
 ### Section structure
 Each video uses 9 video sections:

@@ -1651,6 +1651,7 @@
     node.style.fontSize = `calc(${textLayerFontSize(layer)}px * var(--pixel-unit))`;
     node.style.color = layer.color || '';
     node.style.textAlign = layer.align || 'left';
+    applyTextBaselineAnchor(node, layer);
     if (isContextItemTextLayer(layer)) node.classList.add('context-item-text');
     if (isMicroBarTextboxLayer(layer)) {
       const strokeWidth = Number(layer.textStrokeWidth);
@@ -1678,6 +1679,25 @@
 
   function textLayerFontSize(layer) {
     return Number(layer?.autoFontSize ?? layer?.fontSize) || 6;
+  }
+
+  function textLayerBaselineOffset(layer) {
+    if (layer?.id !== 'food_name_text') return 0;
+    const baseFontSize = Number(layer?.fontSize);
+    const autoFontSize = Number(layer?.autoFontSize);
+    if (!Number.isFinite(baseFontSize) || !Number.isFinite(autoFontSize) || autoFontSize >= baseFontSize) return 0;
+    return Math.round((baseFontSize - autoFontSize) * TEXT_LAYER_LINE_HEIGHT * 1000) / 1000;
+  }
+
+  function applyTextBaselineAnchor(node, layer) {
+    const offset = textLayerBaselineOffset(layer);
+    if (offset > 0) {
+      node.style.transform = `translateY(calc(${offset}px * var(--pixel-unit)))`;
+      node.style.transformOrigin = 'bottom left';
+    } else {
+      node.style.removeProperty('transform');
+      node.style.removeProperty('transform-origin');
+    }
   }
 
   function handleSpriteError(node, layer) {

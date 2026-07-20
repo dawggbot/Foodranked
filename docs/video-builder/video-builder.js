@@ -65,6 +65,7 @@
     { y: 0.78, width: 0.58, height: 1.8, delay: 0.36 }
   ];
   const STAMP_REVEAL_SECONDS = 0.36;
+  const TEXT_LAYER_LINE_HEIGHT = 1.15;
   const FOOD_STAMP_REVEAL_SECONDS = 0.22;
   const STAMP_SHAKE_MAX_PIXELS = 2.8;
   const STAMP_SFX_PATH = 'audio/sfx/stamps/impact-stamp-hit.mp3';
@@ -2939,6 +2940,14 @@
     return Number(layer?.autoFontSize ?? layer?.fontSize) || 6;
   }
 
+  function textLayerBaselineOffset(layer) {
+    if (layer?.id !== 'food_name_text') return 0;
+    const baseFontSize = Number(layer?.fontSize);
+    const autoFontSize = Number(layer?.autoFontSize);
+    if (!Number.isFinite(baseFontSize) || !Number.isFinite(autoFontSize) || autoFontSize >= baseFontSize) return 0;
+    return Math.round((baseFontSize - autoFontSize) * TEXT_LAYER_LINE_HEIGHT * 1000) / 1000;
+  }
+
   function captionFontSize(scene, frame) {
     if (frame.placement === 'tier-center') return 'calc(44px * 0.25 * var(--pixel-unit))';
     if (frame.placement === 'summary-full') return 'calc(22px * 0.25 * var(--pixel-unit))';
@@ -5563,12 +5572,16 @@
   }
 
   function applyLayerAnimation(node, layer, scene, sceneProgress, index, persistent = false, revealSchedule = null, options = {}) {
+    const baselineOffset = textLayerBaselineOffset(layer);
     if (persistent) {
       node.style.opacity = '1';
       const staticTransform = spriteLayerStaticTransform(layer);
       if (staticTransform) {
         node.style.transformOrigin = 'center';
         node.style.transform = staticTransform;
+      } else if (baselineOffset > 0) {
+        node.style.transformOrigin = 'bottom left';
+        node.style.transform = `translate3d(0, calc(${baselineOffset}px * var(--pixel-unit)), 0)`;
       }
       return;
     }
@@ -5659,7 +5672,12 @@
     const totalRotation = rotate + baseRotation;
     const flip = layer.flipY ? ' scaleY(-1)' : '';
     if (options.opaqueSpriteReveal && rawRevealProgress > 0 && !isMacroHeadReveal) opacity = 1;
-    node.style.transformOrigin = isMacroArrowReveal || isOutroTierStamp || isIntroStampSprite || layer.flipY || baseRotation ? 'center' : 'top left';
+    y += baselineOffset;
+    node.style.transformOrigin = isMacroArrowReveal || isOutroTierStamp || isIntroStampSprite || layer.flipY || baseRotation
+      ? 'center'
+      : baselineOffset > 0
+        ? 'bottom left'
+        : 'top left';
     node.style.opacity = String(opacity);
     node.style.transform = `translate3d(calc(${x}px * var(--pixel-unit)), calc(${y}px * var(--pixel-unit)), 0) rotate(${totalRotation.toFixed(2)}deg) scale(${scale})${flip}`;
     if (clip) node.style.clipPath = clip;

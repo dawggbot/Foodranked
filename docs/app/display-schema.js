@@ -61,9 +61,28 @@
     miscellaneous: 'misc'
   };
 
+  const FOOD_TYPE_TITLE_LABELS = {
+    fruits: 'FRUIT',
+    vegetables: 'VEG',
+    grains: 'GRAIN',
+    legumes: 'LEG',
+    tubers: 'TUBER',
+    nuts: 'NUT',
+    seeds: 'SEED',
+    meats: 'MEAT',
+    dairy: 'DAIRY',
+    'oils-and-fats': 'FATS',
+    misc: 'MISC'
+  };
+
   function normalizeFoodType(foodType) {
     const raw = String(foodType || '').trim().toLowerCase();
     return FOOD_TYPE_ALIASES[raw] || raw;
+  }
+
+  function foodTypeTitle(foodType) {
+    const normalized = normalizeFoodType(foodType) || 'misc';
+    return FOOD_TYPE_TITLE_LABELS[normalized] || 'MISC';
   }
 
   function cloneRange(range) {
@@ -97,7 +116,7 @@
   }
 
   window.FOODRANKED_DISPLAY_SCHEMA = {
-    version: '20260624-section-indicator-no-canvas-v1',
+    version: '20260720-food-type-title-fit-v1',
     templateCanvas: TEMPLATE_CANVAS,
     authorGrid: AUTHOR_GRID,
     progressIndicator: TEMPLATE_PROGRESS_INDICATOR,
@@ -105,7 +124,9 @@
     macroFillRanges: MACRO_FILL_RANGES,
     defaultMacroFillRanges: DEFAULT_MACRO_FILL_RANGES,
     foodTypeAliases: FOOD_TYPE_ALIASES,
+    foodTypeTitleLabels: FOOD_TYPE_TITLE_LABELS,
     normalizeFoodType,
+    foodTypeTitle,
     getMacroFillRange,
     getSectionIndicatorLayout
   };

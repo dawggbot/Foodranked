@@ -723,6 +723,13 @@
     return normalized.replace(/-/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
   }
 
+  function foodTypeTitle(foodType) {
+    const helper = window.FOODRANKED_DISPLAY_SCHEMA?.foodTypeTitle;
+    if (typeof helper === 'function') return helper(foodType);
+    const labels = window.FOODRANKED_DISPLAY_SCHEMA?.foodTypeTitleLabels || {};
+    return labels[normalizeFoodType(foodType)] || 'MISC';
+  }
+
   function typeSpriteSlug(foodType) {
     const normalized = normalizeFoodType(foodType);
     return {
@@ -1324,7 +1331,7 @@
     const values = {
       kcal_value_text: String(food?.header?.kcal ?? food?.kcal ?? 'N/A'),
       basis_text: `PER\n${food?.basis?.value || 100}${String(food?.basis?.unit || 'g').toUpperCase()}`,
-      script_caption: prettyFoodType(food?.foodType).toUpperCase(),
+      script_caption: foodTypeTitle(food?.foodType),
       outro_score_value: formatOverallScore(food)
     };
 

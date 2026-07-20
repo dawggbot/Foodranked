@@ -135,6 +135,12 @@
     return normalized.replace(/-/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
   }
 
+  function foodTypeTitle(foodType) {
+    if (typeof DISPLAY_SCHEMA.foodTypeTitle === 'function') return DISPLAY_SCHEMA.foodTypeTitle(foodType);
+    const normalized = normalizeFoodType(foodType);
+    return DISPLAY_SCHEMA.foodTypeTitleLabels?.[normalized] || 'MISC';
+  }
+
   function typeSpriteSlug(foodType) {
     const normalized = normalizeFoodType(foodType);
     const slugs = {
@@ -660,6 +666,7 @@
     getByPath,
     normalizeFoodType,
     prettyFoodType,
+    foodTypeTitle,
     typeSpriteSlug,
     backdropPalette,
     localAssetPath,

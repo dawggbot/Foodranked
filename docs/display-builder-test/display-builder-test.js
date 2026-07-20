@@ -383,7 +383,7 @@
     const values = {
       kcal_value_text: String(food?.header?.kcal ?? food?.kcal ?? 'N/A'),
       basis_text: LOGIC.formatBasis(food),
-      script_caption: LOGIC.prettyFoodType(food?.foodType).toUpperCase()
+      script_caption: LOGIC.foodTypeTitle(food?.foodType)
     };
     for (const sectionId of Object.keys(layout.sections || {})) {
       for (const layer of getSectionLayers(layout, sectionId)) {

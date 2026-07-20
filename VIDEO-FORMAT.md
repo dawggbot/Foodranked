@@ -215,7 +215,7 @@ Rules:
 - macro narration should include why that section matters to the food type, for example fat quality for meats/oils/nuts/seeds, carb behaviour for grains/fruits/legumes/tubers, or protein quality for meats/dairy/legumes
 - worst outstanding explanations should stay short and food-type based, for example whether the weak point matters for meats, grains, vegetables, or another category
 - vitamins and minerals follow the same strongest-plus-weakest pattern for DV-backed values when defensible values exist; if every vitamin mark is low, the section may group them as all-round low while still explaining which vitamins matter for the food type
-- the closing summary should synthesize strengths and weaknesses from across the video, then say what the food is good for and explain why before the final tier reveal
+- the closing summary should synthesize strengths and weaknesses from across the video, then say what the food is good for and explain why before the final tier reveal; normally surface up to three evidence-led use cases when the food has that many real roles
 - generated subtitle cues should be wrapped to a maximum of 2 lines, with a tight default line length so editor/import wrapping does not create a third line
 - generated subtitle wrapping must keep decimal values intact, for example `37.1g` and `12.6g` must not become `37. 1g` or split across cue boundaries
 - the closing summary should use a wider-but-safe centered `summary-full` subtitle placement across the page, then the final `X tier.` cue should use centered `tier-center` placement until a tier sprite replaces it

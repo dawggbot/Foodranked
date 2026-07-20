@@ -1428,7 +1428,7 @@ function rankedFoodUseCases(result) {
   return cases.sort((a, b) => b.score - a.score);
 }
 
-function selectedFoodUseCases(result, limit = 2) {
+function selectedFoodUseCases(result, limit = 3) {
   return rankedFoodUseCases(result).slice(0, limit);
 }
 
@@ -1507,7 +1507,7 @@ function buildWeaknessHighlights(result, limit = 3) {
 }
 
 function buildGoodForLine(result) {
-  const useCases = selectedFoodUseCases(result, 2);
+  const useCases = selectedFoodUseCases(result, 3);
   if (useCases.length === 1 && useCases[0].key === 'narrow_use_cases') {
     return `it is only really good for ${useCases[0].label} because ${useCases[0].reason}`;
   }
@@ -1575,7 +1575,7 @@ function bestUsesLine(result) {
 
 function buildClosing(result) {
   const tier = result.tier;
-  const useCases = selectedFoodUseCases(result, 2);
+  const useCases = selectedFoodUseCases(result, 3);
   const strengthHighlights = buildStrengthHighlights(result, 3);
   const weaknessHighlights = buildWeaknessHighlights(result, 3);
   const overview = polishNarration(buildOverview(result) + '.');

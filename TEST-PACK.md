@@ -24,6 +24,7 @@ It is meant to validate:
 - pros/cons title fit for the 3-line layout-builder textboxes
 - sample input structure for foods
 - narration/subtitle packaging rules: subtitles stay at 2 lines max, subtitles keep compact units, spoken narration expands units, and macro sections include at least one displayed submacro value with good/bad-for context plus food-type section importance
+- closing summary packaging: the final summary highlights strengths and weaknesses, includes evidence-derived good-for use cases with reasons, and keeps the tier reveal as the final separate spoken block
 - protein display contract: generated protein sections keep the four visible rows `collagen_g`, `essential_amino_acids_score`, `nonessential_amino_acids_score`, and `bioavailability_percent`; `protein_g_fallback` may score/narrate but must not appear as a visible display row; visible protein rows display `N/A` only when the protein macro displays `N/A`, otherwise source gaps use labelled display-only estimates/defaults; EAA/NEAA estimates are useful-protein-gated, floor-based, and use non-overlapping integer arrow bands
 
 ## Important note

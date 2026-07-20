@@ -92,7 +92,8 @@ Timing rule:
 ## Closing structure
 
 Ending should include:
-- a super short overview of the best strengths and worst weaknesses
+- a compact closing summary of the best strengths and worst weaknesses from all 7 scored content sections
+- what the food is good for and why, using evidence-derived use cases such as energy, endurance sports, muscles, strength sports, hormone health, bone health, digestion, immune support, heart health, fluid balance, low-calorie volume, low-calorie flavour swaps, practical meals, cooking use, or narrow use cases
 - no narrated overall score
 - final `S-D tier` reveal as its own spoken block (for example `C tier.`)
 - big stamped-in letter under the header on an emptier background
@@ -214,6 +215,7 @@ Rules:
 - macro narration should include why that section matters to the food type, for example fat quality for meats/oils/nuts/seeds, carb behaviour for grains/fruits/legumes/tubers, or protein quality for meats/dairy/legumes
 - worst outstanding explanations should stay short and food-type based, for example whether the weak point matters for meats, grains, vegetables, or another category
 - vitamins and minerals follow the same best-outstanding plus worst-outstanding pattern for DV-backed values when defensible values exist
+- the closing summary should synthesize strengths and weaknesses from across the video, then say what the food is good for and explain why before the final tier reveal
 - generated subtitle cues should be wrapped to a maximum of 2 lines, with a tight default line length so editor/import wrapping does not create a third line
 - generated subtitle wrapping must keep decimal values intact, for example `37.1g` and `12.6g` must not become `37. 1g` or split across cue boundaries
 - the closing summary should use a wider-but-safe centered `summary-full` subtitle placement across the page, then the final `X tier.` cue should use centered `tier-center` placement until a tier sprite replaces it

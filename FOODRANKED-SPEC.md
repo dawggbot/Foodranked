@@ -91,6 +91,7 @@ Additional format rules:
 - protein visible rows display `N/A` only when the protein macro itself displays `N/A`; otherwise missing or protein-gate-skipped protein-quality source values may use labelled display-only estimates/defaults without being written back as source nutrition
 - vitamins use their own sprite treatment while vitamins and minerals keep full-height DV bars
 - pros and cons are bullet points with major or minor labels
+- final verdict narration should summarize the food's strongest strengths and weakest tradeoffs from all sections, then say what the food is good for and why using evidence-derived use cases such as energy, endurance sports, muscles, strength sports, hormone health, bone health, digestion, immune support, heart health, fluid balance, low-calorie volume, low-calorie flavour swaps, practical meals, cooking use, or narrow use cases
 - final screen stamps in the tier result
 
 ### Tier colours

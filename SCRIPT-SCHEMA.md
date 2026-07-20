@@ -34,6 +34,8 @@ It is the bridge between:
 - the best outstanding phrase should stay practical and short, for example what fibre, polyunsaturated fat, omega-3, or amino-acid quality helps with
 - the worst outstanding explanation should be short and food-type based, for example whether that weak point matters for meats, grains, vegetables, or another category
 - vitamin and mineral narration/subtitles follow the same best-outstanding plus worst-outstanding pattern for DV-backed values; skip `N/A` or weakly sourced values rather than padding the line
+- closing summaries should pull together the strongest strengths and weaknesses from all 7 scored sections, then say what the food is good for and why before the separate tier reveal
+- closing "good for" use cases should come from scored evidence and context, not generic filler; likely labels include energy, endurance sports, muscles, strength sports, hormone health, bone health, digestion, immune support, heart health, fluid balance, low-calorie volume, low-calorie flavour swaps, practical meals, cooking use, and narrow use cases
 - food identity and score-readiness context travel with the script payload
 - pros/cons should stay explanation-led, not raw-score-led
 - dead legacy fields like context-item `scoreValue` should not be treated as script truth
@@ -116,7 +118,7 @@ Typical compact order:
 1. `hook_food` → `Bacon!`
 2. `hook_ranked` → `Ranked!`
 3. 7 scored content section blocks
-4. `closing_summary` → very short strengths/weaknesses overview
+4. `closing_summary` → strengths/weaknesses overview plus what the food is good for and why
 5. optional `cta`
 6. `final_reveal`
 
@@ -141,9 +143,23 @@ Narration rules:
 - measurement units in spoken blocks use full words, for example `37.1 grams of fat` and `saturated fat is 12.6 grams`, while the matching subtitle/display text uses `37.1g` and `12.6g`
 - macro, vitamin, and mineral spoken blocks should prefer the strongest available displayed item plus the weakest available displayed item, while keeping each section compact
 - macro spoken blocks should include both standout context and food-type section importance, not just raw values
+- closing summary should mention the main strengths, main weaknesses, and evidence-based best use cases; it should not replace the final tier reveal
 - when the selected vitamin metric is `vitamin_b12_dv`, narration and subtitles must say `Vitamin B12`; never shorten it to generic `Vitamin B`
 - do not narrate the overall score
 - the last spoken block must always be the tier reveal, for example `D tier.`
+
+## `closing`
+
+The closing object contains:
+- `summary` / `overview` - spoken closing summary used in `closing_summary`
+- `useCases[]` - ranked evidence-derived use cases with `key`, `label`, `reason`, and `score`
+- `strengthHighlights[]` - selected strengths from macro, micronutrient, pro, and con context
+- `weaknessHighlights[]` - selected weaknesses from macro, micronutrient, pro, and con context
+- `finalReveal` - the separate final tier block, for example `A tier.`
+- `useCaseNote` - legacy compact use-case line retained for compatibility
+- `cta` - optional CTA text, excluded from normal no-CTA narration blocks
+
+The spoken `summary` should feel like a final verdict: it highlights the food's best strengths and worst weaknesses across the video, then says what it is good for and explains why. The final `X tier.` line stays separate.
 
 ## Protein display contract
 
@@ -249,8 +265,9 @@ Use `explanation` for the longer spoken/context detail.
 
 Current locked behavior:
 - 7 scored content section order stays fixed and matched to the score structure
-- compact narration uses the `FOOD!` / `RANKED!` / section blocks / short overview / final tier reveal flow
+- compact narration uses the `FOOD!` / `RANKED!` / section blocks / closing summary / final tier reveal flow
 - the overview comes immediately before the final tier reveal
+- the overview includes strengths, weaknesses, and what the food is good for with the reason why
 - the final spoken block is always the tier reveal
 - overall score is display-only and should not be narrated
 

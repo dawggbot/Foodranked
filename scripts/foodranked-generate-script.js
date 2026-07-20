@@ -1107,6 +1107,198 @@ function positiveSectionHighlight(result, sectionKey) {
   return null;
 }
 
+function metricNumberForSummary(result, metricKey) {
+  const metric = (result.metricBreakdown || []).find(item => item.metricKey === metricKey);
+  if (metric?.dvPercent !== null && metric?.dvPercent !== undefined) return toFiniteNumber(metric.dvPercent);
+  if (metric?.value !== null && metric?.value !== undefined) return toFiniteNumber(metric.value);
+  if (result.foodMetrics && Object.prototype.hasOwnProperty.call(result.foodMetrics, metricKey)) {
+    return toFiniteNumber(result.foodMetrics[metricKey]);
+  }
+  if (result.header && Object.prototype.hasOwnProperty.call(result.header, metricKey)) {
+    return toFiniteNumber(result.header[metricKey]);
+  }
+  return null;
+}
+
+function summaryContextText(result, side) {
+  return (result.contextItems?.[side] || [])
+    .map(item => `${item.title || ''} ${item.explanation || ''}`)
+    .join(' ')
+    .toLowerCase();
+}
+
+function namedDvSupport(values) {
+  return values
+    .filter(item => Number(item.value) >= Number(item.threshold ?? 10))
+    .map(item => item.label);
+}
+
+function addUseCase(cases, key, label, reason, score) {
+  const safeScore = Number(score);
+  if (!Number.isFinite(safeScore) || safeScore <= 0 || cases.some(item => item.key === key)) return;
+  cases.push({ key, label, reason, score: safeScore });
+}
+
+function rankedFoodUseCases(result) {
+  const cases = [];
+  const type = result.food?.foodType;
+  const prosText = summaryContextText(result, 'pros');
+  const consText = summaryContextText(result, 'cons');
+  const fatsScore = toFiniteNumber(result.sectionScores?.fats) ?? 0;
+  const carbsScore = toFiniteNumber(result.sectionScores?.carbs) ?? 0;
+  const proteinsScore = toFiniteNumber(result.sectionScores?.proteins) ?? 0;
+  const vitaminsScore = toFiniteNumber(result.sectionScores?.vitamins) ?? 0;
+  const mineralsScore = toFiniteNumber(result.sectionScores?.minerals) ?? 0;
+  const processingPenalty = toFiniteNumber(result.processingPenalty) ?? 0;
+  const kcal = toFiniteNumber(result.header?.kcal ?? result.food?.kcal) ?? 0;
+  const fatG = metricNumberForSummary(result, 'fat_g') ?? 0;
+  const carbsG = metricNumberForSummary(result, 'carb_g') ?? metricNumberForSummary(result, 'carbs_g') ?? 0;
+  const proteinG = metricNumberForSummary(result, 'protein_g') ?? 0;
+  const fibreG = metricNumberForSummary(result, 'fibre_g') ?? 0;
+  const omega3Mg = metricNumberForSummary(result, 'omega3_mg') ?? 0;
+  const polyunsaturatedFatG = metricNumberForSummary(result, 'polyunsaturated_fat_g') ?? 0;
+  const saturatedFatG = metricNumberForSummary(result, 'saturated_fat_g') ?? 0;
+  const vitaminC = metricNumberForSummary(result, 'vitamin_c_dv') ?? 0;
+  const vitaminA = metricNumberForSummary(result, 'vitamin_a_dv') ?? 0;
+  const vitaminD = metricNumberForSummary(result, 'vitamin_d_dv') ?? 0;
+  const vitaminB12 = metricNumberForSummary(result, 'vitamin_b12_dv') ?? 0;
+  const calcium = metricNumberForSummary(result, 'calcium_dv') ?? 0;
+  const magnesium = metricNumberForSummary(result, 'magnesium_dv') ?? 0;
+  const potassium = metricNumberForSummary(result, 'potassium_dv') ?? 0;
+  const zinc = metricNumberForSummary(result, 'zinc_dv') ?? 0;
+  const iron = metricNumberForSummary(result, 'iron_dv') ?? 0;
+
+  if (carbsG >= 25 && carbsScore >= 50) {
+    addUseCase(cases, 'energy_endurance', 'energy and endurance sports', 'the carb section gives usable fuel', carbsScore + carbsG);
+  } else if (carbsG >= 15 && carbsScore >= 40) {
+    addUseCase(cases, 'energy', 'energy', 'the carb section gives it a clear fuel role', carbsScore + carbsG);
+  }
+
+  if (proteinG >= 18 && proteinsScore >= 60) {
+    addUseCase(cases, 'muscles_strength', 'muscles and strength sports', 'the protein section supports repair and maintenance', proteinsScore + proteinG);
+  } else if (proteinG >= 10 || proteinsScore >= 60) {
+    addUseCase(cases, 'muscles', 'muscles', 'protein still gives it a muscle-support angle', proteinsScore + proteinG);
+  }
+
+  const hormoneFatCase = fatsScore >= 55 && (
+    (type === 'oils-and-fats' && fatG >= 15 && saturatedFatG <= 20)
+    || (saturatedFatG <= 8 && (polyunsaturatedFatG >= 2 || omega3Mg >= 100 || fatG >= 5))
+  );
+  if (hormoneFatCase) {
+    addUseCase(
+      cases,
+      'hormone_health',
+      'hormone health',
+      type === 'oils-and-fats'
+        ? 'fat quality is its main useful job when portions are controlled'
+        : 'the fat section has enough useful fats for a support role',
+      fatsScore + polyunsaturatedFatG + (omega3Mg / 100)
+    );
+  }
+
+  const boneNutrients = namedDvSupport([
+    { label: 'calcium', value: calcium },
+    { label: 'vitamin D', value: vitaminD },
+    { label: 'magnesium', value: magnesium }
+  ]);
+  if (boneNutrients.length || (mineralsScore >= 30 && calcium >= 5)) {
+    addUseCase(cases, 'bone_health', 'bone health', `${naturalList(boneNutrients.length ? boneNutrients : ['mineral support'])} gives the bone-health case something to work with`, mineralsScore + calcium + vitaminD + magnesium);
+  }
+
+  if (fibreG >= 3 || /\b(ferment|digestion|gut|tolerance|fibre|fiber)\b/.test(prosText)) {
+    addUseCase(cases, 'digestion', 'digestion', fibreG >= 3 ? 'fibre supports digestion and steadier meals' : 'the pros add a digestion or tolerance angle', carbsScore + fibreG * 8);
+  }
+
+  const immuneNutrients = namedDvSupport([
+    { label: 'vitamin C', value: vitaminC },
+    { label: 'vitamin A', value: vitaminA },
+    { label: 'zinc', value: zinc }
+  ]);
+  if (immuneNutrients.length) {
+    addUseCase(cases, 'immune_support', 'immune support', `${naturalList(immuneNutrients)} gives the immune-support side a reason to exist`, vitaminsScore + mineralsScore + vitaminC + vitaminA + zinc);
+  }
+
+  const heartFromFibre = fibreG >= 5;
+  const heartFromOmega = omega3Mg >= 250 && saturatedFatG <= 4 && processingPenalty < 10;
+  const heartFromOilQuality = type === 'oils-and-fats'
+    && fatsScore >= 55
+    && saturatedFatG <= 16
+    && /\b(polyphenol|olive|unsaturated|evoo|fat quality)\b/.test(`${prosText} ${consText}`);
+  const heartFromFatQuality = fatsScore >= 65 && saturatedFatG <= 2 && polyunsaturatedFatG >= 4;
+  if (heartFromFibre || heartFromOmega || heartFromOilQuality || heartFromFatQuality) {
+    const reason = heartFromFibre
+      ? 'fibre supports the heart-health side'
+      : heartFromOilQuality
+        ? 'unsaturated fats and polyphenols make the heart-health angle clearer'
+        : heartFromOmega
+          ? 'omega 3 helps the fat-quality story without a big saturated-fat tradeoff'
+          : 'fat quality supports the heart-health side';
+    addUseCase(cases, 'heart_health', 'heart health', reason, fatsScore + carbsScore + fibreG * 4 + (omega3Mg / 100));
+  }
+
+  if (potassium >= 10) {
+    addUseCase(cases, 'fluid_balance', 'fluid balance', 'potassium gives it electrolyte support', mineralsScore + potassium);
+  }
+
+  if ((kcal > 0 && kcal <= 70 && ['vegetables', 'fruits'].includes(type)) || /\b(volume|satiety|filling)\b/.test(prosText)) {
+    addUseCase(cases, 'low_calorie_volume', 'low-calorie volume', 'it can add bulk or fullness without much calorie pressure', 55 + Math.max(0, 80 - kcal));
+  }
+
+  if ((kcal <= 120 || type === 'misc') && /\b(flavou?r|swap|condiment|season|vinegar|acid|culinary)\b/.test(prosText)) {
+    addUseCase(cases, 'flavour_swaps', 'low-calorie flavour swaps', 'the pros make it useful for adding flavour without much nutrition load', 65 + Math.max(0, 120 - kcal));
+  }
+
+  if (/\b(staple|cheap|batch|easy|convenient|shelf|meal|pair|practical)\b/.test(prosText) || (['grains', 'legumes', 'tubers'].includes(type) && carbsScore >= 45)) {
+    addUseCase(cases, 'practical_meals', 'practical meals', 'the food-type role makes it easy to build meals around', 50 + carbsScore);
+  }
+
+  if (type === 'oils-and-fats' && fatsScore >= 45) {
+    addUseCase(cases, 'cooking_use', 'cooking use', 'the fat section is the main job and the use case depends on controlled portions', fatsScore);
+  }
+
+  if (vitaminB12 >= 10 || iron >= 10) {
+    addUseCase(cases, 'blood_support', 'blood and oxygen support', `${naturalList(namedDvSupport([
+      { label: 'vitamin B12', value: vitaminB12 },
+      { label: 'iron', value: iron }
+    ]))} supports the blood-and-oxygen side`, vitaminsScore + mineralsScore + vitaminB12 + iron);
+  }
+
+  if (!cases.length) {
+    addUseCase(cases, 'narrow_use_cases', 'narrow use cases', 'the sections do not show one strong nutrition job', 1);
+  }
+
+  return cases.sort((a, b) => b.score - a.score);
+}
+
+function selectedFoodUseCases(result, limit = 2) {
+  return rankedFoodUseCases(result).slice(0, limit);
+}
+
+function weakMetricSummaryPhrase(metric) {
+  if (!metric) return null;
+  const label = shortMetricLabel(metric.metricKey);
+  const band = arrowBand(metric);
+  if (metric.scoringMode === 'dv_points') return `low ${label}`;
+  if (band?.color === 'red' && metric.polarity !== 'higher_worse') return `low ${label}`;
+  if ((metric.weightedScore ?? 0) <= 0 && metric.polarity !== 'higher_worse') return `low ${label}`;
+  return label;
+}
+
+function weakSectionHighlight(result, sectionKey) {
+  const score = toFiniteNumber(result.sectionScores?.[sectionKey]);
+  if (score === null || score >= 55) return null;
+  if (sectionKey === 'carbs' && result.food?.foodType === 'misc' && (macroValueForSection(result, sectionKey) ?? 0) <= 1) {
+    return null;
+  }
+  const metrics = ['fats', 'carbs', 'proteins'].includes(sectionKey)
+    ? outstandingMacroMetrics(result, sectionKey, 4)
+    : outstandingMicronMetrics(result, sectionKey, 4, { speakDailyValue: false });
+  const strongest = strongestPositiveMetric(metrics);
+  const weakest = weakestOutstandingMetric(metrics, strongest) || metrics[0];
+  if (!weakest) return sectionKey === 'proteins' ? 'protein' : titleForSection(sectionKey).toLowerCase();
+  return weakMetricSummaryPhrase(weakest);
+}
+
 function uniqueHighlights(items, limit = 2) {
   const out = [];
   const seen = new Set();
@@ -1120,7 +1312,7 @@ function uniqueHighlights(items, limit = 2) {
   return out;
 }
 
-function buildOverview(result) {
+function buildStrengthHighlights(result, limit = 3) {
   const nutritionStrengths = [
     { key: 'fats', phrase: positiveSectionHighlight(result, 'fats'), score: result.sectionScores?.fats ?? -1 },
     { key: 'proteins', phrase: positiveSectionHighlight(result, 'proteins'), score: result.sectionScores?.proteins ?? -1 },
@@ -1129,23 +1321,55 @@ function buildOverview(result) {
     { key: 'minerals', phrase: positiveSectionHighlight(result, 'minerals'), score: result.sectionScores?.minerals ?? -1 }
   ]
     .filter(item => item.phrase)
+    .sort((a, b) => b.score - a.score)
     .map(item => item.phrase);
 
-  const strengths = uniqueHighlights([
+  return uniqueHighlights([
     ...nutritionStrengths,
     ...(result.contextItems?.pros || []).map(shortContextTitle)
-  ], 2);
+  ], limit);
+}
 
-  const weaknesses = uniqueHighlights([
+function buildWeaknessHighlights(result, limit = 3) {
+  const nutritionWeaknesses = [
+    { key: 'fats', phrase: weakSectionHighlight(result, 'fats'), score: result.sectionScores?.fats ?? 101 },
+    { key: 'carbs', phrase: weakSectionHighlight(result, 'carbs'), score: result.sectionScores?.carbs ?? 101 },
+    { key: 'proteins', phrase: weakSectionHighlight(result, 'proteins'), score: result.sectionScores?.proteins ?? 101 },
+    { key: 'vitamins', phrase: weakSectionHighlight(result, 'vitamins'), score: result.sectionScores?.vitamins ?? 101 },
+    { key: 'minerals', phrase: weakSectionHighlight(result, 'minerals'), score: result.sectionScores?.minerals ?? 101 }
+  ]
+    .filter(item => item.phrase)
+    .sort((a, b) => a.score - b.score)
+    .map(item => item.phrase);
+
+  return uniqueHighlights([
+    ...nutritionWeaknesses,
     ...(result.contextItems?.cons || []).map(shortContextTitle)
-  ], 2);
+  ], limit);
+}
 
-  if (strengths.length && weaknesses.length) {
-    return `big strengths are ${naturalList(strengths)}, but the biggest weaknesses are ${naturalList(weaknesses)}`;
+function buildGoodForLine(result) {
+  const useCases = selectedFoodUseCases(result, 2);
+  if (useCases.length === 1 && useCases[0].key === 'narrow_use_cases') {
+    return `it is only really good for ${useCases[0].label} because ${useCases[0].reason}`;
   }
-  if (strengths.length) return `big strengths here are ${naturalList(strengths)}`;
-  if (weaknesses.length) return `the biggest weaknesses are ${naturalList(weaknesses)}`;
-  return `${result.food.name} is pretty mixed overall`;
+  return `it is good for ${naturalList(useCases.map(item => item.label))} because ${naturalList(useCases.map(item => item.reason))}`;
+}
+
+function buildOverview(result) {
+  const strengths = buildStrengthHighlights(result, 3);
+  const weaknesses = buildWeaknessHighlights(result, 3);
+
+  const balanceLine = (() => {
+    if (strengths.length && weaknesses.length) {
+      return `big strengths are ${naturalList(strengths)}, but the biggest weaknesses are ${naturalList(weaknesses)}`;
+    }
+    if (strengths.length) return `big strengths here are ${naturalList(strengths)}`;
+    if (weaknesses.length) return `the biggest weaknesses are ${naturalList(weaknesses)}`;
+    return `${result.food.name} is pretty mixed overall`;
+  })();
+
+  return `${balanceLine}. ${buildGoodForLine(result)}`;
 }
 
 function buildProsConsSection(result, side) {
@@ -1193,11 +1417,17 @@ function bestUsesLine(result) {
 
 function buildClosing(result) {
   const tier = result.tier;
+  const useCases = selectedFoodUseCases(result, 2);
+  const strengthHighlights = buildStrengthHighlights(result, 3);
+  const weaknessHighlights = buildWeaknessHighlights(result, 3);
   const overview = polishNarration(buildOverview(result) + '.');
 
   return {
     summary: overview,
     overview,
+    useCases,
+    strengthHighlights,
+    weaknessHighlights,
     finalReveal: `${tier} tier.`,
     useCaseNote: bestUsesLine(result) + '.',
     cta: 'Would you rank it the same, or nah?'

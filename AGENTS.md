@@ -32,6 +32,7 @@ Work in sympathy with the existing repo. Read the relevant source-of-truth docs 
 - If a metric is not defensibly sourceable for the exact food identity, display `N/A` rather than inventing a value.
 - On-screen food names always display number words as numerals, for example `Zero-Sugar` becomes `0-Sugar` and `Two` becomes `2`; familiar food-name shorthand may be preferred when it is clearer and widely understood, for example `Barbecue Sauce` becomes `BBQ Sauce`, `Apple Cider Vinegar` becomes `ACV`, and `Extra Virgin Olive Oil` becomes `XTRA VIRGIN OLIVE OIL`; for header fit, prefer full or very lightly abbreviated names with dynamic font-size shrinking before using heavier abbreviations; shrunk header food names should anchor bottom-left so they still sit on the food-name line sprite. Header food type titles keep a constant font size and abbreviate the displayed label to fit the existing textbox.
 - Macro narration should explain what selected outstanding submacros are good or bad for, and why that macro section matters to the specific food type.
+- Conclusion summaries should highlight strengths and weaknesses from all sections, then explain what the food is good for and why using evidence-derived use cases such as energy, endurance sports, muscles, strength sports, hormone health, bone health, digestion, immune support, heart health, fluid balance, low-calorie volume, low-calorie flavour swaps, practical meals, cooking use, or narrow use cases.
 - Pros and cons must not merely repeat macro, submacro, vitamin, or mineral points already shown on screen. Prefer antioxidants, polyphenols, fermentation, anti-nutrients, absorbability, sourcing, tolerance, digestion, processing burden, satiety, convenience, and meal role.
 
 ## Video And Narration
@@ -45,7 +46,7 @@ Work in sympathy with the existing repo. Read the relevant source-of-truth docs 
 - Prefer informative shorts over ultra-short ones.
 - Keep all 3 pros and all 3 cons.
 - ElevenLabs narration around 1.15x speed is acceptable.
-- Narration-ready files use the locked ElevenLabs block format: `FOOD!`, `-`, `RANKED!`, `-`, one spoken block per section, short strengths/weaknesses overview, and final `X TIER!`.
+- Narration-ready files use the locked ElevenLabs block format: `FOOD!`, `-`, `RANKED!`, `-`, one spoken block per section, conclusion summary, and final `X TIER!`.
 - Pros/cons should sound like direct on-screen-item narration.
 - Overall score is display-only and must not be spoken.
 - The final spoken block must always be `X tier.`

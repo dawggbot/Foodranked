@@ -24,6 +24,9 @@
 - vitamins and minerals follow the same pattern when defensible values exist: best outstanding DV-backed micronutrient, worst outstanding DV-backed micronutrient, skip `N/A`
 - if the rest are weak, generalise as: `everything else is lackluster`
 - read pros and cons bullets fully, word for word
+- the closing summary should recap the strongest strengths and weaknesses from across all sections, then say what the food is good for and why
+- closing "good for" labels should be evidence-led, using labels such as energy, endurance sports, muscles, strength sports, hormone health, bone health, digestion, immune support, heart health, fluid balance, low-calorie volume, low-calorie flavour swaps, practical meals, cooking use, or narrow use cases
+- keep the final tier reveal as its own last line, not folded into the summary
 
 ## Voice rules
 - talk to the viewer directly
@@ -52,5 +55,5 @@ Example section lines:
 ## Script shape goal
 - opener
 - 7 short sections
-- quick summary
+- closing summary with strengths, weaknesses, and what the food is good for
 - final tier line ending on `S-D tier`

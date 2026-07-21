@@ -877,7 +877,7 @@
       arrowResolver: 'adapted from docs/app/index.html arrowPresentationForSpec and syncArrowLayersToPresentation',
       macroFillRanges: 'FOODRANKED_DISPLAY_SCHEMA.getMacroFillRange',
       experimentalBindingMap: 'docs/display-builder-v2/macro-bindings.js macro, vitamin, mineral, and pros/cons bindings',
-      storage: 'reads layout-builder keys only; writes foodranked-display-builder-v2-state-v1'
+      storage: 'reads layout-builder keys; writes foodranked-display-builder-v2-state-v1 and foodranked-display-builder-v2-placement-layouts-v1'
     };
   }
 

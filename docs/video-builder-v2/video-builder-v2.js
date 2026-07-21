@@ -1,9 +1,8 @@
 (function () {
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
-  const DISPLAY_BUILDER_V2_FOOD_LAYOUTS_KEY = 'foodranked-layout-builder-food-layouts-v1';
-  const LEGACY_DISPLAY_BUILDER_FOOD_LAYOUTS_KEY = 'foodranked-display-builder-food-layouts-v1';
+  const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260721-video-builder-v2-display-v2-food-layouts-v1';
+  const BUILDER_BUILD_ID = '20260721-video-builder-v2-display-v2-placement-v1';
   const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -132,21 +131,43 @@
   const MACRO_BAR_GIF_NATIVE_SECONDS = 8.1;
   const MACRO_BAR_FULL_SFX_SOURCE_SECONDS = Math.min(MACRO_BAR_FILL_SFX_SOURCE_SECONDS, MACRO_BAR_GIF_NATIVE_SECONDS);
   const MACRO_BAR_MIN_VISIBLE_FILL_RATIO = 0.0011;
-  const MACRO_BAR_PLACEMENT_SOURCE_FOOD_ID = 'bacon';
-  const MACRO_BAR_PLACEMENT_SOURCE_SECTION_ID = 'fats';
-  const MACRO_BAR_PLACEMENT_SECTIONS = ['fats', 'carbs', 'protein'];
-  const MACRO_BAR_PLACEMENT_KEYS = [
+  const DISPLAY_BUILDER_V2_PLACEMENT_KEYS = [
     'x',
     'y',
     'z',
     'width',
     'height',
+    'visible',
     'preserveAspect',
+    'aspectRatio',
+    'naturalWidth',
+    'naturalHeight',
+    'rotation',
+    'rotate',
+    'flipX',
+    'flipY',
     'manualPosition',
     'centerAnchor',
     'centerOffsetX',
     'centerOffsetY',
-    'aspectRatio'
+    'fontSize',
+    'autoFontSize',
+    'align',
+    'textAlign',
+    'lineHeight',
+    'textBoxHeight',
+    'textStrokeWidth',
+    'textStrokeColor',
+    'color',
+    'textGlowColor',
+    'manualText',
+    'layoutBuilderManualText',
+    'generatedForDisplayV2',
+    'generatedForDisplayV2Percent',
+    'foodDriven',
+    'effect',
+    'animationDelay',
+    'sparkleDelay'
   ];
   const MACRO_ROW_AFTER_BAR_SECONDS = 0.14;
   const MACRO_BAR_GIF_FRAME_STEPS = 80;
@@ -438,12 +459,8 @@
     const food = selectedFood();
     const foodImageIds = [...AVAILABLE_FOOD_IMAGE_IDS].sort();
     const displayBuilderV2State = readDisplayBuilderV2State();
-    const displayBuilderV2FoodLayout = food?.id
-      ? loadFoodLayoutMap(DISPLAY_BUILDER_V2_FOOD_LAYOUTS_KEY)[food.id]
-      : null;
-    const legacyDisplayBuilderFoodLayout = food?.id
-      ? loadFoodLayoutMap(LEGACY_DISPLAY_BUILDER_FOOD_LAYOUTS_KEY)[food.id]
-      : null;
+    const placementExport = readDisplayBuilderV2PlacementExport();
+    const placementEntry = food?.id ? placementExport.layouts?.[food.id] : null;
     const selectedSource = selectedLayoutSourceOption();
     const sourceLabel = selectedSource
       ? `${selectedSource.label} (${selectedSource.kind})`
@@ -456,8 +473,8 @@
       `layout source: ${sourceLabel}`,
       `display-builder v2 selected food: ${displayBuilderV2State.selectedFoodId || 'none'}`,
       `display-builder v2 selected layout: ${displayBuilderV2State.selectedLayoutKey || 'none'}`,
-      `display-builder v2 food layout present: ${displayBuilderV2FoodLayout ? 'yes' : 'no'}`,
-      `legacy display-builder food layout present: ${legacyDisplayBuilderFoodLayout ? 'yes' : 'no'}`,
+      `display-builder v2 placement export present: ${placementEntry ? 'yes' : 'no'}`,
+      `display-builder v2 placement exported at: ${placementEntry?.exportedAt || 'none'}`,
       `selected food: ${food?.id || 'none'} (${food?.name || 'unknown'})`,
       `layout layers: ${allLayerCount}`,
       `repo default layers: ${defaultLayoutLayerCount()}`,
@@ -971,8 +988,8 @@
     return saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {};
   }
 
-  function loadFoodLayoutMap(storageKey = DISPLAY_BUILDER_V2_FOOD_LAYOUTS_KEY) {
-    const saved = readJson(localStorage.getItem(storageKey), {});
+  function readDisplayBuilderV2PlacementExport() {
+    const saved = readJson(localStorage.getItem(DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY), {});
     return saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {};
   }
 
@@ -981,52 +998,43 @@
     return food?.name || foodId;
   }
 
-  function normalizeDisplayBuilderV2FoodLayoutOption(foodId, layout, { legacy = false } = {}) {
+  function normalizeDisplayBuilderV2PlacementOption(foodId, entry) {
+    const layout = entry?.layout;
     if (!foodId || !validLayout(layout)) return null;
     const cloned = normalizeLayoutSections(clone(layout));
-    const label = legacy ? 'Display Builder food layout fallback' : 'Display Builder v2 food layout';
-    const sourceKey = legacy ? LEGACY_DISPLAY_BUILDER_FOOD_LAYOUTS_KEY : DISPLAY_BUILDER_V2_FOOD_LAYOUTS_KEY;
     return {
-      id: `${legacy ? 'display-builder' : 'display-builder-v2'}-food:${foodId}`,
-      label: `${selectedFoodLabel(foodId)} · ${label}`,
-      kind: label,
-      sourceName: legacy ? 'Display Builder' : 'Display Builder v2',
-      updatedAt: cloned.meta?.updatedAt || cloned.updatedAt || '',
+      id: `display-builder-v2-placement:${foodId}`,
+      label: `${selectedFoodLabel(foodId)} · Display Builder v2 placement`,
+      kind: 'Display Builder v2 placement export',
+      sourceName: 'Display Builder v2',
+      updatedAt: entry.exportedAt || cloned.meta?.exportedAt || '',
       layout: normalizeLayoutSections({
         ...cloned,
         meta: {
           ...(cloned.meta || {}),
-          source: sourceKey,
-          sourceBuilder: legacy ? 'display-builder' : 'display-builder-v2',
+          source: DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY,
+          sourceBuilder: 'display-builder-v2',
           foodId
         }
-      })
+      }),
+      placementLayout: normalizeLayoutSections(clone(cloned))
     };
   }
 
   function layoutSourceOptions() {
     const food = selectedFood();
     const options = [];
-    const displayBuilderV2Layout = normalizeDisplayBuilderV2FoodLayoutOption(
+    const placementEntry = readDisplayBuilderV2PlacementExport().layouts?.[food?.id];
+    const displayBuilderV2Placement = normalizeDisplayBuilderV2PlacementOption(
       food?.id,
-      loadFoodLayoutMap(DISPLAY_BUILDER_V2_FOOD_LAYOUTS_KEY)[food?.id]
+      placementEntry
     );
-    let legacyFoodLayout = null;
-    if (displayBuilderV2Layout) {
-      options.push(displayBuilderV2Layout);
-    } else {
-      legacyFoodLayout = normalizeDisplayBuilderV2FoodLayoutOption(
-        food?.id,
-        loadFoodLayoutMap(LEGACY_DISPLAY_BUILDER_FOOD_LAYOUTS_KEY)[food?.id],
-        { legacy: true }
-      );
-      if (legacyFoodLayout) options.push(legacyFoodLayout);
-    }
+    if (displayBuilderV2Placement) options.push(displayBuilderV2Placement);
 
     options.push({
       id: 'default',
-      label: food?.id && !displayBuilderV2Layout && !legacyFoodLayout
-        ? `Repo default layout (no Display Builder v2 food layout for ${selectedFoodLabel(food.id)})`
+      label: food?.id && !displayBuilderV2Placement
+        ? `Repo default layout (open Display Builder v2 once to export ${selectedFoodLabel(food.id)} placement)`
         : 'Repo default layout',
       kind: 'repo default layout',
       sourceName: 'Repo default',
@@ -1043,10 +1051,51 @@
     return options.find(option => option.id === state.layoutSourceId) || options[0] || null;
   }
 
-  function selectedLayoutBase() {
-    const selected = selectedLayoutSourceOption();
+  function selectedLayoutBase(selected = selectedLayoutSourceOption()) {
     if (selected && state.layoutSourceId !== selected.id) state.layoutSourceId = selected.id;
     return clone(selected?.layout || defaultLayout());
+  }
+
+  function displayBuilderV2PlacementKey(layer) {
+    if (!layer?.id || !layer.kind) return '';
+    if (layer.kind !== 'sprite' && layer.kind !== 'text') return '';
+    return `${layer.kind}:${layer.id}`;
+  }
+
+  function displayBuilderV2PlacementMap(layout, sectionId) {
+    const map = new Map();
+    getSectionLayers(layout, sectionId).forEach(layer => {
+      const key = displayBuilderV2PlacementKey(layer);
+      if (key) map.set(key, layer);
+    });
+    return map;
+  }
+
+  function copyDisplayBuilderV2Placement(targetLayer, sourceLayer) {
+    if (!targetLayer || !sourceLayer) return false;
+    let changed = false;
+    DISPLAY_BUILDER_V2_PLACEMENT_KEYS.forEach(key => {
+      if (!Object.prototype.hasOwnProperty.call(sourceLayer, key)) return;
+      const nextValue = clone(sourceLayer[key]);
+      if (targetLayer[key] === nextValue) return;
+      targetLayer[key] = nextValue;
+      changed = true;
+    });
+    return changed;
+  }
+
+  function applyDisplayBuilderV2Placement(layout, placementLayout) {
+    if (!validLayout(layout) || !validLayout(placementLayout)) return 0;
+    let changedCount = 0;
+    SECTIONS.forEach(section => {
+      const sourceByKey = displayBuilderV2PlacementMap(placementLayout, section.id);
+      if (!sourceByKey.size) return;
+      getSectionLayers(layout, section.id).forEach(layer => {
+        const sourceLayer = sourceByKey.get(displayBuilderV2PlacementKey(layer));
+        if (copyDisplayBuilderV2Placement(layer, sourceLayer)) changedCount += 1;
+      });
+    });
+    return changedCount;
   }
 
   function getSectionLayers(layout, sectionId) {
@@ -1641,69 +1690,6 @@
     return isSpriteLayer(layer) && /(macro_bar_fill|bar_fill|macro bar fill)/.test(fingerprint);
   }
 
-  function macroBarPlacementLayer(layout, sectionId, layerKind) {
-    const layers = getSectionLayers(layout, sectionId);
-    if (layerKind === 'fill') {
-      return layers.find(layer => isMacroBarFill(layer) && macroBarLayerSection(layer, sectionId) === sectionId) || null;
-    }
-    if (layerKind === 'frame') {
-      return layers.find(layer => isMacroBarFrame(layer) && macroBarLayerSection(layer, sectionId) === sectionId) || null;
-    }
-    return null;
-  }
-
-  function macroBarPlacementSnapshot(layer) {
-    if (!layer) return null;
-    const placement = {};
-    for (const key of MACRO_BAR_PLACEMENT_KEYS) {
-      if (Object.prototype.hasOwnProperty.call(layer, key)) placement[key] = layer[key];
-    }
-    return Object.keys(placement).length ? placement : null;
-  }
-
-  function baconFatsMacroBarPlacementTemplateFromLayout(layout) {
-    if (!layout?.sections) return null;
-    const fill = macroBarPlacementSnapshot(macroBarPlacementLayer(layout, MACRO_BAR_PLACEMENT_SOURCE_SECTION_ID, 'fill'));
-    const frame = macroBarPlacementSnapshot(macroBarPlacementLayer(layout, MACRO_BAR_PLACEMENT_SOURCE_SECTION_ID, 'frame'));
-    return fill || frame ? { fill, frame } : null;
-  }
-
-  function savedBaconMacroBarPlacementTemplate() {
-    const displayBuilderV2Layout = loadFoodLayoutMap(DISPLAY_BUILDER_V2_FOOD_LAYOUTS_KEY)[MACRO_BAR_PLACEMENT_SOURCE_FOOD_ID];
-    const displayBuilderLayout = loadFoodLayoutMap(LEGACY_DISPLAY_BUILDER_FOOD_LAYOUTS_KEY)[MACRO_BAR_PLACEMENT_SOURCE_FOOD_ID];
-    return baconFatsMacroBarPlacementTemplateFromLayout(displayBuilderV2Layout)
-      || baconFatsMacroBarPlacementTemplateFromLayout(displayBuilderLayout);
-  }
-
-  function baconMacroBarPlacementTemplateForLayout(layout) {
-    if (layout?.selectedFoodId === MACRO_BAR_PLACEMENT_SOURCE_FOOD_ID) {
-      return baconFatsMacroBarPlacementTemplateFromLayout(layout);
-    }
-    return savedBaconMacroBarPlacementTemplate();
-  }
-
-  function applyMacroBarPlacementToLayer(layer, placement) {
-    if (!layer || !placement) return false;
-    let changed = false;
-    for (const key of MACRO_BAR_PLACEMENT_KEYS) {
-      if (!Object.prototype.hasOwnProperty.call(placement, key)) continue;
-      if (layer[key] === placement[key]) continue;
-      layer[key] = placement[key];
-      changed = true;
-    }
-    return changed;
-  }
-
-  function applyBaconMacroBarPlacementTemplate(layout, template) {
-    if (!layout?.sections || !template) return false;
-    let changed = false;
-    for (const sectionId of MACRO_BAR_PLACEMENT_SECTIONS) {
-      changed = applyMacroBarPlacementToLayer(macroBarPlacementLayer(layout, sectionId, 'fill'), template.fill) || changed;
-      changed = applyMacroBarPlacementToLayer(macroBarPlacementLayer(layout, sectionId, 'frame'), template.frame) || changed;
-    }
-    return changed;
-  }
-
   const MACRO_BAR_LAYER_SPECS = {
     fats: {
       fillId: 'fats_macro_bar_fill',
@@ -2190,7 +2176,8 @@
 
   function hydrateLayoutForFood() {
     const food = selectedFood();
-    const layout = selectedLayoutBase();
+    const selectedSource = selectedLayoutSourceOption();
+    const layout = selectedLayoutBase(selectedSource);
     normalizeOutroScoreLayout(layout);
     ensureOutroTierStampLayer(layout, food);
     ensureMacroTextLayers(layout);
@@ -2202,17 +2189,17 @@
     syncMacroTotalText(layout, food);
     syncMacroText(layout, food);
     syncMacroBars(layout, food);
-    applyBaconMacroBarPlacementTemplate(layout, baconMacroBarPlacementTemplateForLayout(layout));
     syncMacroArrows(layout, food);
     syncMicros(layout, food, 'vitamins', VITAMIN_TEXT_SPECS, 'vitamins_label', 'vitamins_percent');
     syncMicros(layout, food, 'minerals', MINERAL_TEXT_SPECS, 'minerals_label', 'minerals_percent');
     syncProsCons(layout, food);
+    const placementOverrideCount = applyDisplayBuilderV2Placement(layout, selectedSource?.placementLayout);
     filterDeletedLayers(layout);
     state.layout = layout;
     prewarmMacroBarGifVariants(layout, food);
-    const selectedSource = selectedLayoutSourceOption();
     const layoutLabel = selectedSource?.label || 'Repo default layout';
-    els.layoutStatus.textContent = `${layoutLabel} · ${BUILDER_BUILD_ID}`;
+    const placementNote = placementOverrideCount ? ` · ${placementOverrideCount} placements copied` : '';
+    els.layoutStatus.textContent = `${layoutLabel}${placementNote} · ${BUILDER_BUILD_ID}`;
   }
 
   function captionFromEpisode(food, sectionId) {
@@ -5841,8 +5828,7 @@
   window.addEventListener('storage', event => {
     if ([
       DISPLAY_BUILDER_V2_STATE_KEY,
-      DISPLAY_BUILDER_V2_FOOD_LAYOUTS_KEY,
-      LEGACY_DISPLAY_BUILDER_FOOD_LAYOUTS_KEY
+      DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY
     ].includes(event.key)) {
       hydrateLayoutForFood();
       renderAll();

@@ -25,6 +25,8 @@
   const LAYOUT_BUILDER_FOOD_LAYOUTS_KEY = 'foodranked-layout-builder-food-layouts-v1';
   const LAYOUT_BUILDER_SAVED_KEY = 'foodranked-layout-builder-sprite-layouts-v1';
   const TEST_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
+  const PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
+  const PLACEMENT_EXPORT_LIMIT = 60;
   const FOOD_JSON_CACHE = new Map();
   const BATCH_RESULTS_CACHE = new Map();
   const TEXT_LAYER_CLIP_BLEED = 2;
@@ -45,6 +47,50 @@
   const MACRO_BAR_GIF_SOURCE_CACHE = new Map();
   const MACRO_BAR_GIF_FRAME_CACHE = new Map();
   const renderToken = { value: 0 };
+  const PLACEMENT_LAYER_KEYS = [
+    'id',
+    'kind',
+    'label',
+    'src',
+    'fallbackSrc',
+    'x',
+    'y',
+    'z',
+    'width',
+    'height',
+    'visible',
+    'preserveAspect',
+    'aspectRatio',
+    'naturalWidth',
+    'naturalHeight',
+    'rotation',
+    'rotate',
+    'flipX',
+    'flipY',
+    'manualPosition',
+    'centerAnchor',
+    'centerOffsetX',
+    'centerOffsetY',
+    'fontSize',
+    'autoFontSize',
+    'align',
+    'textAlign',
+    'lineHeight',
+    'textBoxHeight',
+    'textStrokeWidth',
+    'textStrokeColor',
+    'color',
+    'textGlowColor',
+    'manualText',
+    'layoutBuilderManualText',
+    'generatedForDisplayV2',
+    'generatedForDisplayV2Percent',
+    'foodDriven',
+    'effect',
+    'animationDelay',
+    'sparkleDelay',
+    'text'
+  ];
 
   const DEFAULT_BACKGROUND = {
     color: '#d6d6d6'
@@ -272,6 +318,85 @@
 
   function selectedLayoutOption() {
     return state.layoutOptions.find(option => option.key === state.selectedLayoutKey) || state.layoutOptions[0] || null;
+  }
+
+  function readPlacementExport() {
+    const parsed = parseStorageJson(PLACEMENT_EXPORT_KEY, {});
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+  }
+
+  function placementLayerSnapshot(layer) {
+    if (!layer || (!isSpriteLayer(layer) && !isTextLayer(layer))) return null;
+    const snapshot = {};
+    PLACEMENT_LAYER_KEYS.forEach(key => {
+      if (Object.prototype.hasOwnProperty.call(layer, key)) snapshot[key] = LOGIC.clone(layer[key]);
+    });
+    return snapshot.id && snapshot.kind ? snapshot : null;
+  }
+
+  function placementLayoutSnapshot(layout, food, layoutOption, exportedAt) {
+    const sections = {};
+    DISPLAY_SECTIONS.forEach(sectionId => {
+      sections[sectionId] = {
+        layers: getSectionLayers(layout, sectionId)
+          .map(placementLayerSnapshot)
+          .filter(Boolean)
+      };
+    });
+    return normalizeLayoutSections({
+      canvas: LOGIC.clone(layout?.canvas || {}),
+      selectedFoodId: food?.id || state.selectedFoodId,
+      selectedSectionId: state.selectedSectionId,
+      sections,
+      meta: {
+        source: PLACEMENT_EXPORT_KEY,
+        sourceBuilder: 'display-builder-v2',
+        sourceLayoutKey: layoutOption?.key || '',
+        sourceLayoutName: layoutOption?.name || '',
+        exportedAt
+      }
+    });
+  }
+
+  function writeRenderedPlacementExport(layout, food, layoutOption) {
+    if (!validLayout(layout) || !food?.id) return;
+    const exportedAt = new Date().toISOString();
+    const entry = {
+      foodId: food.id,
+      foodName: food.name || food.id,
+      foodType: food.foodType || '',
+      sourceLayoutKey: layoutOption?.key || '',
+      sourceLayoutName: layoutOption?.name || '',
+      selectedSectionId: state.selectedSectionId,
+      exportedAt,
+      layout: placementLayoutSnapshot(layout, food, layoutOption, exportedAt)
+    };
+    const existing = readPlacementExport();
+    const layouts = existing.layouts && typeof existing.layouts === 'object' && !Array.isArray(existing.layouts)
+      ? existing.layouts
+      : {};
+    layouts[food.id] = entry;
+    const orderedEntries = Object.values(layouts)
+      .filter(item => item?.foodId && item.layout)
+      .sort((a, b) => String(b.exportedAt || '').localeCompare(String(a.exportedAt || '')))
+      .slice(0, PLACEMENT_EXPORT_LIMIT);
+    const payload = {
+      version: 1,
+      key: PLACEMENT_EXPORT_KEY,
+      currentFoodId: food.id,
+      updatedAt: exportedAt,
+      layouts: Object.fromEntries(orderedEntries.map(item => [item.foodId, item]))
+    };
+    try {
+      localStorage.setItem(PLACEMENT_EXPORT_KEY, JSON.stringify(payload));
+    } catch {
+      try {
+        localStorage.setItem(PLACEMENT_EXPORT_KEY, JSON.stringify({
+          ...payload,
+          layouts: { [food.id]: entry }
+        }));
+      } catch {}
+    }
   }
 
   function selectedFoodStub() {
@@ -1854,6 +1979,7 @@
 
     const layout = resolveLayout(layoutOption, food);
     state.renderedLayout = layout;
+    writeRenderedPlacementExport(layout, food, layoutOption);
     renderCanvas(layout, food);
     updateTextFitReport();
     renderProgrammerPanel(food, layoutOption);
@@ -1939,7 +2065,7 @@
     renderAll,
     storageKeys: {
       read: [LAYOUT_BUILDER_WORKING_KEY, LAYOUT_BUILDER_SAVED_KEY, LAYOUT_BUILDER_FOOD_LAYOUTS_KEY],
-      write: [TEST_STATE_KEY]
+      write: [TEST_STATE_KEY, PLACEMENT_EXPORT_KEY]
     }
   };
 

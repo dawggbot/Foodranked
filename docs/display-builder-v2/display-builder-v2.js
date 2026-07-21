@@ -89,6 +89,9 @@
     'effect',
     'animationDelay',
     'sparkleDelay',
+    'fillRatio',
+    'fillRange',
+    'fillValue',
     'text'
   ];
 

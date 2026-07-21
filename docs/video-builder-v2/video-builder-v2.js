@@ -2,11 +2,12 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260721-rebuild-display-v2-source-v1';
+  const BUILDER_BUILD_ID = '20260721-binary-glow-bottom-indicators-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
   const SECTION_INDICATOR_LAYOUT = window.FOODRANKED_DISPLAY_SCHEMA?.sectionIndicatorLayout || { startX: 42.875, y: 178, stepX: 5.75, normalSize: 3.25, highlightedSize: 3.9 };
+  const SECTION_INDICATOR_BOTTOM_MARGIN = 4;
   const CAPTION_SAFE_X = 7;
   const CAPTION_MAX_LINES = 2;
   const CAPTION_MAX_LINE_CHARS = 18;
@@ -885,6 +886,21 @@
     return Math.max(0, (SECTION_INDICATOR_LAYOUT.highlightedSize - SECTION_INDICATOR_LAYOUT.normalSize) / 2);
   }
 
+  function videoSectionIndicatorPosition(index, active = false) {
+    const count = SECTIONS.length || SECTION_INDICATOR_LAYOUT.count || 9;
+    const normalSize = Number(SECTION_INDICATOR_LAYOUT.normalSize) || 3.25;
+    const highlightedSize = Number(SECTION_INDICATOR_LAYOUT.highlightedSize) || normalSize;
+    const stepX = Number(SECTION_INDICATOR_LAYOUT.stepX) || 5.75;
+    const highlightOffset = Math.max(0, (highlightedSize - normalSize) / 2);
+    const rowWidth = ((count - 1) * stepX) + normalSize;
+    const startX = (AUTHOR_GRID.width - rowWidth) / 2;
+    const y = AUTHOR_GRID.height - SECTION_INDICATOR_BOTTOM_MARGIN - highlightedSize + highlightOffset;
+    return {
+      x: startX + (index * stepX) - (active ? highlightOffset : 0),
+      y: y - (active ? highlightOffset : 0)
+    };
+  }
+
   function readDisplayBuilderV2State() {
     const saved = readJson(localStorage.getItem(DISPLAY_BUILDER_V2_STATE_KEY), {});
     return saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {};
@@ -1129,6 +1145,10 @@
     return SECTIONS.some(section => isManagedSectionIndicatorId(id, section.id));
   }
 
+  function isManagedSectionIndicatorLayer(layer) {
+    return isSectionIndicator(layer) && isAnyManagedSectionIndicatorId(layer?.id);
+  }
+
   function isOutroTierStamp(layer) {
     const fingerprint = `${layer?.id || ''} ${layer?.label || ''} ${layer?.effect || ''}`.toLowerCase();
     return fingerprint.includes('outro_d_tier_stamp') || fingerprint.includes('d-tier-stamp');
@@ -1136,7 +1156,7 @@
 
   function isPersistentChrome(layer) {
     if (isOutroTierStamp(layer)) return false;
-    return isHeaderSprite(layer) || isHeaderText(layer) || (isUiSprite(layer) && !isSectionIndicator(layer));
+    return isHeaderSprite(layer) || isHeaderText(layer) || isManagedSectionIndicatorLayer(layer) || (isUiSprite(layer) && !isSectionIndicator(layer));
   }
 
   function isHeaderChrome(layer) {
@@ -1148,39 +1168,61 @@
   }
 
   function defaultSectionIndicatorPosition(index) {
-    return {
-      x: SECTION_INDICATOR_LAYOUT.startX + (index * SECTION_INDICATOR_LAYOUT.stepX),
-      y: SECTION_INDICATOR_LAYOUT.y
-    };
+    return videoSectionIndicatorPosition(index, false);
   }
 
-  function createSectionIndicatorLayer(sectionId, index, food) {
-    const position = defaultSectionIndicatorPosition(index);
+  function createSectionIndicatorLayer(sectionId, index, food, activeSectionId = sectionId) {
+    const active = sectionId === activeSectionId;
+    const position = videoSectionIndicatorPosition(index, active);
+    const size = active
+      ? SECTION_INDICATOR_LAYOUT.highlightedSize
+      : SECTION_INDICATOR_LAYOUT.normalSize;
     return {
       id: `${sectionId}_indicator_${index + 1}`,
       kind: 'sprite',
-      label: 'Section indicator',
-      src: indicatorPath(food, false),
+      label: active ? 'Highlighted section indicator' : 'Section indicator',
+      src: indicatorPath(food, active),
       x: position.x,
       y: position.y,
-      z: 25,
-      width: SECTION_INDICATOR_LAYOUT.normalSize,
-      height: SECTION_INDICATOR_LAYOUT.normalSize,
+      z: 120,
+      width: size,
+      height: size,
       visible: true,
       foodDriven: true,
       preserveAspect: false
     };
   }
 
-  function syncManagedSectionIndicatorPosition(layer, sectionId, index) {
+  function syncManagedSectionIndicatorPosition(layer, sectionId, index, food, activeSectionId = sectionId) {
     if (!isManagedSectionIndicatorId(layer?.id, sectionId)) return;
-    const position = defaultSectionIndicatorPosition(index);
+    const active = sectionId === activeSectionId;
+    const position = videoSectionIndicatorPosition(index, active);
+    const size = active
+      ? SECTION_INDICATOR_LAYOUT.highlightedSize
+      : SECTION_INDICATOR_LAYOUT.normalSize;
     layer.x = position.x;
     layer.y = position.y;
+    layer.z = 120;
+    layer.src = indicatorPath(food, active);
+    layer.width = size;
+    layer.height = size;
+    layer.label = active ? 'Highlighted section indicator' : 'Section indicator';
   }
 
   function ensureSectionIndicatorLayers(layout, food) {
-    // Managed section indicators are disabled while the row is being rebuilt.
+    if (!validLayout(layout)) return;
+    for (const activeSection of SECTIONS) {
+      const section = layout.sections[activeSection.id] || { layers: [] };
+      const contentLayers = getSectionLayers(layout, activeSection.id)
+        .filter(layer => !isSectionIndicator(layer) && !isAnyManagedSectionIndicatorId(layer?.id));
+      const indicatorLayers = SECTIONS.map((sectionForDot, index) => (
+        createSectionIndicatorLayer(sectionForDot.id, index, food, activeSection.id)
+      ));
+      layout.sections[activeSection.id] = {
+        ...section,
+        layers: [...contentLayers, ...indicatorLayers]
+      };
+    }
   }
 
   function compareIndicatorsByPosition(a, b) {
@@ -1419,7 +1461,14 @@
   }
 
   function syncSectionIndicators(layout, food) {
-    // Managed section indicators are disabled while the row is being rebuilt.
+    if (!validLayout(layout)) return;
+    for (const activeSection of SECTIONS) {
+      const layers = getSectionLayers(layout, activeSection.id);
+      SECTIONS.forEach((sectionForDot, index) => {
+        const layer = layers.find(item => isManagedSectionIndicatorId(item?.id, sectionForDot.id));
+        if (layer) syncManagedSectionIndicatorPosition(layer, sectionForDot.id, index, food, activeSection.id);
+      });
+    }
   }
 
   function syncMacroText(layout, food) {
@@ -2146,6 +2195,8 @@
     }
     state.layout = layout;
     state.displayBuilderExportStatus = 'ready';
+    ensureSectionIndicatorLayers(layout, food);
+    syncSectionIndicators(layout, food);
     prewarmMacroBarGifVariants(layout, food);
     const layoutLabel = selectedSource?.label || 'Display Builder v2 placement';
     els.layoutStatus.textContent = 'DBv2 ready';
@@ -3853,10 +3904,9 @@
   }
 
   function micronMetricHighlightColor(sectionId, columnIndex) {
-    const step = micronStepForColumn(sectionId, columnIndex);
-    if (step == null) return SUBMACRO_VALUE_COLORS.red;
-    if (step >= 2) return SUBMACRO_VALUE_COLORS.green;
-    return SUBMACRO_VALUE_COLORS.red;
+    const value = micronDvValue(sectionId, columnIndex);
+    if (value == null || value < 10) return SUBMACRO_VALUE_COLORS.red;
+    return SUBMACRO_VALUE_COLORS.green;
   }
 
   function micronDvValue(sectionId, columnIndex, food = selectedFood()) {
@@ -3868,27 +3918,9 @@
     const colors = new Map();
     const uniqueIndexes = [...new Set(columnIndexes)].filter(index => index != null);
     const values = uniqueIndexes.map(index => ({ index, value: micronDvValue(sectionId, index) }));
-    const validValues = values.filter(item => item.value != null && item.value > 0);
     if (!values.length) return colors;
-    if (!validValues.length) {
-      values.forEach(item => colors.set(item.index, SUBMACRO_VALUE_COLORS.red));
-      return colors;
-    }
-
-    const maxValue = Math.max(...validValues.map(item => item.value));
-    const minValue = Math.min(...validValues.map(item => item.value));
     values.forEach(item => {
-      if (item.value == null || item.value <= 0) {
-        colors.set(item.index, SUBMACRO_VALUE_COLORS.red);
-      } else if (maxValue === minValue) {
-        colors.set(item.index, item.value >= 20 ? SUBMACRO_VALUE_COLORS.green : SUBMACRO_VALUE_COLORS.red);
-      } else if (item.value === maxValue) {
-        colors.set(item.index, SUBMACRO_VALUE_COLORS.green);
-      } else if (item.value === minValue) {
-        colors.set(item.index, SUBMACRO_VALUE_COLORS.red);
-      } else {
-        colors.set(item.index, SUBMACRO_VALUE_COLORS.neutral);
-      }
+      colors.set(item.index, micronMetricHighlightColor(sectionId, item.index));
     });
     return colors;
   }

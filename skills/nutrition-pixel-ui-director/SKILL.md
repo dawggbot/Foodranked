@@ -1,20 +1,72 @@
 ---
-name: "nutrition-pixel-ui-director"
-description: "Guard FoodRanked canvas layers."
+name: nutrition-pixel-ui-director
+description: Create the visual presentation system for cozy pixel-art nutrition videos. Use when designing the stat-sheet or pokedex-style display, sequencing stat reveals, integrating Aseprite sprites, choosing layout/motion/audio timing, or translating nutrition data into charming readable short-form visuals.
 ---
 
-# Proposed Update: Sprite And Canvas Placement Guard
+# Nutrition Pixel UI Director
 
-Add this rule to the FoodRanked `nutrition-pixel-ui-director` skill under Display guidance or a new Canvas safety section:
+Adapt the spirit of Visual Storyteller to a cozy pixel-art nutrition channel.
 
-## Canvas Safety
+## Mission
 
-- Do not add, remove, move, resize, mirror, normalize, or otherwise edit sprite layers on the FoodRanked display/video canvas unless James directly asks for sprite or canvas placement work.
-- Do not add, remove, move, resize, mirror, normalize, or otherwise edit text-box layers on the FoodRanked display/video canvas unless James directly asks for text-box or canvas placement work.
-- Treat existing sprite and text-box coordinates as user-owned layout state. Preserve them across nutrition-data, scoring, food-image, copy, and section-content fixes.
-- When a requested data/display fix might require changing canvas layers, prefer data binding or text-content updates over canvas-layer edits, and call out any unavoidable placement change before editing.
-- Do not introduce automatic placement synchronization for sprites or text boxes unless the task explicitly asks for a layout/template migration.
-- For food-image implementation, wire an existing uploaded asset into the food image data path without repositioning existing food-image layers unless James asks for placement changes.
-- If James explicitly asks to propagate a placement, keep the propagation narrowly limited to the named layer family and source section. Example: if asked to copy the Bacon fats macro bar frame/fill placement to fats, carbs, and protein sections, only copy the macro bar frame/fill geometry and do not alter other sprites or text boxes.
+Turn nutrition facts into a short visual story that feels:
+- cozy
+- game-like
+- readable at phone speed
+- satisfying to watch repeatedly
 
-This is intended to prevent accidental movement of already-correct display builder layers such as macro bar fills, bar frames, section indicators, food images, and existing text boxes.
+## Visual principles
+
+- Make the food the hero.
+- Use RPG / pokedex framing for structure, not clutter.
+- Reveal stats progressively; do not dump everything at once.
+- Keep subtitles and numeric values legible on small screens.
+- Let the sprite animation add personality, not confusion.
+- Keep the palette and motion language consistent across episodes.
+- Keep the persistent header responsible for food name, food type, per-100g basis, kcal, and image.
+- On-screen body text should be subtitles only.
+- Use abbreviated units on screen (`g`, `mg`, etc.).
+
+## Default video arc
+
+1. **Hook frame** — `SUBJECT ranked.` with the food as the first-viewport signal.
+2. **Header settle** — food name, type, per-100g, kcal, and image are visible without narration repeating them.
+3. **7 scored content sections** — fats, carbs, proteins, vitamins, minerals, pros, cons.
+4. **Short overview** — the best strengths and worst weaknesses immediately before the final reveal.
+5. **Tier verdict / outro** — D/C/B/A/S reveal with a satisfying payoff.
+
+The progress strip counts this as a 9-section video shell: hook, 7 scored content sections, and outro.
+
+## Display guidance
+
+Prefer templates with:
+- fixed positions for core stats
+- a clear hierarchy between raw values and interpreted verdicts
+- room for Aseprite sprite loops
+- safe areas for subtitles
+- high-contrast text over the pixel-art background
+- arrow indicators only for submacros
+- full-height DV bars for vitamins and minerals
+
+## Motion guidance
+
+- Use reveal timing that matches narration.
+- Favor simple, crisp transitions over excessive effects.
+- Use 8-bit/cozy audio cues to mark important reveals.
+- Make the tier reveal the biggest beat in the sequence.
+
+## Deliverables
+
+When asked for design help, produce one or more of:
+- storyboard
+- scene list with timestamps
+- UI wireframe spec
+- motion/reveal plan
+- subtitle placement rules
+- export-safe layout advice for vertical formats
+
+## Read for inspiration if needed
+
+Reference source material in:
+- `/home/idk/.openclaw/workspace/references/agency-agents/design/design-visual-storyteller.md`
+- `/home/idk/.openclaw/workspace/references/agency-agents/marketing/marketing-short-video-editing-coach.md`

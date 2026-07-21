@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260721-binary-glow-bottom-indicators-v1';
+  const BUILDER_BUILD_ID = '20260721-visible-bottom-indicators-v2';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
@@ -747,13 +747,22 @@
     };
   }
 
+  function canvasGridUnit(axis = 'x') {
+    const fallback = cssPixels(getComputedStyle(document.documentElement).getPropertyValue('--pixel-unit'), 4);
+    const stageRect = els.videoStage?.getBoundingClientRect?.();
+    const denominator = axis === 'y' ? AUTHOR_GRID.height : AUTHOR_GRID.width;
+    const measured = denominator ? ((axis === 'y' ? stageRect?.height : stageRect?.width) / denominator) : 0;
+    return Number.isFinite(measured) && measured > 0 ? measured : fallback;
+  }
+
   function visibleCanvasGridBounds() {
     const shell = els.videoStage?.closest('.phone-shell');
     if (!shell) {
       return { left: 0, top: 0, right: AUTHOR_GRID.width, bottom: AUTHOR_GRID.height };
     }
 
-    const pixelUnit = cssPixels(getComputedStyle(document.documentElement).getPropertyValue('--pixel-unit'), 4);
+    const pixelUnitX = canvasGridUnit('x');
+    const pixelUnitY = canvasGridUnit('y');
     const stageRect = els.videoStage.getBoundingClientRect();
     const shellRect = shell.getBoundingClientRect();
     const shellStyle = getComputedStyle(shell);
@@ -770,10 +779,10 @@
       - cssPixels(shellStyle.borderBottomWidth)
       - cssPixels(shellStyle.paddingBottom);
     return {
-      left: Math.max(0, (Math.max(stageRect.left, contentLeft) - stageRect.left) / pixelUnit),
-      right: Math.min(AUTHOR_GRID.width, (Math.min(stageRect.right, contentRight) - stageRect.left) / pixelUnit),
-      top: Math.max(0, (Math.max(stageRect.top, contentTop) - stageRect.top) / pixelUnit),
-      bottom: Math.min(AUTHOR_GRID.height, (Math.min(stageRect.bottom, contentBottom) - stageRect.top) / pixelUnit)
+      left: Math.max(0, (Math.max(stageRect.left, contentLeft) - stageRect.left) / pixelUnitX),
+      right: Math.min(AUTHOR_GRID.width, (Math.min(stageRect.right, contentRight) - stageRect.left) / pixelUnitX),
+      top: Math.max(0, (Math.max(stageRect.top, contentTop) - stageRect.top) / pixelUnitY),
+      bottom: Math.min(AUTHOR_GRID.height, (Math.min(stageRect.bottom, contentBottom) - stageRect.top) / pixelUnitY)
     };
   }
 
@@ -893,8 +902,10 @@
     const stepX = Number(SECTION_INDICATOR_LAYOUT.stepX) || 5.75;
     const highlightOffset = Math.max(0, (highlightedSize - normalSize) / 2);
     const rowWidth = ((count - 1) * stepX) + normalSize;
-    const startX = (AUTHOR_GRID.width - rowWidth) / 2;
-    const y = AUTHOR_GRID.height - SECTION_INDICATOR_BOTTOM_MARGIN - highlightedSize + highlightOffset;
+    const visible = visibleCanvasGridBounds();
+    const visibleWidth = Math.max(rowWidth, visible.right - visible.left);
+    const startX = visible.left + ((visibleWidth - rowWidth) / 2);
+    const y = visible.bottom - SECTION_INDICATOR_BOTTOM_MARGIN - highlightedSize + highlightOffset;
     return {
       x: startX + (index * stepX) - (active ? highlightOffset : 0),
       y: y - (active ? highlightOffset : 0)
@@ -1184,12 +1195,13 @@
       src: indicatorPath(food, active),
       x: position.x,
       y: position.y,
-      z: 120,
+      z: 220,
       width: size,
       height: size,
       visible: true,
       foodDriven: true,
-      preserveAspect: false
+      preserveAspect: false,
+      effect: active ? 'section-indicator-active' : 'section-indicator-normal'
     };
   }
 
@@ -1202,11 +1214,12 @@
       : SECTION_INDICATOR_LAYOUT.normalSize;
     layer.x = position.x;
     layer.y = position.y;
-    layer.z = 120;
+    layer.z = 220;
     layer.src = indicatorPath(food, active);
     layer.width = size;
     layer.height = size;
     layer.label = active ? 'Highlighted section indicator' : 'Section indicator';
+    layer.effect = active ? 'section-indicator-active' : 'section-indicator-normal';
   }
 
   function ensureSectionIndicatorLayers(layout, food) {
@@ -1469,6 +1482,11 @@
         if (layer) syncManagedSectionIndicatorPosition(layer, sectionForDot.id, index, food, activeSection.id);
       });
     }
+  }
+
+  function syncCurrentSectionIndicatorsForViewport() {
+    if (!validLayout(state.layout)) return;
+    syncSectionIndicators(state.layout, selectedFood());
   }
 
   function syncMacroText(layout, food) {
@@ -5804,6 +5822,7 @@
   function renderAll() {
     state.currentTime = clamp(state.currentTime, 0, totalDuration());
     setCanvasScale();
+    syncCurrentSectionIndicatorsForViewport();
     syncAudioForFood();
     renderLayoutSourceOptions();
     renderFoodList();
@@ -5938,6 +5957,7 @@
 
   window.addEventListener('resize', () => {
     setCanvasScale();
+    syncCurrentSectionIndicatorsForViewport();
     renderStage();
     scheduleSpriteDiagnostics(450);
   });
@@ -5952,6 +5972,7 @@
     renderAll();
     requestAnimationFrame(() => {
       setCanvasScale();
+      syncCurrentSectionIndicatorsForViewport();
       renderStage();
     });
   }

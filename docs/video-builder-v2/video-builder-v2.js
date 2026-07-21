@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260721-video-builder-v2-display-v2-exact-export-v2';
+  const BUILDER_BUILD_ID = '20260721-video-builder-v2-display-v2-auto-export-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const CAPTION_SAFE_X = 7;
@@ -343,7 +343,11 @@
     highlightGlowSfxTargetPlaybackRate: 1,
     highlightGlowSfxLastFrameAt: performance.now(),
     spriteFailures: new Map(),
-    diagnosticsTimer: 0
+    diagnosticsTimer: 0,
+    displayBuilderExportFrame: null,
+    displayBuilderExportRequestedFor: '',
+    displayBuilderExportStartedAt: 0,
+    displayBuilderExportStatus: ''
   };
 
   function readJson(raw, fallback) {
@@ -844,6 +848,81 @@
   function selectedLayoutBase(selected = selectedLayoutSourceOption()) {
     if (selected && state.layoutSourceId !== selected.id) state.layoutSourceId = selected.id;
     return selected?.layout ? clone(selected.layout) : null;
+  }
+
+  function displayBuilderV2ExportUrl(foodId) {
+    const url = new URL('../display-builder-v2/index.html', window.location.href);
+    url.searchParams.set('videoBuilderExportFood', foodId || '');
+    url.searchParams.set('build', BUILDER_BUILD_ID);
+    url.searchParams.set('t', String(Date.now()));
+    return url.href;
+  }
+
+  function writeDisplayBuilderV2ExportRequestState(foodId) {
+    const existing = readDisplayBuilderV2State();
+    const requestedSection = SECTIONS.some(section => section.id === state.selectedSceneId)
+      ? state.selectedSceneId
+      : 'intro';
+    localStorage.setItem(DISPLAY_BUILDER_V2_STATE_KEY, JSON.stringify({
+      ...existing,
+      selectedFoodId: foodId,
+      selectedSectionId: requestedSection,
+      selectedLayoutKey: `food:${foodId}`
+    }));
+  }
+
+  function requestDisplayBuilderV2PlacementExport(food) {
+    const foodId = food?.id;
+    if (!foodId) return false;
+    const existing = readDisplayBuilderV2PlacementExport().layouts?.[foodId];
+    if (validLayout(existing?.layout)) return false;
+
+    const now = performance.now();
+    const samePendingRequest = state.displayBuilderExportRequestedFor === foodId
+      && now - state.displayBuilderExportStartedAt < 10000;
+    if (samePendingRequest) return false;
+
+    state.displayBuilderExportRequestedFor = foodId;
+    state.displayBuilderExportStartedAt = now;
+    state.displayBuilderExportStatus = 'building';
+    writeDisplayBuilderV2ExportRequestState(foodId);
+
+    let frame = state.displayBuilderExportFrame;
+    if (!frame || !document.body.contains(frame)) {
+      frame = document.createElement('iframe');
+      frame.title = 'Display Builder v2 placement export worker';
+      frame.setAttribute('aria-hidden', 'true');
+      frame.tabIndex = -1;
+      frame.style.position = 'fixed';
+      frame.style.left = '-10000px';
+      frame.style.top = '0';
+      frame.style.width = '1px';
+      frame.style.height = '1px';
+      frame.style.border = '0';
+      frame.style.opacity = '0';
+      frame.style.pointerEvents = 'none';
+      state.displayBuilderExportFrame = frame;
+      document.body.appendChild(frame);
+    }
+
+    frame.onload = () => {
+      window.setTimeout(() => {
+        const exported = readDisplayBuilderV2PlacementExport().layouts?.[foodId];
+        if (validLayout(exported?.layout)) {
+          state.displayBuilderExportStatus = 'ready';
+          hydrateLayoutForFood({ requestExport: false });
+          renderAll();
+        } else {
+          state.displayBuilderExportStatus = 'missing-source';
+          if (!state.layout) {
+            els.layoutStatus.textContent = `${food?.name || 'Selected food'} needs a Display Builder v2 layout source before Video Builder v2 can render it · ${BUILDER_BUILD_ID}`;
+            renderStage();
+          }
+        }
+      }, 350);
+    };
+    frame.src = displayBuilderV2ExportUrl(foodId);
+    return true;
   }
 
   function getSectionLayers(layout, sectionId) {
@@ -1377,16 +1456,23 @@
     node.style.setProperty('--outro-score-glow-wide', style.wide);
   }
 
-  function hydrateLayoutForFood() {
+  function hydrateLayoutForFood({ requestExport = true } = {}) {
     const food = selectedFood();
     const selectedSource = selectedLayoutSourceOption();
     const layout = selectedLayoutBase(selectedSource);
     if (!validLayout(layout)) {
       state.layout = null;
-      els.layoutStatus.textContent = `${food?.name || 'Selected food'} needs a Display Builder v2 placement export · ${BUILDER_BUILD_ID}`;
+      const requested = requestExport ? requestDisplayBuilderV2PlacementExport(food) : false;
+      const status = requested || state.displayBuilderExportStatus === 'building'
+        ? 'building Display Builder v2 placement export'
+        : state.displayBuilderExportStatus === 'missing-source'
+          ? 'needs a Display Builder v2 layout source'
+          : 'needs a Display Builder v2 placement export';
+      els.layoutStatus.textContent = `${food?.name || 'Selected food'} ${status} · ${BUILDER_BUILD_ID}`;
       return;
     }
     state.layout = layout;
+    state.displayBuilderExportStatus = 'ready';
     prewarmMacroBarGifVariants(layout, food);
     const layoutLabel = selectedSource?.label || 'Display Builder v2 export';
     els.layoutStatus.textContent = `${layoutLabel} · exact export · ${BUILDER_BUILD_ID}`;
@@ -1977,7 +2063,9 @@
     notice.className = 'caption-box';
     notice.style.opacity = '1';
     notice.style.inset = 'auto calc(8px * var(--pixel-unit)) calc(92px * var(--pixel-unit))';
-    notice.textContent = `Open Display Builder v2 for ${food?.name || 'this food'} to export its sprite and textbox layout.`;
+    notice.textContent = state.displayBuilderExportStatus === 'building'
+      ? `Building Display Builder v2 placement for ${food?.name || 'this food'}...`
+      : `No Display Builder v2 placement is available for ${food?.name || 'this food'}.`;
     els.videoStage.appendChild(notice);
   }
 

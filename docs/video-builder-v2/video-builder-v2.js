@@ -1,12 +1,9 @@
 (function () {
-  const DISPLAY_LAYOUT_KEY = 'foodranked-display-builder-v4';
-  const FOOD_LAYOUTS_STORAGE_KEY = 'foodranked-display-builder-food-layouts-v1';
-  const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
-  const LAYOUT_BUILDER_WORKING_KEY = 'foodranked-layout-builder-v4';
-  const LAYOUT_BUILDER_FOOD_LAYOUTS_KEY = 'foodranked-layout-builder-food-layouts-v1';
-  const LAYOUT_BUILDER_SAVED_KEY = 'foodranked-layout-builder-sprite-layouts-v1';
+  const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
+  const DISPLAY_BUILDER_V2_FOOD_LAYOUTS_KEY = 'foodranked-layout-builder-food-layouts-v1';
+  const LEGACY_DISPLAY_BUILDER_FOOD_LAYOUTS_KEY = 'foodranked-display-builder-food-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260721-video-builder-v2-layout-sources-v1';
+  const BUILDER_BUILD_ID = '20260721-video-builder-v2-display-v2-food-layouts-v1';
   const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -159,8 +156,6 @@
   const INTRO_RANKED_VISIBLE_CENTER = { x: 0.5, y: 0.47 };
   const INTRO_HERO_SIZE = { ranked: 80, foodWidth: 48, foodHeight: 24 };
   const AVAILABLE_FOOD_IMAGE_IDS = new Set(['bacon', 'kale']);
-  const STALE_LAYOUT_MIN_LAYER_RATIO = 0.72;
-  let ignoredDisplayBuilderLayoutInfo = null;
   const SUBMACRO_VALUE_COLORS = {
     green: '#7cf2a7',
     red: '#ff6f6f',
@@ -321,7 +316,7 @@
   const state = {
     foodFilter: '',
     selectedFoodId: savedState.selectedFoodId || 'bacon',
-    layoutSourceId: requestedLayoutSourceId || savedState.layoutSourceId || 'layout-builder',
+    layoutSourceId: requestedLayoutSourceId || savedState.layoutSourceId || '',
     selectedSceneId: savedState.selectedSceneId || 'intro',
     audioEnabled: true,
     currentTime: 0,
@@ -398,45 +393,6 @@
     return countLayoutLayers(window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT || {});
   }
 
-  function layoutHealth(layout) {
-    const defaultCount = defaultLayoutLayerCount();
-    const layerCount = countLayoutLayers(layout);
-    const threshold = Math.floor(defaultCount * STALE_LAYOUT_MIN_LAYER_RATIO);
-    const missingSections = SECTIONS
-      .filter(section => !Array.isArray(layout?.sections?.[section.id]?.layers))
-      .map(section => section.id);
-    return {
-      layerCount,
-      defaultLayerCount: defaultCount,
-      threshold,
-      missingSections,
-      stale: !!layout?.sections && (layerCount < threshold || missingSections.length > 0)
-    };
-  }
-
-  function layoutSyncIssue(layout) {
-    if (!layout?.sections) return null;
-    const health = layoutHealth(layout);
-    const savedVersion = layout?.meta?.repoLayoutVersion || 'unversioned';
-    if (savedVersion !== REPO_LAYOUT_VERSION) {
-      return {
-        ...health,
-        reason: 'repo layout version changed',
-        savedVersion,
-        repoVersion: REPO_LAYOUT_VERSION
-      };
-    }
-    if (health.stale) {
-      return {
-        ...health,
-        reason: 'stale or incomplete local layout',
-        savedVersion,
-        repoVersion: REPO_LAYOUT_VERSION
-      };
-    }
-    return null;
-  }
-
   function spriteReportUrl(src) {
     if (!src) return '';
     const raw = String(src);
@@ -481,26 +437,30 @@
     const failures = [...state.spriteFailures.values()].slice(-limit);
     const food = selectedFood();
     const foodImageIds = [...AVAILABLE_FOOD_IMAGE_IDS].sort();
-    const rawDisplayLayout = rawDisplayBuilderLayout();
-    const rawLayoutBuilderWorking = rawLayoutBuilderLayout();
+    const displayBuilderV2State = readDisplayBuilderV2State();
+    const displayBuilderV2FoodLayout = food?.id
+      ? loadFoodLayoutMap(DISPLAY_BUILDER_V2_FOOD_LAYOUTS_KEY)[food.id]
+      : null;
+    const legacyDisplayBuilderFoodLayout = food?.id
+      ? loadFoodLayoutMap(LEGACY_DISPLAY_BUILDER_FOOD_LAYOUTS_KEY)[food.id]
+      : null;
     const selectedSource = selectedLayoutSourceOption();
     const sourceLabel = selectedSource
       ? `${selectedSource.label} (${selectedSource.kind})`
       : 'repo default layout';
-    const ignored = ignoredDisplayBuilderLayoutInfo;
     const allLayerCount = countLayoutLayers(state.layout);
     const lines = [
       'FoodRanked sprite report',
       `build: ${BUILDER_BUILD_ID}`,
       `page: ${window.location.href}`,
       `layout source: ${sourceLabel}`,
-      `layout-builder working layout present: ${rawLayoutBuilderWorking ? 'yes' : 'no'}`,
-      `display-builder current layout present: ${rawDisplayLayout ? 'yes' : 'no'}`,
+      `display-builder v2 selected food: ${displayBuilderV2State.selectedFoodId || 'none'}`,
+      `display-builder v2 selected layout: ${displayBuilderV2State.selectedLayoutKey || 'none'}`,
+      `display-builder v2 food layout present: ${displayBuilderV2FoodLayout ? 'yes' : 'no'}`,
+      `legacy display-builder food layout present: ${legacyDisplayBuilderFoodLayout ? 'yes' : 'no'}`,
       `selected food: ${food?.id || 'none'} (${food?.name || 'unknown'})`,
       `layout layers: ${allLayerCount}`,
       `repo default layers: ${defaultLayoutLayerCount()}`,
-      `ignored local layout layers: ${ignored ? ignored.layerCount : 'none'}`,
-      `ignored local layout version: ${ignored ? ignored.savedVersion : 'none'}`,
       `repo layout version: ${REPO_LAYOUT_VERSION}`,
       `committed custom food images: ${foodImageIds.join(', ') || 'none'}`,
       `selected food has committed image: ${hasCustomFoodImage(food) ? 'yes' : 'no, using food-type plate fallback'}`,
@@ -523,10 +483,7 @@
     els.spriteDiagnostics.classList.toggle('ok', issueCount === 0);
     els.spriteDiagnostics.classList.toggle('warn', issueCount > 0);
     if (!issueCount) {
-      const layoutNote = state.layoutSourceId === 'display-builder' && ignoredDisplayBuilderLayoutInfo
-        ? ` - using repo default; ignored ${ignoredDisplayBuilderLayoutInfo.reason}`
-        : '';
-      els.spriteDiagnostics.textContent = `Sprite check OK - ${BUILDER_BUILD_ID}${layoutNote}`;
+      els.spriteDiagnostics.textContent = `Sprite check OK - ${BUILDER_BUILD_ID}`;
       return;
     }
     const details = spriteDiagnosticsLines(6).slice(11);
@@ -1009,44 +966,14 @@
     return !!layout && typeof layout === 'object' && !!layout.sections && typeof layout.sections === 'object';
   }
 
-  function layoutFromSections(sections, meta = {}) {
-    return normalizeLayoutSections({
-      ...defaultLayout(),
-      sections: clone(sections || {}),
-      meta
-    });
-  }
-
-  function loadSavedLayouts(storageKey) {
-    const raw = readJson(localStorage.getItem(storageKey), []);
-    const entries = Array.isArray(raw) ? raw : Object.values(raw || {});
-    return entries.filter(entry => entry?.sections && entry.id);
-  }
-
-  function loadFoodLayoutMap(storageKey = FOOD_LAYOUTS_STORAGE_KEY) {
-    const saved = readJson(localStorage.getItem(storageKey), {});
+  function readDisplayBuilderV2State() {
+    const saved = readJson(localStorage.getItem(DISPLAY_BUILDER_V2_STATE_KEY), {});
     return saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {};
   }
 
-  function rawDisplayBuilderLayout() {
-    const saved = readJson(localStorage.getItem(DISPLAY_LAYOUT_KEY), null);
-    return validLayout(saved) ? normalizeLayoutSections(saved) : null;
-  }
-
-  function rawLayoutBuilderLayout() {
-    const saved = readJson(localStorage.getItem(LAYOUT_BUILDER_WORKING_KEY), null);
-    return validLayout(saved) ? normalizeLayoutSections(saved) : null;
-  }
-
-  function loadDisplayBuilderLayout() {
-    const saved = rawDisplayBuilderLayout();
-    ignoredDisplayBuilderLayoutInfo = null;
-    const syncIssue = layoutSyncIssue(saved);
-    if (syncIssue) {
-      ignoredDisplayBuilderLayoutInfo = syncIssue;
-      return null;
-    }
-    return saved;
+  function loadFoodLayoutMap(storageKey = DISPLAY_BUILDER_V2_FOOD_LAYOUTS_KEY) {
+    const saved = readJson(localStorage.getItem(storageKey), {});
+    return saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {};
   }
 
   function selectedFoodLabel(foodId) {
@@ -1054,113 +981,53 @@
     return food?.name || foodId;
   }
 
-  function normalizeSavedLayoutOption(entry, source) {
-    if (!entry?.id || !entry.sections || typeof entry.sections !== 'object') return null;
-    const layout = layoutFromSections(entry.sections, {
-      source: source.savedKey,
-      sourceBuilder: source.builder
-    });
-    return {
-      id: `${source.idPrefix}-saved:${entry.id}`,
-      label: `${entry.name || 'Saved layout'} · ${source.label} saved`,
-      kind: `${source.label} saved layout`,
-      sourceName: source.label,
-      updatedAt: entry.updatedAt || entry.createdAt || '',
-      layout
-    };
-  }
-
-  function normalizeFoodLayoutOption(foodId, layout, source) {
+  function normalizeDisplayBuilderV2FoodLayoutOption(foodId, layout, { legacy = false } = {}) {
     if (!foodId || !validLayout(layout)) return null;
     const cloned = normalizeLayoutSections(clone(layout));
+    const label = legacy ? 'Display Builder food layout fallback' : 'Display Builder v2 food layout';
+    const sourceKey = legacy ? LEGACY_DISPLAY_BUILDER_FOOD_LAYOUTS_KEY : DISPLAY_BUILDER_V2_FOOD_LAYOUTS_KEY;
     return {
-      id: `${source.idPrefix}-food:${foodId}`,
-      label: `${selectedFoodLabel(foodId)} · ${source.label} food layout`,
-      kind: `${source.label} food layout`,
-      sourceName: source.label,
+      id: `${legacy ? 'display-builder' : 'display-builder-v2'}-food:${foodId}`,
+      label: `${selectedFoodLabel(foodId)} · ${label}`,
+      kind: label,
+      sourceName: legacy ? 'Display Builder' : 'Display Builder v2',
       updatedAt: cloned.meta?.updatedAt || cloned.updatedAt || '',
       layout: normalizeLayoutSections({
         ...cloned,
         meta: {
           ...(cloned.meta || {}),
-          source: source.foodKey,
-          sourceBuilder: source.builder,
+          source: sourceKey,
+          sourceBuilder: legacy ? 'display-builder' : 'display-builder-v2',
           foodId
         }
       })
     };
   }
 
-  function layoutSourceFamilies() {
-    return [
-      {
-        idPrefix: 'layout-builder',
-        label: 'Layout builder',
-        builder: 'layout-builder',
-        workingKey: LAYOUT_BUILDER_WORKING_KEY,
-        foodKey: LAYOUT_BUILDER_FOOD_LAYOUTS_KEY,
-        savedKey: LAYOUT_BUILDER_SAVED_KEY
-      },
-      {
-        idPrefix: 'display-builder',
-        label: 'Display builder',
-        builder: 'display-builder',
-        workingKey: DISPLAY_LAYOUT_KEY,
-        foodKey: FOOD_LAYOUTS_STORAGE_KEY,
-        savedKey: SAVED_LAYOUTS_KEY
-      }
-    ];
-  }
-
   function layoutSourceOptions() {
     const food = selectedFood();
     const options = [];
-
-    layoutSourceFamilies().forEach(source => {
-      const foodLayout = normalizeFoodLayoutOption(
+    const displayBuilderV2Layout = normalizeDisplayBuilderV2FoodLayoutOption(
+      food?.id,
+      loadFoodLayoutMap(DISPLAY_BUILDER_V2_FOOD_LAYOUTS_KEY)[food?.id]
+    );
+    let legacyFoodLayout = null;
+    if (displayBuilderV2Layout) {
+      options.push(displayBuilderV2Layout);
+    } else {
+      legacyFoodLayout = normalizeDisplayBuilderV2FoodLayoutOption(
         food?.id,
-        loadFoodLayoutMap(source.foodKey)[food?.id],
-        source
+        loadFoodLayoutMap(LEGACY_DISPLAY_BUILDER_FOOD_LAYOUTS_KEY)[food?.id],
+        { legacy: true }
       );
-      if (foodLayout) options.push(foodLayout);
-
-      const working = source.builder === 'display-builder'
-        ? loadDisplayBuilderLayout()
-        : rawLayoutBuilderLayout();
-      const rawWorking = source.builder === 'display-builder' ? rawDisplayBuilderLayout() : working;
-      const workingLabel = source.builder === 'display-builder'
-        ? ignoredDisplayBuilderLayoutInfo
-          ? 'Display builder current layout (ignored; using repo default)'
-          : working
-            ? 'Display builder current layout'
-            : rawWorking
-              ? 'Display builder current layout (unavailable)'
-              : 'Display builder current layout (empty)'
-        : working
-          ? 'Layout builder current working layout'
-          : 'Layout builder current working layout (empty)';
-
-      if (working || (source.builder === 'display-builder' && rawWorking)) {
-        options.push({
-          id: source.idPrefix,
-          label: workingLabel,
-          kind: `${source.label} current layout`,
-          sourceName: source.label,
-          updatedAt: working?.meta?.updatedAt || '',
-          layout: working ? normalizeLayoutSections(clone(working)) : defaultLayout()
-        });
-      }
-
-      loadSavedLayouts(source.savedKey)
-        .map(entry => normalizeSavedLayoutOption(entry, source))
-        .filter(Boolean)
-        .sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)) || a.label.localeCompare(b.label))
-        .forEach(option => options.push(option));
-    });
+      if (legacyFoodLayout) options.push(legacyFoodLayout);
+    }
 
     options.push({
       id: 'default',
-      label: 'Repo default layout',
+      label: food?.id && !displayBuilderV2Layout && !legacyFoodLayout
+        ? `Repo default layout (no Display Builder v2 food layout for ${selectedFoodLabel(food.id)})`
+        : 'Repo default layout',
       kind: 'repo default layout',
       sourceName: 'Repo default',
       updatedAt: '',
@@ -1802,9 +1669,9 @@
   }
 
   function savedBaconMacroBarPlacementTemplate() {
-    const layoutBuilderLayout = loadFoodLayoutMap(LAYOUT_BUILDER_FOOD_LAYOUTS_KEY)[MACRO_BAR_PLACEMENT_SOURCE_FOOD_ID];
-    const displayBuilderLayout = loadFoodLayoutMap(FOOD_LAYOUTS_STORAGE_KEY)[MACRO_BAR_PLACEMENT_SOURCE_FOOD_ID];
-    return baconFatsMacroBarPlacementTemplateFromLayout(layoutBuilderLayout)
+    const displayBuilderV2Layout = loadFoodLayoutMap(DISPLAY_BUILDER_V2_FOOD_LAYOUTS_KEY)[MACRO_BAR_PLACEMENT_SOURCE_FOOD_ID];
+    const displayBuilderLayout = loadFoodLayoutMap(LEGACY_DISPLAY_BUILDER_FOOD_LAYOUTS_KEY)[MACRO_BAR_PLACEMENT_SOURCE_FOOD_ID];
+    return baconFatsMacroBarPlacementTemplateFromLayout(displayBuilderV2Layout)
       || baconFatsMacroBarPlacementTemplateFromLayout(displayBuilderLayout);
   }
 
@@ -2690,6 +2557,7 @@
       button.innerHTML = `<strong>${escapeHtml(food.name)}</strong><span>${escapeHtml(food.foodTypeLabel || prettyFoodType(food.foodType))} · ${escapeHtml(String(food.header?.kcal ?? food.kcal ?? 'N/A'))} kcal</span>`;
       button.addEventListener('click', () => {
         state.selectedFoodId = food.id;
+        state.layoutSourceId = '';
         state.currentTime = 0;
         state.selectedSceneId = 'intro';
         state.audioTimelineKey = '';
@@ -5972,12 +5840,9 @@
 
   window.addEventListener('storage', event => {
     if ([
-      LAYOUT_BUILDER_WORKING_KEY,
-      LAYOUT_BUILDER_FOOD_LAYOUTS_KEY,
-      LAYOUT_BUILDER_SAVED_KEY,
-      DISPLAY_LAYOUT_KEY,
-      FOOD_LAYOUTS_STORAGE_KEY,
-      SAVED_LAYOUTS_KEY
+      DISPLAY_BUILDER_V2_STATE_KEY,
+      DISPLAY_BUILDER_V2_FOOD_LAYOUTS_KEY,
+      LEGACY_DISPLAY_BUILDER_FOOD_LAYOUTS_KEY
     ].includes(event.key)) {
       hydrateLayoutForFood();
       renderAll();

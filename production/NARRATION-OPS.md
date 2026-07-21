@@ -65,3 +65,5 @@ Use pros/cons for extra information instead, such as:
 - sourcing / authenticity / contamination risk
 - tolerance / digestion / practicality
 - satiety / meal role / convenience
+
+When narrating pros and cons, speak the exact displayed pro/con title first, word for word. Add the explanatory "after bulk" sentence only after that displayed phrase has been spoken.

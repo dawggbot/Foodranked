@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>FoodRanked Video Builder v2</title>
+  <link rel="stylesheet" href="./video-builder-v2.css?v=20260721-layout-sources-v1" />
+</head>
+<body>
+  <main class="app-shell">
+    <aside class="panel left-panel">
+      <header class="panel-heading">
+        <h1>Video builder v2</h1>
+        <div class="status-pill" id="layoutStatus">Layout</div>
+      </header>
+
+      <section class="tool-section">
+        <label>
+          Food
+          <input id="foodSearch" type="text" autocomplete="off" placeholder="Search foods" />
+        </label>
+        <div class="food-list" id="foodList"></div>
+      </section>
+
+      <section class="tool-section">
+        <label>
+          Display layout
+          <select id="layoutSource"></select>
+        </label>
+      </section>
+
+      <section class="tool-section timeline-section">
+        <div class="section-title">Timeline</div>
+        <div class="scene-list" id="sceneList"></div>
+      </section>
+    </aside>
+
+    <section class="preview-column">
+      <div class="preview-toolbar">
+        <button id="playPause" class="primary" type="button">Play</button>
+        <button id="audioToggle" type="button" disabled>Audio off</button>
+        <div class="time-readout" id="timeReadout">0.0s / 0.0s</div>
+        <div class="audio-status" id="audioStatus">No audio</div>
+        <input id="timeScrub" type="range" min="0" max="1000" value="0" />
+      </div>
+      <audio id="narrationAudio" preload="metadata"></audio>
+
+      <div class="phone-shell">
+        <div class="video-stage" id="videoStage" aria-label="Video preview"></div>
+      </div>
+      <div class="diagnostics-row">
+        <div id="spriteDiagnostics" class="sprite-diagnostics" aria-live="polite">Sprite check loading...</div>
+        <button id="copySpriteReport" type="button">Copy sprite report</button>
+      </div>
+
+      <div class="timeline-strip" id="timelineStrip"></div>
+    </section>
+
+    <aside class="panel right-panel">
+      <header class="panel-heading">
+        <h2>Manifest</h2>
+      </header>
+
+      <section class="tool-section manifest-section">
+        <textarea id="manifestOutput" readonly rows="12"></textarea>
+        <div class="button-row">
+          <button id="copyManifest" type="button">Copy manifest</button>
+        </div>
+      </section>
+    </aside>
+  </main>
+
+  <script src="../data/foods-index.js?v=20260719-protein-schema-v1"></script>
+  <script src="../app/display-schema.js?v=20260720-food-type-title-fit-v1"></script>
+  <script src="../app/default-layout.js?v=20260624-arrow-default-scale-v1"></script>
+  <script src="../app/display-name-utils.js?v=20260720-food-name-shorthand-v2"></script>
+  <script src="./video-builder-v2.js?v=20260721-layout-sources-v1"></script>
+</body>
+</html>

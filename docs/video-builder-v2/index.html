@@ -7,7 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <title>FoodRanked Video Builder v2</title>
-  <link rel="stylesheet" href="./video-builder-v2.css?v=20260721-layout-sources-v1" />
+  <link rel="stylesheet" href="./video-builder-v2.css?v=20260721-rebuild-display-v2-source-v1" />
 </head>
 <body>
   <main class="app-shell">
@@ -61,14 +61,44 @@
 
     <aside class="panel right-panel">
       <header class="panel-heading">
-        <h2>Manifest</h2>
+        <h2 id="activeSceneTitle">Scene</h2>
+        <div class="status-pill" id="sceneStatus">0.0s</div>
       </header>
 
-      <section class="tool-section manifest-section">
-        <textarea id="manifestOutput" readonly rows="12"></textarea>
+      <section class="tool-section controls-grid">
+        <label>
+          Duration
+          <input id="sceneDuration" type="number" min="1" max="30" step="0.1" />
+        </label>
+        <label>
+          Reveal
+          <select id="revealStyle">
+            <option value="cascade">Cascade</option>
+            <option value="pop">Pop</option>
+            <option value="slide">Slide</option>
+            <option value="wipe">Wipe</option>
+          </select>
+        </label>
+        <label>
+          Caption size
+          <input id="captionSize" type="number" min="12" max="34" step="1" />
+        </label>
+      </section>
+
+      <section class="tool-section">
+        <label>
+          Caption
+          <textarea id="captionText" rows="8"></textarea>
+        </label>
         <div class="button-row">
+          <button id="resetCaptions" type="button">Reset captions</button>
           <button id="copyManifest" type="button">Copy manifest</button>
         </div>
+      </section>
+
+      <section class="tool-section manifest-section">
+        <div class="section-title">Manifest</div>
+        <textarea id="manifestOutput" readonly rows="12"></textarea>
       </section>
     </aside>
   </main>
@@ -76,6 +106,6 @@
   <script src="../data/foods-index.js?v=20260719-protein-schema-v1"></script>
   <script src="../app/display-schema.js?v=20260720-food-type-title-fit-v1"></script>
   <script src="../app/display-name-utils.js?v=20260720-food-name-shorthand-v2"></script>
-  <script src="./video-builder-v2.js?v=20260721-display-v2-auto-export-v1"></script>
+  <script src="./video-builder-v2.js?v=20260721-rebuild-display-v2-source-v1"></script>
 </body>
 </html>

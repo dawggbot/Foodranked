@@ -2,9 +2,11 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260721-video-builder-v2-display-v2-auto-export-v1';
+  const BUILDER_BUILD_ID = '20260721-rebuild-display-v2-source-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
+  const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
+  const SECTION_INDICATOR_LAYOUT = window.FOODRANKED_DISPLAY_SCHEMA?.sectionIndicatorLayout || { startX: 42.875, y: 178, stepX: 5.75, normalSize: 3.25, highlightedSize: 3.9 };
   const CAPTION_SAFE_X = 7;
   const CAPTION_MAX_LINES = 2;
   const CAPTION_MAX_LINE_CHARS = 18;
@@ -131,6 +133,10 @@
   const MACRO_ROW_AFTER_BAR_SECONDS = 0.14;
   const MACRO_BAR_GIF_FRAME_STEPS = 80;
   const MACRO_BAR_GIF_FINAL_HOLD_CENTISECONDS = 65535;
+  const INTRO_RANKED_SPRITE_PATH = './sprites/ui/intro_&_outro/ranked.png';
+  const OUTRO_D_TIER_SPRITE_PATH = './sprites/ui/intro_&_outro/D_tier.png';
+  const INTRO_RANKED_VISIBLE_CENTER = { x: 0.5, y: 0.47 };
+  const INTRO_HERO_SIZE = { ranked: 80, foodWidth: 48, foodHeight: 24 };
   const AVAILABLE_FOOD_IMAGE_IDS = new Set(['bacon', 'kale']);
   const SUBMACRO_VALUE_COLORS = {
     green: '#7cf2a7',
@@ -141,10 +147,6 @@
   const MACRO_BAR_GIF_FRAME_CACHE = new Map();
 
   const DISPLAY_SCHEMA = window.FOODRANKED_DISPLAY_SCHEMA || {};
-  const SECTION_ID_ALIASES = {
-    carbohydrates: 'carbs',
-    proteins: 'protein'
-  };
 
   const SECTIONS = [
     { id: 'intro', label: 'Hook', duration: 2.4, reveal: 'pop' },
@@ -292,7 +294,7 @@
   const state = {
     foodFilter: '',
     selectedFoodId: savedState.selectedFoodId || 'bacon',
-    layoutSourceId: requestedLayoutSourceId || savedState.layoutSourceId || '',
+    layoutSourceId: requestedLayoutSourceId || savedState.layoutSourceId || 'display-builder-v2',
     selectedSceneId: savedState.selectedSceneId || 'intro',
     audioEnabled: true,
     currentTime: 0,
@@ -413,21 +415,17 @@
     const failures = [...state.spriteFailures.values()].slice(-limit);
     const food = selectedFood();
     const foodImageIds = [...AVAILABLE_FOOD_IMAGE_IDS].sort();
-    const displayBuilderV2State = readDisplayBuilderV2State();
+    const sourceOption = selectedLayoutSourceOption();
+    const sourceLabel = sourceOption?.label || 'Display Builder v2 placement export unavailable';
     const placementExport = readDisplayBuilderV2PlacementExport();
     const placementEntry = food?.id ? placementExport.layouts?.[food.id] : null;
-    const selectedSource = selectedLayoutSourceOption();
-    const sourceLabel = selectedSource
-      ? `${selectedSource.label} (${selectedSource.kind})`
-      : 'no Display Builder v2 export';
     const allLayerCount = countLayoutLayers(state.layout);
     const lines = [
       'FoodRanked sprite report',
       `build: ${BUILDER_BUILD_ID}`,
       `page: ${window.location.href}`,
       `layout source: ${sourceLabel}`,
-      `display-builder v2 selected food: ${displayBuilderV2State.selectedFoodId || 'none'}`,
-      `display-builder v2 selected layout: ${displayBuilderV2State.selectedLayoutKey || 'none'}`,
+      `display-builder v2 selected food: ${readDisplayBuilderV2State().selectedFoodId || 'none'}`,
       `display-builder v2 placement export present: ${placementEntry ? 'yes' : 'no'}`,
       `display-builder v2 placement exported at: ${placementEntry?.exportedAt || 'none'}`,
       `selected food: ${food?.id || 'none'} (${food?.name || 'unknown'})`,
@@ -748,9 +746,158 @@
     };
   }
 
+  function visibleCanvasGridBounds() {
+    const shell = els.videoStage?.closest('.phone-shell');
+    if (!shell) {
+      return { left: 0, top: 0, right: AUTHOR_GRID.width, bottom: AUTHOR_GRID.height };
+    }
+
+    const pixelUnit = cssPixels(getComputedStyle(document.documentElement).getPropertyValue('--pixel-unit'), 4);
+    const stageRect = els.videoStage.getBoundingClientRect();
+    const shellRect = shell.getBoundingClientRect();
+    const shellStyle = getComputedStyle(shell);
+    const contentLeft = shellRect.left
+      + cssPixels(shellStyle.borderLeftWidth)
+      + cssPixels(shellStyle.paddingLeft);
+    const contentRight = shellRect.right
+      - cssPixels(shellStyle.borderRightWidth)
+      - cssPixels(shellStyle.paddingRight);
+    const contentTop = shellRect.top
+      + cssPixels(shellStyle.borderTopWidth)
+      + cssPixels(shellStyle.paddingTop);
+    const contentBottom = shellRect.bottom
+      - cssPixels(shellStyle.borderBottomWidth)
+      - cssPixels(shellStyle.paddingBottom);
+    return {
+      left: Math.max(0, (Math.max(stageRect.left, contentLeft) - stageRect.left) / pixelUnit),
+      right: Math.min(AUTHOR_GRID.width, (Math.min(stageRect.right, contentRight) - stageRect.left) / pixelUnit),
+      top: Math.max(0, (Math.max(stageRect.top, contentTop) - stageRect.top) / pixelUnit),
+      bottom: Math.min(AUTHOR_GRID.height, (Math.min(stageRect.bottom, contentBottom) - stageRect.top) / pixelUnit)
+    };
+  }
+
+  function introHeroLayout() {
+    const visible = visibleCanvasGridBounds();
+    const centerX = (visible.left + visible.right) / 2;
+    const centerY = (visible.top + visible.bottom) / 2;
+    const rankedSize = INTRO_HERO_SIZE.ranked;
+    const ranked = {
+      x: centerX - (rankedSize * INTRO_RANKED_VISIBLE_CENTER.x),
+      y: centerY - (rankedSize * INTRO_RANKED_VISIBLE_CENTER.y),
+      width: rankedSize,
+      height: rankedSize
+    };
+    return {
+      ranked,
+      food: {
+        x: ranked.x + 16,
+        y: ranked.y + 20.75,
+        width: INTRO_HERO_SIZE.foodWidth,
+        height: INTRO_HERO_SIZE.foodHeight
+      }
+    };
+  }
+
+  function introHookLayers(food) {
+    const layout = introHeroLayout();
+    const foodBox = layout.food;
+    const rankedBox = layout.ranked;
+    return [
+      {
+        id: 'intro_food_hero',
+        kind: 'sprite',
+        label: 'Hook food image',
+        src: foodImagePath(food),
+        fallbackSrc: foodPlatePath(food),
+        x: foodBox.x,
+        y: foodBox.y,
+        z: 56,
+        width: foodBox.width,
+        height: foodBox.height,
+        visible: true,
+        foodDriven: true,
+        preserveAspect: true
+      },
+      {
+        id: 'intro_ranked_sprite',
+        kind: 'sprite',
+        label: 'Hook ranked sprite',
+        src: INTRO_RANKED_SPRITE_PATH,
+        x: rankedBox.x,
+        y: rankedBox.y,
+        z: 55,
+        width: rankedBox.width,
+        height: rankedBox.height,
+        visible: true,
+        preserveAspect: true,
+        aspectRatio: 1,
+        effect: 'ranked-shine'
+      },
+      ...introRankedGlimmerLayers(rankedBox)
+    ];
+  }
+
+  function introRankedGlimmerLayers(rankedBox) {
+    const scaleX = rankedBox.width / 92;
+    const scaleY = rankedBox.height / 92;
+    return [
+      { x: rankedBox.x + (10 * scaleX), y: rankedBox.y + (6 * scaleY), delay: 0.02, text: '*', size: 11 },
+      { x: rankedBox.x + (74 * scaleX), y: rankedBox.y + (12 * scaleY), delay: 0.14, text: '+', size: 9 },
+      { x: rankedBox.x + (5 * scaleX), y: rankedBox.y + (66 * scaleY), delay: 0.26, text: '+', size: 9 },
+      { x: rankedBox.x + (78 * scaleX), y: rankedBox.y + (61 * scaleY), delay: 0.38, text: '*', size: 11 },
+      { x: rankedBox.x + (45 * scaleX), y: rankedBox.y + (0 * scaleY), delay: 0.50, text: '*', size: 8 }
+    ].map((glimmer, index) => ({
+      id: `intro_ranked_glimmer_${index + 1}`,
+      kind: 'text',
+      label: 'Hook ranked glimmer',
+      text: glimmer.text,
+      x: glimmer.x,
+      y: glimmer.y,
+      z: 64 + index,
+      width: 6,
+      fontSize: glimmer.size,
+      align: 'center',
+      visible: true,
+      color: '#fff8c9',
+      effect: 'ranked-glimmer',
+      animationDelay: `${glimmer.delay}s`,
+      sparkleDelay: glimmer.delay
+    }));
+  }
+
+  function typePlatePath(food) {
+    return appSpritePath(`header/food_type_plate/${typeSpriteSlug(food?.foodType)}_type_plate.png`);
+  }
+
+  function calorieBubblePath(food) {
+    return appSpritePath(`header/calorie_bubble/${typeSpriteSlug(food?.foodType)}_calorie_bubble.png`);
+  }
+
+  function separatorPath(food) {
+    return appSpritePath(`ui/section_separator/${typeSpriteSlug(food?.foodType)}_section_separator.png`);
+  }
+
+  function indicatorPath(food, highlighted = false) {
+    return appSpritePath(`ui/section_indicator/${typeSpriteSlug(food?.foodType)}_${highlighted ? 'highlighted_' : ''}section_indicator.png`);
+  }
+
+  function sectionIndicatorHighlightOffset() {
+    return Math.max(0, (SECTION_INDICATOR_LAYOUT.highlightedSize - SECTION_INDICATOR_LAYOUT.normalSize) / 2);
+  }
+
+  function readDisplayBuilderV2State() {
+    const saved = readJson(localStorage.getItem(DISPLAY_BUILDER_V2_STATE_KEY), {});
+    return saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {};
+  }
+
+  function readDisplayBuilderV2PlacementExport() {
+    const saved = readJson(localStorage.getItem(DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY), {});
+    return saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {};
+  }
+
   function normalizeDisplaySectionId(sectionId) {
     const raw = String(sectionId || '').trim();
-    return SECTION_ID_ALIASES[raw] || raw;
+    return ({ carbohydrates: 'carbs', proteins: 'protein' })[raw] || raw;
   }
 
   function normalizeLayoutSections(layout) {
@@ -790,19 +937,9 @@
     return !!layout && typeof layout === 'object' && !!layout.sections && typeof layout.sections === 'object';
   }
 
-  function readDisplayBuilderV2State() {
-    const saved = readJson(localStorage.getItem(DISPLAY_BUILDER_V2_STATE_KEY), {});
-    return saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {};
-  }
-
-  function readDisplayBuilderV2PlacementExport() {
-    const saved = readJson(localStorage.getItem(DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY), {});
-    return saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {};
-  }
-
   function selectedFoodLabel(foodId) {
     const food = foods.find(item => item.id === foodId);
-    return food?.name || foodId;
+    return food?.name || foodId || 'Selected food';
   }
 
   function normalizeDisplayBuilderV2PlacementOption(foodId, entry) {
@@ -813,7 +950,6 @@
       id: `display-builder-v2-placement:${foodId}`,
       label: `${selectedFoodLabel(foodId)} · Display Builder v2 placement`,
       kind: 'Display Builder v2 placement export',
-      sourceName: 'Display Builder v2',
       updatedAt: entry.exportedAt || cloned.meta?.exportedAt || '',
       layout: normalizeLayoutSections({
         ...cloned,
@@ -823,18 +959,14 @@
           sourceBuilder: 'display-builder-v2',
           foodId
         }
-      }),
-      placementLayout: normalizeLayoutSections(clone(cloned))
+      })
     };
   }
 
   function layoutSourceOptions() {
     const food = selectedFood();
     const placementEntry = readDisplayBuilderV2PlacementExport().layouts?.[food?.id];
-    const displayBuilderV2Placement = normalizeDisplayBuilderV2PlacementOption(
-      food?.id,
-      placementEntry
-    );
+    const displayBuilderV2Placement = normalizeDisplayBuilderV2PlacementOption(food?.id, placementEntry);
     const options = displayBuilderV2Placement ? [displayBuilderV2Placement] : [];
     state.layoutOptions = options.filter(option => countLayoutLayers(option.layout) > 0);
     return state.layoutOptions;
@@ -912,12 +1044,13 @@
           state.displayBuilderExportStatus = 'ready';
           hydrateLayoutForFood({ requestExport: false });
           renderAll();
-        } else {
-          state.displayBuilderExportStatus = 'missing-source';
-          if (!state.layout) {
-            els.layoutStatus.textContent = `${food?.name || 'Selected food'} needs a Display Builder v2 layout source before Video Builder v2 can render it · ${BUILDER_BUILD_ID}`;
-            renderStage();
-          }
+          return;
+        }
+        state.displayBuilderExportStatus = 'missing-source';
+        if (!state.layout) {
+          els.layoutStatus.textContent = 'DBv2 missing';
+          els.layoutStatus.title = `${food?.name || 'Selected food'} needs a Display Builder v2 food layout before Video Builder v2 can render it · ${BUILDER_BUILD_ID}`;
+          renderStage();
         }
       }, 350);
     };
@@ -938,6 +1071,32 @@
 
   function isTextLayer(layer) {
     return layer?.kind === 'text';
+  }
+
+  function isArrowIndicatorSpriteLayer(layer) {
+    if (!isSpriteLayer(layer)) return false;
+    const fingerprint = `${layer?.id || ''} ${layer?.label || ''} ${layer?.src || ''}`.toLowerCase();
+    return fingerprint.includes('/arrow_indicators/') || /arrow indicator|green_arrow|red_arrow|yellow_arrow/.test(fingerprint);
+  }
+
+  function normalizeArrowIndicatorSpriteSize(layer) {
+    if (!isArrowIndicatorSpriteLayer(layer)) return;
+    const naturalWidth = Number(layer.naturalWidth || layer.width || 1);
+    const naturalHeight = Number(layer.naturalHeight || layer.height || 1);
+    const nextWidth = Math.max(1, Math.round(naturalWidth * SPRITE_LIBRARY_DEFAULT_DROP_SCALE));
+    const nextHeight = Math.max(1, Math.round(naturalHeight * SPRITE_LIBRARY_DEFAULT_DROP_SCALE));
+    const oldWidth = Number.isFinite(Number(layer.width)) ? Number(layer.width) : nextWidth;
+    const oldHeight = Number.isFinite(Number(layer.height)) ? Number(layer.height) : nextHeight;
+    if (oldWidth !== nextWidth || oldHeight !== nextHeight) {
+      layer.x = Number(layer.x || 0) + ((oldWidth - nextWidth) / 2);
+      layer.y = Number(layer.y || 0) + ((oldHeight - nextHeight) / 2);
+    }
+    layer.width = nextWidth;
+    layer.height = nextHeight;
+    layer.naturalWidth = naturalWidth;
+    layer.naturalHeight = naturalHeight;
+    layer.aspectRatio = naturalHeight ? naturalWidth / naturalHeight : null;
+    layer.preserveAspect = true;
   }
 
   function isHeaderSprite(layer) {
@@ -962,6 +1121,14 @@
     return isSpriteLayer(layer) && (fingerprint.includes('/ui/section_indicator/') || fingerprint.includes('section indicator'));
   }
 
+  function isManagedSectionIndicatorId(id, sectionId) {
+    return new RegExp(`^${sectionId}_indicator_\\d+$`, 'i').test(String(id || ''));
+  }
+
+  function isAnyManagedSectionIndicatorId(id) {
+    return SECTIONS.some(section => isManagedSectionIndicatorId(id, section.id));
+  }
+
   function isOutroTierStamp(layer) {
     const fingerprint = `${layer?.id || ''} ${layer?.label || ''} ${layer?.effect || ''}`.toLowerCase();
     return fingerprint.includes('outro_d_tier_stamp') || fingerprint.includes('d-tier-stamp');
@@ -974,6 +1141,64 @@
 
   function isHeaderChrome(layer) {
     return isHeaderSprite(layer) || isHeaderText(layer);
+  }
+
+  function indicatorSectionIndex(sectionId) {
+    return SECTIONS.findIndex(section => section.id === sectionId);
+  }
+
+  function defaultSectionIndicatorPosition(index) {
+    return {
+      x: SECTION_INDICATOR_LAYOUT.startX + (index * SECTION_INDICATOR_LAYOUT.stepX),
+      y: SECTION_INDICATOR_LAYOUT.y
+    };
+  }
+
+  function createSectionIndicatorLayer(sectionId, index, food) {
+    const position = defaultSectionIndicatorPosition(index);
+    return {
+      id: `${sectionId}_indicator_${index + 1}`,
+      kind: 'sprite',
+      label: 'Section indicator',
+      src: indicatorPath(food, false),
+      x: position.x,
+      y: position.y,
+      z: 25,
+      width: SECTION_INDICATOR_LAYOUT.normalSize,
+      height: SECTION_INDICATOR_LAYOUT.normalSize,
+      visible: true,
+      foodDriven: true,
+      preserveAspect: false
+    };
+  }
+
+  function syncManagedSectionIndicatorPosition(layer, sectionId, index) {
+    if (!isManagedSectionIndicatorId(layer?.id, sectionId)) return;
+    const position = defaultSectionIndicatorPosition(index);
+    layer.x = position.x;
+    layer.y = position.y;
+  }
+
+  function ensureSectionIndicatorLayers(layout, food) {
+    // Managed section indicators are disabled while the row is being rebuilt.
+  }
+
+  function compareIndicatorsByPosition(a, b) {
+    return (Number(a.x) || 0) - (Number(b.x) || 0) || (Number(a.y) || 0) - (Number(b.y) || 0);
+  }
+
+  function normalizeProgressIndicatorSlots(indicators) {
+    const sorted = [...(indicators || [])].sort(compareIndicatorsByPosition);
+    const slotCount = SECTIONS.length;
+    const candidateVisible = sorted.filter(layer => layer.visible !== false);
+    const visible = (candidateVisible.length >= slotCount ? candidateVisible : sorted).slice(0, slotCount);
+    const visibleSet = new Set(visible);
+    sorted.forEach(layer => {
+      layer.visible = visibleSet.has(layer);
+    });
+    if (!visible.length) return visible;
+    visible.forEach(layer => { layer.visible = true; });
+    return visible;
   }
 
   function isMicrosBar(layer) {
@@ -1130,6 +1355,51 @@
     return ratio <= 0 ? MACRO_BAR_MIN_VISIBLE_FILL_RATIO : clamp(ratio, 0, 1);
   }
 
+  function syncHeader(layout, food) {
+    const values = {
+      kcal_value_text: String(food?.header?.kcal ?? food?.kcal ?? 'N/A'),
+      basis_text: `PER\n${food?.basis?.value || 100}${String(food?.basis?.unit || 'g').toUpperCase()}`,
+      script_caption: foodTypeTitle(food?.foodType),
+      outro_score_value: formatOverallScore(food)
+    };
+
+    for (const section of SECTIONS) {
+      for (const layer of getSectionLayers(layout, section.id)) {
+        if (isTextLayer(layer)) {
+          if (layer.id === 'food_name_text') {
+            layer.text = headerFoodNameText(food, layer);
+          } else if (values[layer.id] != null) {
+            layer.text = values[layer.id];
+          }
+        }
+        if (!isSpriteLayer(layer)) continue;
+        const fingerprint = `${layer.src || ''} ${layer.label || ''}`.toLowerCase();
+        if (fingerprint.includes('/header/food_images/') || /header food image$/.test(fingerprint)) {
+          layer.src = foodImagePath(food);
+          layer.fallbackSrc = foodPlatePath(food);
+        } else if (fingerprint.includes('/header/food_type_plate/') || /header food type/.test(fingerprint)) {
+          layer.src = typePlatePath(food);
+        } else if (fingerprint.includes('/header/calorie_bubble/') || /header calorie bubble/.test(fingerprint)) {
+          layer.src = calorieBubblePath(food);
+        } else if (fingerprint.includes('/header/food_plate/') || fingerprint.includes('/header/food_image_plate/') || /header food image plate/.test(fingerprint)) {
+          layer.src = foodPlatePath(food);
+        } else if (fingerprint.includes('/ui/section_separator/') || /section separator/.test(fingerprint)) {
+          layer.src = separatorPath(food);
+        }
+      }
+    }
+  }
+
+  function headerFoodNameText(food, layer) {
+    const fit = window.FOODRANKED_DISPLAY_NAME_UTILS?.fitFoodNameForHeader?.(food, layer);
+    if (fit) {
+      layer.autoFontSize = fit.fontSize;
+      return fit.text;
+    }
+    delete layer.autoFontSize;
+    return String(food?.name || 'Unknown').toUpperCase();
+  }
+
   function displayFoodNameForText(food, fallback = 'This food') {
     const rawName = String(food?.name || fallback).trim() || fallback;
     return window.FOODRANKED_DISPLAY_NAME_UTILS?.numberWordsToDigits
@@ -1146,6 +1416,26 @@
     const displayName = displayFoodNameForText(food, rawName || 'This food');
     if (!rawName || rawName === displayName) return String(text || '');
     return String(text || '').replace(new RegExp(escapeRegExp(rawName), 'gi'), displayName);
+  }
+
+  function syncSectionIndicators(layout, food) {
+    // Managed section indicators are disabled while the row is being rebuilt.
+  }
+
+  function syncMacroText(layout, food) {
+    for (const sectionId of ['fats', 'carbs', 'protein']) {
+      const layers = getSectionLayers(layout, sectionId);
+      macroSubmetricBindings(layout, sectionId, food).forEach((binding, index) => {
+        const spec = binding.spec;
+        const label = layers.find(layer => layer.id === `${sectionId}_submacro_label_${index + 1}`);
+        const value = layers.find(layer => layer.id === `${sectionId}_submacro_value_${index + 1}`);
+        if (label && !label.manualText) label.text = spec.label;
+        if (value) {
+          value.text = proteinQualitySpecAllowed(food, sectionId, spec) ? spec.value(food) : 'N/A';
+          value.color = macroArrowPresentation(food, sectionId, spec).textColor;
+        }
+      });
+    }
   }
 
   function macroScoreRows(layers) {
@@ -1216,6 +1506,134 @@
     });
   }
 
+  function ensureMacroTextLayers(layout) {
+    for (const sectionId of ['fats', 'carbs', 'protein']) {
+      const layers = getSectionLayers(layout, sectionId);
+      const topZ = layers.reduce((max, layer) => Math.max(max, Number(layer.z) || 0), 0) + 2;
+      macroSubmetricBindings(layout, sectionId).forEach((binding, index) => {
+        const labelId = `${sectionId}_submacro_label_${index + 1}`;
+        const valueId = `${sectionId}_submacro_value_${index + 1}`;
+        let label = layers.find(layer => layer.id === labelId);
+        let value = layers.find(layer => layer.id === valueId);
+        if (!label) {
+          label = {
+            id: labelId,
+            kind: 'text',
+            label: `${sectionId.toUpperCase()} score card label ${index + 1}`,
+            x: binding.labelX,
+            y: binding.y,
+            z: topZ,
+            visible: true,
+            text: binding.spec.label,
+            fontSize: 4,
+            width: binding.labelWidth,
+            align: 'left'
+          };
+          layers.push(label);
+        }
+        if (!value) {
+          value = {
+            id: valueId,
+            kind: 'text',
+            label: `${sectionId.toUpperCase()} score card value ${index + 1}`,
+            x: binding.valueX,
+            y: binding.y,
+            z: topZ,
+            visible: true,
+            text: 'N/A',
+            fontSize: 4,
+            width: binding.valueWidth,
+            align: 'right'
+          };
+          layers.push(value);
+        }
+        label.label = `${sectionId.toUpperCase()} score card label ${index + 1}`;
+        label.fontSize = label.fontSize || 4;
+        label.align = label.align || 'left';
+        label.width = label.width || binding.labelWidth;
+        label.z = label.z || topZ;
+        value.label = `${sectionId.toUpperCase()} score card value ${index + 1}`;
+        value.fontSize = value.fontSize || 4;
+        value.align = value.align || 'right';
+        value.z = value.z || topZ;
+        const valueRight = (Number(value.x) || 0) + (Number(value.width) || binding.valueWidth);
+        const overlapsArrowSlot = binding.arrowMinX != null && valueRight > binding.arrowMinX - 2;
+        if (overlapsArrowSlot && !value.manualPosition) {
+          value.x = binding.valueX;
+          value.y = binding.y;
+          value.width = binding.valueWidth;
+        }
+      });
+    }
+  }
+
+  function ensureMacroTotalTextLayers(layout) {
+    const specsBySection = {
+      fats: [
+        { id: 'fats_macro_label', label: 'FATS macro label', x: 35, y: 43, fontSize: 8, text: 'fats', width: 40, align: 'left' },
+        { id: 'fats_macro_value', label: 'FATS macro grams', x: 35, y: 54, fontSize: 7, text: 'N/A', width: 34, align: 'left' }
+      ],
+      carbs: [
+        { id: 'carbs_macro_label', label: 'CARBS macro label', x: 35, y: 43, fontSize: 8, text: 'CARBS', width: 40, align: 'left' },
+        { id: 'carbs_macro_value', label: 'CARBS macro grams', x: 35, y: 54, fontSize: 7, text: 'N/A', width: 34, align: 'left' }
+      ],
+      protein: [
+        { id: 'protein_macro_label', label: 'PROTEIN macro label', x: 35, y: 43, fontSize: 8, text: 'PROTEIN', width: 50, align: 'left' },
+        { id: 'protein_macro_value', label: 'PROTEIN macro grams', x: 35, y: 54, fontSize: 7, text: 'N/A', width: 34, align: 'left' }
+      ]
+    };
+    for (const [sectionId, specs] of Object.entries(specsBySection)) {
+      const layers = getSectionLayers(layout, sectionId);
+      const topZ = Math.max(9, layers.reduce((max, layer) => Math.max(max, Number(layer.z) || 0), 0) + 1);
+      specs.forEach(spec => {
+        let layer = layers.find(item => item.id === spec.id);
+        if (!layer) {
+          layer = {
+            id: spec.id,
+            kind: 'text',
+            label: spec.label,
+            x: spec.x,
+            y: spec.y,
+            z: topZ,
+            visible: true,
+            text: spec.text,
+            fontSize: spec.fontSize,
+            width: spec.width,
+            align: spec.align
+          };
+          layers.push(layer);
+        }
+        layer.label = spec.label;
+        layer.fontSize = layer.fontSize || spec.fontSize;
+        layer.width = layer.width || spec.width;
+        layer.align = layer.align || spec.align;
+        layer.z = Math.max(Number(layer.z) || 0, topZ);
+      });
+    }
+  }
+
+  function syncMacroTotalTextForSection(layout, sectionId, labelText, valueText) {
+    const layers = getSectionLayers(layout, sectionId);
+    const label = layers.find(layer => layer.id === `${sectionId}_macro_label`);
+    const value = layers.find(layer => layer.id === `${sectionId}_macro_value`);
+    if (label && !label.manualText) label.text = labelText;
+    if (value && !value.manualText) value.text = valueText;
+  }
+
+  function syncMacroTotalText(layout, food) {
+    syncMacroTotalTextForSection(layout, 'fats', 'fats', formatMetric(food?.header?.fat_g, 'g'));
+    syncMacroTotalTextForSection(layout, 'carbs', 'CARBS', formatMetric(macroTotalValue(food, 'carbs'), 'g'));
+    syncMacroTotalTextForSection(layout, 'protein', 'PROTEIN', formatMetric(food?.header?.protein_g, 'g'));
+  }
+
+  function macroBarLayerSection(layer, fallbackSectionId = '') {
+    const fingerprint = `${layer?.id || ''} ${layer?.label || ''} ${layer?.src || ''}`.toLowerCase();
+    if (fingerprint.includes('section_1_fats') || /\bfat(?:s)?[_ -]?(?:macro_)?bar/.test(fingerprint)) return 'fats';
+    if (fingerprint.includes('section_2_carbs') || /\bcarb(?:s)?[_ -]?(?:macro_)?bar/.test(fingerprint)) return 'carbs';
+    if (fingerprint.includes('section_3_protein') || /\bprotein[_ -]?(?:macro_)?bar/.test(fingerprint)) return 'protein';
+    return ['fats', 'carbs', 'protein'].includes(fallbackSectionId) ? fallbackSectionId : '';
+  }
+
   function isMacroBarFrame(layer) {
     const fingerprint = `${layer?.id || ''} ${layer?.label || ''} ${layer?.src || ''}`.toLowerCase();
     return isSpriteLayer(layer) && /(macro_bar_frame|bar_frame|macro bar frame)/.test(fingerprint);
@@ -1224,6 +1642,106 @@
   function isMacroBarFill(layer) {
     const fingerprint = `${layer?.id || ''} ${layer?.label || ''} ${layer?.src || ''}`.toLowerCase();
     return isSpriteLayer(layer) && /(macro_bar_fill|bar_fill|macro bar fill)/.test(fingerprint);
+  }
+
+  const MACRO_BAR_LAYER_SPECS = {
+    fats: {
+      fillId: 'fats_macro_bar_fill',
+      fillLabel: 'FATS macro bar fill',
+      fillSrc: './sprites/macros_section/section_1_fats/fat_macro_bar_fill.gif',
+      frameId: 'fats_macro_bar_frame',
+      frameLabel: 'Macro bar frame',
+      frameSrc: './sprites/macros_section/macro_bar_frame.png'
+    },
+    carbs: {
+      fillId: 'carbs_macro_bar_fill',
+      fillLabel: 'CARBS macro bar fill',
+      fillSrc: './sprites/macros_section/section_2_carbs/carb_macro_bar_fill.gif',
+      frameId: 'carbs_macro_bar_frame',
+      frameLabel: 'Macro bar frame',
+      frameSrc: './sprites/macros_section/macro_bar_frame.png'
+    },
+    protein: {
+      fillId: 'protein_macro_bar_fill',
+      fillLabel: 'PROTEIN macro bar fill',
+      fillSrc: './sprites/macros_section/section_3_protein/protein_macro_bar_fill.gif',
+      frameId: 'protein_macro_bar_frame',
+      frameLabel: 'Macro bar frame',
+      frameSrc: './sprites/macros_section/macro_bar_frame.png'
+    }
+  };
+
+  function ensureMacroBarLayers(layout) {
+    for (const [sectionId, spec] of Object.entries(MACRO_BAR_LAYER_SPECS)) {
+      const layers = getSectionLayers(layout, sectionId);
+      layers.forEach(layer => {
+        if (!isMacroBarFill(layer) || macroBarLayerSection(layer, sectionId) !== sectionId) return;
+        const isLibraryLayer = String(layer?.label || '').startsWith('Library: ') || /^lib_/i.test(String(layer?.id || ''));
+        layer.src = spec.fillSrc;
+        if (isLibraryLayer) return;
+        layer.label = spec.fillLabel;
+        if (sectionId === 'protein') layer.id = spec.fillId;
+      });
+      const hasFrame = spec.frameId
+        ? layers.some(layer => isMacroBarFrame(layer) && macroBarLayerSection(layer, sectionId) === sectionId)
+        : true;
+      const hasFill = layers.some(layer => isMacroBarFill(layer) && macroBarLayerSection(layer, sectionId) === sectionId);
+      if (!hasFill) {
+        layers.push({
+          id: spec.fillId,
+          kind: 'sprite',
+          label: spec.fillLabel,
+          src: spec.fillSrc,
+          x: 31,
+          y: 48,
+          z: 7,
+          width: 88,
+          height: 14,
+          visible: true,
+          foodDriven: true,
+          preserveAspect: false,
+          manualPosition: false
+        });
+      }
+      if (!hasFrame) {
+        layers.push({
+          id: spec.frameId,
+          kind: 'sprite',
+          label: spec.frameLabel,
+          src: spec.frameSrc,
+          x: 31,
+          y: 48,
+          z: 8,
+          width: 88,
+          height: 14,
+          visible: true,
+          foodDriven: false,
+          preserveAspect: false,
+          manualPosition: false
+        });
+      }
+    }
+  }
+
+  function syncMacroBars(layout, food) {
+    for (const sectionId of ['fats', 'carbs', 'protein']) {
+      const sectionLayers = getSectionLayers(layout, sectionId);
+      const frameZ = sectionLayers
+        .filter(isMacroBarFrame)
+        .reduce((maxZ, layer) => Math.max(maxZ, Number(layer.z) || 0), 0);
+      for (const layer of sectionLayers) {
+        if (isMacroBarFrame(layer)) {
+          layer.label = layer.label || 'Macro bar frame';
+        }
+        if (!isMacroBarFill(layer)) continue;
+        const layerSection = macroBarLayerSection(layer, sectionId) || sectionId;
+        layer.label = layer.label || `${layerSection.toUpperCase()} macro bar fill`;
+        layer.fillRatio = macroBarFillRatio(food, layerSection);
+        layer.fillRange = macroFillRange(food?.foodType, layerSection);
+        layer.fillValue = macroValue(food, layerSection);
+        layer.z = Math.max(Number(layer.z) || 0, frameZ + 1);
+      }
+    }
   }
 
   function episodeDisplayItemForSpec(food, sectionId, spec) {
@@ -1370,6 +1888,84 @@
     return { count: 1, color: 'green', direction: null };
   }
 
+  function visibleArrowIndexes(count, total) {
+    if (count >= total) return new Set(Array.from({ length: total }, (_, index) => index));
+    if (count === 1) return new Set([Math.floor(total / 2)]);
+    if (count === 2 && total >= 3) return new Set([0, total - 1]);
+    return new Set(Array.from({ length: Math.max(0, count) }, (_, index) => index));
+  }
+
+  function syncMacroArrows(layout, food) {
+    for (const sectionId of ['fats', 'carbs', 'protein']) {
+      macroSubmetricBindings(layout, sectionId, food).forEach(binding => {
+        const arrows = binding.arrowLayers.sort((a, b) => (Number(a.x) || 0) - (Number(b.x) || 0));
+        if (!arrows.length) return;
+        const presentation = macroArrowPresentation(food, sectionId, binding.spec);
+        const visibleIndexes = visibleArrowIndexes(presentation.count, arrows.length);
+        arrows.forEach((layer, index) => {
+          layer.src = appSpritePath(`macros_section/arrow_indicators/${presentation.color === 'red' ? 'red' : 'green'}_arrow.png`);
+          layer.label = `${presentation.color === 'red' ? 'Red' : 'Green'} ${presentation.flipY ? 'down' : 'up'} arrow indicator`;
+          layer.flipY = !!presentation.flipY;
+          layer.visible = visibleIndexes.has(index);
+        });
+      });
+    }
+  }
+
+  function syncMicros(layout, food, sectionId, specs, labelPrefix, valuePrefix) {
+    const layers = getSectionLayers(layout, sectionId);
+    const columns = microsColumns(layers);
+    specs.forEach((spec, index) => {
+      const label = layers.find(layer => layer.id === `${labelPrefix}_${index + 1}`);
+      const value = layers.find(layer => layer.id === `${valuePrefix}_${index + 1}`);
+      if (label && !label.manualText) label.text = spec.shortLabel;
+      if (value && !value.manualText) value.text = formatDvPercent(food, spec.key);
+
+      const step = micronutrientStep(food?.metrics?.[spec.key]);
+      const visiblePercent = step == null ? 0 : step * 10;
+      const column = nearestColumn(columns, value || label, index);
+      if (!column) return;
+      column.items.forEach(item => {
+        item.layer.visible = step != null && item.percent <= visiblePercent;
+      });
+      if (value) {
+        if (value.manualPosition) return;
+        const anchorPercent = Math.max(10, visiblePercent);
+        const anchor = column.items.find(item => item.percent === anchorPercent) || column.items[0];
+        if (anchor) {
+          const bar = anchor.layer;
+          const barWidth = Number(bar.width) || 11;
+          value.width = Math.max(6, Math.min(10, barWidth));
+          value.x = Math.round((Number(bar.x) || 0) + ((barWidth - value.width) / 2));
+          value.y = clamp(Math.round((Number(bar.y) || 0) + 1), 44, 220);
+          value.align = 'center';
+          value.fontSize = 2.5;
+          value.z = Math.max(Number(value.z) || 0, (Number(bar.z) || 0) + 5);
+        }
+      }
+    });
+  }
+
+  function syncProsCons(layout, food) {
+    for (const sectionId of ['pros', 'cons']) {
+      const layers = getSectionLayers(layout, sectionId);
+      const items = food?.contextItems?.[sectionId] || [];
+      for (let index = 0; index < 3; index += 1) {
+        const impact = layers.find(layer => layer.id === `${sectionId}_impact_${index + 1}`);
+        const item = layers.find(layer => layer.id === `${sectionId}_item_${index + 1}`);
+        if (impact && !impact.manualText) impact.text = formatImpact(items[index]?.impactLevel);
+        if (item && !item.manualText) item.text = items[index]?.title || `${sectionId === 'pros' ? 'Positive' : 'Negative'} point ${index + 1}`;
+      }
+    }
+  }
+
+  function formatImpact(level) {
+    const value = String(level || '').toLowerCase();
+    if (value.includes('major')) return 'MAJOR';
+    if (value.includes('minor')) return 'MINOR';
+    return 'POINT';
+  }
+
   function overallScore(food) {
     return food?.episode?.overallScore ?? food?.overallScore ?? null;
   }
@@ -1456,6 +2052,82 @@
     node.style.setProperty('--outro-score-glow-wide', style.wide);
   }
 
+  function ensureOutroTierStampLayer(layout, food) {
+    const layers = getSectionLayers(layout, 'outro');
+    let layer = layers.find(item => item.id === 'outro_d_tier_stamp');
+    const hadExistingLayer = Boolean(layer);
+    if (!layer) {
+      layer = {
+        id: 'outro_d_tier_stamp',
+        kind: 'sprite',
+        label: 'D tier verdict stamp',
+        src: OUTRO_D_TIER_SPRITE_PATH,
+        x: 28.5,
+        y: 62.5,
+        z: 38,
+        width: 78,
+        height: 78,
+        visible: true,
+        foodDriven: false,
+        preserveAspect: true,
+        aspectRatio: 1,
+        centerAnchor: 'visible-canvas',
+        centerOffsetX: 0,
+        centerOffsetY: 0,
+        effect: 'd-tier-stamp'
+      };
+      layers.push(layer);
+    }
+
+    const tier = String(scoreTier(food)).trim().toUpperCase();
+    layer.src = OUTRO_D_TIER_SPRITE_PATH;
+    layer.label = 'D tier verdict stamp';
+    layer.visible = tier === 'D';
+    layer.effect = 'd-tier-stamp';
+    if (layer.preserveAspect !== false) layer.preserveAspect = true;
+    if (!Number.isFinite(Number(layer.x))) layer.x = 28.5;
+    if (!Number.isFinite(Number(layer.y))) layer.y = 62.5;
+    if (!Number.isFinite(Number(layer.z))) layer.z = 38;
+    if (!Number.isFinite(Number(layer.width))) layer.width = 78;
+    if (!Number.isFinite(Number(layer.height))) layer.height = 78;
+    if (!Number.isFinite(Number(layer.aspectRatio))) layer.aspectRatio = 1;
+    if (!hadExistingLayer && !layer.centerAnchor) layer.centerAnchor = 'visible-canvas';
+    if (layer.centerAnchor === 'visible-canvas') {
+      if (!Number.isFinite(Number(layer.centerOffsetX))) layer.centerOffsetX = 0;
+      if (!Number.isFinite(Number(layer.centerOffsetY))) layer.centerOffsetY = 0;
+    }
+  }
+
+  function normalizeOutroScoreLayout(layout) {
+    const layer = getSectionLayers(layout, 'outro').find(item => item.id === 'outro_score_value');
+    if (!layer) return;
+    layer.x = 64;
+    layer.y = 24;
+    layer.fontSize = 5;
+    layer.width = 5;
+    layer.align = 'center';
+    layer.z = 11;
+  }
+
+  function deletedLayerIdSet(layout) {
+    return new Set((Array.isArray(layout?.meta?.deletedLayerIds) ? layout.meta.deletedLayerIds : [])
+      .map(id => String(id || '').trim())
+      .filter(Boolean));
+  }
+
+  function filterDeletedLayers(layout) {
+    const deletedIds = deletedLayerIdSet(layout);
+    if (!deletedIds.size) return;
+    const activeDeletedIds = new Set([...deletedIds].filter(id => !isAnyManagedSectionIndicatorId(id)));
+    if (activeDeletedIds.size !== deletedIds.size && layout.meta) {
+      layout.meta.deletedLayerIds = [...activeDeletedIds].sort();
+    }
+    for (const section of SECTIONS) {
+      layout.sections[section.id].layers = getSectionLayers(layout, section.id)
+        .filter(layer => !layer.id || !activeDeletedIds.has(String(layer.id)));
+    }
+  }
+
   function hydrateLayoutForFood({ requestExport = true } = {}) {
     const food = selectedFood();
     const selectedSource = selectedLayoutSourceOption();
@@ -1464,18 +2136,20 @@
       state.layout = null;
       const requested = requestExport ? requestDisplayBuilderV2PlacementExport(food) : false;
       const status = requested || state.displayBuilderExportStatus === 'building'
-        ? 'building Display Builder v2 placement export'
+        ? 'building'
         : state.displayBuilderExportStatus === 'missing-source'
-          ? 'needs a Display Builder v2 layout source'
-          : 'needs a Display Builder v2 placement export';
-      els.layoutStatus.textContent = `${food?.name || 'Selected food'} ${status} · ${BUILDER_BUILD_ID}`;
+          ? 'missing'
+          : 'missing export';
+      els.layoutStatus.textContent = `DBv2 ${status}`;
+      els.layoutStatus.title = `${food?.name || 'Selected food'} ${status} Display Builder v2 placement · ${BUILDER_BUILD_ID}`;
       return;
     }
     state.layout = layout;
     state.displayBuilderExportStatus = 'ready';
     prewarmMacroBarGifVariants(layout, food);
-    const layoutLabel = selectedSource?.label || 'Display Builder v2 export';
-    els.layoutStatus.textContent = `${layoutLabel} · exact export · ${BUILDER_BUILD_ID}`;
+    const layoutLabel = selectedSource?.label || 'Display Builder v2 placement';
+    els.layoutStatus.textContent = 'DBv2 ready';
+    els.layoutStatus.title = `${layoutLabel} · ${BUILDER_BUILD_ID}`;
   }
 
   function captionFromEpisode(food, sectionId) {
@@ -1803,7 +2477,7 @@
     if (!options.length) {
       const food = selectedFood();
       state.layoutSourceId = '';
-      els.layoutSource.innerHTML = `<option value="">${escapeHtml(`No Display Builder v2 export for ${selectedFoodLabel(food?.id || '')}`)}</option>`;
+      els.layoutSource.innerHTML = `<option value="">${escapeHtml(`No Display Builder v2 placement for ${selectedFoodLabel(food?.id || '')}`)}</option>`;
       els.layoutSource.value = '';
       return;
     }
@@ -1828,6 +2502,7 @@
       button.addEventListener('click', () => {
         state.selectedFoodId = food.id;
         state.layoutSourceId = '';
+        state.displayBuilderExportStatus = '';
         state.currentTime = 0;
         state.selectedSceneId = 'intro';
         state.audioTimelineKey = '';
@@ -1884,16 +2559,14 @@
     const timedScene = activeSceneAt();
     if (timedScene && state.selectedSceneId !== timedScene.id) state.selectedSceneId = timedScene.id;
     const selected = state.scenes.find(item => item.id === state.selectedSceneId) || scene;
-    if (els.activeSceneTitle) els.activeSceneTitle.textContent = selected?.label || 'Scene';
-    if (els.sceneStatus) {
-      els.sceneStatus.textContent = selected
-        ? `${selected.duration.toFixed(1)}s${sceneHoldSeconds(selected) ? ` · ${sceneHoldSeconds(selected).toFixed(1)}s hold` : ''}`
-        : '0.0s';
-    }
-    if (els.sceneDuration) els.sceneDuration.value = selected?.duration ?? '';
-    if (els.revealStyle) els.revealStyle.value = selected?.reveal || 'cascade';
-    if (els.captionSize) els.captionSize.value = selected?.captionSize || 22;
-    if (els.captionText) els.captionText.value = selected?.caption || '';
+    els.activeSceneTitle.textContent = selected?.label || 'Scene';
+    els.sceneStatus.textContent = selected
+      ? `${selected.duration.toFixed(1)}s${sceneHoldSeconds(selected) ? ` · ${sceneHoldSeconds(selected).toFixed(1)}s hold` : ''}`
+      : '0.0s';
+    els.sceneDuration.value = selected?.duration ?? '';
+    els.revealStyle.value = selected?.reveal || 'cascade';
+    els.captionSize.value = selected?.captionSize || 22;
+    els.captionText.value = selected?.caption || '';
     els.playPause.textContent = state.playing ? 'Pause' : 'Play';
     updateAudioControls();
 
@@ -1904,7 +2577,7 @@
   }
 
   function renderManifest() {
-    if (els.manifestOutput) els.manifestOutput.value = JSON.stringify(buildManifest(), null, 2);
+    els.manifestOutput.value = JSON.stringify(buildManifest(), null, 2);
   }
 
   function buildManifest() {
@@ -2001,19 +2674,46 @@
     };
   }
 
+  function backdropPalette(food = selectedFood()) {
+    const palettes = {
+      vegetables: { top: '#dff4cf', bottom: '#bfd8b0', glowA: 'rgba(219,255,183,.78)', glowB: 'rgba(108,169,104,.38)' },
+      fruits: { top: '#ffe0dc', bottom: '#e7b8b5', glowA: 'rgba(255,173,165,.78)', glowB: 'rgba(219,109,101,.34)' },
+      grains: { top: '#f6e7bf', bottom: '#dbc48a', glowA: 'rgba(255,235,163,.78)', glowB: 'rgba(199,151,66,.30)' },
+      legumes: { top: '#e5d8c9', bottom: '#c0a78a', glowA: 'rgba(234,204,163,.76)', glowB: 'rgba(142,102,62,.28)' },
+      tubers: { top: '#f5d7bf', bottom: '#d2a17d', glowA: 'rgba(255,196,144,.74)', glowB: 'rgba(182,106,58,.28)' },
+      nuts: { top: '#ead8c8', bottom: '#c39b7f', glowA: 'rgba(243,207,175,.76)', glowB: 'rgba(128,77,47,.28)' },
+      seeds: { top: '#f2e2c8', bottom: '#cfb48f', glowA: 'rgba(255,231,188,.76)', glowB: 'rgba(162,128,80,.26)' },
+      meats: { top: '#f2d0d3', bottom: '#c08a90', glowA: 'rgba(255,188,196,.72)', glowB: 'rgba(146,61,73,.28)' },
+      dairy: { top: '#f4f0e8', bottom: '#d9d2c2', glowA: 'rgba(255,255,255,.68)', glowB: 'rgba(214,196,155,.22)' },
+      'oils-and-fats': { top: '#f6e7a9', bottom: '#d1b851', glowA: 'rgba(255,235,135,.74)', glowB: 'rgba(175,138,28,.28)' },
+      misc: { top: '#ece7e2', bottom: '#cfc5bc', glowA: 'rgba(255,255,255,.66)', glowB: 'rgba(140,120,108,.22)' }
+    };
+    return palettes[normalizeFoodType(food?.foodType)] || palettes.misc;
+  }
+
+  function backgroundFieldGradient(food = selectedFood()) {
+    const palette = backdropPalette(food);
+    return `radial-gradient(circle at 18% 12%, ${palette.glowA}, transparent 24%), radial-gradient(circle at 82% 16%, ${palette.glowB}, transparent 28%), linear-gradient(180deg, ${palette.top} 0%, ${palette.bottom} 100%)`;
+  }
+
   function persistentChromeLayers(sectionId, food) {
     const sectionLayers = getSectionLayers(state.layout, sectionId);
+    const introLayers = getSectionLayers(state.layout, 'intro');
     const sectionHeader = sectionLayers.filter(isHeaderChrome);
+    const introHeader = introLayers.filter(isHeaderChrome);
     const sectionUiChrome = sectionLayers.filter(layer => isPersistentChrome(layer) && !isHeaderChrome(layer));
+    const introUiChrome = introLayers.filter(layer => isPersistentChrome(layer) && !isHeaderChrome(layer));
     return [
-      ...sectionHeader,
-      ...sectionUiChrome
+      ...(sectionHeader.length ? sectionHeader : introHeader),
+      ...(sectionUiChrome.length ? sectionUiChrome : introUiChrome)
     ].map(clone);
   }
 
   function sceneContentLayers(sectionId) {
-    return getSectionLayers(state.layout, sectionId)
-      .filter(layer => !isPersistentChrome(layer));
+    const layers = getSectionLayers(state.layout, sectionId)
+      .filter(layer => !isPersistentChrome(layer) && !isSectionIndicator(layer));
+    if (sectionId === 'intro') return [...layers, ...introHookLayers(selectedFood())];
+    return layers;
   }
 
   function sceneLayerRevealSchedule(scene, food = selectedFood()) {
@@ -2055,29 +2755,33 @@
     return { bg, phoneBg, layerRoot, vignette, caption };
   }
 
-  function renderMissingDisplayBuilderV2Export() {
-    const food = selectedFood();
-    els.videoStage.innerHTML = '';
-    els.videoStage.style.backgroundColor = '#d6d6d6';
-    const notice = document.createElement('div');
-    notice.className = 'caption-box';
-    notice.style.opacity = '1';
-    notice.style.inset = 'auto calc(8px * var(--pixel-unit)) calc(92px * var(--pixel-unit))';
-    notice.textContent = state.displayBuilderExportStatus === 'building'
-      ? `Building Display Builder v2 placement for ${food?.name || 'this food'}...`
-      : `No Display Builder v2 placement is available for ${food?.name || 'this food'}.`;
-    els.videoStage.appendChild(notice);
-  }
-
   function renderStage() {
     const food = selectedFood();
     const scene = activeSceneAt();
+    const roots = ensureStageRoots();
     if (!state.layout || !scene) {
-      renderMissingDisplayBuilderV2Export();
+      roots.layerRoot.replaceChildren();
+      roots.caption.replaceChildren();
+      roots.bg.replaceChildren();
+      roots.bg.style.background = '';
+      els.videoStage.style.backgroundColor = '#d6d6d6';
+      const notice = document.createElement('div');
+      notice.className = 'layer-node text pixel-text';
+      notice.textContent = state.displayBuilderExportStatus === 'building'
+        ? `Building Display Builder v2 placement for ${food?.name || 'this food'}...`
+        : `No Display Builder v2 placement is available for ${food?.name || 'this food'}.`;
+      notice.style.left = 'calc(12 * var(--pixel-unit))';
+      notice.style.top = 'calc(102 * var(--pixel-unit))';
+      notice.style.width = 'calc(111 * var(--pixel-unit))';
+      notice.style.fontSize = 'calc(5 * var(--pixel-unit))';
+      notice.style.lineHeight = '1.2';
+      notice.style.textAlign = 'center';
+      notice.style.color = '#ffffff';
+      notice.style.zIndex = '20';
+      roots.layerRoot.appendChild(notice);
       return;
     }
 
-    const roots = ensureStageRoots();
     const contentDuration = sceneContentDuration(scene);
     const sceneElapsed = clamp(state.currentTime - scene.start, 0, scene.duration);
     const sceneProgress = clamp(sceneElapsed / contentDuration, 0, 1);
@@ -2091,10 +2795,9 @@
       return (Number(a.layer.z) || 0) - (Number(b.layer.z) || 0)
         || (a.persistent === b.persistent ? 0 : a.persistent ? 1 : -1);
     });
-    const canvasBackground = state.layout?.canvas?.background || '#d6d6d6';
-    els.videoStage.style.backgroundColor = canvasBackground;
-    roots.bg.style.background = canvasBackground;
-    roots.bg.replaceChildren();
+    els.videoStage.style.backgroundColor = state.layout?.canvas?.background || '#d6d6d6';
+    roots.bg.style.background = backgroundFieldGradient(food);
+    void renderDynamicBackground(roots.bg, food);
 
     const layerList = layers.map(item => item.layer);
     const revealSchedules = layers.map(({ layer, index, persistent }) => (
@@ -2109,6 +2812,34 @@
       Array.from(roots.layerRoot.querySelectorAll('[data-render-key]')).map(node => [node.dataset.renderKey || '', node])
     );
     const nextLayerNodes = document.createDocumentFragment();
+    const macroHeadSchedules = revealSchedules.filter(isMacroHeadRevealSchedule);
+    const macroHeadMaxZ = layers.reduce((maxZ, { layer }, scheduleIndex) => (
+      isMacroHeadRevealSchedule(revealSchedules[scheduleIndex])
+        ? Math.max(maxZ, Number(layer.z) || 0)
+        : maxZ
+    ), 0);
+    const macroHeadGroupKey = `scene:macro-head-group:${scene.id}`;
+    let macroHeadGroup = null;
+    if (macroHeadSchedules.length) {
+      macroHeadGroup = existingNodes.get(macroHeadGroupKey);
+      if (!macroHeadGroup || !macroHeadGroup.classList?.contains('macro-head-group')) {
+        macroHeadGroup = document.createElement('div');
+      }
+      macroHeadGroup.replaceChildren();
+      macroHeadGroup.removeAttribute('style');
+      macroHeadGroup.className = 'layer-group macro-head-group';
+      macroHeadGroup.dataset.renderKey = macroHeadGroupKey;
+      macroHeadGroup.dataset.revealFamily = 'macro';
+      macroHeadGroup.dataset.revealKind = 'macro-head-group';
+      macroHeadGroup.style.position = 'absolute';
+      macroHeadGroup.style.inset = '0';
+      macroHeadGroup.style.pointerEvents = 'none';
+      macroHeadGroup.style.isolation = 'isolate';
+      macroHeadGroup.style.willChange = 'opacity';
+      macroHeadGroup.style.opacity = String(macroHeadRevealOpacity(scene, sceneProgress, revealSchedules));
+      macroHeadGroup.style.zIndex = String(macroHeadMaxZ);
+      nextLayerNodes.appendChild(macroHeadGroup);
+    }
     layers.forEach(({ layer, index, persistent }, renderIndex) => {
       if (layer.visible === false) return;
       const macroBarFillLayer = !persistent && isMacroBarFill(layer);
@@ -2128,14 +2859,18 @@
       node.dataset.revealDelay = revealDelay.toFixed(3);
       node.dataset.revealFamily = revealSchedule.family;
       node.dataset.revealKind = revealSchedule.kind;
-      const groupedMacroHeadReveal = false;
-      node.style.zIndex = String(Number(layer.z) || 0);
+      const groupedMacroHeadReveal = Boolean(macroHeadGroup && isMacroHeadRevealSchedule(revealSchedule));
+      node.style.zIndex = String(
+        groupedMacroHeadReveal && revealSchedule.kind === 'icon'
+          ? macroHeadMaxZ + 2
+          : Number(layer.z) || 0
+      );
       applyLayerBox(node, layer);
       applyLayerAnimation(node, layer, scene, sceneProgress, index, persistent, revealSchedule, {
         groupedReveal: groupedMacroHeadReveal,
         opaqueSpriteReveal: shouldRevealStackedMacroSpriteOpaque(layer, revealSchedule, layerList)
       });
-      const renderParent = nextLayerNodes;
+      const renderParent = groupedMacroHeadReveal ? macroHeadGroup : nextLayerNodes;
       if (macroBarFillLayer) {
         drawMacroBarFillCanvas(node, layer, sceneElapsed, revealSchedule);
         renderParent.appendChild(node);
@@ -2212,6 +2947,20 @@
     return `calc(${Number(scene.captionSize) || 22}px * 0.25 * var(--pixel-unit))`;
   }
 
+  function defaultBackgroundMotion() {
+    return {
+      enabled: true,
+      mode: 'foodType',
+      density: 12,
+      opacity: 0.18,
+      minDuration: 14,
+      maxDuration: 24,
+      minSize: 24,
+      maxSize: 40,
+      drift: 16
+    };
+  }
+
   function getResponsiveAssetScale() {
     const desktopComfortable = window.innerWidth >= 1600 && window.innerHeight >= 900;
     if (desktopComfortable) return 4;
@@ -2234,6 +2983,92 @@
 
   function setCanvasScale() {
     document.documentElement.style.setProperty('--pixel-unit', String(getResponsiveAssetScale()));
+  }
+
+  async function renderDynamicBackground(field, food) {
+    const motion = { ...defaultBackgroundMotion(), ...((state.layout?.canvas?.backgroundMotion) || {}) };
+    const key = JSON.stringify({
+      foodId: food?.id || '',
+      foodType: normalizeFoodType(food?.foodType),
+      motion
+    });
+    if (state.backgroundKey === key && field.childElementCount) return;
+    state.backgroundKey = key;
+    const token = state.backgroundToken + 1;
+    state.backgroundToken = token;
+    field.innerHTML = '';
+    if (motion.enabled === false) return;
+
+    let sourcePool = [];
+    if (motion.mode === 'allFoods') {
+      sourcePool = [...foods];
+    } else if (motion.mode === 'selectedFood') {
+      sourcePool = [food];
+    } else {
+      sourcePool = [food, ...foods.filter(item => item.id !== food?.id && normalizeFoodType(item.foodType) === normalizeFoodType(food?.foodType))];
+    }
+    sourcePool = sourcePool.filter(Boolean);
+    if (!sourcePool.length && food) sourcePool = [food];
+    if (!sourcePool.length) return;
+
+    const enrichedPool = sourcePool.map(item => {
+      const candidates = foodSpriteCandidates(item);
+      const hasPrimary = hasCustomFoodImage(item);
+      return {
+        food: item,
+        src: spritePath(hasPrimary ? candidates.primary : candidates.fallback),
+        usedFallback: !hasPrimary,
+        fallback: spritePath(candidates.fallback)
+      };
+    });
+    if (token !== state.backgroundToken) return;
+
+    const selectedPrimary = enrichedPool.find(item => item.food?.id === food?.id && !item.usedFallback);
+    const primaryPool = enrichedPool.filter(item => !item.usedFallback);
+    const renderPool = selectedPrimary
+      ? [selectedPrimary, ...primaryPool.filter(item => item.food?.id !== food?.id)]
+      : (primaryPool.length ? primaryPool : enrichedPool);
+    const onlyFallbacks = !primaryPool.length;
+
+    const density = Math.max(1, Number(motion.density) || defaultBackgroundMotion().density);
+    const minDuration = Math.max(4, Number(motion.minDuration) || defaultBackgroundMotion().minDuration);
+    const maxDuration = Math.max(minDuration, Number(motion.maxDuration) || defaultBackgroundMotion().maxDuration);
+    const minSize = Math.max(12, Number(motion.minSize) || defaultBackgroundMotion().minSize);
+    const maxSize = Math.max(minSize, Number(motion.maxSize) || defaultBackgroundMotion().maxSize);
+    const drift = Math.max(0, Number(motion.drift) || 0);
+    const opacity = Math.min(0.5, Math.max(0.04, Number(motion.opacity) || defaultBackgroundMotion().opacity));
+
+    Array.from({ length: density }).forEach((_, index) => {
+      const choice = renderPool[index % renderPool.length] || renderPool[0];
+      const img = document.createElement('img');
+      const progress = density <= 1 ? 0.5 : index / (density - 1);
+      const sizeBias = onlyFallbacks ? 0.72 : 1;
+      const size = Math.round((minSize + (maxSize - minSize) * ((index % 5) / 4 || 0)) * sizeBias);
+      const duration = Math.round(minDuration + (maxDuration - minDuration) * ((index % 7) / 6 || 0) + (onlyFallbacks ? 4 : 0));
+      img.className = 'bg-sprite';
+      img.src = choice?.src || choice?.fallback;
+      img.alt = '';
+      img.style.left = `${8 + progress * 76}%`;
+      img.style.top = `${-40 - (index % 5) * 26}px`;
+      img.style.width = `${size}px`;
+      img.style.height = `${size}px`;
+      img.style.objectFit = 'contain';
+      img.style.objectPosition = 'center';
+      img.style.opacity = String(onlyFallbacks ? Math.min(opacity, 0.12) : opacity);
+      img.style.animationDuration = `${duration}s`;
+      img.style.animationDelay = `${-(index * 1.7)}s`;
+      img.style.setProperty('--drift-x', `${(index % 2 === 0 ? 1 : -1) * Math.max(2, drift - (index % 4) * 2)}px`);
+      img.onerror = () => {
+        const failedSrc = img.currentSrc || img.src || choice?.src;
+        if (choice?.fallback && img.src !== new URL(choice.fallback, window.location.href).href) {
+          recordSpriteFailure(failedSrc, choice.fallback, choice?.food?.name || '');
+          img.src = choice.fallback;
+          return;
+        }
+        recordSpriteFailure(failedSrc, '', choice?.food?.name || '');
+      };
+      field.appendChild(img);
+    });
   }
 
   function captionChunks(text, maxLineChars = CAPTION_MAX_LINE_CHARS) {
@@ -3478,10 +4313,15 @@
   }
 
   function layerGridBox(layer) {
-    const layerX = Number(layer?.x) || 0;
-    const layerY = Number(layer?.y) || 0;
+    let layerX = Number(layer?.x) || 0;
+    let layerY = Number(layer?.y) || 0;
     const layerWidth = Number(layer?.width) || 0;
     const layerHeight = Number(layer?.height) || 0;
+    if (layer?.centerAnchor === 'visible-canvas') {
+      const visible = visibleCanvasGridBounds();
+      layerX = ((visible.left + visible.right) / 2) - (layerWidth / 2) + (Number(layer.centerOffsetX) || 0);
+      layerY = ((visible.top + visible.bottom) / 2) - (layerHeight / 2) + (Number(layer.centerOffsetY) || 0);
+    }
     return {
       left: layerX,
       top: layerY,
@@ -3673,8 +4513,15 @@
   }
 
   function applyLayerBox(node, layer) {
-    const layerX = Number(layer.x) || 0;
-    const layerY = Number(layer.y) || 0;
+    let layerX = Number(layer.x) || 0;
+    let layerY = Number(layer.y) || 0;
+    if (layer.centerAnchor === 'visible-canvas') {
+      const visible = visibleCanvasGridBounds();
+      const layerWidth = Number(layer.width) || 0;
+      const layerHeight = Number(layer.height) || 0;
+      layerX = ((visible.left + visible.right) / 2) - (layerWidth / 2) + (Number(layer.centerOffsetX) || 0);
+      layerY = ((visible.top + visible.bottom) / 2) - (layerHeight / 2) + (Number(layer.centerOffsetY) || 0);
+    }
     node.style.left = `calc(${layerX}px * var(--pixel-unit))`;
     node.style.top = `calc(${layerY}px * var(--pixel-unit))`;
     if (layer.width) node.style.width = `calc(${Number(layer.width)}px * var(--pixel-unit))`;
@@ -4999,7 +5846,7 @@
     updateAudioControls();
   });
 
-  els.sceneDuration?.addEventListener('input', () => {
+  els.sceneDuration.addEventListener('input', () => {
     state.audioTimelineKey = '';
     state.audioDurationSeconds = null;
     updateSelectedScene(scene => {
@@ -5007,25 +5854,25 @@
     });
   });
 
-  els.revealStyle?.addEventListener('change', () => {
+  els.revealStyle.addEventListener('change', () => {
     updateSelectedScene(scene => {
       scene.reveal = els.revealStyle.value;
     });
   });
 
-  els.captionSize?.addEventListener('input', () => {
+  els.captionSize.addEventListener('input', () => {
     updateSelectedScene(scene => {
       scene.captionSize = clamp(asNumber(els.captionSize.value, scene.captionSize), 12, 34);
     });
   });
 
-  els.captionText?.addEventListener('input', () => {
+  els.captionText.addEventListener('input', () => {
     updateSelectedScene(scene => {
       scene.caption = els.captionText.value;
     });
   });
 
-  els.resetCaptions?.addEventListener('click', () => {
+  els.resetCaptions.addEventListener('click', () => {
     state.scenes = buildScenes(selectedFood());
     state.currentTime = 0;
     state.selectedSceneId = 'intro';
@@ -5034,15 +5881,15 @@
     renderAll();
   });
 
-  els.copyManifest?.addEventListener('click', async () => {
+  els.copyManifest.addEventListener('click', async () => {
     const text = JSON.stringify(buildManifest(), null, 2);
-    if (els.manifestOutput) els.manifestOutput.value = text;
+    els.manifestOutput.value = text;
     try {
       await navigator.clipboard.writeText(text);
       els.copyManifest.textContent = 'Copied';
       setTimeout(() => { els.copyManifest.textContent = 'Copy manifest'; }, 1000);
     } catch {
-      els.manifestOutput?.select();
+      els.manifestOutput.select();
     }
   });
 

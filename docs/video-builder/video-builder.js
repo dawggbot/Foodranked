@@ -3,7 +3,7 @@
   const FOOD_LAYOUTS_STORAGE_KEY = 'foodranked-display-builder-food-layouts-v1';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260722-split-audio-tail-guard-v1';
+  const BUILDER_BUILD_ID = '20260722-outro-tier-tail-guard-v1';
   const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -65,6 +65,8 @@
     { y: 0.78, width: 0.58, height: 1.8, delay: 0.36 }
   ];
   const STAMP_REVEAL_SECONDS = 0.36;
+  const OUTRO_TIER_STAMP_REVEAL_SECONDS = 0.72;
+  const OUTRO_TIER_REVEAL_LEAD_SECONDS = 0.12;
   const TEXT_LAYER_LINE_HEIGHT = 1.15;
   const FOOD_STAMP_REVEAL_SECONDS = 0.22;
   const STAMP_SHAKE_MAX_PIXELS = 2.8;
@@ -122,8 +124,10 @@
   const AUDIO_TIMELINE_SYNC_TOLERANCE_SECONDS = 0.12;
   const SPLIT_AUDIO_SCENE_SYNC_TOLERANCE_SECONDS = 0.005;
   const SPLIT_AUDIO_SCENE_TAIL_GUARD_SECONDS = 0.18;
+  const SPLIT_AUDIO_OUTRO_TAIL_GUARD_SECONDS = 0.9;
   const SPLIT_AUDIO_REPLAY_END_MARGIN_SECONDS = 0.08;
   const SECTION_HOLD_SECONDS = 0.5;
+  const OUTRO_HOLD_SECONDS = 0.7;
   const SECTION_HOLD_IDS = new Set(['intro', 'fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons']);
   const HIDDEN_CAPTION_SECTION_IDS = new Set(['intro']);
   const MACRO_REVEAL_SECONDS = 0.08;
@@ -2350,6 +2354,7 @@
   }
 
   function sectionHoldSeconds(sectionId) {
+    if (sectionId === 'outro') return OUTRO_HOLD_SECONDS;
     return SECTION_HOLD_IDS.has(sectionId) ? SECTION_HOLD_SECONDS : 0;
   }
 
@@ -2480,6 +2485,12 @@
     return (audio.blocks || []).filter(block => splitAudioBlockSceneKey(block) === sceneKey);
   }
 
+  function splitAudioSceneTailGuardSeconds(sceneId) {
+    return splitAudioSceneKey(sceneId) === 'outro'
+      ? SPLIT_AUDIO_OUTRO_TAIL_GUARD_SECONDS
+      : SPLIT_AUDIO_SCENE_TAIL_GUARD_SECONDS;
+  }
+
   function splitAudioGapAfterBlock(audio, blocks, index) {
     if (index >= blocks.length - 1) return 0;
     const current = blocks[index];
@@ -2496,7 +2507,7 @@
     const duration = blocks.reduce((sum, block, index) => {
       return sum + Math.max(0, asNumber(block.durationSeconds, 0) || 0) + splitAudioGapAfterBlock(audio, blocks, index);
     }, 0);
-    return Math.max(0.4, duration + (includeTailGuard ? SPLIT_AUDIO_SCENE_TAIL_GUARD_SECONDS : 0));
+    return Math.max(0.4, duration + (includeTailGuard ? splitAudioSceneTailGuardSeconds(sceneId) : 0));
   }
 
   function splitAudioPositionForSceneTime(audio, sceneId, sceneAudioTime) {
@@ -2508,7 +2519,7 @@
       const block = blocks[index];
       const duration = Math.max(0, asNumber(block.durationSeconds, 0) || 0);
       const isLast = index === blocks.length - 1;
-      const tailGuard = isLast ? SPLIT_AUDIO_SCENE_TAIL_GUARD_SECONDS : 0;
+      const tailGuard = isLast ? splitAudioSceneTailGuardSeconds(sceneId) : 0;
       if (safeSceneAudioTime >= cursor && safeSceneAudioTime < cursor + duration + tailGuard) {
         const localTime = safeSceneAudioTime - cursor;
         return {
@@ -2586,7 +2597,13 @@
     const audioDuration = asNumber(audio.durationSeconds, inferredDuration);
     if (audioDuration == null || audioDuration <= 0) return false;
 
-    const key = `${audioTimelineKey(selectedFood(), audioDuration)}|scene-blocks|tail:${SPLIT_AUDIO_SCENE_TAIL_GUARD_SECONDS.toFixed(3)}`;
+    const key = [
+      audioTimelineKey(selectedFood(), audioDuration),
+      'scene-blocks',
+      `tail:${SPLIT_AUDIO_SCENE_TAIL_GUARD_SECONDS.toFixed(3)}`,
+      `outro-tail:${SPLIT_AUDIO_OUTRO_TAIL_GUARD_SECONDS.toFixed(3)}`,
+      `outro-hold:${OUTRO_HOLD_SECONDS.toFixed(3)}`
+    ].join('|');
     if (state.audioTimelineKey === key) return false;
 
     state.audioTimelineKey = key;
@@ -3392,6 +3409,7 @@
     const sourceStart = sourceTimes.length ? Math.min(...sourceTimes) : 0;
     const sourceEnd = sourceTimes.length ? Math.max(...sourceTimes) : sourceStart + duration;
     const sourceDuration = Math.max(0.001, sourceEnd - sourceStart);
+    const timingDuration = Math.max(sourceDuration, duration);
     const words = [];
     const chunks = [];
     let hasAlignedWords = false;
@@ -3406,8 +3424,8 @@
         ))
         : [];
       const cueWords = timedCueWords.length ? timedCueWords.map(word => word.text) : cueText.split(/\s+/).filter(Boolean);
-      const relativeStart = clamp((asNumber(cue.startSeconds, sourceStart) - sourceStart) / sourceDuration, 0, 1);
-      const relativeEnd = clamp((asNumber(cue.endSeconds, sourceEnd) - sourceStart) / sourceDuration, relativeStart + 0.001, 1);
+      const relativeStart = clamp((asNumber(cue.startSeconds, sourceStart) - sourceStart) / timingDuration, 0, 1);
+      const relativeEnd = clamp((asNumber(cue.endSeconds, sourceEnd) - sourceStart) / timingDuration, relativeStart + 0.001, 1);
       const span = Math.max(0.001, relativeEnd - relativeStart);
       const totalWeight = cueWords.reduce((sum, word) => sum + captionWordWeight(word), 0) || 1;
       let cursor = 0;
@@ -3419,8 +3437,8 @@
           const word = wordTiming.text;
           const absoluteStart = asNumber(wordTiming.startSeconds, asNumber(cue.startSeconds, sourceStart));
           const absoluteEnd = Math.max(absoluteStart + 0.001, asNumber(wordTiming.endSeconds, absoluteStart + 0.001));
-          const start = clamp((absoluteStart - sourceStart) / sourceDuration, 0, 1);
-          const end = clamp((absoluteEnd - sourceStart) / sourceDuration, start + 0.001, 1);
+          const start = clamp((absoluteStart - sourceStart) / timingDuration, 0, 1);
+          const end = clamp((absoluteEnd - sourceStart) / timingDuration, start + 0.001, 1);
           const weight = captionWordWeight(word);
           words.push({
             text: word,
@@ -4348,9 +4366,11 @@
     }
 
     if (sectionId === 'outro' && classification.kind === 'tier') {
-      return termStartForTiming(timing, ['tier', `${selectedFood()?.episode?.tier || selectedFood()?.expectedTier || ''} tier`])
+      const tier = String(selectedFood()?.episode?.tier || selectedFood()?.expectedTier || '').trim();
+      const tierStart = termStartForTiming(timing, [`${tier} tier`, tier, 'tier'].filter(Boolean))
         ?? segments[Math.max(0, segments.length - 1)]?.start
         ?? 0.72;
+      return clamp(tierStart - (OUTRO_TIER_REVEAL_LEAD_SECONDS / Math.max(1, sceneContentDuration(scene))), 0.005, 0.94);
     }
 
     if (['fats', 'carbs', 'protein'].includes(sectionId)) {
@@ -4887,11 +4907,15 @@
     return schedule.layerId === 'outro_d_tier_stamp';
   }
 
+  function stampRevealSecondsForSchedule(schedule = null) {
+    if (schedule?.family === 'intro' && schedule?.kind === 'food-hero') return FOOD_STAMP_REVEAL_SECONDS;
+    if (schedule?.family === 'outro' && schedule?.kind === 'tier') return OUTRO_TIER_STAMP_REVEAL_SECONDS;
+    return STAMP_REVEAL_SECONDS;
+  }
+
   function stampRevealWindowProgress(scene, schedule = null) {
     const sceneDuration = Math.max(1, sceneContentDuration(scene));
-    const revealSeconds = schedule?.family === 'intro' && schedule?.kind === 'food-hero'
-      ? FOOD_STAMP_REVEAL_SECONDS
-      : STAMP_REVEAL_SECONDS;
+    const revealSeconds = stampRevealSecondsForSchedule(schedule);
     return Math.min(0.2, Math.max(0.055, revealSeconds / sceneDuration));
   }
 
@@ -5721,7 +5745,7 @@
       && revealSchedule?.kind === 'tier'
       && String(layer?.effect || '').includes('d-tier-stamp');
     const revealWindowSeconds = isIntroStampSprite || isOutroTierStamp
-      ? STAMP_REVEAL_SECONDS
+      ? stampRevealSecondsForSchedule(revealSchedule)
       : isMacroHeadReveal
       ? MACRO_HEAD_REVEAL_SECONDS
       : isMacroRowReveal

@@ -24,6 +24,7 @@
   const LAYOUT_BUILDER_WORKING_KEY = 'foodranked-layout-builder-v4';
   const LAYOUT_BUILDER_FOOD_LAYOUTS_KEY = 'foodranked-layout-builder-food-layouts-v1';
   const LAYOUT_BUILDER_SAVED_KEY = 'foodranked-layout-builder-sprite-layouts-v1';
+  const PREFERRED_SAVED_LAYOUT_NAME = 'test';
   const TEST_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const PLACEMENT_EXPORT_LIMIT = 60;
@@ -285,6 +286,11 @@
     };
   }
 
+  function isPreferredSavedLayoutOption(option) {
+    return /^saved:/.test(String(option?.key || ''))
+      && String(option?.name || '').trim().toLowerCase() === PREFERRED_SAVED_LAYOUT_NAME;
+  }
+
   function isHeaderFoodImageLayer(layer) {
     if (!isSpriteLayer(layer)) return false;
     const src = String(layer.src || '').toLowerCase();
@@ -293,12 +299,10 @@
   }
 
   function foodImagePlacementSnapshot(layer) {
-    if (!layer?.manualPosition) return null;
     const placement = {};
     for (const key of FOOD_IMAGE_PLACEMENT_KEYS) {
       if (Object.prototype.hasOwnProperty.call(layer, key)) placement[key] = layer[key];
     }
-    placement.manualPosition = true;
     return Object.keys(placement).length ? placement : null;
   }
 
@@ -323,15 +327,20 @@
     return null;
   }
 
-  function layoutBuilderFoodImagePlacementTemplate(foodId = state.selectedFoodId) {
+  function addLayoutGuideCandidate(candidates, layout) {
+    if (validLayout(layout)) candidates.push(layout);
+  }
+
+  function layoutBuilderFoodImagePlacementTemplate(foodId = state.selectedFoodId, preferredLayout = null) {
     const foodLayoutMap = readFoodLayoutMap();
     const candidates = [];
+    addLayoutGuideCandidate(candidates, preferredLayout);
     const workingLayout = parseStorageJson(LAYOUT_BUILDER_WORKING_KEY, null);
-    if (validLayout(workingLayout)) candidates.push(workingLayout);
-    if (validLayout(foodLayoutMap[foodId])) candidates.push(foodLayoutMap[foodId]);
+    addLayoutGuideCandidate(candidates, workingLayout);
+    addLayoutGuideCandidate(candidates, foodLayoutMap[foodId]);
     for (const [candidateFoodId, layout] of Object.entries(foodLayoutMap)) {
       if (candidateFoodId === foodId) continue;
-      if (validLayout(layout)) candidates.push(layout);
+      addLayoutGuideCandidate(candidates, layout);
     }
     for (const layout of candidates) {
       const placement = foodImagePlacementTemplateFromLayout(layout);
@@ -352,8 +361,8 @@
     return changed;
   }
 
-  function applyLayoutBuilderFoodImagePlacement(layout, food) {
-    const placement = layoutBuilderFoodImagePlacementTemplate(food?.id);
+  function applyLayoutBuilderFoodImagePlacement(layout, food, preferredLayout = null) {
+    const placement = layoutBuilderFoodImagePlacementTemplate(food?.id, preferredLayout);
     if (!placement) return false;
     let changed = false;
     for (const sectionId of Object.keys(layout.sections || {})) {
@@ -381,22 +390,23 @@
     return Object.keys(placement).length ? placement : null;
   }
 
-  function layoutBuilderGuideCandidates(foodId = state.selectedFoodId) {
+  function layoutBuilderGuideCandidates(foodId = state.selectedFoodId, preferredLayout = null) {
     const candidates = [];
+    addLayoutGuideCandidate(candidates, preferredLayout);
     const workingOption = layoutBuilderWorkingOption();
-    if (workingOption?.layout) candidates.push(workingOption.layout);
+    addLayoutGuideCandidate(candidates, workingOption?.layout);
     const foodLayoutMap = readFoodLayoutMap();
-    if (validLayout(foodLayoutMap[foodId])) candidates.push(foodLayoutMap[foodId]);
+    addLayoutGuideCandidate(candidates, foodLayoutMap[foodId]);
     for (const [candidateFoodId, layout] of Object.entries(foodLayoutMap)) {
       if (candidateFoodId === foodId) continue;
-      if (validLayout(layout)) candidates.push(layout);
+      addLayoutGuideCandidate(candidates, layout);
     }
     return candidates;
   }
 
-  function layoutBuilderPlacementGuide(foodId = state.selectedFoodId) {
+  function layoutBuilderPlacementGuide(foodId = state.selectedFoodId, preferredLayout = null) {
     const guide = new Map();
-    for (const candidate of layoutBuilderGuideCandidates(foodId)) {
+    for (const candidate of layoutBuilderGuideCandidates(foodId, preferredLayout)) {
       const layout = normalizeLayoutSections(LOGIC.clone(candidate));
       for (const [sectionId, section] of Object.entries(layout.sections || {})) {
         const normalizedSectionId = normalizeDisplaySectionId(sectionId);
@@ -424,8 +434,8 @@
     return changed;
   }
 
-  function applyLayoutBuilderPlacementGuide(layout, food) {
-    const guide = layoutBuilderPlacementGuide(food?.id);
+  function applyLayoutBuilderPlacementGuide(layout, food, preferredLayout = null) {
+    const guide = layoutBuilderPlacementGuide(food?.id, preferredLayout);
     if (!guide.size) return false;
     let changed = false;
     for (const [sectionId] of Object.entries(layout.sections || {})) {
@@ -473,16 +483,20 @@
 
     const savedRaw = parseStorageJson(LAYOUT_BUILDER_SAVED_KEY, []);
     const savedEntries = Array.isArray(savedRaw) ? savedRaw : Object.values(savedRaw || {});
-    savedEntries
+    const savedOptions = savedEntries
       .map(normalizeSavedPreset)
       .filter(Boolean)
-      .sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)) || a.name.localeCompare(b.name))
-      .forEach(option => options.push(option));
+      .sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)) || a.name.localeCompare(b.name));
+    savedOptions.forEach(option => options.push(option));
 
     state.layoutOptions = options.filter(option => countDisplayLayers(option.layout) > 0);
-    if (working && (!previousKey || /^food:/.test(previousKey))) {
+    const preferredSaved = state.layoutOptions.find(isPreferredSavedLayoutOption);
+    const previousStillAvailable = previousKey && state.layoutOptions.some(option => option.key === previousKey);
+    if (preferredSaved && (!previousKey || previousKey === 'working:current' || /^food:/.test(previousKey) || !previousStillAvailable)) {
+      state.selectedLayoutKey = preferredSaved.key;
+    } else if (working && (!previousKey || /^food:/.test(previousKey))) {
       state.selectedLayoutKey = working.key;
-    } else if (previousKey && state.layoutOptions.some(option => option.key === previousKey)) {
+    } else if (previousStillAvailable) {
       state.selectedLayoutKey = previousKey;
     } else {
       state.selectedLayoutKey = state.layoutOptions[0]?.key || '';
@@ -1036,7 +1050,7 @@
       kcal_value_text: String(food?.header?.kcal ?? food?.kcal ?? 'N/A'),
       basis_text: LOGIC.formatBasis(food),
       script_caption: LOGIC.foodTypeTitle(food?.foodType),
-      subline_c: formatScoreTally(food)
+      outro_score_value: formatScoreTally(food)
     };
     for (const sectionId of Object.keys(layout.sections || {})) {
       for (const layer of getSectionLayers(layout, sectionId)) {
@@ -1049,7 +1063,6 @@
           layer.text = values[layer.id];
           continue;
         }
-        if (isHeaderScoreCardTextLayer(layer)) layer.text = formatScoreTally(food);
       }
     }
   }
@@ -1085,13 +1098,6 @@
   function formatScoreTally(food) {
     const score = scoreTally(food);
     return score == null ? 'N/A' : LOGIC.formatCompactNumber(score, 0);
-  }
-
-  function isHeaderScoreCardTextLayer(layer) {
-    if (!isTextLayer(layer)) return false;
-    const id = String(layer.id || '').toLowerCase();
-    const label = String(layer.label || '').toLowerCase();
-    return id === 'subline_c' || /header score card text/.test(label);
   }
 
   function headerFoodNameText(food, layer) {
@@ -1627,10 +1633,10 @@
     state.bindingReport = { text: [], arrows: [], micronutrientBars: [], contextItems: [], warnings: [] };
     if (!option || !validLayout(option.layout)) return null;
     const layout = cloneLayoutForRender(option);
-    applyLayoutBuilderPlacementGuide(layout, food);
-    applyLayoutBuilderFoodImagePlacement(layout, food);
     syncFoodSprites(layout, food);
     syncFoodText(layout, food);
+    applyLayoutBuilderPlacementGuide(layout, food, option.layout);
+    applyLayoutBuilderFoodImagePlacement(layout, food, option.layout);
     syncMacroFills(layout, food);
     syncProteinRows(layout, food);
     const micronutrientReport = syncMicronutrients(layout, food);

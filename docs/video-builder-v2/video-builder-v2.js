@@ -2,12 +2,10 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260722-v2-clear-captions-before-tier-v1';
+  const BUILDER_BUILD_ID = '20260722-v2-dbv2-section-indicators-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
-  const SECTION_INDICATOR_LAYOUT = window.FOODRANKED_DISPLAY_SCHEMA?.sectionIndicatorLayout || { startX: 42.875, y: 178, stepX: 5.75, normalSize: 3.25, highlightedSize: 3.9 };
-  const SECTION_INDICATOR_BOTTOM_MARGIN = 4;
   const CAPTION_SAFE_X = 7;
   const CAPTION_MAX_LINES = 2;
   const CAPTION_MAX_LINE_CHARS = 18;
@@ -900,27 +898,6 @@
     return appSpritePath(`ui/section_indicator/${typeSpriteSlug(food?.foodType)}_${highlighted ? 'highlighted_' : ''}section_indicator.png`);
   }
 
-  function sectionIndicatorHighlightOffset() {
-    return Math.max(0, (SECTION_INDICATOR_LAYOUT.highlightedSize - SECTION_INDICATOR_LAYOUT.normalSize) / 2);
-  }
-
-  function videoSectionIndicatorPosition(index, active = false) {
-    const count = SECTIONS.length || SECTION_INDICATOR_LAYOUT.count || 9;
-    const normalSize = Number(SECTION_INDICATOR_LAYOUT.normalSize) || 3.25;
-    const highlightedSize = Number(SECTION_INDICATOR_LAYOUT.highlightedSize) || normalSize;
-    const stepX = Number(SECTION_INDICATOR_LAYOUT.stepX) || 5.75;
-    const highlightOffset = Math.max(0, (highlightedSize - normalSize) / 2);
-    const rowWidth = ((count - 1) * stepX) + normalSize;
-    const visible = visibleCanvasGridBounds();
-    const visibleWidth = Math.max(rowWidth, visible.right - visible.left);
-    const startX = visible.left + ((visibleWidth - rowWidth) / 2);
-    const y = visible.bottom - SECTION_INDICATOR_BOTTOM_MARGIN - highlightedSize + highlightOffset;
-    return {
-      x: startX + (index * stepX) - (active ? highlightOffset : 0),
-      y: y - (active ? highlightOffset : 0)
-    };
-  }
-
   function readDisplayBuilderV2State() {
     const saved = readJson(localStorage.getItem(DISPLAY_BUILDER_V2_STATE_KEY), {});
     return saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {};
@@ -1157,18 +1134,6 @@
     return isSpriteLayer(layer) && (fingerprint.includes('/ui/section_indicator/') || fingerprint.includes('section indicator'));
   }
 
-  function isManagedSectionIndicatorId(id, sectionId) {
-    return new RegExp(`^${sectionId}_indicator_\\d+$`, 'i').test(String(id || ''));
-  }
-
-  function isAnyManagedSectionIndicatorId(id) {
-    return SECTIONS.some(section => isManagedSectionIndicatorId(id, section.id));
-  }
-
-  function isManagedSectionIndicatorLayer(layer) {
-    return isSectionIndicator(layer) && isAnyManagedSectionIndicatorId(layer?.id);
-  }
-
   function isOutroTierStamp(layer) {
     const fingerprint = `${layer?.id || ''} ${layer?.label || ''} ${layer?.effect || ''}`.toLowerCase();
     return fingerprint.includes('outro_d_tier_stamp') || fingerprint.includes('d-tier-stamp');
@@ -1176,7 +1141,7 @@
 
   function isPersistentChrome(layer) {
     if (isOutroTierStamp(layer)) return false;
-    return isHeaderSprite(layer) || isHeaderText(layer) || isManagedSectionIndicatorLayer(layer) || (isUiSprite(layer) && !isSectionIndicator(layer));
+    return isHeaderSprite(layer) || isHeaderText(layer) || isSectionIndicator(layer) || (isUiSprite(layer) && !isSectionIndicator(layer));
   }
 
   function isHeaderChrome(layer) {
@@ -1187,82 +1152,8 @@
     return SECTIONS.findIndex(section => section.id === sectionId);
   }
 
-  function defaultSectionIndicatorPosition(index) {
-    return videoSectionIndicatorPosition(index, false);
-  }
-
-  function createSectionIndicatorLayer(sectionId, index, food, activeSectionId = sectionId) {
-    const active = sectionId === activeSectionId;
-    const position = videoSectionIndicatorPosition(index, active);
-    const size = active
-      ? SECTION_INDICATOR_LAYOUT.highlightedSize
-      : SECTION_INDICATOR_LAYOUT.normalSize;
-    return {
-      id: `${sectionId}_indicator_${index + 1}`,
-      kind: 'sprite',
-      label: active ? 'Highlighted section indicator' : 'Section indicator',
-      src: indicatorPath(food, active),
-      x: position.x,
-      y: position.y,
-      z: 220,
-      width: size,
-      height: size,
-      visible: true,
-      foodDriven: true,
-      preserveAspect: false,
-      effect: active ? 'section-indicator-active' : 'section-indicator-normal'
-    };
-  }
-
-  function syncManagedSectionIndicatorPosition(layer, sectionId, index, food, activeSectionId = sectionId) {
-    if (!isManagedSectionIndicatorId(layer?.id, sectionId)) return;
-    const active = sectionId === activeSectionId;
-    const position = videoSectionIndicatorPosition(index, active);
-    const size = active
-      ? SECTION_INDICATOR_LAYOUT.highlightedSize
-      : SECTION_INDICATOR_LAYOUT.normalSize;
-    layer.x = position.x;
-    layer.y = position.y;
-    layer.z = 220;
-    layer.src = indicatorPath(food, active);
-    layer.width = size;
-    layer.height = size;
-    layer.label = active ? 'Highlighted section indicator' : 'Section indicator';
-    layer.effect = active ? 'section-indicator-active' : 'section-indicator-normal';
-  }
-
-  function ensureSectionIndicatorLayers(layout, food) {
-    if (!validLayout(layout)) return;
-    for (const activeSection of SECTIONS) {
-      const section = layout.sections[activeSection.id] || { layers: [] };
-      const contentLayers = getSectionLayers(layout, activeSection.id)
-        .filter(layer => !isSectionIndicator(layer) && !isAnyManagedSectionIndicatorId(layer?.id));
-      const indicatorLayers = SECTIONS.map((sectionForDot, index) => (
-        createSectionIndicatorLayer(sectionForDot.id, index, food, activeSection.id)
-      ));
-      layout.sections[activeSection.id] = {
-        ...section,
-        layers: [...contentLayers, ...indicatorLayers]
-      };
-    }
-  }
-
   function compareIndicatorsByPosition(a, b) {
     return (Number(a.x) || 0) - (Number(b.x) || 0) || (Number(a.y) || 0) - (Number(b.y) || 0);
-  }
-
-  function normalizeProgressIndicatorSlots(indicators) {
-    const sorted = [...(indicators || [])].sort(compareIndicatorsByPosition);
-    const slotCount = SECTIONS.length;
-    const candidateVisible = sorted.filter(layer => layer.visible !== false);
-    const visible = (candidateVisible.length >= slotCount ? candidateVisible : sorted).slice(0, slotCount);
-    const visibleSet = new Set(visible);
-    sorted.forEach(layer => {
-      layer.visible = visibleSet.has(layer);
-    });
-    if (!visible.length) return visible;
-    visible.forEach(layer => { layer.visible = true; });
-    return visible;
   }
 
   function isMicrosBar(layer) {
@@ -1485,11 +1376,13 @@
   function syncSectionIndicators(layout, food) {
     if (!validLayout(layout)) return;
     for (const activeSection of SECTIONS) {
-      const layers = getSectionLayers(layout, activeSection.id);
-      SECTIONS.forEach((sectionForDot, index) => {
-        const layer = layers.find(item => isManagedSectionIndicatorId(item?.id, sectionForDot.id));
-        if (layer) syncManagedSectionIndicatorPosition(layer, sectionForDot.id, index, food, activeSection.id);
-      });
+      const activeIndex = indicatorSectionIndex(activeSection.id);
+      getSectionLayers(layout, activeSection.id)
+        .filter(isSectionIndicator)
+        .sort(compareIndicatorsByPosition)
+        .forEach((layer, index) => {
+          layer.src = indicatorPath(food, index === activeIndex);
+        });
     }
   }
 
@@ -2194,13 +2087,9 @@
   function filterDeletedLayers(layout) {
     const deletedIds = deletedLayerIdSet(layout);
     if (!deletedIds.size) return;
-    const activeDeletedIds = new Set([...deletedIds].filter(id => !isAnyManagedSectionIndicatorId(id)));
-    if (activeDeletedIds.size !== deletedIds.size && layout.meta) {
-      layout.meta.deletedLayerIds = [...activeDeletedIds].sort();
-    }
     for (const section of SECTIONS) {
       layout.sections[section.id].layers = getSectionLayers(layout, section.id)
-        .filter(layer => !layer.id || !activeDeletedIds.has(String(layer.id)));
+        .filter(layer => !layer.id || !deletedIds.has(String(layer.id)));
     }
   }
 
@@ -2223,7 +2112,6 @@
     ensureOutroTierStampLayer(layout, food);
     state.layout = layout;
     state.displayBuilderExportStatus = 'ready';
-    ensureSectionIndicatorLayers(layout, food);
     syncSectionIndicators(layout, food);
     prewarmMacroBarGifVariants(layout, food);
     const layoutLabel = selectedSource?.label || 'Display Builder v2 placement';

@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260722-v2-smaller-cta-stamps-v1';
+  const BUILDER_BUILD_ID = '20260722-v2-cta-stamp-wave-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
@@ -156,12 +156,18 @@
   const OUTRO_CTA_STAMP_GAP_X = (OUTRO_TIER_STAMP_SIZE - (OUTRO_CTA_STAMP_SIZE * 3)) / 2;
   const OUTRO_CTA_STAMP_GAP_Y = 4;
   const OUTRO_CTA_STAMP_CENTER_Y = (OUTRO_TIER_STAMP_SIZE / 2) + OUTRO_CTA_STAMP_GAP_Y + (OUTRO_CTA_STAMP_SIZE / 2);
+  const OUTRO_CTA_STAMP_ORDER = ['outro_like_stamp', 'outro_follow_stamp', 'outro_share_stamp'];
+  const OUTRO_CTA_STAMP_IDS = new Set(OUTRO_CTA_STAMP_ORDER);
   const OUTRO_FINAL_REVEAL_STAMP_IDS = new Set([
     'outro_d_tier_stamp',
-    'outro_like_stamp',
-    'outro_follow_stamp',
-    'outro_share_stamp'
+    ...OUTRO_CTA_STAMP_ORDER
   ]);
+  const OUTRO_CTA_WAVE_START_SECONDS = 0.18;
+  const OUTRO_CTA_WAVE_STAGGER_SECONDS = 0.16;
+  const OUTRO_CTA_WAVE_CYCLE_SECONDS = 1.05;
+  const OUTRO_CTA_WAVE_PULSE_SECONDS = 0.46;
+  const OUTRO_CTA_WAVE_LIFT = 2.2;
+  const OUTRO_CTA_WAVE_SCALE = 0.14;
   const AVAILABLE_FOOD_IMAGE_IDS = new Set(['bacon', 'kale']);
   const SUBMACRO_VALUE_COLORS = {
     green: '#7cf2a7',
@@ -1156,6 +1162,12 @@
     const id = String(layer?.id || '').toLowerCase();
     if (OUTRO_FINAL_REVEAL_STAMP_IDS.has(id)) return true;
     return String(layer?.effect || '').toLowerCase().includes('d-tier-stamp');
+  }
+
+  function outroCtaStampWaveIndex(layer) {
+    const id = String(layer?.id || '').toLowerCase();
+    if (!OUTRO_CTA_STAMP_IDS.has(id)) return -1;
+    return OUTRO_CTA_STAMP_ORDER.indexOf(id);
   }
 
   function isPersistentChrome(layer) {
@@ -5817,6 +5829,8 @@
     const isOutroTierStamp = revealSchedule?.family === 'outro'
       && revealSchedule?.kind === 'tier'
       && String(layer?.effect || '').includes('d-tier-stamp');
+    const outroCtaWaveIndex = isOutroTierStamp ? outroCtaStampWaveIndex(layer) : -1;
+    const isOutroCtaWaveStamp = outroCtaWaveIndex >= 0;
     const revealWindowSeconds = isIntroStampSprite || isOutroTierStamp
       ? stampRevealSecondsForSchedule(revealSchedule)
       : isMacroHeadReveal
@@ -5867,6 +5881,20 @@
       scale = 1.62 - (visible * 0.62) + (impactPulse * 0.22);
       y += (1 - visible) * -20;
       rotate = (entryTilt * (1 - visible)) + (impactPulse * (entryTilt < 0 ? -1.4 : 1.4));
+      if (isOutroCtaWaveStamp && rawRevealProgress > 1) {
+        const sceneElapsedSeconds = clamp(state.currentTime - scene.start, 0, scene.duration);
+        const elapsedSinceRevealStart = Math.max(0, sceneElapsedSeconds - (delay * sceneDuration));
+        const waveElapsed = elapsedSinceRevealStart - revealWindowSeconds - OUTRO_CTA_WAVE_START_SECONDS;
+        const localWaveElapsed = waveElapsed - (outroCtaWaveIndex * OUTRO_CTA_WAVE_STAGGER_SECONDS);
+        if (localWaveElapsed >= 0) {
+          const phase = localWaveElapsed % OUTRO_CTA_WAVE_CYCLE_SECONDS;
+          if (phase <= OUTRO_CTA_WAVE_PULSE_SECONDS) {
+            const wave = Math.sin((phase / OUTRO_CTA_WAVE_PULSE_SECONDS) * Math.PI);
+            y -= wave * OUTRO_CTA_WAVE_LIFT;
+            scale += wave * OUTRO_CTA_WAVE_SCALE;
+          }
+        }
+      }
     } else if (isMacroRowReveal) {
       scale = 1;
     } else if (isMicronReveal) {

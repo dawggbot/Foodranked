@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260722-v2-section-indicator-seam-guard-v1';
+  const BUILDER_BUILD_ID = '20260722-v2-tier-cta-stamps-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
@@ -143,8 +143,24 @@
   const MACRO_BAR_GIF_FINAL_HOLD_CENTISECONDS = 65535;
   const INTRO_RANKED_SPRITE_PATH = './sprites/ui/intro_&_outro/ranked.png';
   const OUTRO_D_TIER_SPRITE_PATH = './sprites/ui/intro_&_outro/D_tier.png';
+  const OUTRO_LIKE_SPRITE_PATH = './sprites/ui/intro_&_outro/like.png';
+  const OUTRO_FOLLOW_SPRITE_PATH = './sprites/ui/intro_&_outro/follow.png';
+  const OUTRO_SHARE_SPRITE_PATH = './sprites/ui/intro_&_outro/share.png';
   const INTRO_RANKED_VISIBLE_CENTER = { x: 0.5, y: 0.47 };
   const INTRO_HERO_SIZE = { ranked: 80, foodWidth: 48, foodHeight: 24 };
+  const OUTRO_TIER_STAMP_SIZE = 78;
+  const OUTRO_TIER_STAMP_ASSET_SIZE = 50;
+  const OUTRO_CTA_STAMP_ASSET_SIZE = 15;
+  const OUTRO_CTA_STAMP_SIZE = OUTRO_TIER_STAMP_SIZE * (OUTRO_CTA_STAMP_ASSET_SIZE / OUTRO_TIER_STAMP_ASSET_SIZE);
+  const OUTRO_CTA_STAMP_GAP_X = (OUTRO_TIER_STAMP_SIZE - (OUTRO_CTA_STAMP_SIZE * 3)) / 2;
+  const OUTRO_CTA_STAMP_GAP_Y = 4;
+  const OUTRO_CTA_STAMP_CENTER_Y = (OUTRO_TIER_STAMP_SIZE / 2) + OUTRO_CTA_STAMP_GAP_Y + (OUTRO_CTA_STAMP_SIZE / 2);
+  const OUTRO_FINAL_REVEAL_STAMP_IDS = new Set([
+    'outro_d_tier_stamp',
+    'outro_like_stamp',
+    'outro_follow_stamp',
+    'outro_share_stamp'
+  ]);
   const AVAILABLE_FOOD_IMAGE_IDS = new Set(['bacon', 'kale']);
   const SUBMACRO_VALUE_COLORS = {
     green: '#7cf2a7',
@@ -1136,8 +1152,9 @@
   }
 
   function isOutroTierStamp(layer) {
-    const fingerprint = `${layer?.id || ''} ${layer?.label || ''} ${layer?.effect || ''}`.toLowerCase();
-    return fingerprint.includes('outro_d_tier_stamp') || fingerprint.includes('d-tier-stamp');
+    const id = String(layer?.id || '').toLowerCase();
+    if (OUTRO_FINAL_REVEAL_STAMP_IDS.has(id)) return true;
+    return String(layer?.effect || '').toLowerCase().includes('d-tier-stamp');
   }
 
   function isPersistentChrome(layer) {
@@ -2022,6 +2039,15 @@
     node.style.setProperty('--outro-score-glow-wide', style.wide);
   }
 
+  function outroCtaStampSpecs() {
+    const stepX = OUTRO_CTA_STAMP_SIZE + OUTRO_CTA_STAMP_GAP_X;
+    return [
+      { id: 'outro_like_stamp', label: 'Like stamp', src: OUTRO_LIKE_SPRITE_PATH, centerOffsetX: -stepX },
+      { id: 'outro_follow_stamp', label: 'Follow stamp', src: OUTRO_FOLLOW_SPRITE_PATH, centerOffsetX: 0 },
+      { id: 'outro_share_stamp', label: 'Share stamp', src: OUTRO_SHARE_SPRITE_PATH, centerOffsetX: stepX }
+    ];
+  }
+
   function ensureOutroTierStampLayer(layout, food) {
     const layers = getSectionLayers(layout, 'outro');
     let layer = layers.find(item => item.id === 'outro_d_tier_stamp');
@@ -2035,8 +2061,8 @@
         x: 28.5,
         y: 62.5,
         z: 38,
-        width: 78,
-        height: 78,
+        width: OUTRO_TIER_STAMP_SIZE,
+        height: OUTRO_TIER_STAMP_SIZE,
         visible: true,
         foodDriven: false,
         preserveAspect: true,
@@ -2058,14 +2084,52 @@
     if (!Number.isFinite(Number(layer.x))) layer.x = 28.5;
     if (!Number.isFinite(Number(layer.y))) layer.y = 62.5;
     if (!Number.isFinite(Number(layer.z))) layer.z = 38;
-    if (!Number.isFinite(Number(layer.width))) layer.width = 78;
-    if (!Number.isFinite(Number(layer.height))) layer.height = 78;
+    layer.width = OUTRO_TIER_STAMP_SIZE;
+    layer.height = OUTRO_TIER_STAMP_SIZE;
     if (!Number.isFinite(Number(layer.aspectRatio))) layer.aspectRatio = 1;
     if (!hadExistingLayer && !layer.centerAnchor) layer.centerAnchor = 'visible-canvas';
     if (layer.centerAnchor === 'visible-canvas') {
       if (!Number.isFinite(Number(layer.centerOffsetX))) layer.centerOffsetX = 0;
       if (!Number.isFinite(Number(layer.centerOffsetY))) layer.centerOffsetY = 0;
     }
+
+    outroCtaStampSpecs().forEach((spec, index) => {
+      let ctaLayer = layers.find(item => item.id === spec.id);
+      if (!ctaLayer) {
+        ctaLayer = {
+          id: spec.id,
+          kind: 'sprite',
+          label: spec.label,
+          src: spec.src,
+          x: 55.8 + (index * 11.7),
+          y: 121,
+          z: 39 + index,
+          width: OUTRO_CTA_STAMP_SIZE,
+          height: OUTRO_CTA_STAMP_SIZE,
+          visible: true,
+          foodDriven: false,
+          preserveAspect: true,
+          aspectRatio: 1,
+          centerAnchor: 'visible-canvas',
+          centerOffsetX: spec.centerOffsetX,
+          centerOffsetY: OUTRO_CTA_STAMP_CENTER_Y,
+          effect: 'd-tier-stamp'
+        };
+        layers.push(ctaLayer);
+      }
+      ctaLayer.label = spec.label;
+      ctaLayer.src = spec.src;
+      ctaLayer.visible = tier === 'D';
+      ctaLayer.effect = 'd-tier-stamp';
+      ctaLayer.preserveAspect = true;
+      ctaLayer.aspectRatio = 1;
+      ctaLayer.width = OUTRO_CTA_STAMP_SIZE;
+      ctaLayer.height = OUTRO_CTA_STAMP_SIZE;
+      ctaLayer.centerAnchor = 'visible-canvas';
+      ctaLayer.centerOffsetX = spec.centerOffsetX;
+      ctaLayer.centerOffsetY = OUTRO_CTA_STAMP_CENTER_Y;
+      ctaLayer.z = 39 + index;
+    });
   }
 
   function normalizeOutroScoreLayout(layout) {
@@ -4259,7 +4323,7 @@
     if (persistent) return { family: 'chrome', kind: 'persistent' };
     if (sectionId === 'intro') return { family: 'intro', kind: introHookLayerKind(layer) || (isSpriteLayer(layer) ? 'sprite' : 'text') };
     if (sectionId === 'outro') {
-      if (String(layer?.id || '').toLowerCase() === 'outro_score_value' || /score|tier|verdict/.test(fingerprint)) {
+      if (isOutroTierStamp(layer) || String(layer?.id || '').toLowerCase() === 'outro_score_value' || /score|tier|verdict/.test(fingerprint)) {
         return { family: 'outro', kind: 'tier' };
       }
       return { family: 'outro', kind: isSpriteLayer(layer) ? 'frame' : 'summary' };
@@ -4902,7 +4966,7 @@
   function isStampRevealSchedule(schedule) {
     if (!schedule) return false;
     if (schedule.family === 'intro' && ['food-hero', 'ranked-sprite'].includes(schedule.kind)) return true;
-    return schedule.layerId === 'outro_d_tier_stamp';
+    return schedule.family === 'outro' && schedule.kind === 'tier' && OUTRO_FINAL_REVEAL_STAMP_IDS.has(String(schedule.layerId || '').toLowerCase());
   }
 
   function stampRevealSecondsForSchedule(schedule = null) {
@@ -4967,17 +5031,26 @@
   }
 
   function stampSfxEvents() {
-    return sceneStarts().flatMap(scene => (
+    const events = new Map();
+    sceneStarts().forEach(scene => {
       sceneLayerRevealSchedule(scene)
         .filter(isStampRevealSchedule)
-        .map(schedule => ({
-          key: `${scene.id}:${schedule.layerId || schedule.kind}:${schedule.start.toFixed(3)}`,
-          sceneId: scene.id,
-          layerId: schedule.layerId,
-          kind: schedule.kind,
-          time: stampSfxImpactTime(scene, schedule)
-        }))
-    )).sort((a, b) => a.time - b.time || a.key.localeCompare(b.key));
+        .forEach(schedule => {
+          const groupedLayerId = schedule.family === 'outro' && schedule.kind === 'tier'
+            ? 'outro_final_reveal_stamps'
+            : schedule.layerId || schedule.kind;
+          const key = `${scene.id}:${groupedLayerId}:${schedule.start.toFixed(3)}`;
+          if (events.has(key)) return;
+          events.set(key, {
+            key,
+            sceneId: scene.id,
+            layerId: groupedLayerId,
+            kind: schedule.kind,
+            time: stampSfxImpactTime(scene, schedule)
+          });
+        });
+    });
+    return [...events.values()].sort((a, b) => a.time - b.time || a.key.localeCompare(b.key));
   }
 
   function nextStampSfxAudio() {

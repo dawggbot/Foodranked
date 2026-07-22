@@ -2,10 +2,11 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260722-v2-dbv2-section-indicators-v1';
+  const BUILDER_BUILD_ID = '20260722-v2-section-indicator-seam-guard-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
+  const SECTION_INDICATOR_RENDER_SEAM_BLEED_PX = 0.75;
   const CAPTION_SAFE_X = 7;
   const CAPTION_MAX_LINES = 2;
   const CAPTION_MAX_LINE_CHARS = 18;
@@ -2945,8 +2946,9 @@
       const renderKey = `${persistent ? 'persistent' : 'scene'}:${layer.kind}:${layer.id || index}`;
       let node = existingNodes.get(renderKey);
       if (!node || node.tagName !== tagName) node = document.createElement(tagName.toLowerCase());
+      const sectionIndicatorClass = layer.kind === 'sprite' && isSectionIndicator(layer) ? ' section-indicator-sprite' : '';
       const effectClass = layer.effect ? ` ${String(layer.effect).replace(/[^a-z0-9_-]+/gi, '-')}` : '';
-      node.className = `layer-node ${layer.kind}${layer.kind === 'text' ? ' pixel-text' : ''}${effectClass}`;
+      node.className = `layer-node ${layer.kind}${layer.kind === 'text' ? ' pixel-text' : ''}${sectionIndicatorClass}${effectClass}`;
       node.removeAttribute('style');
       if (layer.animationDelay != null) node.style.animationDelay = String(layer.animationDelay);
       node.dataset.renderKey = renderKey;
@@ -4655,6 +4657,9 @@
   function applyLayerBox(node, layer) {
     let layerX = Number(layer.x) || 0;
     let layerY = Number(layer.y) || 0;
+    const sectionIndicator = layer.kind === 'sprite' && isSectionIndicator(layer);
+    const seamBleed = sectionIndicator ? SECTION_INDICATOR_RENDER_SEAM_BLEED_PX : 0;
+    const halfSeamBleed = seamBleed / 2;
     if (layer.centerAnchor === 'visible-canvas') {
       const visible = visibleCanvasGridBounds();
       const layerWidth = Number(layer.width) || 0;
@@ -4662,11 +4667,11 @@
       layerX = ((visible.left + visible.right) / 2) - (layerWidth / 2) + (Number(layer.centerOffsetX) || 0);
       layerY = ((visible.top + visible.bottom) / 2) - (layerHeight / 2) + (Number(layer.centerOffsetY) || 0);
     }
-    node.style.left = `calc(${layerX}px * var(--pixel-unit))`;
-    node.style.top = `calc(${layerY}px * var(--pixel-unit))`;
-    if (layer.width) node.style.width = `calc(${Number(layer.width)}px * var(--pixel-unit))`;
+    node.style.left = `calc(${layerX}px * var(--pixel-unit)${halfSeamBleed ? ` - ${halfSeamBleed}px` : ''})`;
+    node.style.top = `calc(${layerY}px * var(--pixel-unit)${halfSeamBleed ? ` - ${halfSeamBleed}px` : ''})`;
+    if (layer.width) node.style.width = `calc(${Number(layer.width)}px * var(--pixel-unit)${seamBleed ? ` + ${seamBleed}px` : ''})`;
     if (layer.kind === 'sprite') {
-      if (layer.height) node.style.height = `calc(${Number(layer.height)}px * var(--pixel-unit))`;
+      if (layer.height) node.style.height = `calc(${Number(layer.height)}px * var(--pixel-unit)${seamBleed ? ` + ${seamBleed}px` : ''})`;
       node.style.objectFit = layer.preserveAspect ? 'contain' : 'fill';
       if (layer.preserveAspect && layer.aspectRatio) node.style.aspectRatio = String(layer.aspectRatio);
     }

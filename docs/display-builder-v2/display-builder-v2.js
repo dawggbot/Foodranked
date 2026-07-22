@@ -299,6 +299,7 @@
   }
 
   function foodImagePlacementSnapshot(layer) {
+    if (!layer) return null;
     const placement = {};
     for (const key of FOOD_IMAGE_PLACEMENT_KEYS) {
       if (Object.prototype.hasOwnProperty.call(layer, key)) placement[key] = layer[key];

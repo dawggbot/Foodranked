@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260722-v2-tier-stamp-reveal-v1';
+  const BUILDER_BUILD_ID = '20260722-v2-tier-stamp-intro-timing-v2';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
@@ -64,7 +64,7 @@
     { y: 0.78, width: 0.58, height: 1.8, delay: 0.36 }
   ];
   const STAMP_REVEAL_SECONDS = 0.36;
-  const OUTRO_TIER_STAMP_REVEAL_SECONDS = 0.72;
+  const OUTRO_TIER_STAMP_REVEAL_SECONDS = STAMP_REVEAL_SECONDS;
   const OUTRO_TIER_REVEAL_LEAD_SECONDS = 0.12;
   const OUTRO_FINAL_REVEAL_BREATH_SECONDS = 1;
   const TEXT_LAYER_LINE_HEIGHT = 1.15;
@@ -4987,7 +4987,8 @@
   function stampRevealWindowProgress(scene, schedule = null) {
     const sceneDuration = Math.max(1, sceneContentDuration(scene));
     const revealSeconds = stampRevealSecondsForSchedule(schedule);
-    return Math.min(0.2, Math.max(0.055, revealSeconds / sceneDuration));
+    const minimumProgress = schedule?.family === 'outro' && schedule?.kind === 'tier' ? 0.001 : 0.055;
+    return Math.min(0.2, Math.max(minimumProgress, revealSeconds / sceneDuration));
   }
 
   function stampRevealRawProgress(scene, sceneProgress, schedule) {

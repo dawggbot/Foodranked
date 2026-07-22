@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260722-v2-outro-score-tally-v1';
+  const BUILDER_BUILD_ID = '20260722-v2-outro-score-whole-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
@@ -2002,7 +2002,7 @@
 
   function formatScoreTally(food) {
     const score = scoreTally(food);
-    return score == null ? 'N/A' : formatCompactNumber(score, 1);
+    return score == null ? 'N/A' : formatCompactNumber(score, 0);
   }
 
   function syncOutroScoreValue(layout, food) {

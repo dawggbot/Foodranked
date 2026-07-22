@@ -95,6 +95,17 @@
     'fillValue',
     'text'
   ];
+  const FOOD_IMAGE_PLACEMENT_KEYS = [
+    'x',
+    'y',
+    'z',
+    'width',
+    'height',
+    'preserveAspect',
+    'rotation',
+    'rotate',
+    'manualPosition'
+  ];
 
   const DEFAULT_BACKGROUND = {
     color: '#d6d6d6'
@@ -232,6 +243,86 @@
   function readFoodLayoutMap() {
     const parsed = parseStorageJson(LAYOUT_BUILDER_FOOD_LAYOUTS_KEY, {});
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+  }
+
+  function isHeaderFoodImageLayer(layer) {
+    if (!isSpriteLayer(layer)) return false;
+    const src = String(layer.src || '').toLowerCase();
+    const label = String(layer.label || '').toLowerCase().replace(/^library:\s*/, '');
+    return src.includes('/header/food_images/') || /^header food image$/.test(label);
+  }
+
+  function foodImagePlacementSnapshot(layer) {
+    if (!layer?.manualPosition) return null;
+    const placement = {};
+    for (const key of FOOD_IMAGE_PLACEMENT_KEYS) {
+      if (Object.prototype.hasOwnProperty.call(layer, key)) placement[key] = layer[key];
+    }
+    placement.manualPosition = true;
+    return Object.keys(placement).length ? placement : null;
+  }
+
+  function foodImagePlacementTemplateFromLayout(layout) {
+    if (!validLayout(layout)) return null;
+    const normalized = normalizeLayoutSections(LOGIC.clone(layout));
+    const sectionIds = [
+      normalized.selectedSectionId,
+      state.selectedSectionId,
+      'intro',
+      ...DISPLAY_SECTIONS,
+      ...Object.keys(normalized.sections || {})
+    ]
+      .map(normalizeDisplaySectionId)
+      .filter(Boolean);
+    for (const sectionId of [...new Set(sectionIds)]) {
+      const layer = getSectionLayers(normalized, sectionId)
+        .find(item => isHeaderFoodImageLayer(item) && item.manualPosition);
+      const placement = foodImagePlacementSnapshot(layer);
+      if (placement) return placement;
+    }
+    return null;
+  }
+
+  function layoutBuilderFoodImagePlacementTemplate(foodId = state.selectedFoodId) {
+    const foodLayoutMap = readFoodLayoutMap();
+    const candidates = [];
+    const workingLayout = parseStorageJson(LAYOUT_BUILDER_WORKING_KEY, null);
+    if (validLayout(workingLayout)) candidates.push(workingLayout);
+    if (validLayout(foodLayoutMap[foodId])) candidates.push(foodLayoutMap[foodId]);
+    for (const [candidateFoodId, layout] of Object.entries(foodLayoutMap)) {
+      if (candidateFoodId === foodId) continue;
+      if (validLayout(layout)) candidates.push(layout);
+    }
+    for (const layout of candidates) {
+      const placement = foodImagePlacementTemplateFromLayout(layout);
+      if (placement) return placement;
+    }
+    return null;
+  }
+
+  function applyFoodImagePlacementToLayer(layer, placement) {
+    if (!layer || !placement) return false;
+    let changed = false;
+    for (const key of FOOD_IMAGE_PLACEMENT_KEYS) {
+      if (!Object.prototype.hasOwnProperty.call(placement, key)) continue;
+      if (layer[key] === placement[key]) continue;
+      layer[key] = placement[key];
+      changed = true;
+    }
+    return changed;
+  }
+
+  function applyLayoutBuilderFoodImagePlacement(layout, food) {
+    const placement = layoutBuilderFoodImagePlacementTemplate(food?.id);
+    if (!placement) return false;
+    let changed = false;
+    for (const sectionId of Object.keys(layout.sections || {})) {
+      for (const layer of getSectionLayers(layout, sectionId)) {
+        if (!isHeaderFoodImageLayer(layer)) continue;
+        changed = applyFoodImagePlacementToLayer(layer, placement) || changed;
+      }
+    }
+    return changed;
   }
 
   function normalizeFoodLayoutOption(foodId, layout) {
@@ -819,7 +910,7 @@
           layer.src = LOGIC.headerFoodTypeSpritePath(food);
         } else if (src.includes('/header/calorie_bubble/') || /header calorie bubble/.test(label)) {
           layer.src = LOGIC.headerCalorieBubbleSpritePath(food);
-        } else if (src.includes('/header/food_images/') || /^header food image$/.test(label)) {
+        } else if (isHeaderFoodImageLayer(layer)) {
           layer.src = imageCandidates.primary;
           layer.fallbackSrc = imageCandidates.fallback;
           LOGIC.syncFoodImageLayerGeometry?.(layer, food);
@@ -1386,6 +1477,7 @@
     state.bindingReport = { text: [], arrows: [], micronutrientBars: [], contextItems: [], warnings: [] };
     if (!option || !validLayout(option.layout)) return null;
     const layout = cloneLayoutForRender(option);
+    applyLayoutBuilderFoodImagePlacement(layout, food);
     syncFoodSprites(layout, food);
     syncFoodText(layout, food);
     syncMacroFills(layout, food);

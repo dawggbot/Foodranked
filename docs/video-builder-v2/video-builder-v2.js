@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260722-v2-cta-stamp-wave-v1';
+  const BUILDER_BUILD_ID = '20260722-v2-outro-score-binding-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
@@ -1967,16 +1967,23 @@
   }
 
   function overallScore(food) {
-    return food?.episode?.overallScore ?? food?.overallScore ?? null;
+    return food?.episode?.overallScore ?? food?.batchResult?.overallScore ?? food?.overallScore ?? null;
   }
 
   function scoreTier(food) {
-    return food?.episode?.tier || food?.tier || food?.expectedTier || '';
+    return food?.episode?.tier || food?.batchResult?.tier || food?.tier || food?.expectedTier || '';
   }
 
   function formatOverallScore(food) {
     const score = asNumber(overallScore(food), null);
     return score == null ? 'N/A' : formatCompactNumber(score, 0);
+  }
+
+  function syncOutroScoreValue(layout, food) {
+    const layer = getSectionLayers(layout, 'outro').find(item => item.id === 'outro_score_value');
+    if (!layer) return;
+    layer.label = 'OUTRO numerical score';
+    layer.text = formatOverallScore(food);
   }
 
   function hexToRgb(color) {
@@ -2188,6 +2195,7 @@
       return;
     }
     ensureOutroTierStampLayer(layout, food);
+    syncOutroScoreValue(layout, food);
     state.layout = layout;
     state.displayBuilderExportStatus = 'ready';
     syncSectionIndicators(layout, food);

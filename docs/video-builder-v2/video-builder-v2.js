@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260722-v2-tier-stamp-intro-timing-v2';
+  const BUILDER_BUILD_ID = '20260722-v2-clear-captions-before-tier-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
@@ -3604,6 +3604,31 @@
     }));
   }
 
+  function emptyCaptionFrame(role = 'caption-gap') {
+    return {
+      chunk: '',
+      lines: [],
+      placement: 'lower-third',
+      role,
+      words: [],
+      activeWordIndex: -1,
+      activeWord: '',
+      activeWordStart: 0,
+      activeWordEnd: 0
+    };
+  }
+
+  function isOutroPreTierCaptionGap(scene, timing, target) {
+    if (scene?.id !== 'outro') return false;
+    const previousChunk = [...(timing.chunks || [])].reverse().find(chunk => target >= chunk.end);
+    const nextChunk = (timing.chunks || []).find(chunk => target < chunk.start);
+    if (!previousChunk || !nextChunk) return false;
+    const nextText = subtitleOnlyCaptionText(nextChunk.text || '');
+    return nextChunk.role === 'tier-reveal'
+      || nextChunk.placement === 'tier-center'
+      || TIER_REVEAL_RE.test(nextText);
+  }
+
   function captionFrame(scene, progress) {
     const timing = sceneTimingModel(scene);
     if (!timing.words.length) return { chunk: '', lines: [], words: [], activeWordIndex: -1 };
@@ -3611,6 +3636,7 @@
     const lookahead = CAPTION_WORD_LOOKAHEAD_SECONDS / timing.duration;
     const target = clamp(progress + lookahead, 0, 0.999);
     const timeChunk = timing.chunks.find(chunk => target >= chunk.start && target < chunk.end);
+    if (!timeChunk && isOutroPreTierCaptionGap(scene, timing, target)) return emptyCaptionFrame('pre-tier-gap');
     const candidateWords = timeChunk
       ? timing.words.slice(timeChunk.startWordIndex, timeChunk.endWordIndex + 1)
       : timing.words;
@@ -3657,6 +3683,14 @@
 
   function renderCaption(container, scene, progress, precomputedFrame = null) {
     const frame = precomputedFrame || captionFrame(scene, progress);
+    if (!frame?.lines?.length) {
+      container.classList.remove('summary-full', 'tier-center');
+      container.classList.add('lower-third');
+      container.dataset.captionKey = frame?.role || 'empty-caption';
+      container.removeAttribute('aria-label');
+      container.replaceChildren();
+      return;
+    }
     if (shouldSuppressCaptionFrame(scene, frame)) {
       container.classList.remove('summary-full', 'tier-center');
       container.classList.add('lower-third');

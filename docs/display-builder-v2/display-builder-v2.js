@@ -298,6 +298,16 @@
     return src.includes('/header/food_images/') || /^header food image$/.test(label);
   }
 
+  function isHeaderUnderlineSpriteLayer(layer) {
+    if (!isSpriteLayer(layer)) return false;
+    const src = String(layer.src || '').toLowerCase();
+    const label = String(layer.label || '').toLowerCase().replace(/^library:\s*/, '');
+    return src.includes('/header/header_ui/food_name_line')
+      || src.includes('/header/header_ui/per_100g_line')
+      || /^header food name underline$/.test(label)
+      || /^header per-100g underline$/.test(label);
+  }
+
   function foodImagePlacementSnapshot(layer) {
     if (!layer) return null;
     const placement = {};
@@ -1877,7 +1887,51 @@
     const rotation = Number(layer.rotation ?? layer.rotate ?? 0);
     if (Number.isFinite(rotation) && rotation) node.style.transform = `rotate(${rotation}deg)`;
     if (Number.isFinite(rotation) && rotation) node.style.transformOrigin = 'center';
+    applyHeaderUnderlinePixelSnap(node, layer);
     node.onerror = () => handleSpriteError(node, layer);
+  }
+
+  function displayPixelUnit() {
+    const cssValue = parseFloat(getComputedStyle(els.displayCanvas).getPropertyValue('--pixel-unit'));
+    if (Number.isFinite(cssValue) && cssValue > 0) return cssValue;
+    const width = els.displayCanvas.getBoundingClientRect().width;
+    const gridWidth = Number(state.canvasMetrics?.gridWidth) || LOGIC.AUTHOR_GRID.width;
+    return width > 0 && gridWidth > 0 ? width / gridWidth : 4;
+  }
+
+  function devicePixelRatioValue() {
+    const ratio = Number(window.devicePixelRatio);
+    return Number.isFinite(ratio) && ratio > 0 ? ratio : 1;
+  }
+
+  function snapCssPixel(value) {
+    const ratio = devicePixelRatioValue();
+    return Math.round(value * ratio) / ratio;
+  }
+
+  function snapCssSize(value) {
+    const ratio = devicePixelRatioValue();
+    return Math.max(1 / ratio, Math.round(value * ratio) / ratio);
+  }
+
+  function applyHeaderUnderlinePixelSnap(node, layer) {
+    if (!isHeaderUnderlineSpriteLayer(layer)) return;
+    const pixelUnit = displayPixelUnit();
+    const y = Number(layer.y) || 0;
+    const height = Number(layer.height || layer.naturalHeight || 1) || 1;
+    node.style.top = `${snapCssPixel(y * pixelUnit)}px`;
+    node.style.height = `${snapCssSize(height * pixelUnit)}px`;
+    node.style.objectFit = 'fill';
+    node.style.objectPosition = 'center';
+  }
+
+  function applyHeaderUnderlinePixelSnaps() {
+    if (!state.renderedLayout) return;
+    for (const layer of getSectionLayers(state.renderedLayout, state.selectedSectionId)) {
+      if (!isHeaderUnderlineSpriteLayer(layer)) continue;
+      const node = els.displayCanvas.querySelector(`.layer-node[data-layer-id="${CSS.escape(layer.id || '')}"]`);
+      if (node) applyHeaderUnderlinePixelSnap(node, layer);
+    }
   }
 
   function renderMacroBarFillCanvasNode(canvas, layer, food, animationStartMs, animationToken) {
@@ -2358,7 +2412,10 @@
       writeTestState();
       await renderAll();
     });
-    window.addEventListener('resize', updatePixelUnit);
+    window.addEventListener('resize', () => {
+      updatePixelUnit();
+      applyHeaderUnderlinePixelSnaps();
+    });
     window.addEventListener('focus', async () => {
       refreshLayoutOptions();
       await renderAll();

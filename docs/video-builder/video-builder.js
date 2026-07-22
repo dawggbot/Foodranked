@@ -3,7 +3,7 @@
   const FOOD_LAYOUTS_STORAGE_KEY = 'foodranked-display-builder-food-layouts-v1';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260722-outro-tier-tail-guard-v1';
+  const BUILDER_BUILD_ID = '20260722-outro-summary-tier-breath-v1';
   const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -67,6 +67,7 @@
   const STAMP_REVEAL_SECONDS = 0.36;
   const OUTRO_TIER_STAMP_REVEAL_SECONDS = 0.72;
   const OUTRO_TIER_REVEAL_LEAD_SECONDS = 0.12;
+  const OUTRO_FINAL_REVEAL_BREATH_SECONDS = 0.4;
   const TEXT_LAYER_LINE_HEIGHT = 1.15;
   const FOOD_STAMP_REVEAL_SECONDS = 0.22;
   const STAMP_SHAKE_MAX_PIXELS = 2.8;
@@ -2491,21 +2492,29 @@
       : SPLIT_AUDIO_SCENE_TAIL_GUARD_SECONDS;
   }
 
-  function splitAudioGapAfterBlock(audio, blocks, index) {
+  function splitAudioBreathAfterBlock(sceneId, current, next) {
+    if (splitAudioSceneKey(sceneId) !== 'outro') return 0;
+    return String(next?.kind || '').toLowerCase() === 'final_reveal'
+      ? OUTRO_FINAL_REVEAL_BREATH_SECONDS
+      : 0;
+  }
+
+  function splitAudioGapAfterBlock(audio, blocks, index, sceneId = null) {
     if (index >= blocks.length - 1) return 0;
     const current = blocks[index];
     const next = blocks[index + 1];
     const manifestGap = asNumber(next.offsetSeconds, null) != null && asNumber(current.endSeconds, null) != null
       ? Math.max(0, next.offsetSeconds - current.endSeconds)
       : null;
-    return manifestGap ?? Math.max(0, asNumber(audio?.blockGapSeconds, 0) || 0);
+    const baseGap = manifestGap ?? Math.max(0, asNumber(audio?.blockGapSeconds, 0) || 0);
+    return baseGap + splitAudioBreathAfterBlock(sceneId, current, next);
   }
 
   function splitAudioSceneDuration(audio, sceneId, { includeTailGuard = true } = {}) {
     const blocks = splitAudioBlocksForScene(audio, sceneId);
     if (!blocks.length) return null;
     const duration = blocks.reduce((sum, block, index) => {
-      return sum + Math.max(0, asNumber(block.durationSeconds, 0) || 0) + splitAudioGapAfterBlock(audio, blocks, index);
+      return sum + Math.max(0, asNumber(block.durationSeconds, 0) || 0) + splitAudioGapAfterBlock(audio, blocks, index, sceneId);
     }, 0);
     return Math.max(0.4, duration + (includeTailGuard ? splitAudioSceneTailGuardSeconds(sceneId) : 0));
   }
@@ -2531,7 +2540,7 @@
         };
       }
       cursor += duration;
-      const gap = splitAudioGapAfterBlock(audio, blocks, index);
+      const gap = splitAudioGapAfterBlock(audio, blocks, index, sceneId);
       if (safeSceneAudioTime < cursor + gap) return null;
       cursor += gap;
     }
@@ -2602,6 +2611,7 @@
       'scene-blocks',
       `tail:${SPLIT_AUDIO_SCENE_TAIL_GUARD_SECONDS.toFixed(3)}`,
       `outro-tail:${SPLIT_AUDIO_OUTRO_TAIL_GUARD_SECONDS.toFixed(3)}`,
+      `outro-breath:${OUTRO_FINAL_REVEAL_BREATH_SECONDS.toFixed(3)}`,
       `outro-hold:${OUTRO_HOLD_SECONDS.toFixed(3)}`
     ].join('|');
     if (state.audioTimelineKey === key) return false;
@@ -3392,12 +3402,36 @@
     };
   }
 
+  function isOutroTierCue(scene, cue) {
+    if (scene?.id !== 'outro') return false;
+    const text = subtitleOnlyCaptionText(cue?.text || (cue?.lines || []).join(' '));
+    return cue?.placement === 'tier-center' || TIER_REVEAL_RE.test(text);
+  }
+
+  function cueWithSceneTimingOffset(scene, cue) {
+    const offset = isOutroTierCue(scene, cue) ? OUTRO_FINAL_REVEAL_BREATH_SECONDS : 0;
+    if (!offset) return cue;
+    return {
+      ...cue,
+      startSeconds: asNumber(cue.startSeconds, 0) + offset,
+      endSeconds: asNumber(cue.endSeconds, 0) + offset,
+      wordTimings: Array.isArray(cue.wordTimings)
+        ? cue.wordTimings.map(word => ({
+          ...word,
+          startSeconds: asNumber(word.startSeconds, 0) + offset,
+          endSeconds: asNumber(word.endSeconds, 0) + offset
+        }))
+        : cue.wordTimings
+    };
+  }
+
   function sceneCueTimingModel(scene) {
     const cues = (scene?.subtitleCues || []).filter(cue => cue?.lines?.length);
     if (!cues.length) return null;
+    const timingCues = cues.map(cue => cueWithSceneTimingOffset(scene, cue));
 
     const duration = Math.max(1, sceneNarrationDuration(scene));
-    const sourceTimes = cues.flatMap(cue => {
+    const sourceTimes = timingCues.flatMap(cue => {
       const values = [asNumber(cue.startSeconds, null), asNumber(cue.endSeconds, null)];
       if (Array.isArray(cue.wordTimings)) {
         cue.wordTimings.forEach(word => {
@@ -3414,7 +3448,7 @@
     const chunks = [];
     let hasAlignedWords = false;
 
-    cues.forEach(cue => {
+    timingCues.forEach(cue => {
       const cueText = subtitleOnlyCaptionText((cue.lines || []).join(' '));
       const timedCueWords = Array.isArray(cue.wordTimings)
         ? cue.wordTimings.filter(word => (

@@ -303,7 +303,80 @@
     for (const key of FOOD_IMAGE_PLACEMENT_KEYS) {
       if (Object.prototype.hasOwnProperty.call(layer, key)) placement[key] = layer[key];
     }
+    const naturalWidth = Number(layer?.naturalWidth);
+    const naturalHeight = Number(layer?.naturalHeight);
+    if (Number.isFinite(naturalWidth) && naturalWidth > 0) placement.templateNaturalWidth = naturalWidth;
+    if (Number.isFinite(naturalHeight) && naturalHeight > 0) placement.templateNaturalHeight = naturalHeight;
     return Object.keys(placement).length ? placement : null;
+  }
+
+  function roundedLayoutNumber(value) {
+    const number = Number(value);
+    if (!Number.isFinite(number)) return null;
+    return Number(number.toFixed(3));
+  }
+
+  function positiveNumber(value) {
+    const number = Number(value);
+    return Number.isFinite(number) && number > 0 ? number : null;
+  }
+
+  function foodImageNaturalSize(food) {
+    const geometry = LOGIC.foodImageLayerGeometry?.(food);
+    if (!geometry) return null;
+    const naturalWidth = positiveNumber(geometry.naturalWidth);
+    const naturalHeight = positiveNumber(geometry.naturalHeight);
+    if (naturalWidth && naturalHeight) return { width: naturalWidth, height: naturalHeight };
+    const width = positiveNumber(geometry.width);
+    const height = positiveNumber(geometry.height);
+    return width && height ? { width, height } : null;
+  }
+
+  function foodImageTemplateScale(placement) {
+    const width = positiveNumber(placement?.width);
+    const height = positiveNumber(placement?.height);
+    const naturalWidth = positiveNumber(placement?.templateNaturalWidth);
+    const naturalHeight = positiveNumber(placement?.templateNaturalHeight);
+    if (!width || !height || !naturalWidth || !naturalHeight) return null;
+    const scale = Math.min(width / naturalWidth, height / naturalHeight);
+    return Number.isFinite(scale) && scale > 0 ? scale : null;
+  }
+
+  function sameFoodImageNaturalSize(placement, size) {
+    const templateWidth = positiveNumber(placement?.templateNaturalWidth);
+    const templateHeight = positiveNumber(placement?.templateNaturalHeight);
+    return !!templateWidth
+      && !!templateHeight
+      && !!size?.width
+      && !!size?.height
+      && Math.abs(templateWidth - size.width) < 0.001
+      && Math.abs(templateHeight - size.height) < 0.001;
+  }
+
+  function applyFoodImageScaledPlacement(layer, placement, food) {
+    const width = positiveNumber(placement?.width);
+    const height = positiveNumber(placement?.height);
+    const x = Number(placement?.x);
+    const y = Number(placement?.y);
+    const scale = foodImageTemplateScale(placement);
+    const naturalSize = foodImageNaturalSize(food);
+    if (!width || !height || !Number.isFinite(x) || !Number.isFinite(y) || !scale || !naturalSize) return false;
+    if (sameFoodImageNaturalSize(placement, naturalSize)) return false;
+
+    const centerX = x + (width / 2);
+    const centerY = y + (height / 2);
+    const nextWidth = naturalSize.width * scale;
+    const nextHeight = naturalSize.height * scale;
+    layer.x = roundedLayoutNumber(centerX - (nextWidth / 2));
+    layer.y = roundedLayoutNumber(centerY - (nextHeight / 2));
+    layer.width = roundedLayoutNumber(nextWidth);
+    layer.height = roundedLayoutNumber(nextHeight);
+    layer.naturalWidth = naturalSize.width;
+    layer.naturalHeight = naturalSize.height;
+    layer.aspectRatio = naturalSize.height ? naturalSize.width / naturalSize.height : null;
+    layer.preserveAspect = true;
+    layer.manualPosition = true;
+    return true;
   }
 
   function foodImagePlacementTemplateFromLayout(layout) {
@@ -349,16 +422,18 @@
     return null;
   }
 
-  function applyFoodImagePlacementToLayer(layer, placement) {
+  function applyFoodImagePlacementToLayer(layer, placement, food) {
     if (!layer || !placement) return false;
+    const scaledPlacementApplied = applyFoodImageScaledPlacement(layer, placement, food);
     let changed = false;
     for (const key of FOOD_IMAGE_PLACEMENT_KEYS) {
+      if (scaledPlacementApplied && ['x', 'y', 'width', 'height', 'preserveAspect', 'manualPosition'].includes(key)) continue;
       if (!Object.prototype.hasOwnProperty.call(placement, key)) continue;
       if (layer[key] === placement[key]) continue;
       layer[key] = placement[key];
       changed = true;
     }
-    return changed;
+    return scaledPlacementApplied || changed;
   }
 
   function applyLayoutBuilderFoodImagePlacement(layout, food, preferredLayout = null) {
@@ -368,7 +443,7 @@
     for (const sectionId of Object.keys(layout.sections || {})) {
       for (const layer of getSectionLayers(layout, sectionId)) {
         if (!isHeaderFoodImageLayer(layer)) continue;
-        changed = applyFoodImagePlacementToLayer(layer, placement) || changed;
+        changed = applyFoodImagePlacementToLayer(layer, placement, food) || changed;
       }
     }
     return changed;

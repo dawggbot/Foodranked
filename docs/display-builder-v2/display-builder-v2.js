@@ -106,6 +106,33 @@
     'rotate',
     'manualPosition'
   ];
+  const LAYOUT_GUIDE_LAYER_KEYS = [
+    'x',
+    'y',
+    'z',
+    'width',
+    'height',
+    'preserveAspect',
+    'aspectRatio',
+    'naturalWidth',
+    'naturalHeight',
+    'rotation',
+    'rotate',
+    'flipX',
+    'flipY',
+    'centerAnchor',
+    'centerOffsetX',
+    'centerOffsetY',
+    'fontSize',
+    'autoFontSize',
+    'align',
+    'textAlign',
+    'lineHeight',
+    'textBoxHeight',
+    'textStrokeWidth',
+    'textStrokeColor',
+    'manualPosition'
+  ];
 
   const DEFAULT_BACKGROUND = {
     color: '#d6d6d6'
@@ -245,6 +272,19 @@
     return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
   }
 
+  function layoutBuilderWorkingOption() {
+    const working = parseStorageJson(LAYOUT_BUILDER_WORKING_KEY, null);
+    if (!validLayout(working)) return null;
+    return {
+      key: 'working:current',
+      id: 'current-working-layout',
+      name: 'Current working layout',
+      kind: 'layout-builder working layout',
+      updatedAt: working.meta?.updatedAt || '',
+      layout: normalizeLayoutSections(LOGIC.clone(working))
+    };
+  }
+
   function isHeaderFoodImageLayer(layer) {
     if (!isSpriteLayer(layer)) return false;
     const src = String(layer.src || '').toLowerCase();
@@ -325,6 +365,79 @@
     return changed;
   }
 
+  function layoutGuideKey(sectionId, layer) {
+    const id = String(layer?.id || '').trim();
+    if (id) return `${sectionId}:id:${id}`;
+    const label = String(layer?.label || '').trim().toLowerCase();
+    return label ? `${sectionId}:label:${label}` : '';
+  }
+
+  function layoutGuideLayerSnapshot(layer) {
+    if (!isSpriteLayer(layer) && !isTextLayer(layer)) return null;
+    const placement = {};
+    for (const key of LAYOUT_GUIDE_LAYER_KEYS) {
+      if (Object.prototype.hasOwnProperty.call(layer, key)) placement[key] = layer[key];
+    }
+    return Object.keys(placement).length ? placement : null;
+  }
+
+  function layoutBuilderGuideCandidates(foodId = state.selectedFoodId) {
+    const candidates = [];
+    const workingOption = layoutBuilderWorkingOption();
+    if (workingOption?.layout) candidates.push(workingOption.layout);
+    const foodLayoutMap = readFoodLayoutMap();
+    if (validLayout(foodLayoutMap[foodId])) candidates.push(foodLayoutMap[foodId]);
+    for (const [candidateFoodId, layout] of Object.entries(foodLayoutMap)) {
+      if (candidateFoodId === foodId) continue;
+      if (validLayout(layout)) candidates.push(layout);
+    }
+    return candidates;
+  }
+
+  function layoutBuilderPlacementGuide(foodId = state.selectedFoodId) {
+    const guide = new Map();
+    for (const candidate of layoutBuilderGuideCandidates(foodId)) {
+      const layout = normalizeLayoutSections(LOGIC.clone(candidate));
+      for (const [sectionId, section] of Object.entries(layout.sections || {})) {
+        const normalizedSectionId = normalizeDisplaySectionId(sectionId);
+        const layers = Array.isArray(section?.layers) ? section.layers : [];
+        for (const layer of layers) {
+          const key = layoutGuideKey(normalizedSectionId, layer);
+          if (!key || guide.has(key)) continue;
+          const placement = layoutGuideLayerSnapshot(layer);
+          if (placement) guide.set(key, placement);
+        }
+      }
+    }
+    return guide;
+  }
+
+  function applyPlacementGuideToLayer(layer, placement) {
+    if (!layer || !placement) return false;
+    let changed = false;
+    for (const key of LAYOUT_GUIDE_LAYER_KEYS) {
+      if (!Object.prototype.hasOwnProperty.call(placement, key)) continue;
+      if (layer[key] === placement[key]) continue;
+      layer[key] = placement[key];
+      changed = true;
+    }
+    return changed;
+  }
+
+  function applyLayoutBuilderPlacementGuide(layout, food) {
+    const guide = layoutBuilderPlacementGuide(food?.id);
+    if (!guide.size) return false;
+    let changed = false;
+    for (const [sectionId] of Object.entries(layout.sections || {})) {
+      const normalizedSectionId = normalizeDisplaySectionId(sectionId);
+      for (const layer of getSectionLayers(layout, normalizedSectionId)) {
+        const placement = guide.get(layoutGuideKey(normalizedSectionId, layer));
+        changed = applyPlacementGuideToLayer(layer, placement) || changed;
+      }
+    }
+    return changed;
+  }
+
   function normalizeFoodLayoutOption(foodId, layout) {
     if (!foodId || !validLayout(layout)) return null;
     const food = state.foods.find(item => item.id === foodId);
@@ -349,23 +462,14 @@
   function refreshLayoutOptions({ keepSelection = true } = {}) {
     const previousKey = keepSelection ? state.selectedLayoutKey : '';
     const options = [];
+    const working = layoutBuilderWorkingOption();
+    if (working) options.push(working);
+
     const foodLayoutOption = normalizeFoodLayoutOption(
       state.selectedFoodId,
       readFoodLayoutMap()[state.selectedFoodId]
     );
     if (foodLayoutOption) options.push(foodLayoutOption);
-
-    const working = parseStorageJson(LAYOUT_BUILDER_WORKING_KEY, null);
-    if (validLayout(working)) {
-      options.push({
-        key: 'working:current',
-        id: 'current-working-layout',
-        name: 'Current working layout',
-        kind: 'layout-builder working layout',
-        updatedAt: working.meta?.updatedAt || '',
-        layout: normalizeLayoutSections(LOGIC.clone(working))
-      });
-    }
 
     const savedRaw = parseStorageJson(LAYOUT_BUILDER_SAVED_KEY, []);
     const savedEntries = Array.isArray(savedRaw) ? savedRaw : Object.values(savedRaw || {});
@@ -376,7 +480,9 @@
       .forEach(option => options.push(option));
 
     state.layoutOptions = options.filter(option => countDisplayLayers(option.layout) > 0);
-    if (previousKey && state.layoutOptions.some(option => option.key === previousKey)) {
+    if (working && (!previousKey || /^food:/.test(previousKey))) {
+      state.selectedLayoutKey = working.key;
+    } else if (previousKey && state.layoutOptions.some(option => option.key === previousKey)) {
       state.selectedLayoutKey = previousKey;
     } else {
       state.selectedLayoutKey = state.layoutOptions[0]?.key || '';
@@ -929,7 +1035,8 @@
     const values = {
       kcal_value_text: String(food?.header?.kcal ?? food?.kcal ?? 'N/A'),
       basis_text: LOGIC.formatBasis(food),
-      script_caption: LOGIC.foodTypeTitle(food?.foodType)
+      script_caption: LOGIC.foodTypeTitle(food?.foodType),
+      subline_c: formatScoreTally(food)
     };
     for (const sectionId of Object.keys(layout.sections || {})) {
       for (const layer of getSectionLayers(layout, sectionId)) {
@@ -938,10 +1045,53 @@
           layer.text = headerFoodNameText(food, layer);
           continue;
         }
-        if (!(layer.id in values)) continue;
-        layer.text = values[layer.id];
+        if (layer.id in values) {
+          layer.text = values[layer.id];
+          continue;
+        }
+        if (isHeaderScoreCardTextLayer(layer)) layer.text = formatScoreTally(food);
       }
     }
+  }
+
+  function scoreTally(food) {
+    const candidates = [
+      food?.episode?.rankingScore,
+      food?.batchResult?.rankingScore,
+      food?.rankingScore,
+      food?.episode?.rankingScoreExact,
+      food?.batchResult?.rankingScoreExact,
+      food?.rankingScoreExact,
+      food?.episode?.anomalyAdjustedScore,
+      food?.batchResult?.anomalyAdjustedScore,
+      food?.anomalyAdjustedScore,
+      food?.episode?.anomalyAdjustedScoreExact,
+      food?.batchResult?.anomalyAdjustedScoreExact,
+      food?.anomalyAdjustedScoreExact,
+      food?.episode?.calibratedOverallScore,
+      food?.batchResult?.calibratedOverallScore,
+      food?.calibratedOverallScore,
+      food?.episode?.overallScore,
+      food?.batchResult?.overallScore,
+      food?.overallScore
+    ];
+    for (const candidate of candidates) {
+      const score = asNumber(candidate, null);
+      if (score != null) return score;
+    }
+    return null;
+  }
+
+  function formatScoreTally(food) {
+    const score = scoreTally(food);
+    return score == null ? 'N/A' : LOGIC.formatCompactNumber(score, 0);
+  }
+
+  function isHeaderScoreCardTextLayer(layer) {
+    if (!isTextLayer(layer)) return false;
+    const id = String(layer.id || '').toLowerCase();
+    const label = String(layer.label || '').toLowerCase();
+    return id === 'subline_c' || /header score card text/.test(label);
   }
 
   function headerFoodNameText(food, layer) {
@@ -1477,6 +1627,7 @@
     state.bindingReport = { text: [], arrows: [], micronutrientBars: [], contextItems: [], warnings: [] };
     if (!option || !validLayout(option.layout)) return null;
     const layout = cloneLayoutForRender(option);
+    applyLayoutBuilderPlacementGuide(layout, food);
     applyLayoutBuilderFoodImagePlacement(layout, food);
     syncFoodSprites(layout, food);
     syncFoodText(layout, food);

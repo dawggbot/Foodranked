@@ -27,6 +27,7 @@
   const TEST_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const PLACEMENT_EXPORT_LIMIT = 60;
+  const DATA_CACHE_BUST = '20260721-bacon-v9-data-v1';
   const FOOD_JSON_CACHE = new Map();
   const BATCH_RESULTS_CACHE = new Map();
   const TEXT_LAYER_CLIP_BLEED = 2;
@@ -410,7 +411,7 @@
     if (!stub?.path) return stub || null;
     if (FOOD_JSON_CACHE.has(stub.path)) return FOOD_JSON_CACHE.get(stub.path);
     try {
-      const response = await fetch(`../${stub.path}`);
+      const response = await fetch(withDataCacheBust(`../${stub.path}`));
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const json = await response.json();
       FOOD_JSON_CACHE.set(stub.path, json);
@@ -423,7 +424,7 @@
   async function loadBatchResults() {
     if (BATCH_RESULTS_CACHE.size) return;
     try {
-      const response = await fetch('../data/batch-results.json');
+      const response = await fetch(withDataCacheBust('../data/batch-results.json'));
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const json = await response.json();
       const details = Array.isArray(json?.details) ? json.details : [];
@@ -441,6 +442,11 @@
     if (!food?.id) return food;
     const batchResult = BATCH_RESULTS_CACHE.get(food.id);
     return batchResult ? { ...food, batchResult } : food;
+  }
+
+  function withDataCacheBust(path) {
+    const separator = String(path).includes('?') ? '&' : '?';
+    return `${path}${separator}v=${DATA_CACHE_BUST}`;
   }
 
   async function loadSelectedFood() {

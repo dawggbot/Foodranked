@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260722-v2-food-image-scale-v1';
+  const BUILDER_BUILD_ID = '20260722-v2-food-image-manual-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
@@ -840,10 +840,12 @@
   function syncFoodImageLayerGeometry(layer, food) {
     const geometry = foodImageLayerGeometry(food);
     if (!geometry) return;
-    layer.x = Number(geometry.x.toFixed(3));
-    layer.y = Number(geometry.y.toFixed(3));
-    layer.width = Number(geometry.width.toFixed(3));
-    layer.height = Number(geometry.height.toFixed(3));
+    if (!layer.manualPosition) {
+      layer.x = Number(geometry.x.toFixed(3));
+      layer.y = Number(geometry.y.toFixed(3));
+      layer.width = Number(geometry.width.toFixed(3));
+      layer.height = Number(geometry.height.toFixed(3));
+    }
     layer.naturalWidth = geometry.naturalWidth || null;
     layer.naturalHeight = geometry.naturalHeight || null;
     layer.preserveAspect = true;

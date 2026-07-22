@@ -819,12 +819,12 @@
           layer.src = LOGIC.headerFoodTypeSpritePath(food);
         } else if (src.includes('/header/calorie_bubble/') || /header calorie bubble/.test(label)) {
           layer.src = LOGIC.headerCalorieBubbleSpritePath(food);
-        } else if (src.includes('/header/food_plate/') || src.includes('/header/food_image_plate/') || /header food image plate/.test(label)) {
-          layer.src = LOGIC.headerFoodPlateSpritePath(food);
         } else if (src.includes('/header/food_images/') || /^header food image$/.test(label)) {
           layer.src = imageCandidates.primary;
           layer.fallbackSrc = imageCandidates.fallback;
           LOGIC.syncFoodImageLayerGeometry?.(layer, food);
+        } else if (src.includes('/header/food_plate/') || src.includes('/header/food_image_plate/') || /header food image plate/.test(label)) {
+          layer.src = LOGIC.headerFoodPlateSpritePath(food);
         } else if (src.includes('/ui/section_separator/') || /^section separator$/.test(label)) {
           layer.src = LOGIC.sectionSeparatorSpritePath(food);
         } else if (isSectionIndicatorLayer(layer)) {

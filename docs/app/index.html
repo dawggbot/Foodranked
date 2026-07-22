@@ -1198,8 +1198,8 @@
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     if (APP_MODE === 'layout-builder') document.body.classList.add('layout-builder-mode');
     const BUILDER_BUILD_ID = APP_MODE === 'layout-builder'
-      ? '20260719-protein-layout-link-v1'
-      : '20260624-section-indicators-disabled-v1';
+      ? '20260722-food-image-manual-v1'
+      : '20260722-food-image-manual-v1';
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
     const SECTIONS = [
       { id: 'intro', label: '1. Intro blank', chip: null, indicator: true },
@@ -1242,6 +1242,17 @@
       'centerOffsetX',
       'centerOffsetY',
       'aspectRatio'
+    ];
+    const FOOD_IMAGE_PLACEMENT_KEYS = [
+      'x',
+      'y',
+      'z',
+      'width',
+      'height',
+      'preserveAspect',
+      'rotation',
+      'rotate',
+      'manualPosition'
     ];
     const AUTHOR_GRID = { width: 135, height: 240 };
     const ROOT_SPRITE_BASE = './sprites';
@@ -1642,6 +1653,7 @@
         selectedFoodId: foodId,
         meta: { ...(layout.meta || {}), repoLayoutVersion: REPO_LAYOUT_VERSION }
       };
+      if (APP_MODE === 'layout-builder') applyManualFoodImagePlacementToFoodLayoutMap(map, map[foodId]);
       applyBaconMacroBarPlacementToFoodLayoutMap(map, map[foodId]);
       persistFoodLayoutMap(map);
     }
@@ -1796,6 +1808,13 @@
     function isHeaderSpriteLayer(layer) {
       if (!isSpriteLayer(layer)) return false;
       return String(layer.src).toLowerCase().includes('/sprites/header/');
+    }
+
+    function isHeaderFoodImageLayer(layer) {
+      if (!isSpriteLayer(layer)) return false;
+      const src = String(layer.src || '').toLowerCase();
+      const label = String(layer.label || '').toLowerCase().replace(/^library:\s*/, '');
+      return src.includes('/header/food_images/') || /^header food image$/.test(label);
     }
 
     function isHeaderTextLayer(layer) {
@@ -2094,6 +2113,77 @@
       let changed = false;
       for (const layout of Object.values(map || {})) {
         changed = applyBaconMacroBarPlacementTemplate(layout, template) || changed;
+      }
+      return changed;
+    }
+
+    function foodImagePlacementSnapshot(layer) {
+      if (!layer?.manualPosition) return null;
+      const placement = {};
+      for (const key of FOOD_IMAGE_PLACEMENT_KEYS) {
+        if (Object.prototype.hasOwnProperty.call(layer, key)) placement[key] = layer[key];
+      }
+      placement.manualPosition = true;
+      return Object.keys(placement).length ? placement : null;
+    }
+
+    function foodImagePlacementSourceLayer(layout) {
+      if (!layout?.sections) return null;
+      const selectedSectionId = normalizeLayoutSectionId(layout.selectedSectionId || state.layout?.selectedSectionId || 'intro');
+      const selectedLayer = getSectionLayersFromLayout(layout, selectedSectionId)
+        .find(layer => layer.id && layer.id === state.selectedLayerId && isHeaderFoodImageLayer(layer));
+      if (selectedLayer?.manualPosition) return selectedLayer;
+
+      const selectedSectionLayer = getSectionLayersFromLayout(layout, selectedSectionId)
+        .find(layer => isHeaderFoodImageLayer(layer) && layer.manualPosition);
+      if (selectedSectionLayer) return selectedSectionLayer;
+
+      for (const section of SECTIONS) {
+        const layer = getSectionLayersFromLayout(layout, section.id)
+          .find(item => isHeaderFoodImageLayer(item) && item.manualPosition);
+        if (layer) return layer;
+      }
+      return null;
+    }
+
+    function manualFoodImagePlacementTemplateFromLayout(layout) {
+      return foodImagePlacementSnapshot(foodImagePlacementSourceLayer(layout));
+    }
+
+    function applyFoodImagePlacementToLayer(layer, placement) {
+      if (!layer || !placement) return false;
+      let changed = false;
+      for (const key of FOOD_IMAGE_PLACEMENT_KEYS) {
+        if (!Object.prototype.hasOwnProperty.call(placement, key)) continue;
+        if (layer[key] === placement[key]) continue;
+        layer[key] = placement[key];
+        changed = true;
+      }
+      return changed;
+    }
+
+    function applyFoodImagePlacementTemplate(layout, template) {
+      if (!layout?.sections || !template) return false;
+      let changed = false;
+      for (const section of SECTIONS) {
+        for (const layer of getSectionLayersFromLayout(layout, section.id)) {
+          if (!isHeaderFoodImageLayer(layer)) continue;
+          changed = applyFoodImagePlacementToLayer(layer, template) || changed;
+        }
+      }
+      return changed;
+    }
+
+    function applyManualFoodImagePlacementTemplate(layout) {
+      return applyFoodImagePlacementTemplate(layout, manualFoodImagePlacementTemplateFromLayout(layout));
+    }
+
+    function applyManualFoodImagePlacementToFoodLayoutMap(map, sourceLayout = null) {
+      const template = manualFoodImagePlacementTemplateFromLayout(sourceLayout);
+      if (!template) return false;
+      let changed = false;
+      for (const layout of Object.values(map || {})) {
+        changed = applyFoodImagePlacementTemplate(layout, template) || changed;
       }
       return changed;
     }
@@ -3743,6 +3833,7 @@
         normalizeLayout(state.layout);
         if (state.fullFood) syncFoodIntoLayout(state.fullFood, { normalize: false });
       }
+      if (APP_MODE === 'layout-builder') applyManualFoodImagePlacementTemplate(state.layout);
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state.layout));
       saveLayoutForFood(state.layout);
       if (allowIgnoredReplacement) state.ignoredSavedLayout = null;
@@ -4470,10 +4561,12 @@
     function syncFoodImageLayerGeometry(layer, food = getSelectedFoodStub()) {
       const geometry = foodImageLayerGeometry(food);
       if (!geometry) return;
-      layer.x = Number(geometry.x.toFixed(3));
-      layer.y = Number(geometry.y.toFixed(3));
-      layer.width = Number(geometry.width.toFixed(3));
-      layer.height = Number(geometry.height.toFixed(3));
+      if (!layer.manualPosition) {
+        layer.x = Number(geometry.x.toFixed(3));
+        layer.y = Number(geometry.y.toFixed(3));
+        layer.width = Number(geometry.width.toFixed(3));
+        layer.height = Number(geometry.height.toFixed(3));
+      }
       layer.naturalWidth = geometry.naturalWidth || null;
       layer.naturalHeight = geometry.naturalHeight || null;
       layer.preserveAspect = true;
@@ -5258,12 +5351,12 @@
             layer.src = headerFoodTypeSpritePath(food);
           } else if (src.includes('/header/calorie_bubble/') || /header calorie bubble/.test(label)) {
             layer.src = headerCalorieBubbleSpritePath(food);
-          } else if (src.includes('/header/food_plate/') || src.includes('/header/food_image_plate/') || /header food image plate/.test(label)) {
-            layer.src = headerFoodPlateSpritePath(food);
-          } else if (src.includes('/header/food_images/') || /^header food image$/.test(label)) {
+          } else if (isHeaderFoodImageLayer(layer)) {
             layer.src = imageCandidates.primary;
             layer.fallbackSrc = imageCandidates.fallback;
             syncFoodImageLayerGeometry(layer, food);
+          } else if (src.includes('/header/food_plate/') || src.includes('/header/food_image_plate/') || /header food image plate/.test(label)) {
+            layer.src = headerFoodPlateSpritePath(food);
           }
         }
       }

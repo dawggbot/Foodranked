@@ -3,7 +3,7 @@
   const FOOD_LAYOUTS_STORAGE_KEY = 'foodranked-display-builder-food-layouts-v1';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260722-outro-summary-tier-breath-v1';
+  const BUILDER_BUILD_ID = '20260722-outro-summary-tier-breath-1s-v1';
   const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -67,7 +67,7 @@
   const STAMP_REVEAL_SECONDS = 0.36;
   const OUTRO_TIER_STAMP_REVEAL_SECONDS = 0.72;
   const OUTRO_TIER_REVEAL_LEAD_SECONDS = 0.12;
-  const OUTRO_FINAL_REVEAL_BREATH_SECONDS = 0.4;
+  const OUTRO_FINAL_REVEAL_BREATH_SECONDS = 1;
   const TEXT_LAYER_LINE_HEIGHT = 1.15;
   const FOOD_STAMP_REVEAL_SECONDS = 0.22;
   const STAMP_SHAKE_MAX_PIXELS = 2.8;

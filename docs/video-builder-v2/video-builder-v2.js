@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260722-v2-outro-score-whole-v1';
+  const BUILDER_BUILD_ID = '20260722-v2-food-image-scale-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
@@ -169,6 +169,23 @@
   const OUTRO_CTA_WAVE_LIFT = 2.2;
   const OUTRO_CTA_WAVE_SCALE = 0.14;
   const AVAILABLE_FOOD_IMAGE_IDS = new Set(['bacon', 'kale']);
+  const FOOD_IMAGE_BACON_REFERENCE = {
+    x: 8,
+    y: 10,
+    width: 23,
+    height: 10,
+    naturalWidth: 30,
+    naturalHeight: 13
+  };
+  const FOOD_IMAGE_REFERENCE_SCALE = FOOD_IMAGE_BACON_REFERENCE.width / FOOD_IMAGE_BACON_REFERENCE.naturalWidth;
+  const FOOD_IMAGE_REFERENCE_CENTER = {
+    x: FOOD_IMAGE_BACON_REFERENCE.x + (FOOD_IMAGE_BACON_REFERENCE.width / 2),
+    y: FOOD_IMAGE_BACON_REFERENCE.y + (FOOD_IMAGE_BACON_REFERENCE.height / 2)
+  };
+  const FOOD_IMAGE_SPRITE_SIZES = {
+    bacon: { width: 30, height: 13 },
+    kale: { width: 30, height: 30 }
+  };
   const SUBMACRO_VALUE_COLORS = {
     green: '#7cf2a7',
     red: '#ff6f6f',
@@ -778,6 +795,61 @@
     };
   }
 
+  function customFoodImageNaturalSize(food) {
+    const id = String(food?.id || '').toLowerCase();
+    const asset = food?.assets?.customFoodImage || food?.customFoodImage || {};
+    const assetWidth = Number(asset.width || asset.naturalWidth || 0);
+    const assetHeight = Number(asset.height || asset.naturalHeight || 0);
+    if (Number.isFinite(assetWidth) && assetWidth > 0 && Number.isFinite(assetHeight) && assetHeight > 0) {
+      return { width: assetWidth, height: assetHeight };
+    }
+    return FOOD_IMAGE_SPRITE_SIZES[id] || null;
+  }
+
+  function foodImageLayerGeometry(food) {
+    const size = customFoodImageNaturalSize(food);
+    if (!size) {
+      if (!hasCustomFoodImage(food)) return null;
+      return {
+        x: FOOD_IMAGE_REFERENCE_CENTER.x - (FOOD_IMAGE_BACON_REFERENCE.width / 2),
+        y: FOOD_IMAGE_REFERENCE_CENTER.y - (FOOD_IMAGE_BACON_REFERENCE.width / 2),
+        width: FOOD_IMAGE_BACON_REFERENCE.width,
+        height: FOOD_IMAGE_BACON_REFERENCE.width,
+        naturalWidth: null,
+        naturalHeight: null
+      };
+    }
+    if (
+      size.width === FOOD_IMAGE_BACON_REFERENCE.naturalWidth
+      && size.height === FOOD_IMAGE_BACON_REFERENCE.naturalHeight
+    ) {
+      return { ...FOOD_IMAGE_BACON_REFERENCE };
+    }
+    const width = size.width * FOOD_IMAGE_REFERENCE_SCALE;
+    const height = size.height * FOOD_IMAGE_REFERENCE_SCALE;
+    return {
+      x: FOOD_IMAGE_REFERENCE_CENTER.x - (width / 2),
+      y: FOOD_IMAGE_REFERENCE_CENTER.y - (height / 2),
+      width,
+      height,
+      naturalWidth: size.width,
+      naturalHeight: size.height
+    };
+  }
+
+  function syncFoodImageLayerGeometry(layer, food) {
+    const geometry = foodImageLayerGeometry(food);
+    if (!geometry) return;
+    layer.x = Number(geometry.x.toFixed(3));
+    layer.y = Number(geometry.y.toFixed(3));
+    layer.width = Number(geometry.width.toFixed(3));
+    layer.height = Number(geometry.height.toFixed(3));
+    layer.naturalWidth = geometry.naturalWidth || null;
+    layer.naturalHeight = geometry.naturalHeight || null;
+    layer.preserveAspect = true;
+    layer.aspectRatio = geometry.naturalHeight ? geometry.naturalWidth / geometry.naturalHeight : null;
+  }
+
   function canvasGridUnit(axis = 'x') {
     const fallback = cssPixels(getComputedStyle(document.documentElement).getPropertyValue('--pixel-unit'), 4);
     const stageRect = els.videoStage?.getBoundingClientRect?.();
@@ -1363,6 +1435,7 @@
         if (fingerprint.includes('/header/food_images/') || /header food image$/.test(fingerprint)) {
           layer.src = foodImagePath(food);
           layer.fallbackSrc = foodPlatePath(food);
+          syncFoodImageLayerGeometry(layer, food);
         } else if (fingerprint.includes('/header/food_type_plate/') || /header food type/.test(fingerprint)) {
           layer.src = typePlatePath(food);
         } else if (fingerprint.includes('/header/calorie_bubble/') || /header calorie bubble/.test(fingerprint)) {
@@ -1372,6 +1445,19 @@
         } else if (fingerprint.includes('/ui/section_separator/') || /section separator/.test(fingerprint)) {
           layer.src = separatorPath(food);
         }
+      }
+    }
+  }
+
+  function syncHeaderFoodImage(layout, food) {
+    for (const section of SECTIONS) {
+      for (const layer of getSectionLayers(layout, section.id)) {
+        if (!isSpriteLayer(layer)) continue;
+        const fingerprint = `${layer.src || ''} ${layer.label || ''}`.toLowerCase();
+        if (!fingerprint.includes('/header/food_images/') && !/header food image$/.test(fingerprint)) continue;
+        layer.src = foodImagePath(food);
+        layer.fallbackSrc = foodPlatePath(food);
+        syncFoodImageLayerGeometry(layer, food);
       }
     }
   }
@@ -2221,6 +2307,7 @@
       return;
     }
     ensureOutroTierStampLayer(layout, food);
+    syncHeaderFoodImage(layout, food);
     syncOutroScoreValue(layout, food);
     state.layout = layout;
     state.displayBuilderExportStatus = 'ready';

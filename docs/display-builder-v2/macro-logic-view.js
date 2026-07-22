@@ -9,6 +9,23 @@
   ])];
   const MACRO_BAR_MIN_VISIBLE_FILL_RATIO = 0.0011;
   const AVAILABLE_FOOD_IMAGE_IDS = new Set(['bacon', 'kale']);
+  const FOOD_IMAGE_BACON_REFERENCE = {
+    x: 8,
+    y: 10,
+    width: 23,
+    height: 10,
+    naturalWidth: 30,
+    naturalHeight: 13
+  };
+  const FOOD_IMAGE_REFERENCE_SCALE = FOOD_IMAGE_BACON_REFERENCE.width / FOOD_IMAGE_BACON_REFERENCE.naturalWidth;
+  const FOOD_IMAGE_REFERENCE_CENTER = {
+    x: FOOD_IMAGE_BACON_REFERENCE.x + (FOOD_IMAGE_BACON_REFERENCE.width / 2),
+    y: FOOD_IMAGE_BACON_REFERENCE.y + (FOOD_IMAGE_BACON_REFERENCE.height / 2)
+  };
+  const FOOD_IMAGE_SPRITE_SIZES = {
+    bacon: { width: 30, height: 13 },
+    kale: { width: 30, height: 30 }
+  };
 
   const PROTEIN_QUALITY_METRIC_KEYS = new Set([
     'essential_amino_acids_score',
@@ -262,6 +279,63 @@
       primary: customPath || (hasCommittedImage ? `${ROOT_SPRITE_BASE}/header/food_images/${food?.id}.png` : fallback),
       fallback
     };
+  }
+
+  function customFoodImageNaturalSize(food) {
+    const id = String(food?.id || '').toLowerCase();
+    const asset = food?.assets?.customFoodImage || food?.customFoodImage || {};
+    const assetWidth = Number(asset.width || asset.naturalWidth || 0);
+    const assetHeight = Number(asset.height || asset.naturalHeight || 0);
+    if (Number.isFinite(assetWidth) && assetWidth > 0 && Number.isFinite(assetHeight) && assetHeight > 0) {
+      return { width: assetWidth, height: assetHeight };
+    }
+    return FOOD_IMAGE_SPRITE_SIZES[id] || null;
+  }
+
+  function foodImageLayerGeometry(food) {
+    const size = customFoodImageNaturalSize(food);
+    if (!size) {
+      const hasCustomImage = Boolean(customFoodImagePath(food))
+        || AVAILABLE_FOOD_IMAGE_IDS.has(String(food?.id || '').toLowerCase());
+      if (!hasCustomImage) return null;
+      return {
+        x: FOOD_IMAGE_REFERENCE_CENTER.x - (FOOD_IMAGE_BACON_REFERENCE.width / 2),
+        y: FOOD_IMAGE_REFERENCE_CENTER.y - (FOOD_IMAGE_BACON_REFERENCE.width / 2),
+        width: FOOD_IMAGE_BACON_REFERENCE.width,
+        height: FOOD_IMAGE_BACON_REFERENCE.width,
+        naturalWidth: null,
+        naturalHeight: null
+      };
+    }
+    if (
+      size.width === FOOD_IMAGE_BACON_REFERENCE.naturalWidth
+      && size.height === FOOD_IMAGE_BACON_REFERENCE.naturalHeight
+    ) {
+      return { ...FOOD_IMAGE_BACON_REFERENCE };
+    }
+    const width = size.width * FOOD_IMAGE_REFERENCE_SCALE;
+    const height = size.height * FOOD_IMAGE_REFERENCE_SCALE;
+    return {
+      x: FOOD_IMAGE_REFERENCE_CENTER.x - (width / 2),
+      y: FOOD_IMAGE_REFERENCE_CENTER.y - (height / 2),
+      width,
+      height,
+      naturalWidth: size.width,
+      naturalHeight: size.height
+    };
+  }
+
+  function syncFoodImageLayerGeometry(layer, food) {
+    const geometry = foodImageLayerGeometry(food);
+    if (!geometry) return;
+    layer.x = Number(geometry.x.toFixed(3));
+    layer.y = Number(geometry.y.toFixed(3));
+    layer.width = Number(geometry.width.toFixed(3));
+    layer.height = Number(geometry.height.toFixed(3));
+    layer.naturalWidth = geometry.naturalWidth || null;
+    layer.naturalHeight = geometry.naturalHeight || null;
+    layer.preserveAspect = true;
+    layer.aspectRatio = geometry.naturalHeight ? geometry.naturalWidth / geometry.naturalHeight : null;
   }
 
   function headerFoodTypeSpritePath(food) {
@@ -906,6 +980,8 @@
     canonicalSpritePath,
     spriteFilename,
     foodSpriteCandidates,
+    foodImageLayerGeometry,
+    syncFoodImageLayerGeometry,
     headerFoodTypeSpritePath,
     headerCalorieBubbleSpritePath,
     headerFoodPlateSpritePath,

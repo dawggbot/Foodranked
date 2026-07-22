@@ -824,6 +824,7 @@
         } else if (src.includes('/header/food_images/') || /^header food image$/.test(label)) {
           layer.src = imageCandidates.primary;
           layer.fallbackSrc = imageCandidates.fallback;
+          LOGIC.syncFoodImageLayerGeometry?.(layer, food);
         } else if (src.includes('/ui/section_separator/') || /^section separator$/.test(label)) {
           layer.src = LOGIC.sectionSeparatorSpritePath(food);
         } else if (isSectionIndicatorLayer(layer)) {

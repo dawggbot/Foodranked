@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260722-v2-outro-audio-pacing-1s-2s-v1';
+  const BUILDER_BUILD_ID = '20260722-v2-tier-stamp-reveal-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
@@ -2220,6 +2220,7 @@
       els.layoutStatus.title = `${food?.name || 'Selected food'} ${status} Display Builder v2 placement · ${BUILDER_BUILD_ID}`;
       return;
     }
+    ensureOutroTierStampLayer(layout, food);
     state.layout = layout;
     state.displayBuilderExportStatus = 'ready';
     ensureSectionIndicatorLayers(layout, food);

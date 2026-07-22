@@ -3,7 +3,7 @@
   const FOOD_LAYOUTS_STORAGE_KEY = 'foodranked-display-builder-food-layouts-v1';
   const SAVED_LAYOUTS_KEY = 'foodranked-display-builder-sprite-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-state-v1';
-  const BUILDER_BUILD_ID = '20260722-outro-summary-tier-breath-1s-v1';
+  const BUILDER_BUILD_ID = '20260722-outro-tier-breath-2s-window-v1';
   const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
@@ -67,7 +67,7 @@
   const STAMP_REVEAL_SECONDS = 0.36;
   const OUTRO_TIER_STAMP_REVEAL_SECONDS = 0.72;
   const OUTRO_TIER_REVEAL_LEAD_SECONDS = 0.12;
-  const OUTRO_FINAL_REVEAL_BREATH_SECONDS = 1;
+  const OUTRO_FINAL_REVEAL_BREATH_SECONDS = 2;
   const TEXT_LAYER_LINE_HEIGHT = 1.15;
   const FOOD_STAMP_REVEAL_SECONDS = 0.22;
   const STAMP_SHAKE_MAX_PIXELS = 2.8;
@@ -125,10 +125,10 @@
   const AUDIO_TIMELINE_SYNC_TOLERANCE_SECONDS = 0.12;
   const SPLIT_AUDIO_SCENE_SYNC_TOLERANCE_SECONDS = 0.005;
   const SPLIT_AUDIO_SCENE_TAIL_GUARD_SECONDS = 0.18;
-  const SPLIT_AUDIO_OUTRO_TAIL_GUARD_SECONDS = 0.9;
+  const SPLIT_AUDIO_OUTRO_TAIL_GUARD_SECONDS = 3;
   const SPLIT_AUDIO_REPLAY_END_MARGIN_SECONDS = 0.08;
   const SECTION_HOLD_SECONDS = 0.5;
-  const OUTRO_HOLD_SECONDS = 0.7;
+  const OUTRO_HOLD_SECONDS = 0;
   const SECTION_HOLD_IDS = new Set(['intro', 'fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons']);
   const HIDDEN_CAPTION_SECTION_IDS = new Set(['intro']);
   const MACRO_REVEAL_SECONDS = 0.08;

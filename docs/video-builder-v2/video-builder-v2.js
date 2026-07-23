@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260723-v2-tier-sprites-v1';
+  const BUILDER_BUILD_ID = '20260723-v2-stamp-sfx-polish-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
@@ -71,9 +71,9 @@
   const FOOD_STAMP_REVEAL_SECONDS = 0.22;
   const STAMP_SHAKE_MAX_PIXELS = 2.8;
   const STAMP_SFX_PATH = 'audio/sfx/stamps/impact_stamp_hit.mp3';
-  const STAMP_SFX_VOLUME = 0.18;
-  const STAMP_SFX_VOLUME_VARIATION = 0.025;
-  const STAMP_SFX_PLAYBACK_RATE_RANGE = { min: 0.93, max: 1.07 };
+  const STAMP_SFX_VOLUME = 0.52;
+  const STAMP_SFX_VOLUME_VARIATION = 0.06;
+  const STAMP_SFX_PLAYBACK_RATE_RANGE = { min: 0.72, max: 0.84 };
   const STAMP_SFX_START_OFFSET_RANGE_SECONDS = { min: 0, max: 0.045 };
   const STAMP_SFX_LEAD_SECONDS = 0.1;
   const STAMP_SFX_POOL_SIZE = 4;
@@ -6492,6 +6492,9 @@
     const isOutroTierStamp = revealSchedule?.family === 'outro'
       && revealSchedule?.kind === 'tier'
       && isOutroFinalRevealStampLayer(layer);
+    const isSTierPremiumStamp = isOutroTierStamp
+      && normalizedTier(layer?.tier) === 'S'
+      && layer?.stampRole === 'tier';
     const isIntroRankedGlow = revealSchedule?.family === 'intro' && revealSchedule?.kind === 'ranked-glow';
     const outroCtaWaveIndex = isOutroTierStamp ? outroCtaStampWaveIndex(layer) : -1;
     const isOutroCtaWaveStamp = outroCtaWaveIndex >= 0;
@@ -6592,12 +6595,19 @@
     if (clip) node.style.clipPath = clip;
     if ((isOutroTierStamp || isIntroRankedGlow) && stampImpactPulse > 0.02) {
       const glowRgb = isOutroTierStamp ? outroTierGlowRgb(layer?.tier) : '255, 244, 184';
+      const brightness = isSTierPremiumStamp ? 1.10 + (stampImpactPulse * 0.28) : 1.18 + (stampImpactPulse * 0.48);
+      const saturate = isSTierPremiumStamp ? 1.10 + (stampImpactPulse * 0.22) : 1.18 + (stampImpactPulse * 0.38);
+      const contrast = isSTierPremiumStamp ? 1.05 + (stampImpactPulse * 0.10) : 1.08 + (stampImpactPulse * 0.16);
+      const coreGlow = isSTierPremiumStamp ? 1.6 + (stampImpactPulse * 3.2) : 2.2 + (stampImpactPulse * 4.8);
+      const coreAlpha = isSTierPremiumStamp ? 0.34 + (stampImpactPulse * 0.24) : 0.50 + (stampImpactPulse * 0.32);
+      const wideGlow = isSTierPremiumStamp ? 5.2 + (stampImpactPulse * 6.2) : 7 + (stampImpactPulse * 9);
+      const wideAlpha = isSTierPremiumStamp ? 0.14 + (stampImpactPulse * 0.16) : 0.20 + (stampImpactPulse * 0.22);
       node.style.filter = [
-        `brightness(${(1.18 + stampImpactPulse * 0.48).toFixed(3)})`,
-        `saturate(${(1.18 + stampImpactPulse * 0.38).toFixed(3)})`,
-        `contrast(${(1.08 + stampImpactPulse * 0.16).toFixed(3)})`,
-        `drop-shadow(0 0 calc(${(2.2 + stampImpactPulse * 4.8).toFixed(2)}px * var(--pixel-unit)) rgba(${glowRgb}, ${(0.50 + stampImpactPulse * 0.32).toFixed(3)}))`,
-        `drop-shadow(0 0 calc(${(7 + stampImpactPulse * 9).toFixed(2)}px * var(--pixel-unit)) rgba(255, 255, 255, ${(0.20 + stampImpactPulse * 0.22).toFixed(3)}))`
+        `brightness(${brightness.toFixed(3)})`,
+        `saturate(${saturate.toFixed(3)})`,
+        `contrast(${contrast.toFixed(3)})`,
+        `drop-shadow(0 0 calc(${coreGlow.toFixed(2)}px * var(--pixel-unit)) rgba(${glowRgb}, ${coreAlpha.toFixed(3)}))`,
+        `drop-shadow(0 0 calc(${wideGlow.toFixed(2)}px * var(--pixel-unit)) rgba(255, 255, 255, ${wideAlpha.toFixed(3)}))`
       ].join(' ');
     } else if (isMacroArrowReveal && revealPulse > 0.02) {
       const glowRgb = macroArrowGlowRgb(layer);

@@ -645,7 +645,7 @@ function macroLine(result, key) {
 
 function joinShort(parts) {
   const valid = parts.filter(Boolean).map(part => String(part).trim()).filter(Boolean);
-  return valid.join('. ') + (valid.length ? '.' : '');
+  return valid.map(part => /[.!?]$/.test(part) ? part : `${part}.`).join(' ');
 }
 
 function capitalizeSentenceStarts(text) {
@@ -840,81 +840,93 @@ function weakMetricImpactContext(metric, sectionKey) {
   const key = metric?.metricKey;
   const contexts = {
     saturated_fat_g: 'working against a cleaner fat profile',
-    polyunsaturated_fat_g: 'weak for unsaturated-fat support',
-    omega3_mg: 'weak for omega-3 fat support',
+    polyunsaturated_fat_g: 'not adding much useful unsaturated fat',
+    omega3_mg: 'not adding much omega 3',
     cholesterol_mg: 'adding to the cardiovascular tradeoff',
-    fibre_g: 'weak for digestion and steadier meals',
+    fibre_g: 'not bringing much fibre',
     sugar_g: 'making sugar control harder',
-    starch_g: 'weak for useful staple-carb payoff',
-    glycemic_index: 'bad for steadier carb behaviour',
-    collagen_g: 'weak for connective-tissue protein',
-    essential_amino_acids_score: 'weak for repair-and-maintenance protein quality',
-    nonessential_amino_acids_score: 'weak for supporting amino-acid coverage',
-    bioavailability_percent: 'bad for how much protein actually counts',
-    vitamin_b12_dv: 'weak for nerve and blood-cell support',
-    vitamin_d_dv: 'weak for bone and immune support',
-    vitamin_c_dv: 'weak for collagen formation and antioxidant support',
-    vitamin_a_dv: 'weak for vision and immune support',
-    zinc_dv: 'weak for immune support',
-    iron_dv: 'weak for oxygen transport',
-    calcium_dv: 'weak for bone support',
-    potassium_dv: 'weak for fluid balance'
+    starch_g: 'not bringing much steady carb energy',
+    glycemic_index: 'not great for steadier carb behaviour',
+    collagen_g: 'not bringing much connective-tissue protein',
+    essential_amino_acids_score: 'not giving much repair-and-maintenance protein support',
+    nonessential_amino_acids_score: 'not bringing much amino-acid coverage',
+    bioavailability_percent: 'not great for how much protein your body can use',
+    vitamin_b12_dv: 'not bringing much nerve or blood-cell support',
+    vitamin_d_dv: 'not bringing much bone or immune support',
+    vitamin_c_dv: 'not bringing much collagen or antioxidant support',
+    vitamin_a_dv: 'not bringing much vision or immune support',
+    zinc_dv: 'not bringing much immune support',
+    iron_dv: 'not bringing much oxygen-transport support',
+    calcium_dv: 'not bringing much bone support',
+    potassium_dv: 'not bringing much fluid-balance support'
   };
   if (contexts[key]) return contexts[key];
   if (sectionKey === 'fats') return 'working against the fat profile';
   if (sectionKey === 'carbs') return 'working against carb quality';
-  if (sectionKey === 'proteins') return 'weak for protein quality';
-  if (sectionKey === 'vitamins') return 'weak for vitamin support';
-  if (sectionKey === 'minerals') return 'weak for mineral support';
+  if (sectionKey === 'proteins') return 'not bringing much protein quality';
+  if (sectionKey === 'vitamins') return 'not bringing much vitamin support';
+  if (sectionKey === 'minerals') return 'not bringing much mineral support';
   return '';
 }
 
 function categoryWeakContext(foodType, sectionKey, metric = null) {
   const type = foodTypeLabel(foodType);
   const impact = weakMetricImpactContext(metric, sectionKey);
-  const combine = importance => impact
-    ? importance.startsWith('and ') || importance.startsWith('so ')
-      ? `${impact}, ${importance}`
-      : `${impact}, which is ${importance}`
-    : importance;
+  const combine = importance => {
+    if (!impact) return importance;
+    if (importance.startsWith('and ') || importance.startsWith('so ')) return `${impact}, ${importance}`;
+    if (importance.startsWith('not great for ')) {
+      return `${impact}, so it doesn't help ${importance.slice('not great for '.length)} much`;
+    }
+    if (importance.startsWith('a small downside for ')) {
+      return `${impact}, so that's a small downside for ${importance.slice('a small downside for '.length)}`;
+    }
+    if (importance.startsWith('a real downside for ')) {
+      return `${impact}, so that's a real downside for ${importance.slice('a real downside for '.length)}`;
+    }
+    return `${impact}, which is ${importance}`;
+  };
   if (sectionKey === 'fats') {
     if (foodType === 'meats') return combine('and for meats, fat quality is a major tradeoff');
     if (foodType === 'oils-and-fats') return combine('and for oils and fats, that matters a lot');
     if (foodType === 'nuts' || foodType === 'seeds') return combine(`and for ${type}, fat quality has to justify the calories`);
-    return combine(`a weak mark for ${type || 'this category'}`);
+    return combine(`not great for ${type || 'this category'}`);
   }
   if (sectionKey === 'carbs') {
-    if (['grains', 'fruits', 'legumes', 'tubers'].includes(foodType)) return combine(`a meaningful miss for ${type}`);
-    return combine(`a small miss for ${type || 'this category'}`);
+    if (foodType === 'vegetables' && metric?.metricKey === 'starch_g') {
+      return `${impact}, but that's not a big deal for vegetables`;
+    }
+    if (['grains', 'fruits', 'legumes', 'tubers'].includes(foodType)) return combine(`a real downside for ${type}`);
+    return combine(`a small downside for ${type || 'this category'}`);
   }
   if (sectionKey === 'proteins') {
     if (foodType === 'meats') return combine('so for meats, it is not bringing much connective-tissue protein');
-    return combine(`a weak mark for ${type || 'this category'}`);
+    return combine(`not great for ${type || 'this category'}`);
   }
   if (sectionKey === 'vitamins') {
-    if (foodType === 'meats') return combine('a small miss for meats');
-    return combine(`a weak mark for ${type || 'this category'}`);
+    if (foodType === 'meats') return combine('a small downside for meats');
+    return combine(`not great for ${type || 'this category'}`);
   }
   if (sectionKey === 'minerals') {
-    if (foodType === 'meats') return combine('a weak mark for meats');
-    return combine(`a weak mark for ${type || 'this category'}`);
+    if (foodType === 'meats') return combine('not great for meats');
+    return combine(`not great for ${type || 'this category'}`);
   }
-  return combine(`a weak mark for ${type || 'this category'}`);
+  return combine(`not great for ${type || 'this category'}`);
 }
 
 function lowVitaminSectionLine(result) {
   const foodType = result.food?.foodType;
   const lines = {
-    grains: 'vitamins are low all round. For grains, vitamins are more of a bonus after carb quality and minerals, and this section is not adding much',
-    meats: 'vitamins are low overall. For meats, vitamin B12 and vitamin D are the main checks, so this section is a limiting point',
-    dairy: 'vitamins are low overall. For dairy, vitamin D and vitamin B12 are the main checks, so this section is not adding much',
-    fruits: 'vitamins are low overall. For fruit, vitamin C and vitamin A are the main checks, so this section is a limiting point',
-    vegetables: 'vitamins are low overall. For vegetables, vitamin A, vitamin C, and vitamin K are the main checks, so this section is a limiting point',
-    legumes: 'vitamins are low overall. For legumes, vitamin support is secondary to fibre, protein, and minerals, so this section is not adding much',
-    tubers: 'vitamins are low overall. For tubers, vitamin C and vitamin A are the main checks, so this section is a limiting point',
-    nuts: 'vitamins are low overall. For nuts, vitamin E is the main check, so this section is not adding much',
-    seeds: 'vitamins are low overall. For seeds, vitamin E is the main check, so this section is not adding much',
-    'oils-and-fats': 'vitamins are low overall. For oils and fats, vitamin E is the main check, so this section is not adding much'
+    grains: "vitamins are low all round. For grains, vitamins are more of a bonus after carb quality and minerals, so this section isn't doing much",
+    meats: "vitamins are low overall. For meats, vitamin B12 and vitamin D are the main checks, so this section doesn't help much",
+    dairy: "vitamins are low overall. For dairy, vitamin D and vitamin B12 are the main checks, so this section isn't doing much",
+    fruits: "vitamins are low overall. For fruit, vitamin C and vitamin A are the main checks, so this section doesn't help much",
+    vegetables: "vitamins are low overall. For vegetables, vitamin A, vitamin C, and vitamin K are the main checks, so this section doesn't help much",
+    legumes: "vitamins are low overall. For legumes, fibre, protein, and minerals matter more, so this section isn't doing much",
+    tubers: "vitamins are low overall. For tubers, vitamin C and vitamin A are the main checks, so this section doesn't help much",
+    nuts: "vitamins are low overall. For nuts, vitamin E is the main check, so this section isn't doing much",
+    seeds: "vitamins are low overall. For seeds, vitamin E is the main check, so this section isn't doing much",
+    'oils-and-fats': "vitamins are low overall. For oils and fats, vitamin E is the main check, so this section isn't doing much"
   };
   return lines[foodType] || `vitamins are low all round. For ${foodTypeLabel(foodType) || 'this category'}, vitamin support only helps when it shows up clearly`;
 }
@@ -996,10 +1008,10 @@ function bestAvailableMetricLine(metric, sectionKey) {
   if (!metric) return null;
   const score = metricSectionScore(metric);
   if (score !== null && score < 20) {
-    return `${metricValuePhrase(metric)}, the best mark here but still too low to carry the section`;
+    return `${metricValuePhrase(metric)}, the best number here but still too low to carry this section`;
   }
   if (score !== null && score < 50) {
-    return `${metricValuePhrase(metric)}, the best mark here but still only modest support`;
+    return `${metricValuePhrase(metric)}, the best number here but still only modest help`;
   }
   return bestMetricLine(metric, sectionKey);
 }
@@ -1012,11 +1024,11 @@ function secondMetricLine(metric, result, sectionKey) {
   const context = bestMetricContext(metric, sectionKey);
   if (score !== null && score >= 80) {
     const support = context ? `${context}, but it is ` : 'it is ';
-    return `${metricValuePhrase(metric)}, ${support}the lowest mark here but still a strong one`;
+    return `${metricValuePhrase(metric)}, ${support}the lowest number here but still strong`;
   }
   if (score !== null && score >= 50) {
     const support = context ? `${context}, but it is ` : 'it is ';
-    return `${metricValuePhrase(metric)}, ${support}the softer support mark in this section`;
+    return `${metricValuePhrase(metric)}, ${support}the smaller helper in this section`;
   }
   return weakMetricLine(metric, result, sectionKey);
 }
@@ -1025,11 +1037,11 @@ function proteinFallbackContext(result, score) {
   const foodType = result.food.foodType;
   if (score >= 60) return 'that amount is useful enough to count';
   if (foodType === 'meats') return 'for meats, that is lower than you want';
-  if (foodType === 'dairy') return 'a modest protein point, but not the whole argument';
-  if (foodType === 'seeds' || foodType === 'nuts') return 'protein is support here, not the main reason to pick it';
-  if (foodType === 'grains') return 'not enough to make protein the main story';
-  if (foodType === 'tubers') return 'so protein is barely part of the case';
-  return 'not enough to make protein a serious strength';
+  if (foodType === 'dairy') return 'protein helps a bit, but it is not the main thing';
+  if (foodType === 'seeds' || foodType === 'nuts') return 'protein helps, but most people pick this for other reasons';
+  if (foodType === 'grains') return 'not enough to make protein the main thing';
+  if (foodType === 'tubers') return 'protein barely matters here';
+  return 'not enough protein to be a real strength';
 }
 
 function outstandingMacroLine(result, sectionKey) {
@@ -1056,8 +1068,9 @@ function outstandingMacroLine(result, sectionKey) {
     const bestMetric = essentialAmino || bioavailability || strongestAvailableMetric(metrics);
     const secondPool = weakNarrationMetrics(result, metrics, sectionKey, bestMetric);
     const second = weakestOutstandingMetric(secondPool, bestMetric) || weakestAvailableMetric(secondPool, bestMetric, sectionKey);
-    const best = essentialAmino && Number(essentialAmino.value) < 6
-      ? `${metricValuePhrase(essentialAmino)}, counting only amino-acid groups above the useful-amount threshold`
+    const essentialAminoValue = Number(essentialAmino?.value);
+    const best = essentialAmino && essentialAminoValue < 6
+      ? `${metricValuePhrase(essentialAmino)}, meaning ${essentialAminoValue <= 0 ? 'none of the amino-acid groups' : 'only a few amino-acid groups'} hit a useful amount`
       : bestAvailableMetricLine(bestMetric, sectionKey);
     return joinShort([
       best,
@@ -1093,7 +1106,7 @@ function buildMacroSection(result, key) {
       proteins: 'strong protein is expected here, so the rest of the profile decides how high it climbs'
     },
     grains: {
-      fats: 'fat is basically not the story here',
+      fats: 'fat is not really the story here',
       carbs: 'for grains, the carb quality matters much more than the raw number',
       proteins: 'protein helps, but not enough if the carb side is weak'
     },
@@ -1101,8 +1114,8 @@ function buildMacroSection(result, key) {
       carbs: 'for fruit, the real question is whether the sweetness stays under control'
     },
     vegetables: {
-      carbs: 'for vegetables, low downside is useful, but there still needs to be real payoff',
-      proteins: 'protein is not the main pitch here, but extra support still matters'
+      carbs: 'for vegetables, low risk is good, but you still want some useful nutrition back',
+      proteins: 'for vegetables, protein is usually just a bonus'
     },
     legumes: {
       carbs: 'for legumes, the carbs look much better when fibre and protein are both backing them up',
@@ -1119,11 +1132,11 @@ function buildMacroSection(result, key) {
     },
     nuts: {
       fats: 'for nuts, fat quality has to justify the calorie density',
-      proteins: 'protein is support here, not the whole argument'
+      proteins: 'protein helps here, but it is not the main thing'
     },
     seeds: {
       fats: 'for seeds, the fat profile is one of the biggest reasons they earn their place',
-      proteins: 'protein is a bonus, but not enough by itself'
+      proteins: 'protein is a bonus here, but not enough by itself'
     },
     tubers: {
       carbs: 'for tubers, the carb side decides whether the food feels stable or flimsy',
@@ -1190,7 +1203,7 @@ function condenseExplanation(explanation) {
     [/^A major category advantage beyond the raw table alone$/i, 'that gives it a real category edge'],
     [/^Useful practical strength in meals$/i, 'that makes it practical in real meals'],
     [/^Strong viewer-facing health halo that matches the data reasonably well$/i, 'that fits its strong health reputation'],
-    [/^Adds extra cardiovascular and satiety context beyond the base nutrient display$/i, 'that helps with fullness and overall payoff'],
+    [/^Adds extra cardiovascular and satiety context beyond the base nutrient display$/i, 'that helps with fullness too'],
     [/^Works well as a simple staple in many eating patterns$/i, 'that makes it easy to use regularly'],
     [/^The overall fibre profile can be practically useful beyond the raw grams display$/i, 'that can help with real-world digestion'],
     [/^Phytates may slightly reduce mineral uptake$/i, 'that can slightly reduce mineral absorption'],
@@ -1338,7 +1351,7 @@ function rankedFoodUseCases(result) {
   if (proteinG >= 18 && proteinsScore >= 60) {
     addUseCase(cases, 'muscles_strength', 'muscles and strength sports', 'the protein section supports repair and maintenance', proteinsScore + proteinG);
   } else if (proteinG >= 10 || proteinsScore >= 60) {
-    addUseCase(cases, 'muscles', 'muscles', 'protein still gives it a muscle-support angle', proteinsScore + proteinG);
+    addUseCase(cases, 'muscles', 'muscles', 'protein still gives it some muscle support', proteinsScore + proteinG);
   }
 
   const hormoneFatCase = fatsScore >= 55 && (
@@ -1351,7 +1364,7 @@ function rankedFoodUseCases(result) {
       'hormone_health',
       'hormone health',
       type === 'oils-and-fats'
-        ? 'fat quality is its main useful job when portions are controlled'
+        ? 'fat quality is the main reason to use it when portions stay controlled'
         : 'the fat section has enough useful fats for a support role',
       fatsScore + polyunsaturatedFatG + (omega3Mg / 100)
     );
@@ -1363,11 +1376,11 @@ function rankedFoodUseCases(result) {
     { label: 'magnesium', value: magnesium }
   ]);
   if (boneNutrients.length || (mineralsScore >= 30 && calcium >= 5)) {
-    addUseCase(cases, 'bone_health', 'bone health', `${naturalList(boneNutrients.length ? boneNutrients : ['mineral support'])} gives the bone-health case something to work with`, mineralsScore + calcium + vitaminD + magnesium);
+    addUseCase(cases, 'bone_health', 'bone health', `${naturalList(boneNutrients.length ? boneNutrients : ['mineral support'])} can help with bone health`, mineralsScore + calcium + vitaminD + magnesium);
   }
 
   if (fibreG >= 3 || /\b(ferment|digestion|gut|tolerance|fibre|fiber)\b/.test(prosText)) {
-    addUseCase(cases, 'digestion', 'digestion', fibreG >= 3 ? 'fibre supports digestion and steadier meals' : 'the pros add a digestion or tolerance angle', carbsScore + fibreG * 8);
+    addUseCase(cases, 'digestion', 'digestion', fibreG >= 3 ? 'fibre supports digestion and steadier meals' : 'the pros help with digestion or tolerance', carbsScore + fibreG * 8);
   }
 
   const immuneNutrients = namedDvSupport([
@@ -1376,7 +1389,8 @@ function rankedFoodUseCases(result) {
     { label: 'zinc', value: zinc }
   ]);
   if (immuneNutrients.length) {
-    addUseCase(cases, 'immune_support', 'immune support', `${naturalList(immuneNutrients)} gives the immune-support side a reason to exist`, vitaminsScore + mineralsScore + vitaminC + vitaminA + zinc);
+    const verb = immuneNutrients.length === 1 ? 'helps' : 'help';
+    addUseCase(cases, 'immune_support', 'immune support', `${naturalList(immuneNutrients)} ${verb} the immune-support part`, vitaminsScore + mineralsScore + vitaminC + vitaminA + zinc);
   }
 
   const heartFromFibre = fibreG >= 5;
@@ -1388,12 +1402,12 @@ function rankedFoodUseCases(result) {
   const heartFromFatQuality = fatsScore >= 65 && saturatedFatG <= 2 && polyunsaturatedFatG >= 4;
   if (heartFromFibre || heartFromOmega || heartFromOilQuality || heartFromFatQuality) {
     const reason = heartFromFibre
-      ? 'fibre supports the heart-health side'
+      ? 'fibre supports the heart-health part'
       : heartFromOilQuality
-        ? 'unsaturated fats and polyphenols make the heart-health angle clearer'
+        ? 'unsaturated fats and polyphenols make the heart-health part clearer'
         : heartFromOmega
           ? 'omega 3 helps the fat-quality story without a big saturated-fat tradeoff'
-          : 'fat quality supports the heart-health side';
+          : 'fat quality supports the heart-health part';
     addUseCase(cases, 'heart_health', 'heart health', reason, fatsScore + carbsScore + fibreG * 4 + (omega3Mg / 100));
   }
 
@@ -1402,15 +1416,15 @@ function rankedFoodUseCases(result) {
   }
 
   if ((kcal > 0 && kcal <= 70 && ['vegetables', 'fruits'].includes(type)) || /\b(volume|satiety|filling)\b/.test(prosText)) {
-    addUseCase(cases, 'low_calorie_volume', 'low-calorie volume', 'it can add bulk or fullness without much calorie pressure', 55 + Math.max(0, 80 - kcal));
+    addUseCase(cases, 'low_calorie_volume', 'low-calorie volume', 'it can make a meal feel bigger without adding many calories', 55 + Math.max(0, 80 - kcal));
   }
 
   if ((kcal <= 120 || type === 'misc') && /\b(flavou?r|swap|condiment|season|vinegar|acid|culinary)\b/.test(prosText)) {
-    addUseCase(cases, 'flavour_swaps', 'low-calorie flavour swaps', 'the pros make it useful for adding flavour without much nutrition load', 65 + Math.max(0, 120 - kcal));
+    addUseCase(cases, 'flavour_swaps', 'low-calorie flavour swaps', 'it can add flavour without adding much else', 65 + Math.max(0, 120 - kcal));
   }
 
   if (/\b(staple|cheap|batch|easy|convenient|shelf|meal|pair|practical)\b/.test(prosText) || (['grains', 'legumes', 'tubers'].includes(type) && carbsScore >= 45)) {
-    addUseCase(cases, 'practical_meals', 'practical meals', 'the food-type role makes it easy to build meals around', 50 + carbsScore);
+    addUseCase(cases, 'practical_meals', 'practical meals', 'it is easy to build meals around', 50 + carbsScore);
   }
 
   if (type === 'oils-and-fats' && fatsScore >= 45) {
@@ -1552,7 +1566,7 @@ function bestUsesLine(result) {
     fruits: 'Best when you want sweetness that still earns its place nutritionally',
     vegetables: 'Best when you want low downside and easy micronutrient support',
     legumes: 'Best when you want fibre, protein, and actual meal utility together',
-    dairy: 'Best when the protein payoff or fermentation angle outweighs the fat and sodium tradeoffs',
+    dairy: 'Best when the protein or fermentation benefit outweighs the fat and sodium tradeoffs',
     nuts: 'Best in small amounts where the fats and minerals matter more than sheer calories',
     seeds: 'Best as a support food that boosts meals instead of carrying them alone',
     tubers: 'Best when you want practical carbs and the rest of the profile is still reasonably clean',
@@ -1564,12 +1578,12 @@ function bestUsesLine(result) {
     grains: 'Best only as a light snack base or texture food, not as a strong staple by itself',
     fruits: 'Best only when the convenience or taste matters more than the nutrition return',
     vegetables: 'Best only when you need a low-commitment add-on rather than a nutrient-dense anchor',
-    legumes: 'Best only when convenience outweighs the weaker fibre or protein payoff',
+    legumes: 'Best only when convenience matters more than the weaker fibre or protein support',
     dairy: 'Best only when the taste or format matters more than getting the strongest dairy profile',
     nuts: 'Best only in small amounts when the calories stay under control',
     seeds: 'Best only as a supporting add-on rather than something to lean on heavily',
     tubers: 'Best only when you want easy carbs and can accept the missing upside',
-    'oils-and-fats': 'Best only in small amounts when the cooking job matters more than the nutrition case',
+      'oils-and-fats': 'Best only in small amounts when the cooking job matters more than the nutrition story',
     misc: 'Best treated as an occasional context item, not a nutritional base'
   };
   if (tier === 'D' || tier === 'C') return weakByType[type] || 'Best only in narrow use cases where its limitations matter less';

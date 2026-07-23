@@ -89,7 +89,7 @@ const library = {
   vegetables: {
     baseContext: {
       pros: [
-        { itemKey: 'low_downside_vegetable', impactLevel: 'minor', title: 'very low downside whole food', explanation: 'Vegetables win a lot simply by offering clean nutritional payoff.' },
+        { itemKey: 'low_downside_vegetable', impactLevel: 'minor', title: 'very low downside whole food', explanation: 'Vegetables win a lot by bringing useful nutrition with very little downside.' },
         { itemKey: 'easy_to_pair', impactLevel: 'minor', title: 'easy to build meals around', explanation: 'A practical plus because good foods need realistic use cases.' },
         { itemKey: 'volume_for_calories', impactLevel: 'minor', title: 'good volume for the calories', explanation: 'That matters for satiety and general usefulness.' }
       ],
@@ -142,7 +142,7 @@ const library = {
     baseContext: {
       pros: [
         { itemKey: 'legume_satiety', impactLevel: 'minor', title: 'filling for the calories', explanation: 'Legumes usually earn a lot of practical value from satiety.' },
-        { itemKey: 'legume_staple_value', impactLevel: 'minor', title: 'cheap staple with real payoff', explanation: 'This matters because a food is stronger when people can actually use it often.' },
+        { itemKey: 'legume_staple_value', impactLevel: 'minor', title: 'cheap staple with real benefit', explanation: 'This matters because a food is stronger when people can actually use it often.' },
         { itemKey: 'legume_fibre_identity', impactLevel: 'minor', title: 'fibre-forward category identity', explanation: 'Legumes are supposed to bring stable carbs and fibre.' }
       ],
       cons: [
@@ -234,7 +234,7 @@ const library = {
       ['hemp-seeds', 'Hemp Seeds', { kcal: 553, fat_g: 48.8, carb_g: 8.7, protein_g: 31.6 }, { saturated_fat_g: 4.6, omega3_mg: 8600, polyunsaturated_fat_g: 38.1, starch_g: 0.0, fibre_g: 4.0, sugar_g: 1.5, glycemic_index: 5, essential_amino_acids_score: 8, nonessential_amino_acids_score: 9, bioavailability_percent: 80, vitamin_a_dv: 0, vitamin_c_dv: 2, vitamin_e_dv: 5, vitamin_k_dv: 0, iron_dv: 44, magnesium_dv: 175, zinc_dv: 66, calcium_dv: 7, potassium_dv: 34 }, 'S'],
       ['sunflower-seeds', 'Sunflower Seeds', { kcal: 584, fat_g: 51.5, carb_g: 20.0, protein_g: 20.8 }, { saturated_fat_g: 4.5, omega3_mg: 70, polyunsaturated_fat_g: 23.1, starch_g: 5.0, fibre_g: 8.6, sugar_g: 2.6, glycemic_index: 20, essential_amino_acids_score: 6, nonessential_amino_acids_score: 8, bioavailability_percent: 76, vitamin_a_dv: 0, vitamin_c_dv: 2, vitamin_e_dv: 175, vitamin_k_dv: 0, iron_dv: 29, magnesium_dv: 104, zinc_dv: 45, calcium_dv: 8, potassium_dv: 18 }, 'S'],
       ['poppy-seeds', 'Poppy Seeds', { kcal: 525, fat_g: 41.6, carb_g: 28.1, protein_g: 17.9 }, { saturated_fat_g: 4.5, omega3_mg: 100, polyunsaturated_fat_g: 28.5, starch_g: 2.0, fibre_g: 19.5, sugar_g: 2.9, glycemic_index: 35, essential_amino_acids_score: 6, nonessential_amino_acids_score: 7, bioavailability_percent: 74, vitamin_a_dv: 0, vitamin_c_dv: 2, vitamin_e_dv: 10, vitamin_k_dv: 0, iron_dv: 54, magnesium_dv: 198, zinc_dv: 62, calcium_dv: 108, potassium_dv: 16 }, 'S'],
-      ['cumin-seeds', 'Cumin Seeds', { kcal: 375, fat_g: 22.3, carb_g: 44.2, protein_g: 17.8 }, { saturated_fat_g: 1.5, omega3_mg: 120, polyunsaturated_fat_g: 3.3, starch_g: 11.0, fibre_g: 10.5, sugar_g: 2.3, glycemic_index: 20, essential_amino_acids_score: 6, nonessential_amino_acids_score: 7, bioavailability_percent: 72, vitamin_a_dv: 6, vitamin_c_dv: 13, vitamin_e_dv: 22, vitamin_k_dv: 5, iron_dv: 366, magnesium_dv: 91, zinc_dv: 32, calcium_dv: 93, potassium_dv: 38 }, 'A', { cons: [{ itemKey: 'tiny_real_world_servings', impactLevel: 'minor', title: 'spice-like serving sizes limit real payoff', explanation: 'The numbers look huge, but people do not eat 100 grams of cumin seeds.' }] }],
+      ['cumin-seeds', 'Cumin Seeds', { kcal: 375, fat_g: 22.3, carb_g: 44.2, protein_g: 17.8 }, { saturated_fat_g: 1.5, omega3_mg: 120, polyunsaturated_fat_g: 3.3, starch_g: 11.0, fibre_g: 10.5, sugar_g: 2.3, glycemic_index: 20, essential_amino_acids_score: 6, nonessential_amino_acids_score: 7, bioavailability_percent: 72, vitamin_a_dv: 6, vitamin_c_dv: 13, vitamin_e_dv: 22, vitamin_k_dv: 5, iron_dv: 366, magnesium_dv: 91, zinc_dv: 32, calcium_dv: 93, potassium_dv: 38 }, 'A', { cons: [{ itemKey: 'tiny_real_world_servings', impactLevel: 'minor', title: 'spice-like serving sizes limit the real benefit', explanation: 'The numbers look huge, but people do not eat 100 grams of cumin seeds.' }] }],
       ['watermelon-seeds-unsalted', 'Watermelon Seeds (Unsalted)', { kcal: 557, fat_g: 47.4, carb_g: 15.3, protein_g: 28.3 }, { saturated_fat_g: 9.8, omega3_mg: 90, polyunsaturated_fat_g: 14.6, starch_g: 2.0, fibre_g: 4.0, sugar_g: 0.4, glycemic_index: 10, essential_amino_acids_score: 7, nonessential_amino_acids_score: 9, bioavailability_percent: 78, vitamin_a_dv: 0, vitamin_c_dv: 0, vitamin_e_dv: 2, vitamin_k_dv: 0, iron_dv: 42, magnesium_dv: 129, zinc_dv: 71, calcium_dv: 5, potassium_dv: 18 }, 'A'],
       ['nigella-seeds', 'Nigella Seeds', { kcal: 345, fat_g: 22.3, carb_g: 44.2, protein_g: 16.7 }, { saturated_fat_g: 2.0, omega3_mg: 150, polyunsaturated_fat_g: 8.0, starch_g: 15.0, fibre_g: 10.5, sugar_g: 2.0, glycemic_index: 25, essential_amino_acids_score: 5, nonessential_amino_acids_score: 7, bioavailability_percent: 70, vitamin_a_dv: 4, vitamin_c_dv: 2, vitamin_e_dv: 18, vitamin_k_dv: 6, iron_dv: 55, magnesium_dv: 92, zinc_dv: 28, calcium_dv: 30, potassium_dv: 37 }, 'A'],
       ['mustard-seeds', 'Mustard Seeds', { kcal: 508, fat_g: 36.2, carb_g: 28.1, protein_g: 26.1 }, { saturated_fat_g: 2.0, omega3_mg: 5100, polyunsaturated_fat_g: 11.0, starch_g: 7.0, fibre_g: 12.2, sugar_g: 6.8, glycemic_index: 30, essential_amino_acids_score: 7, nonessential_amino_acids_score: 8, bioavailability_percent: 76, vitamin_a_dv: 2, vitamin_c_dv: 12, vitamin_e_dv: 28, vitamin_k_dv: 5, iron_dv: 51, magnesium_dv: 89, zinc_dv: 46, calcium_dv: 27, potassium_dv: 21 }, 'A', { cons: [{ itemKey: 'not_eaten_as_bulk_food', impactLevel: 'minor', title: 'usually used in tiny amounts', explanation: 'That caps how much of the paper profile you actually get.' }] }],
@@ -299,7 +299,7 @@ const library = {
       pros: [
         { itemKey: 'misc_use_case_strength', impactLevel: 'minor', title: 'use case can matter more than macros', explanation: 'This category is really about function and trade-offs.' },
         { itemKey: 'misc_practical_identity', impactLevel: 'minor', title: 'clear real-world role', explanation: 'If a misc item helps or harms behavior, that matters a lot.' },
-        { itemKey: 'misc_context_heavy', impactLevel: 'minor', title: 'context tells the real story', explanation: 'That is the whole point of misc.' }
+        { itemKey: 'misc_context_heavy', impactLevel: 'minor', title: 'context tells the real story', explanation: 'That is why misc depends so much on context.' }
       ],
       cons: [
         { itemKey: 'misc_low_whole_food_value', impactLevel: 'minor', title: 'not a whole-food nutrition star', explanation: 'Most misc items are weak on raw nutrient profile.' },
@@ -398,7 +398,7 @@ function supplementalContext(type) {
       ],
       cons: [
         { itemKey: 'tuber_easy_to_refine_badly', impactLevel: 'minor', title: 'can go downhill fast when heavily processed', explanation: 'The category has a big preparation trap.' },
-        { itemKey: 'tuber_satiety_variance', impactLevel: 'minor', title: 'satiety payoff depends a lot on format', explanation: 'Some versions are much steadier than others.' }
+        { itemKey: 'tuber_satiety_variance', impactLevel: 'minor', title: 'fullness depends a lot on the format', explanation: 'Some versions are much steadier than others.' }
       ]
     },
     nuts: {
@@ -458,7 +458,7 @@ function supplementalContext(type) {
       ],
       cons: [
         { itemKey: 'misc_health_halo_risk', impactLevel: 'minor', title: 'easy to oversell beyond what the numbers support', explanation: 'Misc items often attract exaggerated narratives.' },
-        { itemKey: 'misc_low_nutrient_payoff', impactLevel: 'minor', title: 'low raw nutrient payoff', explanation: 'Most of the value is contextual, not from a strong nutrient profile.' }
+        { itemKey: 'misc_low_nutrient_payoff', impactLevel: 'minor', title: 'low raw nutrient benefit', explanation: 'Most of the value is contextual, not from a strong nutrient profile.' }
       ]
     }
   };

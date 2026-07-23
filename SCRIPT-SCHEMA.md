@@ -30,7 +30,7 @@ It is the bridge between:
 - macro section narration/subtitles should try to mention at least two displayed submacros with numeric values when two defensible values exist: the strongest available visible indicator and the weakest or lowest available visible indicator in that section; for arrow submacros, stronger green/red arrow bands outrank raw weighted score when choosing what sounds outstanding
 - when only one defensible submacro is available for a macro section, mention the one that exists; the protein headline grams must not be repeated as the protein submacro, and missing/weakly sourced rows must not be padded into narration just to hit two items
 - narration should add a brief benefit or drawback phrase for the selected outstanding submacros, so the script says what the standout is good or bad for rather than only reading the number
-- every macro section should also include a brief food-type section-importance line, for example why fat quality matters for meats, why carb behaviour matters for grains or tubers, or why protein quality matters for meats and legumes
+- every macro, vitamin, and mineral section should end with a quick food-type summary line explaining why the scores mentioned in that section matter for that category; keep this extra context casual and direct, for example why fat quality matters for meats, why carb behaviour matters for grains or tubers, why protein quality matters for meats and legumes, why vitamins matter for vegetables, or why minerals matter for dairy
 - the best outstanding phrase should stay practical and short, for example what fibre, polyunsaturated fat, omega-3, or amino-acid quality helps with
 - the worst outstanding explanation should be short and food-type based, for example whether that weak point matters for meats, grains, vegetables, or another category
 - vitamin and mineral narration/subtitles follow the same strongest-plus-weakest pattern for DV-backed values; if everything is weak, still name the highest available DV mark and the lowest available DV mark when two defensible values exist
@@ -142,7 +142,7 @@ Narration rules:
 - protein sections should not narrate amino-acid quality unless the scorer selected it as a meaningful protein-quality item; if not, narrate protein amount or the category role instead
 - measurement units in spoken blocks use full words, for example `37.1 grams of fat` and `saturated fat is 12.6 grams`, while the matching subtitle/display text uses `37.1g` and `12.6g`
 - macro, vitamin, and mineral spoken blocks should prefer the strongest available displayed item plus the weakest or lowest available displayed item, while keeping each section compact; if the lowest mark is still positive, describe it as the softer/lowest mark rather than pretending it is bad
-- macro spoken blocks should include both standout context and food-type section importance, not just raw values
+- macro, vitamin, and mineral spoken blocks should include both standout context and a quick food-type section summary, not just raw values
 - closing summary should mention the main strengths, main weaknesses, and evidence-based best use cases; it should not replace the final tier reveal
 - when the selected vitamin metric is `vitamin_b12_dv`, narration and subtitles must say `Vitamin B12`; never shorten it to generic `Vitamin B`
 - do not narrate the overall score

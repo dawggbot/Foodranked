@@ -16,12 +16,12 @@
   - 1 of the best defensible visible indicators; for arrow submacros, prefer stronger green-arrow bands over raw weighted score
   - 1 of the weakest or lowest defensible visible indicators
 - outstanding submacros should explain what the nutrient or metric is good or bad for, not just say the value
-- macro sections should also explain why that section matters to the food type, such as why fat quality matters for meats, why carb behaviour matters for grains/tubers, or why protein quality matters for meats and legumes
+- macro sections should end with a quick food-type summary explaining why the mentioned scores matter for that food type, such as why fat quality matters for meats, why carb behaviour matters for grains/tubers, or why protein quality matters for meats and legumes
 - skip missing, `N/A`, or weakly sourced submacro values rather than padding the line
 - usually add a very brief benefit/context note for the best outstanding submacro, for example what fibre, polyunsaturated fat, omega-3, or amino-acid quality helps with
 - keep the weakest or lowest-mark explanation short and food-type based; if the lowest mark is still positive, call it softer/lowest support rather than bad
 - only mention the most important vitamins/minerals
-- vitamins and minerals follow the same pattern when defensible values exist: strongest DV-backed micronutrient, weakest or lowest DV-backed micronutrient, skip `N/A`; if every vitamin mark is weak, group the section as all-round low while still saying which vitamins matter for the food type
+- vitamins and minerals follow the same pattern when defensible values exist: strongest DV-backed micronutrient, weakest or lowest DV-backed micronutrient, skip `N/A`; if every vitamin mark is weak, group the section as all-round low while still saying which vitamins matter for the food type; each vitamin/mineral section should also end with a quick food-type summary explaining why those scores matter to the category
 - if the rest are weak, generalise as: `everything else is lackluster`
 - read pros and cons bullets fully, word for word
 - the closing summary should recap the strongest strengths and weaknesses from across all sections, then say what the food is good for and why

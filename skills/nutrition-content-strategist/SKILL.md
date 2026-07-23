@@ -24,6 +24,17 @@ Turn the scoring engine into a repeatable series people can instantly recognize.
 - Keep all 3 pros and all 3 cons.
 - Pros/cons should add food-specific context, not repeat macro, submacro, vitamin, or mineral points already shown.
 
+## Approved Narration Voice
+
+For FoodRanked scripts, use the approved Kale direction:
+
+- Keep sourced nutrition facts precise, even if the wording is somewhat technical.
+- Keep food-specific pros and cons precise when they are already accurate, clear, and useful.
+- Use casual everyday speech for extra connective narration, category context, section wrap-ups, and conclusion use-case reasons.
+- Every macro and micronutrient section should end with a quick food-type summary explaining why the scores mentioned in that section matter to that category.
+- Avoid awkward connective phrasing such as `main pitch`, `low risk is good`, `reason to exist`, `nutrition load`, `lives or dies`, `less automatic`, and `not universal`.
+- Prefer direct alternatives such as `not the main thing`, `not a big deal`, `easy to work with`, `harder to enjoy raw`, `not for everyone`, `some people just do not like the taste`, and `helps fill out a meal without many calories`.
+
 ## Content formats to prefer
 
 - single-food stat reveal

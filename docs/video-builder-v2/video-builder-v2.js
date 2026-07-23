@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260723-v2-stamp-sfx-polish-v1';
+  const BUILDER_BUILD_ID = '20260723-v2-stamp-sfx-polish-v2';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
@@ -71,14 +71,14 @@
   const FOOD_STAMP_REVEAL_SECONDS = 0.22;
   const STAMP_SHAKE_MAX_PIXELS = 2.8;
   const STAMP_SFX_PATH = 'audio/sfx/stamps/impact_stamp_hit.mp3';
-  const STAMP_SFX_VOLUME = 0.52;
-  const STAMP_SFX_VOLUME_VARIATION = 0.06;
-  const STAMP_SFX_PLAYBACK_RATE_RANGE = { min: 0.72, max: 0.84 };
+  const STAMP_SFX_VOLUME = 0.74;
+  const STAMP_SFX_VOLUME_VARIATION = 0.07;
+  const STAMP_SFX_PLAYBACK_RATE_RANGE = { min: 0.56, max: 0.68 };
   const STAMP_SFX_START_OFFSET_RANGE_SECONDS = { min: 0, max: 0.045 };
   const STAMP_SFX_LEAD_SECONDS = 0.1;
   const STAMP_SFX_POOL_SIZE = 4;
   const S_TIER_STAMP_SFX_PATH = 'audio/sfx/stamps/s_tier_stamp_level_up.mp3';
-  const S_TIER_STAMP_SFX_VOLUME = 0.36;
+  const S_TIER_STAMP_SFX_VOLUME = 0.22;
   const S_TIER_STAMP_SFX_LEAD_SECONDS = 0.02;
   const S_TIER_STAMP_SFX_POOL_SIZE = 2;
   const SECTION_TRANSITION_SFX_PATH = 'audio/sfx/transitions/section_transition_whoosh.mp3';
@@ -6595,13 +6595,13 @@
     if (clip) node.style.clipPath = clip;
     if ((isOutroTierStamp || isIntroRankedGlow) && stampImpactPulse > 0.02) {
       const glowRgb = isOutroTierStamp ? outroTierGlowRgb(layer?.tier) : '255, 244, 184';
-      const brightness = isSTierPremiumStamp ? 1.10 + (stampImpactPulse * 0.28) : 1.18 + (stampImpactPulse * 0.48);
-      const saturate = isSTierPremiumStamp ? 1.10 + (stampImpactPulse * 0.22) : 1.18 + (stampImpactPulse * 0.38);
-      const contrast = isSTierPremiumStamp ? 1.05 + (stampImpactPulse * 0.10) : 1.08 + (stampImpactPulse * 0.16);
-      const coreGlow = isSTierPremiumStamp ? 1.6 + (stampImpactPulse * 3.2) : 2.2 + (stampImpactPulse * 4.8);
-      const coreAlpha = isSTierPremiumStamp ? 0.34 + (stampImpactPulse * 0.24) : 0.50 + (stampImpactPulse * 0.32);
-      const wideGlow = isSTierPremiumStamp ? 5.2 + (stampImpactPulse * 6.2) : 7 + (stampImpactPulse * 9);
-      const wideAlpha = isSTierPremiumStamp ? 0.14 + (stampImpactPulse * 0.16) : 0.20 + (stampImpactPulse * 0.22);
+      const brightness = isSTierPremiumStamp ? 1.03 + (stampImpactPulse * 0.16) : 1.18 + (stampImpactPulse * 0.48);
+      const saturate = isSTierPremiumStamp ? 1.04 + (stampImpactPulse * 0.12) : 1.18 + (stampImpactPulse * 0.38);
+      const contrast = isSTierPremiumStamp ? 1.02 + (stampImpactPulse * 0.05) : 1.08 + (stampImpactPulse * 0.16);
+      const coreGlow = isSTierPremiumStamp ? 1.2 + (stampImpactPulse * 2.2) : 2.2 + (stampImpactPulse * 4.8);
+      const coreAlpha = isSTierPremiumStamp ? 0.22 + (stampImpactPulse * 0.14) : 0.50 + (stampImpactPulse * 0.32);
+      const wideGlow = isSTierPremiumStamp ? 4.2 + (stampImpactPulse * 4.4) : 7 + (stampImpactPulse * 9);
+      const wideAlpha = isSTierPremiumStamp ? 0.08 + (stampImpactPulse * 0.09) : 0.20 + (stampImpactPulse * 0.22);
       node.style.filter = [
         `brightness(${brightness.toFixed(3)})`,
         `saturate(${saturate.toFixed(3)})`,

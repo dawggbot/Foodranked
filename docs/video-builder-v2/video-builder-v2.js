@@ -126,6 +126,7 @@
   const SPLIT_AUDIO_SCENE_TAIL_GUARD_SECONDS = 0.18;
   const SPLIT_AUDIO_OUTRO_TAIL_GUARD_SECONDS = 2;
   const SPLIT_AUDIO_REPLAY_END_MARGIN_SECONDS = 0.08;
+  const SPLIT_AUDIO_FINAL_REVEAL_END_MARGIN_SECONDS = 0;
   const INTRO_RANKED_AFTER_FOOD_GAP_SECONDS = 0.32;
   const INTRO_RANKED_WORD_LEAD_SECONDS = 0.08;
   const SECTION_HOLD_SECONDS = 0.5;
@@ -2762,7 +2763,11 @@
 
   function splitAudioPositionShouldPlay(position) {
     if (!position?.block || position.inTailGuard) return false;
-    return position.remainingSeconds > SPLIT_AUDIO_REPLAY_END_MARGIN_SECONDS;
+    const kind = String(position.block.kind || '').toLowerCase();
+    const replayEndMarginSeconds = kind === 'final_reveal'
+      ? SPLIT_AUDIO_FINAL_REVEAL_END_MARGIN_SECONDS
+      : SPLIT_AUDIO_REPLAY_END_MARGIN_SECONDS;
+    return position.remainingSeconds > replayEndMarginSeconds;
   }
 
   function audioTimelineKey(food = selectedFood(), duration = null) {
@@ -6463,6 +6468,7 @@
         const offsetSeconds = asNumber(block.offsetSeconds, null);
         const durationCandidates = [
           asNumber(block.durationSeconds, null),
+          asNumber(block.mediaDurationSeconds, null),
           block.path ? asNumber(state.splitAudioMetadataDurations.get(block.path), null) : null
         ].filter(value => value != null && value > 0);
         const durationSeconds = durationCandidates.length ? Math.max(...durationCandidates) : null;

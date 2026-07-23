@@ -13,6 +13,7 @@ const TIER_SUBTITLE_MAX_CHARACTERS_PER_LINE = 28;
 const CUE_LEAD_SECONDS = 0.045;
 const SCENE_LEAD_SECONDS = 0.08;
 const AUDIO_TAIL_SECONDS = 0.05;
+const FINAL_REVEAL_AUDIO_TAIL_SECONDS = 0.3;
 const BLOCK_AUDIO_GAP_SECONDS = 0.08;
 
 function readJson(file) { return JSON.parse(fs.readFileSync(file, 'utf8')); }
@@ -21,6 +22,10 @@ function exists(file) { return fs.existsSync(file); }
 function ensureDir(dir) { fs.mkdirSync(dir, { recursive: true }); }
 function relative(file) { return path.relative(repoRoot, file).replace(/\\/g, '/'); }
 function roundSeconds(value) { return Number(Math.max(0, value).toFixed(3)); }
+function positiveSeconds(value) {
+  const seconds = Number(value);
+  return Number.isFinite(seconds) && seconds > 0 ? seconds : null;
+}
 
 function loadLocalEnv() {
   const file = path.join(repoRoot, '.env.local');
@@ -190,12 +195,21 @@ function sceneAlignedWords(scene, alignedBlocks) {
   return sceneBlockIndexes(scene.id).flatMap(index => alignedBlocks[index]?.words || []);
 }
 
+function alignmentAudioEndSeconds(alignment) {
+  const wordEnd = Math.max(0, ...(alignment.words || []).map(word => Number(word.end) || 0)) + AUDIO_TAIL_SECONDS;
+  const blockEnd = Math.max(0, ...(alignment.blocks || []).map(block => {
+    const offsetSeconds = positiveSeconds(block.offsetSeconds) ?? 0;
+    const durationSeconds = positiveSeconds(block.durationSeconds) ?? 0;
+    return offsetSeconds + durationSeconds;
+  }));
+  return roundSeconds(Math.max(wordEnd, blockEnd));
+}
+
 function applyForcedAlignment(manifest, subtitles, alignment, narrationText, alignmentPath) {
   const blocks = transcriptBlocks(narrationText);
   const alignedBlocks = splitAlignedBlocks(alignment, blocks);
   const scenes = manifest.scenePlan?.scenes || [];
-  const maxAlignedEnd = Math.max(...(alignment.words || []).map(word => Number(word.end) || 0));
-  const audioEnd = roundSeconds(maxAlignedEnd + AUDIO_TAIL_SECONDS);
+  const audioEnd = alignmentAudioEndSeconds(alignment);
   const sceneWords = new Map();
 
   scenes.forEach(scene => {
@@ -333,6 +347,12 @@ async function readOrFetchBlockAlignment({ apiKey, block, audioManifestPath, epi
   });
 }
 
+function alignmentTailSecondsForBlock(block) {
+  return String(block?.kind || '').toLowerCase() === 'final_reveal'
+    ? FINAL_REVEAL_AUDIO_TAIL_SECONDS
+    : AUDIO_TAIL_SECONDS;
+}
+
 async function buildSplitForcedAlignment({ apiKey, audioManifestPath, episodeDir, take, alignmentPath, refresh }) {
   if (exists(alignmentPath) && !refresh) return readJson(alignmentPath);
   if (!exists(audioManifestPath)) throw new Error(`Missing split audio manifest: ${relative(audioManifestPath)}`);
@@ -353,7 +373,9 @@ async function buildSplitForcedAlignment({ apiKey, audioManifestPath, episodeDir
       take,
       refresh
     });
-    const blockDuration = roundSeconds(maxWordEnd(blockAlignment) + AUDIO_TAIL_SECONDS);
+    const mediaDurationSeconds = positiveSeconds(block.mediaDurationSeconds);
+    const alignedSpeechDuration = maxWordEnd(blockAlignment) + alignmentTailSecondsForBlock(block);
+    const blockDuration = roundSeconds(Math.max(alignedSpeechDuration, mediaDurationSeconds || 0));
     const offsetWords = (blockAlignment.words || []).map(word => ({
       ...word,
       start: roundSeconds((Number(word.start) || 0) + offsetSeconds),
@@ -372,6 +394,7 @@ async function buildSplitForcedAlignment({ apiKey, audioManifestPath, episodeDir
       alignmentPath: relative(path.join(episodeDir, `${take}-blocks`, `${block.id}-forced-alignment.json`)),
       offsetSeconds: roundSeconds(offsetSeconds),
       durationSeconds: blockDuration,
+      ...(mediaDurationSeconds ? { mediaDurationSeconds: roundSeconds(mediaDurationSeconds) } : {}),
       wordCount: offsetWords.filter(word => hasSpeechToken(word.text)).length,
       loss: blockAlignment.loss ?? null
     });

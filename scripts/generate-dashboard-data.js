@@ -93,6 +93,11 @@ function findEpisodeSplitAudio(foodId, episode) {
   const alignedById = new Map((alignment?.blocks || []).map(block => [block.id, block]));
   const blocks = (metadata.blocks || []).map(block => {
     const aligned = alignedById.get(block.id) || {};
+    const durationCandidates = [aligned.durationSeconds, block.mediaDurationSeconds, aligned.mediaDurationSeconds]
+      .map(value => Number(value))
+      .filter(value => Number.isFinite(value) && value > 0);
+    const durationSeconds = durationCandidates.length ? Math.max(...durationCandidates) : null;
+    const mediaDurationSeconds = block.mediaDurationSeconds ?? aligned.mediaDurationSeconds ?? null;
     return {
       id: block.id,
       index: block.index,
@@ -102,7 +107,8 @@ function findEpisodeSplitAudio(foodId, episode) {
       productionPath: block.productionAudioFile || null,
       text: block.text || '',
       offsetSeconds: aligned.offsetSeconds ?? null,
-      durationSeconds: aligned.durationSeconds ?? null,
+      durationSeconds,
+      ...(mediaDurationSeconds != null ? { mediaDurationSeconds } : {}),
       wordCount: aligned.wordCount ?? null,
       loss: aligned.loss ?? null
     };

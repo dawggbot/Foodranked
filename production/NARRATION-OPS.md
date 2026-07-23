@@ -29,11 +29,24 @@ For spoken nutrition abbreviations:
 4. extra-virgin-olive-oil
 5. salmon
 
-## Suggested ElevenLabs defaults
-- speed: **1.10x**
-- style: clear, confident, lightly punchy
-- tone: fair, not preachy
-- pauses: keep section breaks audible, but do not over-pause
+## ElevenLabs generation defaults
+
+Use `config/elevenlabs-voice-settings.v1.json` as the source of truth. The model, output format, and voice settings stay fixed for all generated FoodRanked narration:
+
+- model: `eleven_multilingual_v2`
+- output: `mp3_44100_128`
+- stability: `50%`
+- similarity boost: `75%`
+- style: `10%`
+- speaker boost: enabled
+- speed: `1.10x`
+
+The voice can change per video. Default generation uses `random_suitable`, which chooses a clear, relatively professional English voice from ElevenLabs and avoids silly, character-style, or very strong-accent reads. Use `--profile <id>` or `--voice-id <id>` only when a voice needs to be pinned.
+
+Tone notes still apply across voices:
+- clear, confident, fair
+- lightly punchy, not overhyped
+- keep section breaks audible, but do not over-pause
 - final line: `X tier.` should sound like a hard stop
 
 ## File naming

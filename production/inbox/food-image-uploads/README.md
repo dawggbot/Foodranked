@@ -21,7 +21,7 @@ When a PNG is pushed to this folder, the workflow:
 1. copies it to `sprites/header/food_images/<food-id>.png`;
 2. mirrors it to `docs/app/sprites/header/food_images/<food-id>.png` for the browser tools;
 3. regenerates the compact episode output;
-4. generates ElevenLabs narration audio with `config/elevenlabs-voice-settings.v1.json`;
+4. generates ElevenLabs narration audio with the locked settings in `config/elevenlabs-voice-settings.v1.json`, using a random suitable voice unless a voice is pinned;
 5. mirrors the audio to `docs/audio/episodes/<food-id>/` so the video builder can preview it;
 6. refreshes `docs/data/foods-index.json` and `docs/data/foods-index.js`.
 

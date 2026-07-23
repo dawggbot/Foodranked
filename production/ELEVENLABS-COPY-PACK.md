@@ -3,7 +3,15 @@
 Use this pack for the first launch-five narration exports.
 
 ## Global settings
-- speed: **1.10x**
+- use `config/elevenlabs-voice-settings.v1.json` as the source of truth
+- model: `eleven_multilingual_v2`
+- output: `mp3_44100_128`
+- stability: `50%`
+- similarity boost: `75%`
+- style: `10%`
+- speaker boost: enabled
+- speed: `1.10x`
+- voice: random suitable ElevenLabs voice by default
 - tone: clear, confident, fair
 - energy: slightly punchy, not overhyped
 - pause style: brief pause between sections, no long dramatic silences

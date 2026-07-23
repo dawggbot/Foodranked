@@ -838,6 +838,11 @@ function bestMetricContext(metric, sectionKey) {
 
 function weakMetricImpactContext(metric, sectionKey) {
   const key = metric?.metricKey;
+  const dvPercent = Number(metric?.dvPercent);
+  if (metric?.scoringMode === 'dv_points' && Number.isFinite(dvPercent) && dvPercent >= 50) {
+    const context = bestMetricContext(metric, sectionKey);
+    return context ? `${context}, but it is not the standout here` : 'still useful, but not the standout here';
+  }
   const contexts = {
     saturated_fat_g: 'working against a cleaner fat profile',
     polyunsaturated_fat_g: 'not adding much useful unsaturated fat',
@@ -876,7 +881,7 @@ function categoryWeakContext(foodType, sectionKey, metric = null) {
     if (!impact) return importance;
     if (importance.startsWith('and ') || importance.startsWith('so ')) return `${impact}, ${importance}`;
     if (importance.startsWith('not great for ')) {
-      return `${impact}, so it doesn't help ${importance.slice('not great for '.length)} much`;
+      return impact;
     }
     if (importance.startsWith('a small downside for ')) {
       return `${impact}, so that's a small downside for ${importance.slice('a small downside for '.length)}`;
@@ -1114,8 +1119,9 @@ function buildMacroSection(result, key) {
       carbs: 'for fruit, the real question is whether the sweetness stays under control'
     },
     vegetables: {
-      carbs: 'for vegetables, low risk is good, but you still want some useful nutrition back',
-      proteins: 'for vegetables, protein is usually just a bonus'
+      fats: 'for vegetables, fat is usually just a tiny side detail',
+      carbs: 'for vegetables, the carbs are easy to work with when they stay this light',
+      proteins: 'for vegetables, protein is a bonus, not something to rely on'
     },
     legumes: {
       carbs: 'for legumes, the carbs look much better when fibre and protein are both backing them up',
@@ -1376,11 +1382,11 @@ function rankedFoodUseCases(result) {
     { label: 'magnesium', value: magnesium }
   ]);
   if (boneNutrients.length || (mineralsScore >= 30 && calcium >= 5)) {
-    addUseCase(cases, 'bone_health', 'bone health', `${naturalList(boneNutrients.length ? boneNutrients : ['mineral support'])} can help with bone health`, mineralsScore + calcium + vitaminD + magnesium);
+    addUseCase(cases, 'bone_health', 'bone health', `${naturalList(boneNutrients.length ? boneNutrients : ['mineral support'])} can support bones`, mineralsScore + calcium + vitaminD + magnesium);
   }
 
   if (fibreG >= 3 || /\b(ferment|digestion|gut|tolerance|fibre|fiber)\b/.test(prosText)) {
-    addUseCase(cases, 'digestion', 'digestion', fibreG >= 3 ? 'fibre supports digestion and steadier meals' : 'the pros help with digestion or tolerance', carbsScore + fibreG * 8);
+    addUseCase(cases, 'digestion', 'digestion', fibreG >= 3 ? 'fibre helps digestion and keeps meals steadier' : 'the pros help with digestion or tolerance', carbsScore + fibreG * 8);
   }
 
   const immuneNutrients = namedDvSupport([
@@ -1390,7 +1396,7 @@ function rankedFoodUseCases(result) {
   ]);
   if (immuneNutrients.length) {
     const verb = immuneNutrients.length === 1 ? 'helps' : 'help';
-    addUseCase(cases, 'immune_support', 'immune support', `${naturalList(immuneNutrients)} ${verb} the immune-support part`, vitaminsScore + mineralsScore + vitaminC + vitaminA + zinc);
+    addUseCase(cases, 'immune_support', 'immune support', `${naturalList(immuneNutrients)} ${verb} support the immune system`, vitaminsScore + mineralsScore + vitaminC + vitaminA + zinc);
   }
 
   const heartFromFibre = fibreG >= 5;
@@ -1402,12 +1408,12 @@ function rankedFoodUseCases(result) {
   const heartFromFatQuality = fatsScore >= 65 && saturatedFatG <= 2 && polyunsaturatedFatG >= 4;
   if (heartFromFibre || heartFromOmega || heartFromOilQuality || heartFromFatQuality) {
     const reason = heartFromFibre
-      ? 'fibre supports the heart-health part'
+      ? 'fibre is useful for heart health'
       : heartFromOilQuality
-        ? 'unsaturated fats and polyphenols make the heart-health part clearer'
+        ? 'unsaturated fats and polyphenols help explain the heart-health benefit'
         : heartFromOmega
           ? 'omega 3 helps the fat-quality story without a big saturated-fat tradeoff'
-          : 'fat quality supports the heart-health part';
+          : 'fat quality is useful for heart health';
     addUseCase(cases, 'heart_health', 'heart health', reason, fatsScore + carbsScore + fibreG * 4 + (omega3Mg / 100));
   }
 
@@ -1416,15 +1422,15 @@ function rankedFoodUseCases(result) {
   }
 
   if ((kcal > 0 && kcal <= 70 && ['vegetables', 'fruits'].includes(type)) || /\b(volume|satiety|filling)\b/.test(prosText)) {
-    addUseCase(cases, 'low_calorie_volume', 'low-calorie volume', 'it can make a meal feel bigger without adding many calories', 55 + Math.max(0, 80 - kcal));
+    addUseCase(cases, 'low_calorie_volume', 'low-calorie volume', 'it helps fill out a meal without many calories', 55 + Math.max(0, 80 - kcal));
   }
 
   if ((kcal <= 120 || type === 'misc') && /\b(flavou?r|swap|condiment|season|vinegar|acid|culinary)\b/.test(prosText)) {
-    addUseCase(cases, 'flavour_swaps', 'low-calorie flavour swaps', 'it can add flavour without adding much else', 65 + Math.max(0, 120 - kcal));
+    addUseCase(cases, 'flavour_swaps', 'low-calorie flavour swaps', 'it adds flavour without adding many calories', 65 + Math.max(0, 120 - kcal));
   }
 
   if (/\b(staple|cheap|batch|easy|convenient|shelf|meal|pair|practical)\b/.test(prosText) || (['grains', 'legumes', 'tubers'].includes(type) && carbsScore >= 45)) {
-    addUseCase(cases, 'practical_meals', 'practical meals', 'it is easy to build meals around', 50 + carbsScore);
+    addUseCase(cases, 'practical_meals', 'practical meals', "it's easy to build meals around", 50 + carbsScore);
   }
 
   if (type === 'oils-and-fats' && fatsScore >= 45) {
@@ -1526,9 +1532,9 @@ function buildWeaknessHighlights(result, limit = 3) {
 function buildGoodForLine(result) {
   const useCases = selectedFoodUseCases(result, 3);
   if (useCases.length === 1 && useCases[0].key === 'narrow_use_cases') {
-    return `it is only really good for ${useCases[0].label} because ${useCases[0].reason}`;
+    return `it's only really good for ${useCases[0].label} because ${useCases[0].reason}`;
   }
-  return `it is good for ${naturalList(useCases.map(item => item.label))} because ${naturalList(useCases.map(item => item.reason))}`;
+  return `it's good for ${naturalList(useCases.map(item => item.label))} because ${naturalList(useCases.map(item => item.reason))}`;
 }
 
 function buildOverview(result) {

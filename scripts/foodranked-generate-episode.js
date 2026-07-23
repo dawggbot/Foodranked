@@ -29,6 +29,22 @@ const HEADER_CATEGORY_KEYS = {
   misc: 'misc'
 };
 
+const SFX_PROFILE_VERSION = 1;
+const SFX_ROLE_POOLS = {
+  stampImpact: [
+    'audio/sfx/stamps/impact_stamp_hit.mp3',
+    'audio/sfx/stamps/traditional_stamp_hit.mp3'
+  ],
+  sectionTransition: [
+    'audio/sfx/transitions/section_transition_whoosh.mp3',
+    'audio/sfx/transitions/freesound_community_retro_spell_sfx_85574.mp3'
+  ],
+  highlightGlow: [
+    'audio/sfx/ui/highlight_glow_loop.mp3',
+    'audio/sfx/ui/freesound_community_magical_background_6892.mp3'
+  ]
+};
+
 const VISUAL_PROFILES = {
   balanced: {
     name: 'balanced',
@@ -77,6 +93,51 @@ function relativeRepoPath(p) { return path.relative(repoRoot, p).replace(/\\/g, 
 
 function safeSlug(value) {
   return String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
+
+function stableHash(value) {
+  let hash = 2166136261;
+  for (const char of String(value || '')) {
+    hash ^= char.charCodeAt(0);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+function normalizeSfxProfile(profile) {
+  if (!profile || typeof profile !== 'object') return null;
+  const normalized = {
+    version: Number(profile.version) || SFX_PROFILE_VERSION,
+    selectionMode: profile.selectionMode || 'manual'
+  };
+  for (const role of Object.keys(SFX_ROLE_POOLS)) {
+    const value = profile[role];
+    if (typeof value === 'string' && value.trim()) {
+      normalized[role] = { path: value.trim() };
+    } else if (value && typeof value === 'object' && typeof value.path === 'string' && value.path.trim()) {
+      normalized[role] = { ...value, path: value.path.trim() };
+    }
+  }
+  return Object.keys(SFX_ROLE_POOLS).some(role => normalized[role]) ? normalized : null;
+}
+
+function pickSfxPath(foodId, role) {
+  const pool = SFX_ROLE_POOLS[role] || [];
+  if (!pool.length) return null;
+  const index = stableHash(`${foodId}:${role}`) % pool.length;
+  return pool[index];
+}
+
+function buildSfxProfile(food) {
+  const explicit = normalizeSfxProfile(food.sfxProfile);
+  if (explicit) return explicit;
+  return {
+    version: SFX_PROFILE_VERSION,
+    selectionMode: 'stable-random',
+    stampImpact: { path: pickSfxPath(food.id, 'stampImpact') },
+    sectionTransition: { path: pickSfxPath(food.id, 'sectionTransition') },
+    highlightGlow: { path: pickSfxPath(food.id, 'highlightGlow') }
+  };
 }
 
 function resolveFoodPath(input) {
@@ -744,6 +805,7 @@ function buildManifest({ food, rulesetPath, foodPath, score, script, template, s
   const compact = options.mode === 'compact';
   const profile = visualProfileFor(options.visualProfile);
   const spriteBindings = buildSpriteBindings(food.foodType);
+  const sfxProfile = buildSfxProfile(food);
 
   return {
     id: `${food.id}-episode-v1`,
@@ -821,6 +883,7 @@ function buildManifest({ food, rulesetPath, foodPath, score, script, template, s
         progressIndicator: template.progressIndicator || null
       }
     },
+    sfxProfile,
     reviewChecklist: [
       'Verify nutrient values are sourced well enough for publishable use.',
       'Review narration for category repetition and trim any awkward lines.',

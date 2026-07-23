@@ -252,3 +252,5 @@ Current mirrored stamp SFX:
 audio/sfx/stamps/impact_stamp_hit.mp3
 docs/audio/sfx/stamps/impact_stamp_hit.mp3
 ```
+
+Food-entry SFX variation is stored in `episode.sfxProfile`. Video Builder v2 should use `stampImpact.path`, `sectionTransition.path`, and `highlightGlow.path` from that profile when present, while keeping the default SFX constants as fallbacks. Each referenced browser-facing `audio/sfx/...` path must have a matching `docs/audio/sfx/...` mirror.

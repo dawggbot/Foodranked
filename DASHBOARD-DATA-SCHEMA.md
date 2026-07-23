@@ -69,9 +69,23 @@ Generated episode data includes:
 - `sceneCount`
 - `accent`
 - `tierColor`
+- optional `sfxProfile`
 - `script`
 - `subtitles[]`
 - `narrationText`
+
+## `episode.sfxProfile`
+
+`episode.sfxProfile` stores the reusable SFX choices for the selected food entry.
+
+Fields:
+- `version`
+- `selectionMode`
+- `stampImpact.path`
+- `sectionTransition.path`
+- `highlightGlow.path`
+
+Video Builder v2 should use these paths when present, and fall back to its default SFX constants otherwise.
 
 ## `episode.audio`
 

@@ -365,9 +365,11 @@
     splitAudioMetadataDurations: new Map(),
     stampSfxPool: [],
     stampSfxPoolIndex: 0,
+    stampSfxPath: '',
     playedStampSfxKeys: new Set(),
     transitionSfxPool: [],
     transitionSfxPoolIndex: 0,
+    transitionSfxPath: '',
     playedTransitionSfxKeys: new Set(),
     micronBarConfirmSfxPool: [],
     micronBarConfirmSfxPoolIndex: 0,
@@ -393,6 +395,7 @@
     barFillSfxBufferPromise: null,
     barFillSfxSources: new Set(),
     highlightGlowSfxAudio: null,
+    highlightGlowSfxPath: '',
     highlightGlowSfxVolume: 0,
     highlightGlowSfxKey: '',
     highlightGlowSfxPlaybackRate: 1,
@@ -771,6 +774,29 @@
     if (/^(data:|https?:|blob:)/i.test(path)) return path;
     if (path.startsWith('../') || path.startsWith('./')) return path;
     return `../${path}`;
+  }
+
+  function sfxProfileForFood(food = selectedFood()) {
+    return food?.episode?.sfxProfile || food?.sfxProfile || null;
+  }
+
+  function sfxProfilePath(role, fallbackPath, food = selectedFood()) {
+    const value = sfxProfileForFood(food)?.[role];
+    if (typeof value === 'string' && value.trim()) return value.trim();
+    if (value && typeof value === 'object' && typeof value.path === 'string' && value.path.trim()) return value.path.trim();
+    return fallbackPath;
+  }
+
+  function stampSfxPath(food = selectedFood()) {
+    return sfxProfilePath('stampImpact', STAMP_SFX_PATH, food);
+  }
+
+  function sectionTransitionSfxPath(food = selectedFood()) {
+    return sfxProfilePath('sectionTransition', SECTION_TRANSITION_SFX_PATH, food);
+  }
+
+  function highlightGlowSfxPath(food = selectedFood()) {
+    return sfxProfilePath('highlightGlow', HIGHLIGHT_GLOW_SFX_PATH, food);
   }
 
   function appSpritePath(path) {
@@ -2998,6 +3024,7 @@
       layoutSource: state.layoutSourceId,
       canvas: { width: AUTHOR_GRID.width, height: AUTHOR_GRID.height, aspect: '9:16' },
       audio: audioForFood(food),
+      sfxProfile: sfxProfileForFood(food),
       duration: Number(totalDuration().toFixed(2)),
       narrationDuration: Number(totalNarrationDuration().toFixed(2)),
       totalHoldSeconds: Number(holdDuration.toFixed(2)),
@@ -4235,12 +4262,18 @@
   }
 
   function ensureHighlightGlowSfxAudio() {
+    const path = highlightGlowSfxPath();
+    if (state.highlightGlowSfxPath && state.highlightGlowSfxPath !== path) {
+      pauseHighlightGlowSfx();
+      state.highlightGlowSfxAudio = null;
+    }
     if (!state.highlightGlowSfxAudio) {
-      const audio = new Audio(docsAssetPath(HIGHLIGHT_GLOW_SFX_PATH));
+      const audio = new Audio(docsAssetPath(path));
       audio.preload = 'auto';
       audio.loop = true;
       audio.volume = 0;
       state.highlightGlowSfxAudio = audio;
+      state.highlightGlowSfxPath = path;
     }
     return state.highlightGlowSfxAudio;
   }
@@ -5354,13 +5387,20 @@
   }
 
   function nextStampSfxAudio() {
+    const path = stampSfxPath();
+    if (state.stampSfxPath && state.stampSfxPath !== path) {
+      pauseStampSfx();
+      state.stampSfxPool = [];
+      state.stampSfxPoolIndex = 0;
+    }
     if (!state.stampSfxPool.length) {
       state.stampSfxPool = Array.from({ length: STAMP_SFX_POOL_SIZE }, () => {
-        const audio = new Audio(docsAssetPath(STAMP_SFX_PATH));
+        const audio = new Audio(docsAssetPath(path));
         audio.preload = 'auto';
         audio.volume = STAMP_SFX_VOLUME;
         return audio;
       });
+      state.stampSfxPath = path;
     }
     const audio = state.stampSfxPool[state.stampSfxPoolIndex % state.stampSfxPool.length];
     state.stampSfxPoolIndex += 1;
@@ -5439,13 +5479,20 @@
   }
 
   function nextTransitionSfxAudio() {
+    const path = sectionTransitionSfxPath();
+    if (state.transitionSfxPath && state.transitionSfxPath !== path) {
+      pauseTransitionSfx();
+      state.transitionSfxPool = [];
+      state.transitionSfxPoolIndex = 0;
+    }
     if (!state.transitionSfxPool.length) {
       state.transitionSfxPool = Array.from({ length: SECTION_TRANSITION_SFX_POOL_SIZE }, () => {
-        const audio = new Audio(docsAssetPath(SECTION_TRANSITION_SFX_PATH));
+        const audio = new Audio(docsAssetPath(path));
         audio.preload = 'auto';
         audio.volume = SECTION_TRANSITION_SFX_VOLUME;
         return audio;
       });
+      state.transitionSfxPath = path;
     }
     const audio = state.transitionSfxPool[state.transitionSfxPoolIndex % state.transitionSfxPool.length];
     state.transitionSfxPoolIndex += 1;

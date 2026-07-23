@@ -53,6 +53,7 @@ Files:
 - `scoreSnapshot`
 - `scriptSnapshot`
 - `visualBinding`
+- optional `sfxProfile`
 - `reviewChecklist`
 - `nextHumanStep`
 - `scenePlan`
@@ -100,6 +101,19 @@ Includes:
 - `narrationBlockCount`
 
 This should stay aligned with `SCRIPT-SCHEMA.md`.
+
+## `sfxProfile`
+
+`sfxProfile` stores the per-episode reusable SFX choices used by Video Builder v2.
+
+Fields:
+- `version`
+- `selectionMode`
+- `stampImpact.path`
+- `sectionTransition.path`
+- `highlightGlow.path`
+
+Paths are browser-facing `audio/sfx/...` paths. The matching source file should live under `audio/sfx/...`, and any file loaded by the builder must also be mirrored under `docs/audio/sfx/...`.
 
 ## `scenePlan`
 

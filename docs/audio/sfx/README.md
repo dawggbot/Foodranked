@@ -18,10 +18,12 @@ Current stamp mirrors:
 Current transition mirror:
 
 - `transitions/section_transition_whoosh.mp3`
+- `transitions/freesound_community_retro_spell_sfx_85574.mp3`
 
 Current UI mirrors:
 
 - `ui/highlight_glow_loop.mp3`
+- `ui/freesound_community_magical_background_6892.mp3`
 
 Current section mirrors:
 

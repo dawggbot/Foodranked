@@ -182,6 +182,7 @@ const foods = fs.readdirSync(foodsDir)
     const customFoodImage = findCustomFoodImage(food.id);
     const episodeAudio = findEpisodeAudio(food.id);
     const episodeSplitAudio = findEpisodeSplitAudio(food.id, episode);
+    const sfxProfile = episode?.sfxProfile || food.sfxProfile || publishedFood?.sfxProfile || null;
 
     return {
       id: food.id,
@@ -255,6 +256,7 @@ const foods = fs.readdirSync(foodsDir)
         sceneCount: scenes.length,
         accent: episode.visualBinding?.categoryAccent ?? null,
         tierColor: episode.visualBinding?.tierColor ?? null,
+        ...(sfxProfile ? { sfxProfile } : {}),
         script: exists(path.join(repoRoot, episode.outputs?.directory || '', 'script.json'))
           ? readJson(path.join(repoRoot, episode.outputs.directory, 'script.json'))
           : null,

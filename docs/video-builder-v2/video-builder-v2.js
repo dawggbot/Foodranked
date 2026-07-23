@@ -77,6 +77,10 @@
   const STAMP_SFX_START_OFFSET_RANGE_SECONDS = { min: 0, max: 0.045 };
   const STAMP_SFX_LEAD_SECONDS = 0.1;
   const STAMP_SFX_POOL_SIZE = 4;
+  const S_TIER_STAMP_SFX_PATH = 'audio/sfx/stamps/s_tier_stamp_level_up.mp3';
+  const S_TIER_STAMP_SFX_VOLUME = 0.36;
+  const S_TIER_STAMP_SFX_LEAD_SECONDS = 0.02;
+  const S_TIER_STAMP_SFX_POOL_SIZE = 2;
   const SECTION_TRANSITION_SFX_PATH = 'audio/sfx/transitions/section_transition_whoosh.mp3';
   const SECTION_TRANSITION_SFX_VOLUME = 0.22;
   const SECTION_TRANSITION_SFX_MAX_VOLUME = 2;
@@ -392,6 +396,9 @@
     stampSfxPoolIndex: 0,
     stampSfxPath: '',
     playedStampSfxKeys: new Set(),
+    sTierStampSfxPool: [],
+    sTierStampSfxPoolIndex: 0,
+    playedSTierStampSfxKeys: new Set(),
     transitionSfxPool: [],
     transitionSfxPoolIndex: 0,
     transitionSfxPath: '',
@@ -5504,6 +5511,14 @@
     return Number(Math.max(scene.start, impactTime - STAMP_SFX_LEAD_SECONDS).toFixed(3));
   }
 
+  function sTierStampSfxImpactTime(scene, schedule) {
+    const sceneDuration = Math.max(1, sceneContentDuration(scene));
+    const revealLead = Math.min(0.035, AUDIO_REVEAL_LEAD_SECONDS / sceneDuration);
+    const impactProgress = clamp(schedule.start + stampRevealWindowProgress(scene, schedule) - revealLead, 0, 1);
+    const impactTime = scene.start + (impactProgress * sceneContentDuration(scene));
+    return Number(Math.max(scene.start, impactTime - S_TIER_STAMP_SFX_LEAD_SECONDS).toFixed(3));
+  }
+
   function stampSfxEvents() {
     const events = new Map();
     sceneStarts().forEach(scene => {
@@ -5521,6 +5536,34 @@
             layerId: groupedLayerId,
             kind: schedule.kind,
             time: stampSfxImpactTime(scene, schedule)
+          });
+        });
+    });
+    return [...events.values()].sort((a, b) => a.time - b.time || a.key.localeCompare(b.key));
+  }
+
+  function isSTierStampSfxSchedule(schedule) {
+    if (outroTierForFood(selectedFood()) !== 'S') return false;
+    if (schedule?.family !== 'outro' || schedule?.kind !== 'tier') return false;
+    const id = String(schedule?.layerId || '').toLowerCase();
+    if (id !== OUTRO_TIER_STAMP_ID && id !== OUTRO_TIER_STAMP_LEGACY_ID) return false;
+    return /(?:^|\/)S_tier\.png$/i.test(String(schedule?.src || ''));
+  }
+
+  function sTierStampSfxEvents() {
+    const events = new Map();
+    sceneStarts().forEach(scene => {
+      sceneLayerRevealSchedule(scene)
+        .filter(isSTierStampSfxSchedule)
+        .forEach(schedule => {
+          const key = `${scene.id}:s-tier-stamp:${schedule.start.toFixed(3)}`;
+          if (events.has(key)) return;
+          events.set(key, {
+            key,
+            sceneId: scene.id,
+            layerId: schedule.layerId || OUTRO_TIER_STAMP_ID,
+            kind: 's-tier-stamp',
+            time: sTierStampSfxImpactTime(scene, schedule)
           });
         });
     });
@@ -5606,6 +5649,52 @@
       if (event.time <= previousTime || event.time > currentTime) continue;
       state.playedStampSfxKeys.add(event.key);
       playStampSfx(event);
+    }
+  }
+
+  function nextSTierStampSfxAudio() {
+    if (!state.sTierStampSfxPool.length) {
+      state.sTierStampSfxPool = Array.from({ length: S_TIER_STAMP_SFX_POOL_SIZE }, () => {
+        const audio = new Audio(docsAssetPath(S_TIER_STAMP_SFX_PATH));
+        audio.preload = 'auto';
+        audio.volume = S_TIER_STAMP_SFX_VOLUME;
+        return audio;
+      });
+    }
+    const audio = state.sTierStampSfxPool[state.sTierStampSfxPoolIndex % state.sTierStampSfxPool.length];
+    state.sTierStampSfxPoolIndex += 1;
+    return audio;
+  }
+
+  function playSTierStampSfx(event) {
+    if (!state.audioEnabled || !event) return;
+    const audio = nextSTierStampSfxAudio();
+    try {
+      audio.pause();
+      audio.currentTime = 0;
+      audio.volume = S_TIER_STAMP_SFX_VOLUME;
+      audio.playbackRate = 1;
+      const playPromise = audio.play();
+      if (playPromise?.catch) playPromise.catch(() => {});
+    } catch {}
+  }
+
+  function pauseSTierStampSfx() {
+    for (const audio of state.sTierStampSfxPool || []) {
+      try {
+        audio.pause();
+        audio.currentTime = 0;
+      } catch {}
+    }
+  }
+
+  function triggerSTierStampSfxBetween(previousTime, currentTime) {
+    if (!state.playing || !state.audioEnabled || currentTime <= previousTime) return;
+    for (const event of sTierStampSfxEvents()) {
+      if (state.playedSTierStampSfxKeys.has(event.key)) continue;
+      if (event.time <= previousTime || event.time > currentTime) continue;
+      state.playedSTierStampSfxKeys.add(event.key);
+      playSTierStampSfx(event);
     }
   }
 
@@ -6540,6 +6629,7 @@
     pauseHighlightGlowSfx();
     if (pauseSfx) {
       pauseStampSfx();
+      pauseSTierStampSfx();
       pauseTransitionSfx();
       pauseMicronBarConfirmSfx();
       pauseMicron100FireworkSfx();
@@ -6556,6 +6646,7 @@
     state.highlightGlowSfxLastFrameAt = performance.now();
     state.audioInHold = false;
     state.playedStampSfxKeys = new Set();
+    state.playedSTierStampSfxKeys = new Set();
     state.playedTransitionSfxKeys = new Set();
     state.playedMicronBarConfirmSfxKeys = new Set();
     state.playedMicron100FireworkSfxKeys = new Set();
@@ -6576,6 +6667,7 @@
     state.currentTime = state.playheadStart + elapsed;
     triggerTransitionSfxBetween(previousTime, state.currentTime);
     triggerStampSfxBetween(previousTime, state.currentTime);
+    triggerSTierStampSfxBetween(previousTime, state.currentTime);
     triggerMicronBarConfirmSfxBetween(previousTime, state.currentTime);
     triggerMicron100FireworkSfxBetween(previousTime, state.currentTime);
     triggerMajorProSparkleSfxBetween(previousTime, state.currentTime);
@@ -6663,6 +6755,7 @@
     if (!state.audioEnabled) {
       els.narrationAudio.pause();
       pauseStampSfx();
+      pauseSTierStampSfx();
       pauseHighlightGlowSfx();
       pauseTransitionSfx();
       pauseMicron100FireworkSfx();

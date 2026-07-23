@@ -127,6 +127,7 @@
   const SPLIT_AUDIO_OUTRO_TAIL_GUARD_SECONDS = 2;
   const SPLIT_AUDIO_REPLAY_END_MARGIN_SECONDS = 0.08;
   const SPLIT_AUDIO_FINAL_REVEAL_END_MARGIN_SECONDS = 0;
+  const SPLIT_AUDIO_FINAL_REVEAL_START_GRACE_SECONDS = 0.22;
   const INTRO_RANKED_AFTER_FOOD_GAP_SECONDS = 0.32;
   const INTRO_RANKED_WORD_LEAD_SECONDS = 0.08;
   const SECTION_HOLD_SECONDS = 0.5;
@@ -2745,10 +2746,14 @@
       const tailGuard = isLast ? splitAudioSceneTailGuardSeconds(sceneId) : 0;
       if (safeSceneAudioTime >= cursor && safeSceneAudioTime < cursor + duration + tailGuard) {
         const localTime = safeSceneAudioTime - cursor;
+        const kind = String(block?.kind || '').toLowerCase();
+        const playbackLocalTime = kind === 'final_reveal' && localTime <= SPLIT_AUDIO_FINAL_REVEAL_START_GRACE_SECONDS
+          ? 0
+          : localTime;
         return {
           block,
-          audioTime: asNumber(block.offsetSeconds, 0) + clamp(localTime, 0, duration),
-          localTime: clamp(localTime, 0, Math.max(0, duration - 0.01)),
+          audioTime: asNumber(block.offsetSeconds, 0) + clamp(playbackLocalTime, 0, duration),
+          localTime: clamp(playbackLocalTime, 0, Math.max(0, duration - 0.01)),
           inTailGuard: localTime >= duration,
           remainingSeconds: Math.max(0, duration - localTime)
         };

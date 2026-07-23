@@ -125,6 +125,8 @@
   const SPLIT_AUDIO_SCENE_TAIL_GUARD_SECONDS = 0.18;
   const SPLIT_AUDIO_OUTRO_TAIL_GUARD_SECONDS = 2;
   const SPLIT_AUDIO_REPLAY_END_MARGIN_SECONDS = 0.08;
+  const INTRO_RANKED_AFTER_FOOD_GAP_SECONDS = 0.32;
+  const INTRO_RANKED_WORD_LEAD_SECONDS = 0.08;
   const SECTION_HOLD_SECONDS = 0.5;
   const OUTRO_HOLD_SECONDS = 0;
   const SECTION_HOLD_IDS = new Set(['intro', 'fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons']);
@@ -2675,6 +2677,17 @@
       : 0;
   }
 
+  function splitAudioMinimumGapAfterBlock(sceneId, current, next, baseGap) {
+    if (
+      splitAudioSceneKey(sceneId) === 'intro'
+      && String(current?.kind || '').toLowerCase() === 'hook_food'
+      && String(next?.kind || '').toLowerCase() === 'hook_ranked'
+    ) {
+      return Math.max(baseGap, INTRO_RANKED_AFTER_FOOD_GAP_SECONDS);
+    }
+    return baseGap;
+  }
+
   function splitAudioGapAfterBlock(audio, blocks, index, sceneId = null) {
     if (index >= blocks.length - 1) return 0;
     const current = blocks[index];
@@ -2683,7 +2696,19 @@
       ? Math.max(0, next.offsetSeconds - current.endSeconds)
       : null;
     const baseGap = manifestGap ?? Math.max(0, asNumber(audio?.blockGapSeconds, 0) || 0);
-    return baseGap + splitAudioBreathAfterBlock(sceneId, current, next);
+    return splitAudioMinimumGapAfterBlock(sceneId, current, next, baseGap) + splitAudioBreathAfterBlock(sceneId, current, next);
+  }
+
+  function splitAudioBlockStartInSceneSeconds(audio, sceneId, predicate) {
+    const blocks = splitAudioBlocksForScene(audio, sceneId);
+    let cursor = 0;
+    for (let index = 0; index < blocks.length; index += 1) {
+      const block = blocks[index];
+      if (predicate(block, index, blocks)) return cursor;
+      cursor += Math.max(0, asNumber(block.durationSeconds, 0) || 0);
+      cursor += splitAudioGapAfterBlock(audio, blocks, index, sceneId);
+    }
+    return null;
   }
 
   function splitAudioSceneDuration(audio, sceneId, { includeTailGuard = true } = {}) {
@@ -2788,6 +2813,7 @@
       `tail:${SPLIT_AUDIO_SCENE_TAIL_GUARD_SECONDS.toFixed(3)}`,
       `outro-tail:${SPLIT_AUDIO_OUTRO_TAIL_GUARD_SECONDS.toFixed(3)}`,
       `outro-breath:${OUTRO_FINAL_REVEAL_BREATH_SECONDS.toFixed(3)}`,
+      `intro-ranked-gap:${INTRO_RANKED_AFTER_FOOD_GAP_SECONDS.toFixed(3)}`,
       `outro-hold:${OUTRO_HOLD_SECONDS.toFixed(3)}`
     ].join('|');
     if (state.audioTimelineKey === key) return false;
@@ -4603,6 +4629,18 @@
     return clamp(easeOutCubic((sceneProgress - schedule.start) / revealWindow), 0, 1);
   }
 
+  function introRankedSplitAudioAnchor(scene) {
+    const audio = audioForFood(selectedFood());
+    if (audio?.mode !== 'split-blocks') return null;
+    const rankedStartSeconds = splitAudioBlockStartInSceneSeconds(
+      audio,
+      scene?.id || 'intro',
+      block => String(block?.kind || '').toLowerCase() === 'hook_ranked'
+    );
+    if (rankedStartSeconds == null) return null;
+    return clamp((rankedStartSeconds + INTRO_RANKED_WORD_LEAD_SECONDS) / sceneContentDuration(scene), 0.005, 0.94);
+  }
+
   function revealAnchorForLayer(layer, scene, classification, timing, index = 0) {
     const sectionId = scene?.id || '';
     const segments = timing.sentences || sceneTimedSentences(scene);
@@ -4613,12 +4651,13 @@
       const foodName = String(food?.name || '').trim();
       const firstFoodWord = foodName.split(/\s+/).find(Boolean);
       const rankedAnchor = termStartForTiming(timing, ['ranked']) ?? 0.54;
+      const splitRankedAnchor = introRankedSplitAudioAnchor(scene);
       if (classification.kind === 'food-hero') {
         return termStartForTiming(timing, [foodName, firstFoodWord, 'bacon'].filter(Boolean)) ?? 0.04;
       }
-      if (classification.kind === 'ranked-glow') return rankedAnchor;
-      if (classification.kind === 'ranked-sprite') return rankedAnchor;
-      if (classification.kind === 'glimmer') return clamp(rankedAnchor + (asNumber(layer?.sparkleDelay, 0) || 0), 0.02, 0.9);
+      if (classification.kind === 'ranked-glow') return splitRankedAnchor ?? rankedAnchor;
+      if (classification.kind === 'ranked-sprite') return splitRankedAnchor ?? rankedAnchor;
+      if (classification.kind === 'glimmer') return clamp((splitRankedAnchor ?? rankedAnchor) + (asNumber(layer?.sparkleDelay, 0) || 0), 0.02, 0.9);
       return termStartForTiming(timing, [foodName, 'ranked'].filter(Boolean))
         ?? distributedRevealDelay(index, 3, segments, { start: 0.05, end: 0.58 });
     }

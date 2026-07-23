@@ -258,6 +258,14 @@ function metricValueText(metric) {
   return String(metric.value);
 }
 
+function spokenMetricValueText(metric) {
+  if (!metric) return null;
+  if (/glycemic/i.test(String(metric.metricKey || '')) && metric.value !== null && metric.value !== undefined) {
+    return String(metric.value);
+  }
+  return metricValueText(metric);
+}
+
 function toFiniteNumber(value) {
   if (value === null || value === undefined || value === '') return null;
   const number = Number(value);
@@ -403,7 +411,7 @@ function metricValuePhrase(metric) {
   if (metric?.metricKey === 'glycemic_index' && metric.displayDefault) {
     return 'glycemic index is in the strongest display band';
   }
-  const value = metricValueText(metric);
+  const value = spokenMetricValueText(metric);
   if (!value) return formatMetricKey(metric?.metricKey);
   return `${formatMetricKey(metric.metricKey)} is ${value}`;
 }

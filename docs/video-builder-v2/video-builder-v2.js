@@ -26,6 +26,7 @@
   const MICRON_BAR_STEP_SECONDS = 0.16;
   const MICRON_STAMP_REVEAL_SECONDS = 0.28;
   const MICRON_BAR_STAMP_REVEAL_SECONDS = 0.16;
+  const MICRON_VALUE_AFTER_BAR_SECONDS = 0.08;
   const MICRON_100_FIREWORK_SECONDS = 1.35;
   const MICRON_100_FIREWORK_SPARKS = [
     { x: -7.8, y: -7.2, color: '#fff7b0' },
@@ -4440,6 +4441,8 @@
   function micronColumnIndex(layer, sectionId, allLayers) {
     const textIndex = micronTextIndex(layer, sectionId);
     if (textIndex != null) return textIndex;
+    const textboxIndex = micronBarTextboxColumnIndex(layer, sectionId);
+    if (textboxIndex != null) return textboxIndex;
     const fingerprint = `${layer?.label || ''} ${layer?.src || ''}`.toLowerCase();
     if (fingerprint.includes('bar_line')) return null;
     if (!/(micro|micros|dv bar|bar_line|bar)/.test(fingerprint)) return null;
@@ -4518,7 +4521,23 @@
     const id = String(layer?.id || '').toLowerCase();
     if (id.match(new RegExp(`^${sectionId}_label_\\d+$`))) return 'label';
     if (id.match(new RegExp(`^${sectionId}_percent_\\d+$`))) return 'value';
+    if (isMicronBarTextboxLayer(layer, sectionId)) return 'value';
     return null;
+  }
+
+  function isMicronBarTextboxLayer(layer, sectionId) {
+    if (!isTextLayer(layer)) return false;
+    const id = String(layer?.id || '').toLowerCase();
+    return id.match(new RegExp(`^${sectionId}_bar_percent_c\\d+_\\d+$`))
+      || (
+        layer?.microBarTextbox === true
+        && id.startsWith(`${sectionId}_`)
+      );
+  }
+
+  function micronBarTextboxColumnIndex(layer, sectionId) {
+    const match = String(layer?.id || '').toLowerCase().match(new RegExp(`^${sectionId}_bar_percent_c(\\d+)_\\d+$`));
+    return match ? Number(match[1]) - 1 : null;
   }
 
   function proConLayerKind(layer, sectionId) {
@@ -4619,7 +4638,7 @@
   function micronValueRevealAnchor(scene, sectionId, step, graphAnchor) {
     const barAnchor = micronTierRevealAnchor(scene, sectionId, step, graphAnchor);
     return clamp(
-      barAnchor + (MICRON_BAR_STAMP_REVEAL_SECONDS / Math.max(1, sceneContentDuration(scene))),
+      barAnchor + ((MICRON_BAR_STAMP_REVEAL_SECONDS + MICRON_VALUE_AFTER_BAR_SECONDS) / Math.max(1, sceneContentDuration(scene))),
       barAnchor,
       0.94
     );

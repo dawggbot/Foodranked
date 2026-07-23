@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260722-v2-food-image-manual-v1';
+  const BUILDER_BUILD_ID = '20260723-v2-tier-sprites-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
@@ -148,7 +148,20 @@
   const MACRO_BAR_GIF_FRAME_STEPS = 80;
   const MACRO_BAR_GIF_FINAL_HOLD_CENTISECONDS = 65535;
   const INTRO_RANKED_SPRITE_PATH = './sprites/ui/intro_&_outro/ranked.png';
-  const OUTRO_D_TIER_SPRITE_PATH = './sprites/ui/intro_&_outro/D_tier.png';
+  const OUTRO_TIER_SPRITE_PATHS = Object.freeze({
+    S: './sprites/ui/intro_&_outro/S_tier.png',
+    A: './sprites/ui/intro_&_outro/A_tier.png',
+    B: './sprites/ui/intro_&_outro/B_tier.png',
+    C: './sprites/ui/intro_&_outro/C_tier.png',
+    D: './sprites/ui/intro_&_outro/D_tier.png'
+  });
+  const OUTRO_TIER_GLOW_RGB = Object.freeze({
+    S: '255, 238, 154',
+    A: '112, 218, 255',
+    B: '124, 242, 167',
+    C: '246, 198, 95',
+    D: '255, 113, 113'
+  });
   const OUTRO_LIKE_SPRITE_PATH = './sprites/ui/intro_&_outro/like.png';
   const OUTRO_FOLLOW_SPRITE_PATH = './sprites/ui/intro_&_outro/follow.png';
   const OUTRO_SHARE_SPRITE_PATH = './sprites/ui/intro_&_outro/share.png';
@@ -162,12 +175,23 @@
   const OUTRO_CTA_STAMP_GAP_X = (OUTRO_TIER_STAMP_SIZE - (OUTRO_CTA_STAMP_SIZE * 3)) / 2;
   const OUTRO_CTA_STAMP_GAP_Y = 4;
   const OUTRO_CTA_STAMP_CENTER_Y = (OUTRO_TIER_STAMP_SIZE / 2) + OUTRO_CTA_STAMP_GAP_Y + (OUTRO_CTA_STAMP_SIZE / 2);
+  const OUTRO_TIER_STAMP_ID = 'outro_tier_stamp';
+  const OUTRO_TIER_STAMP_LEGACY_ID = 'outro_d_tier_stamp';
   const OUTRO_CTA_STAMP_ORDER = ['outro_like_stamp', 'outro_follow_stamp', 'outro_share_stamp'];
   const OUTRO_CTA_STAMP_IDS = new Set(OUTRO_CTA_STAMP_ORDER);
   const OUTRO_FINAL_REVEAL_STAMP_IDS = new Set([
-    'outro_d_tier_stamp',
+    OUTRO_TIER_STAMP_ID,
+    OUTRO_TIER_STAMP_LEGACY_ID,
     ...OUTRO_CTA_STAMP_ORDER
   ]);
+  const OUTRO_S_TIER_PREMIUM_GLIMMERS = [
+    { id: 'outro_s_tier_premium_glimmer_1', text: '*', offsetX: -36, offsetY: -33, size: 9, color: '#fff7b0', delay: 0.00 },
+    { id: 'outro_s_tier_premium_glimmer_2', text: '+', offsetX: 36, offsetY: -25, size: 8, color: '#ffffff', delay: 0.12 },
+    { id: 'outro_s_tier_premium_glimmer_3', text: '+', offsetX: -32, offsetY: 28, size: 8, color: '#7cf2a7', delay: 0.24 },
+    { id: 'outro_s_tier_premium_glimmer_4', text: '*', offsetX: 34, offsetY: 31, size: 10, color: '#fff7b0', delay: 0.36 },
+    { id: 'outro_s_tier_premium_glimmer_5', text: '*', offsetX: 0, offsetY: -42, size: 8, color: '#ffffff', delay: 0.18 },
+    { id: 'outro_s_tier_premium_glimmer_6', text: '+', offsetX: 42, offsetY: 4, size: 7, color: '#88d7ff', delay: 0.30 }
+  ];
   const OUTRO_CTA_WAVE_START_SECONDS = 0.18;
   const OUTRO_CTA_WAVE_STAGGER_SECONDS = 0.16;
   const OUTRO_CTA_WAVE_CYCLE_SECONDS = 1.05;
@@ -1343,10 +1367,11 @@
     return isSpriteLayer(layer) && (fingerprint.includes('/ui/section_indicator/') || fingerprint.includes('section indicator'));
   }
 
-  function isOutroTierStamp(layer) {
+  function isOutroFinalRevealStampLayer(layer) {
     const id = String(layer?.id || '').toLowerCase();
     if (OUTRO_FINAL_REVEAL_STAMP_IDS.has(id)) return true;
-    return String(layer?.effect || '').toLowerCase().includes('d-tier-stamp');
+    const effect = String(layer?.effect || '').toLowerCase();
+    return effect.includes('tier-stamp') || effect.includes('d-tier-stamp');
   }
 
   function outroCtaStampWaveIndex(layer) {
@@ -1356,7 +1381,7 @@
   }
 
   function isPersistentChrome(layer) {
-    if (isOutroTierStamp(layer)) return false;
+    if (isOutroFinalRevealStampLayer(layer)) return false;
     return isHeaderSprite(layer) || isHeaderText(layer) || isSectionIndicator(layer) || (isUiSprite(layer) && !isSectionIndicator(layer));
   }
 
@@ -2210,6 +2235,30 @@
     return food?.episode?.tier || food?.batchResult?.tier || food?.tier || food?.expectedTier || '';
   }
 
+  function normalizedTier(value) {
+    const normalized = String(value || '').trim().toUpperCase();
+    const match = normalized.match(/^([SABCD])(?:\s*TIER)?\.?$/);
+    const tier = match?.[1] || '';
+    return OUTRO_TIER_SPRITE_PATHS[tier] ? tier : '';
+  }
+
+  function outroTierForFood(food) {
+    return normalizedTier(scoreTier(food));
+  }
+
+  function outroTierSpritePath(tier) {
+    return OUTRO_TIER_SPRITE_PATHS[normalizedTier(tier)] || '';
+  }
+
+  function outroTierStampLabel(tier) {
+    const normalized = normalizedTier(tier);
+    return normalized ? `${normalized} tier verdict stamp` : 'Tier verdict stamp';
+  }
+
+  function outroTierGlowRgb(tier) {
+    return OUTRO_TIER_GLOW_RGB[normalizedTier(tier)] || OUTRO_TIER_GLOW_RGB.D;
+  }
+
   function formatScoreTally(food) {
     const score = scoreTally(food);
     return score == null ? 'N/A' : formatCompactNumber(score, 0);
@@ -2295,6 +2344,19 @@
     node.style.setProperty('--outro-score-glow-wide', style.wide);
   }
 
+  function applyTierStampNodeClasses(node, layer, food) {
+    if (!isOutroFinalRevealStampLayer(layer)) return;
+    const tier = normalizedTier(layer?.tier || scoreTier(food));
+    node.classList.add('tier-stamp');
+    if (tier) {
+      node.classList.add(`tier-stamp-${tier.toLowerCase()}`);
+      node.style.setProperty('--tier-stamp-glow-rgb', outroTierGlowRgb(tier));
+    }
+    if (tier === 'S' && layer?.stampRole === 'tier') {
+      node.classList.add('s-tier-premium-stamp');
+    }
+  }
+
   function outroCtaStampSpecs() {
     const stepX = OUTRO_CTA_STAMP_SIZE + OUTRO_CTA_STAMP_GAP_X;
     return [
@@ -2304,16 +2366,66 @@
     ];
   }
 
+  function syncOutroSTierPremiumVfxLayers(layers, tierLayer, tier) {
+    const visible = normalizedTier(tier) === 'S';
+    const baseWidth = Number(tierLayer?.width) || OUTRO_TIER_STAMP_SIZE;
+    const baseHeight = Number(tierLayer?.height) || OUTRO_TIER_STAMP_SIZE;
+    const baseX = Number(tierLayer?.x) || 28.5;
+    const baseY = Number(tierLayer?.y) || 62.5;
+    const baseCenterX = baseX + (baseWidth / 2);
+    const baseCenterY = baseY + (baseHeight / 2);
+    const useCenterAnchor = tierLayer?.centerAnchor === 'visible-canvas';
+    const baseOffsetX = Number(tierLayer?.centerOffsetX) || 0;
+    const baseOffsetY = Number(tierLayer?.centerOffsetY) || 0;
+    const baseZ = Number(tierLayer?.z) || 38;
+
+    OUTRO_S_TIER_PREMIUM_GLIMMERS.forEach((spec, index) => {
+      let layer = layers.find(item => item.id === spec.id);
+      if (!layer) {
+        layer = {
+          id: spec.id,
+          kind: 'text',
+          label: 'S tier premium sparkle',
+          text: spec.text
+        };
+        layers.push(layer);
+      }
+
+      layer.kind = 'text';
+      layer.label = 'S tier premium sparkle';
+      layer.text = spec.text;
+      layer.visible = visible;
+      layer.effect = 's-tier-premium-glimmer';
+      layer.color = spec.color;
+      layer.fontSize = spec.size;
+      layer.width = spec.size;
+      layer.height = spec.size;
+      layer.align = 'center';
+      layer.z = baseZ + 6 + index;
+      layer.animationDelay = `${spec.delay}s`;
+      if (useCenterAnchor) {
+        layer.centerAnchor = 'visible-canvas';
+        layer.centerOffsetX = baseOffsetX + spec.offsetX;
+        layer.centerOffsetY = baseOffsetY + spec.offsetY;
+      } else {
+        layer.centerAnchor = '';
+        layer.x = baseCenterX + spec.offsetX - (spec.size / 2);
+        layer.y = baseCenterY + spec.offsetY - (spec.size / 2);
+      }
+    });
+  }
+
   function ensureOutroTierStampLayer(layout, food) {
     const layers = getSectionLayers(layout, 'outro');
-    let layer = layers.find(item => item.id === 'outro_d_tier_stamp');
+    let layer = layers.find(item => item.id === OUTRO_TIER_STAMP_ID)
+      || layers.find(item => item.id === OUTRO_TIER_STAMP_LEGACY_ID);
     const hadExistingLayer = Boolean(layer);
     if (!layer) {
       layer = {
-        id: 'outro_d_tier_stamp',
+        id: OUTRO_TIER_STAMP_ID,
         kind: 'sprite',
-        label: 'D tier verdict stamp',
-        src: OUTRO_D_TIER_SPRITE_PATH,
+        label: 'Tier verdict stamp',
+        src: OUTRO_TIER_SPRITE_PATHS.D,
         x: 28.5,
         y: 62.5,
         z: 38,
@@ -2326,16 +2438,21 @@
         centerAnchor: 'visible-canvas',
         centerOffsetX: 0,
         centerOffsetY: 0,
-        effect: 'd-tier-stamp'
+        stampRole: 'tier',
+        effect: 'tier-stamp'
       };
       layers.push(layer);
     }
 
-    const tier = String(scoreTier(food)).trim().toUpperCase();
-    layer.src = OUTRO_D_TIER_SPRITE_PATH;
-    layer.label = 'D tier verdict stamp';
-    layer.visible = tier === 'D';
-    layer.effect = 'd-tier-stamp';
+    const tier = outroTierForFood(food);
+    const tierSpritePath = outroTierSpritePath(tier);
+    layer.id = OUTRO_TIER_STAMP_ID;
+    layer.src = tierSpritePath || OUTRO_TIER_SPRITE_PATHS.D;
+    layer.label = outroTierStampLabel(tier);
+    layer.visible = Boolean(tierSpritePath);
+    layer.tier = tier;
+    layer.stampRole = 'tier';
+    layer.effect = 'tier-stamp';
     if (layer.preserveAspect !== false) layer.preserveAspect = true;
     if (!Number.isFinite(Number(layer.x))) layer.x = 28.5;
     if (!Number.isFinite(Number(layer.y))) layer.y = 62.5;
@@ -2369,14 +2486,17 @@
           centerAnchor: 'visible-canvas',
           centerOffsetX: spec.centerOffsetX,
           centerOffsetY: OUTRO_CTA_STAMP_CENTER_Y,
-          effect: 'd-tier-stamp'
+          stampRole: 'cta',
+          effect: 'tier-stamp'
         };
         layers.push(ctaLayer);
       }
       ctaLayer.label = spec.label;
       ctaLayer.src = spec.src;
-      ctaLayer.visible = tier === 'D';
-      ctaLayer.effect = 'd-tier-stamp';
+      ctaLayer.visible = Boolean(tierSpritePath);
+      ctaLayer.tier = tier;
+      ctaLayer.stampRole = 'cta';
+      ctaLayer.effect = 'tier-stamp';
       ctaLayer.preserveAspect = true;
       ctaLayer.aspectRatio = 1;
       ctaLayer.width = OUTRO_CTA_STAMP_SIZE;
@@ -2386,6 +2506,7 @@
       ctaLayer.centerOffsetY = OUTRO_CTA_STAMP_CENTER_Y;
       ctaLayer.z = 39 + index;
     });
+    syncOutroSTierPremiumVfxLayers(layers, layer, tier);
   }
 
   function normalizeOutroScoreLayout(layout) {
@@ -3305,6 +3426,7 @@
       const effectClass = layer.effect ? ` ${String(layer.effect).replace(/[^a-z0-9_-]+/gi, '-')}` : '';
       node.className = `layer-node ${layer.kind}${layer.kind === 'text' ? ' pixel-text' : ''}${sectionIndicatorClass}${effectClass}`;
       node.removeAttribute('style');
+      applyTierStampNodeClasses(node, layer, food);
       if (layer.animationDelay != null) node.style.animationDelay = String(layer.animationDelay);
       node.dataset.renderKey = renderKey;
       node.dataset.layerId = layer.id || '';
@@ -3966,7 +4088,7 @@
 
   function shouldSuppressCaptionFrame(scene, frame) {
     if (scene?.id !== 'outro') return false;
-    if (String(scoreTier(selectedFood())).trim().toUpperCase() !== 'D') return false;
+    if (!outroTierSpritePath(scoreTier(selectedFood()))) return false;
     if (frame?.role === 'tier-reveal') return true;
     return frame?.placement === 'tier-center' && TIER_REVEAL_RE.test(subtitleOnlyCaptionText(frame?.chunk || ''));
   }
@@ -4646,7 +4768,7 @@
     if (persistent) return { family: 'chrome', kind: 'persistent' };
     if (sectionId === 'intro') return { family: 'intro', kind: introHookLayerKind(layer) || (isSpriteLayer(layer) ? 'sprite' : 'text') };
     if (sectionId === 'outro') {
-      if (isOutroTierStamp(layer) || String(layer?.id || '').toLowerCase() === 'outro_score_value' || /score|tier|verdict/.test(fingerprint)) {
+      if (isOutroFinalRevealStampLayer(layer) || String(layer?.id || '').toLowerCase() === 'outro_score_value' || /score|tier|verdict/.test(fingerprint)) {
         return { family: 'outro', kind: 'tier' };
       }
       return { family: 'outro', kind: isSpriteLayer(layer) ? 'frame' : 'summary' };
@@ -6280,7 +6402,7 @@
       && ['food-hero', 'ranked-glow', 'ranked-sprite'].includes(revealSchedule?.kind);
     const isOutroTierStamp = revealSchedule?.family === 'outro'
       && revealSchedule?.kind === 'tier'
-      && String(layer?.effect || '').includes('d-tier-stamp');
+      && isOutroFinalRevealStampLayer(layer);
     const isIntroRankedGlow = revealSchedule?.family === 'intro' && revealSchedule?.kind === 'ranked-glow';
     const outroCtaWaveIndex = isOutroTierStamp ? outroCtaStampWaveIndex(layer) : -1;
     const isOutroCtaWaveStamp = outroCtaWaveIndex >= 0;
@@ -6380,7 +6502,7 @@
     node.style.transform = `translate3d(calc(${x}px * var(--pixel-unit)), calc(${y}px * var(--pixel-unit)), 0) rotate(${totalRotation.toFixed(2)}deg) scale(${scale})${flip}`;
     if (clip) node.style.clipPath = clip;
     if ((isOutroTierStamp || isIntroRankedGlow) && stampImpactPulse > 0.02) {
-      const glowRgb = isOutroTierStamp ? '255, 113, 113' : '255, 244, 184';
+      const glowRgb = isOutroTierStamp ? outroTierGlowRgb(layer?.tier) : '255, 244, 184';
       node.style.filter = [
         `brightness(${(1.18 + stampImpactPulse * 0.48).toFixed(3)})`,
         `saturate(${(1.18 + stampImpactPulse * 0.38).toFixed(3)})`,

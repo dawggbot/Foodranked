@@ -544,15 +544,28 @@ h2 {
     drop-shadow(0 0 calc(14px * var(--pixel-unit)) rgba(255, 255, 255, 0.42));
 }
 
+.layer-node.sprite.tier-stamp,
 .layer-node.sprite.d-tier-stamp {
   filter:
     brightness(1.16)
     saturate(1.12)
     contrast(1.30)
     drop-shadow(0 0 calc(1px * var(--pixel-unit)) rgba(255, 255, 255, 0.90))
-    drop-shadow(0 0 calc(5px * var(--pixel-unit)) rgba(255, 113, 113, 0.52))
+    drop-shadow(0 0 calc(5px * var(--pixel-unit)) rgba(var(--tier-stamp-glow-rgb, 255, 113, 113), 0.52))
     drop-shadow(0 0 calc(11px * var(--pixel-unit)) rgba(255, 255, 255, 0.30))
     drop-shadow(calc(1px * var(--pixel-unit)) calc(1px * var(--pixel-unit)) 0 rgba(70, 0, 0, 0.54));
+}
+
+.layer-node.sprite.tier-stamp-s.s-tier-premium-stamp {
+  filter:
+    brightness(1.42)
+    saturate(1.38)
+    contrast(1.20)
+    drop-shadow(0 0 calc(1px * var(--pixel-unit)) rgba(255, 255, 255, 0.98))
+    drop-shadow(0 0 calc(5px * var(--pixel-unit)) rgba(255, 238, 154, 0.74))
+    drop-shadow(0 0 calc(10px * var(--pixel-unit)) rgba(0, 191, 165, 0.54))
+    drop-shadow(0 0 calc(16px * var(--pixel-unit)) rgba(255, 255, 255, 0.34))
+    drop-shadow(calc(1px * var(--pixel-unit)) calc(1px * var(--pixel-unit)) 0 rgba(0, 73, 64, 0.46));
 }
 
 .layer-node.text.ranked-glimmer {
@@ -600,6 +613,53 @@ h2 {
       drop-shadow(0 0 calc(6px * var(--pixel-unit)) rgba(255, 255, 255, 0.68))
       drop-shadow(0 0 calc(11px * var(--pixel-unit)) rgba(255, 244, 184, 0.42));
     color: #ffffff;
+  }
+}
+
+.layer-node.text.s-tier-premium-glimmer {
+  animation: s-tier-premium-glimmer 0.78s steps(4, end) infinite;
+  -webkit-text-stroke: 0 transparent;
+  filter:
+    brightness(1.46)
+    drop-shadow(0 0 calc(1px * var(--pixel-unit)) rgba(255, 247, 176, 0.94))
+    drop-shadow(0 0 calc(4px * var(--pixel-unit)) rgba(124, 242, 167, 0.62))
+    drop-shadow(0 0 calc(8px * var(--pixel-unit)) rgba(255, 255, 255, 0.42));
+  text-shadow:
+    0 0 calc(1px * var(--pixel-unit)) #fff8c9,
+    0 0 calc(4px * var(--pixel-unit)) rgba(255, 238, 154, 0.86),
+    0 0 calc(8px * var(--pixel-unit)) rgba(124, 242, 167, 0.50),
+    0 0 calc(13px * var(--pixel-unit)) rgba(255, 255, 255, 0.34);
+}
+
+@keyframes s-tier-premium-glimmer {
+  0%, 100% {
+    color: rgba(255, 248, 201, 0.52);
+    filter:
+      brightness(0.84)
+      drop-shadow(0 0 calc(1px * var(--pixel-unit)) rgba(255, 238, 154, 0.32));
+  }
+  25% {
+    color: #ffffff;
+    filter:
+      brightness(2.55)
+      drop-shadow(0 0 calc(1px * var(--pixel-unit)) rgba(255, 247, 176, 0.98))
+      drop-shadow(0 0 calc(5px * var(--pixel-unit)) rgba(255, 255, 255, 0.86))
+      drop-shadow(0 0 calc(10px * var(--pixel-unit)) rgba(124, 242, 167, 0.58));
+  }
+  50% {
+    color: #fff8c9;
+    filter:
+      brightness(1.20)
+      drop-shadow(0 0 calc(1px * var(--pixel-unit)) rgba(255, 238, 154, 0.58))
+      drop-shadow(0 0 calc(3px * var(--pixel-unit)) rgba(124, 242, 167, 0.30));
+  }
+  75% {
+    color: #ffffff;
+    filter:
+      brightness(2.10)
+      drop-shadow(0 0 calc(1px * var(--pixel-unit)) rgba(255, 247, 176, 0.92))
+      drop-shadow(0 0 calc(6px * var(--pixel-unit)) rgba(255, 255, 255, 0.68))
+      drop-shadow(0 0 calc(11px * var(--pixel-unit)) rgba(0, 191, 165, 0.42));
   }
 }
 

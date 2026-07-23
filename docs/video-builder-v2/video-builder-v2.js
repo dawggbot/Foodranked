@@ -4616,6 +4616,15 @@
     );
   }
 
+  function micronValueRevealAnchor(scene, sectionId, step, graphAnchor) {
+    const barAnchor = micronTierRevealAnchor(scene, sectionId, step, graphAnchor);
+    return clamp(
+      barAnchor + (MICRON_BAR_STAMP_REVEAL_SECONDS / Math.max(1, sceneContentDuration(scene))),
+      barAnchor,
+      0.94
+    );
+  }
+
   function isMacroHeadRevealSchedule(schedule) {
     return schedule?.family === 'macro'
       && ['icon', 'bar-frame', 'bar-fill', 'macro-label'].includes(schedule?.kind);
@@ -4692,7 +4701,7 @@
         return graphAnchor;
       }
       if (classification.kind === 'value') {
-        return micronTierRevealAnchor(
+        return micronValueRevealAnchor(
           scene,
           sectionId,
           micronStepForColumn(sectionId, classification.columnIndex) || 1,

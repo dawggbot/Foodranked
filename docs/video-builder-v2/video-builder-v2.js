@@ -1390,6 +1390,17 @@
     }, 0);
   }
 
+  function maxVisibleMicronBarStep(sectionId, layers = []) {
+    if (sectionId !== 'vitamins' && sectionId !== 'minerals') return 0;
+    return layers
+      .filter(layer => layer?.visible !== false && isMicrosBar(layer))
+      .reduce((maxStep, layer) => {
+        const percent = microsBarPercent(layer);
+        const step = percent == null ? 0 : clamp(Math.round(percent / 10), 1, 10);
+        return Math.max(maxStep, step);
+      }, 0);
+  }
+
   function sectionNarrationDelaySeconds(sectionId, food = selectedFood()) {
     if (['fats', 'carbs', 'protein'].includes(sectionId)) {
       return Number((macroSubmacroRevealDelaySeconds(sectionId, food) + SECTION_NARRATION_AFTER_REVEAL_PAD_SECONDS).toFixed(3));
@@ -4535,6 +4546,13 @@
       );
   }
 
+  function micronBarTextboxPercent(layer, sectionId) {
+    const fingerprint = `${layer?.id || ''} ${layer?.label || ''}`.toLowerCase();
+    const match = fingerprint.match(new RegExp(`${sectionId}_bar_percent_c\\d+_(\\d+)`))
+      || fingerprint.match(/\b(\d+)%\s*bar textbox\b/);
+    return match ? Number(match[1]) : null;
+  }
+
   function micronBarTextboxColumnIndex(layer, sectionId) {
     const match = String(layer?.id || '').toLowerCase().match(new RegExp(`^${sectionId}_bar_percent_c(\\d+)_\\d+$`));
     return match ? Number(match[1]) - 1 : null;
@@ -4604,7 +4622,9 @@
           family: 'micron',
           kind: micronTextKind(layer, sectionId) || (isMicrosBar(layer) ? 'dv-bar' : isMicronBarLine(layer) ? 'bar-line' : isMicronIconLayer(layer, sectionId) ? 'icon' : 'column'),
           columnIndex,
-          percent: microsBarPercent(layer)
+          percent: isMicronBarTextboxLayer(layer, sectionId)
+            ? micronBarTextboxPercent(layer, sectionId)
+            : microsBarPercent(layer)
         };
       }
       return { family: 'micron', kind: isMicronBarLine(layer) ? 'bar-line' : 'decor' };
@@ -4625,8 +4645,8 @@
     return clamp(start + ((order / Math.max(1, count - 1)) * (end - start)), start, end);
   }
 
-  function micronTierRevealAnchor(scene, sectionId, step, graphAnchor) {
-    const maxStep = Math.max(1, maxMicronStepForSection(sectionId));
+  function micronTierRevealAnchor(scene, sectionId, step, graphAnchor, maxStepOverride = null) {
+    const maxStep = Math.max(1, asNumber(maxStepOverride, null) ?? maxMicronStepForSection(sectionId));
     const safeStep = clamp(step || 1, 1, maxStep);
     return clamp(
       graphAnchor + ((MICRON_BAR_AFTER_GRAPH_SECONDS + ((safeStep - 1) * MICRON_BAR_STEP_SECONDS)) / sceneContentDuration(scene)),
@@ -4635,8 +4655,8 @@
     );
   }
 
-  function micronValueRevealAnchor(scene, sectionId, step, graphAnchor) {
-    const barAnchor = micronTierRevealAnchor(scene, sectionId, step, graphAnchor);
+  function micronValueRevealAnchor(scene, sectionId, step, graphAnchor, maxStepOverride = null) {
+    const barAnchor = micronTierRevealAnchor(scene, sectionId, step, graphAnchor, maxStepOverride);
     return clamp(
       barAnchor + ((MICRON_BAR_STAMP_REVEAL_SECONDS + MICRON_VALUE_AFTER_BAR_SECONDS) / Math.max(1, sceneContentDuration(scene))),
       barAnchor,
@@ -4669,7 +4689,7 @@
     return clamp((rankedStartSeconds + INTRO_RANKED_WORD_LEAD_SECONDS) / sceneContentDuration(scene), 0.005, 0.94);
   }
 
-  function revealAnchorForLayer(layer, scene, classification, timing, index = 0) {
+  function revealAnchorForLayer(layer, scene, classification, timing, index = 0, allLayers = []) {
     const sectionId = scene?.id || '';
     const segments = timing.sentences || sceneTimedSentences(scene);
     const secondsAnchor = seconds => clamp(seconds / sceneContentDuration(scene), 0.005, 0.94);
@@ -4708,10 +4728,11 @@
 
     if (sectionId === 'vitamins' || sectionId === 'minerals') {
       const graphAnchor = secondsAnchor(MICRON_GRAPH_REVEAL_SECONDS);
+      const visibleBarMaxStep = maxVisibleMicronBarStep(sectionId, allLayers);
       if (classification.kind === 'title') return graphAnchor;
       if (classification.kind === 'dv-bar') {
         const barStep = clamp(Math.round((asNumber(classification.percent, 10) || 10) / 10), 1, 10);
-        return micronTierRevealAnchor(scene, sectionId, barStep, graphAnchor);
+        return micronTierRevealAnchor(scene, sectionId, barStep, graphAnchor, visibleBarMaxStep);
       }
       if (classification.kind === 'label') {
         return graphAnchor;
@@ -4720,11 +4741,14 @@
         return graphAnchor;
       }
       if (classification.kind === 'value') {
+        const textBarStep = clamp(Math.round((asNumber(classification.percent, 0) || 0) / 10), 0, 10);
+        const valueStep = textBarStep || micronStepForColumn(sectionId, classification.columnIndex) || 1;
         return micronValueRevealAnchor(
           scene,
           sectionId,
-          micronStepForColumn(sectionId, classification.columnIndex) || 1,
-          graphAnchor
+          valueStep,
+          graphAnchor,
+          Math.max(visibleBarMaxStep, valueStep)
         );
       }
       return graphAnchor;
@@ -4744,7 +4768,7 @@
   function layerRevealSchedule(layer, scene, index, persistent, allLayers = []) {
     const timing = sceneTimingModel(scene);
     const classification = layerRevealClassification(layer, scene, persistent, allLayers);
-    let anchor = persistent ? 0 : revealAnchorForLayer(layer, scene, classification, timing, index);
+    let anchor = persistent ? 0 : revealAnchorForLayer(layer, scene, classification, timing, index, allLayers);
     let offset = 0;
 
     if (classification.family === 'intro') {

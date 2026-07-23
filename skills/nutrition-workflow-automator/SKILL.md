@@ -1,6 +1,6 @@
 ---
-name: nutrition-workflow-automator
-description: Build FoodRanked production workflows for narration, subtitles, episode outputs, website data, exports, and publishing ops.
+name: "nutrition-workflow-automator"
+description: "Handle FoodRanked ElevenLabs random voice selection while keeping generation settings fixed."
 ---
 
 # Nutrition Workflow Automator
@@ -44,6 +44,32 @@ Future FoodRanked scripts should follow the approved Kale direction:
 - Every macro and micronutrient section should end with a quick food-type summary explaining why the scores mentioned in that section matter to that food category.
 - Avoid awkward connective phrasing such as `main pitch`, `low risk is good`, `reason to exist`, `nutrition load`, `lives or dies`, `less automatic`, and `not universal`.
 - Prefer direct alternatives such as `not the main thing`, `not a big deal`, `easy to work with`, `harder to enjoy raw`, `not for everyone`, `some people just do not like the taste`, and `helps fill out a meal without many calories`.
+
+## ElevenLabs Voice Generation
+
+Use `config/elevenlabs-voice-settings.v1.json` as the source of truth for all FoodRanked ElevenLabs generation.
+
+Keep these generation settings fixed unless James explicitly changes them:
+
+- model: `eleven_multilingual_v2`
+- output: `mp3_44100_128`
+- stability: `0.5`
+- similarity boost: `0.75`
+- style: `0.1`
+- speaker boost: `true`
+- speed: `1.1`
+
+Treat the voice as the normal per-video variable. Default to the generator's `random_suitable` selection mode for new narration unless James pins a voice. The selected voice should be clear, not silly sounding, relatively professional, English-capable, and okay with accents as long as they are not very strong.
+
+When generating audio:
+
+- Use `node scripts/foodranked-generate-voice.js <food-id> --take <voice-vN> --split-blocks` for the current split-block workflow.
+- Use `--dry-run` first when checking which voice will be picked without spending generation credits.
+- Use `--list-suitable-voices` when auditing the current ElevenLabs voice pool.
+- Use `--profile <id>` or `--voice-id <id>` only when a specific voice needs to be pinned.
+- Do not copy voice-specific settings from ElevenLabs voices into FoodRanked generation settings. Only the voice id and label should vary.
+- Keep `ELEVENLABS_API_KEY` in local `.env.local` or GitHub Actions secrets, never in committed files.
+- If the random picker cannot find a suitable voice, fall back to the known Eryn profile rather than picking a weak or gimmicky voice.
 
 ## Automation rules
 

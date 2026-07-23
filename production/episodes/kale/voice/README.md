@@ -7,3 +7,9 @@ Suggested notes to track:
 - speed
 - delivery style
 - retake notes
+
+## Current take
+
+- `voice-v1` split blocks use ElevenLabs `Adam - Dominant, Firm` (`pNInz6obpgDQGcFmaJgB`).
+- Generation keeps the fixed FoodRanked settings from `config/elevenlabs-voice-settings.v1.json`.
+- Forced alignment lives at `outputs/episodes/kale-compact/voice-v1-blocks-forced-alignment.json`.

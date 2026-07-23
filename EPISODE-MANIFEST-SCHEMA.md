@@ -111,9 +111,11 @@ Fields:
 - `selectionMode`
 - `stampImpact.path`
 - `sectionTransition.path`
+- optional `sectionTransition.volume`
 - `highlightGlow.path`
 
 Paths are browser-facing `audio/sfx/...` paths. The matching source file should live under `audio/sfx/...`, and any file loaded by the builder must also be mirrored under `docs/audio/sfx/...`.
+`sectionTransition.volume` is a 0 to 1 browser audio volume override for quieter transition files.
 
 ## `scenePlan`
 

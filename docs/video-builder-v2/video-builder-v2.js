@@ -787,12 +787,21 @@
     return fallbackPath;
   }
 
+  function sfxProfileRole(role, food = selectedFood()) {
+    const value = sfxProfileForFood(food)?.[role];
+    return value && typeof value === 'object' ? value : null;
+  }
+
   function stampSfxPath(food = selectedFood()) {
     return sfxProfilePath('stampImpact', STAMP_SFX_PATH, food);
   }
 
   function sectionTransitionSfxPath(food = selectedFood()) {
     return sfxProfilePath('sectionTransition', SECTION_TRANSITION_SFX_PATH, food);
+  }
+
+  function sectionTransitionSfxVolume(food = selectedFood()) {
+    return clamp(asNumber(sfxProfileRole('sectionTransition', food)?.volume, SECTION_TRANSITION_SFX_VOLUME), 0, 1);
   }
 
   function highlightGlowSfxPath(food = selectedFood()) {
@@ -5480,6 +5489,7 @@
 
   function nextTransitionSfxAudio() {
     const path = sectionTransitionSfxPath();
+    const volume = sectionTransitionSfxVolume();
     if (state.transitionSfxPath && state.transitionSfxPath !== path) {
       pauseTransitionSfx();
       state.transitionSfxPool = [];
@@ -5489,13 +5499,14 @@
       state.transitionSfxPool = Array.from({ length: SECTION_TRANSITION_SFX_POOL_SIZE }, () => {
         const audio = new Audio(docsAssetPath(path));
         audio.preload = 'auto';
-        audio.volume = SECTION_TRANSITION_SFX_VOLUME;
+        audio.volume = volume;
         return audio;
       });
       state.transitionSfxPath = path;
     }
     const audio = state.transitionSfxPool[state.transitionSfxPoolIndex % state.transitionSfxPool.length];
     state.transitionSfxPoolIndex += 1;
+    audio.volume = volume;
     return audio;
   }
 
@@ -5505,7 +5516,7 @@
     try {
       audio.pause();
       audio.currentTime = 0;
-      audio.volume = SECTION_TRANSITION_SFX_VOLUME;
+      audio.volume = sectionTransitionSfxVolume();
       const playPromise = audio.play();
       if (playPromise?.catch) playPromise.catch(() => {});
     } catch {}

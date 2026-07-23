@@ -167,7 +167,7 @@ audio/sfx/stamps/impact_stamp_hit.mp3
 docs/audio/sfx/stamps/impact_stamp_hit.mp3
 ```
 
-Food entries may override reusable SFX through `episode.sfxProfile`. Video Builder v2 should use `stampImpact.path`, `sectionTransition.path`, and `highlightGlow.path` from that profile when present, then fall back to the default constants. The paths are browser-facing `audio/sfx/...` paths and must have matching mirrors under `docs/audio/sfx/...`.
+Food entries may override reusable SFX through `episode.sfxProfile`. Video Builder v2 should use `stampImpact.path`, `sectionTransition.path`, and `highlightGlow.path` from that profile when present, then fall back to the default constants. `sectionTransition.volume` may lift quieter transition files. The paths are browser-facing `audio/sfx/...` paths and must have matching mirrors under `docs/audio/sfx/...`.
 
 The video builder plays this slightly before the stamp impact point so the hit is audible as the sprite lands. The outro stamp SFX is allowed to finish even when playback naturally reaches the end of the timeline.
 

@@ -23,7 +23,7 @@ Files that the GitHub Pages video builder must load should be mirrored under `do
 
 For example:
 
-- source SFX: `audio/sfx/stamps/heavy-stamp-01.wav`
-- docs mirror: `docs/audio/sfx/stamps/heavy-stamp-01.wav`
+- source SFX: `audio/sfx/stamps/heavy_stamp_01.wav`
+- docs mirror: `docs/audio/sfx/stamps/heavy_stamp_01.wav`
 
-Keep filenames lowercase with hyphens, and prefer short descriptive names.
+Keep filenames lowercase with snake_case, and prefer short descriptive names.

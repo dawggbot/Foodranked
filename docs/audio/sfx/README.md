@@ -8,26 +8,26 @@ Source files should live under:
 audio/sfx/
 ```
 
-Browser-ready files should use stable lowercase names and paths that can be referenced from generated data or builder configuration.
+Browser-ready files should use stable lowercase snake_case names and paths that can be referenced from generated data or builder configuration.
 
 Current stamp mirrors:
 
-- `stamps/impact-stamp-hit.mp3`
-- `stamps/traditional-stamp-hit.mp3`
+- `stamps/impact_stamp_hit.mp3`
+- `stamps/traditional_stamp_hit.mp3`
 
 Current transition mirror:
 
-- `transitions/section-transition-whoosh.mp3`
+- `transitions/section_transition_whoosh.mp3`
 
 Current UI mirrors:
 
-- `ui/highlight-glow-loop.mp3`
+- `ui/highlight_glow_loop.mp3`
 
 Current section mirrors:
 
-- `sections/macros/macro-bar-fill-highscore.mp3`
-- `sections/microns/micron-bar-confirm-tap.mp3`
-- `sections/microns/micron-100-firework-lead-pop.mp3`
-- `sections/microns/micron-100-firework-cluster.mp3`
-- `sections/pros/major-pro-sparkle-shine.mp3`
-- `sections/cons/major-con-siren-buzzer.mp3`
+- `sections/macros/macro_bar_fill_highscore.mp3`
+- `sections/microns/micron_bar_confirm_tap.mp3`
+- `sections/microns/micron_100_firework_lead_pop.mp3`
+- `sections/microns/micron_100_firework_cluster.mp3`
+- `sections/pros/major_pro_sparkle_shine.mp3`
+- `sections/cons/major_con_siren_buzzer.mp3`

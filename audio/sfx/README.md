@@ -14,9 +14,9 @@ Recommended formats:
 - `wav` for source/master files
 - `mp3` or `ogg` for browser-preview mirrors under `docs/audio/sfx/`
 
-Naming examples:
+Naming examples use snake_case to match the sprite asset names:
 
-- `heavy-stamp-01.wav`
-- `sections/pros/major-pro-sparkle-shine.mp3`
-- `sections/microns/micron-100-firework-cluster.mp3`
-- `tier-reveal-hit-01.wav`
+- `heavy_stamp_01.wav`
+- `sections/pros/major_pro_sparkle_shine.mp3`
+- `sections/microns/micron_100_firework_cluster.mp3`
+- `tier_reveal_hit_01.wav`

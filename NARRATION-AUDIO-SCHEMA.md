@@ -249,6 +249,6 @@ When the video builder needs to load a reusable sound in the browser, mirror the
 Current mirrored stamp SFX:
 
 ```text
-audio/sfx/stamps/impact-stamp-hit.mp3
-docs/audio/sfx/stamps/impact-stamp-hit.mp3
+audio/sfx/stamps/impact_stamp_hit.mp3
+docs/audio/sfx/stamps/impact_stamp_hit.mp3
 ```

@@ -11,5 +11,5 @@ Short, punchy files work best because the visual stamp pulse is quick and should
 
 Current files:
 
-- `impact-stamp-hit.mp3`
-- `traditional-stamp-hit.mp3`
+- `impact_stamp_hit.mp3`
+- `traditional_stamp_hit.mp3`

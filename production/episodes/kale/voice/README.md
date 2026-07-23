@@ -10,6 +10,7 @@ Suggested notes to track:
 
 ## Current take
 
-- `voice-v1` split blocks use ElevenLabs `Adam - Dominant, Firm` (`pNInz6obpgDQGcFmaJgB`).
+- `voice-v2` split blocks use ElevenLabs `Adam - Dominant, Firm` (`pNInz6obpgDQGcFmaJgB`).
+- `voice-v2` regenerates the opener block with calmer punctuation (`Kale.`) to avoid Adam adding an extra vowel after the food name.
 - Generation keeps the fixed FoodRanked settings from `config/elevenlabs-voice-settings.v1.json`.
-- Forced alignment lives at `outputs/episodes/kale-compact/voice-v1-blocks-forced-alignment.json`.
+- Forced alignment lives at `outputs/episodes/kale-compact/voice-v2-blocks-forced-alignment.json`.

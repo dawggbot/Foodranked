@@ -79,6 +79,7 @@
   const STAMP_SFX_POOL_SIZE = 4;
   const SECTION_TRANSITION_SFX_PATH = 'audio/sfx/transitions/section_transition_whoosh.mp3';
   const SECTION_TRANSITION_SFX_VOLUME = 0.22;
+  const SECTION_TRANSITION_SFX_MAX_VOLUME = 2;
   const SECTION_TRANSITION_SFX_POOL_SIZE = 3;
   const MICRON_BAR_CONFIRM_SFX_PATH = 'audio/sfx/sections/microns/micron_bar_confirm_tap.mp3';
   const MICRON_BAR_CONFIRM_SFX_VOLUME = 0.22;
@@ -370,6 +371,11 @@
     transitionSfxPool: [],
     transitionSfxPoolIndex: 0,
     transitionSfxPath: '',
+    transitionSfxAudioContext: null,
+    transitionSfxBuffer: null,
+    transitionSfxBufferPath: '',
+    transitionSfxBufferPromise: null,
+    transitionSfxSources: new Set(),
     playedTransitionSfxKeys: new Set(),
     micronBarConfirmSfxPool: [],
     micronBarConfirmSfxPoolIndex: 0,
@@ -801,7 +807,11 @@
   }
 
   function sectionTransitionSfxVolume(food = selectedFood()) {
-    return clamp(asNumber(sfxProfileRole('sectionTransition', food)?.volume, SECTION_TRANSITION_SFX_VOLUME), 0, 1);
+    return clamp(
+      asNumber(sfxProfileRole('sectionTransition', food)?.volume, SECTION_TRANSITION_SFX_VOLUME),
+      0,
+      SECTION_TRANSITION_SFX_MAX_VOLUME
+    );
   }
 
   function highlightGlowSfxPath(food = selectedFood()) {
@@ -5494,35 +5504,132 @@
       pauseTransitionSfx();
       state.transitionSfxPool = [];
       state.transitionSfxPoolIndex = 0;
+      state.transitionSfxBuffer = null;
+      state.transitionSfxBufferPath = '';
+      state.transitionSfxBufferPromise = null;
     }
     if (!state.transitionSfxPool.length) {
       state.transitionSfxPool = Array.from({ length: SECTION_TRANSITION_SFX_POOL_SIZE }, () => {
         const audio = new Audio(docsAssetPath(path));
         audio.preload = 'auto';
-        audio.volume = volume;
+        audio.volume = Math.min(volume, 1);
         return audio;
       });
       state.transitionSfxPath = path;
     }
     const audio = state.transitionSfxPool[state.transitionSfxPoolIndex % state.transitionSfxPool.length];
     state.transitionSfxPoolIndex += 1;
-    audio.volume = volume;
+    audio.volume = Math.min(volume, 1);
     return audio;
   }
 
-  function playTransitionSfx(event) {
+  function ensureTransitionSfxAudioContext() {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return null;
+    if (!state.transitionSfxAudioContext) state.transitionSfxAudioContext = new AudioContextClass();
+    if (state.transitionSfxAudioContext.state === 'suspended') {
+      state.transitionSfxAudioContext.resume().catch(() => {});
+    }
+    return state.transitionSfxAudioContext;
+  }
+
+  function transitionSfxBufferPromise(path = sectionTransitionSfxPath()) {
+    if (state.transitionSfxBufferPath !== path) {
+      state.transitionSfxBuffer = null;
+      state.transitionSfxBufferPromise = null;
+      state.transitionSfxBufferPath = path;
+    }
+    if (state.transitionSfxBuffer && state.transitionSfxBufferPath === path) return Promise.resolve(state.transitionSfxBuffer);
+    if (state.transitionSfxBufferPromise && state.transitionSfxBufferPath === path) return state.transitionSfxBufferPromise;
+    const context = ensureTransitionSfxAudioContext();
+    if (!context) return null;
+    state.transitionSfxBufferPromise = fetch(docsAssetPath(path))
+      .then(response => {
+        if (!response.ok) throw new Error(`Transition SFX fetch failed: ${response.status}`);
+        return response.arrayBuffer();
+      })
+      .then(buffer => context.decodeAudioData(buffer.slice(0)))
+      .then(decoded => {
+        if (state.transitionSfxBufferPath === path) state.transitionSfxBuffer = decoded;
+        return decoded;
+      })
+      .catch(error => {
+        if (state.transitionSfxBufferPath === path) {
+          state.transitionSfxBuffer = null;
+          state.transitionSfxBufferPromise = null;
+        }
+        throw error;
+      });
+    return state.transitionSfxBufferPromise;
+  }
+
+  function primeTransitionSfx() {
+    if (!state.audioEnabled || sectionTransitionSfxVolume() <= 1) return;
+    const promise = transitionSfxBufferPromise();
+    if (promise?.catch) promise.catch(() => {});
+  }
+
+  function playTransitionHtmlSfx(event) {
     if (!state.audioEnabled || !event) return;
     const audio = nextTransitionSfxAudio();
     try {
       audio.pause();
       audio.currentTime = 0;
-      audio.volume = sectionTransitionSfxVolume();
+      audio.volume = Math.min(sectionTransitionSfxVolume(), 1);
       const playPromise = audio.play();
       if (playPromise?.catch) playPromise.catch(() => {});
     } catch {}
   }
 
+  function playTransitionWebAudioSfx(event) {
+    const path = sectionTransitionSfxPath();
+    const volume = sectionTransitionSfxVolume();
+    const context = ensureTransitionSfxAudioContext();
+    const promise = context ? transitionSfxBufferPromise(path) : null;
+    if (!context || !promise) {
+      playTransitionHtmlSfx(event);
+      return;
+    }
+    if (!state.transitionSfxBuffer || state.transitionSfxBufferPath !== path) {
+      promise.catch(() => {});
+      playTransitionHtmlSfx(event);
+      return;
+    }
+    promise
+      .then(buffer => {
+        if (!state.audioEnabled || !state.playing) return;
+        const source = context.createBufferSource();
+        const gain = context.createGain();
+        source.buffer = buffer;
+        gain.gain.value = volume;
+        source.connect(gain).connect(context.destination);
+        state.transitionSfxSources.add(source);
+        source.onended = () => {
+          state.transitionSfxSources.delete(source);
+        };
+        source.start(0);
+      })
+      .catch(() => {
+        playTransitionHtmlSfx(event);
+      });
+  }
+
+  function playTransitionSfx(event) {
+    if (!state.audioEnabled || !event) return;
+    if (sectionTransitionSfxVolume() > 1) {
+      playTransitionWebAudioSfx(event);
+      return;
+    }
+    playTransitionHtmlSfx(event);
+  }
+
   function pauseTransitionSfx() {
+    for (const source of state.transitionSfxSources || []) {
+      try {
+        source.stop();
+      } catch {}
+    }
+    state.transitionSfxSources.clear();
     for (const audio of state.transitionSfxPool || []) {
       try {
         audio.pause();
@@ -6334,6 +6441,7 @@
     state.playedMajorConSirenSfxKeys = new Set();
     state.playedBarFillSfxKeys = new Set();
     els.playPause.textContent = 'Pause';
+    primeTransitionSfx();
     primeBarFillSfx();
     syncAudioPlaybackState();
     requestAnimationFrame(tick);

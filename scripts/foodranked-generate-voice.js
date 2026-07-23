@@ -223,6 +223,20 @@ function narrationBlockDescriptors(sourcePath, text) {
   });
 }
 
+function finalRevealTtsOverride(block) {
+  if (String(block?.kind || '').toLowerCase() !== 'final_reveal') return null;
+  if (!/^s\s+tier[.!]?$/i.test(String(block?.text || '').trim())) return null;
+  return {
+    ttsText: 'Ess tier!',
+    pronunciationNote: 'TTS uses "Ess tier!" so the letter S is spoken clearly while display text stays "S tier.".',
+    reason: 'Spell out the letter S sound so it does not get clipped or blend into tier.'
+  };
+}
+
+function ttsTextForBlock(block) {
+  return finalRevealTtsOverride(block)?.ttsText || block.text;
+}
+
 function apiErrorMessage(status, bodyText) {
   try {
     const body = JSON.parse(bodyText);
@@ -662,7 +676,9 @@ async function generateSplitBlockSpeech({
   for (const block of blocks) {
     const outputFile = path.join(productionBlocksDir, `${block.id}.mp3`);
     const blockTextHash = sha256(block.text);
-    const result = await generateSpeech({ apiKey, profile, text: block.text, outputFile });
+    const ttsText = ttsTextForBlock(block);
+    const ttsOverride = ttsText !== block.text ? finalRevealTtsOverride(block) : null;
+    const result = await generateSpeech({ apiKey, profile, text: ttsText, outputFile });
     generatedBlocks.push({
       id: block.id,
       index: block.index,
@@ -676,7 +692,12 @@ async function generateSplitBlockSpeech({
       elevenLabs: {
         requestId: result.requestId,
         historyItemId: result.historyItemId
-      }
+      },
+      ...(ttsOverride ? {
+        ttsText,
+        ttsTextSha256: sha256(ttsText),
+        pronunciationNote: ttsOverride.pronunciationNote
+      } : {})
     });
   }
 
@@ -703,7 +724,15 @@ async function generateSplitBlockSpeech({
     audioDirectory: relativeRepoPath(productionBlocksDir),
     audioManifestFile: relativeRepoPath(metadataFile),
     blocks: generatedBlocks,
-    mirrors: []
+    mirrors: [],
+    pronunciationOverrides: generatedBlocks
+      .filter(block => block.ttsText && block.ttsText !== block.text)
+      .map(block => ({
+        blockId: block.id,
+        displayText: block.text,
+        ttsText: block.ttsText,
+        reason: finalRevealTtsOverride(block)?.reason || 'Use pronunciation-safe TTS text while keeping display text unchanged.'
+      }))
   };
 
   writeJson(metadataFile, metadata);
@@ -838,6 +867,18 @@ async function main() {
   const settingsHash = sha256(JSON.stringify(settingsForHash));
 
   if (options.dryRun) {
+    const dryRunBlocks = options.splitBlocks ? narrationBlockDescriptors(sourcePath, text) : [];
+    const pronunciationOverrides = dryRunBlocks
+      .map(block => {
+        const override = finalRevealTtsOverride(block);
+        return override ? {
+          blockId: block.id,
+          displayText: block.text,
+          ttsText: override.ttsText,
+          reason: override.reason
+        } : null;
+      })
+      .filter(Boolean);
     console.log(JSON.stringify({
       status: 'dry-run',
       foodId,
@@ -852,7 +893,11 @@ async function main() {
       outputFormat: profile.outputFormat,
       voiceSettings: profile.voiceSettings,
       settingsSha256: settingsHash,
-      randomCandidateCount: candidates ? candidates.length : null
+      randomCandidateCount: candidates ? candidates.length : null,
+      ...(options.splitBlocks ? {
+        blockCount: dryRunBlocks.length,
+        pronunciationOverrides
+      } : {})
     }, null, 2));
     return;
   }

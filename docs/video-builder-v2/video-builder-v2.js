@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260723-v2-stamp-sfx-polish-v2';
+  const BUILDER_BUILD_ID = '20260723-v2-stamp-sfx-volume-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
@@ -71,8 +71,8 @@
   const FOOD_STAMP_REVEAL_SECONDS = 0.22;
   const STAMP_SHAKE_MAX_PIXELS = 2.8;
   const STAMP_SFX_PATH = 'audio/sfx/stamps/impact_stamp_hit.mp3';
-  const STAMP_SFX_VOLUME = 0.74;
-  const STAMP_SFX_VOLUME_VARIATION = 0.07;
+  const STAMP_SFX_VOLUME = 1.5;
+  const STAMP_SFX_VOLUME_VARIATION = 0;
   const STAMP_SFX_PLAYBACK_RATE_RANGE = { min: 0.56, max: 0.68 };
   const STAMP_SFX_START_OFFSET_RANGE_SECONDS = { min: 0, max: 0.045 };
   const STAMP_SFX_LEAD_SECONDS = 0.1;
@@ -395,6 +395,11 @@
     stampSfxPool: [],
     stampSfxPoolIndex: 0,
     stampSfxPath: '',
+    stampSfxAudioContext: null,
+    stampSfxBuffer: null,
+    stampSfxBufferPath: '',
+    stampSfxBufferPromise: null,
+    stampSfxSources: new Set(),
     playedStampSfxKeys: new Set(),
     sTierStampSfxPool: [],
     sTierStampSfxPoolIndex: 0,
@@ -5576,12 +5581,15 @@
       pauseStampSfx();
       state.stampSfxPool = [];
       state.stampSfxPoolIndex = 0;
+      state.stampSfxBuffer = null;
+      state.stampSfxBufferPath = '';
+      state.stampSfxBufferPromise = null;
     }
     if (!state.stampSfxPool.length) {
       state.stampSfxPool = Array.from({ length: STAMP_SFX_POOL_SIZE }, () => {
         const audio = new Audio(docsAssetPath(path));
         audio.preload = 'auto';
-        audio.volume = STAMP_SFX_VOLUME;
+        audio.volume = Math.min(STAMP_SFX_VOLUME, 1);
         return audio;
       });
       state.stampSfxPath = path;
@@ -5596,19 +5604,19 @@
     return STAMP_SFX_PLAYBACK_RATE_RANGE.min + (Math.random() * range);
   }
 
-  function randomStampSfxVolume() {
-    return clamp(
-      STAMP_SFX_VOLUME + ((Math.random() * 2 - 1) * STAMP_SFX_VOLUME_VARIATION),
-      0,
-      1
-    );
+  function randomStampSfxVolume({ clampForElement = true } = {}) {
+    const volume = Math.max(0, STAMP_SFX_VOLUME + ((Math.random() * 2 - 1) * STAMP_SFX_VOLUME_VARIATION));
+    return clampForElement ? Math.min(volume, 1) : volume;
   }
 
-  function randomStampSfxStartOffset(audio) {
+  function randomStampSfxStartOffset(audioOrDuration = null) {
     const min = STAMP_SFX_START_OFFSET_RANGE_SECONDS.min;
     const max = STAMP_SFX_START_OFFSET_RANGE_SECONDS.max;
-    const safeMax = Number.isFinite(audio?.duration) && audio.duration > 0
-      ? Math.min(max, Math.max(min, audio.duration - 0.08))
+    const duration = typeof audioOrDuration === 'number'
+      ? audioOrDuration
+      : Number(audioOrDuration?.duration);
+    const safeMax = Number.isFinite(duration) && duration > 0
+      ? Math.min(max, Math.max(min, duration - 0.08))
       : max;
     return min + (Math.random() * Math.max(0, safeMax - min));
   }
@@ -5619,21 +5627,115 @@
     if ('webkitPreservesPitch' in audio) audio.webkitPreservesPitch = false;
   }
 
-  function playStampSfx(event) {
+  function ensureStampSfxAudioContext() {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return null;
+    if (!state.stampSfxAudioContext) state.stampSfxAudioContext = new AudioContextClass();
+    if (state.stampSfxAudioContext.state === 'suspended') {
+      state.stampSfxAudioContext.resume().catch(() => {});
+    }
+    return state.stampSfxAudioContext;
+  }
+
+  function stampSfxBufferPromise(path = stampSfxPath()) {
+    if (state.stampSfxBufferPath !== path) {
+      state.stampSfxBuffer = null;
+      state.stampSfxBufferPromise = null;
+      state.stampSfxBufferPath = path;
+    }
+    if (state.stampSfxBuffer && state.stampSfxBufferPath === path) return Promise.resolve(state.stampSfxBuffer);
+    if (state.stampSfxBufferPromise && state.stampSfxBufferPath === path) return state.stampSfxBufferPromise;
+    const context = ensureStampSfxAudioContext();
+    if (!context) return null;
+    state.stampSfxBufferPromise = fetch(docsAssetPath(path))
+      .then(response => {
+        if (!response.ok) throw new Error(`Stamp SFX fetch failed: ${response.status}`);
+        return response.arrayBuffer();
+      })
+      .then(buffer => context.decodeAudioData(buffer.slice(0)))
+      .then(decoded => {
+        if (state.stampSfxBufferPath === path) state.stampSfxBuffer = decoded;
+        return decoded;
+      })
+      .catch(error => {
+        if (state.stampSfxBufferPath === path) {
+          state.stampSfxBuffer = null;
+          state.stampSfxBufferPromise = null;
+        }
+        throw error;
+      });
+    return state.stampSfxBufferPromise;
+  }
+
+  function primeStampSfx() {
+    if (!state.audioEnabled || STAMP_SFX_VOLUME <= 1) return;
+    const promise = stampSfxBufferPromise();
+    if (promise?.catch) promise.catch(() => {});
+  }
+
+  function playStampHtmlSfx(event) {
     if (!state.audioEnabled || !event) return;
     const audio = nextStampSfxAudio();
     try {
       audio.pause();
       audio.currentTime = randomStampSfxStartOffset(audio);
       allowSfxPitchShift(audio);
-      audio.volume = randomStampSfxVolume();
+      audio.volume = randomStampSfxVolume({ clampForElement: true });
       audio.playbackRate = randomStampSfxPlaybackRate();
       const playPromise = audio.play();
       if (playPromise?.catch) playPromise.catch(() => {});
     } catch {}
   }
 
+  function playStampWebAudioSfx(event) {
+    const path = stampSfxPath();
+    const context = ensureStampSfxAudioContext();
+    const promise = context ? stampSfxBufferPromise(path) : null;
+    if (!context || !promise) {
+      playStampHtmlSfx(event);
+      return;
+    }
+    if (!state.stampSfxBuffer || state.stampSfxBufferPath !== path) {
+      promise.catch(() => {});
+      playStampHtmlSfx(event);
+      return;
+    }
+    promise
+      .then(buffer => {
+        if (!state.audioEnabled || !state.playing) return;
+        const source = context.createBufferSource();
+        const gain = context.createGain();
+        source.buffer = buffer;
+        source.playbackRate.value = randomStampSfxPlaybackRate();
+        gain.gain.value = randomStampSfxVolume({ clampForElement: false });
+        source.connect(gain).connect(context.destination);
+        state.stampSfxSources.add(source);
+        source.onended = () => {
+          state.stampSfxSources.delete(source);
+        };
+        source.start(0, randomStampSfxStartOffset(buffer.duration));
+      })
+      .catch(() => {
+        playStampHtmlSfx(event);
+      });
+  }
+
+  function playStampSfx(event) {
+    if (!state.audioEnabled || !event) return;
+    if (STAMP_SFX_VOLUME > 1) {
+      playStampWebAudioSfx(event);
+      return;
+    }
+    playStampHtmlSfx(event);
+  }
+
   function pauseStampSfx() {
+    for (const source of state.stampSfxSources || []) {
+      try {
+        source.stop();
+      } catch {}
+    }
+    state.stampSfxSources.clear();
     for (const audio of state.stampSfxPool || []) {
       try {
         audio.pause();
@@ -6664,6 +6766,7 @@
     state.playedMajorConSirenSfxKeys = new Set();
     state.playedBarFillSfxKeys = new Set();
     els.playPause.textContent = 'Pause';
+    primeStampSfx();
     primeTransitionSfx();
     primeBarFillSfx();
     syncAudioPlaybackState();

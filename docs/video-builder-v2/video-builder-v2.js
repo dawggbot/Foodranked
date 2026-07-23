@@ -962,6 +962,21 @@
     const rankedBox = layout.ranked;
     return [
       {
+        id: 'intro_ranked_glow',
+        kind: 'sprite',
+        label: 'Hook ranked glow',
+        src: INTRO_RANKED_SPRITE_PATH,
+        x: rankedBox.x,
+        y: rankedBox.y,
+        z: 53,
+        width: rankedBox.width,
+        height: rankedBox.height,
+        visible: true,
+        preserveAspect: true,
+        aspectRatio: 1,
+        effect: 'ranked-glow'
+      },
+      {
         id: 'intro_food_hero',
         kind: 'sprite',
         label: 'Hook food image',
@@ -4494,6 +4509,7 @@
   function introHookLayerKind(layer) {
     const id = String(layer?.id || '').toLowerCase();
     if (id === 'intro_food_hero') return 'food-hero';
+    if (id === 'intro_ranked_glow') return 'ranked-glow';
     if (id === 'intro_ranked_sprite') return 'ranked-sprite';
     if (id.startsWith('intro_ranked_glimmer_')) return 'glimmer';
     return null;
@@ -4600,6 +4616,7 @@
       if (classification.kind === 'food-hero') {
         return termStartForTiming(timing, [foodName, firstFoodWord, 'bacon'].filter(Boolean)) ?? 0.04;
       }
+      if (classification.kind === 'ranked-glow') return rankedAnchor;
       if (classification.kind === 'ranked-sprite') return rankedAnchor;
       if (classification.kind === 'glimmer') return clamp(rankedAnchor + (asNumber(layer?.sparkleDelay, 0) || 0), 0.02, 0.9);
       return termStartForTiming(timing, [foodName, 'ranked'].filter(Boolean))
@@ -4664,7 +4681,7 @@
     let offset = 0;
 
     if (classification.family === 'intro') {
-      offset = ['food-hero', 'ranked-sprite', 'glimmer'].includes(classification.kind) ? 0 : Math.min(0.12, index * 0.025);
+      offset = ['food-hero', 'ranked-glow', 'ranked-sprite', 'glimmer'].includes(classification.kind) ? 0 : Math.min(0.12, index * 0.025);
     }
     if (classification.family === 'macro') {
       offset = 0;
@@ -5994,10 +6011,11 @@
     const isMicronTierReveal = isMicronReveal && ['dv-bar', 'icon', 'label', 'value'].includes(revealSchedule?.kind);
     const isProConRowReveal = (revealSchedule?.family === 'pros' || revealSchedule?.family === 'cons') && revealSchedule.rowIndex != null;
     const isIntroStampSprite = revealSchedule?.family === 'intro'
-      && ['food-hero', 'ranked-sprite'].includes(revealSchedule?.kind);
+      && ['food-hero', 'ranked-glow', 'ranked-sprite'].includes(revealSchedule?.kind);
     const isOutroTierStamp = revealSchedule?.family === 'outro'
       && revealSchedule?.kind === 'tier'
       && String(layer?.effect || '').includes('d-tier-stamp');
+    const isIntroRankedGlow = revealSchedule?.family === 'intro' && revealSchedule?.kind === 'ranked-glow';
     const outroCtaWaveIndex = isOutroTierStamp ? outroCtaStampWaveIndex(layer) : -1;
     const isOutroCtaWaveStamp = outroCtaWaveIndex >= 0;
     const revealWindowSeconds = isIntroStampSprite || isOutroTierStamp
@@ -6046,7 +6064,7 @@
     } else if (isOutroTierStamp || isIntroStampSprite) {
       const impactPulse = Math.sin(visible * Math.PI);
       stampImpactPulse = impactPulse;
-      const entryTilt = isOutroTierStamp || revealSchedule?.kind === 'ranked-sprite' ? -4 : 4;
+      const entryTilt = isOutroTierStamp || ['ranked-glow', 'ranked-sprite'].includes(revealSchedule?.kind) ? -4 : 4;
       scale = 1.62 - (visible * 0.62) + (impactPulse * 0.22);
       y += (1 - visible) * -20;
       rotate = (entryTilt * (1 - visible)) + (impactPulse * (entryTilt < 0 ? -1.4 : 1.4));
@@ -6095,7 +6113,7 @@
     node.style.opacity = String(opacity);
     node.style.transform = `translate3d(calc(${x}px * var(--pixel-unit)), calc(${y}px * var(--pixel-unit)), 0) rotate(${totalRotation.toFixed(2)}deg) scale(${scale})${flip}`;
     if (clip) node.style.clipPath = clip;
-    if ((isOutroTierStamp || isIntroStampSprite) && stampImpactPulse > 0.02) {
+    if ((isOutroTierStamp || isIntroRankedGlow) && stampImpactPulse > 0.02) {
       const glowRgb = isOutroTierStamp ? '255, 113, 113' : '255, 244, 184';
       node.style.filter = [
         `brightness(${(1.18 + stampImpactPulse * 0.48).toFixed(3)})`,

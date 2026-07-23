@@ -969,7 +969,7 @@
         fallbackSrc: foodPlatePath(food),
         x: foodBox.x,
         y: foodBox.y,
-        z: 56,
+        z: 54,
         width: foodBox.width,
         height: foodBox.height,
         naturalWidth: foodBox.naturalWidth || null,

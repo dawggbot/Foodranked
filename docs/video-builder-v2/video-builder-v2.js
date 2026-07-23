@@ -913,9 +913,52 @@
     };
   }
 
+  function roundedGridNumber(value) {
+    const number = Number(value);
+    if (!Number.isFinite(number)) return null;
+    return Number(number.toFixed(3));
+  }
+
+  function sameFoodImageReferenceSize(size) {
+    return !!size
+      && Math.abs(Number(size.width) - FOOD_IMAGE_BACON_REFERENCE.naturalWidth) < 0.001
+      && Math.abs(Number(size.height) - FOOD_IMAGE_BACON_REFERENCE.naturalHeight) < 0.001;
+  }
+
+  function introFoodHeroBox(food, foodBox) {
+    const size = customFoodImageNaturalSize(food);
+    if (!hasCustomFoodImage(food) || !size) return { ...foodBox };
+    if (sameFoodImageReferenceSize(size)) {
+      return {
+        ...foodBox,
+        naturalWidth: size.width,
+        naturalHeight: size.height,
+        aspectRatio: size.height ? size.width / size.height : null
+      };
+    }
+
+    const scale = Math.min(
+      foodBox.width / FOOD_IMAGE_BACON_REFERENCE.naturalWidth,
+      foodBox.height / FOOD_IMAGE_BACON_REFERENCE.naturalHeight
+    );
+    const width = size.width * scale;
+    const height = size.height * scale;
+    const centerX = foodBox.x + (foodBox.width / 2);
+    const centerY = foodBox.y + (foodBox.height / 2);
+    return {
+      x: roundedGridNumber(centerX - (width / 2)),
+      y: roundedGridNumber(centerY - (height / 2)),
+      width: roundedGridNumber(width),
+      height: roundedGridNumber(height),
+      naturalWidth: size.width,
+      naturalHeight: size.height,
+      aspectRatio: size.height ? size.width / size.height : null
+    };
+  }
+
   function introHookLayers(food) {
     const layout = introHeroLayout();
-    const foodBox = layout.food;
+    const foodBox = introFoodHeroBox(food, layout.food);
     const rankedBox = layout.ranked;
     return [
       {
@@ -929,9 +972,12 @@
         z: 56,
         width: foodBox.width,
         height: foodBox.height,
+        naturalWidth: foodBox.naturalWidth || null,
+        naturalHeight: foodBox.naturalHeight || null,
         visible: true,
         foodDriven: true,
-        preserveAspect: true
+        preserveAspect: true,
+        aspectRatio: foodBox.aspectRatio || null
       },
       {
         id: 'intro_ranked_sprite',

@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260724-v2-ranked-explosion-lock-v1';
+  const BUILDER_BUILD_ID = '20260724-v2-stamp-impact-locked-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
@@ -71,15 +71,10 @@
   const FOOD_STAMP_REVEAL_SECONDS = 0.22;
   const STAMP_SHAKE_MAX_PIXELS = 2.8;
   const STAMP_SFX_PATH = 'audio/sfx/stamps/impact_stamp_hit.mp3';
-  // Locked baseline for the ranked intro/explosion hit and regular non-S outro stamps.
+  // Locked baseline for every playback of the selected stampImpact file.
   const STAMP_SFX_VOLUME = 0.18;
-  const STAMP_SFX_VOLUME_VARIATION = 0.025;
-  const INTRO_FOOD_STAMP_SFX_VOLUME = 1.5;
-  const INTRO_FOOD_STAMP_SFX_VOLUME_VARIATION = 0;
+  const STAMP_SFX_VOLUME_VARIATION = 0;
   const INTRO_FOOD_STAMP_SFX_LEAD_SECONDS = 0.2;
-  const INTRO_RANKED_EXPLOSION_SFX_VOLUME = 0.18;
-  const INTRO_RANKED_EXPLOSION_SFX_VOLUME_VARIATION = 0.025;
-  const INTRO_RANKED_EXPLOSION_SFX_LEAD_SECONDS = 0.1;
   const STAMP_SFX_PLAYBACK_RATE_RANGE = { min: 0.93, max: 1.07 };
   const STAMP_SFX_START_OFFSET_RANGE_SECONDS = { min: 0, max: 0.045 };
   const STAMP_SFX_LEAD_SECONDS = 0.1;
@@ -5537,9 +5532,6 @@
     if (schedule?.family === 'intro' && schedule?.kind === 'food-hero') {
       return Number((scene.start - INTRO_FOOD_STAMP_SFX_LEAD_SECONDS).toFixed(3));
     }
-    if (schedule?.family === 'intro' && schedule?.kind === 'ranked-sprite') {
-      return stampSfxImpactTimeWithLead(scene, schedule, INTRO_RANKED_EXPLOSION_SFX_LEAD_SECONDS);
-    }
     return stampSfxImpactTimeWithLead(scene, schedule, STAMP_SFX_LEAD_SECONDS);
   }
 
@@ -5603,7 +5595,7 @@
     return [...events.values()].sort((a, b) => a.time - b.time || a.key.localeCompare(b.key));
   }
 
-  function nextStampSfxAudio() {
+  function ensureStampSfxAudioPool() {
     const path = stampSfxPath();
     if (state.stampSfxPath && state.stampSfxPath !== path) {
       pauseStampSfx();
@@ -5622,6 +5614,11 @@
       });
       state.stampSfxPath = path;
     }
+    return state.stampSfxPool;
+  }
+
+  function nextStampSfxAudio() {
+    ensureStampSfxAudioPool();
     const audio = state.stampSfxPool[state.stampSfxPoolIndex % state.stampSfxPool.length];
     state.stampSfxPoolIndex += 1;
     return audio;
@@ -5636,23 +5633,17 @@
     return event?.sceneId === 'intro' && event?.kind === 'food-hero';
   }
 
-  function isIntroRankedExplosionSfxEvent(event = null) {
-    return event?.sceneId === 'intro' && event?.kind === 'ranked-sprite';
+  function stampSfxVolume() {
+    return STAMP_SFX_VOLUME;
   }
 
-  function stampSfxVolumeForEvent(event = null) {
-    if (isIntroRankedExplosionSfxEvent(event)) return INTRO_RANKED_EXPLOSION_SFX_VOLUME;
-    return isIntroFoodStampSfxEvent(event) ? INTRO_FOOD_STAMP_SFX_VOLUME : STAMP_SFX_VOLUME;
+  function stampSfxVolumeVariation() {
+    return STAMP_SFX_VOLUME_VARIATION;
   }
 
-  function stampSfxVolumeVariationForEvent(event = null) {
-    if (isIntroRankedExplosionSfxEvent(event)) return INTRO_RANKED_EXPLOSION_SFX_VOLUME_VARIATION;
-    return isIntroFoodStampSfxEvent(event) ? INTRO_FOOD_STAMP_SFX_VOLUME_VARIATION : STAMP_SFX_VOLUME_VARIATION;
-  }
-
-  function randomStampSfxVolume(event = null, { clampForElement = true } = {}) {
-    const baseVolume = stampSfxVolumeForEvent(event);
-    const variation = stampSfxVolumeVariationForEvent(event);
+  function randomStampSfxVolume({ clampForElement = true } = {}) {
+    const baseVolume = stampSfxVolume();
+    const variation = stampSfxVolumeVariation();
     const volume = Math.max(0, baseVolume + ((Math.random() * 2 - 1) * variation));
     return clampForElement ? Math.min(volume, 1) : volume;
   }
@@ -5716,7 +5707,12 @@
   }
 
   function primeStampSfx() {
-    if (!state.audioEnabled || Math.max(STAMP_SFX_VOLUME, INTRO_FOOD_STAMP_SFX_VOLUME) <= 1) return;
+    if (!state.audioEnabled) return;
+    ensureStampSfxAudioPool().forEach(audio => {
+      try {
+        audio.load();
+      } catch {}
+    });
     const promise = stampSfxBufferPromise();
     if (promise?.catch) promise.catch(() => {});
   }
@@ -5728,7 +5724,7 @@
       audio.pause();
       audio.currentTime = randomStampSfxStartOffset(audio);
       allowSfxPitchShift(audio);
-      audio.volume = randomStampSfxVolume(event, { clampForElement: true });
+      audio.volume = randomStampSfxVolume({ clampForElement: true });
       audio.playbackRate = randomStampSfxPlaybackRate();
       const playPromise = audio.play();
       if (playPromise?.catch) playPromise.catch(() => {});
@@ -5755,7 +5751,7 @@
         const gain = context.createGain();
         source.buffer = buffer;
         source.playbackRate.value = randomStampSfxPlaybackRate();
-        gain.gain.value = randomStampSfxVolume(event, { clampForElement: false });
+        gain.gain.value = randomStampSfxVolume({ clampForElement: false });
         source.connect(gain).connect(context.destination);
         state.stampSfxSources.add(source);
         source.onended = () => {
@@ -5770,11 +5766,7 @@
 
   function playStampSfx(event) {
     if (!state.audioEnabled || !event) return;
-    if (stampSfxVolumeForEvent(event) > 1) {
-      playStampWebAudioSfx(event);
-      return;
-    }
-    playStampHtmlSfx(event);
+    playStampWebAudioSfx(event);
   }
 
   function pauseStampSfx() {
@@ -7152,12 +7144,14 @@
       els.narrationAudio.removeAttribute('src');
       els.narrationAudio.load();
       updateAudioControls();
+      primeStampSfx();
       return;
     }
     if (audio.mode === 'split-blocks') {
       calibrateSceneDurationsToSplitAudio(audio);
       syncAudioTime({ force: true });
       updateAudioControls();
+      primeStampSfx();
       return;
     }
     const sourceChanged = setNarrationAudioSource(audio.path);
@@ -7167,6 +7161,7 @@
     }
     syncAudioTime({ force: true });
     updateAudioControls();
+    primeStampSfx();
   }
 
   function syncAudioPlaybackState() {

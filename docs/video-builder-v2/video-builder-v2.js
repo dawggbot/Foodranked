@@ -88,7 +88,7 @@
   const D_TIER_DEATH_SFX_PATH = 'audio/sfx/stamps/d_tier_death_collapse.mp3';
   const D_TIER_GAME_LOSE_SFX_VOLUME = S_TIER_STAMP_SFX_VOLUME;
   const D_TIER_DEATH_SFX_VOLUME = S_TIER_STAMP_SFX_VOLUME;
-  const D_TIER_GAME_LOSE_SFX_LEAD_SECONDS = 0.26;
+  const D_TIER_GAME_LOSE_SFX_LEAD_SECONDS = 0.5;
   const D_TIER_GAME_LOSE_SFX_DURATION_SECONDS = 4.284;
   const D_TIER_DEATH_SFX_DELAY_SECONDS = D_TIER_GAME_LOSE_SFX_DURATION_SECONDS / 2;
   const D_TIER_STAMP_SFX_POOL_SIZE = S_TIER_STAMP_SFX_POOL_SIZE;
@@ -6167,7 +6167,7 @@
     return audio;
   }
 
-  function nextDTierGameLoseSfxAudio() {
+  function ensureDTierGameLoseSfxAudioPool() {
     if (!state.dTierGameLoseSfxPool.length) {
       state.dTierGameLoseSfxPool = Array.from({ length: dTierGameLoseSfxPoolSize() }, () => {
         const audio = new Audio(docsAssetPath(D_TIER_GAME_LOSE_SFX_PATH));
@@ -6176,12 +6176,10 @@
         return audio;
       });
     }
-    const audio = state.dTierGameLoseSfxPool[state.dTierGameLoseSfxPoolIndex % state.dTierGameLoseSfxPool.length];
-    state.dTierGameLoseSfxPoolIndex += 1;
-    return audio;
+    return state.dTierGameLoseSfxPool;
   }
 
-  function nextDTierDeathSfxAudio() {
+  function ensureDTierDeathSfxAudioPool() {
     if (!state.dTierDeathSfxPool.length) {
       state.dTierDeathSfxPool = Array.from({ length: dTierDeathSfxPoolSize() }, () => {
         const audio = new Audio(docsAssetPath(D_TIER_DEATH_SFX_PATH));
@@ -6190,6 +6188,27 @@
         return audio;
       });
     }
+    return state.dTierDeathSfxPool;
+  }
+
+  function primeDTierStampSfx() {
+    if (!state.audioEnabled) return;
+    [...ensureDTierGameLoseSfxAudioPool(), ...ensureDTierDeathSfxAudioPool()].forEach(audio => {
+      try {
+        audio.load();
+      } catch {}
+    });
+  }
+
+  function nextDTierGameLoseSfxAudio() {
+    ensureDTierGameLoseSfxAudioPool();
+    const audio = state.dTierGameLoseSfxPool[state.dTierGameLoseSfxPoolIndex % state.dTierGameLoseSfxPool.length];
+    state.dTierGameLoseSfxPoolIndex += 1;
+    return audio;
+  }
+
+  function nextDTierDeathSfxAudio() {
+    ensureDTierDeathSfxAudioPool();
     const audio = state.dTierDeathSfxPool[state.dTierDeathSfxPoolIndex % state.dTierDeathSfxPool.length];
     state.dTierDeathSfxPoolIndex += 1;
     return audio;
@@ -7254,6 +7273,7 @@
     state.playbackSfxEvents = buildPlaybackSfxEvents();
     els.playPause.textContent = 'Pause';
     primeStampSfx();
+    primeDTierStampSfx();
     primeTransitionSfx();
     primeBarFillSfx();
     triggerIntroFoodStampSfxAtPlaybackStart();
@@ -7584,6 +7604,7 @@
       els.narrationAudio.load();
       updateAudioControls();
       primeStampSfx();
+      primeDTierStampSfx();
       return;
     }
     syncNarrationVolumeForAudio(audio);
@@ -7592,6 +7613,7 @@
       syncAudioTime({ force: true });
       updateAudioControls();
       primeStampSfx();
+      primeDTierStampSfx();
       return;
     }
     const sourceChanged = setNarrationAudioSource(audio.path);
@@ -7602,6 +7624,7 @@
     syncAudioTime({ force: true });
     updateAudioControls();
     primeStampSfx();
+    primeDTierStampSfx();
   }
 
   function syncAudioPlaybackState() {

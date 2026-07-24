@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260724-v2-intro-stamp-locked-v1';
+  const BUILDER_BUILD_ID = '20260724-v2-ranked-explosion-lock-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
@@ -77,6 +77,9 @@
   const INTRO_FOOD_STAMP_SFX_VOLUME = 1.5;
   const INTRO_FOOD_STAMP_SFX_VOLUME_VARIATION = 0;
   const INTRO_FOOD_STAMP_SFX_LEAD_SECONDS = 0.2;
+  const INTRO_RANKED_EXPLOSION_SFX_VOLUME = 0.18;
+  const INTRO_RANKED_EXPLOSION_SFX_VOLUME_VARIATION = 0.025;
+  const INTRO_RANKED_EXPLOSION_SFX_LEAD_SECONDS = 0.1;
   const STAMP_SFX_PLAYBACK_RATE_RANGE = { min: 0.93, max: 1.07 };
   const STAMP_SFX_START_OFFSET_RANGE_SECONDS = { min: 0, max: 0.045 };
   const STAMP_SFX_LEAD_SECONDS = 0.1;
@@ -5522,15 +5525,22 @@
     roots.layerRoot.dataset.stampShakeStrength = shake.strength.toFixed(3);
   }
 
-  function stampSfxImpactTime(scene, schedule) {
-    if (schedule?.family === 'intro' && schedule?.kind === 'food-hero') {
-      return Number((scene.start - INTRO_FOOD_STAMP_SFX_LEAD_SECONDS).toFixed(3));
-    }
+  function stampSfxImpactTimeWithLead(scene, schedule, leadSeconds) {
     const sceneDuration = Math.max(1, sceneContentDuration(scene));
     const revealLead = Math.min(0.035, AUDIO_REVEAL_LEAD_SECONDS / sceneDuration);
     const impactProgress = clamp(schedule.start + stampRevealWindowProgress(scene, schedule) - revealLead, 0, 1);
     const impactTime = scene.start + (impactProgress * sceneContentDuration(scene));
-    return Number(Math.max(scene.start, impactTime - STAMP_SFX_LEAD_SECONDS).toFixed(3));
+    return Number(Math.max(scene.start, impactTime - leadSeconds).toFixed(3));
+  }
+
+  function stampSfxImpactTime(scene, schedule) {
+    if (schedule?.family === 'intro' && schedule?.kind === 'food-hero') {
+      return Number((scene.start - INTRO_FOOD_STAMP_SFX_LEAD_SECONDS).toFixed(3));
+    }
+    if (schedule?.family === 'intro' && schedule?.kind === 'ranked-sprite') {
+      return stampSfxImpactTimeWithLead(scene, schedule, INTRO_RANKED_EXPLOSION_SFX_LEAD_SECONDS);
+    }
+    return stampSfxImpactTimeWithLead(scene, schedule, STAMP_SFX_LEAD_SECONDS);
   }
 
   function sTierStampSfxImpactTime(scene, schedule) {
@@ -5626,11 +5636,17 @@
     return event?.sceneId === 'intro' && event?.kind === 'food-hero';
   }
 
+  function isIntroRankedExplosionSfxEvent(event = null) {
+    return event?.sceneId === 'intro' && event?.kind === 'ranked-sprite';
+  }
+
   function stampSfxVolumeForEvent(event = null) {
+    if (isIntroRankedExplosionSfxEvent(event)) return INTRO_RANKED_EXPLOSION_SFX_VOLUME;
     return isIntroFoodStampSfxEvent(event) ? INTRO_FOOD_STAMP_SFX_VOLUME : STAMP_SFX_VOLUME;
   }
 
   function stampSfxVolumeVariationForEvent(event = null) {
+    if (isIntroRankedExplosionSfxEvent(event)) return INTRO_RANKED_EXPLOSION_SFX_VOLUME_VARIATION;
     return isIntroFoodStampSfxEvent(event) ? INTRO_FOOD_STAMP_SFX_VOLUME_VARIATION : STAMP_SFX_VOLUME_VARIATION;
   }
 

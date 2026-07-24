@@ -2,6 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const { completeSfxProfile } = require('./lib/sfx-profiles');
+const { completeMusicProfile } = require('./lib/music-profiles');
 
 const repoRoot = path.resolve(__dirname, '..');
 const foodsDir = path.join(repoRoot, 'foods');
@@ -48,8 +49,11 @@ function assignFoodProfiles(dir, sourceProfiles = null) {
   for (const file of foodFiles(dir)) {
     const food = readJson(file);
     const foodId = food.id || foodIdFromFile(file);
-    const sfxProfile = sourceProfiles?.get(foodId) || completeSfxProfile(food.sfxProfile, foodId);
-    writeJson(file, withKeyAfter(food, 'sfxProfile', sfxProfile, 'header'));
+    const sourceProfile = sourceProfiles?.get(foodId) || {};
+    const sfxProfile = sourceProfile.sfxProfile || completeSfxProfile(food.sfxProfile, foodId);
+    const musicProfile = sourceProfile.musicProfile || completeMusicProfile(food.musicProfile, foodId);
+    const withSfx = withKeyAfter(food, 'sfxProfile', sfxProfile, 'header');
+    writeJson(file, withKeyAfter(withSfx, 'musicProfile', musicProfile, 'sfxProfile'));
     updated += 1;
   }
   return updated;
@@ -60,7 +64,10 @@ function loadSourceFoodProfiles() {
   for (const file of foodFiles(foodsDir)) {
     const food = readJson(file);
     const foodId = food.id || foodIdFromFile(file);
-    profiles.set(foodId, completeSfxProfile(food.sfxProfile, foodId));
+    profiles.set(foodId, {
+      sfxProfile: completeSfxProfile(food.sfxProfile, foodId),
+      musicProfile: completeMusicProfile(food.musicProfile, foodId)
+    });
   }
   return profiles;
 }
@@ -78,9 +85,11 @@ function assignEpisodeProfiles(sourceProfiles) {
     if (!fs.existsSync(file)) continue;
     const manifest = readJson(file);
     const foodId = manifestFoodId(manifest, dirName);
-    const baseProfile = manifest.sfxProfile || sourceProfiles.get(foodId) || null;
-    const sfxProfile = completeSfxProfile(baseProfile, foodId);
-    writeJson(file, withKeyAfter(manifest, 'sfxProfile', sfxProfile, 'visualBinding'));
+    const sourceProfile = sourceProfiles.get(foodId) || {};
+    const sfxProfile = completeSfxProfile(manifest.sfxProfile || sourceProfile.sfxProfile || null, foodId);
+    const musicProfile = completeMusicProfile(manifest.musicProfile || sourceProfile.musicProfile || null, foodId);
+    const withSfx = withKeyAfter(manifest, 'sfxProfile', sfxProfile, 'visualBinding');
+    writeJson(file, withKeyAfter(withSfx, 'musicProfile', musicProfile, 'sfxProfile'));
     updated += 1;
   }
   return updated;

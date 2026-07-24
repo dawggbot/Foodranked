@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260724-v2-header-food-name-sync-v1';
+  const BUILDER_BUILD_ID = '20260724-v2-background-music-profiles-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
@@ -15,6 +15,7 @@
   const CAPTION_WORD_LOOKAHEAD_SECONDS = 0.002;
   const NARRATION_VOLUME = 1;
   const ADAM_NARRATION_VOLUME = 0.7;
+  const BACKGROUND_MUSIC_VOLUME = 0.14;
   const AUDIO_REVEAL_LEAD_SECONDS = 0.11;
   const AUDIO_REVEAL_WINDOW_SECONDS = 0.36;
   const SUBMACRO_REVEAL_WINDOW_SECONDS = 1.25;
@@ -547,6 +548,9 @@
     highlightGlowSfxPlaybackRate: 1,
     highlightGlowSfxTargetPlaybackRate: 1,
     highlightGlowSfxLastFrameAt: performance.now(),
+    backgroundMusicAudio: null,
+    backgroundMusicPath: '',
+    backgroundMusicFoodKey: '',
     spriteFailures: new Map(),
     diagnosticsTimer: 0,
     displayBuilderExportFrame: null,
@@ -927,6 +931,10 @@
     return food?.episode?.sfxProfile || food?.sfxProfile || null;
   }
 
+  function musicProfileForFood(food = selectedFood()) {
+    return food?.episode?.musicProfile || food?.musicProfile || null;
+  }
+
   function sfxProfilePath(role, fallbackPath, food = selectedFood()) {
     const value = sfxProfileForFood(food)?.[role];
     if (typeof value === 'string' && value.trim()) return value.trim();
@@ -936,6 +944,18 @@
 
   function sfxProfileRole(role, food = selectedFood()) {
     const value = sfxProfileForFood(food)?.[role];
+    return value && typeof value === 'object' ? value : null;
+  }
+
+  function musicProfilePath(role, fallbackPath = '', food = selectedFood()) {
+    const value = musicProfileForFood(food)?.[role];
+    if (typeof value === 'string' && value.trim()) return value.trim();
+    if (value && typeof value === 'object' && typeof value.path === 'string' && value.path.trim()) return value.path.trim();
+    return fallbackPath;
+  }
+
+  function musicProfileRole(role, food = selectedFood()) {
+    const value = musicProfileForFood(food)?.[role];
     return value && typeof value === 'object' ? value : null;
   }
 
@@ -990,6 +1010,21 @@
     return sfxProfilePath('highlightGlow', HIGHLIGHT_GLOW_SFX_PATH, food);
   }
 
+  function backgroundMusicPath(food = selectedFood()) {
+    return musicProfilePath('backgroundMusic', '', food);
+  }
+
+  function backgroundMusicForFood(food = selectedFood()) {
+    const path = backgroundMusicPath(food);
+    if (!path) return null;
+    const role = musicProfileRole('backgroundMusic', food);
+    return {
+      path,
+      volume: clamp(asNumber(role?.volume, BACKGROUND_MUSIC_VOLUME), 0, 1),
+      selectionMode: musicProfileForFood(food)?.selectionMode || null
+    };
+  }
+
   function highlightGlowSfxFoodKey(food = selectedFood()) {
     return `${food?.id || ''}:${highlightGlowSfxPath(food)}`;
   }
@@ -1001,6 +1036,19 @@
     state.highlightGlowSfxAudio = null;
     state.highlightGlowSfxPath = '';
     state.highlightGlowSfxFoodKey = nextFoodKey;
+  }
+
+  function backgroundMusicFoodKey(food = selectedFood()) {
+    return `${food?.id || ''}:${backgroundMusicPath(food)}`;
+  }
+
+  function syncBackgroundMusicForFood(food = selectedFood()) {
+    const nextFoodKey = backgroundMusicFoodKey(food);
+    if (state.backgroundMusicFoodKey === nextFoodKey) return;
+    pauseBackgroundMusic();
+    state.backgroundMusicAudio = null;
+    state.backgroundMusicPath = '';
+    state.backgroundMusicFoodKey = nextFoodKey;
   }
 
   function appSpritePath(path) {
@@ -3335,6 +3383,8 @@
       canvas: { width: AUTHOR_GRID.width, height: AUTHOR_GRID.height, aspect: '9:16' },
       audio: audioForFood(food),
       sfxProfile: sfxProfileForFood(food),
+      musicProfile: musicProfileForFood(food),
+      backgroundMusic: backgroundMusicForFood(food),
       duration: Number(totalDuration().toFixed(2)),
       narrationDuration: Number(totalNarrationDuration().toFixed(2)),
       totalHoldSeconds: Number(holdDuration.toFixed(2)),
@@ -4686,6 +4736,78 @@
     try {
       audio.volume = 0;
       audio.playbackRate = 1;
+      audio.pause();
+      if (reset) audio.currentTime = 0;
+    } catch {}
+  }
+
+  function ensureBackgroundMusicAudio() {
+    const music = backgroundMusicForFood();
+    const path = music?.path || '';
+    if (!path) return null;
+    if (state.backgroundMusicAudio && state.backgroundMusicPath === path) {
+      state.backgroundMusicAudio.volume = music.volume;
+      return state.backgroundMusicAudio;
+    }
+
+    pauseBackgroundMusic();
+    const audio = new Audio(docsAssetPath(path));
+    audio.loop = true;
+    audio.preload = 'auto';
+    audio.volume = music.volume;
+    audio.dataset.sourcePath = path;
+    audio.addEventListener('loadedmetadata', () => {
+      syncBackgroundMusicTime({ force: true });
+    });
+    state.backgroundMusicAudio = audio;
+    state.backgroundMusicPath = path;
+    return audio;
+  }
+
+  function syncBackgroundMusicTime({ force = false } = {}) {
+    const audio = ensureBackgroundMusicAudio();
+    if (!audio) return false;
+    const duration = asNumber(audio.duration, null);
+    if (!force || duration == null || duration <= 0) return true;
+    const safeTime = state.currentTime % duration;
+    try {
+      if (Math.abs(audio.currentTime - safeTime) > 0.08) audio.currentTime = safeTime;
+    } catch {}
+    return true;
+  }
+
+  function playBackgroundMusicFromCurrentTime({ forceSync = true } = {}) {
+    if (!state.audioEnabled) return;
+    const audio = ensureBackgroundMusicAudio();
+    if (!audio) return;
+    syncBackgroundMusicTime({ force: forceSync });
+    const music = backgroundMusicForFood();
+    audio.volume = music?.volume ?? BACKGROUND_MUSIC_VOLUME;
+    const playPromise = audio.play();
+    if (playPromise?.catch) {
+      playPromise.catch(error => {
+        if (error?.name === 'NotAllowedError') {
+          state.audioEnabled = false;
+          updateAudioControls('Audio blocked');
+        }
+      });
+    }
+  }
+
+  function syncBackgroundMusicPlaybackState() {
+    const audio = ensureBackgroundMusicAudio();
+    if (!audio) return;
+    if (!state.audioEnabled || !state.playing) {
+      try { audio.pause(); } catch {}
+      return;
+    }
+    if (audio.paused) playBackgroundMusicFromCurrentTime({ forceSync: true });
+  }
+
+  function pauseBackgroundMusic({ reset = false } = {}) {
+    const audio = state.backgroundMusicAudio;
+    if (!audio) return;
+    try {
       audio.pause();
       if (reset) audio.currentTime = 0;
     } catch {}
@@ -7280,6 +7402,7 @@
     state.playbackSfxEvents = null;
     els.playPause.textContent = 'Play';
     if (els.narrationAudio) els.narrationAudio.pause();
+    pauseBackgroundMusic();
     pauseHighlightGlowSfx();
     if (pauseSfx) {
       pauseStampSfx();
@@ -7315,6 +7438,7 @@
     primeDTierStampSfx();
     primeTransitionSfx();
     primeBarFillSfx();
+    playBackgroundMusicFromCurrentTime();
     triggerIntroFoodStampSfxAtPlaybackStart();
     syncAudioPlaybackState();
     requestAnimationFrame(tick);
@@ -7413,10 +7537,11 @@
   });
 
   els.audioToggle.addEventListener('click', () => {
-    if (!audioForFood(selectedFood())) return;
+    if (!audioForFood(selectedFood()) && !backgroundMusicForFood(selectedFood())) return;
     state.audioEnabled = !state.audioEnabled;
     if (!state.audioEnabled) {
       els.narrationAudio.pause();
+      pauseBackgroundMusic();
       pauseStampSfx();
       pauseSTierStampSfx();
       pauseDTierStampSfx();
@@ -7635,12 +7760,14 @@
   function syncAudioForFood() {
     const food = selectedFood();
     syncHighlightGlowSfxForFood(food);
+    syncBackgroundMusicForFood(food);
     const audio = audioForFood(food);
     if (!els.narrationAudio) return;
     if (!audio) {
       els.narrationAudio.removeAttribute('src');
       syncNarrationVolumeForAudio(null);
       els.narrationAudio.load();
+      syncBackgroundMusicTime({ force: true });
       updateAudioControls();
       primeStampSfx();
       primeDTierStampSfx();
@@ -7661,6 +7788,7 @@
       state.audioDurationSeconds = null;
     }
     syncAudioTime({ force: true });
+    syncBackgroundMusicTime({ force: true });
     updateAudioControls();
     primeStampSfx();
     primeDTierStampSfx();
@@ -7668,6 +7796,7 @@
 
   function syncAudioPlaybackState() {
     const audio = audioForFood(selectedFood());
+    syncBackgroundMusicPlaybackState();
     if (!state.audioEnabled || !audio) return;
     const splitPosition = audio.mode === 'split-blocks' ? splitAudioPositionForVideoTime(audio) : null;
     const waitingForNarration = isSceneHoldAt(state.currentTime)
@@ -7694,6 +7823,7 @@
 
   function syncAudioTime({ force = false } = {}) {
     const audio = audioForFood(selectedFood());
+    syncBackgroundMusicTime({ force });
     if (!audio) return false;
     syncNarrationVolumeForAudio(audio);
     if (audio.mode === 'split-blocks') {
@@ -7741,15 +7871,18 @@
 
   function updateAudioControls(overrideStatus) {
     const audio = audioForFood(selectedFood());
+    const music = backgroundMusicForFood(selectedFood());
     if (!els.audioToggle || !els.audioStatus) return;
-    els.audioToggle.disabled = !audio;
-    els.audioToggle.textContent = state.audioEnabled && audio ? 'Audio on' : 'Audio off';
+    const hasAudio = Boolean(audio || music);
+    els.audioToggle.disabled = !hasAudio;
+    els.audioToggle.textContent = state.audioEnabled && hasAudio ? 'Audio on' : 'Audio off';
     const holdDuration = totalHoldDuration();
     const syncLabel = state.audioDurationSeconds
       ? ` · synced ${state.audioDurationSeconds.toFixed(1)}s${holdDuration ? ` + ${holdDuration.toFixed(1)}s dwell` : ''}`
       : '';
     const modeLabel = audio?.mode === 'split-blocks' ? ' split' : '';
-    els.audioStatus.textContent = overrideStatus || (audio ? `${audio.take || 'Audio'}${modeLabel} ready${syncLabel}` : 'No audio');
+    const musicLabel = music ? ` · music ${music.path.split('/').pop()?.replace(/_loop_240s\.mp3$/i, '') || 'ready'}` : '';
+    els.audioStatus.textContent = overrideStatus || (hasAudio ? `${audio?.take || 'Audio'}${modeLabel} ready${syncLabel}${musicLabel}` : 'No audio');
   }
 
   els.narrationAudio.addEventListener('loadedmetadata', () => {

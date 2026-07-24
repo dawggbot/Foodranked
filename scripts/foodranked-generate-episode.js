@@ -12,6 +12,7 @@ const scriptGeneratorPath = path.join(__dirname, 'foodranked-generate-script.js'
 const visualTemplatePath = path.join(repoRoot, 'templates', 'visual-template.v1.json');
 const spritesRoot = path.join(repoRoot, 'sprites');
 const { completeSfxProfile } = require('./lib/sfx-profiles');
+const { completeMusicProfile } = require('./lib/music-profiles');
 const SUBTITLE_MAX_LINES = 2;
 const SUBTITLE_MAX_CHARACTERS_PER_LINE = 18;
 const SUMMARY_SUBTITLE_MAX_CHARACTERS_PER_LINE = 24;
@@ -82,6 +83,10 @@ function safeSlug(value) {
 
 function buildSfxProfile(food) {
   return completeSfxProfile(food.sfxProfile, food.id);
+}
+
+function buildMusicProfile(food) {
+  return completeMusicProfile(food.musicProfile, food.id);
 }
 
 function resolveFoodPath(input) {
@@ -750,6 +755,7 @@ function buildManifest({ food, rulesetPath, foodPath, score, script, template, s
   const profile = visualProfileFor(options.visualProfile);
   const spriteBindings = buildSpriteBindings(food.foodType);
   const sfxProfile = buildSfxProfile(food);
+  const musicProfile = buildMusicProfile(food);
 
   return {
     id: `${food.id}-episode-v1`,
@@ -828,6 +834,7 @@ function buildManifest({ food, rulesetPath, foodPath, score, script, template, s
       }
     },
     sfxProfile,
+    musicProfile,
     reviewChecklist: [
       'Verify nutrient values are sourced well enough for publishable use.',
       'Review narration for category repetition and trim any awkward lines.',

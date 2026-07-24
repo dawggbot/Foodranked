@@ -12,6 +12,7 @@ const docsAppDir = path.join(repoRoot, 'docs', 'app');
 const docsAudioDir = path.join(repoRoot, 'docs', 'audio', 'episodes');
 const sourceSpritesDir = path.join(repoRoot, 'sprites');
 const { completeSfxProfile } = require('./lib/sfx-profiles');
+const { completeMusicProfile } = require('./lib/music-profiles');
 const ADAM_NARRATION_VOLUME = 0.7;
 
 function ensureDir(dir) { fs.mkdirSync(dir, { recursive: true }); }
@@ -199,6 +200,8 @@ const foods = fs.readdirSync(foodsDir)
     const episodeSplitAudio = findEpisodeSplitAudio(food.id, episode);
     const explicitSfxProfile = episode?.sfxProfile || food.sfxProfile || publishedFood?.sfxProfile || null;
     const sfxProfile = completeSfxProfile(explicitSfxProfile, food.id);
+    const explicitMusicProfile = episode?.musicProfile || food.musicProfile || publishedFood?.musicProfile || null;
+    const musicProfile = completeMusicProfile(explicitMusicProfile, food.id);
 
     return {
       id: food.id,
@@ -273,6 +276,7 @@ const foods = fs.readdirSync(foodsDir)
         accent: episode.visualBinding?.categoryAccent ?? null,
         tierColor: episode.visualBinding?.tierColor ?? null,
         ...(sfxProfile ? { sfxProfile } : {}),
+        ...(musicProfile ? { musicProfile } : {}),
         script: exists(path.join(repoRoot, episode.outputs?.directory || '', 'script.json'))
           ? readJson(path.join(repoRoot, episode.outputs.directory, 'script.json'))
           : null,

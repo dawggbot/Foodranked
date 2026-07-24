@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260724-v2-stier-stamp-sync-v1';
+  const BUILDER_BUILD_ID = '20260724-v2-intro-stamp-zero-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
@@ -5519,6 +5519,9 @@
   }
 
   function stampSfxImpactTime(scene, schedule) {
+    if (schedule?.family === 'intro' && schedule?.kind === 'food-hero') {
+      return Number((scene.start + 0.001).toFixed(3));
+    }
     const sceneDuration = Math.max(1, sceneContentDuration(scene));
     const revealLead = Math.min(0.035, AUDIO_REVEAL_LEAD_SECONDS / sceneDuration);
     const impactProgress = clamp(schedule.start + stampRevealWindowProgress(scene, schedule) - revealLead, 0, 1);
@@ -5539,6 +5542,7 @@
     sceneStarts().forEach(scene => {
       sceneLayerRevealSchedule(scene)
         .filter(isStampRevealSchedule)
+        .filter(schedule => !(schedule.family === 'outro' && schedule.kind === 'tier' && outroTierForFood(selectedFood()) === 'S'))
         .forEach(schedule => {
           const groupedLayerId = schedule.family === 'outro' && schedule.kind === 'tier'
             ? 'outro_final_reveal_stamps'

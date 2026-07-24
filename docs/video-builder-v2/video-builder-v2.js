@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260724-v2-intro-stamp-volume-v1';
+  const BUILDER_BUILD_ID = '20260724-v2-intro-stamp-locked-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
@@ -71,10 +71,12 @@
   const FOOD_STAMP_REVEAL_SECONDS = 0.22;
   const STAMP_SHAKE_MAX_PIXELS = 2.8;
   const STAMP_SFX_PATH = 'audio/sfx/stamps/impact_stamp_hit.mp3';
+  // Locked baseline for the ranked intro/explosion hit and regular non-S outro stamps.
   const STAMP_SFX_VOLUME = 0.18;
   const STAMP_SFX_VOLUME_VARIATION = 0.025;
-  const INTRO_STAMP_SFX_VOLUME = 1.5;
-  const INTRO_STAMP_SFX_VOLUME_VARIATION = 0;
+  const INTRO_FOOD_STAMP_SFX_VOLUME = 1.5;
+  const INTRO_FOOD_STAMP_SFX_VOLUME_VARIATION = 0;
+  const INTRO_FOOD_STAMP_SFX_LEAD_SECONDS = 0.2;
   const STAMP_SFX_PLAYBACK_RATE_RANGE = { min: 0.93, max: 1.07 };
   const STAMP_SFX_START_OFFSET_RANGE_SECONDS = { min: 0, max: 0.045 };
   const STAMP_SFX_LEAD_SECONDS = 0.1;
@@ -5522,7 +5524,7 @@
 
   function stampSfxImpactTime(scene, schedule) {
     if (schedule?.family === 'intro' && schedule?.kind === 'food-hero') {
-      return Number((scene.start + 0.001).toFixed(3));
+      return Number((scene.start - INTRO_FOOD_STAMP_SFX_LEAD_SECONDS).toFixed(3));
     }
     const sceneDuration = Math.max(1, sceneContentDuration(scene));
     const revealLead = Math.min(0.035, AUDIO_REVEAL_LEAD_SECONDS / sceneDuration);
@@ -5620,12 +5622,16 @@
     return STAMP_SFX_PLAYBACK_RATE_RANGE.min + (Math.random() * range);
   }
 
+  function isIntroFoodStampSfxEvent(event = null) {
+    return event?.sceneId === 'intro' && event?.kind === 'food-hero';
+  }
+
   function stampSfxVolumeForEvent(event = null) {
-    return event?.sceneId === 'intro' ? INTRO_STAMP_SFX_VOLUME : STAMP_SFX_VOLUME;
+    return isIntroFoodStampSfxEvent(event) ? INTRO_FOOD_STAMP_SFX_VOLUME : STAMP_SFX_VOLUME;
   }
 
   function stampSfxVolumeVariationForEvent(event = null) {
-    return event?.sceneId === 'intro' ? INTRO_STAMP_SFX_VOLUME_VARIATION : STAMP_SFX_VOLUME_VARIATION;
+    return isIntroFoodStampSfxEvent(event) ? INTRO_FOOD_STAMP_SFX_VOLUME_VARIATION : STAMP_SFX_VOLUME_VARIATION;
   }
 
   function randomStampSfxVolume(event = null, { clampForElement = true } = {}) {
@@ -5694,7 +5700,7 @@
   }
 
   function primeStampSfx() {
-    if (!state.audioEnabled || Math.max(STAMP_SFX_VOLUME, INTRO_STAMP_SFX_VOLUME) <= 1) return;
+    if (!state.audioEnabled || Math.max(STAMP_SFX_VOLUME, INTRO_FOOD_STAMP_SFX_VOLUME) <= 1) return;
     const promise = stampSfxBufferPromise();
     if (promise?.catch) promise.catch(() => {});
   }
@@ -5770,11 +5776,20 @@
     }
   }
 
+  function stampSfxShouldTriggerBetween(event, previousTime, currentTime) {
+    if (!event) return false;
+    if (event.time > previousTime && event.time <= currentTime) return true;
+    return isIntroFoodStampSfxEvent(event)
+      && event.time < 0
+      && previousTime <= 0.001
+      && currentTime > previousTime;
+  }
+
   function triggerStampSfxBetween(previousTime, currentTime) {
     if (!state.playing || !state.audioEnabled || currentTime <= previousTime) return;
     for (const event of playbackSfxEvents('stamp', stampSfxEvents)) {
       if (state.playedStampSfxKeys.has(event.key)) continue;
-      if (event.time <= previousTime || event.time > currentTime) continue;
+      if (!stampSfxShouldTriggerBetween(event, previousTime, currentTime)) continue;
       state.playedStampSfxKeys.add(event.key);
       playStampSfx(event);
     }

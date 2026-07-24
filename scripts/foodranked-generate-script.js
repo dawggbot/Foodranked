@@ -40,6 +40,17 @@ const DISPLAY_BACKED_NARRATION_METRIC_KEYS = new Set([
   'bioavailability_percent'
 ]);
 const COLLAGEN_NARRATION_FOOD_TYPES = new Set(['meats']);
+const LOW_STARCH_NARRATION_NEUTRAL_FOOD_TYPES = new Set([
+  'dairy',
+  'fruits',
+  'legumes',
+  'meats',
+  'misc',
+  'nuts',
+  'oils-and-fats',
+  'seeds',
+  'vegetables'
+]);
 const MACRO_SECTION_HEADER_KEYS = {
   fats: 'fat_g',
   carbs: 'carb_g',
@@ -582,7 +593,7 @@ function macroNarrationMetrics(result, sectionKey) {
 function weakNarrationMetrics(result, metrics, sectionKey, exclude = null) {
   return (metrics || []).filter(metric => {
     if (!metric || metric === exclude) return false;
-    if (isLowFruitStarchNarrationWeakness(result, sectionKey, metric)) return false;
+    if (isLowStarchNarrationWeakness(result, sectionKey, metric)) return false;
     if (
       sectionKey === 'proteins'
       && metric.metricKey === 'collagen_g'
@@ -594,10 +605,10 @@ function weakNarrationMetrics(result, metrics, sectionKey, exclude = null) {
   });
 }
 
-function isLowFruitStarchNarrationWeakness(result, sectionKey, metric) {
+function isLowStarchNarrationWeakness(result, sectionKey, metric) {
   if (sectionKey !== 'carbs') return false;
-  if (result.food?.foodType !== 'fruits') return false;
   if (metric?.metricKey !== 'starch_g') return false;
+  if (!LOW_STARCH_NARRATION_NEUTRAL_FOOD_TYPES.has(result.food?.foodType)) return false;
   return (metricSectionScore(metric) ?? 100) < 50;
 }
 
@@ -914,11 +925,9 @@ function categoryWeakContext(foodType, sectionKey, metric = null) {
     return combine(`not great for ${type || 'this category'}`);
   }
   if (sectionKey === 'carbs') {
-    if (foodType === 'vegetables' && metric?.metricKey === 'starch_g') {
-      return `${impact}, but that's not a big deal for vegetables`;
-    }
-    if (foodType === 'fruits' && metric?.metricKey === 'starch_g') {
-      return `${impact}, but low starch is normal for fruit`;
+    if (metric?.metricKey === 'starch_g' && LOW_STARCH_NARRATION_NEUTRAL_FOOD_TYPES.has(foodType)) {
+      const normalFor = foodType === 'oils-and-fats' ? 'oils and fats' : (type || 'this category');
+      return `${impact}, but low starch is normal for ${normalFor}`;
     }
     if (['grains', 'fruits', 'legumes', 'tubers'].includes(foodType)) return combine(`a real downside for ${type}`);
     return combine(`a small downside for ${type || 'this category'}`);

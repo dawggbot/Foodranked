@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260724-v2-sfx-asset-timing-v1';
+  const BUILDER_BUILD_ID = '20260724-v2-sfx-profile-random-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
@@ -138,6 +138,15 @@
         leadSeconds: STAMP_SFX_LEAD_SECONDS,
         playbackRateRange: STAMP_SFX_PLAYBACK_RATE_RANGE,
         startOffsetSeconds: 0.54
+      }
+    },
+    'audio/sfx/stamps/s_tier_stamp_level_up.mp3': {
+      sTierStamp: {
+        volume: S_TIER_STAMP_SFX_VOLUME,
+        leadSeconds: S_TIER_STAMP_SFX_LEAD_SECONDS,
+        poolSize: S_TIER_STAMP_SFX_POOL_SIZE,
+        startOffsetSeconds: 0,
+        playbackRate: 1
       }
     },
     'audio/sfx/transitions/section_transition_whoosh.mp3': {
@@ -5679,7 +5688,7 @@
     const revealLead = Math.min(0.035, AUDIO_REVEAL_LEAD_SECONDS / sceneDuration);
     const impactProgress = clamp(schedule.start + stampRevealWindowProgress(scene, schedule) - revealLead, 0, 1);
     const impactTime = scene.start + (impactProgress * sceneContentDuration(scene));
-    return Number(Math.max(scene.start, impactTime - S_TIER_STAMP_SFX_LEAD_SECONDS).toFixed(3));
+    return Number(Math.max(scene.start, impactTime - sTierStampSfxLeadSeconds()).toFixed(3));
   }
 
   function stampSfxEvents() {
@@ -5990,12 +5999,36 @@
     }
   }
 
+  function sTierStampSfxSettings() {
+    return sfxAssetRoleSettings('sTierStamp', S_TIER_STAMP_SFX_PATH) || {};
+  }
+
+  function sTierStampSfxVolume() {
+    return asNumber(sTierStampSfxSettings().volume, S_TIER_STAMP_SFX_VOLUME);
+  }
+
+  function sTierStampSfxLeadSeconds() {
+    return asNumber(sTierStampSfxSettings().leadSeconds, S_TIER_STAMP_SFX_LEAD_SECONDS);
+  }
+
+  function sTierStampSfxPoolSize() {
+    return Math.max(1, Math.round(asNumber(sTierStampSfxSettings().poolSize, S_TIER_STAMP_SFX_POOL_SIZE)));
+  }
+
+  function sTierStampSfxStartOffsetSeconds() {
+    return asNumber(sTierStampSfxSettings().startOffsetSeconds, 0);
+  }
+
+  function sTierStampSfxPlaybackRate() {
+    return asNumber(sTierStampSfxSettings().playbackRate, 1);
+  }
+
   function nextSTierStampSfxAudio() {
     if (!state.sTierStampSfxPool.length) {
-      state.sTierStampSfxPool = Array.from({ length: S_TIER_STAMP_SFX_POOL_SIZE }, () => {
+      state.sTierStampSfxPool = Array.from({ length: sTierStampSfxPoolSize() }, () => {
         const audio = new Audio(docsAssetPath(S_TIER_STAMP_SFX_PATH));
         audio.preload = 'auto';
-        audio.volume = S_TIER_STAMP_SFX_VOLUME;
+        audio.volume = Math.min(sTierStampSfxVolume(), 1);
         return audio;
       });
     }
@@ -6009,9 +6042,9 @@
     const audio = nextSTierStampSfxAudio();
     try {
       audio.pause();
-      audio.currentTime = 0;
-      audio.volume = S_TIER_STAMP_SFX_VOLUME;
-      audio.playbackRate = 1;
+      audio.currentTime = sTierStampSfxStartOffsetSeconds();
+      audio.volume = Math.min(sTierStampSfxVolume(), 1);
+      audio.playbackRate = sTierStampSfxPlaybackRate();
       const playPromise = audio.play();
       if (playPromise?.catch) playPromise.catch(() => {});
     } catch {}

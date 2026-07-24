@@ -11,28 +11,8 @@ const publishedFoodsDir = path.join(outDir, 'foods');
 const docsAppDir = path.join(repoRoot, 'docs', 'app');
 const docsAudioDir = path.join(repoRoot, 'docs', 'audio', 'episodes');
 const sourceSpritesDir = path.join(repoRoot, 'sprites');
+const { completeSfxProfile } = require('./lib/sfx-profiles');
 const ADAM_NARRATION_VOLUME = 0.7;
-const AUTO_SFX_PROFILE_VERSION = 1;
-const AUTO_SFX_SELECTION_MODE = 'auto-stable-v1';
-const AUTO_SFX_ROLE_OPTIONS = {
-  stampImpact: [
-    'audio/sfx/stamps/impact_stamp_hit.mp3',
-    'audio/sfx/stamps/traditional_stamp_hit.mp3'
-  ],
-  sectionTransition: [
-    'audio/sfx/transitions/section_transition_whoosh.mp3',
-    'audio/sfx/transitions/freesound_community_retro_spell_sfx_85574.mp3'
-  ],
-  highlightGlow: [
-    'audio/sfx/ui/highlight_glow_loop.mp3',
-    'audio/sfx/ui/freesound_community_magical_background_6892.mp3'
-  ]
-};
-const DEFAULT_SFX_ROLE_PATHS = {
-  stampImpact: AUTO_SFX_ROLE_OPTIONS.stampImpact[0],
-  sectionTransition: AUTO_SFX_ROLE_OPTIONS.sectionTransition[0],
-  highlightGlow: AUTO_SFX_ROLE_OPTIONS.highlightGlow[0]
-};
 
 function ensureDir(dir) { fs.mkdirSync(dir, { recursive: true }); }
 function readJson(file) { return JSON.parse(fs.readFileSync(file, 'utf8')); }
@@ -45,54 +25,6 @@ function configuredNarrationVolumeForVoice(voiceLabel) {
 function narrationVolumeMetadata(voiceLabel) {
   const volume = configuredNarrationVolumeForVoice(voiceLabel);
   return volume == null ? {} : { narrationVolume: volume };
-}
-
-function stableHash(value) {
-  let hash = 2166136261;
-  for (const char of String(value || '')) {
-    hash ^= char.charCodeAt(0);
-    hash = Math.imul(hash, 16777619) >>> 0;
-  }
-  return hash >>> 0;
-}
-
-function stableChoice(options, seed) {
-  return options[stableHash(seed) % options.length];
-}
-
-function autoSfxProfile(foodId) {
-  const id = String(foodId || '').trim();
-  return {
-    version: AUTO_SFX_PROFILE_VERSION,
-    selectionMode: AUTO_SFX_SELECTION_MODE,
-    stampImpact: {
-      path: stableChoice(AUTO_SFX_ROLE_OPTIONS.stampImpact, `${id}:stampImpact`)
-    },
-    sectionTransition: {
-      path: stableChoice(AUTO_SFX_ROLE_OPTIONS.sectionTransition, `${id}:sectionTransition`)
-    },
-    highlightGlow: {
-      path: stableChoice(AUTO_SFX_ROLE_OPTIONS.highlightGlow, `${id}:highlightGlow`)
-    }
-  };
-}
-
-function cloneJson(value) {
-  return JSON.parse(JSON.stringify(value));
-}
-
-function completeSfxProfile(profile, foodId) {
-  if (!profile) return autoSfxProfile(foodId);
-  const completed = cloneJson(profile);
-  if (!completed.version) completed.version = AUTO_SFX_PROFILE_VERSION;
-  if (!completed.selectionMode) completed.selectionMode = 'manual';
-  for (const [role, path] of Object.entries(DEFAULT_SFX_ROLE_PATHS)) {
-    const value = completed[role];
-    if (!value || typeof value !== 'object' || !String(value.path || '').trim()) {
-      completed[role] = { path };
-    }
-  }
-  return completed;
 }
 
 function titleCase(value) {

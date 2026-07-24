@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260724-v2-intro-stamp-zero-v1';
+  const BUILDER_BUILD_ID = '20260724-v2-intro-stamp-volume-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
@@ -73,6 +73,8 @@
   const STAMP_SFX_PATH = 'audio/sfx/stamps/impact_stamp_hit.mp3';
   const STAMP_SFX_VOLUME = 0.18;
   const STAMP_SFX_VOLUME_VARIATION = 0.025;
+  const INTRO_STAMP_SFX_VOLUME = 1.5;
+  const INTRO_STAMP_SFX_VOLUME_VARIATION = 0;
   const STAMP_SFX_PLAYBACK_RATE_RANGE = { min: 0.93, max: 1.07 };
   const STAMP_SFX_START_OFFSET_RANGE_SECONDS = { min: 0, max: 0.045 };
   const STAMP_SFX_LEAD_SECONDS = 0.1;
@@ -5618,8 +5620,18 @@
     return STAMP_SFX_PLAYBACK_RATE_RANGE.min + (Math.random() * range);
   }
 
-  function randomStampSfxVolume({ clampForElement = true } = {}) {
-    const volume = Math.max(0, STAMP_SFX_VOLUME + ((Math.random() * 2 - 1) * STAMP_SFX_VOLUME_VARIATION));
+  function stampSfxVolumeForEvent(event = null) {
+    return event?.sceneId === 'intro' ? INTRO_STAMP_SFX_VOLUME : STAMP_SFX_VOLUME;
+  }
+
+  function stampSfxVolumeVariationForEvent(event = null) {
+    return event?.sceneId === 'intro' ? INTRO_STAMP_SFX_VOLUME_VARIATION : STAMP_SFX_VOLUME_VARIATION;
+  }
+
+  function randomStampSfxVolume(event = null, { clampForElement = true } = {}) {
+    const baseVolume = stampSfxVolumeForEvent(event);
+    const variation = stampSfxVolumeVariationForEvent(event);
+    const volume = Math.max(0, baseVolume + ((Math.random() * 2 - 1) * variation));
     return clampForElement ? Math.min(volume, 1) : volume;
   }
 
@@ -5682,7 +5694,7 @@
   }
 
   function primeStampSfx() {
-    if (!state.audioEnabled || STAMP_SFX_VOLUME <= 1) return;
+    if (!state.audioEnabled || Math.max(STAMP_SFX_VOLUME, INTRO_STAMP_SFX_VOLUME) <= 1) return;
     const promise = stampSfxBufferPromise();
     if (promise?.catch) promise.catch(() => {});
   }
@@ -5694,7 +5706,7 @@
       audio.pause();
       audio.currentTime = randomStampSfxStartOffset(audio);
       allowSfxPitchShift(audio);
-      audio.volume = randomStampSfxVolume({ clampForElement: true });
+      audio.volume = randomStampSfxVolume(event, { clampForElement: true });
       audio.playbackRate = randomStampSfxPlaybackRate();
       const playPromise = audio.play();
       if (playPromise?.catch) playPromise.catch(() => {});
@@ -5721,7 +5733,7 @@
         const gain = context.createGain();
         source.buffer = buffer;
         source.playbackRate.value = randomStampSfxPlaybackRate();
-        gain.gain.value = randomStampSfxVolume({ clampForElement: false });
+        gain.gain.value = randomStampSfxVolume(event, { clampForElement: false });
         source.connect(gain).connect(context.destination);
         state.stampSfxSources.add(source);
         source.onended = () => {
@@ -5736,7 +5748,7 @@
 
   function playStampSfx(event) {
     if (!state.audioEnabled || !event) return;
-    if (STAMP_SFX_VOLUME > 1) {
+    if (stampSfxVolumeForEvent(event) > 1) {
       playStampWebAudioSfx(event);
       return;
     }

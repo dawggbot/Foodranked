@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260724-v2-audio-profiles-v1';
+  const BUILDER_BUILD_ID = '20260724-v2-music-asset-settings-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
@@ -211,6 +211,33 @@
         playbackRateRanges: HIGHLIGHT_GLOW_SFX_PLAYBACK_RATE_RANGES,
         minRateChange: HIGHLIGHT_GLOW_SFX_MIN_RATE_CHANGE,
         stopThreshold: HIGHLIGHT_GLOW_SFX_STOP_THRESHOLD
+      }
+    }
+  });
+  const MUSIC_ASSET_SETTINGS = Object.freeze({
+    'audio/music/freesound_community_8bit_sample_69080_loop_240s.mp3': {
+      backgroundMusic: {
+        volume: BACKGROUND_MUSIC_VOLUME
+      }
+    },
+    'audio/music/hauntsync_retro_chiptune_adventure_318059_loop_240s.mp3': {
+      backgroundMusic: {
+        volume: BACKGROUND_MUSIC_VOLUME
+      }
+    },
+    'audio/music/lucadialessandro_arcade_melody_295434_loop_240s.mp3': {
+      backgroundMusic: {
+        volume: BACKGROUND_MUSIC_VOLUME
+      }
+    },
+    'audio/music/retro_bgm_chan_low_level_enemy_534609_loop_240s.mp3': {
+      backgroundMusic: {
+        volume: BACKGROUND_MUSIC_VOLUME
+      }
+    },
+    'audio/music/retro_bgm_chan_vs_robbot_vs_534622_loop_240s.mp3': {
+      backgroundMusic: {
+        volume: BACKGROUND_MUSIC_VOLUME
       }
     }
   });
@@ -976,10 +1003,23 @@
     return settings && typeof settings === 'object' ? settings : null;
   }
 
+  function musicAssetRoleSettings(role, path) {
+    const settings = MUSIC_ASSET_SETTINGS[normalizeSfxAssetPath(path)]?.[role];
+    return settings && typeof settings === 'object' ? settings : null;
+  }
+
   function sfxRoleSetting(role, key, path, fallback, food = selectedFood()) {
     const assetSettings = sfxAssetRoleSettings(role, path);
     if (assetSettings && Object.prototype.hasOwnProperty.call(assetSettings, key)) return assetSettings[key];
     const profileRole = sfxProfileRole(role, food);
+    if (profileRole && Object.prototype.hasOwnProperty.call(profileRole, key)) return profileRole[key];
+    return fallback;
+  }
+
+  function musicRoleSetting(role, key, path, fallback, food = selectedFood()) {
+    const assetSettings = musicAssetRoleSettings(role, path);
+    if (assetSettings && Object.prototype.hasOwnProperty.call(assetSettings, key)) return assetSettings[key];
+    const profileRole = musicProfileRole(role, food);
     if (profileRole && Object.prototype.hasOwnProperty.call(profileRole, key)) return profileRole[key];
     return fallback;
   }
@@ -1021,10 +1061,13 @@
   function backgroundMusicForFood(food = selectedFood()) {
     const path = backgroundMusicPath(food);
     if (!path) return null;
-    const role = musicProfileRole('backgroundMusic', food);
     return {
       path,
-      volume: clamp(asNumber(role?.volume, BACKGROUND_MUSIC_VOLUME), 0, 1),
+      volume: clamp(
+        asNumber(musicRoleSetting('backgroundMusic', 'volume', path, BACKGROUND_MUSIC_VOLUME, food), BACKGROUND_MUSIC_VOLUME),
+        0,
+        1
+      ),
       selectionMode: musicProfileForFood(food)?.selectionMode || null
     };
   }

@@ -295,9 +295,22 @@ h2 {
 
 .preview-toolbar {
   display: grid;
-  grid-template-columns: 76px 88px 96px minmax(92px, auto) minmax(0, 1fr);
+  grid-template-columns: 76px 88px 96px minmax(0, 1fr);
+  grid-template-areas:
+    "play audio time scrub"
+    ". status status status";
+  row-gap: 6px;
   width: 100%;
 }
+
+#playPause { grid-area: play; }
+#audioToggle { grid-area: audio; }
+#timeReadout { grid-area: time; }
+#timeScrub {
+  grid-area: scrub;
+  min-width: 0;
+}
+#audioStatus { grid-area: status; }
 
 .time-readout,
 .audio-status {
@@ -311,6 +324,7 @@ h2 {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  text-align: right;
 }
 
 .phone-shell {
@@ -861,6 +875,10 @@ h2 {
 
   .preview-toolbar {
     grid-template-columns: 76px 88px 1fr;
+    grid-template-areas:
+      "play audio time"
+      "scrub scrub scrub"
+      "status status status";
   }
 
   .time-readout {
@@ -870,10 +888,6 @@ h2 {
   .audio-status {
     grid-column: 1 / -1;
     text-align: left;
-  }
-
-  #timeScrub {
-    grid-column: 1 / -1;
   }
 
 }

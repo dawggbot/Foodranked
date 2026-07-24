@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260724-v2-stamp-sfx-tighten-v1';
+  const BUILDER_BUILD_ID = '20260724-v2-stamp-sfx-scope-perf-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
@@ -71,15 +71,15 @@
   const FOOD_STAMP_REVEAL_SECONDS = 0.22;
   const STAMP_SHAKE_MAX_PIXELS = 2.8;
   const STAMP_SFX_PATH = 'audio/sfx/stamps/impact_stamp_hit.mp3';
-  const STAMP_SFX_VOLUME = 1.5;
-  const STAMP_SFX_VOLUME_VARIATION = 0;
-  const STAMP_SFX_PLAYBACK_RATE_RANGE = { min: 0.56, max: 0.68 };
+  const STAMP_SFX_VOLUME = 0.18;
+  const STAMP_SFX_VOLUME_VARIATION = 0.025;
+  const STAMP_SFX_PLAYBACK_RATE_RANGE = { min: 0.93, max: 1.07 };
   const STAMP_SFX_START_OFFSET_RANGE_SECONDS = { min: 0, max: 0.045 };
-  const STAMP_SFX_LEAD_SECONDS = 0.16;
+  const STAMP_SFX_LEAD_SECONDS = 0.1;
   const STAMP_SFX_POOL_SIZE = 4;
   const S_TIER_STAMP_SFX_PATH = 'audio/sfx/stamps/s_tier_stamp_level_up.mp3';
-  const S_TIER_STAMP_SFX_VOLUME = 0.22;
-  const S_TIER_STAMP_SFX_LEAD_SECONDS = 0.02;
+  const S_TIER_STAMP_SFX_VOLUME = 0.36;
+  const S_TIER_STAMP_SFX_LEAD_SECONDS = 0.08;
   const S_TIER_STAMP_SFX_POOL_SIZE = 2;
   const SECTION_TRANSITION_SFX_PATH = 'audio/sfx/transitions/section_transition_whoosh.mp3';
   const SECTION_TRANSITION_SFX_VOLUME = 0.22;
@@ -448,7 +448,8 @@
     displayBuilderExportFrame: null,
     displayBuilderExportRequestedFor: '',
     displayBuilderExportStartedAt: 0,
-    displayBuilderExportStatus: ''
+    displayBuilderExportStatus: '',
+    playbackSfxEvents: null
   };
 
   function readJson(raw, fallback) {
@@ -3140,11 +3141,26 @@
     });
   }
 
-  function renderControls() {
-    const scene = state.scenes.find(item => item.id === state.selectedSceneId) || activeSceneAt();
+  function syncSelectedSceneToPlayhead() {
     const timedScene = activeSceneAt();
-    if (timedScene && state.selectedSceneId !== timedScene.id) state.selectedSceneId = timedScene.id;
-    const selected = state.scenes.find(item => item.id === state.selectedSceneId) || scene;
+    if (!timedScene || state.selectedSceneId === timedScene.id) return false;
+    state.selectedSceneId = timedScene.id;
+    return true;
+  }
+
+  function updatePlaybackControls(overrideStatus, { refreshAudioStatus = true } = {}) {
+    els.playPause.textContent = state.playing ? 'Pause' : 'Play';
+    if (refreshAudioStatus || overrideStatus) updateAudioControls(overrideStatus);
+
+    const total = totalDuration();
+    els.timeScrub.max = String(Math.max(1, Math.round(total * 100)));
+    els.timeScrub.value = String(Math.round(state.currentTime * 100));
+    els.timeReadout.textContent = `${state.currentTime.toFixed(1)}s / ${total.toFixed(1)}s`;
+  }
+
+  function renderControls() {
+    syncSelectedSceneToPlayhead();
+    const selected = state.scenes.find(item => item.id === state.selectedSceneId) || activeSceneAt();
     els.activeSceneTitle.textContent = selected?.label || 'Scene';
     els.sceneStatus.textContent = selected
       ? `${selected.duration.toFixed(1)}s${sceneHoldSeconds(selected) ? ` · ${sceneHoldSeconds(selected).toFixed(1)}s hold` : ''}`
@@ -3153,13 +3169,7 @@
     els.revealStyle.value = selected?.reveal || 'cascade';
     els.captionSize.value = selected?.captionSize || 22;
     els.captionText.value = selected?.caption || '';
-    els.playPause.textContent = state.playing ? 'Pause' : 'Play';
-    updateAudioControls();
-
-    const total = totalDuration();
-    els.timeScrub.max = String(Math.max(1, Math.round(total * 100)));
-    els.timeScrub.value = String(Math.round(state.currentTime * 100));
-    els.timeReadout.textContent = `${state.currentTime.toFixed(1)}s / ${total.toFixed(1)}s`;
+    updatePlaybackControls();
   }
 
   function renderManifest() {
@@ -5746,7 +5756,7 @@
 
   function triggerStampSfxBetween(previousTime, currentTime) {
     if (!state.playing || !state.audioEnabled || currentTime <= previousTime) return;
-    for (const event of stampSfxEvents()) {
+    for (const event of playbackSfxEvents('stamp', stampSfxEvents)) {
       if (state.playedStampSfxKeys.has(event.key)) continue;
       if (event.time <= previousTime || event.time > currentTime) continue;
       state.playedStampSfxKeys.add(event.key);
@@ -5792,7 +5802,7 @@
 
   function triggerSTierStampSfxBetween(previousTime, currentTime) {
     if (!state.playing || !state.audioEnabled || currentTime <= previousTime) return;
-    for (const event of sTierStampSfxEvents()) {
+    for (const event of playbackSfxEvents('sTierStamp', sTierStampSfxEvents)) {
       if (state.playedSTierStampSfxKeys.has(event.key)) continue;
       if (event.time <= previousTime || event.time > currentTime) continue;
       state.playedSTierStampSfxKeys.add(event.key);
@@ -5953,7 +5963,7 @@
 
   function triggerTransitionSfxBetween(previousTime, currentTime) {
     if (!state.playing || !state.audioEnabled || currentTime <= previousTime) return;
-    for (const event of sectionTransitionSfxEvents()) {
+    for (const event of playbackSfxEvents('transition', sectionTransitionSfxEvents)) {
       if (state.playedTransitionSfxKeys.has(event.key)) continue;
       if (event.time <= previousTime || event.time > currentTime) continue;
       state.playedTransitionSfxKeys.add(event.key);
@@ -6042,7 +6052,7 @@
 
   function triggerMicronBarConfirmSfxBetween(previousTime, currentTime) {
     if (!state.playing || !state.audioEnabled || currentTime <= previousTime) return;
-    for (const event of micronBarConfirmSfxEvents()) {
+    for (const event of playbackSfxEvents('micronBarConfirm', micronBarConfirmSfxEvents)) {
       if (state.playedMicronBarConfirmSfxKeys.has(event.key)) continue;
       if (event.time <= previousTime || event.time > currentTime) continue;
       state.playedMicronBarConfirmSfxKeys.add(event.key);
@@ -6138,7 +6148,7 @@
 
   function triggerMicron100FireworkSfxBetween(previousTime, currentTime) {
     if (!state.playing || !state.audioEnabled || currentTime <= previousTime) return;
-    for (const event of micron100FireworkSfxEvents()) {
+    for (const event of playbackSfxEvents('micron100Firework', micron100FireworkSfxEvents)) {
       if (state.playedMicron100FireworkSfxKeys.has(event.key)) continue;
       if (event.time <= previousTime || event.time > currentTime) continue;
       state.playedMicron100FireworkSfxKeys.add(event.key);
@@ -6215,7 +6225,7 @@
 
   function triggerMajorProSparkleSfxBetween(previousTime, currentTime) {
     if (!state.playing || !state.audioEnabled || currentTime <= previousTime) return;
-    for (const event of majorProSparkleSfxEvents()) {
+    for (const event of playbackSfxEvents('majorProSparkle', majorProSparkleSfxEvents)) {
       if (state.playedMajorProSparkleSfxKeys.has(event.key)) continue;
       if (event.time <= previousTime || event.time > currentTime) continue;
       state.playedMajorProSparkleSfxKeys.add(event.key);
@@ -6292,7 +6302,7 @@
 
   function triggerMajorConSirenSfxBetween(previousTime, currentTime) {
     if (!state.playing || !state.audioEnabled || currentTime <= previousTime) return;
-    for (const event of majorConSirenSfxEvents()) {
+    for (const event of playbackSfxEvents('majorConSiren', majorConSirenSfxEvents)) {
       if (state.playedMajorConSirenSfxKeys.has(event.key)) continue;
       if (event.time <= previousTime || event.time > currentTime) continue;
       state.playedMajorConSirenSfxKeys.add(event.key);
@@ -6328,6 +6338,27 @@
           })
       ))
       .sort((a, b) => a.time - b.time || a.key.localeCompare(b.key));
+  }
+
+  function buildPlaybackSfxEvents() {
+    return {
+      stamp: stampSfxEvents(),
+      sTierStamp: sTierStampSfxEvents(),
+      transition: sectionTransitionSfxEvents(),
+      micronBarConfirm: micronBarConfirmSfxEvents(),
+      micron100Firework: micron100FireworkSfxEvents(),
+      majorProSparkle: majorProSparkleSfxEvents(),
+      majorConSiren: majorConSirenSfxEvents(),
+      barFill: macroBarFillSfxEvents()
+    };
+  }
+
+  function playbackSfxEvents(key, build) {
+    if (state.playing) {
+      if (!state.playbackSfxEvents) state.playbackSfxEvents = buildPlaybackSfxEvents();
+      return state.playbackSfxEvents[key] || [];
+    }
+    return build();
   }
 
   function macroBarGifNativeSecondsForSrc(src) {
@@ -6557,7 +6588,7 @@
 
   function triggerBarFillSfxBetween(previousTime, currentTime) {
     if (!state.playing || !state.audioEnabled || currentTime <= previousTime) return;
-    for (const event of macroBarFillSfxEvents()) {
+    for (const event of playbackSfxEvents('barFill', macroBarFillSfxEvents)) {
       if (state.playedBarFillSfxKeys.has(event.key)) continue;
       if (event.time <= previousTime || event.time > currentTime) continue;
       state.playedBarFillSfxKeys.add(event.key);
@@ -6736,6 +6767,7 @@
   function stopPlayback({ pauseSfx = true } = {}) {
     state.playing = false;
     state.audioInHold = false;
+    state.playbackSfxEvents = null;
     els.playPause.textContent = 'Play';
     if (els.narrationAudio) els.narrationAudio.pause();
     pauseHighlightGlowSfx();
@@ -6765,6 +6797,7 @@
     state.playedMajorProSparkleSfxKeys = new Set();
     state.playedMajorConSirenSfxKeys = new Set();
     state.playedBarFillSfxKeys = new Set();
+    state.playbackSfxEvents = buildPlaybackSfxEvents();
     els.playPause.textContent = 'Pause';
     primeStampSfx();
     primeTransitionSfx();
@@ -6795,11 +6828,13 @@
     if (state.playing) requestAnimationFrame(tick);
   }
 
-  function renderDynamic() {
+  function renderDynamic({ fullUi = false } = {}) {
+    const sceneChanged = syncSelectedSceneToPlayhead();
     renderStage();
-    renderSceneList();
+    if (fullUi || sceneChanged) renderSceneList();
     renderTimelineStrip();
-    renderControls();
+    if (fullUi || sceneChanged) renderControls();
+    else updatePlaybackControls(null, { refreshAudioStatus: false });
   }
 
   function renderAll() {
@@ -6859,7 +6894,7 @@
     state.currentTime = Number(els.timeScrub.value) / 100;
     stopPlayback();
     syncAudioTime({ force: true });
-    renderDynamic();
+    renderDynamic({ fullUi: true });
   });
 
   els.audioToggle.addEventListener('click', () => {
@@ -7181,7 +7216,7 @@
           state.splitAudioMetadataDurations.set(sourcePath, duration);
           state.audioTimelineKey = '';
           if (calibrateSceneDurationsToSplitAudio(audioForFood(selectedFood()))) {
-            renderDynamic();
+            renderDynamic({ fullUi: true });
             return;
           }
         }

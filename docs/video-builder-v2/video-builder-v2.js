@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260724-v2-traditional-stamp-volume-v4';
+  const BUILDER_BUILD_ID = '20260724-v2-adam-narration-volume-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
@@ -13,6 +13,10 @@
   const CAPTION_SUMMARY_LINE_CHARS = 24;
   const CAPTION_TIER_LINE_CHARS = 28;
   const CAPTION_WORD_LOOKAHEAD_SECONDS = 0.002;
+  const NARRATION_VOLUME = 1;
+  const NARRATION_VOICE_VOLUME_OVERRIDES = Object.freeze({
+    'Adam - Dominant, Firm': 0.8
+  });
   const AUDIO_REVEAL_LEAD_SECONDS = 0.11;
   const AUDIO_REVEAL_WINDOW_SECONDS = 0.36;
   const SUBMACRO_REVEAL_WINDOW_SECONDS = 1.25;
@@ -7125,6 +7129,7 @@
         voiceLabel: splitAudio.voiceLabel || null,
         modelId: splitAudio.modelId || null,
         generatedAt: splitAudio.generatedAt || null,
+        narrationVolume: asNumber(splitAudio.narrationVolume ?? splitAudio.playbackVolume, null),
         durationSeconds,
         blockGapSeconds: asNumber(splitAudio.blockGapSeconds, null),
         blocks: splitBlocks
@@ -7142,7 +7147,8 @@
       profileId: audio.profileId || null,
       voiceLabel: audio.voiceLabel || null,
       modelId: audio.modelId || null,
-      generatedAt: audio.generatedAt || null
+      generatedAt: audio.generatedAt || null,
+      narrationVolume: asNumber(audio.narrationVolume ?? audio.playbackVolume, null)
     };
   }
 
@@ -7182,6 +7188,21 @@
     return true;
   }
 
+  function narrationVolumeForAudio(audio) {
+    const voiceLabel = String(audio?.voiceLabel || '').trim();
+    const voiceVolume = Object.prototype.hasOwnProperty.call(NARRATION_VOICE_VOLUME_OVERRIDES, voiceLabel)
+      ? NARRATION_VOICE_VOLUME_OVERRIDES[voiceLabel]
+      : NARRATION_VOLUME;
+    return clamp(asNumber(audio?.narrationVolume, voiceVolume), 0, 1);
+  }
+
+  function syncNarrationVolumeForAudio(audio) {
+    if (!els.narrationAudio) return;
+    const volume = narrationVolumeForAudio(audio);
+    els.narrationAudio.volume = volume;
+    els.narrationAudio.dataset.volume = volume.toFixed(3);
+  }
+
   function syncAudioForFood() {
     const food = selectedFood();
     syncHighlightGlowSfxForFood(food);
@@ -7189,11 +7210,13 @@
     if (!els.narrationAudio) return;
     if (!audio) {
       els.narrationAudio.removeAttribute('src');
+      syncNarrationVolumeForAudio(null);
       els.narrationAudio.load();
       updateAudioControls();
       primeStampSfx();
       return;
     }
+    syncNarrationVolumeForAudio(audio);
     if (audio.mode === 'split-blocks') {
       calibrateSceneDurationsToSplitAudio(audio);
       syncAudioTime({ force: true });
@@ -7240,6 +7263,7 @@
   function syncAudioTime({ force = false } = {}) {
     const audio = audioForFood(selectedFood());
     if (!audio) return false;
+    syncNarrationVolumeForAudio(audio);
     if (audio.mode === 'split-blocks') {
       const position = splitAudioPositionForVideoTime(audio);
       if (!position?.block) return false;
@@ -7269,6 +7293,7 @@
     }
     if (!syncAudioTime({ force: forceSync })) return;
     if (!els.narrationAudio?.src) return;
+    syncNarrationVolumeForAudio(audio);
     const playPromise = els.narrationAudio.play();
     if (playPromise?.catch) {
       playPromise.catch(error => {

@@ -1310,15 +1310,18 @@ function positiveSectionHighlight(result, sectionKey) {
 
   if (sectionKey === 'proteins') {
     const proteinGrams = headerMacro(result, 'protein_g') ?? 0;
-    const hasQualitySignal = metrics.some(metric => ['bioavailability_percent', 'essential_amino_acids_score'].includes(metric.metricKey));
-    if (hasQualitySignal || proteinGrams >= 12 || score >= 35) return 'protein';
+    const hasMeaningfulQualitySignal = metrics.some(metric => {
+      if (!['bioavailability_percent', 'essential_amino_acids_score', 'nonessential_amino_acids_score'].includes(metric.metricKey)) return false;
+      return (toFiniteNumber(metric.weightedScore) ?? 0) >= 60 || (toFiniteNumber(metric.score) ?? 0) >= 60;
+    });
+    if (proteinGrams >= 12 || score >= 60 || (proteinGrams >= 8 && hasMeaningfulQualitySignal)) return 'protein';
     return null;
   }
 
   if (sectionKey === 'fats' && score >= 55) {
     if (result.food.foodType === 'oils-and-fats') return 'fat quality';
-    if (metrics.find(metric => metric.metricKey === 'omega3_mg' && (metric.value || 0) > 0)) return 'omega 3';
-    if (metrics.find(metric => metric.metricKey === 'polyunsaturated_fat_g' && (metric.value || 0) > 0)) return 'fat quality';
+    if (metrics.find(metric => metric.metricKey === 'omega3_mg' && (metric.value || 0) >= 100)) return 'omega 3';
+    if (metrics.find(metric => metric.metricKey === 'polyunsaturated_fat_g' && (metric.value || 0) >= 2)) return 'fat quality';
   }
 
   if (sectionKey === 'carbs' && score >= 55) {

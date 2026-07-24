@@ -13,20 +13,11 @@ const docsAudioDir = path.join(repoRoot, 'docs', 'audio', 'episodes');
 const sourceSpritesDir = path.join(repoRoot, 'sprites');
 const { completeSfxProfile } = require('./lib/sfx-profiles');
 const { completeMusicProfile } = require('./lib/music-profiles');
-const ADAM_NARRATION_VOLUME = 0.7;
+const { completeVoiceProfile, narrationVolumeMetadata } = require('./lib/voice-profiles');
 
 function ensureDir(dir) { fs.mkdirSync(dir, { recursive: true }); }
 function readJson(file) { return JSON.parse(fs.readFileSync(file, 'utf8')); }
 function exists(file) { return fs.existsSync(file); }
-
-function configuredNarrationVolumeForVoice(voiceLabel) {
-  return /^Adam\b/i.test(String(voiceLabel || '').trim()) ? ADAM_NARRATION_VOLUME : null;
-}
-
-function narrationVolumeMetadata(voiceLabel) {
-  const volume = configuredNarrationVolumeForVoice(voiceLabel);
-  return volume == null ? {} : { narrationVolume: volume };
-}
 
 function titleCase(value) {
   return String(value || '').replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
@@ -202,6 +193,8 @@ const foods = fs.readdirSync(foodsDir)
     const sfxProfile = completeSfxProfile(explicitSfxProfile, food.id);
     const explicitMusicProfile = episode?.musicProfile || food.musicProfile || publishedFood?.musicProfile || null;
     const musicProfile = completeMusicProfile(explicitMusicProfile, food.id);
+    const explicitVoiceProfile = episode?.voiceProfile || food.voiceProfile || publishedFood?.voiceProfile || null;
+    const voiceProfile = completeVoiceProfile(explicitVoiceProfile, food.id);
 
     return {
       id: food.id,
@@ -277,6 +270,7 @@ const foods = fs.readdirSync(foodsDir)
         tierColor: episode.visualBinding?.tierColor ?? null,
         ...(sfxProfile ? { sfxProfile } : {}),
         ...(musicProfile ? { musicProfile } : {}),
+        ...(voiceProfile ? { voiceProfile } : {}),
         script: exists(path.join(repoRoot, episode.outputs?.directory || '', 'script.json'))
           ? readJson(path.join(repoRoot, episode.outputs.directory, 'script.json'))
           : null,

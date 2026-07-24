@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260724-v2-background-music-profiles-v1';
+  const BUILDER_BUILD_ID = '20260724-v2-audio-profiles-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
@@ -933,6 +933,10 @@
 
   function musicProfileForFood(food = selectedFood()) {
     return food?.episode?.musicProfile || food?.musicProfile || null;
+  }
+
+  function voiceProfileForFood(food = selectedFood()) {
+    return food?.episode?.voiceProfile || food?.voiceProfile || null;
   }
 
   function sfxProfilePath(role, fallbackPath, food = selectedFood()) {
@@ -3384,6 +3388,7 @@
       audio: audioForFood(food),
       sfxProfile: sfxProfileForFood(food),
       musicProfile: musicProfileForFood(food),
+      voiceProfile: voiceProfileForFood(food),
       backgroundMusic: backgroundMusicForFood(food),
       duration: Number(totalDuration().toFixed(2)),
       narrationDuration: Number(totalNarrationDuration().toFixed(2)),

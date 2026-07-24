@@ -2,6 +2,11 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const {
+  completeVoiceProfile,
+  narrationVolumeMetadata,
+  voiceProfileDefaults
+} = require('./lib/voice-profiles');
 
 const repoRoot = path.resolve(__dirname, '..');
 const defaultConfigPath = path.join(repoRoot, 'config', 'elevenlabs-voice-settings.v1.json');
@@ -139,6 +144,46 @@ function safeTakeName(value) {
 
 function relativeRepoPath(file) {
   return path.relative(repoRoot, file).replace(/\\/g, '/');
+}
+
+function foodProfilePathCandidates(foodId) {
+  return [
+    path.join(repoRoot, 'foods', `${foodId}.sample.json`),
+    path.join(repoRoot, 'foods', `${foodId}.json`),
+    path.join(repoRoot, 'docs', 'data', 'foods', `${foodId}.sample.json`)
+  ];
+}
+
+function loadFoodVoiceProfile(foodId) {
+  for (const file of foodProfilePathCandidates(foodId)) {
+    if (!fs.existsSync(file)) continue;
+    try {
+      return readJson(file).voiceProfile || null;
+    } catch {}
+  }
+  return null;
+}
+
+function applyVoiceProfileDefaults(options, voiceProfile, foodId, config) {
+  const defaults = voiceProfileDefaults(voiceProfile, foodId);
+  const defaultMode = config.voiceSelection?.defaultMode || null;
+  const hasVoiceRequest = Boolean(options.profile || options.voice || options.voiceId);
+
+  if (!hasVoiceRequest) {
+    if (defaults.profile) {
+      options.profile = defaults.profile;
+    } else if (defaults.voiceId) {
+      options.voiceId = defaults.voiceId;
+      if (defaults.voiceLabel && !options.voiceLabel) options.voiceLabel = defaults.voiceLabel;
+    } else if (defaults.voice && defaults.voice !== defaultMode) {
+      options.voice = defaults.voice;
+    }
+  }
+
+  const requestedRandom = ['random', 'random_suitable'].includes(options.voice || defaults.voice || '');
+  if (!options.seed && requestedRandom && !options.profile && !options.voiceId && defaults.seed) {
+    options.seed = defaults.seed;
+  }
 }
 
 function metadataMatches(file, textHash, settingsHash) {
@@ -640,6 +685,7 @@ async function generateSplitBlockSpeech({
   settingsForHash,
   productionDir,
   docsDir,
+  voiceProfile,
   options
 }) {
   const blocks = narrationBlockDescriptors(sourcePath, text);
@@ -717,6 +763,8 @@ async function generateSplitBlockSpeech({
     outputFormat: profile.outputFormat,
     voiceSettings: profile.voiceSettings,
     settings: settingsForHash,
+    voiceProfile,
+    ...narrationVolumeMetadata(profile.label),
     textSha256: textHash,
     settingsSha256: settingsHash,
     characterCount: text.length,
@@ -784,6 +832,8 @@ async function main() {
   }
 
   const take = safeTakeName(options.take);
+  const voiceProfile = completeVoiceProfile(loadFoodVoiceProfile(foodId), foodId);
+  applyVoiceProfileDefaults(options, voiceProfile, foodId, config);
   const sourcePath = path.resolve(repoRoot, options.source || path.join('outputs', 'episodes', `${foodId}-compact`, 'narration.txt'));
   if (!fs.existsSync(sourcePath)) throw new Error(`Narration source does not exist: ${relativeRepoPath(sourcePath)}`);
 
@@ -885,10 +935,12 @@ async function main() {
       take,
       sourceNarration: relativeRepoPath(sourcePath),
       profileId,
+      voiceProfile,
       voice: {
         label: profile.label,
         voiceId: profile.voiceId
       },
+      ...narrationVolumeMetadata(profile.label),
       modelId: profile.modelId,
       outputFormat: profile.outputFormat,
       voiceSettings: profile.voiceSettings,
@@ -916,6 +968,7 @@ async function main() {
       settingsForHash,
       productionDir,
       docsDir,
+      voiceProfile,
       options
     });
     return;
@@ -951,10 +1004,12 @@ async function main() {
     foodId,
     sourceNarration: relativeRepoPath(sourcePath),
     profileId,
+    voiceProfile,
     voice: {
       label: profile.label,
       voiceId: profile.voiceId
     },
+    ...narrationVolumeMetadata(profile.label),
     voiceSelection: profile.voiceSelection || null,
     modelId: profile.modelId,
     outputFormat: profile.outputFormat,

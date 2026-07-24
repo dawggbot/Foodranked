@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260724-v2-sfx-asset-settings-v1';
+  const BUILDER_BUILD_ID = '20260724-v2-sfx-asset-timing-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
@@ -143,13 +143,15 @@
     'audio/sfx/transitions/section_transition_whoosh.mp3': {
       sectionTransition: {
         volume: SECTION_TRANSITION_SFX_VOLUME,
-        maxVolume: SECTION_TRANSITION_SFX_MAX_VOLUME
+        maxVolume: SECTION_TRANSITION_SFX_MAX_VOLUME,
+        timeOffsetSeconds: 0
       }
     },
     'audio/sfx/transitions/freesound_community_retro_spell_sfx_85574.mp3': {
       sectionTransition: {
         volume: 1.5,
-        maxVolume: SECTION_TRANSITION_SFX_MAX_VOLUME
+        maxVolume: SECTION_TRANSITION_SFX_MAX_VOLUME,
+        timeOffsetSeconds: 0
       }
     },
     'audio/sfx/ui/highlight_glow_loop.mp3': {
@@ -935,6 +937,11 @@
       0,
       maxVolume
     );
+  }
+
+  function sectionTransitionSfxTimeOffsetSeconds(food = selectedFood()) {
+    const path = sectionTransitionSfxPath(food);
+    return asNumber(sfxRoleSetting('sectionTransition', 'timeOffsetSeconds', path, 0, food), 0);
   }
 
   function highlightGlowSfxPath(food = selectedFood()) {
@@ -6030,12 +6037,13 @@
   }
 
   function sectionTransitionSfxEvents() {
+    const offsetSeconds = sectionTransitionSfxTimeOffsetSeconds();
     return sceneStarts()
       .slice(1)
       .map(scene => ({
         key: `section-transition:${scene.id}:${scene.start.toFixed(3)}`,
         sceneId: scene.id,
-        time: Number(scene.start.toFixed(3))
+        time: Number((scene.start + offsetSeconds).toFixed(3))
       }));
   }
 

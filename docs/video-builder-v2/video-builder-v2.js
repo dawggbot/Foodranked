@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260723-v2-stamp-sfx-volume-v1';
+  const BUILDER_BUILD_ID = '20260724-v2-stamp-sfx-tighten-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
@@ -75,7 +75,7 @@
   const STAMP_SFX_VOLUME_VARIATION = 0;
   const STAMP_SFX_PLAYBACK_RATE_RANGE = { min: 0.56, max: 0.68 };
   const STAMP_SFX_START_OFFSET_RANGE_SECONDS = { min: 0, max: 0.045 };
-  const STAMP_SFX_LEAD_SECONDS = 0.1;
+  const STAMP_SFX_LEAD_SECONDS = 0.16;
   const STAMP_SFX_POOL_SIZE = 4;
   const S_TIER_STAMP_SFX_PATH = 'audio/sfx/stamps/s_tier_stamp_level_up.mp3';
   const S_TIER_STAMP_SFX_VOLUME = 0.22;

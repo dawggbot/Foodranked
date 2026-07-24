@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260724-v2-d-tier-sfx-v1';
+  const BUILDER_BUILD_ID = '20260724-v2-d-tier-death-fallback-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
@@ -505,6 +505,7 @@
     dTierGameLoseSfxPoolIndex: 0,
     dTierDeathSfxPool: [],
     dTierDeathSfxPoolIndex: 0,
+    dTierDeathSfxTimers: new Set(),
     playedDTierStampSfxKeys: new Set(),
     transitionSfxPool: [],
     transitionSfxPoolIndex: 0,
@@ -5076,6 +5077,15 @@
     return clamp((rankedStartSeconds + INTRO_RANKED_WORD_LEAD_SECONDS) / sceneContentDuration(scene), 0.005, 0.94);
   }
 
+  function outroTierRevealAnchor(scene, food = selectedFood(), timing = sceneTimingModel(scene)) {
+    const tier = String(food?.episode?.tier || food?.expectedTier || '').trim();
+    const segments = timing.sentences || sceneTimedSentences(scene);
+    const tierStart = termStartForTiming(timing, [`${tier} tier`, tier, 'tier'].filter(Boolean))
+      ?? segments[Math.max(0, segments.length - 1)]?.start
+      ?? 0.72;
+    return clamp(tierStart - (OUTRO_TIER_REVEAL_LEAD_SECONDS / Math.max(1, sceneContentDuration(scene))), 0.005, 0.94);
+  }
+
   function revealAnchorForLayer(layer, scene, classification, timing, index = 0, allLayers = []) {
     const sectionId = scene?.id || '';
     const segments = timing.sentences || sceneTimedSentences(scene);
@@ -5098,11 +5108,7 @@
     }
 
     if (sectionId === 'outro' && classification.kind === 'tier') {
-      const tier = String(selectedFood()?.episode?.tier || selectedFood()?.expectedTier || '').trim();
-      const tierStart = termStartForTiming(timing, [`${tier} tier`, tier, 'tier'].filter(Boolean))
-        ?? segments[Math.max(0, segments.length - 1)]?.start
-        ?? 0.72;
-      return clamp(tierStart - (OUTRO_TIER_REVEAL_LEAD_SECONDS / Math.max(1, sceneContentDuration(scene))), 0.005, 0.94);
+      return outroTierRevealAnchor(scene, selectedFood(), timing);
     }
 
     if (['fats', 'carbs', 'protein'].includes(sectionId)) {
@@ -5795,13 +5801,13 @@
 
   function dTierStampSfxEvents() {
     const events = new Map();
+    const food = selectedFood();
     sceneStarts().forEach(scene => {
       sceneLayerRevealSchedule(scene)
         .filter(isDTierStampSfxSchedule)
         .forEach(schedule => {
           const impactTime = dTierGameLoseSfxImpactTime(scene, schedule);
           const gameLoseKey = `${scene.id}:d-tier-game-lose:${schedule.start.toFixed(3)}`;
-          const deathKey = `${scene.id}:d-tier-death-collapse:${schedule.start.toFixed(3)}`;
           if (!events.has(gameLoseKey)) {
             events.set(gameLoseKey, {
               key: gameLoseKey,
@@ -5811,17 +5817,26 @@
               time: impactTime
             });
           }
-          if (!events.has(deathKey)) {
-            events.set(deathKey, {
-              key: deathKey,
-              sceneId: scene.id,
-              layerId: schedule.layerId || OUTRO_TIER_STAMP_ID,
-              kind: 'd-tier-death-collapse',
-              time: Number((impactTime + dTierDeathSfxDelaySeconds()).toFixed(3))
-            });
-          }
         });
     });
+    if (!events.size && outroTierForFood(food) === 'D') {
+      const scene = sceneStarts().find(item => item.id === 'outro');
+      if (scene) {
+        const schedule = {
+          family: 'outro',
+          kind: 'tier',
+          layerId: OUTRO_TIER_STAMP_ID,
+          start: outroTierRevealAnchor(scene, food)
+        };
+        events.set(`${scene.id}:d-tier-game-lose:fallback`, {
+          key: `${scene.id}:d-tier-game-lose:fallback`,
+          sceneId: scene.id,
+          layerId: OUTRO_TIER_STAMP_ID,
+          kind: 'd-tier-game-lose',
+          time: dTierGameLoseSfxImpactTime(scene, schedule)
+        });
+      }
+    }
     return [...events.values()].sort((a, b) => a.time - b.time || a.key.localeCompare(b.key));
   }
 
@@ -6214,6 +6229,28 @@
     return audio;
   }
 
+  function clearDTierDeathSfxTimers() {
+    for (const timer of state.dTierDeathSfxTimers || []) {
+      window.clearTimeout(timer);
+    }
+    state.dTierDeathSfxTimers.clear();
+  }
+
+  function scheduleDTierDeathSfx(event) {
+    if (!state.audioEnabled || !event) return;
+    const delayMs = Math.max(0, Math.round(dTierDeathSfxDelaySeconds() * 1000));
+    const timer = window.setTimeout(() => {
+      state.dTierDeathSfxTimers.delete(timer);
+      if (!state.audioEnabled) return;
+      playDTierStampSfx({
+        ...event,
+        key: `${event.key}:death-collapse`,
+        kind: 'd-tier-death-collapse'
+      });
+    }, delayMs);
+    state.dTierDeathSfxTimers.add(timer);
+  }
+
   function playSTierStampSfx(event) {
     if (!state.audioEnabled || !event) return;
     const audio = nextSTierStampSfxAudio();
@@ -6238,6 +6275,7 @@
       audio.playbackRate = isDeath ? dTierDeathSfxPlaybackRate() : dTierGameLoseSfxPlaybackRate();
       const playPromise = audio.play();
       if (playPromise?.catch) playPromise.catch(() => {});
+      if (!isDeath) scheduleDTierDeathSfx(event);
     } catch {}
   }
 
@@ -6251,6 +6289,7 @@
   }
 
   function pauseDTierStampSfx() {
+    clearDTierDeathSfxTimers();
     [...(state.dTierGameLoseSfxPool || []), ...(state.dTierDeathSfxPool || [])].forEach(audio => {
       try {
         audio.pause();

@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260724-v2-adam-narration-volume-v1';
+  const BUILDER_BUILD_ID = '20260724-v2-adam-narration-volume-v2';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
@@ -14,9 +14,7 @@
   const CAPTION_TIER_LINE_CHARS = 28;
   const CAPTION_WORD_LOOKAHEAD_SECONDS = 0.002;
   const NARRATION_VOLUME = 1;
-  const NARRATION_VOICE_VOLUME_OVERRIDES = Object.freeze({
-    'Adam - Dominant, Firm': 0.8
-  });
+  const ADAM_NARRATION_VOLUME = 0.7;
   const AUDIO_REVEAL_LEAD_SECONDS = 0.11;
   const AUDIO_REVEAL_WINDOW_SECONDS = 0.36;
   const SUBMACRO_REVEAL_WINDOW_SECONDS = 1.25;
@@ -79,7 +77,7 @@
   const STAMP_SFX_VOLUME = 0.18;
   const STAMP_SFX_VOLUME_VARIATION = 0;
   const STAMP_SFX_FIXED_VOLUMES = Object.freeze({
-    'traditional_stamp_hit.mp3': 0.35
+    'traditional_stamp_hit.mp3': 0.4
   });
   const INTRO_FOOD_STAMP_SFX_LEAD_SECONDS = 0.2;
   const STAMP_SFX_PLAYBACK_RATE_RANGE = { min: 0.93, max: 1.07 };
@@ -7188,12 +7186,13 @@
     return true;
   }
 
+  function isAdamVoiceLabel(voiceLabel) {
+    return /^Adam\b/i.test(String(voiceLabel || '').trim());
+  }
+
   function narrationVolumeForAudio(audio) {
-    const voiceLabel = String(audio?.voiceLabel || '').trim();
-    const voiceVolume = Object.prototype.hasOwnProperty.call(NARRATION_VOICE_VOLUME_OVERRIDES, voiceLabel)
-      ? NARRATION_VOICE_VOLUME_OVERRIDES[voiceLabel]
-      : NARRATION_VOLUME;
-    return clamp(asNumber(audio?.narrationVolume, voiceVolume), 0, 1);
+    if (isAdamVoiceLabel(audio?.voiceLabel)) return clamp(ADAM_NARRATION_VOLUME, 0, 1);
+    return clamp(asNumber(audio?.narrationVolume, NARRATION_VOLUME), 0, 1);
   }
 
   function syncNarrationVolumeForAudio(audio) {

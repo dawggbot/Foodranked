@@ -11,10 +11,20 @@ const publishedFoodsDir = path.join(outDir, 'foods');
 const docsAppDir = path.join(repoRoot, 'docs', 'app');
 const docsAudioDir = path.join(repoRoot, 'docs', 'audio', 'episodes');
 const sourceSpritesDir = path.join(repoRoot, 'sprites');
+const ADAM_NARRATION_VOLUME = 0.7;
 
 function ensureDir(dir) { fs.mkdirSync(dir, { recursive: true }); }
 function readJson(file) { return JSON.parse(fs.readFileSync(file, 'utf8')); }
 function exists(file) { return fs.existsSync(file); }
+
+function configuredNarrationVolumeForVoice(voiceLabel) {
+  return /^Adam\b/i.test(String(voiceLabel || '').trim()) ? ADAM_NARRATION_VOLUME : null;
+}
+
+function narrationVolumeMetadata(voiceLabel) {
+  const volume = configuredNarrationVolumeForVoice(voiceLabel);
+  return volume == null ? {} : { narrationVolume: volume };
+}
 
 function titleCase(value) {
   return String(value || '').replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
@@ -61,15 +71,17 @@ function findEpisodeAudio(foodId) {
   const metadataName = `${take}.json`;
   const metadataPath = path.join(dir, metadataName);
   const metadata = exists(metadataPath) ? readJson(metadataPath) : null;
+  const voiceLabel = metadata?.voice?.label || null;
   return {
     take,
     path: `audio/episodes/${foodId}/${fileName}`,
     metadataPath: exists(metadataPath) ? `audio/episodes/${foodId}/${metadataName}` : null,
     productionPath: metadata?.productionAudioFile || `production/episodes/${foodId}/voice/${fileName}`,
     profileId: metadata?.profileId || null,
-    voiceLabel: metadata?.voice?.label || null,
+    voiceLabel,
     modelId: metadata?.modelId || null,
-    generatedAt: metadata?.generatedAt || null
+    generatedAt: metadata?.generatedAt || null,
+    ...narrationVolumeMetadata(voiceLabel)
   };
 }
 
@@ -84,6 +96,7 @@ function findEpisodeSplitAudio(foodId, episode) {
 
   const metadataPath = path.join(dir, fileName);
   const metadata = readJson(metadataPath);
+  const voiceLabel = metadata.voice?.label || null;
   const take = String(metadata.take || fileName.replace(/-blocks\.json$/i, ''));
   const episodeDir = episode?.outputs?.directory ? path.join(repoRoot, episode.outputs.directory) : null;
   const alignmentPath = episodeDir && episode?.outputs?.alignmentJson
@@ -124,9 +137,10 @@ function findEpisodeSplitAudio(foodId, episode) {
     manifestPath: `audio/episodes/${foodId}/${fileName}`,
     productionManifestPath: metadata.productionAudioManifestFile || null,
     profileId: metadata.profileId || null,
-    voiceLabel: metadata.voice?.label || null,
+    voiceLabel,
     modelId: metadata.modelId || null,
     generatedAt: metadata.generatedAt || null,
+    ...narrationVolumeMetadata(voiceLabel),
     blockCount: metadata.blockCount ?? blocks.length,
     blockGapSeconds: alignment?.blockGapSeconds ?? null,
     durationSeconds,

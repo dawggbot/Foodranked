@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260724-v2-sfx-profile-random-v1';
+  const BUILDER_BUILD_ID = '20260724-v2-d-tier-sfx-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
@@ -84,6 +84,14 @@
   const S_TIER_STAMP_SFX_VOLUME = 0.36;
   const S_TIER_STAMP_SFX_LEAD_SECONDS = 0.16;
   const S_TIER_STAMP_SFX_POOL_SIZE = 2;
+  const D_TIER_GAME_LOSE_SFX_PATH = 'audio/sfx/stamps/d_tier_game_lose.mp3';
+  const D_TIER_DEATH_SFX_PATH = 'audio/sfx/stamps/d_tier_death_collapse.mp3';
+  const D_TIER_GAME_LOSE_SFX_VOLUME = S_TIER_STAMP_SFX_VOLUME;
+  const D_TIER_DEATH_SFX_VOLUME = S_TIER_STAMP_SFX_VOLUME;
+  const D_TIER_GAME_LOSE_SFX_LEAD_SECONDS = S_TIER_STAMP_SFX_LEAD_SECONDS;
+  const D_TIER_GAME_LOSE_SFX_DURATION_SECONDS = 4.284;
+  const D_TIER_DEATH_SFX_DELAY_SECONDS = D_TIER_GAME_LOSE_SFX_DURATION_SECONDS / 2;
+  const D_TIER_STAMP_SFX_POOL_SIZE = S_TIER_STAMP_SFX_POOL_SIZE;
   const SECTION_TRANSITION_SFX_PATH = 'audio/sfx/transitions/section_transition_whoosh.mp3';
   const SECTION_TRANSITION_SFX_VOLUME = 0.22;
   const SECTION_TRANSITION_SFX_MAX_VOLUME = 2;
@@ -145,6 +153,25 @@
         volume: S_TIER_STAMP_SFX_VOLUME,
         leadSeconds: S_TIER_STAMP_SFX_LEAD_SECONDS,
         poolSize: S_TIER_STAMP_SFX_POOL_SIZE,
+        startOffsetSeconds: 0,
+        playbackRate: 1
+      }
+    },
+    'audio/sfx/stamps/d_tier_game_lose.mp3': {
+      dTierGameLose: {
+        volume: D_TIER_GAME_LOSE_SFX_VOLUME,
+        leadSeconds: D_TIER_GAME_LOSE_SFX_LEAD_SECONDS,
+        durationSeconds: D_TIER_GAME_LOSE_SFX_DURATION_SECONDS,
+        deathDelaySeconds: D_TIER_DEATH_SFX_DELAY_SECONDS,
+        poolSize: D_TIER_STAMP_SFX_POOL_SIZE,
+        startOffsetSeconds: 0,
+        playbackRate: 1
+      }
+    },
+    'audio/sfx/stamps/d_tier_death_collapse.mp3': {
+      dTierDeath: {
+        volume: D_TIER_DEATH_SFX_VOLUME,
+        poolSize: D_TIER_STAMP_SFX_POOL_SIZE,
         startOffsetSeconds: 0,
         playbackRate: 1
       }
@@ -474,6 +501,11 @@
     sTierStampSfxPool: [],
     sTierStampSfxPoolIndex: 0,
     playedSTierStampSfxKeys: new Set(),
+    dTierGameLoseSfxPool: [],
+    dTierGameLoseSfxPoolIndex: 0,
+    dTierDeathSfxPool: [],
+    dTierDeathSfxPoolIndex: 0,
+    playedDTierStampSfxKeys: new Set(),
     transitionSfxPool: [],
     transitionSfxPoolIndex: 0,
     transitionSfxPath: '',
@@ -5691,12 +5723,22 @@
     return Number(Math.max(scene.start, impactTime - sTierStampSfxLeadSeconds()).toFixed(3));
   }
 
+  function dTierGameLoseSfxImpactTime(scene, schedule) {
+    return stampSfxImpactTimeWithLead(scene, schedule, dTierGameLoseSfxLeadSeconds());
+  }
+
+  function isSpecialOutroTierStampSfxSchedule(schedule) {
+    if (schedule?.family !== 'outro' || schedule?.kind !== 'tier') return false;
+    const tier = outroTierForFood(selectedFood());
+    return tier === 'S' || tier === 'D';
+  }
+
   function stampSfxEvents() {
     const events = new Map();
     sceneStarts().forEach(scene => {
       sceneLayerRevealSchedule(scene)
         .filter(isStampRevealSchedule)
-        .filter(schedule => !(schedule.family === 'outro' && schedule.kind === 'tier' && outroTierForFood(selectedFood()) === 'S'))
+        .filter(schedule => !isSpecialOutroTierStampSfxSchedule(schedule))
         .forEach(schedule => {
           const groupedLayerId = schedule.family === 'outro' && schedule.kind === 'tier'
             ? 'outro_final_reveal_stamps'
@@ -5723,6 +5765,14 @@
     return /(?:^|\/)S_tier\.png$/i.test(String(schedule?.src || ''));
   }
 
+  function isDTierStampSfxSchedule(schedule) {
+    if (outroTierForFood(selectedFood()) !== 'D') return false;
+    if (schedule?.family !== 'outro' || schedule?.kind !== 'tier') return false;
+    const id = String(schedule?.layerId || '').toLowerCase();
+    if (id !== OUTRO_TIER_STAMP_ID && id !== OUTRO_TIER_STAMP_LEGACY_ID) return false;
+    return /(?:^|\/)D_tier\.png$/i.test(String(schedule?.src || ''));
+  }
+
   function sTierStampSfxEvents() {
     const events = new Map();
     sceneStarts().forEach(scene => {
@@ -5738,6 +5788,38 @@
             kind: 's-tier-stamp',
             time: sTierStampSfxImpactTime(scene, schedule)
           });
+        });
+    });
+    return [...events.values()].sort((a, b) => a.time - b.time || a.key.localeCompare(b.key));
+  }
+
+  function dTierStampSfxEvents() {
+    const events = new Map();
+    sceneStarts().forEach(scene => {
+      sceneLayerRevealSchedule(scene)
+        .filter(isDTierStampSfxSchedule)
+        .forEach(schedule => {
+          const impactTime = dTierGameLoseSfxImpactTime(scene, schedule);
+          const gameLoseKey = `${scene.id}:d-tier-game-lose:${schedule.start.toFixed(3)}`;
+          const deathKey = `${scene.id}:d-tier-death-collapse:${schedule.start.toFixed(3)}`;
+          if (!events.has(gameLoseKey)) {
+            events.set(gameLoseKey, {
+              key: gameLoseKey,
+              sceneId: scene.id,
+              layerId: schedule.layerId || OUTRO_TIER_STAMP_ID,
+              kind: 'd-tier-game-lose',
+              time: impactTime
+            });
+          }
+          if (!events.has(deathKey)) {
+            events.set(deathKey, {
+              key: deathKey,
+              sceneId: scene.id,
+              layerId: schedule.layerId || OUTRO_TIER_STAMP_ID,
+              kind: 'd-tier-death-collapse',
+              time: Number((impactTime + dTierDeathSfxDelaySeconds()).toFixed(3))
+            });
+          }
         });
     });
     return [...events.values()].sort((a, b) => a.time - b.time || a.key.localeCompare(b.key));
@@ -6023,6 +6105,54 @@
     return asNumber(sTierStampSfxSettings().playbackRate, 1);
   }
 
+  function dTierGameLoseSfxSettings() {
+    return sfxAssetRoleSettings('dTierGameLose', D_TIER_GAME_LOSE_SFX_PATH) || {};
+  }
+
+  function dTierDeathSfxSettings() {
+    return sfxAssetRoleSettings('dTierDeath', D_TIER_DEATH_SFX_PATH) || {};
+  }
+
+  function dTierGameLoseSfxVolume() {
+    return asNumber(dTierGameLoseSfxSettings().volume, D_TIER_GAME_LOSE_SFX_VOLUME);
+  }
+
+  function dTierDeathSfxVolume() {
+    return asNumber(dTierDeathSfxSettings().volume, D_TIER_DEATH_SFX_VOLUME);
+  }
+
+  function dTierGameLoseSfxLeadSeconds() {
+    return asNumber(dTierGameLoseSfxSettings().leadSeconds, D_TIER_GAME_LOSE_SFX_LEAD_SECONDS);
+  }
+
+  function dTierDeathSfxDelaySeconds() {
+    return asNumber(dTierGameLoseSfxSettings().deathDelaySeconds, D_TIER_DEATH_SFX_DELAY_SECONDS);
+  }
+
+  function dTierGameLoseSfxPoolSize() {
+    return Math.max(1, Math.round(asNumber(dTierGameLoseSfxSettings().poolSize, D_TIER_STAMP_SFX_POOL_SIZE)));
+  }
+
+  function dTierDeathSfxPoolSize() {
+    return Math.max(1, Math.round(asNumber(dTierDeathSfxSettings().poolSize, D_TIER_STAMP_SFX_POOL_SIZE)));
+  }
+
+  function dTierGameLoseSfxStartOffsetSeconds() {
+    return asNumber(dTierGameLoseSfxSettings().startOffsetSeconds, 0);
+  }
+
+  function dTierDeathSfxStartOffsetSeconds() {
+    return asNumber(dTierDeathSfxSettings().startOffsetSeconds, 0);
+  }
+
+  function dTierGameLoseSfxPlaybackRate() {
+    return asNumber(dTierGameLoseSfxSettings().playbackRate, 1);
+  }
+
+  function dTierDeathSfxPlaybackRate() {
+    return asNumber(dTierDeathSfxSettings().playbackRate, 1);
+  }
+
   function nextSTierStampSfxAudio() {
     if (!state.sTierStampSfxPool.length) {
       state.sTierStampSfxPool = Array.from({ length: sTierStampSfxPoolSize() }, () => {
@@ -6034,6 +6164,34 @@
     }
     const audio = state.sTierStampSfxPool[state.sTierStampSfxPoolIndex % state.sTierStampSfxPool.length];
     state.sTierStampSfxPoolIndex += 1;
+    return audio;
+  }
+
+  function nextDTierGameLoseSfxAudio() {
+    if (!state.dTierGameLoseSfxPool.length) {
+      state.dTierGameLoseSfxPool = Array.from({ length: dTierGameLoseSfxPoolSize() }, () => {
+        const audio = new Audio(docsAssetPath(D_TIER_GAME_LOSE_SFX_PATH));
+        audio.preload = 'auto';
+        audio.volume = Math.min(dTierGameLoseSfxVolume(), 1);
+        return audio;
+      });
+    }
+    const audio = state.dTierGameLoseSfxPool[state.dTierGameLoseSfxPoolIndex % state.dTierGameLoseSfxPool.length];
+    state.dTierGameLoseSfxPoolIndex += 1;
+    return audio;
+  }
+
+  function nextDTierDeathSfxAudio() {
+    if (!state.dTierDeathSfxPool.length) {
+      state.dTierDeathSfxPool = Array.from({ length: dTierDeathSfxPoolSize() }, () => {
+        const audio = new Audio(docsAssetPath(D_TIER_DEATH_SFX_PATH));
+        audio.preload = 'auto';
+        audio.volume = Math.min(dTierDeathSfxVolume(), 1);
+        return audio;
+      });
+    }
+    const audio = state.dTierDeathSfxPool[state.dTierDeathSfxPoolIndex % state.dTierDeathSfxPool.length];
+    state.dTierDeathSfxPoolIndex += 1;
     return audio;
   }
 
@@ -6050,6 +6208,20 @@
     } catch {}
   }
 
+  function playDTierStampSfx(event) {
+    if (!state.audioEnabled || !event) return;
+    const isDeath = event.kind === 'd-tier-death-collapse';
+    const audio = isDeath ? nextDTierDeathSfxAudio() : nextDTierGameLoseSfxAudio();
+    try {
+      audio.pause();
+      audio.currentTime = isDeath ? dTierDeathSfxStartOffsetSeconds() : dTierGameLoseSfxStartOffsetSeconds();
+      audio.volume = Math.min(isDeath ? dTierDeathSfxVolume() : dTierGameLoseSfxVolume(), 1);
+      audio.playbackRate = isDeath ? dTierDeathSfxPlaybackRate() : dTierGameLoseSfxPlaybackRate();
+      const playPromise = audio.play();
+      if (playPromise?.catch) playPromise.catch(() => {});
+    } catch {}
+  }
+
   function pauseSTierStampSfx() {
     for (const audio of state.sTierStampSfxPool || []) {
       try {
@@ -6059,6 +6231,15 @@
     }
   }
 
+  function pauseDTierStampSfx() {
+    [...(state.dTierGameLoseSfxPool || []), ...(state.dTierDeathSfxPool || [])].forEach(audio => {
+      try {
+        audio.pause();
+        audio.currentTime = 0;
+      } catch {}
+    });
+  }
+
   function triggerSTierStampSfxBetween(previousTime, currentTime) {
     if (!state.playing || !state.audioEnabled || currentTime <= previousTime) return;
     for (const event of playbackSfxEvents('sTierStamp', sTierStampSfxEvents)) {
@@ -6066,6 +6247,16 @@
       if (event.time <= previousTime || event.time > currentTime) continue;
       state.playedSTierStampSfxKeys.add(event.key);
       playSTierStampSfx(event);
+    }
+  }
+
+  function triggerDTierStampSfxBetween(previousTime, currentTime) {
+    if (!state.playing || !state.audioEnabled || currentTime <= previousTime) return;
+    for (const event of playbackSfxEvents('dTierStamp', dTierStampSfxEvents)) {
+      if (state.playedDTierStampSfxKeys.has(event.key)) continue;
+      if (event.time <= previousTime || event.time > currentTime) continue;
+      state.playedDTierStampSfxKeys.add(event.key);
+      playDTierStampSfx(event);
     }
   }
 
@@ -6604,6 +6795,7 @@
     return {
       stamp: stampSfxEvents(),
       sTierStamp: sTierStampSfxEvents(),
+      dTierStamp: dTierStampSfxEvents(),
       transition: sectionTransitionSfxEvents(),
       micronBarConfirm: micronBarConfirmSfxEvents(),
       micron100Firework: micron100FireworkSfxEvents(),
@@ -7034,6 +7226,7 @@
     if (pauseSfx) {
       pauseStampSfx();
       pauseSTierStampSfx();
+      pauseDTierStampSfx();
       pauseTransitionSfx();
       pauseMicronBarConfirmSfx();
       pauseMicron100FireworkSfx();
@@ -7051,6 +7244,7 @@
     state.audioInHold = false;
     state.playedStampSfxKeys = new Set();
     state.playedSTierStampSfxKeys = new Set();
+    state.playedDTierStampSfxKeys = new Set();
     state.playedTransitionSfxKeys = new Set();
     state.playedMicronBarConfirmSfxKeys = new Set();
     state.playedMicron100FireworkSfxKeys = new Set();
@@ -7075,6 +7269,7 @@
     triggerTransitionSfxBetween(previousTime, state.currentTime);
     triggerStampSfxBetween(previousTime, state.currentTime);
     triggerSTierStampSfxBetween(previousTime, state.currentTime);
+    triggerDTierStampSfxBetween(previousTime, state.currentTime);
     triggerMicronBarConfirmSfxBetween(previousTime, state.currentTime);
     triggerMicron100FireworkSfxBetween(previousTime, state.currentTime);
     triggerMajorProSparkleSfxBetween(previousTime, state.currentTime);
@@ -7165,6 +7360,7 @@
       els.narrationAudio.pause();
       pauseStampSfx();
       pauseSTierStampSfx();
+      pauseDTierStampSfx();
       pauseHighlightGlowSfx();
       pauseTransitionSfx();
       pauseMicron100FireworkSfx();

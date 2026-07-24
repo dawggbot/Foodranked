@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260724-v2-traditional-stamp-volume-v1';
+  const BUILDER_BUILD_ID = '20260724-v2-traditional-stamp-volume-v2';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
@@ -75,7 +75,7 @@
   const STAMP_SFX_VOLUME = 0.18;
   const STAMP_SFX_VOLUME_VARIATION = 0;
   const STAMP_SFX_FIXED_VOLUMES = Object.freeze({
-    'traditional_stamp_hit.mp3': 0.24
+    'traditional_stamp_hit.mp3': 0.26
   });
   const INTRO_FOOD_STAMP_SFX_LEAD_SECONDS = 0.2;
   const STAMP_SFX_PLAYBACK_RATE_RANGE = { min: 0.93, max: 1.07 };

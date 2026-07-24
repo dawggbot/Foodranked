@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260724-v2-traditional-stamp-volume-v5';
+  const BUILDER_BUILD_ID = '20260724-v2-sfx-asset-settings-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
@@ -73,18 +73,11 @@
   const FOOD_STAMP_REVEAL_SECONDS = 0.22;
   const STAMP_SHAKE_MAX_PIXELS = 2.8;
   const STAMP_SFX_PATH = 'audio/sfx/stamps/impact_stamp_hit.mp3';
-  // Locked baseline for every playback of the selected stampImpact file.
   const STAMP_SFX_VOLUME = 0.18;
   const STAMP_SFX_VOLUME_VARIATION = 0;
-  const STAMP_SFX_FIXED_VOLUMES = Object.freeze({
-    'traditional_stamp_hit.mp3': 0.45
-  });
   const INTRO_FOOD_STAMP_SFX_LEAD_SECONDS = 0.2;
   const STAMP_SFX_PLAYBACK_RATE_RANGE = { min: 0.93, max: 1.07 };
   const STAMP_SFX_START_OFFSET_RANGE_SECONDS = { min: 0, max: 0.045 };
-  const STAMP_SFX_FIXED_START_OFFSETS_SECONDS = Object.freeze({
-    'traditional_stamp_hit.mp3': 0.54
-  });
   const STAMP_SFX_LEAD_SECONDS = 0.1;
   const STAMP_SFX_POOL_SIZE = 4;
   const S_TIER_STAMP_SFX_PATH = 'audio/sfx/stamps/s_tier_stamp_level_up.mp3';
@@ -126,6 +119,62 @@
   };
   const HIGHLIGHT_GLOW_SFX_MIN_RATE_CHANGE = 0.12;
   const HIGHLIGHT_GLOW_SFX_STOP_THRESHOLD = 0.0015;
+  const SFX_ASSET_SETTINGS = Object.freeze({
+    'audio/sfx/stamps/impact_stamp_hit.mp3': {
+      stampImpact: {
+        volume: STAMP_SFX_VOLUME,
+        volumeVariation: STAMP_SFX_VOLUME_VARIATION,
+        introLeadSeconds: INTRO_FOOD_STAMP_SFX_LEAD_SECONDS,
+        leadSeconds: STAMP_SFX_LEAD_SECONDS,
+        playbackRateRange: STAMP_SFX_PLAYBACK_RATE_RANGE,
+        startOffsetRangeSeconds: STAMP_SFX_START_OFFSET_RANGE_SECONDS
+      }
+    },
+    'audio/sfx/stamps/traditional_stamp_hit.mp3': {
+      stampImpact: {
+        volume: 0.45,
+        volumeVariation: STAMP_SFX_VOLUME_VARIATION,
+        introLeadSeconds: INTRO_FOOD_STAMP_SFX_LEAD_SECONDS,
+        leadSeconds: STAMP_SFX_LEAD_SECONDS,
+        playbackRateRange: STAMP_SFX_PLAYBACK_RATE_RANGE,
+        startOffsetSeconds: 0.54
+      }
+    },
+    'audio/sfx/transitions/section_transition_whoosh.mp3': {
+      sectionTransition: {
+        volume: SECTION_TRANSITION_SFX_VOLUME,
+        maxVolume: SECTION_TRANSITION_SFX_MAX_VOLUME
+      }
+    },
+    'audio/sfx/transitions/freesound_community_retro_spell_sfx_85574.mp3': {
+      sectionTransition: {
+        volume: 1.5,
+        maxVolume: SECTION_TRANSITION_SFX_MAX_VOLUME
+      }
+    },
+    'audio/sfx/ui/highlight_glow_loop.mp3': {
+      highlightGlow: {
+        volume: HIGHLIGHT_GLOW_SFX_VOLUME,
+        fadeInSpeed: HIGHLIGHT_GLOW_SFX_FADE_IN_SPEED,
+        fadeOutSpeed: HIGHLIGHT_GLOW_SFX_FADE_OUT_SPEED,
+        playbackRateFadeSpeed: HIGHLIGHT_GLOW_SFX_PLAYBACK_RATE_FADE_SPEED,
+        playbackRateRanges: HIGHLIGHT_GLOW_SFX_PLAYBACK_RATE_RANGES,
+        minRateChange: HIGHLIGHT_GLOW_SFX_MIN_RATE_CHANGE,
+        stopThreshold: HIGHLIGHT_GLOW_SFX_STOP_THRESHOLD
+      }
+    },
+    'audio/sfx/ui/freesound_community_magical_background_6892.mp3': {
+      highlightGlow: {
+        volume: HIGHLIGHT_GLOW_SFX_VOLUME,
+        fadeInSpeed: HIGHLIGHT_GLOW_SFX_FADE_IN_SPEED,
+        fadeOutSpeed: HIGHLIGHT_GLOW_SFX_FADE_OUT_SPEED,
+        playbackRateFadeSpeed: HIGHLIGHT_GLOW_SFX_PLAYBACK_RATE_FADE_SPEED,
+        playbackRateRanges: HIGHLIGHT_GLOW_SFX_PLAYBACK_RATE_RANGES,
+        minRateChange: HIGHLIGHT_GLOW_SFX_MIN_RATE_CHANGE,
+        stopThreshold: HIGHLIGHT_GLOW_SFX_STOP_THRESHOLD
+      }
+    }
+  });
   const MACRO_BAR_FILL_SFX_PATH = 'audio/sfx/sections/macros/macro_bar_fill_highscore.mp3';
   const MACRO_BAR_FILL_SFX_SOURCE_SECONDS = 9.408;
   const MACRO_BAR_FILL_SFX_VOLUME = 0.31;
@@ -846,6 +895,27 @@
     return value && typeof value === 'object' ? value : null;
   }
 
+  function normalizeSfxAssetPath(path) {
+    return String(path || '')
+      .trim()
+      .replace(/\\/g, '/')
+      .replace(/^(\.\.\/|\.\/)+/, '')
+      .replace(/^docs\//, '');
+  }
+
+  function sfxAssetRoleSettings(role, path) {
+    const settings = SFX_ASSET_SETTINGS[normalizeSfxAssetPath(path)]?.[role];
+    return settings && typeof settings === 'object' ? settings : null;
+  }
+
+  function sfxRoleSetting(role, key, path, fallback, food = selectedFood()) {
+    const assetSettings = sfxAssetRoleSettings(role, path);
+    if (assetSettings && Object.prototype.hasOwnProperty.call(assetSettings, key)) return assetSettings[key];
+    const profileRole = sfxProfileRole(role, food);
+    if (profileRole && Object.prototype.hasOwnProperty.call(profileRole, key)) return profileRole[key];
+    return fallback;
+  }
+
   function stampSfxPath(food = selectedFood()) {
     return sfxProfilePath('stampImpact', STAMP_SFX_PATH, food);
   }
@@ -855,10 +925,15 @@
   }
 
   function sectionTransitionSfxVolume(food = selectedFood()) {
-    return clamp(
-      asNumber(sfxProfileRole('sectionTransition', food)?.volume, SECTION_TRANSITION_SFX_VOLUME),
-      0,
+    const path = sectionTransitionSfxPath(food);
+    const maxVolume = asNumber(
+      sfxRoleSetting('sectionTransition', 'maxVolume', path, SECTION_TRANSITION_SFX_MAX_VOLUME, food),
       SECTION_TRANSITION_SFX_MAX_VOLUME
+    );
+    return clamp(
+      asNumber(sfxRoleSetting('sectionTransition', 'volume', path, SECTION_TRANSITION_SFX_VOLUME, food), SECTION_TRANSITION_SFX_VOLUME),
+      0,
+      maxVolume
     );
   }
 
@@ -4414,17 +4489,35 @@
     return 'neutral';
   }
 
-  function randomHighlightGlowPlaybackRate(previousRate, tone = 'neutral') {
-    const rangeSpec = HIGHLIGHT_GLOW_SFX_PLAYBACK_RATE_RANGES[tone] || HIGHLIGHT_GLOW_SFX_PLAYBACK_RATE_RANGES.neutral;
+  function highlightGlowSfxSettings(path = highlightGlowSfxPath()) {
+    return sfxAssetRoleSettings('highlightGlow', path) || {};
+  }
+
+  function highlightGlowSfxSetting(key, fallback, path = state.highlightGlowSfxPath || highlightGlowSfxPath()) {
+    const settings = highlightGlowSfxSettings(path);
+    return Object.prototype.hasOwnProperty.call(settings, key) ? settings[key] : fallback;
+  }
+
+  function highlightGlowPlaybackRateRanges(path = state.highlightGlowSfxPath || highlightGlowSfxPath()) {
+    return highlightGlowSfxSetting('playbackRateRanges', HIGHLIGHT_GLOW_SFX_PLAYBACK_RATE_RANGES, path);
+  }
+
+  function randomHighlightGlowPlaybackRate(previousRate, tone = 'neutral', path = state.highlightGlowSfxPath || highlightGlowSfxPath()) {
+    const ranges = highlightGlowPlaybackRateRanges(path);
+    const rangeSpec = ranges[tone] || ranges.neutral || HIGHLIGHT_GLOW_SFX_PLAYBACK_RATE_RANGES.neutral;
     const min = rangeSpec.min;
     const max = rangeSpec.max;
     const range = max - min;
+    const minRateChange = asNumber(
+      highlightGlowSfxSetting('minRateChange', HIGHLIGHT_GLOW_SFX_MIN_RATE_CHANGE, path),
+      HIGHLIGHT_GLOW_SFX_MIN_RATE_CHANGE
+    );
     for (let attempt = 0; attempt < 10; attempt += 1) {
       const candidate = min + (Math.random() * range);
-      if (Math.abs(candidate - previousRate) >= HIGHLIGHT_GLOW_SFX_MIN_RATE_CHANGE) return candidate;
+      if (Math.abs(candidate - previousRate) >= minRateChange) return candidate;
     }
-    const lower = clamp(previousRate - HIGHLIGHT_GLOW_SFX_MIN_RATE_CHANGE, min, max);
-    const upper = clamp(previousRate + HIGHLIGHT_GLOW_SFX_MIN_RATE_CHANGE, min, max);
+    const lower = clamp(previousRate - minRateChange, min, max);
+    const upper = clamp(previousRate + minRateChange, min, max);
     return Math.abs(lower - previousRate) > Math.abs(upper - previousRate) ? lower : upper;
   }
 
@@ -4439,9 +4532,11 @@
   function retuneHighlightGlowSfx(audio, cue) {
     const nextKey = cue?.key || '';
     if (!nextKey || nextKey === state.highlightGlowSfxKey) return;
+    const path = state.highlightGlowSfxPath || highlightGlowSfxPath();
     const playbackRate = randomHighlightGlowPlaybackRate(
       state.highlightGlowSfxTargetPlaybackRate || state.highlightGlowSfxPlaybackRate || 1,
-      cue?.tone
+      cue?.tone,
+      path
     );
     state.highlightGlowSfxKey = nextKey;
     state.highlightGlowSfxTargetPlaybackRate = playbackRate;
@@ -4476,22 +4571,28 @@
   }
 
   function highlightGlowFadeStep(targetStrength) {
+    const path = state.highlightGlowSfxPath || highlightGlowSfxPath();
     const targetVolume = state.audioEnabled && state.playing
-      ? clamp(targetStrength, 0, 1) * HIGHLIGHT_GLOW_SFX_VOLUME
+      ? clamp(targetStrength, 0, 1) * asNumber(highlightGlowSfxSetting('volume', HIGHLIGHT_GLOW_SFX_VOLUME, path), HIGHLIGHT_GLOW_SFX_VOLUME)
       : 0;
     const deltaSeconds = highlightGlowFrameDeltaSeconds();
     const speed = targetVolume > state.highlightGlowSfxVolume
-      ? HIGHLIGHT_GLOW_SFX_FADE_IN_SPEED
-      : HIGHLIGHT_GLOW_SFX_FADE_OUT_SPEED;
+      ? asNumber(highlightGlowSfxSetting('fadeInSpeed', HIGHLIGHT_GLOW_SFX_FADE_IN_SPEED, path), HIGHLIGHT_GLOW_SFX_FADE_IN_SPEED)
+      : asNumber(highlightGlowSfxSetting('fadeOutSpeed', HIGHLIGHT_GLOW_SFX_FADE_OUT_SPEED, path), HIGHLIGHT_GLOW_SFX_FADE_OUT_SPEED);
     const blend = 1 - Math.exp(-speed * deltaSeconds);
     state.highlightGlowSfxVolume += (targetVolume - state.highlightGlowSfxVolume) * blend;
     return { volume: state.highlightGlowSfxVolume, deltaSeconds };
   }
 
   function smoothHighlightGlowPlaybackRate(audio, deltaSeconds) {
+    const path = state.highlightGlowSfxPath || highlightGlowSfxPath();
     const targetRate = state.highlightGlowSfxTargetPlaybackRate || state.highlightGlowSfxPlaybackRate || 1;
     const currentRate = asNumber(audio.playbackRate, state.highlightGlowSfxPlaybackRate || targetRate);
-    const blend = 1 - Math.exp(-HIGHLIGHT_GLOW_SFX_PLAYBACK_RATE_FADE_SPEED * deltaSeconds);
+    const rateFadeSpeed = asNumber(
+      highlightGlowSfxSetting('playbackRateFadeSpeed', HIGHLIGHT_GLOW_SFX_PLAYBACK_RATE_FADE_SPEED, path),
+      HIGHLIGHT_GLOW_SFX_PLAYBACK_RATE_FADE_SPEED
+    );
+    const blend = 1 - Math.exp(-rateFadeSpeed * deltaSeconds);
     const nextRate = currentRate + ((targetRate - currentRate) * blend);
     state.highlightGlowSfxPlaybackRate = nextRate;
     try {
@@ -4501,19 +4602,24 @@
 
   function updateHighlightGlowSfx(cue) {
     const { volume, deltaSeconds } = highlightGlowFadeStep(cue?.strength || 0);
-    const audio = state.highlightGlowSfxAudio || (volume > HIGHLIGHT_GLOW_SFX_STOP_THRESHOLD ? ensureHighlightGlowSfxAudio() : null);
+    const path = state.highlightGlowSfxPath || highlightGlowSfxPath();
+    const stopThreshold = asNumber(
+      highlightGlowSfxSetting('stopThreshold', HIGHLIGHT_GLOW_SFX_STOP_THRESHOLD, path),
+      HIGHLIGHT_GLOW_SFX_STOP_THRESHOLD
+    );
+    const audio = state.highlightGlowSfxAudio || (volume > stopThreshold ? ensureHighlightGlowSfxAudio() : null);
     if (!audio) return;
 
     retuneHighlightGlowSfx(audio, cue);
     smoothHighlightGlowPlaybackRate(audio, deltaSeconds);
     audio.volume = clamp(volume, 0, 1);
-    if (volume > HIGHLIGHT_GLOW_SFX_STOP_THRESHOLD && state.audioEnabled && state.playing) {
+    if (volume > stopThreshold && state.audioEnabled && state.playing) {
       const playPromise = audio.paused ? audio.play() : null;
       if (playPromise?.catch) playPromise.catch(() => {});
       return;
     }
 
-    if (volume <= HIGHLIGHT_GLOW_SFX_STOP_THRESHOLD) {
+    if (volume <= stopThreshold) {
       try {
         audio.pause();
       } catch {}
@@ -5554,10 +5660,11 @@
   }
 
   function stampSfxImpactTime(scene, schedule) {
+    const path = stampSfxPath();
     if (schedule?.family === 'intro' && schedule?.kind === 'food-hero') {
-      return Number((scene.start - INTRO_FOOD_STAMP_SFX_LEAD_SECONDS).toFixed(3));
+      return Number((scene.start - stampSfxIntroLeadSeconds(path)).toFixed(3));
     }
-    return stampSfxImpactTimeWithLead(scene, schedule, STAMP_SFX_LEAD_SECONDS);
+    return stampSfxImpactTimeWithLead(scene, schedule, stampSfxLeadSeconds(path));
   }
 
   function sTierStampSfxImpactTime(scene, schedule) {
@@ -5649,9 +5756,22 @@
     return audio;
   }
 
-  function randomStampSfxPlaybackRate() {
-    const range = STAMP_SFX_PLAYBACK_RATE_RANGE.max - STAMP_SFX_PLAYBACK_RATE_RANGE.min;
-    return STAMP_SFX_PLAYBACK_RATE_RANGE.min + (Math.random() * range);
+  function stampSfxSettings(path = stampSfxPath()) {
+    return sfxAssetRoleSettings('stampImpact', path) || {};
+  }
+
+  function stampSfxPlaybackRateRange(path = stampSfxPath()) {
+    const range = stampSfxSettings(path).playbackRateRange || STAMP_SFX_PLAYBACK_RATE_RANGE;
+    return {
+      min: asNumber(range.min, STAMP_SFX_PLAYBACK_RATE_RANGE.min),
+      max: asNumber(range.max, STAMP_SFX_PLAYBACK_RATE_RANGE.max)
+    };
+  }
+
+  function randomStampSfxPlaybackRate(path = stampSfxPath()) {
+    const rangeSpec = stampSfxPlaybackRateRange(path);
+    const range = rangeSpec.max - rangeSpec.min;
+    return rangeSpec.min + (Math.random() * range);
   }
 
   function isIntroFoodStampSfxEvent(event = null) {
@@ -5659,16 +5779,16 @@
   }
 
   function stampSfxVolume(path = stampSfxPath()) {
-    return STAMP_SFX_FIXED_VOLUMES[stampSfxFilename(path)] ?? STAMP_SFX_VOLUME;
+    return asNumber(stampSfxSettings(path).volume, STAMP_SFX_VOLUME);
   }
 
-  function stampSfxVolumeVariation() {
-    return STAMP_SFX_VOLUME_VARIATION;
+  function stampSfxVolumeVariation(path = stampSfxPath()) {
+    return asNumber(stampSfxSettings(path).volumeVariation, STAMP_SFX_VOLUME_VARIATION);
   }
 
   function randomStampSfxVolume({ clampForElement = true, path = stampSfxPath() } = {}) {
     const baseVolume = stampSfxVolume(path);
-    const variation = stampSfxVolumeVariation();
+    const variation = stampSfxVolumeVariation(path);
     const volume = Math.max(0, baseVolume + ((Math.random() * 2 - 1) * variation));
     return clampForElement ? Math.min(volume, 1) : volume;
   }
@@ -5678,9 +5798,22 @@
   }
 
   function stampSfxStartOffsetRange(path = stampSfxPath()) {
-    const fixedOffset = STAMP_SFX_FIXED_START_OFFSETS_SECONDS[stampSfxFilename(path)];
+    const settings = stampSfxSettings(path);
+    const fixedOffset = asNumber(settings.startOffsetSeconds, null);
     if (fixedOffset != null) return { min: fixedOffset, max: fixedOffset };
-    return STAMP_SFX_START_OFFSET_RANGE_SECONDS;
+    const range = settings.startOffsetRangeSeconds || STAMP_SFX_START_OFFSET_RANGE_SECONDS;
+    return {
+      min: asNumber(range.min, STAMP_SFX_START_OFFSET_RANGE_SECONDS.min),
+      max: asNumber(range.max, STAMP_SFX_START_OFFSET_RANGE_SECONDS.max)
+    };
+  }
+
+  function stampSfxIntroLeadSeconds(path = stampSfxPath()) {
+    return asNumber(stampSfxSettings(path).introLeadSeconds, INTRO_FOOD_STAMP_SFX_LEAD_SECONDS);
+  }
+
+  function stampSfxLeadSeconds(path = stampSfxPath()) {
+    return asNumber(stampSfxSettings(path).leadSeconds, STAMP_SFX_LEAD_SECONDS);
   }
 
   function randomStampSfxStartOffset(audioOrDuration = null, path = stampSfxPath()) {
@@ -5755,13 +5888,14 @@
 
   function playStampHtmlSfx(event) {
     if (!state.audioEnabled || !event) return;
+    const path = stampSfxPath();
     const audio = nextStampSfxAudio();
     try {
       audio.pause();
-      audio.currentTime = randomStampSfxStartOffset(audio, stampSfxPath());
+      audio.currentTime = randomStampSfxStartOffset(audio, path);
       allowSfxPitchShift(audio);
-      audio.volume = randomStampSfxVolume({ clampForElement: true, path: stampSfxPath() });
-      audio.playbackRate = randomStampSfxPlaybackRate();
+      audio.volume = randomStampSfxVolume({ clampForElement: true, path });
+      audio.playbackRate = randomStampSfxPlaybackRate(path);
       const playPromise = audio.play();
       if (playPromise?.catch) playPromise.catch(() => {});
     } catch {}
@@ -5786,7 +5920,7 @@
         const source = context.createBufferSource();
         const gain = context.createGain();
         source.buffer = buffer;
-        source.playbackRate.value = randomStampSfxPlaybackRate();
+        source.playbackRate.value = randomStampSfxPlaybackRate(path);
         gain.gain.value = randomStampSfxVolume({ clampForElement: false, path });
         source.connect(gain).connect(context.destination);
         state.stampSfxSources.add(source);

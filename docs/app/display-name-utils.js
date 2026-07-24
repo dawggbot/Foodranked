@@ -42,7 +42,8 @@
   ];
 
   const HEADER_NAME_MAX_FONT_SIZE_OVERRIDES = {
-    asparagus: 7.6
+    asparagus: 7.6,
+    'baked-beans': 7
   };
 
   const ONES_NUMBER_WORD_VALUES = {

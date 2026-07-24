@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260724-v2-stamp-impact-locked-v1';
+  const BUILDER_BUILD_ID = '20260724-v2-stamp-trim-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
@@ -77,6 +77,9 @@
   const INTRO_FOOD_STAMP_SFX_LEAD_SECONDS = 0.2;
   const STAMP_SFX_PLAYBACK_RATE_RANGE = { min: 0.93, max: 1.07 };
   const STAMP_SFX_START_OFFSET_RANGE_SECONDS = { min: 0, max: 0.045 };
+  const STAMP_SFX_FIXED_START_OFFSETS_SECONDS = Object.freeze({
+    'traditional_stamp_hit.mp3': 0.54
+  });
   const STAMP_SFX_LEAD_SECONDS = 0.1;
   const STAMP_SFX_POOL_SIZE = 4;
   const S_TIER_STAMP_SFX_PATH = 'audio/sfx/stamps/s_tier_stamp_level_up.mp3';
@@ -5648,9 +5651,20 @@
     return clampForElement ? Math.min(volume, 1) : volume;
   }
 
-  function randomStampSfxStartOffset(audioOrDuration = null) {
-    const min = STAMP_SFX_START_OFFSET_RANGE_SECONDS.min;
-    const max = STAMP_SFX_START_OFFSET_RANGE_SECONDS.max;
+  function stampSfxFilename(path = stampSfxPath()) {
+    return String(path || '').split('/').pop().toLowerCase();
+  }
+
+  function stampSfxStartOffsetRange(path = stampSfxPath()) {
+    const fixedOffset = STAMP_SFX_FIXED_START_OFFSETS_SECONDS[stampSfxFilename(path)];
+    if (fixedOffset != null) return { min: fixedOffset, max: fixedOffset };
+    return STAMP_SFX_START_OFFSET_RANGE_SECONDS;
+  }
+
+  function randomStampSfxStartOffset(audioOrDuration = null, path = stampSfxPath()) {
+    const range = stampSfxStartOffsetRange(path);
+    const min = range.min;
+    const max = range.max;
     const duration = typeof audioOrDuration === 'number'
       ? audioOrDuration
       : Number(audioOrDuration?.duration);
@@ -5722,7 +5736,7 @@
     const audio = nextStampSfxAudio();
     try {
       audio.pause();
-      audio.currentTime = randomStampSfxStartOffset(audio);
+      audio.currentTime = randomStampSfxStartOffset(audio, stampSfxPath());
       allowSfxPitchShift(audio);
       audio.volume = randomStampSfxVolume({ clampForElement: true });
       audio.playbackRate = randomStampSfxPlaybackRate();
@@ -5757,7 +5771,7 @@
         source.onended = () => {
           state.stampSfxSources.delete(source);
         };
-        source.start(0, randomStampSfxStartOffset(buffer.duration));
+        source.start(0, randomStampSfxStartOffset(buffer.duration, path));
       })
       .catch(() => {
         playStampHtmlSfx(event);
@@ -5798,6 +5812,16 @@
     for (const event of playbackSfxEvents('stamp', stampSfxEvents)) {
       if (state.playedStampSfxKeys.has(event.key)) continue;
       if (!stampSfxShouldTriggerBetween(event, previousTime, currentTime)) continue;
+      state.playedStampSfxKeys.add(event.key);
+      playStampSfx(event);
+    }
+  }
+
+  function triggerIntroFoodStampSfxAtPlaybackStart() {
+    if (!state.playing || !state.audioEnabled || state.playheadStart > 0.001) return;
+    for (const event of playbackSfxEvents('stamp', stampSfxEvents)) {
+      if (!isIntroFoodStampSfxEvent(event) || event.time >= 0) continue;
+      if (state.playedStampSfxKeys.has(event.key)) continue;
       state.playedStampSfxKeys.add(event.key);
       playStampSfx(event);
     }
@@ -6841,6 +6865,7 @@
     primeStampSfx();
     primeTransitionSfx();
     primeBarFillSfx();
+    triggerIntroFoodStampSfxAtPlaybackStart();
     syncAudioPlaybackState();
     requestAnimationFrame(tick);
   }

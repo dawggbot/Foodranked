@@ -582,6 +582,7 @@ function macroNarrationMetrics(result, sectionKey) {
 function weakNarrationMetrics(result, metrics, sectionKey, exclude = null) {
   return (metrics || []).filter(metric => {
     if (!metric || metric === exclude) return false;
+    if (isLowFruitStarchNarrationWeakness(result, sectionKey, metric)) return false;
     if (
       sectionKey === 'proteins'
       && metric.metricKey === 'collagen_g'
@@ -591,6 +592,13 @@ function weakNarrationMetrics(result, metrics, sectionKey, exclude = null) {
     }
     return true;
   });
+}
+
+function isLowFruitStarchNarrationWeakness(result, sectionKey, metric) {
+  if (sectionKey !== 'carbs') return false;
+  if (result.food?.foodType !== 'fruits') return false;
+  if (metric?.metricKey !== 'starch_g') return false;
+  return (metricSectionScore(metric) ?? 100) < 50;
 }
 
 function outstandingMacroMetrics(result, sectionKey, limit = 4) {
@@ -909,6 +917,9 @@ function categoryWeakContext(foodType, sectionKey, metric = null) {
     if (foodType === 'vegetables' && metric?.metricKey === 'starch_g') {
       return `${impact}, but that's not a big deal for vegetables`;
     }
+    if (foodType === 'fruits' && metric?.metricKey === 'starch_g') {
+      return `${impact}, but low starch is normal for fruit`;
+    }
     if (['grains', 'fruits', 'legumes', 'tubers'].includes(foodType)) return combine(`a real downside for ${type}`);
     return combine(`a small downside for ${type || 'this category'}`);
   }
@@ -1040,6 +1051,7 @@ function secondMetricLine(metric, result, sectionKey) {
     return `${metricValuePhrase(metric)}, ${support}the lowest number here but still strong`;
   }
   if (score !== null && score >= 50) {
+    if (sectionKey === 'carbs' && metric.metricKey === 'fibre_g') return bestMetricLine(metric, sectionKey);
     const support = context ? `${context}, but it is ` : 'it is ';
     return `${metricValuePhrase(metric)}, ${support}the smaller helper in this section`;
   }
@@ -1092,7 +1104,8 @@ function outstandingMacroLine(result, sectionKey) {
   }
 
   const best = strongestPositiveMetric(metrics) || strongestAvailableMetric(metrics);
-  const weakest = weakestOutstandingMetric(metrics, best) || weakestAvailableMetric(metrics, best, sectionKey);
+  const weakCandidates = weakNarrationMetrics(result, metrics, sectionKey, best);
+  const weakest = weakestOutstandingMetric(weakCandidates, best) || weakestAvailableMetric(weakCandidates, best, sectionKey);
   return joinShort([
     bestAvailableMetricLine(best, sectionKey),
     secondMetricLine(weakest, result, sectionKey)
@@ -1523,7 +1536,10 @@ function weakSectionHighlight(result, sectionKey) {
     ? outstandingMacroMetrics(result, sectionKey, 4)
     : outstandingMicronMetrics(result, sectionKey, 4, { speakDailyValue: false });
   const strongest = strongestPositiveMetric(metrics);
-  const weakest = weakestOutstandingMetric(metrics, strongest) || metrics[0];
+  const weakCandidates = ['fats', 'carbs', 'proteins'].includes(sectionKey)
+    ? weakNarrationMetrics(result, metrics, sectionKey, strongest)
+    : metrics.filter(metric => metric !== strongest);
+  const weakest = weakestOutstandingMetric(weakCandidates, strongest) || weakCandidates[0];
   if (!weakest) return sectionKey === 'proteins' ? 'protein' : titleForSection(sectionKey).toLowerCase();
   return weakMetricSummaryPhrase(weakest);
 }

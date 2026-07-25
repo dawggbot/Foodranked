@@ -40,7 +40,18 @@ const DISPLAY_BACKED_NARRATION_METRIC_KEYS = new Set([
   'bioavailability_percent'
 ]);
 const COLLAGEN_NARRATION_FOOD_TYPES = new Set(['meats']);
-const LOW_STARCH_NARRATION_NEUTRAL_FOOD_TYPES = new Set(['fruits']);
+const LOW_STARCH_NARRATION_NEUTRAL_FOOD_TYPES = new Set(['dairy', 'fruits']);
+const PLANT_FOOD_TYPES = new Set(['fruits', 'vegetables', 'grains', 'legumes', 'tubers', 'nuts', 'seeds']);
+const LOW_PROTEIN_QUALITY_NARRATION_NEUTRAL_FOOD_TYPES = new Set(['fruits', 'vegetables', 'tubers']);
+const LOW_FAT_UNSATURATED_NARRATION_NEUTRAL_FOOD_TYPES = new Set(['fruits', 'vegetables', 'tubers', 'grains']);
+const PROTEIN_QUALITY_VISIBLE_METRIC_KEYS = new Set([
+  'essential_amino_acids_score',
+  'nonessential_amino_acids_score',
+  'bioavailability_percent'
+]);
+const UNSATURATED_FAT_NARRATION_METRIC_KEYS = new Set(['omega3_mg', 'polyunsaturated_fat_g']);
+const ZERO_CHOLESTEROL_NARRATION_RELEVANT_FOOD_TYPES = new Set(['dairy', 'meats']);
+const LOW_FAT_UNSATURATED_NARRATION_MAX_FAT_G = 1;
 const MACRO_SECTION_HEADER_KEYS = {
   fats: 'fat_g',
   carbs: 'carb_g',
@@ -577,13 +588,17 @@ function macroNarrationMetrics(result, sectionKey) {
     metrics = Array.from(byKey.values());
   }
 
-  return metrics.filter(metric => metricHasDefensibleValue(metric) && !metric.notApplicableReason);
+  return metrics.filter(metric => (
+    metricHasDefensibleValue(metric)
+    && !metric.notApplicableReason
+    && !isNarrationMetricExcluded(result, sectionKey, metric)
+  ));
 }
 
 function weakNarrationMetrics(result, metrics, sectionKey, exclude = null) {
   return (metrics || []).filter(metric => {
     if (!metric || metric === exclude) return false;
-    if (isLowStarchNarrationWeakness(result, sectionKey, metric)) return false;
+    if (isNarrationWeaknessException(result, sectionKey, metric)) return false;
     if (
       sectionKey === 'proteins'
       && metric.metricKey === 'collagen_g'
@@ -595,10 +610,54 @@ function weakNarrationMetrics(result, metrics, sectionKey, exclude = null) {
   });
 }
 
+function isNarrationMetricExcluded(result, sectionKey, metric) {
+  return isLowRelevanceZeroCholesterol(result, sectionKey, metric);
+}
+
+function isNarrationWeaknessException(result, sectionKey, metric) {
+  return isLowStarchNarrationWeakness(result, sectionKey, metric)
+    || isPlantB12NarrationWeakness(result, sectionKey, metric)
+    || isLowProteinQualityNarrationWeakness(result, sectionKey, metric)
+    || isLowFatUnsaturatedNarrationWeakness(result, sectionKey, metric);
+}
+
+function isLowRelevanceZeroCholesterol(result, sectionKey, metric) {
+  if (sectionKey !== 'fats') return false;
+  if (metric?.metricKey !== 'cholesterol_mg') return false;
+  if (ZERO_CHOLESTEROL_NARRATION_RELEVANT_FOOD_TYPES.has(result.food?.foodType)) return false;
+  return (toFiniteNumber(metric.value) ?? 0) === 0;
+}
+
 function isLowStarchNarrationWeakness(result, sectionKey, metric) {
   if (sectionKey !== 'carbs') return false;
   if (metric?.metricKey !== 'starch_g') return false;
   if (!LOW_STARCH_NARRATION_NEUTRAL_FOOD_TYPES.has(result.food?.foodType)) return false;
+  return (metricSectionScore(metric) ?? 100) < 50;
+}
+
+function isPlantB12NarrationWeakness(result, sectionKey, metric) {
+  if (sectionKey !== 'vitamins') return false;
+  if (metric?.metricKey !== 'vitamin_b12_dv') return false;
+  if (!PLANT_FOOD_TYPES.has(result.food?.foodType)) return false;
+  return (metricSectionScore(metric) ?? 100) < 50;
+}
+
+function isLowProteinQualityNarrationWeakness(result, sectionKey, metric) {
+  if (sectionKey !== 'proteins') return false;
+  if (!PROTEIN_QUALITY_VISIBLE_METRIC_KEYS.has(metric?.metricKey)) return false;
+  if (!LOW_PROTEIN_QUALITY_NARRATION_NEUTRAL_FOOD_TYPES.has(result.food?.foodType)) return false;
+  const proteinG = proteinDisplayProteinG(result);
+  const usefulMin = proteinDisplayUsefulProteinMin(result);
+  if (proteinG === null || usefulMin === null) return false;
+  return proteinG < usefulMin && (metricSectionScore(metric) ?? 100) < 50;
+}
+
+function isLowFatUnsaturatedNarrationWeakness(result, sectionKey, metric) {
+  if (sectionKey !== 'fats') return false;
+  if (!UNSATURATED_FAT_NARRATION_METRIC_KEYS.has(metric?.metricKey)) return false;
+  if (!LOW_FAT_UNSATURATED_NARRATION_NEUTRAL_FOOD_TYPES.has(result.food?.foodType)) return false;
+  const fatG = macroValueForSection(result, 'fats');
+  if (fatG === null || fatG > LOW_FAT_UNSATURATED_NARRATION_MAX_FAT_G) return false;
   return (metricSectionScore(metric) ?? 100) < 50;
 }
 
@@ -620,7 +679,8 @@ function outstandingMicronMetrics(result, sectionKey, limit = 4, options = {}) {
   const metrics = scoredMetricsForSection(result, sectionKey, options)
     .filter(metric => metric.dvPercent !== null);
   const best = strongestPositiveMetric(metrics);
-  const weakest = weakestOutstandingMetric(metrics, best);
+  const weakPool = weakNarrationMetrics(result, metrics, sectionKey, best);
+  const weakest = weakestOutstandingMetric(weakPool, best);
   const remaining = [...metrics].sort((a, b) => Math.abs(b.weightedScore ?? 0) - Math.abs(a.weightedScore ?? 0));
   return uniqueMetrics([best, weakest, ...remaining], limit);
 }
@@ -911,11 +971,12 @@ function categoryWeakContext(foodType, sectionKey, metric = null) {
   if (sectionKey === 'fats') {
     if (foodType === 'meats') return combine('and for meats, fat quality is a major tradeoff');
     if (foodType === 'oils-and-fats') return combine('and for oils and fats, that matters a lot');
-    if (foodType === 'nuts' || foodType === 'seeds') return combine(`and for ${type}, fat quality has to justify the calories`);
+    if (foodType === 'nuts' || foodType === 'seeds') return combine(`a real downside for ${type}`);
     return combine(`not great for ${type || 'this category'}`);
   }
   if (sectionKey === 'carbs') {
     if (metric?.metricKey === 'starch_g' && LOW_STARCH_NARRATION_NEUTRAL_FOOD_TYPES.has(foodType)) {
+      if (foodType === 'dairy') return `${impact}, but dairy carbs are about lactose, not starch`;
       return `${impact}, but low starch is normal for fruit`;
     }
     if (['grains', 'fruits', 'legumes', 'tubers'].includes(foodType)) return combine(`a real downside for ${type}`);
@@ -1045,8 +1106,8 @@ function secondMetricLine(metric, result, sectionKey) {
   const score = metricSectionScore(metric);
   const context = bestMetricContext(metric, sectionKey);
   if (score !== null && score >= 80) {
-    const support = context ? `${context}, but it is ` : 'it is ';
-    return `${metricValuePhrase(metric)}, ${support}the lowest number here but still strong`;
+    const support = context ? `${context}, and it is still a strong secondary mark` : 'still a strong secondary mark';
+    return `${metricValuePhrase(metric)}, ${support}`;
   }
   if (score !== null && score >= 50) {
     if (sectionKey === 'carbs' && metric.metricKey === 'fibre_g') return bestMetricLine(metric, sectionKey);
@@ -1233,7 +1294,8 @@ function buildMicrosSection(result, sectionKey) {
     return `${lowVitaminSectionLine(result)}.`;
   }
   const best = positive || strongestAvailableMetric(top);
-  const weakest = weakestOutstandingMetric(top, best) || weakestAvailableMetric(top, best, sectionKey);
+  const weakCandidates = weakNarrationMetrics(result, top, sectionKey, best);
+  const weakest = weakestOutstandingMetric(weakCandidates, best) || weakestAvailableMetric(weakCandidates, best, sectionKey);
   return joinShort([
     positive ? bestMetricLine(best, sectionKey) : bestAvailableMetricLine(best, sectionKey),
     secondMetricLine(weakest, result, sectionKey),
@@ -1534,11 +1596,9 @@ function weakSectionHighlight(result, sectionKey) {
     ? outstandingMacroMetrics(result, sectionKey, 4)
     : outstandingMicronMetrics(result, sectionKey, 4, { speakDailyValue: false });
   const strongest = strongestPositiveMetric(metrics);
-  const weakCandidates = ['fats', 'carbs', 'proteins'].includes(sectionKey)
-    ? weakNarrationMetrics(result, metrics, sectionKey, strongest)
-    : metrics.filter(metric => metric !== strongest);
+  const weakCandidates = weakNarrationMetrics(result, metrics, sectionKey, strongest);
   const weakest = weakestOutstandingMetric(weakCandidates, strongest) || weakCandidates[0];
-  if (!weakest) return sectionKey === 'proteins' ? 'protein' : titleForSection(sectionKey).toLowerCase();
+  if (!weakest) return sectionKey === 'proteins' ? 'low protein amount' : titleForSection(sectionKey).toLowerCase();
   return weakMetricSummaryPhrase(weakest);
 }
 

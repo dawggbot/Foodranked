@@ -40,17 +40,7 @@ const DISPLAY_BACKED_NARRATION_METRIC_KEYS = new Set([
   'bioavailability_percent'
 ]);
 const COLLAGEN_NARRATION_FOOD_TYPES = new Set(['meats']);
-const LOW_STARCH_NARRATION_NEUTRAL_FOOD_TYPES = new Set([
-  'dairy',
-  'fruits',
-  'legumes',
-  'meats',
-  'misc',
-  'nuts',
-  'oils-and-fats',
-  'seeds',
-  'vegetables'
-]);
+const LOW_STARCH_NARRATION_NEUTRAL_FOOD_TYPES = new Set(['fruits']);
 const MACRO_SECTION_HEADER_KEYS = {
   fats: 'fat_g',
   carbs: 'carb_g',
@@ -926,8 +916,7 @@ function categoryWeakContext(foodType, sectionKey, metric = null) {
   }
   if (sectionKey === 'carbs') {
     if (metric?.metricKey === 'starch_g' && LOW_STARCH_NARRATION_NEUTRAL_FOOD_TYPES.has(foodType)) {
-      const normalFor = foodType === 'oils-and-fats' ? 'oils and fats' : (type || 'this category');
-      return `${impact}, but low starch is normal for ${normalFor}`;
+      return `${impact}, but low starch is normal for fruit`;
     }
     if (['grains', 'fruits', 'legumes', 'tubers'].includes(foodType)) return combine(`a real downside for ${type}`);
     return combine(`a small downside for ${type || 'this category'}`);

@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260727-v2-audio-base-volume-v1';
+  const BUILDER_BUILD_ID = '20260727-v2-food-data-refresh-v1';
   const DISPLAY_BUILDER_V2_EXPORT_TIMEOUT_MS = 8000;
   const DISPLAY_BUILDER_V2_EXPORT_POLL_MS = 150;
   const AUTHOR_GRID = { width: 135, height: 240 };
@@ -1588,10 +1588,23 @@
     };
   }
 
+  function displayBuilderV2PlacementBuildId(entry) {
+    return String(entry?.buildId || entry?.layout?.meta?.exportBuildId || '');
+  }
+
+  function displayBuilderV2PlacementIsFresh(entry, foodId) {
+    return Boolean(foodId)
+      && entry?.foodId === foodId
+      && validLayout(entry?.layout)
+      && displayBuilderV2PlacementBuildId(entry) === BUILDER_BUILD_ID;
+  }
+
   function layoutSourceOptions() {
     const food = selectedFood();
     const placementEntry = readDisplayBuilderV2PlacementExport().layouts?.[food?.id];
-    const displayBuilderV2Placement = normalizeDisplayBuilderV2PlacementOption(food?.id, placementEntry);
+    const displayBuilderV2Placement = displayBuilderV2PlacementIsFresh(placementEntry, food?.id)
+      ? normalizeDisplayBuilderV2PlacementOption(food?.id, placementEntry)
+      : null;
     const options = displayBuilderV2Placement ? [displayBuilderV2Placement] : [];
     state.layoutOptions = options.filter(option => countLayoutLayers(option.layout) > 0);
     return state.layoutOptions;
@@ -1633,7 +1646,7 @@
     if (!foodId) return;
     if (state.displayBuilderExportRequestedFor !== foodId || state.displayBuilderExportStartedAt !== startedAt) return;
     const exported = readDisplayBuilderV2PlacementExport().layouts?.[foodId];
-    if (validLayout(exported?.layout)) {
+    if (displayBuilderV2PlacementIsFresh(exported, foodId)) {
       state.displayBuilderExportStatus = 'ready';
       hydrateLayoutForFood({ requestExport: false });
       renderAll();
@@ -1655,7 +1668,7 @@
     const foodId = food?.id;
     if (!foodId) return false;
     const existing = readDisplayBuilderV2PlacementExport().layouts?.[foodId];
-    if (validLayout(existing?.layout)) return false;
+    if (displayBuilderV2PlacementIsFresh(existing, foodId)) return false;
 
     const now = performance.now();
     const samePendingRequest = state.displayBuilderExportRequestedFor === foodId

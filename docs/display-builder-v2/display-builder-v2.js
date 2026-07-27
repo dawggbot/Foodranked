@@ -28,7 +28,9 @@
   const TEST_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const PLACEMENT_EXPORT_LIMIT = 60;
-  const DATA_CACHE_BUST = '20260721-bacon-v9-data-v1';
+  const PAGE_URL_PARAMS = new URLSearchParams(window.location.search);
+  const DISPLAY_BUILDER_V2_BUILD_ID = PAGE_URL_PARAMS.get('build') || '20260727-v2-food-data-refresh-v1';
+  const DATA_CACHE_BUST = '20260727-v2-food-data-refresh-v1';
   const FOOD_JSON_CACHE = new Map();
   const BATCH_RESULTS_CACHE = new Map();
   const TEXT_LAYER_CLIP_BLEED = 2;
@@ -676,6 +678,7 @@
         sourceBuilder: 'display-builder-v2',
         sourceLayoutKey: layoutOption?.key || '',
         sourceLayoutName: layoutOption?.name || '',
+        exportBuildId: DISPLAY_BUILDER_V2_BUILD_ID,
         exportedAt
       }
     });
@@ -691,6 +694,7 @@
       sourceLayoutKey: layoutOption?.key || '',
       sourceLayoutName: layoutOption?.name || '',
       selectedSectionId: state.selectedSectionId,
+      buildId: DISPLAY_BUILDER_V2_BUILD_ID,
       exportedAt,
       layout: placementLayoutSnapshot(layout, food, layoutOption, exportedAt)
     };
@@ -706,6 +710,7 @@
     const payload = {
       version: 1,
       key: PLACEMENT_EXPORT_KEY,
+      buildId: DISPLAY_BUILDER_V2_BUILD_ID,
       currentFoodId: food.id,
       updatedAt: exportedAt,
       layouts: Object.fromEntries(orderedEntries.map(item => [item.foodId, item]))
@@ -2461,8 +2466,7 @@
 
   async function init() {
     const saved = readTestState();
-    const urlParams = new URLSearchParams(window.location.search);
-    const requestedExportFoodId = urlParams.get('videoBuilderExportFood') || '';
+    const requestedExportFoodId = PAGE_URL_PARAMS.get('videoBuilderExportFood') || '';
     state.selectedFoodId = requestedExportFoodId && state.foods.some(food => food.id === requestedExportFoodId)
       ? requestedExportFoodId
       : saved.selectedFoodId && state.foods.some(food => food.id === saved.selectedFoodId)

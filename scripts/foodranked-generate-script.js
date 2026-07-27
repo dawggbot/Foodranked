@@ -685,6 +685,14 @@ function outstandingMicronMetrics(result, sectionKey, limit = 4, options = {}) {
   return uniqueMetrics([best, weakest, ...remaining], limit);
 }
 
+function highestDvMicronMetric(metrics, exclude = null, minDv = 30) {
+  const strongest = (metrics || [])
+    .filter(metric => metric && metric !== exclude && Number(metric.dvPercent) >= minDv)
+    .sort((a, b) => Number(b.dvPercent) - Number(a.dvPercent))[0] || null;
+  if (!strongest || !exclude) return strongest;
+  return Number(strongest.dvPercent) > Number(exclude.dvPercent ?? -Infinity) ? strongest : null;
+}
+
 function headerMacro(result, key) {
   const v = result.header?.[key];
   if (v === null || v === undefined) return null;
@@ -1310,11 +1318,12 @@ function buildMicrosSection(result, sectionKey) {
     return `${lowVitaminSectionLine(result)}.`;
   }
   const best = positive || strongestAvailableMetric(top);
+  const highestDvMineral = sectionKey === 'minerals' ? highestDvMicronMetric(top, best, 30) : null;
   const weakCandidates = weakNarrationMetrics(result, top, sectionKey, best);
   const weakest = weakestOutstandingMetric(weakCandidates, best) || weakestAvailableMetric(weakCandidates, best, sectionKey);
   return joinShort([
     positive ? bestMetricLine(best, sectionKey) : bestAvailableMetricLine(best, sectionKey),
-    secondMetricLine(weakest, result, sectionKey),
+    highestDvMineral ? bestMetricLine(highestDvMineral, sectionKey) : secondMetricLine(weakest, result, sectionKey),
     sectionFoodTypeSummary(result, sectionKey)
   ]);
 }
@@ -1485,7 +1494,7 @@ function rankedFoodUseCases(result) {
   const zinc = metricNumberForSummary(result, 'zinc_dv') ?? 0;
   const iron = metricNumberForSummary(result, 'iron_dv') ?? 0;
 
-  if (carbsG >= 25 && carbsScore >= 50) {
+  if (carbsG >= 25 && carbsScore >= 50 && fibreG < 7) {
     addUseCase(cases, 'energy_endurance', 'energy and endurance sports', 'the carb section gives usable fuel', carbsScore + carbsG);
   } else if (carbsG >= 15 && carbsScore >= 40) {
     addUseCase(cases, 'energy', 'energy', 'the carb section gives it a clear fuel role', carbsScore + carbsG);

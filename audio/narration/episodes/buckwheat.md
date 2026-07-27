@@ -15,7 +15,7 @@ Food id: `buckwheat`
 
 | Take | Mode | Voice | Blocks | Generated | Manifest |
 | --- | --- | --- | ---: | --- | --- |
-`voice-v1` | `split-blocks` | Adam - Dominant, Firm | 11 | 2026-07-27T14:08:56.270Z | [voice-v1-blocks.json](../../../docs/audio/episodes/buckwheat/voice-v1-blocks.json)
+`voice-v1` | `split-blocks` | Adam - Dominant, Firm | 11 | 2026-07-27T15:11:12.155Z | [voice-v1-blocks.json](../../../docs/audio/episodes/buckwheat/voice-v1-blocks.json)
 
 ## Pronunciation Overrides
 

@@ -286,6 +286,25 @@
     };
   }
 
+  function repoDefaultLayoutOption() {
+    const layout = window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT;
+    if (!validLayout(layout)) return null;
+    return {
+      key: 'default:repo',
+      id: 'repo-default-layout',
+      name: 'Repo default layout',
+      kind: 'repo default layout',
+      updatedAt: layout.meta?.updatedAt || '',
+      layout: normalizeLayoutSections({
+        ...LOGIC.clone(layout),
+        meta: {
+          ...(layout.meta || {}),
+          source: 'docs/app/default-layout.js'
+        }
+      })
+    };
+  }
+
   function isPreferredSavedLayoutOption(option) {
     return /^saved:/.test(String(option?.key || ''))
       && String(option?.name || '').trim().toLowerCase() === PREFERRED_SAVED_LAYOUT_NAME;
@@ -574,6 +593,8 @@
       .filter(Boolean)
       .sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)) || a.name.localeCompare(b.name));
     savedOptions.forEach(option => options.push(option));
+    const repoDefault = repoDefaultLayoutOption();
+    if (repoDefault) options.push(repoDefault);
 
     state.layoutOptions = options.filter(option => countDisplayLayers(option.layout) > 0);
     const preferredSaved = state.layoutOptions.find(isPreferredSavedLayoutOption);
@@ -612,7 +633,7 @@
     els.layoutSelect.value = state.selectedLayoutKey;
     const selected = selectedLayoutOption();
     els.layoutStatus.textContent = selected
-      ? `${selected.kind}; ${countDisplayLayers(selected.layout)} display-section layers read from layout-builder storage.`
+      ? `${selected.kind}; ${countDisplayLayers(selected.layout)} display-section layers available.`
       : '';
     els.layoutStatus.classList.remove('warn');
   }

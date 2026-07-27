@@ -2,7 +2,9 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260727-v2-audio-mix-sliders-v1';
+  const BUILDER_BUILD_ID = '20260727-v2-db-default-fallback-v1';
+  const DISPLAY_BUILDER_V2_EXPORT_TIMEOUT_MS = 8000;
+  const DISPLAY_BUILDER_V2_EXPORT_POLL_MS = 150;
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
@@ -1618,6 +1620,29 @@
     }));
   }
 
+  function waitForDisplayBuilderV2PlacementExport(food, startedAt) {
+    const foodId = food?.id;
+    if (!foodId) return;
+    if (state.displayBuilderExportRequestedFor !== foodId || state.displayBuilderExportStartedAt !== startedAt) return;
+    const exported = readDisplayBuilderV2PlacementExport().layouts?.[foodId];
+    if (validLayout(exported?.layout)) {
+      state.displayBuilderExportStatus = 'ready';
+      hydrateLayoutForFood({ requestExport: false });
+      renderAll();
+      return;
+    }
+    if (performance.now() - startedAt < DISPLAY_BUILDER_V2_EXPORT_TIMEOUT_MS) {
+      window.setTimeout(() => waitForDisplayBuilderV2PlacementExport(food, startedAt), DISPLAY_BUILDER_V2_EXPORT_POLL_MS);
+      return;
+    }
+    state.displayBuilderExportStatus = 'missing-source';
+    if (!state.layout) {
+      els.layoutStatus.textContent = 'DBv2 missing';
+      els.layoutStatus.title = `${food?.name || 'Selected food'} needs a Display Builder v2 food layout before Video Builder v2 can render it · ${BUILDER_BUILD_ID}`;
+      renderStage();
+    }
+  }
+
   function requestDisplayBuilderV2PlacementExport(food) {
     const foodId = food?.id;
     if (!foodId) return false;
@@ -1653,21 +1678,7 @@
     }
 
     frame.onload = () => {
-      window.setTimeout(() => {
-        const exported = readDisplayBuilderV2PlacementExport().layouts?.[foodId];
-        if (validLayout(exported?.layout)) {
-          state.displayBuilderExportStatus = 'ready';
-          hydrateLayoutForFood({ requestExport: false });
-          renderAll();
-          return;
-        }
-        state.displayBuilderExportStatus = 'missing-source';
-        if (!state.layout) {
-          els.layoutStatus.textContent = 'DBv2 missing';
-          els.layoutStatus.title = `${food?.name || 'Selected food'} needs a Display Builder v2 food layout before Video Builder v2 can render it · ${BUILDER_BUILD_ID}`;
-          renderStage();
-        }
-      }, 350);
+      waitForDisplayBuilderV2PlacementExport(food, now);
     };
     frame.src = displayBuilderV2ExportUrl(foodId);
     return true;

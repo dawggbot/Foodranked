@@ -270,9 +270,9 @@ function narrationBlockDescriptors(sourcePath, text) {
 
 const FINAL_REVEAL_TTS_OVERRIDES = Object.freeze({
   A: {
-    ttsText: 'Ay tier!',
-    pronunciationNote: 'TTS uses "Ay tier!" so the letter A is spoken clearly while display text stays "A tier.".',
-    reason: 'Spell out the letter A sound so it is not read as the article "a".'
+    ttsText: 'A-tier!',
+    pronunciationNote: 'TTS uses "A-tier!" so the letter A is spoken clearly while display text stays "A tier.".',
+    reason: 'Use the common hyphenated tier phrase so the letter A is not read as an article or as "I".'
   },
   S: {
     ttsText: 'Ess tier!',
@@ -281,6 +281,22 @@ const FINAL_REVEAL_TTS_OVERRIDES = Object.freeze({
   }
 });
 
+const FOOD_NAME_TTS_OVERRIDES = Object.freeze({
+  kale: {
+    match: /^kale[.!]?$/i,
+    ttsText: 'Kail!',
+    pronunciationNote: 'TTS uses "Kail!" so Kale is pronounced like the leafy green while display text stays "Kale!".',
+    reason: 'Use phonetic spelling so the hook does not sound like "kalay".'
+  }
+});
+
+function foodNameTtsOverride(foodId, block) {
+  if (block?.index !== 0 || String(block?.kind || '').toLowerCase() !== 'hook_food') return null;
+  const override = FOOD_NAME_TTS_OVERRIDES[String(foodId || '').toLowerCase()];
+  if (!override || !override.match.test(String(block?.text || '').trim())) return null;
+  return override;
+}
+
 function finalRevealTtsOverride(block) {
   if (String(block?.kind || '').toLowerCase() !== 'final_reveal') return null;
   const match = String(block?.text || '').trim().match(/^([as])\s+tier[.!]?$/i);
@@ -288,8 +304,12 @@ function finalRevealTtsOverride(block) {
   return FINAL_REVEAL_TTS_OVERRIDES[tier] || null;
 }
 
-function ttsTextForBlock(block) {
-  return finalRevealTtsOverride(block)?.ttsText || block.text;
+function pronunciationTtsOverride(foodId, block) {
+  return foodNameTtsOverride(foodId, block) || finalRevealTtsOverride(block);
+}
+
+function ttsTextForBlock(foodId, block) {
+  return pronunciationTtsOverride(foodId, block)?.ttsText || block.text;
 }
 
 function apiErrorMessage(status, bodyText) {
@@ -732,8 +752,8 @@ async function generateSplitBlockSpeech({
   for (const block of blocks) {
     const outputFile = path.join(productionBlocksDir, `${block.id}.mp3`);
     const blockTextHash = sha256(block.text);
-    const ttsText = ttsTextForBlock(block);
-    const ttsOverride = ttsText !== block.text ? finalRevealTtsOverride(block) : null;
+    const ttsText = ttsTextForBlock(foodId, block);
+    const ttsOverride = ttsText !== block.text ? pronunciationTtsOverride(foodId, block) : null;
     const result = await generateSpeech({ apiKey, profile, text: ttsText, outputFile });
     generatedBlocks.push({
       id: block.id,
@@ -789,7 +809,7 @@ async function generateSplitBlockSpeech({
         blockId: block.id,
         displayText: block.text,
         ttsText: block.ttsText,
-        reason: finalRevealTtsOverride(block)?.reason || 'Use pronunciation-safe TTS text while keeping display text unchanged.'
+        reason: pronunciationTtsOverride(foodId, block)?.reason || 'Use pronunciation-safe TTS text while keeping display text unchanged.'
       }))
   };
 
@@ -930,7 +950,7 @@ async function main() {
     const dryRunBlocks = options.splitBlocks ? narrationBlockDescriptors(sourcePath, text) : [];
     const pronunciationOverrides = dryRunBlocks
       .map(block => {
-        const override = finalRevealTtsOverride(block);
+        const override = pronunciationTtsOverride(foodId, block);
         return override ? {
           blockId: block.id,
           displayText: block.text,

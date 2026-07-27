@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260724-v2-music-asset-settings-v1';
+  const BUILDER_BUILD_ID = '20260727-v2-audio-mix-sliders-v1';
   const AUTHOR_GRID = { width: 135, height: 240 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
@@ -16,6 +16,29 @@
   const NARRATION_VOLUME = 1;
   const ADAM_NARRATION_VOLUME = 0.7;
   const BACKGROUND_MUSIC_VOLUME = 0.14;
+  const AUDIO_MIX_SLIDER_SPECS = Object.freeze([
+    { key: 'music', label: 'music' },
+    { key: 'narration', label: 'narration' },
+    { key: 'transitions', label: 'transitions' },
+    { key: 'stamps', label: 'stamps' },
+    { key: 'macros', label: 'macros' },
+    { key: 'micros', label: 'micros' },
+    { key: 'pros', label: 'pros' },
+    { key: 'cons', label: 'cons' }
+  ]);
+  const AUDIO_MIX_DEFAULTS = Object.freeze({
+    music: 1,
+    narration: 1,
+    transitions: 1,
+    stamps: 1,
+    macros: 1,
+    micros: 1,
+    pros: 1,
+    cons: 1
+  });
+  const AUDIO_MIX_MIN = 0;
+  const AUDIO_MIX_MAX = 1;
+  const AUDIO_MIX_STEP = 0.01;
   const AUDIO_REVEAL_LEAD_SECONDS = 0.11;
   const AUDIO_REVEAL_WINDOW_SECONDS = 0.36;
   const SUBMACRO_REVEAL_WINDOW_SECONDS = 1.25;
@@ -475,6 +498,7 @@
     audioStatus: document.getElementById('audioStatus'),
     timeReadout: document.getElementById('timeReadout'),
     timeScrub: document.getElementById('timeScrub'),
+    audioMixControls: document.getElementById('audioMixControls'),
     timelineStrip: document.getElementById('timelineStrip'),
     activeSceneTitle: document.getElementById('activeSceneTitle'),
     sceneStatus: document.getElementById('sceneStatus'),
@@ -503,6 +527,7 @@
     selectedFoodId: savedState.selectedFoodId || 'bacon',
     layoutSourceId: requestedLayoutSourceId || savedState.layoutSourceId || 'display-builder-v2',
     selectedSceneId: savedState.selectedSceneId || 'intro',
+    audioMix: normalizeAudioMix(savedState.audioMix),
     audioEnabled: true,
     currentTime: 0,
     playing: false,
@@ -604,6 +629,96 @@
       const layers = layout?.sections?.[section.id]?.layers;
       return total + (Array.isArray(layers) ? layers.length : 0);
     }, 0);
+  }
+
+  function normalizeAudioMix(raw) {
+    const source = raw && typeof raw === 'object' ? raw : {};
+    return AUDIO_MIX_SLIDER_SPECS.reduce((mix, spec) => {
+      mix[spec.key] = clamp(asNumber(source[spec.key], AUDIO_MIX_DEFAULTS[spec.key]), AUDIO_MIX_MIN, AUDIO_MIX_MAX);
+      return mix;
+    }, {});
+  }
+
+  function audioMixMultiplier(key) {
+    return clamp(asNumber(state.audioMix?.[key], AUDIO_MIX_DEFAULTS[key] ?? 1), AUDIO_MIX_MIN, AUDIO_MIX_MAX);
+  }
+
+  function mixedAudioVolume(baseVolume, mixKey, maxVolume = 1) {
+    return clamp(asNumber(baseVolume, 0) * audioMixMultiplier(mixKey), 0, maxVolume);
+  }
+
+  function audioMixManifest() {
+    return AUDIO_MIX_SLIDER_SPECS.reduce((mix, spec) => {
+      mix[spec.key] = Number(audioMixMultiplier(spec.key).toFixed(2));
+      return mix;
+    }, {});
+  }
+
+  function renderAudioMixControls() {
+    const root = els.audioMixControls;
+    if (!root) return;
+    if (!root.dataset.bound) {
+      root.addEventListener('input', handleAudioMixControlInput);
+      root.dataset.bound = 'true';
+    }
+    if (!root.dataset.rendered) {
+      root.innerHTML = AUDIO_MIX_SLIDER_SPECS.map(spec => {
+        const percent = Math.round(audioMixMultiplier(spec.key) * 100);
+        return `
+          <label class="audio-mix-control">
+            <span class="audio-mix-control-header">
+              <span class="audio-mix-label">${escapeHtml(spec.label)}</span>
+              <output class="audio-mix-value" data-audio-mix-value="${escapeHtml(spec.key)}">${percent}%</output>
+            </span>
+            <input
+              type="range"
+              min="${AUDIO_MIX_MIN * 100}"
+              max="${AUDIO_MIX_MAX * 100}"
+              step="${AUDIO_MIX_STEP * 100}"
+              value="${percent}"
+              data-audio-mix-key="${escapeHtml(spec.key)}"
+              aria-label="${escapeHtml(`${spec.label} volume`)}"
+            />
+          </label>
+        `;
+      }).join('');
+      root.dataset.rendered = 'true';
+    }
+    updateAudioMixControls();
+  }
+
+  function updateAudioMixControls() {
+    const root = els.audioMixControls;
+    if (!root) return;
+    AUDIO_MIX_SLIDER_SPECS.forEach(spec => {
+      const percent = Math.round(audioMixMultiplier(spec.key) * 100);
+      const input = root.querySelector(`[data-audio-mix-key="${spec.key}"]`);
+      const output = root.querySelector(`[data-audio-mix-value="${spec.key}"]`);
+      if (input) input.value = String(percent);
+      if (output) output.textContent = `${percent}%`;
+    });
+  }
+
+  function handleAudioMixControlInput(event) {
+    const input = event.target?.matches?.('input[data-audio-mix-key]') ? event.target : null;
+    const key = input?.dataset?.audioMixKey;
+    if (!key || !Object.prototype.hasOwnProperty.call(AUDIO_MIX_DEFAULTS, key)) return;
+    state.audioMix = normalizeAudioMix({
+      ...state.audioMix,
+      [key]: asNumber(input.value, 100) / 100
+    });
+    updateAudioMixControls();
+    syncAudioMixPlaybackVolumes();
+    persist();
+    renderManifest();
+  }
+
+  function syncAudioMixPlaybackVolumes() {
+    syncNarrationVolumeForAudio(audioForFood(selectedFood()));
+    if (state.backgroundMusicAudio) {
+      const music = backgroundMusicForFood(selectedFood());
+      state.backgroundMusicAudio.volume = music?.volume ?? 0;
+    }
   }
 
   function spriteReportUrl(src) {
@@ -1038,11 +1153,12 @@
       sfxRoleSetting('sectionTransition', 'maxVolume', path, SECTION_TRANSITION_SFX_MAX_VOLUME, food),
       SECTION_TRANSITION_SFX_MAX_VOLUME
     );
-    return clamp(
+    const baseVolume = clamp(
       asNumber(sfxRoleSetting('sectionTransition', 'volume', path, SECTION_TRANSITION_SFX_VOLUME, food), SECTION_TRANSITION_SFX_VOLUME),
       0,
       maxVolume
     );
+    return mixedAudioVolume(baseVolume, 'transitions', maxVolume);
   }
 
   function sectionTransitionSfxTimeOffsetSeconds(food = selectedFood()) {
@@ -1061,13 +1177,10 @@
   function backgroundMusicForFood(food = selectedFood()) {
     const path = backgroundMusicPath(food);
     if (!path) return null;
+    const baseVolume = asNumber(musicRoleSetting('backgroundMusic', 'volume', path, BACKGROUND_MUSIC_VOLUME, food), BACKGROUND_MUSIC_VOLUME);
     return {
       path,
-      volume: clamp(
-        asNumber(musicRoleSetting('backgroundMusic', 'volume', path, BACKGROUND_MUSIC_VOLUME, food), BACKGROUND_MUSIC_VOLUME),
-        0,
-        1
-      ),
+      volume: mixedAudioVolume(baseVolume, 'music'),
       selectionMode: musicProfileForFood(food)?.selectionMode || null
     };
   }
@@ -3298,7 +3411,8 @@
     localStorage.setItem(VIDEO_STATE_KEY, JSON.stringify({
       selectedFoodId: state.selectedFoodId,
       layoutSourceId: state.layoutSourceId,
-      selectedSceneId: state.selectedSceneId
+      selectedSceneId: state.selectedSceneId,
+      audioMix: audioMixManifest()
     }));
   }
 
@@ -3412,6 +3526,7 @@
     els.revealStyle.value = selected?.reveal || 'cascade';
     els.captionSize.value = selected?.captionSize || 22;
     els.captionText.value = selected?.caption || '';
+    renderAudioMixControls();
     updatePlaybackControls();
   }
 
@@ -3429,6 +3544,7 @@
       layoutSource: state.layoutSourceId,
       canvas: { width: AUTHOR_GRID.width, height: AUTHOR_GRID.height, aspect: '9:16' },
       audio: audioForFood(food),
+      audioMix: audioMixManifest(),
       sfxProfile: sfxProfileForFood(food),
       musicProfile: musicProfileForFood(food),
       voiceProfile: voiceProfileForFood(food),
@@ -6062,7 +6178,7 @@
   }
 
   function stampSfxVolume(path = stampSfxPath()) {
-    return asNumber(stampSfxSettings(path).volume, STAMP_SFX_VOLUME);
+    return mixedAudioVolume(asNumber(stampSfxSettings(path).volume, STAMP_SFX_VOLUME), 'stamps');
   }
 
   function stampSfxVolumeVariation(path = stampSfxPath()) {
@@ -6271,7 +6387,7 @@
   }
 
   function sTierStampSfxVolume() {
-    return asNumber(sTierStampSfxSettings().volume, S_TIER_STAMP_SFX_VOLUME);
+    return mixedAudioVolume(asNumber(sTierStampSfxSettings().volume, S_TIER_STAMP_SFX_VOLUME), 'stamps');
   }
 
   function sTierStampSfxLeadSeconds() {
@@ -6299,11 +6415,11 @@
   }
 
   function dTierGameLoseSfxVolume() {
-    return asNumber(dTierGameLoseSfxSettings().volume, D_TIER_GAME_LOSE_SFX_VOLUME);
+    return mixedAudioVolume(asNumber(dTierGameLoseSfxSettings().volume, D_TIER_GAME_LOSE_SFX_VOLUME), 'stamps');
   }
 
   function dTierDeathSfxVolume() {
-    return asNumber(dTierDeathSfxSettings().volume, D_TIER_DEATH_SFX_VOLUME);
+    return mixedAudioVolume(asNumber(dTierDeathSfxSettings().volume, D_TIER_DEATH_SFX_VOLUME), 'stamps');
   }
 
   function dTierGameLoseSfxLeadSeconds() {
@@ -6650,6 +6766,18 @@
     }
   }
 
+  function micronBarConfirmSfxVolume() {
+    return mixedAudioVolume(MICRON_BAR_CONFIRM_SFX_VOLUME, 'micros');
+  }
+
+  function micron100FireworkLeadSfxVolume() {
+    return mixedAudioVolume(MICRON_100_FIREWORK_LEAD_SFX_VOLUME, 'micros');
+  }
+
+  function micron100FireworkSfxVolume() {
+    return mixedAudioVolume(MICRON_100_FIREWORK_SFX_VOLUME, 'micros');
+  }
+
   function micronBarConfirmSfxPlaybackRate(step) {
     const safeStep = clamp(Math.round(asNumber(step, 1)), 1, 10);
     const range = MICRON_BAR_CONFIRM_SFX_PLAYBACK_RATE_RANGE.max - MICRON_BAR_CONFIRM_SFX_PLAYBACK_RATE_RANGE.min;
@@ -6686,7 +6814,7 @@
       state.micronBarConfirmSfxPool = Array.from({ length: MICRON_BAR_CONFIRM_SFX_POOL_SIZE }, () => {
         const audio = new Audio(docsAssetPath(MICRON_BAR_CONFIRM_SFX_PATH));
         audio.preload = 'auto';
-        audio.volume = MICRON_BAR_CONFIRM_SFX_VOLUME;
+        audio.volume = micronBarConfirmSfxVolume();
         allowSfxPitchShift(audio);
         return audio;
       });
@@ -6705,7 +6833,7 @@
       audio.currentTime = 0;
       audio.dataset.playToken = token;
       allowSfxPitchShift(audio);
-      audio.volume = MICRON_BAR_CONFIRM_SFX_VOLUME;
+      audio.volume = micronBarConfirmSfxVolume();
       audio.playbackRate = event.playbackRate;
       const playPromise = audio.play();
       if (playPromise?.catch) playPromise.catch(() => {});
@@ -6773,7 +6901,7 @@
       state.micron100FireworkLeadSfxPool = Array.from({ length: MICRON_100_FIREWORK_LEAD_SFX_POOL_SIZE }, () => {
         const audio = new Audio(docsAssetPath(MICRON_100_FIREWORK_LEAD_SFX_PATH));
         audio.preload = 'auto';
-        audio.volume = MICRON_100_FIREWORK_LEAD_SFX_VOLUME;
+        audio.volume = micron100FireworkLeadSfxVolume();
         return audio;
       });
     }
@@ -6787,7 +6915,7 @@
       state.micron100FireworkSfxPool = Array.from({ length: MICRON_100_FIREWORK_SFX_POOL_SIZE }, () => {
         const audio = new Audio(docsAssetPath(MICRON_100_FIREWORK_SFX_PATH));
         audio.preload = 'auto';
-        audio.volume = MICRON_100_FIREWORK_SFX_VOLUME;
+        audio.volume = micron100FireworkSfxVolume();
         return audio;
       });
     }
@@ -6803,7 +6931,7 @@
     try {
       audio.pause();
       audio.currentTime = 0;
-      audio.volume = isLead ? MICRON_100_FIREWORK_LEAD_SFX_VOLUME : MICRON_100_FIREWORK_SFX_VOLUME;
+      audio.volume = isLead ? micron100FireworkLeadSfxVolume() : micron100FireworkSfxVolume();
       audio.playbackRate = 1;
       const playPromise = audio.play();
       if (playPromise?.catch) playPromise.catch(() => {});
@@ -6835,6 +6963,14 @@
     }
   }
 
+  function majorProSparkleSfxVolume() {
+    return mixedAudioVolume(MAJOR_PRO_SPARKLE_SFX_VOLUME, 'pros');
+  }
+
+  function majorConSirenSfxVolume() {
+    return mixedAudioVolume(MAJOR_CON_SIREN_SFX_VOLUME, 'cons');
+  }
+
   function majorProSparkleSfxEvents() {
     const pros = selectedFood()?.contextItems?.pros || [];
     return sceneStarts()
@@ -6864,7 +7000,7 @@
       state.majorProSparkleSfxPool = Array.from({ length: MAJOR_PRO_SPARKLE_SFX_POOL_SIZE }, () => {
         const audio = new Audio(docsAssetPath(MAJOR_PRO_SPARKLE_SFX_PATH));
         audio.preload = 'auto';
-        audio.volume = MAJOR_PRO_SPARKLE_SFX_VOLUME;
+        audio.volume = majorProSparkleSfxVolume();
         return audio;
       });
     }
@@ -6885,7 +7021,7 @@
     try {
       audio.pause();
       audio.currentTime = 0;
-      audio.volume = MAJOR_PRO_SPARKLE_SFX_VOLUME;
+      audio.volume = majorProSparkleSfxVolume();
       disableAudioPitchPreservation(audio);
       audio.playbackRate = majorProSparklePlaybackRate();
       const playPromise = audio.play();
@@ -6941,7 +7077,7 @@
       state.majorConSirenSfxPool = Array.from({ length: MAJOR_CON_SIREN_SFX_POOL_SIZE }, () => {
         const audio = new Audio(docsAssetPath(MAJOR_CON_SIREN_SFX_PATH));
         audio.preload = 'auto';
-        audio.volume = MAJOR_CON_SIREN_SFX_VOLUME;
+        audio.volume = majorConSirenSfxVolume();
         return audio;
       });
     }
@@ -6962,7 +7098,7 @@
     try {
       audio.pause();
       audio.currentTime = 0;
-      audio.volume = MAJOR_CON_SIREN_SFX_VOLUME;
+      audio.volume = majorConSirenSfxVolume();
       disableAudioPitchPreservation(audio);
       audio.playbackRate = majorConSirenPlaybackRate();
       const playPromise = audio.play();
@@ -6987,6 +7123,14 @@
       state.playedMajorConSirenSfxKeys.add(event.key);
       playMajorConSirenSfx(event);
     }
+  }
+
+  function macroBarFillSfxVolume() {
+    return mixedAudioVolume(MACRO_BAR_FILL_SFX_VOLUME, 'macros');
+  }
+
+  function macroBarFillSfxGain() {
+    return mixedAudioVolume(MACRO_BAR_FILL_SFX_GAIN, 'macros');
   }
 
   function macroBarFillSfxEvents() {
@@ -7073,7 +7217,7 @@
       state.barFillSfxPool = Array.from({ length: MACRO_BAR_FILL_SFX_POOL_SIZE }, () => {
         const audio = new Audio(docsAssetPath(MACRO_BAR_FILL_SFX_PATH));
         audio.preload = 'auto';
-        audio.volume = MACRO_BAR_FILL_SFX_VOLUME;
+        audio.volume = macroBarFillSfxVolume();
         allowSfxPitchShift(audio);
         return audio;
       });
@@ -7167,7 +7311,7 @@
     const step = () => {
       if (audio.paused) return;
       const elapsedSeconds = (performance.now() - startMs) / 1000;
-      audio.volume = MACRO_BAR_FILL_SFX_VOLUME * barFillSfxEnvelope(elapsedSeconds, timing);
+      audio.volume = macroBarFillSfxVolume() * barFillSfxEnvelope(elapsedSeconds, timing);
       if (elapsedSeconds < timing.playSeconds) window.requestAnimationFrame(step);
     };
     step();
@@ -7179,7 +7323,7 @@
     const steps = Math.max(8, MACRO_BAR_FILL_SFX_ENVELOPE_STEPS);
     const curve = Float32Array.from({ length: steps }, (_, index) => {
       const elapsedSeconds = playSeconds * (index / Math.max(1, steps - 1));
-      return MACRO_BAR_FILL_SFX_GAIN * barFillSfxEnvelope(elapsedSeconds, timing);
+      return macroBarFillSfxGain() * barFillSfxEnvelope(elapsedSeconds, timing);
     });
     gain.gain.cancelScheduledValues(now);
     gain.gain.setValueAtTime(0, now);
@@ -7794,8 +7938,10 @@
   }
 
   function narrationVolumeForAudio(audio) {
-    if (isAdamVoiceLabel(audio?.voiceLabel)) return clamp(ADAM_NARRATION_VOLUME, 0, 1);
-    return clamp(asNumber(audio?.narrationVolume, NARRATION_VOLUME), 0, 1);
+    const baseVolume = isAdamVoiceLabel(audio?.voiceLabel)
+      ? ADAM_NARRATION_VOLUME
+      : asNumber(audio?.narrationVolume, NARRATION_VOLUME);
+    return mixedAudioVolume(baseVolume, 'narration');
   }
 
   function syncNarrationVolumeForAudio(audio) {

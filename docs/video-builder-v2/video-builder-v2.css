@@ -298,6 +298,7 @@ h2 {
   grid-template-columns: 76px 88px 96px minmax(0, 1fr);
   grid-template-areas:
     "play audio time scrub"
+    "mix mix mix mix"
     ". status status status";
   row-gap: 6px;
   width: 100%;
@@ -311,6 +312,45 @@ h2 {
   min-width: 0;
 }
 #audioStatus { grid-area: status; }
+#audioMixControls { grid-area: mix; }
+
+.audio-mix-controls {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px 10px;
+  width: 100%;
+  padding-top: 2px;
+}
+
+.audio-mix-control {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.audio-mix-control-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1;
+}
+
+.audio-mix-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.audio-mix-value {
+  flex: 0 0 auto;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
 
 .time-readout,
 .audio-status {
@@ -878,7 +918,12 @@ h2 {
     grid-template-areas:
       "play audio time"
       "scrub scrub scrub"
+      "mix mix mix"
       "status status status";
+  }
+
+  .audio-mix-controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .time-readout {

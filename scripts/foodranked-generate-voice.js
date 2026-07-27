@@ -268,14 +268,24 @@ function narrationBlockDescriptors(sourcePath, text) {
   });
 }
 
-function finalRevealTtsOverride(block) {
-  if (String(block?.kind || '').toLowerCase() !== 'final_reveal') return null;
-  if (!/^s\s+tier[.!]?$/i.test(String(block?.text || '').trim())) return null;
-  return {
+const FINAL_REVEAL_TTS_OVERRIDES = Object.freeze({
+  A: {
+    ttsText: 'Ay tier!',
+    pronunciationNote: 'TTS uses "Ay tier!" so the letter A is spoken clearly while display text stays "A tier.".',
+    reason: 'Spell out the letter A sound so it is not read as the article "a".'
+  },
+  S: {
     ttsText: 'Ess tier!',
     pronunciationNote: 'TTS uses "Ess tier!" so the letter S is spoken clearly while display text stays "S tier.".',
     reason: 'Spell out the letter S sound so it does not get clipped or blend into tier.'
-  };
+  }
+});
+
+function finalRevealTtsOverride(block) {
+  if (String(block?.kind || '').toLowerCase() !== 'final_reveal') return null;
+  const match = String(block?.text || '').trim().match(/^([as])\s+tier[.!]?$/i);
+  const tier = match?.[1]?.toUpperCase() || '';
+  return FINAL_REVEAL_TTS_OVERRIDES[tier] || null;
 }
 
 function ttsTextForBlock(block) {

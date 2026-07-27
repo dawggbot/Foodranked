@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260727-v2-db-default-fallback-v1';
+  const BUILDER_BUILD_ID = '20260727-v2-db-export-food-param-v1';
   const DISPLAY_BUILDER_V2_EXPORT_TIMEOUT_MS = 8000;
   const DISPLAY_BUILDER_V2_EXPORT_POLL_MS = 150;
   const AUTHOR_GRID = { width: 135, height: 240 };
@@ -2969,7 +2969,7 @@
   }
 
   function subtitleOnlyCaptionText(text) {
-    return String(text || '')
+    const normalized = String(text || '')
       .replace(/\braw grams display\b/gi, 'raw values display')
       .replace(/\b([a-z]+) grams already shown\b/gi, '$1 numbers already shown')
       .replace(/\bmaintenance-and-repair\b/gi, 'maintenance repair')
@@ -2985,6 +2985,8 @@
       .replace(/\b(\d+)\.\s+(\d+)(?=\s*(?:mcg|mg|kg|kcal|g|%|\b))/gi, '$1.$2')
       .replace(/\s+/g, ' ')
       .trim();
+    const tierReveal = normalized.match(/^([sabcd])\s+tier\.?$/i);
+    return tierReveal ? `${tierReveal[1].toUpperCase()} tier.` : normalized;
   }
 
   function subtitleCuesForScene(food, sectionId) {

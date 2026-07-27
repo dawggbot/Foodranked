@@ -294,8 +294,13 @@ const outFile = path.join(outDir, 'foods-index.json');
 const outJsFile = path.join(outDir, 'foods-index.js');
 ensureDir(outDir);
 fs.writeFileSync(outFile, JSON.stringify(foods, null, 2) + '\n');
+const foodsIndexJs = JSON.stringify(foods);
+const payloadMetadataJs = JSON.stringify({
+  generatedAt: payload.generatedAt,
+  count: payload.count
+});
 fs.writeFileSync(
   outJsFile,
-  `window.FOODS_INDEX = ${JSON.stringify(foods, null, 2)};\nwindow.FOODRANKED_DATA = ${JSON.stringify(payload, null, 2)};\n`
+  `window.FOODS_INDEX = ${foodsIndexJs};\nwindow.FOODRANKED_DATA = ${payloadMetadataJs};\nwindow.FOODRANKED_DATA.foods = window.FOODS_INDEX;\n`
 );
 console.log(`Wrote ${outFile} and ${outJsFile} with ${foods.length} foods.`);

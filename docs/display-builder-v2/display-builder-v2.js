@@ -2455,7 +2455,11 @@
 
   async function init() {
     const saved = readTestState();
-    state.selectedFoodId = saved.selectedFoodId && state.foods.some(food => food.id === saved.selectedFoodId)
+    const urlParams = new URLSearchParams(window.location.search);
+    const requestedExportFoodId = urlParams.get('videoBuilderExportFood') || '';
+    state.selectedFoodId = requestedExportFoodId && state.foods.some(food => food.id === requestedExportFoodId)
+      ? requestedExportFoodId
+      : saved.selectedFoodId && state.foods.some(food => food.id === saved.selectedFoodId)
       ? saved.selectedFoodId
       : state.foods[0]?.id || '';
     state.selectedSectionId = DISPLAY_SECTIONS.includes(saved.selectedSectionId) ? saved.selectedSectionId : 'intro';

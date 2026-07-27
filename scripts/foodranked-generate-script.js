@@ -1087,6 +1087,21 @@ function weakestAvailableMetric(metrics, exclude = null, sectionKey = '') {
     })[0] || null;
 }
 
+function preferredProteinQualityNarrationMetric(metrics, exclude = null) {
+  const byKey = new Map((metrics || [])
+    .filter(metric => (
+      metric
+      && metric !== exclude
+      && metricHasDefensibleValue(metric)
+      && PROTEIN_QUALITY_METRIC_KEYS.has(metric.metricKey)
+    ))
+    .map(metric => [metric.metricKey, metric]));
+  return byKey.get('essential_amino_acids_score')
+    || byKey.get('bioavailability_percent')
+    || byKey.get('nonessential_amino_acids_score')
+    || null;
+}
+
 function bestAvailableMetricLine(metric, sectionKey) {
   if (!metric) return null;
   const score = metricSectionScore(metric);
@@ -1143,7 +1158,8 @@ function outstandingMacroLine(result, sectionKey) {
     if (proteinAmount) {
       const score = result.sectionScores?.proteins ?? null;
       const secondPool = weakNarrationMetrics(result, metrics, sectionKey, proteinAmount);
-      const second = weakestAvailableMetric(secondPool, proteinAmount, sectionKey);
+      const second = preferredProteinQualityNarrationMetric(secondPool, proteinAmount)
+        || weakestAvailableMetric(secondPool, proteinAmount, sectionKey);
       return joinShort([
         proteinFallbackContext(result, score),
         secondMetricLine(second, result, sectionKey)

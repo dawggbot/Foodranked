@@ -178,6 +178,7 @@ Rules:
 - If the protein macro displays a value, missing or protein-gate-skipped visible rows use source-backed values first, then labelled display-only estimates when available, then the row default (`0g`, `0/9`, `0/11`, or `0%`) as the final fallback.
 - Display estimates use `displaySource: protein_display_estimate`; final defaults use `displaySource: submacro_display_default`. Neither may be written back into food source metrics or treated as source-backed nutrition evidence.
 - Narration may use the approved display-backed protein-quality rows, but collagen should not be selected as the weak protein callout outside meats when bioavailability, EAAs, or NEAAs are available.
+- When both EAA and NEAA display estimates are available for protein narration, prefer EAAs before NEAAs because essential amino acids are the more meaningful protein-quality callout.
 - EAA/NEAA display estimates are useful-protein-gated and floor-based: red protein fallback bands emit `0/9` and `0/11`, and green-band estimates use `floor()` before resolving arrow bands.
 - Protein narration may mention protein amount when fallback scoring is used, but the subtitle/body display still follows the four visible row slots above.
 

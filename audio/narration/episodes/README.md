@@ -7,6 +7,7 @@ This folder is the GitHub-facing catalogue for generated narration files. The MP
 [Almonds](almonds.md) |  |  |  |  | 2 | 0 | 3
 [Bacon](bacon.md) | `voice-v10` | `split-blocks` | 126.3s | 11 | 64 | 59 | 54
 [Black Beans](black-beans.md) |  |  |  |  | 2 | 0 | 3
+[Buckwheat](buckwheat.md) | `voice-v1` | `split-blocks` | 137.5s | 11 | 13 | 12 | 15
 [Chia Seeds](chia-seeds.md) |  |  |  |  | 2 | 0 | 3
 [Extra Virgin Olive Oil](extra-virgin-olive-oil.md) |  |  |  |  | 2 | 0 | 3
 [Greek Yogurt](greek-yogurt.md) |  |  |  |  | 2 | 0 | 3

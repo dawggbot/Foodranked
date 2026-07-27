@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260727-v2-lazy-batch-results-v1';
+  const BUILDER_BUILD_ID = '20260727-v2-d-tier-fail-volume-v1';
   const DISPLAY_BUILDER_V2_EXPORT_TIMEOUT_MS = 8000;
   const DISPLAY_BUILDER_V2_EXPORT_POLL_MS = 150;
   const AUTHOR_GRID = { width: 135, height: 240 };
@@ -112,7 +112,7 @@
   const S_TIER_STAMP_SFX_POOL_SIZE = 2;
   const D_TIER_GAME_LOSE_SFX_PATH = 'audio/sfx/stamps/d_tier_game_fail.mp3';
   const D_TIER_DEATH_SFX_PATH = 'audio/sfx/stamps/d_tier_death_collapse.mp3';
-  const D_TIER_GAME_LOSE_SFX_VOLUME = 0.28;
+  const D_TIER_GAME_LOSE_SFX_VOLUME = 0.21;
   const D_TIER_DEATH_SFX_VOLUME = 0.28;
   const D_TIER_GAME_LOSE_SFX_LEAD_SECONDS = 0.5;
   const D_TIER_GAME_LOSE_SFX_DURATION_SECONDS = 2.534;

@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260727-v2-db-export-food-param-v1';
+  const BUILDER_BUILD_ID = '20260727-v2-lazy-batch-results-v1';
   const DISPLAY_BUILDER_V2_EXPORT_TIMEOUT_MS = 8000;
   const DISPLAY_BUILDER_V2_EXPORT_POLL_MS = 150;
   const AUTHOR_GRID = { width: 135, height: 240 };
@@ -110,12 +110,12 @@
   const S_TIER_STAMP_SFX_VOLUME = 0.36;
   const S_TIER_STAMP_SFX_LEAD_SECONDS = 0.16;
   const S_TIER_STAMP_SFX_POOL_SIZE = 2;
-  const D_TIER_GAME_LOSE_SFX_PATH = 'audio/sfx/stamps/d_tier_game_lose.mp3';
+  const D_TIER_GAME_LOSE_SFX_PATH = 'audio/sfx/stamps/d_tier_game_fail.mp3';
   const D_TIER_DEATH_SFX_PATH = 'audio/sfx/stamps/d_tier_death_collapse.mp3';
   const D_TIER_GAME_LOSE_SFX_VOLUME = 0.28;
   const D_TIER_DEATH_SFX_VOLUME = 0.28;
   const D_TIER_GAME_LOSE_SFX_LEAD_SECONDS = 0.5;
-  const D_TIER_GAME_LOSE_SFX_DURATION_SECONDS = 4.284;
+  const D_TIER_GAME_LOSE_SFX_DURATION_SECONDS = 2.534;
   const D_TIER_DEATH_SFX_DELAY_SECONDS = D_TIER_GAME_LOSE_SFX_DURATION_SECONDS / 2;
   const D_TIER_STAMP_SFX_POOL_SIZE = S_TIER_STAMP_SFX_POOL_SIZE;
   const SECTION_TRANSITION_SFX_PATH = 'audio/sfx/transitions/section_transition_whoosh.mp3';
@@ -183,7 +183,7 @@
         playbackRate: 1
       }
     },
-    'audio/sfx/stamps/d_tier_game_lose.mp3': {
+    'audio/sfx/stamps/d_tier_game_fail.mp3': {
       dTierGameLose: {
         volume: D_TIER_GAME_LOSE_SFX_VOLUME,
         leadSeconds: D_TIER_GAME_LOSE_SFX_LEAD_SECONDS,
@@ -517,6 +517,7 @@
 
   const foods = Array.isArray(window.FOODS_INDEX) ? window.FOODS_INDEX : [];
   const BATCH_RESULTS_CACHE = new Map();
+  let batchResultsPromise = null;
   const savedState = readJson(localStorage.getItem(VIDEO_STATE_KEY), {});
   const urlParams = new URLSearchParams(window.location.search);
   const requestedLayoutSourceId = urlParams.get('layoutSource') || '';
@@ -824,20 +825,26 @@
   }
 
   async function loadBatchResults() {
-    if (BATCH_RESULTS_CACHE.size) return;
-    try {
-      const response = await fetch('../data/batch-results.json');
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const json = await response.json();
-      const details = Array.isArray(json?.details) ? json.details : [];
-      details.forEach(item => {
-        const result = item?.result;
-        const id = result?.food?.id;
-        if (id) BATCH_RESULTS_CACHE.set(id, result);
-      });
-    } catch {
-      // Batch results refine arrow presentation; the builder can still render from food data alone.
-    }
+    if (BATCH_RESULTS_CACHE.size) return true;
+    if (batchResultsPromise) return batchResultsPromise;
+    batchResultsPromise = (async () => {
+      try {
+        const response = await fetch('../data/batch-results.json');
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const json = await response.json();
+        const details = Array.isArray(json?.details) ? json.details : [];
+        details.forEach(item => {
+          const result = item?.result;
+          const id = result?.food?.id;
+          if (id) BATCH_RESULTS_CACHE.set(id, result);
+        });
+        return true;
+      } catch {
+        // Batch results refine arrow presentation; the builder can still render from food data alone.
+        return false;
+      }
+    })();
+    return batchResultsPromise;
   }
 
   function attachBatchResult(food) {
@@ -6507,6 +6514,7 @@
 
   function primeDTierStampSfx() {
     if (!state.audioEnabled) return;
+    if (outroTierForFood(selectedFood()) !== 'D') return;
     [...ensureDTierGameLoseSfxAudioPool(), ...ensureDTierDeathSfxAudioPool()].forEach(audio => {
       try {
         audio.load();
@@ -7828,13 +7836,17 @@
   });
 
   async function init() {
-    await loadBatchResults();
-    const food = selectedFood();
     if (!foods.some(item => item.id === state.selectedFoodId) && foods[0]) state.selectedFoodId = foods[0].id;
+    const food = selectedFood();
     state.scenes = buildScenes(food);
     hydrateLayoutForFood();
     syncAudioForFood();
     renderAll();
+    void loadBatchResults().then(loaded => {
+      if (!loaded) return;
+      hydrateLayoutForFood({ requestExport: false });
+      renderAll();
+    });
     requestAnimationFrame(() => {
       setCanvasScale();
       syncCurrentSectionIndicatorsForViewport();

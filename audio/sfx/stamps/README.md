@@ -14,5 +14,5 @@ Current files:
 - `impact_stamp_hit.mp3`
 - `traditional_stamp_hit.mp3`
 - `s_tier_stamp_level_up.mp3`
-- `d_tier_game_lose.mp3`
+- `d_tier_game_fail.mp3`
 - `d_tier_death_collapse.mp3`

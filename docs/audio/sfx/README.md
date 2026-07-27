@@ -14,6 +14,9 @@ Current stamp mirrors:
 
 - `stamps/impact_stamp_hit.mp3`
 - `stamps/traditional_stamp_hit.mp3`
+- `stamps/s_tier_stamp_level_up.mp3`
+- `stamps/d_tier_game_fail.mp3`
+- `stamps/d_tier_death_collapse.mp3`
 
 Current transition mirror:
 

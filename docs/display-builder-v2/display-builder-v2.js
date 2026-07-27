@@ -153,7 +153,8 @@
     background: LOGIC.clone(DEFAULT_BACKGROUND),
     canvasMetrics: null,
     lastLogic: null,
-    loadingFoodId: ''
+    loadingFoodId: '',
+    batchResultsPromise: null
   };
 
   const els = {
@@ -740,20 +741,26 @@
   }
 
   async function loadBatchResults() {
-    if (BATCH_RESULTS_CACHE.size) return;
-    try {
-      const response = await fetch(withDataCacheBust('../data/batch-results.json'));
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const json = await response.json();
-      const details = Array.isArray(json?.details) ? json.details : [];
-      details.forEach(item => {
-        const result = item?.result;
-        const id = result?.food?.id;
-        if (id) BATCH_RESULTS_CACHE.set(id, result);
-      });
-    } catch {
-      state.bindingReport.warnings.push({ type: 'data', message: 'Generated batch-results.json could not be loaded.' });
-    }
+    if (BATCH_RESULTS_CACHE.size) return true;
+    if (state.batchResultsPromise) return state.batchResultsPromise;
+    state.batchResultsPromise = (async () => {
+      try {
+        const response = await fetch(withDataCacheBust('../data/batch-results.json'));
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const json = await response.json();
+        const details = Array.isArray(json?.details) ? json.details : [];
+        details.forEach(item => {
+          const result = item?.result;
+          const id = result?.food?.id;
+          if (id) BATCH_RESULTS_CACHE.set(id, result);
+        });
+        return true;
+      } catch {
+        state.bindingReport.warnings.push({ type: 'data', message: 'Generated batch-results.json could not be loaded.' });
+        return false;
+      }
+    })();
+    return state.batchResultsPromise;
   }
 
   function attachBatchResult(food) {
@@ -774,7 +781,6 @@
       return null;
     }
     state.loadingFoodId = stub.id;
-    await loadBatchResults();
     const fullFood = await loadFullFood(stub);
     const merged = {
       ...stub,
@@ -2474,6 +2480,9 @@
     renderSections();
     bindEvents();
     await renderAll();
+    void loadBatchResults().then(async loaded => {
+      if (loaded) await renderAll();
+    });
   }
 
   window.FOODRANKED_DISPLAY_BUILDER_V2 = {

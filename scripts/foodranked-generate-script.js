@@ -937,7 +937,7 @@ function weakMetricImpactContext(metric, sectionKey) {
     sugar_g: 'making sugar control harder',
     starch_g: 'not bringing much steady carb energy',
     glycemic_index: 'not great for steadier carb behaviour',
-    collagen_g: 'not bringing much connective-tissue protein',
+    collagen_g: 'not adding much structural protein',
     essential_amino_acids_score: 'not giving much repair-and-maintenance protein support',
     nonessential_amino_acids_score: 'not bringing much amino-acid coverage',
     bioavailability_percent: 'not great for how much protein your body can use',
@@ -991,7 +991,10 @@ function categoryWeakContext(foodType, sectionKey, metric = null) {
     return combine(`a small downside for ${type || 'this category'}`);
   }
   if (sectionKey === 'proteins') {
-    if (foodType === 'meats') return combine('so for meats, it is not bringing much connective-tissue protein');
+    if (foodType === 'meats' && metric?.metricKey === 'collagen_g') {
+      return combine('so for meats, that collagen side of the protein score stays weak');
+    }
+    if (foodType === 'meats') return combine('so for meats, protein quality is a real scoring factor');
     return combine(`not great for ${type || 'this category'}`);
   }
   if (sectionKey === 'vitamins') {

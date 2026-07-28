@@ -56,6 +56,7 @@ const PROTEIN_QUALITY_VISIBLE_METRIC_KEYS = new Set([
 const UNSATURATED_FAT_NARRATION_METRIC_KEYS = new Set(['omega3_mg', 'polyunsaturated_fat_g']);
 const ZERO_CHOLESTEROL_NARRATION_RELEVANT_FOOD_TYPES = new Set(['dairy', 'meats']);
 const LOW_FAT_UNSATURATED_NARRATION_MAX_FAT_G = 1;
+const CLOSING_USE_CASE_LIMIT = 2;
 const MACRO_SECTION_HEADER_KEYS = {
   fats: 'fat_g',
   carbs: 'carb_g',
@@ -817,24 +818,24 @@ function strongestMetricLine(result, sectionKey) {
     const polyunsaturatedFat = metrics.find(metric => metric.metricKey === 'polyunsaturated_fat_g' && metric.weightedScore > 0);
 
     if (foodType === 'meats') {
-      if (saturatedFat && (saturatedFat.value || 0) >= 8) return `${metricValuePhrase(saturatedFat)}, a major pressure point`;
+      if (saturatedFat && (saturatedFat.value || 0) >= 8) return `${metricValuePhrase(saturatedFat)}, a big downside`;
       if (omega3 && (omega3.value || 0) >= 1000 && (!saturatedFat || (saturatedFat.value || 0) < 4)) {
-        return `${metricValuePhrase(omega3)}, exactly the kind of fat support you want from a meat`;
+        return `${metricValuePhrase(omega3)}, good fat support for meat`;
       }
-      if (saturatedFat && sectionScore !== null && sectionScore < 65) return `${metricValuePhrase(saturatedFat)}, a major pressure point`;
-      if (omega3 && (omega3.value || 0) >= 300) return `${metricValuePhrase(omega3)}, exactly the kind of fat support you want from a meat`;
+      if (saturatedFat && sectionScore !== null && sectionScore < 65) return `${metricValuePhrase(saturatedFat)}, a big downside`;
+      if (omega3 && (omega3.value || 0) >= 300) return `${metricValuePhrase(omega3)}, good fat support for meat`;
     }
 
     if (foodType === 'oils-and-fats') {
-      if (saturatedFat && (saturatedFat.value || 0) >= 20) return `${metricValuePhrase(saturatedFat)}, a major pressure point`;
+      if (saturatedFat && (saturatedFat.value || 0) >= 20) return `${metricValuePhrase(saturatedFat)}, a big downside`;
       if (polyunsaturatedFat && (!saturatedFat || (saturatedFat.value || 0) <= 15)) return `${metricValuePhrase(polyunsaturatedFat)}, doing most of the work here`;
     }
 
-    if (saturatedFat && sectionScore !== null && sectionScore < 60) return `${metricValuePhrase(saturatedFat)}, a major pressure point`;
+    if (saturatedFat && sectionScore !== null && sectionScore < 60) return `${metricValuePhrase(saturatedFat)}, a big downside`;
     if (omega3) return foodType === 'meats'
-      ? `${metricValuePhrase(omega3)}, exactly the kind of fat support you want from a meat`
-      : `${metricValuePhrase(omega3)}, doing a lot of the work here`;
-    if (saturatedFat) return `${metricValuePhrase(saturatedFat)}, a major pressure point`;
+      ? `${metricValuePhrase(omega3)}, good fat support for meat`
+      : `${metricValuePhrase(omega3)}, helping a lot here`;
+    if (saturatedFat) return `${metricValuePhrase(saturatedFat)}, a big downside`;
     if (cholesterol && (cholesterol.value || 0) >= 100) return `${metricValuePhrase(cholesterol)}, adding to the tradeoff`;
     if (polyunsaturatedFat) return `${metricValuePhrase(polyunsaturatedFat)}, one of the better parts of the profile`;
   }
@@ -844,10 +845,10 @@ function strongestMetricLine(result, sectionKey) {
     const glycemicIndex = metrics.find(metric => metric.metricKey === 'glycemic_index' && (metric.value || 0) >= 55);
     const sugar = metrics.find(metric => metric.metricKey === 'sugar_g' && (metric.value || 0) >= 8);
     const starch = metrics.find(metric => metric.metricKey === 'starch_g' && (metric.value || 0) > 0);
-    if (fibre) return `${metricValuePhrase(fibre)}, doing a lot of the work here`;
-    if (glycemicIndex) return `${metricValuePhrase(glycemicIndex)}, where this starts to get messy`;
-    if (sugar) return `${metricValuePhrase(sugar)}, and the load matters more than you would want`;
-    if (starch) return `${metricValuePhrase(starch)}, doing most of the heavy lifting here`;
+    if (fibre) return `${metricValuePhrase(fibre)}, helping a lot here`;
+    if (glycemicIndex) return `${metricValuePhrase(glycemicIndex)}, where this gets messy`;
+    if (sugar) return `${metricValuePhrase(sugar)}, and that can add up fast`;
+    if (starch) return `${metricValuePhrase(starch)}, doing most of the work here`;
   }
 
   if (sectionKey === 'proteins') {
@@ -857,7 +858,7 @@ function strongestMetricLine(result, sectionKey) {
     const essentialAmino = proteinMetrics.find(metric => metric.metricKey === 'essential_amino_acids_score');
     const nonessentialAmino = proteinMetrics.find(metric => metric.metricKey === 'nonessential_amino_acids_score');
     const collagen = proteinMetrics.find(metric => metric.metricKey === 'collagen_g');
-    if (proteinAmount) return `${metricValuePhrase(proteinAmount)}, so the protein score is about useful amount rather than amino acid presence`;
+    if (proteinAmount) return `${metricValuePhrase(proteinAmount)}, so amount matters most here`;
     if (essentialAmino && Number(essentialAmino.value) < 6) {
       return `${metricValuePhrase(essentialAmino)}, after trace amino acids are filtered out`;
     }
@@ -878,10 +879,10 @@ function strongestMetricLine(result, sectionKey) {
 
   const names = metrics.map(m => formatMetricKey(m.metricKey));
   const lead = metricValuePhrase(metrics[0]);
-  if (!isPositive) return `${lead}, where things start to fall off`;
+  if (!isPositive) return `${lead}, where this gets weaker`;
   if (names.length === 1) return `${lead}, doing most of the work`;
-  if (names.length === 2) return `${lead}, while ${names[1]} also matters here`;
-  return `${lead}, with ${names[1]} and ${names[2]} doing more of the work`;
+  if (names.length === 2) return `${lead}, and ${names[1]} also matters`;
+  return `${lead}, with ${names[1]} and ${names[2]} helping too`;
 }
 
 function foodTypeLabel(foodType) {
@@ -1015,18 +1016,18 @@ function categoryWeakContext(foodType, sectionKey, metric = null) {
 function lowVitaminSectionLine(result) {
   const foodType = result.food?.foodType;
   const lines = {
-    grains: "vitamins are low all round. For grains, vitamins are more of a bonus after carb quality and minerals, so this section isn't doing much",
-    meats: "vitamins are low overall. For meats, vitamin B12 and vitamin D are the main checks, so this section doesn't help much",
-    dairy: "vitamins are low overall. For dairy, vitamin D and vitamin B12 are the main checks, so this section isn't doing much",
-    fruits: "vitamins are low overall. For fruit, vitamin C and vitamin A are the main checks, so this section doesn't help much",
-    vegetables: "vitamins are low overall. For vegetables, vitamin A, vitamin C, and vitamin K are the main checks, so this section doesn't help much",
-    legumes: "vitamins are low overall. For legumes, fibre, protein, and minerals matter more, so this section isn't doing much",
-    tubers: "vitamins are low overall. For tubers, vitamin C and vitamin A are the main checks, so this section doesn't help much",
-    nuts: "vitamins are low overall. For nuts, vitamin E is the main check, so this section isn't doing much",
-    seeds: "vitamins are low overall. For seeds, vitamin E is the main check, so this section isn't doing much",
-    'oils-and-fats': "vitamins are low overall. For oils and fats, vitamin E is the main check, so this section isn't doing much"
+    grains: "vitamins are low overall. For grains, carbs and minerals matter more",
+    meats: "vitamins are low overall. For meats, B12 and vitamin D matter most",
+    dairy: "vitamins are low overall. For dairy, vitamin D and B12 matter most",
+    fruits: "vitamins are low overall. For fruit, vitamin C and vitamin A matter most",
+    vegetables: "vitamins are low overall. For vegetables, A, C, and K matter most",
+    legumes: "vitamins are low overall. For legumes, fibre, protein, and minerals matter more",
+    tubers: "vitamins are low overall. For tubers, vitamin C and vitamin A matter most",
+    nuts: "vitamins are low overall. For nuts, vitamin E matters most",
+    seeds: "vitamins are low overall. For seeds, vitamin E matters most",
+    'oils-and-fats': "vitamins are low overall. For oils and fats, vitamin E matters most"
   };
-  return lines[foodType] || `vitamins are low all round. For ${foodTypeLabel(foodType) || 'this category'}, vitamin support only helps when it shows up clearly`;
+  return lines[foodType] || `vitamins are low overall. For ${foodTypeLabel(foodType) || 'this category'}, vitamins need to show up clearly`;
 }
 
 function bestMetricLine(metric, sectionKey) {
@@ -1215,87 +1216,87 @@ function sectionFoodTypeSummary(result, sectionKey) {
   const type = foodTypeLabel(foodType);
   const lines = {
     meats: {
-      fats: 'for meats, fat quality matters because the protein is already doing the main job',
-      carbs: 'for meats, carbs barely matter unless something has been added',
-      proteins: 'for meats, protein quality is one of the biggest parts of the score',
-      vitamins: 'for meats, vitamin B12 and vitamin D are the vitamin checks that matter most',
-      minerals: 'for meats, iron and zinc can add a lot beyond the protein'
+      fats: 'for meats, fat quality is the main tradeoff',
+      carbs: 'for meats, carbs barely matter unless something is added',
+      proteins: 'for meats, protein quality matters a lot',
+      vitamins: 'for meats, vitamin B12 and vitamin D matter most',
+      minerals: 'for meats, iron and zinc can add real value'
     },
     grains: {
-      fats: 'for grains, fat usually matters less than the carb score',
-      carbs: 'for grains, carb quality matters much more than the raw number',
-      proteins: 'for grains, protein helps, but the carb side still matters more',
-      vitamins: 'for grains, vitamins are usually a bonus after carbs and minerals',
-      minerals: 'for grains, minerals help round out the score when the carbs are decent'
+      fats: 'for grains, fat usually matters less than carbs',
+      carbs: 'for grains, carb quality matters most',
+      proteins: 'for grains, protein helps, but carbs matter more',
+      vitamins: 'for grains, vitamins are usually a bonus',
+      minerals: 'for grains, minerals help round out the score'
     },
     fruits: {
       fats: 'for fruit, fat is usually just a small side note',
-      carbs: 'for fruit, the carb score mostly comes down to sugar control and fibre',
+      carbs: 'for fruit, carbs come down to sugar control and fibre',
       proteins: 'for fruit, protein is usually too low to matter much',
-      vitamins: 'for fruit, vitamin C and vitamin A are usually the vitamin scores that matter most',
-      minerals: 'for fruit, minerals are a bonus unless the numbers are unusually strong'
+      vitamins: 'for fruit, vitamin C and vitamin A matter most',
+      minerals: 'for fruit, minerals are usually a bonus'
     },
     vegetables: {
       fats: 'for vegetables, fat is usually just a tiny side detail',
-      carbs: 'for vegetables, the carbs are easy to work with when they stay this light',
+      carbs: 'for vegetables, light carbs are easy to work with',
       proteins: 'for vegetables, protein is a bonus, not something to rely on',
-      vitamins: 'for vegetables, vitamin scores matter a lot, so strong numbers here can really move the ranking',
-      minerals: 'for vegetables, minerals help, but they only move the score a lot when the numbers are stronger'
+      vitamins: 'for vegetables, vitamins can move the ranking a lot',
+      minerals: 'for vegetables, minerals help when the numbers are strong'
     },
     legumes: {
-      carbs: 'for legumes, the carbs look much better when fibre and protein are both backing them up',
+      carbs: 'for legumes, fibre and protein make carbs better',
       fats: 'for legumes, fat usually matters less than fibre and protein',
-      proteins: 'for legumes, protein support is a big part of what makes them useful',
-      vitamins: 'for legumes, vitamins help, but fibre, protein, and minerals usually matter more',
-      minerals: 'for legumes, minerals matter because they are one of the main ways this category adds value'
+      proteins: 'for legumes, protein support is a big deal',
+      vitamins: 'for legumes, fibre, protein, and minerals matter more',
+      minerals: 'for legumes, minerals add real value'
     },
     dairy: {
-      fats: 'for dairy, the fat side can either add richness or drag the whole thing down',
-      carbs: 'for dairy, the carb score is mostly about keeping sugar under control',
-      proteins: 'for dairy, useful protein can make a big difference to the score',
-      vitamins: 'for dairy, vitamin D and vitamin B12 help most when they show up clearly',
-      minerals: 'for dairy, calcium is one of the main mineral scores people expect'
+      fats: 'for dairy, fat can help or drag the score down',
+      carbs: 'for dairy, carbs mostly mean sugar control',
+      proteins: 'for dairy, useful protein matters a lot',
+      vitamins: 'for dairy, vitamin D and B12 matter most',
+      minerals: 'for dairy, calcium is the main mineral check'
     },
     'oils-and-fats': {
-      fats: 'for this category, the real question is fat quality',
+      fats: 'for this category, fat quality is the point',
       carbs: "for oils and fats, carbs don't really matter",
       proteins: "for oils and fats, protein doesn't really matter",
-      vitamins: 'for oils and fats, vitamin E is usually the only vitamin score that moves much',
-      minerals: 'for oils and fats, minerals are usually just a tiny extra'
+      vitamins: 'for oils and fats, vitamin E matters most',
+      minerals: 'for oils and fats, minerals are usually tiny'
     },
     nuts: {
-      fats: 'for nuts, fat quality has to justify the calorie density',
+      fats: 'for nuts, fat quality has to justify the calories',
       carbs: 'for nuts, carbs matter most when sugar or fibre changes the balance',
       proteins: 'for nuts, protein helps, but it is not the main thing',
-      vitamins: 'for nuts, vitamin E is usually the vitamin score that matters most',
-      minerals: 'for nuts, minerals help justify the calorie density'
+      vitamins: 'for nuts, vitamin E matters most',
+      minerals: 'for nuts, minerals help justify the calories'
     },
     seeds: {
-      fats: 'for seeds, the fat profile is one of the biggest reasons they earn their place',
+      fats: 'for seeds, fat quality is a big reason to use them',
       carbs: 'for seeds, fibre matters much more than raw carb totals',
       proteins: 'for seeds, protein is a bonus here, but not enough by itself',
-      vitamins: 'for seeds, vitamin E helps, but fats and minerals usually carry more of the score',
-      minerals: 'for seeds, minerals can be one of the main reasons to use them'
+      vitamins: 'for seeds, fats and minerals usually matter more',
+      minerals: 'for seeds, minerals can be a main strength'
     },
     tubers: {
-      carbs: 'for tubers, the carb side decides whether the food feels stable or flimsy',
+      carbs: 'for tubers, carb quality decides a lot',
       fats: 'for tubers, fat usually barely matters unless it has been added',
       proteins: 'for tubers, protein is usually limited, so the other sections have to carry more',
-      vitamins: 'for tubers, vitamins help separate a stronger staple carb from a plain one',
+      vitamins: 'for tubers, vitamins can lift a staple carb',
       minerals: 'for tubers, minerals matter most when potassium shows up strongly'
     },
     misc: {
-      fats: 'for misc foods, the fat score only matters if it changes how people use it',
-      carbs: 'for misc foods, the carb score matters most when sugar or easy fuel is the point',
-      proteins: 'for misc foods, protein only matters when it is actually part of the reason to use it',
-      vitamins: 'for misc foods, vitamins only matter when they clearly change the real-world value',
-      minerals: 'for misc foods, minerals only matter when they clearly change the real-world value'
+      fats: 'for misc foods, fat only matters when it changes the use case',
+      carbs: 'for misc foods, carbs matter when sugar or fuel is the point',
+      proteins: 'for misc foods, protein only matters when it is part of the job',
+      vitamins: 'for misc foods, vitamins need to change the real value',
+      minerals: 'for misc foods, minerals need to change the real value'
     }
   };
 
   return lines[foodType]?.[sectionKey]
     || sectionContextLine(foodType, `${result.food.id}:${sectionKey}`)
-    || `for ${type || 'this food type'}, this section matters when it changes how the food fits into a normal meal`;
+    || `for ${type || 'this food type'}, this section matters when it changes the meal`;
 }
 
 function buildMacroSection(result, key) {
@@ -1684,27 +1685,24 @@ function buildWeaknessHighlights(result, limit = 3) {
 }
 
 function buildGoodForLine(result) {
-  const useCases = selectedFoodUseCases(result, 3);
+  const useCases = selectedFoodUseCases(result, CLOSING_USE_CASE_LIMIT);
   if (useCases.length === 1 && useCases[0].key === 'narrow_use_cases') {
-    return `it's only really good for ${useCases[0].label} because ${useCases[0].reason}`;
+    return `best for ${useCases[0].label} because ${useCases[0].reason}`;
   }
-  return `it's good for ${naturalList(useCases.map(item => item.label))} because ${naturalList(useCases.map(item => item.reason))}`;
+  return `best for ${naturalList(useCases.map(item => item.label))} because ${naturalList(useCases.map(item => item.reason))}`;
 }
 
 function buildOverview(result) {
-  const strengths = buildStrengthHighlights(result, 3);
-  const weaknesses = buildWeaknessHighlights(result, 3);
+  const strengths = buildStrengthHighlights(result, 2);
+  const weaknesses = buildWeaknessHighlights(result, 2);
+  const lines = [];
 
-  const balanceLine = (() => {
-    if (strengths.length && weaknesses.length) {
-      return `big strengths are ${naturalList(strengths)}, but the biggest weaknesses are ${naturalList(weaknesses)}`;
-    }
-    if (strengths.length) return `big strengths here are ${naturalList(strengths)}`;
-    if (weaknesses.length) return `the biggest weaknesses are ${naturalList(weaknesses)}`;
-    return `${result.food.name} is pretty mixed overall`;
-  })();
+  if (strengths.length) lines.push(`best bits are ${naturalList(strengths)}`);
+  if (weaknesses.length) lines.push(`weak spots are ${naturalList(weaknesses)}`);
+  if (!lines.length) lines.push(`${result.food.name} is pretty mixed overall`);
+  lines.push(buildGoodForLine(result));
 
-  return `${balanceLine}. ${buildGoodForLine(result)}`;
+  return lines.join('. ');
 }
 
 function buildProsConsSection(result, side) {

@@ -23,6 +23,8 @@ It is the bridge between:
 ## Design rules
 
 - narration must stay aligned with the scored result
+- generated narration should stay direct and simple: short sentences, one idea per sentence, practical wording, and no abstract phrasing that makes viewers think hard to understand the point
+- packaged videos must stay at or below 180 seconds
 - the ElevenLabs-ready block layout is first-class, not an afterthought
 - audio-only narration expands measurement abbreviations, so `3g`, `24g`, `15mg`, and similar values are spoken as full unit words
 - audio-only narration expands compact score ratios, so `8/9` is spoken as `8 out of 9`
@@ -160,7 +162,7 @@ The closing object contains:
 - `useCaseNote` - legacy compact use-case line retained for compatibility
 - `cta` - optional CTA text, excluded from normal no-CTA narration blocks
 
-The spoken `summary` should feel like a final verdict: it highlights the food's best strengths and worst weaknesses across the video, then says what it is good for and explains why. The final `X tier.` line stays separate.
+The spoken `summary` should feel like a final verdict: it highlights the food's best strengths and worst weaknesses across the video, then says what it is good for and explains why. Keep this to simple "best bits", "weak spots", and one or two best-use ideas. The final `X tier.` line stays separate.
 
 ## Protein display contract
 

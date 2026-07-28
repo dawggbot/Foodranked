@@ -14,6 +14,7 @@ const sourceSpritesDir = path.join(repoRoot, 'sprites');
 const { completeSfxProfile } = require('./lib/sfx-profiles');
 const { completeMusicProfile } = require('./lib/music-profiles');
 const { completeVoiceProfile, narrationVolumeMetadata } = require('./lib/voice-profiles');
+const MAX_VIDEO_DURATION_SECONDS = 180;
 
 function ensureDir(dir) { fs.mkdirSync(dir, { recursive: true }); }
 function readJson(file) { return JSON.parse(fs.readFileSync(file, 'utf8')); }
@@ -253,6 +254,7 @@ const foods = fs.readdirSync(foodsDir)
         summary: score?.explanation?.summary ?? null,
         whyThisTier: score?.explanation?.whyThisTier ?? null,
         durationSeconds: episode.scenePlan?.totalEstimatedDurationSeconds ?? null,
+        maxDurationSeconds: episode.scenePlan?.maxDurationSeconds ?? MAX_VIDEO_DURATION_SECONDS,
         outputDir: episode.outputs?.directory ?? null,
         ...(episodeAudio ? {
           audio: episodeAudio,

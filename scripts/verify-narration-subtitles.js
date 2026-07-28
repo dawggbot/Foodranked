@@ -10,6 +10,8 @@ const docsIndexPath = path.join(repoRoot, 'docs', 'data', 'foods-index.json');
 const MAX_SUBTITLE_LINES = 2;
 const MAX_SUBTITLE_LINE_CHARS = 18;
 const MAX_SUMMARY_SUBTITLE_LINE_CHARS = 28;
+const MAX_VIDEO_DURATION_SECONDS = 180;
+const MAX_VIDEO_DURATION_TOLERANCE_SECONDS = 0.01;
 const MACRO_SECTION_KEYS = new Set(['fats', 'carbs', 'proteins']);
 
 const COMPACT_UNIT_RE = /\b\d+(?:\.\d+)?\s*(?:mcg|mg|kg|kcal|g)\b/i;
@@ -37,10 +39,45 @@ function addFailure(failures, file, message) {
   failures.push(`${relative(file)}: ${message}`);
 }
 
-function compactMetricValue(item) {
+function finiteNumbers(values) {
+  return values.map(value => Number(value)).filter(value => Number.isFinite(value));
+}
+
+function maxFinite(values) {
+  const finite = finiteNumbers(values);
+  return finite.length ? Math.max(...finite) : null;
+}
+
+function checkVideoDuration(failures, file, label, durationSeconds) {
+  const duration = Number(durationSeconds);
+  if (!Number.isFinite(duration)) return;
+  if (duration > MAX_VIDEO_DURATION_SECONDS + MAX_VIDEO_DURATION_TOLERANCE_SECONDS) {
+    addFailure(failures, file, `${label} is ${duration}s, above the ${MAX_VIDEO_DURATION_SECONDS}s max`);
+  }
+}
+
+function splitAudioEndSeconds(splitAudio) {
+  const blocks = Array.isArray(splitAudio?.blocks) ? splitAudio.blocks : [];
+  return maxFinite(blocks.map(block => Number(block.offsetSeconds) + Number(block.durationSeconds)));
+}
+
+function sectionMacroGrams(section) {
+  const source = String(section?.macroDisplayValue || section?.subtitleText || '');
+  const match = source.match(/\b(\d+(?:\.\d+)?)g\b/i);
+  return match ? Number(match[1]) : null;
+}
+
+function compactMetricValue(item, section = null) {
   if (!item) return null;
   if (item.displayValue === 'N/A' || item.notApplicableReason === 'main_macro_zero') return null;
-  if (item.displaySource === 'macro_numeric_fallback' || item.scoringMode === 'display_fallback') return null;
+  const approvedProteinDisplayEstimate = item.displaySource === 'protein_display_estimate';
+  const proteinMacroGrams = section?.key === 'proteins' ? sectionMacroGrams(section) : null;
+  if (approvedProteinDisplayEstimate && Number.isFinite(proteinMacroGrams) && proteinMacroGrams < 3) {
+    return null;
+  }
+  if (!approvedProteinDisplayEstimate && (item.displaySource === 'macro_numeric_fallback' || item.scoringMode === 'display_fallback')) {
+    return null;
+  }
   if (item.dvPercent != null) return `${item.dvPercent}% DV`;
   if (item.value === null || item.value === undefined) return null;
 
@@ -125,7 +162,7 @@ function sectionHasSubmacroValueMention(section) {
   return (section.displayItems || [])
     .filter(item => !(section.key === 'proteins' && item.metricKey === 'protein_g_fallback'))
     .some(item => {
-    const value = compactMetricValue(item);
+    const value = compactMetricValue(item, section);
     if (!value) return false;
     const labels = metricMentionLabels(item.metricKey);
     return sentences.some(sentence => (
@@ -234,7 +271,7 @@ function checkScript(failures, file, script) {
     if (MACRO_SECTION_KEYS.has(section.key)) {
       const displayedValues = (section.displayItems || [])
         .filter(item => !(section.key === 'proteins' && item.metricKey === 'protein_g_fallback'))
-        .map(compactMetricValue)
+        .map(item => compactMetricValue(item, section))
         .filter(Boolean);
       if (displayedValues.length && !sectionHasSubmacroValueMention(section)) {
         addFailure(failures, file, `${section.key} subtitleText is missing a displayed submacro value`);
@@ -263,7 +300,17 @@ function checkManifest(failures, file, manifest) {
     addFailure(failures, file, `subtitleRules.maxCharactersPerLine is ${rules.maxCharactersPerLine}`);
   }
 
-  for (const scene of manifest.scenePlan?.scenes || []) {
+  const scenes = manifest.scenePlan?.scenes || [];
+  const sceneEnd = maxFinite(scenes.map(scene => scene.endSeconds));
+  const estimatedDuration = Number(manifest.scenePlan?.totalEstimatedDurationSeconds);
+  checkVideoDuration(failures, file, 'scenePlan.totalEstimatedDurationSeconds', estimatedDuration);
+  checkVideoDuration(failures, file, 'scenePlan final scene end', sceneEnd);
+  const budget = Number(manifest.scenePlan?.maxDurationSeconds);
+  if (Number.isFinite(budget) && budget > MAX_VIDEO_DURATION_SECONDS) {
+    addFailure(failures, file, `scenePlan.maxDurationSeconds is ${budget}, above the ${MAX_VIDEO_DURATION_SECONDS}s project max`);
+  }
+
+  for (const scene of scenes) {
     if (COMPACT_UNIT_RE.test(String(scene.narrationText || ''))) {
       addFailure(failures, file, `${scene.id || 'scene'} narrationText contains compact unit`);
     }
@@ -340,6 +387,17 @@ function checkDocsIndex(failures) {
     if (COMPACT_UNIT_RE.test(String(episode.narrationText || ''))) {
       addFailure(failures, docsIndexPath, `${food.id} episode narrationText contains compact unit`);
     }
+    const cueEnd = maxFinite((episode.subtitles || []).map(cue => cue.endSeconds));
+    const splitEnd = splitAudioEndSeconds(episode.splitAudio);
+    const sceneEnd = maxFinite((episode.sceneTimings || []).map(scene => scene.endSeconds));
+    checkVideoDuration(failures, docsIndexPath, `${food.id} episode durationSeconds`, episode.durationSeconds);
+    checkVideoDuration(failures, docsIndexPath, `${food.id} subtitle timeline`, cueEnd);
+    checkVideoDuration(failures, docsIndexPath, `${food.id} split audio timeline`, splitEnd);
+    checkVideoDuration(failures, docsIndexPath, `${food.id} scene timeline`, sceneEnd);
+    const maxDuration = Number(episode.maxDurationSeconds);
+    if (Number.isFinite(maxDuration) && maxDuration > MAX_VIDEO_DURATION_SECONDS) {
+      addFailure(failures, docsIndexPath, `${food.id} maxDurationSeconds is ${maxDuration}`);
+    }
   }
 }
 
@@ -364,6 +422,7 @@ function main() {
 
   console.log(JSON.stringify({
     status: 'ok',
+    maxVideoDurationSeconds: MAX_VIDEO_DURATION_SECONDS,
     maxSubtitleLines: MAX_SUBTITLE_LINES,
     maxSubtitleLineChars: MAX_SUBTITLE_LINE_CHARS
   }, null, 2));

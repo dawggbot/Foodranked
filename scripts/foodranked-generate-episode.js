@@ -17,6 +17,8 @@ const { completeVoiceProfile } = require('./lib/voice-profiles');
 const SUBTITLE_MAX_LINES = 2;
 const SUBTITLE_MAX_CHARACTERS_PER_LINE = 18;
 const SUMMARY_SUBTITLE_MAX_CHARACTERS_PER_LINE = 24;
+const MAX_VIDEO_DURATION_SECONDS = 180;
+const MAX_VIDEO_DURATION_TOLERANCE_SECONDS = 0.01;
 
 const HEADER_CATEGORY_KEYS = {
   vegetables: 'vegetable',
@@ -205,6 +207,17 @@ function estimateDurationSeconds(text, wordsPerMinute = 165, floorSeconds = 1.4)
   if (!words) return floorSeconds;
   const raw = (words / wordsPerMinute) * 60;
   return Number(Math.max(raw, floorSeconds).toFixed(2));
+}
+
+function assertVideoDurationBudget(scenePlan, label = 'episode') {
+  const duration = Number(scenePlan?.totalEstimatedDurationSeconds);
+  if (!Number.isFinite(duration)) return;
+  if (duration > MAX_VIDEO_DURATION_SECONDS + MAX_VIDEO_DURATION_TOLERANCE_SECONDS) {
+    throw new Error(
+      `${label} estimated duration is ${duration}s, above the ${MAX_VIDEO_DURATION_SECONDS}s max. `
+      + 'Shorten narration before packaging the episode.'
+    );
+  }
 }
 
 function categoryAccent(template, foodType) { return template.paletteBindings?.[foodType] || 'Neutral Grey'; }
@@ -587,6 +600,7 @@ function buildScenePlan(script, score, template, options = {}) {
   return {
     mode: compact ? 'compact' : 'standard',
     visualProfile: profile.name,
+    maxDurationSeconds: MAX_VIDEO_DURATION_SECONDS,
     subtitleRules: {
       maxLines: SUBTITLE_MAX_LINES,
       maxCharactersPerLine: SUBTITLE_MAX_CHARACTERS_PER_LINE
@@ -844,6 +858,7 @@ function buildManifest({ food, rulesetPath, foodPath, score, script, template, s
     voiceProfile,
     reviewChecklist: [
       'Verify nutrient values are sourced well enough for publishable use.',
+      `Keep the finished video at or under ${MAX_VIDEO_DURATION_SECONDS} seconds.`,
       'Review narration for category repetition and trim any awkward lines.',
       'Confirm subtitle density stays readable at phone speed.',
       'Use the PNG and GIF sprite exports directly, and only open .aseprite sources when fidelity adjustments are needed.',
@@ -904,6 +919,7 @@ function main() {
   const score = runJsonScript(scorerPath, [foodPath, rulesetPath]);
   const script = runJsonScript(scriptGeneratorPath, [foodPath, rulesetPath]);
   const scenePlan = buildScenePlan(script, score, template, options);
+  assertVideoDurationBudget(scenePlan, food.id);
   const subtitles = buildSubtitleCues(scenePlan);
   const narrationText = buildNarrationText(script, options);
 
@@ -926,6 +942,7 @@ function main() {
     outputDir: path.relative(repoRoot, outputDir),
     files: ['score.json', 'script.json', 'subtitles.json', 'episode-manifest.json', 'narration.txt'],
     estimatedDurationSeconds: scenePlan.totalEstimatedDurationSeconds,
+    maxDurationSeconds: MAX_VIDEO_DURATION_SECONDS,
     tier: score.tier,
     overallScore: score.overallScore,
     rankingScore: score.rankingScore ?? null

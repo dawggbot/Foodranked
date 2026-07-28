@@ -68,6 +68,7 @@ There are 9 video sections in order:
 The middle 7 sections are the scored content sections.
 
 Timing rule:
+- finished FoodRanked videos must stay at or below 180 seconds
 - the video builder should insert a 0.5 second post-section dwell after every section except the final verdict/outro
 - preview audio should be on by default, pause during each dwell, then resume with the next section
 
@@ -213,11 +214,12 @@ Rules:
 - score-style ratios in audio should be expanded as spoken ratios, for example `8/9` becomes `8 out of 9`; subtitles and stat values should keep compact ratios like `8/9`
 - fats, carbs, and proteins narration should aim to mention two displayed submacro values from that section whenever two defensible values exist: the strongest visible indicator and the weakest or lowest visible indicator; for arrow submacros, stronger green/red arrow bands outrank raw weighted score when choosing what sounds outstanding
 - skip `N/A` or weakly sourced values, and do not use protein headline grams as the protein submacro or pad missing rows into narration just to hit two items; outside meats, do not use collagen as the weak protein callout when bioavailability or another protein-quality mark is available
+- narration should be direct and easy to process at phone speed: short sentences, one idea per sentence, practical wording, and no abstract phrasing that makes the viewer decode the point
 - macro narration should add a very brief benefit or drawback phrase for selected outstanding submacros, for example what fibre, polyunsaturated fat, omega-3, amino-acid quality, glycemic load, or saturated fat is good or bad for
 - macro narration should end with a quick summary of why the mentioned scores matter to the food type, for example fat quality for meats/oils/nuts/seeds, carb behaviour for grains/fruits/legumes/tubers, or protein quality for meats/dairy/legumes
 - worst outstanding explanations should stay short and food-type based, for example whether the weak point matters for meats, grains, vegetables, or another category
 - vitamins and minerals follow the same strongest-plus-weakest pattern for DV-backed values when defensible values exist; each section should end with a quick food-type summary explaining why the mentioned vitamin or mineral scores matter to that category; if every vitamin mark is low, the section may group them as all-round low while still explaining which vitamins matter for the food type
-- the closing summary should synthesize strengths and weaknesses from across the video, then say what the food is good for and explain why before the final tier reveal; normally surface up to three evidence-led use cases when the food has that many real roles
+- the closing summary should synthesize strengths and weaknesses from across the video, then say what the food is good for and explain why before the final tier reveal; normally surface the top one or two evidence-led use cases so the verdict stays simple
 - generated subtitle cues should be wrapped to a maximum of 2 lines, with a tight default line length so editor/import wrapping does not create a third line
 - generated subtitle wrapping must keep decimal values intact, for example `37.1g` and `12.6g` must not become `37. 1g` or split across cue boundaries
 - the closing summary should use a wider-but-safe centered `summary-full` subtitle placement across the page, then the final `X tier.` cue should use centered `tier-center` placement until a tier sprite replaces it

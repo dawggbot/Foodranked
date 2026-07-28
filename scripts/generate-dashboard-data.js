@@ -112,6 +112,11 @@ function findEpisodeSplitAudio(foodId, episode) {
       path: String(block.audioFile || '').replace(/^docs\//, ''),
       productionPath: block.productionAudioFile || null,
       text: block.text || '',
+      ...(block.ttsText && block.ttsText !== block.text ? {
+        ttsText: block.ttsText,
+        ttsTextSha256: block.ttsTextSha256 || null,
+        pronunciationNote: block.pronunciationNote || null
+      } : {}),
       offsetSeconds: aligned.offsetSeconds ?? null,
       durationSeconds,
       ...(mediaDurationSeconds != null ? { mediaDurationSeconds } : {}),
@@ -138,6 +143,9 @@ function findEpisodeSplitAudio(foodId, episode) {
     blockGapSeconds: alignment?.blockGapSeconds ?? null,
     durationSeconds,
     alignmentPath: alignmentPath && exists(alignmentPath) ? path.relative(repoRoot, alignmentPath) : null,
+    pronunciationOverrides: Array.isArray(metadata.pronunciationOverrides)
+      ? metadata.pronunciationOverrides
+      : [],
     blocks
   };
 }
@@ -212,6 +220,7 @@ const foods = fs.readdirSync(foodsDir)
       scoreReadiness: displayFood.scoreReadiness || null,
       contextItems: displayFood.contextItems || { pros: [], cons: [] },
       scoreAdjustments: displayFood.scoreAdjustments || [],
+      ...(musicProfile ? { musicProfile } : {}),
       path: `data/foods/${name}`,
       sourceFile: path.relative(repoRoot, file),
       ...(customFoodImage ? { assets: { customFoodImage } } : {}),

@@ -217,13 +217,33 @@ function metadataMatchesGeneration(file, textHash, settings) {
   }
 }
 
-function splitMetadataMatchesGeneration(file, textHash, settings, blockCount) {
+function splitBlockMatchesCurrentTts(metadataBlock, sourceBlock, foodId) {
+  if (!metadataBlock?.audioFile || !fs.existsSync(path.join(repoRoot, metadataBlock.audioFile))) return false;
+  if (metadataBlock.id !== sourceBlock.id || metadataBlock.index !== sourceBlock.index) return false;
+  if (metadataBlock.kind !== sourceBlock.kind || metadataBlock.sectionKey !== sourceBlock.sectionKey) return false;
+  if (metadataBlock.textSha256 !== sha256(sourceBlock.text)) return false;
+
+  const currentTtsText = ttsTextForBlock(foodId, sourceBlock);
+  const hasCurrentOverride = currentTtsText !== sourceBlock.text;
+  if (hasCurrentOverride) {
+    return metadataBlock.ttsText === currentTtsText
+      && metadataBlock.ttsTextSha256 === sha256(currentTtsText);
+  }
+
+  return !metadataBlock.ttsText || metadataBlock.ttsText === sourceBlock.text;
+}
+
+function splitBlocksMatchCurrentTts(metadata, sourceBlocks, foodId) {
+  if (!Array.isArray(metadata.blocks) || metadata.blocks.length !== sourceBlocks.length) return false;
+  return metadata.blocks.every((block, index) => splitBlockMatchesCurrentTts(block, sourceBlocks[index], foodId));
+}
+
+function splitMetadataMatchesGeneration(file, textHash, settings, sourceBlocks, foodId) {
   if (!fs.existsSync(file)) return false;
   try {
     const metadata = readJson(file);
     if (metadata.textSha256 !== textHash || !generationSettingsMatch(metadata, settings)) return false;
-    if (!Array.isArray(metadata.blocks) || metadata.blocks.length !== blockCount) return false;
-    return metadata.blocks.every(block => block.audioFile && fs.existsSync(path.join(repoRoot, block.audioFile)));
+    return splitBlocksMatchCurrentTts(metadata, sourceBlocks, foodId);
   } catch {
     return false;
   }
@@ -663,13 +683,12 @@ async function generateSpeech({ apiKey, profile, text, outputFile }) {
   };
 }
 
-function splitMetadataMatches(file, textHash, settingsHash, blockCount) {
+function splitMetadataMatches(file, textHash, settingsHash, sourceBlocks, foodId) {
   if (!fs.existsSync(file)) return false;
   try {
     const metadata = readJson(file);
     if (metadata.textSha256 !== textHash || metadata.settingsSha256 !== settingsHash) return false;
-    if (!Array.isArray(metadata.blocks) || metadata.blocks.length !== blockCount) return false;
-    return metadata.blocks.every(block => block.audioFile && fs.existsSync(path.join(repoRoot, block.audioFile)));
+    return splitBlocksMatchCurrentTts(metadata, sourceBlocks, foodId);
   } catch {
     return false;
   }
@@ -726,7 +745,7 @@ async function generateSplitBlockSpeech({
   const metadataFile = path.join(productionDir, `${take}-blocks.json`);
   const docsMetadataFile = path.join(docsDir, `${take}-blocks.json`);
 
-  if (!options.force && splitMetadataMatches(metadataFile, textHash, settingsHash, blocks.length)) {
+  if (!options.force && splitMetadataMatches(metadataFile, textHash, settingsHash, blocks, foodId)) {
     const metadata = readJson(metadataFile);
     if (options.docsMirror) {
       ensureDir(docsBlocksDir);
@@ -892,8 +911,8 @@ async function main() {
   const implicitRandomVoice = !requestedVoice && ['random', 'random_suitable'].includes(config.voiceSelection?.defaultMode);
   if (!options.force && !options.dryRun && implicitRandomVoice) {
     if (options.splitBlocks) {
-      const blockCount = narrationBlockDescriptors(sourcePath, text).length;
-      if (splitMetadataMatchesGeneration(splitMetadataFile, textHash, defaultSettings, blockCount)) {
+      const blocks = narrationBlockDescriptors(sourcePath, text);
+      if (splitMetadataMatchesGeneration(splitMetadataFile, textHash, defaultSettings, blocks, foodId)) {
         const metadata = readJson(splitMetadataFile);
         if (options.docsMirror) {
           ensureDir(docsBlocksDir);
@@ -905,7 +924,7 @@ async function main() {
           foodId,
           take,
           voice: metadata.voice || null,
-          blockCount,
+          blockCount: blocks.length,
           audioManifestFile: relativeRepoPath(splitMetadataFile)
         }, null, 2));
         return;

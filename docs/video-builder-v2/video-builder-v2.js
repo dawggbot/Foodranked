@@ -8229,11 +8229,43 @@
     });
   }
 
-  function recordingNodeRect(node, stageRect, scaleX, scaleY) {
+  function recordingStageFrame() {
+    const stageRect = els.videoStage.getBoundingClientRect();
+    const shell = els.videoStage.closest('.phone-shell');
+    if (!shell) {
+      return {
+        stageRect,
+        stage: { width: Math.max(1, stageRect.width), height: Math.max(1, stageRect.height) },
+        source: { x: 0, y: 0, width: Math.max(1, stageRect.width), height: Math.max(1, stageRect.height) }
+      };
+    }
+
+    const shellRect = shell.getBoundingClientRect();
+    const visibleLeft = Math.max(stageRect.left, shellRect.left);
+    const visibleRight = Math.min(stageRect.right, shellRect.right);
+    const visibleTop = Math.max(stageRect.top, shellRect.top);
+    const visibleBottom = Math.min(stageRect.bottom, shellRect.bottom);
+    const fallbackWidth = Math.max(1, stageRect.width);
+    const fallbackHeight = Math.max(1, stageRect.height);
+    const width = Math.max(1, visibleRight - visibleLeft);
+    const height = Math.max(1, visibleBottom - visibleTop);
+    return {
+      stageRect,
+      stage: { width: fallbackWidth, height: fallbackHeight },
+      source: {
+        x: width > 1 ? Math.max(0, visibleLeft - stageRect.left) : 0,
+        y: height > 1 ? Math.max(0, visibleTop - stageRect.top) : 0,
+        width: width > 1 ? width : fallbackWidth,
+        height: height > 1 ? height : fallbackHeight
+      }
+    };
+  }
+
+  function recordingNodeRect(node, frame, scaleX, scaleY) {
     const rect = node.getBoundingClientRect();
     return {
-      x: (rect.left - stageRect.left) * scaleX,
-      y: (rect.top - stageRect.top) * scaleY,
+      x: (rect.left - frame.stageRect.left - frame.source.x) * scaleX,
+      y: (rect.top - frame.stageRect.top - frame.source.y) * scaleY,
       width: rect.width * scaleX,
       height: rect.height * scaleY
     };
@@ -8246,8 +8278,12 @@
     ctx.filter = 'none';
   }
 
-  function drawRecordingBackdrop(ctx, width, height) {
+  function drawRecordingBackdrop(ctx, frame, scaleX, scaleY) {
+    const { width, height } = frame.stage;
     const palette = backdropPalette(selectedFood());
+    ctx.save();
+    ctx.scale(scaleX, scaleY);
+    ctx.translate(-frame.source.x, -frame.source.y);
     const base = ctx.createLinearGradient(0, 0, 0, height);
     base.addColorStop(0, palette.top);
     base.addColorStop(1, palette.bottom);
@@ -8265,18 +8301,24 @@
     glowB.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = glowB;
     ctx.fillRect(0, 0, width, height);
+    ctx.restore();
   }
 
-  function drawRecordingPhoneOverlay(ctx, width, height) {
+  function drawRecordingPhoneOverlay(ctx, frame, scaleX, scaleY) {
+    const { width, height } = frame.stage;
+    ctx.save();
+    ctx.scale(scaleX, scaleY);
+    ctx.translate(-frame.source.x, -frame.source.y);
     const overlay = ctx.createLinearGradient(0, 0, 0, height);
     overlay.addColorStop(0, 'rgba(255,255,255,0.04)');
     overlay.addColorStop(1, 'rgba(0,0,0,0.10)');
     ctx.fillStyle = overlay;
     ctx.fillRect(0, 0, width, height);
+    ctx.restore();
   }
 
-  function drawRecordingImageNode(ctx, node, stageRect, scaleX, scaleY) {
-    const box = recordingNodeRect(node, stageRect, scaleX, scaleY);
+  function drawRecordingImageNode(ctx, node, frame, scaleX, scaleY) {
+    const box = recordingNodeRect(node, frame, scaleX, scaleY);
     if (box.width <= 0 || box.height <= 0) return;
     const image = node;
     if (!(image instanceof HTMLCanvasElement) && (!image.complete || !image.naturalWidth)) return;
@@ -8301,10 +8343,10 @@
     };
   }
 
-  function drawRecordingTextNode(ctx, node, stageRect, scaleX, scaleY) {
+  function drawRecordingTextNode(ctx, node, frame, scaleX, scaleY) {
     const text = node.textContent || '';
     if (!text.trim()) return;
-    const box = recordingNodeRect(node, stageRect, scaleX, scaleY);
+    const box = recordingNodeRect(node, frame, scaleX, scaleY);
     if (box.width <= 0 || box.height <= 0) return;
     const style = getComputedStyle(node);
     const fontSize = Math.max(1, cssPixels(style.fontSize, 16) * scaleY);
@@ -8352,34 +8394,32 @@
   }
 
   async function drawStageToRecordingCanvas(canvas, ctx) {
-    const rect = els.videoStage.getBoundingClientRect();
-    const stageWidth = Math.max(1, rect.width || DOWNLOAD_RECORDING_OUTPUT_WIDTH);
-    const stageHeight = Math.max(1, rect.height || DOWNLOAD_RECORDING_OUTPUT_HEIGHT);
-    const scaleX = canvas.width / stageWidth;
-    const scaleY = canvas.height / stageHeight;
+    const frame = recordingStageFrame();
+    const scaleX = canvas.width / frame.source.width;
+    const scaleY = canvas.height / frame.source.height;
 
     ctx.save();
     ctx.imageSmoothingEnabled = false;
     ctx.filter = 'none';
     ctx.globalAlpha = 1;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawRecordingBackdrop(ctx, canvas.width, canvas.height);
+    drawRecordingBackdrop(ctx, frame, scaleX, scaleY);
     for (const img of Array.from(els.videoStage.querySelectorAll('.stage-bg img'))) {
-      drawRecordingImageNode(ctx, img, rect, scaleX, scaleY);
+      drawRecordingImageNode(ctx, img, frame, scaleX, scaleY);
     }
-    drawRecordingPhoneOverlay(ctx, canvas.width, canvas.height);
+    drawRecordingPhoneOverlay(ctx, frame, scaleX, scaleY);
 
     const layerNodes = Array.from(els.videoStage.querySelectorAll('.stage-layer-root .layer-node'))
       .sort((a, b) => (Number(getComputedStyle(a).zIndex) || 0) - (Number(getComputedStyle(b).zIndex) || 0));
     for (const node of layerNodes) {
       if (node instanceof HTMLImageElement || node instanceof HTMLCanvasElement) {
-        drawRecordingImageNode(ctx, node, rect, scaleX, scaleY);
+        drawRecordingImageNode(ctx, node, frame, scaleX, scaleY);
       } else {
-        drawRecordingTextNode(ctx, node, rect, scaleX, scaleY);
+        drawRecordingTextNode(ctx, node, frame, scaleX, scaleY);
       }
     }
     for (const node of Array.from(els.videoStage.querySelectorAll('.caption-word'))) {
-      drawRecordingTextNode(ctx, node, rect, scaleX, scaleY);
+      drawRecordingTextNode(ctx, node, frame, scaleX, scaleY);
     }
     ctx.restore();
   }

@@ -2257,6 +2257,10 @@
     return /\.gif(?:[?#]|$)/i.test(String(src || ''));
   }
 
+  function macroSectionGifStartsClean(sectionId, src) {
+    return MACRO_SECTIONS.includes(normalizeDisplaySectionId(sectionId)) && isGifSpriteSrc(src);
+  }
+
   function wait(ms) {
     return new Promise(resolve => window.setTimeout(resolve, ms));
   }
@@ -2366,8 +2370,14 @@
     }
   }
 
-  async function drawGifSpriteFinalFrame(ctx, src, layer, rect, exportBounds, sectionId) {
+  async function drawGifSpriteFrame(ctx, src, layer, rect, exportBounds, sectionId, frameMode = 'final') {
     const frames = await waitForGifFrames(src);
+    if (frameMode === 'start') {
+      const firstFrame = frames.images?.[0];
+      if (firstFrame?.complete) drawImageWithLayerTransform(ctx, firstFrame, layer, rect, exportBounds, sectionId);
+      return;
+    }
+
     const frameCanvas = document.createElement('canvas');
     frameCanvas.width = frames.width || Number(layer.width) || 1;
     frameCanvas.height = frames.height || Number(layer.height) || 1;
@@ -2379,13 +2389,13 @@
     drawImageWithLayerTransform(ctx, frameCanvas, layer, rect, exportBounds, sectionId);
   }
 
-  async function drawMacroBarFillFinalFrame(ctx, src, layer, rect, exportBounds, sectionId) {
+  async function drawMacroBarFillFrame(ctx, src, layer, rect, exportBounds, sectionId, frameMode = 'final') {
     await waitForGifFrames(src);
     const frameCanvas = document.createElement('canvas');
     frameCanvas.dataset.spriteSrc = src;
     const targetRatio = clamp(asNumber(layer?.fillRatio, 0), 0, 1);
-    const finalSeconds = macroBarAnimationEndSeconds(targetRatio);
-    drawMacroBarFillCanvas(frameCanvas, layer, finalSeconds);
+    const elapsedSeconds = frameMode === 'start' ? 0 : macroBarAnimationEndSeconds(targetRatio);
+    drawMacroBarFillCanvas(frameCanvas, layer, elapsedSeconds);
     drawImageWithLayerTransform(ctx, frameCanvas, layer, rect, exportBounds, sectionId);
   }
 
@@ -2394,11 +2404,12 @@
     if (!src) return;
     const fallbackSrc = LOGIC.canonicalSpritePath(layer.fallbackSrc || '');
     const rect = exportLayerRect(layer, exportBounds);
+    const gifFrameMode = macroSectionGifStartsClean(sectionId, src) ? 'start' : 'final';
     try {
       if (isMacroFillLayer(layer)) {
-        await drawMacroBarFillFinalFrame(ctx, src, layer, rect, exportBounds, sectionId);
+        await drawMacroBarFillFrame(ctx, src, layer, rect, exportBounds, sectionId, gifFrameMode);
       } else if (isGifSpriteSrc(src)) {
-        await drawGifSpriteFinalFrame(ctx, src, layer, rect, exportBounds, sectionId);
+        await drawGifSpriteFrame(ctx, src, layer, rect, exportBounds, sectionId, gifFrameMode);
       } else {
         const image = await loadExportSpriteImage(src, fallbackSrc);
         drawImageWithLayerTransform(ctx, image, layer, rect, exportBounds, sectionId);

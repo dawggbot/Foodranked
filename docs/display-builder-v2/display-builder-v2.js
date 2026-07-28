@@ -2261,6 +2261,39 @@
     return new Promise(resolve => window.setTimeout(resolve, ms));
   }
 
+  function imageNaturalSize(image) {
+    const width = Number(image?.naturalWidth || image?.videoWidth || image?.width || 0);
+    const height = Number(image?.naturalHeight || image?.videoHeight || image?.height || 0);
+    return { width, height };
+  }
+
+  function preserveAspectExportRect(image, layer, rect) {
+    if (!layer.preserveAspect || isMacroFillLayer(layer)) return rect;
+    const natural = imageNaturalSize(image);
+    const aspectRatio = Number(layer.aspectRatio) || (natural.width > 0 && natural.height > 0 ? natural.width / natural.height : 0);
+    if (!Number.isFinite(aspectRatio) || aspectRatio <= 0) return rect;
+
+    const boxAspectRatio = rect.width / rect.height;
+    if (!Number.isFinite(boxAspectRatio) || boxAspectRatio <= 0) return rect;
+    if (aspectRatio > boxAspectRatio) {
+      const height = rect.width / aspectRatio;
+      return {
+        x: rect.x,
+        y: rect.y + ((rect.height - height) / 2),
+        width: rect.width,
+        height
+      };
+    }
+
+    const width = rect.height * aspectRatio;
+    return {
+      x: rect.x + ((rect.width - width) / 2),
+      y: rect.y,
+      width,
+      height: rect.height
+    };
+  }
+
   async function waitForGifFrames(src, timeoutMs = SECTION_STILL_EXPORT_GIF_TIMEOUT_MS) {
     const frames = requestMacroBarGifFrames(src);
     const startedAt = performance.now();
@@ -2279,6 +2312,7 @@
   }
 
   function drawImageWithLayerTransform(ctx, image, layer, rect, exportBounds, sectionId) {
+    const drawRect = preserveAspectExportRect(image, layer, rect);
     ctx.save();
     ctx.imageSmoothingEnabled = false;
     if (sectionId === 'intro' && !INTRO_FOCUS_CLEAR_LAYER_IDS.has(String(layer?.id || ''))) {
@@ -2287,11 +2321,19 @@
 
     const rotation = Number(layer.rotation ?? layer.rotate ?? 0);
     if (Number.isFinite(rotation) && rotation) {
-      ctx.translate(rect.x + (rect.width / 2), rect.y + (rect.height / 2));
+      const centerX = rect.x + (rect.width / 2);
+      const centerY = rect.y + (rect.height / 2);
+      ctx.translate(centerX, centerY);
       ctx.rotate(rotation * Math.PI / 180);
-      ctx.drawImage(image, -rect.width / 2, -rect.height / 2, rect.width, rect.height);
+      ctx.drawImage(
+        image,
+        drawRect.x - centerX,
+        drawRect.y - centerY,
+        drawRect.width,
+        drawRect.height
+      );
     } else {
-      ctx.drawImage(image, rect.x, rect.y, rect.width, rect.height);
+      ctx.drawImage(image, drawRect.x, drawRect.y, drawRect.width, drawRect.height);
     }
     ctx.restore();
   }

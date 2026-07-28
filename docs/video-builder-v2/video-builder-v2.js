@@ -42,6 +42,18 @@
   const AUDIO_MIX_MIN = 0;
   const AUDIO_MIX_MAX = 1;
   const AUDIO_MIX_STEP = 0.01;
+  const DOWNLOAD_RECORDING_FORMATS = Object.freeze([
+    { mimeType: 'video/mp4;codecs=avc1.42E01E,mp4a.40.2', extension: 'mp4', label: 'MP4' },
+    { mimeType: 'video/mp4;codecs=h264,aac', extension: 'mp4', label: 'MP4' },
+    { mimeType: 'video/mp4', extension: 'mp4', label: 'MP4' },
+    { mimeType: 'video/webm;codecs=vp9,opus', extension: 'webm', label: 'WebM' },
+    { mimeType: 'video/webm;codecs=vp8,opus', extension: 'webm', label: 'WebM' },
+    { mimeType: 'video/webm', extension: 'webm', label: 'WebM' }
+  ]);
+  const DOWNLOAD_RECORDING_VIDEO_BITS_PER_SECOND = 8_000_000;
+  const DOWNLOAD_RECORDING_AUDIO_BITS_PER_SECOND = 192_000;
+  const DOWNLOAD_RECORDING_STOP_PAD_SECONDS = 0.7;
+  const DOWNLOAD_RECORDING_STATUS_RESET_MS = 2400;
   const AUDIO_REVEAL_LEAD_SECONDS = 0.11;
   const AUDIO_REVEAL_WINDOW_SECONDS = 0.36;
   const SUBMACRO_REVEAL_WINDOW_SECONDS = 1.25;
@@ -498,7 +510,9 @@
     narrationAudio: document.getElementById('narrationAudio'),
     playPause: document.getElementById('playPause'),
     audioToggle: document.getElementById('audioToggle'),
+    downloadVideo: document.getElementById('downloadVideo'),
     audioStatus: document.getElementById('audioStatus'),
+    downloadStatus: document.getElementById('downloadStatus'),
     timeReadout: document.getElementById('timeReadout'),
     timeScrub: document.getElementById('timeScrub'),
     audioMixControls: document.getElementById('audioMixControls'),
@@ -613,6 +627,10 @@
     displayBuilderExportRequestedFor: '',
     displayBuilderExportStartedAt: 0,
     displayBuilderExportStatus: '',
+    downloadRecording: false,
+    downloadStatus: '',
+    downloadStatusTone: '',
+    downloadStatusTimer: 0,
     playbackSfxEvents: null
   };
 
@@ -3542,6 +3560,7 @@
   function updatePlaybackControls(overrideStatus, { refreshAudioStatus = true } = {}) {
     els.playPause.textContent = state.playing ? 'Pause' : 'Play';
     if (refreshAudioStatus || overrideStatus) updateAudioControls(overrideStatus);
+    updateDownloadControls();
 
     const total = totalDuration();
     els.timeScrub.max = String(Math.max(1, Math.round(total * 100)));
@@ -7784,6 +7803,10 @@
     updateAudioControls();
   });
 
+  els.downloadVideo.addEventListener('click', () => {
+    downloadVideoRecording();
+  });
+
   els.sceneDuration.addEventListener('input', () => {
     state.audioTimelineKey = '';
     state.audioDurationSeconds = null;
@@ -8099,6 +8122,236 @@
         }
         if (state.playing) syncAudioPlaybackState();
       });
+    }
+  }
+
+  function downloadRecordingSupported() {
+    return Boolean(window.MediaRecorder && navigator.mediaDevices?.getDisplayMedia);
+  }
+
+  function preferredRecordingFormat() {
+    if (!window.MediaRecorder) return null;
+    return DOWNLOAD_RECORDING_FORMATS.find(format => {
+      try {
+        return MediaRecorder.isTypeSupported(format.mimeType);
+      } catch {
+        return false;
+      }
+    }) || null;
+  }
+
+  function safeDownloadName(value) {
+    return String(value || 'foodranked-video')
+      .toLowerCase()
+      .replace(/[^a-z0-9._-]+/g, '-')
+      .replace(/^-+|-+$/g, '') || 'foodranked-video';
+  }
+
+  function videoDownloadFileName(food = selectedFood(), format = null) {
+    const name = safeDownloadName(food?.id || food?.name || 'foodranked-video');
+    const extension = format?.extension || 'webm';
+    return `${name}-vbv2.${extension}`;
+  }
+
+  function setDownloadStatus(message = '', tone = '') {
+    state.downloadStatus = message;
+    state.downloadStatusTone = tone;
+    if (state.downloadStatusTimer) {
+      window.clearTimeout(state.downloadStatusTimer);
+      state.downloadStatusTimer = 0;
+    }
+    updateDownloadControls();
+    if (tone === 'ok' && message) {
+      state.downloadStatusTimer = window.setTimeout(() => {
+        state.downloadStatus = '';
+        state.downloadStatusTone = '';
+        state.downloadStatusTimer = 0;
+        updateDownloadControls();
+      }, DOWNLOAD_RECORDING_STATUS_RESET_MS);
+    }
+  }
+
+  function updateDownloadControls() {
+    if (!els.downloadVideo || !els.downloadStatus) return;
+    const supported = downloadRecordingSupported();
+    const format = supported ? preferredRecordingFormat() : null;
+    const recording = state.downloadRecording;
+    els.downloadVideo.disabled = recording || !supported || !format;
+    els.downloadVideo.textContent = recording ? 'Recording...' : `Download ${format?.label || 'Video'}`;
+    const fallbackStatus = supported && format
+      ? `${format.label} download ready`
+      : supported
+        ? 'Download needs MP4/WebM encoder support'
+        : 'Download needs browser screen capture support';
+    els.downloadStatus.textContent = state.downloadStatus || fallbackStatus;
+    els.downloadStatus.classList.toggle('warn', state.downloadStatusTone === 'warn' || !supported || !format);
+    els.downloadStatus.classList.toggle('ok', state.downloadStatusTone === 'ok');
+  }
+
+  function downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.rel = 'noopener';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  }
+
+  function stopMediaStream(stream) {
+    for (const track of stream?.getTracks?.() || []) {
+      try {
+        track.stop();
+      } catch {}
+    }
+  }
+
+  function stopRecorderSafely(recorder) {
+    if (!recorder || recorder.state === 'inactive') return;
+    try {
+      recorder.stop();
+    } catch {}
+  }
+
+  function displayMediaOptions({ audio = true } = {}) {
+    return {
+      video: {
+        frameRate: { ideal: 30 },
+        width: { ideal: 1080 },
+        height: { ideal: 1920 },
+        displaySurface: 'browser'
+      },
+      audio,
+      preferCurrentTab: true,
+      selfBrowserSurface: 'include',
+      surfaceSwitching: 'exclude',
+      systemAudio: audio ? 'include' : 'exclude'
+    };
+  }
+
+  async function requestDownloadCaptureStream() {
+    const attempts = [
+      displayMediaOptions({ audio: true }),
+      displayMediaOptions({ audio: false }),
+      { video: true, audio: false }
+    ];
+    let lastError = null;
+    for (const options of attempts) {
+      try {
+        return await navigator.mediaDevices.getDisplayMedia(options);
+      } catch (error) {
+        lastError = error;
+        if (error?.name !== 'TypeError' && error?.name !== 'OverconstrainedError') throw error;
+      }
+    }
+    throw lastError || new Error('Unable to start screen capture');
+  }
+
+  function startDownloadPlaybackFromZero() {
+    state.currentTime = 0;
+    state.selectedSceneId = 'intro';
+    state.audioEnabled = true;
+    stopPlayback();
+    renderDynamic({ fullUi: true });
+    startPlayback();
+  }
+
+  function restoreAfterDownloadRecording(snapshot) {
+    document.body.classList.remove('download-recording-active');
+    stopPlayback();
+    state.currentTime = clamp(snapshot.currentTime, 0, totalDuration());
+    state.selectedSceneId = snapshot.selectedSceneId || activeSceneAt(state.currentTime)?.id || 'intro';
+    state.audioEnabled = snapshot.audioEnabled;
+    syncAudioTime({ force: true });
+    renderDynamic({ fullUi: true });
+  }
+
+  async function downloadVideoRecording() {
+    if (state.downloadRecording) return;
+    if (!downloadRecordingSupported()) {
+      setDownloadStatus('This browser cannot record a local video from VBv2.', 'warn');
+      return;
+    }
+
+    const format = preferredRecordingFormat();
+    if (!format) {
+      setDownloadStatus('This browser has MediaRecorder but no MP4/WebM encoder.', 'warn');
+      return;
+    }
+
+    const duration = totalDuration();
+    if (!Number.isFinite(duration) || duration <= 0) {
+      setDownloadStatus('No video duration to record yet.', 'warn');
+      return;
+    }
+
+    const snapshot = {
+      currentTime: state.currentTime,
+      selectedSceneId: state.selectedSceneId,
+      audioEnabled: state.audioEnabled
+    };
+    let stream = null;
+    let recorder = null;
+    let timeoutId = 0;
+    const chunks = [];
+
+    state.downloadRecording = true;
+    document.body.classList.add('download-recording-active');
+    renderDynamic({ fullUi: true });
+    setDownloadStatus('Choose this tab/window. Enable tab audio if prompted.', 'warn');
+
+    try {
+      stream = await requestDownloadCaptureStream();
+
+      recorder = new MediaRecorder(stream, {
+        mimeType: format.mimeType,
+        videoBitsPerSecond: DOWNLOAD_RECORDING_VIDEO_BITS_PER_SECOND,
+        audioBitsPerSecond: DOWNLOAD_RECORDING_AUDIO_BITS_PER_SECOND
+      });
+
+      recorder.addEventListener('dataavailable', event => {
+        if (event.data?.size) chunks.push(event.data);
+      });
+
+      const finished = new Promise(resolve => {
+        recorder.addEventListener('stop', resolve, { once: true });
+      });
+
+      for (const track of stream.getTracks()) {
+        track.addEventListener('ended', () => stopRecorderSafely(recorder), { once: true });
+      }
+
+      recorder.start(1000);
+      startDownloadPlaybackFromZero();
+      setDownloadStatus(`Recording ${format.label}...`, 'warn');
+      timeoutId = window.setTimeout(() => {
+        stopRecorderSafely(recorder);
+      }, Math.ceil((duration + DOWNLOAD_RECORDING_STOP_PAD_SECONDS) * 1000));
+
+      await finished;
+
+      if (!chunks.length) {
+        setDownloadStatus('Recording ended with no downloadable data.', 'warn');
+        return;
+      }
+
+      const blob = new Blob(chunks, { type: format.mimeType });
+      downloadBlob(blob, videoDownloadFileName(selectedFood(), format));
+      setDownloadStatus(`${format.label} download started`, 'ok');
+    } catch (error) {
+      if (error?.name === 'NotAllowedError' || error?.name === 'AbortError') {
+        setDownloadStatus('Download cancelled before recording started.', 'warn');
+      } else {
+        setDownloadStatus(`Download failed: ${error?.message || 'recording error'}`, 'warn');
+      }
+    } finally {
+      if (timeoutId) window.clearTimeout(timeoutId);
+      stopMediaStream(stream);
+      restoreAfterDownloadRecording(snapshot);
+      state.downloadRecording = false;
+      updateDownloadControls();
     }
   }
 

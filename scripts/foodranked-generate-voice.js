@@ -301,6 +301,16 @@ const FINAL_REVEAL_TTS_OVERRIDES = Object.freeze({
   }
 });
 
+const FOOD_FINAL_REVEAL_TTS_OVERRIDES = Object.freeze({
+  'black-beans': Object.freeze({
+    A: {
+      ttsText: 'Ay tier!',
+      pronunciationNote: 'TTS uses "Ay tier!" for Black Beans so the A-tier reveal is spoken as the letter A while display text stays "A tier.".',
+      reason: 'Black Beans still sounded like the article "a" with the common A-tier prompt, so use a phonetic food-specific override.'
+    }
+  })
+});
+
 const FOOD_NAME_TTS_OVERRIDES = Object.freeze({
   kale: {
     match: /^kale[.!]?$/i,
@@ -317,15 +327,17 @@ function foodNameTtsOverride(foodId, block) {
   return override;
 }
 
-function finalRevealTtsOverride(block) {
+function finalRevealTtsOverride(foodId, block) {
   if (String(block?.kind || '').toLowerCase() !== 'final_reveal') return null;
   const match = String(block?.text || '').trim().match(/^([as])\s+tier[.!]?$/i);
   const tier = match?.[1]?.toUpperCase() || '';
+  const foodOverride = FOOD_FINAL_REVEAL_TTS_OVERRIDES[String(foodId || '').toLowerCase()]?.[tier];
+  if (foodOverride) return foodOverride;
   return FINAL_REVEAL_TTS_OVERRIDES[tier] || null;
 }
 
 function pronunciationTtsOverride(foodId, block) {
-  return foodNameTtsOverride(foodId, block) || finalRevealTtsOverride(block);
+  return foodNameTtsOverride(foodId, block) || finalRevealTtsOverride(foodId, block);
 }
 
 function ttsTextForBlock(foodId, block) {

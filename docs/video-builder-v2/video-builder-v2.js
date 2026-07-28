@@ -336,7 +336,7 @@
   const OUTRO_SHARE_SPRITE_PATH = './sprites/ui/intro_&_outro/share.png';
   const INTRO_RANKED_VISIBLE_CENTER = { x: 0.5, y: 0.47 };
   const INTRO_HERO_SIZE = { ranked: 80, foodWidth: 48, foodHeight: 24 };
-  const INTRO_FOCUS_BLUR_PX = 1.16;
+  const INTRO_FOCUS_BLUR_PX = 2;
   const INTRO_FOCUS_FADE_START = 0.56;
   const INTRO_FOCUS_CLEAR_KINDS = new Set(['food-hero', 'ranked-glow', 'ranked-sprite', 'glimmer']);
   const OUTRO_TIER_STAMP_SIZE = 78;

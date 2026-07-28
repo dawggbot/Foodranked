@@ -52,7 +52,7 @@
   const MACRO_BAR_GIF_FRAME_CACHE = new Map();
   const SECTION_STILL_EXPORT_MIME = 'image/png';
   const SECTION_STILL_EXPORT_EXTENSION = 'png';
-  const SECTION_STILL_EXPORT_OUTPUT_WIDTH = 1080;
+  const SECTION_STILL_EXPORT_MIN_OUTPUT_WIDTH = 1080;
   const SECTION_STILL_EXPORT_STATUS_CLEAR_MS = 3200;
   const SECTION_STILL_EXPORT_GIF_TIMEOUT_MS = 8000;
   const SECTION_STILL_EXPORT_IMAGE_CACHE = new Map();
@@ -2190,15 +2190,16 @@
     const bounds = displayBuilderVisibleGridBounds(layout);
     const gridWidth = Math.max(1, (Number(bounds.right) || 0) - (Number(bounds.left) || 0));
     const gridHeight = Math.max(1, (Number(bounds.bottom) || 0) - (Number(bounds.top) || 0));
-    const outputWidth = SECTION_STILL_EXPORT_OUTPUT_WIDTH;
-    const outputHeight = Math.round(outputWidth * (gridHeight / gridWidth));
+    const scale = Math.max(1, Math.ceil(SECTION_STILL_EXPORT_MIN_OUTPUT_WIDTH / gridWidth));
+    const outputWidth = Math.round(gridWidth * scale);
+    const outputHeight = Math.round(gridHeight * scale);
     return {
       ...bounds,
       gridWidth,
       gridHeight,
       outputWidth,
       outputHeight,
-      scale: outputWidth / gridWidth
+      scale
     };
   }
 
@@ -2274,6 +2275,18 @@
   function preserveAspectExportRect(image, layer, rect) {
     if (!layer.preserveAspect || isMacroFillLayer(layer)) return rect;
     const natural = imageNaturalSize(image);
+    if (isArrowLayer(layer) && natural.width > 0 && natural.height > 0) {
+      const pixelScale = Math.max(1, Math.floor(Math.min(rect.width / natural.width, rect.height / natural.height)));
+      const width = natural.width * pixelScale;
+      const height = natural.height * pixelScale;
+      return {
+        x: rect.x + ((rect.width - width) / 2),
+        y: rect.y + ((rect.height - height) / 2),
+        width,
+        height
+      };
+    }
+
     const aspectRatio = Number(layer.aspectRatio) || (natural.width > 0 && natural.height > 0 ? natural.width / natural.height : 0);
     if (!Number.isFinite(aspectRatio) || aspectRatio <= 0) return rect;
 
@@ -3184,7 +3197,7 @@
     sectionStillExport: {
       mimeType: SECTION_STILL_EXPORT_MIME,
       extension: SECTION_STILL_EXPORT_EXTENSION,
-      outputWidth: SECTION_STILL_EXPORT_OUTPUT_WIDTH
+      minimumOutputWidth: SECTION_STILL_EXPORT_MIN_OUTPUT_WIDTH
     },
     storageKeys: {
       read: [LAYOUT_BUILDER_WORKING_KEY, LAYOUT_BUILDER_SAVED_KEY, LAYOUT_BUILDER_FOOD_LAYOUTS_KEY],

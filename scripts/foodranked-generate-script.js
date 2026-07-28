@@ -11,6 +11,10 @@ function readJson(p) {
   return JSON.parse(fs.readFileSync(path.resolve(p), 'utf8'));
 }
 
+function relativeRepoPath(p) {
+  return path.relative(repoRoot, p).replace(/\\/g, '/');
+}
+
 const corePhrases = readJson(path.join(phraseBanksDir, 'narration-core.json'));
 const categoryContext = readJson(path.join(phraseBanksDir, 'category-context.json'));
 const DEFAULT_PROTEIN_DISPLAY_POLICY = {
@@ -1991,6 +1995,80 @@ function buildSections(result) {
   });
 }
 
+function scriptOverridePath(foodId) {
+  const safeFoodId = String(foodId || '').trim();
+  if (!/^[a-z0-9][a-z0-9-]*$/i.test(safeFoodId)) return null;
+  return path.join(repoRoot, 'production', 'episodes', safeFoodId, 'script-overrides.json');
+}
+
+function loadScriptOverride(foodId) {
+  const overridePath = scriptOverridePath(foodId);
+  if (!overridePath || !fs.existsSync(overridePath)) return null;
+  const data = readJson(overridePath);
+  if (data.foodId && data.foodId !== foodId) {
+    throw new Error(`Script override foodId mismatch: expected ${foodId}, found ${data.foodId}`);
+  }
+  return {
+    data,
+    source: relativeRepoPath(overridePath)
+  };
+}
+
+function normalizeOverrideNarration(value) {
+  return polishNarration(audioOnlyText(value));
+}
+
+function normalizeOverrideSubtitle(value) {
+  return polishNarration(subtitleOnlyText(value));
+}
+
+function applyScriptOverrides(script, override) {
+  if (!override?.data) return script;
+  const data = override.data;
+
+  if (data.sections && typeof data.sections === 'object') {
+    for (const section of script.sections) {
+      const sectionOverride = data.sections[section.key];
+      if (!sectionOverride || typeof sectionOverride !== 'object') continue;
+      if (typeof sectionOverride.narration === 'string') {
+        section.narration = normalizeOverrideNarration(sectionOverride.narration);
+      }
+      if (typeof sectionOverride.subtitleText === 'string') {
+        section.subtitleText = normalizeOverrideSubtitle(sectionOverride.subtitleText);
+      } else if (typeof sectionOverride.narration === 'string') {
+        section.subtitleText = normalizeOverrideSubtitle(sectionOverride.narration);
+      }
+    }
+  }
+
+  if (data.closing && typeof data.closing === 'object') {
+    const closing = data.closing;
+    if (typeof closing.summary === 'string') {
+      script.closing.summary = normalizeOverrideNarration(closing.summary);
+    }
+    if (typeof closing.overview === 'string') {
+      script.closing.overview = normalizeOverrideNarration(closing.overview);
+    } else if (typeof closing.summary === 'string') {
+      script.closing.overview = normalizeOverrideNarration(closing.summary);
+    }
+    if (typeof closing.useCaseNote === 'string') {
+      script.closing.useCaseNote = normalizeOverrideNarration(closing.useCaseNote);
+    }
+    if (typeof closing.cta === 'string') {
+      script.closing.cta = normalizeOverrideNarration(closing.cta);
+    }
+    if (typeof closing.finalReveal === 'string') {
+      script.closing.finalReveal = normalizeOverrideNarration(closing.finalReveal);
+    }
+  }
+
+  script.scriptOverride = {
+    schemaVersion: data.schemaVersion || 'foodranked-script-overrides.v1',
+    source: override.source
+  };
+  return script;
+}
+
 function buildNarrationBlocks(script, options = {}) {
   const includeCta = options.includeCta === true;
   const blocks = [
@@ -2057,6 +2135,8 @@ function main() {
     narrationBlocks: [],
     explanation: result.explanation
   };
+
+  applyScriptOverrides(script, loadScriptOverride(result.food.id));
 
   script.narrationBlocks = buildNarrationBlocks(script, { includeCta: false });
 

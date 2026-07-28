@@ -71,6 +71,8 @@
   const OUTRO_CTA_STAMP_GAP_X = (OUTRO_TIER_STAMP_SIZE - (OUTRO_CTA_STAMP_SIZE * 3)) / 2;
   const OUTRO_CTA_STAMP_GAP_Y = 4;
   const OUTRO_CTA_STAMP_CENTER_Y = (OUTRO_TIER_STAMP_SIZE / 2) + OUTRO_CTA_STAMP_GAP_Y + (OUTRO_CTA_STAMP_SIZE / 2);
+  const INTRO_FOCUS_BLUR_PX = 2;
+  const INTRO_FOCUS_CLEAR_LAYER_IDS = new Set(['intro_ranked_sprite', 'intro_food_hero']);
   const DBV2_STATIC_STAMP_LAYER_FLAG = 'displayBuilderV2StaticStamp';
   const renderToken = { value: 0 };
   const PLACEMENT_LAYER_KEYS = [
@@ -2039,6 +2041,30 @@
       + 0.12;
   }
 
+  function introFocusBlurFilter(baseFilter = '') {
+    const filters = [];
+    if (baseFilter && baseFilter !== 'none') filters.push(baseFilter);
+    filters.push(`blur(calc(${INTRO_FOCUS_BLUR_PX}px * var(--pixel-unit)))`);
+    return filters.join(' ');
+  }
+
+  function shouldBlurIntroLayer(layer) {
+    return state.selectedSectionId === 'intro'
+      && !INTRO_FOCUS_CLEAR_LAYER_IDS.has(String(layer?.id || ''));
+  }
+
+  function applyIntroFocusBlur(node, layer) {
+    if (!shouldBlurIntroLayer(layer)) return;
+    node.style.filter = introFocusBlurFilter(node.style.filter || '');
+    node.dataset.introFocusBlur = 'true';
+  }
+
+  function applyIntroFocusBackdropBlur(node) {
+    if (state.selectedSectionId !== 'intro') return;
+    node.style.filter = introFocusBlurFilter(node.style.filter || '');
+    node.dataset.introFocusBlur = 'true';
+  }
+
   function renderCanvas(layout, food) {
     els.displayCanvas.innerHTML = '';
     els.displayCanvas.style.backgroundColor = state.background.color || DEFAULT_BACKGROUND.color;
@@ -2087,6 +2113,7 @@
       } else {
         renderTextNode(node, layer);
       }
+      applyIntroFocusBlur(node, layer);
       els.displayCanvas.appendChild(node);
     }
   }
@@ -2096,10 +2123,12 @@
     bgField.className = 'canvas-bg-field';
     const palette = LOGIC.backdropPalette(food);
     bgField.style.background = `radial-gradient(circle at 18% 12%, ${palette.glowA}, transparent 24%), radial-gradient(circle at 82% 16%, ${palette.glowB}, transparent 28%), linear-gradient(180deg, ${palette.top} 0%, ${palette.bottom} 100%)`;
+    applyIntroFocusBackdropBlur(bgField);
     els.displayCanvas.appendChild(bgField);
 
     const phoneBg = document.createElement('div');
     phoneBg.className = 'phone-bg';
+    applyIntroFocusBackdropBlur(phoneBg);
     els.displayCanvas.appendChild(phoneBg);
   }
 

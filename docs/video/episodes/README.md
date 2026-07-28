@@ -41,3 +41,11 @@ http://127.0.0.1:4173/docs/video-builder-v2/index.html
 If port `4173` is busy, the helper prints the alternate local URL it used.
 
 From that local helper URL, VBv2's `Download MP4` button will render the MP4 when it is missing, wait for the render job to finish, and then download the generated MP4.
+
+If `127.0.0.1` is not reachable from the browser you are using, bind the helper to the workspace network interface:
+
+```bash
+node scripts/serve-vbv2-render-helper.js --host 0.0.0.0
+```
+
+Then open the network URL printed by the helper.

@@ -3,10 +3,12 @@
 
 const fs = require('fs');
 const http = require('http');
+const os = require('os');
 const path = require('path');
 const { spawn } = require('child_process');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
+const DEFAULT_HOST = '127.0.0.1';
 const DEFAULT_PORT = 4173;
 const DEFAULT_RENDER_PORT_START = 4190;
 const MAX_LOG_LINES = 200;
@@ -45,6 +47,7 @@ Usage:
 
 Options:
   --port <number>              Web server port. Default: ${DEFAULT_PORT}
+  --host <host>                Bind host. Default: ${DEFAULT_HOST}
   --render-port-start <number> First port to try for renderer's private server. Default: ${DEFAULT_RENDER_PORT_START}
   --help                       Show this help.
 `.trim();
@@ -52,6 +55,7 @@ Options:
 
 function parseArgs(argv) {
   const options = {
+    host: DEFAULT_HOST,
     port: DEFAULT_PORT,
     renderPortStart: DEFAULT_RENDER_PORT_START,
     portExplicit: false,
@@ -68,6 +72,7 @@ function parseArgs(argv) {
     };
 
     if (arg === '--help' || arg === '-h') options.help = true;
+    else if (arg === '--host') options.host = readValue(arg);
     else if (arg === '--port') {
       options.port = Number(readValue(arg));
       options.portExplicit = true;
@@ -79,6 +84,7 @@ function parseArgs(argv) {
   for (const [name, value] of Object.entries({ port: options.port, renderPortStart: options.renderPortStart })) {
     if (!Number.isFinite(value) || value <= 0 || value > 65535) throw new Error(`Invalid ${name}: ${value}`);
   }
+  if (!String(options.host || '').trim()) throw new Error('Invalid host.');
   return options;
 }
 
@@ -203,6 +209,32 @@ function trimJobHistory() {
     const job = entries.shift();
     if (job && job !== state.currentJob) state.jobs.delete(String(job.id));
   }
+}
+
+function helperPagePath() {
+  return '/docs/video-builder-v2/index.html';
+}
+
+function networkHosts() {
+  const hosts = [];
+  for (const entries of Object.values(os.networkInterfaces())) {
+    for (const entry of entries || []) {
+      if (entry.family === 'IPv4' && !entry.internal) hosts.push(entry.address);
+    }
+  }
+  return [...new Set(hosts)];
+}
+
+function helperUrls(host, port) {
+  const path = helperPagePath();
+  const urls = [];
+  if (host === '0.0.0.0' || host === '::') {
+    urls.push(`http://127.0.0.1:${port}${path}`);
+    for (const address of networkHosts()) urls.push(`http://${address}:${port}${path}`);
+  } else {
+    urls.push(`http://${host}:${port}${path}`);
+  }
+  return urls;
 }
 
 function canListen(port) {
@@ -431,7 +463,8 @@ async function main() {
 
   let activePort = options.port;
   const server = http.createServer(async (request, response) => {
-    const url = new URL(request.url || '/', `http://127.0.0.1:${activePort}`);
+    const baseHost = request.headers.host || `${options.host}:${activePort}`;
+    const url = new URL(request.url || '/', `http://${baseHost}`);
     try {
       if (await handleApi(request, response, url, options)) return;
       serveStatic(request, response, url);
@@ -444,13 +477,14 @@ async function main() {
     try {
       await new Promise((resolve, reject) => {
         server.once('error', reject);
-        server.listen(port, '127.0.0.1', () => {
+        server.listen(port, options.host, () => {
           server.off('error', reject);
           resolve();
         });
       });
       activePort = port;
-      console.log(`VBv2 render helper running at http://127.0.0.1:${activePort}/docs/video-builder-v2/index.html`);
+      console.log('VBv2 render helper running:');
+      for (const helperUrl of helperUrls(options.host, activePort)) console.log(`  ${helperUrl}`);
       if (activePort !== options.port) console.log(`Port ${options.port} was busy, so the helper used ${activePort}.`);
       return;
     } catch (error) {

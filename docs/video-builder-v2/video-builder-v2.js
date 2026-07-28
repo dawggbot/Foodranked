@@ -42,20 +42,16 @@
   const AUDIO_MIX_MIN = 0;
   const AUDIO_MIX_MAX = 1;
   const AUDIO_MIX_STEP = 0.01;
-  const DOWNLOAD_RECORDING_FORMATS = Object.freeze([
-    { mimeType: 'video/mp4;codecs=avc1.42E01E,mp4a.40.2', extension: 'mp4', label: 'MP4' },
-    { mimeType: 'video/mp4;codecs=h264,aac', extension: 'mp4', label: 'MP4' },
-    { mimeType: 'video/mp4', extension: 'mp4', label: 'MP4' }
+  const VIDEO_DOWNLOAD_STATUS_RESET_MS = 2400;
+  const VIDEO_DOWNLOAD_HEAD_TIMEOUT_MS = 4000;
+  const VIDEO_DOWNLOAD_CANDIDATE_PATHS = Object.freeze([
+    food => food?.episode?.videoDownload?.mp4Path,
+    food => food?.episode?.video?.mp4Path,
+    food => food?.videoDownload?.mp4Path,
+    food => food?.video?.mp4Path,
+    food => `../video/episodes/${safeDownloadName(food?.id || food?.name)}/${safeDownloadName(food?.id || food?.name)}-vbv2.mp4`,
+    food => `../video/episodes/${safeDownloadName(food?.id || food?.name)}.mp4`
   ]);
-  const DOWNLOAD_RECORDING_VIDEO_BITS_PER_SECOND = 8_000_000;
-  const DOWNLOAD_RECORDING_AUDIO_BITS_PER_SECOND = 192_000;
-  const DOWNLOAD_RECORDING_STOP_PAD_SECONDS = 0.7;
-  const DOWNLOAD_RECORDING_STATUS_RESET_MS = 2400;
-  const DOWNLOAD_RECORDING_ASSET_TIMEOUT_MS = 10_000;
-  const DOWNLOAD_RECORDING_ASSET_POLL_MS = 100;
-  const DOWNLOAD_RECORDING_FRAME_RATE = 30;
-  const DOWNLOAD_RECORDING_OUTPUT_WIDTH = 1080;
-  const DOWNLOAD_RECORDING_OUTPUT_HEIGHT = 1920;
   const AUDIO_REVEAL_LEAD_SECONDS = 0.11;
   const AUDIO_REVEAL_WINDOW_SECONDS = 0.36;
   const SUBMACRO_REVEAL_WINDOW_SECONDS = 1.25;
@@ -632,14 +628,15 @@
     displayBuilderExportRequestedFor: '',
     displayBuilderExportStartedAt: 0,
     displayBuilderExportStatus: '',
-    downloadRecording: false,
+    downloadChecking: false,
+    downloadBusy: false,
+    downloadChecked: false,
+    downloadFoodId: '',
+    downloadUrl: '',
+    downloadExpectedPath: '',
     downloadStatus: '',
     downloadStatusTone: '',
     downloadStatusTimer: 0,
-    downloadAudioContext: null,
-    downloadMediaElementSources: new WeakMap(),
-    downloadMediaElementOutputConnected: new WeakSet(),
-    downloadSpriteFallbacks: new Map(),
     playbackSfxEvents: null
   };
 
@@ -3968,7 +3965,6 @@
           if (layer.fallbackSrc && node.src !== new URL(spritePath(layer.fallbackSrc), window.location.href).href) {
             const fallbackSrc = spritePath(layer.fallbackSrc);
             recordSpriteFailure(failedSrc, fallbackSrc, layer.label || '');
-            if (state.downloadRecording) state.downloadSpriteFallbacks.set(primarySpriteSrc, fallbackSrc);
             node.dataset.spriteSrc = fallbackSrc;
             node.src = fallbackSrc;
             return;
@@ -7872,7 +7868,7 @@
   });
 
   els.downloadVideo.addEventListener('click', () => {
-    downloadVideoRecording();
+    downloadPublishedMp4();
   });
 
   els.sceneDuration.addEventListener('input', () => {
@@ -8193,22 +8189,6 @@
     }
   }
 
-  function downloadRecordingSupported() {
-    const testCanvas = document.createElement('canvas');
-    return Boolean(window.MediaRecorder && testCanvas.captureStream && preferredRecordingFormat());
-  }
-
-  function preferredRecordingFormat() {
-    if (!window.MediaRecorder) return null;
-    return DOWNLOAD_RECORDING_FORMATS.find(format => {
-      try {
-        return MediaRecorder.isTypeSupported(format.mimeType);
-      } catch {
-        return false;
-      }
-    }) || null;
-  }
-
   function safeDownloadName(value) {
     return String(value || 'foodranked-video')
       .toLowerCase()
@@ -8216,10 +8196,86 @@
       .replace(/^-+|-+$/g, '') || 'foodranked-video';
   }
 
-  function videoDownloadFileName(food = selectedFood(), format = null) {
+  function normalizeVideoDownloadUrl(value) {
+    const raw = String(value || '').trim();
+    if (!raw) return '';
+    if (/^(?:https?:)?\/\//i.test(raw) || raw.startsWith('/') || raw.startsWith('../') || raw.startsWith('./')) return raw;
+    if (raw.startsWith('docs/')) return `../${raw.slice('docs/'.length)}`;
+    if (/^(?:video|videos|assets|audio|data)\//i.test(raw)) return `../${raw}`;
+    return raw;
+  }
+
+  function videoDownloadFileName(food = selectedFood()) {
     const name = safeDownloadName(food?.id || food?.name || 'foodranked-video');
-    const extension = format?.extension || 'mp4';
-    return `${name}-vbv2.${extension}`;
+    return `${name}-vbv2.mp4`;
+  }
+
+  function videoDownloadCandidates(food = selectedFood()) {
+    const urls = VIDEO_DOWNLOAD_CANDIDATE_PATHS
+      .map(resolvePath => {
+        try {
+          return normalizeVideoDownloadUrl(resolvePath(food));
+        } catch {
+          return '';
+        }
+      })
+      .filter(Boolean);
+    return [...new Set(urls)];
+  }
+
+  function expectedVideoDownloadPath(food = selectedFood()) {
+    return `docs/video/episodes/${safeDownloadName(food?.id || food?.name)}/${videoDownloadFileName(food)}`;
+  }
+
+  async function publishedMp4Exists(url) {
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), VIDEO_DOWNLOAD_HEAD_TIMEOUT_MS);
+    try {
+      const response = await fetch(url, {
+        method: 'HEAD',
+        cache: 'no-store',
+        signal: controller.signal
+      });
+      return response.ok;
+    } catch {
+      return false;
+    } finally {
+      window.clearTimeout(timeout);
+    }
+  }
+
+  async function findPublishedMp4(food = selectedFood()) {
+    for (const url of videoDownloadCandidates(food)) {
+      if (await publishedMp4Exists(url)) return url;
+    }
+    return '';
+  }
+
+  function ensureVideoDownloadAvailability(food = selectedFood()) {
+    const foodId = food?.id || '';
+    if (state.downloadFoodId === foodId && (state.downloadChecked || state.downloadChecking)) return;
+    state.downloadFoodId = foodId;
+    state.downloadUrl = '';
+    state.downloadExpectedPath = expectedVideoDownloadPath(food);
+    state.downloadChecked = false;
+    state.downloadChecking = true;
+    void refreshVideoDownloadAvailability(food);
+  }
+
+  async function refreshVideoDownloadAvailability(food = selectedFood()) {
+    const foodId = food?.id || '';
+    state.downloadFoodId = foodId;
+    state.downloadExpectedPath = expectedVideoDownloadPath(food);
+    state.downloadChecking = true;
+    state.downloadChecked = false;
+    state.downloadUrl = '';
+    updateDownloadControls();
+    const url = await findPublishedMp4(food);
+    if ((selectedFood()?.id || '') !== foodId) return;
+    state.downloadUrl = url;
+    state.downloadChecking = false;
+    state.downloadChecked = true;
+    updateDownloadControls();
   }
 
   function setDownloadStatus(message = '', tone = '') {
@@ -8236,27 +8292,29 @@
         state.downloadStatusTone = '';
         state.downloadStatusTimer = 0;
         updateDownloadControls();
-      }, DOWNLOAD_RECORDING_STATUS_RESET_MS);
+      }, VIDEO_DOWNLOAD_STATUS_RESET_MS);
     }
   }
 
   function updateDownloadControls() {
     if (!els.downloadVideo || !els.downloadStatus) return;
-    const supported = downloadRecordingSupported();
-    const format = supported ? preferredRecordingFormat() : null;
-    const recording = state.downloadRecording;
-    els.downloadVideo.disabled = recording || !supported || !format;
-    els.downloadVideo.textContent = recording ? 'Exporting...' : 'Download MP4';
-    const fallbackStatus = supported && format
-      ? 'MP4 export ready'
-      : 'MP4 export needs browser MP4 encoder support';
+    const food = selectedFood();
+    ensureVideoDownloadAvailability(food);
+    const checking = state.downloadChecking && state.downloadFoodId === (food?.id || '');
+    const available = Boolean(state.downloadUrl && state.downloadChecked);
+    els.downloadVideo.disabled = state.downloadBusy || checking || !available;
+    els.downloadVideo.textContent = state.downloadBusy ? 'Downloading...' : 'Download MP4';
+    const fallbackStatus = checking
+      ? 'Checking for published MP4...'
+      : available
+        ? 'Published MP4 ready'
+        : `No published MP4 at ${state.downloadExpectedPath || expectedVideoDownloadPath(food)}`;
     els.downloadStatus.textContent = state.downloadStatus || fallbackStatus;
-    els.downloadStatus.classList.toggle('warn', state.downloadStatusTone === 'warn' || !supported || !format);
+    els.downloadStatus.classList.toggle('warn', state.downloadStatusTone === 'warn' || (!checking && !available));
     els.downloadStatus.classList.toggle('ok', state.downloadStatusTone === 'ok');
   }
 
-  function downloadBlob(blob, filename) {
-    const url = URL.createObjectURL(blob);
+  function downloadUrl(url, filename) {
     const link = document.createElement('a');
     link.href = url;
     link.download = filename;
@@ -8264,7 +8322,32 @@
     document.body.appendChild(link);
     link.click();
     link.remove();
-    window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  }
+
+  async function downloadPublishedMp4() {
+    if (state.downloadBusy) return;
+    const food = selectedFood();
+    if (!food) {
+      setDownloadStatus('No food selected.', 'warn');
+      return;
+    }
+
+    state.downloadBusy = true;
+    setDownloadStatus('Checking published MP4...', 'warn');
+    try {
+      if (!state.downloadChecked || state.downloadFoodId !== food.id) {
+        await refreshVideoDownloadAvailability(food);
+      }
+      if (!state.downloadUrl) {
+        setDownloadStatus(`No MP4 file published yet: ${expectedVideoDownloadPath(food)}`, 'warn');
+        return;
+      }
+      downloadUrl(state.downloadUrl, videoDownloadFileName(food));
+      setDownloadStatus('MP4 download started', 'ok');
+    } finally {
+      state.downloadBusy = false;
+      updateDownloadControls();
+    }
   }
 
   function stopMediaStream(stream) {
@@ -8826,94 +8909,7 @@
   }
 
   async function downloadVideoRecording() {
-    if (state.downloadRecording) return;
-    if (!downloadRecordingSupported()) {
-      setDownloadStatus('This browser cannot export MP4 from the VBv2 canvas.', 'warn');
-      return;
-    }
-
-    const format = preferredRecordingFormat();
-    if (!format) {
-      setDownloadStatus('This browser has MediaRecorder but no MP4 encoder.', 'warn');
-      return;
-    }
-
-    const duration = totalDuration();
-    if (!Number.isFinite(duration) || duration <= 0) {
-      setDownloadStatus('No video duration to export yet.', 'warn');
-      return;
-    }
-
-    const snapshot = {
-      currentTime: state.currentTime,
-      selectedSceneId: state.selectedSceneId,
-      audioEnabled: state.audioEnabled
-    };
-    let stream = null;
-    let streamHandle = null;
-    let recorder = null;
-    let timeoutId = 0;
-    const chunks = [];
-
-    state.downloadRecording = true;
-    state.downloadSpriteFallbacks = new Map();
-    setDownloadStatus('Preparing MP4 export...', 'warn');
-
-    try {
-      await prepareDownloadPlaybackFromZero();
-      streamHandle = await createDownloadRecordingStream();
-      stream = streamHandle.stream;
-
-      recorder = new MediaRecorder(stream, {
-        mimeType: format.mimeType,
-        videoBitsPerSecond: DOWNLOAD_RECORDING_VIDEO_BITS_PER_SECOND,
-        audioBitsPerSecond: DOWNLOAD_RECORDING_AUDIO_BITS_PER_SECOND
-      });
-
-      recorder.addEventListener('dataavailable', event => {
-        if (event.data?.size) chunks.push(event.data);
-      });
-
-      const finished = new Promise(resolve => {
-        recorder.addEventListener('stop', resolve, { once: true });
-      });
-
-      for (const track of stream.getTracks()) {
-        track.addEventListener('ended', () => stopRecorderSafely(recorder), { once: true });
-      }
-
-      recorder.start(1000);
-      startDownloadPlaybackFromZero();
-      setDownloadStatus('Encoding MP4...', 'warn');
-      timeoutId = window.setTimeout(() => {
-        stopRecorderSafely(recorder);
-      }, Math.ceil((duration + DOWNLOAD_RECORDING_STOP_PAD_SECONDS) * 1000));
-
-      await finished;
-
-      if (!chunks.length) {
-        setDownloadStatus('MP4 export ended with no downloadable data.', 'warn');
-        return;
-      }
-
-      const blob = new Blob(chunks, { type: format.mimeType });
-      downloadBlob(blob, videoDownloadFileName(selectedFood(), format));
-      setDownloadStatus('MP4 download started', 'ok');
-    } catch (error) {
-      if (error?.name === 'NotAllowedError' || error?.name === 'AbortError') {
-        setDownloadStatus('MP4 export cancelled before it started.', 'warn');
-      } else {
-        setDownloadStatus(`MP4 export failed: ${error?.message || 'export error'}`, 'warn');
-      }
-    } finally {
-      if (timeoutId) window.clearTimeout(timeoutId);
-      streamHandle?.stop?.();
-      stopMediaStream(stream);
-      restoreAfterDownloadRecording(snapshot);
-      state.downloadSpriteFallbacks = new Map();
-      state.downloadRecording = false;
-      updateDownloadControls();
-    }
+    return downloadPublishedMp4();
   }
 
   function updateAudioControls(overrideStatus) {

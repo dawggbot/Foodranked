@@ -8912,6 +8912,112 @@
     return downloadPublishedMp4();
   }
 
+  function rendererSfxEvent(kind, event, path, volume, options = {}) {
+    if (!event || !path || volume <= 0) return null;
+    return {
+      key: event.key || `${kind}:${event.time}`,
+      kind,
+      sceneId: event.sceneId || null,
+      time: Number(Math.max(0, asNumber(event.time, 0)).toFixed(3)),
+      path: normalizeSfxAssetPath(path),
+      volume: Number(asNumber(volume, 1).toFixed(3)),
+      playbackRate: Number(asNumber(options.playbackRate, event.playbackRate || 1).toFixed(3)),
+      sourceOffsetSeconds: Number(asNumber(options.sourceOffsetSeconds, 0).toFixed(3)),
+      durationSeconds: asNumber(options.durationSeconds, null) == null
+        ? null
+        : Number(Math.max(0.001, asNumber(options.durationSeconds, 0)).toFixed(3))
+    };
+  }
+
+  function rendererSfxEvents() {
+    const path = stampSfxPath();
+    const stampOffset = stampSfxStartOffsetRange(path).min;
+    const events = [
+      ...stampSfxEvents().map(event => rendererSfxEvent('stamp', event, path, stampSfxVolume(path), {
+        playbackRate: 1,
+        sourceOffsetSeconds: stampOffset
+      })),
+      ...sTierStampSfxEvents().map(event => rendererSfxEvent('s-tier-stamp', event, S_TIER_STAMP_SFX_PATH, sTierStampSfxVolume(), {
+        playbackRate: sTierStampSfxPlaybackRate(),
+        sourceOffsetSeconds: sTierStampSfxStartOffsetSeconds()
+      })),
+      ...dTierStampSfxEvents().flatMap(event => ([
+        rendererSfxEvent('d-tier-game-lose', event, D_TIER_GAME_LOSE_SFX_PATH, dTierGameLoseSfxVolume(), {
+          playbackRate: dTierGameLoseSfxPlaybackRate(),
+          sourceOffsetSeconds: dTierGameLoseSfxStartOffsetSeconds()
+        }),
+        rendererSfxEvent('d-tier-death-collapse', {
+          ...event,
+          key: `${event.key}:death-collapse`,
+          time: asNumber(event.time, 0) + dTierDeathSfxDelaySeconds()
+        }, D_TIER_DEATH_SFX_PATH, dTierDeathSfxVolume(), {
+          playbackRate: dTierDeathSfxPlaybackRate(),
+          sourceOffsetSeconds: dTierDeathSfxStartOffsetSeconds()
+        })
+      ])),
+      ...sectionTransitionSfxEvents().map(event => rendererSfxEvent('section-transition', event, sectionTransitionSfxPath(), sectionTransitionSfxVolume())),
+      ...micronBarConfirmSfxEvents().map(event => rendererSfxEvent('micron-bar-confirm', event, MICRON_BAR_CONFIRM_SFX_PATH, micronBarConfirmSfxVolume(), {
+        playbackRate: event.playbackRate,
+        durationSeconds: MICRON_BAR_CONFIRM_SFX_PLAY_SECONDS
+      })),
+      ...micron100FireworkSfxEvents().map(event => rendererSfxEvent(
+        event.role === 'lead' ? 'micron-firework-lead' : 'micron-firework-cluster',
+        event,
+        event.role === 'lead' ? MICRON_100_FIREWORK_LEAD_SFX_PATH : MICRON_100_FIREWORK_SFX_PATH,
+        event.role === 'lead' ? micron100FireworkLeadSfxVolume() : micron100FireworkSfxVolume()
+      )),
+      ...majorProSparkleSfxEvents().map(event => rendererSfxEvent('major-pro-sparkle', event, MAJOR_PRO_SPARKLE_SFX_PATH, majorProSparkleSfxVolume())),
+      ...majorConSirenSfxEvents().map(event => rendererSfxEvent('major-con-siren', event, MAJOR_CON_SIREN_SFX_PATH, majorConSirenSfxVolume())),
+      ...macroBarFillSfxEvents().map(event => {
+        const timing = macroBarFillSfxTiming(event);
+        return rendererSfxEvent('macro-bar-fill', event, MACRO_BAR_FILL_SFX_PATH, macroBarFillSfxVolume(), {
+          playbackRate: timing.playbackRate,
+          sourceOffsetSeconds: timing.sourceOffsetSeconds,
+          durationSeconds: timing.playSeconds
+        });
+      })
+    ];
+
+    return events
+      .filter(Boolean)
+      .filter(event => event.time <= totalDuration())
+      .sort((a, b) => a.time - b.time || a.key.localeCompare(b.key));
+  }
+
+  function installRendererBridge() {
+    window.FoodRankedVBv2Renderer = {
+      duration() {
+        return totalDuration();
+      },
+      ready() {
+        return Boolean(els.videoStage?.childElementCount) && totalDuration() > 0;
+      },
+      setTime(time, options = {}) {
+        const pixelUnit = asNumber(options.pixelUnit, null);
+        if (pixelUnit != null && pixelUnit > 0) {
+          document.documentElement.style.setProperty('--pixel-unit', String(pixelUnit));
+        }
+        state.playing = false;
+        state.audioInHold = false;
+        state.currentTime = clamp(asNumber(time, 0), 0, totalDuration());
+        syncSelectedSceneToPlayhead();
+        renderStage();
+        if (pixelUnit != null && pixelUnit > 0) {
+          document.documentElement.style.setProperty('--pixel-unit', String(pixelUnit));
+        }
+        return {
+          currentTime: state.currentTime,
+          duration: totalDuration(),
+          sceneId: activeSceneAt(state.currentTime)?.id || null,
+          foodId: selectedFood()?.id || null
+        };
+      },
+      sfxEvents() {
+        return rendererSfxEvents();
+      }
+    };
+  }
+
   function updateAudioControls(overrideStatus) {
     const audio = audioForFood(selectedFood());
     const music = backgroundMusicForFood(selectedFood());
@@ -8954,5 +9060,6 @@
     updateAudioControls();
   });
 
+  installRendererBridge();
   void init();
 }());

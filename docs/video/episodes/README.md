@@ -25,3 +25,19 @@ The renderer requires `ffmpeg` and uses Playwright to capture the exact VBv2 sta
 ```bash
 node scripts/render-vbv2-mp4.js bacon --seconds 3 --output /tmp/bacon-test.mp4
 ```
+
+For the one-button local workflow, run the helper server:
+
+```bash
+node scripts/serve-vbv2-render-helper.js
+```
+
+Then open:
+
+```text
+http://127.0.0.1:4173/docs/video-builder-v2/index.html
+```
+
+If port `4173` is busy, the helper prints the alternate local URL it used.
+
+From that local helper URL, VBv2's `Download MP4` button will render the MP4 when it is missing, wait for the render job to finish, and then download the generated MP4.

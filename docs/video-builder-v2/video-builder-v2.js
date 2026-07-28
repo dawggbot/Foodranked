@@ -44,6 +44,11 @@
   const AUDIO_MIX_STEP = 0.01;
   const VIDEO_DOWNLOAD_STATUS_RESET_MS = 2400;
   const VIDEO_DOWNLOAD_HEAD_TIMEOUT_MS = 4000;
+  const VIDEO_RENDER_HELPER_STATUS_TIMEOUT_MS = 1800;
+  const VIDEO_RENDER_HELPER_RENDER_TIMEOUT_MS = 8000;
+  const VIDEO_RENDER_HELPER_JOB_POLL_MS = 2500;
+  const VIDEO_RENDER_HELPER_STATUS_URL = '/api/vbv2-renderer/status';
+  const VIDEO_RENDER_HELPER_RENDER_URL = '/api/vbv2-renderer/render';
   const VIDEO_DOWNLOAD_CANDIDATE_PATHS = Object.freeze([
     food => food?.episode?.videoDownload?.mp4Path,
     food => food?.episode?.video?.mp4Path,
@@ -637,6 +642,11 @@
     downloadStatus: '',
     downloadStatusTone: '',
     downloadStatusTimer: 0,
+    renderHelperChecking: false,
+    renderHelperChecked: false,
+    renderHelperAvailable: false,
+    renderHelperBusy: false,
+    renderHelperJobId: null,
     playbackSfxEvents: null
   };
 
@@ -8251,6 +8261,68 @@
     return '';
   }
 
+  function videoRenderHelperJobUrl(jobId) {
+    return `/api/vbv2-renderer/jobs/${encodeURIComponent(jobId)}`;
+  }
+
+  function isLocalVideoRenderHelperCandidate() {
+    return ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
+  }
+
+  async function fetchJsonWithTimeout(url, options = {}, timeoutMs = VIDEO_RENDER_HELPER_STATUS_TIMEOUT_MS) {
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const response = await fetch(url, {
+        ...options,
+        cache: 'no-store',
+        signal: controller.signal
+      });
+      const body = await response.json().catch(() => null);
+      if (!response.ok || body?.ok === false) {
+        throw new Error(body?.error || `Request failed: ${response.status}`);
+      }
+      return body || {};
+    } finally {
+      window.clearTimeout(timeout);
+    }
+  }
+
+  function ensureVideoRenderHelperAvailability() {
+    if (!isLocalVideoRenderHelperCandidate()) {
+      state.renderHelperChecked = true;
+      state.renderHelperAvailable = false;
+      state.renderHelperBusy = false;
+      return;
+    }
+    if (state.renderHelperChecked || state.renderHelperChecking) return;
+    state.renderHelperChecking = true;
+    void refreshVideoRenderHelperAvailability();
+  }
+
+  async function refreshVideoRenderHelperAvailability() {
+    if (!isLocalVideoRenderHelperCandidate()) return false;
+    state.renderHelperChecking = true;
+    updateDownloadControls();
+    try {
+      const result = await fetchJsonWithTimeout(VIDEO_RENDER_HELPER_STATUS_URL);
+      state.renderHelperAvailable = Boolean(result.rendererAvailable);
+      state.renderHelperBusy = Boolean(result.busy);
+      state.renderHelperChecked = true;
+      state.renderHelperJobId = result.currentJob?.id || null;
+      return state.renderHelperAvailable;
+    } catch {
+      state.renderHelperAvailable = false;
+      state.renderHelperBusy = false;
+      state.renderHelperChecked = true;
+      state.renderHelperJobId = null;
+      return false;
+    } finally {
+      state.renderHelperChecking = false;
+      updateDownloadControls();
+    }
+  }
+
   function ensureVideoDownloadAvailability(food = selectedFood()) {
     const foodId = food?.id || '';
     if (state.downloadFoodId === foodId && (state.downloadChecked || state.downloadChecking)) return;
@@ -8300,17 +8372,29 @@
     if (!els.downloadVideo || !els.downloadStatus) return;
     const food = selectedFood();
     ensureVideoDownloadAvailability(food);
+    ensureVideoRenderHelperAvailability();
     const checking = state.downloadChecking && state.downloadFoodId === (food?.id || '');
     const available = Boolean(state.downloadUrl && state.downloadChecked);
-    els.downloadVideo.disabled = state.downloadBusy || checking || !available;
-    els.downloadVideo.textContent = state.downloadBusy ? 'Downloading...' : 'Download MP4';
+    const helperChecking = state.renderHelperChecking && !state.renderHelperChecked;
+    const helperCanRender = state.renderHelperAvailable && !state.renderHelperBusy;
+    const helperBusy = state.renderHelperAvailable && state.renderHelperBusy;
+    els.downloadVideo.disabled = state.downloadBusy || checking || helperChecking || (!available && !helperCanRender);
+    els.downloadVideo.textContent = state.downloadBusy
+      ? state.renderHelperJobId ? 'Rendering...' : 'Downloading...'
+      : 'Download MP4';
     const fallbackStatus = checking
       ? 'Checking for published MP4...'
       : available
         ? 'Published MP4 ready'
-        : `No published MP4 at ${state.downloadExpectedPath || expectedVideoDownloadPath(food)}`;
+        : helperChecking
+          ? 'Checking local MP4 renderer...'
+          : helperBusy
+            ? 'Local renderer is busy...'
+            : helperCanRender
+              ? 'Local renderer ready'
+              : `No published MP4 at ${state.downloadExpectedPath || expectedVideoDownloadPath(food)}`;
     els.downloadStatus.textContent = state.downloadStatus || fallbackStatus;
-    els.downloadStatus.classList.toggle('warn', state.downloadStatusTone === 'warn' || (!checking && !available));
+    els.downloadStatus.classList.toggle('warn', state.downloadStatusTone === 'warn' || (!checking && !available && !helperCanRender));
     els.downloadStatus.classList.toggle('ok', state.downloadStatusTone === 'ok');
   }
 
@@ -8322,6 +8406,78 @@
     document.body.appendChild(link);
     link.click();
     link.remove();
+  }
+
+  function renderHelperStatusText(job) {
+    if (!job) return 'Rendering MP4 locally...';
+    if (job.frame?.total) {
+      return `Rendering MP4 locally... ${job.frame.percent}%`;
+    }
+    return job.message ? `${job.message}...` : 'Rendering MP4 locally...';
+  }
+
+  async function startVideoRenderHelperJob(food) {
+    const result = await fetchJsonWithTimeout(VIDEO_RENDER_HELPER_RENDER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ foodId: food.id || safeDownloadName(food.name) })
+    }, VIDEO_RENDER_HELPER_RENDER_TIMEOUT_MS);
+    if (result.status === 'ready') return result;
+    return result.job || null;
+  }
+
+  async function waitForVideoRenderHelperJob(job) {
+    let currentJob = job;
+    while (currentJob && currentJob.status === 'running') {
+      state.renderHelperJobId = currentJob.id;
+      setDownloadStatus(renderHelperStatusText(currentJob), 'warn');
+      await waitForDownloadDelay(VIDEO_RENDER_HELPER_JOB_POLL_MS);
+      const result = await fetchJsonWithTimeout(videoRenderHelperJobUrl(currentJob.id), {}, VIDEO_RENDER_HELPER_RENDER_TIMEOUT_MS);
+      currentJob = result.job || null;
+    }
+    if (!currentJob || currentJob.status !== 'complete') {
+      throw new Error(currentJob?.message || 'Local renderer failed.');
+    }
+    return currentJob;
+  }
+
+  async function renderMp4WithHelperThenDownload(food) {
+    if (!state.renderHelperChecked || state.renderHelperChecking) {
+      await refreshVideoRenderHelperAvailability();
+    }
+    if (!state.renderHelperAvailable) return false;
+
+    state.renderHelperBusy = true;
+    setDownloadStatus('Starting local MP4 renderer...', 'warn');
+    const jobOrReady = await startVideoRenderHelperJob(food);
+    if (jobOrReady?.status === 'ready') {
+      state.renderHelperBusy = false;
+      state.downloadChecked = false;
+      await refreshVideoDownloadAvailability(food);
+      if (state.downloadUrl) {
+        downloadUrl(state.downloadUrl, videoDownloadFileName(food));
+        setDownloadStatus('MP4 download started', 'ok');
+        return true;
+      }
+      throw new Error(`MP4 was reported ready, but no file was found at ${expectedVideoDownloadPath(food)}`);
+    }
+    if (!jobOrReady?.id) throw new Error('Local renderer did not return a job id.');
+
+    await waitForVideoRenderHelperJob(jobOrReady);
+    state.renderHelperBusy = false;
+    state.renderHelperJobId = null;
+    state.downloadChecked = false;
+    await refreshVideoDownloadAvailability(food);
+    if (!state.downloadUrl) {
+      throw new Error(`Renderer finished, but no MP4 was found at ${expectedVideoDownloadPath(food)}`);
+    }
+    if ((selectedFood()?.id || '') !== (food?.id || '')) {
+      setDownloadStatus(`MP4 ready for ${food.name || food.id}`, 'ok');
+      return true;
+    }
+    downloadUrl(state.downloadUrl, videoDownloadFileName(food));
+    setDownloadStatus('MP4 rendered and download started', 'ok');
+    return true;
   }
 
   async function downloadPublishedMp4() {
@@ -8339,11 +8495,16 @@
         await refreshVideoDownloadAvailability(food);
       }
       if (!state.downloadUrl) {
+        if (await renderMp4WithHelperThenDownload(food)) return;
         setDownloadStatus(`No MP4 file published yet: ${expectedVideoDownloadPath(food)}`, 'warn');
         return;
       }
       downloadUrl(state.downloadUrl, videoDownloadFileName(food));
       setDownloadStatus('MP4 download started', 'ok');
+    } catch (error) {
+      state.renderHelperBusy = false;
+      state.renderHelperJobId = null;
+      setDownloadStatus(error?.message || 'MP4 download failed.', 'warn');
     } finally {
       state.downloadBusy = false;
       updateDownloadControls();

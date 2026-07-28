@@ -336,6 +336,9 @@
   const OUTRO_SHARE_SPRITE_PATH = './sprites/ui/intro_&_outro/share.png';
   const INTRO_RANKED_VISIBLE_CENTER = { x: 0.5, y: 0.47 };
   const INTRO_HERO_SIZE = { ranked: 80, foodWidth: 48, foodHeight: 24 };
+  const INTRO_FOCUS_BLUR_PX = 1.16;
+  const INTRO_FOCUS_FADE_START = 0.56;
+  const INTRO_FOCUS_CLEAR_KINDS = new Set(['food-hero', 'ranked-glow', 'ranked-sprite', 'glimmer']);
   const OUTRO_TIER_STAMP_SIZE = 78;
   const OUTRO_TIER_STAMP_ASSET_SIZE = 50;
   const OUTRO_CTA_STAMP_ASSET_SIZE = 15;
@@ -3753,6 +3756,54 @@
       .map(({ layer, index, persistent }) => layerRevealSchedule(layer, scene, index, persistent, layerList));
   }
 
+  function introFocusStrength(scene, sceneElapsed) {
+    if (scene?.id !== 'intro') return 0;
+    const progress = clamp(sceneElapsed / Math.max(0.001, scene.duration || sceneContentDuration(scene)), 0, 1);
+    return clamp(1 - easeOutCubic((progress - INTRO_FOCUS_FADE_START) / (1 - INTRO_FOCUS_FADE_START)), 0, 1);
+  }
+
+  function introFocusBlurFilter(strength, baseFilter = '') {
+    const safeStrength = clamp(asNumber(strength, 0), 0, 1);
+    const filters = [];
+    if (baseFilter && baseFilter !== 'none') filters.push(baseFilter);
+    if (safeStrength > 0.001) {
+      filters.push(`blur(calc(${(INTRO_FOCUS_BLUR_PX * safeStrength).toFixed(3)}px * var(--pixel-unit)))`);
+    }
+    return filters.join(' ');
+  }
+
+  function isIntroFocusClearSchedule(revealSchedule) {
+    return revealSchedule?.family === 'intro' && INTRO_FOCUS_CLEAR_KINDS.has(revealSchedule?.kind);
+  }
+
+  function applyIntroFocusStageEffect(roots, scene, sceneElapsed) {
+    const strength = introFocusStrength(scene, sceneElapsed);
+    const filter = introFocusBlurFilter(strength);
+    els.videoStage.classList.toggle('intro-focus-active', strength > 0.001);
+    els.videoStage.style.setProperty('--intro-focus-blur-strength', strength.toFixed(3));
+    [roots.bg, roots.phoneBg, roots.vignette, roots.caption].forEach(node => {
+      if (!node) return;
+      if (filter) {
+        node.style.filter = filter;
+        node.dataset.introFocusBlur = strength.toFixed(3);
+      } else {
+        node.style.removeProperty('filter');
+        delete node.dataset.introFocusBlur;
+      }
+    });
+    return strength;
+  }
+
+  function applyIntroFocusNodeEffect(node, revealSchedule, strength) {
+    const safeStrength = clamp(asNumber(strength, 0), 0, 1);
+    if (safeStrength <= 0.001 || isIntroFocusClearSchedule(revealSchedule)) {
+      delete node.dataset.introFocusBlur;
+      return;
+    }
+    node.style.filter = introFocusBlurFilter(safeStrength, node.style.filter || '');
+    node.dataset.introFocusBlur = safeStrength.toFixed(3);
+  }
+
   function ensureStageRoots() {
     let bg = els.videoStage.querySelector('.stage-bg');
     let phoneBg = els.videoStage.querySelector('.stage-phone-bg');
@@ -3783,6 +3834,7 @@
     const scene = activeSceneAt();
     const roots = ensureStageRoots();
     if (!state.layout || !scene) {
+      applyIntroFocusStageEffect(roots, null, 0);
       roots.layerRoot.replaceChildren();
       roots.caption.replaceChildren();
       roots.bg.replaceChildren();
@@ -3812,6 +3864,7 @@
     const narrationElapsed = sceneElapsed - narrationDelay;
     const narrationProgress = sceneNarrationProgress(scene, sceneElapsed);
     const inHold = sceneHoldSeconds(scene) > 0 && sceneElapsed >= contentDuration;
+    const introFocusBlur = applyIntroFocusStageEffect(roots, scene, sceneElapsed);
     const content = sceneContentLayers(scene.id).map((layer, index) => ({ layer, index, persistent: false }));
     const chrome = persistentChromeLayers(scene.id, food).map((layer, index) => ({ layer, index, persistent: true }));
     const layers = [...content, ...chrome].sort((a, b) => {
@@ -3898,6 +3951,7 @@
       const renderParent = groupedMacroHeadReveal ? macroHeadGroup : nextLayerNodes;
       if (macroBarFillLayer) {
         drawMacroBarFillCanvas(node, layer, sceneElapsed, revealSchedule);
+        applyIntroFocusNodeEffect(node, revealSchedule, introFocusBlur);
         renderParent.appendChild(node);
         return;
       }
@@ -3932,6 +3986,7 @@
       applySubmacroNarrationHighlight(node, scene, revealSchedule, macroHighlightMap);
       applyMicronNarrationHighlight(node, scene, revealSchedule, micronHighlightMap);
       applyProConNarrationHighlight(node, scene, revealSchedule, proConHighlightMap);
+      applyIntroFocusNodeEffect(node, revealSchedule, introFocusBlur);
       renderParent.appendChild(node);
     });
     appendMicron100Fireworks(nextLayerNodes, scene, layers, sceneElapsed);
@@ -8276,17 +8331,29 @@
     };
   }
 
+  function recordingComputedFilter(node) {
+    const filters = [];
+    const scopedParent = node.closest?.('.stage-bg, .stage-phone-bg, .stage-vignette, .caption-box');
+    const parentFilter = scopedParent ? getComputedStyle(scopedParent).filter : '';
+    if (parentFilter && parentFilter !== 'none') filters.push(parentFilter);
+    const nodeFilter = getComputedStyle(node).filter;
+    if (nodeFilter && nodeFilter !== 'none') filters.push(nodeFilter);
+    return filters.join(' ') || 'none';
+  }
+
   function applyRecordingCanvasStyle(ctx, node) {
     const style = getComputedStyle(node);
     const opacity = clamp(asNumber(style.opacity, 1), 0, 1);
     ctx.globalAlpha *= opacity;
-    ctx.filter = 'none';
+    ctx.filter = recordingComputedFilter(node);
   }
 
   function drawRecordingBackdrop(ctx, frame, scaleX, scaleY) {
     const { width, height } = frame.stage;
     const palette = backdropPalette(selectedFood());
+    const bgFilter = getComputedStyle(els.videoStage.querySelector('.stage-bg') || els.videoStage).filter;
     ctx.save();
+    ctx.filter = bgFilter && bgFilter !== 'none' ? bgFilter : 'none';
     ctx.scale(scaleX, scaleY);
     ctx.translate(-frame.source.x, -frame.source.y);
     const base = ctx.createLinearGradient(0, 0, 0, height);
@@ -8311,7 +8378,9 @@
 
   function drawRecordingPhoneOverlay(ctx, frame, scaleX, scaleY) {
     const { width, height } = frame.stage;
+    const phoneFilter = getComputedStyle(els.videoStage.querySelector('.stage-phone-bg') || els.videoStage).filter;
     ctx.save();
+    ctx.filter = phoneFilter && phoneFilter !== 'none' ? phoneFilter : 'none';
     ctx.scale(scaleX, scaleY);
     ctx.translate(-frame.source.x, -frame.source.y);
     const overlay = ctx.createLinearGradient(0, 0, 0, height);

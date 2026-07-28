@@ -50,6 +50,28 @@
   const MACRO_BAR_GIF_FINAL_HOLD_CENTISECONDS = 65535;
   const MACRO_BAR_GIF_SOURCE_CACHE = new Map();
   const MACRO_BAR_GIF_FRAME_CACHE = new Map();
+  const INTRO_RANKED_SPRITE_PATH = './sprites/ui/intro_&_outro/ranked.png';
+  const OUTRO_TIER_SPRITE_PATHS = Object.freeze({
+    S: './sprites/ui/intro_&_outro/S_tier.png',
+    A: './sprites/ui/intro_&_outro/A_tier.png',
+    B: './sprites/ui/intro_&_outro/B_tier.png',
+    C: './sprites/ui/intro_&_outro/C_tier.png',
+    D: './sprites/ui/intro_&_outro/D_tier.png'
+  });
+  const OUTRO_LIKE_SPRITE_PATH = './sprites/ui/intro_&_outro/like.png';
+  const OUTRO_FOLLOW_SPRITE_PATH = './sprites/ui/intro_&_outro/follow.png';
+  const OUTRO_SHARE_SPRITE_PATH = './sprites/ui/intro_&_outro/share.png';
+  const INTRO_RANKED_VISIBLE_CENTER = { x: 0.5, y: 0.47 };
+  const INTRO_HERO_SIZE = { ranked: 80, foodWidth: 48, foodHeight: 24 };
+  const OUTRO_TIER_STAMP_SIZE = 78;
+  const OUTRO_TIER_STAMP_ASSET_SIZE = 50;
+  const OUTRO_CTA_STAMP_ASSET_SIZE = 15;
+  const OUTRO_CTA_STAMP_SCALE = 0.5;
+  const OUTRO_CTA_STAMP_SIZE = OUTRO_TIER_STAMP_SIZE * (OUTRO_CTA_STAMP_ASSET_SIZE / OUTRO_TIER_STAMP_ASSET_SIZE) * OUTRO_CTA_STAMP_SCALE;
+  const OUTRO_CTA_STAMP_GAP_X = (OUTRO_TIER_STAMP_SIZE - (OUTRO_CTA_STAMP_SIZE * 3)) / 2;
+  const OUTRO_CTA_STAMP_GAP_Y = 4;
+  const OUTRO_CTA_STAMP_CENTER_Y = (OUTRO_TIER_STAMP_SIZE / 2) + OUTRO_CTA_STAMP_GAP_Y + (OUTRO_CTA_STAMP_SIZE / 2);
+  const DBV2_STATIC_STAMP_LAYER_FLAG = 'displayBuilderV2StaticStamp';
   const renderToken = { value: 0 };
   const PLACEMENT_LAYER_KEYS = [
     'id',
@@ -315,6 +337,7 @@
 
   function isHeaderFoodImageLayer(layer) {
     if (!isSpriteLayer(layer)) return false;
+    if (layer?.[DBV2_STATIC_STAMP_LAYER_FLAG] || layer?.id === 'intro_food_hero') return false;
     const src = String(layer.src || '').toLowerCase();
     const label = String(layer.label || '').toLowerCase().replace(/^library:\s*/, '');
     return src.includes('/header/food_images/') || /^header food image$/.test(label);
@@ -652,6 +675,7 @@
 
   function placementLayerSnapshot(layer) {
     if (!layer || (!isSpriteLayer(layer) && !isTextLayer(layer))) return null;
+    if (layer[DBV2_STATIC_STAMP_LAYER_FLAG]) return null;
     const snapshot = {};
     PLACEMENT_LAYER_KEYS.forEach(key => {
       if (Object.prototype.hasOwnProperty.call(layer, key)) snapshot[key] = LOGIC.clone(layer[key]);
@@ -1118,6 +1142,184 @@
     els.displayCanvas.style.setProperty('--layout-builder-canvas-grid-width', String(gridWidth));
     els.displayCanvas.style.setProperty('--layout-builder-canvas-grid-height', String(gridHeight));
     els.displayCanvas.style.aspectRatio = `${gridWidth} / ${gridHeight}`;
+  }
+
+  function displayBuilderVisibleGridBounds(layout) {
+    const authorGrid = LOGIC.AUTHOR_GRID;
+    const gridWidth = macroReferenceCanvasGridWidth(layout, authorGrid.width);
+    const gridHeight = gridWidth * (authorGrid.height / authorGrid.width);
+    return {
+      left: 0,
+      top: 0,
+      right: gridWidth,
+      bottom: gridHeight
+    };
+  }
+
+  function displayBuilderGridCenter(layout) {
+    const visible = displayBuilderVisibleGridBounds(layout);
+    return {
+      x: (visible.left + visible.right) / 2,
+      y: (visible.top + visible.bottom) / 2
+    };
+  }
+
+  function introStaticStampLayers(layout, food) {
+    const center = displayBuilderGridCenter(layout);
+    const rankedSize = INTRO_HERO_SIZE.ranked;
+    const ranked = {
+      x: roundedLayoutNumber(center.x - (rankedSize * INTRO_RANKED_VISIBLE_CENTER.x)),
+      y: roundedLayoutNumber(center.y - (rankedSize * INTRO_RANKED_VISIBLE_CENTER.y)),
+      width: rankedSize,
+      height: rankedSize
+    };
+    const foodCandidates = LOGIC.foodSpriteCandidates(food);
+    const foodGeometry = LOGIC.foodImageLayerGeometry?.(food) || {};
+    return [
+      {
+        id: 'intro_ranked_sprite',
+        kind: 'sprite',
+        label: 'Hook ranked sprite',
+        src: INTRO_RANKED_SPRITE_PATH,
+        x: ranked.x,
+        y: ranked.y,
+        z: 55,
+        width: ranked.width,
+        height: ranked.height,
+        visible: true,
+        preserveAspect: true,
+        aspectRatio: 1
+      },
+      {
+        id: 'intro_food_hero',
+        kind: 'sprite',
+        label: 'Hook food image',
+        src: foodCandidates.primary,
+        fallbackSrc: foodCandidates.fallback,
+        x: roundedLayoutNumber(ranked.x + 16),
+        y: roundedLayoutNumber(ranked.y + 20.75),
+        z: 56,
+        width: INTRO_HERO_SIZE.foodWidth,
+        height: INTRO_HERO_SIZE.foodHeight,
+        naturalWidth: foodGeometry.naturalWidth || null,
+        naturalHeight: foodGeometry.naturalHeight || null,
+        visible: true,
+        foodDriven: true,
+        preserveAspect: true,
+        aspectRatio: foodGeometry.naturalHeight ? foodGeometry.naturalWidth / foodGeometry.naturalHeight : null
+      }
+    ];
+  }
+
+  function scoreTier(food) {
+    return food?.episode?.tier || food?.batchResult?.tier || food?.tier || food?.expectedTier || '';
+  }
+
+  function normalizedTier(value) {
+    const normalized = String(value || '').trim().toUpperCase();
+    const match = normalized.match(/^([SABCD])(?:\s*TIER)?\.?$/);
+    const tier = match?.[1] || '';
+    return OUTRO_TIER_SPRITE_PATHS[tier] ? tier : '';
+  }
+
+  function outroTierForFood(food) {
+    return normalizedTier(scoreTier(food));
+  }
+
+  function outroTierSpritePath(tier) {
+    return OUTRO_TIER_SPRITE_PATHS[normalizedTier(tier)] || '';
+  }
+
+  function outroTierStampLabel(tier) {
+    const normalized = normalizedTier(tier);
+    return normalized ? `${normalized} tier verdict stamp` : 'Tier verdict stamp';
+  }
+
+  function outroStaticStampLayers(layout, food) {
+    const center = displayBuilderGridCenter(layout);
+    const tier = outroTierForFood(food);
+    const tierSrc = outroTierSpritePath(tier);
+    const displayTierSrc = tierSrc || OUTRO_TIER_SPRITE_PATHS.D;
+    const ctaStepX = OUTRO_CTA_STAMP_SIZE + OUTRO_CTA_STAMP_GAP_X;
+    const tierLayer = {
+      id: 'outro_tier_stamp',
+      kind: 'sprite',
+      label: outroTierStampLabel(tier),
+      src: displayTierSrc,
+      x: roundedLayoutNumber(center.x - (OUTRO_TIER_STAMP_SIZE / 2)),
+      y: roundedLayoutNumber(center.y - (OUTRO_TIER_STAMP_SIZE / 2)),
+      z: 38,
+      width: OUTRO_TIER_STAMP_SIZE,
+      height: OUTRO_TIER_STAMP_SIZE,
+      visible: Boolean(tierSrc),
+      preserveAspect: true,
+      aspectRatio: 1,
+      tier,
+      stampRole: 'tier'
+    };
+    return [
+      tierLayer,
+      { id: 'outro_like_stamp', label: 'Like stamp', src: OUTRO_LIKE_SPRITE_PATH, centerOffsetX: -ctaStepX },
+      { id: 'outro_follow_stamp', label: 'Follow stamp', src: OUTRO_FOLLOW_SPRITE_PATH, centerOffsetX: 0 },
+      { id: 'outro_share_stamp', label: 'Share stamp', src: OUTRO_SHARE_SPRITE_PATH, centerOffsetX: ctaStepX }
+    ].map((spec, index) => {
+      if (index === 0) return spec;
+      return {
+        id: spec.id,
+        kind: 'sprite',
+        label: spec.label,
+        src: spec.src,
+        x: roundedLayoutNumber(center.x + spec.centerOffsetX - (OUTRO_CTA_STAMP_SIZE / 2)),
+        y: roundedLayoutNumber(center.y + OUTRO_CTA_STAMP_CENTER_Y - (OUTRO_CTA_STAMP_SIZE / 2)),
+        z: 38 + index,
+        width: OUTRO_CTA_STAMP_SIZE,
+        height: OUTRO_CTA_STAMP_SIZE,
+        visible: Boolean(tierSrc),
+        preserveAspect: true,
+        aspectRatio: 1,
+        tier,
+        stampRole: 'cta'
+      };
+    });
+  }
+
+  function applyStaticStampLayerSpec(layer, spec, isNewLayer) {
+    layer.kind = spec.kind;
+    layer.label = spec.label;
+    layer.src = spec.src;
+    if (Object.prototype.hasOwnProperty.call(spec, 'fallbackSrc')) layer.fallbackSrc = spec.fallbackSrc;
+    layer.visible = spec.visible;
+    layer.preserveAspect = spec.preserveAspect;
+    layer.aspectRatio = spec.aspectRatio;
+    layer.width = spec.width;
+    layer.height = spec.height;
+    layer.foodDriven = Boolean(spec.foodDriven);
+    layer[DBV2_STATIC_STAMP_LAYER_FLAG] = true;
+    if (Object.prototype.hasOwnProperty.call(spec, 'naturalWidth')) layer.naturalWidth = spec.naturalWidth;
+    if (Object.prototype.hasOwnProperty.call(spec, 'naturalHeight')) layer.naturalHeight = spec.naturalHeight;
+    if (Object.prototype.hasOwnProperty.call(spec, 'tier')) layer.tier = spec.tier;
+    if (Object.prototype.hasOwnProperty.call(spec, 'stampRole')) layer.stampRole = spec.stampRole;
+    if (isNewLayer || !Number.isFinite(Number(layer.x))) layer.x = spec.x;
+    if (isNewLayer || !Number.isFinite(Number(layer.y))) layer.y = spec.y;
+    if (isNewLayer || !Number.isFinite(Number(layer.z))) layer.z = spec.z;
+  }
+
+  function upsertStaticStampLayers(layout, sectionId, specs) {
+    const layers = getSectionLayers(layout, sectionId);
+    specs.forEach(spec => {
+      let layer = layers.find(item => item.id === spec.id);
+      const isNewLayer = !layer;
+      if (!layer) {
+        layer = { id: spec.id };
+        layers.push(layer);
+      }
+      applyStaticStampLayerSpec(layer, spec, isNewLayer);
+    });
+  }
+
+  function syncStaticIntroOutroStampSprites(layout, food) {
+    upsertStaticStampLayers(layout, 'intro', introStaticStampLayers(layout, food));
+    upsertStaticStampLayers(layout, 'outro', outroStaticStampLayers(layout, food));
   }
 
   function cloneLayoutForRender(option) {
@@ -1753,8 +1955,10 @@
     const layout = cloneLayoutForRender(option);
     syncFoodSprites(layout, food);
     syncFoodText(layout, food);
+    syncStaticIntroOutroStampSprites(layout, food);
     applyLayoutBuilderPlacementGuide(layout, food, option.layout);
     applyLayoutBuilderFoodImagePlacement(layout, food, option.layout);
+    syncStaticIntroOutroStampSprites(layout, food);
     syncMacroFills(layout, food);
     syncProteinRows(layout, food);
     const micronutrientReport = syncMicronutrients(layout, food);

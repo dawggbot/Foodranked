@@ -54,6 +54,9 @@
   const DOWNLOAD_RECORDING_AUDIO_BITS_PER_SECOND = 192_000;
   const DOWNLOAD_RECORDING_STOP_PAD_SECONDS = 0.7;
   const DOWNLOAD_RECORDING_STATUS_RESET_MS = 2400;
+  const DOWNLOAD_RECORDING_FRAME_RATE = 30;
+  const DOWNLOAD_RECORDING_OUTPUT_WIDTH = 1080;
+  const DOWNLOAD_RECORDING_OUTPUT_HEIGHT = 1920;
   const AUDIO_REVEAL_LEAD_SECONDS = 0.11;
   const AUDIO_REVEAL_WINDOW_SECONDS = 0.36;
   const SUBMACRO_REVEAL_WINDOW_SECONDS = 1.25;
@@ -631,6 +634,9 @@
     downloadStatus: '',
     downloadStatusTone: '',
     downloadStatusTimer: 0,
+    downloadAudioContext: null,
+    downloadMediaElementSources: new WeakMap(),
+    downloadMediaElementOutputConnected: new WeakSet(),
     playbackSfxEvents: null
   };
 
@@ -8126,7 +8132,8 @@
   }
 
   function downloadRecordingSupported() {
-    return Boolean(window.MediaRecorder && navigator.mediaDevices?.getDisplayMedia);
+    const testCanvas = document.createElement('canvas');
+    return Boolean(window.MediaRecorder && testCanvas.captureStream);
   }
 
   function preferredRecordingFormat() {
@@ -8182,7 +8189,7 @@
       ? `${format.label} download ready`
       : supported
         ? 'Download needs MP4/WebM encoder support'
-        : 'Download needs browser screen capture support';
+        : 'Download needs browser canvas recording support';
     els.downloadStatus.textContent = state.downloadStatus || fallbackStatus;
     els.downloadStatus.classList.toggle('warn', state.downloadStatusTone === 'warn' || !supported || !format);
     els.downloadStatus.classList.toggle('ok', state.downloadStatusTone === 'ok');
@@ -8215,38 +8222,315 @@
     } catch {}
   }
 
-  function displayMediaOptions({ audio = true } = {}) {
+  function scaleCssPixels(value, scale) {
+    return String(value || '').replace(/(-?\d*\.?\d+)px/gi, (match, number) => {
+      const scaled = Number(number) * scale;
+      return `${Number.isFinite(scaled) ? scaled.toFixed(3) : number}px`;
+    });
+  }
+
+  function recordingNodeRect(node, stageRect, scaleX, scaleY) {
+    const rect = node.getBoundingClientRect();
     return {
-      video: {
-        frameRate: { ideal: 30 },
-        width: { ideal: 1080 },
-        height: { ideal: 1920 },
-        displaySurface: 'browser'
-      },
-      audio,
-      preferCurrentTab: true,
-      selfBrowserSurface: 'include',
-      surfaceSwitching: 'exclude',
-      systemAudio: audio ? 'include' : 'exclude'
+      x: (rect.left - stageRect.left) * scaleX,
+      y: (rect.top - stageRect.top) * scaleY,
+      width: rect.width * scaleX,
+      height: rect.height * scaleY
     };
   }
 
-  async function requestDownloadCaptureStream() {
-    const attempts = [
-      displayMediaOptions({ audio: true }),
-      displayMediaOptions({ audio: false }),
-      { video: true, audio: false }
-    ];
-    let lastError = null;
-    for (const options of attempts) {
-      try {
-        return await navigator.mediaDevices.getDisplayMedia(options);
-      } catch (error) {
-        lastError = error;
-        if (error?.name !== 'TypeError' && error?.name !== 'OverconstrainedError') throw error;
+  function applyRecordingCanvasStyle(ctx, node) {
+    const style = getComputedStyle(node);
+    const opacity = clamp(asNumber(style.opacity, 1), 0, 1);
+    ctx.globalAlpha *= opacity;
+    ctx.filter = 'none';
+  }
+
+  function drawRecordingBackdrop(ctx, width, height) {
+    const palette = backdropPalette(selectedFood());
+    const base = ctx.createLinearGradient(0, 0, 0, height);
+    base.addColorStop(0, palette.top);
+    base.addColorStop(1, palette.bottom);
+    ctx.fillStyle = base;
+    ctx.fillRect(0, 0, width, height);
+
+    const glowA = ctx.createRadialGradient(width * 0.18, height * 0.12, 0, width * 0.18, height * 0.12, Math.max(width, height) * 0.24);
+    glowA.addColorStop(0, palette.glowA);
+    glowA.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = glowA;
+    ctx.fillRect(0, 0, width, height);
+
+    const glowB = ctx.createRadialGradient(width * 0.82, height * 0.16, 0, width * 0.82, height * 0.16, Math.max(width, height) * 0.28);
+    glowB.addColorStop(0, palette.glowB);
+    glowB.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = glowB;
+    ctx.fillRect(0, 0, width, height);
+  }
+
+  function drawRecordingPhoneOverlay(ctx, width, height) {
+    const overlay = ctx.createLinearGradient(0, 0, 0, height);
+    overlay.addColorStop(0, 'rgba(255,255,255,0.04)');
+    overlay.addColorStop(1, 'rgba(0,0,0,0.10)');
+    ctx.fillStyle = overlay;
+    ctx.fillRect(0, 0, width, height);
+  }
+
+  function drawRecordingImageNode(ctx, node, stageRect, scaleX, scaleY) {
+    const box = recordingNodeRect(node, stageRect, scaleX, scaleY);
+    if (box.width <= 0 || box.height <= 0) return;
+    const image = node;
+    if (!(image instanceof HTMLCanvasElement) && (!image.complete || !image.naturalWidth)) return;
+    ctx.save();
+    applyRecordingCanvasStyle(ctx, node);
+    ctx.imageSmoothingEnabled = false;
+    try {
+      ctx.drawImage(image, box.x, box.y, box.width, box.height);
+    } catch {}
+    ctx.restore();
+  }
+
+  function firstCanvasShadow(textShadow) {
+    if (!textShadow || textShadow === 'none') return null;
+    const match = textShadow.match(/(rgba?\([^)]+\)|#[0-9a-f]+|[a-z]+)\s+(-?\d*\.?\d+)px\s+(-?\d*\.?\d+)px\s+(-?\d*\.?\d+)px/i);
+    if (!match) return null;
+    return {
+      color: match[1],
+      offsetX: Number(match[2]) || 0,
+      offsetY: Number(match[3]) || 0,
+      blur: Number(match[4]) || 0
+    };
+  }
+
+  function drawRecordingTextNode(ctx, node, stageRect, scaleX, scaleY) {
+    const text = node.textContent || '';
+    if (!text.trim()) return;
+    const box = recordingNodeRect(node, stageRect, scaleX, scaleY);
+    if (box.width <= 0 || box.height <= 0) return;
+    const style = getComputedStyle(node);
+    const fontSize = Math.max(1, cssPixels(style.fontSize, 16) * scaleY);
+    const lineHeight = Math.max(fontSize, cssPixels(style.lineHeight, fontSize / scaleY) * scaleY);
+    const align = style.textAlign || 'left';
+    let x = box.x;
+    if (align === 'center') x = box.x + (box.width / 2);
+    if (align === 'right' || align === 'end') x = box.x + box.width;
+    const lines = text.split(/\n/);
+
+    ctx.save();
+    applyRecordingCanvasStyle(ctx, node);
+    ctx.font = `${style.fontStyle || 'normal'} ${style.fontWeight || '400'} ${fontSize.toFixed(3)}px ${style.fontFamily || 'sans-serif'}`;
+    ctx.textAlign = align === 'right' || align === 'end' ? 'right' : (align === 'center' ? 'center' : 'left');
+    ctx.textBaseline = 'top';
+    ctx.fillStyle = style.color || '#ffffff';
+    const shadow = firstCanvasShadow(scaleCssPixels(style.textShadow, Math.max(scaleX, scaleY)));
+    if (shadow) {
+      ctx.shadowColor = shadow.color;
+      ctx.shadowOffsetX = shadow.offsetX;
+      ctx.shadowOffsetY = shadow.offsetY;
+      ctx.shadowBlur = shadow.blur;
+    }
+    const strokeWidth = cssPixels(style.webkitTextStrokeWidth || style.textStrokeWidth, 0) * Math.max(scaleX, scaleY);
+    if (strokeWidth > 0) {
+      ctx.lineWidth = strokeWidth;
+      ctx.strokeStyle = style.webkitTextStrokeColor || style.textStrokeColor || '#000000';
+      lines.forEach((line, index) => ctx.strokeText(line, x, box.y + (index * lineHeight)));
+    }
+    lines.forEach((line, index) => ctx.fillText(line, x, box.y + (index * lineHeight)));
+    ctx.restore();
+  }
+
+  async function waitForRecordingStageImages() {
+    const images = Array.from(els.videoStage.querySelectorAll('img'));
+    const pending = images.map(img => {
+      if (img.complete && img.naturalWidth) return null;
+      return img.decode?.().catch(() => {}) || Promise.resolve();
+    }).filter(Boolean);
+    if (!pending.length) return;
+    await Promise.race([
+      Promise.all(pending),
+      new Promise(resolve => window.setTimeout(resolve, 1200))
+    ]);
+  }
+
+  async function drawStageToRecordingCanvas(canvas, ctx) {
+    const rect = els.videoStage.getBoundingClientRect();
+    const stageWidth = Math.max(1, rect.width || DOWNLOAD_RECORDING_OUTPUT_WIDTH);
+    const stageHeight = Math.max(1, rect.height || DOWNLOAD_RECORDING_OUTPUT_HEIGHT);
+    const scaleX = canvas.width / stageWidth;
+    const scaleY = canvas.height / stageHeight;
+
+    ctx.save();
+    ctx.imageSmoothingEnabled = false;
+    ctx.filter = 'none';
+    ctx.globalAlpha = 1;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawRecordingBackdrop(ctx, canvas.width, canvas.height);
+    for (const img of Array.from(els.videoStage.querySelectorAll('.stage-bg img'))) {
+      drawRecordingImageNode(ctx, img, rect, scaleX, scaleY);
+    }
+    drawRecordingPhoneOverlay(ctx, canvas.width, canvas.height);
+
+    const layerNodes = Array.from(els.videoStage.querySelectorAll('.stage-layer-root .layer-node'))
+      .sort((a, b) => (Number(getComputedStyle(a).zIndex) || 0) - (Number(getComputedStyle(b).zIndex) || 0));
+    for (const node of layerNodes) {
+      if (node instanceof HTMLImageElement || node instanceof HTMLCanvasElement) {
+        drawRecordingImageNode(ctx, node, rect, scaleX, scaleY);
+      } else {
+        drawRecordingTextNode(ctx, node, rect, scaleX, scaleY);
       }
     }
-    throw lastError || new Error('Unable to start screen capture');
+    for (const node of Array.from(els.videoStage.querySelectorAll('.caption-word'))) {
+      drawRecordingTextNode(ctx, node, rect, scaleX, scaleY);
+    }
+    ctx.restore();
+  }
+
+  function startRecordingCanvasPump(canvas, ctx) {
+    let stopped = false;
+    let frameId = 0;
+    let drawing = false;
+    let lastDrawStartedAt = 0;
+    const minFrameMs = 1000 / DOWNLOAD_RECORDING_FRAME_RATE;
+    const step = now => {
+      if (stopped) return;
+      if (!drawing && (!lastDrawStartedAt || now - lastDrawStartedAt >= minFrameMs - 1)) {
+        drawing = true;
+        lastDrawStartedAt = now;
+        drawStageToRecordingCanvas(canvas, ctx)
+          .catch(() => {})
+          .finally(() => { drawing = false; });
+      }
+      frameId = requestAnimationFrame(step);
+    };
+    frameId = requestAnimationFrame(step);
+    return {
+      stop() {
+        stopped = true;
+        if (frameId) cancelAnimationFrame(frameId);
+      }
+    };
+  }
+
+  function ensureDownloadAudioContext() {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return null;
+    if (!state.downloadAudioContext || state.downloadAudioContext.state === 'closed') {
+      state.downloadAudioContext = new AudioContextClass();
+      state.downloadMediaElementSources = new WeakMap();
+      state.downloadMediaElementOutputConnected = new WeakSet();
+    }
+    if (state.downloadAudioContext.state === 'suspended') {
+      state.downloadAudioContext.resume().catch(() => {});
+    }
+    return state.downloadAudioContext;
+  }
+
+  function downloadMediaElementSource(audio, context) {
+    if (!audio || !context) return null;
+    let source = state.downloadMediaElementSources.get(audio);
+    if (!source) {
+      source = context.createMediaElementSource(audio);
+      state.downloadMediaElementSources.set(audio, source);
+    }
+    if (!state.downloadMediaElementOutputConnected.has(audio)) {
+      source.connect(context.destination);
+      state.downloadMediaElementOutputConnected.add(audio);
+    }
+    return source;
+  }
+
+  function mediaElementsForDownloadAudio() {
+    return [
+      els.narrationAudio,
+      ensureBackgroundMusicAudio(),
+      state.highlightGlowSfxAudio,
+      ...state.stampSfxPool,
+      ...state.sTierStampSfxPool,
+      ...state.dTierGameLoseSfxPool,
+      ...state.dTierDeathSfxPool,
+      ...state.transitionSfxPool,
+      ...state.micronBarConfirmSfxPool,
+      ...state.micron100FireworkLeadSfxPool,
+      ...state.micron100FireworkSfxPool,
+      ...state.majorProSparkleSfxPool,
+      ...state.majorConSirenSfxPool,
+      ...state.barFillSfxPool
+    ].filter(Boolean);
+  }
+
+  async function createDownloadAudioMix() {
+    const context = ensureDownloadAudioContext();
+    if (!context?.createMediaStreamDestination) return null;
+    if (context.state === 'suspended') {
+      await Promise.race([
+        context.resume().catch(() => {}),
+        new Promise(resolve => window.setTimeout(resolve, 1200))
+      ]);
+    }
+    const destination = context.createMediaStreamDestination();
+    const disconnectors = [];
+    for (const audio of mediaElementsForDownloadAudio()) {
+      try {
+        const source = downloadMediaElementSource(audio, context);
+        if (!source) continue;
+        source.connect(destination);
+        disconnectors.push(() => {
+          try { source.disconnect(destination); } catch {}
+        });
+      } catch {}
+    }
+    return {
+      stream: destination.stream,
+      stop() {
+        disconnectors.forEach(disconnect => disconnect());
+      }
+    };
+  }
+
+  async function createDownloadAudioMixWithTimeout() {
+    let timeoutId = 0;
+    const timeout = new Promise(resolve => {
+      timeoutId = window.setTimeout(() => resolve(null), 1600);
+    });
+    const audioMix = await Promise.race([
+      createDownloadAudioMix(),
+      timeout
+    ]);
+    if (timeoutId) window.clearTimeout(timeoutId);
+    return audioMix;
+  }
+
+  async function createDownloadRecordingStream() {
+    const canvas = document.createElement('canvas');
+    canvas.width = DOWNLOAD_RECORDING_OUTPUT_WIDTH;
+    canvas.height = DOWNLOAD_RECORDING_OUTPUT_HEIGHT;
+    const ctx = canvas.getContext('2d', { alpha: false });
+    if (!ctx || !canvas.captureStream) throw new Error('Canvas recording is unavailable');
+    if (document.fonts?.ready) {
+      await Promise.race([
+        document.fonts.ready.catch(() => {}),
+        new Promise(resolve => window.setTimeout(resolve, 1200))
+      ]);
+    }
+    await new Promise(resolve => requestAnimationFrame(resolve));
+    await waitForRecordingStageImages();
+    await drawStageToRecordingCanvas(canvas, ctx);
+    const stream = canvas.captureStream(DOWNLOAD_RECORDING_FRAME_RATE);
+    primeStampSfx();
+    primeDTierStampSfx();
+    primeTransitionSfx();
+    primeBarFillSfx();
+    const audioMix = await createDownloadAudioMixWithTimeout();
+    for (const track of audioMix?.stream?.getAudioTracks?.() || []) {
+      stream.addTrack(track);
+    }
+    const pump = startRecordingCanvasPump(canvas, ctx);
+    return {
+      stream,
+      stop() {
+        pump.stop();
+        audioMix?.stop?.();
+      }
+    };
   }
 
   function startDownloadPlaybackFromZero() {
@@ -8259,7 +8543,6 @@
   }
 
   function restoreAfterDownloadRecording(snapshot) {
-    document.body.classList.remove('download-recording-active');
     stopPlayback();
     state.currentTime = clamp(snapshot.currentTime, 0, totalDuration());
     state.selectedSceneId = snapshot.selectedSceneId || activeSceneAt(state.currentTime)?.id || 'intro';
@@ -8271,7 +8554,7 @@
   async function downloadVideoRecording() {
     if (state.downloadRecording) return;
     if (!downloadRecordingSupported()) {
-      setDownloadStatus('This browser cannot record a local video from VBv2.', 'warn');
+      setDownloadStatus('This browser cannot record the VBv2 canvas directly.', 'warn');
       return;
     }
 
@@ -8293,17 +8576,18 @@
       audioEnabled: state.audioEnabled
     };
     let stream = null;
+    let streamHandle = null;
     let recorder = null;
     let timeoutId = 0;
     const chunks = [];
 
     state.downloadRecording = true;
-    document.body.classList.add('download-recording-active');
     renderDynamic({ fullUi: true });
-    setDownloadStatus('Choose this tab/window. Enable tab audio if prompted.', 'warn');
+    setDownloadStatus(`Preparing ${format.label} canvas recording...`, 'warn');
 
     try {
-      stream = await requestDownloadCaptureStream();
+      streamHandle = await createDownloadRecordingStream();
+      stream = streamHandle.stream;
 
       recorder = new MediaRecorder(stream, {
         mimeType: format.mimeType,
@@ -8325,7 +8609,7 @@
 
       recorder.start(1000);
       startDownloadPlaybackFromZero();
-      setDownloadStatus(`Recording ${format.label}...`, 'warn');
+      setDownloadStatus(`Recording ${format.label} canvas...`, 'warn');
       timeoutId = window.setTimeout(() => {
         stopRecorderSafely(recorder);
       }, Math.ceil((duration + DOWNLOAD_RECORDING_STOP_PAD_SECONDS) * 1000));
@@ -8348,6 +8632,7 @@
       }
     } finally {
       if (timeoutId) window.clearTimeout(timeoutId);
+      streamHandle?.stop?.();
       stopMediaStream(stream);
       restoreAfterDownloadRecording(snapshot);
       state.downloadRecording = false;

@@ -50,6 +50,12 @@
   const MACRO_BAR_GIF_FINAL_HOLD_CENTISECONDS = 65535;
   const MACRO_BAR_GIF_SOURCE_CACHE = new Map();
   const MACRO_BAR_GIF_FRAME_CACHE = new Map();
+  const SECTION_STILL_EXPORT_MIME = 'image/png';
+  const SECTION_STILL_EXPORT_EXTENSION = 'png';
+  const SECTION_STILL_EXPORT_OUTPUT_WIDTH = 1080;
+  const SECTION_STILL_EXPORT_STATUS_CLEAR_MS = 3200;
+  const SECTION_STILL_EXPORT_GIF_TIMEOUT_MS = 8000;
+  const SECTION_STILL_EXPORT_IMAGE_CACHE = new Map();
   const INTRO_RANKED_SPRITE_PATH = './sprites/ui/intro_&_outro/ranked.png';
   const OUTRO_TIER_SPRITE_PATHS = Object.freeze({
     S: './sprites/ui/intro_&_outro/S_tier.png',
@@ -180,7 +186,11 @@
     canvasMetrics: null,
     lastLogic: null,
     loadingFoodId: '',
-    batchResultsPromise: null
+    batchResultsPromise: null,
+    imageExportingSectionId: '',
+    imageExportStatus: '',
+    imageExportStatusTone: '',
+    imageExportStatusTimer: 0
   };
 
   const els = {
@@ -192,6 +202,7 @@
     canvasWrap: document.querySelector('.canvas-wrap'),
     displayCanvas: document.getElementById('displayCanvas'),
     canvasMeta: document.getElementById('canvasMeta'),
+    sectionExportStatus: document.getElementById('sectionExportStatus'),
     foodTypePill: document.getElementById('foodTypePill'),
     activeFoodTypeTitle: document.getElementById('activeFoodTypeTitle'),
     programmerLogic: document.getElementById('programmerLogic'),
@@ -865,6 +876,9 @@
   function renderSections() {
     els.sectionList.innerHTML = '';
     for (const sectionId of DISPLAY_SECTIONS) {
+      const row = document.createElement('div');
+      row.className = 'section-row';
+
       const button = document.createElement('button');
       button.type = 'button';
       button.className = `section-button${sectionId === state.selectedSectionId ? ' active' : ''}`;
@@ -875,8 +889,23 @@
         renderSections();
         await renderAll();
       });
-      els.sectionList.appendChild(button);
+
+      const downloadButton = document.createElement('button');
+      downloadButton.type = 'button';
+      downloadButton.className = 'section-download-button';
+      downloadButton.textContent = state.imageExportingSectionId === sectionId ? '...' : 'PNG';
+      downloadButton.title = `Download ${SECTION_LABELS[sectionId] || sectionId} still as PNG`;
+      downloadButton.setAttribute('aria-label', downloadButton.title);
+      downloadButton.disabled = Boolean(state.imageExportingSectionId);
+      downloadButton.addEventListener('click', event => {
+        event.stopPropagation();
+        void downloadSectionStill(sectionId);
+      });
+
+      row.append(button, downloadButton);
+      els.sectionList.appendChild(row);
     }
+    renderImageExportStatus();
   }
 
   function isTextLayer(layer) {
@@ -2132,6 +2161,373 @@
     els.displayCanvas.appendChild(phoneBg);
   }
 
+  function renderImageExportStatus() {
+    if (!els.sectionExportStatus) return;
+    els.sectionExportStatus.textContent = state.imageExportStatus || '';
+    els.sectionExportStatus.classList.toggle('warn', state.imageExportStatusTone === 'warn');
+    els.sectionExportStatus.classList.toggle('ok', state.imageExportStatusTone === 'ok');
+  }
+
+  function setImageExportStatus(message, tone = '', autoClear = false) {
+    state.imageExportStatus = message || '';
+    state.imageExportStatusTone = tone || '';
+    if (state.imageExportStatusTimer) {
+      window.clearTimeout(state.imageExportStatusTimer);
+      state.imageExportStatusTimer = 0;
+    }
+    if (autoClear && message) {
+      state.imageExportStatusTimer = window.setTimeout(() => {
+        state.imageExportStatus = '';
+        state.imageExportStatusTone = '';
+        state.imageExportStatusTimer = 0;
+        renderImageExportStatus();
+      }, SECTION_STILL_EXPORT_STATUS_CLEAR_MS);
+    }
+    renderImageExportStatus();
+  }
+
+  function exportBoundsForLayout(layout) {
+    const bounds = displayBuilderVisibleGridBounds(layout);
+    const gridWidth = Math.max(1, (Number(bounds.right) || 0) - (Number(bounds.left) || 0));
+    const gridHeight = Math.max(1, (Number(bounds.bottom) || 0) - (Number(bounds.top) || 0));
+    const outputWidth = SECTION_STILL_EXPORT_OUTPUT_WIDTH;
+    const outputHeight = Math.round(outputWidth * (gridHeight / gridWidth));
+    return {
+      ...bounds,
+      gridWidth,
+      gridHeight,
+      outputWidth,
+      outputHeight,
+      scale: outputWidth / gridWidth
+    };
+  }
+
+  function exportLayerRect(layer, exportBounds) {
+    const width = Number(layer.width || layer.naturalWidth || 1);
+    const height = Number(layer.height || layer.naturalHeight || 1);
+    return {
+      x: ((Number(layer.x) || 0) - exportBounds.left) * exportBounds.scale,
+      y: ((Number(layer.y) || 0) - exportBounds.top) * exportBounds.scale,
+      width: Math.max(1, width * exportBounds.scale),
+      height: Math.max(1, height * exportBounds.scale)
+    };
+  }
+
+  function exportTextLayerRect(layer, exportBounds) {
+    const x = Number(layer.x) || 0;
+    const y = Number(layer.y) || 0;
+    const width = Number(layer.width) || Math.max(1, exportBounds.right - x);
+    const height = Number(layer.textBoxHeight || layer.height || defaultTextLayerHeight(layer));
+    return {
+      x: (x - exportBounds.left) * exportBounds.scale,
+      y: (y - exportBounds.top) * exportBounds.scale,
+      width: Math.max(1, width * exportBounds.scale),
+      height: Math.max(1, height * exportBounds.scale)
+    };
+  }
+
+  function drawExportBackdrop(ctx, food, exportBounds) {
+    const { outputWidth, outputHeight, scale } = exportBounds;
+    const palette = LOGIC.backdropPalette(food);
+    const base = ctx.createLinearGradient(0, 0, 0, outputHeight);
+    base.addColorStop(0, palette.top);
+    base.addColorStop(1, palette.bottom);
+    ctx.fillStyle = base;
+    ctx.fillRect(0, 0, outputWidth, outputHeight);
+
+    drawExportRadialGlow(ctx, outputWidth * 0.18, outputHeight * 0.12, Math.max(outputWidth, outputHeight) * 0.24, palette.glowA);
+    drawExportRadialGlow(ctx, outputWidth * 0.82, outputHeight * 0.16, Math.max(outputWidth, outputHeight) * 0.28, palette.glowB);
+
+    ctx.save();
+    ctx.strokeStyle = 'rgba(0,0,0,.08)';
+    ctx.lineWidth = Math.max(1, scale);
+    ctx.strokeRect(ctx.lineWidth / 2, ctx.lineWidth / 2, outputWidth - ctx.lineWidth, outputHeight - ctx.lineWidth);
+    ctx.restore();
+  }
+
+  function drawExportRadialGlow(ctx, x, y, radius, color) {
+    const glow = ctx.createRadialGradient(x, y, 0, x, y, radius);
+    glow.addColorStop(0, color);
+    glow.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  }
+
+  function isGifSpriteSrc(src) {
+    return /\.gif(?:[?#]|$)/i.test(String(src || ''));
+  }
+
+  function wait(ms) {
+    return new Promise(resolve => window.setTimeout(resolve, ms));
+  }
+
+  async function waitForGifFrames(src, timeoutMs = SECTION_STILL_EXPORT_GIF_TIMEOUT_MS) {
+    const frames = requestMacroBarGifFrames(src);
+    const startedAt = performance.now();
+    while (performance.now() - startedAt < timeoutMs) {
+      if (frames.status === 'error') throw frames.error || new Error(`GIF failed to load: ${src}`);
+      const imagesReady = frames.status === 'ready'
+        && frames.images?.length
+        && frames.images.every(image => image.complete && image.naturalWidth > 0);
+      if (imagesReady) {
+        await Promise.all(frames.images.map(image => image.decode ? image.decode().catch(() => {}) : Promise.resolve()));
+        return frames;
+      }
+      await wait(40);
+    }
+    throw new Error(`GIF frames did not finish loading: ${src}`);
+  }
+
+  function drawImageWithLayerTransform(ctx, image, layer, rect, exportBounds, sectionId) {
+    ctx.save();
+    ctx.imageSmoothingEnabled = false;
+    if (sectionId === 'intro' && !INTRO_FOCUS_CLEAR_LAYER_IDS.has(String(layer?.id || ''))) {
+      ctx.filter = `blur(${INTRO_FOCUS_BLUR_PX * exportBounds.scale}px)`;
+    }
+
+    const rotation = Number(layer.rotation ?? layer.rotate ?? 0);
+    if (Number.isFinite(rotation) && rotation) {
+      ctx.translate(rect.x + (rect.width / 2), rect.y + (rect.height / 2));
+      ctx.rotate(rotation * Math.PI / 180);
+      ctx.drawImage(image, -rect.width / 2, -rect.height / 2, rect.width, rect.height);
+    } else {
+      ctx.drawImage(image, rect.x, rect.y, rect.width, rect.height);
+    }
+    ctx.restore();
+  }
+
+  function exportImageUrl(src) {
+    return new URL(src, window.location.href).href;
+  }
+
+  function loadExportImage(src) {
+    const url = exportImageUrl(src);
+    const cached = SECTION_STILL_EXPORT_IMAGE_CACHE.get(url);
+    if (cached) return cached;
+    const promise = new Promise((resolve, reject) => {
+      const image = new Image();
+      image.decoding = 'sync';
+      image.onload = () => resolve(image);
+      image.onerror = () => reject(new Error(`Image failed to load: ${src}`));
+      image.src = url;
+    });
+    SECTION_STILL_EXPORT_IMAGE_CACHE.set(url, promise);
+    return promise;
+  }
+
+  async function loadExportSpriteImage(src, fallbackSrc = '') {
+    try {
+      return await loadExportImage(src);
+    } catch (error) {
+      if (!fallbackSrc) throw error;
+      return loadExportImage(fallbackSrc);
+    }
+  }
+
+  async function drawGifSpriteFinalFrame(ctx, src, layer, rect, exportBounds, sectionId) {
+    const frames = await waitForGifFrames(src);
+    const frameCanvas = document.createElement('canvas');
+    frameCanvas.width = frames.width || Number(layer.width) || 1;
+    frameCanvas.height = frames.height || Number(layer.height) || 1;
+    const frameCtx = frameCanvas.getContext('2d');
+    frameCtx.imageSmoothingEnabled = false;
+    for (const image of frames.images || []) {
+      if (image.complete) frameCtx.drawImage(image, 0, 0);
+    }
+    drawImageWithLayerTransform(ctx, frameCanvas, layer, rect, exportBounds, sectionId);
+  }
+
+  async function drawMacroBarFillFinalFrame(ctx, src, layer, rect, exportBounds, sectionId) {
+    await waitForGifFrames(src);
+    const frameCanvas = document.createElement('canvas');
+    frameCanvas.dataset.spriteSrc = src;
+    const targetRatio = clamp(asNumber(layer?.fillRatio, 0), 0, 1);
+    const finalSeconds = macroBarAnimationEndSeconds(targetRatio);
+    drawMacroBarFillCanvas(frameCanvas, layer, finalSeconds);
+    drawImageWithLayerTransform(ctx, frameCanvas, layer, rect, exportBounds, sectionId);
+  }
+
+  async function drawSpriteLayerToExport(ctx, layout, food, sectionId, layer, exportBounds) {
+    const src = renderedSpriteSrcForSection(layout, sectionId, layer, food);
+    if (!src) return;
+    const fallbackSrc = LOGIC.canonicalSpritePath(layer.fallbackSrc || '');
+    const rect = exportLayerRect(layer, exportBounds);
+    try {
+      if (isMacroFillLayer(layer)) {
+        await drawMacroBarFillFinalFrame(ctx, src, layer, rect, exportBounds, sectionId);
+      } else if (isGifSpriteSrc(src)) {
+        await drawGifSpriteFinalFrame(ctx, src, layer, rect, exportBounds, sectionId);
+      } else {
+        const image = await loadExportSpriteImage(src, fallbackSrc);
+        drawImageWithLayerTransform(ctx, image, layer, rect, exportBounds, sectionId);
+      }
+    } catch (error) {
+      recordSpriteFailure(src, fallbackSrc, layer.label || layer.id || 'Section export sprite');
+      if (fallbackSrc && fallbackSrc !== src && !isGifSpriteSrc(fallbackSrc)) {
+        const image = await loadExportImage(fallbackSrc);
+        drawImageWithLayerTransform(ctx, image, layer, rect, exportBounds, sectionId);
+      } else {
+        throw error;
+      }
+    }
+  }
+
+  function textLayerLinesForExport(ctx, layer, maxWidth) {
+    const text = safeDisplayText(layer.text || '');
+    if (!isContextItemTextLayer(layer)) return text.split(/\r\n|\r|\n/);
+
+    const lines = [];
+    for (const paragraph of text.split(/\r\n|\r|\n/)) {
+      const words = paragraph.split(/\s+/).filter(Boolean);
+      if (!words.length) {
+        lines.push('');
+        continue;
+      }
+      let line = '';
+      for (const word of words) {
+        const candidate = line ? `${line} ${word}` : word;
+        if (line && ctx.measureText(candidate).width > maxWidth) {
+          lines.push(line);
+          line = word;
+        } else {
+          line = candidate;
+        }
+      }
+      if (line) lines.push(line);
+    }
+    return lines;
+  }
+
+  function drawTextLayerToExport(ctx, layer, sectionId, exportBounds) {
+    const rect = exportTextLayerRect(layer, exportBounds);
+    const fontSize = textLayerFontSize(layer) * exportBounds.scale;
+    const bleed = TEXT_LAYER_CLIP_BLEED * exportBounds.scale;
+    const align = String(layer.align || layer.textAlign || 'left').toLowerCase();
+    const textAlign = ['left', 'center', 'right'].includes(align) ? align : 'left';
+    const strokeWidth = isMicroBarTextboxLayer(layer)
+      ? (Number(layer.textStrokeWidth) > 0 ? Number(layer.textStrokeWidth) : MICRO_BAR_TEXTBOX_STROKE_WIDTH)
+      : 1.3;
+
+    ctx.save();
+    ctx.rect(rect.x - bleed, rect.y - bleed, rect.width + (bleed * 2), rect.height + (bleed * 2));
+    ctx.clip();
+    if (sectionId === 'intro' && !INTRO_FOCUS_CLEAR_LAYER_IDS.has(String(layer?.id || ''))) {
+      ctx.filter = `blur(${INTRO_FOCUS_BLUR_PX * exportBounds.scale}px)`;
+    }
+    ctx.font = `700 ${fontSize}px "Tiny5", monospace`;
+    ctx.textBaseline = 'top';
+    ctx.textAlign = textAlign;
+    ctx.lineWidth = Math.max(1, strokeWidth * exportBounds.scale);
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = layer.textStrokeColor || '#000';
+    ctx.fillStyle = layer.color || '#fff';
+
+    const textX = textAlign === 'center'
+      ? rect.x + (rect.width / 2)
+      : textAlign === 'right'
+      ? rect.x + rect.width
+      : rect.x;
+    const yOffset = textLayerBaselineOffset(layer) * exportBounds.scale;
+    const lineHeight = fontSize * TEXT_LAYER_LINE_HEIGHT;
+    const lines = textLayerLinesForExport(ctx, layer, Math.max(1, rect.width));
+
+    lines.forEach((line, index) => {
+      const y = rect.y + yOffset + (index * lineHeight);
+      ctx.strokeText(line, textX, y);
+      ctx.fillText(line, textX, y);
+    });
+    ctx.restore();
+  }
+
+  async function drawSectionStillToCanvas(sectionId) {
+    const food = await loadSelectedFood();
+    const layout = state.renderedLayout || resolveLayout(selectedLayoutOption(), food);
+    if (!layout) throw new Error('No DBv2 layout is available to export.');
+
+    const sectionLayers = getSectionLayers(layout, sectionId);
+    if (!sectionLayers.length) throw new Error(`${SECTION_LABELS[sectionId] || sectionId} has no layers to export.`);
+
+    await document.fonts?.ready;
+    const exportBounds = exportBoundsForLayout(layout);
+    const canvas = document.createElement('canvas');
+    canvas.width = exportBounds.outputWidth;
+    canvas.height = exportBounds.outputHeight;
+    const ctx = canvas.getContext('2d', { alpha: false });
+    if (!ctx) throw new Error('PNG export canvas is unavailable.');
+    ctx.imageSmoothingEnabled = false;
+
+    drawExportBackdrop(ctx, food, exportBounds);
+
+    const sorted = sectionLayers
+      .map((layer, originalIndex) => ({ layer, originalIndex }))
+      .filter(item => item.layer.visible !== false)
+      .sort((a, b) => (Number(a.layer.z) || 0) - (Number(b.layer.z) || 0) || a.originalIndex - b.originalIndex);
+
+    for (const { layer } of sorted) {
+      if (layer.kind === 'sprite') {
+        await drawSpriteLayerToExport(ctx, layout, food, sectionId, layer, exportBounds);
+      } else if (layer.kind === 'text') {
+        drawTextLayerToExport(ctx, layer, sectionId, exportBounds);
+      }
+    }
+
+    return canvas;
+  }
+
+  function canvasToBlob(canvas, mimeType) {
+    return new Promise((resolve, reject) => {
+      canvas.toBlob(blob => {
+        if (blob) resolve(blob);
+        else reject(new Error('PNG export failed.'));
+      }, mimeType);
+    });
+  }
+
+  function slugForFilename(value) {
+    return String(value || '')
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      || 'food';
+  }
+
+  function sectionStillFilename(food, sectionId) {
+    const foodSlug = slugForFilename(food?.id || food?.name || 'food');
+    const sectionSlug = slugForFilename(sectionId);
+    return `${foodSlug}-${sectionSlug}-dbv2.${SECTION_STILL_EXPORT_EXTENSION}`;
+  }
+
+  function downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  async function downloadSectionStill(sectionId) {
+    if (state.imageExportingSectionId) return;
+    state.imageExportingSectionId = sectionId;
+    renderSections();
+    setImageExportStatus(`Preparing ${SECTION_LABELS[sectionId] || sectionId} PNG...`);
+    try {
+      const canvas = await drawSectionStillToCanvas(sectionId);
+      const blob = await canvasToBlob(canvas, SECTION_STILL_EXPORT_MIME);
+      downloadBlob(blob, sectionStillFilename(state.fullFood, sectionId));
+      setImageExportStatus(`${SECTION_LABELS[sectionId] || sectionId} PNG download started.`, 'ok', true);
+    } catch (error) {
+      console.error(error);
+      setImageExportStatus(error?.message || 'PNG export failed.', 'warn');
+    } finally {
+      state.imageExportingSectionId = '';
+      renderSections();
+    }
+  }
+
   function renderSpriteNode(node, layer, food) {
     const width = Number(layer.width || layer.naturalWidth || 1);
     const height = Number(layer.height || layer.naturalHeight || 1);
@@ -2418,11 +2814,15 @@
     return out;
   }
 
-  function renderedSpriteSrc(layer, food) {
+  function renderedSpriteSrcForSection(layout, sectionId, layer, food) {
     if (isSectionIndicatorLayer(layer)) {
-      return sectionIndicatorSrcForLayer(state.renderedLayout, state.selectedSectionId, layer, food);
+      return sectionIndicatorSrcForLayer(layout, sectionId, layer, food);
     }
     return LOGIC.canonicalSpritePath(layer.src || layer.fallbackSrc || '');
+  }
+
+  function renderedSpriteSrc(layer, food) {
+    return renderedSpriteSrcForSection(state.renderedLayout, state.selectedSectionId, layer, food);
   }
 
   function renderTextNode(node, layer) {
@@ -2726,6 +3126,13 @@
     state,
     refreshLayoutOptions,
     renderAll,
+    downloadSectionStill,
+    drawSectionStillToCanvas,
+    sectionStillExport: {
+      mimeType: SECTION_STILL_EXPORT_MIME,
+      extension: SECTION_STILL_EXPORT_EXTENSION,
+      outputWidth: SECTION_STILL_EXPORT_OUTPUT_WIDTH
+    },
     storageKeys: {
       read: [LAYOUT_BUILDER_WORKING_KEY, LAYOUT_BUILDER_SAVED_KEY, LAYOUT_BUILDER_FOOD_LAYOUTS_KEY],
       write: [TEST_STATE_KEY, PLACEMENT_EXPORT_KEY]

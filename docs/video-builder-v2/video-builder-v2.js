@@ -45,15 +45,14 @@
   const DOWNLOAD_RECORDING_FORMATS = Object.freeze([
     { mimeType: 'video/mp4;codecs=avc1.42E01E,mp4a.40.2', extension: 'mp4', label: 'MP4' },
     { mimeType: 'video/mp4;codecs=h264,aac', extension: 'mp4', label: 'MP4' },
-    { mimeType: 'video/mp4', extension: 'mp4', label: 'MP4' },
-    { mimeType: 'video/webm;codecs=vp9,opus', extension: 'webm', label: 'WebM' },
-    { mimeType: 'video/webm;codecs=vp8,opus', extension: 'webm', label: 'WebM' },
-    { mimeType: 'video/webm', extension: 'webm', label: 'WebM' }
+    { mimeType: 'video/mp4', extension: 'mp4', label: 'MP4' }
   ]);
   const DOWNLOAD_RECORDING_VIDEO_BITS_PER_SECOND = 8_000_000;
   const DOWNLOAD_RECORDING_AUDIO_BITS_PER_SECOND = 192_000;
   const DOWNLOAD_RECORDING_STOP_PAD_SECONDS = 0.7;
   const DOWNLOAD_RECORDING_STATUS_RESET_MS = 2400;
+  const DOWNLOAD_RECORDING_ASSET_TIMEOUT_MS = 10_000;
+  const DOWNLOAD_RECORDING_ASSET_POLL_MS = 100;
   const DOWNLOAD_RECORDING_FRAME_RATE = 30;
   const DOWNLOAD_RECORDING_OUTPUT_WIDTH = 1080;
   const DOWNLOAD_RECORDING_OUTPUT_HEIGHT = 1920;
@@ -637,6 +636,7 @@
     downloadAudioContext: null,
     downloadMediaElementSources: new WeakMap(),
     downloadMediaElementOutputConnected: new WeakSet(),
+    downloadSpriteFallbacks: new Map(),
     playbackSfxEvents: null
   };
 
@@ -1071,6 +1071,11 @@
     if (path.startsWith('app/')) return `../${path}`;
     if (path.startsWith('../app/')) return path;
     return path;
+  }
+
+  function resolvedSpritePath(layer) {
+    const primary = spritePath(layer?.src || '');
+    return state.downloadSpriteFallbacks?.get(primary) || primary;
   }
 
   function canonicalSpritePath(src) {
@@ -3897,17 +3902,19 @@
         return;
       }
       if (layer.kind === 'sprite') {
-        const nextSpriteSrc = spritePath(layer.src);
+        const primarySpriteSrc = spritePath(layer.src);
+        const nextSpriteSrc = resolvedSpritePath(layer);
         if (node.dataset.spriteSrc !== nextSpriteSrc) {
           node.dataset.spriteSrc = nextSpriteSrc;
           node.src = nextSpriteSrc;
         }
         node.alt = layer.label || '';
         node.onerror = () => {
-          const failedSrc = node.currentSrc || node.src || spritePath(layer.src);
+          const failedSrc = node.currentSrc || node.src || primarySpriteSrc;
           if (layer.fallbackSrc && node.src !== new URL(spritePath(layer.fallbackSrc), window.location.href).href) {
             const fallbackSrc = spritePath(layer.fallbackSrc);
             recordSpriteFailure(failedSrc, fallbackSrc, layer.label || '');
+            if (state.downloadRecording) state.downloadSpriteFallbacks.set(primarySpriteSrc, fallbackSrc);
             node.dataset.spriteSrc = fallbackSrc;
             node.src = fallbackSrc;
             return;
@@ -8133,7 +8140,7 @@
 
   function downloadRecordingSupported() {
     const testCanvas = document.createElement('canvas');
-    return Boolean(window.MediaRecorder && testCanvas.captureStream);
+    return Boolean(window.MediaRecorder && testCanvas.captureStream && preferredRecordingFormat());
   }
 
   function preferredRecordingFormat() {
@@ -8156,7 +8163,7 @@
 
   function videoDownloadFileName(food = selectedFood(), format = null) {
     const name = safeDownloadName(food?.id || food?.name || 'foodranked-video');
-    const extension = format?.extension || 'webm';
+    const extension = format?.extension || 'mp4';
     return `${name}-vbv2.${extension}`;
   }
 
@@ -8184,12 +8191,10 @@
     const format = supported ? preferredRecordingFormat() : null;
     const recording = state.downloadRecording;
     els.downloadVideo.disabled = recording || !supported || !format;
-    els.downloadVideo.textContent = recording ? 'Recording...' : `Download ${format?.label || 'Video'}`;
+    els.downloadVideo.textContent = recording ? 'Exporting...' : 'Download MP4';
     const fallbackStatus = supported && format
-      ? `${format.label} download ready`
-      : supported
-        ? 'Download needs MP4/WebM encoder support'
-        : 'Download needs browser canvas recording support';
+      ? 'MP4 export ready'
+      : 'MP4 export needs browser MP4 encoder support';
     els.downloadStatus.textContent = state.downloadStatus || fallbackStatus;
     els.downloadStatus.classList.toggle('warn', state.downloadStatusTone === 'warn' || !supported || !format);
     els.downloadStatus.classList.toggle('ok', state.downloadStatusTone === 'ok');
@@ -8380,17 +8385,168 @@
     ctx.restore();
   }
 
-  async function waitForRecordingStageImages() {
-    const images = Array.from(els.videoStage.querySelectorAll('img'));
-    const pending = images.map(img => {
-      if (img.complete && img.naturalWidth) return null;
-      return img.decode?.().catch(() => {}) || Promise.resolve();
-    }).filter(Boolean);
-    if (!pending.length) return;
+  function waitForDownloadDelay(ms) {
+    return new Promise(resolve => window.setTimeout(resolve, ms));
+  }
+
+  function downloadAssetKey(src) {
+    return String(src || '').split('#')[0];
+  }
+
+  function addDownloadSpriteAsset(entries, src, fallbackSrc = '', label = '') {
+    const primary = spritePath(src || '');
+    if (!primary || /^data:/i.test(primary)) return;
+    const fallback = spritePath(fallbackSrc || '');
+    const key = downloadAssetKey(primary);
+    if (!entries.has(key)) {
+      entries.set(key, {
+        src: primary,
+        fallbackSrc: fallback && fallback !== primary ? fallback : '',
+        label
+      });
+      return;
+    }
+    const existing = entries.get(key);
+    if (!existing.fallbackSrc && fallback && fallback !== primary) existing.fallbackSrc = fallback;
+    if (!existing.label && label) existing.label = label;
+  }
+
+  function downloadSpriteAssetEntries(food = selectedFood()) {
+    const entries = new Map();
+    const scenes = sceneStarts();
+    scenes.forEach(scene => {
+      [
+        ...sceneContentLayers(scene.id),
+        ...persistentChromeLayers(scene.id, food)
+      ].forEach(layer => {
+        if (layer.visible === false) return;
+        if (!isSpriteLayer(layer)) return;
+        addDownloadSpriteAsset(entries, layer.src, layer.fallbackSrc, layer.label || layer.id || scene.id);
+      });
+    });
+    Object.values(OUTRO_TIER_SPRITE_PATHS).forEach(src => addDownloadSpriteAsset(entries, src, '', 'Tier stamp'));
+    [INTRO_RANKED_SPRITE_PATH, OUTRO_LIKE_SPRITE_PATH, OUTRO_FOLLOW_SPRITE_PATH, OUTRO_SHARE_SPRITE_PATH].forEach(src => {
+      addDownloadSpriteAsset(entries, src, '', 'Video UI stamp');
+    });
+    return [...entries.values()];
+  }
+
+  function preloadDownloadImage(src) {
+    return new Promise(resolve => {
+      const image = new Image();
+      image.decoding = 'sync';
+      image.onload = () => resolve({ ok: true, src });
+      image.onerror = () => resolve({ ok: false, src });
+      image.src = src;
+      if (image.complete) resolve({ ok: image.naturalWidth > 0, src });
+    });
+  }
+
+  async function preloadDownloadSpriteAsset(entry) {
+    const primary = await preloadDownloadImage(entry.src);
+    if (primary.ok) return { ...primary, label: entry.label };
+    if (!entry.fallbackSrc) return { ...primary, label: entry.label };
+
+    const fallback = await preloadDownloadImage(entry.fallbackSrc);
+    if (fallback.ok) {
+      state.downloadSpriteFallbacks.set(entry.src, entry.fallbackSrc);
+      recordSpriteFailure(entry.src, entry.fallbackSrc, entry.label || '');
+      return { ok: true, src: entry.fallbackSrc, fallbackFor: entry.src, label: entry.label };
+    }
+    return { ok: false, src: entry.src, fallbackSrc: entry.fallbackSrc, label: entry.label };
+  }
+
+  function macroBarFrameImagesReady(entry) {
+    return entry?.status === 'ready'
+      && Array.isArray(entry.images)
+      && entry.images.length
+      && entry.images.every(image => image?.complete && image.naturalWidth > 0);
+  }
+
+  async function waitForMacroBarFrames(src, timeoutMs = DOWNLOAD_RECORDING_ASSET_TIMEOUT_MS) {
+    const startedAt = performance.now();
+    requestMacroBarGifFrames(src);
+    while (performance.now() - startedAt < timeoutMs) {
+      const entry = MACRO_BAR_GIF_FRAME_CACHE.get(src);
+      if (macroBarFrameImagesReady(entry)) return { ok: true, src };
+      if (entry?.status === 'error') return { ok: false, src, error: entry.error };
+      await waitForDownloadDelay(DOWNLOAD_RECORDING_ASSET_POLL_MS);
+    }
+    return { ok: false, src, timeout: true };
+  }
+
+  async function preloadDownloadMacroBarAssets(food = selectedFood()) {
+    const entries = new Map();
+    sceneStarts().forEach(scene => {
+      [
+        ...sceneContentLayers(scene.id),
+        ...persistentChromeLayers(scene.id, food)
+      ].forEach(layer => {
+        if (layer.visible === false) return;
+        if (isMacroBarFill(layer)) entries.set(downloadAssetKey(spritePath(layer.src)), spritePath(layer.src));
+      });
+    });
+    const results = await Promise.all([...entries.values()].map(src => waitForMacroBarFrames(src)));
+    return results.filter(result => !result.ok);
+  }
+
+  function stageImageReady(img) {
+    return Boolean(img?.complete && img.naturalWidth > 0);
+  }
+
+  async function waitForStageImage(img) {
+    if (stageImageReady(img)) return true;
+    const waitForEvent = new Promise(resolve => {
+      img.addEventListener('load', () => resolve(true), { once: true });
+      img.addEventListener('error', () => resolve(false), { once: true });
+    });
+    const decode = img.decode?.().then(() => true).catch(() => false);
     await Promise.race([
-      Promise.all(pending),
-      new Promise(resolve => window.setTimeout(resolve, 1200))
+      decode || waitForEvent,
+      waitForEvent,
+      waitForDownloadDelay(1200)
     ]);
+    return stageImageReady(img);
+  }
+
+  async function waitForRecordingStageImages(timeoutMs = DOWNLOAD_RECORDING_ASSET_TIMEOUT_MS) {
+    const startedAt = performance.now();
+    let broken = [];
+    while (performance.now() - startedAt < timeoutMs) {
+      const images = Array.from(els.videoStage.querySelectorAll('img'));
+      await Promise.all(images.map(waitForStageImage));
+      broken = images
+        .filter(img => !stageImageReady(img))
+        .map(img => spriteReportUrl(img.currentSrc || img.src));
+      if (!broken.length) return [];
+      await waitForDownloadDelay(DOWNLOAD_RECORDING_ASSET_POLL_MS);
+    }
+    return broken.filter(Boolean);
+  }
+
+  async function waitForDownloadStageReady() {
+    if (document.fonts?.ready) {
+      await Promise.race([
+        document.fonts.ready.catch(() => {}),
+        waitForDownloadDelay(1200)
+      ]);
+    }
+
+    const entries = downloadSpriteAssetEntries(selectedFood());
+    const preloadResults = await Promise.all(entries.map(preloadDownloadSpriteAsset));
+    const failedSprites = preloadResults.filter(result => !result.ok);
+    const failedMacroBars = await preloadDownloadMacroBarAssets(selectedFood());
+    renderDynamic({ fullUi: true });
+    await new Promise(resolve => requestAnimationFrame(resolve));
+    const brokenStageImages = await waitForRecordingStageImages();
+    const failures = [
+      ...failedSprites.map(result => result.label ? `${result.label}: ${spriteReportUrl(result.src)}` : spriteReportUrl(result.src)),
+      ...failedMacroBars.map(result => `Macro bar: ${spriteReportUrl(result.src)}`),
+      ...brokenStageImages.map(src => `Stage image: ${src}`)
+    ].filter(Boolean);
+    if (failures.length) {
+      throw new Error(`Sprites not ready: ${failures.slice(0, 3).join(', ')}`);
+    }
   }
 
   async function drawStageToRecordingCanvas(canvas, ctx) {
@@ -8544,15 +8700,18 @@
     canvas.width = DOWNLOAD_RECORDING_OUTPUT_WIDTH;
     canvas.height = DOWNLOAD_RECORDING_OUTPUT_HEIGHT;
     const ctx = canvas.getContext('2d', { alpha: false });
-    if (!ctx || !canvas.captureStream) throw new Error('Canvas recording is unavailable');
+    if (!ctx || !canvas.captureStream) throw new Error('Canvas MP4 export is unavailable');
     if (document.fonts?.ready) {
       await Promise.race([
         document.fonts.ready.catch(() => {}),
-        new Promise(resolve => window.setTimeout(resolve, 1200))
+        waitForDownloadDelay(1200)
       ]);
     }
     await new Promise(resolve => requestAnimationFrame(resolve));
-    await waitForRecordingStageImages();
+    const brokenStageImages = await waitForRecordingStageImages();
+    if (brokenStageImages.length) {
+      throw new Error(`Sprites not ready: ${brokenStageImages.slice(0, 3).join(', ')}`);
+    }
     await drawStageToRecordingCanvas(canvas, ctx);
     const stream = canvas.captureStream(DOWNLOAD_RECORDING_FRAME_RATE);
     primeStampSfx();
@@ -8573,12 +8732,18 @@
     };
   }
 
-  function startDownloadPlaybackFromZero() {
+  async function prepareDownloadPlaybackFromZero() {
     state.currentTime = 0;
     state.selectedSceneId = 'intro';
     state.audioEnabled = true;
     stopPlayback();
+    syncAudioTime({ force: true });
     renderDynamic({ fullUi: true });
+    await waitForDownloadStageReady();
+    syncAudioTime({ force: true });
+  }
+
+  function startDownloadPlaybackFromZero() {
     startPlayback();
   }
 
@@ -8594,19 +8759,19 @@
   async function downloadVideoRecording() {
     if (state.downloadRecording) return;
     if (!downloadRecordingSupported()) {
-      setDownloadStatus('This browser cannot record the VBv2 canvas directly.', 'warn');
+      setDownloadStatus('This browser cannot export MP4 from the VBv2 canvas.', 'warn');
       return;
     }
 
     const format = preferredRecordingFormat();
     if (!format) {
-      setDownloadStatus('This browser has MediaRecorder but no MP4/WebM encoder.', 'warn');
+      setDownloadStatus('This browser has MediaRecorder but no MP4 encoder.', 'warn');
       return;
     }
 
     const duration = totalDuration();
     if (!Number.isFinite(duration) || duration <= 0) {
-      setDownloadStatus('No video duration to record yet.', 'warn');
+      setDownloadStatus('No video duration to export yet.', 'warn');
       return;
     }
 
@@ -8622,10 +8787,11 @@
     const chunks = [];
 
     state.downloadRecording = true;
-    renderDynamic({ fullUi: true });
-    setDownloadStatus(`Preparing ${format.label} canvas recording...`, 'warn');
+    state.downloadSpriteFallbacks = new Map();
+    setDownloadStatus('Preparing MP4 export...', 'warn');
 
     try {
+      await prepareDownloadPlaybackFromZero();
       streamHandle = await createDownloadRecordingStream();
       stream = streamHandle.stream;
 
@@ -8649,7 +8815,7 @@
 
       recorder.start(1000);
       startDownloadPlaybackFromZero();
-      setDownloadStatus(`Recording ${format.label} canvas...`, 'warn');
+      setDownloadStatus('Encoding MP4...', 'warn');
       timeoutId = window.setTimeout(() => {
         stopRecorderSafely(recorder);
       }, Math.ceil((duration + DOWNLOAD_RECORDING_STOP_PAD_SECONDS) * 1000));
@@ -8657,24 +8823,25 @@
       await finished;
 
       if (!chunks.length) {
-        setDownloadStatus('Recording ended with no downloadable data.', 'warn');
+        setDownloadStatus('MP4 export ended with no downloadable data.', 'warn');
         return;
       }
 
       const blob = new Blob(chunks, { type: format.mimeType });
       downloadBlob(blob, videoDownloadFileName(selectedFood(), format));
-      setDownloadStatus(`${format.label} download started`, 'ok');
+      setDownloadStatus('MP4 download started', 'ok');
     } catch (error) {
       if (error?.name === 'NotAllowedError' || error?.name === 'AbortError') {
-        setDownloadStatus('Download cancelled before recording started.', 'warn');
+        setDownloadStatus('MP4 export cancelled before it started.', 'warn');
       } else {
-        setDownloadStatus(`Download failed: ${error?.message || 'recording error'}`, 'warn');
+        setDownloadStatus(`MP4 export failed: ${error?.message || 'export error'}`, 'warn');
       }
     } finally {
       if (timeoutId) window.clearTimeout(timeoutId);
       streamHandle?.stop?.();
       stopMediaStream(stream);
       restoreAfterDownloadRecording(snapshot);
+      state.downloadSpriteFallbacks = new Map();
       state.downloadRecording = false;
       updateDownloadControls();
     }

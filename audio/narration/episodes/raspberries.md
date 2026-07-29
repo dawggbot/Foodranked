@@ -6,10 +6,8 @@ Food id: `raspberries`
 
 - Mode: `split-blocks`
 - Take: `voice-v3`
-- Duration: `116.8s`
 - Blocks: `11`
 - Manifest: [docs/audio/episodes/raspberries/voice-v3-blocks.json](../../../docs/audio/episodes/raspberries/voice-v3-blocks.json)
-- Alignment: [outputs/episodes/raspberries-compact/voice-v3-blocks-forced-alignment.json](../../../outputs/episodes/raspberries-compact/voice-v3-blocks-forced-alignment.json)
 
 ## Takes
 

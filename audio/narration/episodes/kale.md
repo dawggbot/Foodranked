@@ -6,10 +6,8 @@ Food id: `kale`
 
 - Mode: `split-blocks`
 - Take: `voice-v6`
-- Duration: `157.6s`
 - Blocks: `11`
 - Manifest: [docs/audio/episodes/kale/voice-v6-blocks.json](../../../docs/audio/episodes/kale/voice-v6-blocks.json)
-- Alignment: [outputs/episodes/kale-compact/voice-v6-blocks-forced-alignment.json](../../../outputs/episodes/kale-compact/voice-v6-blocks-forced-alignment.json)
 
 ## Takes
 

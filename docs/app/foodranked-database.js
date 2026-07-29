@@ -314,6 +314,47 @@
     };
   }
 
+  function resolveProfilePathValue(value, db) {
+    if (typeof value === 'string' && cleanPath(value)) {
+      return assetPath(value, value, db);
+    }
+    if (value && typeof value === 'object' && typeof value.path === 'string' && cleanPath(value.path)) {
+      return {
+        ...value,
+        path: assetPath(value.path, value.path, db)
+      };
+    }
+    return value;
+  }
+
+  function resolveProfilePaths(profile, roles, db) {
+    if (!profile || typeof profile !== 'object' || Array.isArray(profile)) return profile;
+    const resolved = { ...profile };
+    roles.forEach(role => {
+      if (Object.prototype.hasOwnProperty.call(resolved, role)) {
+        resolved[role] = resolveProfilePathValue(resolved[role], db);
+      }
+    });
+    return resolved;
+  }
+
+  function resolveFoodProfileAssetRefs(food, db) {
+    if (!food || typeof food !== 'object') return food;
+    if (food.sfxProfile) {
+      food.sfxProfile = resolveProfilePaths(food.sfxProfile, ['stampImpact', 'sectionTransition', 'highlightGlow'], db);
+    }
+    if (food.musicProfile) {
+      food.musicProfile = resolveProfilePaths(food.musicProfile, ['backgroundMusic'], db);
+    }
+    if (food.episode?.sfxProfile) {
+      food.episode.sfxProfile = resolveProfilePaths(food.episode.sfxProfile, ['stampImpact', 'sectionTransition', 'highlightGlow'], db);
+    }
+    if (food.episode?.musicProfile) {
+      food.episode.musicProfile = resolveProfilePaths(food.episode.musicProfile, ['backgroundMusic'], db);
+    }
+    return food;
+  }
+
   function applyFoodEntry(baseFood, entry, db = read()) {
     if (!entry || entry.deleted) return null;
     const base = deepMerge(baseFood || {}, entry.foodPatch || {});
@@ -387,7 +428,7 @@
     }
 
     merged.episode = episode;
-    return merged;
+    return resolveFoodProfileAssetRefs(merged, db);
   }
 
   function applyToFood(food, db = read()) {

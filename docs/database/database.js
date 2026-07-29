@@ -76,6 +76,31 @@
     assetFilter: ''
   };
 
+  const AUTO_ASSET_SELECTION_MODE = 'auto-stable-v1';
+  const SFX_ROLE_OPTIONS = Object.freeze({
+    stampImpact: Object.freeze([
+      'audio/sfx/stamps/impact_stamp_hit.mp3',
+      'audio/sfx/stamps/traditional_stamp_hit.mp3'
+    ]),
+    sectionTransition: Object.freeze([
+      'audio/sfx/transitions/section_transition_whoosh.mp3',
+      'audio/sfx/transitions/freesound_community_retro_spell_sfx_85574.mp3'
+    ]),
+    highlightGlow: Object.freeze([
+      'audio/sfx/ui/highlight_glow_loop.mp3',
+      'audio/sfx/ui/freesound_community_magical_background_6892.mp3'
+    ])
+  });
+  const MUSIC_ROLE_OPTIONS = Object.freeze({
+    backgroundMusic: Object.freeze([
+      'audio/music/freesound_community_8bit_sample_69080_loop_240s.mp3',
+      'audio/music/hauntsync_retro_chiptune_adventure_318059_loop_240s.mp3',
+      'audio/music/lucadialessandro_arcade_melody_295434_loop_240s.mp3',
+      'audio/music/retro_bgm_chan_low_level_enemy_534609_loop_240s.mp3',
+      'audio/music/retro_bgm_chan_vs_robbot_vs_534622_loop_240s.mp3'
+    ])
+  });
+
   function escapeHtml(value) {
     return String(value ?? '')
       .replace(/&/g, '&amp;')
@@ -131,6 +156,35 @@
     return typeof DB.assetRefForPath === 'function'
       ? DB.assetRefForPath(cleanPath, state.db) || cleanPath
       : cleanPath;
+  }
+
+  function stableHash(value) {
+    let hash = 2166136261;
+    for (const char of String(value || '')) {
+      hash ^= char.charCodeAt(0);
+      hash = Math.imul(hash, 16777619) >>> 0;
+    }
+
+    hash ^= hash >>> 16;
+    hash = Math.imul(hash, 2246822507) >>> 0;
+    hash ^= hash >>> 13;
+    hash = Math.imul(hash, 3266489909) >>> 0;
+    hash ^= hash >>> 16;
+    return hash >>> 0;
+  }
+
+  function stableChoice(options, seed) {
+    const choices = Array.isArray(options) ? options.filter(Boolean) : [];
+    if (!choices.length) return null;
+    return choices[stableHash(seed) % choices.length];
+  }
+
+  function autoSeed(role, id) {
+    return `foodranked:${AUTO_ASSET_SELECTION_MODE}:${role}:${id}`;
+  }
+
+  function autoProfilePath(role, options, id) {
+    return assetRefOrPath(stableChoice(options, autoSeed(role, id)));
   }
 
   function refreshFoods({ keepSelection = true } = {}) {
@@ -255,6 +309,48 @@
 
   function assetRefForEntry(asset) {
     return typeof DB.assetRef === 'function' ? DB.assetRef(asset?.id) : `frdb://asset/${asset?.id || ''}`;
+  }
+
+  function autoFoodImageRef(id) {
+    const assets = typeof DB.assetEntries === 'function' ? DB.assetEntries(state.db) : [];
+    const foodImages = assets.filter(asset => (
+      asset.kind === 'sprite' &&
+      /^app\/sprites\/header\/food_images\/[^/]+\.png$/i.test(asset.path || '')
+    ));
+    const selected = stableChoice(foodImages, autoSeed('foodImage', id));
+    return selected ? assetRefForEntry(selected) : '';
+  }
+
+  function autoFoodImageSize(ref) {
+    const path = typeof DB.assetPath === 'function' ? DB.assetPath(ref, ref, state.db) : ref;
+    if (/\/bacon\.png$/i.test(path)) return { customFoodImageWidth: 30, customFoodImageHeight: 13 };
+    if (/\/kale\.png$/i.test(path)) return { customFoodImageWidth: 30, customFoodImageHeight: 30 };
+    return {};
+  }
+
+  function autoFoodSpecificPatch(id) {
+    return {
+      sfxProfile: {
+        version: 1,
+        selectionMode: AUTO_ASSET_SELECTION_MODE,
+        stampImpact: { path: autoProfilePath('stampImpact', SFX_ROLE_OPTIONS.stampImpact, id) },
+        sectionTransition: { path: autoProfilePath('sectionTransition', SFX_ROLE_OPTIONS.sectionTransition, id) },
+        highlightGlow: { path: autoProfilePath('highlightGlow', SFX_ROLE_OPTIONS.highlightGlow, id) }
+      },
+      musicProfile: {
+        version: 1,
+        selectionMode: AUTO_ASSET_SELECTION_MODE,
+        backgroundMusic: { path: autoProfilePath('backgroundMusic', MUSIC_ROLE_OPTIONS.backgroundMusic, id) }
+      },
+      voiceProfile: {
+        version: 1,
+        selectionMode: AUTO_ASSET_SELECTION_MODE,
+        narration: {
+          mode: 'random_suitable',
+          seed: autoSeed('narration', id)
+        }
+      }
+    };
   }
 
   function renderAssetDatalist() {
@@ -434,6 +530,8 @@
     const id = clean(window.prompt('Food ID'));
     if (!id) return;
     const name = clean(window.prompt('Food name', id.replace(/-/g, ' '))) || id;
+    const starterFoodImage = autoFoodImageRef(id);
+    const starterFoodImageSize = autoFoodImageSize(starterFoodImage);
     const entry = {
       id,
       name,
@@ -442,13 +540,17 @@
       basis: { value: 100, unit: 'g' },
       header: { kcal: 0, fat_g: 0, carb_g: 0, protein_g: 0 },
       metrics: {},
-      finalizedDownloaded: false
+      foodPatch: autoFoodSpecificPatch(id),
+      finalizedDownloaded: false,
+      customFoodImagePath: starterFoodImage,
+      ...starterFoodImageSize,
+      notes: 'Starter food-specific assets were auto-assigned. Replace the food sprite, script, and audio before final production.'
     };
     state.db = DB.upsertFoodEntry(id, entry);
     refreshFoods();
     state.selectedFoodId = id;
     renderAll();
-    status('Food added.');
+    status('Food added with randomized starter assets.');
   }
 
   function deleteSelectedFood() {

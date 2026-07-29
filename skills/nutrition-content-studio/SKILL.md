@@ -1,60 +1,26 @@
 ---
 name: "nutrition-content-studio"
-description: "White Potato approved script voice pattern"
+description: "Add carotenoids to FoodRanked pro/con context guidance"
 ---
 
-# Proposed Update: White Potato Script Voice Pattern
+# Proposed Update: Carotenoids In Pros And Cons
 
-Use this guidance when writing, generating, or reviewing FoodRanked narration scripts.
+Update the FoodRanked `nutrition-content-studio` guidance for script writing and review.
 
-## Approved Exemplar
+## Pros And Cons Context Pool
 
-Treat `outputs/episodes/white-potato-compact/narration.txt` as the current best house-style example unless James later approves a stronger one.
+When choosing pro/con items, keep avoiding direct repeats of macro, submacro, vitamin, and mineral rows already shown on screen. Prefer food-context angles such as processing burden, preparation, tolerance, storage, sourcing, texture, flavour, meal role, culinary role, convenience, anti-nutrients, absorbability, fermentation, and named compounds.
 
-Key qualities to preserve:
+Add carotenoids to the named-compound context pool.
 
-- Keep exact nutrition values and scoring facts precise.
-- Use plain everyday connective language instead of abstract filler.
-- End macro and micro sections with a short food-type reason that explains why the section matters.
-- Keep pros and cons matched to the stored `contextItems` for that food.
-- Pros and cons must be bonus context, practical caveats, meal-role notes, tolerance/prep/storage/processing points, or food-specific angles, not repeats of visible macro, submacro, vitamin, or mineral rows.
-- Each pro/con should read as a short title followed by one short explanation sentence.
-- Closing summary should quickly name strengths, weaknesses, and practical use cases.
-- Final spoken block remains exactly `X tier.`
+## Carotenoid Guidance
 
-## White Potato Pattern
+- Consider carotenoids as a pro/con angle for foods where they are source-backed or clearly food-identity-backed, especially orange, red, yellow, and dark-green plant foods.
+- Useful carotenoid examples include beta-carotene, lutein, zeaxanthin, lycopene, alpha-carotene, and cryptoxanthin.
+- Frame carotenoids as antioxidant, colour-pigment, eye-health, or plant-compound context when defensible.
+- Do not use carotenoids as a generic claim for every colourful food. Only mention them when they add a distinct food-specific angle beyond the visible vitamin/mineral score.
+- If vitamin A or another vitamin section already covers the same point heavily, use carotenoids only when the named-compound angle adds something extra, such as lutein/zeaxanthin for leafy greens or lycopene for tomatoes.
 
-```text
-White Potato!
--
-Ranked!
--
-0.1 grams of fat. Saturated fat is 0 grams, supporting a cleaner fat profile. For tubers, fat is mostly a preparation check, not the main job.
--
-17.5 grams of carbs. Sugar is 0.8 grams, helping keep the sugar load under control. Fibre is 2.2 grams, with only modest fullness and digestion support, so that's a real downside for tubers. For tubers, carb quality decides a lot.
--
-2 grams of protein. Protein barely matters here. For tubers, protein is usually limited, so the other sections have to carry more.
--
-Vitamin C is 22% daily value, useful for collagen formation and antioxidant support. Vitamin A is only 0% daily value, not bringing much vision or immune support. For tubers, vitamins can lift a staple carb.
--
-Potassium is 9% daily value, the best number here but still too low to carry this section. Iron is only 4% daily value, not bringing much oxygen-transport support. For tubers, minerals matter most when potassium shows up strongly.
--
-Positives first: very practical staple food. Cheap, common, and easy to build meals around. Can be fairly filling. Especially when eaten in less processed forms. Flexible meal base. Baked, boiled, or mashed, it pairs easily with stronger foods.
--
-Cons next: needs cooking before it works. It is not a grab-and-go food. Prep method changes it fast. Fries, butter, and heavy toppings can drag it down. Plain flavour often needs help. The simple potato does not always stay simple.
--
-Best bits are carb quality and practical staple food. Weak spots are low iron and low vitamin A. Best for practical meals and energy because it's easy to build meals around and the carb section gives it a clear fuel role.
--
-C tier.
-```
+## Review Checklist Addition
 
-## Review Checklist
-
-Before calling a script final:
-
-1. Confirm the script uses the locked block shape: food name, ranked, 7 body sections, conclusion, final tier.
-2. Confirm every macro/micro section names useful data and ends with category-specific meaning.
-3. Search for awkward filler like `barely matters unless`, `reason to exist`, `main pitch`, `nutrition load`, `low risk is good`, and rewrite it into direct food-specific wording.
-4. Confirm pros and cons match `food.contextItems` titles/explanations and do not repeat section facts.
-5. Confirm the conclusion does not speak the overall display score and ends with a practical use-case line.
-6. Confirm final narration text ends with `X tier.` only.
+Before finalising pros/cons, check whether the food has a strong, defensible named-compound story. For relevant plant foods, ask whether carotenoids would be a better pro than repeating fibre, vitamin A, vitamin C, potassium, or general antioxidant wording.

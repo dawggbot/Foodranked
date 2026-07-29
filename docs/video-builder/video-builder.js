@@ -606,6 +606,15 @@
     return `${formatCompactNumber(safe)}${unit}`;
   }
 
+  function longMgDisplayValue(item) {
+    const key = String(item?.metricKey || '');
+    if (key !== 'omega3_mg' && key !== 'cholesterol_mg') return null;
+    const value = asNumber(item?.value, null);
+    if (value == null) return null;
+    if (String(Math.trunc(Math.abs(value))).length < 5) return null;
+    return `${formatCompactNumber(value / 1000, 2)}g`;
+  }
+
   function macroTotalValue(food, sectionId) {
     const header = food?.header || {};
     if (sectionId === 'fats') return asNumber(header.fat_g, null);
@@ -643,6 +652,8 @@
     if (item.displayValue != null) return String(item.displayValue);
     if (item.value == null) return 'N/A';
     const key = String(item.metricKey || '');
+    const longMgDisplay = longMgDisplayValue(item);
+    if (longMgDisplay) return longMgDisplay;
     if (key === 'protein_g_fallback' || key.endsWith('_g')) return formatMetric(item.value, 'g');
     if (key.endsWith('_mg')) return formatMetric(item.value, 'mg');
     if (key.endsWith('_percent')) return formatMetric(item.value, '%');

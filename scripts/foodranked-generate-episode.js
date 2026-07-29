@@ -19,6 +19,8 @@ const SUBTITLE_MAX_CHARACTERS_PER_LINE = 18;
 const SUMMARY_SUBTITLE_MAX_CHARACTERS_PER_LINE = 24;
 const MAX_VIDEO_DURATION_SECONDS = 180;
 const MAX_VIDEO_DURATION_TOLERANCE_SECONDS = 0.01;
+const LONG_MG_DISPLAY_METRIC_KEYS = new Set(['omega3_mg', 'cholesterol_mg']);
+const LONG_MG_DISPLAY_DIGITS = 5;
 
 const HEADER_CATEGORY_KEYS = {
   vegetables: 'vegetable',
@@ -251,6 +253,12 @@ function metricDisplayValue(item) {
   if (item?.dvPercent != null) return `${item.dvPercent}% DV`;
   if (item?.value == null) return 'N/A';
   const key = String(item.metricKey || '');
+  if (LONG_MG_DISPLAY_METRIC_KEYS.has(key) && Number.isFinite(Number(item.value))) {
+    const value = Number(item.value);
+    if (String(Math.trunc(Math.abs(value))).length >= LONG_MG_DISPLAY_DIGITS) {
+      return `${(value / 1000).toFixed(2).replace(/\.?0+$/g, '')}g`;
+    }
+  }
   if (key.endsWith('_mg')) return `${item.value}mg`;
   if (key.endsWith('_g')) return `${item.value}g`;
   if (key.endsWith('_percent')) return `${item.value}%`;

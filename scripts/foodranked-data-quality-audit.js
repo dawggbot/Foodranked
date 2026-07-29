@@ -30,6 +30,8 @@ const PROTEIN_VISIBLE_ROWS = [
 ];
 const MACRO_DISPLAY_SECTION_KEYS = ['fats', 'carbs', 'proteins'];
 const PROTEIN_HIDDEN_FALLBACK_METRIC_KEY = 'protein_g_fallback';
+const LONG_MG_DISPLAY_METRIC_KEYS = new Set(['omega3_mg', 'cholesterol_mg']);
+const LONG_MG_DISPLAY_DIGITS = 5;
 const EXPECTED_AMINO_ACID_GROUP_COUNTS = {
   essentialGroups: 9,
   nonessentialGroups: 11
@@ -184,6 +186,21 @@ function nutritionSources(food) {
 function finiteNumber(value) {
   const number = Number(value);
   return Number.isFinite(number) ? number : null;
+}
+
+function trimmedDecimal(value, decimals = 2) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return String(value);
+  return number.toFixed(decimals).replace(/\.?0+$/g, '');
+}
+
+function expectedLongMgDisplayValue(item) {
+  if (!LONG_MG_DISPLAY_METRIC_KEYS.has(item?.metricKey)) return null;
+  const value = finiteNumber(item?.value);
+  if (value === null) return null;
+  const integerDigits = String(Math.trunc(Math.abs(value))).length;
+  if (integerDigits < LONG_MG_DISPLAY_DIGITS) return null;
+  return `${trimmedDecimal(value / 1000, 2)}g`;
 }
 
 function hasSpecificAminoAcidProfile(food) {
@@ -748,6 +765,17 @@ function auditMacroSubmacroDisplaySections(script, file, errors, extra = {}) {
           metricKey: item.metricKey || null,
           displayValue: item.displayValue ?? null,
           displaySource: item.displaySource || null
+        });
+      }
+      const expectedDisplayValue = expectedLongMgDisplayValue(item);
+      if (expectedDisplayValue !== null && item.displayValue !== expectedDisplayValue) {
+        issue(errors, file, '5-digit mg display row must be converted to grams', {
+          ...extra,
+          sectionKey,
+          metricKey: item.metricKey,
+          value: item.value,
+          expected: expectedDisplayValue,
+          actual: item.displayValue ?? null
         });
       }
     }

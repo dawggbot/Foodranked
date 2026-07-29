@@ -53,6 +53,8 @@ const PROTEIN_QUALITY_VISIBLE_METRIC_KEYS = new Set([
   'nonessential_amino_acids_score',
   'bioavailability_percent'
 ]);
+const LONG_MG_DISPLAY_METRIC_KEYS = new Set(['omega3_mg', 'cholesterol_mg']);
+const LONG_MG_DISPLAY_DIGITS = 5;
 const UNSATURATED_FAT_NARRATION_METRIC_KEYS = new Set(['omega3_mg', 'polyunsaturated_fat_g']);
 const ZERO_CHOLESTEROL_NARRATION_RELEVANT_FOOD_TYPES = new Set(['dairy', 'meats']);
 const LOW_FAT_UNSATURATED_NARRATION_MAX_FAT_G = 1;
@@ -251,7 +253,7 @@ function metricDisplayText(metric, options = {}) {
     return `${formatMetricKey(metric.metricKey)} at ${metric.dvPercent}% ${speakDailyValue ? 'daily value' : 'DV'}`;
   }
   if (metric.value !== null && metric.value !== undefined) {
-    return `${formatMetricKey(metric.metricKey)} at ${metricValueText(metric)}`;
+    return `${formatMetricKey(metric.metricKey)} at ${displayMetricValueText(metric)}`;
   }
   if (metric.band) return `${formatMetricKey(metric.metricKey)} at ${metric.value}`;
   return formatMetricKey(metric.metricKey);
@@ -273,6 +275,27 @@ function metricValueText(metric) {
   if (key.endsWith('_score')) return `${metric.value}/10`;
   if (/glycemic/i.test(key)) return `${metric.value} GI`;
   return String(metric.value);
+}
+
+function trimmedDecimal(value, decimals = 2) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return String(value);
+  return number.toFixed(decimals).replace(/\.?0+$/g, '');
+}
+
+function longMgDisplayValue(metric) {
+  if (!metric) return null;
+  const key = String(metric.metricKey || '');
+  if (!LONG_MG_DISPLAY_METRIC_KEYS.has(key)) return null;
+  const value = toFiniteNumber(metric.value);
+  if (value === null) return null;
+  const integerDigits = String(Math.trunc(Math.abs(value))).length;
+  if (integerDigits < LONG_MG_DISPLAY_DIGITS) return null;
+  return `${trimmedDecimal(value / 1000, 2)}g`;
+}
+
+function displayMetricValueText(metric) {
+  return longMgDisplayValue(metric) || metricValueText(metric);
 }
 
 function spokenMetricValueText(metric) {
@@ -1900,7 +1923,7 @@ function completeMacroDisplayItems(result, sectionKey) {
       return {
         ...scored,
         denominator,
-        displayValue: metricValueText({ ...scored, denominator }),
+        displayValue: displayMetricValueText({ ...scored, denominator }),
         displaySource: 'scored'
       };
     }
@@ -1954,7 +1977,7 @@ function completeMacroDisplayItems(result, sectionKey) {
         : null
     };
     row.text = metricDisplayText(row, { speakDailyValue: false });
-    row.displayValue = metricValueText(row);
+    row.displayValue = displayMetricValueText(row);
     return row;
   });
 }

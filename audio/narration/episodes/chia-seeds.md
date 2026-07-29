@@ -6,7 +6,7 @@ Food id: `chia-seeds`
 
 - Mode: `split-blocks`
 - Take: `voice-v1`
-- Duration: `158.0s`
+- Duration: `159.8s`
 - Blocks: `11`
 - Manifest: [docs/audio/episodes/chia-seeds/voice-v1-blocks.json](../../../docs/audio/episodes/chia-seeds/voice-v1-blocks.json)
 - Alignment: [outputs/episodes/chia-seeds-compact/voice-v1-blocks-forced-alignment.json](../../../outputs/episodes/chia-seeds-compact/voice-v1-blocks-forced-alignment.json)

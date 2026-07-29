@@ -101,6 +101,25 @@
     return state.foods.find(food => food.id === id) || null;
   }
 
+  function scriptTextFromBlocks(blocks) {
+    if (!Array.isArray(blocks) || !blocks.length) return '';
+    return blocks
+      .map(block => clean(block?.text))
+      .filter(Boolean)
+      .join('\n-\n');
+  }
+
+  function sourceScriptTextForFood(food) {
+    const episode = food?.episode || {};
+    const script = episode.script || {};
+    return clean(
+      episode.narrationText ||
+      script.narrationText ||
+      food?.narrationText ||
+      scriptTextFromBlocks(script.narrationBlocks)
+    );
+  }
+
   function refreshFoods({ keepSelection = true } = {}) {
     state.db = DB.read();
     state.foods = DB.applyToFoods(BASE_FOODS, state.db);
@@ -140,6 +159,7 @@
     const existing = DB.foodEntryForId(food.id, state.db) || {};
     const episode = food.episode || {};
     const customImage = food.assets?.customFoodImage || {};
+    const sourceScriptText = sourceScriptTextForFood(food);
     return {
       id: food.id,
       name: food.name || '',
@@ -162,9 +182,10 @@
       audioTake: episode.audio?.take || '',
       splitAudioManifestPath: episode.splitAudio?.manifestPath || '',
       videoDownloadPath: episode.videoDownload?.mp4Path || episode.video?.mp4Path || '',
-      scriptText: episode.script?.narrationText || food.narrationText || '',
+      scriptText: sourceScriptText,
       notes: '',
-      ...existing
+      ...existing,
+      scriptText: clean(existing.scriptText || existing.narrationText || existing.library?.scriptText) || sourceScriptText
     };
   }
 

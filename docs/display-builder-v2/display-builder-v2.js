@@ -2431,9 +2431,10 @@
     if (!src) return;
     const fallbackSrc = LOGIC.canonicalSpritePath(layer.fallbackSrc || '');
     const rect = exportLayerRect(layer, exportBounds);
-    const gifFrameMode = sectionStillGifFrameMode(sectionId, src);
+    const macroFillLayer = isMacroFillLayer(layer);
+    const gifFrameMode = macroFillLayer ? 'final' : sectionStillGifFrameMode(sectionId, src);
     try {
-      if (isMacroFillLayer(layer)) {
+      if (macroFillLayer) {
         await drawMacroBarFillFrame(ctx, src, layer, rect, exportBounds, sectionId, gifFrameMode);
       } else if (isGifSpriteSrc(src)) {
         await drawGifSpriteFrame(ctx, src, layer, rect, exportBounds, sectionId, gifFrameMode);

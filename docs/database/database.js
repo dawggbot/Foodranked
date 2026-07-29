@@ -22,6 +22,10 @@
     exportDatabase: document.getElementById('exportDatabase'),
     importDatabase: document.getElementById('importDatabase'),
     foodList: document.getElementById('foodList'),
+    assetStats: document.getElementById('assetStats'),
+    assetSearch: document.getElementById('assetSearch'),
+    assetList: document.getElementById('assetList'),
+    assetRefs: document.getElementById('assetRefs'),
     finalizedList: document.getElementById('finalizedList'),
     universalSprites: document.getElementById('universalSprites'),
     universalSfx: document.getElementById('universalSfx'),
@@ -68,7 +72,8 @@
     db: DB.read(),
     foods: [],
     selectedFoodId: '',
-    filter: ''
+    filter: '',
+    assetFilter: ''
   };
 
   function escapeHtml(value) {
@@ -118,6 +123,14 @@
       food?.narrationText ||
       scriptTextFromBlocks(script.narrationBlocks)
     );
+  }
+
+  function assetRefOrPath(path) {
+    const cleanPath = clean(path);
+    if (!cleanPath) return '';
+    return typeof DB.assetRefForPath === 'function'
+      ? DB.assetRefForPath(cleanPath, state.db) || cleanPath
+      : cleanPath;
   }
 
   function refreshFoods({ keepSelection = true } = {}) {
@@ -175,13 +188,13 @@
       headerNameMinFontSize: food.headerNameMinFontSize || food.header?.nameMinFontSize || '',
       headerNameFontWidthRatio: food.headerNameFontWidthRatio || food.header?.nameFontWidthRatio || '',
       finalizedDownloaded: DB.isFinalizedDownloaded(food, state.db),
-      customFoodImagePath: customImage.path || '',
+      customFoodImagePath: assetRefOrPath(customImage.path),
       customFoodImageWidth: customImage.width || customImage.naturalWidth || '',
       customFoodImageHeight: customImage.height || customImage.naturalHeight || '',
-      audioPath: episode.audio?.path || '',
+      audioPath: assetRefOrPath(episode.audio?.path),
       audioTake: episode.audio?.take || '',
-      splitAudioManifestPath: episode.splitAudio?.manifestPath || '',
-      videoDownloadPath: episode.videoDownload?.mp4Path || episode.video?.mp4Path || '',
+      splitAudioManifestPath: assetRefOrPath(episode.splitAudio?.manifestPath),
+      videoDownloadPath: assetRefOrPath(episode.videoDownload?.mp4Path || episode.video?.mp4Path),
       scriptText: sourceScriptText,
       notes: '',
       ...existing,
@@ -213,7 +226,7 @@
     root.innerHTML = Object.keys(defaults).map(key => (
       `<label class="field">
         <span>${escapeHtml(key)}</span>
-        <input data-universal-group="${escapeHtml(group)}" data-universal-key="${escapeHtml(key)}" type="text" value="${escapeHtml(values?.[key] || defaults[key] || '')}" />
+        <input data-universal-group="${escapeHtml(group)}" data-universal-key="${escapeHtml(key)}" type="text" list="assetRefs" value="${escapeHtml(values?.[key] || defaults[key] || '')}" />
       </label>`
     )).join('');
   }
@@ -238,6 +251,42 @@
         <span>${escapeHtml(food.foodTypeLabel || prettyFoodType(food.foodType))} · ${escapeHtml(String(food.header?.kcal ?? food.kcal ?? 'N/A'))} kcal${base ? '' : ' · custom'}</span>
       </button>`;
     }).join('') || '<div class="muted small">No foods</div>';
+  }
+
+  function assetRefForEntry(asset) {
+    return typeof DB.assetRef === 'function' ? DB.assetRef(asset?.id) : `frdb://asset/${asset?.id || ''}`;
+  }
+
+  function renderAssetDatalist() {
+    const assets = typeof DB.assetEntries === 'function' ? DB.assetEntries(state.db) : [];
+    els.assetRefs.innerHTML = assets.map(asset => (
+      `<option value="${escapeHtml(assetRefForEntry(asset))}" label="${escapeHtml(asset.label || asset.path || asset.id)}"></option>`
+    )).join('');
+  }
+
+  function renderAssetLibrary() {
+    const assets = typeof DB.assetEntries === 'function' ? DB.assetEntries(state.db) : [];
+    const totalBytes = assets.reduce((sum, asset) => sum + (Number(asset.sizeBytes) || 0), 0);
+    const byKind = assets.reduce((memo, asset) => {
+      const kind = asset.kind || 'asset';
+      memo[kind] = (memo[kind] || 0) + 1;
+      return memo;
+    }, {});
+    els.assetStats.textContent = `${assets.length} bundled assets · ${(totalBytes / 1024 / 1024).toFixed(1)} MB referenced · ${Object.entries(byKind).map(([kind, count]) => `${kind}: ${count}`).join(', ')}`;
+
+    const query = state.assetFilter.toLowerCase();
+    const visible = assets
+      .filter(asset => !query || [asset.id, asset.label, asset.kind, asset.path, asset.mimeType]
+        .filter(Boolean)
+        .some(value => String(value).toLowerCase().includes(query)))
+      .slice(0, 120);
+    els.assetList.innerHTML = visible.map(asset => (
+      `<button class="asset-button" type="button" data-asset-ref="${escapeHtml(assetRefForEntry(asset))}">
+        <strong>${escapeHtml(asset.label || asset.id)}</strong>
+        <span>${escapeHtml(asset.kind || 'asset')} · ${escapeHtml(asset.path || '')}</span>
+      </button>`
+    )).join('') || '<div class="muted small">No assets</div>';
+    renderAssetDatalist();
   }
 
   function renderFinalizedList() {
@@ -297,6 +346,7 @@
     renderStats();
     renderUniversal();
     renderFoodList();
+    renderAssetLibrary();
     renderFinalizedList();
     loadFoodForm();
   }
@@ -472,6 +522,16 @@
     });
     els.foodList.addEventListener('click', onFoodButtonClick);
     els.finalizedList.addEventListener('click', onFoodButtonClick);
+    els.assetSearch.addEventListener('input', () => {
+      state.assetFilter = els.assetSearch.value || '';
+      renderAssetLibrary();
+    });
+    els.assetList.addEventListener('click', event => {
+      const button = event.target.closest('[data-asset-ref]');
+      if (!button) return;
+      navigator.clipboard?.writeText(button.dataset.assetRef);
+      status(`Copied ${button.dataset.assetRef}`);
+    });
     els.addFood.addEventListener('click', addFood);
     els.saveFood.addEventListener('click', saveSelectedFood);
     els.deleteFood.addEventListener('click', deleteSelectedFood);

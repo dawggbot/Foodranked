@@ -1,33 +1,35 @@
 (function () {
   const STORAGE_KEY = 'foodranked-production-database-v1';
   const SCHEMA_VERSION = 'foodranked-production-database.v1';
+  const ASSET_REF_PREFIX = 'frdb://asset/';
+  let defaultAssetsCache = null;
 
   const DEFAULT_UNIVERSAL_UI = Object.freeze({
     sprites: Object.freeze({
-      introRanked: './sprites/ui/intro_&_outro/ranked.png',
-      tierS: './sprites/ui/intro_&_outro/S_tier.png',
-      tierA: './sprites/ui/intro_&_outro/A_tier.png',
-      tierB: './sprites/ui/intro_&_outro/B_tier.png',
-      tierC: './sprites/ui/intro_&_outro/C_tier.png',
-      tierD: './sprites/ui/intro_&_outro/D_tier.png',
-      tierSlop: './sprites/ui/intro_&_outro/slop.png?v=20260729-slop-sprite-upload-v1',
-      outroLike: './sprites/ui/intro_&_outro/like.png',
-      outroFollow: './sprites/ui/intro_&_outro/follow.png',
-      outroShare: './sprites/ui/intro_&_outro/share.png'
+      introRanked: `${ASSET_REF_PREFIX}app.sprites.ui.intro.outro.ranked`,
+      tierS: `${ASSET_REF_PREFIX}app.sprites.ui.intro.outro.s.tier`,
+      tierA: `${ASSET_REF_PREFIX}app.sprites.ui.intro.outro.a.tier`,
+      tierB: `${ASSET_REF_PREFIX}app.sprites.ui.intro.outro.b.tier`,
+      tierC: `${ASSET_REF_PREFIX}app.sprites.ui.intro.outro.c.tier`,
+      tierD: `${ASSET_REF_PREFIX}app.sprites.ui.intro.outro.d.tier`,
+      tierSlop: `${ASSET_REF_PREFIX}app.sprites.ui.intro.outro.slop`,
+      outroLike: `${ASSET_REF_PREFIX}app.sprites.ui.intro.outro.like`,
+      outroFollow: `${ASSET_REF_PREFIX}app.sprites.ui.intro.outro.follow`,
+      outroShare: `${ASSET_REF_PREFIX}app.sprites.ui.intro.outro.share`
     }),
     sfx: Object.freeze({
-      stampImpact: 'audio/sfx/stamps/impact_stamp_hit.mp3',
-      sTierStamp: 'audio/sfx/stamps/s_tier_stamp_level_up.mp3',
-      dTierGameLose: 'audio/sfx/stamps/d_tier_game_fail.mp3',
-      dTierDeath: 'audio/sfx/stamps/d_tier_death_collapse.mp3',
-      sectionTransition: 'audio/sfx/transitions/section_transition_whoosh.mp3',
-      micronBarConfirm: 'audio/sfx/sections/microns/micron_bar_confirm_tap.mp3',
-      micron100Lead: 'audio/sfx/sections/microns/micron_100_firework_lead_pop.mp3',
-      micron100Cluster: 'audio/sfx/sections/microns/micron_100_firework_cluster.mp3',
-      majorProSparkle: 'audio/sfx/sections/pros/major_pro_sparkle_shine.mp3',
-      majorConSiren: 'audio/sfx/sections/cons/major_con_siren_buzzer.mp3',
-      highlightGlow: 'audio/sfx/ui/highlight_glow_loop.mp3',
-      macroBarFill: 'audio/sfx/sections/macros/macro_bar_fill_highscore.mp3'
+      stampImpact: `${ASSET_REF_PREFIX}audio.sfx.stamps.impact.stamp.hit`,
+      sTierStamp: `${ASSET_REF_PREFIX}audio.sfx.stamps.s.tier.stamp.level.up`,
+      dTierGameLose: `${ASSET_REF_PREFIX}audio.sfx.stamps.d.tier.game.fail`,
+      dTierDeath: `${ASSET_REF_PREFIX}audio.sfx.stamps.d.tier.death.collapse`,
+      sectionTransition: `${ASSET_REF_PREFIX}audio.sfx.transitions.section.transition.whoosh`,
+      micronBarConfirm: `${ASSET_REF_PREFIX}audio.sfx.sections.microns.micron.bar.confirm.tap`,
+      micron100Lead: `${ASSET_REF_PREFIX}audio.sfx.sections.microns.micron.100.firework.lead.pop`,
+      micron100Cluster: `${ASSET_REF_PREFIX}audio.sfx.sections.microns.micron.100.firework.cluster`,
+      majorProSparkle: `${ASSET_REF_PREFIX}audio.sfx.sections.pros.major.pro.sparkle.shine`,
+      majorConSiren: `${ASSET_REF_PREFIX}audio.sfx.sections.cons.major.con.siren.buzzer`,
+      highlightGlow: `${ASSET_REF_PREFIX}audio.sfx.ui.highlight.glow.loop`,
+      macroBarFill: `${ASSET_REF_PREFIX}audio.sfx.sections.macros.macro.bar.fill.highscore`
     })
   });
 
@@ -64,26 +66,87 @@
     return Number.isFinite(number) ? number : fallback;
   }
 
+  function assetRef(id) {
+    const cleanId = cleanString(id);
+    return cleanId ? `${ASSET_REF_PREFIX}${cleanId}` : '';
+  }
+
+  function normalizeAssetEntry(id, value) {
+    const source = value && typeof value === 'object' ? clone(value) : {};
+    const path = cleanPath(source.path || source.url || '');
+    const cleanId = cleanString(source.id || id);
+    return {
+      id: cleanId,
+      label: cleanString(source.label) || cleanId,
+      kind: cleanString(source.kind) || 'asset',
+      path,
+      mimeType: cleanString(source.mimeType),
+      sizeBytes: finiteNumber(source.sizeBytes, null),
+      source: cleanString(source.source) || 'app-bundle'
+    };
+  }
+
+  function defaultAssets() {
+    if (defaultAssetsCache) return clone(defaultAssetsCache);
+    const files = {};
+    const source = Array.isArray(window.FOODRANKED_APP_ASSETS) ? window.FOODRANKED_APP_ASSETS : [];
+    source.forEach(entry => {
+      const normalized = normalizeAssetEntry(entry?.id, entry);
+      if (normalized.id && normalized.path) files[normalized.id] = normalized;
+    });
+    defaultAssetsCache = { files };
+    return clone(defaultAssetsCache);
+  }
+
+  function normalizedAssetLookupPath(value) {
+    const clean = cleanPath(value).split('#')[0].split('?')[0];
+    if (!clean) return '';
+    if (clean.startsWith('./sprites/')) return `app/${clean.slice(2)}`;
+    if (clean.startsWith('sprites/')) return `app/${clean}`;
+    if (clean.startsWith('../app/')) return clean.slice(3);
+    if (clean.startsWith('./app/')) return clean.slice(2);
+    if (clean.startsWith('../audio/')) return clean.slice(3);
+    if (clean.startsWith('./audio/')) return clean.slice(2);
+    if (clean.startsWith('../video/')) return clean.slice(3);
+    if (clean.startsWith('./video/')) return clean.slice(2);
+    if (clean.startsWith('../data/')) return clean.slice(3);
+    if (clean.startsWith('./data/')) return clean.slice(2);
+    return clean;
+  }
+
+  function assetRefForPath(path, db = null) {
+    const lookup = normalizedAssetLookupPath(path);
+    if (!lookup) return '';
+    const files = db?.assets?.files || defaultAssets().files;
+    const match = Object.values(files).find(asset => normalizedAssetLookupPath(asset.path) === lookup);
+    return match?.id ? assetRef(match.id) : '';
+  }
+
   function defaultDatabase() {
     return {
       schemaVersion: SCHEMA_VERSION,
       updatedAt: '',
       universalUi: clone(DEFAULT_UNIVERSAL_UI),
+      assets: defaultAssets(),
       foods: {}
     };
   }
 
   function normalizeUniversalUi(value) {
     const source = value && typeof value === 'object' ? value : {};
+    const coerceGroup = group => Object.fromEntries(Object.entries(group).map(([key, path]) => [
+      key,
+      cleanPath(path).startsWith(ASSET_REF_PREFIX) ? path : assetRefForPath(path) || path
+    ]));
     return {
-      sprites: {
+      sprites: coerceGroup({
         ...clone(DEFAULT_UNIVERSAL_UI.sprites),
         ...(source.sprites && typeof source.sprites === 'object' ? source.sprites : {})
-      },
-      sfx: {
+      }),
+      sfx: coerceGroup({
         ...clone(DEFAULT_UNIVERSAL_UI.sfx),
         ...(source.sfx && typeof source.sfx === 'object' ? source.sfx : {})
-      }
+      })
     };
   }
 
@@ -103,12 +166,24 @@
     return entry;
   }
 
+  function normalizeAssets(value) {
+    const normalized = defaultAssets();
+    const source = value && typeof value === 'object' ? value : {};
+    const files = source.files && typeof source.files === 'object' ? source.files : {};
+    Object.entries(files).forEach(([id, entry]) => {
+      const normalizedEntry = normalizeAssetEntry(id, entry);
+      if (normalizedEntry.id && normalizedEntry.path) normalized.files[normalizedEntry.id] = normalizedEntry;
+    });
+    return normalized;
+  }
+
   function normalizeDatabase(value) {
     const db = value && typeof value === 'object' ? clone(value) : defaultDatabase();
     const normalized = {
       schemaVersion: SCHEMA_VERSION,
       updatedAt: cleanString(db.updatedAt),
       universalUi: normalizeUniversalUi(db.universalUi),
+      assets: normalizeAssets(db.assets),
       foods: {}
     };
     const foods = db.foods && typeof db.foods === 'object' ? db.foods : {};
@@ -120,7 +195,9 @@
   }
 
   function read() {
-    return normalizeDatabase(readJson(localStorage.getItem(STORAGE_KEY), defaultDatabase()));
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return defaultDatabase();
+    return normalizeDatabase(readJson(raw, defaultDatabase()));
   }
 
   function write(db) {
@@ -136,14 +213,33 @@
     return path || fallback || '';
   }
 
+  function assetIdFromRef(ref) {
+    const clean = cleanString(ref);
+    return clean.startsWith(ASSET_REF_PREFIX) ? clean.slice(ASSET_REF_PREFIX.length) : '';
+  }
+
+  function assetEntryForRef(ref, db = read()) {
+    const id = assetIdFromRef(ref);
+    return id ? db.assets?.files?.[id] || null : null;
+  }
+
+  function assetPath(refOrPath, fallback = '', db = read()) {
+    const value = cleanPath(refOrPath);
+    if (!value) return fallback || '';
+    if (!value.startsWith(ASSET_REF_PREFIX)) return value;
+    return cleanPath(assetEntryForRef(value, db)?.path) || fallback || '';
+  }
+
   function universalSpritePath(key, fallback = '') {
     const db = read();
-    return pathOrFallback(db.universalUi.sprites?.[key], fallback || DEFAULT_UNIVERSAL_UI.sprites[key]);
+    const value = pathOrFallback(db.universalUi.sprites?.[key], DEFAULT_UNIVERSAL_UI.sprites[key]);
+    return assetPath(value, fallback, db);
   }
 
   function universalSfxPath(key, fallback = '') {
     const db = read();
-    return pathOrFallback(db.universalUi.sfx?.[key], fallback || DEFAULT_UNIVERSAL_UI.sfx[key]);
+    const value = pathOrFallback(db.universalUi.sfx?.[key], DEFAULT_UNIVERSAL_UI.sfx[key]);
+    return assetPath(value, fallback, db);
   }
 
   function setPath(target, path, value) {
@@ -218,7 +314,7 @@
     };
   }
 
-  function applyFoodEntry(baseFood, entry) {
+  function applyFoodEntry(baseFood, entry, db = read()) {
     if (!entry || entry.deleted) return null;
     const base = deepMerge(baseFood || {}, entry.foodPatch || {});
     const merged = {
@@ -253,7 +349,7 @@
       const height = finiteNumber(entry.customFoodImageHeight || entry.assets?.customFoodImage?.height, null);
       merged.assets.customFoodImage = {
         ...(merged.assets.customFoodImage || {}),
-        path: customFoodImagePath
+        path: assetPath(customFoodImagePath, customFoodImagePath, db)
       };
       if (width != null) merged.assets.customFoodImage.width = width;
       if (height != null) merged.assets.customFoodImage.height = height;
@@ -264,7 +360,7 @@
     const script = scriptFromText(scriptText, merged, episode.script);
     if (script) episode.script = script;
 
-    const audioPath = cleanPath(entry.audioPath || entry.library?.audioPath);
+    const audioPath = assetPath(entry.audioPath || entry.library?.audioPath, '', db);
     if (audioPath) {
       episode.audio = {
         ...(episode.audio || {}),
@@ -273,7 +369,7 @@
       };
     }
 
-    const splitManifestPath = cleanPath(entry.splitAudioManifestPath || entry.library?.splitAudioManifestPath);
+    const splitManifestPath = assetPath(entry.splitAudioManifestPath || entry.library?.splitAudioManifestPath, '', db);
     if (splitManifestPath) {
       episode.splitAudio = {
         ...(episode.splitAudio || {}),
@@ -282,7 +378,7 @@
       };
     }
 
-    const videoPath = cleanPath(entry.videoDownloadPath || entry.library?.videoDownloadPath);
+    const videoPath = assetPath(entry.videoDownloadPath || entry.library?.videoDownloadPath, '', db);
     if (videoPath) {
       episode.videoDownload = {
         ...(episode.videoDownload || {}),
@@ -297,7 +393,7 @@
   function applyToFood(food, db = read()) {
     if (!food?.id) return food || null;
     const entry = db.foods?.[food.id];
-    return entry ? applyFoodEntry(food, entry) : food;
+    return entry ? applyFoodEntry(food, entry, db) : food;
   }
 
   function baseFoodFromEntry(entry) {
@@ -327,13 +423,34 @@
       seen.add(food.id);
       const entry = db.foods?.[food.id];
       if (entry?.deleted) return;
-      foods.push(entry ? applyFoodEntry(food, entry) : food);
+      foods.push(entry ? applyFoodEntry(food, entry, db) : food);
     });
     Object.values(db.foods || {}).forEach(entry => {
       if (!entry?.id || seen.has(entry.id) || entry.deleted) return;
-      foods.push(applyFoodEntry(baseFoodFromEntry(entry), entry));
+      foods.push(applyFoodEntry(baseFoodFromEntry(entry), entry, db));
     });
     return foods.filter(Boolean);
+  }
+
+  function assetEntries(db = read()) {
+    return Object.values(db.assets?.files || {}).sort((a, b) => (
+      String(a.kind || '').localeCompare(String(b.kind || '')) ||
+      String(a.path || '').localeCompare(String(b.path || ''))
+    ));
+  }
+
+  function upsertAssetEntry(id, patch) {
+    const cleanId = cleanString(id || patch?.id);
+    if (!cleanId) throw new Error('Asset id is required.');
+    const db = read();
+    if (!db.assets) db.assets = { files: {} };
+    if (!db.assets.files) db.assets.files = {};
+    db.assets.files[cleanId] = normalizeAssetEntry(cleanId, {
+      ...(db.assets.files[cleanId] || {}),
+      ...(patch || {}),
+      id: cleanId
+    });
+    return write(db);
   }
 
   function foodEntryForId(id, db = read()) {
@@ -388,8 +505,15 @@
   window.FOODRANKED_DATABASE = {
     STORAGE_KEY,
     SCHEMA_VERSION,
+    ASSET_REF_PREFIX,
     DEFAULT_UNIVERSAL_UI,
     clone,
+    assetRef,
+    assetRefForPath,
+    assetPath,
+    assetEntries,
+    assetEntryForRef,
+    upsertAssetEntry,
     defaultDatabase,
     normalizeDatabase,
     read,

@@ -29,8 +29,8 @@
   const PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const PLACEMENT_EXPORT_LIMIT = 60;
   const PAGE_URL_PARAMS = new URLSearchParams(window.location.search);
-  const DISPLAY_BUILDER_V2_BUILD_ID = PAGE_URL_PARAMS.get('build') || '20260729-database-v1';
-  const DATA_CACHE_BUST = '20260729-database-v1';
+  const DISPLAY_BUILDER_V2_BUILD_ID = PAGE_URL_PARAMS.get('build') || '20260729-database-v3';
+  const DATA_CACHE_BUST = '20260729-database-v3';
   const BASE_FOODS_INDEX = Array.isArray(window.FOODS_INDEX) ? window.FOODS_INDEX : [];
   const FOOD_JSON_CACHE = new Map();
   const BATCH_RESULTS_CACHE = new Map();
@@ -188,6 +188,13 @@
     return typeof api?.universalSpritePath === 'function'
       ? api.universalSpritePath(key, fallback)
       : fallback;
+  }
+
+  function databaseAssetPath(path, fallback = '') {
+    const api = databaseApi();
+    return typeof api?.assetPath === 'function'
+      ? api.assetPath(path, fallback)
+      : (path || fallback || '');
   }
 
   function databaseFoodList() {
@@ -2532,7 +2539,7 @@
   async function drawSpriteLayerToExport(ctx, layout, food, sectionId, layer, exportBounds) {
     const src = renderedSpriteSrcForSection(layout, sectionId, layer, food);
     if (!src) return;
-    const fallbackSrc = LOGIC.canonicalSpritePath(layer.fallbackSrc || '');
+    const fallbackSrc = databaseAssetPath(LOGIC.canonicalSpritePath(layer.fallbackSrc || ''));
     const rect = exportLayerRect(layer, exportBounds);
     const macroFillLayer = isMacroFillLayer(layer);
     const gifFrameMode = macroFillLayer ? 'final' : sectionStillGifFrameMode(sectionId, src);
@@ -3002,7 +3009,7 @@
     if (isSectionIndicatorLayer(layer)) {
       return sectionIndicatorSrcForLayer(layout, sectionId, layer, food);
     }
-    return LOGIC.canonicalSpritePath(layer.src || layer.fallbackSrc || '');
+    return databaseAssetPath(LOGIC.canonicalSpritePath(layer.src || layer.fallbackSrc || ''));
   }
 
   function renderedSpriteSrc(layer, food) {
@@ -3070,7 +3077,7 @@
 
   function handleSpriteError(node, layer) {
     const failedSrc = node.currentSrc || node.src || layer.src;
-    const fallback = LOGIC.canonicalSpritePath(layer.fallbackSrc || '');
+    const fallback = databaseAssetPath(LOGIC.canonicalSpritePath(layer.fallbackSrc || ''));
     recordSpriteFailure(failedSrc, fallback, layer.label || layer.id || '');
     if (fallback && node.src !== new URL(fallback, window.location.href).href) {
       node.src = fallback;

@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260729-database-v1';
+  const BUILDER_BUILD_ID = '20260729-database-v3';
   const DISPLAY_BUILDER_V2_EXPORT_TIMEOUT_MS = 8000;
   const DISPLAY_BUILDER_V2_EXPORT_POLL_MS = 150;
   const AUTHOR_GRID = { width: 105, height: 186.666667 };
@@ -74,6 +74,13 @@
     return typeof api?.universalSfxPath === 'function'
       ? api.universalSfxPath(key, fallback)
       : fallback;
+  }
+
+  function databaseAssetPath(path, fallback = '') {
+    const api = databaseApi();
+    return typeof api?.assetPath === 'function'
+      ? api.assetPath(path, fallback)
+      : (path || fallback || '');
   }
 
   function databaseFoodList(baseFoods) {
@@ -1158,6 +1165,7 @@
 
   function spritePath(path) {
     if (!path) return '';
+    path = databaseAssetPath(path, path);
     path = canonicalSpritePath(path);
     if (/^(data:|https?:|blob:)/i.test(path)) return path;
     if (path.startsWith('./sprites/')) return `../app/${path.slice(2)}`;
@@ -1198,6 +1206,7 @@
 
   function docsAssetPath(path) {
     if (!path) return '';
+    path = databaseAssetPath(path, path);
     if (/^(data:|https?:|blob:)/i.test(path)) return path;
     if (path.startsWith('../') || path.startsWith('./')) return path;
     return `../${path}`;

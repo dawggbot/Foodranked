@@ -2258,8 +2258,15 @@
     return /\.gif(?:[?#]|$)/i.test(String(src || ''));
   }
 
-  function macroSectionGifStartsClean(sectionId, src) {
-    return MACRO_SECTIONS.includes(normalizeDisplaySectionId(sectionId)) && isGifSpriteSrc(src);
+  function isMacroSectionGifSprite(src) {
+    const normalizedSrc = String(src || '').toLowerCase();
+    return isGifSpriteSrc(src) && normalizedSrc.includes('/macros_section/');
+  }
+
+  function sectionStillGifFrameMode(sectionId, src) {
+    if (!isGifSpriteSrc(src)) return 'final';
+    if (MACRO_SECTIONS.includes(normalizeDisplaySectionId(sectionId))) return 'start';
+    return isMacroSectionGifSprite(src) ? 'start' : 'final';
   }
 
   function wait(ms) {
@@ -2387,7 +2394,8 @@
     const frames = await waitForGifFrames(src);
     if (frameMode === 'start') {
       const firstFrame = frames.images?.[0];
-      if (firstFrame?.complete) drawImageWithLayerTransform(ctx, firstFrame, layer, rect, exportBounds, sectionId);
+      if (!firstFrame?.complete || !firstFrame.naturalWidth) throw new Error(`GIF first frame is unavailable: ${src}`);
+      drawImageWithLayerTransform(ctx, firstFrame, layer, rect, exportBounds, sectionId);
       return;
     }
 
@@ -2417,7 +2425,7 @@
     if (!src) return;
     const fallbackSrc = LOGIC.canonicalSpritePath(layer.fallbackSrc || '');
     const rect = exportLayerRect(layer, exportBounds);
-    const gifFrameMode = macroSectionGifStartsClean(sectionId, src) ? 'start' : 'final';
+    const gifFrameMode = sectionStillGifFrameMode(sectionId, src);
     try {
       if (isMacroFillLayer(layer)) {
         await drawMacroBarFillFrame(ctx, src, layer, rect, exportBounds, sectionId, gifFrameMode);

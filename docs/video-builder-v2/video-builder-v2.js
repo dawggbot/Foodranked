@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260729-slop-tier-v3';
+  const BUILDER_BUILD_ID = '20260729-slop-tier-v4';
   const DISPLAY_BUILDER_V2_EXPORT_TIMEOUT_MS = 8000;
   const DISPLAY_BUILDER_V2_EXPORT_POLL_MS = 150;
   const AUTHOR_GRID = { width: 135, height: 240 };
@@ -2829,6 +2829,15 @@
   function outroScoreGlowStyle(food) {
     const tier = String(scoreTier(food)).toUpperCase();
     const score = scoreTally(food);
+    if (tier === 'SLOP' || asNumber(score, 0) < 0) {
+      return {
+        gradeClass: 'score-grade-negative',
+        color: '#9a6638',
+        core: 'rgba(255, 197, 120, 0.96)',
+        soft: 'rgba(154, 102, 56, 0.78)',
+        wide: 'rgba(78, 48, 24, 0.48)'
+      };
+    }
     if (tier === 'S' || asNumber(score, 0) >= 80) {
       return {
         gradeClass: 'score-grade-s',
@@ -2980,6 +2989,11 @@
     layer.width = tierSize.width;
     layer.height = tierSize.height;
     layer.aspectRatio = outroTierStampAspectRatio(tier);
+    if (tier === 'SLOP') {
+      layer.centerAnchor = 'visible-canvas';
+      layer.centerOffsetX = 0;
+      layer.centerOffsetY = 0;
+    }
     if (!hadExistingLayer && !layer.centerAnchor) layer.centerAnchor = 'visible-canvas';
     if (layer.centerAnchor === 'visible-canvas') {
       if (!Number.isFinite(Number(layer.centerOffsetX))) layer.centerOffsetX = 0;
@@ -7800,9 +7814,15 @@
       const impactPulse = Math.sin(visible * Math.PI);
       stampImpactPulse = impactPulse;
       const entryTilt = isOutroTierStamp || ['ranked-glow', 'ranked-sprite'].includes(revealSchedule?.kind) ? -4 : 4;
-      scale = 1.62 - (visible * 0.62) + (impactPulse * 0.22);
-      y += (1 - visible) * -20;
-      rotate = (entryTilt * (1 - visible)) + (impactPulse * (entryTilt < 0 ? -1.4 : 1.4));
+      if (isSlopTierStamp) {
+        scale = 0.985 + (visible * 0.015) + (impactPulse * 0.018);
+        y += (1 - visible) * -6;
+        rotate = impactPulse * -0.35;
+      } else {
+        scale = 1.62 - (visible * 0.62) + (impactPulse * 0.22);
+        y += (1 - visible) * -20;
+        rotate = (entryTilt * (1 - visible)) + (impactPulse * (entryTilt < 0 ? -1.4 : 1.4));
+      }
       if (isOutroCtaWaveStamp && rawRevealProgress > 1) {
         const sceneElapsedSeconds = clamp(state.currentTime - scene.start, 0, scene.duration);
         const elapsedSinceRevealStart = Math.max(0, sceneElapsedSeconds - (delay * sceneDuration));

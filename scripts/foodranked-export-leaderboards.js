@@ -57,7 +57,7 @@ function runScore(foodPath, rulesetPath) {
 }
 
 function sortRows(rows) {
-  const tierRank = { S: 5, A: 4, B: 3, C: 2, D: 1 };
+  const tierRank = { S: 5, A: 4, B: 3, C: 2, D: 1, Slop: 0 };
   return [...rows].sort((a, b) => {
     if ((tierRank[b.tier] || 0) !== (tierRank[a.tier] || 0)) return (tierRank[b.tier] || 0) - (tierRank[a.tier] || 0);
     const bRankScore = b.rankingScoreExact ?? b.anomalyAdjustedScoreExact ?? b.calibratedOverallScoreExact ?? b.overallScoreExact ?? b.overallScore ?? 0;

@@ -18,6 +18,8 @@ Current stamp mirrors:
 - `stamps/d_tier_game_fail.mp3`
 - `stamps/d_tier_death_collapse.mp3`
 
+The `d_tier_*` files are retained under their original filenames for compatibility, but Video Builder v2 now uses them for the special `Slop tier` outro. Normal `D tier` outros use `impact_stamp_hit.mp3`.
+
 Current transition mirror:
 
 - `transitions/section_transition_whoosh.mp3`

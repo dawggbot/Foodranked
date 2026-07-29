@@ -96,7 +96,7 @@ Ending should include:
 - a compact closing summary of the best strengths and worst weaknesses from all 7 scored content sections
 - what the food is good for and why, using evidence-derived use cases such as energy, endurance sports, muscles, strength sports, hormone health, bone health, digestion, immune support, heart health, fluid balance, low-calorie volume, low-calorie flavour swaps, practical meals, cooking use, or narrow use cases
 - no narrated overall score
-- final `S-D tier` reveal as its own spoken block (for example `C tier.`)
+- final tier reveal as its own spoken block (for example `C tier.` or `Slop tier.`)
 - big stamped-in letter under the header on an emptier background
 
 Outro stamp rules:

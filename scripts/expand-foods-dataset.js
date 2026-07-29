@@ -16,22 +16,49 @@ function hashString(input) {
   return Math.abs(h);
 }
 
+function scoreAdjustment(itemKey, label, points, reason) {
+  return [{ itemKey, label, points, reason, source: 'manual', scope: 'food_specific_anomaly' }];
+}
+
 const scoreAdjustmentsById = {
-  avocado: [{ itemKey: 'fruit_fat_profile_anomaly', label: 'insane fat profile for a fruit', points: 55, reason: 'Avocado is a low-sugar, high-unsaturated-fat fruit outlier, so normal fruit scoring undercounts its category-breaking profile.', source: 'manual', scope: 'food_specific_anomaly' }],
-  kale: [{ itemKey: 'vegetable_protein_profile_anomaly', label: 'unusual protein profile for a vegetable', points: 20, reason: 'Kale has unusually meaningful protein support for a vegetable even though the useful-protein gate keeps the protein-quality section conservative.', source: 'manual', scope: 'food_specific_anomaly' }],
-  'potato-chips': [{ itemKey: 'fried_tuber_snack_penalty', label: 'fried chip format penalty', points: -50, reason: 'A fried snack-chip format should not ride normal tuber starch and protein scoring into a top tier.', source: 'manual', scope: 'food_specific_anomaly' }],
-  'instant-mashed-potatoes': [{ itemKey: 'instant_tuber_processing_penalty', label: 'instant tuber processing penalty', points: -10, reason: 'Instant processing weakens the whole-tuber case beyond what the visible pros and cons can express.', source: 'manual', scope: 'food_specific_anomaly' }],
-  fries: [{ itemKey: 'fried_tuber_format_penalty', label: 'fried tuber format penalty', points: -15, reason: 'Frying and energy density push fries below what their remaining potato nutrients suggest.', source: 'manual', scope: 'food_specific_anomaly' }],
-  'tater-tots': [{ itemKey: 'processed_fried_tuber_penalty', label: 'processed fried tuber penalty', points: -15, reason: 'Processed fried potato format needs an extra penalty outside the normal tuber section math.', source: 'manual', scope: 'food_specific_anomaly' }],
-  'taro-chips': [{ itemKey: 'fried_taro_chip_penalty', label: 'fried taro chip penalty', points: -20, reason: 'Fried chip treatment should clearly separate taro chips from cleaner whole-tuber forms.', source: 'manual', scope: 'food_specific_anomaly' }],
-  'cassava-chips': [{ itemKey: 'cassava_chip_format_penalty', label: 'cassava chip format penalty', points: -10, reason: 'Snack-chip processing makes cassava chips weaker than the normal tuber math alone shows.', source: 'manual', scope: 'food_specific_anomaly' }],
-  ketchup: [{ itemKey: 'sweet_condiment_score_penalty', label: 'sweet condiment score penalty', points: -35, reason: 'A sweet condiment should not benefit too much from low fat while giving little nutrition back.', source: 'manual', scope: 'food_specific_anomaly' }],
-  'barbecue-sauce': [{ itemKey: 'sweet_sauce_score_penalty', label: 'sweet sauce score penalty', points: -20, reason: 'A sugar-heavy sauce needs an extra score penalty beyond the normal misc section average.', source: 'manual', scope: 'food_specific_anomaly' }],
-  'maple-syrup': [{ itemKey: 'liquid_sugar_score_penalty', label: 'liquid sugar score penalty', points: -35, reason: 'Trace minerals do not rescue the fact that maple syrup is still mostly concentrated sugar.', source: 'manual', scope: 'food_specific_anomaly' }],
-  'milk-chocolate-bar': [{ itemKey: 'candy_bar_score_penalty', label: 'candy-bar score penalty', points: -30, reason: 'Candy-bar format needs to stay below what its minerals and protein traces might imply.', source: 'manual', scope: 'food_specific_anomaly' }],
-  'protein-bar-generic': [{ itemKey: 'processed_bar_score_penalty', label: 'processed protein-bar penalty', points: -30, reason: 'A protein bar can be useful, but processing keeps it from ranking like a cleaner protein food.', source: 'manual', scope: 'food_specific_anomaly' }],
-  'dark-chocolate-85': [{ itemKey: 'dense_treat_score_penalty', label: 'dense treat score penalty', points: -10, reason: 'Dark chocolate has real upside, but dense treat status should keep the score from overreaching.', source: 'manual', scope: 'food_specific_anomaly' }],
-  'sweetened-coffee-creamer': [{ itemKey: 'sweetened_creamer_score_penalty', label: 'sweetened creamer score penalty', points: -20, reason: 'Sugary fat-blend format deserves a direct penalty beyond the misc section average.', source: 'manual', scope: 'food_specific_anomaly' }]
+  avocado: scoreAdjustment('fruit_fat_profile_anomaly', 'insane fat profile for a fruit', 55, 'Avocado is a low-sugar, high-unsaturated-fat fruit outlier, so normal fruit scoring undercounts its category-breaking profile.'),
+  kale: scoreAdjustment('vegetable_protein_profile_anomaly', 'unusual protein profile for a vegetable', 20, 'Kale has unusually meaningful protein support for a vegetable even though the useful-protein gate keeps the protein-quality section conservative.'),
+  'cola-regular': scoreAdjustment('liquid_sugar_slop_penalty', 'liquid-sugar slop-tier penalty', -30, 'Liquid sugar with no meaningful nutrient return belongs below the normal D tier.'),
+  'potato-chips': scoreAdjustment('fried_tuber_snack_slop_penalty', 'fried chip slop-tier penalty', -90, 'A fried snack-chip format should land below normal weak tuber foods.'),
+  'instant-mashed-potatoes': scoreAdjustment('instant_tuber_processing_penalty', 'instant tuber processing penalty', -10, 'Instant processing weakens the whole-tuber case beyond what the visible pros and cons can express.'),
+  fries: scoreAdjustment('fried_tuber_format_slop_penalty', 'fried tuber slop-tier penalty', -35, 'Frying and energy density push fries below what their remaining potato nutrients suggest.'),
+  'tater-tots': scoreAdjustment('processed_fried_tuber_slop_penalty', 'processed fried tuber slop-tier penalty', -30, 'Processed fried potato format belongs below the normal D tier.'),
+  'taro-chips': scoreAdjustment('fried_taro_chip_slop_penalty', 'fried taro chip slop-tier penalty', -40, 'Fried chip treatment should clearly separate taro chips from cleaner whole-tuber forms.'),
+  'cassava-chips': scoreAdjustment('cassava_chip_slop_penalty', 'cassava chip slop-tier penalty', -30, 'Snack-chip processing makes cassava chips worse than the normal tuber math alone shows.'),
+  ketchup: scoreAdjustment('sweet_condiment_slop_penalty', 'sweet condiment slop-tier penalty', -60, 'A sweet condiment should not benefit too much from low fat while giving little nutrition back.'),
+  'barbecue-sauce': scoreAdjustment('sweet_sauce_slop_penalty', 'sweet sauce slop-tier penalty', -60, 'A sugar-heavy sauce belongs below normal weak misc foods.'),
+  'maple-syrup': scoreAdjustment('liquid_sugar_slop_penalty', 'liquid sugar slop-tier penalty', -80, 'Trace minerals do not rescue the fact that maple syrup is still mostly concentrated sugar.'),
+  'milk-chocolate-bar': scoreAdjustment('candy_bar_slop_penalty', 'candy-bar slop-tier penalty', -70, 'Candy-bar format belongs below the normal D tier despite mineral and protein traces.'),
+  'protein-bar-generic': scoreAdjustment('processed_bar_score_penalty', 'processed protein-bar penalty', -30, 'A protein bar can be useful, but processing keeps it from ranking like a cleaner protein food.'),
+  'dark-chocolate-85': scoreAdjustment('dense_treat_score_penalty', 'dense treat score penalty', -10, 'Dark chocolate has real upside, but dense treat status should keep the score from overreaching.'),
+  'sweetened-coffee-creamer': scoreAdjustment('sweetened_creamer_slop_penalty', 'sweetened creamer slop-tier penalty', -40, 'Sugary fat-blend format deserves a direct penalty below the normal D tier.'),
+  'ice-cream': scoreAdjustment('sweetened_dessert_slop_penalty', 'sweetened dessert slop-tier penalty', -15, 'Dessert-style sugar and saturated fat make this worse than a normal weak dairy food.'),
+  'sweetened-sunflower-spread': scoreAdjustment('sweetened_seed_spread_slop_penalty', 'sweetened seed spread slop-tier penalty', -20, 'Sweetened spread format drags this below cleaner seed foods.'),
+  'hot-dog': scoreAdjustment('processed_meat_slop_penalty', 'processed meat slop-tier penalty', -20, 'Highly processed meat format belongs below normal weak meat entries.'),
+  'processed-honey': scoreAdjustment('processed_honey_slop_penalty', 'processed honey slop-tier penalty', -20, 'Concentrated sugar with almost no useful nutrition belongs below the normal D tier.'),
+  margarine: scoreAdjustment('spread_fat_slop_penalty', 'spread-fat slop-tier penalty', -20, 'Processed spread-fat format belongs below cleaner fats.'),
+  'sweetened-condensed-milk': scoreAdjustment('sweetened_condensed_milk_slop_penalty', 'sweetened condensed milk slop-tier penalty', -20, 'Concentrated sweetened dairy belongs below normal weak dairy foods.'),
+  'turkey-sausage': scoreAdjustment('processed_meat_slop_penalty', 'processed meat slop-tier penalty', -20, 'Processed sausage format belongs below cleaner meat options.'),
+  'soy-yogurt-sweetened': scoreAdjustment('sweetened_yogurt_slop_penalty', 'sweetened yogurt slop-tier penalty', -20, 'Sweetened yogurt format belongs below cleaner legume-based options.'),
+  'fruit-yogurt-sweetened': scoreAdjustment('sweetened_yogurt_slop_penalty', 'sweetened yogurt slop-tier penalty', -20, 'Sweetened yogurt format belongs below cleaner dairy options.'),
+  'vegetable-shortening': scoreAdjustment('shortening_slop_penalty', 'shortening slop-tier penalty', -25, 'Processed shortening has little nutritional case beyond cooking function.'),
+  'soy-milk-sweetened': scoreAdjustment('sweetened_soy_milk_slop_penalty', 'sweetened soy milk slop-tier penalty', -20, 'Sweetened drink format belongs below cleaner soy options.'),
+  'corn-flakes': scoreAdjustment('refined_cereal_slop_penalty', 'refined cereal slop-tier penalty', -20, 'Refined cereal format belongs below normal weak grains.'),
+  'chocolate-covered-peanuts': scoreAdjustment('candy_coated_nut_slop_penalty', 'candy-coated nut slop-tier penalty', -20, 'Candy coating makes this more candy snack than useful nut food.'),
+  pepperoni: scoreAdjustment('processed_meat_slop_penalty', 'processed meat slop-tier penalty', -25, 'Highly processed salty meat format belongs below normal weak meat entries.'),
+  'trail-mix-chocolate': scoreAdjustment('candy_trail_mix_slop_penalty', 'candy trail-mix slop-tier penalty', -20, 'Chocolate-heavy snack mix belongs below cleaner nut options.'),
+  'chocolate-milk': scoreAdjustment('sweetened_dairy_drink_slop_penalty', 'sweetened dairy drink slop-tier penalty', -20, 'Sweetened dairy drink format belongs below cleaner dairy options.'),
+  'instant-noodles': scoreAdjustment('instant_noodle_slop_penalty', 'instant noodle slop-tier penalty', -25, 'Instant noodle format belongs below normal weak grain entries.'),
+  'candied-walnuts': scoreAdjustment('candied_nut_slop_penalty', 'candied nut slop-tier penalty', -25, 'Candied nut format belongs below cleaner nut options.'),
+  'sesame-snaps': scoreAdjustment('sweet_seed_snack_slop_penalty', 'sweet seed snack slop-tier penalty', -20, 'Sweet snack-bar format belongs below cleaner seed foods.'),
+  salami: scoreAdjustment('processed_meat_slop_penalty', 'processed meat slop-tier penalty', -25, 'Highly processed cured meat belongs below normal weak meat entries.'),
+  'corned-beef': scoreAdjustment('processed_meat_slop_penalty', 'processed meat slop-tier penalty', -25, 'Processed salty meat format belongs below cleaner meat options.'),
+  'lentil-chips': scoreAdjustment('processed_legume_chip_slop_penalty', 'processed legume chip slop-tier penalty', -35, 'Snack-chip processing belongs below cleaner legume foods even when traces of legume nutrition remain.')
 };
 
 const allMetricKeys = [

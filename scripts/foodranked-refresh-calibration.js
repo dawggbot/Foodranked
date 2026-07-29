@@ -18,9 +18,11 @@ const sharedTierThresholds = [
   { tier: 'A', min: 61, max: 79.9999 },
   { tier: 'B', min: 40, max: 60.9999 },
   { tier: 'C', min: 20, max: 39.9999 },
-  { tier: 'D', min: 0, max: 19.9999 }
+  { tier: 'D', min: 0, max: 19.9999 },
+  { tier: 'Slop', min: -100, max: -0.0001 }
 ];
 const tierScoreMap = {
+  Slop: -20,
   D: 20,
   C: 40,
   B: 60,
@@ -96,7 +98,7 @@ function buildScoreCalibration(rawThresholds) {
       { raw: byTier.S, calibrated: 80 },
       { raw: 100, calibrated: 100 }
     ],
-    notes: 'Maps category-calibrated benchmark boundaries onto shared D/C/B/A/S 20-point score bands.'
+    notes: 'Maps category-calibrated benchmark boundaries onto shared Slop/D/C/B/A/S score bands.'
   };
 }
 
@@ -139,7 +141,7 @@ for (const name of foodFiles) {
 const matrix = {
   version: 1,
   basis: { value: 100, unit: 'g' },
-  methodology: 'Foods are sorted by raw ruleset score within each category, calibrated onto shared universal tier thresholds, and checked with a generated-data rarity guard that requires S tier to remain the least common final tier.',
+  methodology: 'Foods are sorted by raw ruleset score within each category, calibrated onto shared universal tier thresholds, and checked with generated-data rarity guards that keep S rare among normal letter tiers and keep Slop as a small special bottom bucket.',
   sharedTierThresholds,
   tierScoreMap,
   categories: {}
@@ -188,9 +190,9 @@ for (const [foodType, rows] of Object.entries(categoryRows).sort()) {
 writeJson(matrixPath, matrix);
 
 let matrixMd = '# CALIBRATION-MATRIX\n\n';
-matrixMd += 'This is the durable 25-food benchmark matrix for every FoodRanked category. Each category uses fixed 5-food S/A/B/C/D raw-score benchmark buckets to build category-specific calibration anchors, then final generated data is checked so S remains the least common final tier.\n';
+matrixMd += 'This is the durable 25-food benchmark matrix for every FoodRanked category. Each category uses fixed 5-food S/A/B/C/D raw-score benchmark buckets to build category-specific calibration anchors, then food-specific anomaly adjustments can push clearly negative foods into the special Slop tier below D.\n';
 matrixMd += `\nShared tier thresholds for internal calibrated/ranking scores: ${sharedTierThresholds.map(t => `${t.tier} ${t.min}-${t.max}`).join(' | ')}\n`;
-matrixMd += '\nPublic `overallScore` is snapped from the final tier, using `D=20`, `C=40`, `B=60`, `A=80`, `S=100`. The calibrated scores below remain the audit and tier-placement benchmark values, not the displayed final score.\n';
+matrixMd += '\nPublic `overallScore` is snapped from the final tier, using `Slop=-20`, `D=20`, `C=40`, `B=60`, `A=80`, `S=100`. The calibrated scores below remain the audit and tier-placement benchmark values, not the displayed final score.\n';
 for (const [foodType, config] of Object.entries(matrix.categories)) {
   matrixMd += `\n## ${foodType}\n`;
   matrixMd += `- raw thresholds: ${config.rawThresholds.map(t => `${t.tier} ${t.min}-${t.max}`).join(' | ')}\n`;
@@ -231,7 +233,7 @@ for (const [foodType, config] of Object.entries(matrix.categories)) {
 
 let resultsMd = '# CALIBRATION-MATRIX-RESULTS\n\n';
 resultsMd += 'Verification after writing the calibration matrix, category score calibrations, and shared tier thresholds.\n';
-resultsMd += '\nThis verifies internal calibrated/ranking score tier placement. Public `overallScore` is snapped from the final tier with `D=20`, `C=40`, `B=60`, `A=80`, `S=100`.\n';
+resultsMd += '\nThis verifies internal calibrated/ranking score tier placement. Public `overallScore` is snapped from the final tier with `Slop=-20`, `D=20`, `C=40`, `B=60`, `A=80`, `S=100`.\n';
 for (const [foodType, result] of Object.entries(verification)) {
   resultsMd += `\n## ${foodType}\n`;
   resultsMd += `- matched: ${result.matchCount}/${result.total}\n`;

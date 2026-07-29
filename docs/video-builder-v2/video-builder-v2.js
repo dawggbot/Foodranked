@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260729-evoo-header-space-v1';
+  const BUILDER_BUILD_ID = '20260729-slop-tier-v1';
   const DISPLAY_BUILDER_V2_EXPORT_TIMEOUT_MS = 8000;
   const DISPLAY_BUILDER_V2_EXPORT_POLL_MS = 150;
   const AUTHOR_GRID = { width: 135, height: 240 };
@@ -323,14 +323,19 @@
     A: './sprites/ui/intro_&_outro/A_tier.png',
     B: './sprites/ui/intro_&_outro/B_tier.png',
     C: './sprites/ui/intro_&_outro/C_tier.png',
-    D: './sprites/ui/intro_&_outro/D_tier.png'
+    D: './sprites/ui/intro_&_outro/D_tier.png',
+    SLOP: './sprites/ui/intro_&_outro/slop.png'
+  });
+  const OUTRO_TIER_STAMP_ASPECT_RATIOS = Object.freeze({
+    SLOP: 62 / 50
   });
   const OUTRO_TIER_GLOW_RGB = Object.freeze({
     S: '255, 238, 154',
     A: '112, 218, 255',
     B: '124, 242, 167',
     C: '246, 198, 95',
-    D: '255, 113, 113'
+    D: '255, 113, 113',
+    SLOP: '154, 190, 86'
   });
   const OUTRO_LIKE_SPRITE_PATH = './sprites/ui/intro_&_outro/like.png';
   const OUTRO_FOLLOW_SPRITE_PATH = './sprites/ui/intro_&_outro/follow.png';
@@ -504,7 +509,7 @@
     cons: ['drawbacks next', 'drawbacks'],
     outro: ['tier']
   };
-  const TIER_REVEAL_RE = /^[SDCBA]\s+tier\.?$/i;
+  const TIER_REVEAL_RE = /^(?:Slop|[SDCBA])\s+tier\.?$/i;
 
   const els = {
     foodSearch: document.getElementById('foodSearch'),
@@ -2716,6 +2721,7 @@
 
   function normalizedTier(value) {
     const normalized = String(value || '').trim().toUpperCase();
+    if (/^SLOP(?:\s*TIER)?\.?$/.test(normalized)) return 'SLOP';
     const match = normalized.match(/^([SABCD])(?:\s*TIER)?\.?$/);
     const tier = match?.[1] || '';
     return OUTRO_TIER_SPRITE_PATHS[tier] ? tier : '';
@@ -2731,7 +2737,12 @@
 
   function outroTierStampLabel(tier) {
     const normalized = normalizedTier(tier);
+    if (normalized === 'SLOP') return 'Slop tier verdict stamp';
     return normalized ? `${normalized} tier verdict stamp` : 'Tier verdict stamp';
+  }
+
+  function outroTierStampAspectRatio(tier) {
+    return OUTRO_TIER_STAMP_ASPECT_RATIOS[normalizedTier(tier)] || 1;
   }
 
   function outroTierGlowRgb(tier) {
@@ -2938,7 +2949,7 @@
     if (!Number.isFinite(Number(layer.z))) layer.z = 38;
     layer.width = OUTRO_TIER_STAMP_SIZE;
     layer.height = OUTRO_TIER_STAMP_SIZE;
-    if (!Number.isFinite(Number(layer.aspectRatio))) layer.aspectRatio = 1;
+    layer.aspectRatio = outroTierStampAspectRatio(tier);
     if (!hadExistingLayer && !layer.centerAnchor) layer.centerAnchor = 'visible-canvas';
     if (layer.centerAnchor === 'visible-canvas') {
       if (!Number.isFinite(Number(layer.centerOffsetX))) layer.centerOffsetX = 0;
@@ -3085,6 +3096,8 @@
       .replace(/\b(\d+)\.\s+(\d+)(?=\s*(?:mcg|mg|kg|kcal|g|%|\b))/gi, '$1.$2')
       .replace(/\s+/g, ' ')
       .trim();
+    const slopTierReveal = normalized.match(/^slop\s+tier\.?$/i);
+    if (slopTierReveal) return 'Slop tier.';
     const tierReveal = normalized.match(/^([sabcd])\s+tier\.?$/i);
     return tierReveal ? `${tierReveal[1].toUpperCase()} tier.` : normalized;
   }
@@ -6195,7 +6208,7 @@
   function isSpecialOutroTierStampSfxSchedule(schedule) {
     if (schedule?.family !== 'outro' || schedule?.kind !== 'tier') return false;
     const tier = outroTierForFood(selectedFood());
-    return tier === 'S' || tier === 'D';
+    return tier === 'S' || tier === 'SLOP';
   }
 
   function stampSfxEvents() {
@@ -6231,11 +6244,11 @@
   }
 
   function isDTierStampSfxSchedule(schedule) {
-    if (outroTierForFood(selectedFood()) !== 'D') return false;
+    if (outroTierForFood(selectedFood()) !== 'SLOP') return false;
     if (schedule?.family !== 'outro' || schedule?.kind !== 'tier') return false;
     const id = String(schedule?.layerId || '').toLowerCase();
     if (id !== OUTRO_TIER_STAMP_ID && id !== OUTRO_TIER_STAMP_LEGACY_ID) return false;
-    return /(?:^|\/)D_tier\.png$/i.test(String(schedule?.src || ''));
+    return /(?:^|\/)slop\.png$/i.test(String(schedule?.src || ''));
   }
 
   function sTierStampSfxEvents() {
@@ -6278,7 +6291,7 @@
           }
         });
     });
-    if (!events.size && outroTierForFood(food) === 'D') {
+    if (!events.size && outroTierForFood(food) === 'SLOP') {
       const scene = sceneStarts().find(item => item.id === 'outro');
       if (scene) {
         const schedule = {
@@ -6667,7 +6680,7 @@
 
   function primeDTierStampSfx() {
     if (!state.audioEnabled) return;
-    if (outroTierForFood(selectedFood()) !== 'D') return;
+    if (outroTierForFood(selectedFood()) !== 'SLOP') return;
     [...ensureDTierGameLoseSfxAudioPool(), ...ensureDTierDeathSfxAudioPool()].forEach(audio => {
       try {
         audio.load();

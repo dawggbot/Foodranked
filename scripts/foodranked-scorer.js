@@ -30,12 +30,15 @@ const MACRO_SECTION_HEADER_KEYS = {
   proteins: 'protein_g'
 };
 const TIER_SCORE_MAP = {
+  Slop: -20,
   D: 20,
   C: 40,
   B: 60,
   A: 80,
   S: 100
 };
+const MIN_ANOMALY_ADJUSTED_SCORE = -100;
+const MAX_ANOMALY_ADJUSTED_SCORE = 100;
 const aminoAcidThresholds = readJson(path.join(__dirname, '..', 'config', 'amino-acid-thresholds.v1.json'));
 
 function scoreFromBands(value, bands) {
@@ -536,7 +539,11 @@ function main() {
   const calibratedOverallScoreExact = applyScoreCalibration(baseOverallScoreExact, ruleset.scoreCalibration);
   const scoreAdjustments = normalizeScoreAdjustments(food);
   const scoreAdjustmentTotalExact = scoreAdjustmentTotal(scoreAdjustments);
-  const anomalyAdjustedScoreExact = clamp(calibratedOverallScoreExact + scoreAdjustmentTotalExact, 0, 100);
+  const anomalyAdjustedScoreExact = clamp(
+    calibratedOverallScoreExact + scoreAdjustmentTotalExact,
+    MIN_ANOMALY_ADJUSTED_SCORE,
+    MAX_ANOMALY_ADJUSTED_SCORE
+  );
   const rankingScoreExact = anomalyAdjustedScoreExact;
 
   const tier = getTier(anomalyAdjustedScoreExact, ruleset.tierThresholds);

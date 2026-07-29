@@ -296,12 +296,13 @@ Versioned shared mapping from anomaly-adjusted overall score to final tier.
 Suggested fields:
 - id
 - version
-- tier_label (`S`, `A`, `B`, `C`, `D`)
+- tier_label (`S`, `A`, `B`, `C`, `D`, `Slop`)
 - min_score
 - max_score
 
 ### tier_score_map
 Locked public display score for each final tier:
+- `Slop = -20`
 - `D = 20`
 - `C = 40`
 - `B = 60`

@@ -29,8 +29,8 @@
   const PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const PLACEMENT_EXPORT_LIMIT = 60;
   const PAGE_URL_PARAMS = new URLSearchParams(window.location.search);
-  const DISPLAY_BUILDER_V2_BUILD_ID = PAGE_URL_PARAMS.get('build') || '20260729-evoo-header-space-v1';
-  const DATA_CACHE_BUST = '20260729-evoo-header-space-v1';
+  const DISPLAY_BUILDER_V2_BUILD_ID = PAGE_URL_PARAMS.get('build') || '20260729-slop-tier-v1';
+  const DATA_CACHE_BUST = '20260729-slop-tier-v1';
   const FOOD_JSON_CACHE = new Map();
   const BATCH_RESULTS_CACHE = new Map();
   const TEXT_LAYER_CLIP_BLEED = 2;
@@ -62,7 +62,11 @@
     A: './sprites/ui/intro_&_outro/A_tier.png',
     B: './sprites/ui/intro_&_outro/B_tier.png',
     C: './sprites/ui/intro_&_outro/C_tier.png',
-    D: './sprites/ui/intro_&_outro/D_tier.png'
+    D: './sprites/ui/intro_&_outro/D_tier.png',
+    SLOP: './sprites/ui/intro_&_outro/slop.png'
+  });
+  const OUTRO_TIER_STAMP_ASPECT_RATIOS = Object.freeze({
+    SLOP: 62 / 50
   });
   const OUTRO_LIKE_SPRITE_PATH = './sprites/ui/intro_&_outro/like.png';
   const OUTRO_FOLLOW_SPRITE_PATH = './sprites/ui/intro_&_outro/follow.png';
@@ -1248,6 +1252,7 @@
 
   function normalizedTier(value) {
     const normalized = String(value || '').trim().toUpperCase();
+    if (/^SLOP(?:\s*TIER)?\.?$/.test(normalized)) return 'SLOP';
     const match = normalized.match(/^([SABCD])(?:\s*TIER)?\.?$/);
     const tier = match?.[1] || '';
     return OUTRO_TIER_SPRITE_PATHS[tier] ? tier : '';
@@ -1263,7 +1268,12 @@
 
   function outroTierStampLabel(tier) {
     const normalized = normalizedTier(tier);
+    if (normalized === 'SLOP') return 'Slop tier verdict stamp';
     return normalized ? `${normalized} tier verdict stamp` : 'Tier verdict stamp';
+  }
+
+  function outroTierStampAspectRatio(tier) {
+    return OUTRO_TIER_STAMP_ASPECT_RATIOS[normalizedTier(tier)] || 1;
   }
 
   function outroStaticStampLayers(layout, food) {
@@ -1284,7 +1294,7 @@
       height: OUTRO_TIER_STAMP_SIZE,
       visible: Boolean(tierSrc),
       preserveAspect: true,
-      aspectRatio: 1,
+      aspectRatio: outroTierStampAspectRatio(tier),
       tier,
       stampRole: 'tier'
     };

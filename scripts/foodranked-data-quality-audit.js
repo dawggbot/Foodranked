@@ -37,6 +37,7 @@ const EXPECTED_AMINO_ACID_GROUP_COUNTS = {
   nonessentialGroups: 11
 };
 const EXPECTED_TIER_SCORE_MAP = {
+  Slop: -20,
   D: 20,
   C: 40,
   B: 60,
@@ -48,9 +49,14 @@ const EXPECTED_TIER_THRESHOLDS = [
   { tier: 'A', min: 61, max: 79.9999 },
   { tier: 'B', min: 40, max: 60.9999 },
   { tier: 'C', min: 20, max: 39.9999 },
-  { tier: 'D', min: 0, max: 19.9999 }
+  { tier: 'D', min: 0, max: 19.9999 },
+  { tier: 'Slop', min: -100, max: -0.0001 }
 ];
 const RAREST_TIER = 'S';
+const NORMAL_RARITY_TIERS = ['D', 'C', 'B', 'A'];
+const SPECIAL_BOTTOM_TIER = 'Slop';
+const MAX_SCORE_ADJUSTMENT_POINTS = 100;
+const MAX_STANDARD_SCORE_ADJUSTMENT_POINTS = 60;
 const LABEL_SCORES = {
   '3_red': 0,
   '2_red': 20,
@@ -379,10 +385,24 @@ function auditFoods(errors, warnings) {
           points: adjustment.points ?? null
         });
       }
-      if (typeof adjustment.points === 'number' && Math.abs(adjustment.points) > 60) {
-        issue(errors, file, 'score adjustment should stay within +/-60 points', {
+      if (typeof adjustment.points === 'number' && Math.abs(adjustment.points) > MAX_SCORE_ADJUSTMENT_POINTS) {
+        issue(errors, file, 'score adjustment should stay within +/-100 points', {
           index,
           points: adjustment.points
+        });
+      }
+      const adjustmentText = `${adjustment.itemKey || ''} ${adjustment.label || ''}`.toLowerCase();
+      const allowedLargeSlopPenalty = adjustment.points < 0
+        && Math.abs(adjustment.points) > MAX_STANDARD_SCORE_ADJUSTMENT_POINTS
+        && adjustmentText.includes('slop');
+      if (typeof adjustment.points === 'number'
+        && Math.abs(adjustment.points) > MAX_STANDARD_SCORE_ADJUSTMENT_POINTS
+        && !allowedLargeSlopPenalty) {
+        issue(errors, file, 'score adjustment over 60 points must be a negative Slop-specific penalty', {
+          index,
+          points: adjustment.points,
+          itemKey: adjustment.itemKey || null,
+          label: adjustment.label || null
         });
       }
     }
@@ -442,7 +462,7 @@ function auditRulesets(errors) {
 
     for (const [tier, expectedScore] of Object.entries(EXPECTED_TIER_SCORE_MAP)) {
       if (ruleset.tierScoreMap?.[tier] !== expectedScore) {
-        issue(errors, file, 'tierScoreMap must use locked D/C/B/A/S display scores', {
+        issue(errors, file, 'tierScoreMap must use locked Slop/D/C/B/A/S display scores', {
           tier,
           expected: expectedScore,
           actual: ruleset.tierScoreMap?.[tier] ?? null
@@ -712,17 +732,24 @@ function auditGeneratedTierDistribution(errors) {
   }
 
   const sCount = counts[RAREST_TIER] || 0;
-  for (const tier of Object.keys(EXPECTED_TIER_SCORE_MAP)) {
-    if (tier === RAREST_TIER) continue;
+  for (const tier of NORMAL_RARITY_TIERS) {
     const count = counts[tier] || 0;
     if (sCount >= count) {
-      issue(errors, file, 'S tier must remain the least common generated final tier', {
+      issue(errors, file, 'S tier must remain the least common generated normal letter tier', {
         tier,
         sTierCount: sCount,
         comparedTierCount: count,
         counts
       });
     }
+  }
+  const slopCount = counts[SPECIAL_BOTTOM_TIER] || 0;
+  if (slopCount > sCount) {
+    issue(errors, file, 'Slop tier must stay as rare as S tier or rarer', {
+      slopTierCount: slopCount,
+      sTierCount: sCount,
+      counts
+    });
   }
 
   return { tierDistributionFoods: rows.length, tierCounts: counts };

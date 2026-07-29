@@ -5,7 +5,7 @@
 - direct to viewer
 - less big/complicated wording unless needed for nutrition terms
 - always open with `SUBJECT ranked`
-- always close on `S-D tier`
+- always close on the final tier reveal, such as `A tier.` or `Slop tier.`
 
 ## Section rules
 - always mention header macros in the first 3 sections:
@@ -56,4 +56,4 @@ Example section lines:
 - opener
 - 7 short sections
 - closing summary with strengths, weaknesses, and what the food is good for
-- final tier line ending on `S-D tier`
+- final tier line ending on the final tier reveal

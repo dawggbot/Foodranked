@@ -108,9 +108,10 @@ Keep the JSON split into:
       { "raw": 49.8098, "calibrated": 80 },
       { "raw": 100, "calibrated": 100 }
     ],
-    "notes": "Maps category-calibrated benchmark boundaries onto shared D/C/B/A/S 20-point score bands."
+    "notes": "Maps category-calibrated benchmark boundaries onto shared Slop/D/C/B/A/S score bands."
   },
   "tierScoreMap": {
+    "Slop": -20,
     "D": 20,
     "C": 40,
     "B": 60,
@@ -122,7 +123,8 @@ Keep the JSON split into:
     { "tier": "A", "min": 61, "max": 79.9999 },
     { "tier": "B", "min": 40, "max": 60.9999 },
     { "tier": "C", "min": 20, "max": 39.9999 },
-    { "tier": "D", "min": 0, "max": 19.9999 }
+    { "tier": "D", "min": 0, "max": 19.9999 },
+    { "tier": "Slop", "min": -100, "max": -0.0001 }
   ]
 }
 ```
@@ -253,6 +255,6 @@ The scorer should:
 7. apply `scoreCalibration` to produce `calibratedOverallScore`
 8. apply any food-specific `scoreAdjustments` to produce `anomalyAdjustedScore` / `rankingScore`
 9. map `anomalyAdjustedScore` to the tier with shared `tierThresholds`
-10. set public `overallScore` from `tierScoreMap`
+10. set public `overallScore` from `tierScoreMap`; the special `Slop` tier displays a negative score
 
 That keeps the math explainable while matching the visible video structure.

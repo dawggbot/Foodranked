@@ -351,19 +351,21 @@ Current shared final tier thresholds:
 - `B`: 40 to 60.9999
 - `C`: 20 to 39.9999
 - `D`: 0 to 19.9999
+- `Slop`: -100 to -0.0001
 
 Each category stores `scoreCalibration` anchors that map raw benchmark boundaries onto the shared comparable scale.
 
-The active generated dataset must keep `S` as the least common final tier. The generated-data audit fails if the `S` count ties or exceeds any other tier count.
+The active generated dataset must keep `S` as the least common normal letter tier. The special `Slop` tier is allowed to be similarly rare or rarer, but it must remain a small bottom bucket rather than swallowing normal D-tier foods.
 
 Public display scores are locked to the final tier:
+- `Slop` tier displays `-20`
 - `D` tier displays `20`
 - `C` tier displays `40`
 - `B` tier displays `60`
 - `A` tier displays `80`
 - `S` tier displays `100`
 
-Food-specific anomaly adjustments may be applied after calibration and before tier lookup. Use them only for explicit cases that normal pros/cons cannot cover fairly, such as an unusually strong protein profile for a vegetable, an unusually strong fat profile for a fruit, or a processed/fried/sweetened format whose real-world category fit is weaker than the seven visible sections imply.
+Food-specific anomaly adjustments may be applied after calibration and before tier lookup. Positive adjustments can lift explicit outliers such as unusually strong protein for a vegetable or unusually strong fat quality for a fruit. Negative adjustments can push processed, fried, liquid-sugar, candy-like, or heavily sweetened formats below zero into `Slop` when their real-world category fit is worse than the seven visible sections imply.
 
 That means:
 - do not compare uncalibrated raw scores across food types

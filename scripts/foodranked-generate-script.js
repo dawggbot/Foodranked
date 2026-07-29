@@ -1791,7 +1791,7 @@ function bestUsesLine(result) {
       'oils-and-fats': 'Best only in small amounts when the cooking job matters more than the nutrition story',
     misc: 'Best treated as an occasional context item, not a nutritional base'
   };
-  if (tier === 'D' || tier === 'C') return weakByType[type] || 'Best only in narrow use cases where its limitations matter less';
+  if (tier === 'Slop' || tier === 'D' || tier === 'C') return weakByType[type] || 'Best only in narrow use cases where its limitations matter less';
   return strongByType[type] || 'Best when its strengths actually match the job you want it to do';
 }
 
@@ -2106,6 +2106,7 @@ function applyScriptOverrides(script, override) {
       script.closing.finalReveal = normalizeOverrideNarration(closing.finalReveal);
     }
   }
+  script.closing.finalReveal = `${script.tier} tier.`;
 
   script.scriptOverride = {
     schemaVersion: data.schemaVersion || 'foodranked-script-overrides.v1',

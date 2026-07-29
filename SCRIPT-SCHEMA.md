@@ -73,7 +73,7 @@ It is the bridge between:
 - `narrationBlocks[]`
 - `explanation`
 
-`overallScore` is the public display score and is locked to the final tier: `D=20`, `C=40`, `B=60`, `A=80`, `S=100`. Use `rankingScore` / `rankingScoreExact` for sorting and audit comparisons.
+`overallScore` is the public display score and is locked to the final tier: `Slop=-20`, `D=20`, `C=40`, `B=60`, `A=80`, `S=100`. Use `rankingScore` / `rankingScoreExact` for sorting and audit comparisons.
 
 ## `food`
 
@@ -150,7 +150,7 @@ Narration rules:
 - closing summary should mention the main strengths, main weaknesses, and evidence-based best use cases; it should not replace the final tier reveal
 - when the selected vitamin metric is `vitamin_b12_dv`, narration and subtitles must say `Vitamin B12`; never shorten it to generic `Vitamin B`
 - do not narrate the overall score
-- the last spoken block must always be the tier reveal, for example `D tier.`
+- the last spoken block must always be the tier reveal, for example `D tier.` or `Slop tier.`
 
 ## `closing`
 
@@ -159,7 +159,7 @@ The closing object contains:
 - `useCases[]` - ranked evidence-derived use cases with `key`, `label`, `reason`, and `score`
 - `strengthHighlights[]` - selected strengths from macro, micronutrient, pro, and con context
 - `weaknessHighlights[]` - selected weaknesses from macro, micronutrient, pro, and con context
-- `finalReveal` - the separate final tier block, for example `A tier.`
+- `finalReveal` - the separate final tier block, for example `A tier.` or `Slop tier.`
 - `useCaseNote` - legacy compact use-case line retained for compatibility
 - `cta` - optional CTA text, excluded from normal no-CTA narration blocks
 

@@ -1,10 +1,10 @@
 # CALIBRATION-MATRIX
 
-This is the durable 25-food benchmark matrix for every FoodRanked category. Each category uses fixed 5-food S/A/B/C/D raw-score benchmark buckets to build category-specific calibration anchors, then final generated data is checked so S remains the least common final tier.
+This is the durable 25-food benchmark matrix for every FoodRanked category. Each category uses fixed 5-food S/A/B/C/D raw-score benchmark buckets to build category-specific calibration anchors, then food-specific anomaly adjustments can push clearly negative foods into the special Slop tier below D.
 
-Shared tier thresholds for internal calibrated/ranking scores: S 80-100 | A 61-79.9999 | B 40-60.9999 | C 20-39.9999 | D 0-19.9999
+Shared tier thresholds for internal calibrated/ranking scores: S 80-100 | A 61-79.9999 | B 40-60.9999 | C 20-39.9999 | D 0-19.9999 | Slop -100--0.0001
 
-Public `overallScore` is snapped from the final tier, using `D=20`, `C=40`, `B=60`, `A=80`, `S=100`. The calibrated scores below remain the audit and tier-placement benchmark values, not the displayed final score.
+Public `overallScore` is snapped from the final tier, using `Slop=-20`, `D=20`, `C=40`, `B=60`, `A=80`, `S=100`. The calibrated scores below remain the audit and tier-placement benchmark values, not the displayed final score.
 
 ## dairy
 - raw thresholds: S 50.0714-100 | A 44.7857-50.0713 | B 39.9405-44.7856 | C 36.5596-39.9404 | D 0-36.5595

@@ -4,7 +4,12 @@ Food id: `greek-yogurt`
 
 ## Active Take
 
-- No active audio take is listed in `docs/data/foods-index.json`.
+- Mode: `split-blocks`
+- Take: `voice-v1`
+- Duration: `161.8s`
+- Blocks: `11`
+- Manifest: [docs/audio/episodes/greek-yogurt/voice-v1-blocks.json](../../../docs/audio/episodes/greek-yogurt/voice-v1-blocks.json)
+- Alignment: [outputs/episodes/greek-yogurt-compact/voice-v1-blocks-forced-alignment.json](../../../outputs/episodes/greek-yogurt-compact/voice-v1-blocks-forced-alignment.json)
 
 ## Takes
 

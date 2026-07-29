@@ -10,7 +10,7 @@ This folder is the GitHub-facing catalogue for generated narration files. The MP
 [Buckwheat](buckwheat.md) | `voice-v1` | `split-blocks` |  | 11 | 13 | 12 | 15
 [Chia Seeds](chia-seeds.md) | `voice-v1` | `split-blocks` | 159.8s | 11 | 14 | 12 | 15
 [Extra Virgin Olive Oil](extra-virgin-olive-oil.md) |  |  |  |  | 2 | 0 | 3
-[Greek Yogurt](greek-yogurt.md) |  |  |  |  | 14 | 12 | 15
+[Greek Yogurt](greek-yogurt.md) | `voice-v1` | `split-blocks` | 161.8s | 11 | 14 | 12 | 15
 [Hazelnuts](hazelnuts.md) | `voice-v1` | `split-blocks` | 143.8s | 11 | 13 | 12 | 15
 [Kale](kale.md) | `voice-v6` | `split-blocks` |  | 11 | 74 | 72 | 75
 [Oats](oats.md) |  |  |  |  | 2 | 0 | 3

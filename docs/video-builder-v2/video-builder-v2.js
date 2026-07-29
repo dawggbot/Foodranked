@@ -2628,8 +2628,14 @@
       for (let index = 0; index < 3; index += 1) {
         const impact = layers.find(layer => layer.id === `${sectionId}_impact_${index + 1}`);
         const item = layers.find(layer => layer.id === `${sectionId}_item_${index + 1}`);
-        if (impact && !impact.manualText) impact.text = formatImpact(items[index]?.impactLevel);
-        if (item && !item.manualText) item.text = items[index]?.title || `${sectionId === 'pros' ? 'Positive' : 'Negative'} point ${index + 1}`;
+        if (impact) {
+          impact.text = formatImpact(items[index]?.impactLevel);
+          impact.visible = true;
+        }
+        if (item) {
+          item.text = items[index]?.title || 'N/A';
+          item.visible = true;
+        }
       }
     }
   }
@@ -2994,6 +3000,7 @@
     ensureOutroTierStampLayer(layout, food);
     syncHeader(layout, food);
     syncOutroScoreValue(layout, food);
+    syncProsCons(layout, food);
     state.layout = layout;
     state.displayBuilderExportStatus = 'ready';
     syncSectionIndicators(layout, food);

@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260729-database-v3';
+  const BUILDER_BUILD_ID = '20260729-mp4-export-v1';
   const DISPLAY_BUILDER_V2_EXPORT_TIMEOUT_MS = 8000;
   const DISPLAY_BUILDER_V2_EXPORT_POLL_MS = 150;
   const AUTHOR_GRID = { width: 105, height: 186.666667 };
@@ -206,18 +206,6 @@
   const MAJOR_CON_SIREN_SFX_PATH = databaseUniversalSfxPath('majorConSiren', 'audio/sfx/sections/cons/major_con_siren_buzzer.mp3');
   const MAJOR_CON_SIREN_SFX_VOLUME = 0.20;
   const MAJOR_CON_SIREN_SFX_POOL_SIZE = 4;
-  const HIGHLIGHT_GLOW_SFX_PATH = databaseUniversalSfxPath('highlightGlow', 'audio/sfx/ui/highlight_glow_loop.mp3');
-  const HIGHLIGHT_GLOW_SFX_VOLUME = 0;
-  const HIGHLIGHT_GLOW_SFX_FADE_IN_SPEED = 5.2;
-  const HIGHLIGHT_GLOW_SFX_FADE_OUT_SPEED = 3.4;
-  const HIGHLIGHT_GLOW_SFX_PLAYBACK_RATE_FADE_SPEED = 4.8;
-  const HIGHLIGHT_GLOW_SFX_PLAYBACK_RATE_RANGES = {
-    green: { min: 1.16, max: 1.42 },
-    red: { min: 0.58, max: 0.82 },
-    neutral: { min: 0.9, max: 1.12 }
-  };
-  const HIGHLIGHT_GLOW_SFX_MIN_RATE_CHANGE = 0.12;
-  const HIGHLIGHT_GLOW_SFX_STOP_THRESHOLD = 0.0015;
   const SFX_ASSET_SETTINGS = Object.freeze({
     'audio/sfx/stamps/impact_stamp_hit.mp3': {
       stampImpact: {
@@ -279,28 +267,6 @@
         volume: 1.5,
         maxVolume: SECTION_TRANSITION_SFX_MAX_VOLUME,
         timeOffsetSeconds: 0
-      }
-    },
-    'audio/sfx/ui/highlight_glow_loop.mp3': {
-      highlightGlow: {
-        volume: HIGHLIGHT_GLOW_SFX_VOLUME,
-        fadeInSpeed: HIGHLIGHT_GLOW_SFX_FADE_IN_SPEED,
-        fadeOutSpeed: HIGHLIGHT_GLOW_SFX_FADE_OUT_SPEED,
-        playbackRateFadeSpeed: HIGHLIGHT_GLOW_SFX_PLAYBACK_RATE_FADE_SPEED,
-        playbackRateRanges: HIGHLIGHT_GLOW_SFX_PLAYBACK_RATE_RANGES,
-        minRateChange: HIGHLIGHT_GLOW_SFX_MIN_RATE_CHANGE,
-        stopThreshold: HIGHLIGHT_GLOW_SFX_STOP_THRESHOLD
-      }
-    },
-    'audio/sfx/ui/freesound_community_magical_background_6892.mp3': {
-      highlightGlow: {
-        volume: HIGHLIGHT_GLOW_SFX_VOLUME,
-        fadeInSpeed: HIGHLIGHT_GLOW_SFX_FADE_IN_SPEED,
-        fadeOutSpeed: HIGHLIGHT_GLOW_SFX_FADE_OUT_SPEED,
-        playbackRateFadeSpeed: HIGHLIGHT_GLOW_SFX_PLAYBACK_RATE_FADE_SPEED,
-        playbackRateRanges: HIGHLIGHT_GLOW_SFX_PLAYBACK_RATE_RANGES,
-        minRateChange: HIGHLIGHT_GLOW_SFX_MIN_RATE_CHANGE,
-        stopThreshold: HIGHLIGHT_GLOW_SFX_STOP_THRESHOLD
       }
     }
   });
@@ -687,14 +653,6 @@
     barFillSfxBuffer: null,
     barFillSfxBufferPromise: null,
     barFillSfxSources: new Set(),
-    highlightGlowSfxAudio: null,
-    highlightGlowSfxPath: '',
-    highlightGlowSfxFoodKey: '',
-    highlightGlowSfxVolume: 0,
-    highlightGlowSfxKey: '',
-    highlightGlowSfxPlaybackRate: 1,
-    highlightGlowSfxTargetPlaybackRate: 1,
-    highlightGlowSfxLastFrameAt: performance.now(),
     backgroundMusicAudio: null,
     backgroundMusicPath: '',
     backgroundMusicFoodKey: '',
@@ -1309,10 +1267,6 @@
     return asNumber(sfxRoleSetting('sectionTransition', 'timeOffsetSeconds', path, 0, food), 0);
   }
 
-  function highlightGlowSfxPath(food = selectedFood()) {
-    return sfxProfilePath('highlightGlow', HIGHLIGHT_GLOW_SFX_PATH, food);
-  }
-
   function backgroundMusicPath(food = selectedFood()) {
     return musicProfilePath('backgroundMusic', '', food);
   }
@@ -1326,19 +1280,6 @@
       volume: mixedAudioVolume(baseVolume, 'music'),
       selectionMode: musicProfileForFood(food)?.selectionMode || null
     };
-  }
-
-  function highlightGlowSfxFoodKey(food = selectedFood()) {
-    return `${food?.id || ''}:${highlightGlowSfxPath(food)}`;
-  }
-
-  function syncHighlightGlowSfxForFood(food = selectedFood()) {
-    const nextFoodKey = highlightGlowSfxFoodKey(food);
-    if (state.highlightGlowSfxFoodKey === nextFoodKey) return;
-    pauseHighlightGlowSfx();
-    state.highlightGlowSfxAudio = null;
-    state.highlightGlowSfxPath = '';
-    state.highlightGlowSfxFoodKey = nextFoodKey;
   }
 
   function backgroundMusicFoodKey(food = selectedFood()) {
@@ -4059,7 +4000,6 @@
     const macroHighlightMap = macroSubmetricHighlightMap(scene, narrationProgress);
     const micronHighlightMap = micronMetricHighlightMap(scene, narrationProgress);
     const proConHighlightMap = proConNarrationHighlightMap(scene, narrationProgress);
-    updateHighlightGlowSfx(strongestHighlightCue(scene, macroHighlightMap, micronHighlightMap, proConHighlightMap));
     const existingNodes = new Map(
       Array.from(roots.layerRoot.querySelectorAll('[data-render-key]')).map(node => [node.dataset.renderKey || '', node])
     );
@@ -5011,194 +4951,11 @@
     return highlights;
   }
 
-  function strongestHighlightCue(scene, macroHighlightMap, micronHighlightMap, proConHighlightMap) {
-    const sceneId = scene?.id || 'scene';
-    const candidates = [];
-    for (const [rowIndex, item] of macroHighlightMap || []) {
-      const safeRowIndex = item?.rowIndex ?? rowIndex;
-      const color = macroSubmetricHighlightColor(sceneId, safeRowIndex);
-      candidates.push({
-        key: `${sceneId}:macro:${safeRowIndex}`,
-        tone: highlightToneFromColor(color),
-        strength: clamp(asNumber(item?.strength, 0), 0, 1)
-      });
-    }
-    for (const [columnIndex, item] of micronHighlightMap || []) {
-      candidates.push({
-        key: `${sceneId}:micron:${item?.columnIndex ?? columnIndex}`,
-        tone: highlightToneFromColor(item?.color),
-        strength: clamp(asNumber(item?.strength, 0), 0, 1)
-      });
-    }
-    for (const [rowIndex, item] of proConHighlightMap || []) {
-      candidates.push({
-        key: `${sceneId}:${sceneId === 'cons' ? 'con' : 'pro'}:${item?.rowIndex ?? rowIndex}`,
-        tone: sceneId === 'cons' ? 'red' : sceneId === 'pros' ? 'green' : highlightToneFromColor(item?.color),
-        strength: clamp(asNumber(item?.cueStrength ?? item?.strength, 0), 0, 1)
-      });
-    }
-    return candidates
-      .filter(item => item.strength > 0)
-      .sort((a, b) => b.strength - a.strength || a.key.localeCompare(b.key))[0] || { key: '', strength: 0 };
-  }
-
-  function highlightToneFromColor(color) {
-    const normalized = String(color || '').trim().toLowerCase();
-    if (normalized === SUBMACRO_VALUE_COLORS.green.toLowerCase() || normalized.includes('green')) return 'green';
-    if (normalized === SUBMACRO_VALUE_COLORS.red.toLowerCase() || normalized.includes('red')) return 'red';
-    return 'neutral';
-  }
-
-  function highlightGlowSfxSettings(path = highlightGlowSfxPath()) {
-    return sfxAssetRoleSettings('highlightGlow', path) || {};
-  }
-
-  function highlightGlowSfxSetting(key, fallback, path = state.highlightGlowSfxPath || highlightGlowSfxPath()) {
-    const settings = highlightGlowSfxSettings(path);
-    return Object.prototype.hasOwnProperty.call(settings, key) ? settings[key] : fallback;
-  }
-
-  function highlightGlowPlaybackRateRanges(path = state.highlightGlowSfxPath || highlightGlowSfxPath()) {
-    return highlightGlowSfxSetting('playbackRateRanges', HIGHLIGHT_GLOW_SFX_PLAYBACK_RATE_RANGES, path);
-  }
-
-  function randomHighlightGlowPlaybackRate(previousRate, tone = 'neutral', path = state.highlightGlowSfxPath || highlightGlowSfxPath()) {
-    const ranges = highlightGlowPlaybackRateRanges(path);
-    const rangeSpec = ranges[tone] || ranges.neutral || HIGHLIGHT_GLOW_SFX_PLAYBACK_RATE_RANGES.neutral;
-    const min = rangeSpec.min;
-    const max = rangeSpec.max;
-    const range = max - min;
-    const minRateChange = asNumber(
-      highlightGlowSfxSetting('minRateChange', HIGHLIGHT_GLOW_SFX_MIN_RATE_CHANGE, path),
-      HIGHLIGHT_GLOW_SFX_MIN_RATE_CHANGE
-    );
-    for (let attempt = 0; attempt < 10; attempt += 1) {
-      const candidate = min + (Math.random() * range);
-      if (Math.abs(candidate - previousRate) >= minRateChange) return candidate;
-    }
-    const lower = clamp(previousRate - minRateChange, min, max);
-    const upper = clamp(previousRate + minRateChange, min, max);
-    return Math.abs(lower - previousRate) > Math.abs(upper - previousRate) ? lower : upper;
-  }
-
   function disableAudioPitchPreservation(audio) {
     try {
       if ('preservesPitch' in audio) audio.preservesPitch = false;
       if ('mozPreservesPitch' in audio) audio.mozPreservesPitch = false;
       if ('webkitPreservesPitch' in audio) audio.webkitPreservesPitch = false;
-    } catch {}
-  }
-
-  function retuneHighlightGlowSfx(audio, cue) {
-    const nextKey = cue?.key || '';
-    if (!nextKey || nextKey === state.highlightGlowSfxKey) return;
-    const path = state.highlightGlowSfxPath || highlightGlowSfxPath();
-    const playbackRate = randomHighlightGlowPlaybackRate(
-      state.highlightGlowSfxTargetPlaybackRate || state.highlightGlowSfxPlaybackRate || 1,
-      cue?.tone,
-      path
-    );
-    state.highlightGlowSfxKey = nextKey;
-    state.highlightGlowSfxTargetPlaybackRate = playbackRate;
-    disableAudioPitchPreservation(audio);
-  }
-
-  function ensureHighlightGlowSfxAudio() {
-    const food = selectedFood();
-    const path = highlightGlowSfxPath(food);
-    const foodKey = highlightGlowSfxFoodKey(food);
-    if (state.highlightGlowSfxAudio && (state.highlightGlowSfxPath !== path || state.highlightGlowSfxFoodKey !== foodKey)) {
-      pauseHighlightGlowSfx();
-      state.highlightGlowSfxAudio = null;
-    }
-    if (!state.highlightGlowSfxAudio) {
-      const audio = new Audio(docsAssetPath(path));
-      audio.preload = 'auto';
-      audio.loop = true;
-      audio.volume = 0;
-      state.highlightGlowSfxAudio = audio;
-      state.highlightGlowSfxPath = path;
-      state.highlightGlowSfxFoodKey = foodKey;
-    }
-    return state.highlightGlowSfxAudio;
-  }
-
-  function highlightGlowFrameDeltaSeconds() {
-    const now = performance.now();
-    const deltaSeconds = clamp((now - state.highlightGlowSfxLastFrameAt) / 1000, 0.016, 0.12);
-    state.highlightGlowSfxLastFrameAt = now;
-    return deltaSeconds;
-  }
-
-  function highlightGlowFadeStep(targetStrength) {
-    const path = state.highlightGlowSfxPath || highlightGlowSfxPath();
-    const targetVolume = state.audioEnabled && state.playing
-      ? clamp(targetStrength, 0, 1) * asNumber(highlightGlowSfxSetting('volume', HIGHLIGHT_GLOW_SFX_VOLUME, path), HIGHLIGHT_GLOW_SFX_VOLUME)
-      : 0;
-    const deltaSeconds = highlightGlowFrameDeltaSeconds();
-    const speed = targetVolume > state.highlightGlowSfxVolume
-      ? asNumber(highlightGlowSfxSetting('fadeInSpeed', HIGHLIGHT_GLOW_SFX_FADE_IN_SPEED, path), HIGHLIGHT_GLOW_SFX_FADE_IN_SPEED)
-      : asNumber(highlightGlowSfxSetting('fadeOutSpeed', HIGHLIGHT_GLOW_SFX_FADE_OUT_SPEED, path), HIGHLIGHT_GLOW_SFX_FADE_OUT_SPEED);
-    const blend = 1 - Math.exp(-speed * deltaSeconds);
-    state.highlightGlowSfxVolume += (targetVolume - state.highlightGlowSfxVolume) * blend;
-    return { volume: state.highlightGlowSfxVolume, deltaSeconds };
-  }
-
-  function smoothHighlightGlowPlaybackRate(audio, deltaSeconds) {
-    const path = state.highlightGlowSfxPath || highlightGlowSfxPath();
-    const targetRate = state.highlightGlowSfxTargetPlaybackRate || state.highlightGlowSfxPlaybackRate || 1;
-    const currentRate = asNumber(audio.playbackRate, state.highlightGlowSfxPlaybackRate || targetRate);
-    const rateFadeSpeed = asNumber(
-      highlightGlowSfxSetting('playbackRateFadeSpeed', HIGHLIGHT_GLOW_SFX_PLAYBACK_RATE_FADE_SPEED, path),
-      HIGHLIGHT_GLOW_SFX_PLAYBACK_RATE_FADE_SPEED
-    );
-    const blend = 1 - Math.exp(-rateFadeSpeed * deltaSeconds);
-    const nextRate = currentRate + ((targetRate - currentRate) * blend);
-    state.highlightGlowSfxPlaybackRate = nextRate;
-    try {
-      audio.playbackRate = nextRate;
-    } catch {}
-  }
-
-  function updateHighlightGlowSfx(cue) {
-    const { volume, deltaSeconds } = highlightGlowFadeStep(cue?.strength || 0);
-    const path = state.highlightGlowSfxPath || highlightGlowSfxPath();
-    const stopThreshold = asNumber(
-      highlightGlowSfxSetting('stopThreshold', HIGHLIGHT_GLOW_SFX_STOP_THRESHOLD, path),
-      HIGHLIGHT_GLOW_SFX_STOP_THRESHOLD
-    );
-    const audio = state.highlightGlowSfxAudio || (volume > stopThreshold ? ensureHighlightGlowSfxAudio() : null);
-    if (!audio) return;
-
-    retuneHighlightGlowSfx(audio, cue);
-    smoothHighlightGlowPlaybackRate(audio, deltaSeconds);
-    audio.volume = clamp(volume, 0, 1);
-    if (volume > stopThreshold && state.audioEnabled && state.playing) {
-      const playPromise = audio.paused ? audio.play() : null;
-      if (playPromise?.catch) playPromise.catch(() => {});
-      return;
-    }
-
-    if (volume <= stopThreshold) {
-      try {
-        audio.pause();
-      } catch {}
-    }
-  }
-
-  function pauseHighlightGlowSfx({ reset = true } = {}) {
-    const audio = state.highlightGlowSfxAudio;
-    state.highlightGlowSfxVolume = 0;
-    state.highlightGlowSfxKey = '';
-    state.highlightGlowSfxPlaybackRate = 1;
-    state.highlightGlowSfxTargetPlaybackRate = 1;
-    state.highlightGlowSfxLastFrameAt = performance.now();
-    if (!audio) return;
-    try {
-      audio.volume = 0;
-      audio.playbackRate = 1;
-      audio.pause();
-      if (reset) audio.currentTime = 0;
     } catch {}
   }
 
@@ -8008,7 +7765,6 @@
     els.playPause.textContent = 'Play';
     if (els.narrationAudio) els.narrationAudio.pause();
     pauseBackgroundMusic();
-    pauseHighlightGlowSfx();
     if (pauseSfx) {
       pauseStampSfx();
       pauseSTierStampSfx();
@@ -8026,7 +7782,6 @@
     state.playing = true;
     state.startedAt = performance.now();
     state.playheadStart = state.currentTime;
-    state.highlightGlowSfxLastFrameAt = performance.now();
     state.audioInHold = false;
     state.playedStampSfxKeys = new Set();
     state.playedSTierStampSfxKeys = new Set();
@@ -8171,7 +7926,6 @@
       pauseStampSfx();
       pauseSTierStampSfx();
       pauseDTierStampSfx();
-      pauseHighlightGlowSfx();
       pauseTransitionSfx();
       pauseMicron100FireworkSfx();
       pauseMajorProSparkleSfx();
@@ -8396,7 +8150,6 @@
 
   function syncAudioForFood() {
     const food = selectedFood();
-    syncHighlightGlowSfxForFood(food);
     syncBackgroundMusicForFood(food);
     const audio = audioForFood(food);
     if (!els.narrationAudio) return;
@@ -9258,7 +9011,6 @@
     return [
       els.narrationAudio,
       ensureBackgroundMusicAudio(),
-      state.highlightGlowSfxAudio,
       ...state.stampSfxPool,
       ...state.sTierStampSfxPool,
       ...state.dTierGameLoseSfxPool,
@@ -9458,7 +9210,7 @@
         return totalDuration();
       },
       ready() {
-        return Boolean(els.videoStage?.childElementCount) && totalDuration() > 0;
+        return Boolean(state.layout && els.videoStage?.childElementCount) && totalDuration() > 0;
       },
       setTime(time, options = {}) {
         const pixelUnit = asNumber(options.pixelUnit, null);

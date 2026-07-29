@@ -28,7 +28,6 @@
       micron100Cluster: `${ASSET_REF_PREFIX}audio.sfx.sections.microns.micron.100.firework.cluster`,
       majorProSparkle: `${ASSET_REF_PREFIX}audio.sfx.sections.pros.major.pro.sparkle.shine`,
       majorConSiren: `${ASSET_REF_PREFIX}audio.sfx.sections.cons.major.con.siren.buzzer`,
-      highlightGlow: `${ASSET_REF_PREFIX}audio.sfx.ui.highlight.glow.loop`,
       macroBarFill: `${ASSET_REF_PREFIX}audio.sfx.sections.macros.macro.bar.fill.highscore`
     })
   });
@@ -341,13 +340,13 @@
   function resolveFoodProfileAssetRefs(food, db) {
     if (!food || typeof food !== 'object') return food;
     if (food.sfxProfile) {
-      food.sfxProfile = resolveProfilePaths(food.sfxProfile, ['stampImpact', 'sectionTransition', 'highlightGlow'], db);
+      food.sfxProfile = resolveProfilePaths(food.sfxProfile, ['stampImpact', 'sectionTransition'], db);
     }
     if (food.musicProfile) {
       food.musicProfile = resolveProfilePaths(food.musicProfile, ['backgroundMusic'], db);
     }
     if (food.episode?.sfxProfile) {
-      food.episode.sfxProfile = resolveProfilePaths(food.episode.sfxProfile, ['stampImpact', 'sectionTransition', 'highlightGlow'], db);
+      food.episode.sfxProfile = resolveProfilePaths(food.episode.sfxProfile, ['stampImpact', 'sectionTransition'], db);
     }
     if (food.episode?.musicProfile) {
       food.episode.musicProfile = resolveProfilePaths(food.episode.musicProfile, ['backgroundMusic'], db);

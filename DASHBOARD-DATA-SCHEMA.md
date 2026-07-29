@@ -84,7 +84,6 @@ Fields:
 - `stampImpact.path`
 - `sectionTransition.path`
 - optional `sectionTransition.volume`
-- `highlightGlow.path`
 
 Video Builder v2 should use these paths when present, and fall back to its default SFX constants otherwise.
 `sectionTransition.volume` is a playback level for quieter transition files. Values up to `1` use normal browser audio volume; values above `1` use Video Builder v2's gain boost path.

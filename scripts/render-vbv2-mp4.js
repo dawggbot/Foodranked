@@ -302,12 +302,14 @@ async function renderFrames({ food, foodId, options, framesDir, baseUrl }) {
     });
 
     await page.goto(`${baseUrl}/docs/video-builder-v2/index.html?render=mp4&food=${encodeURIComponent(foodId)}`, {
-      waitUntil: 'networkidle'
+      waitUntil: 'domcontentloaded',
+      timeout: 30000
     });
 
     await page.addStyleTag({ content: renderCss(options.width, options.height) });
     await page.waitForSelector('#videoStage', { state: 'attached' });
-    await page.waitForFunction(() => window.FoodRankedVBv2Renderer?.ready?.(), null, { timeout: 30000 });
+    await page.waitForFunction(() => window.FoodRankedVBv2Renderer?.ready?.(), null, { timeout: 60000 });
+    await page.evaluate(() => document.fonts?.ready || Promise.resolve()).catch(() => {});
     await page.waitForFunction(() => document.querySelector('#videoStage')?.childElementCount > 0, null, { timeout: 30000 });
     await waitForStageImages(page);
 

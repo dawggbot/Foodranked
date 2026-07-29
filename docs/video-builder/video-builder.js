@@ -100,18 +100,6 @@
   const MAJOR_CON_SIREN_SFX_PATH = 'audio/sfx/sections/cons/major-con-siren-buzzer.mp3';
   const MAJOR_CON_SIREN_SFX_VOLUME = 0.20;
   const MAJOR_CON_SIREN_SFX_POOL_SIZE = 4;
-  const HIGHLIGHT_GLOW_SFX_PATH = 'audio/sfx/ui/highlight-glow-loop.mp3';
-  const HIGHLIGHT_GLOW_SFX_VOLUME = 0.36;
-  const HIGHLIGHT_GLOW_SFX_FADE_IN_SPEED = 5.2;
-  const HIGHLIGHT_GLOW_SFX_FADE_OUT_SPEED = 3.4;
-  const HIGHLIGHT_GLOW_SFX_PLAYBACK_RATE_FADE_SPEED = 4.8;
-  const HIGHLIGHT_GLOW_SFX_PLAYBACK_RATE_RANGES = {
-    green: { min: 1.16, max: 1.42 },
-    red: { min: 0.58, max: 0.82 },
-    neutral: { min: 0.9, max: 1.12 }
-  };
-  const HIGHLIGHT_GLOW_SFX_MIN_RATE_CHANGE = 0.12;
-  const HIGHLIGHT_GLOW_SFX_STOP_THRESHOLD = 0.0015;
   const MACRO_BAR_FILL_SFX_PATH = 'audio/sfx/sections/macros/macro-bar-fill-highscore.mp3';
   const MACRO_BAR_FILL_SFX_SOURCE_SECONDS = 9.408;
   const MACRO_BAR_FILL_SFX_VOLUME = 0.31;
@@ -367,12 +355,6 @@
     barFillSfxBuffer: null,
     barFillSfxBufferPromise: null,
     barFillSfxSources: new Set(),
-    highlightGlowSfxAudio: null,
-    highlightGlowSfxVolume: 0,
-    highlightGlowSfxKey: '',
-    highlightGlowSfxPlaybackRate: 1,
-    highlightGlowSfxTargetPlaybackRate: 1,
-    highlightGlowSfxLastFrameAt: performance.now(),
     spriteFailures: new Map(),
     diagnosticsTimer: 0
   };
@@ -2972,7 +2954,6 @@
     const macroHighlightMap = macroSubmetricHighlightMap(scene, narrationProgress);
     const micronHighlightMap = micronMetricHighlightMap(scene, narrationProgress);
     const proConHighlightMap = proConNarrationHighlightMap(scene, narrationProgress);
-    updateHighlightGlowSfx(strongestHighlightCue(scene, macroHighlightMap, micronHighlightMap, proConHighlightMap));
     const existingNodes = new Map(
       Array.from(roots.layerRoot.querySelectorAll('[data-render-key]')).map(node => [node.dataset.renderKey || '', node])
     );
@@ -3884,154 +3865,11 @@
     return highlights;
   }
 
-  function strongestHighlightCue(scene, macroHighlightMap, micronHighlightMap, proConHighlightMap) {
-    const sceneId = scene?.id || 'scene';
-    const candidates = [];
-    for (const [rowIndex, item] of macroHighlightMap || []) {
-      const safeRowIndex = item?.rowIndex ?? rowIndex;
-      const color = macroSubmetricHighlightColor(sceneId, safeRowIndex);
-      candidates.push({
-        key: `${sceneId}:macro:${safeRowIndex}`,
-        tone: highlightToneFromColor(color),
-        strength: clamp(asNumber(item?.strength, 0), 0, 1)
-      });
-    }
-    for (const [columnIndex, item] of micronHighlightMap || []) {
-      candidates.push({
-        key: `${sceneId}:micron:${item?.columnIndex ?? columnIndex}`,
-        tone: highlightToneFromColor(item?.color),
-        strength: clamp(asNumber(item?.strength, 0), 0, 1)
-      });
-    }
-    for (const [rowIndex, item] of proConHighlightMap || []) {
-      candidates.push({
-        key: `${sceneId}:${sceneId === 'cons' ? 'con' : 'pro'}:${item?.rowIndex ?? rowIndex}`,
-        tone: sceneId === 'cons' ? 'red' : sceneId === 'pros' ? 'green' : highlightToneFromColor(item?.color),
-        strength: clamp(asNumber(item?.cueStrength ?? item?.strength, 0), 0, 1)
-      });
-    }
-    return candidates
-      .filter(item => item.strength > 0)
-      .sort((a, b) => b.strength - a.strength || a.key.localeCompare(b.key))[0] || { key: '', strength: 0 };
-  }
-
-  function highlightToneFromColor(color) {
-    const normalized = String(color || '').trim().toLowerCase();
-    if (normalized === SUBMACRO_VALUE_COLORS.green.toLowerCase() || normalized.includes('green')) return 'green';
-    if (normalized === SUBMACRO_VALUE_COLORS.red.toLowerCase() || normalized.includes('red')) return 'red';
-    return 'neutral';
-  }
-
-  function randomHighlightGlowPlaybackRate(previousRate, tone = 'neutral') {
-    const rangeSpec = HIGHLIGHT_GLOW_SFX_PLAYBACK_RATE_RANGES[tone] || HIGHLIGHT_GLOW_SFX_PLAYBACK_RATE_RANGES.neutral;
-    const min = rangeSpec.min;
-    const max = rangeSpec.max;
-    const range = max - min;
-    for (let attempt = 0; attempt < 10; attempt += 1) {
-      const candidate = min + (Math.random() * range);
-      if (Math.abs(candidate - previousRate) >= HIGHLIGHT_GLOW_SFX_MIN_RATE_CHANGE) return candidate;
-    }
-    const lower = clamp(previousRate - HIGHLIGHT_GLOW_SFX_MIN_RATE_CHANGE, min, max);
-    const upper = clamp(previousRate + HIGHLIGHT_GLOW_SFX_MIN_RATE_CHANGE, min, max);
-    return Math.abs(lower - previousRate) > Math.abs(upper - previousRate) ? lower : upper;
-  }
-
   function disableAudioPitchPreservation(audio) {
     try {
       if ('preservesPitch' in audio) audio.preservesPitch = false;
       if ('mozPreservesPitch' in audio) audio.mozPreservesPitch = false;
       if ('webkitPreservesPitch' in audio) audio.webkitPreservesPitch = false;
-    } catch {}
-  }
-
-  function retuneHighlightGlowSfx(audio, cue) {
-    const nextKey = cue?.key || '';
-    if (!nextKey || nextKey === state.highlightGlowSfxKey) return;
-    const playbackRate = randomHighlightGlowPlaybackRate(
-      state.highlightGlowSfxTargetPlaybackRate || state.highlightGlowSfxPlaybackRate || 1,
-      cue?.tone
-    );
-    state.highlightGlowSfxKey = nextKey;
-    state.highlightGlowSfxTargetPlaybackRate = playbackRate;
-    disableAudioPitchPreservation(audio);
-  }
-
-  function ensureHighlightGlowSfxAudio() {
-    if (!state.highlightGlowSfxAudio) {
-      const audio = new Audio(docsAssetPath(HIGHLIGHT_GLOW_SFX_PATH));
-      audio.preload = 'auto';
-      audio.loop = true;
-      audio.volume = 0;
-      state.highlightGlowSfxAudio = audio;
-    }
-    return state.highlightGlowSfxAudio;
-  }
-
-  function highlightGlowFrameDeltaSeconds() {
-    const now = performance.now();
-    const deltaSeconds = clamp((now - state.highlightGlowSfxLastFrameAt) / 1000, 0.016, 0.12);
-    state.highlightGlowSfxLastFrameAt = now;
-    return deltaSeconds;
-  }
-
-  function highlightGlowFadeStep(targetStrength) {
-    const targetVolume = state.audioEnabled && state.playing
-      ? clamp(targetStrength, 0, 1) * HIGHLIGHT_GLOW_SFX_VOLUME
-      : 0;
-    const deltaSeconds = highlightGlowFrameDeltaSeconds();
-    const speed = targetVolume > state.highlightGlowSfxVolume
-      ? HIGHLIGHT_GLOW_SFX_FADE_IN_SPEED
-      : HIGHLIGHT_GLOW_SFX_FADE_OUT_SPEED;
-    const blend = 1 - Math.exp(-speed * deltaSeconds);
-    state.highlightGlowSfxVolume += (targetVolume - state.highlightGlowSfxVolume) * blend;
-    return { volume: state.highlightGlowSfxVolume, deltaSeconds };
-  }
-
-  function smoothHighlightGlowPlaybackRate(audio, deltaSeconds) {
-    const targetRate = state.highlightGlowSfxTargetPlaybackRate || state.highlightGlowSfxPlaybackRate || 1;
-    const currentRate = asNumber(audio.playbackRate, state.highlightGlowSfxPlaybackRate || targetRate);
-    const blend = 1 - Math.exp(-HIGHLIGHT_GLOW_SFX_PLAYBACK_RATE_FADE_SPEED * deltaSeconds);
-    const nextRate = currentRate + ((targetRate - currentRate) * blend);
-    state.highlightGlowSfxPlaybackRate = nextRate;
-    try {
-      audio.playbackRate = nextRate;
-    } catch {}
-  }
-
-  function updateHighlightGlowSfx(cue) {
-    const { volume, deltaSeconds } = highlightGlowFadeStep(cue?.strength || 0);
-    const audio = state.highlightGlowSfxAudio || (volume > HIGHLIGHT_GLOW_SFX_STOP_THRESHOLD ? ensureHighlightGlowSfxAudio() : null);
-    if (!audio) return;
-
-    retuneHighlightGlowSfx(audio, cue);
-    smoothHighlightGlowPlaybackRate(audio, deltaSeconds);
-    audio.volume = clamp(volume, 0, 1);
-    if (volume > HIGHLIGHT_GLOW_SFX_STOP_THRESHOLD && state.audioEnabled && state.playing) {
-      const playPromise = audio.paused ? audio.play() : null;
-      if (playPromise?.catch) playPromise.catch(() => {});
-      return;
-    }
-
-    if (volume <= HIGHLIGHT_GLOW_SFX_STOP_THRESHOLD) {
-      try {
-        audio.pause();
-      } catch {}
-    }
-  }
-
-  function pauseHighlightGlowSfx({ reset = true } = {}) {
-    const audio = state.highlightGlowSfxAudio;
-    state.highlightGlowSfxVolume = 0;
-    state.highlightGlowSfxKey = '';
-    state.highlightGlowSfxPlaybackRate = 1;
-    state.highlightGlowSfxTargetPlaybackRate = 1;
-    state.highlightGlowSfxLastFrameAt = performance.now();
-    if (!audio) return;
-    try {
-      audio.volume = 0;
-      audio.playbackRate = 1;
-      audio.pause();
-      if (reset) audio.currentTime = 0;
     } catch {}
   }
 
@@ -5922,7 +5760,6 @@
     state.playing = true;
     state.startedAt = performance.now();
     state.playheadStart = state.currentTime;
-    state.highlightGlowSfxLastFrameAt = performance.now();
     state.audioInHold = false;
     state.playedStampSfxKeys = new Set();
     state.playedTransitionSfxKeys = new Set();

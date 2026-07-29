@@ -263,7 +263,7 @@
     "kind": "data",
     "path": "data/foods-index.js",
     "mimeType": "text/javascript",
-    "sizeBytes": 8204423
+    "sizeBytes": 8192447
   },
   {
     "id": "data.foods.index.json",
@@ -271,7 +271,7 @@
     "kind": "data",
     "path": "data/foods-index.json",
     "mimeType": "application/json",
-    "sizeBytes": 14391436
+    "sizeBytes": 14374624
   },
   {
     "id": "data.foods.acorns.sample",
@@ -279,7 +279,7 @@
     "kind": "data",
     "path": "data/foods/acorns.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3810
+    "sizeBytes": 3703
   },
   {
     "id": "data.foods.almond.butter.unsweetened.sample",
@@ -287,7 +287,7 @@
     "kind": "data",
     "path": "data/foods/almond-butter-unsweetened.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3872
+    "sizeBytes": 3789
   },
   {
     "id": "data.foods.almonds.sample",
@@ -295,7 +295,7 @@
     "kind": "data",
     "path": "data/foods/almonds.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 9489
+    "sizeBytes": 9406
   },
   {
     "id": "data.foods.amaranth.sample",
@@ -303,7 +303,7 @@
     "kind": "data",
     "path": "data/foods/amaranth.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3985
+    "sizeBytes": 3878
   },
   {
     "id": "data.foods.anchovies.sample",
@@ -311,7 +311,7 @@
     "kind": "data",
     "path": "data/foods/anchovies.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 8750
+    "sizeBytes": 8643
   },
   {
     "id": "data.foods.apple.cider.vinegar.sample",
@@ -319,7 +319,7 @@
     "kind": "data",
     "path": "data/foods/apple-cider-vinegar.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3900
+    "sizeBytes": 3817
   },
   {
     "id": "data.foods.apple.pear.sample",
@@ -327,7 +327,7 @@
     "kind": "data",
     "path": "data/foods/apple-pear.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3877
+    "sizeBytes": 3794
   },
   {
     "id": "data.foods.apple.sample",
@@ -335,7 +335,7 @@
     "kind": "data",
     "path": "data/foods/apple.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3940
+    "sizeBytes": 3857
   },
   {
     "id": "data.foods.asparagus.sample",
@@ -343,7 +343,7 @@
     "kind": "data",
     "path": "data/foods/asparagus.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3960
+    "sizeBytes": 3853
   },
   {
     "id": "data.foods.avocado.oil.sample",
@@ -351,7 +351,7 @@
     "kind": "data",
     "path": "data/foods/avocado-oil.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3854
+    "sizeBytes": 3747
   },
   {
     "id": "data.foods.avocado.sample",
@@ -359,7 +359,7 @@
     "kind": "data",
     "path": "data/foods/avocado.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4251
+    "sizeBytes": 4168
   },
   {
     "id": "data.foods.bacon.grease.sample",
@@ -367,7 +367,7 @@
     "kind": "data",
     "path": "data/foods/bacon-grease.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3918
+    "sizeBytes": 3811
   },
   {
     "id": "data.foods.bacon.sample",
@@ -375,7 +375,7 @@
     "kind": "data",
     "path": "data/foods/bacon.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 10163
+    "sizeBytes": 10080
   },
   {
     "id": "data.foods.baked.beans.sample",
@@ -383,7 +383,7 @@
     "kind": "data",
     "path": "data/foods/baked-beans.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3900
+    "sizeBytes": 3793
   },
   {
     "id": "data.foods.banana.sample",
@@ -391,7 +391,7 @@
     "kind": "data",
     "path": "data/foods/banana.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3906
+    "sizeBytes": 3799
   },
   {
     "id": "data.foods.barbecue.sauce.sample",
@@ -399,7 +399,7 @@
     "kind": "data",
     "path": "data/foods/barbecue-sauce.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4214
+    "sizeBytes": 4107
   },
   {
     "id": "data.foods.barley.sample",
@@ -407,7 +407,7 @@
     "kind": "data",
     "path": "data/foods/barley.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3878
+    "sizeBytes": 3771
   },
   {
     "id": "data.foods.beef.sirloin.sample",
@@ -415,7 +415,7 @@
     "kind": "data",
     "path": "data/foods/beef-sirloin.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3841
+    "sizeBytes": 3758
   },
   {
     "id": "data.foods.beef.tallow.sample",
@@ -423,7 +423,7 @@
     "kind": "data",
     "path": "data/foods/beef-tallow.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3812
+    "sizeBytes": 3729
   },
   {
     "id": "data.foods.beetroot.sample",
@@ -431,7 +431,7 @@
     "kind": "data",
     "path": "data/foods/beetroot.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3869
+    "sizeBytes": 3762
   },
   {
     "id": "data.foods.black.beans.sample",
@@ -439,7 +439,7 @@
     "kind": "data",
     "path": "data/foods/black-beans.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 9725
+    "sizeBytes": 9618
   },
   {
     "id": "data.foods.black.eyed.peas.sample",
@@ -447,7 +447,7 @@
     "kind": "data",
     "path": "data/foods/black-eyed-peas.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3838
+    "sizeBytes": 3755
   },
   {
     "id": "data.foods.blackberries.sample",
@@ -455,7 +455,7 @@
     "kind": "data",
     "path": "data/foods/blackberries.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3877
+    "sizeBytes": 3794
   },
   {
     "id": "data.foods.blueberries.sample",
@@ -463,7 +463,7 @@
     "kind": "data",
     "path": "data/foods/blueberries.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3934
+    "sizeBytes": 3851
   },
   {
     "id": "data.foods.bok.choy.sample",
@@ -471,7 +471,7 @@
     "kind": "data",
     "path": "data/foods/bok-choy.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3962
+    "sizeBytes": 3879
   },
   {
     "id": "data.foods.brazil.nuts.sample",
@@ -479,7 +479,7 @@
     "kind": "data",
     "path": "data/foods/brazil-nuts.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3843
+    "sizeBytes": 3760
   },
   {
     "id": "data.foods.broccoli.sample",
@@ -487,7 +487,7 @@
     "kind": "data",
     "path": "data/foods/broccoli.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3737
+    "sizeBytes": 3630
   },
   {
     "id": "data.foods.brown.rice.sample",
@@ -495,7 +495,7 @@
     "kind": "data",
     "path": "data/foods/brown-rice.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3853
+    "sizeBytes": 3770
   },
   {
     "id": "data.foods.brussels.sprouts.sample",
@@ -503,7 +503,7 @@
     "kind": "data",
     "path": "data/foods/brussels-sprouts.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3983
+    "sizeBytes": 3900
   },
   {
     "id": "data.foods.buckwheat.sample",
@@ -511,7 +511,7 @@
     "kind": "data",
     "path": "data/foods/buckwheat.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3890
+    "sizeBytes": 3783
   },
   {
     "id": "data.foods.bulgur.sample",
@@ -519,7 +519,7 @@
     "kind": "data",
     "path": "data/foods/bulgur.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3846
+    "sizeBytes": 3763
   },
   {
     "id": "data.foods.butter.sample",
@@ -527,7 +527,7 @@
     "kind": "data",
     "path": "data/foods/butter.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4112
+    "sizeBytes": 4005
   },
   {
     "id": "data.foods.cabbage.sample",
@@ -535,7 +535,7 @@
     "kind": "data",
     "path": "data/foods/cabbage.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3882
+    "sizeBytes": 3799
   },
   {
     "id": "data.foods.candied.walnuts.sample",
@@ -543,7 +543,7 @@
     "kind": "data",
     "path": "data/foods/candied-walnuts.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4151
+    "sizeBytes": 4044
   },
   {
     "id": "data.foods.cannellini.beans.sample",
@@ -551,7 +551,7 @@
     "kind": "data",
     "path": "data/foods/cannellini-beans.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3872
+    "sizeBytes": 3765
   },
   {
     "id": "data.foods.canola.oil.sample",
@@ -559,7 +559,7 @@
     "kind": "data",
     "path": "data/foods/canola-oil.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3832
+    "sizeBytes": 3749
   },
   {
     "id": "data.foods.caraway.seeds.sample",
@@ -567,7 +567,7 @@
     "kind": "data",
     "path": "data/foods/caraway-seeds.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3858
+    "sizeBytes": 3751
   },
   {
     "id": "data.foods.carrots.sample",
@@ -575,7 +575,7 @@
     "kind": "data",
     "path": "data/foods/carrots.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3835
+    "sizeBytes": 3752
   },
   {
     "id": "data.foods.cashew.butter.sample",
@@ -583,7 +583,7 @@
     "kind": "data",
     "path": "data/foods/cashew-butter.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3868
+    "sizeBytes": 3761
   },
   {
     "id": "data.foods.cashews.sample",
@@ -591,7 +591,7 @@
     "kind": "data",
     "path": "data/foods/cashews.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3834
+    "sizeBytes": 3727
   },
   {
     "id": "data.foods.cassava.boiled.sample",
@@ -599,7 +599,7 @@
     "kind": "data",
     "path": "data/foods/cassava-boiled.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3839
+    "sizeBytes": 3756
   },
   {
     "id": "data.foods.cassava.chips.sample",
@@ -607,7 +607,7 @@
     "kind": "data",
     "path": "data/foods/cassava-chips.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4170
+    "sizeBytes": 4087
   },
   {
     "id": "data.foods.cassava.sample",
@@ -615,7 +615,7 @@
     "kind": "data",
     "path": "data/foods/cassava.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3700
+    "sizeBytes": 3593
   },
   {
     "id": "data.foods.cauliflower.sample",
@@ -623,7 +623,7 @@
     "kind": "data",
     "path": "data/foods/cauliflower.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3913
+    "sizeBytes": 3830
   },
   {
     "id": "data.foods.celeriac.sample",
@@ -631,7 +631,7 @@
     "kind": "data",
     "path": "data/foods/celeriac.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3843
+    "sizeBytes": 3736
   },
   {
     "id": "data.foods.celery.sample",
@@ -639,7 +639,7 @@
     "kind": "data",
     "path": "data/foods/celery.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3999
+    "sizeBytes": 3892
   },
   {
     "id": "data.foods.cheddar.cheese.sample",
@@ -647,7 +647,7 @@
     "kind": "data",
     "path": "data/foods/cheddar-cheese.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3812
+    "sizeBytes": 3729
   },
   {
     "id": "data.foods.cherries.sample",
@@ -655,7 +655,7 @@
     "kind": "data",
     "path": "data/foods/cherries.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3862
+    "sizeBytes": 3779
   },
   {
     "id": "data.foods.chestnuts.sample",
@@ -663,7 +663,7 @@
     "kind": "data",
     "path": "data/foods/chestnuts.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3853
+    "sizeBytes": 3746
   },
   {
     "id": "data.foods.chia.seeds.sample",
@@ -671,7 +671,7 @@
     "kind": "data",
     "path": "data/foods/chia-seeds.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 9530
+    "sizeBytes": 9423
   },
   {
     "id": "data.foods.chicken.breast.sample",
@@ -679,7 +679,7 @@
     "kind": "data",
     "path": "data/foods/chicken-breast.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3846
+    "sizeBytes": 3763
   },
   {
     "id": "data.foods.chicken.thigh.sample",
@@ -687,7 +687,7 @@
     "kind": "data",
     "path": "data/foods/chicken-thigh.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 9009
+    "sizeBytes": 8902
   },
   {
     "id": "data.foods.chickpea.puffs.sample",
@@ -695,7 +695,7 @@
     "kind": "data",
     "path": "data/foods/chickpea-puffs.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3849
+    "sizeBytes": 3766
   },
   {
     "id": "data.foods.chickpeas.sample",
@@ -703,7 +703,7 @@
     "kind": "data",
     "path": "data/foods/chickpeas.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3867
+    "sizeBytes": 3784
   },
   {
     "id": "data.foods.chocolate.covered.peanuts.sample",
@@ -711,7 +711,7 @@
     "kind": "data",
     "path": "data/foods/chocolate-covered-peanuts.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4172
+    "sizeBytes": 4089
   },
   {
     "id": "data.foods.chocolate.milk.sample",
@@ -719,7 +719,7 @@
     "kind": "data",
     "path": "data/foods/chocolate-milk.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4205
+    "sizeBytes": 4122
   },
   {
     "id": "data.foods.cocoa.powder.unsweetened.sample",
@@ -727,7 +727,7 @@
     "kind": "data",
     "path": "data/foods/cocoa-powder-unsweetened.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3978
+    "sizeBytes": 3871
   },
   {
     "id": "data.foods.coconut.oil.sample",
@@ -735,7 +735,7 @@
     "kind": "data",
     "path": "data/foods/coconut-oil.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3716
+    "sizeBytes": 3609
   },
   {
     "id": "data.foods.cod.sample",
@@ -743,7 +743,7 @@
     "kind": "data",
     "path": "data/foods/cod.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3817
+    "sizeBytes": 3710
   },
   {
     "id": "data.foods.coffee.sample",
@@ -751,7 +751,7 @@
     "kind": "data",
     "path": "data/foods/coffee.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4009
+    "sizeBytes": 3902
   },
   {
     "id": "data.foods.cola.regular.sample",
@@ -759,7 +759,7 @@
     "kind": "data",
     "path": "data/foods/cola-regular.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 8686
+    "sizeBytes": 8579
   },
   {
     "id": "data.foods.collard.greens.sample",
@@ -767,7 +767,7 @@
     "kind": "data",
     "path": "data/foods/collard-greens.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4010
+    "sizeBytes": 3903
   },
   {
     "id": "data.foods.coriander.seeds.sample",
@@ -775,7 +775,7 @@
     "kind": "data",
     "path": "data/foods/coriander-seeds.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3861
+    "sizeBytes": 3778
   },
   {
     "id": "data.foods.corn.flakes.sample",
@@ -783,7 +783,7 @@
     "kind": "data",
     "path": "data/foods/corn-flakes.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4223
+    "sizeBytes": 4140
   },
   {
     "id": "data.foods.corn.oil.sample",
@@ -791,7 +791,7 @@
     "kind": "data",
     "path": "data/foods/corn-oil.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3901
+    "sizeBytes": 3794
   },
   {
     "id": "data.foods.corned.beef.sample",
@@ -799,7 +799,7 @@
     "kind": "data",
     "path": "data/foods/corned-beef.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4144
+    "sizeBytes": 4061
   },
   {
     "id": "data.foods.cornmeal.sample",
@@ -807,7 +807,7 @@
     "kind": "data",
     "path": "data/foods/cornmeal.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3870
+    "sizeBytes": 3763
   },
   {
     "id": "data.foods.cottage.cheese.sample",
@@ -815,7 +815,7 @@
     "kind": "data",
     "path": "data/foods/cottage-cheese.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3482
+    "sizeBytes": 3375
   },
   {
     "id": "data.foods.couscous.whole.wheat.sample",
@@ -823,7 +823,7 @@
     "kind": "data",
     "path": "data/foods/couscous-whole-wheat.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3915
+    "sizeBytes": 3808
   },
   {
     "id": "data.foods.cream.cheese.sample",
@@ -831,7 +831,7 @@
     "kind": "data",
     "path": "data/foods/cream-cheese.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3878
+    "sizeBytes": 3795
   },
   {
     "id": "data.foods.cucumber.sample",
@@ -839,7 +839,7 @@
     "kind": "data",
     "path": "data/foods/cucumber.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4008
+    "sizeBytes": 3901
   },
   {
     "id": "data.foods.cumin.seeds.sample",
@@ -847,7 +847,7 @@
     "kind": "data",
     "path": "data/foods/cumin-seeds.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3903
+    "sizeBytes": 3796
   },
   {
     "id": "data.foods.daikon.radish.sample",
@@ -855,7 +855,7 @@
     "kind": "data",
     "path": "data/foods/daikon-radish.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3836
+    "sizeBytes": 3753
   },
   {
     "id": "data.foods.dark.chocolate.85.sample",
@@ -863,7 +863,7 @@
     "kind": "data",
     "path": "data/foods/dark-chocolate-85.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4234
+    "sizeBytes": 4151
   },
   {
     "id": "data.foods.dates.sample",
@@ -871,7 +871,7 @@
     "kind": "data",
     "path": "data/foods/dates.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3886
+    "sizeBytes": 3803
   },
   {
     "id": "data.foods.diet.cola.sample",
@@ -879,7 +879,7 @@
     "kind": "data",
     "path": "data/foods/diet-cola.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3895
+    "sizeBytes": 3812
   },
   {
     "id": "data.foods.dried.apricots.sample",
@@ -887,7 +887,7 @@
     "kind": "data",
     "path": "data/foods/dried-apricots.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3913
+    "sizeBytes": 3806
   },
   {
     "id": "data.foods.dried.figs.sample",
@@ -895,7 +895,7 @@
     "kind": "data",
     "path": "data/foods/dried-figs.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3952
+    "sizeBytes": 3845
   },
   {
     "id": "data.foods.duck.breast.sample",
@@ -903,7 +903,7 @@
     "kind": "data",
     "path": "data/foods/duck-breast.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3840
+    "sizeBytes": 3757
   },
   {
     "id": "data.foods.duck.fat.sample",
@@ -911,7 +911,7 @@
     "kind": "data",
     "path": "data/foods/duck-fat.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3800
+    "sizeBytes": 3717
   },
   {
     "id": "data.foods.edamame.sample",
@@ -919,7 +919,7 @@
     "kind": "data",
     "path": "data/foods/edamame.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3826
+    "sizeBytes": 3719
   },
   {
     "id": "data.foods.eggplant.sample",
@@ -927,7 +927,7 @@
     "kind": "data",
     "path": "data/foods/eggplant.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3956
+    "sizeBytes": 3873
   },
   {
     "id": "data.foods.electrolyte.tablet.drink.sample",
@@ -935,7 +935,7 @@
     "kind": "data",
     "path": "data/foods/electrolyte-tablet-drink.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3920
+    "sizeBytes": 3813
   },
   {
     "id": "data.foods.energy.drink.zero.sample",
@@ -943,7 +943,7 @@
     "kind": "data",
     "path": "data/foods/energy-drink-zero.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3843
+    "sizeBytes": 3736
   },
   {
     "id": "data.foods.extra.virgin.olive.oil.sample",
@@ -951,7 +951,7 @@
     "kind": "data",
     "path": "data/foods/extra-virgin-olive-oil.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 8600
+    "sizeBytes": 8517
   },
   {
     "id": "data.foods.falafel.sample",
@@ -959,7 +959,7 @@
     "kind": "data",
     "path": "data/foods/falafel.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3843
+    "sizeBytes": 3760
   },
   {
     "id": "data.foods.farro.sample",
@@ -967,7 +967,7 @@
     "kind": "data",
     "path": "data/foods/farro.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3895
+    "sizeBytes": 3812
   },
   {
     "id": "data.foods.fennel.seeds.sample",
@@ -975,7 +975,7 @@
     "kind": "data",
     "path": "data/foods/fennel-seeds.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3838
+    "sizeBytes": 3755
   },
   {
     "id": "data.foods.feta.sample",
@@ -983,7 +983,7 @@
     "kind": "data",
     "path": "data/foods/feta.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3790
+    "sizeBytes": 3707
   },
   {
     "id": "data.foods.flax.crackers.sample",
@@ -991,7 +991,7 @@
     "kind": "data",
     "path": "data/foods/flax-crackers.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3857
+    "sizeBytes": 3774
   },
   {
     "id": "data.foods.flax.seeds.sample",
@@ -999,7 +999,7 @@
     "kind": "data",
     "path": "data/foods/flax-seeds.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3651
+    "sizeBytes": 3544
   },
   {
     "id": "data.foods.flaxseed.oil.sample",
@@ -1007,7 +1007,7 @@
     "kind": "data",
     "path": "data/foods/flaxseed-oil.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3933
+    "sizeBytes": 3826
   },
   {
     "id": "data.foods.fries.sample",
@@ -1015,7 +1015,7 @@
     "kind": "data",
     "path": "data/foods/fries.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4221
+    "sizeBytes": 4138
   },
   {
     "id": "data.foods.fruit.yogurt.sweetened.sample",
@@ -1023,7 +1023,7 @@
     "kind": "data",
     "path": "data/foods/fruit-yogurt-sweetened.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4229
+    "sizeBytes": 4146
   },
   {
     "id": "data.foods.ghee.sample",
@@ -1031,7 +1031,7 @@
     "kind": "data",
     "path": "data/foods/ghee.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3875
+    "sizeBytes": 3768
   },
   {
     "id": "data.foods.goat.yogurt.plain.sample",
@@ -1039,7 +1039,7 @@
     "kind": "data",
     "path": "data/foods/goat-yogurt-plain.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3922
+    "sizeBytes": 3815
   },
   {
     "id": "data.foods.grapefruit.sample",
@@ -1047,7 +1047,7 @@
     "kind": "data",
     "path": "data/foods/grapefruit.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3867
+    "sizeBytes": 3784
   },
   {
     "id": "data.foods.grapes.sample",
@@ -1055,7 +1055,7 @@
     "kind": "data",
     "path": "data/foods/grapes.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3723
+    "sizeBytes": 3616
   },
   {
     "id": "data.foods.greek.yogurt.sample",
@@ -1063,7 +1063,7 @@
     "kind": "data",
     "path": "data/foods/greek-yogurt.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 8494
+    "sizeBytes": 8387
   },
   {
     "id": "data.foods.green.beans.sample",
@@ -1071,7 +1071,7 @@
     "kind": "data",
     "path": "data/foods/green-beans.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3952
+    "sizeBytes": 3869
   },
   {
     "id": "data.foods.green.peas.sample",
@@ -1079,7 +1079,7 @@
     "kind": "data",
     "path": "data/foods/green-peas.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3807
+    "sizeBytes": 3724
   },
   {
     "id": "data.foods.green.tea.sample",
@@ -1087,7 +1087,7 @@
     "kind": "data",
     "path": "data/foods/green-tea.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3998
+    "sizeBytes": 3891
   },
   {
     "id": "data.foods.ground.flax.sample",
@@ -1095,7 +1095,7 @@
     "kind": "data",
     "path": "data/foods/ground-flax.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3834
+    "sizeBytes": 3751
   },
   {
     "id": "data.foods.guava.sample",
@@ -1103,7 +1103,7 @@
     "kind": "data",
     "path": "data/foods/guava.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3852
+    "sizeBytes": 3769
   },
   {
     "id": "data.foods.halloumi.sample",
@@ -1111,7 +1111,7 @@
     "kind": "data",
     "path": "data/foods/halloumi.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3850
+    "sizeBytes": 3767
   },
   {
     "id": "data.foods.hash.browns.sample",
@@ -1119,7 +1119,7 @@
     "kind": "data",
     "path": "data/foods/hash-browns.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3860
+    "sizeBytes": 3753
   },
   {
     "id": "data.foods.hazelnuts.sample",
@@ -1127,7 +1127,7 @@
     "kind": "data",
     "path": "data/foods/hazelnuts.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3860
+    "sizeBytes": 3753
   },
   {
     "id": "data.foods.hemp.seeds.sample",
@@ -1135,7 +1135,7 @@
     "kind": "data",
     "path": "data/foods/hemp-seeds.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3881
+    "sizeBytes": 3774
   },
   {
     "id": "data.foods.herbal.tea.sample",
@@ -1143,7 +1143,7 @@
     "kind": "data",
     "path": "data/foods/herbal-tea.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3919
+    "sizeBytes": 3836
   },
   {
     "id": "data.foods.herring.sample",
@@ -1151,7 +1151,7 @@
     "kind": "data",
     "path": "data/foods/herring.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3890
+    "sizeBytes": 3807
   },
   {
     "id": "data.foods.hickory.nuts.sample",
@@ -1159,7 +1159,7 @@
     "kind": "data",
     "path": "data/foods/hickory-nuts.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3798
+    "sizeBytes": 3691
   },
   {
     "id": "data.foods.honey.roasted.peanuts.sample",
@@ -1167,7 +1167,7 @@
     "kind": "data",
     "path": "data/foods/honey-roasted-peanuts.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3856
+    "sizeBytes": 3773
   },
   {
     "id": "data.foods.hot.dog.sample",
@@ -1175,7 +1175,7 @@
     "kind": "data",
     "path": "data/foods/hot-dog.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4125
+    "sizeBytes": 4042
   },
   {
     "id": "data.foods.hummus.sample",
@@ -1183,7 +1183,7 @@
     "kind": "data",
     "path": "data/foods/hummus.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3847
+    "sizeBytes": 3740
   },
   {
     "id": "data.foods.ice.cream.sample",
@@ -1191,7 +1191,7 @@
     "kind": "data",
     "path": "data/foods/ice-cream.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4179
+    "sizeBytes": 4096
   },
   {
     "id": "data.foods.iceberg.lettuce.sample",
@@ -1199,7 +1199,7 @@
     "kind": "data",
     "path": "data/foods/iceberg-lettuce.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3827
+    "sizeBytes": 3744
   },
   {
     "id": "data.foods.instant.mashed.potatoes.sample",
@@ -1207,7 +1207,7 @@
     "kind": "data",
     "path": "data/foods/instant-mashed-potatoes.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4253
+    "sizeBytes": 4146
   },
   {
     "id": "data.foods.instant.noodles.sample",
@@ -1215,7 +1215,7 @@
     "kind": "data",
     "path": "data/foods/instant-noodles.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4257
+    "sizeBytes": 4174
   },
   {
     "id": "data.foods.jam.sample",
@@ -1223,7 +1223,7 @@
     "kind": "data",
     "path": "data/foods/jam.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3834
+    "sizeBytes": 3727
   },
   {
     "id": "data.foods.jerusalem.artichoke.sample",
@@ -1231,7 +1231,7 @@
     "kind": "data",
     "path": "data/foods/jerusalem-artichoke.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3898
+    "sizeBytes": 3791
   },
   {
     "id": "data.foods.jicama.sample",
@@ -1239,7 +1239,7 @@
     "kind": "data",
     "path": "data/foods/jicama.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3793
+    "sizeBytes": 3710
   },
   {
     "id": "data.foods.kale.sample",
@@ -1247,7 +1247,7 @@
     "kind": "data",
     "path": "data/foods/kale.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 10075
+    "sizeBytes": 9968
   },
   {
     "id": "data.foods.kefir.plain.sample",
@@ -1255,7 +1255,7 @@
     "kind": "data",
     "path": "data/foods/kefir-plain.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3876
+    "sizeBytes": 3793
   },
   {
     "id": "data.foods.ketchup.sample",
@@ -1263,7 +1263,7 @@
     "kind": "data",
     "path": "data/foods/ketchup.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4244
+    "sizeBytes": 4161
   },
   {
     "id": "data.foods.kidney.beans.sample",
@@ -1271,7 +1271,7 @@
     "kind": "data",
     "path": "data/foods/kidney-beans.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3803
+    "sizeBytes": 3720
   },
   {
     "id": "data.foods.kiwi.sample",
@@ -1279,7 +1279,7 @@
     "kind": "data",
     "path": "data/foods/kiwi.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3853
+    "sizeBytes": 3746
   },
   {
     "id": "data.foods.kombucha.unsweetened.sample",
@@ -1287,7 +1287,7 @@
     "kind": "data",
     "path": "data/foods/kombucha-unsweetened.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3928
+    "sizeBytes": 3821
   },
   {
     "id": "data.foods.labneh.plain.sample",
@@ -1295,7 +1295,7 @@
     "kind": "data",
     "path": "data/foods/labneh-plain.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3870
+    "sizeBytes": 3787
   },
   {
     "id": "data.foods.lamb.sample",
@@ -1303,7 +1303,7 @@
     "kind": "data",
     "path": "data/foods/lamb.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3863
+    "sizeBytes": 3756
   },
   {
     "id": "data.foods.lard.sample",
@@ -1311,7 +1311,7 @@
     "kind": "data",
     "path": "data/foods/lard.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3835
+    "sizeBytes": 3728
   },
   {
     "id": "data.foods.lean.beef.sample",
@@ -1319,7 +1319,7 @@
     "kind": "data",
     "path": "data/foods/lean-beef.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3860
+    "sizeBytes": 3777
   },
   {
     "id": "data.foods.lemon.sample",
@@ -1327,7 +1327,7 @@
     "kind": "data",
     "path": "data/foods/lemon.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3957
+    "sizeBytes": 3850
   },
   {
     "id": "data.foods.lentil.chips.sample",
@@ -1335,7 +1335,7 @@
     "kind": "data",
     "path": "data/foods/lentil-chips.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4205
+    "sizeBytes": 4122
   },
   {
     "id": "data.foods.lentils.sample",
@@ -1343,7 +1343,7 @@
     "kind": "data",
     "path": "data/foods/lentils.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3892
+    "sizeBytes": 3785
   },
   {
     "id": "data.foods.lima.beans.sample",
@@ -1351,7 +1351,7 @@
     "kind": "data",
     "path": "data/foods/lima-beans.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3842
+    "sizeBytes": 3759
   },
   {
     "id": "data.foods.liver.sample",
@@ -1359,7 +1359,7 @@
     "kind": "data",
     "path": "data/foods/liver.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3643
+    "sizeBytes": 3536
   },
   {
     "id": "data.foods.macadamia.butter.sample",
@@ -1367,7 +1367,7 @@
     "kind": "data",
     "path": "data/foods/macadamia-butter.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3843
+    "sizeBytes": 3760
   },
   {
     "id": "data.foods.macadamia.oil.sample",
@@ -1375,7 +1375,7 @@
     "kind": "data",
     "path": "data/foods/macadamia-oil.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3899
+    "sizeBytes": 3816
   },
   {
     "id": "data.foods.macadamia.sample",
@@ -1383,7 +1383,7 @@
     "kind": "data",
     "path": "data/foods/macadamia.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3858
+    "sizeBytes": 3775
   },
   {
     "id": "data.foods.mackerel.sample",
@@ -1391,7 +1391,7 @@
     "kind": "data",
     "path": "data/foods/mackerel.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3825
+    "sizeBytes": 3718
   },
   {
     "id": "data.foods.mango.sample",
@@ -1399,7 +1399,7 @@
     "kind": "data",
     "path": "data/foods/mango.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3909
+    "sizeBytes": 3802
   },
   {
     "id": "data.foods.maple.syrup.sample",
@@ -1407,7 +1407,7 @@
     "kind": "data",
     "path": "data/foods/maple-syrup.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4248
+    "sizeBytes": 4141
   },
   {
     "id": "data.foods.margarine.sample",
@@ -1415,7 +1415,7 @@
     "kind": "data",
     "path": "data/foods/margarine.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4245
+    "sizeBytes": 4138
   },
   {
     "id": "data.foods.matcha.sample",
@@ -1423,7 +1423,7 @@
     "kind": "data",
     "path": "data/foods/matcha.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3858
+    "sizeBytes": 3775
   },
   {
     "id": "data.foods.mayonnaise.sample",
@@ -1431,7 +1431,7 @@
     "kind": "data",
     "path": "data/foods/mayonnaise.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3921
+    "sizeBytes": 3838
   },
   {
     "id": "data.foods.milk.chocolate.bar.sample",
@@ -1439,7 +1439,7 @@
     "kind": "data",
     "path": "data/foods/milk-chocolate-bar.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4286
+    "sizeBytes": 4179
   },
   {
     "id": "data.foods.milk.skimmed.sample",
@@ -1447,7 +1447,7 @@
     "kind": "data",
     "path": "data/foods/milk-skimmed.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3829
+    "sizeBytes": 3722
   },
   {
     "id": "data.foods.milk.whole.sample",
@@ -1455,7 +1455,7 @@
     "kind": "data",
     "path": "data/foods/milk-whole.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3872
+    "sizeBytes": 3765
   },
   {
     "id": "data.foods.millet.sample",
@@ -1463,7 +1463,7 @@
     "kind": "data",
     "path": "data/foods/millet.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3826
+    "sizeBytes": 3743
   },
   {
     "id": "data.foods.miso.paste.sample",
@@ -1471,7 +1471,7 @@
     "kind": "data",
     "path": "data/foods/miso-paste.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3909
+    "sizeBytes": 3802
   },
   {
     "id": "data.foods.mixed.nuts.unsalted.sample",
@@ -1479,7 +1479,7 @@
     "kind": "data",
     "path": "data/foods/mixed-nuts-unsalted.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3859
+    "sizeBytes": 3776
   },
   {
     "id": "data.foods.mozzarella.sample",
@@ -1487,7 +1487,7 @@
     "kind": "data",
     "path": "data/foods/mozzarella.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3838
+    "sizeBytes": 3755
   },
   {
     "id": "data.foods.mung.beans.sample",
@@ -1495,7 +1495,7 @@
     "kind": "data",
     "path": "data/foods/mung-beans.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3838
+    "sizeBytes": 3755
   },
   {
     "id": "data.foods.mushrooms.sample",
@@ -1503,7 +1503,7 @@
     "kind": "data",
     "path": "data/foods/mushrooms.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3916
+    "sizeBytes": 3809
   },
   {
     "id": "data.foods.mustard.seeds.sample",
@@ -1511,7 +1511,7 @@
     "kind": "data",
     "path": "data/foods/mustard-seeds.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3831
+    "sizeBytes": 3748
   },
   {
     "id": "data.foods.navy.beans.sample",
@@ -1519,7 +1519,7 @@
     "kind": "data",
     "path": "data/foods/navy-beans.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3877
+    "sizeBytes": 3770
   },
   {
     "id": "data.foods.nigella.seeds.sample",
@@ -1527,7 +1527,7 @@
     "kind": "data",
     "path": "data/foods/nigella-seeds.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3870
+    "sizeBytes": 3763
   },
   {
     "id": "data.foods.oats.sample",
@@ -1535,7 +1535,7 @@
     "kind": "data",
     "path": "data/foods/oats.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 9766
+    "sizeBytes": 9659
   },
   {
     "id": "data.foods.olive.oil.refined.sample",
@@ -1543,7 +1543,7 @@
     "kind": "data",
     "path": "data/foods/olive-oil-refined.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3936
+    "sizeBytes": 3829
   },
   {
     "id": "data.foods.onion.sample",
@@ -1551,7 +1551,7 @@
     "kind": "data",
     "path": "data/foods/onion.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3913
+    "sizeBytes": 3830
   },
   {
     "id": "data.foods.orange.sample",
@@ -1559,7 +1559,7 @@
     "kind": "data",
     "path": "data/foods/orange.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3889
+    "sizeBytes": 3806
   },
   {
     "id": "data.foods.palm.oil.sample",
@@ -1567,7 +1567,7 @@
     "kind": "data",
     "path": "data/foods/palm-oil.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3850
+    "sizeBytes": 3767
   },
   {
     "id": "data.foods.papaya.sample",
@@ -1575,7 +1575,7 @@
     "kind": "data",
     "path": "data/foods/papaya.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3836
+    "sizeBytes": 3753
   },
   {
     "id": "data.foods.parmesan.sample",
@@ -1583,7 +1583,7 @@
     "kind": "data",
     "path": "data/foods/parmesan.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3844
+    "sizeBytes": 3761
   },
   {
     "id": "data.foods.parsnip.sample",
@@ -1591,7 +1591,7 @@
     "kind": "data",
     "path": "data/foods/parsnip.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3834
+    "sizeBytes": 3751
   },
   {
     "id": "data.foods.peach.sample",
@@ -1599,7 +1599,7 @@
     "kind": "data",
     "path": "data/foods/peach.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3846
+    "sizeBytes": 3763
   },
   {
     "id": "data.foods.peanut.butter.sample",
@@ -1607,7 +1607,7 @@
     "kind": "data",
     "path": "data/foods/peanut-butter.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3814
+    "sizeBytes": 3731
   },
   {
     "id": "data.foods.peanut.oil.sample",
@@ -1615,7 +1615,7 @@
     "kind": "data",
     "path": "data/foods/peanut-oil.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3874
+    "sizeBytes": 3791
   },
   {
     "id": "data.foods.peanuts.sample",
@@ -1623,7 +1623,7 @@
     "kind": "data",
     "path": "data/foods/peanuts.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3491
+    "sizeBytes": 3408
   },
   {
     "id": "data.foods.pecans.sample",
@@ -1631,7 +1631,7 @@
     "kind": "data",
     "path": "data/foods/pecans.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3789
+    "sizeBytes": 3706
   },
   {
     "id": "data.foods.pepperoni.sample",
@@ -1639,7 +1639,7 @@
     "kind": "data",
     "path": "data/foods/pepperoni.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4141
+    "sizeBytes": 4058
   },
   {
     "id": "data.foods.pickled.cucumber.sample",
@@ -1647,7 +1647,7 @@
     "kind": "data",
     "path": "data/foods/pickled-cucumber.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4013
+    "sizeBytes": 3906
   },
   {
     "id": "data.foods.pili.nuts.sample",
@@ -1655,7 +1655,7 @@
     "kind": "data",
     "path": "data/foods/pili-nuts.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3821
+    "sizeBytes": 3714
   },
   {
     "id": "data.foods.pine.nuts.sample",
@@ -1663,7 +1663,7 @@
     "kind": "data",
     "path": "data/foods/pine-nuts.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3856
+    "sizeBytes": 3749
   },
   {
     "id": "data.foods.pineapple.sample",
@@ -1671,7 +1671,7 @@
     "kind": "data",
     "path": "data/foods/pineapple.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3897
+    "sizeBytes": 3814
   },
   {
     "id": "data.foods.pinto.beans.sample",
@@ -1679,7 +1679,7 @@
     "kind": "data",
     "path": "data/foods/pinto-beans.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3903
+    "sizeBytes": 3796
   },
   {
     "id": "data.foods.pistachios.roasted.salted.sample",
@@ -1687,7 +1687,7 @@
     "kind": "data",
     "path": "data/foods/pistachios-roasted-salted.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3863
+    "sizeBytes": 3780
   },
   {
     "id": "data.foods.pistachios.sample",
@@ -1695,7 +1695,7 @@
     "kind": "data",
     "path": "data/foods/pistachios.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3887
+    "sizeBytes": 3780
   },
   {
     "id": "data.foods.plain.couscous.sample",
@@ -1703,7 +1703,7 @@
     "kind": "data",
     "path": "data/foods/plain-couscous.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3944
+    "sizeBytes": 3837
   },
   {
     "id": "data.foods.plain.yogurt.sample",
@@ -1711,7 +1711,7 @@
     "kind": "data",
     "path": "data/foods/plain-yogurt.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3874
+    "sizeBytes": 3767
   },
   {
     "id": "data.foods.plantain.green.sample",
@@ -1719,7 +1719,7 @@
     "kind": "data",
     "path": "data/foods/plantain-green.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3862
+    "sizeBytes": 3755
   },
   {
     "id": "data.foods.pomegranate.sample",
@@ -1727,7 +1727,7 @@
     "kind": "data",
     "path": "data/foods/pomegranate.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3930
+    "sizeBytes": 3847
   },
   {
     "id": "data.foods.popcorn.air.popped.sample",
@@ -1735,7 +1735,7 @@
     "kind": "data",
     "path": "data/foods/popcorn-air-popped.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3915
+    "sizeBytes": 3808
   },
   {
     "id": "data.foods.poppy.seeds.sample",
@@ -1743,7 +1743,7 @@
     "kind": "data",
     "path": "data/foods/poppy-seeds.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3809
+    "sizeBytes": 3726
   },
   {
     "id": "data.foods.pork.loin.sample",
@@ -1751,7 +1751,7 @@
     "kind": "data",
     "path": "data/foods/pork-loin.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3810
+    "sizeBytes": 3727
   },
   {
     "id": "data.foods.potato.chips.sample",
@@ -1759,7 +1759,7 @@
     "kind": "data",
     "path": "data/foods/potato-chips.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4146
+    "sizeBytes": 4039
   },
   {
     "id": "data.foods.processed.cheese.slices.sample",
@@ -1767,7 +1767,7 @@
     "kind": "data",
     "path": "data/foods/processed-cheese-slices.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3968
+    "sizeBytes": 3861
   },
   {
     "id": "data.foods.processed.honey.sample",
@@ -1775,7 +1775,7 @@
     "kind": "data",
     "path": "data/foods/processed-honey.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4336
+    "sizeBytes": 4229
   },
   {
     "id": "data.foods.protein.bar.generic.sample",
@@ -1783,7 +1783,7 @@
     "kind": "data",
     "path": "data/foods/protein-bar-generic.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4191
+    "sizeBytes": 4108
   },
   {
     "id": "data.foods.pumpkin.seed.butter.sample",
@@ -1791,7 +1791,7 @@
     "kind": "data",
     "path": "data/foods/pumpkin-seed-butter.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3882
+    "sizeBytes": 3799
   },
   {
     "id": "data.foods.pumpkin.seeds.roasted.salted.sample",
@@ -1799,7 +1799,7 @@
     "kind": "data",
     "path": "data/foods/pumpkin-seeds-roasted-salted.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3904
+    "sizeBytes": 3797
   },
   {
     "id": "data.foods.pumpkin.seeds.sample",
@@ -1807,7 +1807,7 @@
     "kind": "data",
     "path": "data/foods/pumpkin-seeds.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3844
+    "sizeBytes": 3761
   },
   {
     "id": "data.foods.purple.sweet.potato.sample",
@@ -1815,7 +1815,7 @@
     "kind": "data",
     "path": "data/foods/purple-sweet-potato.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3912
+    "sizeBytes": 3805
   },
   {
     "id": "data.foods.quark.plain.sample",
@@ -1823,7 +1823,7 @@
     "kind": "data",
     "path": "data/foods/quark-plain.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3863
+    "sizeBytes": 3780
   },
   {
     "id": "data.foods.quinoa.sample",
@@ -1831,7 +1831,7 @@
     "kind": "data",
     "path": "data/foods/quinoa.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3593
+    "sizeBytes": 3486
   },
   {
     "id": "data.foods.radish.sample",
@@ -1839,7 +1839,7 @@
     "kind": "data",
     "path": "data/foods/radish.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3965
+    "sizeBytes": 3882
   },
   {
     "id": "data.foods.raisins.sample",
@@ -1847,7 +1847,7 @@
     "kind": "data",
     "path": "data/foods/raisins.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3863
+    "sizeBytes": 3756
   },
   {
     "id": "data.foods.raspberries.sample",
@@ -1855,7 +1855,7 @@
     "kind": "data",
     "path": "data/foods/raspberries.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 8415
+    "sizeBytes": 8308
   },
   {
     "id": "data.foods.raw.honey.sample",
@@ -1863,7 +1863,7 @@
     "kind": "data",
     "path": "data/foods/raw-honey.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3735
+    "sizeBytes": 3652
   },
   {
     "id": "data.foods.red.bell.pepper.sample",
@@ -1871,7 +1871,7 @@
     "kind": "data",
     "path": "data/foods/red-bell-pepper.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3966
+    "sizeBytes": 3859
   },
   {
     "id": "data.foods.refried.beans.sample",
@@ -1879,7 +1879,7 @@
     "kind": "data",
     "path": "data/foods/refried-beans.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3881
+    "sizeBytes": 3774
   },
   {
     "id": "data.foods.rice.cakes.sample",
@@ -1887,7 +1887,7 @@
     "kind": "data",
     "path": "data/foods/rice-cakes.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 8444
+    "sizeBytes": 8361
   },
   {
     "id": "data.foods.ricotta.sample",
@@ -1895,7 +1895,7 @@
     "kind": "data",
     "path": "data/foods/ricotta.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3822
+    "sizeBytes": 3715
   },
   {
     "id": "data.foods.romaine.lettuce.sample",
@@ -1903,7 +1903,7 @@
     "kind": "data",
     "path": "data/foods/romaine-lettuce.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3989
+    "sizeBytes": 3882
   },
   {
     "id": "data.foods.rutabaga.sample",
@@ -1911,7 +1911,7 @@
     "kind": "data",
     "path": "data/foods/rutabaga.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3855
+    "sizeBytes": 3748
   },
   {
     "id": "data.foods.rye.sample",
@@ -1919,7 +1919,7 @@
     "kind": "data",
     "path": "data/foods/rye.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3822
+    "sizeBytes": 3739
   },
   {
     "id": "data.foods.safflower.oil.sample",
@@ -1927,7 +1927,7 @@
     "kind": "data",
     "path": "data/foods/safflower-oil.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3894
+    "sizeBytes": 3811
   },
   {
     "id": "data.foods.salami.sample",
@@ -1935,7 +1935,7 @@
     "kind": "data",
     "path": "data/foods/salami.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4142
+    "sizeBytes": 4059
   },
   {
     "id": "data.foods.salmon.sample",
@@ -1943,7 +1943,7 @@
     "kind": "data",
     "path": "data/foods/salmon.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 9670
+    "sizeBytes": 9563
   },
   {
     "id": "data.foods.salted.mixed.nuts.sample",
@@ -1951,7 +1951,7 @@
     "kind": "data",
     "path": "data/foods/salted-mixed-nuts.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3866
+    "sizeBytes": 3759
   },
   {
     "id": "data.foods.sardines.sample",
@@ -1959,7 +1959,7 @@
     "kind": "data",
     "path": "data/foods/sardines.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3863
+    "sizeBytes": 3780
   },
   {
     "id": "data.foods.schmaltz.sample",
@@ -1967,7 +1967,7 @@
     "kind": "data",
     "path": "data/foods/schmaltz.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3931
+    "sizeBytes": 3824
   },
   {
     "id": "data.foods.sesame.oil.sample",
@@ -1975,7 +1975,7 @@
     "kind": "data",
     "path": "data/foods/sesame-oil.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3808
+    "sizeBytes": 3725
   },
   {
     "id": "data.foods.sesame.seeds.sample",
@@ -1983,7 +1983,7 @@
     "kind": "data",
     "path": "data/foods/sesame-seeds.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3838
+    "sizeBytes": 3731
   },
   {
     "id": "data.foods.sesame.snaps.sample",
@@ -1991,7 +1991,7 @@
     "kind": "data",
     "path": "data/foods/sesame-snaps.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4163
+    "sizeBytes": 4056
   },
   {
     "id": "data.foods.sheep.yogurt.plain.sample",
@@ -1999,7 +1999,7 @@
     "kind": "data",
     "path": "data/foods/sheep-yogurt-plain.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3902
+    "sizeBytes": 3819
   },
   {
     "id": "data.foods.shrimp.sample",
@@ -2007,7 +2007,7 @@
     "kind": "data",
     "path": "data/foods/shrimp.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3833
+    "sizeBytes": 3750
   },
   {
     "id": "data.foods.skyr.plain.sample",
@@ -2015,7 +2015,7 @@
     "kind": "data",
     "path": "data/foods/skyr-plain.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3894
+    "sizeBytes": 3787
   },
   {
     "id": "data.foods.sorghum.sample",
@@ -2023,7 +2023,7 @@
     "kind": "data",
     "path": "data/foods/sorghum.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3940
+    "sizeBytes": 3833
   },
   {
     "id": "data.foods.soy.milk.sweetened.sample",
@@ -2031,7 +2031,7 @@
     "kind": "data",
     "path": "data/foods/soy-milk-sweetened.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4205
+    "sizeBytes": 4098
   },
   {
     "id": "data.foods.soy.milk.unsweetened.sample",
@@ -2039,7 +2039,7 @@
     "kind": "data",
     "path": "data/foods/soy-milk-unsweetened.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3914
+    "sizeBytes": 3831
   },
   {
     "id": "data.foods.soy.yogurt.sweetened.sample",
@@ -2047,7 +2047,7 @@
     "kind": "data",
     "path": "data/foods/soy-yogurt-sweetened.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4203
+    "sizeBytes": 4120
   },
   {
     "id": "data.foods.soybean.oil.sample",
@@ -2055,7 +2055,7 @@
     "kind": "data",
     "path": "data/foods/soybean-oil.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3913
+    "sizeBytes": 3806
   },
   {
     "id": "data.foods.soybeans.sample",
@@ -2063,7 +2063,7 @@
     "kind": "data",
     "path": "data/foods/soybeans.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3583
+    "sizeBytes": 3500
   },
   {
     "id": "data.foods.sparkling.water.sample",
@@ -2071,7 +2071,7 @@
     "kind": "data",
     "path": "data/foods/sparkling-water.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3932
+    "sizeBytes": 3849
   },
   {
     "id": "data.foods.spinach.sample",
@@ -2079,7 +2079,7 @@
     "kind": "data",
     "path": "data/foods/spinach.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3823
+    "sizeBytes": 3716
   },
   {
     "id": "data.foods.split.peas.sample",
@@ -2087,7 +2087,7 @@
     "kind": "data",
     "path": "data/foods/split-peas.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3805
+    "sizeBytes": 3722
   },
   {
     "id": "data.foods.sports.drink.sample",
@@ -2095,7 +2095,7 @@
     "kind": "data",
     "path": "data/foods/sports-drink.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3874
+    "sizeBytes": 3767
   },
   {
     "id": "data.foods.strawberries.sample",
@@ -2103,7 +2103,7 @@
     "kind": "data",
     "path": "data/foods/strawberries.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3893
+    "sizeBytes": 3786
   },
   {
     "id": "data.foods.sunflower.oil.sample",
@@ -2111,7 +2111,7 @@
     "kind": "data",
     "path": "data/foods/sunflower-oil.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3935
+    "sizeBytes": 3828
   },
   {
     "id": "data.foods.sunflower.seed.butter.sample",
@@ -2119,7 +2119,7 @@
     "kind": "data",
     "path": "data/foods/sunflower-seed-butter.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3889
+    "sizeBytes": 3782
   },
   {
     "id": "data.foods.sunflower.seeds.roasted.salted.sample",
@@ -2127,7 +2127,7 @@
     "kind": "data",
     "path": "data/foods/sunflower-seeds-roasted-salted.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3908
+    "sizeBytes": 3801
   },
   {
     "id": "data.foods.sunflower.seeds.sample",
@@ -2135,7 +2135,7 @@
     "kind": "data",
     "path": "data/foods/sunflower-seeds.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3851
+    "sizeBytes": 3744
   },
   {
     "id": "data.foods.sweet.potato.sample",
@@ -2143,7 +2143,7 @@
     "kind": "data",
     "path": "data/foods/sweet-potato.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 9691
+    "sizeBytes": 9584
   },
   {
     "id": "data.foods.sweetened.chia.pudding.sample",
@@ -2151,7 +2151,7 @@
     "kind": "data",
     "path": "data/foods/sweetened-chia-pudding.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3891
+    "sizeBytes": 3784
   },
   {
     "id": "data.foods.sweetened.coffee.creamer.sample",
@@ -2159,7 +2159,7 @@
     "kind": "data",
     "path": "data/foods/sweetened-coffee-creamer.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4298
+    "sizeBytes": 4215
   },
   {
     "id": "data.foods.sweetened.condensed.milk.sample",
@@ -2167,7 +2167,7 @@
     "kind": "data",
     "path": "data/foods/sweetened-condensed-milk.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4289
+    "sizeBytes": 4182
   },
   {
     "id": "data.foods.sweetened.sunflower.spread.sample",
@@ -2175,7 +2175,7 @@
     "kind": "data",
     "path": "data/foods/sweetened-sunflower-spread.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4263
+    "sizeBytes": 4156
   },
   {
     "id": "data.foods.swiss.chard.sample",
@@ -2183,7 +2183,7 @@
     "kind": "data",
     "path": "data/foods/swiss-chard.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4006
+    "sizeBytes": 3923
   },
   {
     "id": "data.foods.swiss.cheese.sample",
@@ -2191,7 +2191,7 @@
     "kind": "data",
     "path": "data/foods/swiss-cheese.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3892
+    "sizeBytes": 3785
   },
   {
     "id": "data.foods.tahini.sample",
@@ -2199,7 +2199,7 @@
     "kind": "data",
     "path": "data/foods/tahini.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3843
+    "sizeBytes": 3736
   },
   {
     "id": "data.foods.tapioca.pearls.dry.sample",
@@ -2207,7 +2207,7 @@
     "kind": "data",
     "path": "data/foods/tapioca-pearls-dry.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3841
+    "sizeBytes": 3758
   },
   {
     "id": "data.foods.taro.chips.sample",
@@ -2215,7 +2215,7 @@
     "kind": "data",
     "path": "data/foods/taro-chips.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4190
+    "sizeBytes": 4083
   },
   {
     "id": "data.foods.taro.sample",
@@ -2223,7 +2223,7 @@
     "kind": "data",
     "path": "data/foods/taro.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3827
+    "sizeBytes": 3744
   },
   {
     "id": "data.foods.tater.tots.sample",
@@ -2231,7 +2231,7 @@
     "kind": "data",
     "path": "data/foods/tater-tots.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4179
+    "sizeBytes": 4072
   },
   {
     "id": "data.foods.tea.black.sample",
@@ -2239,7 +2239,7 @@
     "kind": "data",
     "path": "data/foods/tea-black.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3832
+    "sizeBytes": 3725
   },
   {
     "id": "data.foods.teff.sample",
@@ -2247,7 +2247,7 @@
     "kind": "data",
     "path": "data/foods/teff.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3894
+    "sizeBytes": 3811
   },
   {
     "id": "data.foods.tempeh.sample",
@@ -2255,7 +2255,7 @@
     "kind": "data",
     "path": "data/foods/tempeh.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3894
+    "sizeBytes": 3787
   },
   {
     "id": "data.foods.tofu.firm.sample",
@@ -2263,7 +2263,7 @@
     "kind": "data",
     "path": "data/foods/tofu-firm.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3858
+    "sizeBytes": 3775
   },
   {
     "id": "data.foods.tomato.sample",
@@ -2271,7 +2271,7 @@
     "kind": "data",
     "path": "data/foods/tomato.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 9794
+    "sizeBytes": 9687
   },
   {
     "id": "data.foods.trail.mix.chocolate.sample",
@@ -2279,7 +2279,7 @@
     "kind": "data",
     "path": "data/foods/trail-mix-chocolate.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4210
+    "sizeBytes": 4103
   },
   {
     "id": "data.foods.trout.sample",
@@ -2287,7 +2287,7 @@
     "kind": "data",
     "path": "data/foods/trout.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3898
+    "sizeBytes": 3791
   },
   {
     "id": "data.foods.tuna.sample",
@@ -2295,7 +2295,7 @@
     "kind": "data",
     "path": "data/foods/tuna.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3830
+    "sizeBytes": 3747
   },
   {
     "id": "data.foods.turkey.breast.sample",
@@ -2303,7 +2303,7 @@
     "kind": "data",
     "path": "data/foods/turkey-breast.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3847
+    "sizeBytes": 3740
   },
   {
     "id": "data.foods.turkey.sausage.sample",
@@ -2311,7 +2311,7 @@
     "kind": "data",
     "path": "data/foods/turkey-sausage.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4152
+    "sizeBytes": 4045
   },
   {
     "id": "data.foods.turnip.sample",
@@ -2319,7 +2319,7 @@
     "kind": "data",
     "path": "data/foods/turnip.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3809
+    "sizeBytes": 3702
   },
   {
     "id": "data.foods.ube.sample",
@@ -2327,7 +2327,7 @@
     "kind": "data",
     "path": "data/foods/ube.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3844
+    "sizeBytes": 3737
   },
   {
     "id": "data.foods.vegetable.shortening.sample",
@@ -2335,7 +2335,7 @@
     "kind": "data",
     "path": "data/foods/vegetable-shortening.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4272
+    "sizeBytes": 4165
   },
   {
     "id": "data.foods.venison.sample",
@@ -2343,7 +2343,7 @@
     "kind": "data",
     "path": "data/foods/venison.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3836
+    "sizeBytes": 3729
   },
   {
     "id": "data.foods.walnut.oil.sample",
@@ -2351,7 +2351,7 @@
     "kind": "data",
     "path": "data/foods/walnut-oil.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3924
+    "sizeBytes": 3817
   },
   {
     "id": "data.foods.walnuts.sample",
@@ -2359,7 +2359,7 @@
     "kind": "data",
     "path": "data/foods/walnuts.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3807
+    "sizeBytes": 3724
   },
   {
     "id": "data.foods.watercress.sample",
@@ -2367,7 +2367,7 @@
     "kind": "data",
     "path": "data/foods/watercress.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4035
+    "sizeBytes": 3928
   },
   {
     "id": "data.foods.watermelon.seeds.roasted.salted.sample",
@@ -2375,7 +2375,7 @@
     "kind": "data",
     "path": "data/foods/watermelon-seeds-roasted-salted.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3948
+    "sizeBytes": 3865
   },
   {
     "id": "data.foods.watermelon.seeds.unsalted.sample",
@@ -2383,7 +2383,7 @@
     "kind": "data",
     "path": "data/foods/watermelon-seeds-unsalted.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3915
+    "sizeBytes": 3808
   },
   {
     "id": "data.foods.watermelon.sample",
@@ -2391,7 +2391,7 @@
     "kind": "data",
     "path": "data/foods/watermelon.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3856
+    "sizeBytes": 3773
   },
   {
     "id": "data.foods.whey.protein.isolate.sample",
@@ -2399,7 +2399,7 @@
     "kind": "data",
     "path": "data/foods/whey-protein-isolate.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3860
+    "sizeBytes": 3777
   },
   {
     "id": "data.foods.white.bread.sample",
@@ -2407,7 +2407,7 @@
     "kind": "data",
     "path": "data/foods/white-bread.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3952
+    "sizeBytes": 3845
   },
   {
     "id": "data.foods.white.potato.sample",
@@ -2415,7 +2415,7 @@
     "kind": "data",
     "path": "data/foods/white-potato.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3743
+    "sizeBytes": 3660
   },
   {
     "id": "data.foods.white.rice.sample",
@@ -2423,7 +2423,7 @@
     "kind": "data",
     "path": "data/foods/white-rice.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 10000
+    "sizeBytes": 9917
   },
   {
     "id": "data.foods.whole.grain.pasta.dry.sample",
@@ -2431,7 +2431,7 @@
     "kind": "data",
     "path": "data/foods/whole-grain-pasta-dry.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3923
+    "sizeBytes": 3840
   },
   {
     "id": "data.foods.whole.wheat.sample",
@@ -2439,7 +2439,7 @@
     "kind": "data",
     "path": "data/foods/whole-wheat.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3841
+    "sizeBytes": 3758
   },
   {
     "id": "data.foods.wild.rice.sample",
@@ -2447,7 +2447,7 @@
     "kind": "data",
     "path": "data/foods/wild-rice.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3903
+    "sizeBytes": 3820
   },
   {
     "id": "data.foods.yam.sample",
@@ -2455,7 +2455,7 @@
     "kind": "data",
     "path": "data/foods/yam.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3814
+    "sizeBytes": 3731
   },
   {
     "id": "data.foods.zucchini.sample",
@@ -2463,7 +2463,7 @@
     "kind": "data",
     "path": "data/foods/zucchini.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3977
+    "sizeBytes": 3870
   },
   {
     "id": "audio.music.freesound.community.8bit.sample.69080.loop.240s",
@@ -4888,22 +4888,6 @@
     "path": "audio/sfx/transitions/section_transition_whoosh.mp3",
     "mimeType": "audio/mpeg",
     "sizeBytes": 40704
-  },
-  {
-    "id": "audio.sfx.ui.freesound.community.magical.background.6892",
-    "label": "Freesound Community Magical Background 6892",
-    "kind": "sfx",
-    "path": "audio/sfx/ui/freesound_community_magical_background_6892.mp3",
-    "mimeType": "audio/mpeg",
-    "sizeBytes": 912480
-  },
-  {
-    "id": "audio.sfx.ui.highlight.glow.loop",
-    "label": "Highlight Glow Loop",
-    "kind": "sfx",
-    "path": "audio/sfx/ui/highlight_glow_loop.mp3",
-    "mimeType": "audio/mpeg",
-    "sizeBytes": 502387
   },
   {
     "id": "app.sprites.header.calorie.bubble.dairy.calorie.bubble",

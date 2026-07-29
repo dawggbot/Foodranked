@@ -9,10 +9,6 @@ const SFX_ROLE_OPTIONS = Object.freeze({
   sectionTransition: Object.freeze([
     'audio/sfx/transitions/section_transition_whoosh.mp3',
     'audio/sfx/transitions/freesound_community_retro_spell_sfx_85574.mp3'
-  ]),
-  highlightGlow: Object.freeze([
-    'audio/sfx/ui/highlight_glow_loop.mp3',
-    'audio/sfx/ui/freesound_community_magical_background_6892.mp3'
   ])
 });
 

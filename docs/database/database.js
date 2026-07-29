@@ -85,10 +85,6 @@
     sectionTransition: Object.freeze([
       'audio/sfx/transitions/section_transition_whoosh.mp3',
       'audio/sfx/transitions/freesound_community_retro_spell_sfx_85574.mp3'
-    ]),
-    highlightGlow: Object.freeze([
-      'audio/sfx/ui/highlight_glow_loop.mp3',
-      'audio/sfx/ui/freesound_community_magical_background_6892.mp3'
     ])
   });
   const MUSIC_ROLE_OPTIONS = Object.freeze({
@@ -311,31 +307,13 @@
     return typeof DB.assetRef === 'function' ? DB.assetRef(asset?.id) : `frdb://asset/${asset?.id || ''}`;
   }
 
-  function autoFoodImageRef(id) {
-    const assets = typeof DB.assetEntries === 'function' ? DB.assetEntries(state.db) : [];
-    const foodImages = assets.filter(asset => (
-      asset.kind === 'sprite' &&
-      /^app\/sprites\/header\/food_images\/[^/]+\.png$/i.test(asset.path || '')
-    ));
-    const selected = stableChoice(foodImages, autoSeed('foodImage', id));
-    return selected ? assetRefForEntry(selected) : '';
-  }
-
-  function autoFoodImageSize(ref) {
-    const path = typeof DB.assetPath === 'function' ? DB.assetPath(ref, ref, state.db) : ref;
-    if (/\/bacon\.png$/i.test(path)) return { customFoodImageWidth: 30, customFoodImageHeight: 13 };
-    if (/\/kale\.png$/i.test(path)) return { customFoodImageWidth: 30, customFoodImageHeight: 30 };
-    return {};
-  }
-
   function autoFoodSpecificPatch(id) {
     return {
       sfxProfile: {
         version: 1,
         selectionMode: AUTO_ASSET_SELECTION_MODE,
         stampImpact: { path: autoProfilePath('stampImpact', SFX_ROLE_OPTIONS.stampImpact, id) },
-        sectionTransition: { path: autoProfilePath('sectionTransition', SFX_ROLE_OPTIONS.sectionTransition, id) },
-        highlightGlow: { path: autoProfilePath('highlightGlow', SFX_ROLE_OPTIONS.highlightGlow, id) }
+        sectionTransition: { path: autoProfilePath('sectionTransition', SFX_ROLE_OPTIONS.sectionTransition, id) }
       },
       musicProfile: {
         version: 1,
@@ -530,8 +508,6 @@
     const id = clean(window.prompt('Food ID'));
     if (!id) return;
     const name = clean(window.prompt('Food name', id.replace(/-/g, ' '))) || id;
-    const starterFoodImage = autoFoodImageRef(id);
-    const starterFoodImageSize = autoFoodImageSize(starterFoodImage);
     const entry = {
       id,
       name,
@@ -542,9 +518,7 @@
       metrics: {},
       foodPatch: autoFoodSpecificPatch(id),
       finalizedDownloaded: false,
-      customFoodImagePath: starterFoodImage,
-      ...starterFoodImageSize,
-      notes: 'Starter food-specific assets were auto-assigned. Replace the food sprite, script, and audio before final production.'
+      notes: 'Starter SFX, music, and voice assets were auto-assigned. Upload the food sprite, script, and audio before final production.'
     };
     state.db = DB.upsertFoodEntry(id, entry);
     refreshFoods();

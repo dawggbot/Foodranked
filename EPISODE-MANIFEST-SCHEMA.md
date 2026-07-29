@@ -112,7 +112,6 @@ Fields:
 - `stampImpact.path`
 - `sectionTransition.path`
 - optional `sectionTransition.volume`
-- `highlightGlow.path`
 
 Paths are browser-facing `audio/sfx/...` paths. The matching source file should live under `audio/sfx/...`, and any file loaded by the builder must also be mirrored under `docs/audio/sfx/...`.
 `sectionTransition.volume` is a playback level for quieter transition files. Values up to `1` use normal browser audio volume; values above `1` use Video Builder v2's gain boost path.

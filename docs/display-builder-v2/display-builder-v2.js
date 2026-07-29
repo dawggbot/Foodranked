@@ -29,8 +29,8 @@
   const PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const PLACEMENT_EXPORT_LIMIT = 60;
   const PAGE_URL_PARAMS = new URLSearchParams(window.location.search);
-  const DISPLAY_BUILDER_V2_BUILD_ID = PAGE_URL_PARAMS.get('build') || '20260729-visible-phone-frame-v1';
-  const DATA_CACHE_BUST = '20260729-visible-phone-frame-v1';
+  const DISPLAY_BUILDER_V2_BUILD_ID = PAGE_URL_PARAMS.get('build') || '20260729-slop-stamp-gap-v1';
+  const DATA_CACHE_BUST = '20260729-slop-stamp-gap-v1';
   const FOOD_JSON_CACHE = new Map();
   const BATCH_RESULTS_CACHE = new Map();
   const TEXT_LAYER_CLIP_BLEED = 2;
@@ -84,7 +84,9 @@
   const INTRO_FOCUS_BLUR_PX = 2;
   const INTRO_FOCUS_CLEAR_LAYER_IDS = new Set(['intro_ranked_sprite', 'intro_food_hero']);
   const DBV2_STATIC_STAMP_LAYER_FLAG = 'displayBuilderV2StaticStamp';
-  const OUTRO_SLOP_TIER_STAMP_WIDTH = 128;
+  const OUTRO_SLOP_TIER_STAMP_MAX_WIDTH = 128;
+  const OUTRO_SLOP_TIER_STAMP_SAFE_MARGIN = 9;
+  const OUTRO_SLOP_TIER_STAMP_CENTER_OFFSET_Y = -3;
   const renderToken = { value: 0 };
   const PLACEMENT_LAYER_KEYS = [
     'id',
@@ -1277,13 +1279,20 @@
     return OUTRO_TIER_STAMP_ASPECT_RATIOS[normalizedTier(tier)] || 1;
   }
 
-  function outroTierStampSize(tier) {
+  function outroTierStampSize(tier, layout = null) {
     const normalized = normalizedTier(tier);
     if (normalized === 'SLOP') {
       const aspectRatio = outroTierStampAspectRatio(normalized);
+      const visible = displayBuilderVisibleGridBounds(layout);
+      const visibleWidth = Math.max(1, (Number(visible.right) || 0) - (Number(visible.left) || 0));
+      const slopWidth = clamp(
+        visibleWidth - (OUTRO_SLOP_TIER_STAMP_SAFE_MARGIN * 2),
+        OUTRO_TIER_STAMP_SIZE,
+        OUTRO_SLOP_TIER_STAMP_MAX_WIDTH
+      );
       return {
-        width: OUTRO_SLOP_TIER_STAMP_WIDTH,
-        height: roundedLayoutNumber(OUTRO_SLOP_TIER_STAMP_WIDTH / aspectRatio)
+        width: roundedLayoutNumber(slopWidth),
+        height: roundedLayoutNumber(slopWidth / aspectRatio)
       };
     }
     return { width: OUTRO_TIER_STAMP_SIZE, height: OUTRO_TIER_STAMP_SIZE };
@@ -1294,7 +1303,7 @@
     const tier = outroTierForFood(food);
     const tierSrc = outroTierSpritePath(tier);
     const displayTierSrc = tierSrc || OUTRO_TIER_SPRITE_PATHS.D;
-    const tierSize = outroTierStampSize(tier);
+    const tierSize = outroTierStampSize(tier, layout);
     const ctaStepX = OUTRO_CTA_STAMP_SIZE + OUTRO_CTA_STAMP_GAP_X;
     const ctaCenterOffsetY = (tierSize.height / 2) + OUTRO_CTA_STAMP_GAP_Y + (OUTRO_CTA_STAMP_SIZE / 2);
     const tierLayer = {
@@ -1303,7 +1312,7 @@
       label: outroTierStampLabel(tier),
       src: displayTierSrc,
       x: roundedLayoutNumber(center.x - (tierSize.width / 2)),
-      y: roundedLayoutNumber(center.y - (tierSize.height / 2)),
+      y: roundedLayoutNumber(center.y - (tierSize.height / 2) + (tier === 'SLOP' ? OUTRO_SLOP_TIER_STAMP_CENTER_OFFSET_Y : 0)),
       z: 38,
       width: tierSize.width,
       height: tierSize.height,

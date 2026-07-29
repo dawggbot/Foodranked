@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260729-visible-phone-frame-v1';
+  const BUILDER_BUILD_ID = '20260729-slop-stamp-gap-v1';
   const DISPLAY_BUILDER_V2_EXPORT_TIMEOUT_MS = 8000;
   const DISPLAY_BUILDER_V2_EXPORT_POLL_MS = 150;
   const AUTHOR_GRID = { width: 105, height: 186.666667 };
@@ -354,6 +354,7 @@
   const OUTRO_CTA_STAMP_GAP_Y = 4;
   const OUTRO_SLOP_TIER_STAMP_MAX_WIDTH = 128;
   const OUTRO_SLOP_TIER_STAMP_SAFE_MARGIN = 9;
+  const OUTRO_SLOP_TIER_STAMP_CENTER_OFFSET_Y = -3;
   const OUTRO_TIER_STAMP_ID = 'outro_tier_stamp';
   const OUTRO_TIER_STAMP_LEGACY_ID = 'outro_d_tier_stamp';
   const OUTRO_CTA_STAMP_ORDER = ['outro_like_stamp', 'outro_follow_stamp', 'outro_share_stamp'];
@@ -3000,7 +3001,7 @@
     if (tier === 'SLOP') {
       layer.centerAnchor = 'visible-canvas';
       layer.centerOffsetX = 0;
-      layer.centerOffsetY = 0;
+      layer.centerOffsetY = OUTRO_SLOP_TIER_STAMP_CENTER_OFFSET_Y;
     }
     if (!hadExistingLayer && !layer.centerAnchor) layer.centerAnchor = 'visible-canvas';
     if (layer.centerAnchor === 'visible-canvas') {

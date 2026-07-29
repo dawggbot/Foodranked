@@ -46,6 +46,10 @@
     'baked-beans': 6.2
   };
 
+  const HEADER_NAME_MIN_FONT_SIZE_OVERRIDES = {
+    'extra-virgin-olive-oil': 4
+  };
+
   const ONES_NUMBER_WORD_VALUES = {
     one: 1,
     two: 2,
@@ -250,9 +254,13 @@
       || 'Unknown';
     const foodId = String(food?.id || '');
     const maxFontSize = Number(HEADER_NAME_MAX_FONT_SIZE_OVERRIDES[foodId]);
-    const fitLayer = Number.isFinite(maxFontSize) && maxFontSize > 0
+    const minFontSize = Number(HEADER_NAME_MIN_FONT_SIZE_OVERRIDES[foodId]);
+    let fitLayer = Number.isFinite(maxFontSize) && maxFontSize > 0
       ? { ...(layer || {}), fontSize: Math.min(headerNameBaseFontSize(layer), maxFontSize) }
       : layer;
+    if (Number.isFinite(minFontSize) && minFontSize > 0) {
+      fitLayer = { ...(fitLayer || {}), minAutoFontSize: minFontSize };
+    }
     const override = numberWordsToDigits(HEADER_NAME_OVERRIDES[foodId] || '');
     const displayRawName = applyFamiliarHeaderShorthand(numberWordsToDigits(rawName));
     const unshortenedRawName = numberWordsToDigits(rawName);

@@ -1,7 +1,7 @@
 window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT = {
   "canvas": {
-    "width": 135,
-    "height": 240,
+    "width": 105,
+    "height": 186.666667,
     "previewScale": 0.75,
     "background": "#d6d6d6",
     "showGrid": true,

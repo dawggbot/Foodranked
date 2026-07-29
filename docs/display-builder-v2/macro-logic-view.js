@@ -2,7 +2,7 @@
   const DISPLAY_SCHEMA = window.FOODRANKED_DISPLAY_SCHEMA || {};
   const BINDINGS = window.FOODRANKED_MACRO_BINDINGS || {};
   const ROOT_SPRITE_BASE = '../app/sprites';
-  const AUTHOR_GRID = DISPLAY_SCHEMA.authorGrid || { width: 135, height: 240 };
+  const AUTHOR_GRID = DISPLAY_SCHEMA.authorGrid || { width: 105, height: 186.666667 };
   const DISPLAY_RULE_SECTIONS = [...new Set([
     ...(BINDINGS.macroSections || ['fats', 'carbs', 'protein']),
     ...(BINDINGS.micronutrientSections || ['vitamins', 'minerals'])

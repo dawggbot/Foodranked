@@ -20,7 +20,7 @@
   };
 
   const TEMPLATE_CANVAS = { width: 1080, height: 1920 };
-  const AUTHOR_GRID = { width: 135, height: 240 };
+  const AUTHOR_GRID = { width: 105, height: 186.666667 };
   const TEMPLATE_PROGRESS_INDICATOR = {
     id: 'progress_dots',
     type: 'dotRow',
@@ -116,7 +116,7 @@
   }
 
   window.FOODRANKED_DISPLAY_SCHEMA = {
-    version: '20260720-food-type-title-fit-v1',
+    version: '20260729-visible-phone-frame-v1',
     templateCanvas: TEMPLATE_CANVAS,
     authorGrid: AUTHOR_GRID,
     progressIndicator: TEMPLATE_PROGRESS_INDICATOR,

@@ -117,8 +117,8 @@
     const width = Number(schemaGrid?.width);
     const height = Number(schemaGrid?.height);
     return {
-      width: Number.isFinite(width) && width > 0 ? width : 135,
-      height: Number.isFinite(height) && height > 0 ? height : 240
+      width: Number.isFinite(width) && width > 0 ? width : 105,
+      height: Number.isFinite(height) && height > 0 ? height : 186.666667
     };
   }
 
@@ -217,7 +217,7 @@
     const pixelUnit = Math.max(0.1, displayWidth / grid.width);
     const canvasGridWidth = alignedCanvasGridWidth(doc, grid.width);
     const canvasWidth = canvasGridWidth * pixelUnit;
-    const canvasHeight = canvasWidth * (16 / 9);
+    const canvasHeight = canvasGridWidth * (grid.height / grid.width) * pixelUnit;
 
     canvas.style.width = `${canvasWidth.toFixed(3)}px`;
     canvas.style.height = `${canvasHeight.toFixed(3)}px`;

@@ -29,8 +29,8 @@
   const PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const PLACEMENT_EXPORT_LIMIT = 60;
   const PAGE_URL_PARAMS = new URLSearchParams(window.location.search);
-  const DISPLAY_BUILDER_V2_BUILD_ID = PAGE_URL_PARAMS.get('build') || '20260729-slop-tier-v3';
-  const DATA_CACHE_BUST = '20260729-slop-tier-v3';
+  const DISPLAY_BUILDER_V2_BUILD_ID = PAGE_URL_PARAMS.get('build') || '20260729-visible-phone-frame-v1';
+  const DATA_CACHE_BUST = '20260729-visible-phone-frame-v1';
   const FOOD_JSON_CACHE = new Map();
   const BATCH_RESULTS_CACHE = new Map();
   const TEXT_LAYER_CLIP_BLEED = 2;
@@ -52,7 +52,8 @@
   const MACRO_BAR_GIF_FRAME_CACHE = new Map();
   const SECTION_STILL_EXPORT_MIME = 'image/png';
   const SECTION_STILL_EXPORT_EXTENSION = 'png';
-  const SECTION_STILL_EXPORT_MIN_OUTPUT_WIDTH = 1080;
+  const SECTION_STILL_EXPORT_OUTPUT_WIDTH = 1080;
+  const SECTION_STILL_EXPORT_OUTPUT_HEIGHT = 1920;
   const SECTION_STILL_EXPORT_STATUS_CLEAR_MS = 3200;
   const SECTION_STILL_EXPORT_GIF_TIMEOUT_MS = 8000;
   const SECTION_STILL_EXPORT_IMAGE_CACHE = new Map();
@@ -2236,9 +2237,9 @@
     const bounds = displayBuilderVisibleGridBounds(layout);
     const gridWidth = Math.max(1, (Number(bounds.right) || 0) - (Number(bounds.left) || 0));
     const gridHeight = Math.max(1, (Number(bounds.bottom) || 0) - (Number(bounds.top) || 0));
-    const scale = Math.max(1, Math.ceil(SECTION_STILL_EXPORT_MIN_OUTPUT_WIDTH / gridWidth));
-    const outputWidth = Math.round(gridWidth * scale);
-    const outputHeight = Math.round(gridHeight * scale);
+    const scale = SECTION_STILL_EXPORT_OUTPUT_WIDTH / gridWidth;
+    const outputWidth = SECTION_STILL_EXPORT_OUTPUT_WIDTH;
+    const outputHeight = SECTION_STILL_EXPORT_OUTPUT_HEIGHT;
     return {
       ...bounds,
       gridWidth,
@@ -3263,7 +3264,8 @@
     sectionStillExport: {
       mimeType: SECTION_STILL_EXPORT_MIME,
       extension: SECTION_STILL_EXPORT_EXTENSION,
-      minimumOutputWidth: SECTION_STILL_EXPORT_MIN_OUTPUT_WIDTH
+      outputWidth: SECTION_STILL_EXPORT_OUTPUT_WIDTH,
+      outputHeight: SECTION_STILL_EXPORT_OUTPUT_HEIGHT
     },
     storageKeys: {
       read: [LAYOUT_BUILDER_WORKING_KEY, LAYOUT_BUILDER_SAVED_KEY, LAYOUT_BUILDER_FOOD_LAYOUTS_KEY],

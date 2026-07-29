@@ -2,10 +2,10 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260729-slop-tier-v5';
+  const BUILDER_BUILD_ID = '20260729-visible-phone-frame-v1';
   const DISPLAY_BUILDER_V2_EXPORT_TIMEOUT_MS = 8000;
   const DISPLAY_BUILDER_V2_EXPORT_POLL_MS = 150;
-  const AUTHOR_GRID = { width: 135, height: 240 };
+  const AUTHOR_GRID = { width: 105, height: 186.666667 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
   const SECTION_INDICATOR_RENDER_SEAM_BLEED_PX = 0.75;
@@ -3721,7 +3721,7 @@
       foodId: food?.id || null,
       foodName: food?.name || null,
       layoutSource: state.layoutSourceId,
-      canvas: { width: AUTHOR_GRID.width, height: AUTHOR_GRID.height, aspect: '9:16' },
+      canvas: { width: AUTHOR_GRID.width, height: AUTHOR_GRID.height, aspect: '105:186.667' },
       audio: audioForFood(food),
       audioMix: audioMixManifest(),
       sfxProfile: sfxProfileForFood(food),
@@ -4165,18 +4165,13 @@
     if (desktopComfortable) return 4;
 
     const compactLaptop = (window.innerWidth <= 1500 || window.innerHeight <= 850) && window.innerWidth > 760;
-    const laptopCanvasCrop = compactLaptop;
     const tightLaptop = window.innerWidth <= 1180 && window.innerWidth > 760;
     const reservedWidth = tightLaptop ? 530 : (compactLaptop ? 660 : 690);
     const reservedHeight = tightLaptop ? 154 : (compactLaptop ? 150 : 210);
     const minimumScale = tightLaptop ? 1.12 : (compactLaptop ? 1.30 : 1.45);
     const verticalRoom = Math.max(300, window.innerHeight - reservedHeight);
-    const scaleFromHeight = laptopCanvasCrop
-      ? (verticalRoom - 12) / (AUTHOR_GRID.height * (7 / 9))
-      : (((verticalRoom * 9) / 16) - 12) / AUTHOR_GRID.width;
-    const scaleFromWidth = laptopCanvasCrop
-      ? (Math.max(280, window.innerWidth - reservedWidth) - 24) / (AUTHOR_GRID.width * (7 / 9))
-      : (Math.max(280, window.innerWidth - reservedWidth) - 24) / AUTHOR_GRID.width;
+    const scaleFromHeight = (verticalRoom - 12) / AUTHOR_GRID.height;
+    const scaleFromWidth = (Math.max(280, window.innerWidth - reservedWidth) - 24) / AUTHOR_GRID.width;
     return Math.max(minimumScale, Math.min(4, scaleFromHeight, scaleFromWidth));
   }
 

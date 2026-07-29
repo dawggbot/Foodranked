@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260729-slop-tier-v4';
+  const BUILDER_BUILD_ID = '20260729-slop-tier-v5';
   const DISPLAY_BUILDER_V2_EXPORT_TIMEOUT_MS = 8000;
   const DISPLAY_BUILDER_V2_EXPORT_POLL_MS = 150;
   const AUTHOR_GRID = { width: 135, height: 240 };
@@ -352,7 +352,8 @@
   const OUTRO_CTA_STAMP_SIZE = OUTRO_TIER_STAMP_SIZE * (OUTRO_CTA_STAMP_ASSET_SIZE / OUTRO_TIER_STAMP_ASSET_SIZE) * OUTRO_CTA_STAMP_SCALE;
   const OUTRO_CTA_STAMP_GAP_X = (OUTRO_TIER_STAMP_SIZE - (OUTRO_CTA_STAMP_SIZE * 3)) / 2;
   const OUTRO_CTA_STAMP_GAP_Y = 4;
-  const OUTRO_SLOP_TIER_STAMP_WIDTH = 128;
+  const OUTRO_SLOP_TIER_STAMP_MAX_WIDTH = 128;
+  const OUTRO_SLOP_TIER_STAMP_SAFE_MARGIN = 9;
   const OUTRO_TIER_STAMP_ID = 'outro_tier_stamp';
   const OUTRO_TIER_STAMP_LEGACY_ID = 'outro_d_tier_stamp';
   const OUTRO_CTA_STAMP_ORDER = ['outro_like_stamp', 'outro_follow_stamp', 'outro_share_stamp'];
@@ -2763,9 +2764,16 @@
     const normalized = normalizedTier(tier);
     if (normalized === 'SLOP') {
       const aspectRatio = outroTierStampAspectRatio(normalized);
+      const visible = visibleCanvasGridBounds();
+      const visibleWidth = Math.max(1, visible.right - visible.left);
+      const slopWidth = clamp(
+        visibleWidth - (OUTRO_SLOP_TIER_STAMP_SAFE_MARGIN * 2),
+        OUTRO_TIER_STAMP_SIZE,
+        OUTRO_SLOP_TIER_STAMP_MAX_WIDTH
+      );
       return {
-        width: OUTRO_SLOP_TIER_STAMP_WIDTH,
-        height: Number((OUTRO_SLOP_TIER_STAMP_WIDTH / aspectRatio).toFixed(3))
+        width: Number(slopWidth.toFixed(3)),
+        height: Number((slopWidth / aspectRatio).toFixed(3))
       };
     }
     return { width: OUTRO_TIER_STAMP_SIZE, height: OUTRO_TIER_STAMP_SIZE };
@@ -7888,7 +7896,7 @@
       const coreGlow = isSTierPremiumStamp
         ? 1.2 + (stampImpactPulse * 2.2)
         : isSlopTierStamp
-          ? 2.8 + (stampImpactPulse * 5.6)
+          ? 1.8 + (stampImpactPulse * 2.4)
           : 2.2 + (stampImpactPulse * 4.8);
       const coreAlpha = isSTierPremiumStamp
         ? 0.22 + (stampImpactPulse * 0.14)
@@ -7898,7 +7906,7 @@
       const wideGlow = isSTierPremiumStamp
         ? 4.2 + (stampImpactPulse * 4.4)
         : isSlopTierStamp
-          ? 8 + (stampImpactPulse * 13)
+          ? 3.2 + (stampImpactPulse * 1.4)
           : 7 + (stampImpactPulse * 9);
       const wideAlpha = isSTierPremiumStamp
         ? 0.08 + (stampImpactPulse * 0.09)

@@ -1,86 +1,60 @@
 ---
-name: nutrition-content-studio
-description: End-to-end planning, building, and operating of a short-form nutrition content system with food scoring, tier lists, cozy pixel-art presentation, narration/subtitles, workflow automation, and cross-platform publishing. Use when the user is designing or improving the overall nutrition-video engine, deciding project architecture, choosing what to build next, defining food categories/rulesets, or coordinating data, visuals, automation, and channel strategy.
+name: "nutrition-content-studio"
+description: "White Potato approved script voice pattern"
 ---
 
-# Nutrition Content Studio
+# Proposed Update: White Potato Script Voice Pattern
 
-FoodRanked is a repeatable nutrition short-form content engine, not a one-off video project. Keep scoring data, script output, website data, production assets, and GitHub-facing docs aligned.
+Use this guidance when writing, generating, or reviewing FoodRanked narration scripts.
 
-Treat the project as a **content engine**, not just an app.
+## Approved Exemplar
 
-## Core framing
+Treat `outputs/episodes/white-potato-compact/narration.txt` as the current best house-style example unless James later approves a stronger one.
 
-Break work into these layers:
-1. **Data layer** — foods, nutrients, food types, scoring rules, tiers, assets, episode metadata.
-2. **Scoring layer** — per-category rulesets that explain what counts as good/bad and why.
-3. **Presentation layer** — cozy pixel-art stat sheet / pokedex / RPG reveal UI with sprites, subtitles, narration timing, and export templates.
-4. **Operations layer** — batching, review, publishing, analytics, and iteration across YouTube, TikTok, Instagram, and Facebook.
+Key qualities to preserve:
 
-## FoodRanked locks
+- Keep exact nutrition values and scoring facts precise.
+- Use plain everyday connective language instead of abstract filler.
+- End macro and micro sections with a short food-type reason that explains why the section matters.
+- Keep pros and cons matched to the stored `contextItems` for that food.
+- Pros and cons must be bonus context, practical caveats, meal-role notes, tolerance/prep/storage/processing points, or food-specific angles, not repeats of visible macro, submacro, vitamin, or mineral rows.
+- Each pro/con should read as a short title followed by one short explanation sentence.
+- Closing summary should quickly name strengths, weaknesses, and practical use cases.
+- Final spoken block remains exactly `X tier.`
 
-- Score every food per 100g.
-- Preserve the 9-section video shell and the 7 scored content sections: fats, carbs, proteins, vitamins, minerals, pros, cons.
-- Keep exactly 3 pros and exactly 3 cons.
-- Use USDA FoodData Central first for whole foods and Open Food Facts second for packaged/branded foods.
-- Use `N/A` when an exact metric is not defensibly sourceable.
-- Website scripts, ElevenLabs scripts, generated episode outputs, and repo data should match.
-- Do not casually change locked scoring, food identity, or narration rules.
+## White Potato Pattern
 
-## Default workflow
+```text
+White Potato!
+-
+Ranked!
+-
+0.1 grams of fat. Saturated fat is 0 grams, supporting a cleaner fat profile. For tubers, fat is mostly a preparation check, not the main job.
+-
+17.5 grams of carbs. Sugar is 0.8 grams, helping keep the sugar load under control. Fibre is 2.2 grams, with only modest fullness and digestion support, so that's a real downside for tubers. For tubers, carb quality decides a lot.
+-
+2 grams of protein. Protein barely matters here. For tubers, protein is usually limited, so the other sections have to carry more.
+-
+Vitamin C is 22% daily value, useful for collagen formation and antioxidant support. Vitamin A is only 0% daily value, not bringing much vision or immune support. For tubers, vitamins can lift a staple carb.
+-
+Potassium is 9% daily value, the best number here but still too low to carry this section. Iron is only 4% daily value, not bringing much oxygen-transport support. For tubers, minerals matter most when potassium shows up strongly.
+-
+Positives first: very practical staple food. Cheap, common, and easy to build meals around. Can be fairly filling. Especially when eaten in less processed forms. Flexible meal base. Baked, boiled, or mashed, it pairs easily with stronger foods.
+-
+Cons next: needs cooking before it works. It is not a grab-and-go food. Prep method changes it fast. Fries, butter, and heavy toppings can drag it down. Plain flavour often needs help. The simple potato does not always stay simple.
+-
+Best bits are carb quality and practical staple food. Weak spots are low iron and low vitamin A. Best for practical meals and energy because it's easy to build meals around and the carb section gives it a clear fuel role.
+-
+C tier.
+```
 
-When helping on this project:
-1. Clarify which layer the task belongs to.
-2. Prefer reusable systems over one-off hacks.
-3. Keep the first version small enough to ship.
-4. Preserve the channel's identity: cozy, pixel-art, playful, but still methodical and fair.
-5. Make scoring auditable: every food score should be explainable from stored rules.
-6. Check the relevant source-of-truth doc before changing behavior.
+## Review Checklist
 
-## Design rules
+Before calling a script final:
 
-- Keep **food type** and **scoring ruleset** separate. A food belongs to a type; the type determines scoring logic.
-- Store raw nutrition facts separately from derived scores and tier outputs.
-- Make rulesets versionable so rankings can evolve without corrupting history.
-- Keep visuals template-driven so multiple foods can render through the same sequence.
-- Prefer workflows that support batch production.
-- When forced to choose, optimize for: clarity, repeatability, and speed of shipping.
-
-## Suggested initial entities
-
-Use these as the default mental model unless the repo says otherwise:
-- food_types
-- foods
-- nutrient_profiles
-- scoring_rulesets
-- scoring_rule_items
-- food_scores
-- visual_themes
-- sprite_assets
-- episodes
-- platform_exports
-
-## Trigger the support skills
-
-Read these only when needed:
-- `../nutrition-scoring-engineer/SKILL.md` for schema, rules, formulas, and ranking logic.
-- `../nutrition-pixel-ui-director/SKILL.md` for cozy pixel-art presentation, reveal pacing, sprites, subtitles, and narration choreography.
-- `../nutrition-workflow-automator/SKILL.md` for batching, automation, publishing pipeline, and analytics loop.
-- `../nutrition-content-strategist/SKILL.md` for hooks, packaging, platform adaptation, and growth strategy.
-
-## Good output shapes
-
-Prefer producing one of:
-- system architecture outline
-- phased implementation plan
-- schema + scoring design
-- storyboard / video template spec
-- automation workflow
-- experiment backlog for growth
-
-## Avoid
-
-- Mixing ranking philosophy into random code comments instead of formal rulesets.
-- Hard-coding platform-specific logic into the core scoring engine.
-- Letting aesthetics overpower legibility.
-- Overengineering before the first shippable prototype exists.
+1. Confirm the script uses the locked block shape: food name, ranked, 7 body sections, conclusion, final tier.
+2. Confirm every macro/micro section names useful data and ends with category-specific meaning.
+3. Search for awkward filler like `barely matters unless`, `reason to exist`, `main pitch`, `nutrition load`, `low risk is good`, and rewrite it into direct food-specific wording.
+4. Confirm pros and cons match `food.contextItems` titles/explanations and do not repeat section facts.
+5. Confirm the conclusion does not speak the overall display score and ends with a practical use-case line.
+6. Confirm final narration text ends with `X tier.` only.

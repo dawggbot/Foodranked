@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>FoodRanked Database</title>
+  <link rel="stylesheet" href="./database.css?v=20260729-database-v1" />
+</head>
+<body>
+  <main class="app-shell">
+    <aside class="panel sidebar">
+      <header class="stack">
+        <h1>FoodRanked Database</h1>
+        <div id="databaseStats" class="stats-grid"></div>
+      </header>
+
+      <section class="stack">
+        <label class="field">
+          <span>Search</span>
+          <input id="foodSearch" type="search" autocomplete="off" placeholder="Search foods" />
+        </label>
+        <div class="button-row">
+          <button id="addFood" type="button">Add Food</button>
+          <button id="exportDatabase" type="button">Export</button>
+          <label class="file-button">
+            Import
+            <input id="importDatabase" type="file" accept="application/json,.json" />
+          </label>
+        </div>
+      </section>
+
+      <section class="stack">
+        <h2>Foods</h2>
+        <div id="foodList" class="food-list"></div>
+      </section>
+
+      <section class="stack finalized-list-section">
+        <h2>Finalised</h2>
+        <div id="finalizedList" class="finalized-list"></div>
+      </section>
+    </aside>
+
+    <section class="workspace">
+      <section class="panel stack">
+        <div class="section-heading">
+          <h2>Universal UI</h2>
+          <button id="saveUniversal" type="button">Save Universal UI</button>
+        </div>
+        <div class="asset-columns">
+          <div class="stack">
+            <h3>Sprites</h3>
+            <div id="universalSprites" class="field-grid"></div>
+          </div>
+          <div class="stack">
+            <h3>SFX</h3>
+            <div id="universalSfx" class="field-grid"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel stack">
+        <div class="section-heading">
+          <div>
+            <h2 id="selectedFoodTitle">Food Library</h2>
+            <div id="selectedFoodMeta" class="muted small"></div>
+          </div>
+          <div class="button-row">
+            <a id="openDbv2" class="link-button" href="../display-builder-v2/">DBv2</a>
+            <a id="openVbv2" class="link-button" href="../video-builder-v2/">VBv2</a>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <label class="field">
+            <span>Food ID</span>
+            <input id="foodId" type="text" autocomplete="off" />
+          </label>
+          <label class="field">
+            <span>Food name</span>
+            <input id="foodName" type="text" autocomplete="off" />
+          </label>
+          <label class="field">
+            <span>Display name</span>
+            <input id="displayName" type="text" autocomplete="off" />
+          </label>
+          <label class="field">
+            <span>Short name</span>
+            <input id="shortName" type="text" autocomplete="off" />
+          </label>
+          <label class="field">
+            <span>Food type</span>
+            <select id="foodType"></select>
+          </label>
+          <label class="field">
+            <span>Food type label</span>
+            <input id="foodTypeLabel" type="text" autocomplete="off" />
+          </label>
+          <label class="field">
+            <span>Basis value</span>
+            <input id="basisValue" type="number" step="0.01" />
+          </label>
+          <label class="field">
+            <span>Basis unit</span>
+            <input id="basisUnit" type="text" autocomplete="off" />
+          </label>
+        </div>
+
+        <div class="form-grid">
+          <label class="field">
+            <span>Kcal</span>
+            <input id="kcal" type="number" step="0.01" />
+          </label>
+          <label class="field">
+            <span>Fat g</span>
+            <input id="fatG" type="number" step="0.01" />
+          </label>
+          <label class="field">
+            <span>Carbs g</span>
+            <input id="carbG" type="number" step="0.01" />
+          </label>
+          <label class="field">
+            <span>Protein g</span>
+            <input id="proteinG" type="number" step="0.01" />
+          </label>
+        </div>
+
+        <div class="form-grid">
+          <label class="field">
+            <span>Name max size</span>
+            <input id="nameMaxFontSize" type="number" step="0.1" />
+          </label>
+          <label class="field">
+            <span>Name min size</span>
+            <input id="nameMinFontSize" type="number" step="0.1" />
+          </label>
+          <label class="field">
+            <span>Name width ratio</span>
+            <input id="nameWidthRatio" type="number" step="0.01" />
+          </label>
+          <label class="check-field">
+            <input id="finalizedDownloaded" type="checkbox" />
+            <span>Finalised and downloaded</span>
+          </label>
+        </div>
+
+        <div class="form-grid">
+          <label class="field wide">
+            <span>Food sprite path</span>
+            <input id="foodSpritePath" type="text" autocomplete="off" />
+          </label>
+          <label class="field">
+            <span>Sprite width</span>
+            <input id="foodSpriteWidth" type="number" step="1" />
+          </label>
+          <label class="field">
+            <span>Sprite height</span>
+            <input id="foodSpriteHeight" type="number" step="1" />
+          </label>
+        </div>
+
+        <div class="form-grid">
+          <label class="field wide">
+            <span>Audio path</span>
+            <input id="audioPath" type="text" autocomplete="off" />
+          </label>
+          <label class="field">
+            <span>Audio take</span>
+            <input id="audioTake" type="text" autocomplete="off" />
+          </label>
+          <label class="field wide">
+            <span>Split audio manifest</span>
+            <input id="splitAudioManifestPath" type="text" autocomplete="off" />
+          </label>
+          <label class="field wide">
+            <span>Video MP4 path</span>
+            <input id="videoDownloadPath" type="text" autocomplete="off" />
+          </label>
+        </div>
+
+        <div class="split-editor">
+          <label class="field">
+            <span>Metrics JSON</span>
+            <textarea id="metricsJson" spellcheck="false"></textarea>
+          </label>
+          <label class="field">
+            <span>Food JSON patch</span>
+            <textarea id="foodPatchJson" spellcheck="false"></textarea>
+          </label>
+        </div>
+
+        <div class="split-editor">
+          <label class="field">
+            <span>Script / narration</span>
+            <textarea id="scriptText" spellcheck="false"></textarea>
+          </label>
+          <label class="field">
+            <span>Notes</span>
+            <textarea id="notes" spellcheck="false"></textarea>
+          </label>
+        </div>
+
+        <div class="button-row footer-actions">
+          <button id="saveFood" class="primary" type="button">Save Food</button>
+          <button id="deleteFood" type="button">Delete Food</button>
+          <button id="restoreFood" type="button">Restore Food</button>
+          <button id="resetDatabase" type="button">Reset Database</button>
+          <div id="databaseStatus" class="status-text" aria-live="polite"></div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script src="../data/foods-index.js?v=20260729-database-v1"></script>
+  <script src="../app/display-schema.js?v=20260729-database-v1"></script>
+  <script src="../app/display-name-utils.js?v=20260729-database-v1"></script>
+  <script src="../app/foodranked-database.js?v=20260729-database-v1"></script>
+  <script src="./database.js?v=20260729-database-v1"></script>
+</body>
+</html>

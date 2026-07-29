@@ -29,8 +29,9 @@
   const PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const PLACEMENT_EXPORT_LIMIT = 60;
   const PAGE_URL_PARAMS = new URLSearchParams(window.location.search);
-  const DISPLAY_BUILDER_V2_BUILD_ID = PAGE_URL_PARAMS.get('build') || '20260729-slop-sprite-upload-v1';
-  const DATA_CACHE_BUST = '20260729-slop-sprite-upload-v1';
+  const DISPLAY_BUILDER_V2_BUILD_ID = PAGE_URL_PARAMS.get('build') || '20260729-database-v1';
+  const DATA_CACHE_BUST = '20260729-database-v1';
+  const BASE_FOODS_INDEX = Array.isArray(window.FOODS_INDEX) ? window.FOODS_INDEX : [];
   const FOOD_JSON_CACHE = new Map();
   const BATCH_RESULTS_CACHE = new Map();
   const TEXT_LAYER_CLIP_BLEED = 2;
@@ -57,21 +58,21 @@
   const SECTION_STILL_EXPORT_STATUS_CLEAR_MS = 3200;
   const SECTION_STILL_EXPORT_GIF_TIMEOUT_MS = 8000;
   const SECTION_STILL_EXPORT_IMAGE_CACHE = new Map();
-  const INTRO_RANKED_SPRITE_PATH = './sprites/ui/intro_&_outro/ranked.png';
+  const INTRO_RANKED_SPRITE_PATH = databaseUniversalSpritePath('introRanked', './sprites/ui/intro_&_outro/ranked.png');
   const OUTRO_TIER_SPRITE_PATHS = Object.freeze({
-    S: './sprites/ui/intro_&_outro/S_tier.png',
-    A: './sprites/ui/intro_&_outro/A_tier.png',
-    B: './sprites/ui/intro_&_outro/B_tier.png',
-    C: './sprites/ui/intro_&_outro/C_tier.png',
-    D: './sprites/ui/intro_&_outro/D_tier.png',
-    SLOP: './sprites/ui/intro_&_outro/slop.png?v=20260729-slop-sprite-upload-v1'
+    S: databaseUniversalSpritePath('tierS', './sprites/ui/intro_&_outro/S_tier.png'),
+    A: databaseUniversalSpritePath('tierA', './sprites/ui/intro_&_outro/A_tier.png'),
+    B: databaseUniversalSpritePath('tierB', './sprites/ui/intro_&_outro/B_tier.png'),
+    C: databaseUniversalSpritePath('tierC', './sprites/ui/intro_&_outro/C_tier.png'),
+    D: databaseUniversalSpritePath('tierD', './sprites/ui/intro_&_outro/D_tier.png'),
+    SLOP: databaseUniversalSpritePath('tierSlop', './sprites/ui/intro_&_outro/slop.png?v=20260729-slop-sprite-upload-v1')
   });
   const OUTRO_TIER_STAMP_ASPECT_RATIOS = Object.freeze({
     SLOP: 62 / 31
   });
-  const OUTRO_LIKE_SPRITE_PATH = './sprites/ui/intro_&_outro/like.png';
-  const OUTRO_FOLLOW_SPRITE_PATH = './sprites/ui/intro_&_outro/follow.png';
-  const OUTRO_SHARE_SPRITE_PATH = './sprites/ui/intro_&_outro/share.png';
+  const OUTRO_LIKE_SPRITE_PATH = databaseUniversalSpritePath('outroLike', './sprites/ui/intro_&_outro/like.png');
+  const OUTRO_FOLLOW_SPRITE_PATH = databaseUniversalSpritePath('outroFollow', './sprites/ui/intro_&_outro/follow.png');
+  const OUTRO_SHARE_SPRITE_PATH = databaseUniversalSpritePath('outroShare', './sprites/ui/intro_&_outro/share.png');
   const INTRO_RANKED_VISIBLE_CENTER = { x: 0.5, y: 0.47 };
   const INTRO_HERO_SIZE = { ranked: 80, foodWidth: 48, foodHeight: 24 };
   const OUTRO_TIER_STAMP_SIZE = 78;
@@ -178,8 +179,42 @@
     color: '#d6d6d6'
   };
 
+  function databaseApi() {
+    return window.FOODRANKED_DATABASE || null;
+  }
+
+  function databaseUniversalSpritePath(key, fallback) {
+    const api = databaseApi();
+    return typeof api?.universalSpritePath === 'function'
+      ? api.universalSpritePath(key, fallback)
+      : fallback;
+  }
+
+  function databaseFoodList() {
+    const api = databaseApi();
+    return typeof api?.applyToFoods === 'function'
+      ? api.applyToFoods(BASE_FOODS_INDEX)
+      : BASE_FOODS_INDEX;
+  }
+
+  function applyDatabaseToFood(food) {
+    const api = databaseApi();
+    return typeof api?.applyToFood === 'function'
+      ? api.applyToFood(food)
+      : food;
+  }
+
+  function databaseStorageKey() {
+    return databaseApi()?.STORAGE_KEY || '';
+  }
+
+  function isDatabaseFinalizedFood(food) {
+    const api = databaseApi();
+    return typeof api?.isFinalizedDownloaded === 'function' && api.isFinalizedDownloaded(food);
+  }
+
   const state = {
-    foods: Array.isArray(window.FOODS_INDEX) ? window.FOODS_INDEX : [],
+    foods: databaseFoodList(),
     foodFilter: '',
     selectedFoodId: '',
     selectedSectionId: 'intro',
@@ -775,6 +810,17 @@
     return state.foods.find(food => food.id === state.selectedFoodId) || state.foods[0] || null;
   }
 
+  function refreshDatabaseFoods({ keepSelection = true } = {}) {
+    const previousFoodId = keepSelection ? state.selectedFoodId : '';
+    state.foods = databaseFoodList();
+    if (!state.foods.some(food => food.id === previousFoodId)) {
+      state.selectedFoodId = state.foods[0]?.id || '';
+    } else {
+      state.selectedFoodId = previousFoodId;
+    }
+    FOOD_JSON_CACHE.clear();
+  }
+
   async function loadFullFood(stub) {
     if (!stub?.path) return stub || null;
     if (FOOD_JSON_CACHE.has(stub.path)) return FOOD_JSON_CACHE.get(stub.path);
@@ -815,7 +861,7 @@
   function attachBatchResult(food) {
     if (!food?.id) return food;
     const batchResult = BATCH_RESULTS_CACHE.get(food.id);
-    return batchResult ? { ...food, batchResult } : food;
+    return applyDatabaseToFood(batchResult ? { ...food, batchResult } : food);
   }
 
   function withDataCacheBust(path) {
@@ -849,7 +895,7 @@
     const q = state.foodFilter.trim().toLowerCase();
     const matches = state.foods.filter(food => {
       if (!q) return true;
-      return [food.id, food.name, food.foodType, food.foodTypeLabel]
+      return [food.id, food.name, food.displayName, food.shortName, food.foodType, food.foodTypeLabel]
         .filter(Boolean)
         .some(value => String(value).toLowerCase().includes(q));
     });
@@ -868,7 +914,8 @@
       button.className = `food-button${food.id === state.selectedFoodId ? ' active' : ''}`;
       button.setAttribute('role', 'option');
       button.setAttribute('aria-selected', food.id === state.selectedFoodId ? 'true' : 'false');
-      button.innerHTML = `<strong>${escapeHtml(food.name)}</strong><div class="tiny muted">${escapeHtml(food.foodType || 'Unknown')} · ${escapeHtml(String(food.basis?.value || 100))}${escapeHtml(food.basis?.unit || 'g')}</div>`;
+      const doneBadge = isDatabaseFinalizedFood(food) ? ' · done' : '';
+      button.innerHTML = `<strong>${escapeHtml(food.name)}</strong><div class="tiny muted">${escapeHtml(food.foodType || 'Unknown')} · ${escapeHtml(String(food.basis?.value || 100))}${escapeHtml(food.basis?.unit || 'g')}${escapeHtml(doneBadge)}</div>`;
       button.addEventListener('click', async () => {
         state.selectedFoodId = food.id;
         refreshLayoutOptions({ keepSelection: false });
@@ -3229,12 +3276,26 @@
     });
     document.addEventListener('visibilitychange', async () => {
       if (document.visibilityState !== 'visible') return;
+      refreshDatabaseFoods();
       refreshLayoutOptions();
       await renderAll();
     });
     window.addEventListener('storage', async event => {
+      if (event.key === databaseStorageKey()) {
+        refreshDatabaseFoods();
+        refreshLayoutOptions();
+        renderFoodList();
+        await renderAll();
+        return;
+      }
       if (![LAYOUT_BUILDER_WORKING_KEY, LAYOUT_BUILDER_SAVED_KEY, LAYOUT_BUILDER_FOOD_LAYOUTS_KEY].includes(event.key)) return;
       refreshLayoutOptions();
+      await renderAll();
+    });
+    window.addEventListener('foodranked-database-change', async () => {
+      refreshDatabaseFoods();
+      refreshLayoutOptions();
+      renderFoodList();
       await renderAll();
     });
   }
@@ -3242,6 +3303,7 @@
   async function init() {
     const saved = readTestState();
     const requestedExportFoodId = PAGE_URL_PARAMS.get('videoBuilderExportFood') || '';
+    refreshDatabaseFoods();
     state.selectedFoodId = requestedExportFoodId && state.foods.some(food => food.id === requestedExportFoodId)
       ? requestedExportFoodId
       : saved.selectedFoodId && state.foods.some(food => food.id === saved.selectedFoodId)

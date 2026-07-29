@@ -267,20 +267,39 @@
       || food?.name
       || 'Unknown';
     const foodId = String(food?.id || '');
-    const maxFontSize = Number(HEADER_NAME_MAX_FONT_SIZE_OVERRIDES[foodId]);
-    const minFontSize = Number(HEADER_NAME_MIN_FONT_SIZE_OVERRIDES[foodId]);
+    const maxFontSize = Number(
+      food?.header?.nameMaxFontSize
+      ?? food?.headerNameMaxFontSize
+      ?? HEADER_NAME_MAX_FONT_SIZE_OVERRIDES[foodId]
+    );
+    const minFontSize = Number(
+      food?.header?.nameMinFontSize
+      ?? food?.headerNameMinFontSize
+      ?? HEADER_NAME_MIN_FONT_SIZE_OVERRIDES[foodId]
+    );
     let fitLayer = Number.isFinite(maxFontSize) && maxFontSize > 0
       ? { ...(layer || {}), fontSize: Math.min(headerNameBaseFontSize(layer), maxFontSize) }
       : layer;
     if (Number.isFinite(minFontSize) && minFontSize > 0) {
       fitLayer = { ...(fitLayer || {}), minAutoFontSize: minFontSize };
     }
-    const fontWidthRatio = Number(HEADER_NAME_FONT_WIDTH_RATIO_OVERRIDES[foodId]);
+    const fontWidthRatio = Number(
+      food?.header?.nameFontWidthRatio
+      ?? food?.headerNameFontWidthRatio
+      ?? HEADER_NAME_FONT_WIDTH_RATIO_OVERRIDES[foodId]
+    );
     if (Number.isFinite(fontWidthRatio) && fontWidthRatio > 0) {
       fitLayer = { ...(fitLayer || {}), fontWidthRatio };
     }
     const override = numberWordsToDigits(HEADER_NAME_OVERRIDES[foodId] || '');
-    const extraFitCandidates = (HEADER_NAME_EXTRA_FIT_CANDIDATES[foodId] || [])
+    const databaseExtraFitCandidates = [
+      ...(Array.isArray(food?.header?.nameFitCandidates) ? food.header.nameFitCandidates : []),
+      ...(Array.isArray(food?.headerNameFitCandidates) ? food.headerNameFitCandidates : [])
+    ];
+    const extraFitCandidates = [
+      ...databaseExtraFitCandidates,
+      ...(HEADER_NAME_EXTRA_FIT_CANDIDATES[foodId] || [])
+    ]
       .map(value => numberWordsToDigits(value));
     const displayRawName = applyFamiliarHeaderShorthand(numberWordsToDigits(rawName));
     const unshortenedRawName = numberWordsToDigits(rawName);

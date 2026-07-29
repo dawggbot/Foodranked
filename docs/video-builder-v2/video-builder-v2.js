@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260729-slop-sprite-upload-v1';
+  const BUILDER_BUILD_ID = '20260729-database-v1';
   const DISPLAY_BUILDER_V2_EXPORT_TIMEOUT_MS = 8000;
   const DISPLAY_BUILDER_V2_EXPORT_POLL_MS = 150;
   const AUTHOR_GRID = { width: 105, height: 186.666667 };
@@ -57,6 +57,48 @@
     food => `../video/episodes/${safeDownloadName(food?.id || food?.name)}/${safeDownloadName(food?.id || food?.name)}-vbv2.mp4`,
     food => `../video/episodes/${safeDownloadName(food?.id || food?.name)}.mp4`
   ]);
+
+  function databaseApi() {
+    return window.FOODRANKED_DATABASE || null;
+  }
+
+  function databaseUniversalSpritePath(key, fallback) {
+    const api = databaseApi();
+    return typeof api?.universalSpritePath === 'function'
+      ? api.universalSpritePath(key, fallback)
+      : fallback;
+  }
+
+  function databaseUniversalSfxPath(key, fallback) {
+    const api = databaseApi();
+    return typeof api?.universalSfxPath === 'function'
+      ? api.universalSfxPath(key, fallback)
+      : fallback;
+  }
+
+  function databaseFoodList(baseFoods) {
+    const api = databaseApi();
+    return typeof api?.applyToFoods === 'function'
+      ? api.applyToFoods(baseFoods)
+      : baseFoods;
+  }
+
+  function applyDatabaseToFood(food) {
+    const api = databaseApi();
+    return typeof api?.applyToFood === 'function'
+      ? api.applyToFood(food)
+      : food;
+  }
+
+  function databaseStorageKey() {
+    return databaseApi()?.STORAGE_KEY || '';
+  }
+
+  function isDatabaseFinalizedFood(food) {
+    const api = databaseApi();
+    return typeof api?.isFinalizedDownloaded === 'function' && api.isFinalizedDownloaded(food);
+  }
+
   const AUDIO_REVEAL_LEAD_SECONDS = 0.11;
   const AUDIO_REVEAL_WINDOW_SECONDS = 0.36;
   const SUBMACRO_REVEAL_WINDOW_SECONDS = 1.25;
@@ -114,7 +156,7 @@
   const TEXT_LAYER_LINE_HEIGHT = 1.15;
   const FOOD_STAMP_REVEAL_SECONDS = 0.22;
   const STAMP_SHAKE_MAX_PIXELS = 2.8;
-  const STAMP_SFX_PATH = 'audio/sfx/stamps/impact_stamp_hit.mp3';
+  const STAMP_SFX_PATH = databaseUniversalSfxPath('stampImpact', 'audio/sfx/stamps/impact_stamp_hit.mp3');
   const STAMP_SFX_VOLUME = 0.18;
   const STAMP_SFX_VOLUME_VARIATION = 0;
   const INTRO_FOOD_STAMP_SFX_LEAD_SECONDS = 0.2;
@@ -122,42 +164,42 @@
   const STAMP_SFX_START_OFFSET_RANGE_SECONDS = { min: 0, max: 0.045 };
   const STAMP_SFX_LEAD_SECONDS = 0.1;
   const STAMP_SFX_POOL_SIZE = 4;
-  const S_TIER_STAMP_SFX_PATH = 'audio/sfx/stamps/s_tier_stamp_level_up.mp3';
+  const S_TIER_STAMP_SFX_PATH = databaseUniversalSfxPath('sTierStamp', 'audio/sfx/stamps/s_tier_stamp_level_up.mp3');
   const S_TIER_STAMP_SFX_VOLUME = 0.36;
   const S_TIER_STAMP_SFX_LEAD_SECONDS = 0.16;
   const S_TIER_STAMP_SFX_POOL_SIZE = 2;
-  const D_TIER_GAME_LOSE_SFX_PATH = 'audio/sfx/stamps/d_tier_game_fail.mp3';
-  const D_TIER_DEATH_SFX_PATH = 'audio/sfx/stamps/d_tier_death_collapse.mp3';
+  const D_TIER_GAME_LOSE_SFX_PATH = databaseUniversalSfxPath('dTierGameLose', 'audio/sfx/stamps/d_tier_game_fail.mp3');
+  const D_TIER_DEATH_SFX_PATH = databaseUniversalSfxPath('dTierDeath', 'audio/sfx/stamps/d_tier_death_collapse.mp3');
   const D_TIER_GAME_LOSE_SFX_VOLUME = 0.15;
   const D_TIER_DEATH_SFX_VOLUME = 0.28;
   const D_TIER_GAME_LOSE_SFX_LEAD_SECONDS = 0.5;
   const D_TIER_GAME_LOSE_SFX_DURATION_SECONDS = 2.534;
   const D_TIER_DEATH_SFX_DELAY_SECONDS = D_TIER_GAME_LOSE_SFX_DURATION_SECONDS / 2;
   const D_TIER_STAMP_SFX_POOL_SIZE = S_TIER_STAMP_SFX_POOL_SIZE;
-  const SECTION_TRANSITION_SFX_PATH = 'audio/sfx/transitions/section_transition_whoosh.mp3';
+  const SECTION_TRANSITION_SFX_PATH = databaseUniversalSfxPath('sectionTransition', 'audio/sfx/transitions/section_transition_whoosh.mp3');
   const SECTION_TRANSITION_SFX_VOLUME = 0.22;
   const SECTION_TRANSITION_SFX_MAX_VOLUME = 2;
   const SECTION_TRANSITION_SFX_POOL_SIZE = 3;
-  const MICRON_BAR_CONFIRM_SFX_PATH = 'audio/sfx/sections/microns/micron_bar_confirm_tap.mp3';
+  const MICRON_BAR_CONFIRM_SFX_PATH = databaseUniversalSfxPath('micronBarConfirm', 'audio/sfx/sections/microns/micron_bar_confirm_tap.mp3');
   const MICRON_BAR_CONFIRM_SFX_VOLUME = 0.22;
   const MICRON_BAR_CONFIRM_SFX_POOL_SIZE = 8;
   const MICRON_BAR_CONFIRM_SFX_PLAY_SECONDS = 0.18;
   const MICRON_BAR_CONFIRM_SFX_PLAYBACK_RATE_RANGE = { min: 0.78, max: 1.58 };
-  const MICRON_100_FIREWORK_LEAD_SFX_PATH = 'audio/sfx/sections/microns/micron_100_firework_lead_pop.mp3';
+  const MICRON_100_FIREWORK_LEAD_SFX_PATH = databaseUniversalSfxPath('micron100Lead', 'audio/sfx/sections/microns/micron_100_firework_lead_pop.mp3');
   const MICRON_100_FIREWORK_LEAD_SFX_VOLUME = 0.2;
   const MICRON_100_FIREWORK_LEAD_SFX_SECONDS = 0.06;
   const MICRON_100_FIREWORK_LEAD_SFX_POOL_SIZE = 2;
-  const MICRON_100_FIREWORK_SFX_PATH = 'audio/sfx/sections/microns/micron_100_firework_cluster.mp3';
+  const MICRON_100_FIREWORK_SFX_PATH = databaseUniversalSfxPath('micron100Cluster', 'audio/sfx/sections/microns/micron_100_firework_cluster.mp3');
   const MICRON_100_FIREWORK_SFX_VOLUME = 0.28;
   const MICRON_100_FIREWORK_CLUSTER_SFX_DELAY_SECONDS = 0.22;
   const MICRON_100_FIREWORK_SFX_POOL_SIZE = 2;
-  const MAJOR_PRO_SPARKLE_SFX_PATH = 'audio/sfx/sections/pros/major_pro_sparkle_shine.mp3';
+  const MAJOR_PRO_SPARKLE_SFX_PATH = databaseUniversalSfxPath('majorProSparkle', 'audio/sfx/sections/pros/major_pro_sparkle_shine.mp3');
   const MAJOR_PRO_SPARKLE_SFX_VOLUME = 0.24;
   const MAJOR_PRO_SPARKLE_SFX_POOL_SIZE = 4;
-  const MAJOR_CON_SIREN_SFX_PATH = 'audio/sfx/sections/cons/major_con_siren_buzzer.mp3';
+  const MAJOR_CON_SIREN_SFX_PATH = databaseUniversalSfxPath('majorConSiren', 'audio/sfx/sections/cons/major_con_siren_buzzer.mp3');
   const MAJOR_CON_SIREN_SFX_VOLUME = 0.20;
   const MAJOR_CON_SIREN_SFX_POOL_SIZE = 4;
-  const HIGHLIGHT_GLOW_SFX_PATH = 'audio/sfx/ui/highlight_glow_loop.mp3';
+  const HIGHLIGHT_GLOW_SFX_PATH = databaseUniversalSfxPath('highlightGlow', 'audio/sfx/ui/highlight_glow_loop.mp3');
   const HIGHLIGHT_GLOW_SFX_VOLUME = 0;
   const HIGHLIGHT_GLOW_SFX_FADE_IN_SPEED = 5.2;
   const HIGHLIGHT_GLOW_SFX_FADE_OUT_SPEED = 3.4;
@@ -282,7 +324,7 @@
       }
     }
   });
-  const MACRO_BAR_FILL_SFX_PATH = 'audio/sfx/sections/macros/macro_bar_fill_highscore.mp3';
+  const MACRO_BAR_FILL_SFX_PATH = databaseUniversalSfxPath('macroBarFill', 'audio/sfx/sections/macros/macro_bar_fill_highscore.mp3');
   const MACRO_BAR_FILL_SFX_SOURCE_SECONDS = 9.408;
   const MACRO_BAR_FILL_SFX_VOLUME = 0.31;
   const MACRO_BAR_FILL_SFX_GAIN = 0.31;
@@ -317,14 +359,14 @@
   const MACRO_ROW_AFTER_BAR_SECONDS = 0.14;
   const MACRO_BAR_GIF_FRAME_STEPS = 80;
   const MACRO_BAR_GIF_FINAL_HOLD_CENTISECONDS = 65535;
-  const INTRO_RANKED_SPRITE_PATH = './sprites/ui/intro_&_outro/ranked.png';
+  const INTRO_RANKED_SPRITE_PATH = databaseUniversalSpritePath('introRanked', './sprites/ui/intro_&_outro/ranked.png');
   const OUTRO_TIER_SPRITE_PATHS = Object.freeze({
-    S: './sprites/ui/intro_&_outro/S_tier.png',
-    A: './sprites/ui/intro_&_outro/A_tier.png',
-    B: './sprites/ui/intro_&_outro/B_tier.png',
-    C: './sprites/ui/intro_&_outro/C_tier.png',
-    D: './sprites/ui/intro_&_outro/D_tier.png',
-    SLOP: './sprites/ui/intro_&_outro/slop.png?v=20260729-slop-sprite-upload-v1'
+    S: databaseUniversalSpritePath('tierS', './sprites/ui/intro_&_outro/S_tier.png'),
+    A: databaseUniversalSpritePath('tierA', './sprites/ui/intro_&_outro/A_tier.png'),
+    B: databaseUniversalSpritePath('tierB', './sprites/ui/intro_&_outro/B_tier.png'),
+    C: databaseUniversalSpritePath('tierC', './sprites/ui/intro_&_outro/C_tier.png'),
+    D: databaseUniversalSpritePath('tierD', './sprites/ui/intro_&_outro/D_tier.png'),
+    SLOP: databaseUniversalSpritePath('tierSlop', './sprites/ui/intro_&_outro/slop.png?v=20260729-slop-sprite-upload-v1')
   });
   const OUTRO_TIER_STAMP_ASPECT_RATIOS = Object.freeze({
     SLOP: 62 / 31
@@ -337,9 +379,9 @@
     D: '255, 113, 113',
     SLOP: '154, 190, 86'
   });
-  const OUTRO_LIKE_SPRITE_PATH = './sprites/ui/intro_&_outro/like.png';
-  const OUTRO_FOLLOW_SPRITE_PATH = './sprites/ui/intro_&_outro/follow.png';
-  const OUTRO_SHARE_SPRITE_PATH = './sprites/ui/intro_&_outro/share.png';
+  const OUTRO_LIKE_SPRITE_PATH = databaseUniversalSpritePath('outroLike', './sprites/ui/intro_&_outro/like.png');
+  const OUTRO_FOLLOW_SPRITE_PATH = databaseUniversalSpritePath('outroFollow', './sprites/ui/intro_&_outro/follow.png');
+  const OUTRO_SHARE_SPRITE_PATH = databaseUniversalSpritePath('outroShare', './sprites/ui/intro_&_outro/share.png');
   const INTRO_RANKED_VISIBLE_CENTER = { x: 0.5, y: 0.47 };
   const INTRO_HERO_SIZE = { ranked: 80, foodWidth: 48, foodHeight: 24 };
   const INTRO_FOCUS_BLUR_PX = 2;
@@ -557,7 +599,8 @@
     copySpriteReport: document.getElementById('copySpriteReport')
   };
 
-  const foods = Array.isArray(window.FOODS_INDEX) ? window.FOODS_INDEX : [];
+  const BASE_FOODS_INDEX = Array.isArray(window.FOODS_INDEX) ? window.FOODS_INDEX : [];
+  let foods = databaseFoodList(BASE_FOODS_INDEX);
   const BATCH_RESULTS_CACHE = new Map();
   let batchResultsPromise = null;
   const savedState = readJson(localStorage.getItem(VIDEO_STATE_KEY), {});
@@ -877,7 +920,7 @@
   }
 
   function selectedFood() {
-    return attachBatchResult(foods.find(food => food.id === state.selectedFoodId) || foods[0] || null);
+    return applyDatabaseToFood(attachBatchResult(foods.find(food => food.id === state.selectedFoodId) || foods[0] || null));
   }
 
   async function loadBatchResults() {
@@ -907,6 +950,16 @@
     if (!food?.id) return food;
     const batchResult = BATCH_RESULTS_CACHE.get(food.id);
     return batchResult ? { ...food, batchResult } : food;
+  }
+
+  function refreshDatabaseFoods({ keepSelection = true } = {}) {
+    const previousFoodId = keepSelection ? state.selectedFoodId : '';
+    foods = databaseFoodList(BASE_FOODS_INDEX);
+    if (!foods.some(food => food.id === previousFoodId)) {
+      state.selectedFoodId = foods[0]?.id || '';
+    } else {
+      state.selectedFoodId = previousFoodId;
+    }
   }
 
   function asNumber(value, fallback = null) {
@@ -3614,14 +3667,15 @@
   function renderFoodList() {
     const query = state.foodFilter.trim().toLowerCase();
     const visibleFoods = foods
-      .filter(food => !query || [food.id, food.name, food.foodType, food.foodTypeLabel].filter(Boolean).some(value => String(value).toLowerCase().includes(query)))
+      .filter(food => !query || [food.id, food.name, food.displayName, food.shortName, food.foodType, food.foodTypeLabel].filter(Boolean).some(value => String(value).toLowerCase().includes(query)))
       .slice(0, 80);
     els.foodList.innerHTML = '';
     visibleFoods.forEach(food => {
       const button = document.createElement('button');
       button.type = 'button';
       button.className = `food-button${food.id === state.selectedFoodId ? ' active' : ''}`;
-      button.innerHTML = `<strong>${escapeHtml(food.name)}</strong><span>${escapeHtml(food.foodTypeLabel || prettyFoodType(food.foodType))} · ${escapeHtml(String(food.header?.kcal ?? food.kcal ?? 'N/A'))} kcal</span>`;
+      const doneBadge = isDatabaseFinalizedFood(food) ? ' · done' : '';
+      button.innerHTML = `<strong>${escapeHtml(food.name)}</strong><span>${escapeHtml(food.foodTypeLabel || prettyFoodType(food.foodType))} · ${escapeHtml(String(food.header?.kcal ?? food.kcal ?? 'N/A'))} kcal${escapeHtml(doneBadge)}</span>`;
       button.addEventListener('click', () => {
         state.selectedFoodId = food.id;
         state.layoutSourceId = '';
@@ -8053,6 +8107,13 @@
   });
 
   window.addEventListener('storage', event => {
+    if (event.key === databaseStorageKey()) {
+      refreshDatabaseFoods();
+      state.scenes = buildScenes(selectedFood(), state.scenes);
+      hydrateLayoutForFood();
+      renderAll();
+      return;
+    }
     if ([
       DISPLAY_BUILDER_V2_STATE_KEY,
       DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY
@@ -8060,6 +8121,20 @@
       hydrateLayoutForFood();
       renderAll();
     }
+  });
+
+  window.addEventListener('foodranked-database-change', () => {
+    refreshDatabaseFoods();
+    state.scenes = buildScenes(selectedFood(), state.scenes);
+    hydrateLayoutForFood();
+    renderAll();
+  });
+
+  window.addEventListener('focus', () => {
+    refreshDatabaseFoods();
+    state.scenes = buildScenes(selectedFood(), state.scenes);
+    hydrateLayoutForFood({ requestExport: false });
+    renderAll();
   });
 
   els.playPause.addEventListener('click', () => {
@@ -8169,6 +8244,7 @@
   });
 
   async function init() {
+    refreshDatabaseFoods();
     if (!foods.some(item => item.id === state.selectedFoodId) && foods[0]) state.selectedFoodId = foods[0].id;
     const food = selectedFood();
     state.scenes = buildScenes(food);

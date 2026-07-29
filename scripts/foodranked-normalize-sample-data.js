@@ -1,9 +1,13 @@
 #!/usr/bin/env node
 const fs = require('fs');
 const path = require('path');
+const { normalizeFoodContextItems } = require('./lib/context-item-normalizer');
 
 const repoRoot = path.resolve(__dirname, '..');
 const foodsDir = path.join(repoRoot, 'foods');
+const docsFoodsDir = path.join(repoRoot, 'docs', 'data', 'foods');
+const args = new Set(process.argv.slice(2));
+const contextItemsOnly = args.has('--context-items-only');
 
 const STANDARD_BENCHMARK_NOTES = [
   'Calibration benchmark sample for FoodRanked.',
@@ -40,12 +44,12 @@ function dedupeNotes(notes) {
 }
 
 function isProductionLane(notes) {
-  return Array.isArray(notes) && notes.some(note => note === 'Production-lane cleanup pass.');
+  return Array.isArray(notes) && notes.some(note => /^Production-lane\b/.test(note));
 }
 
 function normalizeSourceNotes(notes) {
   const current = Array.isArray(notes) ? notes : [];
-  if (isProductionLane(current)) return current;
+  if (isProductionLane(current)) return dedupeNotes(current.filter(note => !GENERIC_BENCHMARK_NOTES.has(note)));
 
   const preserved = current.filter(note => !GENERIC_BENCHMARK_NOTES.has(note));
   return dedupeNotes([...STANDARD_BENCHMARK_NOTES, ...preserved]);
@@ -63,55 +67,74 @@ function stripLegacyScoreValues(items) {
   return { normalized, removed };
 }
 
-const files = fs.readdirSync(foodsDir)
-  .filter(name => name.endsWith('.sample.json'))
-  .sort();
+const targetDirs = [foodsDir, docsFoodsDir].filter(dir => fs.existsSync(dir));
 
 let filesChanged = 0;
 let filesWithScoreValueRemoved = 0;
 let scoreValuesRemoved = 0;
 let filesWithNormalizedNotes = 0;
+let filesWithNormalizedContextItems = 0;
+let filesScanned = 0;
 
-for (const name of files) {
-  const filePath = path.join(foodsDir, name);
-  const food = readJson(filePath);
-  let changed = false;
+for (const targetDir of targetDirs) {
+  const files = fs.readdirSync(targetDir)
+    .filter(name => name.endsWith('.sample.json'))
+    .sort();
 
-  const originalNotes = JSON.stringify(food.sourceNotes ?? []);
-  const normalizedNotes = normalizeSourceNotes(food.sourceNotes);
-  if (JSON.stringify(normalizedNotes) !== originalNotes) {
-    food.sourceNotes = normalizedNotes;
-    filesWithNormalizedNotes += 1;
-    changed = true;
-  }
+  for (const name of files) {
+    const filePath = path.join(targetDir, name);
+    const food = readJson(filePath);
+    let changed = false;
+    filesScanned += 1;
 
-  const contextItems = food.contextItems || {};
-  const prosResult = stripLegacyScoreValues(contextItems.pros);
-  const consResult = stripLegacyScoreValues(contextItems.cons);
-  const removedHere = prosResult.removed + consResult.removed;
+    if (!contextItemsOnly) {
+      const originalNotes = JSON.stringify(food.sourceNotes ?? []);
+      const normalizedNotes = normalizeSourceNotes(food.sourceNotes);
+      if (JSON.stringify(normalizedNotes) !== originalNotes) {
+        food.sourceNotes = normalizedNotes;
+        filesWithNormalizedNotes += 1;
+        changed = true;
+      }
+    }
 
-  if (removedHere > 0) {
-    food.contextItems = {
-      ...contextItems,
-      pros: prosResult.normalized,
-      cons: consResult.normalized
-    };
-    filesWithScoreValueRemoved += 1;
-    scoreValuesRemoved += removedHere;
-    changed = true;
-  }
+    const contextItems = food.contextItems || {};
+    const prosResult = stripLegacyScoreValues(contextItems.pros);
+    const consResult = stripLegacyScoreValues(contextItems.cons);
+    const removedHere = prosResult.removed + consResult.removed;
 
-  if (changed) {
-    writeJson(filePath, food);
-    filesChanged += 1;
+    if (removedHere > 0) {
+      food.contextItems = {
+        ...contextItems,
+        pros: prosResult.normalized,
+        cons: consResult.normalized
+      };
+      filesWithScoreValueRemoved += 1;
+      scoreValuesRemoved += removedHere;
+      changed = true;
+    }
+
+    const originalContextItems = JSON.stringify(food.contextItems || {});
+    const normalizedContextItems = normalizeFoodContextItems(food);
+    if (JSON.stringify(normalizedContextItems) !== originalContextItems) {
+      food.contextItems = normalizedContextItems;
+      filesWithNormalizedContextItems += 1;
+      changed = true;
+    }
+
+    if (changed) {
+      writeJson(filePath, food);
+      filesChanged += 1;
+    }
   }
 }
 
 console.log(JSON.stringify({
   status: 'ok',
-  filesScanned: files.length,
+  filesScanned,
+  directoriesScanned: targetDirs.map(dir => path.relative(repoRoot, dir)),
   filesChanged,
   filesWithScoreValueRemoved,
   scoreValuesRemoved,
-  filesWithNormalizedNotes
+  filesWithNormalizedNotes,
+  filesWithNormalizedContextItems
 }, null, 2));

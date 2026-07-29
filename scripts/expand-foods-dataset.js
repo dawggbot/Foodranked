@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 const fs = require('fs');
 const path = require('path');
+const { normalizeFoodContextItems } = require('./lib/context-item-normalizer');
 
 const repoRoot = path.resolve(__dirname, '..');
 const foodsDir = path.join(repoRoot, 'foods');
@@ -519,6 +520,7 @@ function makeFood(type, tuple) {
     ...(contextOverride?.scoreAdjustments || [])
   ];
   if (scoreAdjustments.length) food.scoreAdjustments = deepClone(scoreAdjustments);
+  food.contextItems = normalizeFoodContextItems(food);
   return food;
 }
 

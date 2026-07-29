@@ -938,7 +938,7 @@ function weakMetricImpactContext(metric, sectionKey) {
     polyunsaturated_fat_g: 'not adding much useful unsaturated fat',
     omega3_mg: 'not adding much omega 3',
     cholesterol_mg: 'adding to the cardiovascular tradeoff',
-    fibre_g: 'not bringing much fibre',
+    fibre_g: 'with only modest fullness and digestion support',
     sugar_g: 'making sugar control harder',
     starch_g: 'not bringing much steady carb energy',
     glycemic_index: 'not great for steadier carb behaviour',
@@ -1280,7 +1280,7 @@ function sectionFoodTypeSummary(result, sectionKey) {
     },
     tubers: {
       carbs: 'for tubers, carb quality decides a lot',
-      fats: 'for tubers, fat usually barely matters unless it has been added',
+      fats: 'for tubers, fat is mostly a preparation check, not the main job',
       proteins: 'for tubers, protein is usually limited, so the other sections have to carry more',
       vitamins: 'for tubers, vitamins can lift a staple carb',
       minerals: 'for tubers, minerals matter most when potassium shows up strongly'

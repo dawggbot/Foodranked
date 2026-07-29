@@ -29,8 +29,8 @@
   const PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const PLACEMENT_EXPORT_LIMIT = 60;
   const PAGE_URL_PARAMS = new URLSearchParams(window.location.search);
-  const DISPLAY_BUILDER_V2_BUILD_ID = PAGE_URL_PARAMS.get('build') || '20260729-evoo-header-full-v1';
-  const DATA_CACHE_BUST = '20260729-evoo-header-full-v1';
+  const DISPLAY_BUILDER_V2_BUILD_ID = PAGE_URL_PARAMS.get('build') || '20260729-evoo-header-space-v1';
+  const DATA_CACHE_BUST = '20260729-evoo-header-space-v1';
   const FOOD_JSON_CACHE = new Map();
   const BATCH_RESULTS_CACHE = new Map();
   const TEXT_LAYER_CLIP_BLEED = 2;
@@ -1407,7 +1407,7 @@
       for (const layer of getSectionLayers(layout, sectionId)) {
         if (!isTextLayer(layer)) continue;
         if (layer.id === 'food_name_text') {
-          layer.text = headerFoodNameText(food, layer);
+          layer.text = headerFoodNameText(food, layout, sectionId, layer);
           continue;
         }
         if (layer.id in values) {
@@ -1451,12 +1451,34 @@
     return score == null ? 'N/A' : LOGIC.formatCompactNumber(score, 0);
   }
 
-  function headerFoodNameText(food, layer) {
-    const fit = window.FOODRANKED_DISPLAY_NAME_UTILS?.fitFoodNameForHeader?.(food, layer);
+  function headerFoodNameFitLayer(food, layout, sectionId, layer) {
+    const foodId = String(food?.id || '');
+    const baseWidth = Number(layer?.width);
+    if (foodId !== 'extra-virgin-olive-oil' || !Number.isFinite(baseWidth) || baseWidth <= 0) return layer;
+
+    const x = Number(layer?.x);
+    const basisLayer = getSectionLayers(layout, sectionId).find(item => item?.id === 'basis_text');
+    const basisX = Number(basisLayer?.x);
+    const availableWidth = basisX - x - 1;
+    if (!Number.isFinite(availableWidth) || availableWidth <= 0) return layer;
+
+    return { ...layer, width: availableWidth };
+  }
+
+  function headerFoodNameText(food, layout, sectionId, layer) {
+    const fitLayer = headerFoodNameFitLayer(food, layout, sectionId, layer);
+    const fit = window.FOODRANKED_DISPLAY_NAME_UTILS?.fitFoodNameForHeader?.(food, fitLayer);
     if (fit) {
       layer.autoFontSize = fit.fontSize;
+      const fitWidth = Number(fitLayer?.width);
+      if (Number.isFinite(fitWidth) && fitWidth > 0 && fitWidth !== Number(layer?.width || 0)) {
+        layer.autoTextBoxWidth = fitWidth;
+      } else {
+        delete layer.autoTextBoxWidth;
+      }
       return fit.text;
     }
+    delete layer.autoTextBoxWidth;
     delete layer.autoFontSize;
     return String(food?.name || 'Unknown').toUpperCase();
   }
@@ -2217,7 +2239,7 @@
   function exportTextLayerRect(layer, exportBounds) {
     const x = Number(layer.x) || 0;
     const y = Number(layer.y) || 0;
-    const width = Number(layer.width) || Math.max(1, exportBounds.right - x);
+    const width = textLayerRenderWidth(layer) || Math.max(1, exportBounds.right - x);
     const height = Number(layer.textBoxHeight || layer.height || defaultTextLayerHeight(layer));
     return {
       x: (x - exportBounds.left) * exportBounds.scale,
@@ -2920,7 +2942,8 @@
       node.style.removeProperty('text-shadow');
       node.style.removeProperty('filter');
     }
-    if (layer.width) node.style.width = `calc(${Number(layer.width) + (TEXT_LAYER_CLIP_BLEED * 2)}px * var(--pixel-unit))`;
+    const width = textLayerRenderWidth(layer);
+    if (width) node.style.width = `calc(${width + (TEXT_LAYER_CLIP_BLEED * 2)}px * var(--pixel-unit))`;
     const height = Number(layer.textBoxHeight || layer.height || defaultTextLayerHeight(layer));
     if (height) {
       node.style.height = `calc(${height + (TEXT_LAYER_CLIP_BLEED * 2)}px * var(--pixel-unit))`;
@@ -2939,6 +2962,10 @@
 
   function textLayerFontSize(layer) {
     return Number(layer?.autoFontSize ?? layer?.fontSize) || 6;
+  }
+
+  function textLayerRenderWidth(layer) {
+    return Number(layer?.autoTextBoxWidth ?? layer?.width) || 0;
   }
 
   function textLayerBaselineOffset(layer) {

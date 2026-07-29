@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260729-evoo-header-full-v1';
+  const BUILDER_BUILD_ID = '20260729-evoo-header-space-v1';
   const DISPLAY_BUILDER_V2_EXPORT_TIMEOUT_MS = 8000;
   const DISPLAY_BUILDER_V2_EXPORT_POLL_MS = 150;
   const AUTHOR_GRID = { width: 135, height: 240 };
@@ -2025,7 +2025,7 @@
       for (const layer of getSectionLayers(layout, section.id)) {
         if (isTextLayer(layer)) {
           if (layer.id === 'food_name_text') {
-            layer.text = headerFoodNameText(food, layer);
+            layer.text = headerFoodNameText(food, layout, section.id, layer);
           } else if (values[layer.id] != null) {
             layer.text = values[layer.id];
           }
@@ -2062,12 +2062,34 @@
     }
   }
 
-  function headerFoodNameText(food, layer) {
-    const fit = window.FOODRANKED_DISPLAY_NAME_UTILS?.fitFoodNameForHeader?.(food, layer);
+  function headerFoodNameFitLayer(food, layout, sectionId, layer) {
+    const foodId = String(food?.id || '');
+    const baseWidth = Number(layer?.width);
+    if (foodId !== 'extra-virgin-olive-oil' || !Number.isFinite(baseWidth) || baseWidth <= 0) return layer;
+
+    const x = Number(layer?.x);
+    const basisLayer = getSectionLayers(layout, sectionId).find(item => item?.id === 'basis_text');
+    const basisX = Number(basisLayer?.x);
+    const availableWidth = basisX - x - 1;
+    if (!Number.isFinite(availableWidth) || availableWidth <= 0) return layer;
+
+    return { ...layer, width: availableWidth };
+  }
+
+  function headerFoodNameText(food, layout, sectionId, layer) {
+    const fitLayer = headerFoodNameFitLayer(food, layout, sectionId, layer);
+    const fit = window.FOODRANKED_DISPLAY_NAME_UTILS?.fitFoodNameForHeader?.(food, fitLayer);
     if (fit) {
       layer.autoFontSize = fit.fontSize;
+      const fitWidth = Number(fitLayer?.width);
+      if (Number.isFinite(fitWidth) && fitWidth > 0 && fitWidth !== Number(layer?.width || 0)) {
+        layer.autoTextBoxWidth = fitWidth;
+      } else {
+        delete layer.autoTextBoxWidth;
+      }
       return fit.text;
     }
+    delete layer.autoTextBoxWidth;
     delete layer.autoFontSize;
     return String(food?.name || 'Unknown').toUpperCase();
   }
@@ -4003,7 +4025,8 @@
         node.textContent = layer.text || '';
         node.style.color = layer.color || '#fff7e9';
         node.style.fontSize = `calc(${textLayerFontSize(layer)}px * var(--pixel-unit))`;
-        if (layer.width) node.style.width = `calc(${Number(layer.width)}px * var(--pixel-unit))`;
+        const width = textLayerRenderWidth(layer);
+        if (width) node.style.width = `calc(${width}px * var(--pixel-unit))`;
         node.style.textAlign = layer.align || 'left';
         applyOutroScoreGlow(node, layer, food);
       }
@@ -4037,6 +4060,10 @@
 
   function textLayerFontSize(layer) {
     return Number(layer?.autoFontSize ?? layer?.fontSize) || 6;
+  }
+
+  function textLayerRenderWidth(layer) {
+    return Number(layer?.autoTextBoxWidth ?? layer?.width) || 0;
   }
 
   function textLayerBaselineOffset(layer) {
@@ -5847,7 +5874,8 @@
     }
     node.style.left = `calc(${layerX}px * var(--pixel-unit)${halfSeamBleed ? ` - ${halfSeamBleed}px` : ''})`;
     node.style.top = `calc(${layerY}px * var(--pixel-unit)${halfSeamBleed ? ` - ${halfSeamBleed}px` : ''})`;
-    if (layer.width) node.style.width = `calc(${Number(layer.width)}px * var(--pixel-unit)${seamBleed ? ` + ${seamBleed}px` : ''})`;
+    const width = layer.kind === 'text' ? textLayerRenderWidth(layer) : Number(layer.width);
+    if (width) node.style.width = `calc(${width}px * var(--pixel-unit)${seamBleed ? ` + ${seamBleed}px` : ''})`;
     if (layer.kind === 'sprite') {
       if (layer.height) node.style.height = `calc(${Number(layer.height)}px * var(--pixel-unit)${seamBleed ? ` + ${seamBleed}px` : ''})`;
       node.style.objectFit = layer.preserveAspect ? 'contain' : 'fill';

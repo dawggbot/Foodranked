@@ -12,7 +12,7 @@
     'chocolate-covered-peanuts': 'Choc. Peanuts',
     'electrolyte-tablet-drink': 'Electrolyte Tabs',
     'energy-drink-zero': '0-Sugar Drink',
-    'extra-virgin-olive-oil': 'Xtra Vrgn Olive Oil',
+    'extra-virgin-olive-oil': 'Xtra Virgin Olive Oil',
     'honey-roasted-peanuts': 'Honey-Rstd Pnuts',
     'instant-mashed-potatoes': 'Instant Mash Pot.',
     'jerusalem-artichoke': 'Jerusalem Artich.',
@@ -37,7 +37,7 @@
 
   const FAMILIAR_HEADER_SHORTHAND_REPLACEMENTS = [
     [/\bApple[-\s]+Cider[-\s]+Vinegar\b/gi, 'ACV'],
-    [/\bExtra[-\s]+Virgin[-\s]+Olive[-\s]+Oil\b/gi, 'Xtra Vrgn Olive Oil'],
+    [/\bExtra[-\s]+Virgin[-\s]+Olive[-\s]+Oil\b/gi, 'Xtra Virgin Olive Oil'],
     [/\bBarbecue\b/gi, 'BBQ']
   ];
 
@@ -47,7 +47,15 @@
   };
 
   const HEADER_NAME_MIN_FONT_SIZE_OVERRIDES = {
-    'extra-virgin-olive-oil': 4
+    'extra-virgin-olive-oil': 3.8
+  };
+
+  const HEADER_NAME_FONT_WIDTH_RATIO_OVERRIDES = {
+    'extra-virgin-olive-oil': 0.5
+  };
+
+  const HEADER_NAME_EXTRA_FIT_CANDIDATES = {
+    'extra-virgin-olive-oil': ['Xtra Vrgn Olive Oil']
   };
 
   const ONES_NUMBER_WORD_VALUES = {
@@ -103,7 +111,7 @@
     [/\s*\(sweetened\)\s*/gi, ' Sweet '],
     [/\s*\(roasted\s*&\s*salted\)\s*/gi, ' R+S '],
     [/\s*\(refined\)\s*/gi, ' Refined '],
-    [/\bExtra Virgin Olive Oil\b/gi, 'Xtra Vrgn Olive Oil'],
+    [/\bExtra Virgin Olive Oil\b/gi, 'Xtra Virgin Olive Oil'],
     [/\bZero[- ]Sugar Energy Drink\b/gi, 'Zero-Sugar Drink'],
     [/\bWhole[- ]Wheat\b/gi, 'W-Wheat'],
     [/\bWhole[- ]Grain\b/gi, 'W-Grain'],
@@ -217,16 +225,22 @@
     return `${text.slice(0, start)}...${text.slice(-end)}`;
   }
 
+  function headerNameFontWidthRatio(layer) {
+    const configured = Number(layer?.fontWidthRatio);
+    return Number.isFinite(configured) && configured > 0 ? configured : HEADER_FONT_WIDTH_RATIO;
+  }
+
   function headerNameFitForText(text, layer) {
     const baseFontSize = headerNameBaseFontSize(layer);
     const minFontSize = Math.min(baseFontSize, headerNameMinFontSize(layer));
     const width = Number(layer?.width);
+    const fontWidthRatio = headerNameFontWidthRatio(layer);
     const clean = normalizeWhitespace(text);
     if (!clean || !Number.isFinite(width) || width <= 0) {
       return { fontSize: roundFontSize(baseFontSize), fits: true };
     }
 
-    const requiredFontSize = (width * HEADER_TEXT_WIDTH_FIT_RATIO) / Math.max(1, clean.length * HEADER_FONT_WIDTH_RATIO);
+    const requiredFontSize = (width * HEADER_TEXT_WIDTH_FIT_RATIO) / Math.max(1, clean.length * fontWidthRatio);
     return {
       fontSize: roundFontSize(clamp(requiredFontSize, minFontSize, baseFontSize)),
       fits: requiredFontSize >= minFontSize
@@ -261,7 +275,13 @@
     if (Number.isFinite(minFontSize) && minFontSize > 0) {
       fitLayer = { ...(fitLayer || {}), minAutoFontSize: minFontSize };
     }
+    const fontWidthRatio = Number(HEADER_NAME_FONT_WIDTH_RATIO_OVERRIDES[foodId]);
+    if (Number.isFinite(fontWidthRatio) && fontWidthRatio > 0) {
+      fitLayer = { ...(fitLayer || {}), fontWidthRatio };
+    }
     const override = numberWordsToDigits(HEADER_NAME_OVERRIDES[foodId] || '');
+    const extraFitCandidates = (HEADER_NAME_EXTRA_FIT_CANDIDATES[foodId] || [])
+      .map(value => numberWordsToDigits(value));
     const displayRawName = applyFamiliarHeaderShorthand(numberWordsToDigits(rawName));
     const unshortenedRawName = numberWordsToDigits(rawName);
     const lightCompact = lightlyCompactByRules(rawName);
@@ -272,6 +292,7 @@
       unshortenedRawName,
       lightCompact,
       compact,
+      ...extraFitCandidates,
       softDropped,
       override
     ], fitLayer);

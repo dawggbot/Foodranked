@@ -119,8 +119,8 @@ Keep the JSON split into:
   },
   "tierThresholds": [
     { "tier": "S", "min": 80, "max": 100 },
-    { "tier": "A", "min": 60, "max": 79.9999 },
-    { "tier": "B", "min": 40, "max": 59.9999 },
+    { "tier": "A", "min": 61, "max": 79.9999 },
+    { "tier": "B", "min": 40, "max": 60.9999 },
     { "tier": "C", "min": 20, "max": 39.9999 },
     { "tier": "D", "min": 0, "max": 19.9999 }
   ]

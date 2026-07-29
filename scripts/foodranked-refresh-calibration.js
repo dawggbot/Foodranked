@@ -15,8 +15,8 @@ const tierOrder = ['S', 'A', 'B', 'C', 'D'];
 const bucketSize = 5;
 const sharedTierThresholds = [
   { tier: 'S', min: 80, max: 100 },
-  { tier: 'A', min: 60, max: 79.9999 },
-  { tier: 'B', min: 40, max: 59.9999 },
+  { tier: 'A', min: 61, max: 79.9999 },
+  { tier: 'B', min: 40, max: 60.9999 },
   { tier: 'C', min: 20, max: 39.9999 },
   { tier: 'D', min: 0, max: 19.9999 }
 ];
@@ -139,7 +139,7 @@ for (const name of foodFiles) {
 const matrix = {
   version: 1,
   basis: { value: 100, unit: 'g' },
-  methodology: 'Foods are sorted by raw ruleset score within each category, assigned into fixed 5-food S/A/B/C/D benchmark buckets, then mapped through a category-specific score calibration onto shared universal tier thresholds.',
+  methodology: 'Foods are sorted by raw ruleset score within each category, calibrated onto shared universal tier thresholds, and checked with a generated-data rarity guard that requires S tier to remain the least common final tier.',
   sharedTierThresholds,
   tierScoreMap,
   categories: {}
@@ -188,7 +188,7 @@ for (const [foodType, rows] of Object.entries(categoryRows).sort()) {
 writeJson(matrixPath, matrix);
 
 let matrixMd = '# CALIBRATION-MATRIX\n\n';
-matrixMd += 'This is the durable 25-food benchmark matrix for every FoodRanked category. Each category is partitioned into fixed 5-food S/A/B/C/D anchor buckets from raw ruleset scores, then mapped onto shared universal tier thresholds with category-specific score calibration anchors.\n';
+matrixMd += 'This is the durable 25-food benchmark matrix for every FoodRanked category. Each category uses fixed 5-food S/A/B/C/D raw-score benchmark buckets to build category-specific calibration anchors, then final generated data is checked so S remains the least common final tier.\n';
 matrixMd += `\nShared tier thresholds for internal calibrated/ranking scores: ${sharedTierThresholds.map(t => `${t.tier} ${t.min}-${t.max}`).join(' | ')}\n`;
 matrixMd += '\nPublic `overallScore` is snapped from the final tier, using `D=20`, `C=40`, `B=60`, `A=80`, `S=100`. The calibrated scores below remain the audit and tier-placement benchmark values, not the displayed final score.\n';
 for (const [foodType, config] of Object.entries(matrix.categories)) {

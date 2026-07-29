@@ -1159,6 +1159,23 @@ function proteinFallbackContext(result, score) {
   return 'not enough protein to be a real strength';
 }
 
+function proteinQualityGateLine(result) {
+  const gate = result.proteinQualityGate;
+  if (gate?.eligible !== false || !gate.aminoAcidProfileAvailable) return null;
+  const skipped = Array.isArray(gate.skippedMetricKeys) ? gate.skippedMetricKeys : [];
+  if (!skipped.some(metricKey => PROTEIN_QUALITY_VISIBLE_METRIC_KEYS.has(metricKey))) return null;
+
+  const proteinG = toFiniteNumber(gate.proteinG);
+  const minimumProteinG = toFiniteNumber(gate.minimumProteinG);
+  const essentialAmino = completeMacroDisplayItems(result, 'proteins')
+    .find(metric => metric.metricKey === 'essential_amino_acids_score');
+  const essentialAminoValue = metricValueText(essentialAmino) || '0/9';
+  if (proteinG !== null && minimumProteinG !== null) {
+    return `essential amino acids score is ${essentialAminoValue} after the protein gate, because ${proteinG}g is below the ${minimumProteinG}g useful-protein cutoff`;
+  }
+  return `essential amino acids score is ${essentialAminoValue} after the protein gate, because it is below the useful-protein cutoff`;
+}
+
 function outstandingMacroLine(result, sectionKey) {
   const metrics = outstandingMacroMetrics(result, sectionKey, 4);
   if (!metrics.length) {
@@ -1171,8 +1188,15 @@ function outstandingMacroLine(result, sectionKey) {
     const proteinAmount = byKey('protein_g_fallback');
     const essentialAmino = byKey('essential_amino_acids_score');
     const bioavailability = byKey('bioavailability_percent');
+    const score = result.sectionScores?.proteins ?? null;
+    const gateLine = proteinQualityGateLine(result);
+    if (gateLine) {
+      return joinShort([
+        proteinFallbackContext(result, score),
+        gateLine
+      ]).replace(/[.]$/g, '');
+    }
     if (proteinAmount) {
-      const score = result.sectionScores?.proteins ?? null;
       const secondPool = weakNarrationMetrics(result, metrics, sectionKey, proteinAmount);
       const second = preferredProteinQualityNarrationMetric(secondPool, proteinAmount)
         || weakestAvailableMetric(secondPool, proteinAmount, sectionKey);

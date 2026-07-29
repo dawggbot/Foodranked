@@ -41,6 +41,14 @@ const EXPECTED_TIER_SCORE_MAP = {
   A: 80,
   S: 100
 };
+const EXPECTED_TIER_THRESHOLDS = [
+  { tier: 'S', min: 80, max: 100 },
+  { tier: 'A', min: 61, max: 79.9999 },
+  { tier: 'B', min: 40, max: 60.9999 },
+  { tier: 'C', min: 20, max: 39.9999 },
+  { tier: 'D', min: 0, max: 19.9999 }
+];
+const RAREST_TIER = 'S';
 const LABEL_SCORES = {
   '3_red': 0,
   '2_red': 20,
@@ -117,6 +125,15 @@ function sameArray(left, right) {
     && Array.isArray(right)
     && left.length === right.length
     && left.every((value, index) => value === right[index]);
+}
+
+function sameTierThresholds(left, right) {
+  return Array.isArray(left)
+    && Array.isArray(right)
+    && left.length === right.length
+    && left.every((item, index) => item?.tier === right[index].tier
+      && Number(item?.min) === Number(right[index].min)
+      && Number(item?.max) === Number(right[index].max));
 }
 
 function walkStrings(value, visit, pathParts = []) {
@@ -416,6 +433,13 @@ function auditRulesets(errors) {
       }
     }
 
+    if (!sameTierThresholds(ruleset.tierThresholds, EXPECTED_TIER_THRESHOLDS)) {
+      issue(errors, file, 'tierThresholds must keep shared S-rarity threshold map', {
+        expected: EXPECTED_TIER_THRESHOLDS,
+        actual: ruleset.tierThresholds || null
+      });
+    }
+
     for (const rule of ruleset.metricRules || []) {
       if (/^vitamin_b\d+_dv$/.test(rule.metricKey) && rule.metricKey !== CANONICAL_B_VITAMIN_SCORE_KEY && rule.scoringRole === 'scored') {
         issue(errors, file, 'only vitamin_b12_dv may be a score-bearing FoodRanked Vitamin B metric', {
@@ -657,6 +681,36 @@ function auditGeneratedText(errors) {
   return { generatedFiles: generatedFiles.length };
 }
 
+function auditGeneratedTierDistribution(errors) {
+  if (scope === 'finalisation') return { tierDistributionFoods: 0 };
+
+  const file = path.join(dataDir, 'batch-results.json');
+  if (!fs.existsSync(file)) return { tierDistributionFoods: 0 };
+
+  const data = readJson(file);
+  const rows = Array.isArray(data.summary) ? data.summary : [];
+  const counts = {};
+  for (const row of rows) {
+    if (row?.tier) counts[row.tier] = (counts[row.tier] || 0) + 1;
+  }
+
+  const sCount = counts[RAREST_TIER] || 0;
+  for (const tier of Object.keys(EXPECTED_TIER_SCORE_MAP)) {
+    if (tier === RAREST_TIER) continue;
+    const count = counts[tier] || 0;
+    if (sCount >= count) {
+      issue(errors, file, 'S tier must remain the least common generated final tier', {
+        tier,
+        sTierCount: sCount,
+        comparedTierCount: count,
+        counts
+      });
+    }
+  }
+
+  return { tierDistributionFoods: rows.length, tierCounts: counts };
+}
+
 function proteinSectionFromScript(script) {
   return (script?.sections || []).find(section => section.key === 'proteins');
 }
@@ -809,6 +863,7 @@ function main() {
   const aminoAcidThresholdStats = auditAminoAcidThresholdConfig(errors);
   const ruleStats = auditRulesets(errors);
   const generatedStats = auditGeneratedText(errors);
+  const tierDistributionStats = auditGeneratedTierDistribution(errors);
   const proteinDisplayStats = auditGeneratedProteinDisplay(errors);
   const result = {
     status: errors.length ? 'fail' : 'ok',
@@ -821,6 +876,7 @@ function main() {
       ...aminoAcidThresholdStats,
       ...ruleStats,
       ...generatedStats,
+      ...tierDistributionStats,
       ...proteinDisplayStats
     },
     errors,

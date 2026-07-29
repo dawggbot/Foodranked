@@ -1,8 +1,8 @@
 # CALIBRATION-MATRIX
 
-This is the durable 25-food benchmark matrix for every FoodRanked category. Each category is partitioned into fixed 5-food S/A/B/C/D anchor buckets from raw ruleset scores, then mapped onto shared universal tier thresholds with category-specific score calibration anchors.
+This is the durable 25-food benchmark matrix for every FoodRanked category. Each category uses fixed 5-food S/A/B/C/D raw-score benchmark buckets to build category-specific calibration anchors, then final generated data is checked so S remains the least common final tier.
 
-Shared tier thresholds for internal calibrated/ranking scores: S 80-100 | A 60-79.9999 | B 40-59.9999 | C 20-39.9999 | D 0-19.9999
+Shared tier thresholds for internal calibrated/ranking scores: S 80-100 | A 61-79.9999 | B 40-60.9999 | C 20-39.9999 | D 0-19.9999
 
 Public `overallScore` is snapped from the final tier, using `D=20`, `C=40`, `B=60`, `A=80`, `S=100`. The calibrated scores below remain the audit and tier-placement benchmark values, not the displayed final score.
 

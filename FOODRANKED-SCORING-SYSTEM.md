@@ -347,12 +347,14 @@ Final display scores and tiers use a shared threshold map, but only after applyi
 
 Current shared final tier thresholds:
 - `S`: 80 to 100
-- `A`: 60 to 79.9999
-- `B`: 40 to 59.9999
+- `A`: 61 to 79.9999
+- `B`: 40 to 60.9999
 - `C`: 20 to 39.9999
 - `D`: 0 to 19.9999
 
 Each category stores `scoreCalibration` anchors that map raw benchmark boundaries onto the shared comparable scale.
+
+The active generated dataset must keep `S` as the least common final tier. The generated-data audit fails if the `S` count ties or exceeds any other tier count.
 
 Public display scores are locked to the final tier:
 - `D` tier displays `20`

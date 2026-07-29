@@ -20,7 +20,7 @@ const SUBTITLE_UNIT_WORD_RE = /\b(?:micrograms?|milligrams?|kilograms?|grams?)\b
 const COMPACT_RATIO_RE = /\b\d+(?:\.\d+)?\/\d+(?:\.\d+)?\b/i;
 const SPOKEN_RATIO_RE = /\b\d+(?:\.\d+)?\s+out of\s+\d+(?:\.\d+)?\b/i;
 const EAA_TEN_RATIO_RE = /\bessential amino acids? score(?: is| at)? \d+(?:\.\d+)?(?:\/10|\s+out of\s+10)\b/i;
-const TIER_REVEAL_RE = /^(?:Slop|[SDCBA])\s+tier\.?$/i;
+const TIER_REVEAL_RE = /^(?:SLOP|(?:Slop|[SDCBA])\s+tier\.?)$/i;
 const PROTEIN_FALLBACK_RE = /\bprotein amount is\b/i;
 
 function readJson(file) {

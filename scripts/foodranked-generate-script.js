@@ -1808,10 +1808,14 @@ function buildClosing(result) {
     useCases,
     strengthHighlights,
     weaknessHighlights,
-    finalReveal: `${tier} tier.`,
+    finalReveal: finalRevealForTier(tier),
     useCaseNote: bestUsesLine(result) + '.',
     cta: 'Would you rank it the same, or nah?'
   };
+}
+
+function finalRevealForTier(tier) {
+  return String(tier || '').trim().toLowerCase() === 'slop' ? 'SLOP' : `${tier} tier.`;
 }
 
 function sectionNarration(result, sectionKey) {
@@ -2106,7 +2110,7 @@ function applyScriptOverrides(script, override) {
       script.closing.finalReveal = normalizeOverrideNarration(closing.finalReveal);
     }
   }
-  script.closing.finalReveal = `${script.tier} tier.`;
+  script.closing.finalReveal = finalRevealForTier(script.tier);
 
   script.scriptOverride = {
     schemaVersion: data.schemaVersion || 'foodranked-script-overrides.v1',

@@ -191,6 +191,10 @@ function capitalize(s) {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
+function tierPhrase(tier) {
+  return String(tier || '').trim().toLowerCase() === 'slop' ? 'SLOP' : `${tier} tier`;
+}
+
 function prettySectionName(section) {
   const map = {
     fats: 'fats',
@@ -211,8 +215,9 @@ function buildSummary(sectionScores, tier) {
 
   const best = entries[0];
   const worst = entries[entries.length - 1];
-  if (!best || !worst) return `This food lands in ${tier} tier.`;
-  return `${capitalize(prettySectionName(best[0]))} are carrying this food most, while ${prettySectionName(worst[0])} are holding it back most. It lands in ${tier} tier.`;
+  const label = tierPhrase(tier);
+  if (!best || !worst) return `This food lands in ${label}.`;
+  return `${capitalize(prettySectionName(best[0]))} are carrying this food most, while ${prettySectionName(worst[0])} are holding it back most. It lands in ${label}.`;
 }
 
 function buildTierReason(tier, overallScore, sectionScores, scoreAdjustments = []) {
@@ -224,7 +229,7 @@ function buildTierReason(tier, overallScore, sectionScores, scoreAdjustments = [
   const adjustmentText = adjustmentTotal
     ? ` Food-specific anomaly adjustment: ${adjustmentTotal > 0 ? '+' : ''}${round1(adjustmentTotal)}.`
     : '';
-  return `This food lands in ${tier} tier with a display score of ${overallScore}. Section scores: ${scoreList}.${adjustmentText}`;
+  return `This food lands in ${tierPhrase(tier)} with a display score of ${overallScore}. Section scores: ${scoreList}.${adjustmentText}`;
 }
 
 function pickSectionExtremes(sectionScores) {
@@ -242,7 +247,7 @@ function buildNarrationNotes(extremes, tier) {
   const notes = [];
   if (extremes.strongest) notes.push(`Strongest section: ${capitalize(prettySectionName(extremes.strongest.section))}.`);
   if (extremes.weakest) notes.push(`Weakest section: ${capitalize(prettySectionName(extremes.weakest.section))}.`);
-  notes.push(`Final verdict: ${tier} tier.`);
+  notes.push(`Final verdict: ${tierPhrase(tier)}.`);
   return notes;
 }
 

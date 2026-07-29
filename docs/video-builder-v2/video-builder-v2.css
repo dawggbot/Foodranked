@@ -641,6 +641,18 @@ h2 {
     drop-shadow(calc(1px * var(--pixel-unit)) calc(1px * var(--pixel-unit)) 0 rgba(0, 73, 64, 0.34));
 }
 
+.layer-node.sprite.tier-stamp-slop {
+  animation: slop-tier-stamp-corrupt 0.42s steps(2, end) infinite;
+  filter:
+    brightness(0.92)
+    saturate(1.28)
+    contrast(1.44)
+    drop-shadow(0 0 calc(1px * var(--pixel-unit)) rgba(226, 255, 104, 0.78))
+    drop-shadow(0 0 calc(6px * var(--pixel-unit)) rgba(154, 190, 86, 0.60))
+    drop-shadow(0 0 calc(13px * var(--pixel-unit)) rgba(255, 55, 62, 0.34))
+    drop-shadow(calc(1px * var(--pixel-unit)) calc(1px * var(--pixel-unit)) 0 rgba(38, 54, 16, 0.82));
+}
+
 .layer-node.text.ranked-glimmer {
   animation: ranked-glimmer 0.54s steps(4, end) infinite;
   -webkit-text-stroke: 0 transparent;
@@ -654,6 +666,53 @@ h2 {
     0 0 calc(4px * var(--pixel-unit)) rgba(255, 244, 184, 0.86),
     0 0 calc(9px * var(--pixel-unit)) rgba(255, 255, 255, 0.46),
     0 0 calc(14px * var(--pixel-unit)) rgba(255, 244, 184, 0.28);
+}
+
+.slop-tier-sick-vignette,
+.slop-tier-corruption-bar,
+.slop-tier-drip {
+  position: absolute;
+  pointer-events: none;
+  image-rendering: pixelated;
+  will-change: opacity, transform;
+}
+
+.slop-tier-sick-vignette {
+  background:
+    radial-gradient(circle at 50% 48%, rgba(214, 255, 103, 0.16), transparent 28%),
+    radial-gradient(circle at 50% 52%, transparent 42%, rgba(43, 54, 21, 0.78) 100%),
+    repeating-linear-gradient(0deg, rgba(255, 59, 68, 0.12) 0 1px, transparent 1px 4px);
+  mix-blend-mode: multiply;
+}
+
+.slop-tier-corruption-bar {
+  box-shadow:
+    0 0 calc(2px * var(--pixel-unit)) rgba(172, 215, 78, 0.52),
+    calc(1px * var(--pixel-unit)) 0 0 rgba(255, 59, 68, 0.50);
+  mix-blend-mode: screen;
+}
+
+.slop-tier-drip {
+  border-radius: calc(0.35px * var(--pixel-unit));
+  background: linear-gradient(180deg, rgba(214, 255, 103, 0.94), rgba(87, 118, 42, 0.86));
+  box-shadow:
+    0 0 calc(2px * var(--pixel-unit)) rgba(154, 190, 86, 0.72),
+    calc(1px * var(--pixel-unit)) 0 0 rgba(255, 59, 68, 0.34);
+}
+
+@keyframes slop-tier-stamp-corrupt {
+  0%, 100% {
+    object-position: 50% 50%;
+  }
+  25% {
+    object-position: 48% 50%;
+  }
+  50% {
+    object-position: 51% 51%;
+  }
+  75% {
+    object-position: 50% 48%;
+  }
 }
 
 @keyframes ranked-glimmer {

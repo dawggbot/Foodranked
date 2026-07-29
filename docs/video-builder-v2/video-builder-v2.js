@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260729-slop-tier-v1';
+  const BUILDER_BUILD_ID = '20260729-slop-tier-v3';
   const DISPLAY_BUILDER_V2_EXPORT_TIMEOUT_MS = 8000;
   const DISPLAY_BUILDER_V2_EXPORT_POLL_MS = 150;
   const AUTHOR_GRID = { width: 135, height: 240 };
@@ -327,7 +327,7 @@
     SLOP: './sprites/ui/intro_&_outro/slop.png'
   });
   const OUTRO_TIER_STAMP_ASPECT_RATIOS = Object.freeze({
-    SLOP: 62 / 50
+    SLOP: 62 / 31
   });
   const OUTRO_TIER_GLOW_RGB = Object.freeze({
     S: '255, 238, 154',
@@ -352,7 +352,7 @@
   const OUTRO_CTA_STAMP_SIZE = OUTRO_TIER_STAMP_SIZE * (OUTRO_CTA_STAMP_ASSET_SIZE / OUTRO_TIER_STAMP_ASSET_SIZE) * OUTRO_CTA_STAMP_SCALE;
   const OUTRO_CTA_STAMP_GAP_X = (OUTRO_TIER_STAMP_SIZE - (OUTRO_CTA_STAMP_SIZE * 3)) / 2;
   const OUTRO_CTA_STAMP_GAP_Y = 4;
-  const OUTRO_CTA_STAMP_CENTER_Y = (OUTRO_TIER_STAMP_SIZE / 2) + OUTRO_CTA_STAMP_GAP_Y + (OUTRO_CTA_STAMP_SIZE / 2);
+  const OUTRO_SLOP_TIER_STAMP_WIDTH = 128;
   const OUTRO_TIER_STAMP_ID = 'outro_tier_stamp';
   const OUTRO_TIER_STAMP_LEGACY_ID = 'outro_d_tier_stamp';
   const OUTRO_CTA_STAMP_ORDER = ['outro_like_stamp', 'outro_follow_stamp', 'outro_share_stamp'];
@@ -370,6 +370,20 @@
     { id: 'outro_s_tier_premium_glimmer_5', text: '*', offsetX: 0, offsetY: -42, size: 8, color: '#ffffff', delay: 0.18 },
     { id: 'outro_s_tier_premium_glimmer_6', text: '+', offsetX: 42, offsetY: 4, size: 7, color: '#88d7ff', delay: 0.30 }
   ];
+  const OUTRO_SLOP_CORRUPTION_BARS = Object.freeze([
+    { x: 0.03, y: 0.26, width: 0.92, height: 1.8, delay: 0.00, color: 'rgba(172, 215, 78, 0.64)' },
+    { x: 0.10, y: 0.43, width: 0.78, height: 1.25, delay: 0.18, color: 'rgba(255, 65, 59, 0.45)' },
+    { x: 0.00, y: 0.56, width: 1.00, height: 1.55, delay: 0.32, color: 'rgba(87, 118, 42, 0.58)' },
+    { x: 0.18, y: 0.68, width: 0.66, height: 1.1, delay: 0.48, color: 'rgba(255, 223, 107, 0.36)' }
+  ]);
+  const OUTRO_SLOP_DRIPS = Object.freeze([
+    { x: 0.08, delay: 0.00, length: 17, width: 1.5 },
+    { x: 0.22, delay: 0.18, length: 12, width: 1.15 },
+    { x: 0.42, delay: 0.36, length: 19, width: 1.65 },
+    { x: 0.58, delay: 0.11, length: 14, width: 1.25 },
+    { x: 0.76, delay: 0.29, length: 20, width: 1.55 },
+    { x: 0.90, delay: 0.43, length: 13, width: 1.2 }
+  ]);
   const OUTRO_CTA_WAVE_START_SECONDS = 0.18;
   const OUTRO_CTA_WAVE_STAGGER_SECONDS = 0.16;
   const OUTRO_CTA_WAVE_CYCLE_SECONDS = 1.05;
@@ -2745,6 +2759,18 @@
     return OUTRO_TIER_STAMP_ASPECT_RATIOS[normalizedTier(tier)] || 1;
   }
 
+  function outroTierStampSize(tier) {
+    const normalized = normalizedTier(tier);
+    if (normalized === 'SLOP') {
+      const aspectRatio = outroTierStampAspectRatio(normalized);
+      return {
+        width: OUTRO_SLOP_TIER_STAMP_WIDTH,
+        height: Number((OUTRO_SLOP_TIER_STAMP_WIDTH / aspectRatio).toFixed(3))
+      };
+    }
+    return { width: OUTRO_TIER_STAMP_SIZE, height: OUTRO_TIER_STAMP_SIZE };
+  }
+
   function outroTierGlowRgb(tier) {
     return OUTRO_TIER_GLOW_RGB[normalizedTier(tier)] || OUTRO_TIER_GLOW_RGB.D;
   }
@@ -2847,12 +2873,15 @@
     }
   }
 
-  function outroCtaStampSpecs() {
+  function outroCtaStampSpecs(tierSize = { height: OUTRO_TIER_STAMP_SIZE }) {
     const stepX = OUTRO_CTA_STAMP_SIZE + OUTRO_CTA_STAMP_GAP_X;
+    const centerOffsetY = (Number(tierSize?.height) || OUTRO_TIER_STAMP_SIZE) / 2
+      + OUTRO_CTA_STAMP_GAP_Y
+      + (OUTRO_CTA_STAMP_SIZE / 2);
     return [
-      { id: 'outro_like_stamp', label: 'Like stamp', src: OUTRO_LIKE_SPRITE_PATH, centerOffsetX: -stepX },
-      { id: 'outro_follow_stamp', label: 'Follow stamp', src: OUTRO_FOLLOW_SPRITE_PATH, centerOffsetX: 0 },
-      { id: 'outro_share_stamp', label: 'Share stamp', src: OUTRO_SHARE_SPRITE_PATH, centerOffsetX: stepX }
+      { id: 'outro_like_stamp', label: 'Like stamp', src: OUTRO_LIKE_SPRITE_PATH, centerOffsetX: -stepX, centerOffsetY },
+      { id: 'outro_follow_stamp', label: 'Follow stamp', src: OUTRO_FOLLOW_SPRITE_PATH, centerOffsetX: 0, centerOffsetY },
+      { id: 'outro_share_stamp', label: 'Share stamp', src: OUTRO_SHARE_SPRITE_PATH, centerOffsetX: stepX, centerOffsetY }
     ];
   }
 
@@ -2936,6 +2965,7 @@
 
     const tier = outroTierForFood(food);
     const tierSpritePath = outroTierSpritePath(tier);
+    const tierSize = outroTierStampSize(tier);
     layer.id = OUTRO_TIER_STAMP_ID;
     layer.src = tierSpritePath || OUTRO_TIER_SPRITE_PATHS.D;
     layer.label = outroTierStampLabel(tier);
@@ -2947,8 +2977,8 @@
     if (!Number.isFinite(Number(layer.x))) layer.x = 28.5;
     if (!Number.isFinite(Number(layer.y))) layer.y = 62.5;
     if (!Number.isFinite(Number(layer.z))) layer.z = 38;
-    layer.width = OUTRO_TIER_STAMP_SIZE;
-    layer.height = OUTRO_TIER_STAMP_SIZE;
+    layer.width = tierSize.width;
+    layer.height = tierSize.height;
     layer.aspectRatio = outroTierStampAspectRatio(tier);
     if (!hadExistingLayer && !layer.centerAnchor) layer.centerAnchor = 'visible-canvas';
     if (layer.centerAnchor === 'visible-canvas') {
@@ -2956,7 +2986,7 @@
       if (!Number.isFinite(Number(layer.centerOffsetY))) layer.centerOffsetY = 0;
     }
 
-    outroCtaStampSpecs().forEach((spec, index) => {
+    outroCtaStampSpecs(tierSize).forEach((spec, index) => {
       let ctaLayer = layers.find(item => item.id === spec.id);
       if (!ctaLayer) {
         ctaLayer = {
@@ -2975,7 +3005,7 @@
           aspectRatio: 1,
           centerAnchor: 'visible-canvas',
           centerOffsetX: spec.centerOffsetX,
-          centerOffsetY: OUTRO_CTA_STAMP_CENTER_Y,
+          centerOffsetY: spec.centerOffsetY,
           stampRole: 'cta',
           effect: 'tier-stamp'
         };
@@ -2993,7 +3023,7 @@
       ctaLayer.height = OUTRO_CTA_STAMP_SIZE;
       ctaLayer.centerAnchor = 'visible-canvas';
       ctaLayer.centerOffsetX = spec.centerOffsetX;
-      ctaLayer.centerOffsetY = OUTRO_CTA_STAMP_CENTER_Y;
+      ctaLayer.centerOffsetY = spec.centerOffsetY;
       ctaLayer.z = 39 + index;
     });
     syncOutroSTierPremiumVfxLayers(layers, layer, tier);
@@ -3096,8 +3126,8 @@
       .replace(/\b(\d+)\.\s+(\d+)(?=\s*(?:mcg|mg|kg|kcal|g|%|\b))/gi, '$1.$2')
       .replace(/\s+/g, ' ')
       .trim();
-    const slopTierReveal = normalized.match(/^slop\s+tier\.?$/i);
-    if (slopTierReveal) return 'Slop tier.';
+    const slopTierReveal = normalized.match(/^slop(?:\s+tier)?\.?$/i);
+    if (slopTierReveal) return 'SLOP';
     const tierReveal = normalized.match(/^([sabcd])\s+tier\.?$/i);
     return tierReveal ? `${tierReveal[1].toUpperCase()} tier.` : normalized;
   }
@@ -4052,6 +4082,7 @@
     appendMicron100Fireworks(nextLayerNodes, scene, layers, sceneElapsed);
     appendMajorProSparkles(nextLayerNodes, scene, layers, sceneElapsed, sceneProgress, proConHighlightMap);
     appendMajorConSirenVfx(nextLayerNodes, scene, layers, sceneElapsed, sceneProgress, proConHighlightMap);
+    appendSlopTierVfx(nextLayerNodes, scene, layers, sceneProgress, revealSchedules);
     roots.layerRoot.replaceChildren(nextLayerNodes);
 
     syncCaptionSafeArea(roots.caption);
@@ -5859,6 +5890,83 @@
     }
   }
 
+  function slopTierRevealVfxState(scene, layers, sceneProgress, revealSchedules) {
+    if (scene?.id !== 'outro' || outroTierForFood(selectedFood()) !== 'SLOP') return null;
+    const index = layers.findIndex(({ layer }) => (
+      layer?.stampRole === 'tier'
+      && isOutroFinalRevealStampLayer(layer)
+      && normalizedTier(layer?.tier) === 'SLOP'
+    ));
+    if (index < 0) return null;
+    const schedule = revealSchedules[index];
+    if (!schedule) return null;
+    const raw = stampRevealRawProgress(scene, sceneProgress, schedule);
+    if (raw <= 0 || raw > 2.65) return null;
+    const hit = clamp((raw - 0.72) / 0.34, 0, 1);
+    const fade = clamp((2.65 - raw) / 1.55, 0, 1);
+    const strength = clamp(Math.max(hit * fade, Math.sin(clamp(raw, 0, 1) * Math.PI) * 0.55), 0, 1);
+    if (strength <= 0.015) return null;
+    return {
+      box: layerGridBox(layers[index].layer),
+      raw,
+      strength
+    };
+  }
+
+  function appendSlopTierVfx(container, scene, layers, sceneProgress, revealSchedules) {
+    const state = slopTierRevealVfxState(scene, layers, sceneProgress, revealSchedules);
+    if (!state) return;
+
+    const visible = visibleCanvasGridBounds();
+    const visibleWidth = Math.max(1, visible.right - visible.left);
+    const visibleHeight = Math.max(1, visible.bottom - visible.top);
+    const pulse = 0.5 + (Math.sin((state.raw * Math.PI * 10.5)) * 0.5);
+    const zIndex = 37;
+
+    const tint = document.createElement('div');
+    tint.className = 'slop-tier-sick-vignette';
+    tint.style.left = `calc(${visible.left}px * var(--pixel-unit))`;
+    tint.style.top = `calc(${visible.top}px * var(--pixel-unit))`;
+    tint.style.width = `calc(${visibleWidth}px * var(--pixel-unit))`;
+    tint.style.height = `calc(${visibleHeight}px * var(--pixel-unit))`;
+    tint.style.zIndex = String(zIndex);
+    tint.style.opacity = String(clamp(0.10 + (state.strength * 0.30), 0, 0.44).toFixed(3));
+    container.appendChild(tint);
+
+    OUTRO_SLOP_CORRUPTION_BARS.forEach((bar, index) => {
+      const phase = (state.raw + bar.delay) % 1;
+      const jitter = Math.sin((state.raw * Math.PI * 17) + index) * 2.4 * state.strength;
+      const node = document.createElement('div');
+      node.className = 'slop-tier-corruption-bar';
+      node.style.left = `calc(${(visible.left + (visibleWidth * bar.x) + jitter).toFixed(2)}px * var(--pixel-unit))`;
+      node.style.top = `calc(${(visible.top + (visibleHeight * bar.y) + (pulse * index * 0.35)).toFixed(2)}px * var(--pixel-unit))`;
+      node.style.width = `calc(${(visibleWidth * bar.width).toFixed(2)}px * var(--pixel-unit))`;
+      node.style.height = `calc(${bar.height.toFixed(2)}px * var(--pixel-unit))`;
+      node.style.background = bar.color;
+      node.style.zIndex = String(zIndex + 28 + index);
+      node.style.opacity = String(clamp(state.strength * (0.42 + (Math.sin(phase * Math.PI) * 0.48)), 0, 0.92).toFixed(3));
+      node.style.transform = `translate3d(0, 0, 0) skewX(${index % 2 ? -10 : 8}deg)`;
+      container.appendChild(node);
+    });
+
+    OUTRO_SLOP_DRIPS.forEach((drip, index) => {
+      const phase = (state.raw + drip.delay) % 1;
+      const fall = easeOutCubic(phase);
+      const x = state.box.left + ((state.box.right - state.box.left) * drip.x);
+      const y = state.box.bottom - 7 + (fall * drip.length);
+      const node = document.createElement('div');
+      node.className = 'slop-tier-drip';
+      node.style.left = `calc(${(x + (Math.sin(state.raw * Math.PI * 6 + index) * 0.65)).toFixed(2)}px * var(--pixel-unit))`;
+      node.style.top = `calc(${y.toFixed(2)}px * var(--pixel-unit))`;
+      node.style.width = `calc(${drip.width.toFixed(2)}px * var(--pixel-unit))`;
+      node.style.height = `calc(${(3.2 + (drip.length * 0.16)).toFixed(2)}px * var(--pixel-unit))`;
+      node.style.zIndex = String(zIndex + 34 + index);
+      node.style.opacity = String(clamp(state.strength * (1 - (phase * 0.72)), 0, 0.88).toFixed(3));
+      node.style.transform = `translate3d(-50%, -50%, 0) scaleY(${(0.72 + (fall * 0.75)).toFixed(3)})`;
+      container.appendChild(node);
+    });
+  }
+
   function shouldRevealStackedMacroSpriteOpaque(layer, revealSchedule, sortedLayers = []) {
     if (revealSchedule?.family !== 'macro' || !isSpriteLayer(layer)) return false;
     const layerIndex = sortedLayers.indexOf(layer);
@@ -7639,6 +7747,9 @@
     const isSTierPremiumStamp = isOutroTierStamp
       && normalizedTier(layer?.tier) === 'S'
       && layer?.stampRole === 'tier';
+    const isSlopTierStamp = isOutroTierStamp
+      && normalizedTier(layer?.tier) === 'SLOP'
+      && layer?.stampRole === 'tier';
     const isIntroRankedGlow = revealSchedule?.family === 'intro' && revealSchedule?.kind === 'ranked-glow';
     const outroCtaWaveIndex = isOutroTierStamp ? outroCtaStampWaveIndex(layer) : -1;
     const isOutroCtaWaveStamp = outroCtaWaveIndex >= 0;
@@ -7739,19 +7850,47 @@
     if (clip) node.style.clipPath = clip;
     if ((isOutroTierStamp || isIntroRankedGlow) && stampImpactPulse > 0.02) {
       const glowRgb = isOutroTierStamp ? outroTierGlowRgb(layer?.tier) : '255, 244, 184';
-      const brightness = isSTierPremiumStamp ? 1.03 + (stampImpactPulse * 0.16) : 1.18 + (stampImpactPulse * 0.48);
-      const saturate = isSTierPremiumStamp ? 1.04 + (stampImpactPulse * 0.12) : 1.18 + (stampImpactPulse * 0.38);
-      const contrast = isSTierPremiumStamp ? 1.02 + (stampImpactPulse * 0.05) : 1.08 + (stampImpactPulse * 0.16);
-      const coreGlow = isSTierPremiumStamp ? 1.2 + (stampImpactPulse * 2.2) : 2.2 + (stampImpactPulse * 4.8);
-      const coreAlpha = isSTierPremiumStamp ? 0.22 + (stampImpactPulse * 0.14) : 0.50 + (stampImpactPulse * 0.32);
-      const wideGlow = isSTierPremiumStamp ? 4.2 + (stampImpactPulse * 4.4) : 7 + (stampImpactPulse * 9);
-      const wideAlpha = isSTierPremiumStamp ? 0.08 + (stampImpactPulse * 0.09) : 0.20 + (stampImpactPulse * 0.22);
+      const brightness = isSTierPremiumStamp
+        ? 1.03 + (stampImpactPulse * 0.16)
+        : isSlopTierStamp
+          ? 0.90 + (stampImpactPulse * 0.24)
+          : 1.18 + (stampImpactPulse * 0.48);
+      const saturate = isSTierPremiumStamp
+        ? 1.04 + (stampImpactPulse * 0.12)
+        : isSlopTierStamp
+          ? 1.28 + (stampImpactPulse * 0.44)
+          : 1.18 + (stampImpactPulse * 0.38);
+      const contrast = isSTierPremiumStamp
+        ? 1.02 + (stampImpactPulse * 0.05)
+        : isSlopTierStamp
+          ? 1.30 + (stampImpactPulse * 0.28)
+          : 1.08 + (stampImpactPulse * 0.16);
+      const coreGlow = isSTierPremiumStamp
+        ? 1.2 + (stampImpactPulse * 2.2)
+        : isSlopTierStamp
+          ? 2.8 + (stampImpactPulse * 5.6)
+          : 2.2 + (stampImpactPulse * 4.8);
+      const coreAlpha = isSTierPremiumStamp
+        ? 0.22 + (stampImpactPulse * 0.14)
+        : isSlopTierStamp
+          ? 0.36 + (stampImpactPulse * 0.44)
+          : 0.50 + (stampImpactPulse * 0.32);
+      const wideGlow = isSTierPremiumStamp
+        ? 4.2 + (stampImpactPulse * 4.4)
+        : isSlopTierStamp
+          ? 8 + (stampImpactPulse * 13)
+          : 7 + (stampImpactPulse * 9);
+      const wideAlpha = isSTierPremiumStamp
+        ? 0.08 + (stampImpactPulse * 0.09)
+        : isSlopTierStamp
+          ? 0.18 + (stampImpactPulse * 0.34)
+          : 0.20 + (stampImpactPulse * 0.22);
       node.style.filter = [
         `brightness(${brightness.toFixed(3)})`,
         `saturate(${saturate.toFixed(3)})`,
         `contrast(${contrast.toFixed(3)})`,
         `drop-shadow(0 0 calc(${coreGlow.toFixed(2)}px * var(--pixel-unit)) rgba(${glowRgb}, ${coreAlpha.toFixed(3)}))`,
-        `drop-shadow(0 0 calc(${wideGlow.toFixed(2)}px * var(--pixel-unit)) rgba(255, 255, 255, ${wideAlpha.toFixed(3)}))`
+        `drop-shadow(0 0 calc(${wideGlow.toFixed(2)}px * var(--pixel-unit)) rgba(${isSlopTierStamp ? '255, 59, 68' : '255, 255, 255'}, ${wideAlpha.toFixed(3)}))`
       ].join(' ');
     } else if (isMacroArrowReveal && revealPulse > 0.02) {
       const glowRgb = macroArrowGlowRgb(layer);

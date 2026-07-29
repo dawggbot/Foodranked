@@ -177,6 +177,7 @@ function audioOnlyText(text) {
 
 function subtitleOnlyText(text) {
   return String(text || '')
+    .replace(/\b(\d+(?:\.\d+)?)\s+out of\s+(\d+(?:\.\d+)?)\b/gi, '$1/$2')
     .replace(/\braw grams display\b/gi, 'raw values display')
     .replace(/\b([a-z]+) grams already shown\b/gi, '$1 numbers already shown')
     .replace(/\bmaintenance-and-repair\b/gi, 'maintenance repair')

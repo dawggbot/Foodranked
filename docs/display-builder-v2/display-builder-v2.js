@@ -2263,10 +2263,16 @@
     return isGifSpriteSrc(src) && normalizedSrc.includes('/macros_section/');
   }
 
+  function isMicronutrientSectionGifSprite(src) {
+    const normalizedSrc = String(src || '').toLowerCase();
+    return isGifSpriteSrc(src) && normalizedSrc.includes('/micros_section/');
+  }
+
   function sectionStillGifFrameMode(sectionId, src) {
     if (!isGifSpriteSrc(src)) return 'final';
-    if (MACRO_SECTIONS.includes(normalizeDisplaySectionId(sectionId))) return 'start';
-    return isMacroSectionGifSprite(src) ? 'start' : 'final';
+    const normalizedSectionId = normalizeDisplaySectionId(sectionId);
+    if (MACRO_SECTIONS.includes(normalizedSectionId) || MICRONUTRIENT_SECTIONS.includes(normalizedSectionId)) return 'start';
+    return isMacroSectionGifSprite(src) || isMicronutrientSectionGifSprite(src) ? 'start' : 'final';
   }
 
   function wait(ms) {

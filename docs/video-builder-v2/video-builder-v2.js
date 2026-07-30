@@ -608,6 +608,7 @@
     audioDurationSeconds: null,
     audioInHold: false,
     splitAudioMetadataDurations: new Map(),
+    splitAudioMetadataProbes: new Map(),
     stampSfxPool: [],
     stampSfxPoolIndex: 0,
     stampSfxPath: '',
@@ -3398,6 +3399,48 @@
     if (audio?.mode !== 'split-blocks') return [];
     const sceneKey = splitAudioSceneKey(sceneId);
     return (audio.blocks || []).filter(block => splitAudioBlockSceneKey(block) === sceneKey);
+  }
+
+  function rememberSplitAudioMetadataDuration(sourcePath, duration) {
+    const path = String(sourcePath || '');
+    const safeDuration = asNumber(duration, null);
+    if (!path || safeDuration == null || safeDuration <= 0) return false;
+    const previousDuration = state.splitAudioMetadataDurations.get(path);
+    if (previousDuration != null && Math.abs(previousDuration - safeDuration) <= 0.01) return false;
+    state.splitAudioMetadataDurations.set(path, safeDuration);
+    state.audioTimelineKey = '';
+    return true;
+  }
+
+  function preloadSplitAudioMetadataForAudio(audio) {
+    if (audio?.mode !== 'split-blocks') return;
+    (audio.blocks || []).forEach(block => {
+      const path = String(block?.path || '');
+      if (!path || state.splitAudioMetadataDurations.has(path) || state.splitAudioMetadataProbes.has(path)) return;
+      const probe = new Audio(docsAssetPath(path));
+      state.splitAudioMetadataProbes.set(path, probe);
+      const cleanup = () => {
+        probe.removeEventListener('loadedmetadata', handleLoadedMetadata);
+        probe.removeEventListener('error', cleanup);
+        state.splitAudioMetadataProbes.delete(path);
+      };
+      const handleLoadedMetadata = () => {
+        const changed = rememberSplitAudioMetadataDuration(path, probe.duration);
+        cleanup();
+        if (changed && calibrateSceneDurationsToSplitAudio(audioForFood(selectedFood()))) {
+          if (!state.playing) syncAudioTime({ force: true });
+          renderDynamic({ fullUi: true });
+        }
+      };
+      probe.preload = 'metadata';
+      probe.addEventListener('loadedmetadata', handleLoadedMetadata, { once: true });
+      probe.addEventListener('error', cleanup, { once: true });
+      try {
+        probe.load();
+      } catch {
+        cleanup();
+      }
+    });
   }
 
   function splitAudioSceneTailGuardSeconds(sceneId) {
@@ -7281,6 +7324,17 @@
     return audio;
   }
 
+  function primeMajorProSparkleSfx() {
+    if (!state.audioEnabled || !majorProSparkleSfxEvents().length) return;
+    if (!state.majorProSparkleSfxPool.length) nextMajorProSparkleSfxAudio();
+    state.majorProSparkleSfxPoolIndex = 0;
+    state.majorProSparkleSfxPool.forEach(audio => {
+      try {
+        audio.load();
+      } catch {}
+    });
+  }
+
   function majorProSparklePlaybackRate() {
     const playbackRate = randomHighlightGlowPlaybackRate(state.majorProSparkleSfxPlaybackRate || 1, 'green');
     state.majorProSparkleSfxPlaybackRate = playbackRate;
@@ -7292,10 +7346,16 @@
     const audio = nextMajorProSparkleSfxAudio();
     try {
       audio.pause();
+    } catch {}
+    try {
       audio.currentTime = 0;
+    } catch {}
+    try {
       audio.volume = majorProSparkleSfxVolume();
       disableAudioPitchPreservation(audio);
       audio.playbackRate = majorProSparklePlaybackRate();
+    } catch {}
+    try {
       const playPromise = audio.play();
       if (playPromise?.catch) playPromise.catch(() => {});
     } catch {}
@@ -7358,6 +7418,17 @@
     return audio;
   }
 
+  function primeMajorConSirenSfx() {
+    if (!state.audioEnabled || !majorConSirenSfxEvents().length) return;
+    if (!state.majorConSirenSfxPool.length) nextMajorConSirenSfxAudio();
+    state.majorConSirenSfxPoolIndex = 0;
+    state.majorConSirenSfxPool.forEach(audio => {
+      try {
+        audio.load();
+      } catch {}
+    });
+  }
+
   function majorConSirenPlaybackRate() {
     const playbackRate = randomHighlightGlowPlaybackRate(state.majorConSirenSfxPlaybackRate || 1, 'red');
     state.majorConSirenSfxPlaybackRate = playbackRate;
@@ -7369,10 +7440,16 @@
     const audio = nextMajorConSirenSfxAudio();
     try {
       audio.pause();
+    } catch {}
+    try {
       audio.currentTime = 0;
+    } catch {}
+    try {
       audio.volume = majorConSirenSfxVolume();
       disableAudioPitchPreservation(audio);
       audio.playbackRate = majorConSirenPlaybackRate();
+    } catch {}
+    try {
       const playPromise = audio.play();
       if (playPromise?.catch) playPromise.catch(() => {});
     } catch {}
@@ -7936,6 +8013,8 @@
     primeStampSfx();
     primeDTierStampSfx();
     primeTransitionSfx();
+    primeMajorProSparkleSfx();
+    primeMajorConSirenSfx();
     primeBarFillSfx();
     playBackgroundMusicFromCurrentTime();
     triggerIntroFoodStampSfxAtPlaybackStart();
@@ -8304,6 +8383,7 @@
     }
     syncNarrationVolumeForAudio(audio);
     if (audio.mode === 'split-blocks') {
+      preloadSplitAudioMetadataForAudio(audio);
       calibrateSceneDurationsToSplitAudio(audio);
       syncAudioTime({ force: true });
       updateAudioControls();
@@ -9322,6 +9402,8 @@
     primeStampSfx();
     primeDTierStampSfx();
     primeTransitionSfx();
+    primeMajorProSparkleSfx();
+    primeMajorConSirenSfx();
     primeBarFillSfx();
     const audioMix = await createDownloadAudioMixWithTimeout();
     for (const track of audioMix?.stream?.getAudioTracks?.() || []) {
@@ -9703,16 +9785,10 @@
   els.narrationAudio.addEventListener('loadedmetadata', () => {
     if (audioForFood(selectedFood())?.mode === 'split-blocks') {
       const sourcePath = els.narrationAudio.dataset.sourcePath || '';
-      const duration = asNumber(els.narrationAudio.duration, null);
-      if (sourcePath && duration != null && duration > 0) {
-        const previousDuration = state.splitAudioMetadataDurations.get(sourcePath);
-        if (previousDuration == null || Math.abs(previousDuration - duration) > 0.01) {
-          state.splitAudioMetadataDurations.set(sourcePath, duration);
-          state.audioTimelineKey = '';
-          if (calibrateSceneDurationsToSplitAudio(audioForFood(selectedFood()))) {
-            renderDynamic({ fullUi: true });
-            return;
-          }
+      if (rememberSplitAudioMetadataDuration(sourcePath, els.narrationAudio.duration)) {
+        if (calibrateSceneDurationsToSplitAudio(audioForFood(selectedFood()))) {
+          renderDynamic({ fullUi: true });
+          return;
         }
       }
       updateAudioControls();

@@ -331,6 +331,12 @@ const FOOD_FINAL_REVEAL_TTS_OVERRIDES = Object.freeze({
 });
 
 const FOOD_NAME_TTS_OVERRIDES = Object.freeze({
+  bacon: {
+    match: /^bacon[.!]?$/i,
+    ttsText: 'Bay-con!',
+    pronunciationNote: 'TTS uses "Bay-con!" so Bacon is spoken clearly while display text stays "Bacon!".',
+    reason: 'Use phonetic spelling so the short Bacon hook does not get swallowed or clipped.'
+  },
   kale: {
     match: /^kale[.!]?$/i,
     ttsText: 'Kail!',

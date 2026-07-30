@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260730-vbv2-canvas-parity-v1';
+  const BUILDER_BUILD_ID = '20260730-vbv2-canvas-parity-v2';
   const DISPLAY_BUILDER_V2_EXPORT_TIMEOUT_MS = 8000;
   const DISPLAY_BUILDER_V2_EXPORT_POLL_MS = 150;
   const AUTHOR_GRID = { width: 105, height: 186.666667 };
@@ -4224,18 +4224,7 @@
   }
 
   function getResponsiveAssetScale() {
-    const desktopComfortable = window.innerWidth >= 1600 && window.innerHeight >= 900;
-    if (desktopComfortable) return DISPLAY_BUILDER_V2_PREVIEW_PIXEL_UNIT;
-
-    const compactLaptop = (window.innerWidth <= 1500 || window.innerHeight <= 850) && window.innerWidth > 760;
-    const tightLaptop = window.innerWidth <= 1180 && window.innerWidth > 760;
-    const reservedWidth = tightLaptop ? 530 : (compactLaptop ? 660 : 690);
-    const reservedHeight = tightLaptop ? 154 : (compactLaptop ? 150 : 210);
-    const minimumScale = tightLaptop ? 1.12 : (compactLaptop ? 1.30 : 1.45);
-    const verticalRoom = Math.max(300, window.innerHeight - reservedHeight);
-    const scaleFromHeight = (verticalRoom - 12) / AUTHOR_GRID.height;
-    const scaleFromWidth = (Math.max(280, window.innerWidth - reservedWidth) - 24) / AUTHOR_GRID.width;
-    return Math.max(minimumScale, Math.min(DISPLAY_BUILDER_V2_PREVIEW_PIXEL_UNIT, scaleFromHeight, scaleFromWidth));
+    return DISPLAY_BUILDER_V2_PREVIEW_PIXEL_UNIT;
   }
 
   function setCanvasScale() {

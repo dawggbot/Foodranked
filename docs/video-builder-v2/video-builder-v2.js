@@ -1784,6 +1784,7 @@
   }
 
   function getSectionLayers(layout, sectionId) {
+    if (!layout) return [];
     if (!layout.sections) layout.sections = {};
     if (!layout.sections[sectionId]) layout.sections[sectionId] = { layers: [] };
     if (!Array.isArray(layout.sections[sectionId].layers)) layout.sections[sectionId].layers = [];
@@ -3998,7 +3999,8 @@
     const food = selectedFood();
     const scene = activeSceneAt();
     const roots = ensureStageRoots();
-    if (!state.layout || !scene) {
+    const canRenderIntroFallback = !state.renderMode && !state.layout && scene?.id === 'intro';
+    if ((!state.layout && !canRenderIntroFallback) || !scene) {
       applyIntroFocusStageEffect(roots, null, 0);
       roots.layerRoot.replaceChildren();
       roots.caption.replaceChildren();

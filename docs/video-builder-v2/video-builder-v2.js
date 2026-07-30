@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260729-mp4-export-v1';
+  const BUILDER_BUILD_ID = '20260730-mp4-parity-v2';
   const DISPLAY_BUILDER_V2_EXPORT_TIMEOUT_MS = 8000;
   const DISPLAY_BUILDER_V2_EXPORT_POLL_MS = 150;
   const AUTHOR_GRID = { width: 105, height: 186.666667 };
@@ -683,6 +683,7 @@
     renderHelperBusy: false,
     renderHelperJobId: null,
     macroBarRenderRefreshPending: false,
+    renderGifFrameOverrides: new Map(),
     playbackSfxEvents: null
   };
 
@@ -2177,6 +2178,24 @@
     }
   }
 
+  function repairOffCanvasSectionIndicators(layout) {
+    if (!validLayout(layout)) return;
+    const targetY = Number((AUTHOR_GRID.height - 13.25).toFixed(3));
+    for (const section of SECTIONS) {
+      const indicators = getSectionLayers(layout, section.id).filter(isSectionIndicator);
+      if (!indicators.length) continue;
+      const offCanvas = indicators.every(layer => {
+        const y = Number(layer.y) || 0;
+        const height = Number(layer.height) || 0;
+        return y >= AUTHOR_GRID.height || y + height > AUTHOR_GRID.height + 1;
+      });
+      if (!offCanvas) continue;
+      indicators.forEach(layer => {
+        layer.y = targetY;
+      });
+    }
+  }
+
   function macroScoreRows(layers) {
     const candidates = layers
       .filter(layer => isMacroScoreCard(layer) || isMacroArrow(layer))
@@ -3110,6 +3129,7 @@
     syncHeader(layout, food);
     syncOutroScoreValue(layout, food);
     syncProsCons(layout, food);
+    repairOffCanvasSectionIndicators(layout);
     state.layout = layout;
     state.displayBuilderExportStatus = 'ready';
     syncSectionIndicators(layout, food);
@@ -5928,6 +5948,22 @@
       && entry.images.every(image => image?.complete && image.naturalWidth > 0);
   }
 
+  function gifFrameSourceKeys(src) {
+    const keys = new Set([String(src || '')].filter(Boolean));
+    try {
+      keys.add(new URL(src, window.location.href).href);
+    } catch {}
+    return [...keys];
+  }
+
+  function rendererGifFrameOverride(src) {
+    for (const key of gifFrameSourceKeys(src)) {
+      const entry = state.renderGifFrameOverrides?.get(key);
+      if (entry) return entry;
+    }
+    return null;
+  }
+
   function gifFrameIndexAtTime(entry, timeSeconds) {
     const images = entry?.images || [];
     if (!images.length) return 0;
@@ -6074,6 +6110,8 @@
   }
 
   function requestMacroBarGifFrames(src) {
+    const override = rendererGifFrameOverride(src);
+    if (override) return override;
     const cached = MACRO_BAR_GIF_FRAME_CACHE.get(src);
     if (cached?.status === 'ready') return cached;
     if (cached?.status === 'pending') return cached;
@@ -8631,6 +8669,18 @@
     link.remove();
   }
 
+  function cacheBustDownloadUrl(url) {
+    const token = String(Date.now());
+    try {
+      const parsed = new URL(url, window.location.href);
+      parsed.searchParams.set('v', token);
+      return parsed.href;
+    } catch {
+      const glue = String(url || '').includes('?') ? '&' : '?';
+      return `${url}${glue}v=${encodeURIComponent(token)}`;
+    }
+  }
+
   function renderHelperStatusText(job) {
     if (!job) return 'Rendering MP4 locally...';
     if (job.frame?.total) {
@@ -8683,7 +8733,7 @@
       state.downloadChecked = false;
       await refreshVideoDownloadAvailability(food);
       if (state.downloadUrl) {
-        downloadUrl(state.downloadUrl, videoDownloadFileName(food));
+        downloadUrl(cacheBustDownloadUrl(state.downloadUrl), videoDownloadFileName(food));
         setDownloadStatus('MP4 download started', 'ok');
         return true;
       }
@@ -8703,7 +8753,7 @@
       setDownloadStatus(`MP4 ready for ${food.name || food.id}`, 'ok');
       return true;
     }
-    downloadUrl(state.downloadUrl, videoDownloadFileName(food));
+    downloadUrl(cacheBustDownloadUrl(state.downloadUrl), videoDownloadFileName(food));
     setDownloadStatus('MP4 rendered and download started', 'ok');
     return true;
   }
@@ -8728,7 +8778,7 @@
         setDownloadStatus(`No MP4 file published yet: ${expectedVideoDownloadPath(food)}`, 'warn');
         return;
       }
-      downloadUrl(state.downloadUrl, videoDownloadFileName(food));
+      downloadUrl(cacheBustDownloadUrl(state.downloadUrl), videoDownloadFileName(food));
       setDownloadStatus('MP4 download started', 'ok');
     } catch (error) {
       state.renderHelperBusy = false;
@@ -9418,6 +9468,78 @@
     throw new Error(`Renderer GIF frames not ready: ${pending.slice(0, 3).join(', ')}`);
   }
 
+  function installRendererGifFrameOverrides(overrides = []) {
+    const entries = Array.isArray(overrides) ? overrides : [];
+    entries.forEach(override => {
+      const frames = Array.isArray(override?.frames) ? override.frames.filter(Boolean) : [];
+      const src = String(override?.src || '').trim();
+      if (!src || !frames.length) return;
+
+      const delays = Array.isArray(override.frameDelaySeconds)
+        ? override.frameDelaySeconds.map(value => Math.max(0.001, asNumber(value, 0.1)))
+        : [];
+      const width = Math.max(1, Math.round(asNumber(override.width, 0) || 1));
+      const height = Math.max(1, Math.round(asNumber(override.height, 0) || 1));
+      const nativeSeconds = Math.max(
+        0.001,
+        asNumber(override.nativeSeconds, 0)
+          || delays.reduce((sum, value) => sum + value, 0)
+          || frames.length * 0.1
+      );
+      let frameCursor = 0;
+      const frameDelaySeconds = frames.map((_, index) => {
+        return delays[index] || (nativeSeconds / frames.length);
+      });
+      const frameStarts = frameDelaySeconds.map(delay => {
+        const start = frameCursor;
+        frameCursor += delay;
+        return start;
+      });
+      const entry = {
+        status: 'pending',
+        width,
+        height,
+        nativeSeconds,
+        frameDelaySeconds,
+        frameStarts,
+        images: []
+      };
+      let pending = frames.length;
+      const markReady = () => {
+        pending -= 1;
+        if (pending <= 0) {
+          entry.status = 'ready';
+          scheduleMacroBarRenderRefresh();
+        }
+      };
+      entry.images = frames.map(frameSrc => {
+        const image = new Image();
+        let settled = false;
+        const settleReady = () => {
+          if (settled) return;
+          settled = true;
+          markReady();
+        };
+        image.decoding = 'sync';
+        image.onload = settleReady;
+        image.onerror = () => {
+          if (settled) return;
+          settled = true;
+          entry.status = 'error';
+          pending = 0;
+        };
+        image.src = frameSrc;
+        if (image.complete) settleReady();
+        return image;
+      });
+      gifFrameSourceKeys(src).forEach(key => {
+        state.renderGifFrameOverrides.set(key, entry);
+        MACRO_BAR_GIF_FRAME_CACHE.set(key, entry);
+      });
+      MACRO_BAR_GIF_FRAME_CACHE.set(src, entry);
+    });
+  }
+
   function rendererNarrationEventPayload(event) {
     return {
       ...event,
@@ -9524,6 +9646,14 @@
       },
       sfxEvents() {
         return rendererSfxEvents();
+      },
+      gifSources() {
+        return rendererFrameGifSources();
+      },
+      installGifFrameOverrides(overrides) {
+        installRendererGifFrameOverrides(overrides);
+        prewarmRendererFrameAssets();
+        return { installed: Array.isArray(overrides) ? overrides.length : 0 };
       },
       diagnostics() {
         return {

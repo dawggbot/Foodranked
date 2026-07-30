@@ -219,6 +219,132 @@ function shellQuote(value) {
   return /^[A-Za-z0-9_./:=+-]+$/.test(text) ? text : JSON.stringify(text);
 }
 
+function runCapture(command, args, { label = command } = {}) {
+  const result = spawnSync(command, args, {
+    cwd: REPO_ROOT,
+    encoding: 'utf8',
+    maxBuffer: 64 * 1024 * 1024
+  });
+  if (result.status === 0) return result.stdout || '';
+  const stderr = String(result.stderr || '').trim();
+  throw new Error(`${label} failed with exit code ${result.status}${stderr ? `: ${stderr}` : ''}`);
+}
+
+function readJsonFromCommand(command, args, options = {}) {
+  const output = runCapture(command, args, options);
+  return JSON.parse(output || '{}');
+}
+
+function resolvePageAssetPath(src, pageUrl) {
+  if (!src || /^(?:data:|blob:)/i.test(String(src))) return '';
+  const url = new URL(src, pageUrl);
+  if (url.protocol !== 'http:') return '';
+  const pathname = decodeURIComponent(url.pathname.replace(/^\/+/, ''));
+  const filePath = path.normalize(path.join(REPO_ROOT, pathname));
+  const insideRoot = filePath === REPO_ROOT || filePath.startsWith(`${REPO_ROOT}${path.sep}`);
+  return insideRoot ? filePath : '';
+}
+
+function gifFrameProbe(gifPath) {
+  const framesProbe = readJsonFromCommand('ffprobe', [
+    '-v',
+    'error',
+    '-select_streams',
+    'v:0',
+    '-show_entries',
+    'frame=duration_time,pkt_duration_time',
+    '-of',
+    'json',
+    gifPath
+  ], { label: `Probe GIF frames ${path.basename(gifPath)}` });
+  const streamProbe = readJsonFromCommand('ffprobe', [
+    '-v',
+    'error',
+    '-select_streams',
+    'v:0',
+    '-show_entries',
+    'stream=width,height,duration,nb_frames',
+    '-of',
+    'json',
+    gifPath
+  ], { label: `Probe GIF stream ${path.basename(gifPath)}` });
+  return {
+    frames: Array.isArray(framesProbe.frames) ? framesProbe.frames : [],
+    stream: Array.isArray(streamProbe.streams) ? streamProbe.streams[0] || {} : {}
+  };
+}
+
+function dataUrlForPng(filePath) {
+  return `data:image/png;base64,${fs.readFileSync(filePath).toString('base64')}`;
+}
+
+async function buildGifFrameOverride({ src, pageUrl, workDir, index }) {
+  const gifPath = resolvePageAssetPath(src, pageUrl);
+  if (!gifPath || path.extname(gifPath).toLowerCase() !== '.gif' || !fs.existsSync(gifPath)) return null;
+
+  const frameDir = path.join(workDir, 'gif-frame-overrides', `gif-${String(index).padStart(3, '0')}`);
+  fs.mkdirSync(frameDir, { recursive: true });
+  const framePattern = path.join(frameDir, 'frame-%04d.png');
+  await run('ffmpeg', [
+    '-y',
+    '-i',
+    gifPath,
+    '-fps_mode',
+    'passthrough',
+    framePattern
+  ], { label: `Extract GIF frames ${path.basename(gifPath)}` });
+
+  const frameFiles = fs.readdirSync(frameDir)
+    .filter(name => /^frame-\d+\.png$/i.test(name))
+    .sort()
+    .map(name => path.join(frameDir, name));
+  if (!frameFiles.length) return null;
+
+  const probe = gifFrameProbe(gifPath);
+  const stream = probe.stream || {};
+  const frameDelaySeconds = probe.frames
+    .slice(0, frameFiles.length)
+    .map(frame => Number(frame.duration_time || frame.pkt_duration_time || 0))
+    .map(value => (Number.isFinite(value) && value > 0 ? value : 0));
+  const probedDuration = Number(stream.duration);
+  const nativeSeconds = frameDelaySeconds.reduce((sum, value) => sum + value, 0)
+    || (Number.isFinite(probedDuration) && probedDuration > 0 ? probedDuration : frameFiles.length * 0.1);
+  const fallbackDelay = nativeSeconds / frameFiles.length;
+  const normalizedDelays = frameFiles.map((_, frameIndex) => {
+    const delay = frameDelaySeconds[frameIndex];
+    return delay > 0 ? delay : fallbackDelay;
+  });
+
+  return {
+    src,
+    width: Number(stream.width) || null,
+    height: Number(stream.height) || null,
+    nativeSeconds,
+    frameDelaySeconds: normalizedDelays,
+    frames: frameFiles.map(dataUrlForPng)
+  };
+}
+
+async function installGifFrameOverrides(page, workDir) {
+  const gifSources = await page.evaluate(() => window.FoodRankedVBv2Renderer?.gifSources?.() || []);
+  const uniqueSources = [...new Set((Array.isArray(gifSources) ? gifSources : []).filter(Boolean))];
+  const overrides = [];
+  for (let index = 0; index < uniqueSources.length; index += 1) {
+    const override = await buildGifFrameOverride({
+      src: uniqueSources[index],
+      pageUrl: page.url(),
+      workDir,
+      index
+    });
+    if (override) overrides.push(override);
+  }
+  if (!overrides.length) return;
+  await page.evaluate(payload => {
+    window.FoodRankedVBv2Renderer?.installGifFrameOverrides?.(payload);
+  }, overrides);
+  console.log(`Installed ${overrides.length} GIF frame override${overrides.length === 1 ? '' : 's'}`);
+}
+
 function startStaticServer(port) {
   const server = http.createServer((request, response) => {
     const url = new URL(request.url || '/', `http://127.0.0.1:${port}`);
@@ -276,7 +402,7 @@ function startStaticServer(port) {
   });
 }
 
-async function renderFrames({ food, foodId, options, framesDir, baseUrl }) {
+async function renderFrames({ food, foodId, options, framesDir, baseUrl, workDir }) {
   let playwright;
   try {
     playwright = require('playwright');
@@ -334,6 +460,7 @@ async function renderFrames({ food, foodId, options, framesDir, baseUrl }) {
     await page.evaluate(() => document.fonts?.ready || Promise.resolve()).catch(() => {});
     await page.waitForFunction(() => document.querySelector('#videoStage')?.childElementCount > 0, null, { timeout: 30000 });
     await waitForStageImages(page);
+    await installGifFrameOverrides(page, workDir);
     await page.evaluate(() => window.FoodRankedVBv2Renderer?.waitForAssets?.()).catch(error => {
       console.warn(`Renderer asset wait skipped: ${error?.message || error}`);
     });
@@ -716,6 +843,12 @@ async function main() {
     'macOS: brew install ffmpeg',
     'Ubuntu/Debian: sudo apt-get install ffmpeg'
   ].join('\n'));
+  requireCommand('ffprobe', [
+    'Install ffmpeg, then rerun this command.',
+    'Windows: winget install Gyan.FFmpeg',
+    'macOS: brew install ffmpeg',
+    'Ubuntu/Debian: sudo apt-get install ffmpeg'
+  ].join('\n'));
 
   const foods = readFoodsIndex();
   const food = findFood(foods, foodId);
@@ -730,7 +863,7 @@ async function main() {
   try {
     server = await startStaticServer(options.port);
     console.log(`Rendering ${food.name || food.id} from ${server.url}`);
-    const frameResult = await renderFrames({ food, foodId, options, framesDir, baseUrl: server.url });
+    const frameResult = await renderFrames({ food, foodId, options, framesDir, baseUrl: server.url, workDir });
     const audioPath = await buildAudioTrack({
       food,
       options,

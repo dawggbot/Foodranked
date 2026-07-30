@@ -97,6 +97,16 @@ function stalePlacementReason(payload, entry, layout) {
   return '';
 }
 
+function adHocPlacementReason(payload, entry, layout) {
+  const buildIds = [
+    payload?.buildId,
+    entry?.buildId,
+    layout?.meta?.exportBuildId
+  ].map(value => String(value || '').toLowerCase()).filter(Boolean);
+  if (buildIds.some(value => value === 'mp4-check')) return 'mp4-check';
+  return '';
+}
+
 function missingRequiredLayerIssues(layout) {
   const issues = [];
   const missingSections = REQUIRED_SECTION_IDS.filter(sectionId => !Array.isArray(layout?.sections?.[sectionId]?.layers));
@@ -140,6 +150,10 @@ function validateVbv2PlacementPayload(payload, food) {
   const staleReason = stalePlacementReason(payload, entry, layout);
   if (staleReason) {
     throw new Error(`Refusing to render from stale ${staleReason} placement. Open Layout Builder/DBv2/VBv2 and export the current placement.`);
+  }
+  const adHocReason = adHocPlacementReason(payload, entry, layout);
+  if (adHocReason) {
+    throw new Error(`Refusing to render from ad-hoc ${adHocReason} placement. Use the live VBv2 download/helper path or a fresh DBv2 placement export.`);
   }
   const layerIssues = missingRequiredLayerIssues(layout);
   if (layerIssues.length) {

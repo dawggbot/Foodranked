@@ -974,6 +974,78 @@
     return isSpriteLayer(layer) && /(macro_bar_fill|bar_fill|macro bar fill)/.test(fingerprint);
   }
 
+  function isMacroFrameLayer(layer) {
+    const fingerprint = `${layer?.id || ''} ${layer?.label || ''} ${layer?.src || ''}`.toLowerCase();
+    return isSpriteLayer(layer) && /(macro_bar_frame|bar_frame|macro bar frame)/.test(fingerprint);
+  }
+
+  const MACRO_BAR_LAYER_SPECS = {
+    fats: {
+      fillId: 'fats_macro_bar_fill',
+      fillLabel: 'FATS macro bar fill',
+      fillSrc: './sprites/macros_section/section_1_fats/fat_macro_bar_fill.gif',
+      frameId: 'fats_macro_bar_frame',
+      frameLabel: 'Macro bar frame',
+      frameSrc: './sprites/macros_section/macro_bar_frame.png'
+    },
+    carbs: {
+      fillId: 'carbs_macro_bar_fill',
+      fillLabel: 'CARBS macro bar fill',
+      fillSrc: './sprites/macros_section/section_2_carbs/carb_macro_bar_fill.gif',
+      frameId: 'carbs_macro_bar_frame',
+      frameLabel: 'Macro bar frame',
+      frameSrc: './sprites/macros_section/macro_bar_frame.png'
+    },
+    protein: {
+      fillId: 'protein_macro_bar_fill',
+      fillLabel: 'PROTEIN macro bar fill',
+      fillSrc: './sprites/macros_section/section_3_protein/protein_macro_bar_fill.gif',
+      frameId: 'protein_macro_bar_frame',
+      frameLabel: 'Macro bar frame',
+      frameSrc: './sprites/macros_section/macro_bar_frame.png'
+    }
+  };
+
+  function macroBarLayerFromTemplate(template, spec, kind) {
+    const layer = LOGIC.clone(template);
+    layer.id = kind === 'frame' ? spec.frameId : spec.fillId;
+    layer.label = kind === 'frame' ? spec.frameLabel : spec.fillLabel;
+    layer.src = kind === 'frame' ? spec.frameSrc : spec.fillSrc;
+    layer.kind = 'sprite';
+    layer.visible = template.visible !== false;
+    layer.foodDriven = kind === 'fill';
+    layer.preserveAspect = template.preserveAspect;
+    return layer;
+  }
+
+  function syncMacroBarLayersFromFatsTemplate(layout) {
+    const fatsLayers = getSectionLayers(layout, 'fats');
+    const frameTemplate = fatsLayers.find(isMacroFrameLayer);
+    const fillTemplate = fatsLayers.find(isMacroFillLayer);
+    if (!frameTemplate && !fillTemplate) return false;
+    let changed = false;
+    for (const sectionId of MACRO_SECTIONS) {
+      const spec = MACRO_BAR_LAYER_SPECS[sectionId];
+      if (!spec) continue;
+      const layers = getSectionLayers(layout, sectionId);
+      if (fillTemplate && !layers.some(isMacroFillLayer)) {
+        layers.push(macroBarLayerFromTemplate(fillTemplate, spec, 'fill'));
+        changed = true;
+      }
+      if (frameTemplate && !layers.some(isMacroFrameLayer)) {
+        layers.push(macroBarLayerFromTemplate(frameTemplate, spec, 'frame'));
+        changed = true;
+      }
+    }
+    if (changed) {
+      layout.meta = {
+        ...(layout.meta || {}),
+        dbv2MacroBarsFromFatsTemplate: new Date().toISOString()
+      };
+    }
+    return changed;
+  }
+
   function isMicrosBarSpriteLayer(layer) {
     const src = String(layer?.src || '').toLowerCase();
     return isSpriteLayer(layer) && src.includes('/micros_section/bars/');
@@ -2164,6 +2236,7 @@
     if (!option || !validLayout(option.layout)) return null;
     const layout = cloneLayoutForRender(option);
     syncSectionIndicatorsFromIntroTemplate(layout, food);
+    syncMacroBarLayersFromFatsTemplate(layout);
     syncFoodSprites(layout, food);
     syncFoodText(layout, food);
     syncStaticIntroOutroStampSprites(layout, food);

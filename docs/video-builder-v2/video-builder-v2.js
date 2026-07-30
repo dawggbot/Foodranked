@@ -331,6 +331,7 @@
   const MACRO_BAR_MIN_VISIBLE_FILL_RATIO = 0.0011;
   const MACRO_ROW_AFTER_BAR_SECONDS = 0.14;
   const MACRO_BAR_GIF_FRAME_STEPS = 80;
+  const MACRO_BAR_GIF_FRAME_BUILD_BATCH_SIZE = 8;
   const MACRO_BAR_GIF_FINAL_HOLD_CENTISECONDS = 65535;
   const INTRO_RANKED_SPRITE_PATH = databaseUniversalSpritePath('introRanked', './sprites/ui/intro_&_outro/ranked.png');
   const OUTRO_TIER_SPRITE_PATHS = Object.freeze({
@@ -676,6 +677,7 @@
     renderHelperAvailable: false,
     renderHelperBusy: false,
     renderHelperJobId: null,
+    macroBarRenderRefreshPending: false,
     playbackSfxEvents: null
   };
 
@@ -5994,7 +5996,7 @@
         entry.height = image.naturalHeight || entry.height;
         entry.images = [image];
         entry.status = 'ready';
-        if (state.layout) window.requestAnimationFrame(renderStage);
+        scheduleMacroBarRenderRefresh();
       };
       image.onerror = error => {
         entry.status = 'error';
@@ -6008,25 +6010,40 @@
         entry.width = parsed.width || entry.width;
         entry.height = parsed.height || entry.height;
         entry.nativeSeconds = asNumber(parsed.nativeSeconds, null) || MACRO_BAR_GIF_NATIVE_SECONDS;
-        entry.images = parsed.frames.map((frame, index) => {
-          const image = new Image();
-          image.decoding = 'sync';
-          image.onload = () => {
-            if (state.layout) window.requestAnimationFrame(renderStage);
-          };
-          image.src = URL.createObjectURL(new Blob([buildSingleMacroBarFrameGifBytes(parsed, index)], { type: 'image/gif' }));
-          return image;
-        });
-        entry.status = 'ready';
-        window.requestAnimationFrame(() => {
-          if (state.layout) renderStage();
-        });
+        entry.images = new Array(parsed.frames.length).fill(null);
+        let index = 0;
+        const buildBatch = () => {
+          const end = Math.min(parsed.frames.length, index + MACRO_BAR_GIF_FRAME_BUILD_BATCH_SIZE);
+          for (; index < end; index += 1) {
+            const image = new Image();
+            image.decoding = 'sync';
+            image.onload = scheduleMacroBarRenderRefresh;
+            image.src = URL.createObjectURL(new Blob([buildSingleMacroBarFrameGifBytes(parsed, index)], { type: 'image/gif' }));
+            entry.images[index] = image;
+          }
+          if (index < parsed.frames.length) {
+            window.setTimeout(buildBatch, 0);
+            return;
+          }
+          entry.status = 'ready';
+          scheduleMacroBarRenderRefresh();
+        };
+        buildBatch();
       })
       .catch(error => {
         entry.status = 'error';
         entry.error = error;
       });
     return entry;
+  }
+
+  function scheduleMacroBarRenderRefresh() {
+    if (!state.layout || state.macroBarRenderRefreshPending) return;
+    state.macroBarRenderRefreshPending = true;
+    window.requestAnimationFrame(() => {
+      state.macroBarRenderRefreshPending = false;
+      if (state.layout) renderStage();
+    });
   }
 
   function buildSingleMacroBarFrameGifBytes(parsed, frameIndex) {

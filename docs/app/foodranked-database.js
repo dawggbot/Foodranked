@@ -3,6 +3,8 @@
   const SCHEMA_VERSION = 'foodranked-production-database.v1';
   const ASSET_REF_PREFIX = 'frdb://asset/';
   let defaultAssetsCache = null;
+  let storedDatabaseRawCache = null;
+  let storedDatabaseCache = null;
 
   const DEFAULT_UNIVERSAL_UI = Object.freeze({
     sprites: Object.freeze({
@@ -85,8 +87,8 @@
     };
   }
 
-  function defaultAssets() {
-    if (defaultAssetsCache) return clone(defaultAssetsCache);
+  function defaultAssetsSnapshot() {
+    if (defaultAssetsCache) return defaultAssetsCache;
     const files = {};
     const source = Array.isArray(window.FOODRANKED_APP_ASSETS) ? window.FOODRANKED_APP_ASSETS : [];
     source.forEach(entry => {
@@ -94,7 +96,34 @@
       if (normalized.id && normalized.path) files[normalized.id] = normalized;
     });
     defaultAssetsCache = { files };
-    return clone(defaultAssetsCache);
+    return defaultAssetsCache;
+  }
+
+  function defaultAssets() {
+    return clone(defaultAssetsSnapshot());
+  }
+
+  function assetFiles(db = null) {
+    return db?.assets?.files || defaultAssetsSnapshot().files;
+  }
+
+  function storedDatabaseOrNull() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      storedDatabaseRawCache = null;
+      storedDatabaseCache = null;
+      return null;
+    }
+    if (raw === storedDatabaseRawCache) return storedDatabaseCache;
+    const parsed = readJson(raw, null);
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      storedDatabaseRawCache = raw;
+      storedDatabaseCache = null;
+      return null;
+    }
+    storedDatabaseRawCache = raw;
+    storedDatabaseCache = normalizeDatabase(parsed);
+    return storedDatabaseCache;
   }
 
   function normalizedAssetLookupPath(value) {
@@ -116,7 +145,7 @@
   function assetRefForPath(path, db = null) {
     const lookup = normalizedAssetLookupPath(path);
     if (!lookup) return '';
-    const files = db?.assets?.files || defaultAssets().files;
+    const files = assetFiles(db);
     const match = Object.values(files).find(asset => normalizedAssetLookupPath(asset.path) === lookup);
     return match?.id ? assetRef(match.id) : '';
   }
@@ -194,15 +223,17 @@
   }
 
   function read() {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return defaultDatabase();
-    return normalizeDatabase(readJson(raw, defaultDatabase()));
+    const stored = storedDatabaseOrNull();
+    return stored ? clone(stored) : defaultDatabase();
   }
 
   function write(db) {
     const normalized = normalizeDatabase(db);
     normalized.updatedAt = new Date().toISOString();
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
+    const raw = JSON.stringify(normalized);
+    localStorage.setItem(STORAGE_KEY, raw);
+    storedDatabaseRawCache = raw;
+    storedDatabaseCache = normalized;
     window.dispatchEvent(new CustomEvent('foodranked-database-change', { detail: { storageKey: STORAGE_KEY } }));
     return normalized;
   }
@@ -217,12 +248,14 @@
     return clean.startsWith(ASSET_REF_PREFIX) ? clean.slice(ASSET_REF_PREFIX.length) : '';
   }
 
-  function assetEntryForRef(ref, db = read()) {
+  function assetEntryForRef(ref, db = null) {
     const id = assetIdFromRef(ref);
-    return id ? db.assets?.files?.[id] || null : null;
+    if (!id) return null;
+    const sourceDb = db || storedDatabaseOrNull();
+    return assetFiles(sourceDb)[id] || null;
   }
 
-  function assetPath(refOrPath, fallback = '', db = read()) {
+  function assetPath(refOrPath, fallback = '', db = null) {
     const value = cleanPath(refOrPath);
     if (!value) return fallback || '';
     if (!value.startsWith(ASSET_REF_PREFIX)) return value;
@@ -230,14 +263,14 @@
   }
 
   function universalSpritePath(key, fallback = '') {
-    const db = read();
-    const value = pathOrFallback(db.universalUi.sprites?.[key], DEFAULT_UNIVERSAL_UI.sprites[key]);
+    const db = storedDatabaseOrNull();
+    const value = pathOrFallback(db?.universalUi?.sprites?.[key], DEFAULT_UNIVERSAL_UI.sprites[key]);
     return assetPath(value, fallback, db);
   }
 
   function universalSfxPath(key, fallback = '') {
-    const db = read();
-    const value = pathOrFallback(db.universalUi.sfx?.[key], DEFAULT_UNIVERSAL_UI.sfx[key]);
+    const db = storedDatabaseOrNull();
+    const value = pathOrFallback(db?.universalUi?.sfx?.[key], DEFAULT_UNIVERSAL_UI.sfx[key]);
     return assetPath(value, fallback, db);
   }
 
@@ -430,10 +463,12 @@
     return resolveFoodProfileAssetRefs(merged, db);
   }
 
-  function applyToFood(food, db = read()) {
+  function applyToFood(food, db = null) {
     if (!food?.id) return food || null;
-    const entry = db.foods?.[food.id];
-    return entry ? applyFoodEntry(food, entry, db) : food;
+    const sourceDb = db || storedDatabaseOrNull();
+    if (!sourceDb) return food;
+    const entry = sourceDb.foods?.[food.id];
+    return entry ? applyFoodEntry(food, entry, sourceDb) : food;
   }
 
   function baseFoodFromEntry(entry) {
@@ -454,26 +489,29 @@
     };
   }
 
-  function applyToFoods(baseFoods, db = read()) {
+  function applyToFoods(baseFoods, db = null) {
     const source = Array.isArray(baseFoods) ? baseFoods : [];
+    const sourceDb = db || storedDatabaseOrNull();
+    if (!sourceDb) return source.filter(food => food?.id);
     const seen = new Set();
     const foods = [];
     source.forEach(food => {
       if (!food?.id) return;
       seen.add(food.id);
-      const entry = db.foods?.[food.id];
+      const entry = sourceDb.foods?.[food.id];
       if (entry?.deleted) return;
-      foods.push(entry ? applyFoodEntry(food, entry, db) : food);
+      foods.push(entry ? applyFoodEntry(food, entry, sourceDb) : food);
     });
-    Object.values(db.foods || {}).forEach(entry => {
+    Object.values(sourceDb.foods || {}).forEach(entry => {
       if (!entry?.id || seen.has(entry.id) || entry.deleted) return;
-      foods.push(applyFoodEntry(baseFoodFromEntry(entry), entry, db));
+      foods.push(applyFoodEntry(baseFoodFromEntry(entry), entry, sourceDb));
     });
     return foods.filter(Boolean);
   }
 
-  function assetEntries(db = read()) {
-    return Object.values(db.assets?.files || {}).sort((a, b) => (
+  function assetEntries(db = null) {
+    const sourceDb = db || storedDatabaseOrNull();
+    return Object.values(assetFiles(sourceDb)).sort((a, b) => (
       String(a.kind || '').localeCompare(String(b.kind || '')) ||
       String(a.path || '').localeCompare(String(b.path || ''))
     ));
@@ -493,8 +531,10 @@
     return write(db);
   }
 
-  function foodEntryForId(id, db = read()) {
-    return db.foods?.[id] ? normalizeFoodEntry(id, db.foods[id]) : null;
+  function foodEntryForId(id, db = null) {
+    const sourceDb = db || storedDatabaseOrNull();
+    if (!sourceDb) return null;
+    return sourceDb.foods?.[id] ? normalizeFoodEntry(id, sourceDb.foods[id]) : null;
   }
 
   function upsertFoodEntry(id, patch) {
@@ -524,20 +564,22 @@
     return write(db);
   }
 
-  function isFinalizedDownloaded(foodOrId, db = read()) {
+  function isFinalizedDownloaded(foodOrId, db = null) {
     const id = typeof foodOrId === 'string' ? foodOrId : foodOrId?.id;
     if (!id) return false;
-    return Boolean(db.foods?.[id]?.finalizedDownloaded || foodOrId?.finalizedDownloaded || foodOrId?.status?.finalizedDownloaded);
+    const sourceDb = db || storedDatabaseOrNull();
+    return Boolean(sourceDb?.foods?.[id]?.finalizedDownloaded || foodOrId?.finalizedDownloaded || foodOrId?.status?.finalizedDownloaded);
   }
 
-  function stats(baseFoods, db = read()) {
-    const foods = applyToFoods(baseFoods, db);
-    const finalized = foods.filter(food => isFinalizedDownloaded(food, db)).length;
+  function stats(baseFoods, db = null) {
+    const sourceDb = db || storedDatabaseOrNull();
+    const foods = applyToFoods(baseFoods, sourceDb);
+    const finalized = foods.filter(food => isFinalizedDownloaded(food, sourceDb)).length;
     return {
       total: foods.length,
       finalized,
       unfinished: Math.max(0, foods.length - finalized),
-      deleted: Object.values(db.foods || {}).filter(entry => entry?.deleted).length,
+      deleted: Object.values(sourceDb?.foods || {}).filter(entry => entry?.deleted).length,
       custom: foods.filter(food => food?.customDatabaseFood).length
     };
   }

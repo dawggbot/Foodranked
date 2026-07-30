@@ -8645,6 +8645,7 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         foodId: food.id || safeDownloadName(food.name),
+        force: true,
         layoutPlacement: rendererPlacementPayload(food),
         videoState: rendererVideoStatePayload(food)
       })
@@ -8716,13 +8717,14 @@
     }
 
     state.downloadBusy = true;
-    setDownloadStatus('Checking published MP4...', 'warn');
+    setDownloadStatus('Preparing MP4...', 'warn');
     try {
+      if (await renderMp4WithHelperThenDownload(food)) return;
+      setDownloadStatus('Checking published MP4...', 'warn');
       if (!state.downloadChecked || state.downloadFoodId !== food.id) {
         await refreshVideoDownloadAvailability(food);
       }
       if (!state.downloadUrl) {
-        if (await renderMp4WithHelperThenDownload(food)) return;
         setDownloadStatus(`No MP4 file published yet: ${expectedVideoDownloadPath(food)}`, 'warn');
         return;
       }

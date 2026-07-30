@@ -12,7 +12,7 @@ const DEFAULT_HOST = '127.0.0.1';
 const DEFAULT_PORT = 4173;
 const DEFAULT_RENDER_PORT_START = 4190;
 const MAX_LOG_LINES = 200;
-const MAX_BODY_BYTES = 1024 * 1024;
+const MAX_BODY_BYTES = 5 * 1024 * 1024;
 const JOB_HISTORY_LIMIT = 20;
 
 const CONTENT_TYPES = new Map([
@@ -211,6 +211,22 @@ function trimJobHistory() {
   }
 }
 
+function cleanupJobTempFiles(job) {
+  if (!job?.tempDir) return;
+  try {
+    fs.rmSync(job.tempDir, { recursive: true, force: true });
+  } catch {}
+  job.tempDir = '';
+}
+
+function writeJobPayload(job, name, payload) {
+  if (!payload || typeof payload !== 'object') return '';
+  if (!job.tempDir) job.tempDir = fs.mkdtempSync(path.join(os.tmpdir(), `foodranked-vbv2-render-${job.id}-`));
+  const filePath = path.join(job.tempDir, `${name}.json`);
+  fs.writeFileSync(filePath, JSON.stringify(payload), 'utf8');
+  return filePath;
+}
+
 function helperPagePath() {
   return '/docs/video-builder-v2/index.html';
 }
@@ -269,7 +285,8 @@ async function startRenderJob(food, body, options) {
     outputPath,
     logs: [],
     frame: null,
-    child: null
+    child: null,
+    tempDir: ''
   };
   state.nextJobId += 1;
   state.currentJob = job;
@@ -287,6 +304,10 @@ async function startRenderJob(food, body, options) {
   if (body.output) args.push('--output', outputPath);
   if (Number.isFinite(Number(body.seconds)) && Number(body.seconds) > 0) args.push('--seconds', String(Number(body.seconds)));
   if (Number.isFinite(Number(body.fps)) && Number(body.fps) > 0) args.push('--fps', String(Number(body.fps)));
+  const placementJson = writeJobPayload(job, 'placement', body.layoutPlacement);
+  if (placementJson) args.push('--placement-json', placementJson);
+  const videoStateJson = writeJobPayload(job, 'video-state', body.videoState);
+  if (videoStateJson) args.push('--video-state-json', videoStateJson);
   if (body.noAudio) args.push('--no-audio');
   if (body.noMusic) args.push('--no-music');
   if (body.noSfx) args.push('--no-sfx');
@@ -305,6 +326,7 @@ async function startRenderJob(food, body, options) {
     job.message = error.message;
     job.completedAt = new Date().toISOString();
     state.currentJob = null;
+    cleanupJobTempFiles(job);
   });
   child.on('exit', code => {
     job.exitCode = code;
@@ -318,6 +340,7 @@ async function startRenderJob(food, body, options) {
       job.message = code === 0 ? 'Renderer finished, but MP4 file was not found.' : `Renderer failed with exit code ${code}.`;
     }
     if (state.currentJob === job) state.currentJob = null;
+    cleanupJobTempFiles(job);
   });
 
   return job;

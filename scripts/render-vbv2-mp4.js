@@ -14,6 +14,7 @@ const AUTHOR_GRID_WIDTH = 105;
 const AUTHOR_GRID_HEIGHT = 186.666667;
 const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
 const DISPLAY_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
+const PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
 const DEFAULT_PORT = 4190;
 const DEFAULT_FPS = 30;
 const DEFAULT_MUSIC_VOLUME = 0.14;
@@ -54,6 +55,8 @@ Options:
   --output <path>            Output MP4 path. Default: docs/video/episodes/<food-id>/<food-id>-vbv2.mp4
   --seconds <number>         Render only the first N seconds. Useful for smoke tests.
   --port <number>            Local static server port. Default: ${DEFAULT_PORT}
+  --placement-json <path>    Seed VBv2 with a Display Builder v2 placement payload.
+  --video-state-json <path>  Seed VBv2 with a Video Builder v2 state payload.
   --no-audio                 Encode video without narration/music.
   --no-music                 Keep narration, omit background music.
   --no-sfx                   Keep narration/music, omit VBv2 sound effects.
@@ -73,6 +76,8 @@ function parseArgs(argv) {
     output: '',
     seconds: null,
     port: DEFAULT_PORT,
+    placementJson: '',
+    videoStateJson: '',
     audio: true,
     music: true,
     sfx: true,
@@ -109,6 +114,8 @@ function parseArgs(argv) {
     else if (arg === '--output') options.output = readValue(arg);
     else if (arg === '--seconds') options.seconds = Number(readValue(arg));
     else if (arg === '--port') options.port = Number(readValue(arg));
+    else if (arg === '--placement-json') options.placementJson = readValue(arg);
+    else if (arg === '--video-state-json') options.videoStateJson = readValue(arg);
     else if (arg === '--music-volume') options.musicVolume = Number(readValue(arg));
     else if (arg === '--narration-volume') options.narrationVolume = Number(readValue(arg));
     else if (arg === '--sfx-volume') options.sfxVolume = Number(readValue(arg));
@@ -161,6 +168,12 @@ function requireCommand(command, installHint) {
 function readFoodsIndex() {
   const file = path.join(REPO_ROOT, 'docs/data/foods-index.json');
   return JSON.parse(fs.readFileSync(file, 'utf8'));
+}
+
+function readOptionalJson(filePath, fallback = null) {
+  if (!filePath) return fallback;
+  const resolved = path.resolve(filePath);
+  return JSON.parse(fs.readFileSync(resolved, 'utf8'));
 }
 
 function findFood(foods, foodId) {
@@ -277,9 +290,11 @@ async function renderFrames({ food, foodId, options, framesDir, baseUrl }) {
     deviceScaleFactor: 1
   });
   const page = await context.newPage();
+  const placementPayload = readOptionalJson(options.placementJson, null);
+  const videoStatePayload = readOptionalJson(options.videoStateJson, {});
 
   try {
-    await page.addInitScript(({ selectedFoodId, videoStateKey, displayStateKey }) => {
+    await page.addInitScript(({ selectedFoodId, videoStateKey, displayStateKey, placementExportKey, placementPayload, videoStatePayload }) => {
       const mergeState = (key, patch) => {
         let current = {};
         try {
@@ -289,7 +304,11 @@ async function renderFrames({ food, foodId, options, framesDir, baseUrl }) {
         }
         localStorage.setItem(key, JSON.stringify({ ...current, ...patch }));
       };
+      if (placementPayload && typeof placementPayload === 'object') {
+        localStorage.setItem(placementExportKey, JSON.stringify(placementPayload));
+      }
       mergeState(videoStateKey, {
+        ...(videoStatePayload && typeof videoStatePayload === 'object' ? videoStatePayload : {}),
         selectedFoodId,
         currentTime: 0,
         selectedSceneId: 'intro'
@@ -298,7 +317,10 @@ async function renderFrames({ food, foodId, options, framesDir, baseUrl }) {
     }, {
       selectedFoodId: food.id || foodId,
       videoStateKey: VIDEO_STATE_KEY,
-      displayStateKey: DISPLAY_STATE_KEY
+      displayStateKey: DISPLAY_STATE_KEY,
+      placementExportKey: PLACEMENT_EXPORT_KEY,
+      placementPayload,
+      videoStatePayload
     });
 
     await page.goto(`${baseUrl}/docs/video-builder-v2/index.html?render=mp4&food=${encodeURIComponent(foodId)}`, {
@@ -312,9 +334,14 @@ async function renderFrames({ food, foodId, options, framesDir, baseUrl }) {
     await page.evaluate(() => document.fonts?.ready || Promise.resolve()).catch(() => {});
     await page.waitForFunction(() => document.querySelector('#videoStage')?.childElementCount > 0, null, { timeout: 30000 });
     await waitForStageImages(page);
+    await page.evaluate(() => window.FoodRankedVBv2Renderer?.waitForAssets?.()).catch(error => {
+      console.warn(`Renderer asset wait skipped: ${error?.message || error}`);
+    });
 
     const pixelUnit = options.width / AUTHOR_GRID_WIDTH;
     const browserDuration = await page.evaluate(() => window.FoodRankedVBv2Renderer?.duration?.() || 0);
+    const rendererManifest = await page.evaluate(() => window.FoodRankedVBv2Renderer?.manifest?.() || null);
+    const narrationEvents = await page.evaluate(() => window.FoodRankedVBv2Renderer?.narrationEvents?.() || []);
     const sfxEvents = await page.evaluate(() => window.FoodRankedVBv2Renderer?.sfxEvents?.() || []);
     const sourceDuration = Number(food?.episode?.splitAudio?.durationSeconds || food?.episode?.duration || 0);
     const duration = options.seconds || Math.max(browserDuration, sourceDuration);
@@ -340,7 +367,7 @@ async function renderFrames({ food, foodId, options, framesDir, baseUrl }) {
       }
     }
 
-    return { duration, frameCount, width: roundedWidth, height: roundedHeight, sfxEvents };
+    return { duration, frameCount, width: roundedWidth, height: roundedHeight, sfxEvents, narrationEvents, rendererManifest };
   } finally {
     await browser.close();
   }
@@ -422,8 +449,21 @@ async function waitForStageImages(page) {
 async function setVideoTime(page, time, pixelUnit) {
   await page.evaluate(({ value, unit }) => new Promise(resolve => {
     document.documentElement.style.setProperty('--pixel-unit', String(unit));
-    if (window.FoodRankedVBv2Renderer?.setTime) {
-      window.FoodRankedVBv2Renderer.setTime(value, { pixelUnit: unit });
+    const renderer = window.FoodRankedVBv2Renderer;
+    if (renderer?.prepareFrame) {
+      Promise.resolve(renderer.prepareFrame(value, { pixelUnit: unit }))
+        .catch(() => renderer.setTime?.(value, { pixelUnit: unit }))
+        .then(() => {
+          document.documentElement.style.setProperty('--pixel-unit', String(unit));
+          requestAnimationFrame(() => {
+            document.documentElement.style.setProperty('--pixel-unit', String(unit));
+            requestAnimationFrame(resolve);
+          });
+        });
+      return;
+    }
+    if (renderer?.setTime) {
+      renderer.setTime(value, { pixelUnit: unit });
       requestAnimationFrame(() => {
         document.documentElement.style.setProperty('--pixel-unit', String(unit));
         requestAnimationFrame(resolve);
@@ -453,6 +493,7 @@ function splitAudioBlocks(food) {
       path: resolveDocsAsset(block.path),
       offsetSeconds: Number(block.offsetSeconds || 0),
       durationSeconds: Number(block.durationSeconds || 0),
+      sourceOffsetSeconds: 0,
       id: block.id || block.kind || ''
     }))
     .filter(block => block.path && fs.existsSync(block.path));
@@ -462,7 +503,45 @@ function singleNarrationTrack(food) {
   const audio = food?.episode?.audio || food?.audio || null;
   const audioPath = resolveDocsAsset(audio?.path);
   if (!audioPath || !fs.existsSync(audioPath)) return [];
-  return [{ path: audioPath, offsetSeconds: 0, durationSeconds: Number(audio?.durationSeconds || 0), id: 'narration' }];
+  return [{ path: audioPath, offsetSeconds: 0, durationSeconds: Number(audio?.durationSeconds || 0), sourceOffsetSeconds: 0, id: 'narration' }];
+}
+
+function normalizeRendererNarrationEvents(events) {
+  if (!Array.isArray(events)) return [];
+  const missing = new Set();
+  const normalized = events
+    .map((event, index) => {
+      const audioPath = resolveDocsAsset(event?.path);
+      if (!audioPath || !fs.existsSync(audioPath)) {
+        if (event?.path) missing.add(event.path);
+        return null;
+      }
+      const offsetSeconds = Number(event.time ?? event.offsetSeconds ?? 0);
+      if (!Number.isFinite(offsetSeconds) || offsetSeconds < 0) return null;
+      const durationSeconds = Number(event.durationSeconds ?? 0);
+      const sourceOffsetSeconds = Number(event.sourceOffsetSeconds ?? 0);
+      const volume = Number(event.volume);
+      return {
+        path: audioPath,
+        offsetSeconds,
+        durationSeconds: Number.isFinite(durationSeconds) && durationSeconds > 0 ? durationSeconds : 0,
+        sourceOffsetSeconds: Number.isFinite(sourceOffsetSeconds) && sourceOffsetSeconds > 0 ? sourceOffsetSeconds : 0,
+        volume: Number.isFinite(volume) && volume >= 0 ? volume : null,
+        id: event.id || event.key || event.kind || `narration-${index}`
+      };
+    })
+    .filter(Boolean)
+    .sort((a, b) => a.offsetSeconds - b.offsetSeconds || a.id.localeCompare(b.id));
+
+  for (const item of missing) console.warn(`Skipping missing narration asset: ${item}`);
+  return normalized;
+}
+
+function narrationInputsForFood(food, rendererNarrationEvents = []) {
+  const rendererInputs = normalizeRendererNarrationEvents(rendererNarrationEvents);
+  if (rendererInputs.length) return rendererInputs;
+  const narrationBlocks = splitAudioBlocks(food);
+  return narrationBlocks.length ? narrationBlocks : singleNarrationTrack(food);
 }
 
 function musicPathForFood(food) {
@@ -522,11 +601,10 @@ function inputAudioFilter(inputIndex, label, options) {
   return `[${inputIndex}:a]${parts.join(',')}${label}`;
 }
 
-async function buildAudioTrack({ food, options, duration, workDir, sfxEvents = [] }) {
+async function buildAudioTrack({ food, options, duration, workDir, sfxEvents = [], narrationEvents = [] }) {
   if (!options.audio) return '';
 
-  const narrationBlocks = splitAudioBlocks(food);
-  const narrationInputs = narrationBlocks.length ? narrationBlocks : singleNarrationTrack(food);
+  const narrationInputs = narrationInputsForFood(food, narrationEvents);
   const musicPath = options.music ? musicPathForFood(food) : '';
   const sfxInputs = normalizeSfxEvents(sfxEvents, options, duration);
   if (!narrationInputs.length && !musicPath && !sfxInputs.length) return '';
@@ -540,9 +618,12 @@ async function buildAudioTrack({ food, options, duration, workDir, sfxEvents = [
     args.push('-i', block.path);
     const delayMs = Math.max(0, Math.round(block.offsetSeconds * 1000));
     const label = `[n${index}]`;
+    const eventVolume = Number(block.volume);
     filters.push(inputAudioFilter(index, label, {
       delayMs,
-      volume: options.narrationVolume
+      volume: (Number.isFinite(eventVolume) ? eventVolume : 1) * options.narrationVolume,
+      sourceOffsetSeconds: block.sourceOffsetSeconds,
+      durationSeconds: block.durationSeconds
     }));
     labels.push(label);
   });
@@ -655,7 +736,8 @@ async function main() {
       options,
       duration: frameResult.duration,
       workDir,
-      sfxEvents: frameResult.sfxEvents
+      sfxEvents: frameResult.sfxEvents,
+      narrationEvents: frameResult.narrationEvents
     });
     await encodeMp4({
       framesDir,

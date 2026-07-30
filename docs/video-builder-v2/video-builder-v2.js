@@ -333,6 +333,9 @@
   const MACRO_BAR_GIF_FRAME_STEPS = 80;
   const MACRO_BAR_GIF_FRAME_BUILD_BATCH_SIZE = 8;
   const MACRO_BAR_GIF_FINAL_HOLD_CENTISECONDS = 65535;
+  const BACKGROUND_MOTION_REFERENCE_PIXEL_UNIT = 4;
+  const RENDERER_ASSET_TIMEOUT_MS = 12000;
+  const RENDERER_ASSET_POLL_MS = 40;
   const INTRO_RANKED_SPRITE_PATH = databaseUniversalSpritePath('introRanked', './sprites/ui/intro_&_outro/ranked.png');
   const OUTRO_TIER_SPRITE_PATHS = Object.freeze({
     S: databaseUniversalSpritePath('tierS', './sprites/ui/intro_&_outro/S_tier.png'),
@@ -585,6 +588,7 @@
     localStorage.setItem(VIDEO_STATE_KEY, JSON.stringify(savedState));
   }
   const state = {
+    renderMode: urlParams.get('render') === 'mp4',
     foodFilter: '',
     selectedFoodId: savedState.selectedFoodId || 'bacon',
     layoutSourceId: requestedLayoutSourceId || savedState.layoutSourceId || 'display-builder-v2',
@@ -657,6 +661,7 @@
     backgroundMusicAudio: null,
     backgroundMusicPath: '',
     backgroundMusicFoodKey: '',
+    downloadSpriteFallbacks: new Map(),
     spriteFailures: new Map(),
     diagnosticsTimer: 0,
     displayBuilderExportFrame: null,
@@ -3100,6 +3105,8 @@
       return;
     }
     ensureOutroTierStampLayer(layout, food);
+    ensureMacroBarLayers(layout);
+    syncMacroBars(layout, food);
     syncHeader(layout, food);
     syncOutroScoreValue(layout, food);
     syncProsCons(layout, food);
@@ -3992,7 +3999,8 @@
     });
     els.videoStage.style.backgroundColor = state.layout?.canvas?.background || '#d6d6d6';
     roots.bg.style.background = backgroundFieldGradient(food);
-    void renderDynamicBackground(roots.bg, food);
+    void renderDynamicBackground(roots.bg, food).then(() => syncDynamicBackgroundFrame(roots.bg));
+    syncDynamicBackgroundFrame(roots.bg);
 
     const layerList = layers.map(item => item.layer);
     const revealSchedules = layers.map(({ layer, index, persistent }) => (
@@ -4037,7 +4045,8 @@
     layers.forEach(({ layer, index, persistent }, renderIndex) => {
       if (layer.visible === false) return;
       const macroBarFillLayer = !persistent && isMacroBarFill(layer);
-      const tagName = macroBarFillLayer ? 'CANVAS' : layer.kind === 'sprite' ? 'IMG' : 'DIV';
+      const animatedGifSpriteLayer = isRenderModeAnimatedGifSpriteLayer(layer);
+      const tagName = macroBarFillLayer || animatedGifSpriteLayer ? 'CANVAS' : layer.kind === 'sprite' ? 'IMG' : 'DIV';
       const renderKey = `${persistent ? 'persistent' : 'scene'}:${layer.kind}:${layer.id || index}`;
       let node = existingNodes.get(renderKey);
       if (!node || node.tagName !== tagName) node = document.createElement(tagName.toLowerCase());
@@ -4069,6 +4078,12 @@
       const renderParent = groupedMacroHeadReveal ? macroHeadGroup : nextLayerNodes;
       if (macroBarFillLayer) {
         drawMacroBarFillCanvas(node, layer, sceneElapsed, revealSchedule);
+        applyIntroFocusNodeEffect(node, revealSchedule, introFocusBlur);
+        renderParent.appendChild(node);
+        return;
+      }
+      if (animatedGifSpriteLayer) {
+        drawAnimatedGifSpriteCanvas(node, spritePath(layer.src), sceneElapsed);
         applyIntroFocusNodeEffect(node, revealSchedule, introFocusBlur);
         renderParent.appendChild(node);
         return;
@@ -4166,6 +4181,25 @@
     };
   }
 
+  function backgroundCssLength(value) {
+    const safe = Number(value) || 0;
+    if (!state.renderMode) return `${safe}px`;
+    return `calc(${(safe / BACKGROUND_MOTION_REFERENCE_PIXEL_UNIT).toFixed(4)}px * var(--pixel-unit))`;
+  }
+
+  function syncDynamicBackgroundFrame(field, timeSeconds = state.currentTime) {
+    if (!state.renderMode || !field) return;
+    Array.from(field.querySelectorAll('.bg-sprite')).forEach(img => {
+      const duration = Math.max(0.001, asNumber(img.dataset.renderDuration, 1));
+      const phaseOffset = asNumber(img.dataset.renderPhaseOffset, 0);
+      const driftX = asNumber(img.dataset.renderDriftX, 0);
+      const progress = (((asNumber(timeSeconds, 0) + phaseOffset) % duration) + duration) % duration / duration;
+      const x = driftX * progress;
+      const y = -140 + (1000 * progress);
+      img.style.transform = `translate3d(${backgroundCssLength(x)}, ${backgroundCssLength(y)}, 0)`;
+    });
+  }
+
   function getResponsiveAssetScale() {
     const desktopComfortable = window.innerWidth >= 1600 && window.innerHeight >= 900;
     if (desktopComfortable) return 4;
@@ -4245,19 +4279,28 @@
       const sizeBias = onlyFallbacks ? 0.72 : 1;
       const size = Math.round((minSize + (maxSize - minSize) * ((index % 5) / 4 || 0)) * sizeBias);
       const duration = Math.round(minDuration + (maxDuration - minDuration) * ((index % 7) / 6 || 0) + (onlyFallbacks ? 4 : 0));
+      const top = -40 - (index % 5) * 26;
+      const driftX = (index % 2 === 0 ? 1 : -1) * Math.max(2, drift - (index % 4) * 2);
       img.className = 'bg-sprite';
       img.src = choice?.src || choice?.fallback;
       img.alt = '';
       img.style.left = `${8 + progress * 76}%`;
-      img.style.top = `${-40 - (index % 5) * 26}px`;
-      img.style.width = `${size}px`;
-      img.style.height = `${size}px`;
+      img.style.top = backgroundCssLength(top);
+      img.style.width = backgroundCssLength(size);
+      img.style.height = backgroundCssLength(size);
       img.style.objectFit = 'contain';
       img.style.objectPosition = 'center';
       img.style.opacity = String(onlyFallbacks ? Math.min(opacity, 0.12) : opacity);
-      img.style.animationDuration = `${duration}s`;
-      img.style.animationDelay = `${-(index * 1.7)}s`;
-      img.style.setProperty('--drift-x', `${(index % 2 === 0 ? 1 : -1) * Math.max(2, drift - (index % 4) * 2)}px`);
+      img.dataset.renderDuration = String(duration);
+      img.dataset.renderDriftX = String(driftX);
+      img.dataset.renderPhaseOffset = String(index * 1.7);
+      if (state.renderMode) {
+        img.style.animation = 'none';
+      } else {
+        img.style.animationDuration = `${duration}s`;
+        img.style.animationDelay = `${-(index * 1.7)}s`;
+        img.style.setProperty('--drift-x', `${driftX}px`);
+      }
       img.onerror = () => {
         const failedSrc = img.currentSrc || img.src || choice?.src;
         if (choice?.fallback && img.src !== new URL(choice.fallback, window.location.href).href) {
@@ -4269,6 +4312,7 @@
       };
       field.appendChild(img);
     });
+    syncDynamicBackgroundFrame(field);
   }
 
   function captionChunks(text, maxLineChars = CAPTION_MAX_LINE_CHARS) {
@@ -5868,6 +5912,55 @@
     }
   }
 
+  function isGifSpriteSource(src) {
+    return /\.gif(?:[?#]|$)/i.test(String(src || ''));
+  }
+
+  function isRenderModeAnimatedGifSpriteLayer(layer) {
+    if (!state.renderMode || !isSpriteLayer(layer) || isMacroBarFill(layer)) return false;
+    return isGifSpriteSource(spritePath(layer.src));
+  }
+
+  function gifFrameImagesReady(entry) {
+    return entry?.status === 'ready'
+      && Array.isArray(entry.images)
+      && entry.images.length
+      && entry.images.every(image => image?.complete && image.naturalWidth > 0);
+  }
+
+  function gifFrameIndexAtTime(entry, timeSeconds) {
+    const images = entry?.images || [];
+    if (!images.length) return 0;
+    const duration = asNumber(entry?.nativeSeconds, null)
+      || (entry?.frameDelaySeconds || []).reduce((sum, value) => sum + value, 0)
+      || 1;
+    const local = ((asNumber(timeSeconds, 0) % duration) + duration) % duration;
+    const starts = entry?.frameStarts || [];
+    const delays = entry?.frameDelaySeconds || [];
+    for (let index = starts.length - 1; index >= 0; index -= 1) {
+      const start = asNumber(starts[index], 0);
+      const delay = Math.max(0.001, asNumber(delays[index], 0.1));
+      if (local >= start && local < start + delay) return clamp(index, 0, images.length - 1);
+    }
+    return clamp(Math.floor((local / duration) * images.length), 0, images.length - 1);
+  }
+
+  function drawAnimatedGifSpriteCanvas(canvas, src, timeSeconds) {
+    const frames = requestMacroBarGifFrames(src);
+    const width = frames?.width || 32;
+    const height = frames?.height || 32;
+    if (canvas.width !== width) canvas.width = width;
+    if (canvas.height !== height) canvas.height = height;
+    canvas.style.imageRendering = 'pixelated';
+
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, width, height);
+    if (!gifFrameImagesReady(frames)) return;
+
+    const image = frames.images[gifFrameIndexAtTime(frames, timeSeconds)];
+    if (image?.complete) ctx.drawImage(image, 0, 0);
+  }
+
   function drawMacroBarFillCanvas(canvas, layer, sceneElapsed, revealSchedule) {
     const src = spritePath(layer.src);
     const targetRatio = clamp(asNumber(layer?.fillRatio, revealSchedule?.fillRatio ?? 0), 0, 1);
@@ -6010,6 +6103,13 @@
         entry.width = parsed.width || entry.width;
         entry.height = parsed.height || entry.height;
         entry.nativeSeconds = asNumber(parsed.nativeSeconds, null) || MACRO_BAR_GIF_NATIVE_SECONDS;
+        let frameCursor = 0;
+        entry.frameStarts = parsed.frames.map(frame => {
+          const start = frameCursor;
+          frameCursor += gifFrameDelayCentiseconds(frame.gce) / 100;
+          return start;
+        });
+        entry.frameDelaySeconds = parsed.frames.map(frame => gifFrameDelayCentiseconds(frame.gce) / 100);
         entry.images = new Array(parsed.frames.length).fill(null);
         let index = 0;
         const buildBatch = () => {
@@ -8314,6 +8414,52 @@
     return `docs/video/episodes/${safeDownloadName(food?.id || food?.name)}/${videoDownloadFileName(food)}`;
   }
 
+  function rendererPlacementPayload(food = selectedFood()) {
+    if (!food?.id || !validLayout(state.layout)) return null;
+    const exportedAt = new Date().toISOString();
+    const selectedSource = selectedLayoutSourceOption();
+    const layout = normalizeLayoutSections(clone(state.layout));
+    layout.selectedFoodId = food.id;
+    layout.selectedSectionId = state.selectedSceneId || activeSceneAt()?.id || 'intro';
+    layout.meta = {
+      ...(layout.meta || {}),
+      source: DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY,
+      sourceBuilder: 'video-builder-v2',
+      sourceLayoutId: state.layoutSourceId || '',
+      sourceLayoutName: selectedSource?.label || selectedSource?.kind || '',
+      exportBuildId: BUILDER_BUILD_ID,
+      exportedAt
+    };
+    const entry = {
+      foodId: food.id,
+      foodName: food.name || food.id,
+      foodType: food.foodType || '',
+      sourceLayoutKey: state.layoutSourceId || '',
+      sourceLayoutName: selectedSource?.label || selectedSource?.kind || '',
+      selectedSectionId: layout.selectedSectionId,
+      buildId: BUILDER_BUILD_ID,
+      exportedAt,
+      layout
+    };
+    return {
+      version: 1,
+      key: DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY,
+      buildId: BUILDER_BUILD_ID,
+      currentFoodId: food.id,
+      updatedAt: exportedAt,
+      layouts: { [food.id]: entry }
+    };
+  }
+
+  function rendererVideoStatePayload(food = selectedFood()) {
+    return {
+      selectedFoodId: food?.id || state.selectedFoodId,
+      layoutSourceId: state.layoutSourceId,
+      selectedSceneId: 'intro',
+      audioMix: audioMixManifest()
+    };
+  }
+
   async function publishedMp4Exists(url) {
     const controller = new AbortController();
     const timeout = window.setTimeout(() => controller.abort(), VIDEO_DOWNLOAD_HEAD_TIMEOUT_MS);
@@ -8497,7 +8643,11 @@
     const result = await fetchJsonWithTimeout(VIDEO_RENDER_HELPER_RENDER_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ foodId: food.id || safeDownloadName(food.name) })
+      body: JSON.stringify({
+        foodId: food.id || safeDownloadName(food.name),
+        layoutPlacement: rendererPlacementPayload(food),
+        videoState: rendererVideoStatePayload(food)
+      })
     }, VIDEO_RENDER_HELPER_RENDER_TIMEOUT_MS);
     if (result.status === 'ready') return result;
     return result.job || null;
@@ -9221,6 +9371,113 @@
       .sort((a, b) => a.time - b.time || a.key.localeCompare(b.key));
   }
 
+  function rendererFrameGifSources(food = selectedFood()) {
+    const sources = new Set();
+    sceneStarts().forEach(scene => {
+      [
+        ...sceneContentLayers(scene.id),
+        ...persistentChromeLayers(scene.id, food)
+      ].forEach(layer => {
+        if (layer.visible === false || !isSpriteLayer(layer)) return;
+        const src = spritePath(layer.src);
+        if (isMacroBarFill(layer) || isGifSpriteSource(src)) sources.add(src);
+      });
+    });
+    return [...sources].filter(Boolean);
+  }
+
+  function prewarmRendererFrameAssets(food = selectedFood()) {
+    rendererFrameGifSources(food).forEach(src => requestMacroBarGifFrames(src));
+  }
+
+  function rendererFrameSourceReady(src) {
+    const entry = MACRO_BAR_GIF_FRAME_CACHE.get(src);
+    return gifFrameImagesReady(entry) || entry?.status === 'error';
+  }
+
+  function rendererFrameAssetsReady(food = selectedFood()) {
+    return rendererFrameGifSources(food).every(src => rendererFrameSourceReady(src));
+  }
+
+  async function waitForRendererFrameAssets(timeoutMs = RENDERER_ASSET_TIMEOUT_MS) {
+    const startedAt = performance.now();
+    prewarmRendererFrameAssets();
+    if (rendererFrameAssetsReady()) return { ok: true };
+    while (performance.now() - startedAt < timeoutMs) {
+      if (rendererFrameAssetsReady()) {
+        renderStage();
+        await new Promise(resolve => requestAnimationFrame(resolve));
+        return { ok: true };
+      }
+      await waitForDownloadDelay(RENDERER_ASSET_POLL_MS);
+    }
+    const pending = rendererFrameGifSources()
+      .filter(src => !rendererFrameSourceReady(src));
+    throw new Error(`Renderer GIF frames not ready: ${pending.slice(0, 3).join(', ')}`);
+  }
+
+  function rendererNarrationEventPayload(event) {
+    return {
+      ...event,
+      time: Number(Math.max(0, asNumber(event.time, 0)).toFixed(3)),
+      sourceOffsetSeconds: Number(Math.max(0, asNumber(event.sourceOffsetSeconds, 0)).toFixed(3)),
+      durationSeconds: Number(Math.max(0.001, asNumber(event.durationSeconds, 0)).toFixed(3)),
+      volume: Number(Math.max(0, asNumber(event.volume, 1)).toFixed(3))
+    };
+  }
+
+  function rendererNarrationEvents() {
+    const audio = audioForFood(selectedFood());
+    if (!audio) return [];
+    const volume = narrationVolumeForAudio(audio);
+
+    if (audio.mode === 'split-blocks') {
+      return sceneStarts()
+        .flatMap(scene => {
+          const blocks = splitAudioBlocksForScene(audio, scene.id);
+          let cursor = 0;
+          return blocks.flatMap((block, index) => {
+            const durationSeconds = Math.max(0, asNumber(block.durationSeconds, 0) || 0);
+            const start = scene.start + sceneNarrationDelaySeconds(scene) + cursor;
+            cursor += durationSeconds + splitAudioGapAfterBlock(audio, blocks, index, scene.id);
+            if (!block.path || durationSeconds <= 0) return [];
+            return rendererNarrationEventPayload({
+              id: block.id || `${scene.id}:${index}`,
+              kind: block.kind || null,
+              sceneId: scene.id,
+              sectionKey: block.sectionKey || null,
+              path: block.path,
+              time: start,
+              sourceOffsetSeconds: 0,
+              durationSeconds,
+              volume
+            });
+          });
+        })
+        .filter(event => event.time <= totalDuration())
+        .sort((a, b) => a.time - b.time || String(a.id || '').localeCompare(String(b.id || '')));
+    }
+
+    let sourceCursor = 0;
+    return sceneStarts()
+      .map(scene => {
+        const durationSeconds = sceneNarrationDuration(scene);
+        const event = rendererNarrationEventPayload({
+          id: `narration:${scene.id}`,
+          kind: 'single-audio',
+          sceneId: scene.id,
+          path: audio.path,
+          time: scene.start + sceneNarrationDelaySeconds(scene),
+          sourceOffsetSeconds: sourceCursor,
+          durationSeconds,
+          volume
+        });
+        sourceCursor += durationSeconds;
+        return event;
+      })
+      .filter(event => event.path && event.time <= totalDuration());
+  }
+
   function installRendererBridge() {
     window.FoodRankedVBv2Renderer = {
       duration() {
@@ -9249,8 +9506,34 @@
           foodId: selectedFood()?.id || null
         };
       },
+      async prepareFrame(time, options = {}) {
+        const frame = this.setTime(time, options);
+        await waitForRendererFrameAssets();
+        return frame;
+      },
+      waitForAssets() {
+        return waitForRendererFrameAssets();
+      },
+      manifest() {
+        return buildManifest();
+      },
+      narrationEvents() {
+        return rendererNarrationEvents();
+      },
       sfxEvents() {
         return rendererSfxEvents();
+      },
+      diagnostics() {
+        return {
+          foodId: selectedFood()?.id || null,
+          layoutSourceId: state.layoutSourceId,
+          layoutReady: validLayout(state.layout),
+          layoutLayers: countLayoutLayers(state.layout),
+          sceneId: activeSceneAt(state.currentTime)?.id || null,
+          currentTime: state.currentTime,
+          duration: totalDuration(),
+          renderMode: state.renderMode
+        };
       }
     };
   }

@@ -19,6 +19,7 @@ const DEFAULT_PORT = 4190;
 const DEFAULT_FPS = 30;
 const DEFAULT_MUSIC_VOLUME = 0.14;
 const DEFAULT_NARRATION_VOLUME = 1;
+const AUDIO_DURATION_CACHE = new Map();
 
 const CONTENT_TYPES = new Map([
   ['.css', 'text/css; charset=utf-8'],
@@ -196,6 +197,28 @@ function resolveDocsAsset(assetPath) {
   if (path.isAbsolute(withoutDot)) return withoutDot;
   if (withoutDot.startsWith('docs/')) return path.join(REPO_ROOT, withoutDot);
   return path.join(REPO_ROOT, 'docs', withoutDot);
+}
+
+function mediaDurationSeconds(filePath) {
+  if (!filePath) return null;
+  const key = path.resolve(filePath);
+  if (AUDIO_DURATION_CACHE.has(key)) return AUDIO_DURATION_CACHE.get(key);
+  let duration = null;
+  try {
+    const probe = readJsonFromCommand('ffprobe', [
+      '-v',
+      'error',
+      '-show_entries',
+      'format=duration',
+      '-of',
+      'json',
+      key
+    ], { label: `Probe audio ${path.basename(key)}` });
+    const value = Number(probe?.format?.duration);
+    if (Number.isFinite(value) && value > 0) duration = value;
+  } catch {}
+  AUDIO_DURATION_CACHE.set(key, duration);
+  return duration;
 }
 
 function ffmpegNumber(value) {
@@ -652,8 +675,13 @@ function normalizeRendererNarrationEvents(events) {
       }
       const offsetSeconds = Number(event.time ?? event.offsetSeconds ?? 0);
       if (!Number.isFinite(offsetSeconds) || offsetSeconds < 0) return null;
-      const durationSeconds = Number(event.durationSeconds ?? 0);
+      const eventDurationSeconds = Number(event.durationSeconds ?? 0);
       const sourceOffsetSeconds = Number(event.sourceOffsetSeconds ?? 0);
+      const availableMediaSeconds = Math.max(0, (mediaDurationSeconds(audioPath) || 0) - Math.max(0, Number.isFinite(sourceOffsetSeconds) ? sourceOffsetSeconds : 0));
+      const durationSeconds = Math.max(
+        Number.isFinite(eventDurationSeconds) && eventDurationSeconds > 0 ? eventDurationSeconds : 0,
+        availableMediaSeconds
+      );
       const volume = Number(event.volume);
       return {
         path: audioPath,

@@ -4954,11 +4954,19 @@
 
   function proConNarrationWindow(scene, timing, sectionId, rowIndex, layer = null) {
     const span = termSpanForTiming(timing, proConItemTerms(sectionId, rowIndex, layer));
-    if (!span) return null;
+    if (!span) return proConFallbackNarrationWindow(rowIndex);
     return {
       start: clamp(span.start - 0.002, 0, 1),
       end: clamp(span.end + 0.004, 0, 1)
     };
+  }
+
+  function proConFallbackNarrationWindow(rowIndex) {
+    const safeIndex = clamp(Math.round(asNumber(rowIndex, 0) || 0), 0, 2);
+    const rowShare = 1 / 3;
+    const start = clamp((safeIndex * rowShare) + 0.018, 0, 0.94);
+    const end = clamp(((safeIndex + 1) * rowShare) + 0.028, start + 0.12, 1);
+    return { start, end, fallback: true };
   }
 
   function proConNarrationHighlightMap(scene, sceneProgress) {

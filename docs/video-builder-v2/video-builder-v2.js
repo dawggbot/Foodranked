@@ -545,6 +545,9 @@
     outro: ['tier']
   };
   const TIER_REVEAL_RE = /^(?:Slop|[SDCBA])\s+tier\.?$/i;
+  const NARRATION_AUDIO_CACHE_BUSTS = Object.freeze({
+    'audio/episodes/bacon/voice-v18-blocks/01-hook_food.mp3': '20260730-bacon-hook-audible-v1'
+  });
 
   const els = {
     foodSearch: document.getElementById('foodSearch'),
@@ -1177,6 +1180,19 @@
     if (/^(data:|https?:|blob:)/i.test(path)) return path;
     if (path.startsWith('../') || path.startsWith('./')) return path;
     return `../${path}`;
+  }
+
+  function narrationAudioSourceUrl(path) {
+    const url = new URL(docsAssetPath(path), window.location.href);
+    const key = String(path || '')
+      .trim()
+      .replace(/\\/g, '/')
+      .replace(/^(\.\.\/|\.\/)+/, '')
+      .replace(/^docs\//, '')
+      .split(/[?#]/)[0];
+    const cacheBust = NARRATION_AUDIO_CACHE_BUSTS[key];
+    if (cacheBust) url.searchParams.set('v', cacheBust);
+    return url.href;
   }
 
   function sfxProfileForFood(food = selectedFood()) {
@@ -8342,7 +8358,7 @@
   }
 
   function setNarrationAudioSource(path) {
-    const nextSrc = new URL(docsAssetPath(path), window.location.href).href;
+    const nextSrc = narrationAudioSourceUrl(path);
     els.narrationAudio.dataset.sourcePath = path || '';
     if (els.narrationAudio.src === nextSrc) return false;
     els.narrationAudio.src = nextSrc;

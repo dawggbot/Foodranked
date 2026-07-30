@@ -29,8 +29,8 @@
   const PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const PLACEMENT_EXPORT_LIMIT = 60;
   const PAGE_URL_PARAMS = new URLSearchParams(window.location.search);
-  const DISPLAY_BUILDER_V2_BUILD_ID = PAGE_URL_PARAMS.get('build') || '20260730-vbv2-dbv2-layout-source-v1';
-  const DATA_CACHE_BUST = '20260730-vbv2-dbv2-layout-source-v1';
+  const DISPLAY_BUILDER_V2_BUILD_ID = PAGE_URL_PARAMS.get('build') || '20260730-vbv2-canvas-placement-parity-v1';
+  const DATA_CACHE_BUST = '20260730-vbv2-canvas-placement-parity-v1';
   const BASE_FOODS_INDEX = Array.isArray(window.FOODS_INDEX) ? window.FOODS_INDEX : [];
   const FOOD_JSON_CACHE = new Map();
   const SECTION_INDICATOR_HIGHLIGHT_SCALE = 1.2;
@@ -52,6 +52,13 @@
   const MACRO_BAR_GIF_FINAL_HOLD_CENTISECONDS = 65535;
   const MACRO_BAR_GIF_SOURCE_CACHE = new Map();
   const MACRO_BAR_GIF_FRAME_CACHE = new Map();
+  const MACRO_BAR_SAFE_PLACEMENT = {
+    x: 31,
+    y: 48,
+    width: 68,
+    height: 14,
+    right: 99
+  };
   const SECTION_STILL_EXPORT_MIME = 'image/png';
   const SECTION_STILL_EXPORT_EXTENSION = 'png';
   const SECTION_STILL_EXPORT_OUTPUT_WIDTH = 1080;
@@ -324,6 +331,7 @@
       };
     }
     layout.sections = normalizedSections;
+    normalizeMacroBarLayerPlacement(layout);
     return layout;
   }
 
@@ -977,6 +985,31 @@
   function isMacroFrameLayer(layer) {
     const fingerprint = `${layer?.id || ''} ${layer?.label || ''} ${layer?.src || ''}`.toLowerCase();
     return isSpriteLayer(layer) && /(macro_bar_frame|bar_frame|macro bar frame)/.test(fingerprint);
+  }
+
+  function normalizeMacroBarLayerPlacement(layout) {
+    for (const sectionId of MACRO_SECTIONS) {
+      for (const layer of getSectionLayers(layout, sectionId)) {
+        if (layer?.manualPosition === true) continue;
+        if (!isMacroFillLayer(layer) && !isMacroFrameLayer(layer)) continue;
+        if (macroBarLayerSection(layer, sectionId) !== sectionId) continue;
+
+        const x = Number(layer.x);
+        if (Number.isFinite(x) && x >= 0) {
+          const maxWidth = Math.max(1, MACRO_BAR_SAFE_PLACEMENT.right - x);
+          if (!Number.isFinite(Number(layer.width)) || Number(layer.width) > maxWidth) {
+            layer.width = Math.min(MACRO_BAR_SAFE_PLACEMENT.width, maxWidth);
+          }
+        } else {
+          layer.x = MACRO_BAR_SAFE_PLACEMENT.x;
+          layer.width = MACRO_BAR_SAFE_PLACEMENT.width;
+        }
+
+        if (!Number.isFinite(Number(layer.height)) || Number(layer.height) > MACRO_BAR_SAFE_PLACEMENT.height) {
+          layer.height = MACRO_BAR_SAFE_PLACEMENT.height;
+        }
+      }
+    }
   }
 
   const MACRO_BAR_LAYER_SPECS = {

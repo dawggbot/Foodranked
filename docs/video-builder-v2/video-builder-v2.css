@@ -21,6 +21,9 @@
   --grid-width: 105;
   --grid-height: 186.666667;
   --pixel-unit: 5.284571428571429;
+  --layout-builder-canvas-view-width: calc(var(--grid-width) * 1px * var(--pixel-unit));
+  --layout-builder-canvas-grid-width: var(--grid-width);
+  --layout-builder-canvas-grid-height: var(--grid-height);
 }
 
 * { box-sizing: border-box; }
@@ -387,9 +390,9 @@ h2 {
 }
 
 .phone-shell {
-  width: calc(var(--grid-width) * 1px * var(--pixel-unit));
-  height: calc(var(--grid-height) * 1px * var(--pixel-unit));
-  aspect-ratio: auto;
+  width: min(100%, var(--layout-builder-canvas-view-width));
+  height: auto;
+  aspect-ratio: var(--layout-builder-canvas-grid-width) / var(--layout-builder-canvas-grid-height);
   position: relative;
   overflow: hidden;
   border: 0;
@@ -404,9 +407,9 @@ h2 {
 
 .video-stage {
   position: relative;
-  width: calc(var(--grid-width) * 1px * var(--pixel-unit));
-  height: calc(var(--grid-height) * 1px * var(--pixel-unit));
-  aspect-ratio: 105 / 186.666667;
+  width: 100%;
+  height: auto;
+  aspect-ratio: var(--layout-builder-canvas-grid-width) / var(--layout-builder-canvas-grid-height);
   overflow: hidden;
   background: #d6d6d6;
   border-radius: 0;

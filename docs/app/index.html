@@ -1191,16 +1191,16 @@
     </aside>
   </div>
 
-  <script src="../data/foods-index.js?v=20260729-visible-phone-frame-v1"></script>
-  <script src="./display-schema.js?v=20260729-visible-phone-frame-v1"></script>
-  <script src="./default-layout.js?v=20260729-visible-phone-frame-v1"></script>
-  <script src="./display-name-utils.js?v=20260729-visible-phone-frame-v1"></script>
+  <script src="../data/foods-index.js?v=20260730-vbv2-canvas-placement-parity-v1"></script>
+  <script src="./display-schema.js?v=20260730-vbv2-canvas-placement-parity-v1"></script>
+  <script src="./default-layout.js?v=20260730-vbv2-canvas-placement-parity-v1"></script>
+  <script src="./display-name-utils.js?v=20260730-vbv2-canvas-placement-parity-v1"></script>
   <script>
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     if (APP_MODE === 'layout-builder') document.body.classList.add('layout-builder-mode');
     const BUILDER_BUILD_ID = APP_MODE === 'layout-builder'
-      ? '20260729-visible-phone-frame-v1'
-      : '20260729-visible-phone-frame-v1';
+      ? '20260730-vbv2-canvas-placement-parity-v1'
+      : '20260730-vbv2-canvas-placement-parity-v1';
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
     const SECTIONS = [
       { id: 'intro', label: '1. Intro blank', chip: null, indicator: true },
@@ -1375,6 +1375,14 @@
       green: '#7cf2a7',
       red: '#ff6f6f',
       neutral: '#ffffff'
+    };
+
+    const MACRO_BAR_SAFE_PLACEMENT = {
+      x: 31,
+      y: 48,
+      width: 68,
+      height: 14,
+      right: 99
     };
 
     const MACRO_BAR_LAYER_SPECS = {
@@ -2207,6 +2215,32 @@
           }
         }
       }
+      normalizeMacroBarLayerPlacement(layout);
+    }
+
+    function normalizeMacroBarLayerPlacement(layout) {
+      for (const sectionId of Object.keys(MACRO_BAR_LAYER_SPECS)) {
+        for (const layer of getSectionLayersFromLayout(layout, sectionId)) {
+          const layerBelongsToSection = macroBarLayerSection(layer, sectionId) === sectionId;
+          if (!layerBelongsToSection || layer.manualPosition === true) continue;
+          if (!isMacroBarFillLayer(layer) && !isSharedMacroBarFrameLayer(layer)) continue;
+
+          const x = Number(layer.x);
+          if (Number.isFinite(x) && x >= 0) {
+            const maxWidth = Math.max(1, MACRO_BAR_SAFE_PLACEMENT.right - x);
+            if (!Number.isFinite(Number(layer.width)) || Number(layer.width) > maxWidth) {
+              layer.width = Math.min(MACRO_BAR_SAFE_PLACEMENT.width, maxWidth);
+            }
+          } else {
+            layer.x = MACRO_BAR_SAFE_PLACEMENT.x;
+            layer.width = MACRO_BAR_SAFE_PLACEMENT.width;
+          }
+
+          if (!Number.isFinite(Number(layer.height)) || Number(layer.height) > MACRO_BAR_SAFE_PLACEMENT.height) {
+            layer.height = MACRO_BAR_SAFE_PLACEMENT.height;
+          }
+        }
+      }
     }
 
     function ensureMacroBarFillLayers(layout) {
@@ -2215,14 +2249,14 @@
         const sectionLayers = getSectionLayersFromLayout(layout, sectionId);
         const hasFill = sectionLayers.some(layer => isMacroBarFillLayer(layer) && macroBarLayerSection(layer, sectionId) === sectionId);
         if (!hasFill) {
-          sectionLayers.push(sprite(spec.fillId, spec.fillLabel, spec.fillSrc, 31, 48, 7, 88, 14, true));
+          sectionLayers.push(sprite(spec.fillId, spec.fillLabel, spec.fillSrc, MACRO_BAR_SAFE_PLACEMENT.x, MACRO_BAR_SAFE_PLACEMENT.y, 7, MACRO_BAR_SAFE_PLACEMENT.width, MACRO_BAR_SAFE_PLACEMENT.height, true));
           const layer = sectionLayers[sectionLayers.length - 1];
           layer.preserveAspect = false;
           layer.manualPosition = false;
         }
         const hasFrame = sectionLayers.some(layer => isSharedMacroBarFrameLayer(layer) && macroBarLayerSection(layer, sectionId) === sectionId);
         if (!hasFrame) {
-          sectionLayers.push(sprite(spec.frameId, spec.frameLabel, spec.frameSrc, 31, 48, 8, 88, 14, false));
+          sectionLayers.push(sprite(spec.frameId, spec.frameLabel, spec.frameSrc, MACRO_BAR_SAFE_PLACEMENT.x, MACRO_BAR_SAFE_PLACEMENT.y, 8, MACRO_BAR_SAFE_PLACEMENT.width, MACRO_BAR_SAFE_PLACEMENT.height, false));
           const layer = sectionLayers[sectionLayers.length - 1];
           layer.preserveAspect = false;
           layer.manualPosition = false;

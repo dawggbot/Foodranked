@@ -2,13 +2,15 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260730-vbv2-fit-placement-v2';
+  const BUILDER_BUILD_ID = '20260730-vbv2-canvas-placement-parity-v1';
   const DISPLAY_BUILDER_V2_EXPORT_TIMEOUT_MS = 8000;
   const DISPLAY_BUILDER_V2_EXPORT_POLL_MS = 150;
   const AUTHOR_GRID = { width: 105, height: 186.666667 };
   const DISPLAY_BUILDER_V2_REFERENCE_DISPLAY_WIDTH = 408;
   const DISPLAY_BUILDER_V2_CANVAS_VIEW_ZOOM = 1.36;
   const DISPLAY_BUILDER_V2_PREVIEW_PIXEL_UNIT = (DISPLAY_BUILDER_V2_REFERENCE_DISPLAY_WIDTH / AUTHOR_GRID.width) * DISPLAY_BUILDER_V2_CANVAS_VIEW_ZOOM;
+  const MACRO_BAR_SAFE_PLACEMENT = { x: 31, y: 48, width: 68, height: 14, right: 99 };
+  const SECTION_INDICATOR_LAYOUT = window.FOODRANKED_DISPLAY_SCHEMA?.sectionIndicatorLayout || { startX: 42.875, y: 178, stepX: 5.75, normalSize: 3.25, highlightedSize: 3.9 };
   const ROOT_SPRITE_BASE = './sprites';
   const SPRITE_LIBRARY_DEFAULT_DROP_SCALE = 0.75;
   const SECTION_INDICATOR_RENDER_SEAM_BLEED_PX = 0;
@@ -1149,8 +1151,12 @@
     return path;
   }
 
-  function resolvedSpritePath(layer) {
-    const primary = spritePath(layer?.src || '');
+  function resolvedSpritePath(layer, options = {}) {
+    const primary = spritePath(
+      isSectionIndicator(layer)
+        ? renderedSectionIndicatorSrc(layer, options.sectionId || '', options.food || selectedFood())
+        : (layer?.src || '')
+    );
     return state.downloadSpriteFallbacks?.get(primary) || primary;
   }
 
@@ -1657,6 +1663,7 @@
       };
     }
     layout.sections = normalizedSections;
+    normalizeMacroBarLayerPlacement(layout);
     return layout;
   }
 
@@ -1891,6 +1898,48 @@
 
   function indicatorSectionIndex(sectionId) {
     return SECTIONS.findIndex(section => section.id === sectionId);
+  }
+
+  function sectionIndicatorLayerIndex(layer) {
+    const match = String(layer?.id || '').match(/_indicator_(\d+)$/);
+    return match ? Number(match[1]) - 1 : 999;
+  }
+
+  function isManagedSectionIndicatorLayerId(id, sectionId) {
+    return new RegExp(`^${escapeRegExp(sectionId)}_indicator_\\d+$`, 'i').test(String(id || ''));
+  }
+
+  function isManagedSectionIndicatorLayer(layer, sectionId) {
+    return isSectionIndicator(layer) && isManagedSectionIndicatorLayerId(layer?.id, sectionId);
+  }
+
+  function sectionIndicatorLayersForSection(layout, sectionId) {
+    return getSectionLayers(layout, sectionId)
+      .filter(layer => isManagedSectionIndicatorLayer(layer, sectionId))
+      .sort((a, b) => sectionIndicatorLayerIndex(a) - sectionIndicatorLayerIndex(b));
+  }
+
+  function isHighlightedSectionIndicatorSrc(src = '') {
+    return /\/ui\/section_indicator\/[^/]+_highlighted_section_indicator\.png(?:[?#].*)?$/i.test(String(src || ''));
+  }
+
+  function renderedSectionIndicatorSrc(layer, sectionId, food = selectedFood()) {
+    if (!isSectionIndicator(layer)) return layer?.src || '';
+    if (!isManagedSectionIndicatorLayer(layer, sectionId)) return layer?.src || indicatorPath(food, false);
+    const indicators = sectionIndicatorLayersForSection(state.layout, sectionId);
+    const layerIndex = indicators.findIndex(item => item === layer || (item.id && item.id === layer.id));
+    return indicatorPath(food, layerIndex === indicatorSectionIndex(sectionId));
+  }
+
+  function isActiveSectionIndicatorLayer(layer, sectionId) {
+    if (!isManagedSectionIndicatorLayer(layer, sectionId)) return false;
+    const indicators = sectionIndicatorLayersForSection(state.layout, sectionId);
+    const layerIndex = indicators.findIndex(item => item === layer || (item.id && item.id === layer.id));
+    return layerIndex === indicatorSectionIndex(sectionId);
+  }
+
+  function sectionIndicatorHighlightOffset() {
+    return Math.max(0, (Number(SECTION_INDICATOR_LAYOUT.highlightedSize) - Number(SECTION_INDICATOR_LAYOUT.normalSize)) / 2);
   }
 
   function compareIndicatorsByPosition(a, b) {
@@ -2399,6 +2448,33 @@
   function isMacroBarFill(layer) {
     const fingerprint = `${layer?.id || ''} ${layer?.label || ''} ${layer?.src || ''}`.toLowerCase();
     return isSpriteLayer(layer) && /(macro_bar_fill|bar_fill|macro bar fill)/.test(fingerprint);
+  }
+
+  function normalizeMacroBarLayerPlacement(layout) {
+    if (!validLayout(layout)) return layout;
+    for (const sectionId of ['fats', 'carbs', 'protein']) {
+      for (const layer of getSectionLayers(layout, sectionId)) {
+        if (layer?.manualPosition === true) continue;
+        if (!isMacroBarFrame(layer) && !isMacroBarFill(layer)) continue;
+        if (macroBarLayerSection(layer, sectionId) !== sectionId) continue;
+
+        const x = Number(layer.x);
+        if (Number.isFinite(x) && x >= 0) {
+          const maxWidth = Math.max(1, MACRO_BAR_SAFE_PLACEMENT.right - x);
+          if (!Number.isFinite(Number(layer.width)) || Number(layer.width) > maxWidth) {
+            layer.width = Math.min(MACRO_BAR_SAFE_PLACEMENT.width, maxWidth);
+          }
+        } else {
+          layer.x = MACRO_BAR_SAFE_PLACEMENT.x;
+          layer.width = MACRO_BAR_SAFE_PLACEMENT.width;
+        }
+
+        if (!Number.isFinite(Number(layer.height)) || Number(layer.height) > MACRO_BAR_SAFE_PLACEMENT.height) {
+          layer.height = MACRO_BAR_SAFE_PLACEMENT.height;
+        }
+      }
+    }
+    return layout;
   }
 
   const MACRO_BAR_LAYER_SPECS = {
@@ -4093,7 +4169,7 @@
           ? macroHeadMaxZ + 2
           : Number(layer.z) || 0
       );
-      applyLayerBox(node, layer);
+      applyLayerBox(node, layer, { sectionId: scene.id, food });
       applyLayerAnimation(node, layer, scene, sceneProgress, index, persistent, revealSchedule, {
         groupedReveal: groupedMacroHeadReveal,
         opaqueSpriteReveal: shouldRevealStackedMacroSpriteOpaque(layer, revealSchedule, layerList)
@@ -4113,7 +4189,7 @@
       }
       if (layer.kind === 'sprite') {
         const primarySpriteSrc = spritePath(layer.src);
-        const nextSpriteSrc = resolvedSpritePath(layer);
+        const nextSpriteSrc = resolvedSpritePath(layer, { sectionId: scene.id, food });
         if (node.dataset.spriteSrc !== nextSpriteSrc) {
           node.dataset.spriteSrc = nextSpriteSrc;
           node.src = nextSpriteSrc;
@@ -4223,20 +4299,63 @@
     });
   }
 
-  function getResponsiveAssetScale() {
-    const compactLaptop = (window.innerWidth <= 1500 || window.innerHeight <= 850) && window.innerWidth > 760;
-    const tightLaptop = window.innerWidth <= 1180 && window.innerWidth > 760;
-    const reservedWidth = tightLaptop ? 530 : (compactLaptop ? 660 : 690);
-    const reservedHeight = tightLaptop ? 180 : (compactLaptop ? 184 : 240);
-    const minimumScale = tightLaptop ? 1.12 : (compactLaptop ? 1.30 : 1.45);
-    const verticalRoom = Math.max(300, window.innerHeight - reservedHeight);
-    const scaleFromHeight = (verticalRoom - 12) / AUTHOR_GRID.height;
-    const scaleFromWidth = (Math.max(280, window.innerWidth - reservedWidth) - 24) / AUTHOR_GRID.width;
-    return Math.max(minimumScale, Math.min(DISPLAY_BUILDER_V2_PREVIEW_PIXEL_UNIT, scaleFromHeight, scaleFromWidth));
+  function isSectionSeparatorLayer(layer) {
+    const fingerprint = `${layer?.id || ''} ${layer?.label || ''} ${layer?.src || ''}`.toLowerCase();
+    return isSpriteLayer(layer) && (fingerprint.includes('/ui/section_separator/') || fingerprint.includes('section separator'));
+  }
+
+  function layerRight(layer) {
+    return (Number(layer?.x) || 0) + (Number(layer?.width || layer?.naturalWidth) || 0);
+  }
+
+  function alignedWidthForLayers(sectionId, layers) {
+    const separators = layers.filter(isSectionSeparatorLayer);
+    const macroBars = layers.filter(layer => {
+      if (!isMacroBarFrame(layer) && !isMacroBarFill(layer)) return false;
+      return macroBarLayerSection(layer, sectionId) === sectionId;
+    });
+    if (!separators.length || !macroBars.length) return null;
+
+    const separatorLeft = Math.min(...separators.map(layer => Number(layer.x) || 0));
+    const macroBarRight = Math.max(...macroBars.map(layerRight));
+    const width = separatorLeft + macroBarRight;
+    return Number.isFinite(width) && width > 0 ? width : null;
+  }
+
+  function macroReferenceCanvasGridWidth(layout, fallbackWidth) {
+    const widths = ['fats', 'carbs', 'protein']
+      .map(sectionId => alignedWidthForLayers(sectionId, getSectionLayers(layout, sectionId)))
+      .filter(width => Number.isFinite(width) && width > 0);
+    if (!widths.length) return fallbackWidth;
+    return Math.min(fallbackWidth, Math.max(...widths));
+  }
+
+  function layoutBuilderCanvasMetrics(layout = state.layout) {
+    const gridWidth = macroReferenceCanvasGridWidth(layout, AUTHOR_GRID.width);
+    const gridHeight = gridWidth * (AUTHOR_GRID.height / AUTHOR_GRID.width);
+    const referencePixelUnit = DISPLAY_BUILDER_V2_REFERENCE_DISPLAY_WIDTH / AUTHOR_GRID.width;
+    const displayWidth = gridWidth * referencePixelUnit * DISPLAY_BUILDER_V2_CANVAS_VIEW_ZOOM;
+    const displayHeight = gridHeight * referencePixelUnit * DISPLAY_BUILDER_V2_CANVAS_VIEW_ZOOM;
+    return { gridWidth, gridHeight, displayWidth, displayHeight };
+  }
+
+  function syncVideoStagePixelUnit(metrics = layoutBuilderCanvasMetrics()) {
+    const width = els.videoStage?.getBoundingClientRect?.().width || 0;
+    const gridWidth = Number(metrics.gridWidth) || AUTHOR_GRID.width;
+    const unit = width > 0 ? width / gridWidth : DISPLAY_BUILDER_V2_PREVIEW_PIXEL_UNIT;
+    document.documentElement.style.setProperty('--pixel-unit', String(unit));
   }
 
   function setCanvasScale() {
-    document.documentElement.style.setProperty('--pixel-unit', String(getResponsiveAssetScale()));
+    const metrics = layoutBuilderCanvasMetrics();
+    const root = document.documentElement;
+    root.style.setProperty('--layout-builder-canvas-view-width', `${metrics.displayWidth.toFixed(3)}px`);
+    root.style.setProperty('--layout-builder-canvas-grid-width', String(metrics.gridWidth));
+    root.style.setProperty('--layout-builder-canvas-grid-height', String(metrics.gridHeight));
+    root.style.setProperty('--grid-width', String(metrics.gridWidth));
+    root.style.setProperty('--grid-height', String(metrics.gridHeight));
+    root.style.setProperty('--pixel-unit', String(metrics.displayWidth / metrics.gridWidth));
+    syncVideoStagePixelUnit(metrics);
   }
 
   async function renderDynamicBackground(field, food) {
@@ -5892,10 +6011,17 @@
     });
   }
 
-  function applyLayerBox(node, layer) {
+  function applyLayerBox(node, layer, options = {}) {
     let layerX = Number(layer.x) || 0;
     let layerY = Number(layer.y) || 0;
+    const sectionId = options.sectionId || '';
+    const food = options.food || selectedFood();
     const sectionIndicator = layer.kind === 'sprite' && isSectionIndicator(layer);
+    const managedSectionIndicator = sectionIndicator && isManagedSectionIndicatorLayer(layer, sectionId);
+    const renderedIndicatorSrc = sectionIndicator ? renderedSectionIndicatorSrc(layer, sectionId, food) : '';
+    const highlightedSectionIndicator = managedSectionIndicator
+      && (isActiveSectionIndicatorLayer(layer, sectionId) || isHighlightedSectionIndicatorSrc(renderedIndicatorSrc));
+    const sectionIndicatorOffset = highlightedSectionIndicator ? sectionIndicatorHighlightOffset() : 0;
     const seamBleed = sectionIndicator ? SECTION_INDICATOR_RENDER_SEAM_BLEED_PX : 0;
     const halfSeamBleed = seamBleed / 2;
     if (layer.centerAnchor === 'visible-canvas') {
@@ -5905,12 +6031,19 @@
       layerX = ((visible.left + visible.right) / 2) - (layerWidth / 2) + (Number(layer.centerOffsetX) || 0);
       layerY = ((visible.top + visible.bottom) / 2) - (layerHeight / 2) + (Number(layer.centerOffsetY) || 0);
     }
+    layerX -= sectionIndicatorOffset;
+    layerY -= sectionIndicatorOffset;
     node.style.left = `calc(${layerX}px * var(--pixel-unit)${halfSeamBleed ? ` - ${halfSeamBleed}px` : ''})`;
     node.style.top = `calc(${layerY}px * var(--pixel-unit)${halfSeamBleed ? ` - ${halfSeamBleed}px` : ''})`;
-    const width = layer.kind === 'text' ? textLayerRenderWidth(layer) : Number(layer.width);
+    const width = managedSectionIndicator
+      ? (highlightedSectionIndicator ? SECTION_INDICATOR_LAYOUT.highlightedSize : SECTION_INDICATOR_LAYOUT.normalSize)
+      : layer.kind === 'text' ? textLayerRenderWidth(layer) : Number(layer.width);
     if (width) node.style.width = `calc(${width}px * var(--pixel-unit)${seamBleed ? ` + ${seamBleed}px` : ''})`;
     if (layer.kind === 'sprite') {
-      if (layer.height) node.style.height = `calc(${Number(layer.height)}px * var(--pixel-unit)${seamBleed ? ` + ${seamBleed}px` : ''})`;
+      const height = managedSectionIndicator
+        ? (highlightedSectionIndicator ? SECTION_INDICATOR_LAYOUT.highlightedSize : SECTION_INDICATOR_LAYOUT.normalSize)
+        : Number(layer.height);
+      if (height) node.style.height = `calc(${height}px * var(--pixel-unit)${seamBleed ? ` + ${seamBleed}px` : ''})`;
       node.style.objectFit = layer.preserveAspect ? 'contain' : 'fill';
       if (layer.preserveAspect && layer.aspectRatio) node.style.aspectRatio = String(layer.aspectRatio);
     }

@@ -29,8 +29,8 @@
   const PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const PLACEMENT_EXPORT_LIMIT = 60;
   const PAGE_URL_PARAMS = new URLSearchParams(window.location.search);
-  const DISPLAY_BUILDER_V2_BUILD_ID = PAGE_URL_PARAMS.get('build') || '20260729-mp4-export-v1';
-  const DATA_CACHE_BUST = '20260729-mp4-export-v1';
+  const DISPLAY_BUILDER_V2_BUILD_ID = PAGE_URL_PARAMS.get('build') || '20260730-dbv2-exact-layout-v1';
+  const DATA_CACHE_BUST = '20260730-dbv2-exact-layout-v1';
   const BASE_FOODS_INDEX = Array.isArray(window.FOODS_INDEX) ? window.FOODS_INDEX : [];
   const FOOD_JSON_CACHE = new Map();
   const BATCH_RESULTS_CACHE = new Map();
@@ -373,25 +373,6 @@
     };
   }
 
-  function repoDefaultLayoutOption() {
-    const layout = window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT;
-    if (!validLayout(layout)) return null;
-    return {
-      key: 'default:repo',
-      id: 'repo-default-layout',
-      name: 'Repo default layout',
-      kind: 'repo default layout',
-      updatedAt: layout.meta?.updatedAt || '',
-      layout: normalizeLayoutSections({
-        ...LOGIC.clone(layout),
-        meta: {
-          ...(layout.meta || {}),
-          source: 'docs/app/default-layout.js'
-        }
-      })
-    };
-  }
-
   function isPreferredSavedLayoutOption(option) {
     return /^saved:/.test(String(option?.key || ''))
       && String(option?.name || '').trim().toLowerCase() === PREFERRED_SAVED_LAYOUT_NAME;
@@ -681,9 +662,6 @@
       .filter(Boolean)
       .sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)) || a.name.localeCompare(b.name));
     savedOptions.forEach(option => options.push(option));
-    const repoDefault = repoDefaultLayoutOption();
-    if (repoDefault) options.push(repoDefault);
-
     state.layoutOptions = options.filter(option => countDisplayLayers(option.layout) > 0);
     const preferredSaved = state.layoutOptions.find(isPreferredSavedLayoutOption);
     const previousStillAvailable = previousKey && state.layoutOptions.some(option => option.key === previousKey);

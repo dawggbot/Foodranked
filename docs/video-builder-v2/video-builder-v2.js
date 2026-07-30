@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260730-mp4-parity-v2';
+  const BUILDER_BUILD_ID = '20260730-dbv2-exact-layout-v1';
   const DISPLAY_BUILDER_V2_EXPORT_TIMEOUT_MS = 8000;
   const DISPLAY_BUILDER_V2_EXPORT_POLL_MS = 150;
   const AUTHOR_GRID = { width: 105, height: 186.666667 };
@@ -2178,24 +2178,6 @@
     }
   }
 
-  function repairOffCanvasSectionIndicators(layout) {
-    if (!validLayout(layout)) return;
-    const targetY = Number((AUTHOR_GRID.height - 13.25).toFixed(3));
-    for (const section of SECTIONS) {
-      const indicators = getSectionLayers(layout, section.id).filter(isSectionIndicator);
-      if (!indicators.length) continue;
-      const offCanvas = indicators.every(layer => {
-        const y = Number(layer.y) || 0;
-        const height = Number(layer.height) || 0;
-        return y >= AUTHOR_GRID.height || y + height > AUTHOR_GRID.height + 1;
-      });
-      if (!offCanvas) continue;
-      indicators.forEach(layer => {
-        layer.y = targetY;
-      });
-    }
-  }
-
   function macroScoreRows(layers) {
     const candidates = layers
       .filter(layer => isMacroScoreCard(layer) || isMacroArrow(layer))
@@ -3129,7 +3111,6 @@
     syncHeader(layout, food);
     syncOutroScoreValue(layout, food);
     syncProsCons(layout, food);
-    repairOffCanvasSectionIndicators(layout);
     state.layout = layout;
     state.displayBuilderExportStatus = 'ready';
     syncSectionIndicators(layout, food);
@@ -8635,7 +8616,8 @@
     ensureVideoDownloadAvailability(food);
     ensureVideoRenderHelperAvailability();
     const checking = state.downloadChecking && state.downloadFoodId === (food?.id || '');
-    const available = Boolean(state.downloadUrl && state.downloadChecked);
+    const publishedAvailable = Boolean(state.downloadUrl && state.downloadChecked);
+    const available = publishedMp4FallbackAllowed() && publishedAvailable;
     const helperChecking = state.renderHelperChecking && !state.renderHelperChecked;
     const helperCanRender = state.renderHelperAvailable && !state.renderHelperBusy;
     const helperBusy = state.renderHelperAvailable && state.renderHelperBusy;
@@ -8647,7 +8629,9 @@
       ? 'Checking for published MP4...'
       : available
         ? 'Published MP4 ready'
-        : helperChecking
+        : publishedAvailable
+          ? 'Published MP4 ignored; use local renderer for DBv2 layout parity'
+          : helperChecking
           ? 'Checking local MP4 renderer...'
           : helperBusy
             ? 'Local renderer is busy...'
@@ -8681,6 +8665,11 @@
     }
   }
 
+  function publishedMp4FallbackAllowed() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('allowPublishedMp4') === '1';
+  }
+
   function renderHelperStatusText(job) {
     if (!job) return 'Rendering MP4 locally...';
     if (job.frame?.total) {
@@ -8690,13 +8679,17 @@
   }
 
   async function startVideoRenderHelperJob(food) {
+    const layoutPlacement = rendererPlacementPayload(food);
+    if (!layoutPlacement) {
+      throw new Error('DBv2 placement is required before rendering MP4.');
+    }
     const result = await fetchJsonWithTimeout(VIDEO_RENDER_HELPER_RENDER_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         foodId: food.id || safeDownloadName(food.name),
         force: true,
-        layoutPlacement: rendererPlacementPayload(food),
+        layoutPlacement,
         videoState: rendererVideoStatePayload(food)
       })
     }, VIDEO_RENDER_HELPER_RENDER_TIMEOUT_MS);
@@ -8770,6 +8763,10 @@
     setDownloadStatus('Preparing MP4...', 'warn');
     try {
       if (await renderMp4WithHelperThenDownload(food)) return;
+      if (!publishedMp4FallbackAllowed()) {
+        setDownloadStatus('Local renderer is required so MP4 uses the live DBv2 layout.', 'warn');
+        return;
+      }
       setDownloadStatus('Checking published MP4...', 'warn');
       if (!state.downloadChecked || state.downloadFoodId !== food.id) {
         await refreshVideoDownloadAvailability(food);

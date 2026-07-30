@@ -388,6 +388,10 @@ async function handleApi(request, response, url, options) {
       sendError(response, 404, `Food not found: ${foodId}`);
       return true;
     }
+    if (!body.layoutPlacement || typeof body.layoutPlacement !== 'object') {
+      sendError(response, 400, 'Missing DBv2 layout placement. Open the food in DBv2/VBv2 first, then render again.');
+      return true;
+    }
 
     const downloadUrl = downloadPathForFood(food);
     const outputPath = body.output ? path.resolve(String(body.output)) : filePathForDownload(downloadUrl);

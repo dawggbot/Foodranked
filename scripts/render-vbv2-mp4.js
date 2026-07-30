@@ -56,6 +56,7 @@ Options:
   --seconds <number>         Render only the first N seconds. Useful for smoke tests.
   --port <number>            Local static server port. Default: ${DEFAULT_PORT}
   --placement-json <path>    Seed VBv2 with a Display Builder v2 placement payload.
+  --allow-dbv2-export        Allow headless DBv2 export when no placement payload exists.
   --video-state-json <path>  Seed VBv2 with a Video Builder v2 state payload.
   --no-audio                 Encode video without narration/music.
   --no-music                 Keep narration, omit background music.
@@ -77,6 +78,7 @@ function parseArgs(argv) {
     seconds: null,
     port: DEFAULT_PORT,
     placementJson: '',
+    allowDbv2Export: false,
     videoStateJson: '',
     audio: true,
     music: true,
@@ -115,6 +117,7 @@ function parseArgs(argv) {
     else if (arg === '--seconds') options.seconds = Number(readValue(arg));
     else if (arg === '--port') options.port = Number(readValue(arg));
     else if (arg === '--placement-json') options.placementJson = readValue(arg);
+    else if (arg === '--allow-dbv2-export') options.allowDbv2Export = true;
     else if (arg === '--video-state-json') options.videoStateJson = readValue(arg);
     else if (arg === '--music-volume') options.musicVolume = Number(readValue(arg));
     else if (arg === '--narration-volume') options.narrationVolume = Number(readValue(arg));
@@ -403,6 +406,12 @@ function startStaticServer(port) {
 }
 
 async function renderFrames({ food, foodId, options, framesDir, baseUrl, workDir }) {
+  const placementPayload = readOptionalJson(options.placementJson, null);
+  const videoStatePayload = readOptionalJson(options.videoStateJson, {});
+  if (!placementPayload && !options.allowDbv2Export) {
+    throw new Error('Display Builder v2 placement JSON is required. Render from the VBv2 local helper or pass --placement-json with foodranked-display-builder-v2-placement-layouts-v1.');
+  }
+
   let playwright;
   try {
     playwright = require('playwright');
@@ -416,8 +425,6 @@ async function renderFrames({ food, foodId, options, framesDir, baseUrl, workDir
     deviceScaleFactor: 1
   });
   const page = await context.newPage();
-  const placementPayload = readOptionalJson(options.placementJson, null);
-  const videoStatePayload = readOptionalJson(options.videoStateJson, {});
 
   try {
     await page.addInitScript(({ selectedFoodId, videoStateKey, displayStateKey, placementExportKey, placementPayload, videoStatePayload }) => {

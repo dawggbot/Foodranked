@@ -47,7 +47,7 @@
     "kind": "audio-manifest",
     "path": "audio/episodes/bacon/voice-v15-blocks.json",
     "mimeType": "application/json",
-    "sizeBytes": 10927
+    "sizeBytes": 11341
   },
   {
     "id": "audio.episodes.bacon.voice.v2.json",
@@ -234,6 +234,14 @@
     "sizeBytes": 11496
   },
   {
+    "id": "audio.episodes.kale.voice.v7.blocks",
+    "label": "Voice V7 Blocks",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/kale/voice-v7-blocks.json",
+    "mimeType": "application/json",
+    "sizeBytes": 12920
+  },
+  {
     "id": "audio.episodes.raspberries.voice.v1.blocks",
     "label": "Voice V1 Blocks",
     "kind": "audio-manifest",
@@ -256,6 +264,14 @@
     "path": "audio/episodes/raspberries/voice-v3-blocks.json",
     "mimeType": "application/json",
     "sizeBytes": 11019
+  },
+  {
+    "id": "audio.episodes.raspberries.voice.v4.blocks",
+    "label": "Voice V4 Blocks",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/raspberries/voice-v4-blocks.json",
+    "mimeType": "application/json",
+    "sizeBytes": 12377
   },
   {
     "id": "audio.episodes.white.potato.voice.v1.blocks",
@@ -4586,6 +4602,94 @@
     "sizeBytes": 13000
   },
   {
+    "id": "audio.episodes.kale.voice.v7.blocks.01.hook.food",
+    "label": "01 Hook Food",
+    "kind": "narration-audio",
+    "path": "audio/episodes/kale/voice-v7-blocks/01-hook_food.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 10075
+  },
+  {
+    "id": "audio.episodes.kale.voice.v7.blocks.02.hook.ranked",
+    "label": "02 Hook Ranked",
+    "kind": "narration-audio",
+    "path": "audio/episodes/kale/voice-v7-blocks/02-hook_ranked.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 10911
+  },
+  {
+    "id": "audio.episodes.kale.voice.v7.blocks.03.fats",
+    "label": "03 Fats",
+    "kind": "narration-audio",
+    "path": "audio/episodes/kale/voice-v7-blocks/03-fats.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 293869
+  },
+  {
+    "id": "audio.episodes.kale.voice.v7.blocks.04.carbs",
+    "label": "04 Carbs",
+    "kind": "narration-audio",
+    "path": "audio/episodes/kale/voice-v7-blocks/04-carbs.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 262522
+  },
+  {
+    "id": "audio.episodes.kale.voice.v7.blocks.05.proteins",
+    "label": "05 Proteins",
+    "kind": "narration-audio",
+    "path": "audio/episodes/kale/voice-v7-blocks/05-proteins.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 301392
+  },
+  {
+    "id": "audio.episodes.kale.voice.v7.blocks.06.vitamins",
+    "label": "06 Vitamins",
+    "kind": "narration-audio",
+    "path": "audio/episodes/kale/voice-v7-blocks/06-vitamins.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 285092
+  },
+  {
+    "id": "audio.episodes.kale.voice.v7.blocks.07.minerals",
+    "label": "07 Minerals",
+    "kind": "narration-audio",
+    "path": "audio/episodes/kale/voice-v7-blocks/07-minerals.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 225324
+  },
+  {
+    "id": "audio.episodes.kale.voice.v7.blocks.08.pros",
+    "label": "08 Pros",
+    "kind": "narration-audio",
+    "path": "audio/episodes/kale/voice-v7-blocks/08-pros.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 336083
+  },
+  {
+    "id": "audio.episodes.kale.voice.v7.blocks.09.cons",
+    "label": "09 Cons",
+    "kind": "narration-audio",
+    "path": "audio/episodes/kale/voice-v7-blocks/09-cons.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 345696
+  },
+  {
+    "id": "audio.episodes.kale.voice.v7.blocks.10.closing.summary",
+    "label": "10 Closing Summary",
+    "kind": "narration-audio",
+    "path": "audio/episodes/kale/voice-v7-blocks/10-closing_summary.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 389582
+  },
+  {
+    "id": "audio.episodes.kale.voice.v7.blocks.11.final.reveal",
+    "label": "11 Final Reveal",
+    "kind": "narration-audio",
+    "path": "audio/episodes/kale/voice-v7-blocks/11-final_reveal.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 15090
+  },
+  {
     "id": "audio.episodes.raspberries.voice.v1.blocks.01.hook.food",
     "label": "01 Hook Food",
     "kind": "narration-audio",
@@ -4846,6 +4950,94 @@
     "label": "11 Final Reveal",
     "kind": "narration-audio",
     "path": "audio/episodes/raspberries/voice-v3-blocks/11-final_reveal.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 12164
+  },
+  {
+    "id": "audio.episodes.raspberries.voice.v4.blocks.01.hook.food",
+    "label": "01 Hook Food",
+    "kind": "narration-audio",
+    "path": "audio/episodes/raspberries/voice-v4-blocks/01-hook_food.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 15090
+  },
+  {
+    "id": "audio.episodes.raspberries.voice.v4.blocks.02.hook.ranked",
+    "label": "02 Hook Ranked",
+    "kind": "narration-audio",
+    "path": "audio/episodes/raspberries/voice-v4-blocks/02-hook_ranked.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 12164
+  },
+  {
+    "id": "audio.episodes.raspberries.voice.v4.blocks.03.fats",
+    "label": "03 Fats",
+    "kind": "narration-audio",
+    "path": "audio/episodes/raspberries/voice-v4-blocks/03-fats.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 140060
+  },
+  {
+    "id": "audio.episodes.raspberries.voice.v4.blocks.04.carbs",
+    "label": "04 Carbs",
+    "kind": "narration-audio",
+    "path": "audio/episodes/raspberries/voice-v4-blocks/04-carbs.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 242460
+  },
+  {
+    "id": "audio.episodes.raspberries.voice.v4.blocks.05.proteins",
+    "label": "05 Proteins",
+    "kind": "narration-audio",
+    "path": "audio/episodes/raspberries/voice-v4-blocks/05-proteins.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 110385
+  },
+  {
+    "id": "audio.episodes.raspberries.voice.v4.blocks.06.vitamins",
+    "label": "06 Vitamins",
+    "kind": "narration-audio",
+    "path": "audio/episodes/raspberries/voice-v4-blocks/06-vitamins.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 263358
+  },
+  {
+    "id": "audio.episodes.raspberries.voice.v4.blocks.07.minerals",
+    "label": "07 Minerals",
+    "kind": "narration-audio",
+    "path": "audio/episodes/raspberries/voice-v4-blocks/07-minerals.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 238698
+  },
+  {
+    "id": "audio.episodes.raspberries.voice.v4.blocks.08.pros",
+    "label": "08 Pros",
+    "kind": "narration-audio",
+    "path": "audio/episodes/raspberries/voice-v4-blocks/08-pros.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 341934
+  },
+  {
+    "id": "audio.episodes.raspberries.voice.v4.blocks.09.cons",
+    "label": "09 Cons",
+    "kind": "narration-audio",
+    "path": "audio/episodes/raspberries/voice-v4-blocks/09-cons.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 288017
+  },
+  {
+    "id": "audio.episodes.raspberries.voice.v4.blocks.10.closing.summary",
+    "label": "10 Closing Summary",
+    "kind": "narration-audio",
+    "path": "audio/episodes/raspberries/voice-v4-blocks/10-closing_summary.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 345696
+  },
+  {
+    "id": "audio.episodes.raspberries.voice.v4.blocks.11.final.reveal",
+    "label": "11 Final Reveal",
+    "kind": "narration-audio",
+    "path": "audio/episodes/raspberries/voice-v4-blocks/11-final_reveal.mp3",
     "mimeType": "audio/mpeg",
     "sizeBytes": 12164
   },
@@ -5992,6 +6184,14 @@
     "path": "app/sprites/ui/section_separator/vegetable_section_separator.png",
     "mimeType": "image/png",
     "sizeBytes": 116
+  },
+  {
+    "id": "video.episodes.bacon.bacon.vbv2.check",
+    "label": "Bacon Vbv2 Check",
+    "kind": "video",
+    "path": "video/episodes/bacon/bacon-vbv2-check.mp4",
+    "mimeType": "video/mp4",
+    "sizeBytes": 19810641
   },
   {
     "id": "video.episodes.readme",

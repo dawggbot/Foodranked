@@ -2,6 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { execFileSync } = require('child_process');
 const {
   completeVoiceProfile,
   narrationVolumeMetadata,
@@ -112,6 +113,24 @@ function writeJson(file, data) {
 
 function sha256(value) {
   return crypto.createHash('sha256').update(value).digest('hex');
+}
+
+function mediaDurationSeconds(filePath) {
+  try {
+    const raw = execFileSync('ffprobe', [
+      '-v',
+      'error',
+      '-show_entries',
+      'format=duration',
+      '-of',
+      'default=nw=1:nk=1',
+      filePath
+    ], { encoding: 'utf8' }).trim();
+    const duration = Number(raw);
+    return Number.isFinite(duration) && duration > 0 ? Number(duration.toFixed(3)) : null;
+  } catch {
+    return null;
+  }
 }
 
 function loadDotEnvLocal() {
@@ -690,6 +709,7 @@ async function generateSpeech({ apiKey, profile, text, outputFile }) {
   fs.writeFileSync(outputFile, audio);
   return {
     bytes: audio.length,
+    mediaDurationSeconds: mediaDurationSeconds(outputFile),
     requestId: response.headers.get('request-id') || response.headers.get('x-request-id') || null,
     historyItemId: response.headers.get('history-item-id') || response.headers.get('x-history-item-id') || null
   };
@@ -795,6 +815,7 @@ async function generateSplitBlockSpeech({
       textSha256: blockTextHash,
       characterCount: block.text.length,
       byteLength: result.bytes,
+      ...(result.mediaDurationSeconds ? { mediaDurationSeconds: result.mediaDurationSeconds } : {}),
       audioFile: relativeRepoPath(outputFile),
       elevenLabs: {
         requestId: result.requestId,
@@ -1080,6 +1101,7 @@ async function main() {
     settingsSha256: settingsHash,
     characterCount: text.length,
     byteLength: result.bytes,
+    ...(result.mediaDurationSeconds ? { mediaDurationSeconds: result.mediaDurationSeconds } : {}),
     elevenLabs: {
       requestId: result.requestId,
       historyItemId: result.historyItemId

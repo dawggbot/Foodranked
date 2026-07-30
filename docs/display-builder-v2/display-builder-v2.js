@@ -29,10 +29,11 @@
   const PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const PLACEMENT_EXPORT_LIMIT = 60;
   const PAGE_URL_PARAMS = new URLSearchParams(window.location.search);
-  const DISPLAY_BUILDER_V2_BUILD_ID = PAGE_URL_PARAMS.get('build') || '20260730-dbv2-exact-layout-v1';
-  const DATA_CACHE_BUST = '20260730-dbv2-exact-layout-v1';
+  const DISPLAY_BUILDER_V2_BUILD_ID = PAGE_URL_PARAMS.get('build') || '20260730-vbv2-dbv2-layout-source-v1';
+  const DATA_CACHE_BUST = '20260730-vbv2-dbv2-layout-source-v1';
   const BASE_FOODS_INDEX = Array.isArray(window.FOODS_INDEX) ? window.FOODS_INDEX : [];
   const FOOD_JSON_CACHE = new Map();
+  const SECTION_INDICATOR_HIGHLIGHT_SCALE = 1.2;
   const BATCH_RESULTS_CACHE = new Map();
   const TEXT_LAYER_CLIP_BLEED = 2;
   const TEXT_LAYER_LINE_HEIGHT = 1.15;
@@ -742,6 +743,7 @@
         sourceBuilder: 'display-builder-v2',
         sourceLayoutKey: layoutOption?.key || '',
         sourceLayoutName: layoutOption?.name || '',
+        sourcePlacementMeta: LOGIC.clone(layoutOption?.layout?.meta || {}),
         exportBuildId: DISPLAY_BUILDER_V2_BUILD_ID,
         exportedAt
       }
@@ -1104,6 +1106,95 @@
     const layerIndex = sectionIndicatorLayerIndex(layout, sectionId, layer);
     const activeIndex = DISPLAY_SECTIONS.indexOf(sectionId);
     return LOGIC.sectionIndicatorSpritePath(food, layerIndex >= 0 && layerIndex === activeIndex);
+  }
+
+  function indicatorRows(indicators) {
+    const rows = [];
+    for (const layer of indicators) {
+      const y = Number(layer.y) || 0;
+      let row = rows.find(candidate => Math.abs(candidate.y - y) <= 4);
+      if (!row) {
+        row = { y, layers: [] };
+        rows.push(row);
+      }
+      row.layers.push(layer);
+      row.y = row.layers.reduce((sum, item) => sum + (Number(item.y) || 0), 0) / row.layers.length;
+    }
+    return rows;
+  }
+
+  function introSectionIndicatorTemplate(layout) {
+    const indicators = getSectionLayers(layout, 'intro').filter(isSectionIndicatorLayer);
+    const manualIndicators = indicators.filter(layer => {
+      const id = String(layer.id || '').toLowerCase();
+      const label = String(layer.label || '').toLowerCase();
+      return id.startsWith('lib_section_indicator_') || label.startsWith('library:') || !/^intro_indicator_\d+$/.test(id);
+    });
+    const candidates = manualIndicators.length >= DISPLAY_SECTIONS.length ? manualIndicators : indicators;
+    if (candidates.length < DISPLAY_SECTIONS.length) return [];
+    const dominantRow = indicatorRows(candidates)
+      .sort((a, b) => b.layers.length - a.layers.length || a.y - b.y)[0]?.layers || candidates;
+    return [...dominantRow]
+      .sort((a, b) => (Number(a.x) || 0) - (Number(b.x) || 0) || (Number(a.y) || 0) - (Number(b.y) || 0))
+      .slice(0, DISPLAY_SECTIONS.length);
+  }
+
+  function normalIndicatorGeometry(layer) {
+    const rawWidth = Number(layer.width || layer.naturalWidth || 1);
+    const rawHeight = Number(layer.height || layer.naturalHeight || 1);
+    const sourceHighlighted = /_highlighted_section_indicator\.png(?:$|[?#])/i.test(String(layer.src || ''));
+    const width = sourceHighlighted ? rawWidth / SECTION_INDICATOR_HIGHLIGHT_SCALE : rawWidth;
+    const height = sourceHighlighted ? rawHeight / SECTION_INDICATOR_HIGHLIGHT_SCALE : rawHeight;
+    return {
+      x: (Number(layer.x) || 0) + (sourceHighlighted ? (rawWidth - width) / 2 : 0),
+      y: (Number(layer.y) || 0) + (sourceHighlighted ? (rawHeight - height) / 2 : 0),
+      width,
+      height
+    };
+  }
+
+  function sectionIndicatorLayerFromIntroTemplate(food, sectionId, slotIndex, sourceLayer) {
+    const active = slotIndex === DISPLAY_SECTIONS.indexOf(sectionId);
+    const base = LOGIC.clone(sourceLayer);
+    const normal = normalIndicatorGeometry(sourceLayer);
+    const width = active ? normal.width * SECTION_INDICATOR_HIGHLIGHT_SCALE : normal.width;
+    const height = active ? normal.height * SECTION_INDICATOR_HIGHLIGHT_SCALE : normal.height;
+    return {
+      ...base,
+      id: `dbv2_section_indicator_${sectionId}_${slotIndex + 1}`,
+      kind: 'sprite',
+      label: active ? 'DBv2: highlighted section indicator' : 'DBv2: section indicator',
+      src: LOGIC.sectionIndicatorSpritePath(food, active),
+      x: active ? normal.x - ((width - normal.width) / 2) : normal.x,
+      y: active ? normal.y - ((height - normal.height) / 2) : normal.y,
+      z: active ? (Number(sourceLayer.z) || 0) + 10 : (Number(sourceLayer.z) || 0),
+      width,
+      height,
+      visible: sourceLayer.visible !== false,
+      foodDriven: false
+    };
+  }
+
+  function syncSectionIndicatorsFromIntroTemplate(layout, food) {
+    const template = introSectionIndicatorTemplate(layout);
+    if (template.length < DISPLAY_SECTIONS.length) return false;
+    let changed = false;
+    DISPLAY_SECTIONS.forEach(sectionId => {
+      const layers = getSectionLayers(layout, sectionId);
+      if (layers.filter(isSectionIndicatorLayer).length >= DISPLAY_SECTIONS.length) return;
+      const indicators = template.map((sourceLayer, slotIndex) => {
+        return sectionIndicatorLayerFromIntroTemplate(food, sectionId, slotIndex, sourceLayer);
+      });
+      layout.sections[sectionId].layers = [...indicators, ...layers.filter(layer => !isSectionIndicatorLayer(layer))];
+      changed = true;
+    });
+    if (changed) {
+      layout.meta = {
+        ...(layout.meta || {}),
+        dbv2SectionIndicatorsFromIntroTemplate: new Date().toISOString()
+      };
+    }
+    return changed;
   }
 
   function layerRight(layer) {
@@ -2072,6 +2163,7 @@
     state.bindingReport = { text: [], arrows: [], micronutrientBars: [], contextItems: [], warnings: [] };
     if (!option || !validLayout(option.layout)) return null;
     const layout = cloneLayoutForRender(option);
+    syncSectionIndicatorsFromIntroTemplate(layout, food);
     syncFoodSprites(layout, food);
     syncFoodText(layout, food);
     syncStaticIntroOutroStampSprites(layout, food);

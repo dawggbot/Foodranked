@@ -6,6 +6,7 @@ const http = require('http');
 const os = require('os');
 const path = require('path');
 const { spawn, spawnSync } = require('child_process');
+const { validateVbv2PlacementPayload } = require('./vbv2-placement-validation');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
 const DEFAULT_WIDTH = 1080;
@@ -46,8 +47,8 @@ Usage:
   node scripts/render-vbv2-mp4.js <food-id> [options]
 
 Examples:
-  node scripts/render-vbv2-mp4.js bacon
-  node scripts/render-vbv2-mp4.js bacon --seconds 3 --fps 10 --output /tmp/bacon-test.mp4
+  node scripts/render-vbv2-mp4.js bacon --placement-json /tmp/bacon-dbv2-placement.json
+  node scripts/render-vbv2-mp4.js bacon --placement-json /tmp/bacon-dbv2-placement.json --seconds 3 --fps 10 --output /tmp/bacon-test.mp4
 
 Options:
   --fps <number>             Frames per second. Default: ${DEFAULT_FPS}
@@ -56,8 +57,7 @@ Options:
   --output <path>            Output MP4 path. Default: docs/video/episodes/<food-id>/<food-id>-vbv2.mp4
   --seconds <number>         Render only the first N seconds. Useful for smoke tests.
   --port <number>            Local static server port. Default: ${DEFAULT_PORT}
-  --placement-json <path>    Seed VBv2 with a Display Builder v2 placement payload.
-  --allow-dbv2-export        Allow headless DBv2 export when no placement payload exists.
+  --placement-json <path>    Seed VBv2 with a DBv2/VBv2 placement payload.
   --video-state-json <path>  Seed VBv2 with a Video Builder v2 state payload.
   --no-audio                 Encode video without narration/music.
   --no-music                 Keep narration, omit background music.
@@ -79,7 +79,6 @@ function parseArgs(argv) {
     seconds: null,
     port: DEFAULT_PORT,
     placementJson: '',
-    allowDbv2Export: false,
     videoStateJson: '',
     audio: true,
     music: true,
@@ -118,7 +117,6 @@ function parseArgs(argv) {
     else if (arg === '--seconds') options.seconds = Number(readValue(arg));
     else if (arg === '--port') options.port = Number(readValue(arg));
     else if (arg === '--placement-json') options.placementJson = readValue(arg);
-    else if (arg === '--allow-dbv2-export') options.allowDbv2Export = true;
     else if (arg === '--video-state-json') options.videoStateJson = readValue(arg);
     else if (arg === '--music-volume') options.musicVolume = Number(readValue(arg));
     else if (arg === '--narration-volume') options.narrationVolume = Number(readValue(arg));
@@ -429,11 +427,8 @@ function startStaticServer(port) {
 }
 
 async function renderFrames({ food, foodId, options, framesDir, baseUrl, workDir }) {
-  const placementPayload = readOptionalJson(options.placementJson, null);
+  const placementPayload = validateVbv2PlacementPayload(readOptionalJson(options.placementJson, null), food);
   const videoStatePayload = readOptionalJson(options.videoStateJson, {});
-  if (!placementPayload && !options.allowDbv2Export) {
-    throw new Error('Display Builder v2 placement JSON is required. Render from the VBv2 local helper or pass --placement-json with foodranked-display-builder-v2-placement-layouts-v1.');
-  }
 
   let playwright;
   try {

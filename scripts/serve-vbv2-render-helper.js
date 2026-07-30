@@ -6,6 +6,7 @@ const http = require('http');
 const os = require('os');
 const path = require('path');
 const { spawn } = require('child_process');
+const { validateVbv2PlacementPayload } = require('./vbv2-placement-validation');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
 const DEFAULT_HOST = '127.0.0.1';
@@ -388,8 +389,10 @@ async function handleApi(request, response, url, options) {
       sendError(response, 404, `Food not found: ${foodId}`);
       return true;
     }
-    if (!body.layoutPlacement || typeof body.layoutPlacement !== 'object') {
-      sendError(response, 400, 'Missing DBv2 layout placement. Open the food in DBv2/VBv2 first, then render again.');
+    try {
+      validateVbv2PlacementPayload(body.layoutPlacement, food);
+    } catch (error) {
+      sendError(response, 400, error.message || 'Missing DBv2 layout placement. Open the food in DBv2/VBv2 first, then render again.');
       return true;
     }
 

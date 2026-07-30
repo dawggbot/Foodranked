@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260730-dbv2-exact-layout-v1';
+  const BUILDER_BUILD_ID = '20260730-vbv2-dbv2-layout-source-v1';
   const DISPLAY_BUILDER_V2_EXPORT_TIMEOUT_MS = 8000;
   const DISPLAY_BUILDER_V2_EXPORT_POLL_MS = 150;
   const AUTHOR_GRID = { width: 105, height: 186.666667 };
@@ -546,7 +546,7 @@
   };
   const TIER_REVEAL_RE = /^(?:Slop|[SDCBA])\s+tier\.?$/i;
   const NARRATION_AUDIO_CACHE_BUSTS = Object.freeze({
-    'audio/episodes/bacon/voice-v18-blocks/01-hook_food.mp3': '20260730-bacon-hook-audible-v1'
+    'audio/episodes/bacon/voice-v18-blocks/01-hook_food.mp3': '20260730-vbv2-dbv2-layout-source-v1'
   });
 
   const els = {
@@ -1681,6 +1681,7 @@
           ...(cloned.meta || {}),
           source: DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY,
           sourceBuilder: 'display-builder-v2',
+          sourcePlacementMeta: clone(cloned.meta || {}),
           foodId
         }
       })
@@ -2435,44 +2436,6 @@
         layer.label = spec.fillLabel;
         if (sectionId === 'protein') layer.id = spec.fillId;
       });
-      const hasFrame = spec.frameId
-        ? layers.some(layer => isMacroBarFrame(layer) && macroBarLayerSection(layer, sectionId) === sectionId)
-        : true;
-      const hasFill = layers.some(layer => isMacroBarFill(layer) && macroBarLayerSection(layer, sectionId) === sectionId);
-      if (!hasFill) {
-        layers.push({
-          id: spec.fillId,
-          kind: 'sprite',
-          label: spec.fillLabel,
-          src: spec.fillSrc,
-          x: 31,
-          y: 48,
-          z: 7,
-          width: 88,
-          height: 14,
-          visible: true,
-          foodDriven: true,
-          preserveAspect: false,
-          manualPosition: false
-        });
-      }
-      if (!hasFrame) {
-        layers.push({
-          id: spec.frameId,
-          kind: 'sprite',
-          label: spec.frameLabel,
-          src: spec.frameSrc,
-          x: 31,
-          y: 48,
-          z: 8,
-          width: 88,
-          height: 14,
-          visible: true,
-          foodDriven: false,
-          preserveAspect: false,
-          manualPosition: false
-        });
-      }
     }
   }
 
@@ -8547,6 +8510,7 @@
       sourceBuilder: 'video-builder-v2',
       sourceLayoutId: state.layoutSourceId || '',
       sourceLayoutName: selectedSource?.label || selectedSource?.kind || '',
+      sourcePlacementMeta: clone(layout.meta?.sourcePlacementMeta || layout.meta || {}),
       exportBuildId: BUILDER_BUILD_ID,
       exportedAt
     };

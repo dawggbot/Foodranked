@@ -8,13 +8,18 @@
   const SAVED_LAYOUT_MESSAGE_ID = 'layoutBuilderSavedLayoutMessage';
   const LAYOUT_STORAGE_KEY = 'foodranked-layout-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-layout-builder-sprite-layouts-v1';
+  const PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
+  const RESTORE_TEST_FROM_PLACEMENT_ID = 'layoutBuilderRestoreTestFromPlacement';
+  const TEST_LAYOUT_NAME = 'test';
   // Locked approved view zoom: do not change without an explicit layout-builder zoom request.
   const CANVAS_VIEW_ZOOM = 1.52;
   const SECTION_IDS = ['intro', 'fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons', 'outro'];
+  const SECTION_ID_ALIASES = { carbohydrates: 'carbs', proteins: 'protein' };
   const SECTION_INDICATOR_SYNC_META_KEY = 'layoutBuilderSectionIndicatorsFromIntroV1';
   const SECTION_INDICATOR_HIGHLIGHT_SCALE = 1.2;
   const MACRO_SECTION_IDS = ['fats', 'carbs', 'protein'];
   let selectedSavedLayoutId = '';
+  let autoRestoreFromPlacementAttempted = false;
   let syncTimer = null;
   let syncFrame = 0;
 
@@ -261,6 +266,11 @@
 
   function collapseText(text) {
     return String(text || '').trim().replace(/\s+/g, ' ');
+  }
+
+  function normalizeDisplaySectionId(sectionId) {
+    const raw = String(sectionId || '').trim();
+    return SECTION_ID_ALIASES[raw] || raw;
   }
 
   function truncateLabel(label, max = 46) {
@@ -840,6 +850,155 @@
     win.localStorage.setItem(SAVED_LAYOUTS_KEY, JSON.stringify(entries));
   }
 
+  function readStorageJson(win, key, fallback) {
+    try {
+      const raw = win.localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    } catch {
+      return fallback;
+    }
+  }
+
+  function normalizePlacementLayoutForSavedPreset(layout) {
+    if (!layout?.sections || typeof layout.sections !== 'object') return null;
+
+    const normalizedSections = {};
+    for (const [rawSectionId, section] of Object.entries(layout.sections)) {
+      const sectionId = normalizeDisplaySectionId(rawSectionId);
+      if (!sectionId) continue;
+      const currentLayers = Array.isArray(normalizedSections[sectionId]?.layers)
+        ? normalizedSections[sectionId].layers
+        : [];
+      const incomingLayers = Array.isArray(section?.layers) ? clone(section.layers) : [];
+      const currentIds = new Set(currentLayers.map(layer => layer?.id).filter(Boolean));
+      const mergedLayers = [...currentLayers];
+      incomingLayers.forEach(layer => {
+        if (layer?.id && currentIds.has(layer.id)) return;
+        mergedLayers.push(layer);
+        if (layer?.id) currentIds.add(layer.id);
+      });
+      normalizedSections[sectionId] = { layers: mergedLayers };
+    }
+
+    SECTION_IDS.forEach(sectionId => {
+      if (!normalizedSections[sectionId]) normalizedSections[sectionId] = { layers: [] };
+    });
+
+    return {
+      selectedFoodId: layout.selectedFoodId || '',
+      selectedSectionId: normalizeDisplaySectionId(layout.selectedSectionId) || 'intro',
+      sections: normalizedSections
+    };
+  }
+
+  function requestedPlacementFoodId(payload) {
+    const params = new URLSearchParams(window.location.search);
+    const explicit = collapseText(
+      params.get('restoreFood')
+      || params.get('food')
+      || params.get('videoBuilderExportFood')
+      || ''
+    );
+    const layouts = payload?.layouts && typeof payload.layouts === 'object' && !Array.isArray(payload.layouts)
+      ? payload.layouts
+      : {};
+    if (explicit && layouts[explicit]) return explicit;
+    const current = collapseText(payload?.currentFoodId || '');
+    if (current && layouts[current]) return current;
+    if (layouts.bacon) return 'bacon';
+    return Object.keys(layouts).find(foodId => layouts[foodId]?.layout?.sections) || '';
+  }
+
+  function placementEntryForRestore(win) {
+    const payload = readStorageJson(win, PLACEMENT_EXPORT_KEY, {});
+    const layouts = payload?.layouts && typeof payload.layouts === 'object' && !Array.isArray(payload.layouts)
+      ? payload.layouts
+      : {};
+    const foodId = requestedPlacementFoodId(payload);
+    const entry = foodId ? layouts[foodId] : null;
+    const layout = normalizePlacementLayoutForSavedPreset(entry?.layout);
+    if (!layout) return null;
+    return { foodId, entry, layout };
+  }
+
+  function testLayoutBackupName(now) {
+    return `${TEST_LAYOUT_NAME} backup ${now.replace(/[:.]/g, '-')}`;
+  }
+
+  function restoreTestLayoutFromPlacement(doc, { auto = false } = {}) {
+    const win = getFrameWindow();
+    if (!win) return;
+
+    const restored = placementEntryForRestore(win);
+    if (!restored) {
+      const hint = auto
+        ? 'No DBv2/VBv2 placement export found yet'
+        : 'Open the correct VBv2 proof in this browser first';
+      setSavedLayoutMessage(doc, hint, true);
+      return;
+    }
+
+    const now = new Date().toISOString();
+    const entries = readSavedLayouts(win);
+    const existingIndex = entries.findIndex(entry => collapseText(entry.name).toLowerCase() === TEST_LAYOUT_NAME);
+    const existing = existingIndex >= 0 ? entries[existingIndex] : null;
+    const id = existing?.id || `layout_${TEST_LAYOUT_NAME}_${Date.now().toString(36)}`;
+    const nextEntry = {
+      id,
+      name: TEST_LAYOUT_NAME,
+      createdAt: existing?.createdAt || now,
+      updatedAt: now,
+      selectedSectionId: restored.layout.selectedSectionId,
+      sections: clone(restored.layout.sections)
+    };
+    const backup = existing ? {
+      ...clone(existing),
+      id: `${existing.id || id}_backup_${Date.now().toString(36)}`,
+      name: testLayoutBackupName(now),
+      updatedAt: now
+    } : null;
+
+    const nextEntries = [
+      nextEntry,
+      ...(backup ? [backup] : []),
+      ...entries.filter(entry => entry.id !== nextEntry.id)
+    ];
+    persistSavedLayouts(win, nextEntries);
+
+    const current = currentLayout(doc) || {};
+    const nextLayout = {
+      ...clone(current),
+      selectedFoodId: restored.layout.selectedFoodId || restored.foodId || current.selectedFoodId || 'bacon',
+      selectedSectionId: restored.layout.selectedSectionId || current.selectedSectionId || 'intro',
+      sections: clone(restored.layout.sections),
+      meta: {
+        ...(current.meta || {}),
+        restoredTestLayoutFromPlacement: {
+          source: PLACEMENT_EXPORT_KEY,
+          foodId: restored.foodId,
+          sourceLayoutKey: restored.entry?.sourceLayoutKey || '',
+          sourceLayoutName: restored.entry?.sourceLayoutName || '',
+          restoredAt: now
+        }
+      }
+    };
+
+    applyLayoutJson(doc, nextLayout);
+    renderSavedLayoutSelect(doc, nextEntry.id);
+    const input = doc.getElementById(SAVED_LAYOUT_NAME_ID);
+    if (input && doc.activeElement !== input) input.value = TEST_LAYOUT_NAME;
+    const backupNote = backup ? '; previous test kept as backup' : '';
+    setSavedLayoutMessage(doc, `Restored test from ${restored.foodId || 'DBv2'} placement${backupNote}`);
+  }
+
+  function maybeAutoRestoreTestFromPlacement(doc) {
+    if (autoRestoreFromPlacementAttempted) return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('restoreTestFromPlacement') !== '1') return;
+    autoRestoreFromPlacementAttempted = true;
+    window.setTimeout(() => restoreTestLayoutFromPlacement(doc, { auto: true }), 0);
+  }
+
   function setSavedLayoutMessage(doc, message, isError = false) {
     const node = doc.getElementById(SAVED_LAYOUT_MESSAGE_ID);
     if (!node) return;
@@ -883,6 +1042,19 @@
       });
     }
 
+    if (!doc.getElementById(RESTORE_TEST_FROM_PLACEMENT_ID)) {
+      const restoreButton = doc.createElement('button');
+      restoreButton.id = RESTORE_TEST_FROM_PLACEMENT_ID;
+      restoreButton.type = 'button';
+      restoreButton.textContent = 'Restore test from VBv2';
+      deleteButton.insertAdjacentElement('afterend', restoreButton);
+      restoreButton.addEventListener('click', event => {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        restoreTestLayoutFromPlacement(doc);
+      }, true);
+    }
+
     if (!stack.dataset.layoutBuilderSavedLayoutBound) {
       stack.dataset.layoutBuilderSavedLayoutBound = 'true';
       saveButton.addEventListener('click', event => {
@@ -909,6 +1081,7 @@
     }
 
     renderSavedLayoutSelect(doc);
+    maybeAutoRestoreTestFromPlacement(doc);
   }
 
   function renderSavedLayoutSelect(doc, selectedId = null) {

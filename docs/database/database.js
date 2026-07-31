@@ -388,20 +388,18 @@
   }
 
   function renderFinalizedList() {
-    const foods = [...state.foods].sort((a, b) => {
-      const doneDelta = Number(isFinalizedFood(b)) - Number(isFinalizedFood(a));
-      return doneDelta || String(a.name || a.id).localeCompare(String(b.name || b.id));
-    });
-    const finalizedCount = foods.filter(isFinalizedFood).length;
-    els.finalizedSummary.textContent = `${finalizedCount}/${foods.length}`;
+    const totalFoods = state.foods.length;
+    const foods = state.foods
+      .filter(isFinalizedFood)
+      .sort((a, b) => String(a.name || a.id).localeCompare(String(b.name || b.id)));
+    els.finalizedSummary.textContent = `${foods.length}/${totalFoods}`;
     els.finalizedList.innerHTML = foods.map(food => {
-      const finalized = isFinalizedFood(food);
       const locked = isConfigFinalisedFood(food);
       return `<div class="finalized-row${food.id === state.selectedFoodId ? ' active' : ''}">
         <input
           type="checkbox"
           data-finalized-food-id="${escapeHtml(food.id)}"
-          ${finalized ? 'checked' : ''}
+          checked
           ${locked ? 'disabled' : ''}
           aria-label="${escapeHtml(`Finalised ${food.name || food.id}`)}"
         />

@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FoodRanked Studio</title>
+  <link rel="stylesheet" href="/studio/styles.css" />
+</head>
+<body>
+  <main class="studio-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">FR</div>
+        <div>
+          <h1>FoodRanked</h1>
+          <p>Local Studio</p>
+        </div>
+      </div>
+
+      <label class="field-label" for="foodSelect">Food</label>
+      <select id="foodSelect"></select>
+
+      <nav class="tool-nav" id="toolNav" aria-label="Studio tools"></nav>
+
+      <section class="status-panel">
+        <h2>System</h2>
+        <dl id="systemStatus"></dl>
+      </section>
+    </aside>
+
+    <section class="workspace">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow" id="activeFoodType">Ready</p>
+          <h2 id="activeTitle">Dashboard</h2>
+        </div>
+        <div class="topbar-actions">
+          <button type="button" id="openTool">Open Tool</button>
+          <button type="button" id="downloadBackup">Backup</button>
+        </div>
+      </header>
+
+      <section class="dashboard" id="dashboard">
+        <div class="metric-row">
+          <article class="metric">
+            <span>Foods</span>
+            <strong id="metricFoods">0</strong>
+          </article>
+          <article class="metric">
+            <span>Finalised</span>
+            <strong id="metricFinalized">0</strong>
+          </article>
+          <article class="metric">
+            <span>Videos</span>
+            <strong id="metricVideos">0</strong>
+          </article>
+          <article class="metric">
+            <span>Assets</span>
+            <strong id="metricAssets">0</strong>
+          </article>
+        </div>
+
+        <section class="queue-panel">
+          <div class="panel-title">
+            <h3>Render</h3>
+            <span id="renderState">Idle</span>
+          </div>
+          <div class="render-controls">
+            <button type="button" id="openProof">VBv2 Proof</button>
+            <button type="button" id="renderVideo">Render MP4</button>
+            <a id="downloadVideo" href="#" hidden>Download MP4</a>
+          </div>
+          <pre id="renderLog"></pre>
+        </section>
+
+        <section class="queue-panel">
+          <div class="panel-title">
+            <h3>Pipeline</h3>
+            <span>Local</span>
+          </div>
+          <ol class="pipeline-list">
+            <li data-state="ready">Food data</li>
+            <li data-state="ready">Layout source</li>
+            <li data-state="ready">Display proof</li>
+            <li data-state="ready">Video proof</li>
+            <li data-state="next">MP4 download</li>
+            <li data-state="manual">Manual upload</li>
+          </ol>
+        </section>
+      </section>
+
+      <section class="tool-frame-shell" id="toolFrameShell" hidden>
+        <iframe id="toolFrame" title="FoodRanked tool"></iframe>
+      </section>
+    </section>
+  </main>
+
+  <script src="/studio/app.js"></script>
+</body>
+</html>

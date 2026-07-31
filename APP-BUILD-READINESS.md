@@ -62,6 +62,18 @@ Recommended first implementation:
 - Existing browser tools reused initially as modules/views, then refactored behind shared services.
 - Playwright/FFmpeg render workers behind app render-job endpoints.
 
+Initial local app entry point:
+
+```bash
+npm run studio
+```
+
+Default URL:
+
+```text
+http://127.0.0.1:4787/
+```
+
 ## Core App Modules
 
 - Dashboard: queue, next actions, broken states, finalised status, render status.
@@ -234,4 +246,3 @@ The repo is ready to start the app build when:
 - render proof and MP4 use the same stored placement payload
 - finalised foods remain protected
 - the first app milestone is backend + one-shell navigation, not social upload automation
-

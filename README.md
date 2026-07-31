@@ -26,6 +26,12 @@ FoodRanked is a short-form nutrition content system for ranking foods into tiers
 
 ## Quick commands
 
+Start the local combined studio app:
+
+```bash
+npm run studio
+```
+
 Generate a structured script payload for one food:
 
 ```bash

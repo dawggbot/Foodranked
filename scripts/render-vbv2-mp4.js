@@ -54,6 +54,8 @@ Options:
   --fps <number>             Frames per second. Default: ${DEFAULT_FPS}
   --width <pixels>           Output width. Default: ${DEFAULT_WIDTH}
   --height <pixels>          Output height. Default: ${DEFAULT_HEIGHT}
+  --capture-width <pixels>   Browser capture width. Default: half output width.
+  --capture-height <pixels>  Browser capture height. Default: half output height.
   --output <path>            Output MP4 path. Default: docs/video/episodes/<food-id>/<food-id>-vbv2.mp4
   --seconds <number>         Render only the first N seconds. Useful for smoke tests.
   --port <number>            Local static server port. Default: ${DEFAULT_PORT}
@@ -75,6 +77,8 @@ function parseArgs(argv) {
     fps: DEFAULT_FPS,
     width: DEFAULT_WIDTH,
     height: DEFAULT_HEIGHT,
+    captureWidth: null,
+    captureHeight: null,
     output: '',
     seconds: null,
     port: DEFAULT_PORT,
@@ -113,6 +117,8 @@ function parseArgs(argv) {
     if (arg === '--fps') options.fps = Number(readValue(arg));
     else if (arg === '--width') options.width = Number(readValue(arg));
     else if (arg === '--height') options.height = Number(readValue(arg));
+    else if (arg === '--capture-width') options.captureWidth = Number(readValue(arg));
+    else if (arg === '--capture-height') options.captureHeight = Number(readValue(arg));
     else if (arg === '--output') options.output = readValue(arg);
     else if (arg === '--seconds') options.seconds = Number(readValue(arg));
     else if (arg === '--port') options.port = Number(readValue(arg));
@@ -139,6 +145,14 @@ function parseArgs(argv) {
   }
   if (options.seconds != null && (!Number.isFinite(options.seconds) || options.seconds <= 0)) {
     throw new Error(`Invalid seconds: ${options.seconds}`);
+  }
+  if (options.captureWidth == null) options.captureWidth = Math.max(1, Math.round(options.width / 2));
+  if (options.captureHeight == null) options.captureHeight = Math.max(1, Math.round(options.height / 2));
+  for (const [name, value] of Object.entries({
+    captureWidth: options.captureWidth,
+    captureHeight: options.captureHeight
+  })) {
+    if (!Number.isFinite(value) || value <= 0) throw new Error(`Invalid ${name}: ${value}`);
   }
   if (!Number.isFinite(options.musicVolume) || options.musicVolume < 0) {
     throw new Error(`Invalid music volume: ${options.musicVolume}`);
@@ -439,7 +453,7 @@ async function renderFrames({ food, foodId, options, framesDir, baseUrl, workDir
 
   const browser = await playwright.chromium.launch({ headless: true });
   const context = await browser.newContext({
-    viewport: { width: options.width, height: options.height },
+    viewport: { width: options.captureWidth, height: options.captureHeight },
     deviceScaleFactor: 1
   });
   const page = await context.newPage();
@@ -479,7 +493,7 @@ async function renderFrames({ food, foodId, options, framesDir, baseUrl, workDir
       timeout: 30000
     });
 
-    await page.addStyleTag({ content: renderCss(options.width, options.height) });
+    await page.addStyleTag({ content: renderCss(options.captureWidth, options.captureHeight) });
     await page.waitForSelector('#videoStage', { state: 'attached' });
     await page.waitForFunction(() => window.FoodRankedVBv2Renderer?.ready?.(), null, { timeout: 60000 });
     await page.evaluate(() => document.fonts?.ready || Promise.resolve()).catch(() => {});
@@ -490,7 +504,7 @@ async function renderFrames({ food, foodId, options, framesDir, baseUrl, workDir
       console.warn(`Renderer asset wait skipped: ${error?.message || error}`);
     });
 
-    const pixelUnit = await rendererPixelUnit(page, options.width);
+    const pixelUnit = await rendererPixelUnit(page, options.captureWidth);
     const browserDuration = await page.evaluate(() => window.FoodRankedVBv2Renderer?.duration?.() || 0);
     const rendererManifest = await page.evaluate(() => window.FoodRankedVBv2Renderer?.manifest?.() || null);
     const narrationEvents = await page.evaluate(() => window.FoodRankedVBv2Renderer?.narrationEvents?.() || []);
@@ -505,8 +519,8 @@ async function renderFrames({ food, foodId, options, framesDir, baseUrl, workDir
     if (!box) throw new Error('Could not read the VBv2 stage size.');
     const roundedWidth = Math.round(box.width);
     const roundedHeight = Math.round(box.height);
-    if (roundedWidth !== options.width || roundedHeight !== options.height) {
-      throw new Error(`VBv2 stage rendered at ${roundedWidth}x${roundedHeight}, expected ${options.width}x${options.height}.`);
+    if (roundedWidth !== options.captureWidth || roundedHeight !== options.captureHeight) {
+      throw new Error(`VBv2 stage rendered at ${roundedWidth}x${roundedHeight}, expected ${options.captureWidth}x${options.captureHeight}.`);
     }
 
     for (let index = 0; index < frameCount; index += 1) {
@@ -930,7 +944,7 @@ async function main() {
       audioPath
     });
     console.log(`Wrote ${path.relative(REPO_ROOT, outputPath)}`);
-    console.log(`Frames: ${frameResult.frameCount} at ${frameResult.width}x${frameResult.height}, ${options.fps}fps`);
+    console.log(`Frames: ${frameResult.frameCount} captured at ${frameResult.width}x${frameResult.height}, encoded at ${options.width}x${options.height}, ${options.fps}fps`);
   } finally {
     if (server) await server.close();
     if (!options.keepFrames) removeDir(workDir);

@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260731-vbv2-proof-bigger-v1';
+  const BUILDER_BUILD_ID = '20260731-vbv2-mp4-fit-v1';
   const DISPLAY_BUILDER_V2_EXPORT_TIMEOUT_MS = 8000;
   const DISPLAY_BUILDER_V2_EXPORT_POLL_MS = 150;
   const AUTHOR_GRID = { width: 105, height: 186.666667 };
@@ -4402,11 +4402,13 @@
       - chromeHeight
       - (rowGap * chromeNodes.length);
     const aspect = metrics.gridWidth / metrics.gridHeight;
-    const fittedWidth = Math.min(
-      metrics.displayWidth,
+    const availableFitWidth = Math.min(
       Math.max(1, availableWidth || metrics.displayWidth),
       Math.max(1, (availableHeight || metrics.displayHeight) * aspect)
     );
+    const fittedWidth = state.renderMode
+      ? availableFitWidth
+      : Math.min(metrics.displayWidth, availableFitWidth);
     const fittedHeight = fittedWidth / aspect;
     return {
       ...metrics,

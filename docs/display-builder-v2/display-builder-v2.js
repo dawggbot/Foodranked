@@ -29,8 +29,15 @@
   const PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const PLACEMENT_EXPORT_LIMIT = 60;
   const PAGE_URL_PARAMS = new URLSearchParams(window.location.search);
-  const DISPLAY_BUILDER_V2_BUILD_ID = PAGE_URL_PARAMS.get('build') || '20260731-vbv2-mp4-placement-guard-v1';
-  const DATA_CACHE_BUST = '20260731-vbv2-mp4-placement-guard-v1';
+  const DISPLAY_BUILDER_V2_BUILD_ID = PAGE_URL_PARAMS.get('build') || '20260731-vbv2-helper-render-parity-v1';
+  const DATA_CACHE_BUST = '20260731-vbv2-helper-render-parity-v1';
+  const SECTION_INDICATOR_LAYOUT = window.FOODRANKED_DISPLAY_SCHEMA?.sectionIndicatorLayout || {
+    startX: 33.347,
+    y: 138.444,
+    stepX: 4.472,
+    normalSize: 2.528,
+    highlightedSize: 3.033
+  };
   const BASE_FOODS_INDEX = Array.isArray(window.FOODS_INDEX) ? window.FOODS_INDEX : [];
   const FOOD_JSON_CACHE = new Map();
   const SECTION_INDICATOR_HIGHLIGHT_SCALE = 1.2;
@@ -1228,6 +1235,45 @@
     return rows;
   }
 
+  function layoutCanvasBounds(layout) {
+    const width = Number(layout?.canvas?.width) || LOGIC.AUTHOR_GRID.width;
+    const height = Number(layout?.canvas?.height) || LOGIC.AUTHOR_GRID.height;
+    return { left: 0, top: 0, right: width, bottom: height };
+  }
+
+  function layerIntersectsCanvas(layer, bounds) {
+    const x = Number(layer?.x) || 0;
+    const y = Number(layer?.y) || 0;
+    const width = Number(layer?.width || layer?.naturalWidth) || 0;
+    const height = Number(layer?.height || layer?.naturalHeight) || 0;
+    return x < bounds.right
+      && x + width > bounds.left
+      && y < bounds.bottom
+      && y + height > bounds.top;
+  }
+
+  function defaultSectionIndicatorTemplate(food) {
+    const normalSize = Number(SECTION_INDICATOR_LAYOUT.normalSize) || 2.528;
+    return DISPLAY_SECTIONS.map((sectionId, slotIndex) => ({
+      id: `dbv2_default_indicator_template_${slotIndex + 1}`,
+      kind: 'sprite',
+      label: 'DBv2: section indicator template',
+      src: LOGIC.sectionIndicatorSpritePath(food, false),
+      x: (Number(SECTION_INDICATOR_LAYOUT.startX) || 33.347) + (slotIndex * (Number(SECTION_INDICATOR_LAYOUT.stepX) || 4.472)),
+      y: Number(SECTION_INDICATOR_LAYOUT.y) || 138.444,
+      z: 25,
+      width: normalSize,
+      height: normalSize,
+      visible: true,
+      foodDriven: false,
+      preserveAspect: false,
+      aspectRatio: null,
+      naturalWidth: null,
+      naturalHeight: null,
+      sourceSectionId: sectionId
+    }));
+  }
+
   function introSectionIndicatorTemplate(layout) {
     const indicators = getSectionLayers(layout, 'intro').filter(isSectionIndicatorLayer);
     const manualIndicators = indicators.filter(layer => {
@@ -1280,13 +1326,29 @@
     };
   }
 
-  function syncSectionIndicatorsFromIntroTemplate(layout, food) {
+  function usableSectionIndicatorTemplate(layout, food) {
     const template = introSectionIndicatorTemplate(layout);
+    const bounds = layoutCanvasBounds(layout);
+    if (template.length >= DISPLAY_SECTIONS.length && template.some(layer => layerIntersectsCanvas(layer, bounds))) {
+      return template;
+    }
+    return defaultSectionIndicatorTemplate(food);
+  }
+
+  function sectionIndicatorsNeedRebuild(layout, sectionId) {
+    const indicators = getSectionLayers(layout, sectionId).filter(isSectionIndicatorLayer);
+    if (indicators.length < DISPLAY_SECTIONS.length) return true;
+    const bounds = layoutCanvasBounds(layout);
+    return !indicators.some(layer => layerIntersectsCanvas(layer, bounds));
+  }
+
+  function syncSectionIndicatorsFromIntroTemplate(layout, food) {
+    const template = usableSectionIndicatorTemplate(layout, food);
     if (template.length < DISPLAY_SECTIONS.length) return false;
     let changed = false;
     DISPLAY_SECTIONS.forEach(sectionId => {
       const layers = getSectionLayers(layout, sectionId);
-      if (layers.filter(isSectionIndicatorLayer).length >= DISPLAY_SECTIONS.length) return;
+      if (!sectionIndicatorsNeedRebuild(layout, sectionId)) return;
       const indicators = template.map((sourceLayer, slotIndex) => {
         return sectionIndicatorLayerFromIntroTemplate(food, sectionId, slotIndex, sourceLayer);
       });

@@ -1198,16 +1198,16 @@
     </aside>
   </div>
 
-  <script src="../data/foods-index.js?v=20260730-vbv2-canvas-placement-parity-v1"></script>
-  <script src="./display-schema.js?v=20260730-vbv2-canvas-placement-parity-v1"></script>
-  <script src="./default-layout.js?v=20260730-vbv2-canvas-placement-parity-v1"></script>
-  <script src="./display-name-utils.js?v=20260730-vbv2-canvas-placement-parity-v1"></script>
+  <script src="../data/foods-index.js?v=20260731-vbv2-helper-render-parity-v1"></script>
+  <script src="./display-schema.js?v=20260731-vbv2-helper-render-parity-v1"></script>
+  <script src="./default-layout.js?v=20260731-vbv2-helper-render-parity-v1"></script>
+  <script src="./display-name-utils.js?v=20260731-vbv2-helper-render-parity-v1"></script>
   <script>
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     if (APP_MODE === 'layout-builder') document.body.classList.add('layout-builder-mode');
     const BUILDER_BUILD_ID = APP_MODE === 'layout-builder'
-      ? '20260730-vbv2-canvas-placement-parity-v1'
-      : '20260730-vbv2-canvas-placement-parity-v1';
+      ? '20260731-vbv2-helper-render-parity-v1'
+      : '20260731-vbv2-helper-render-parity-v1';
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
     const SECTIONS = [
       { id: 'intro', label: '1. Intro blank', chip: null, indicator: true },
@@ -3805,6 +3805,7 @@
           return true;
         });
       }
+      ensureSectionIndicatorLayers(normalized);
       migrateMacroLayoutFromOutro(normalized);
       ensureMacroBarFillLayers(normalized);
       applyBaconMacroBarPlacementTemplate(normalized, baconMacroBarPlacementTemplateForLayout(normalized));

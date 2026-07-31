@@ -5423,7 +5423,7 @@
     "kind": "runtime",
     "path": "app/default-layout.js",
     "mimeType": "text/javascript",
-    "sizeBytes": 222356
+    "sizeBytes": 222437
   },
   {
     "id": "app.display.name.utils",
@@ -6472,6 +6472,14 @@
     "path": "app/sprites/ui/section_separator/vegetable_section_separator.png",
     "mimeType": "image/png",
     "sizeBytes": 116
+  },
+  {
+    "id": "video.episodes.bacon.bacon.vbv2",
+    "label": "Bacon Vbv2",
+    "kind": "video",
+    "path": "video/episodes/bacon/bacon-vbv2.mp4",
+    "mimeType": "video/mp4",
+    "sizeBytes": 27782018
   },
   {
     "id": "video.episodes.readme",

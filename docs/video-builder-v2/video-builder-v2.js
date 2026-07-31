@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260731-vbv2-micron-tight-glow-v1';
+  const BUILDER_BUILD_ID = '20260731-vbv2-vitamin-token-highlight-v1';
   const DISPLAY_BUILDER_V2_EXPORT_TIMEOUT_MS = 8000;
   const DISPLAY_BUILDER_V2_EXPORT_POLL_MS = 150;
   const AUTHOR_GRID = { width: 105, height: 186.666667 };
@@ -5017,9 +5017,10 @@
     for (const segment of segments) {
       const haystack = normalizeSpeechSearch(segment.text);
       if (normalized.some(term => haystack.includes(term))) return segment.start;
+      const haystackTokens = speechTokens(segment.text);
       if (normalized.some(term => {
         const tokens = term.split(' ').filter(token => token.length > 1);
-        return tokens.length > 1 && tokens.every(token => haystack.includes(token));
+        return tokens.length > 1 && tokens.every(token => haystackTokens.includes(token));
       })) return segment.start;
     }
     return null;
@@ -5381,7 +5382,6 @@
     const color = activeHighlight.color || micronMetricHighlightColor(scene?.id || '', activeHighlight.columnIndex);
     const strength = clamp(activeHighlight.strength, 0, 1);
     applyNarrationHighlightStyles(node, color, strength);
-    node.classList.add('micron-narration-highlight');
   }
 
   function applyProConNarrationHighlight(node, scene, revealSchedule, highlightMap) {

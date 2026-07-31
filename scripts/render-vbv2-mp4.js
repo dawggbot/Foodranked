@@ -490,7 +490,7 @@ async function renderFrames({ food, foodId, options, framesDir, baseUrl, workDir
       console.warn(`Renderer asset wait skipped: ${error?.message || error}`);
     });
 
-    const pixelUnit = options.width / AUTHOR_GRID_WIDTH;
+    const pixelUnit = await rendererPixelUnit(page, options.width);
     const browserDuration = await page.evaluate(() => window.FoodRankedVBv2Renderer?.duration?.() || 0);
     const rendererManifest = await page.evaluate(() => window.FoodRankedVBv2Renderer?.manifest?.() || null);
     const narrationEvents = await page.evaluate(() => window.FoodRankedVBv2Renderer?.narrationEvents?.() || []);
@@ -595,6 +595,26 @@ async function waitForStageImages(page) {
     return images.every(image => image.complete && image.naturalWidth > 0);
   }, null, { timeout: 30000 }).catch(() => {
     console.warn('Some stage images were still loading after 30s; continuing with current frame state.');
+  });
+}
+
+async function rendererPixelUnit(page, fallbackWidth) {
+  return page.evaluate(({ authorGridWidth, outputWidth }) => {
+    const positiveNumber = value => {
+      const parsed = Number.parseFloat(String(value || ''));
+      return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+    };
+    const rootStyle = getComputedStyle(document.documentElement);
+    const gridWidth = positiveNumber(rootStyle.getPropertyValue('--layout-builder-canvas-grid-width'))
+      || positiveNumber(rootStyle.getPropertyValue('--grid-width'))
+      || authorGridWidth;
+    const stageWidth = positiveNumber(document.querySelector('#videoStage')?.getBoundingClientRect?.().width)
+      || outputWidth;
+    const pixelUnit = stageWidth / gridWidth;
+    return Number.isFinite(pixelUnit) && pixelUnit > 0 ? pixelUnit : outputWidth / authorGridWidth;
+  }, {
+    authorGridWidth: AUTHOR_GRID_WIDTH,
+    outputWidth: fallbackWidth
   });
 }
 

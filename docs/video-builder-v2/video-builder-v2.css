@@ -22,6 +22,7 @@
   --grid-height: 186.666667;
   --pixel-unit: 5.284571428571429;
   --layout-builder-canvas-view-width: calc(var(--grid-width) * 1px * var(--pixel-unit));
+  --layout-builder-canvas-view-height: calc(var(--grid-height) * 1px * var(--pixel-unit));
   --layout-builder-canvas-grid-width: var(--grid-width);
   --layout-builder-canvas-grid-height: var(--grid-height);
 }
@@ -289,11 +290,16 @@ h2 {
 
 .preview-column {
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
-  align-items: center;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  align-items: stretch;
+  justify-items: center;
   gap: 12px;
   padding: 12px;
-  overflow: auto;
+  height: calc(100vh - 28px);
+  height: calc(100dvh - 28px);
+  max-height: calc(100vh - 28px);
+  max-height: calc(100dvh - 28px);
+  overflow: hidden;
 }
 
 .preview-toolbar {
@@ -391,6 +397,8 @@ h2 {
 
 .phone-shell {
   width: min(100%, var(--layout-builder-canvas-view-width));
+  max-width: 100%;
+  max-height: min(100%, var(--layout-builder-canvas-view-height));
   height: auto;
   aspect-ratio: var(--layout-builder-canvas-grid-width) / var(--layout-builder-canvas-grid-height);
   position: relative;
@@ -403,6 +411,8 @@ h2 {
   place-items: center;
   padding: 0;
   min-height: 0;
+  align-self: center;
+  justify-self: center;
 }
 
 .video-stage {
@@ -985,6 +995,12 @@ h2 {
   .left-panel,
   .right-panel {
     max-height: none;
+  }
+
+  .preview-column {
+    height: auto;
+    max-height: none;
+    overflow: visible;
   }
 
   .preview-toolbar {

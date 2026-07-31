@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260730-vbv2-canvas-placement-parity-v1';
+  const BUILDER_BUILD_ID = '20260731-vbv2-fit-mp4-layout-v1';
   const DISPLAY_BUILDER_V2_EXPORT_TIMEOUT_MS = 8000;
   const DISPLAY_BUILDER_V2_EXPORT_POLL_MS = 150;
   const AUTHOR_GRID = { width: 105, height: 186.666667 };
@@ -4339,6 +4339,45 @@
     return { gridWidth, gridHeight, displayWidth, displayHeight };
   }
 
+  function cssPixelValue(value) {
+    const parsed = Number.parseFloat(String(value || ''));
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+
+  function fittedPreviewCanvasMetrics(metrics) {
+    const column = document.querySelector('.preview-column');
+    if (!column) return metrics;
+
+    const style = getComputedStyle(column);
+    const availableWidth = column.clientWidth
+      - cssPixelValue(style.paddingLeft)
+      - cssPixelValue(style.paddingRight);
+    const chromeNodes = [
+      document.querySelector('.preview-toolbar'),
+      document.querySelector('.diagnostics-row'),
+      els.timelineStrip
+    ].filter(node => node && getComputedStyle(node).display !== 'none');
+    const chromeHeight = chromeNodes.reduce((total, node) => total + node.getBoundingClientRect().height, 0);
+    const rowGap = cssPixelValue(style.rowGap || style.gap);
+    const availableHeight = column.clientHeight
+      - cssPixelValue(style.paddingTop)
+      - cssPixelValue(style.paddingBottom)
+      - chromeHeight
+      - (rowGap * chromeNodes.length);
+    const aspect = metrics.gridWidth / metrics.gridHeight;
+    const fittedWidth = Math.min(
+      metrics.displayWidth,
+      Math.max(1, availableWidth || metrics.displayWidth),
+      Math.max(1, (availableHeight || metrics.displayHeight) * aspect)
+    );
+    const fittedHeight = fittedWidth / aspect;
+    return {
+      ...metrics,
+      displayWidth: fittedWidth,
+      displayHeight: fittedHeight
+    };
+  }
+
   function syncVideoStagePixelUnit(metrics = layoutBuilderCanvasMetrics()) {
     const width = els.videoStage?.getBoundingClientRect?.().width || 0;
     const gridWidth = Number(metrics.gridWidth) || AUTHOR_GRID.width;
@@ -4347,9 +4386,10 @@
   }
 
   function setCanvasScale() {
-    const metrics = layoutBuilderCanvasMetrics();
+    const metrics = fittedPreviewCanvasMetrics(layoutBuilderCanvasMetrics());
     const root = document.documentElement;
     root.style.setProperty('--layout-builder-canvas-view-width', `${metrics.displayWidth.toFixed(3)}px`);
+    root.style.setProperty('--layout-builder-canvas-view-height', `${metrics.displayHeight.toFixed(3)}px`);
     root.style.setProperty('--layout-builder-canvas-grid-width', String(metrics.gridWidth));
     root.style.setProperty('--layout-builder-canvas-grid-height', String(metrics.gridHeight));
     root.style.setProperty('--grid-width', String(metrics.gridWidth));

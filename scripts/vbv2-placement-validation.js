@@ -3,6 +3,12 @@
 const PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
 const REQUIRED_SECTION_IDS = ['intro', 'fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons', 'outro'];
 const MACRO_SECTION_IDS = ['fats', 'carbs', 'protein'];
+const AUTHOR_GRID = { width: 105, height: 186.666667 };
+const REJECTED_PLACEMENT_BUILD_IDS = new Set([
+  '20260730-vbv2-canvas-placement-parity-v1',
+  '20260731-vbv2-active-tools-v1',
+  'mp4-check'
+]);
 
 function safeSlug(value) {
   return String(value || '')
@@ -107,15 +113,64 @@ function adHocPlacementReason(payload, entry, layout) {
   return '';
 }
 
+function placementBuildIds(payload, entry, layout) {
+  return [
+    payload?.buildId,
+    entry?.buildId,
+    layout?.meta?.exportBuildId,
+    layout?.meta?.sourcePlacementMeta?.exportBuildId,
+    layout?.meta?.sourcePlacementMeta?.buildId
+  ].map(value => String(value || '').toLowerCase()).filter(Boolean);
+}
+
+function rejectedBuildReason(payload, entry, layout) {
+  const rejected = placementBuildIds(payload, entry, layout)
+    .find(value => REJECTED_PLACEMENT_BUILD_IDS.has(value));
+  return rejected || '';
+}
+
+function positiveNumber(value, fallback = null) {
+  const number = Number(value);
+  return Number.isFinite(number) && number > 0 ? number : fallback;
+}
+
+function layoutBounds(layout) {
+  return {
+    left: 0,
+    top: 0,
+    right: positiveNumber(layout?.canvas?.width, AUTHOR_GRID.width),
+    bottom: positiveNumber(layout?.canvas?.height, AUTHOR_GRID.height)
+  };
+}
+
+function layerIntersectsBounds(layer, bounds) {
+  const x = Number(layer?.x) || 0;
+  const y = Number(layer?.y) || 0;
+  const width = positiveNumber(layer?.width || layer?.naturalWidth, 0);
+  const height = positiveNumber(layer?.height || layer?.naturalHeight, 0);
+  return x < bounds.right
+    && x + width > bounds.left
+    && y < bounds.bottom
+    && y + height > bounds.top;
+}
+
 function missingRequiredLayerIssues(layout) {
   const issues = [];
   const missingSections = REQUIRED_SECTION_IDS.filter(sectionId => !Array.isArray(layout?.sections?.[sectionId]?.layers));
   if (missingSections.length) issues.push(`missing sections: ${missingSections.join(', ')}`);
 
+  const bounds = layoutBounds(layout);
   const missingIndicators = REQUIRED_SECTION_IDS.filter(sectionId => {
     return sectionLayers(layout, sectionId).filter(isSectionIndicator).length < REQUIRED_SECTION_IDS.length;
   });
   if (missingIndicators.length) issues.push(`missing section indicators in: ${missingIndicators.join(', ')}`);
+  const outOfBoundsIndicators = REQUIRED_SECTION_IDS.filter(sectionId => {
+    const indicators = sectionLayers(layout, sectionId).filter(isSectionIndicator);
+    return indicators.length && !indicators.some(layer => layerIntersectsBounds(layer, bounds));
+  });
+  if (outOfBoundsIndicators.length) {
+    issues.push(`section indicators outside the MP4 canvas in: ${outOfBoundsIndicators.join(', ')}`);
+  }
 
   const missingMacroBars = [];
   for (const sectionId of MACRO_SECTION_IDS) {
@@ -154,6 +209,10 @@ function validateVbv2PlacementPayload(payload, food) {
   const adHocReason = adHocPlacementReason(payload, entry, layout);
   if (adHocReason) {
     throw new Error(`Refusing to render from ad-hoc ${adHocReason} placement. Use the live VBv2 download/helper path or a fresh DBv2 placement export.`);
+  }
+  const rejectedBuild = rejectedBuildReason(payload, entry, layout);
+  if (rejectedBuild) {
+    throw new Error(`Refusing to render from rejected VBv2 placement build ${rejectedBuild}. Reload VBv2/DBv2 and export the current proof layout.`);
   }
   const layerIssues = missingRequiredLayerIssues(layout);
   if (layerIssues.length) {

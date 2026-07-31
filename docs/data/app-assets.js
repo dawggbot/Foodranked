@@ -6474,14 +6474,6 @@
     "sizeBytes": 116
   },
   {
-    "id": "video.episodes.bacon.bacon.vbv2",
-    "label": "Bacon Vbv2",
-    "kind": "video",
-    "path": "video/episodes/bacon/bacon-vbv2.mp4",
-    "mimeType": "video/mp4",
-    "sizeBytes": 27571211
-  },
-  {
     "id": "video.episodes.readme",
     "label": "README",
     "kind": "video",

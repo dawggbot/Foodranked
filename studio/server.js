@@ -469,7 +469,7 @@ async function startRenderJob(food, body, options) {
     String(renderPort)
   ];
 
-  if (body.output) args.push('--output', outputPath);
+  args.push('--output', outputPath);
   if (Number.isFinite(Number(body.seconds)) && Number(body.seconds) > 0) args.push('--seconds', String(Number(body.seconds)));
   if (Number.isFinite(Number(body.fps)) && Number(body.fps) > 0) args.push('--fps', String(Number(body.fps)));
   const placementJson = writeJobPayload(job, 'placement', body.layoutPlacement);
@@ -729,6 +729,10 @@ function safeStaticPath(urlPathname) {
   return { status: 404, message: 'Not found' };
 }
 
+function attachmentFilename(filePath) {
+  return path.basename(filePath).replace(/[^A-Za-z0-9._ -]/g, '_');
+}
+
 function serveStatic(request, response, url) {
   if (request.method !== 'GET' && request.method !== 'HEAD') {
     response.writeHead(405);
@@ -760,11 +764,15 @@ function serveStatic(request, response, url) {
       return;
     }
     const stat = fs.statSync(filePath);
-    response.writeHead(200, {
+    const headers = {
       'Content-Type': CONTENT_TYPES.get(path.extname(filePath).toLowerCase()) || 'application/octet-stream',
       'Content-Length': stat.size,
       'Cache-Control': 'no-store'
-    });
+    };
+    if (url.pathname.startsWith('/studio-data/renders/') && path.extname(filePath).toLowerCase() === '.mp4') {
+      headers['Content-Disposition'] = `attachment; filename="${attachmentFilename(filePath)}"`;
+    }
+    response.writeHead(200, headers);
     if (request.method === 'HEAD') response.end();
     else response.end(contents);
   });

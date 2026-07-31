@@ -26,6 +26,7 @@
     assetSearch: document.getElementById('assetSearch'),
     assetList: document.getElementById('assetList'),
     assetRefs: document.getElementById('assetRefs'),
+    finalizedSummary: document.getElementById('finalizedSummary'),
     finalizedList: document.getElementById('finalizedList'),
     universalSprites: document.getElementById('universalSprites'),
     universalSfx: document.getElementById('universalSfx'),
@@ -77,6 +78,19 @@
   };
 
   const AUTO_ASSET_SELECTION_MODE = 'auto-stable-v1';
+  const FINALISATION_SAMPLE_FOOD_IDS = new Set([
+    'kale',
+    'raspberries',
+    'oats',
+    'black-beans',
+    'sweet-potato',
+    'almonds',
+    'chia-seeds',
+    'bacon',
+    'greek-yogurt',
+    'extra-virgin-olive-oil',
+    'cola-regular'
+  ]);
   const SFX_ROLE_OPTIONS = Object.freeze({
     stampImpact: Object.freeze([
       'audio/sfx/stamps/impact_stamp_hit.mp3',
@@ -125,6 +139,15 @@
 
   function effectiveFoodById(id) {
     return state.foods.find(food => food.id === id) || null;
+  }
+
+  function isConfigFinalisedFood(foodOrId) {
+    const id = typeof foodOrId === 'string' ? foodOrId : foodOrId?.id;
+    return FINALISATION_SAMPLE_FOOD_IDS.has(clean(id));
+  }
+
+  function isFinalizedFood(food) {
+    return isConfigFinalisedFood(food) || DB.isFinalizedDownloaded(food, state.db);
   }
 
   function scriptTextFromBlocks(blocks) {
@@ -254,10 +277,11 @@
 
   function renderStats() {
     const stats = DB.stats(BASE_FOODS, state.db);
+    const finalized = state.foods.filter(isFinalizedFood).length;
     const items = [
       ['Total', stats.total],
-      ['Done', stats.finalized],
-      ['Not done', stats.unfinished],
+      ['Done', finalized],
+      ['Not done', Math.max(0, stats.total - finalized)],
       ['Custom', stats.custom]
     ];
     els.databaseStats.innerHTML = items.map(([label, value]) => (
@@ -294,7 +318,7 @@
         .some(value => String(value).toLowerCase().includes(query)))
       .slice(0, 160);
     els.foodList.innerHTML = visible.map(food => {
-      const finalized = DB.isFinalizedDownloaded(food, state.db);
+      const finalized = isFinalizedFood(food);
       const base = baseFoodById(food.id);
       return `<button class="food-button${food.id === state.selectedFoodId ? ' active' : ''}" type="button" data-food-id="${escapeHtml(food.id)}">
         <strong>${escapeHtml(food.name || food.id)}${finalized ? ' <span class="badge">done</span>' : ''}</strong>
@@ -364,14 +388,29 @@
   }
 
   function renderFinalizedList() {
-    const finalized = state.foods.filter(food => DB.isFinalizedDownloaded(food, state.db));
-    const unfinished = state.foods.filter(food => !DB.isFinalizedDownloaded(food, state.db));
-    const renderGroup = (label, foods) => `
-      <div class="stack">
-        <h3>${escapeHtml(label)} (${foods.length})</h3>
-        ${foods.map(food => `<button class="food-button" type="button" data-food-id="${escapeHtml(food.id)}"><strong>${escapeHtml(food.name || food.id)}</strong><span>${escapeHtml(food.id)}</span></button>`).join('') || '<div class="muted small">None</div>'}
+    const foods = [...state.foods].sort((a, b) => {
+      const doneDelta = Number(isFinalizedFood(b)) - Number(isFinalizedFood(a));
+      return doneDelta || String(a.name || a.id).localeCompare(String(b.name || b.id));
+    });
+    const finalizedCount = foods.filter(isFinalizedFood).length;
+    els.finalizedSummary.textContent = `${finalizedCount}/${foods.length}`;
+    els.finalizedList.innerHTML = foods.map(food => {
+      const finalized = isFinalizedFood(food);
+      const locked = isConfigFinalisedFood(food);
+      return `<div class="finalized-row${food.id === state.selectedFoodId ? ' active' : ''}">
+        <input
+          type="checkbox"
+          data-finalized-food-id="${escapeHtml(food.id)}"
+          ${finalized ? 'checked' : ''}
+          ${locked ? 'disabled' : ''}
+          aria-label="${escapeHtml(`Finalised ${food.name || food.id}`)}"
+        />
+        <button type="button" data-food-id="${escapeHtml(food.id)}">
+          <strong>${escapeHtml(food.name || food.id)}</strong>
+          <span>${escapeHtml(food.foodTypeLabel || prettyFoodType(food.foodType))}${locked ? ' · sample' : ''}</span>
+        </button>
       </div>`;
-    els.finalizedList.innerHTML = renderGroup('Finalised', finalized) + renderGroup('Not finalised', unfinished);
+    }).join('') || '<div class="muted small">No foods</div>';
   }
 
   function loadFoodForm() {
@@ -401,7 +440,8 @@
     setInput(els.nameMaxFontSize, entry.headerNameMaxFontSize || entry.header?.nameMaxFontSize || '');
     setInput(els.nameMinFontSize, entry.headerNameMinFontSize || entry.header?.nameMinFontSize || '');
     setInput(els.nameWidthRatio, entry.headerNameFontWidthRatio || entry.header?.nameFontWidthRatio || '');
-    els.finalizedDownloaded.checked = Boolean(entry.finalizedDownloaded);
+    els.finalizedDownloaded.checked = isFinalizedFood(food);
+    els.finalizedDownloaded.disabled = isConfigFinalisedFood(food);
     setInput(els.foodSpritePath, entry.customFoodImagePath || entry.foodSpritePath || entry.assets?.customFoodImage?.path || '');
     setInput(els.foodSpriteWidth, entry.customFoodImageWidth || entry.assets?.customFoodImage?.width || '');
     setInput(els.foodSpriteHeight, entry.customFoodImageHeight || entry.assets?.customFoodImage?.height || '');
@@ -488,6 +528,18 @@
     } catch (error) {
       status(error.message || 'Food save failed.', 'warn');
     }
+  }
+
+  function setFoodFinalizedDownloaded(foodId, checked) {
+    const food = effectiveFoodById(foodId) || baseFoodById(foodId);
+    if (!food || isConfigFinalisedFood(food)) return;
+    const entry = foodEntryForForm(food);
+    entry.finalizedDownloaded = Boolean(checked);
+    state.db = DB.upsertFoodEntry(foodId, entry);
+    refreshFoods();
+    state.selectedFoodId = foodId;
+    renderAll();
+    status(`${food.name || food.id} ${checked ? 'marked finalised.' : 'marked not finalised.'}`);
   }
 
   function saveUniversal() {
@@ -598,6 +650,11 @@
     });
     els.foodList.addEventListener('click', onFoodButtonClick);
     els.finalizedList.addEventListener('click', onFoodButtonClick);
+    els.finalizedList.addEventListener('change', event => {
+      const checkbox = event.target.closest('[data-finalized-food-id]');
+      if (!checkbox) return;
+      setFoodFinalizedDownloaded(checkbox.dataset.finalizedFoodId, checkbox.checked);
+    });
     els.assetSearch.addEventListener('input', () => {
       state.assetFilter = els.assetSearch.value || '';
       renderAssetLibrary();

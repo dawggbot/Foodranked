@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260731-vbv2-vitamin-token-highlight-v1';
+  const BUILDER_BUILD_ID = '20260731-vbv2-micron-highlight-clip-v1';
   const DISPLAY_BUILDER_V2_EXPORT_TIMEOUT_MS = 8000;
   const DISPLAY_BUILDER_V2_EXPORT_POLL_MS = 150;
   const AUTHOR_GRID = { width: 105, height: 186.666667 };
@@ -5154,7 +5154,7 @@
       const next = windows[index + 1];
       const window = {
         ...item.window,
-        end: next ? next.window.start + fade : 1
+        end: next ? next.window.start : 1
       };
       const strength = submacroHighlightStrength(scene, sceneProgress, window);
       if (strength > 0) highlights.set(item.index, {
@@ -5382,6 +5382,7 @@
     const color = activeHighlight.color || micronMetricHighlightColor(scene?.id || '', activeHighlight.columnIndex);
     const strength = clamp(activeHighlight.strength, 0, 1);
     applyNarrationHighlightStyles(node, color, strength);
+    node.style.clipPath = 'inset(calc(-1.35px * var(--pixel-unit)))';
   }
 
   function applyProConNarrationHighlight(node, scene, revealSchedule, highlightMap) {

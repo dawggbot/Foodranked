@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260731-vbv2-micron-highlight-zfix-v1';
+  const BUILDER_BUILD_ID = '20260731-vbv2-micron-highlight-lanes-v1';
   const DISPLAY_BUILDER_V2_EXPORT_TIMEOUT_MS = 8000;
   const DISPLAY_BUILDER_V2_EXPORT_POLL_MS = 150;
   const AUTHOR_GRID = { width: 105, height: 186.666667 };
@@ -4195,6 +4195,9 @@
       node.dataset.renderKey = renderKey;
       node.dataset.layerId = layer.id || '';
       node.dataset.persistent = persistent ? 'true' : 'false';
+      delete node.dataset.micronHighlightColumnIndex;
+      delete node.dataset.micronHighlightColor;
+      delete node.dataset.micronHighlightStrength;
       const revealSchedule = revealSchedules[renderIndex];
       const revealDelay = revealSchedule.start;
       node.dataset.revealDelay = revealDelay.toFixed(3);
@@ -4215,13 +4218,13 @@
       if (macroBarFillLayer) {
         drawMacroBarFillCanvas(node, layer, sceneElapsed, revealSchedule);
         applyIntroFocusNodeEffect(node, revealSchedule, introFocusBlur);
-        renderParent.appendChild(node);
+        appendLayerNode(renderParent, node, scene, revealSchedule, layerList, layer);
         return;
       }
       if (animatedGifSpriteLayer) {
         drawAnimatedGifSpriteCanvas(node, spritePath(layer.src), sceneElapsed);
         applyIntroFocusNodeEffect(node, revealSchedule, introFocusBlur);
-        renderParent.appendChild(node);
+        appendLayerNode(renderParent, node, scene, revealSchedule, layerList, layer);
         return;
       }
       if (layer.kind === 'sprite') {
@@ -4256,7 +4259,7 @@
       applyMicronNarrationHighlight(node, scene, revealSchedule, micronHighlightMap);
       applyProConNarrationHighlight(node, scene, revealSchedule, proConHighlightMap);
       applyIntroFocusNodeEffect(node, revealSchedule, introFocusBlur);
-      renderParent.appendChild(node);
+      appendLayerNode(renderParent, node, scene, revealSchedule, layerList, layer);
     });
     appendMicron100Fireworks(nextLayerNodes, scene, layers, sceneElapsed);
     appendMajorProSparkles(nextLayerNodes, scene, layers, sceneElapsed, sceneProgress, proConHighlightMap);
@@ -5346,6 +5349,93 @@
     return `rgba(${r}, ${g}, ${b}, ${clamp(alpha, 0, 1).toFixed(3)})`;
   }
 
+  function layerHighlightClipHeight(layer) {
+    const explicitHeight = Number(layer?.height || layer?.naturalHeight);
+    if (Number.isFinite(explicitHeight) && explicitHeight > 0) return explicitHeight;
+    if (isTextLayer(layer)) return textLayerFontSize(layer) * TEXT_LAYER_LINE_HEIGHT;
+    return 0;
+  }
+
+  function micronColumnClipLane(scene, columnIndex, layerList = [], layer = null) {
+    const sectionId = scene?.id || '';
+    if (sectionId !== 'vitamins' && sectionId !== 'minerals') return null;
+    const canvasWidth = Number(state.layout?.canvas?.width) || AUTHOR_GRID.width;
+    const canvasHeight = Number(state.layout?.canvas?.height) || AUTHOR_GRID.height;
+    const pad = 6;
+    const columns = layerList
+      .filter(layer => micronTextKind(layer, sectionId) === 'label')
+      .map(layer => ({
+        index: micronTextIndex(layer, sectionId),
+        centerX: layerCenterX(layer),
+        x: Number(layer.x) || 0,
+        right: layerRight(layer)
+      }))
+      .filter(column => column.index != null && Number.isFinite(column.centerX))
+      .sort((a, b) => a.centerX - b.centerX);
+    const position = columns.findIndex(column => column.index === columnIndex);
+    if (position < 0) return null;
+    const current = columns[position];
+    const previous = columns[position - 1];
+    const next = columns[position + 1];
+    const left = previous ? previous.right : 0;
+    const right = next ? next.x : canvasWidth;
+    const y = Number(layer?.y) || 0;
+    const height = layerHighlightClipHeight(layer);
+    const top = Math.max(0, y - pad);
+    const bottom = Math.min(canvasHeight, y + height + pad);
+    if (!Number.isFinite(left) || !Number.isFinite(right) || right <= left) return null;
+    if (!Number.isFinite(top) || !Number.isFinite(bottom) || bottom <= top) return null;
+    return {
+      left: clamp(left, 0, canvasWidth),
+      right: clamp(right, 0, canvasWidth),
+      top: clamp(top, 0, canvasHeight),
+      bottom: clamp(bottom, 0, canvasHeight),
+      canvasWidth,
+      canvasHeight
+    };
+  }
+
+  function appendLayerNode(renderParent, node, scene, revealSchedule, layerList, layer = null) {
+    const columnIndex = asNumber(node.dataset.micronHighlightColumnIndex, null);
+    if (columnIndex == null || revealSchedule?.family !== 'micron') {
+      renderParent.appendChild(node);
+      return;
+    }
+
+    const lane = micronColumnClipLane(scene, columnIndex, layerList, layer);
+    if (!lane) {
+      renderParent.appendChild(node);
+      return;
+    }
+
+    const highlightClone = node.cloneNode(true);
+    highlightClone.removeAttribute('data-render-key');
+    highlightClone.dataset.highlightClone = 'true';
+    highlightClone.setAttribute('aria-hidden', 'true');
+    applyNarrationHighlightStyles(
+      highlightClone,
+      node.dataset.micronHighlightColor || micronMetricHighlightColor(scene?.id || '', columnIndex),
+      clamp(asNumber(node.dataset.micronHighlightStrength, 1), 0, 1)
+    );
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'layer-highlight-clip micron-highlight-clip';
+    wrapper.style.position = 'absolute';
+    wrapper.style.inset = '0';
+    wrapper.style.pointerEvents = 'none';
+    wrapper.style.overflow = 'hidden';
+    wrapper.style.zIndex = node.style.zIndex || '0';
+    wrapper.style.clipPath = [
+      `inset(calc(${lane.top.toFixed(3)}px * var(--pixel-unit))`,
+      `calc(${(lane.canvasWidth - lane.right).toFixed(3)}px * var(--pixel-unit))`,
+      `calc(${(lane.canvasHeight - lane.bottom).toFixed(3)}px * var(--pixel-unit))`,
+      `calc(${lane.left.toFixed(3)}px * var(--pixel-unit)))`
+    ].join(' ');
+    wrapper.appendChild(highlightClone);
+    renderParent.appendChild(node);
+    renderParent.appendChild(wrapper);
+  }
+
   function applyNarrationHighlightStyles(node, color, strength) {
     node.classList.add('submacro-narration-highlight');
     node.style.setProperty('--submacro-highlight', color);
@@ -5353,12 +5443,6 @@
     node.style.setProperty('--submacro-highlight-glow', colorWithAlpha(color, 0.9 * strength));
     node.style.setProperty('--submacro-highlight-glow-soft', colorWithAlpha(color, 0.55 * strength));
     node.style.setProperty('--submacro-highlight-glow-wide', colorWithAlpha(color, 0.3 * strength));
-  }
-
-  function keepMicronHighlightBelowPeers(node) {
-    const zIndex = Number(node.style.zIndex);
-    if (!Number.isFinite(zIndex)) return;
-    node.style.zIndex = String(Math.max(0, zIndex - 1));
   }
 
   function applySubmacroNarrationHighlight(node, scene, revealSchedule, highlightMap) {
@@ -5387,8 +5471,9 @@
     if (!['dv-bar', 'icon', 'label', 'value', 'column'].includes(revealSchedule.kind)) return;
     const color = activeHighlight.color || micronMetricHighlightColor(scene?.id || '', activeHighlight.columnIndex);
     const strength = clamp(activeHighlight.strength, 0, 1);
-    applyNarrationHighlightStyles(node, color, strength);
-    keepMicronHighlightBelowPeers(node);
+    node.dataset.micronHighlightColumnIndex = String(activeHighlight.columnIndex);
+    node.dataset.micronHighlightColor = color;
+    node.dataset.micronHighlightStrength = strength.toFixed(3);
   }
 
   function applyProConNarrationHighlight(node, scene, revealSchedule, highlightMap) {

@@ -1,0 +1,42 @@
+name: Build FoodRanked Studio Windows
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: "0"
+
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium
+        env:
+          PLAYWRIGHT_BROWSERS_PATH: "0"
+
+      - name: Check Studio
+        run: npm run studio:check
+
+      - name: Build Windows zip
+        run: npm run dist:win
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: FoodRanked-Studio-Windows
+          path: |
+            dist/desktop/*.zip
+            dist/desktop/*.blockmap
+          if-no-files-found: error

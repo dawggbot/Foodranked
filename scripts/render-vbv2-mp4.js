@@ -175,8 +175,30 @@ function safeSlug(value) {
     .replace(/^-+|-+$/g, '');
 }
 
+function optionalRequire(moduleName) {
+  try {
+    return require(moduleName);
+  } catch {
+    return null;
+  }
+}
+
+function bundledCommandPath(command) {
+  if (command === 'ffmpeg') {
+    const windowsFfmpeg = process.platform === 'win32' ? optionalRequire('@ffmpeg-installer/win32-x64') : null;
+    if (windowsFfmpeg?.path) return process.env.FFMPEG_PATH || windowsFfmpeg.path;
+    return process.env.FFMPEG_PATH || optionalRequire('ffmpeg-static') || command;
+  }
+  if (command === 'ffprobe') {
+    const probe = optionalRequire('ffprobe-static');
+    return process.env.FFPROBE_PATH || probe?.path || command;
+  }
+  return command;
+}
+
 function requireCommand(command, installHint) {
-  const result = spawnSync(command, ['-version'], { stdio: 'ignore' });
+  const executable = bundledCommandPath(command);
+  const result = spawnSync(executable, ['-version'], { stdio: 'ignore' });
   if (result.status === 0) return;
   throw new Error(`${command} is required to render MP4 files.\n${installHint}`);
 }
@@ -239,8 +261,9 @@ function ffmpegNumber(value) {
 
 function run(command, args, { label = command } = {}) {
   return new Promise((resolve, reject) => {
-    console.log(`${label}: ${command} ${args.map(shellQuote).join(' ')}`);
-    const child = spawn(command, args, {
+    const executable = bundledCommandPath(command);
+    console.log(`${label}: ${executable} ${args.map(shellQuote).join(' ')}`);
+    const child = spawn(executable, args, {
       cwd: REPO_ROOT,
       stdio: ['ignore', 'inherit', 'inherit']
     });
@@ -258,7 +281,8 @@ function shellQuote(value) {
 }
 
 function runCapture(command, args, { label = command } = {}) {
-  const result = spawnSync(command, args, {
+  const executable = bundledCommandPath(command);
+  const result = spawnSync(executable, args, {
     cwd: REPO_ROOT,
     encoding: 'utf8',
     maxBuffer: 64 * 1024 * 1024

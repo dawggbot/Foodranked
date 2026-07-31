@@ -3,8 +3,54 @@
   "version": "0.1.0",
   "private": true,
   "description": "FoodRanked local production studio",
+  "author": "FoodRanked",
+  "main": "desktop/main.js",
   "scripts": {
     "studio": "node studio/server.js",
-    "studio:check": "node --check studio/server.js && node --check studio/public/app.js"
+    "desktop": "electron .",
+    "desktop:install-browsers": "playwright install chromium",
+    "studio:check": "node --check studio/server.js && node --check studio/public/app.js && node --check desktop/main.js",
+    "pack:win": "electron-builder --win dir",
+    "dist:win": "electron-builder --win zip"
+  },
+  "dependencies": {
+    "ffmpeg-static": "^5.3.0",
+    "ffprobe-static": "^3.1.0",
+    "playwright": "^1.62.1"
+  },
+  "devDependencies": {
+    "electron": "^43.2.0",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "studio.foodranked.local",
+    "productName": "FoodRanked Studio",
+    "asar": false,
+    "directories": {
+      "output": "dist/desktop"
+    },
+    "files": [
+      "desktop/**",
+      "studio/**",
+      "docs/**",
+      "scripts/**",
+      "config/**",
+      "foods/**",
+      "rulesets/**",
+      "audio/**",
+      "templates/**",
+      "package.json",
+      "APP-BUILD-READINESS.md",
+      "README.md"
+    ],
+    "win": {
+      "target": [
+        "zip"
+      ],
+      "signAndEditExecutable": false
+    }
+  },
+  "optionalDependencies": {
+    "@ffmpeg-installer/win32-x64": "^4.1.0"
   }
 }

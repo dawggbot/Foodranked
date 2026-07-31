@@ -74,6 +74,22 @@ Default URL:
 http://127.0.0.1:4787/
 ```
 
+Initial desktop app entry point:
+
+```bash
+npm run desktop
+```
+
+Windows packaging target:
+
+```bash
+npm run dist:win
+```
+
+For a complete Windows render bundle, build on Windows or run the manual GitHub
+Actions workflow `Build FoodRanked Studio Windows`; that path installs the Windows
+Playwright Chromium runtime before packaging.
+
 ## Core App Modules
 
 - Dashboard: queue, next actions, broken states, finalised status, render status.

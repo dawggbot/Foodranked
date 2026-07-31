@@ -8,9 +8,10 @@ const path = require('path');
 const { spawn, spawnSync } = require('child_process');
 const { validateVbv2PlacementPayload } = require('../scripts/vbv2-placement-validation');
 
-const REPO_ROOT = path.resolve(__dirname, '..');
+const REPO_ROOT = path.resolve(process.env.FOODRANKED_REPO_ROOT || path.resolve(__dirname, '..'));
 const PUBLIC_ROOT = path.join(__dirname, 'public');
-const DATA_DIR = path.join(REPO_ROOT, 'studio-data');
+const DATA_DIR = path.resolve(process.env.FOODRANKED_STUDIO_DATA_DIR || path.join(REPO_ROOT, 'studio-data'));
+const RENDER_DIR = path.resolve(process.env.FOODRANKED_STUDIO_RENDER_DIR || path.join(DATA_DIR, 'renders'));
 const STATE_FILE = path.join(DATA_DIR, 'studio-state.json');
 const DEFAULT_HOST = '127.0.0.1';
 const DEFAULT_PORT = 4787;
@@ -189,6 +190,7 @@ function secretPresence() {
 
 function ensureDataDir() {
   fs.mkdirSync(DATA_DIR, { recursive: true });
+  fs.mkdirSync(RENDER_DIR, { recursive: true });
 }
 
 function clone(value) {
@@ -272,7 +274,8 @@ function publicFood(food) {
     overallScore: food.episode?.overallScore ?? null,
     kcal: food.kcal ?? food.header?.kcal ?? null,
     finalized: FINALISATION_SAMPLE_FOOD_IDS.has(id) || Boolean(food.finalizedDownloaded || food.status?.finalizedDownloaded),
-    hasVideo: fs.existsSync(path.join(REPO_ROOT, `docs/video/episodes/${id}/${id}-vbv2.mp4`)),
+    hasVideo: fs.existsSync(renderFilePathForFoodId(id))
+      || fs.existsSync(path.join(REPO_ROOT, `docs/video/episodes/${id}/${id}-vbv2.mp4`)),
     hasSplitAudio: Boolean(food.episode?.splitAudio?.manifestPath || food.splitAudio?.manifestPath)
   };
 }
@@ -284,11 +287,20 @@ function findFood(foodId) {
 
 function downloadPathForFood(food) {
   const id = safeSlug(food.id || food.name);
-  return `/docs/video/episodes/${id}/${id}-vbv2.mp4`;
+  return `/studio-data/renders/${id}/${id}-vbv2.mp4`;
 }
 
 function filePathForDownload(downloadPath) {
+  if (downloadPath.startsWith('/studio-data/renders/')) {
+    const relative = downloadPath.replace(/^\/studio-data\/renders\/+/, '');
+    return path.join(RENDER_DIR, relative);
+  }
   return path.join(REPO_ROOT, downloadPath.replace(/^\/+/, ''));
+}
+
+function renderFilePathForFoodId(foodId) {
+  const id = safeSlug(foodId);
+  return path.join(RENDER_DIR, id, `${id}-vbv2.mp4`);
 }
 
 function sendJson(response, statusCode, payload) {
@@ -402,6 +414,12 @@ function writeJobPayload(job, name, payload) {
   return filePath;
 }
 
+function childNodeEnvironment() {
+  const env = { ...process.env };
+  if (process.versions?.electron) env.ELECTRON_RUN_AS_NODE = '1';
+  return env;
+}
+
 function canListen(port) {
   return new Promise(resolve => {
     const server = http.createServer();
@@ -464,6 +482,7 @@ async function startRenderJob(food, body, options) {
 
   const child = spawn(process.execPath, args, {
     cwd: REPO_ROOT,
+    env: childNodeEnvironment(),
     stdio: ['ignore', 'pipe', 'pipe']
   });
   job.child = child;
@@ -511,8 +530,29 @@ function databaseSummary() {
 }
 
 function commandAvailable(command, args = ['-version']) {
-  const result = spawnSync(command, args, { stdio: 'ignore' });
+  const result = spawnSync(bundledCommandPath(command), args, { stdio: 'ignore' });
   return result.status === 0;
+}
+
+function optionalRequire(moduleName) {
+  try {
+    return require(moduleName);
+  } catch {
+    return null;
+  }
+}
+
+function bundledCommandPath(command) {
+  if (command === 'ffmpeg') {
+    const windowsFfmpeg = process.platform === 'win32' ? optionalRequire('@ffmpeg-installer/win32-x64') : null;
+    if (windowsFfmpeg?.path) return process.env.FFMPEG_PATH || windowsFfmpeg.path;
+    return process.env.FFMPEG_PATH || optionalRequire('ffmpeg-static') || command;
+  }
+  if (command === 'ffprobe') {
+    const probe = optionalRequire('ffprobe-static');
+    return process.env.FFPROBE_PATH || probe?.path || command;
+  }
+  return command;
 }
 
 async function handleApi(request, response, url, options) {
@@ -681,6 +721,11 @@ function safeStaticPath(urlPathname) {
     if (!isInside(path.join(REPO_ROOT, 'docs'), filePath)) return { status: 403, message: 'Forbidden' };
     return { filePath };
   }
+  if (pathname.startsWith('/studio-data/renders/')) {
+    const filePath = path.normalize(path.join(RENDER_DIR, pathname.slice('/studio-data/renders/'.length)));
+    if (!isInside(RENDER_DIR, filePath)) return { status: 403, message: 'Forbidden' };
+    return { filePath };
+  }
   return { status: 404, message: 'Not found' };
 }
 
@@ -730,13 +775,15 @@ function studioUrl(host, port) {
   return `http://${printableHost}:${port}/`;
 }
 
-async function main() {
-  const options = parseArgs(process.argv.slice(2));
-  if (options.help) {
-    console.log(usage());
-    return;
-  }
-
+async function startStudioServer(options = {}) {
+  ensureDataDir();
+  options = {
+    host: DEFAULT_HOST,
+    port: DEFAULT_PORT,
+    renderPortStart: DEFAULT_RENDER_PORT_START,
+    portExplicit: false,
+    ...options
+  };
   let activePort = options.port;
   const server = http.createServer(async (request, response) => {
     const baseHost = request.headers.host || `${options.host}:${activePort}`;
@@ -759,9 +806,14 @@ async function main() {
         });
       });
       activePort = port;
-      console.log(`FoodRanked Studio running: ${studioUrl(options.host, activePort)}`);
-      if (activePort !== options.port) console.log(`Port ${options.port} was busy, so Studio used ${activePort}.`);
-      return;
+      return {
+        server,
+        host: options.host,
+        port: activePort,
+        url: studioUrl(options.host, activePort),
+        dataDir: DATA_DIR,
+        renderDir: RENDER_DIR
+      };
     } catch (error) {
       if (options.portExplicit || error.code !== 'EADDRINUSE') throw error;
     }
@@ -769,7 +821,28 @@ async function main() {
   throw new Error(`No free Studio port found starting at ${options.port}.`);
 }
 
-main().catch(error => {
-  console.error(error.message || error);
-  process.exit(1);
-});
+async function main() {
+  const options = parseArgs(process.argv.slice(2));
+  if (options.help) {
+    console.log(usage());
+    return;
+  }
+
+  const started = await startStudioServer(options);
+  console.log(`FoodRanked Studio running: ${started.url}`);
+  if (started.port !== options.port) console.log(`Port ${options.port} was busy, so Studio used ${started.port}.`);
+}
+
+if (require.main === module) {
+  main().catch(error => {
+    console.error(error.message || error);
+    process.exit(1);
+  });
+}
+
+module.exports = {
+  startStudioServer,
+  parseArgs,
+  secretPresence,
+  databaseSummary
+};

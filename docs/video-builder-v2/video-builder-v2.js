@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260731-vbv2-contained-micron-highlight-v1';
+  const BUILDER_BUILD_ID = '20260731-vbv2-micron-highlight-zfix-v1';
   const DISPLAY_BUILDER_V2_EXPORT_TIMEOUT_MS = 8000;
   const DISPLAY_BUILDER_V2_EXPORT_POLL_MS = 150;
   const AUTHOR_GRID = { width: 105, height: 186.666667 };
@@ -5355,27 +5355,10 @@
     node.style.setProperty('--submacro-highlight-glow-wide', colorWithAlpha(color, 0.3 * strength));
   }
 
-  function applyContainedMicronNarrationHighlightStyles(node, color, strength) {
-    node.classList.add('submacro-narration-highlight');
-    node.style.setProperty('--submacro-highlight', color);
-    node.style.setProperty('--submacro-highlight-strength', strength.toFixed(3));
-    node.style.setProperty('--submacro-highlight-glow', colorWithAlpha(color, 0));
-    node.style.setProperty('--submacro-highlight-glow-soft', colorWithAlpha(color, 0));
-    node.style.setProperty('--submacro-highlight-glow-wide', colorWithAlpha(color, 0));
-    node.style.clipPath = 'inset(0)';
-    node.style.contain = 'paint';
-    node.style.overflow = 'hidden';
-    node.style.filter = [
-      `brightness(${(1 + (0.16 * strength)).toFixed(3)})`,
-      `saturate(${(1 + (0.24 * strength)).toFixed(3)})`
-    ].join(' ');
-    if (node.classList.contains('text')) {
-      node.style.textShadow = 'none';
-      node.style.background = `linear-gradient(180deg, ${colorWithAlpha(color, 0.22 * strength)}, ${colorWithAlpha(color, 0.08 * strength)})`;
-      node.style.boxShadow = `inset 0 0 calc(0.75px * var(--pixel-unit)) ${colorWithAlpha(color, 0.42 * strength)}`;
-    } else {
-      node.style.boxShadow = `inset 0 0 calc(0.85px * var(--pixel-unit)) ${colorWithAlpha(color, 0.36 * strength)}`;
-    }
+  function keepMicronHighlightBelowPeers(node) {
+    const zIndex = Number(node.style.zIndex);
+    if (!Number.isFinite(zIndex)) return;
+    node.style.zIndex = String(Math.max(0, zIndex - 1));
   }
 
   function applySubmacroNarrationHighlight(node, scene, revealSchedule, highlightMap) {
@@ -5404,7 +5387,8 @@
     if (!['dv-bar', 'icon', 'label', 'value', 'column'].includes(revealSchedule.kind)) return;
     const color = activeHighlight.color || micronMetricHighlightColor(scene?.id || '', activeHighlight.columnIndex);
     const strength = clamp(activeHighlight.strength, 0, 1);
-    applyContainedMicronNarrationHighlightStyles(node, color, strength);
+    applyNarrationHighlightStyles(node, color, strength);
+    keepMicronHighlightBelowPeers(node);
   }
 
   function applyProConNarrationHighlight(node, scene, revealSchedule, highlightMap) {

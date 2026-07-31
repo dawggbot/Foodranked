@@ -66,6 +66,7 @@ See also:
 - `STORYBOARD-BACON-RICE-CAKES.md`
 - `LAUNCH-TOP-5-ASSET-BRIEFS-AND-PROMPTS.md`
 - `PRODUCTION-FOLDER-STRUCTURE.md`
+- `APP-BUILD-READINESS.md`
 - `templates/visual-template.v1.json`
 
 ## Locked source of truth

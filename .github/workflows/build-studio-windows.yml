@@ -2,6 +2,12 @@ name: Build FoodRanked Studio Windows
 
 on:
   workflow_dispatch:
+  push:
+    tags:
+      - "studio-windows-v*"
+
+permissions:
+  contents: write
 
 jobs:
   build-windows:
@@ -32,6 +38,13 @@ jobs:
       - name: Build Windows zip
         run: npm run dist:win
 
+      - name: Prepare release zip
+        shell: pwsh
+        run: |
+          $zip = Get-ChildItem -Path "dist/desktop" -Filter "*-win.zip" | Select-Object -First 1
+          if (-not $zip) { throw "No Windows zip found in dist/desktop" }
+          Copy-Item $zip.FullName "dist/desktop/FoodRanked-Studio-Windows.zip" -Force
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -40,3 +53,12 @@ jobs:
             dist/desktop/*.zip
             dist/desktop/*.blockmap
           if-no-files-found: error
+
+      - name: Publish tagged release
+        if: startsWith(github.ref, 'refs/tags/studio-windows-v')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: FoodRanked Studio Windows ${{ github.ref_name }}
+          body: |
+            Download `FoodRanked-Studio-Windows.zip`, unzip it, and run `FoodRanked Studio.exe`.
+          files: dist/desktop/FoodRanked-Studio-Windows.zip

@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260731-vbv2-mp4-fit-v1';
+  const BUILDER_BUILD_ID = '20260731-vbv2-active-tools-v1';
   const DISPLAY_BUILDER_V2_EXPORT_TIMEOUT_MS = 8000;
   const DISPLAY_BUILDER_V2_EXPORT_POLL_MS = 150;
   const AUTHOR_GRID = { width: 105, height: 186.666667 };
@@ -6158,7 +6158,9 @@
 
   function isRenderModeAnimatedGifSpriteLayer(layer) {
     if (!state.renderMode || !isSpriteLayer(layer) || isMacroBarFill(layer)) return false;
-    return isGifSpriteSource(spritePath(layer.src));
+    const src = spritePath(layer.src);
+    if (/\/micros_section\//i.test(src)) return false;
+    return isGifSpriteSource(src);
   }
 
   function gifFrameImagesReady(entry) {
@@ -8846,17 +8848,6 @@
     }
   }
 
-  function ensureVideoDownloadAvailability(food = selectedFood()) {
-    const foodId = food?.id || '';
-    if (state.downloadFoodId === foodId && (state.downloadChecked || state.downloadChecking)) return;
-    state.downloadFoodId = foodId;
-    state.downloadUrl = '';
-    state.downloadExpectedPath = expectedVideoDownloadPath(food);
-    state.downloadChecked = false;
-    state.downloadChecking = true;
-    void refreshVideoDownloadAvailability(food);
-  }
-
   async function refreshVideoDownloadAvailability(food = selectedFood()) {
     const foodId = food?.id || '';
     state.downloadFoodId = foodId;
@@ -8894,35 +8885,30 @@
   function updateDownloadControls() {
     if (!els.downloadVideo || !els.downloadStatus) return;
     const food = selectedFood();
-    ensureVideoDownloadAvailability(food);
     ensureVideoRenderHelperAvailability();
     const checking = state.downloadChecking && state.downloadFoodId === (food?.id || '');
-    const publishedAvailable = Boolean(state.downloadUrl && state.downloadChecked);
-    const available = publishedAvailable;
     const helperChecking = state.renderHelperChecking && !state.renderHelperChecked;
     const helperCanStart = state.renderHelperAvailable && !state.renderHelperBusy;
     const helperHasPlacement = Boolean(rendererPlacementPayload(food));
     const helperCanRender = helperCanStart && helperHasPlacement;
     const helperBusy = state.renderHelperAvailable && state.renderHelperBusy;
-    els.downloadVideo.disabled = state.downloadBusy || checking || helperChecking || (!available && !helperCanStart);
+    els.downloadVideo.disabled = state.downloadBusy || checking || helperChecking || !helperCanStart;
     els.downloadVideo.textContent = state.downloadBusy
       ? state.renderHelperJobId ? 'Rendering...' : 'Downloading...'
       : 'Download MP4';
-    const fallbackStatus = checking
-      ? 'Checking for published MP4...'
-      : available
-        ? 'Published MP4 ready'
-        : helperChecking
-          ? 'Checking local MP4 renderer...'
-          : helperBusy
-            ? 'Local renderer is busy...'
-            : helperCanRender
-              ? 'Local renderer ready'
-              : helperCanStart
-                ? 'Click to fetch DBv2 placement and render locally'
-                : `No published MP4 at ${state.downloadExpectedPath || expectedVideoDownloadPath(food)}`;
+    const fallbackStatus = helperChecking
+      ? 'Checking local MP4 renderer...'
+      : helperBusy
+        ? 'Local renderer is busy...'
+        : helperCanRender
+          ? 'Local renderer ready'
+          : helperCanStart
+            ? 'Click to fetch DBv2 placement and render locally'
+            : checking
+              ? 'Checking local MP4 renderer...'
+              : 'Open with the local render helper to export MP4 from this VBv2 layout';
     els.downloadStatus.textContent = state.downloadStatus || fallbackStatus;
-    els.downloadStatus.classList.toggle('warn', state.downloadStatusTone === 'warn' || (!checking && !available && !helperCanRender));
+    els.downloadStatus.classList.toggle('warn', state.downloadStatusTone === 'warn' || (!checking && !helperCanRender));
     els.downloadStatus.classList.toggle('ok', state.downloadStatusTone === 'ok');
   }
 
@@ -9058,20 +9044,11 @@
     setDownloadStatus('Preparing MP4...', 'warn');
     try {
       if (await renderMp4WithHelperThenDownload(food)) return;
-      setDownloadStatus('Checking published MP4...', 'warn');
-      if (!state.downloadChecked || state.downloadFoodId !== food.id) {
-        await refreshVideoDownloadAvailability(food);
-      }
-      if (!state.downloadUrl) {
-        if (state.renderHelperAvailable && !rendererPlacementPayload(food)) {
-          setDownloadStatus(`DBv2 placement missing. Open ${food.name || food.id} in DBv2/VBv2, then render again.`, 'warn');
-          return;
-        }
-        setDownloadStatus(`No MP4 file published yet: ${expectedVideoDownloadPath(food)}`, 'warn');
+      if (state.renderHelperAvailable && !rendererPlacementPayload(food)) {
+        setDownloadStatus(`DBv2 placement missing. Open ${food.name || food.id} in DBv2/VBv2, then render again.`, 'warn');
         return;
       }
-      downloadUrl(cacheBustDownloadUrl(state.downloadUrl), videoDownloadFileName(food));
-      setDownloadStatus('MP4 download started', 'ok');
+      setDownloadStatus('Hosted pages use web proofs. Start the local render helper to export MP4 from this VBv2 layout.', 'warn');
     } catch (error) {
       state.renderHelperBusy = false;
       state.renderHelperJobId = null;

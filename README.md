@@ -78,4 +78,4 @@ For the current FoodRanked engine, treat these as the locked implementation/docs
 
 Design rule:
 - avoid duplicate published data bundles unless two distinct surfaces genuinely require them
-- website/studio/builder views should read from the same generated source whenever possible
+- website/builder views should read from the same generated source whenever possible

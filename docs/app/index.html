@@ -7,6 +7,13 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <title>FoodRanked Display Builder</title>
+  <script>
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      if (params.get('mode') === 'layout-builder') return;
+      window.location.replace('../display-builder-v2/index.html');
+    })();
+  </script>
   <style>
     @font-face {
       font-family: "Tiny5";
@@ -1035,7 +1042,7 @@
           <div id="displayJsonPanel" class="display-panel stack" role="tabpanel" aria-labelledby="displayJsonTab" hidden>
             <div class="row">
               <button id="saveLocal">Save for video builder</button>
-              <a class="handoff-link" href="../video-builder/index.html?layoutSource=display-builder">Open video builder</a>
+              <a class="handoff-link" href="../video-builder-v2/index.html?layoutSource=display-builder-v2">Open video builder v2</a>
               <button id="copyJson" class="primary">Copy JSON</button>
             </div>
             <label>

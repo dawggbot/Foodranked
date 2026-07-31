@@ -1,11 +1,27 @@
 ---
 name: "nutrition-content-studio"
-description: "Add carotenoids to FoodRanked pro/con context guidance"
+description: "FoodRanked content guidance"
 ---
 
-# Proposed Update: Carotenoids In Pros And Cons
+# FoodRanked Content Studio
 
-Update the FoodRanked `nutrition-content-studio` guidance for script writing and review.
+Use this skill for FoodRanked script/content guidance, episode review, and cross-layer content coordination.
+
+## Submacro And Micronutrient Mentions
+
+Do not mention submacros or micronutrients just because they are visible or available.
+
+Prioritize mentions in this order:
+
+1. Nutrients/submacros that matter most to the food type.
+2. The outstanding highest and lowest defensible values in the section.
+3. Specific submacros or micronutrients that are unusually high or unusually low for that food type.
+
+After each selected mention, add a very brief plain-language explanation of what that nutrient or submacro is good for. Also briefly say whether the amount is expected, unusually strong, unusually weak, or otherwise notable for that food type.
+
+Keep explanations short enough for the existing FoodRanked pacing. The goal is one useful context beat, not a lecture. Do not change locked scoring, displayed rows, arrows, or existing generated scripts/videos from this guidance alone.
+
+Example intent: if Bacon mentions collagen because it is the weakest protein submacro, the narration should briefly explain what collagen supports and whether that collagen amount is expected or low for meats, rather than only naming it as the lowest mark.
 
 ## Pros And Cons Context Pool
 

@@ -86,17 +86,22 @@ function staleSourceStrings(payload, entry, layout) {
     meta.sourceLayoutName,
     meta.sourcePlacementSource,
     meta.sourcePlacementBuilder,
+    meta.canonicalLayoutVersion,
+    meta.canonicalLayoutSource,
     sourcePlacementMeta.source,
     sourcePlacementMeta.sourceBuilder,
     sourcePlacementMeta.sourceLayoutKey,
     sourcePlacementMeta.sourceLayoutName,
-    sourcePlacementMeta.exportBuildId
+    sourcePlacementMeta.exportBuildId,
+    sourcePlacementMeta.canonicalLayoutVersion,
+    sourcePlacementMeta.canonicalLayoutSource
   ].map(value => String(value || '').toLowerCase()).filter(Boolean);
 }
 
 function stalePlacementReason(payload, entry, layout) {
   const joined = staleSourceStrings(payload, entry, layout).join(' ');
-  if (/default[-_ ]layout/.test(joined)) return 'legacy fallback layout';
+  if (/20260801-current-builder-layout-v1|canonical-test-layout/.test(joined)) return 'revoked layout seed';
+  if (/(?:^|\/)default-layout\.js\b|default-layout/.test(joined)) return 'default-layout.js';
   if (/(?:^|\/)docs\/app(?:\/|$)|foodranked-display-builder(?!-v2)/.test(joined)) return 'stale display builder';
   if (/(?:^|\/)display-builder-test(?:\/|$)/.test(joined)) return 'display-builder-test';
   if (/(?:^|\/)video-builder(?:\/|$)|foodranked-video-builder(?!-v2)/.test(joined)) return 'original video builder';

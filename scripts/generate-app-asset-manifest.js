@@ -14,9 +14,9 @@ const roots = [
   'audio/episodes',
   'video/episodes',
   'data',
+  'app/default-layout.js',
   'app/display-schema.js',
-  'app/display-name-utils.js',
-  'layout-builder/canonical-test-layout.js'
+  'app/display-name-utils.js'
 ];
 
 const EXT_MIME = {
@@ -57,7 +57,6 @@ function assetKind(relativePath) {
   if (relativePath.startsWith('video/episodes/')) return 'video';
   if (relativePath.startsWith('data/')) return 'data';
   if (relativePath.startsWith('app/')) return 'runtime';
-  if (relativePath.startsWith('layout-builder/')) return 'runtime';
   return 'asset';
 }
 

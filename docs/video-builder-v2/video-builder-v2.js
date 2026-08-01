@@ -3,6 +3,9 @@
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
   const BUILDER_BUILD_ID = '20260801-current-pages-v1';
+  const REVOKED_LAYOUT_SEED_VERSIONS = new Set(['20260801-current-builder-layout-v1']);
+  const REVOKED_LAYOUT_SEED_SOURCES = new Set(['docs/layout-builder/canonical-test-layout.js']);
+  const REVOKED_LAYOUT_SEED_IDS = new Set(['layout_test_current_builder_20260801']);
   const DISPLAY_BUILDER_V2_EXPORT_TIMEOUT_MS = 8000;
   const DISPLAY_BUILDER_V2_EXPORT_POLL_MS = 150;
   const AUTHOR_GRID = { width: 105, height: 186.666667 };
@@ -1630,7 +1633,37 @@
 
   function readDisplayBuilderV2PlacementExport() {
     const saved = readJson(localStorage.getItem(DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY), {});
-    return saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {};
+    if (!saved || typeof saved !== 'object' || Array.isArray(saved)) return {};
+    const layouts = saved.layouts && typeof saved.layouts === 'object' && !Array.isArray(saved.layouts)
+      ? saved.layouts
+      : {};
+    const keptLayouts = Object.fromEntries(
+      Object.entries(layouts).filter(([, entry]) => !isRevokedLayoutSeed(entry))
+    );
+    if (Object.keys(keptLayouts).length !== Object.keys(layouts).length) {
+      if (Object.keys(keptLayouts).length) {
+        const cleaned = { ...saved, layouts: keptLayouts, updatedAt: new Date().toISOString() };
+        localStorage.setItem(DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY, JSON.stringify(cleaned));
+        return cleaned;
+      }
+      localStorage.removeItem(DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY);
+      return {};
+    }
+    return saved;
+  }
+
+  function revokedLayoutMeta(value) {
+    return REVOKED_LAYOUT_SEED_VERSIONS.has(String(value?.canonicalLayoutVersion || ''))
+      || REVOKED_LAYOUT_SEED_SOURCES.has(String(value?.canonicalLayoutSource || ''));
+  }
+
+  function isRevokedLayoutSeed(value) {
+    const sourceLayoutId = String(value?.sourceLayoutKey || '').replace(/^saved:/, '');
+    return REVOKED_LAYOUT_SEED_IDS.has(String(value?.id || ''))
+      || REVOKED_LAYOUT_SEED_IDS.has(sourceLayoutId)
+      || revokedLayoutMeta(value?.meta)
+      || revokedLayoutMeta(value?.layout?.meta)
+      || revokedLayoutMeta(value?.layout?.meta?.sourcePlacementMeta);
   }
 
   function normalizeDisplaySectionId(sectionId) {

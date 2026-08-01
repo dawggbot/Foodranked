@@ -25,8 +25,9 @@
   const LAYOUT_BUILDER_FOOD_LAYOUTS_KEY = 'foodranked-layout-builder-food-layouts-v1';
   const LAYOUT_BUILDER_SAVED_KEY = 'foodranked-layout-builder-sprite-layouts-v1';
   const PREFERRED_SAVED_LAYOUT_NAME = 'test';
-  const CANONICAL_LAYOUT_SEED = window.FOODRANKED_LAYOUT_BUILDER_CANONICAL_TEST_LAYOUT || null;
-  const CANONICAL_LAYOUT_SEED_VERSION = String(CANONICAL_LAYOUT_SEED?.version || '');
+  const REVOKED_LAYOUT_SEED_VERSIONS = new Set(['20260801-current-builder-layout-v1']);
+  const REVOKED_LAYOUT_SEED_SOURCES = new Set(['docs/layout-builder/canonical-test-layout.js']);
+  const REVOKED_LAYOUT_SEED_IDS = new Set(['layout_test_current_builder_20260801']);
   const TEST_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const PLACEMENT_EXPORT_LIMIT = 60;
@@ -382,62 +383,23 @@
     return String(value || '').trim().replace(/\s+/g, ' ').toLowerCase();
   }
 
-  function readRawSavedLayoutEntries() {
-    const savedRaw = parseStorageJson(LAYOUT_BUILDER_SAVED_KEY, []);
-    return Array.isArray(savedRaw) ? savedRaw : Object.values(savedRaw || {});
-  }
-
-  function canonicalSavedLayoutVersion(entry) {
-    return String(entry?.meta?.canonicalLayoutVersion || '');
-  }
-
-  function canonicalSeedSavedLayoutEntry() {
-    const bundledEntry = CANONICAL_LAYOUT_SEED?.savedLayout;
-    if (!bundledEntry?.sections || typeof bundledEntry.sections !== 'object' || !CANONICAL_LAYOUT_SEED_VERSION) return null;
-    return {
-      ...LOGIC.clone(bundledEntry),
-      name: PREFERRED_SAVED_LAYOUT_NAME,
-      meta: {
-        ...(LOGIC.clone(bundledEntry.meta || {})),
-        canonicalLayoutVersion: CANONICAL_LAYOUT_SEED_VERSION,
-        canonicalLayoutSource: 'docs/layout-builder/canonical-test-layout.js'
-      }
-    };
-  }
-
-  function canonicalSeedWorkingLayout(entry) {
-    const bundledLayout = CANONICAL_LAYOUT_SEED?.layout;
-    if (!bundledLayout?.sections || typeof bundledLayout.sections !== 'object') return null;
-    const layout = normalizeLayoutSections(LOGIC.clone(bundledLayout));
-    layout.sections = LOGIC.clone(entry.sections);
-    layout.selectedSectionId = entry.selectedSectionId || layout.selectedSectionId || 'intro';
-    layout.selectedFoodId = layout.selectedFoodId || 'bacon';
-    layout.meta = {
-      ...(layout.meta || {}),
-      ...(LOGIC.clone(entry.meta || {})),
-      canonicalLayoutVersion: CANONICAL_LAYOUT_SEED_VERSION,
-      canonicalLayoutSource: 'docs/layout-builder/canonical-test-layout.js'
-    };
-    return layout;
-  }
-
-  function seedCanonicalLayoutBuilderStorage() {
-    const seed = canonicalSeedSavedLayoutEntry();
-    if (!seed) return null;
-    const entries = readRawSavedLayoutEntries();
-    const existing = preferredSavedLayoutEntry(entries);
-    const current = existing && canonicalSavedLayoutVersion(existing) === CANONICAL_LAYOUT_SEED_VERSION
-      ? existing
-      : seed;
-    localStorage.setItem(LAYOUT_BUILDER_SAVED_KEY, JSON.stringify([current]));
-    localStorage.removeItem(LAYOUT_BUILDER_FOOD_LAYOUTS_KEY);
-    const working = canonicalSeedWorkingLayout(current);
-    if (working) localStorage.setItem(LAYOUT_BUILDER_WORKING_KEY, JSON.stringify(working));
-    return [current];
-  }
-
   function readSavedLayoutEntries() {
-    return seedCanonicalLayoutBuilderStorage() || readRawSavedLayoutEntries();
+    const savedRaw = parseStorageJson(LAYOUT_BUILDER_SAVED_KEY, []);
+    const entries = Array.isArray(savedRaw) ? savedRaw : Object.values(savedRaw || {});
+    const kept = entries.filter(entry => !isRevokedLayoutSeed(entry));
+    if (kept.length !== entries.length) {
+      if (kept.length) localStorage.setItem(LAYOUT_BUILDER_SAVED_KEY, JSON.stringify(kept));
+      else localStorage.removeItem(LAYOUT_BUILDER_SAVED_KEY);
+      localStorage.removeItem(LAYOUT_BUILDER_FOOD_LAYOUTS_KEY);
+    }
+    return kept;
+  }
+
+  function isRevokedLayoutSeed(value) {
+    const meta = value?.meta || {};
+    return REVOKED_LAYOUT_SEED_IDS.has(String(value?.id || ''))
+      || REVOKED_LAYOUT_SEED_VERSIONS.has(String(meta.canonicalLayoutVersion || ''))
+      || REVOKED_LAYOUT_SEED_SOURCES.has(String(meta.canonicalLayoutSource || ''));
   }
 
   function preferredSavedLayoutEntry(entries) {
@@ -459,6 +421,10 @@
 
   function layoutBuilderWorkingOption() {
     const working = parseStorageJson(LAYOUT_BUILDER_WORKING_KEY, null);
+    if (isRevokedLayoutSeed(working)) {
+      localStorage.removeItem(LAYOUT_BUILDER_WORKING_KEY);
+      return null;
+    }
     if (!validLayout(working)) return null;
     return {
       key: 'working:current',

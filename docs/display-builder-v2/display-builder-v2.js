@@ -366,9 +366,30 @@
         canvas: null,
         selectedSectionId: entry.selectedSectionId || 'intro',
         sections: LOGIC.clone(entry.sections),
-        meta: { source: LAYOUT_BUILDER_SAVED_KEY }
+        meta: { ...(LOGIC.clone(entry.meta || {})), source: LAYOUT_BUILDER_SAVED_KEY }
       })
     };
+  }
+
+  function savedLayoutNameKey(value) {
+    return String(value || '').trim().replace(/\s+/g, ' ').toLowerCase();
+  }
+
+  function readSavedLayoutEntries() {
+    const savedRaw = parseStorageJson(LAYOUT_BUILDER_SAVED_KEY, []);
+    return Array.isArray(savedRaw) ? savedRaw : Object.values(savedRaw || {});
+  }
+
+  function preferredSavedLayoutEntry(entries) {
+    return [...entries]
+      .filter(entry => savedLayoutNameKey(entry?.name) === PREFERRED_SAVED_LAYOUT_NAME)
+      .sort((a, b) => String(b.updatedAt || b.createdAt || '').localeCompare(String(a.updatedAt || a.createdAt || '')) || String(a.id || '').localeCompare(String(b.id || '')))[0] || null;
+  }
+
+  function pruneLayoutBuilderStorageToPreferredSavedLayout(entry) {
+    if (!entry) return;
+    localStorage.setItem(LAYOUT_BUILDER_SAVED_KEY, JSON.stringify([entry]));
+    localStorage.removeItem(LAYOUT_BUILDER_FOOD_LAYOUTS_KEY);
   }
 
   function readFoodLayoutMap() {
@@ -662,6 +683,20 @@
   function refreshLayoutOptions({ keepSelection = true } = {}) {
     const previousKey = keepSelection ? state.selectedLayoutKey : '';
     const options = [];
+    const savedEntries = readSavedLayoutEntries();
+    const savedOptions = savedEntries
+      .map(normalizeSavedPreset)
+      .filter(Boolean)
+      .sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)) || a.name.localeCompare(b.name));
+    const preferredSaved = savedOptions.find(isPreferredSavedLayoutOption);
+    if (preferredSaved) {
+      pruneLayoutBuilderStorageToPreferredSavedLayout(preferredSavedLayoutEntry(savedEntries));
+      state.layoutOptions = [preferredSaved].filter(option => countDisplayLayers(option.layout) > 0);
+      state.selectedLayoutKey = state.layoutOptions[0]?.key || '';
+      renderLayoutSelect();
+      return;
+    }
+
     const working = layoutBuilderWorkingOption();
     if (working) options.push(working);
 
@@ -671,15 +706,8 @@
     );
     if (foodLayoutOption) options.push(foodLayoutOption);
 
-    const savedRaw = parseStorageJson(LAYOUT_BUILDER_SAVED_KEY, []);
-    const savedEntries = Array.isArray(savedRaw) ? savedRaw : Object.values(savedRaw || {});
-    const savedOptions = savedEntries
-      .map(normalizeSavedPreset)
-      .filter(Boolean)
-      .sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)) || a.name.localeCompare(b.name));
     savedOptions.forEach(option => options.push(option));
     state.layoutOptions = options.filter(option => countDisplayLayers(option.layout) > 0);
-    const preferredSaved = state.layoutOptions.find(isPreferredSavedLayoutOption);
     const previousStillAvailable = previousKey && state.layoutOptions.some(option => option.key === previousKey);
     if (preferredSaved && (!previousKey || previousKey === 'working:current' || /^food:/.test(previousKey) || !previousStillAvailable)) {
       state.selectedLayoutKey = preferredSaved.key;
@@ -715,7 +743,7 @@
     els.layoutSelect.value = state.selectedLayoutKey;
     const selected = selectedLayoutOption();
     els.layoutStatus.textContent = selected
-      ? `${selected.kind}; ${countDisplayLayers(selected.layout)} display-section layers available.`
+      ? `${isPreferredSavedLayoutOption(selected) ? 'Canonical test layout locked' : selected.kind}; ${countDisplayLayers(selected.layout)} display-section layers available.`
       : '';
     els.layoutStatus.classList.remove('warn');
   }

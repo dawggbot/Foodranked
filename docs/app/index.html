@@ -1206,7 +1206,7 @@
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     if (APP_MODE === 'layout-builder') document.body.classList.add('layout-builder-mode');
     const BUILDER_BUILD_ID = APP_MODE === 'layout-builder'
-      ? '20260801-minerals-bars-textboxes-v1'
+      ? '20260801-canonical-test-layout-v1'
       : '20260731-vbv2-helper-render-parity-v1';
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
     const SECTIONS = [
@@ -1232,6 +1232,8 @@
     const LOCAL_STORAGE_KEY = `${STORAGE_PREFIX}-v4`;
     const FOOD_LAYOUTS_STORAGE_KEY = `${STORAGE_PREFIX}-food-layouts-v1`;
     const SAVED_SPRITE_LAYOUTS_KEY = `${STORAGE_PREFIX}-sprite-layouts-v1`;
+    const CANONICAL_LAYOUT_PRESET_NAME = 'test';
+    const CANONICAL_LAYOUT_WORKING_META_KEY = 'layoutBuilderCanonicalTestWorkingCopyV1';
     const MACRO_SECTION_LAYOUT_SYNC_KEY = 'macroSectionLayoutFromFatsV6';
     const MACRO_ARROW_PLACEMENT_SYNC_KEY = 'macroArrowPlacementFromFatsV3';
     const HEADER_LAYOUT_SYNC_KEY = 'headerLayoutFromFatsV1';
@@ -1624,6 +1626,12 @@
         const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
         const parsed = raw ? JSON.parse(raw) : null;
         normalizeLayoutSectionAliases(parsed);
+        const canonical = canonicalSavedSpriteLayoutEntryFromStorage();
+        if (canonical) {
+          const canonicalLayout = layoutFromCanonicalSavedSpriteLayout(canonical, parsed);
+          pruneLayoutBuilderStorageToCanonicalTest(canonical, canonicalLayout);
+          return canonicalLayout;
+        }
         const foodScoped = loadLayoutForFood(parsed?.selectedFoodId);
         const candidate = foodScoped || parsed;
         ignoredSavedLayoutInfo = null;
@@ -1652,7 +1660,75 @@
       localStorage.setItem(FOOD_LAYOUTS_STORAGE_KEY, JSON.stringify(map));
     }
 
+    function canonicalSavedLayoutName(value) {
+      return String(value || '').trim().replace(/\s+/g, ' ').toLowerCase();
+    }
+
+    function isCanonicalSavedSpriteLayoutEntry(entry) {
+      return APP_MODE === 'layout-builder'
+        && canonicalSavedLayoutName(entry?.name) === CANONICAL_LAYOUT_PRESET_NAME;
+    }
+
+    function normalizeSavedSpriteLayoutEntry(entry) {
+      if (!entry || !entry.id || !entry.sections || typeof entry.sections !== 'object') return null;
+      return normalizeLayoutSectionAliases({
+        id: String(entry.id),
+        name: String(entry.name || 'Untitled layout'),
+        createdAt: entry.createdAt || new Date().toISOString(),
+        updatedAt: entry.updatedAt || entry.createdAt || new Date().toISOString(),
+        selectedSectionId: entry.selectedSectionId || 'intro',
+        meta: structuredClone(entry.meta || {}),
+        sections: structuredClone(entry.sections)
+      });
+    }
+
+    function sortSavedSpriteLayoutEntries(entries) {
+      return entries.sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)) || a.name.localeCompare(b.name));
+    }
+
+    function readSavedSpriteLayoutEntriesFromStorage() {
+      try {
+        const raw = localStorage.getItem(SAVED_SPRITE_LAYOUTS_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        const entries = Array.isArray(parsed) ? parsed : Object.values(parsed || {});
+        return sortSavedSpriteLayoutEntries(entries.map(normalizeSavedSpriteLayoutEntry).filter(Boolean));
+      } catch {
+        return [];
+      }
+    }
+
+    function canonicalSavedSpriteLayoutEntryFromStorage(entries = readSavedSpriteLayoutEntriesFromStorage()) {
+      return entries.find(isCanonicalSavedSpriteLayoutEntry) || null;
+    }
+
+    function layoutFromCanonicalSavedSpriteLayout(entry, fallbackLayout = null) {
+      const fallback = fallbackLayout && typeof fallbackLayout === 'object' ? fallbackLayout : {};
+      return normalizeLayoutSectionAliases({
+        ...fallback,
+        selectedFoodId: fallback.selectedFoodId || DEFAULT_LAYOUT.selectedFoodId,
+        selectedSectionId: fallback.selectedSectionId || entry.selectedSectionId || DEFAULT_LAYOUT.selectedSectionId,
+        canvas: structuredClone(fallback.canvas || DEFAULT_LAYOUT.canvas),
+        meta: {
+          ...(fallback.meta || {}),
+          ...(entry.meta || {}),
+          [CANONICAL_LAYOUT_WORKING_META_KEY]: true,
+          canonicalLayoutName: CANONICAL_LAYOUT_PRESET_NAME
+        },
+        sections: structuredClone(entry.sections)
+      });
+    }
+
+    function pruneLayoutBuilderStorageToCanonicalTest(entry, fallbackLayout = null) {
+      if (APP_MODE !== 'layout-builder' || !entry) return;
+      localStorage.setItem(SAVED_SPRITE_LAYOUTS_KEY, JSON.stringify([entry]));
+      localStorage.removeItem(FOOD_LAYOUTS_STORAGE_KEY);
+      if (fallbackLayout) {
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(layoutFromCanonicalSavedSpriteLayout(entry, fallbackLayout)));
+      }
+    }
+
     function loadLayoutForFood(foodId) {
+      if (canonicalSavedSpriteLayoutEntryFromStorage()) return null;
       if (!foodId) return null;
       const layout = loadFoodLayoutMap()[foodId];
       if (!layout || typeof layout !== 'object') return null;
@@ -1663,6 +1739,10 @@
     }
 
     function saveLayoutForFood(layout = state.layout) {
+      if (canonicalSavedSpriteLayoutEntryFromStorage()) {
+        localStorage.removeItem(FOOD_LAYOUTS_STORAGE_KEY);
+        return;
+      }
       const foodId = layout?.selectedFoodId;
       if (!foodId) return;
       const map = loadFoodLayoutMap();
@@ -1677,27 +1757,20 @@
     }
 
     function loadSavedSpriteLayouts() {
-      try {
-        const raw = localStorage.getItem(SAVED_SPRITE_LAYOUTS_KEY);
-        const parsed = raw ? JSON.parse(raw) : [];
-        const entries = Array.isArray(parsed) ? parsed : Object.values(parsed || {});
-        return entries
-          .filter(entry => entry && entry.id && entry.sections && typeof entry.sections === 'object')
-          .map(entry => normalizeLayoutSectionAliases({
-            id: String(entry.id),
-            name: String(entry.name || 'Untitled layout'),
-            createdAt: entry.createdAt || new Date().toISOString(),
-            updatedAt: entry.updatedAt || entry.createdAt || new Date().toISOString(),
-            selectedSectionId: entry.selectedSectionId || 'intro',
-            sections: structuredClone(entry.sections)
-          }))
-          .sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)) || a.name.localeCompare(b.name));
-      } catch {
-        return [];
-      }
+      const entries = readSavedSpriteLayoutEntriesFromStorage();
+      const canonical = canonicalSavedSpriteLayoutEntryFromStorage(entries);
+      if (!canonical) return entries;
+      pruneLayoutBuilderStorageToCanonicalTest(canonical);
+      return [canonical];
     }
 
     function persistSavedSpriteLayouts() {
+      const canonical = canonicalSavedSpriteLayoutEntryFromStorage(state.savedSpriteLayouts || []);
+      if (canonical) {
+        state.savedSpriteLayouts = [canonical];
+        pruneLayoutBuilderStorageToCanonicalTest(canonical, state.layout);
+        return;
+      }
       localStorage.setItem(SAVED_SPRITE_LAYOUTS_KEY, JSON.stringify(state.savedSpriteLayouts));
     }
 
@@ -4295,6 +4368,7 @@
     function renderSavedSpriteLayouts() {
       if (!els.savedLayoutSelect) return;
       const selectedId = els.savedLayoutSelect.value;
+      const canonical = canonicalSavedSpriteLayoutEntryFromStorage(state.savedSpriteLayouts || []);
       els.savedLayoutSelect.innerHTML = '';
       if (!state.savedSpriteLayouts.length) {
         const option = document.createElement('option');
@@ -4312,10 +4386,22 @@
       }
       const hasSelection = !!els.savedLayoutSelect.value;
       els.loadSpriteLayout.disabled = !hasSelection;
-      els.deleteSpriteLayout.disabled = !hasSelection;
+      els.deleteSpriteLayout.disabled = !hasSelection || !!canonical;
+      els.saveSpriteLayout.disabled = !!canonical;
+      if (canonical) els.saveSpriteLayout.textContent = 'Test layout locked';
+      else if (els.saveSpriteLayout.textContent === 'Test layout locked') els.saveSpriteLayout.textContent = 'Save layout preset';
     }
 
     function saveCurrentSpriteLayoutPreset() {
+      const canonical = canonicalSavedSpriteLayoutEntryFromStorage(state.savedSpriteLayouts || []);
+      if (canonical) {
+        state.savedSpriteLayouts = [canonical];
+        persistSavedSpriteLayouts();
+        renderSavedSpriteLayouts();
+        els.savedLayoutSelect.value = canonical.id;
+        els.saveSpriteLayout.textContent = 'Test layout locked';
+        return;
+      }
       const name = window.prompt('Name this sprite layout', defaultSavedLayoutName());
       if (!name) return;
       const trimmedName = name.trim();
@@ -4365,6 +4451,11 @@
       const selectedId = els.savedLayoutSelect.value;
       const entry = state.savedSpriteLayouts.find(layout => layout.id === selectedId);
       if (!entry) return;
+      if (isCanonicalSavedSpriteLayoutEntry(entry)) {
+        els.deleteSpriteLayout.textContent = 'Locked';
+        setTimeout(() => els.deleteSpriteLayout.textContent = 'Delete', 1200);
+        return;
+      }
       const deletedIndex = state.savedSpriteLayouts.findIndex(layout => layout.id === selectedId);
       state.savedSpriteLayouts = state.savedSpriteLayouts.filter(layout => layout.id !== selectedId);
       persistSavedSpriteLayouts();

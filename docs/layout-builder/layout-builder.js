@@ -8,6 +8,7 @@
   const SAVED_LAYOUT_MESSAGE_ID = 'layoutBuilderSavedLayoutMessage';
   const LAYOUT_STORAGE_KEY = 'foodranked-layout-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-layout-builder-sprite-layouts-v1';
+  const FOOD_LAYOUTS_KEY = 'foodranked-layout-builder-food-layouts-v1';
   const PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const RESTORE_TEST_FROM_PLACEMENT_ID = 'layoutBuilderRestoreTestFromPlacement';
   const TEST_LAYOUT_NAME = 'test';
@@ -741,6 +742,53 @@
     };
   }
 
+  function isTestLayoutEntry(entry) {
+    return collapseText(entry?.name).toLowerCase() === TEST_LAYOUT_NAME;
+  }
+
+  function canonicalTestLayoutEntry(entries) {
+    return [...entries]
+      .filter(isTestLayoutEntry)
+      .sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)) || String(a.id).localeCompare(String(b.id)))[0] || null;
+  }
+
+  function canonicalTestWorkingLayout(doc, entry) {
+    const current = currentLayout(doc) || {};
+    return {
+      ...clone(current),
+      selectedFoodId: current.selectedFoodId || 'bacon',
+      selectedSectionId: current.selectedSectionId || entry.selectedSectionId || 'intro',
+      meta: {
+        ...(current.meta || {}),
+        ...(entry.meta || {}),
+        layoutBuilderCanonicalTestWorkingCopyV1: true,
+        canonicalLayoutName: TEST_LAYOUT_NAME
+      },
+      sections: clone(entry.sections)
+    };
+  }
+
+  function lockStorageToCanonicalTestLayout(doc) {
+    const win = getFrameWindow();
+    if (!win) return null;
+    const entries = readSavedLayouts(win);
+    const canonical = canonicalTestLayoutEntry(entries);
+    if (!canonical) return null;
+
+    if (entries.length !== 1 || entries[0].id !== canonical.id) {
+      persistSavedLayouts(win, [canonical]);
+    }
+    try {
+      win.localStorage.removeItem(FOOD_LAYOUTS_KEY);
+    } catch {}
+
+    const current = currentLayout(doc);
+    if (!current?.meta?.layoutBuilderCanonicalTestWorkingCopyV1) {
+      applyLayoutJson(doc, canonicalTestWorkingLayout(doc, canonical));
+    }
+    return canonical;
+  }
+
   function requestedPlacementFoodId(payload) {
     const params = new URLSearchParams(window.location.search);
     const explicit = collapseText(
@@ -778,6 +826,10 @@
   function restoreTestLayoutFromPlacement(doc, { auto = false } = {}) {
     const win = getFrameWindow();
     if (!win) return;
+    if (canonicalTestLayoutEntry(readSavedLayouts(win))) {
+      setSavedLayoutMessage(doc, 'Canonical test layout is locked');
+      return;
+    }
 
     const restored = placementEntryForRestore(win);
     if (!restored) {
@@ -931,7 +983,22 @@
       }, true);
     }
 
-    renderSavedLayoutSelect(doc);
+    const canonical = lockStorageToCanonicalTestLayout(doc);
+    if (canonical) {
+      const input = doc.getElementById(SAVED_LAYOUT_NAME_ID);
+      if (input) {
+        input.value = TEST_LAYOUT_NAME;
+        input.readOnly = true;
+      }
+      saveButton.disabled = true;
+      saveButton.textContent = 'Test layout locked';
+      deleteButton.disabled = true;
+      const restoreButton = doc.getElementById(RESTORE_TEST_FROM_PLACEMENT_ID);
+      if (restoreButton) restoreButton.hidden = true;
+      selectedSavedLayoutId = canonical.id;
+    }
+
+    renderSavedLayoutSelect(doc, canonical?.id || null);
     maybeAutoRestoreTestFromPlacement(doc);
   }
 
@@ -942,6 +1009,7 @@
 
     const currentSelection = selectedId ?? (select.value || selectedSavedLayoutId);
     const entries = readSavedLayouts(win);
+    const canonical = canonicalTestLayoutEntry(entries);
     const signature = JSON.stringify(entries.map(entry => [entry.id, entry.name, entry.updatedAt]));
     const nextSignature = `${signature}|${currentSelection}`;
     const optionValues = Array.from(select.options).map(option => [option.value, option.textContent]);
@@ -954,8 +1022,18 @@
       const hasSelection = !!select.value;
       const loadButton = doc.getElementById('loadSpriteLayout');
       const deleteButton = doc.getElementById('deleteSpriteLayout');
+      const saveButton = doc.getElementById('saveSpriteLayout');
+      const input = doc.getElementById(SAVED_LAYOUT_NAME_ID);
       if (loadButton) loadButton.disabled = !hasSelection;
-      if (deleteButton) deleteButton.disabled = !hasSelection;
+      if (deleteButton) deleteButton.disabled = !hasSelection || !!canonical;
+      if (saveButton) {
+        saveButton.disabled = !!canonical;
+        if (canonical) saveButton.textContent = 'Test layout locked';
+      }
+      if (input && canonical) {
+        input.value = TEST_LAYOUT_NAME;
+        input.readOnly = true;
+      }
       populateSelectedLayoutName(doc);
       return;
     }
@@ -980,8 +1058,18 @@
     const hasSelection = !!select.value;
     const loadButton = doc.getElementById('loadSpriteLayout');
     const deleteButton = doc.getElementById('deleteSpriteLayout');
+    const saveButton = doc.getElementById('saveSpriteLayout');
+    const input = doc.getElementById(SAVED_LAYOUT_NAME_ID);
     if (loadButton) loadButton.disabled = !hasSelection;
-    if (deleteButton) deleteButton.disabled = !hasSelection;
+    if (deleteButton) deleteButton.disabled = !hasSelection || !!canonical;
+    if (saveButton) {
+      saveButton.disabled = !!canonical;
+      if (canonical) saveButton.textContent = 'Test layout locked';
+    }
+    if (input && canonical) {
+      input.value = TEST_LAYOUT_NAME;
+      input.readOnly = true;
+    }
     select.dataset.layoutBuilderSignature = `${signature}|${select.value}`;
     populateSelectedLayoutName(doc);
   }
@@ -1003,6 +1091,16 @@
     const select = doc.getElementById('savedLayoutSelect');
     const layout = currentLayout(doc);
     if (!win || !input || !select || !layout?.sections) return;
+    const canonical = canonicalTestLayoutEntry(readSavedLayouts(win));
+    if (canonical) {
+      persistSavedLayouts(win, [canonical]);
+      try {
+        win.localStorage.removeItem(FOOD_LAYOUTS_KEY);
+      } catch {}
+      renderSavedLayoutSelect(doc, canonical.id);
+      setSavedLayoutMessage(doc, 'Canonical test layout is locked');
+      return;
+    }
 
     const name = collapseText(input.value);
     if (!name) {
@@ -1063,6 +1161,14 @@
     const select = doc.getElementById('savedLayoutSelect');
     if (!win || !select?.value) {
       setSavedLayoutMessage(doc, 'Select a saved layout', true);
+      return;
+    }
+
+    const canonical = canonicalTestLayoutEntry(readSavedLayouts(win));
+    if (canonical) {
+      persistSavedLayouts(win, [canonical]);
+      renderSavedLayoutSelect(doc, canonical.id);
+      setSavedLayoutMessage(doc, 'Canonical test layout is locked');
       return;
     }
 

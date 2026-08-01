@@ -1,6 +1,6 @@
 ---
 name: "nutrition-scoring-engineer"
-description: "Guard sports-use and electrolyte summary claims"
+description: "Guard FoodRanked scoring, source-backed nutrition fields, estimates, pros/cons, sports/electrolyte claims, and exact metrics."
 ---
 
 # Proposed Update: FoodRanked Script Claim Guardrails
@@ -33,6 +33,20 @@ Add these guardrails to the FoodRanked scoring/script workflow.
 - Potassium can be mentioned as source-backed fluid-balance, nerve, or muscle-contraction support when DV% is meaningfully high or when it is the strongest raw mineral DV.
 - Do not oversell potassium as a standalone acute performance aid. For sweat replacement and sports hydration, sodium usually needs separate consideration; potassium-rich foods are better framed as general electrolyte/mineral support unless the food is specifically a sports drink or electrolyte product.
 - When a mineral has the highest raw DV but lower scoring weight, it can still deserve a spoken callout if it is at least about 30% daily value and the claim is phrased modestly.
+
+## Nutrition Field Completion Guardrails
+
+When food entries are filled or refreshed:
+
+- Keep canonical source nutrition separate from derived display/scoring outputs.
+- Source metrics in `foods/*.sample.json` must be source-backed, DV-derived from a source-backed amount, or explicitly labelled as a defensible estimate in `metricProvenance`.
+- Use `null` for any metric that is not defensibly sourceable for the exact food identity. Do not fill zeros unless zero is chemically/identity-backed or directly source-backed.
+- Do not write presentation-only protein defaults or display estimates back into source metrics as facts.
+- Derive EAA/NEAA only from source-backed amino-acid rows and the FoodRanked amino-acid thresholds; do not use old aggregate proxies.
+- Derive collagen only from source-backed hydroxyproline or a clearly documented, narrow meat-category method. If the basis is not defensible, keep `collagen_g` null and let display policy handle presentation.
+- For vitamins and minerals, store DV percentages for the canonical FoodRanked metrics and let scoring use `floor(DV% / 10)`, capped at `10`.
+- Keep the v1 B-vitamin identity exact: `vitamin_b12_dv` means Vitamin B12, not generic Vitamin B or B-complex.
+- Pros/cons quality affects scoring and must not be section recap. Context items should have a separate angle such as processing burden, named compounds, anti-nutrients, absorbability, tolerance, sourcing, storage, preparation, meal role, or culinary role.
 
 ## Review Step
 

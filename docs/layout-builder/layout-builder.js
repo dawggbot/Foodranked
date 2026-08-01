@@ -6,6 +6,7 @@
   const ROTATE_CARD_ID = 'layoutBuilderRotateCard';
   const SAVED_LAYOUT_NAME_ID = 'layoutBuilderSavedLayoutName';
   const SAVED_LAYOUT_MESSAGE_ID = 'layoutBuilderSavedLayoutMessage';
+  const LOCKED_LAYOUT_DOWNLOAD_ID = 'layoutBuilderDownloadLockedLayouts';
   const LAYOUT_STORAGE_KEY = 'foodranked-layout-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-layout-builder-sprite-layouts-v1';
   const FOOD_LAYOUTS_KEY = 'foodranked-layout-builder-food-layouts-v1';
@@ -978,6 +979,44 @@
     return sortSavedLayoutEntries(lockedEntries).find(isLockedLayoutEntry) || null;
   }
 
+  function downloadTextFile(doc, filename, text, type = 'application/json') {
+    const win = getFrameWindow() || window;
+    const blob = new Blob([text], { type });
+    const url = win.URL.createObjectURL(blob);
+    const link = doc.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.style.display = 'none';
+    doc.body.appendChild(link);
+    link.click();
+    link.remove();
+    win.setTimeout(() => win.URL.revokeObjectURL(url), 1000);
+  }
+
+  function downloadLockedLayoutCopies(doc) {
+    const win = getFrameWindow();
+    if (!win) return;
+    const lockedEntries = sortSavedLayoutEntries(readSavedLayouts(win).filter(isLockedLayoutEntry));
+    if (lockedEntries.length !== LOCKED_LAYOUT_PRESET_NAMES.length) {
+      setSavedLayoutMessage(doc, 'Open/reload Layout Builder once so all five locked copies exist', true);
+      return;
+    }
+    const exportedAt = new Date().toISOString();
+    const payload = {
+      exportedAt,
+      storageKey: SAVED_LAYOUTS_KEY,
+      lockVersion: LOCKED_LAYOUT_VERSION,
+      names: [...LOCKED_LAYOUT_PRESET_NAMES],
+      layouts: clone(lockedEntries)
+    };
+    downloadTextFile(
+      doc,
+      `foodranked-layout-builder-locked-test-1-5-${exportedAt.slice(0, 10)}.json`,
+      JSON.stringify(payload, null, 2)
+    );
+    setSavedLayoutMessage(doc, 'Locked layout JSON downloaded');
+  }
+
   function setSavedLayoutMessage(doc, message, isError = false) {
     const node = doc.getElementById(SAVED_LAYOUT_MESSAGE_ID);
     if (!node) return;
@@ -1022,6 +1061,18 @@
     }
 
     doc.getElementById('layoutBuilderRestoreTestFromPlacement')?.remove();
+    if (!doc.getElementById(LOCKED_LAYOUT_DOWNLOAD_ID)) {
+      const downloadButton = doc.createElement('button');
+      downloadButton.id = LOCKED_LAYOUT_DOWNLOAD_ID;
+      downloadButton.type = 'button';
+      downloadButton.textContent = 'Download locked JSON';
+      deleteButton.insertAdjacentElement('afterend', downloadButton);
+      downloadButton.addEventListener('click', event => {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        downloadLockedLayoutCopies(doc);
+      }, true);
+    }
 
     if (!stack.dataset.layoutBuilderSavedLayoutBound) {
       stack.dataset.layoutBuilderSavedLayoutBound = 'true';

@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260801-score-bg-macro-v1';
+  const BUILDER_BUILD_ID = '20260801-current-pages-v1';
   const DISPLAY_BUILDER_V2_EXPORT_TIMEOUT_MS = 8000;
   const DISPLAY_BUILDER_V2_EXPORT_POLL_MS = 150;
   const AUTHOR_GRID = { width: 105, height: 186.666667 };
@@ -566,7 +566,6 @@
     narrationAudio: document.getElementById('narrationAudio'),
     playPause: document.getElementById('playPause'),
     audioToggle: document.getElementById('audioToggle'),
-    openMp4Proof: document.getElementById('openMp4Proof'),
     downloadVideo: document.getElementById('downloadVideo'),
     audioStatus: document.getElementById('audioStatus'),
     downloadStatus: document.getElementById('downloadStatus'),
@@ -597,15 +596,12 @@
   const requestedFoodId = urlParams.get('food') || '';
   const requestedSceneId = urlParams.get('scene') || '';
   const requestedStartTime = Number(urlParams.get('time'));
-  const requestedProofMode = String(urlParams.get('proof') || urlParams.get('view') || '').toLowerCase();
-  const mp4ProofMode = ['1', 'true', 'mp4', 'mp4-proof'].includes(requestedProofMode);
   if (Object.prototype.hasOwnProperty.call(savedState, 'audioEnabled')) {
     delete savedState.audioEnabled;
     localStorage.setItem(VIDEO_STATE_KEY, JSON.stringify(savedState));
   }
   const state = {
-    proofMode: mp4ProofMode,
-    renderMode: urlParams.get('render') === 'mp4' || mp4ProofMode,
+    renderMode: urlParams.get('render') === 'mp4',
     foodFilter: '',
     selectedFoodId: requestedFoodId || savedState.selectedFoodId || 'bacon',
     layoutSourceId: requestedLayoutSourceId || savedState.layoutSourceId || 'display-builder-v2',
@@ -704,7 +700,6 @@
     renderGifFrameOverrides: new Map(),
     playbackSfxEvents: null
   };
-  document.body?.classList.toggle('mp4-proof-mode', state.proofMode);
 
   function readJson(raw, fallback) {
     try {
@@ -3717,34 +3712,6 @@
     }));
   }
 
-  function mp4ProofUrl() {
-    const food = selectedFood();
-    const url = new URL(window.location.href);
-    if (state.proofMode) {
-      url.searchParams.delete('proof');
-      url.searchParams.delete('render');
-    } else {
-      url.searchParams.set('proof', 'mp4');
-      url.searchParams.set('render', 'mp4');
-    }
-    url.searchParams.set('food', food?.id || state.selectedFoodId || 'bacon');
-    url.searchParams.set('scene', activeSceneAt()?.id || state.selectedSceneId || 'intro');
-    url.searchParams.set('time', state.currentTime.toFixed(3));
-    url.searchParams.set('build', BUILDER_BUILD_ID);
-    if (state.layoutSourceId) url.searchParams.set('layoutSource', state.layoutSourceId);
-    return url.href;
-  }
-
-  function openMp4ProofPage() {
-    persist();
-    const url = mp4ProofUrl();
-    if (state.proofMode) {
-      window.location.href = url;
-      return;
-    }
-    window.open(url, '_blank', 'noopener');
-  }
-
   function renderLayoutSourceOptions() {
     const options = layoutSourceOptions();
     if (!options.length) {
@@ -3837,7 +3804,6 @@
 
   function updatePlaybackControls(overrideStatus, { refreshAudioStatus = true } = {}) {
     els.playPause.textContent = state.playing ? 'Pause' : 'Play';
-    if (els.openMp4Proof) els.openMp4Proof.textContent = state.proofMode ? 'Studio' : 'MP4 proof';
     if (refreshAudioStatus || overrideStatus) updateAudioControls(overrideStatus);
     updateDownloadControls();
 
@@ -8457,10 +8423,6 @@
 
   els.downloadVideo.addEventListener('click', () => {
     downloadPublishedMp4();
-  });
-
-  els.openMp4Proof?.addEventListener('click', () => {
-    openMp4ProofPage();
   });
 
   els.sceneDuration.addEventListener('input', () => {

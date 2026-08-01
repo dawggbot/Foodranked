@@ -19,11 +19,14 @@ Current first milestone:
 - local Node backend with no package dependencies
 - app-owned `studio-data/` state folder
 - health/status API with redacted API-key presence
-- embedded Database, Layout Builder, DBv2, and VBv2 views
+- embedded Database, DBv2, and VBv2 webpage views
 - search-based food picker for jumping between entries
 - Studio Input panel and local JSON APIs for food entries, PNG uploads, and narration audio uploads
 - browser-local state backup download
 - VBv2-compatible local MP4 render endpoints
+
+Studio uses the current DBv2 placement export and VBv2 preview pages directly. It does
+not seed legacy layout-builder state or expose the removed proof-only preview.
 
 Local input APIs write into `studio-data/` and are mirrored by the Studio UI into
 the browser-local database used by DBv2 and VBv2:

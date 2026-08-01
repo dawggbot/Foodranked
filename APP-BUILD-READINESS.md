@@ -5,9 +5,8 @@
 Build one FoodRanked Studio app that contains the current production workflow end to end:
 
 - food database and finalisation state
-- layout editing
-- DBv2 display proofing
-- VBv2 video proofing and render/export
+- DBv2 display layout proofing
+- VBv2 video preview and render/export
 - nutrition research and scoring
 - script, narration, subtitle, and asset workflows
 - social media publishing packs, scheduling, and analytics
@@ -16,29 +15,25 @@ The app should make GitHub useful for versioning and deployment, but not essenti
 
 ## Current Active Tools
 
-Only these four browser tools are active workflow surfaces:
+Only these three browser tools are active workflow surfaces:
 
 1. `docs/database/`
    - Shared food and universal UI database.
    - Current storage: browser `localStorage` key `foodranked-production-database-v1`.
    - Feeds DBv2 and VBv2 through `docs/app/foodranked-database.js`.
 
-2. `docs/layout-builder/`
-   - Source of truth for sprite/textbox placement and sizing.
-   - Current storage: browser `localStorage` keys `foodranked-layout-builder-v4`, `foodranked-layout-builder-food-layouts-v1`, and `foodranked-layout-builder-sprite-layouts-v1`.
-
-3. `docs/display-builder-v2/`
-   - Applies the selected food's sprites, text, nutrition values, and section content into the Layout Builder placement.
+2. `docs/display-builder-v2/`
+   - Applies the selected food's sprites, text, nutrition values, and section content into the current DBv2 layout.
    - Exports rendered placement to `localStorage` key `foodranked-display-builder-v2-placement-layouts-v1`.
 
-4. `docs/video-builder-v2/`
+3. `docs/video-builder-v2/`
    - Reads DBv2 placement only.
-   - Adds timing, narration, subtitles, SFX, VFX, highlights, MP4 proof, and render/export behavior.
+   - Adds timing, narration, subtitles, SFX, VFX, highlights, preview, and render/export behavior.
 
 The intended chain is:
 
 ```text
-Database + Layout Builder -> DBv2 rendered placement -> VBv2 video proof/render
+Database -> DBv2 rendered placement -> VBv2 video preview/render
 ```
 
 ## Current Limits To Remove
@@ -96,9 +91,9 @@ Playwright Chromium runtime before packaging.
 - Food Library: food entries, metrics, provenance, source notes, finalised/downloaded state.
 - Nutrition Research: USDA/Open Food Facts lookup, outside research notes, estimates, missing-field warnings.
 - Scoring: ruleset validation, section scores, tier explanations, score deltas.
-- Layout Studio: current Layout Builder functionality as the layout editor.
+- Layout Studio: current DBv2 layout behavior as the layout editor.
 - Display Proof: DBv2 behavior as a proof panel.
-- Video Studio: VBv2 behavior as proof, timeline, narration, subtitles, VFX, and render controls.
+- Video Studio: VBv2 behavior as preview, timeline, narration, subtitles, VFX, and render controls.
 - Asset Library: sprites, food images, SFX, music, voice takes, video renders, usage refs.
 - Episode Pipeline: idea -> data -> scored -> script -> audio -> aligned subtitles -> proof -> render -> upload pack -> scheduled -> published.
 - Publishing: platform-specific titles, descriptions, hashtags, thumbnails, schedules, approvals, and upload status.
@@ -235,8 +230,7 @@ Keep all external tokens in app settings/secrets, never in committed files.
    - Keep visual canvas behavior unchanged during the first merge.
 
 4. Replace `localStorage` handoffs with API-backed state.
-   - Layout Builder writes layouts to the app.
-   - DBv2 reads layouts from the app and writes placement exports to the app.
+   - DBv2 writes current layouts and placement exports to the app.
    - VBv2 reads placement exports from the app and writes render jobs to the app.
 
 5. Move render/export into app-managed jobs.

@@ -150,6 +150,8 @@ h2 {
   background: color-mix(in srgb, var(--panel) 92%, #000 8%);
   border-radius: 8px;
   min-height: 0;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .panel {
@@ -290,6 +292,7 @@ h2 {
 
 .preview-column {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto minmax(0, 1fr) auto auto;
   align-items: stretch;
   justify-items: center;
@@ -304,18 +307,18 @@ h2 {
 
 .preview-toolbar {
   display: grid;
-  grid-template-columns: 76px 88px 96px 126px 88px minmax(0, 1fr);
+  grid-template-columns: 76px 88px 126px 88px minmax(0, 1fr);
   grid-template-areas:
-    "play audio proof download time scrub"
-    "mix mix mix mix mix mix"
-    "status status download-status download-status download-status download-status";
+    "play audio download time scrub"
+    "mix mix mix mix mix"
+    "status status download-status download-status download-status";
   row-gap: 6px;
   width: 100%;
+  min-width: 0;
 }
 
 #playPause { grid-area: play; }
 #audioToggle { grid-area: audio; }
-#openMp4Proof { grid-area: proof; }
 #downloadVideo { grid-area: download; }
 #timeReadout { grid-area: time; }
 #timeScrub {
@@ -373,6 +376,7 @@ h2 {
 }
 
 .audio-status {
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -380,6 +384,7 @@ h2 {
 }
 
 .download-status {
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -930,6 +935,8 @@ h2 {
   grid-auto-columns: minmax(58px, 1fr);
   gap: 4px;
   width: 100%;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .strip-segment {
@@ -1008,7 +1015,6 @@ h2 {
     grid-template-columns: 76px 88px minmax(0, 1fr);
     grid-template-areas:
       "play audio time"
-      "proof proof proof"
       "download download download"
       "scrub scrub scrub"
       "mix mix mix"
@@ -1020,6 +1026,11 @@ h2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .timeline-strip {
+    grid-auto-columns: minmax(0, 1fr);
+    overflow: hidden;
+  }
+
   .time-readout {
     text-align: right;
   }
@@ -1029,74 +1040,4 @@ h2 {
     text-align: left;
   }
 
-}
-
-body.mp4-proof-mode .app-shell {
-  grid-template-columns: 1fr;
-  padding: 10px;
-}
-
-body.mp4-proof-mode .left-panel,
-body.mp4-proof-mode .right-panel,
-body.mp4-proof-mode .diagnostics-row,
-body.mp4-proof-mode .audio-mix-controls,
-body.mp4-proof-mode #audioStatus,
-body.mp4-proof-mode #downloadStatus {
-  display: none;
-}
-
-body.mp4-proof-mode .preview-column {
-  width: 100%;
-  min-width: 0;
-  max-width: 100%;
-  height: calc(100vh - 20px);
-  height: calc(100dvh - 20px);
-  max-height: calc(100vh - 20px);
-  max-height: calc(100dvh - 20px);
-  padding: 8px;
-  gap: 8px;
-  justify-items: stretch;
-}
-
-body.mp4-proof-mode .preview-toolbar {
-  min-width: 0;
-  max-width: 100%;
-  width: 100%;
-  justify-self: stretch;
-  grid-template-columns: 76px 88px 96px 126px 88px minmax(0, 1fr);
-  grid-template-areas: "play audio proof download time scrub";
-  row-gap: 0;
-}
-
-body.mp4-proof-mode .phone-shell {
-  justify-self: center;
-}
-
-body.mp4-proof-mode .timeline-strip {
-  min-width: 0;
-  max-width: 100%;
-  justify-self: stretch;
-  grid-auto-columns: minmax(0, 1fr);
-  overflow: hidden;
-}
-
-@media (max-width: 760px) {
-  body.mp4-proof-mode .preview-toolbar {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 6px;
-    width: calc(100vw - 36px);
-    max-width: calc(100vw - 36px);
-  }
-
-  body.mp4-proof-mode #playPause { flex: 0 0 76px; }
-  body.mp4-proof-mode #audioToggle { flex: 0 0 88px; }
-  body.mp4-proof-mode #timeReadout { flex: 1 1 120px; }
-
-  body.mp4-proof-mode #openMp4Proof,
-  body.mp4-proof-mode #downloadVideo,
-  body.mp4-proof-mode #timeScrub {
-    flex: 1 0 100%;
-  }
 }

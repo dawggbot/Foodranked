@@ -65,13 +65,6 @@ const TOOL_DEFINITIONS = Object.freeze([
     state: 'browser-local'
   },
   {
-    id: 'layout',
-    label: 'Layout',
-    path: '/docs/layout-builder/index.html',
-    role: 'layout-source',
-    state: 'browser-local'
-  },
-  {
     id: 'display',
     label: 'DBv2',
     path: '/docs/display-builder-v2/index.html',

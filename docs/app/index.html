@@ -1206,7 +1206,7 @@
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     if (APP_MODE === 'layout-builder') document.body.classList.add('layout-builder-mode');
     const BUILDER_BUILD_ID = APP_MODE === 'layout-builder'
-      ? '20260801-macro-bar-no-scale-v1'
+      ? '20260801-macro-bar-fat-icon-scale-v1'
       : '20260731-vbv2-helper-render-parity-v1';
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
     const SECTIONS = [
@@ -1239,6 +1239,10 @@
     const MACRO_BAR_PLACEMENT_SOURCE_FOOD_ID = 'bacon';
     const MACRO_BAR_PLACEMENT_SOURCE_SECTION_ID = 'fats';
     const MACRO_BAR_PLACEMENT_SECTIONS = ['fats', 'carbs', 'protein'];
+    const MACRO_BAR_FAT_ICON_SCALE_MODE = 'fat-icon-trial';
+    const MACRO_BAR_FAT_ICON_SCALE_BACKUP_KEY = 'macroBarFatIconScaleTrialBackupV1';
+    const MACRO_BAR_ASSET_SIZE = { width: 104, height: 17 };
+    const FAT_ICON_REFERENCE_SIZE = { width: 24, height: 24, naturalWidth: 32, naturalHeight: 32 };
     const MACRO_BAR_PLACEMENT_KEYS = [
       'x',
       'y',
@@ -2004,11 +2008,110 @@
     }
 
     function restoreMacroBarSizeSnapshot(layer, snapshot) {
-      if (!layer || !snapshot) return;
+      if (!layer || !snapshot) return false;
+      let changed = false;
       for (const [key, value] of Object.entries(snapshot)) {
-        if (value === undefined) delete layer[key];
-        else layer[key] = value;
+        if (value === undefined) {
+          if (!Object.prototype.hasOwnProperty.call(layer, key)) continue;
+          delete layer[key];
+        } else {
+          if (layer[key] === value) continue;
+          layer[key] = value;
+        }
+        changed = true;
       }
+      return changed;
+    }
+
+    function isFatIconSpriteLayer(layer) {
+      if (!isSpriteLayer(layer)) return false;
+      const fingerprint = `${layer.id || ''} ${layer.label || ''} ${layer.src || ''}`.toLowerCase();
+      return fingerprint.includes('/macros_section/section_1_fats/fat_icon.gif') || /\bfats?\s+icon\b/.test(fingerprint);
+    }
+
+    function positiveLayerNumber(value, fallback = null) {
+      const number = Number(value);
+      return Number.isFinite(number) && number > 0 ? number : fallback;
+    }
+
+    function macroBarFatIconScale(layout = state.layout) {
+      const fatIcon = getSectionLayersFromLayout(layout, 'fats').find(isFatIconSpriteLayer);
+      const width = positiveLayerNumber(fatIcon?.width, FAT_ICON_REFERENCE_SIZE.width);
+      const height = positiveLayerNumber(fatIcon?.height, FAT_ICON_REFERENCE_SIZE.height);
+      const naturalWidth = positiveLayerNumber(fatIcon?.naturalWidth, FAT_ICON_REFERENCE_SIZE.naturalWidth);
+      const naturalHeight = positiveLayerNumber(fatIcon?.naturalHeight, FAT_ICON_REFERENCE_SIZE.naturalHeight);
+      return {
+        x: width / naturalWidth,
+        y: height / naturalHeight
+      };
+    }
+
+    function macroBarFatIconScaledSize(layout = state.layout) {
+      const scale = macroBarFatIconScale(layout);
+      return {
+        width: Math.max(1, Math.round(MACRO_BAR_ASSET_SIZE.width * scale.x)),
+        height: Math.max(1, Math.round(MACRO_BAR_ASSET_SIZE.height * scale.y))
+      };
+    }
+
+    function macroBarLayerBackupKey(sectionId, layer, index) {
+      return `${sectionId}:${layer.id || layer.src || index}`;
+    }
+
+    function macroBarTrialBackupSnapshot(layer) {
+      return {
+        width: layer.width,
+        height: layer.height,
+        naturalWidth: layer.naturalWidth,
+        naturalHeight: layer.naturalHeight,
+        preserveAspect: layer.preserveAspect,
+        aspectRatio: layer.aspectRatio
+      };
+    }
+
+    function applyMacroBarFatIconScaleTrial(layout) {
+      if (APP_MODE !== 'layout-builder' || !layout?.sections) return false;
+      layout.meta = layout.meta || {};
+      const backups = layout.meta[MACRO_BAR_FAT_ICON_SCALE_BACKUP_KEY] || {};
+      const trialSize = macroBarFatIconScaledSize(layout);
+      const restoreOnly = MACRO_BAR_FAT_ICON_SCALE_MODE !== 'fat-icon-trial';
+      let changed = false;
+
+      for (const sectionId of Object.keys(MACRO_BAR_LAYER_SPECS)) {
+        getSectionLayersFromLayout(layout, sectionId).forEach((layer, index) => {
+          if (!isMacroBarFrameOrFillLayer(layer) || macroBarLayerSection(layer, sectionId) !== sectionId) return;
+          const key = macroBarLayerBackupKey(sectionId, layer, index);
+          if (!backups[key]) {
+            backups[key] = macroBarTrialBackupSnapshot(layer);
+            changed = true;
+          }
+
+          if (restoreOnly) {
+            changed = restoreMacroBarSizeSnapshot(layer, backups[key]) || changed;
+            return;
+          }
+
+          if (Number(layer.width) !== trialSize.width) {
+            layer.width = trialSize.width;
+            changed = true;
+          }
+          if (Number(layer.height) !== trialSize.height) {
+            layer.height = trialSize.height;
+            changed = true;
+          }
+          if (Number(layer.naturalWidth) !== MACRO_BAR_ASSET_SIZE.width) {
+            layer.naturalWidth = MACRO_BAR_ASSET_SIZE.width;
+            changed = true;
+          }
+          if (Number(layer.naturalHeight) !== MACRO_BAR_ASSET_SIZE.height) {
+            layer.naturalHeight = MACRO_BAR_ASSET_SIZE.height;
+            changed = true;
+          }
+        });
+      }
+
+      if (Object.keys(backups).length) layout.meta[MACRO_BAR_FAT_ICON_SCALE_BACKUP_KEY] = backups;
+      return changed;
     }
 
     function getHeaderLayoutSourceLayers(layout) {
@@ -4068,6 +4171,7 @@
       migrateMacroLayoutFromOutro(normalized);
       ensureMacroBarFillLayers(normalized);
       applyBaconMacroBarPlacementTemplate(normalized, baconMacroBarPlacementTemplateForLayout(normalized));
+      applyMacroBarFatIconScaleTrial(normalized);
       ensureFatsMacroTotalTextLayers(normalized);
       ensureCarbsMacroTotalTextLayers(normalized);
       ensureProteinMacroTotalTextLayers(normalized);
@@ -4921,7 +5025,7 @@
     function spriteLibraryItems() {
       const selectedFood = getSelectedFoodStub();
       const slug = typeSpriteSlug(selectedFood?.foodType);
-      const macroBarDropOptions = { dropScale: 1 };
+      const macroBarDropOptions = { dropScale: macroBarFatIconScale().x };
       const sectionSpecific = [
         [`section separator ${slug.replace('_', ' ')}`, `./sprites/ui/section_separator/${slug}_section_separator.png`],
         [`food image plate ${slug.replace('_', ' ')}`, `${ROOT_SPRITE_BASE}/header/food_plate/${slug}_food_plate.png`],

@@ -1205,7 +1205,7 @@
   <script>
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     if (APP_MODE === 'layout-builder') document.body.classList.add('layout-builder-mode');
-    const BUILDER_BUILD_ID = '20260801-intro-header-sync-v1';
+    const BUILDER_BUILD_ID = '20260801-unlock-layout-save-v1';
     const BACKGROUND_MOTION_DEFAULT_MAX_SIZE = 80;
     const BACKGROUND_MOTION_LEGACY_MAX_SIZE = 40;
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
@@ -1233,8 +1233,9 @@
     const FOOD_LAYOUTS_STORAGE_KEY = `${STORAGE_PREFIX}-food-layouts-v1`;
     const SAVED_SPRITE_LAYOUTS_KEY = `${STORAGE_PREFIX}-sprite-layouts-v1`;
     const CANONICAL_LAYOUT_PRESET_NAME = 'test';
-    const CANONICAL_LAYOUT_WORKING_META_KEY = 'layoutBuilderCanonicalTestWorkingCopyV1';
     const RECOVERED_TEST_BACKUP_META_KEY = 'layoutBuilderRecoveredTestBackupV1';
+    const SAVED_LAYOUT_BACKUP_INDEX_KEY = 'foodranked-layout-builder-save-backups-v1';
+    const SAVED_LAYOUT_BACKUP_STORAGE_PREFIX = 'foodranked-layout-builder-before-save';
     const REVOKED_LAYOUT_SEED_VERSIONS = new Set(['20260801-current-builder-layout-v1']);
     const REVOKED_LAYOUT_SEED_SOURCES = new Set(['docs/layout-builder/canonical-test-layout.js']);
     const REVOKED_LAYOUT_SEED_IDS = new Set(['layout_test_current_builder_20260801']);
@@ -1637,12 +1638,6 @@
           return null;
         }
         normalizeLayoutSectionAliases(parsed);
-        const canonical = canonicalSavedSpriteLayoutEntryFromStorage();
-        if (canonical) {
-          const canonicalLayout = layoutFromCanonicalSavedSpriteLayout(canonical, parsed);
-          pruneLayoutBuilderStorageToCanonicalTest(canonical, canonicalLayout);
-          return canonicalLayout;
-        }
         const foodScoped = loadLayoutForFood(parsed?.selectedFoodId);
         const candidate = foodScoped || parsed;
         ignoredSavedLayoutInfo = null;
@@ -1765,34 +1760,8 @@
       return entries.find(isCanonicalSavedSpriteLayoutEntry) || null;
     }
 
-    function layoutFromCanonicalSavedSpriteLayout(entry, fallbackLayout = null) {
-      const fallback = fallbackLayout && typeof fallbackLayout === 'object' ? fallbackLayout : {};
-      return normalizeLayoutSectionAliases({
-        ...fallback,
-        selectedFoodId: fallback.selectedFoodId || DEFAULT_LAYOUT.selectedFoodId,
-        selectedSectionId: fallback.selectedSectionId || entry.selectedSectionId || DEFAULT_LAYOUT.selectedSectionId,
-        canvas: structuredClone(fallback.canvas || DEFAULT_LAYOUT.canvas),
-        meta: {
-          ...(fallback.meta || {}),
-          ...(entry.meta || {}),
-          [CANONICAL_LAYOUT_WORKING_META_KEY]: true,
-          canonicalLayoutName: CANONICAL_LAYOUT_PRESET_NAME
-        },
-        sections: structuredClone(entry.sections)
-      });
-    }
-
-    function pruneLayoutBuilderStorageToCanonicalTest(entry, fallbackLayout = null) {
-      if (APP_MODE !== 'layout-builder' || !entry) return;
-      localStorage.setItem(SAVED_SPRITE_LAYOUTS_KEY, JSON.stringify([entry]));
-      localStorage.removeItem(FOOD_LAYOUTS_STORAGE_KEY);
-      if (fallbackLayout) {
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(layoutFromCanonicalSavedSpriteLayout(entry, fallbackLayout)));
-      }
-    }
-
     function loadLayoutForFood(foodId) {
-      if (canonicalSavedSpriteLayoutEntryFromStorage()) return null;
+      if (APP_MODE === 'layout-builder') return null;
       if (!foodId) return null;
       const layout = loadFoodLayoutMap()[foodId];
       if (!layout || typeof layout !== 'object') return null;
@@ -1803,7 +1772,7 @@
     }
 
     function saveLayoutForFood(layout = state.layout) {
-      if (canonicalSavedSpriteLayoutEntryFromStorage()) {
+      if (APP_MODE === 'layout-builder') {
         localStorage.removeItem(FOOD_LAYOUTS_STORAGE_KEY);
         return;
       }
@@ -1815,7 +1784,6 @@
         selectedFoodId: foodId,
         meta: { ...(layout.meta || {}), repoLayoutVersion: REPO_LAYOUT_VERSION }
       };
-      if (APP_MODE === 'layout-builder') applyManualFoodImagePlacementToFoodLayoutMap(map, map[foodId]);
       applyBaconMacroBarPlacementToFoodLayoutMap(map, map[foodId]);
       persistFoodLayoutMap(map);
     }
@@ -1824,17 +1792,10 @@
       const entries = readSavedSpriteLayoutEntriesFromStorage();
       const canonical = canonicalSavedSpriteLayoutEntryFromStorage(entries);
       if (!canonical) return entries;
-      pruneLayoutBuilderStorageToCanonicalTest(canonical);
-      return [canonical];
+      return [canonical, ...entries.filter(entry => entry.id !== canonical.id)];
     }
 
     function persistSavedSpriteLayouts() {
-      const canonical = canonicalSavedSpriteLayoutEntryFromStorage(state.savedSpriteLayouts || []);
-      if (canonical) {
-        state.savedSpriteLayouts = [canonical];
-        pruneLayoutBuilderStorageToCanonicalTest(canonical, state.layout);
-        return;
-      }
       localStorage.setItem(SAVED_SPRITE_LAYOUTS_KEY, JSON.stringify(state.savedSpriteLayouts));
     }
 
@@ -4510,10 +4471,87 @@
       return `${food?.name || 'FoodRanked'} ${section?.chip || section?.id || 'layout'} ${date}`;
     }
 
+    function savedLayoutBackupName(entry, now) {
+      const base = canonicalSavedLayoutName(entry?.name) === CANONICAL_LAYOUT_PRESET_NAME
+        ? CANONICAL_LAYOUT_PRESET_NAME
+        : (entry?.name || 'layout');
+      return `${base} backup ${now.replace(/[:.]/g, '-')}`;
+    }
+
+    function readSavedLayoutBackupIndex() {
+      try {
+        const raw = localStorage.getItem(SAVED_LAYOUT_BACKUP_INDEX_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function uniqueSavedLayoutBackupStorageKey(suffix = '') {
+      const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+      for (let attempt = 0; attempt < 100; attempt += 1) {
+        const tail = attempt ? `-${attempt}` : '';
+        const key = `${SAVED_LAYOUT_BACKUP_STORAGE_PREFIX}-${stamp}-${Date.now().toString(36)}${tail}${suffix}`;
+        if (!localStorage.getItem(key)) return key;
+      }
+      return `${SAVED_LAYOUT_BACKUP_STORAGE_PREFIX}-${stamp}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}${suffix}`;
+    }
+
+    function backupSavedLayoutBeforeReplace(entry, now) {
+      if (APP_MODE !== 'layout-builder' || !entry?.sections) return null;
+      try {
+        const backupId = `saved_layout_backup_${Date.now().toString(36)}`;
+        const primaryKey = uniqueSavedLayoutBackupStorageKey();
+        const secondaryKey = uniqueSavedLayoutBackupStorageKey('-copy');
+        const snapshot = {
+          id: backupId,
+          createdAt: now,
+          reason: `Before replacing saved layout ${entry.name || entry.id}`,
+          layout: structuredClone(entry)
+        };
+        localStorage.setItem(primaryKey, JSON.stringify(snapshot));
+        localStorage.setItem(secondaryKey, JSON.stringify(snapshot));
+        const index = readSavedLayoutBackupIndex();
+        index.push({
+          id: backupId,
+          createdAt: now,
+          reason: snapshot.reason,
+          layoutId: entry.id || '',
+          layoutName: entry.name || '',
+          primaryKey,
+          secondaryKey
+        });
+        localStorage.setItem(SAVED_LAYOUT_BACKUP_INDEX_KEY, JSON.stringify(index));
+        return { id: backupId, createdAt: now, primaryKey, secondaryKey };
+      } catch (error) {
+        console.warn('Could not create saved layout backup before replace', error);
+        return null;
+      }
+    }
+
+    function backupSavedLayoutEntry(entry, now, backupInfo = null) {
+      if (!entry?.sections) return null;
+      return {
+        ...structuredClone(entry),
+        id: `${entry.id || 'layout'}_backup_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`,
+        name: savedLayoutBackupName(entry, now),
+        updatedAt: now,
+        meta: {
+          ...(entry.meta || {}),
+          savedLayoutBackup: {
+            originalId: entry.id || '',
+            originalName: entry.name || '',
+            backedUpAt: now,
+            ...(backupInfo || {})
+          }
+        }
+      };
+    }
+
     function renderSavedSpriteLayouts() {
       if (!els.savedLayoutSelect) return;
       const selectedId = els.savedLayoutSelect.value;
-      const canonical = canonicalSavedSpriteLayoutEntryFromStorage(state.savedSpriteLayouts || []);
       els.savedLayoutSelect.innerHTML = '';
       if (!state.savedSpriteLayouts.length) {
         const option = document.createElement('option');
@@ -4530,23 +4568,14 @@
         if (state.savedSpriteLayouts.some(layout => layout.id === selectedId)) els.savedLayoutSelect.value = selectedId;
       }
       const hasSelection = !!els.savedLayoutSelect.value;
+      const selectedEntry = state.savedSpriteLayouts.find(layout => layout.id === els.savedLayoutSelect.value);
       els.loadSpriteLayout.disabled = !hasSelection;
-      els.deleteSpriteLayout.disabled = !hasSelection || !!canonical;
-      els.saveSpriteLayout.disabled = !!canonical;
-      if (canonical) els.saveSpriteLayout.textContent = 'Test layout locked';
-      else if (els.saveSpriteLayout.textContent === 'Test layout locked') els.saveSpriteLayout.textContent = 'Save layout preset';
+      els.deleteSpriteLayout.disabled = !hasSelection || isCanonicalSavedSpriteLayoutEntry(selectedEntry);
+      els.saveSpriteLayout.disabled = false;
+      els.saveSpriteLayout.textContent = 'Save layout preset';
     }
 
     function saveCurrentSpriteLayoutPreset() {
-      const canonical = canonicalSavedSpriteLayoutEntryFromStorage(state.savedSpriteLayouts || []);
-      if (canonical) {
-        state.savedSpriteLayouts = [canonical];
-        persistSavedSpriteLayouts();
-        renderSavedSpriteLayouts();
-        els.savedLayoutSelect.value = canonical.id;
-        els.saveSpriteLayout.textContent = 'Test layout locked';
-        return;
-      }
       const name = window.prompt('Name this sprite layout', defaultSavedLayoutName());
       if (!name) return;
       const trimmedName = name.trim();
@@ -4555,6 +4584,8 @@
       const existing = state.savedSpriteLayouts.find(layout => layout.name.toLowerCase() === trimmedName.toLowerCase());
       const snapshot = currentSpriteLayoutSnapshot();
       if (existing && !window.confirm(`Replace saved layout “${existing.name}”?`)) return;
+      const backupInfo = existing ? backupSavedLayoutBeforeReplace(existing, now) : null;
+      const backupEntry = existing ? backupSavedLayoutEntry(existing, now, backupInfo) : null;
       const entry = {
         id: existing?.id || `sprite-layout-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`,
         name: trimmedName,
@@ -4563,7 +4594,7 @@
         selectedSectionId: snapshot.selectedSectionId,
         sections: snapshot.sections
       };
-      state.savedSpriteLayouts = [entry, ...state.savedSpriteLayouts.filter(layout => layout.id !== entry.id)]
+      state.savedSpriteLayouts = [entry, ...(backupEntry ? [backupEntry] : []), ...state.savedSpriteLayouts.filter(layout => layout.id !== entry.id)]
         .sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)) || a.name.localeCompare(b.name));
       saveLayout({ allowIgnoredReplacement: true });
       persistSavedSpriteLayouts();
@@ -4597,7 +4628,7 @@
       const entry = state.savedSpriteLayouts.find(layout => layout.id === selectedId);
       if (!entry) return;
       if (isCanonicalSavedSpriteLayoutEntry(entry)) {
-        els.deleteSpriteLayout.textContent = 'Locked';
+        els.deleteSpriteLayout.textContent = 'Protected';
         setTimeout(() => els.deleteSpriteLayout.textContent = 'Delete', 1200);
         return;
       }

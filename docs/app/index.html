@@ -1200,7 +1200,7 @@
 
   <script src="../data/foods-index.js?v=20260731-vbv2-helper-render-parity-v1"></script>
   <script src="./display-schema.js?v=20260731-vbv2-helper-render-parity-v1"></script>
-  <script src="./default-layout.js?v=20260731-vbv2-helper-render-parity-v1"></script>
+  <script src="../layout-builder/canonical-test-layout.js?v=20260801-current-builder-layout-v1"></script>
   <script src="./display-name-utils.js?v=20260731-vbv2-helper-render-parity-v1"></script>
   <script>
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
@@ -1233,6 +1233,8 @@
     const FOOD_LAYOUTS_STORAGE_KEY = `${STORAGE_PREFIX}-food-layouts-v1`;
     const SAVED_SPRITE_LAYOUTS_KEY = `${STORAGE_PREFIX}-sprite-layouts-v1`;
     const CANONICAL_LAYOUT_PRESET_NAME = 'test';
+    const CANONICAL_LAYOUT_SEED = window.FOODRANKED_LAYOUT_BUILDER_CANONICAL_TEST_LAYOUT || null;
+    const CANONICAL_LAYOUT_SEED_VERSION = String(CANONICAL_LAYOUT_SEED?.version || '');
     const CANONICAL_LAYOUT_WORKING_META_KEY = 'layoutBuilderCanonicalTestWorkingCopyV1';
     const MACRO_SECTION_LAYOUT_SYNC_KEY = 'macroSectionLayoutFromFatsV6';
     const MACRO_ARROW_PLACEMENT_SYNC_KEY = 'macroArrowPlacementFromFatsV3';
@@ -1423,9 +1425,21 @@
       }
     };
 
-    const DEFAULT_LAYOUT = window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT?.sections
-      ? structuredClone(window.FOODRANKED_DISPLAY_BUILDER_DEFAULT_LAYOUT)
-      : {
+    function canonicalLayoutSeedLayoutFromBundle() {
+      const layout = CANONICAL_LAYOUT_SEED?.layout;
+      if (!layout?.sections || typeof layout.sections !== 'object') return null;
+      const clone = structuredClone(layout);
+      clone.selectedFoodId = clone.selectedFoodId || 'bacon';
+      clone.selectedSectionId = normalizeLayoutSectionId(clone.selectedSectionId || 'intro');
+      clone.meta = {
+        ...(clone.meta || {}),
+        canonicalLayoutVersion: CANONICAL_LAYOUT_SEED_VERSION,
+        canonicalLayoutSource: 'docs/layout-builder/canonical-test-layout.js'
+      };
+      return normalizeLayoutSectionAliases(clone);
+    }
+
+    const DEFAULT_LAYOUT = canonicalLayoutSeedLayoutFromBundle() || {
       canvas: {
         width: 105,
         height: 186.666667,
@@ -1446,7 +1460,7 @@
       },
       selectedFoodId: 'bacon',
       selectedSectionId: 'intro',
-      sections: Object.fromEntries(SECTIONS.map(section => [section.id, { layers: createSectionLayers(section.id) }]))
+      sections: Object.fromEntries(SECTIONS.map(section => [section.id, { layers: [] }]))
     };
     const DEFAULT_LAYOUT_LAYER_COUNT = countLayoutLayers(DEFAULT_LAYOUT);
     const STALE_LAYOUT_MIN_LAYER_RATIO = 0.72;
@@ -1686,7 +1700,7 @@
       return entries.sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)) || a.name.localeCompare(b.name));
     }
 
-    function readSavedSpriteLayoutEntriesFromStorage() {
+    function readRawSavedSpriteLayoutEntriesFromStorage() {
       try {
         const raw = localStorage.getItem(SAVED_SPRITE_LAYOUTS_KEY);
         const parsed = raw ? JSON.parse(raw) : [];
@@ -1695,6 +1709,44 @@
       } catch {
         return [];
       }
+    }
+
+    function canonicalSavedLayoutVersion(entry) {
+      return String(entry?.meta?.canonicalLayoutVersion || '');
+    }
+
+    function canonicalSeedSavedSpriteLayoutEntryFromBundle() {
+      const bundledEntry = CANONICAL_LAYOUT_SEED?.savedLayout;
+      if (!bundledEntry?.sections || typeof bundledEntry.sections !== 'object') return null;
+      return normalizeSavedSpriteLayoutEntry({
+        ...structuredClone(bundledEntry),
+        name: CANONICAL_LAYOUT_PRESET_NAME,
+        selectedSectionId: normalizeLayoutSectionId(bundledEntry.selectedSectionId || DEFAULT_LAYOUT.selectedSectionId || 'intro'),
+        meta: {
+          ...(bundledEntry.meta || {}),
+          canonicalLayoutVersion: CANONICAL_LAYOUT_SEED_VERSION,
+          canonicalLayoutSource: 'docs/layout-builder/canonical-test-layout.js'
+        }
+      });
+    }
+
+    function seedCanonicalSavedLayoutFromBundle() {
+      if (APP_MODE !== 'layout-builder') return null;
+      const seed = canonicalSeedSavedSpriteLayoutEntryFromBundle();
+      if (!seed || !CANONICAL_LAYOUT_SEED_VERSION) return null;
+      const entries = readRawSavedSpriteLayoutEntriesFromStorage();
+      const existing = entries.find(isCanonicalSavedSpriteLayoutEntry);
+      const current = existing && canonicalSavedLayoutVersion(existing) === CANONICAL_LAYOUT_SEED_VERSION
+        ? existing
+        : seed;
+      pruneLayoutBuilderStorageToCanonicalTest(current, canonicalLayoutSeedLayoutFromBundle() || DEFAULT_LAYOUT);
+      return [current];
+    }
+
+    function readSavedSpriteLayoutEntriesFromStorage() {
+      const seeded = seedCanonicalSavedLayoutFromBundle();
+      if (seeded) return seeded;
+      return readRawSavedSpriteLayoutEntriesFromStorage();
     }
 
     function canonicalSavedSpriteLayoutEntryFromStorage(entries = readSavedSpriteLayoutEntriesFromStorage()) {

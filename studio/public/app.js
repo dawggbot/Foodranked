@@ -29,6 +29,9 @@
   ];
   const PLACEMENT_EXPORT_TIMEOUT_MS = 30000;
   const PLACEMENT_EXPORT_POLL_MS = 250;
+  const CANONICAL_LAYOUT_SEED = window.FOODRANKED_LAYOUT_BUILDER_CANONICAL_TEST_LAYOUT || null;
+  const CANONICAL_LAYOUT_SEED_VERSION = String(CANONICAL_LAYOUT_SEED?.version || '');
+  const CANONICAL_LAYOUT_PRESET_NAME = 'test';
 
   const els = {
     foodSearch: document.getElementById('foodSearch'),
@@ -188,9 +191,66 @@
       .filter(entry => entry && entry.id && entry.sections && typeof entry.sections === 'object');
   }
 
+  function layoutEntryVersion(entry) {
+    return String(entry?.meta?.canonicalLayoutVersion || '');
+  }
+
+  function canonicalSeedSavedLayoutEntry() {
+    const bundledEntry = CANONICAL_LAYOUT_SEED?.savedLayout;
+    if (!bundledEntry?.sections || typeof bundledEntry.sections !== 'object' || !CANONICAL_LAYOUT_SEED_VERSION) return null;
+    return {
+      ...structuredClone(bundledEntry),
+      name: CANONICAL_LAYOUT_PRESET_NAME,
+      meta: {
+        ...(bundledEntry.meta || {}),
+        canonicalLayoutVersion: CANONICAL_LAYOUT_SEED_VERSION,
+        canonicalLayoutSource: 'docs/layout-builder/canonical-test-layout.js'
+      }
+    };
+  }
+
+  function canonicalSeedWorkingLayout(entry) {
+    const bundledLayout = CANONICAL_LAYOUT_SEED?.layout;
+    if (!bundledLayout?.sections || typeof bundledLayout.sections !== 'object') return null;
+    const layout = structuredClone(bundledLayout);
+    layout.sections = structuredClone(entry.sections);
+    layout.selectedFoodId = layout.selectedFoodId || 'bacon';
+    layout.selectedSectionId = entry.selectedSectionId || layout.selectedSectionId || 'intro';
+    layout.meta = {
+      ...(layout.meta || {}),
+      ...(entry.meta || {}),
+      canonicalLayoutVersion: CANONICAL_LAYOUT_SEED_VERSION,
+      canonicalLayoutSource: 'docs/layout-builder/canonical-test-layout.js'
+    };
+    return layout;
+  }
+
+  function seedCurrentLayoutBuilderState({ force = false, report = false } = {}) {
+    const seed = canonicalSeedSavedLayoutEntry();
+    if (!seed) return false;
+    const existing = readSavedLayoutEntries()
+      .filter(entry => clean(entry.name).toLowerCase() === CANONICAL_LAYOUT_PRESET_NAME)
+      .sort((a, b) => String(b.updatedAt || b.createdAt || '').localeCompare(String(a.updatedAt || a.createdAt || '')))[0] || null;
+    const current = !force && existing && layoutEntryVersion(existing) === CANONICAL_LAYOUT_SEED_VERSION
+      ? existing
+      : seed;
+    writeJsonStorage(STORAGE.layoutSavedLayouts, [current]);
+    const working = canonicalSeedWorkingLayout(current);
+    if (working) writeJsonStorage(STORAGE.layoutWorking, working);
+    localStorage.removeItem(STORAGE.layoutFoodLayouts);
+    localStorage.removeItem(STORAGE.dbv2Placement);
+    if (report) {
+      setRenderText('Current Layout Builder layout imported', [
+        `${countLayoutLayers({ sections: current.sections })} layers saved as test.`,
+        `Canonical version: ${CANONICAL_LAYOUT_SEED_VERSION}`
+      ]);
+    }
+    return true;
+  }
+
   function canonicalTestLayout() {
     return readSavedLayoutEntries()
-      .filter(entry => clean(entry.name).toLowerCase() === 'test')
+      .filter(entry => clean(entry.name).toLowerCase() === CANONICAL_LAYOUT_PRESET_NAME)
       .sort((a, b) => String(b.updatedAt || b.createdAt || '').localeCompare(String(a.updatedAt || a.createdAt || '')))
       [0] || null;
   }
@@ -208,6 +268,7 @@
       savedNames: saved.map(entry => clean(entry.name) || entry.id).filter(Boolean),
       test,
       testLayers: countLayoutLayers(test ? { sections: test.sections } : null),
+      testVersion: layoutEntryVersion(test),
       foodLayoutCount: foodLayouts && typeof foodLayouts === 'object' && !Array.isArray(foodLayouts) ? Object.keys(foodLayouts).length : 0,
       selectedFoodLayout: Boolean(food?.id && foodLayouts?.[food.id]),
       placement,
@@ -223,6 +284,7 @@
     const placement = summary.placement;
     const rows = [
       ['Canonical test layout', summary.test ? `${summary.testLayers} layers` : 'Missing'],
+      ['Canonical version', summary.testVersion || 'Missing'],
       ['Saved layouts', summary.savedNames.length ? summary.savedNames.join(', ') : 'None'],
       ['Working layout', summary.workingLayers ? `${summary.workingLayers} layers` : 'None'],
       ['Food layouts', `${summary.foodLayoutCount}${summary.selectedFoodLayout ? ' - selected food present' : ''}`],
@@ -833,6 +895,7 @@
 
   async function loadInitial() {
     clearWrongLayoutCaches();
+    seedCurrentLayoutBuilderState();
     const [health, foodsResponse, stateResponse] = await Promise.all([
       api('/api/health'),
       api('/api/foods'),
@@ -894,6 +957,7 @@
 
   els.clearWrongLayouts.addEventListener('click', () => {
     clearWrongLayoutCaches({ report: true });
+    seedCurrentLayoutBuilderState({ force: true, report: true });
     renderLayoutState();
   });
 

@@ -5418,14 +5418,6 @@
     "sizeBytes": 13000
   },
   {
-    "id": "app.default.layout",
-    "label": "Default Layout",
-    "kind": "runtime",
-    "path": "app/default-layout.js",
-    "mimeType": "text/javascript",
-    "sizeBytes": 222437
-  },
-  {
     "id": "app.display.name.utils",
     "label": "Display Name Utils",
     "kind": "runtime",
@@ -5440,6 +5432,14 @@
     "path": "app/display-schema.js",
     "mimeType": "text/javascript",
     "sizeBytes": 4147
+  },
+  {
+    "id": "layout.builder.canonical.test.layout",
+    "label": "Canonical Test Layout",
+    "kind": "runtime",
+    "path": "layout-builder/canonical-test-layout.js",
+    "mimeType": "text/javascript",
+    "sizeBytes": 602821
   },
   {
     "id": "audio.sfx.readme",

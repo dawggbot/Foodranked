@@ -96,7 +96,7 @@ function staleSourceStrings(payload, entry, layout) {
 
 function stalePlacementReason(payload, entry, layout) {
   const joined = staleSourceStrings(payload, entry, layout).join(' ');
-  if (/(?:^|\/)default-layout\.js\b|default-layout/.test(joined)) return 'default-layout.js';
+  if (/default[-_ ]layout/.test(joined)) return 'legacy fallback layout';
   if (/(?:^|\/)docs\/app(?:\/|$)|foodranked-display-builder(?!-v2)/.test(joined)) return 'stale display builder';
   if (/(?:^|\/)display-builder-test(?:\/|$)/.test(joined)) return 'display-builder-test';
   if (/(?:^|\/)video-builder(?:\/|$)|foodranked-video-builder(?!-v2)/.test(joined)) return 'original video builder';

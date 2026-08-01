@@ -58,8 +58,8 @@ Options:
   --fps <number>             Frames per second. Default: ${DEFAULT_FPS}
   --width <pixels>           Output width. Default: ${DEFAULT_WIDTH}
   --height <pixels>          Output height. Default: ${DEFAULT_HEIGHT}
-  --capture-width <pixels>   Browser capture width. Default: half output width.
-  --capture-height <pixels>  Browser capture height. Default: half output height.
+  --capture-width <pixels>   Browser capture width. Default: output width.
+  --capture-height <pixels>  Browser capture height. Default: output height.
   --output <path>            Output MP4 path. Default: docs/video/episodes/<food-id>/<food-id>-vbv2.mp4
   --seconds <number>         Render only the first N seconds. Useful for smoke tests.
   --port <number>            Local static server port. Default: ${DEFAULT_PORT}
@@ -153,8 +153,8 @@ function parseArgs(argv) {
   if (options.seconds != null && (!Number.isFinite(options.seconds) || options.seconds <= 0)) {
     throw new Error(`Invalid seconds: ${options.seconds}`);
   }
-  if (options.captureWidth == null) options.captureWidth = Math.max(1, Math.round(options.width / 2));
-  if (options.captureHeight == null) options.captureHeight = Math.max(1, Math.round(options.height / 2));
+  if (options.captureWidth == null) options.captureWidth = Math.max(1, Math.round(options.width));
+  if (options.captureHeight == null) options.captureHeight = Math.max(1, Math.round(options.height));
   for (const [name, value] of Object.entries({
     captureWidth: options.captureWidth,
     captureHeight: options.captureHeight

@@ -4382,8 +4382,14 @@
   }
 
   function layoutBuilderCanvasMetrics(layout = state.layout) {
-    const gridWidth = macroReferenceCanvasGridWidth(layout, AUTHOR_GRID.width);
-    const gridHeight = gridWidth * (AUTHOR_GRID.height / AUTHOR_GRID.width);
+    const canvasWidth = Number(layout?.canvas?.width) || AUTHOR_GRID.width;
+    const canvasHeight = Number(layout?.canvas?.height) || (canvasWidth * (AUTHOR_GRID.height / AUTHOR_GRID.width));
+    const gridWidth = state.renderMode
+      ? canvasWidth
+      : macroReferenceCanvasGridWidth(layout, canvasWidth);
+    const gridHeight = state.renderMode
+      ? canvasHeight
+      : gridWidth * (AUTHOR_GRID.height / AUTHOR_GRID.width);
     const referencePixelUnit = DISPLAY_BUILDER_V2_REFERENCE_DISPLAY_WIDTH / AUTHOR_GRID.width;
     const displayWidth = gridWidth * referencePixelUnit * DISPLAY_BUILDER_V2_CANVAS_VIEW_ZOOM;
     const displayHeight = gridHeight * referencePixelUnit * DISPLAY_BUILDER_V2_CANVAS_VIEW_ZOOM;
@@ -5442,9 +5448,9 @@
       `calc(${(lane.canvasHeight - lane.bottom).toFixed(3)}px * var(--pixel-unit))`,
       `calc(${lane.left.toFixed(3)}px * var(--pixel-unit)))`
     ].join(' ');
+    renderParent.appendChild(wrapper);
     wrapper.appendChild(highlightClone);
     renderParent.appendChild(node);
-    renderParent.appendChild(wrapper);
   }
 
   function applyNarrationHighlightStyles(node, color, strength) {
@@ -6263,7 +6269,6 @@
   function isRenderModeAnimatedGifSpriteLayer(layer) {
     if (!state.renderMode || !isSpriteLayer(layer) || isMacroBarFill(layer)) return false;
     const src = spritePath(layer.src);
-    if (/\/micros_section\//i.test(src)) return false;
     return isGifSpriteSource(src);
   }
 

@@ -11,13 +11,10 @@
   const PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const RESTORE_TEST_FROM_PLACEMENT_ID = 'layoutBuilderRestoreTestFromPlacement';
   const TEST_LAYOUT_NAME = 'test';
-  const SECTION_INDICATOR_REMOVAL_META_KEY = 'layoutBuilderSectionIndicatorsRemovedV1';
   // Locked approved view zoom: do not change without an explicit layout-builder zoom request.
   const CANVAS_VIEW_ZOOM = 1.52;
   const SECTION_IDS = ['intro', 'fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons', 'outro'];
   const SECTION_ID_ALIASES = { carbohydrates: 'carbs', proteins: 'protein' };
-  const SECTION_INDICATOR_SYNC_META_KEY = 'layoutBuilderSectionIndicatorsFromIntroV1';
-  const SECTION_INDICATOR_HIGHLIGHT_SCALE = 1.2;
   const MACRO_SECTION_IDS = ['fats', 'carbs', 'protein'];
   let selectedSavedLayoutId = '';
   let autoRestoreFromPlacementAttempted = false;
@@ -299,192 +296,6 @@
   function getSectionLayers(layout, sectionId) {
     const layers = layout?.sections?.[sectionId]?.layers;
     return Array.isArray(layers) ? layers : [];
-  }
-
-  function isSpriteLayer(layer) {
-    return layer?.kind === 'sprite' && typeof layer.src === 'string';
-  }
-
-  function isSectionIndicatorLayer(layer) {
-    if (!isSpriteLayer(layer)) return false;
-    const fingerprint = `${layer.id || ''} ${layer.label || ''} ${layer.src || ''}`.toLowerCase();
-    return fingerprint.includes('/ui/section_indicator/') || /section indicator/.test(fingerprint);
-  }
-
-  function removeSectionIndicatorLayersFromLayout(layout) {
-    if (!layout?.sections || layout.meta?.[SECTION_INDICATOR_REMOVAL_META_KEY]) {
-      return { layout, changed: false, removed: 0 };
-    }
-
-    const next = clone(layout);
-    next.meta = { ...(next.meta || {}), [SECTION_INDICATOR_REMOVAL_META_KEY]: new Date().toISOString() };
-    let removed = 0;
-
-    SECTION_IDS.forEach(sectionId => {
-      const layers = getSectionLayers(next, sectionId);
-      if (!layers.length) return;
-      const nonIndicators = layers.filter(layer => !isSectionIndicatorLayer(layer));
-      removed += layers.length - nonIndicators.length;
-      next.sections[sectionId] = { ...(next.sections[sectionId] || {}), layers: nonIndicators };
-    });
-
-    return { layout: next, changed: removed > 0 || !layout.meta?.[SECTION_INDICATOR_REMOVAL_META_KEY], removed };
-  }
-
-  function removeCurrentSectionIndicators(doc) {
-    if (doc.body.dataset.layoutBuilderIndicatorRemovalPending === 'true') return false;
-    const layout = currentLayout(doc);
-    const result = removeSectionIndicatorLayersFromLayout(layout);
-    if (!result.changed) return false;
-
-    const selectedId = selectedLayerId(doc);
-    const selectedLayer = getSectionLayers(layout, layout.selectedSectionId || 'intro').find(layer => layer.id === selectedId);
-    const restoreSelectionId = selectedId && selectedLayer && !isSectionIndicatorLayer(selectedLayer) ? selectedId : '';
-    doc.body.dataset.layoutBuilderIndicatorRemovalPending = 'true';
-    applyLayoutJson(doc, result.layout, restoreSelectionId);
-    window.setTimeout(() => {
-      delete doc.body.dataset.layoutBuilderIndicatorRemovalPending;
-    }, 350);
-    return true;
-  }
-
-  function indicatorRows(indicators) {
-    const rows = [];
-    for (const layer of indicators) {
-      const y = Number(layer.y) || 0;
-      let row = rows.find(candidate => Math.abs(candidate.y - y) <= 4);
-      if (!row) {
-        row = { y, layers: [] };
-        rows.push(row);
-      }
-      row.layers.push(layer);
-      row.y = row.layers.reduce((sum, item) => sum + (Number(item.y) || 0), 0) / row.layers.length;
-    }
-    return rows;
-  }
-
-  function introSectionIndicatorTemplate(layout) {
-    const indicators = getSectionLayers(layout, 'intro').filter(isSectionIndicatorLayer);
-    const manualIndicators = indicators.filter(layer => {
-      const id = String(layer.id || '').toLowerCase();
-      const label = String(layer.label || '').toLowerCase();
-      return id.startsWith('lib_section_indicator_') || label.startsWith('library:') || !/^intro_indicator_\d+$/.test(id);
-    });
-    const candidates = manualIndicators.length >= SECTION_IDS.length ? manualIndicators : indicators;
-    if (candidates.length < SECTION_IDS.length) return [];
-    const dominantRow = indicatorRows(candidates)
-      .sort((a, b) => b.layers.length - a.layers.length || a.y - b.y)[0]?.layers || candidates;
-    return [...dominantRow]
-      .sort((a, b) => (Number(a.x) || 0) - (Number(b.x) || 0) || (Number(a.y) || 0) - (Number(b.y) || 0))
-      .slice(0, SECTION_IDS.length);
-  }
-
-  function normalSectionIndicatorSrc(doc, src) {
-    const normalized = normalizeSpriteSrc(doc, src);
-    if (/_highlighted_section_indicator\.png(?:$|[?#])/i.test(normalized)) {
-      return normalized.replace(/_highlighted_section_indicator\.png($|[?#])/i, '_section_indicator.png$1');
-    }
-    if (/_section_indicator\.png(?:$|[?#])/i.test(normalized)) return normalized;
-    return './sprites/ui/section_indicator/meat_section_indicator.png';
-  }
-
-  function highlightedSectionIndicatorSrc(doc, src) {
-    const normalized = normalizeSpriteSrc(doc, src);
-    if (/_highlighted_section_indicator\.png(?:$|[?#])/i.test(normalized)) return normalized;
-    if (/_section_indicator\.png(?:$|[?#])/i.test(normalized)) {
-      return normalized.replace(/_section_indicator\.png($|[?#])/i, '_highlighted_section_indicator.png$1');
-    }
-    return './sprites/ui/section_indicator/meat_highlighted_section_indicator.png';
-  }
-
-  function normalIndicatorGeometry(layer) {
-    const rawWidth = Number(layer.width || layer.naturalWidth || 1);
-    const rawHeight = Number(layer.height || layer.naturalHeight || 1);
-    const sourceHighlighted = /_highlighted_section_indicator\.png(?:$|[?#])/i.test(String(layer.src || ''));
-    const width = sourceHighlighted ? rawWidth / SECTION_INDICATOR_HIGHLIGHT_SCALE : rawWidth;
-    const height = sourceHighlighted ? rawHeight / SECTION_INDICATOR_HIGHLIGHT_SCALE : rawHeight;
-    return {
-      x: (Number(layer.x) || 0) + (sourceHighlighted ? (rawWidth - width) / 2 : 0),
-      y: (Number(layer.y) || 0) + (sourceHighlighted ? (rawHeight - height) / 2 : 0),
-      width,
-      height
-    };
-  }
-
-  function sectionIndicatorLayerFromIntro(doc, sectionId, slotIndex, sourceLayer, active) {
-    const base = clone(sourceLayer);
-    const normal = normalIndicatorGeometry(sourceLayer);
-    const width = active ? normal.width * SECTION_INDICATOR_HIGHLIGHT_SCALE : normal.width;
-    const height = active ? normal.height * SECTION_INDICATOR_HIGHLIGHT_SCALE : normal.height;
-    const x = active ? normal.x - ((width - normal.width) / 2) : normal.x;
-    const y = active ? normal.y - ((height - normal.height) / 2) : normal.y;
-    return {
-      ...base,
-      id: `lib_section_indicator_${sectionId}_${slotIndex + 1}`,
-      kind: 'sprite',
-      label: active ? 'Library: highlighted section indicator' : 'Library: section indicator',
-      src: active ? highlightedSectionIndicatorSrc(doc, sourceLayer.src) : normalSectionIndicatorSrc(doc, sourceLayer.src),
-      x,
-      y,
-      z: active ? (Number(sourceLayer.z) || 0) + 10 : (Number(sourceLayer.z) || 0),
-      width,
-      height,
-      visible: sourceLayer.visible !== false,
-      foodDriven: false
-    };
-  }
-
-  function layoutIndicatorRowsSignature(layout) {
-    return JSON.stringify(SECTION_IDS.map(sectionId => {
-      return getSectionLayers(layout, sectionId)
-        .filter(isSectionIndicatorLayer)
-        .map(layer => ({
-          id: layer.id || '',
-          src: layer.src || '',
-          x: Number(layer.x) || 0,
-          y: Number(layer.y) || 0,
-          z: Number(layer.z) || 0,
-          width: Number(layer.width) || 0,
-          height: Number(layer.height) || 0,
-          visible: layer.visible !== false
-        }));
-    }));
-  }
-
-  function syncSectionIndicatorsFromIntro(doc) {
-    if (doc.body.dataset.layoutBuilderIndicatorSyncPending === 'true') return false;
-    const layout = currentLayout(doc);
-    if (!layout?.sections?.intro?.layers) return false;
-
-    const template = introSectionIndicatorTemplate(layout);
-    if (template.length < SECTION_IDS.length) return false;
-
-    const before = layoutIndicatorRowsSignature(layout);
-    const next = clone(layout);
-    next.meta = { ...(next.meta || {}) };
-
-    SECTION_IDS.forEach((sectionId, sectionIndex) => {
-      next.sections[sectionId] = next.sections[sectionId] || { layers: [] };
-      const nonIndicators = getSectionLayers(next, sectionId).filter(layer => !isSectionIndicatorLayer(layer));
-      const indicators = template.map((sourceLayer, slotIndex) => {
-        return sectionIndicatorLayerFromIntro(doc, sectionId, slotIndex, sourceLayer, slotIndex === sectionIndex);
-      });
-      next.sections[sectionId].layers = [...indicators, ...nonIndicators];
-    });
-
-    const after = layoutIndicatorRowsSignature(next);
-    if (before === after) return false;
-
-    next.meta[SECTION_INDICATOR_SYNC_META_KEY] = new Date().toISOString();
-    const selectedId = selectedLayerId(doc);
-    const selectedLayer = getSectionLayers(layout, layout.selectedSectionId || 'intro').find(layer => layer.id === selectedId);
-    const restoreSelectionId = selectedId && selectedLayer && !isSectionIndicatorLayer(selectedLayer) ? selectedId : '';
-    doc.body.dataset.layoutBuilderIndicatorSyncPending = 'true';
-    applyLayoutJson(doc, next, restoreSelectionId);
-    window.setTimeout(() => {
-      delete doc.body.dataset.layoutBuilderIndicatorSyncPending;
-    }, 350);
-    return true;
   }
 
   function updateLayerLabels(doc) {
@@ -889,17 +700,6 @@
     win.localStorage.setItem(SAVED_LAYOUTS_KEY, JSON.stringify(entries));
   }
 
-  function removeSavedLayoutSectionIndicators(win) {
-    const entries = readSavedLayouts(win);
-    let changed = false;
-    const nextEntries = entries.map(entry => {
-      const result = removeSectionIndicatorLayersFromLayout(entry);
-      changed = changed || result.changed;
-      return result.layout;
-    });
-    if (changed) persistSavedLayouts(win, nextEntries);
-  }
-
   function readStorageJson(win, key, fallback) {
     try {
       const raw = win.localStorage.getItem(key);
@@ -987,8 +787,6 @@
       setSavedLayoutMessage(doc, hint, true);
       return;
     }
-    const restoredLayout = removeSectionIndicatorLayersFromLayout(restored.layout).layout;
-
     const now = new Date().toISOString();
     const entries = readSavedLayouts(win);
     const existingIndex = entries.findIndex(entry => collapseText(entry.name).toLowerCase() === TEST_LAYOUT_NAME);
@@ -999,9 +797,9 @@
       name: TEST_LAYOUT_NAME,
       createdAt: existing?.createdAt || now,
       updatedAt: now,
-      selectedSectionId: restoredLayout.selectedSectionId,
-      meta: clone(restoredLayout.meta || {}),
-      sections: clone(restoredLayout.sections)
+      selectedSectionId: restored.layout.selectedSectionId,
+      meta: clone(restored.layout.meta || {}),
+      sections: clone(restored.layout.sections)
     };
     const backup = existing ? {
       ...clone(existing),
@@ -1021,11 +819,11 @@
     const nextLayout = {
       ...clone(current),
       selectedFoodId: restored.layout.selectedFoodId || restored.foodId || current.selectedFoodId || 'bacon',
-      selectedSectionId: restoredLayout.selectedSectionId || current.selectedSectionId || 'intro',
-      sections: clone(restoredLayout.sections),
+      selectedSectionId: restored.layout.selectedSectionId || current.selectedSectionId || 'intro',
+      sections: clone(restored.layout.sections),
       meta: {
         ...(current.meta || {}),
-        ...(restoredLayout.meta || {}),
+        ...(restored.layout.meta || {}),
         restoredTestLayoutFromPlacement: {
           source: PLACEMENT_EXPORT_KEY,
           foodId: restored.foodId,
@@ -1425,8 +1223,6 @@
     if (heading) heading.textContent = 'Layout builder';
 
     hideDisplayBuilderControls(doc);
-    removeSavedLayoutSectionIndicators(getFrameWindow());
-    if (removeCurrentSectionIndicators(doc)) return;
     syncCanvasToVisibleDisplay(doc);
     syncCanvasViewZoom(doc);
     ensureLayerOrderCard(doc);

@@ -1206,9 +1206,10 @@
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     if (APP_MODE === 'layout-builder') document.body.classList.add('layout-builder-mode');
     const BUILDER_BUILD_ID = APP_MODE === 'layout-builder'
-      ? '20260731-vbv2-helper-render-parity-v1'
+      ? '20260801-remove-section-indicators-v1'
       : '20260731-vbv2-helper-render-parity-v1';
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
+    const LAYOUT_BUILDER_SECTION_INDICATORS_REMOVED_META_KEY = 'layoutBuilderSectionIndicatorsRemovedV1';
     const SECTIONS = [
       { id: 'intro', label: '1. Intro blank', chip: null, indicator: true },
       { id: 'fats', label: '2. Fats', chip: 'FATS', indicator: true },
@@ -3789,6 +3790,8 @@
     function normalizeLayout(layout) {
       const normalized = layout || structuredClone(DEFAULT_LAYOUT);
       normalized.meta = normalized.meta || {};
+      const removeLayoutBuilderSectionIndicators = APP_MODE === 'layout-builder'
+        && !normalized.meta[LAYOUT_BUILDER_SECTION_INDICATORS_REMOVED_META_KEY];
       for (const section of SECTIONS) {
         normalized.sections[section.id].layers = getSectionLayersFromLayout(normalized, section.id).filter(layer => {
           if (isSpriteLayer(layer)) {
@@ -3796,6 +3799,7 @@
             if (layer.fallbackSrc) layer.fallbackSrc = canonicalSpritePath(layer.fallbackSrc);
             normalizeArrowIndicatorSpriteSize(layer);
           }
+          if (removeLayoutBuilderSectionIndicators && isSectionIndicatorAssetLayer(layer)) return false;
           if (isObsoleteMacroBarFrameOrFillSpriteLayer(layer)) return false;
           if (isLegacyAutoSectionIndicatorLayer(layer, section.id)) return false;
           if (isObsoleteOutroScoreDisplayLayer(layer)) return false;
@@ -3805,7 +3809,10 @@
           return true;
         });
       }
-      ensureSectionIndicatorLayers(normalized);
+      if (removeLayoutBuilderSectionIndicators) {
+        normalized.meta[LAYOUT_BUILDER_SECTION_INDICATORS_REMOVED_META_KEY] = new Date().toISOString();
+      }
+      if (APP_MODE !== 'layout-builder') ensureSectionIndicatorLayers(normalized);
       migrateMacroLayoutFromOutro(normalized);
       ensureMacroBarFillLayers(normalized);
       applyBaconMacroBarPlacementTemplate(normalized, baconMacroBarPlacementTemplateForLayout(normalized));
@@ -4051,7 +4058,7 @@
 
     function createSectionLayers(sectionId) {
       const base = [];
-      base.push(...createSectionIndicatorLayers(sectionId));
+      if (APP_MODE !== 'layout-builder') base.push(...createSectionIndicatorLayers(sectionId));
       if (sectionId === 'vitamins') {
         base.push(
           text('vitamins_title', 'VITAMINS title', 27, 58, 7, 'VITAMINS', 40, 82, 'center'),

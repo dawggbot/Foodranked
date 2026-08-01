@@ -11,6 +11,7 @@
   const PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const RESTORE_TEST_FROM_PLACEMENT_ID = 'layoutBuilderRestoreTestFromPlacement';
   const TEST_LAYOUT_NAME = 'test';
+  const SECTION_INDICATOR_REMOVAL_META_KEY = 'layoutBuilderSectionIndicatorsRemovedV1';
   // Locked approved view zoom: do not change without an explicit layout-builder zoom request.
   const CANVAS_VIEW_ZOOM = 1.52;
   const SECTION_IDS = ['intro', 'fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons', 'outro'];
@@ -308,6 +309,43 @@
     if (!isSpriteLayer(layer)) return false;
     const fingerprint = `${layer.id || ''} ${layer.label || ''} ${layer.src || ''}`.toLowerCase();
     return fingerprint.includes('/ui/section_indicator/') || /section indicator/.test(fingerprint);
+  }
+
+  function removeSectionIndicatorLayersFromLayout(layout) {
+    if (!layout?.sections || layout.meta?.[SECTION_INDICATOR_REMOVAL_META_KEY]) {
+      return { layout, changed: false, removed: 0 };
+    }
+
+    const next = clone(layout);
+    next.meta = { ...(next.meta || {}), [SECTION_INDICATOR_REMOVAL_META_KEY]: new Date().toISOString() };
+    let removed = 0;
+
+    SECTION_IDS.forEach(sectionId => {
+      const layers = getSectionLayers(next, sectionId);
+      if (!layers.length) return;
+      const nonIndicators = layers.filter(layer => !isSectionIndicatorLayer(layer));
+      removed += layers.length - nonIndicators.length;
+      next.sections[sectionId] = { ...(next.sections[sectionId] || {}), layers: nonIndicators };
+    });
+
+    return { layout: next, changed: removed > 0 || !layout.meta?.[SECTION_INDICATOR_REMOVAL_META_KEY], removed };
+  }
+
+  function removeCurrentSectionIndicators(doc) {
+    if (doc.body.dataset.layoutBuilderIndicatorRemovalPending === 'true') return false;
+    const layout = currentLayout(doc);
+    const result = removeSectionIndicatorLayersFromLayout(layout);
+    if (!result.changed) return false;
+
+    const selectedId = selectedLayerId(doc);
+    const selectedLayer = getSectionLayers(layout, layout.selectedSectionId || 'intro').find(layer => layer.id === selectedId);
+    const restoreSelectionId = selectedId && selectedLayer && !isSectionIndicatorLayer(selectedLayer) ? selectedId : '';
+    doc.body.dataset.layoutBuilderIndicatorRemovalPending = 'true';
+    applyLayoutJson(doc, result.layout, restoreSelectionId);
+    window.setTimeout(() => {
+      delete doc.body.dataset.layoutBuilderIndicatorRemovalPending;
+    }, 350);
+    return true;
   }
 
   function indicatorRows(indicators) {
@@ -838,6 +876,7 @@
           createdAt: entry.createdAt || new Date().toISOString(),
           updatedAt: entry.updatedAt || entry.createdAt || new Date().toISOString(),
           selectedSectionId: entry.selectedSectionId || 'intro',
+          meta: clone(entry.meta || {}),
           sections: clone(entry.sections)
         }))
         .sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)) || a.name.localeCompare(b.name));
@@ -848,6 +887,17 @@
 
   function persistSavedLayouts(win, entries) {
     win.localStorage.setItem(SAVED_LAYOUTS_KEY, JSON.stringify(entries));
+  }
+
+  function removeSavedLayoutSectionIndicators(win) {
+    const entries = readSavedLayouts(win);
+    let changed = false;
+    const nextEntries = entries.map(entry => {
+      const result = removeSectionIndicatorLayersFromLayout(entry);
+      changed = changed || result.changed;
+      return result.layout;
+    });
+    if (changed) persistSavedLayouts(win, nextEntries);
   }
 
   function readStorageJson(win, key, fallback) {
@@ -937,6 +987,7 @@
       setSavedLayoutMessage(doc, hint, true);
       return;
     }
+    const restoredLayout = removeSectionIndicatorLayersFromLayout(restored.layout).layout;
 
     const now = new Date().toISOString();
     const entries = readSavedLayouts(win);
@@ -948,8 +999,9 @@
       name: TEST_LAYOUT_NAME,
       createdAt: existing?.createdAt || now,
       updatedAt: now,
-      selectedSectionId: restored.layout.selectedSectionId,
-      sections: clone(restored.layout.sections)
+      selectedSectionId: restoredLayout.selectedSectionId,
+      meta: clone(restoredLayout.meta || {}),
+      sections: clone(restoredLayout.sections)
     };
     const backup = existing ? {
       ...clone(existing),
@@ -969,10 +1021,11 @@
     const nextLayout = {
       ...clone(current),
       selectedFoodId: restored.layout.selectedFoodId || restored.foodId || current.selectedFoodId || 'bacon',
-      selectedSectionId: restored.layout.selectedSectionId || current.selectedSectionId || 'intro',
-      sections: clone(restored.layout.sections),
+      selectedSectionId: restoredLayout.selectedSectionId || current.selectedSectionId || 'intro',
+      sections: clone(restoredLayout.sections),
       meta: {
         ...(current.meta || {}),
+        ...(restoredLayout.meta || {}),
         restoredTestLayoutFromPlacement: {
           source: PLACEMENT_EXPORT_KEY,
           foodId: restored.foodId,
@@ -1172,6 +1225,7 @@
       createdAt: existing?.createdAt || now,
       updatedAt: now,
       selectedSectionId: layout.selectedSectionId || 'intro',
+      meta: clone(layout.meta || {}),
       sections: clone(layout.sections)
     };
 
@@ -1198,6 +1252,7 @@
     const next = {
       ...layout,
       selectedSectionId: entry.selectedSectionId || layout.selectedSectionId || 'intro',
+      meta: { ...(layout.meta || {}), ...(entry.meta || {}) },
       sections: clone(entry.sections)
     };
     applyLayoutJson(doc, next);
@@ -1370,7 +1425,8 @@
     if (heading) heading.textContent = 'Layout builder';
 
     hideDisplayBuilderControls(doc);
-    if (syncSectionIndicatorsFromIntro(doc)) return;
+    removeSavedLayoutSectionIndicators(getFrameWindow());
+    if (removeCurrentSectionIndicators(doc)) return;
     syncCanvasToVisibleDisplay(doc);
     syncCanvasViewZoom(doc);
     ensureLayerOrderCard(doc);

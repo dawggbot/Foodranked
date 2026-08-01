@@ -1036,7 +1036,6 @@
             </div>
             <div class="row">
               <button id="resetSection">Reset section</button>
-              <button id="applyMacroTemplate" type="button">Apply fats layout to macros</button>
             </div>
           </div>
           <div id="displayJsonPanel" class="display-panel stack" role="tabpanel" aria-labelledby="displayJsonTab" hidden>
@@ -1205,7 +1204,7 @@
   <script>
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     if (APP_MODE === 'layout-builder') document.body.classList.add('layout-builder-mode');
-    const BUILDER_BUILD_ID = '20260801-macro-arrow-sync-v1';
+    const BUILDER_BUILD_ID = '20260801-micro-bars-complete-v1';
     const BACKGROUND_MOTION_DEFAULT_MAX_SIZE = 80;
     const BACKGROUND_MOTION_LEGACY_MAX_SIZE = 40;
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
@@ -1286,14 +1285,19 @@
     const TEXT_LAYER_CLIP_BLEED = 2;
     const LAYOUT_BUILDER_TEXT_RECOVERY_META_KEY = 'layoutBuilderTextRecoveryV1';
     const LAYOUT_BUILDER_MACRO_TEXTBOX_REPAIR_META_KEY = 'layoutBuilderMacroTextboxRepairV1';
-    const LAYOUT_BUILDER_VITAMIN_BAR_TEXTBOX_META_KEY = 'layoutBuilderVitaminBarTextboxesV10';
-    const LAYOUT_BUILDER_MINERAL_BAR_SPRITES_META_KEY = 'layoutBuilderMineralBarSpritesV4';
-    const LAYOUT_BUILDER_MINERAL_BAR_TEXTBOX_META_KEY = 'layoutBuilderMineralBarTextboxesV10';
+    const LAYOUT_BUILDER_VITAMIN_BAR_SPRITES_META_KEY = 'layoutBuilderVitaminBarSpritesV1';
+    const LAYOUT_BUILDER_VITAMIN_BAR_TEXTBOX_META_KEY = 'layoutBuilderVitaminBarTextboxesV11';
+    const LAYOUT_BUILDER_MINERAL_BAR_SPRITES_META_KEY = 'layoutBuilderMineralBarSpritesV5';
+    const LAYOUT_BUILDER_MINERAL_BAR_TEXTBOX_META_KEY = 'layoutBuilderMineralBarTextboxesV11';
+    const MICRO_BAR_COMPLETION_BACKUP_META_KEY = 'layoutBuilderMicroBarCompletionBackupV1';
+    const MICRO_BAR_COMPLETION_BACKUP_INDEX_KEY = 'foodranked-layout-builder-micro-bar-completion-backups-v1';
+    const MICRO_BAR_COMPLETION_BACKUP_STORAGE_PREFIX = 'foodranked-layout-builder-before-micro-bar-completion';
     const PROS_CONS_ITEM_TEXTBOX_LINES = 3;
     const MICRO_BAR_TEXTBOX_TEXT = '??%';
     const MICRO_BAR_TEXTBOX_FONT_SIZE = 4.5;
     const MICRO_BAR_TEXTBOX_WIDTH = 11;
     const MICRO_BAR_TEXTBOX_STROKE_WIDTH = 1.15;
+    const MICRO_BAR_PERCENTS = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
     const FOOD_JSON_CACHE = new Map();
     const BATCH_RESULTS_CACHE = new Map();
     const SPRITE_EXISTENCE_CACHE = new Map();
@@ -1500,7 +1504,6 @@
       bgMotionMaxSize: document.getElementById('bgMotionMaxSize'),
       bgMotionDrift: document.getElementById('bgMotionDrift'),
       resetSection: document.getElementById('resetSection'),
-      applyMacroTemplate: document.getElementById('applyMacroTemplate'),
       savedLayoutSelect: document.getElementById('savedLayoutSelect'),
       saveSpriteLayout: document.getElementById('saveSpriteLayout'),
       loadSpriteLayout: document.getElementById('loadSpriteLayout'),
@@ -3682,18 +3685,47 @@
       return `${sectionId}_bar_percent_c${columnIndex + 1}_${percent}`;
     }
 
+    function microBarSpriteId(sectionId, columnIndex, percent) {
+      return `${sectionId}_micro_${percent}_bar_c${columnIndex + 1}`;
+    }
+
+    function microBarSpriteSrc(percent) {
+      return `./sprites/micros_section/bars/${percent}%25_bar.png`;
+    }
+
+    function microSummaryPercentLimit(sectionId) {
+      if (sectionId === 'vitamins') return VITAMIN_TEXT_SPECS.length;
+      if (sectionId === 'minerals') return MINERAL_TEXT_SPECS.length;
+      return 0;
+    }
+
+    function isNormalMicroSummaryPercentLayer(layer, sectionId = '') {
+      if (!isTextLayer(layer)) return false;
+      const id = String(layer.id || '');
+      const pattern = sectionId
+        ? new RegExp(`^${sectionId}_percent_(\\d+)$`)
+        : /^(vitamins|minerals)_percent_(\d+)$/;
+      const match = id.match(pattern);
+      if (!match) return false;
+      const matchedSectionId = sectionId || match[1];
+      const index = Number(sectionId ? match[1] : match[2]);
+      return index >= 1 && index <= microSummaryPercentLimit(matchedSectionId);
+    }
+
     function isMicroBarTextboxLayer(layer, sectionId = '') {
       if (!isTextLayer(layer)) return false;
       const id = String(layer.id || '');
+      if (isNormalMicroSummaryPercentLayer(layer, sectionId)) return false;
       if (sectionId) {
         return !!(
-          id.match(new RegExp(`^${sectionId}_percent_\\d+$`))
-          || id.match(new RegExp(`^${sectionId}_bar_percent_c\\d+_\\d+$`))
+          id.match(new RegExp(`^${sectionId}_bar_percent_c\\d+_\\d+$`))
+          || (layer.microBarTextbox === true && id.startsWith(`${sectionId}_`))
         );
       }
       return /^(vitamins|minerals)_percent_\d+$/.test(id)
-        || /^(vitamins|minerals)_bar_percent_c\d+_\d+$/.test(id)
-        || layer.microBarTextbox === true;
+        ? false
+        : /^(vitamins|minerals)_bar_percent_c\d+_\d+$/.test(id)
+          || layer.microBarTextbox === true;
     }
 
     function isGeneratedMicroBarTextboxLayer(layer, sectionId) {
@@ -3707,11 +3739,19 @@
 
     function isLegacyMicroPercentTextboxLayer(layer, sectionId) {
       if (!isTextLayer(layer)) return false;
-      return !!String(layer.id || '').match(new RegExp(`^${sectionId}_percent_\\d+$`));
+      return !!String(layer.id || '').match(new RegExp(`^${sectionId}_percent_\\d+$`))
+        && !isNormalMicroSummaryPercentLayer(layer, sectionId);
     }
 
-    function microBarTextboxFrame(barLayer) {
+    function microBarTextboxFrame(barLayer, referenceFrame = null) {
       const barWidth = Number(barLayer?.width) || 11;
+      if (referenceFrame) {
+        return {
+          x: Math.round((Number(barLayer?.x) || 0) + referenceFrame.offsetX),
+          y: clampValue(Math.round((Number(barLayer?.y) || 0) + referenceFrame.offsetY), 44, 220),
+          width: referenceFrame.width || MICRO_BAR_TEXTBOX_WIDTH
+        };
+      }
       return {
         x: Math.round((Number(barLayer?.x) || 0) + ((barWidth - MICRO_BAR_TEXTBOX_WIDTH) / 2)),
         y: clampValue(Math.round((Number(barLayer?.y) || 0) - 1), 44, 220),
@@ -3719,8 +3759,31 @@
       };
     }
 
-    function findExistingMicroBarTextbox(sectionLayers, sectionId, barLayer, usedLayerIds) {
-      const frame = microBarTextboxFrame(barLayer);
+    function microBarTextboxReferenceFrame(sectionLayers, sectionId, columns) {
+      const samples = [];
+      for (const layer of sectionLayers) {
+        if (!isGeneratedMicroBarTextboxLayer(layer, sectionId)) continue;
+        const match = String(layer.id || '').match(new RegExp(`^${sectionId}_bar_percent_c(\\d+)_(\\d+)$`));
+        if (!match) continue;
+        const column = columns[Number(match[1]) - 1];
+        const barItem = column?.items.find(item => item.percent === Number(match[2]));
+        if (!barItem?.layer) continue;
+        samples.push({
+          offsetX: (Number(layer.x) || 0) - (Number(barItem.layer.x) || 0),
+          offsetY: (Number(layer.y) || 0) - (Number(barItem.layer.y) || 0),
+          width: Number(layer.width) || MICRO_BAR_TEXTBOX_WIDTH
+        });
+      }
+      if (!samples.length) return null;
+      return {
+        offsetX: samples.reduce((sum, sample) => sum + sample.offsetX, 0) / samples.length,
+        offsetY: samples.reduce((sum, sample) => sum + sample.offsetY, 0) / samples.length,
+        width: samples.reduce((sum, sample) => sum + sample.width, 0) / samples.length
+      };
+    }
+
+    function findExistingMicroBarTextbox(sectionLayers, sectionId, barLayer, usedLayerIds, referenceFrame = null) {
+      const frame = microBarTextboxFrame(barLayer, referenceFrame);
       return sectionLayers.find(layer => {
         if (!isMicroBarTextboxLayer(layer, sectionId)) return false;
         if (usedLayerIds.has(String(layer.id || ''))) return false;
@@ -3729,8 +3792,8 @@
       }) || null;
     }
 
-    function applyMicroBarTextboxDefaults(layer, { sectionLabel, barLayer, columnIndex, percent }) {
-      const frame = microBarTextboxFrame(barLayer);
+    function applyMicroBarTextboxDefaults(layer, { sectionLabel, barLayer, columnIndex, percent, referenceFrame = null }) {
+      const frame = microBarTextboxFrame(barLayer, referenceFrame);
       layer.label = `${sectionLabel} ${percent}% bar textbox ${columnIndex + 1}`;
       layer.text = MICRO_BAR_TEXTBOX_TEXT;
       layer.fontSize = MICRO_BAR_TEXTBOX_FONT_SIZE;
@@ -3745,126 +3808,178 @@
       layer.layoutBuilderManualText = true;
       layer.microBarTextbox = true;
       layer.textStrokeWidth = MICRO_BAR_TEXTBOX_STROKE_WIDTH;
+      layer.color = '#ffffff';
       delete layer.textGlowColor;
     }
 
-    function defaultMineralMicroBarSpriteLayers() {
-      return getSectionLayersFromLayout(DEFAULT_LAYOUT, 'minerals')
+    function defaultMicroBarSpriteLayers(sectionId) {
+      return getSectionLayersFromLayout(DEFAULT_LAYOUT, sectionId)
         .filter(layer => isSpriteLayer(layer) && String(layer.src || '').includes('/micros_section/bars/'));
     }
 
-    function selectMineralMicroBarColumns(columns, defaultColumns) {
-      const assignments = [];
-      const usedColumns = new Set();
-      const assignedDefaultIndexes = new Set();
-      const defaultCount = Math.min(MINERAL_TEXT_SPECS.length, defaultColumns.length || MINERAL_TEXT_SPECS.length);
+    function defaultMicroBarColumns(sectionId, expectedColumnCount) {
+      return getMicrosDvBarColumns(defaultMicroBarSpriteLayers(sectionId)).slice(0, expectedColumnCount);
+    }
 
-      defaultColumns.slice(0, defaultCount).forEach((defaultColumn, defaultIndex) => {
+    function completeMicroBarSourceColumn(columns, defaultColumns) {
+      const completeColumn = columns.find(column => {
+        const percents = new Set(column.items.map(item => item.percent));
+        return MICRO_BAR_PERCENTS.every(percent => percents.has(percent));
+      });
+      return completeColumn || defaultColumns[0] || columns[0] || null;
+    }
+
+    function microBarTargetCenters(columns, defaultColumns, expectedColumnCount, sourceColumn) {
+      const sourceCenter = sourceColumn?.centerX ?? defaultColumns[0]?.centerX ?? 18.5;
+      const sourceDefault = defaultColumns.reduce((closest, column) => {
+        return Math.abs(column.centerX - sourceCenter) < Math.abs((closest?.centerX ?? sourceCenter) - sourceCenter) ? column : closest;
+      }, defaultColumns[0] || null);
+      const usedColumnIndexes = new Set();
+      return Array.from({ length: expectedColumnCount }, (_, index) => {
+        const defaultColumn = defaultColumns[index];
+        const expectedCenter = defaultColumn && sourceDefault
+          ? sourceCenter + (defaultColumn.centerX - sourceDefault.centerX)
+          : sourceCenter + (index * 13);
         let best = null;
         columns.forEach((column, columnIndex) => {
-          if (usedColumns.has(columnIndex)) return;
-          const distance = Math.abs(column.centerX - defaultColumn.centerX);
-          if (distance > 8) return;
-          const score = distance - (Math.min(column.items.length, 10) * 0.25);
-          if (!best || score < best.score) best = { column, columnIndex, score };
+          if (usedColumnIndexes.has(columnIndex)) return;
+          const distance = Math.abs(column.centerX - expectedCenter);
+          if (!best || distance < best.distance) best = { column, columnIndex, distance };
         });
-        if (!best) return;
-        assignments.push({ defaultIndex, column: best.column });
-        usedColumns.add(best.columnIndex);
-        assignedDefaultIndexes.add(defaultIndex);
+        if (best && best.distance <= 8) {
+          usedColumnIndexes.add(best.columnIndex);
+          return best.column.centerX;
+        }
+        return expectedCenter;
       });
-
-      const remainingColumns = columns
-        .map((column, columnIndex) => ({ column, columnIndex }))
-        .filter(item => !usedColumns.has(item.columnIndex))
-        .sort((a, b) => a.column.centerX - b.column.centerX);
-
-      for (let defaultIndex = 0; defaultIndex < defaultCount; defaultIndex += 1) {
-        if (assignedDefaultIndexes.has(defaultIndex)) continue;
-        const next = remainingColumns.shift();
-        if (!next) break;
-        assignments.push({ defaultIndex, column: next.column });
-        usedColumns.add(next.columnIndex);
-        assignedDefaultIndexes.add(defaultIndex);
-      }
-
-      return assignments.sort((a, b) => a.defaultIndex - b.defaultIndex);
     }
 
-    function mineralBarSlotDefaultLayer(slotKey, defaultColumns, defaultBarLineLayer) {
-      if (slotKey === 'line') return defaultBarLineLayer || null;
-      const match = String(slotKey || '').match(/^bar:(\d+):(\d+)$/);
-      if (!match) return null;
-      const columnIndex = Number(match[1]);
-      const percent = Number(match[2]);
-      return defaultColumns[columnIndex]?.items.find(item => item.percent === percent)?.layer || null;
-    }
-
-    function mineralBarLayerSlotScore(layer, defaultLayer) {
-      if (!defaultLayer) return layer.visible === false ? 2 : 0;
-      const xDistance = Math.abs((layerCenterX(layer) || 0) - (layerCenterX(defaultLayer) || 0));
-      const yDistance = Math.abs((Number(layer.y) || 0) - (Number(defaultLayer.y) || 0));
-      const widthDistance = Math.abs((Number(layer.width) || 0) - (Number(defaultLayer.width) || 0));
-      const heightDistance = Math.abs((Number(layer.height) || 0) - (Number(defaultLayer.height) || 0));
+    function microBarSlotLayerScore(layer, sourceLayer, targetCenterX) {
+      const targetX = targetCenterX - ((Number(sourceLayer?.width) || Number(layer.width) || 11) / 2);
+      const xDistance = Math.abs((Number(layer.x) || 0) - targetX);
+      const yDistance = Math.abs((Number(layer.y) || 0) - (Number(sourceLayer?.y) || 0));
+      const widthDistance = Math.abs((Number(layer.width) || 0) - (Number(sourceLayer?.width) || 0));
+      const heightDistance = Math.abs((Number(layer.height) || 0) - (Number(sourceLayer?.height) || 0));
       const visibilityPenalty = layer.visible === false ? 2 : 0;
       return xDistance + yDistance + (widthDistance * 0.5) + (heightDistance * 0.5) + visibilityPenalty;
     }
 
-    function ensureLayoutBuilderMineralBarSprites(layout) {
+    function backupLayoutBeforeMicroBarCompletion(layout) {
       if (APP_MODE !== 'layout-builder') return;
       layout.meta = layout.meta || {};
-      if (layout.meta[LAYOUT_BUILDER_MINERAL_BAR_SPRITES_META_KEY]) return;
-
-      const sectionLayers = getSectionLayersFromLayout(layout, 'minerals');
-      const defaultLayers = defaultMineralMicroBarSpriteLayers();
-      const defaultColumns = getMicrosDvBarColumns(defaultLayers).slice(0, MINERAL_TEXT_SPECS.length);
-      const defaultBarLineLayer = defaultLayers.find(layer => String(layer.src || '').includes('/bar_line'));
-      const currentColumns = getMicrosDvBarColumns(sectionLayers);
-      const chosenBySlot = new Map();
-      const restoredLayerIds = [];
-
-      const chooseLayerForSlot = (slotKey, layer) => {
-        const defaultLayer = mineralBarSlotDefaultLayer(slotKey, defaultColumns, defaultBarLineLayer);
-        const current = chosenBySlot.get(slotKey);
-        if (!current || mineralBarLayerSlotScore(layer, defaultLayer) < mineralBarLayerSlotScore(current, defaultLayer)) {
-          chosenBySlot.set(slotKey, layer);
+      if (layout.meta[MICRO_BAR_COMPLETION_BACKUP_META_KEY]) return;
+      try {
+        const now = new Date().toISOString();
+        const backupId = `${MICRO_BAR_COMPLETION_BACKUP_STORAGE_PREFIX}-${Date.now().toString(36)}`;
+        const mirrorBackupId = `${backupId}-copy`;
+        const backup = {
+          id: backupId,
+          createdAt: now,
+          reason: 'Before completing vitamins/minerals micro bars',
+          layout: structuredClone(layout)
+        };
+        localStorage.setItem(backupId, JSON.stringify(backup));
+        localStorage.setItem(mirrorBackupId, JSON.stringify(backup));
+        const rawIndex = localStorage.getItem(MICRO_BAR_COMPLETION_BACKUP_INDEX_KEY);
+        let index = [];
+        try {
+          const parsedIndex = JSON.parse(rawIndex || '[]');
+          index = Array.isArray(parsedIndex) ? parsedIndex : [];
+        } catch {
+          index = [];
         }
-      };
+        index.unshift({ id: backupId, mirrorId: mirrorBackupId, createdAt: now, reason: backup.reason });
+        localStorage.setItem(MICRO_BAR_COMPLETION_BACKUP_INDEX_KEY, JSON.stringify(index.slice(0, 20)));
+        layout.meta[MICRO_BAR_COMPLETION_BACKUP_META_KEY] = {
+          backedUpAt: now,
+          storageKey: backupId,
+          mirrorStorageKey: mirrorBackupId
+        };
+      } catch (error) {
+        console.warn('Unable to back up layout before micro-bar completion', error);
+      }
+    }
 
-      const barLineLayers = sectionLayers.filter(layer => isMicrosBarSpriteLayer(layer) && String(layer.src || '').includes('/bar_line'));
-      barLineLayers.forEach(layer => chooseLayerForSlot('line', layer));
+    function syncMicroBarSpriteSlot(layer, { sectionId, sectionLabel, columnIndex, percent, sourceLayer, targetCenterX }) {
+      layer.id = microBarSpriteId(sectionId, columnIndex, percent);
+      layer.label = `${sectionLabel} ${percent}% bar ${columnIndex + 1}`;
+      layer.src = microBarSpriteSrc(percent);
+      layer.x = Math.round(targetCenterX - ((Number(sourceLayer?.width) || 11) / 2));
+      layer.y = Number(sourceLayer?.y) || 0;
+      layer.z = Number(sourceLayer?.z) || 6;
+      layer.width = Number(sourceLayer?.width) || 11;
+      layer.height = Number(sourceLayer?.height) || 5;
+      layer.naturalWidth = Number(sourceLayer?.naturalWidth) || layer.naturalWidth || null;
+      layer.naturalHeight = Number(sourceLayer?.naturalHeight) || layer.naturalHeight || null;
+      layer.preserveAspect = sourceLayer?.preserveAspect ?? layer.preserveAspect ?? false;
+      layer.aspectRatio = sourceLayer?.aspectRatio ?? layer.aspectRatio ?? null;
+      layer.foodDriven = sourceLayer?.foodDriven ?? layer.foodDriven ?? false;
+      layer.visible = true;
+    }
 
-      selectMineralMicroBarColumns(currentColumns, defaultColumns).forEach(({ defaultIndex, column }) => {
-        column.items.forEach(item => {
-          chooseLayerForSlot(`bar:${defaultIndex}:${item.percent}`, item.layer);
-        });
-      });
+    function ensureLayoutBuilderMicroBarSprites(layout, { sectionId, sectionLabel, metaKey, expectedColumnCount }) {
+      if (APP_MODE !== 'layout-builder') return;
+      layout.meta = layout.meta || {};
+      if (layout.meta[metaKey]) return;
 
-      const keptLayers = new Set(chosenBySlot.values());
+      const sectionLayers = getSectionLayersFromLayout(layout, sectionId);
+      const defaultColumns = defaultMicroBarColumns(sectionId, expectedColumnCount);
+      const currentColumns = getMicrosDvBarColumns(sectionLayers);
+      const sourceColumn = completeMicroBarSourceColumn(currentColumns, defaultColumns);
+      if (!sourceColumn) return;
 
-      layout.sections.minerals.layers = sectionLayers.filter(layer => {
-        if (!isSpriteLayer(layer) || !String(layer.src || '').includes('/micros_section/bars/')) return true;
-        if (!keptLayers.has(layer)) return false;
-        layer.visible = true;
-        if (layer.id) restoredLayerIds.push(String(layer.id));
-        return true;
-      });
-      const dedupedSectionLayers = getSectionLayersFromLayout(layout, 'minerals');
+      backupLayoutBeforeMicroBarCompletion(layout);
 
-      for (const defaultLayer of defaultLayers) {
-        const slotKey = String(defaultLayer.src || '').includes('/bar_line')
-          ? 'line'
-          : `bar:${defaultColumns.findIndex(column => column.items.some(item => item.layer === defaultLayer))}:${microsDvBarPercent(defaultLayer)}`;
-        if (!slotKey || slotKey.includes(':-1:') || chosenBySlot.has(slotKey)) continue;
-        const layer = cloneLayer(defaultLayer);
-        layer.visible = true;
-        dedupedSectionLayers.push(layer);
-        chosenBySlot.set(slotKey, layer);
-        if (layer.id) restoredLayerIds.push(String(layer.id));
+      const sourceByPercent = new Map();
+      for (const percent of MICRO_BAR_PERCENTS) {
+        const sourceLayer = sourceColumn.items.find(item => item.percent === percent)?.layer
+          || defaultColumns[0]?.items.find(item => item.percent === percent)?.layer
+          || defaultColumns.flatMap(column => column.items).find(item => item.percent === percent)?.layer;
+        if (sourceLayer) sourceByPercent.set(percent, sourceLayer);
       }
 
-      restoreDeletedLayerIds(layout, restoredLayerIds);
-      layout.meta[LAYOUT_BUILDER_MINERAL_BAR_SPRITES_META_KEY] = true;
+      const targetCenters = microBarTargetCenters(currentColumns, defaultColumns, expectedColumnCount, sourceColumn);
+      const candidatesBySlot = new Map();
+      for (const layer of sectionLayers) {
+        if (!isMicrosDvBarSpriteLayer(layer)) continue;
+        const percent = microsDvBarPercent(layer);
+        if (!MICRO_BAR_PERCENTS.includes(percent)) continue;
+        const nearestColumnIndex = targetCenters.reduce((bestIndex, center, index) => {
+          const currentBestDistance = Math.abs((layerCenterX(layer) || 0) - targetCenters[bestIndex]);
+          const distance = Math.abs((layerCenterX(layer) || 0) - center);
+          return distance < currentBestDistance ? index : bestIndex;
+        }, 0);
+        const slotKey = `${nearestColumnIndex}:${percent}`;
+        const sourceLayer = sourceByPercent.get(percent);
+        const current = candidatesBySlot.get(slotKey);
+        if (!current || microBarSlotLayerScore(layer, sourceLayer, targetCenters[nearestColumnIndex]) < microBarSlotLayerScore(current, sourceLayer, targetCenters[nearestColumnIndex])) {
+          candidatesBySlot.set(slotKey, layer);
+        }
+      }
+
+      const updatedLayers = new Set();
+      const updatedLayerIds = [];
+      targetCenters.forEach((targetCenterX, columnIndex) => {
+        for (const percent of MICRO_BAR_PERCENTS) {
+          const slotKey = `${columnIndex}:${percent}`;
+          const sourceLayer = sourceByPercent.get(percent);
+          if (!sourceLayer) continue;
+          let layer = candidatesBySlot.get(slotKey);
+          if (!layer) {
+            layer = cloneLayer(sourceLayer);
+            sectionLayers.push(layer);
+          }
+          syncMicroBarSpriteSlot(layer, { sectionId, sectionLabel, columnIndex, percent, sourceLayer, targetCenterX });
+          updatedLayers.add(layer);
+          if (layer.id) updatedLayerIds.push(String(layer.id));
+        }
+      });
+
+      layout.sections[sectionId].layers = getSectionLayersFromLayout(layout, sectionId).filter(layer => {
+        return !isMicrosDvBarSpriteLayer(layer) || updatedLayers.has(layer);
+      });
+      restoreDeletedLayerIds(layout, updatedLayerIds);
+      layout.meta[metaKey] = true;
     }
 
     function ensureLayoutBuilderMicroBarTextboxes(layout, { sectionId, sectionLabel, metaKey, expectedColumnCount, cleanupExtra = false, cleanupLegacyPercentTextboxes = false }) {
@@ -3874,9 +3989,14 @@
 
       const sectionLayers = getSectionLayersFromLayout(layout, sectionId);
       const columns = getMicrosDvBarColumns(sectionLayers).slice(0, expectedColumnCount);
+      const referenceFrame = microBarTextboxReferenceFrame(sectionLayers, sectionId, columns);
       const usedLayerIds = new Set();
       const updatedLayers = new Set();
       const updatedLayerIds = [];
+
+      sectionLayers.forEach(layer => {
+        if (isNormalMicroSummaryPercentLayer(layer, sectionId)) delete layer.microBarTextbox;
+      });
 
       columns.forEach((column, columnIndex) => {
         const items = [...column.items].sort((a, b) => a.percent - b.percent);
@@ -3884,10 +4004,10 @@
           const id = microBarTextboxId(sectionId, columnIndex, item.percent);
           let layer = sectionLayers.find(candidate => candidate.id === id);
           if (!layer) {
-            layer = findExistingMicroBarTextbox(sectionLayers, sectionId, item.layer, usedLayerIds);
+            layer = findExistingMicroBarTextbox(sectionLayers, sectionId, item.layer, usedLayerIds, referenceFrame);
           }
           if (!layer) {
-            const frame = microBarTextboxFrame(item.layer);
+            const frame = microBarTextboxFrame(item.layer, referenceFrame);
             layer = text(id, `${sectionLabel} ${item.percent}% bar textbox ${columnIndex + 1}`, frame.x, frame.y, MICRO_BAR_TEXTBOX_FONT_SIZE, MICRO_BAR_TEXTBOX_TEXT, (Number(item.layer?.z) || 0) + 5, frame.width, 'center');
             sectionLayers.push(layer);
           }
@@ -3895,8 +4015,10 @@
             sectionLabel,
             barLayer: item.layer,
             columnIndex,
-            percent: item.percent
+            percent: item.percent,
+            referenceFrame
           });
+          layer.id = id;
           updatedLayers.add(layer);
           if (layer.id) {
             usedLayerIds.add(String(layer.id));
@@ -3917,6 +4039,15 @@
       layout.meta[metaKey] = true;
     }
 
+    function ensureLayoutBuilderVitaminBarSprites(layout) {
+      ensureLayoutBuilderMicroBarSprites(layout, {
+        sectionId: 'vitamins',
+        sectionLabel: 'VITAMINS',
+        metaKey: LAYOUT_BUILDER_VITAMIN_BAR_SPRITES_META_KEY,
+        expectedColumnCount: VITAMIN_TEXT_SPECS.length
+      });
+    }
+
     function ensureLayoutBuilderVitaminBarTextboxes(layout) {
       ensureLayoutBuilderMicroBarTextboxes(layout, {
         sectionId: 'vitamins',
@@ -3928,13 +4059,23 @@
       });
     }
 
+    function ensureLayoutBuilderMineralBarSprites(layout) {
+      ensureLayoutBuilderMicroBarSprites(layout, {
+        sectionId: 'minerals',
+        sectionLabel: 'MINERALS',
+        metaKey: LAYOUT_BUILDER_MINERAL_BAR_SPRITES_META_KEY,
+        expectedColumnCount: MINERAL_TEXT_SPECS.length
+      });
+    }
+
     function ensureLayoutBuilderMineralBarTextboxes(layout) {
       ensureLayoutBuilderMicroBarTextboxes(layout, {
         sectionId: 'minerals',
         sectionLabel: 'MINERALS',
         metaKey: LAYOUT_BUILDER_MINERAL_BAR_TEXTBOX_META_KEY,
         expectedColumnCount: MINERAL_TEXT_SPECS.length,
-        cleanupExtra: true
+        cleanupExtra: true,
+        cleanupLegacyPercentTextboxes: true
       });
     }
 
@@ -4515,8 +4656,9 @@
       syncHeaderLayoutFromIntro(normalized);
       recoverLayoutBuilderDeletedTextLayers(normalized);
       repairLayoutBuilderMacroTextBoxes(normalized);
-      ensureLayoutBuilderVitaminBarTextboxes(normalized);
+      ensureLayoutBuilderVitaminBarSprites(normalized);
       ensureLayoutBuilderMineralBarSprites(normalized);
+      ensureLayoutBuilderVitaminBarTextboxes(normalized);
       ensureLayoutBuilderMineralBarTextboxes(normalized);
       filterDeletedLayers(normalized);
       relabelLayoutLayers(normalized);
@@ -7795,14 +7937,6 @@ async function renderAll() {
     els.resetSection.addEventListener('click', () => {
       resetCurrentSectionLayers();
       syncFoodIntoLayout(state.fullFood);
-      setSelectedLayerId(null);
-      void renderAll();
-    });
-    els.applyMacroTemplate.addEventListener('click', () => {
-      syncMacroSectionLayoutFromFats(state.layout, { force: true });
-      syncMacroArrowPlacementFromFats(state.layout, { force: true });
-      syncIntroHeaderUiSpritesToAllSections(state.layout);
-      syncFoodIntoLayout(state.fullFood, { normalize: false });
       setSelectedLayerId(null);
       void renderAll();
     });

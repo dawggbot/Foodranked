@@ -12,6 +12,10 @@
   const PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const RESTORE_TEST_FROM_PLACEMENT_ID = 'layoutBuilderRestoreTestFromPlacement';
   const TEST_LAYOUT_NAME = 'test';
+  const RECOVERED_TEST_BACKUP_META_KEY = 'layoutBuilderRecoveredTestBackupV1';
+  const REVOKED_LAYOUT_SEED_VERSIONS = new Set(['20260801-current-builder-layout-v1']);
+  const REVOKED_LAYOUT_SEED_SOURCES = new Set(['docs/layout-builder/canonical-test-layout.js']);
+  const REVOKED_LAYOUT_SEED_IDS = new Set(['layout_test_current_builder_20260801']);
   // Locked approved view zoom: do not change without an explicit layout-builder zoom request.
   const CANVAS_VIEW_ZOOM = 1.52;
   const SECTION_IDS = ['intro', 'fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons', 'outro'];
@@ -680,7 +684,7 @@
       const raw = win.localStorage.getItem(SAVED_LAYOUTS_KEY);
       const parsed = raw ? JSON.parse(raw) : [];
       const entries = Array.isArray(parsed) ? parsed : Object.values(parsed || {});
-      return entries
+      const normalized = entries
         .filter(entry => entry && entry.id && entry.sections && typeof entry.sections === 'object')
         .map(entry => ({
           id: String(entry.id),
@@ -692,6 +696,16 @@
           sections: clone(entry.sections)
         }))
         .sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)) || a.name.localeCompare(b.name));
+      let kept = normalized.filter(entry => !isRevokedLayoutSeed(entry));
+      const recovered = recoveredCanonicalTestLayoutEntryFromBackup(kept);
+      if (recovered) {
+        kept = [recovered, ...kept.filter(entry => entry.id !== recovered.meta?.[RECOVERED_TEST_BACKUP_META_KEY]?.restoredFromId)];
+      }
+      if (kept.length !== normalized.length || recovered) {
+        persistSavedLayouts(win, kept);
+        win.localStorage.removeItem(FOOD_LAYOUTS_KEY);
+      }
+      return kept;
     } catch {
       return [];
     }
@@ -744,6 +758,48 @@
 
   function isTestLayoutEntry(entry) {
     return collapseText(entry?.name).toLowerCase() === TEST_LAYOUT_NAME;
+  }
+
+  function isRevokedLayoutSeed(value) {
+    const meta = value?.meta || {};
+    const sourcePlacementMeta = meta.sourcePlacementMeta || {};
+    return REVOKED_LAYOUT_SEED_IDS.has(String(value?.id || ''))
+      || REVOKED_LAYOUT_SEED_VERSIONS.has(String(meta.canonicalLayoutVersion || ''))
+      || REVOKED_LAYOUT_SEED_VERSIONS.has(String(sourcePlacementMeta.canonicalLayoutVersion || ''))
+      || REVOKED_LAYOUT_SEED_SOURCES.has(String(meta.canonicalLayoutSource || ''))
+      || REVOKED_LAYOUT_SEED_SOURCES.has(String(sourcePlacementMeta.canonicalLayoutSource || ''));
+  }
+
+  function isRecoverableTestBackupLayoutEntry(entry) {
+    const name = collapseText(entry?.name).toLowerCase();
+    return name.startsWith(`${TEST_LAYOUT_NAME} backup`) && !isRevokedLayoutSeed(entry);
+  }
+
+  function latestRecoverableTestBackupLayoutEntry(entries) {
+    return [...entries]
+      .filter(isRecoverableTestBackupLayoutEntry)
+      .sort((a, b) => String(b.updatedAt || b.createdAt || '').localeCompare(String(a.updatedAt || a.createdAt || '')) || String(b.id || '').localeCompare(String(a.id || '')))[0] || null;
+  }
+
+  function recoveredCanonicalTestLayoutEntryFromBackup(entries) {
+    if (entries.some(isTestLayoutEntry)) return null;
+    const backup = latestRecoverableTestBackupLayoutEntry(entries);
+    if (!backup) return null;
+    const now = new Date().toISOString();
+    return {
+      ...clone(backup),
+      id: `layout_${TEST_LAYOUT_NAME}_recovered_${Date.now().toString(36)}`,
+      name: TEST_LAYOUT_NAME,
+      updatedAt: now,
+      meta: {
+        ...(backup.meta || {}),
+        [RECOVERED_TEST_BACKUP_META_KEY]: {
+          restoredFromId: backup.id || '',
+          restoredFromName: backup.name || '',
+          restoredAt: now
+        }
+      }
+    };
   }
 
   function canonicalTestLayoutEntry(entries) {

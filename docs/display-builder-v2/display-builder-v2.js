@@ -25,6 +25,7 @@
   const LAYOUT_BUILDER_FOOD_LAYOUTS_KEY = 'foodranked-layout-builder-food-layouts-v1';
   const LAYOUT_BUILDER_SAVED_KEY = 'foodranked-layout-builder-sprite-layouts-v1';
   const PREFERRED_SAVED_LAYOUT_NAME = 'test';
+  const RECOVERED_TEST_BACKUP_META_KEY = 'layoutBuilderRecoveredTestBackupV1';
   const REVOKED_LAYOUT_SEED_VERSIONS = new Set(['20260801-current-builder-layout-v1']);
   const REVOKED_LAYOUT_SEED_SOURCES = new Set(['docs/layout-builder/canonical-test-layout.js']);
   const REVOKED_LAYOUT_SEED_IDS = new Set(['layout_test_current_builder_20260801']);
@@ -32,8 +33,8 @@
   const PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const PLACEMENT_EXPORT_LIMIT = 60;
   const PAGE_URL_PARAMS = new URLSearchParams(window.location.search);
-  const DISPLAY_BUILDER_V2_BUILD_ID = PAGE_URL_PARAMS.get('build') || '20260801-score-bg-macro-v1';
-  const DATA_CACHE_BUST = '20260801-score-bg-macro-v1';
+  const DISPLAY_BUILDER_V2_BUILD_ID = PAGE_URL_PARAMS.get('build') || '20260801-restore-locked-test-v1';
+  const DATA_CACHE_BUST = '20260801-restore-locked-test-v1';
   const SECTION_INDICATOR_LAYOUT = window.FOODRANKED_DISPLAY_SCHEMA?.sectionIndicatorLayout || {
     startX: 33.347,
     y: 138.444,
@@ -386,8 +387,12 @@
   function readSavedLayoutEntries() {
     const savedRaw = parseStorageJson(LAYOUT_BUILDER_SAVED_KEY, []);
     const entries = Array.isArray(savedRaw) ? savedRaw : Object.values(savedRaw || {});
-    const kept = entries.filter(entry => !isRevokedLayoutSeed(entry));
-    if (kept.length !== entries.length) {
+    let kept = entries.filter(entry => !isRevokedLayoutSeed(entry));
+    const recovered = recoveredPreferredSavedLayoutEntryFromBackup(kept);
+    if (recovered) {
+      kept = [recovered, ...kept.filter(entry => entry?.id !== recovered.meta?.[RECOVERED_TEST_BACKUP_META_KEY]?.restoredFromId)];
+    }
+    if (kept.length !== entries.length || recovered) {
       if (kept.length) localStorage.setItem(LAYOUT_BUILDER_SAVED_KEY, JSON.stringify(kept));
       else localStorage.removeItem(LAYOUT_BUILDER_SAVED_KEY);
       localStorage.removeItem(LAYOUT_BUILDER_FOOD_LAYOUTS_KEY);
@@ -397,9 +402,44 @@
 
   function isRevokedLayoutSeed(value) {
     const meta = value?.meta || {};
+    const sourcePlacementMeta = meta.sourcePlacementMeta || {};
     return REVOKED_LAYOUT_SEED_IDS.has(String(value?.id || ''))
       || REVOKED_LAYOUT_SEED_VERSIONS.has(String(meta.canonicalLayoutVersion || ''))
-      || REVOKED_LAYOUT_SEED_SOURCES.has(String(meta.canonicalLayoutSource || ''));
+      || REVOKED_LAYOUT_SEED_VERSIONS.has(String(sourcePlacementMeta.canonicalLayoutVersion || ''))
+      || REVOKED_LAYOUT_SEED_SOURCES.has(String(meta.canonicalLayoutSource || ''))
+      || REVOKED_LAYOUT_SEED_SOURCES.has(String(sourcePlacementMeta.canonicalLayoutSource || ''));
+  }
+
+  function isRecoverableTestBackupLayoutEntry(entry) {
+    const name = savedLayoutNameKey(entry?.name);
+    return name.startsWith(`${PREFERRED_SAVED_LAYOUT_NAME} backup`) && !isRevokedLayoutSeed(entry);
+  }
+
+  function latestRecoverableTestBackupLayoutEntry(entries) {
+    return [...entries]
+      .filter(isRecoverableTestBackupLayoutEntry)
+      .sort((a, b) => String(b.updatedAt || b.createdAt || '').localeCompare(String(a.updatedAt || a.createdAt || '')) || String(b.id || '').localeCompare(String(a.id || '')))[0] || null;
+  }
+
+  function recoveredPreferredSavedLayoutEntryFromBackup(entries) {
+    if (entries.some(entry => savedLayoutNameKey(entry?.name) === PREFERRED_SAVED_LAYOUT_NAME)) return null;
+    const backup = latestRecoverableTestBackupLayoutEntry(entries);
+    if (!backup) return null;
+    const now = new Date().toISOString();
+    return {
+      ...LOGIC.clone(backup),
+      id: `layout_${PREFERRED_SAVED_LAYOUT_NAME}_recovered_${Date.now().toString(36)}`,
+      name: PREFERRED_SAVED_LAYOUT_NAME,
+      updatedAt: now,
+      meta: {
+        ...(backup.meta || {}),
+        [RECOVERED_TEST_BACKUP_META_KEY]: {
+          restoredFromId: backup.id || '',
+          restoredFromName: backup.name || '',
+          restoredAt: now
+        }
+      }
+    };
   }
 
   function preferredSavedLayoutEntry(entries) {

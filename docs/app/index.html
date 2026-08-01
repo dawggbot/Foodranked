@@ -1205,7 +1205,7 @@
   <script>
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     if (APP_MODE === 'layout-builder') document.body.classList.add('layout-builder-mode');
-    const BUILDER_BUILD_ID = '20260801-score-bg-macro-v1';
+    const BUILDER_BUILD_ID = '20260801-restore-locked-test-v1';
     const BACKGROUND_MOTION_DEFAULT_MAX_SIZE = 80;
     const BACKGROUND_MOTION_LEGACY_MAX_SIZE = 40;
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
@@ -1234,6 +1234,7 @@
     const SAVED_SPRITE_LAYOUTS_KEY = `${STORAGE_PREFIX}-sprite-layouts-v1`;
     const CANONICAL_LAYOUT_PRESET_NAME = 'test';
     const CANONICAL_LAYOUT_WORKING_META_KEY = 'layoutBuilderCanonicalTestWorkingCopyV1';
+    const RECOVERED_TEST_BACKUP_META_KEY = 'layoutBuilderRecoveredTestBackupV1';
     const REVOKED_LAYOUT_SEED_VERSIONS = new Set(['20260801-current-builder-layout-v1']);
     const REVOKED_LAYOUT_SEED_SOURCES = new Set(['docs/layout-builder/canonical-test-layout.js']);
     const REVOKED_LAYOUT_SEED_IDS = new Set(['layout_test_current_builder_20260801']);
@@ -1695,9 +1696,44 @@
 
     function isRevokedLayoutSeed(value) {
       const meta = value?.meta || {};
+      const sourcePlacementMeta = meta.sourcePlacementMeta || {};
       return REVOKED_LAYOUT_SEED_IDS.has(String(value?.id || ''))
         || REVOKED_LAYOUT_SEED_VERSIONS.has(String(meta.canonicalLayoutVersion || ''))
-        || REVOKED_LAYOUT_SEED_SOURCES.has(String(meta.canonicalLayoutSource || ''));
+        || REVOKED_LAYOUT_SEED_VERSIONS.has(String(sourcePlacementMeta.canonicalLayoutVersion || ''))
+        || REVOKED_LAYOUT_SEED_SOURCES.has(String(meta.canonicalLayoutSource || ''))
+        || REVOKED_LAYOUT_SEED_SOURCES.has(String(sourcePlacementMeta.canonicalLayoutSource || ''));
+    }
+
+    function isRecoverableTestBackupLayoutEntry(entry) {
+      const name = canonicalSavedLayoutName(entry?.name);
+      return name.startsWith(`${CANONICAL_LAYOUT_PRESET_NAME} backup`) && !isRevokedLayoutSeed(entry);
+    }
+
+    function latestRecoverableTestBackupLayoutEntry(entries) {
+      return [...entries]
+        .filter(isRecoverableTestBackupLayoutEntry)
+        .sort((a, b) => String(b.updatedAt || b.createdAt || '').localeCompare(String(a.updatedAt || a.createdAt || '')) || String(b.id || '').localeCompare(String(a.id || '')))[0] || null;
+    }
+
+    function recoveredCanonicalTestLayoutEntryFromBackup(entries) {
+      if (entries.some(isCanonicalSavedSpriteLayoutEntry)) return null;
+      const backup = latestRecoverableTestBackupLayoutEntry(entries);
+      if (!backup) return null;
+      const now = new Date().toISOString();
+      return normalizeSavedSpriteLayoutEntry({
+        ...structuredClone(backup),
+        id: `layout_${CANONICAL_LAYOUT_PRESET_NAME}_recovered_${Date.now().toString(36)}`,
+        name: CANONICAL_LAYOUT_PRESET_NAME,
+        updatedAt: now,
+        meta: {
+          ...(backup.meta || {}),
+          [RECOVERED_TEST_BACKUP_META_KEY]: {
+            restoredFromId: backup.id || '',
+            restoredFromName: backup.name || '',
+            restoredAt: now
+          }
+        }
+      });
     }
 
     function readSavedSpriteLayoutEntriesFromStorage() {
@@ -1706,8 +1742,12 @@
         const parsed = raw ? JSON.parse(raw) : [];
         const entries = Array.isArray(parsed) ? parsed : Object.values(parsed || {});
         const normalized = entries.map(normalizeSavedSpriteLayoutEntry).filter(Boolean);
-        const kept = normalized.filter(entry => !isRevokedLayoutSeed(entry));
-        if (APP_MODE === 'layout-builder' && kept.length !== normalized.length) {
+        let kept = normalized.filter(entry => !isRevokedLayoutSeed(entry));
+        const recovered = APP_MODE === 'layout-builder' ? recoveredCanonicalTestLayoutEntryFromBackup(kept) : null;
+        if (recovered) {
+          kept = [recovered, ...kept.filter(entry => entry.id !== recovered.meta?.[RECOVERED_TEST_BACKUP_META_KEY]?.restoredFromId)];
+        }
+        if (APP_MODE === 'layout-builder' && (kept.length !== normalized.length || recovered)) {
           if (kept.length) localStorage.setItem(SAVED_SPRITE_LAYOUTS_KEY, JSON.stringify(kept));
           else localStorage.removeItem(SAVED_SPRITE_LAYOUTS_KEY);
           localStorage.removeItem(FOOD_LAYOUTS_STORAGE_KEY);

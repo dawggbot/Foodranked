@@ -1205,7 +1205,7 @@
   <script>
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     if (APP_MODE === 'layout-builder') document.body.classList.add('layout-builder-mode');
-    const BUILDER_BUILD_ID = '20260801-unlock-layout-save-v1';
+    const BUILDER_BUILD_ID = '20260801-macro-arrow-sync-v1';
     const BACKGROUND_MOTION_DEFAULT_MAX_SIZE = 80;
     const BACKGROUND_MOTION_LEGACY_MAX_SIZE = 40;
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
@@ -1240,7 +1240,10 @@
     const REVOKED_LAYOUT_SEED_SOURCES = new Set(['docs/layout-builder/canonical-test-layout.js']);
     const REVOKED_LAYOUT_SEED_IDS = new Set(['layout_test_current_builder_20260801']);
     const MACRO_SECTION_LAYOUT_SYNC_KEY = 'macroSectionLayoutFromFatsV6';
-    const MACRO_ARROW_PLACEMENT_SYNC_KEY = 'macroArrowPlacementFromFatsV3';
+    const MACRO_ARROW_PLACEMENT_SYNC_KEY = 'macroArrowPlacementFromFatsV4';
+    const MACRO_ARROW_SYNC_BACKUP_META_KEY = 'macroArrowPlacementFromFatsBackupV1';
+    const MACRO_ARROW_SYNC_BACKUP_INDEX_KEY = 'foodranked-layout-builder-macro-arrow-sync-backups-v1';
+    const MACRO_ARROW_SYNC_BACKUP_STORAGE_PREFIX = 'foodranked-layout-builder-before-macro-arrow-sync';
     const HEADER_LAYOUT_SYNC_KEY = 'headerLayoutFromFatsV1';
     const INTRO_HEADER_UI_SPRITE_SYNC_KEY = 'introHeaderLayoutFromIntroV1';
     const INTRO_HEADER_SYNC_BACKUP_META_KEY = 'introHeaderLayoutSyncBackupV1';
@@ -2888,17 +2891,123 @@
       };
     }
 
-    function applyMacroArrowPlacement(layer, placement) {
-      if (!layer || !placement) return false;
+    function sortMacroArrowLayers(layers) {
+      return [...layers].sort((a, b) => {
+        const yDelta = (Number(a.y) || 0) - (Number(b.y) || 0);
+        if (Math.abs(yDelta) > 1) return yDelta;
+        const xDelta = (Number(a.x) || 0) - (Number(b.x) || 0);
+        if (xDelta) return xDelta;
+        return String(a.id || '').localeCompare(String(b.id || ''));
+      });
+    }
+
+    function macroArrowLayerSignature(layers) {
+      return JSON.stringify(sortMacroArrowLayers(layers).map(layer => ({
+        id: layer.id || '',
+        shape: arrowIndicatorShapeKey(layer.src),
+        rotation: layer.rotation ?? layer.rotate ?? null,
+        ...macroArrowPlacementSnapshot(layer)
+      })));
+    }
+
+    function arrowIndicatorShapeKey(src = '') {
+      const value = String(src).toLowerCase();
+      if (/\/(?:green|red)_arrow_3\.png(?:$|[?#])/.test(value)) return '3';
+      if (/\/(?:green|red)_arrow_2\.png(?:$|[?#])/.test(value)) return '2';
+      if (/\/(?:green|red)_arrow\.png(?:$|[?#])/.test(value)) return '1';
+      return value;
+    }
+
+    function readMacroArrowSyncBackupIndex() {
+      try {
+        const raw = localStorage.getItem(MACRO_ARROW_SYNC_BACKUP_INDEX_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function uniqueMacroArrowSyncBackupStorageKey(suffix = '') {
+      const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+      for (let attempt = 0; attempt < 100; attempt += 1) {
+        const tail = attempt ? `-${attempt}` : '';
+        const key = `${MACRO_ARROW_SYNC_BACKUP_STORAGE_PREFIX}-${stamp}-${Date.now().toString(36)}${tail}${suffix}`;
+        if (!localStorage.getItem(key)) return key;
+      }
+      return `${MACRO_ARROW_SYNC_BACKUP_STORAGE_PREFIX}-${stamp}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}${suffix}`;
+    }
+
+    function backupLayoutBeforeMacroArrowSync(layout, sourceSignature) {
+      if (APP_MODE !== 'layout-builder' || !layout?.sections) return null;
+      layout.meta = layout.meta || {};
+      if (layout.meta[MACRO_ARROW_SYNC_BACKUP_META_KEY]?.sourceSignature === sourceSignature) {
+        return layout.meta[MACRO_ARROW_SYNC_BACKUP_META_KEY];
+      }
+      try {
+        const now = new Date().toISOString();
+        const backupId = `macro_arrow_sync_backup_${Date.now().toString(36)}`;
+        const primaryKey = uniqueMacroArrowSyncBackupStorageKey();
+        const secondaryKey = uniqueMacroArrowSyncBackupStorageKey('-copy');
+        const snapshot = {
+          id: backupId,
+          createdAt: now,
+          reason: 'Before copying fats arrow indicators to carbs and protein',
+          sourceSignature,
+          layout: structuredClone(layout)
+        };
+        localStorage.setItem(primaryKey, JSON.stringify(snapshot));
+        localStorage.setItem(secondaryKey, JSON.stringify(snapshot));
+        const index = readMacroArrowSyncBackupIndex();
+        index.push({
+          id: backupId,
+          createdAt: now,
+          reason: snapshot.reason,
+          primaryKey,
+          secondaryKey,
+          sourceSignature
+        });
+        localStorage.setItem(MACRO_ARROW_SYNC_BACKUP_INDEX_KEY, JSON.stringify(index));
+        layout.meta[MACRO_ARROW_SYNC_BACKUP_META_KEY] = {
+          backedUpAt: now,
+          primaryKey,
+          secondaryKey,
+          sourceSignature
+        };
+        return layout.meta[MACRO_ARROW_SYNC_BACKUP_META_KEY];
+      } catch (error) {
+        console.warn('Could not create macro arrow sync backup', error);
+        return null;
+      }
+    }
+
+    function cloneMacroArrowLayerForKind(layer, targetKind) {
+      const cloned = cloneMacroLayerForKind(layer, targetKind);
+      if (typeof cloned.label === 'string') cloned.label = cloned.label.replace(/^Library:\s*/i, '');
+      delete cloned.manualLibraryArrow;
+      normalizeArrowIndicatorSpriteSize(cloned);
+      return cloned;
+    }
+
+    function stableLayerEntries(layer) {
+      return Object.keys(layer || {})
+        .sort()
+        .map(key => [key, layer[key]]);
+    }
+
+    function macroArrowLayerMatchesPrepared(layer, prepared) {
+      return JSON.stringify(stableLayerEntries(layer)) === JSON.stringify(stableLayerEntries(prepared));
+    }
+
+    function applyPreparedMacroArrowLayer(layer, prepared) {
+      if (!layer || !prepared) return false;
       let changed = false;
-      for (const [key, value] of Object.entries(placement)) {
-        if (value == null) {
-          if (Object.prototype.hasOwnProperty.call(layer, key)) {
-            delete layer[key];
-            changed = true;
-          }
-          continue;
-        }
+      for (const key of Object.keys(layer)) {
+        if (Object.prototype.hasOwnProperty.call(prepared, key)) continue;
+        delete layer[key];
+        changed = true;
+      }
+      for (const [key, value] of Object.entries(prepared)) {
         if (layer[key] === value) continue;
         layer[key] = value;
         changed = true;
@@ -2909,31 +3018,45 @@
     function syncMacroArrowPlacementFromFats(layout, { force = false } = {}) {
       if (APP_MODE !== 'layout-builder') return false;
       layout.meta = layout.meta || {};
-      if (!force && layout.meta[MACRO_ARROW_PLACEMENT_SYNC_KEY]) return false;
 
-      const sourceArrows = getSectionLayersFromLayout(layout, 'fats').filter(isArrowIndicatorSpriteLayer);
+      const sourceArrows = sortMacroArrowLayers(getSectionLayersFromLayout(layout, 'fats').filter(isArrowIndicatorSpriteLayer));
       if (!sourceArrows.length) return false;
-      const sourceById = new Map(sourceArrows.filter(layer => layer.id).map(layer => [layer.id, layer]));
+      const sourceSignature = macroArrowLayerSignature(sourceArrows);
+      if (!force && layout.meta[MACRO_ARROW_PLACEMENT_SYNC_KEY] === sourceSignature) return false;
+      let backupCreated = false;
       let changed = false;
 
       for (const sectionId of ['carbs', 'protein']) {
         const sectionLayers = getSectionLayersFromLayout(layout, sectionId);
-        const targetArrows = sectionLayers.filter(isArrowIndicatorSpriteLayer);
+        const targetArrows = sortMacroArrowLayers(sectionLayers.filter(isArrowIndicatorSpriteLayer));
         const targetById = new Map(targetArrows.filter(layer => layer.id).map(layer => [layer.id, layer]));
         const nextArrows = sourceArrows.map((source, index) => {
-          const existing = (source.id && targetById.get(source.id)) || targetArrows[index] || null;
-          const layer = existing || cloneMacroLayerForKind(source, sectionId);
-          changed = applyMacroArrowPlacement(layer, macroArrowPlacementSnapshot(source)) || changed || !existing;
+          const prepared = cloneMacroArrowLayerForKind(source, sectionId);
+          const targetId = prepared.id;
+          const existing = (targetId && targetById.get(targetId)) || (source.id && targetById.get(source.id)) || targetArrows[index] || null;
+          const layer = existing || prepared;
+          const willChange = !existing || !macroArrowLayerMatchesPrepared(existing, prepared);
+          if (willChange && !backupCreated) {
+            backupLayoutBeforeMacroArrowSync(layout, sourceSignature);
+            backupCreated = true;
+          }
+          changed = (existing ? applyPreparedMacroArrowLayer(layer, prepared) : true) || changed;
           return layer;
         });
         const nextArrowSet = new Set(nextArrows);
+        const removesExistingArrow = sectionLayers.some(layer => isArrowIndicatorSpriteLayer(layer) && !nextArrowSet.has(layer));
+        if (removesExistingArrow && !backupCreated) {
+          backupLayoutBeforeMacroArrowSync(layout, sourceSignature);
+          backupCreated = true;
+        }
+        changed = removesExistingArrow || changed;
         layout.sections[sectionId].layers = [
           ...sectionLayers.filter(layer => !isArrowIndicatorSpriteLayer(layer) || nextArrowSet.has(layer)),
           ...nextArrows.filter(layer => !sectionLayers.includes(layer))
         ];
       }
 
-      layout.meta[MACRO_ARROW_PLACEMENT_SYNC_KEY] = true;
+      layout.meta[MACRO_ARROW_PLACEMENT_SYNC_KEY] = sourceSignature;
       return changed;
     }
 

@@ -19,7 +19,8 @@ Current first milestone:
 - local Node backend with no package dependencies
 - app-owned `studio-data/` state folder
 - health/status API with redacted API-key presence
-- embedded Database, Layout Builder, DBv2, and VBv2 views
+- embedded Database, Layout Builder, and DBv2 views
+- search-based food picker for jumping between entries
 - browser-local state backup download
 - VBv2-compatible local MP4 render endpoints
 

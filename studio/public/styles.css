@@ -29,7 +29,7 @@ body {
 }
 
 button,
-select,
+input,
 a {
   font: inherit;
 }
@@ -122,7 +122,16 @@ a {
   text-transform: uppercase;
 }
 
-select {
+.food-picker {
+  display: grid;
+  gap: 8px;
+}
+
+.food-picker .field-label {
+  margin-bottom: 0;
+}
+
+input[type="search"] {
   width: 100%;
   min-height: 38px;
   border: 1px solid var(--line);
@@ -130,6 +139,59 @@ select {
   color: var(--text);
   border-radius: 6px;
   padding: 0 10px;
+}
+
+input[type="search"]:focus {
+  border-color: var(--accent);
+  outline: 2px solid rgba(143, 211, 255, 0.16);
+}
+
+.food-results {
+  display: grid;
+  gap: 6px;
+  max-height: 230px;
+  overflow: auto;
+}
+
+.food-result {
+  min-height: 0;
+  width: 100%;
+  display: grid;
+  gap: 3px;
+  padding: 8px 10px;
+  text-align: left;
+  background: #111a25;
+  font-weight: 500;
+}
+
+.food-result strong,
+.food-result span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.food-result strong {
+  color: var(--text);
+  font-size: 13px;
+}
+
+.food-result span,
+.food-empty {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.food-result.active {
+  border-color: var(--accent);
+  background: #1c3145;
+}
+
+.food-empty {
+  border: 1px dashed var(--line);
+  border-radius: 6px;
+  padding: 10px;
 }
 
 .tool-nav {

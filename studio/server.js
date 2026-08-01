@@ -74,13 +74,6 @@ const TOOL_DEFINITIONS = Object.freeze([
     path: '/docs/display-builder-v2/index.html',
     role: 'display-proof',
     state: 'browser-local'
-  },
-  {
-    id: 'video',
-    label: 'VBv2',
-    path: '/docs/video-builder-v2/index.html',
-    role: 'video-proof-render',
-    state: 'browser-local'
   }
 ]);
 

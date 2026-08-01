@@ -19,7 +19,8 @@
   ];
 
   const els = {
-    foodSelect: document.getElementById('foodSelect'),
+    foodSearch: document.getElementById('foodSearch'),
+    foodResults: document.getElementById('foodResults'),
     toolNav: document.getElementById('toolNav'),
     systemStatus: document.getElementById('systemStatus'),
     activeFoodType: document.getElementById('activeFoodType'),
@@ -35,7 +36,6 @@
     metricVideos: document.getElementById('metricVideos'),
     metricAssets: document.getElementById('metricAssets'),
     renderState: document.getElementById('renderState'),
-    openProof: document.getElementById('openProof'),
     renderVideo: document.getElementById('renderVideo'),
     downloadVideo: document.getElementById('downloadVideo'),
     renderLog: document.getElementById('renderLog')
@@ -45,6 +45,7 @@
     health: null,
     foods: [],
     selectedFoodId: 'bacon',
+    foodQuery: '',
     activeToolId: 'dashboard',
     latestJobId: null,
     renderDownloadedJobId: null,
@@ -53,6 +54,16 @@
 
   function clean(value) {
     return String(value || '').trim();
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, char => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    })[char]);
   }
 
   function clone(value) {
@@ -115,7 +126,6 @@
     const foodId = encodeURIComponent(food?.id || state.selectedFoodId || 'bacon');
     if (!tool) return '';
     if (tool.id === 'display') return `${tool.path}?videoBuilderExportFood=${foodId}&app=studio&t=${Date.now()}`;
-    if (tool.id === 'video') return `${tool.path}?food=${foodId}&proof=mp4&render=mp4&app=studio&t=${Date.now()}`;
     return `${tool.path}?app=studio&t=${Date.now()}`;
   }
 
@@ -140,11 +150,61 @@
     )).join('');
   }
 
-  function renderFoodSelect() {
-    els.foodSelect.innerHTML = state.foods.map(food => (
-      `<option value="${food.id}">${food.name}</option>`
-    )).join('');
-    els.foodSelect.value = state.selectedFoodId;
+  function normalizeSearchText(value) {
+    return clean(value).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  }
+
+  function foodSearchRank(food, query, tokens) {
+    const name = normalizeSearchText(food?.name);
+    const id = normalizeSearchText(food?.id);
+    const type = normalizeSearchText(food?.foodTypeLabel || food?.foodType);
+    const tier = normalizeSearchText(food?.tier);
+    const haystack = [name, id, type, tier].filter(Boolean).join(' ');
+    if (!tokens.every(token => haystack.includes(token))) return null;
+    if (name === query || id === query) return 0;
+    if (name.startsWith(query) || id.startsWith(query)) return 1;
+    if (name.includes(` ${query}`) || id.includes(` ${query}`)) return 2;
+    if (tokens.every(token => name.includes(token))) return 3;
+    if (tokens.every(token => id.includes(token))) return 4;
+    return 8;
+  }
+
+  function foodSearchResults() {
+    const query = normalizeSearchText(state.foodQuery);
+    const foods = state.foods.slice();
+    if (!query) return foods.slice(0, 48);
+    const tokens = query.split(/\s+/).filter(Boolean);
+    return foods
+      .map(food => ({ food, rank: foodSearchRank(food, query, tokens) }))
+      .filter(entry => entry.rank != null)
+      .sort((a, b) => a.rank - b.rank || (a.food.name || a.food.id).localeCompare(b.food.name || b.food.id))
+      .map(entry => entry.food)
+      .slice(0, 48);
+  }
+
+  function foodMeta(food) {
+    return [
+      food.foodTypeLabel || food.foodType || 'Food',
+      food.tier ? `${food.tier} tier` : '',
+      food.finalized ? 'finalised' : '',
+      food.hasVideo ? 'video' : ''
+    ].filter(Boolean).join(' - ');
+  }
+
+  function renderFoodSearch() {
+    const food = selectedFood();
+    const focused = document.activeElement === els.foodSearch;
+    const selectedLabel = food?.name || food?.id || '';
+    const inputValue = focused ? state.foodQuery : state.foodQuery || selectedLabel;
+    if (els.foodSearch.value !== inputValue) els.foodSearch.value = inputValue;
+
+    const results = foodSearchResults();
+    els.foodResults.innerHTML = results.map(result => (
+      `<button type="button" class="food-result${result.id === state.selectedFoodId ? ' active' : ''}" data-food-id="${escapeHtml(result.id)}" role="option" aria-selected="${result.id === state.selectedFoodId ? 'true' : 'false'}">
+        <strong>${escapeHtml(result.name || result.id)}</strong>
+        <span>${escapeHtml(foodMeta(result))}</span>
+      </button>`
+    )).join('') || '<div class="food-empty">No matching foods</div>';
   }
 
   function renderToolNav() {
@@ -176,7 +236,7 @@
 
   function renderAll() {
     renderSystemStatus();
-    renderFoodSelect();
+    renderFoodSearch();
     renderToolNav();
     renderMetrics();
     renderWorkspace();
@@ -281,7 +341,7 @@
         'The app-side saved layout named test was restored from the bundled layout.',
         'The previous app-side test layout was kept as a backup entry.'
       ]);
-      if (state.activeToolId === 'layout' || state.activeToolId === 'display' || state.activeToolId === 'video') {
+      if (state.activeToolId === 'layout' || state.activeToolId === 'display') {
         renderWorkspace();
       }
     } catch (error) {
@@ -350,8 +410,11 @@
     window.setTimeout(() => els.downloadVideo.click(), 0);
   }
 
-  function openProof() {
-    state.activeToolId = 'video';
+  function selectFood(foodId) {
+    if (!foodId || !state.foods.some(food => food.id === foodId)) return;
+    state.selectedFoodId = foodId;
+    state.foodQuery = selectedFood()?.name || '';
+    persistSelectedFood();
     renderAll();
   }
 
@@ -434,15 +497,42 @@
     ]);
     state.health = health;
     state.foods = foodsResponse.foods || [];
-    state.selectedFoodId = stateResponse.state?.selectedFoodId || state.foods[0]?.id || 'bacon';
+    const savedFoodId = stateResponse.state?.selectedFoodId;
+    state.selectedFoodId = state.foods.some(food => food.id === savedFoodId) ? savedFoodId : state.foods[0]?.id || 'bacon';
+    state.foodQuery = selectedFood()?.name || '';
     seedTestLayout({ force: false });
     renderAll();
   }
 
-  els.foodSelect.addEventListener('change', () => {
-    state.selectedFoodId = els.foodSelect.value;
-    persistSelectedFood();
-    renderAll();
+  els.foodSearch.addEventListener('input', () => {
+    state.foodQuery = els.foodSearch.value;
+    renderFoodSearch();
+  });
+
+  els.foodSearch.addEventListener('focus', () => {
+    els.foodSearch.select();
+    renderFoodSearch();
+  });
+
+  els.foodSearch.addEventListener('keydown', event => {
+    if (event.key === 'Escape') {
+      state.foodQuery = selectedFood()?.name || '';
+      renderFoodSearch();
+      event.preventDefault();
+      return;
+    }
+    if (event.key !== 'Enter') return;
+    const firstResult = foodSearchResults()[0];
+    if (!firstResult) return;
+    selectFood(firstResult.id);
+    els.foodSearch.blur();
+    event.preventDefault();
+  });
+
+  els.foodResults.addEventListener('click', event => {
+    const button = event.target.closest('button[data-food-id]');
+    if (!button) return;
+    selectFood(button.dataset.foodId);
   });
 
   els.toolNav.addEventListener('click', event => {
@@ -462,7 +552,6 @@
   });
   els.restoreTestLayout.addEventListener('click', restoreTestLayout);
 
-  els.openProof.addEventListener('click', openProof);
   els.renderVideo.addEventListener('click', renderVideo);
 
   loadInitial().catch(error => {

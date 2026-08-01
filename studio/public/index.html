@@ -85,10 +85,101 @@
             <li data-state="ready">Food data</li>
             <li data-state="ready">Layout source</li>
             <li data-state="ready">Display proof</li>
+            <li data-state="ready">VBv2 preview</li>
             <li data-state="next">MP4 render</li>
             <li data-state="manual">MP4 download</li>
             <li data-state="manual">Manual upload</li>
           </ol>
+        </section>
+      </section>
+
+      <section class="input-panel" id="inputPanel" hidden>
+        <section class="input-card">
+          <div class="panel-title">
+            <h3>Food Entry</h3>
+            <span id="inputSyncState">Synced</span>
+          </div>
+          <div class="entry-grid">
+            <label>
+              <span>Food ID</span>
+              <input id="entryFoodId" type="text" autocomplete="off" />
+            </label>
+            <label>
+              <span>Name</span>
+              <input id="entryName" type="text" autocomplete="off" />
+            </label>
+            <label>
+              <span>Display name</span>
+              <input id="entryDisplayName" type="text" autocomplete="off" />
+            </label>
+            <label>
+              <span>Food type</span>
+              <input id="entryFoodType" type="text" autocomplete="off" />
+            </label>
+            <label>
+              <span>Food type label</span>
+              <input id="entryFoodTypeLabel" type="text" autocomplete="off" />
+            </label>
+            <label>
+              <span>Kcal per 100g</span>
+              <input id="entryKcal" type="number" step="0.1" />
+            </label>
+            <label>
+              <span>Tier</span>
+              <input id="entryTier" type="text" autocomplete="off" />
+            </label>
+            <label>
+              <span>Overall score</span>
+              <input id="entryOverallScore" type="number" step="0.1" />
+            </label>
+          </div>
+          <label class="wide-field">
+            <span>Narration text</span>
+            <textarea id="entryNarration" spellcheck="false"></textarea>
+          </label>
+          <label class="wide-field">
+            <span>Food JSON patch</span>
+            <textarea id="entryFoodPatch" spellcheck="false">{}</textarea>
+          </label>
+          <div class="form-actions">
+            <button type="button" id="loadSelectedEntry">Load selected food</button>
+            <button type="button" id="clearEntry">Clear</button>
+            <button type="button" id="saveEntry">Save food entry</button>
+          </div>
+        </section>
+
+        <section class="input-card">
+          <div class="panel-title">
+            <h3>Media Upload</h3>
+            <span id="uploadModeLabel">PNG</span>
+          </div>
+          <div class="segmented" role="group" aria-label="Upload kind">
+            <button type="button" class="active" data-upload-kind="image">PNG</button>
+            <button type="button" data-upload-kind="narration">Narration</button>
+          </div>
+          <div class="entry-grid">
+            <label>
+              <span>Attach to food ID</span>
+              <input id="uploadFoodId" type="text" autocomplete="off" />
+            </label>
+            <label>
+              <span>File</span>
+              <input id="uploadFile" type="file" accept=".png,image/png" />
+            </label>
+          </div>
+          <div class="form-actions">
+            <button type="button" id="uploadAsset">Upload and attach</button>
+            <button type="button" id="refreshInputData">Refresh input data</button>
+          </div>
+          <pre id="inputLog"></pre>
+        </section>
+
+        <section class="input-card input-card-wide">
+          <div class="panel-title">
+            <h3>App Input Records</h3>
+            <span id="inputCounts">0 foods - 0 assets</span>
+          </div>
+          <div class="input-records" id="inputRecords"></div>
         </section>
       </section>
 

@@ -19,10 +19,28 @@ Current first milestone:
 - local Node backend with no package dependencies
 - app-owned `studio-data/` state folder
 - health/status API with redacted API-key presence
-- embedded Database, Layout Builder, and DBv2 views
+- embedded Database, Layout Builder, DBv2, and VBv2 views
 - search-based food picker for jumping between entries
+- Studio Input panel and local JSON APIs for food entries, PNG uploads, and narration audio uploads
 - browser-local state backup download
 - VBv2-compatible local MP4 render endpoints
+
+Local input APIs write into `studio-data/` and are mirrored by the Studio UI into
+the browser-local database used by DBv2 and VBv2:
+
+```bash
+curl -X POST http://127.0.0.1:4787/api/input/foods \
+  -H "Content-Type: application/json" \
+  -d '{"food":{"id":"example-food","name":"Example Food","foodType":"misc","foodTypeLabel":"Misc","kcal":123}}'
+```
+
+```bash
+curl -X POST http://127.0.0.1:4787/api/input/assets \
+  -H "Content-Type: application/json" \
+  -d '{"kind":"image","foodId":"example-food","filename":"example.png","dataBase64":"..."}'
+```
+
+Use `kind: "narration"` for `.mp3`, `.wav`, or `.m4a` narration files.
 
 Secrets stay in local env files, not committed files. Supported names:
 

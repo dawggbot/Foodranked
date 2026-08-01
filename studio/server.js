@@ -12,11 +12,13 @@ const REPO_ROOT = path.resolve(process.env.FOODRANKED_REPO_ROOT || path.resolve(
 const PUBLIC_ROOT = path.join(__dirname, 'public');
 const DATA_DIR = path.resolve(process.env.FOODRANKED_STUDIO_DATA_DIR || path.join(REPO_ROOT, 'studio-data'));
 const RENDER_DIR = path.resolve(process.env.FOODRANKED_STUDIO_RENDER_DIR || path.join(DATA_DIR, 'renders'));
+const UPLOAD_DIR = path.resolve(process.env.FOODRANKED_STUDIO_UPLOAD_DIR || path.join(DATA_DIR, 'uploads'));
+const INPUT_DATABASE_FILE = path.join(DATA_DIR, 'studio-input-database.json');
 const STATE_FILE = path.join(DATA_DIR, 'studio-state.json');
 const DEFAULT_HOST = '127.0.0.1';
 const DEFAULT_PORT = 4787;
 const DEFAULT_RENDER_PORT_START = 4290;
-const MAX_BODY_BYTES = 8 * 1024 * 1024;
+const MAX_BODY_BYTES = 128 * 1024 * 1024;
 const MAX_LOG_LINES = 240;
 const JOB_HISTORY_LIMIT = 30;
 const PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
@@ -50,6 +52,7 @@ const CONTENT_TYPES = new Map([
   ['.png', 'image/png'],
   ['.svg', 'image/svg+xml'],
   ['.txt', 'text/plain; charset=utf-8'],
+  ['.wav', 'audio/wav'],
   ['.webp', 'image/webp']
 ]);
 
@@ -73,6 +76,13 @@ const TOOL_DEFINITIONS = Object.freeze([
     label: 'DBv2',
     path: '/docs/display-builder-v2/index.html',
     role: 'display-proof',
+    state: 'browser-local'
+  },
+  {
+    id: 'video',
+    label: 'VBv2',
+    path: '/docs/video-builder-v2/index.html',
+    role: 'video-proof-render',
     state: 'browser-local'
   }
 ]);
@@ -184,6 +194,7 @@ function secretPresence() {
 function ensureDataDir() {
   fs.mkdirSync(DATA_DIR, { recursive: true });
   fs.mkdirSync(RENDER_DIR, { recursive: true });
+  fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 }
 
 function clone(value) {
@@ -200,7 +211,7 @@ function readJsonFile(filePath, fallback) {
 }
 
 function writeJsonFile(filePath, payload) {
-  ensureDataDir();
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
   fs.writeFileSync(filePath, `${JSON.stringify(payload, null, 2)}\n`, 'utf8');
 }
 
@@ -243,10 +254,217 @@ function safeSlug(value) {
     .replace(/^-+|-+$/g, '');
 }
 
+function cleanString(value) {
+  return String(value ?? '').trim();
+}
+
+function finiteNumber(value, fallback = null) {
+  if (value === '' || value == null) return fallback;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : fallback;
+}
+
+function defaultInputDatabase() {
+  return {
+    schemaVersion: 'foodranked-production-database.v1',
+    updatedAt: '',
+    localOnly: true,
+    assets: { files: {} },
+    foods: {}
+  };
+}
+
+function normalizeAssetKind(value) {
+  const clean = cleanString(value).toLowerCase();
+  if (['image', 'png', 'food-image', 'food_image'].includes(clean)) return 'image';
+  if (['narration', 'audio', 'voice', 'mp3', 'wav', 'm4a'].includes(clean)) return 'narration';
+  return 'asset';
+}
+
+function normalizeInputAsset(id, value) {
+  const source = value && typeof value === 'object' ? clone(value) : {};
+  const cleanId = cleanString(source.id || id);
+  return {
+    id: cleanId,
+    label: cleanString(source.label) || cleanId,
+    kind: normalizeAssetKind(source.kind),
+    path: cleanString(source.path || source.url),
+    mimeType: cleanString(source.mimeType),
+    sizeBytes: finiteNumber(source.sizeBytes, null),
+    foodId: safeSlug(source.foodId),
+    role: cleanString(source.role),
+    source: cleanString(source.source) || 'studio-input',
+    createdAt: cleanString(source.createdAt),
+    updatedAt: cleanString(source.updatedAt)
+  };
+}
+
+function normalizeInputFood(id, value) {
+  const entry = value && typeof value === 'object' ? clone(value) : {};
+  entry.id = safeSlug(entry.id || id);
+  entry.name = cleanString(entry.name || entry.displayName || entry.id);
+  entry.displayName = cleanString(entry.displayName);
+  entry.shortName = cleanString(entry.shortName);
+  entry.foodType = safeSlug(entry.foodType) || 'misc';
+  entry.foodTypeLabel = cleanString(entry.foodTypeLabel);
+  entry.identity = cleanString(entry.identity);
+  entry.tier = cleanString(entry.tier);
+  entry.expectedTier = cleanString(entry.expectedTier);
+  entry.header = entry.header && typeof entry.header === 'object' && !Array.isArray(entry.header) ? entry.header : {};
+  entry.metrics = entry.metrics && typeof entry.metrics === 'object' && !Array.isArray(entry.metrics) ? entry.metrics : {};
+  entry.assets = entry.assets && typeof entry.assets === 'object' && !Array.isArray(entry.assets) ? entry.assets : {};
+  entry.episode = entry.episode && typeof entry.episode === 'object' && !Array.isArray(entry.episode) ? entry.episode : {};
+  entry.status = entry.status && typeof entry.status === 'object' && !Array.isArray(entry.status) ? entry.status : {};
+  entry.library = entry.library && typeof entry.library === 'object' && !Array.isArray(entry.library) ? entry.library : {};
+  entry.foodPatch = entry.foodPatch && typeof entry.foodPatch === 'object' && !Array.isArray(entry.foodPatch) ? entry.foodPatch : {};
+  entry.basis = entry.basis && typeof entry.basis === 'object' && !Array.isArray(entry.basis) ? entry.basis : { value: 100, unit: 'g' };
+  entry.kcal = finiteNumber(entry.kcal ?? entry.header.kcal, null);
+  if (entry.kcal != null) entry.header.kcal = entry.kcal;
+  entry.finalizedDownloaded = Boolean(entry.finalizedDownloaded || entry.status.finalizedDownloaded);
+  entry.status.finalizedDownloaded = entry.finalizedDownloaded;
+  entry.deleted = Boolean(entry.deleted);
+  return entry;
+}
+
+function normalizeInputDatabase(value) {
+  const source = value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+  const normalized = defaultInputDatabase();
+  normalized.updatedAt = cleanString(source.updatedAt);
+  const assets = source.assets?.files && typeof source.assets.files === 'object' ? source.assets.files : {};
+  Object.entries(assets).forEach(([id, asset]) => {
+    const normalizedAsset = normalizeInputAsset(id, asset);
+    if (normalizedAsset.id && normalizedAsset.path) normalized.assets.files[normalizedAsset.id] = normalizedAsset;
+  });
+  const foods = source.foods && typeof source.foods === 'object' ? source.foods : {};
+  Object.entries(foods).forEach(([id, food]) => {
+    const normalizedFood = normalizeInputFood(id, food);
+    if (normalizedFood.id) normalized.foods[normalizedFood.id] = normalizedFood;
+  });
+  return normalized;
+}
+
+function readInputDatabase() {
+  return normalizeInputDatabase(readJsonFile(INPUT_DATABASE_FILE, defaultInputDatabase()));
+}
+
+function writeInputDatabase(db) {
+  const normalized = normalizeInputDatabase(db);
+  normalized.updatedAt = new Date().toISOString();
+  writeJsonFile(INPUT_DATABASE_FILE, normalized);
+  return normalized;
+}
+
+function upsertInputFood(food) {
+  const normalized = normalizeInputFood(food.id, food);
+  if (!normalized.id) throw new Error('Food id is required.');
+  const db = readInputDatabase();
+  db.foods[normalized.id] = normalizeInputFood(normalized.id, {
+    ...(db.foods[normalized.id] || {}),
+    ...normalized,
+    deleted: false,
+    updatedAt: new Date().toISOString()
+  });
+  return { db: writeInputDatabase(db), food: db.foods[normalized.id] };
+}
+
+function deleteInputFood(foodId) {
+  const id = safeSlug(foodId);
+  if (!id) throw new Error('Food id is required.');
+  const db = readInputDatabase();
+  db.foods[id] = normalizeInputFood(id, {
+    ...(db.foods[id] || {}),
+    id,
+    deleted: true,
+    updatedAt: new Date().toISOString()
+  });
+  return { db: writeInputDatabase(db), food: db.foods[id] };
+}
+
+function baseFoodFromInputEntry(entry) {
+  return {
+    id: entry.id,
+    name: entry.name || entry.displayName || entry.id,
+    displayName: entry.displayName || '',
+    shortName: entry.shortName || '',
+    foodType: entry.foodType || 'misc',
+    foodTypeLabel: entry.foodTypeLabel || '',
+    identity: entry.identity || '',
+    basis: entry.basis || { value: 100, unit: 'g' },
+    kcal: entry.kcal ?? entry.header?.kcal ?? null,
+    header: entry.header || {},
+    metrics: entry.metrics || {},
+    assets: entry.assets || {},
+    episode: entry.episode || {},
+    status: entry.status || {},
+    foodPatch: entry.foodPatch || {},
+    finalizedDownloaded: Boolean(entry.finalizedDownloaded),
+    customDatabaseFood: true
+  };
+}
+
+function mergeInputFood(baseFood, entry) {
+  if (!entry || entry.deleted) return null;
+  const base = baseFood && typeof baseFood === 'object' ? clone(baseFood) : baseFoodFromInputEntry(entry);
+  const merged = {
+    ...base,
+    ...entry,
+    basis: { ...(base.basis || {}), ...(entry.basis || {}) },
+    header: { ...(base.header || {}), ...(entry.header || {}) },
+    metrics: { ...(base.metrics || {}), ...(entry.metrics || {}) },
+    assets: { ...(base.assets || {}), ...(entry.assets || {}) },
+    episode: { ...(base.episode || {}), ...(entry.episode || {}) },
+    status: { ...(base.status || {}), ...(entry.status || {}) },
+    databaseEntry: {
+      id: entry.id,
+      updatedAt: entry.updatedAt || '',
+      finalizedDownloaded: Boolean(entry.finalizedDownloaded),
+      notes: cleanString(entry.notes)
+    }
+  };
+  if (entry.customFoodImagePath || entry.foodSpritePath) {
+    merged.assets.customFoodImage = {
+      ...(merged.assets.customFoodImage || {}),
+      path: entry.customFoodImagePath || entry.foodSpritePath
+    };
+  }
+  if (entry.audioPath) {
+    merged.episode.audio = {
+      ...(merged.episode.audio || {}),
+      path: entry.audioPath,
+      take: entry.audioTake || merged.episode.audio?.take || 'studio-input'
+    };
+  }
+  merged.kcal = entry.kcal ?? entry.header?.kcal ?? base.kcal ?? base.header?.kcal ?? null;
+  merged.finalizedDownloaded = Boolean(entry.finalizedDownloaded);
+  merged.customDatabaseFood = Boolean(base.customDatabaseFood || !baseFood);
+  return merged;
+}
+
 function readFoodsIndex() {
   const file = path.join(REPO_ROOT, 'docs/data/foods-index.json');
   const foods = readJsonFile(file, []);
   return Array.isArray(foods) ? foods : [];
+}
+
+function readStudioFoods() {
+  const baseFoods = readFoodsIndex();
+  const inputDb = readInputDatabase();
+  const seen = new Set();
+  const foods = [];
+  baseFoods.forEach(food => {
+    if (!food?.id) return;
+    const id = safeSlug(food.id || food.name);
+    seen.add(id);
+    const inputEntry = inputDb.foods[id];
+    const merged = inputEntry ? mergeInputFood(food, inputEntry) : food;
+    if (merged) foods.push(merged);
+  });
+  Object.values(inputDb.foods || {}).forEach(entry => {
+    if (!entry?.id || seen.has(entry.id) || entry.deleted) return;
+    const merged = mergeInputFood(null, entry);
+    if (merged) foods.push(merged);
+  });
+  return foods;
 }
 
 function readAppAssets() {
@@ -263,8 +481,8 @@ function publicFood(food) {
     name: food.name || id,
     foodType: food.foodType || '',
     foodTypeLabel: food.foodTypeLabel || '',
-    tier: food.episode?.tier || '',
-    overallScore: food.episode?.overallScore ?? null,
+    tier: food.episode?.tier || food.tier || '',
+    overallScore: food.episode?.overallScore ?? food.overallScore ?? null,
     kcal: food.kcal ?? food.header?.kcal ?? null,
     finalized: FINALISATION_SAMPLE_FOOD_IDS.has(id) || Boolean(food.finalizedDownloaded || food.status?.finalizedDownloaded),
     hasVideo: fs.existsSync(renderFilePathForFoodId(id))
@@ -275,7 +493,7 @@ function publicFood(food) {
 
 function findFood(foodId) {
   const safeId = safeSlug(foodId);
-  return readFoodsIndex().find(food => safeSlug(food.id) === safeId || safeSlug(food.name) === safeId) || null;
+  return readStudioFoods().find(food => safeSlug(food.id) === safeId || safeSlug(food.name) === safeId) || null;
 }
 
 function downloadPathForFood(food) {
@@ -353,6 +571,154 @@ function publicJob(job) {
     outputPath: job.outputPath,
     frame: job.frame || null,
     logTail: job.logs.slice(-30)
+  };
+}
+
+function parseObjectValue(value, fallback = {}) {
+  if (!value) return fallback;
+  if (typeof value === 'object' && !Array.isArray(value)) return value;
+  if (typeof value === 'string' && value.trim()) {
+    const parsed = JSON.parse(value);
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return parsed;
+  }
+  return fallback;
+}
+
+function inputFoodFromBody(body) {
+  const source = body?.food && typeof body.food === 'object' ? body.food : body || {};
+  const id = safeSlug(source.id || source.foodId);
+  if (!id) throw new Error('Food id is required.');
+  return normalizeInputFood(id, {
+    ...source,
+    id,
+    name: source.name || source.displayName || id.replace(/-/g, ' '),
+    basis: parseObjectValue(source.basis, source.basis || { value: 100, unit: 'g' }),
+    header: parseObjectValue(source.header, source.header || {}),
+    metrics: parseObjectValue(source.metrics, source.metrics || {}),
+    assets: parseObjectValue(source.assets, source.assets || {}),
+    episode: parseObjectValue(source.episode, source.episode || {}),
+    status: parseObjectValue(source.status, source.status || {}),
+    library: parseObjectValue(source.library, source.library || {}),
+    foodPatch: parseObjectValue(source.foodPatch, source.foodPatch || {})
+  });
+}
+
+function publicInputAsset(asset) {
+  return normalizeInputAsset(asset.id, asset);
+}
+
+function publicInputFood(food) {
+  return normalizeInputFood(food.id, food);
+}
+
+function safeUploadFilename(value, kind) {
+  const raw = path.basename(cleanString(value)).replace(/[^A-Za-z0-9._ -]/g, '_').replace(/\s+/g, '-');
+  if (!raw || raw === '.' || raw === '..') throw new Error('Upload filename is required.');
+  const ext = path.extname(raw).toLowerCase();
+  if (kind === 'image' && ext !== '.png') throw new Error('Image uploads must be PNG files.');
+  if (kind === 'narration' && !['.mp3', '.wav', '.m4a'].includes(ext)) {
+    throw new Error('Narration uploads must be MP3, WAV, or M4A files.');
+  }
+  return raw;
+}
+
+function uploadSubdirForKind(kind) {
+  if (kind === 'image') return 'images';
+  if (kind === 'narration') return 'narration';
+  return 'assets';
+}
+
+function bufferFromBase64Payload(value) {
+  const text = cleanString(value);
+  const payload = text.includes(',') && /^data:/i.test(text) ? text.slice(text.indexOf(',') + 1) : text;
+  if (!payload) throw new Error('Upload dataBase64 is required.');
+  const buffer = Buffer.from(payload, 'base64');
+  if (!buffer.length) throw new Error('Upload payload is empty.');
+  return buffer;
+}
+
+function uploadAssetFromBody(body) {
+  const kind = normalizeAssetKind(body.kind || body.type || body.role);
+  if (kind !== 'image' && kind !== 'narration') throw new Error('Asset kind must be image or narration.');
+  const foodId = safeSlug(body.foodId || body.food?.id || '');
+  const filename = safeUploadFilename(body.filename || body.name, kind);
+  const buffer = bufferFromBase64Payload(body.dataBase64 || body.base64 || body.data);
+  const subdir = path.join(uploadSubdirForKind(kind), foodId || 'shared');
+  const targetDir = path.join(UPLOAD_DIR, subdir);
+  fs.mkdirSync(targetDir, { recursive: true });
+  const targetPath = path.join(targetDir, filename);
+  if (!isInside(UPLOAD_DIR, targetPath)) throw new Error('Invalid upload path.');
+  fs.writeFileSync(targetPath, buffer);
+
+  const relativePath = path.relative(UPLOAD_DIR, targetPath).split(path.sep).join('/');
+  const publicPath = `/studio-data/uploads/${relativePath}`;
+  const stem = safeSlug(path.basename(filename, path.extname(filename))) || Date.now().toString(36);
+  const assetId = ['studio', 'uploads', kind, foodId || 'shared', stem].join('.');
+  const now = new Date().toISOString();
+  const asset = normalizeInputAsset(assetId, {
+    id: assetId,
+    label: cleanString(body.label) || filename,
+    kind,
+    path: publicPath,
+    mimeType: cleanString(body.mimeType) || CONTENT_TYPES.get(path.extname(filename).toLowerCase()) || '',
+    sizeBytes: buffer.length,
+    foodId,
+    role: cleanString(body.role) || kind,
+    source: 'studio-input',
+    createdAt: now,
+    updatedAt: now
+  });
+
+  const db = readInputDatabase();
+  db.assets.files[asset.id] = asset;
+
+  let food = null;
+  if (foodId && body.attachToFood !== false) {
+    const existing = db.foods[foodId] || {
+      id: foodId,
+      name: body.foodName || foodId.replace(/-/g, ' '),
+      foodType: body.foodType || 'misc',
+      foodTypeLabel: body.foodTypeLabel || ''
+    };
+    food = normalizeInputFood(foodId, existing);
+    food.library = {
+      ...(food.library || {}),
+      uploadedAssets: {
+        ...(food.library?.uploadedAssets || {}),
+        [asset.id]: publicPath
+      }
+    };
+    if (kind === 'image') {
+      food.customFoodImagePath = publicPath;
+      food.assets = {
+        ...(food.assets || {}),
+        customFoodImage: {
+          ...(food.assets?.customFoodImage || {}),
+          path: publicPath
+        }
+      };
+    }
+    if (kind === 'narration') {
+      food.audioPath = publicPath;
+      food.library.audioPath = publicPath;
+      food.episode = {
+        ...(food.episode || {}),
+        audio: {
+          ...(food.episode?.audio || {}),
+          path: publicPath,
+          take: cleanString(body.take) || food.episode?.audio?.take || 'studio-input'
+        }
+      };
+    }
+    food.updatedAt = now;
+    db.foods[foodId] = normalizeInputFood(foodId, food);
+  }
+
+  const savedDb = writeInputDatabase(db);
+  return {
+    db: savedDb,
+    asset: savedDb.assets.files[asset.id],
+    food: foodId ? savedDb.foods[foodId] || null : null
   };
 }
 
@@ -509,16 +875,19 @@ async function startRenderJob(food, body, options) {
 }
 
 function databaseSummary() {
-  const foods = readFoodsIndex().map(publicFood);
+  const foods = readStudioFoods().map(publicFood);
   const finalized = foods.filter(food => food.finalized).length;
   const videos = foods.filter(food => food.hasVideo).length;
   const assets = readAppAssets();
+  const inputDb = readInputDatabase();
   return {
     foods: foods.length,
     finalized,
     unfinalized: Math.max(0, foods.length - finalized),
     videos,
-    assets: assets.count
+    assets: assets.count + Object.keys(inputDb.assets.files || {}).length,
+    inputFoods: Object.values(inputDb.foods || {}).filter(food => food && !food.deleted).length,
+    inputAssets: Object.keys(inputDb.assets.files || {}).length
   };
 }
 
@@ -574,8 +943,79 @@ async function handleApi(request, response, url, options) {
   }
 
   if (request.method === 'GET' && url.pathname === '/api/foods') {
-    const foods = readFoodsIndex().map(publicFood).sort((a, b) => a.name.localeCompare(b.name));
+    const foods = readStudioFoods().map(publicFood).sort((a, b) => a.name.localeCompare(b.name));
     sendJson(response, 200, { ok: true, foods });
+    return true;
+  }
+
+  if (request.method === 'GET' && url.pathname === '/api/input/database') {
+    sendJson(response, 200, { ok: true, database: readInputDatabase() });
+    return true;
+  }
+
+  if (request.method === 'GET' && url.pathname === '/api/input/foods') {
+    const foods = Object.values(readInputDatabase().foods || {})
+      .filter(food => food && !food.deleted)
+      .map(publicInputFood)
+      .sort((a, b) => a.name.localeCompare(b.name));
+    sendJson(response, 200, { ok: true, foods });
+    return true;
+  }
+
+  if (request.method === 'POST' && url.pathname === '/api/input/foods') {
+    let body;
+    try {
+      body = await readJsonBody(request);
+      const { db, food } = upsertInputFood(inputFoodFromBody(body));
+      sendJson(response, 200, { ok: true, food: publicInputFood(food), database: db });
+    } catch (error) {
+      sendError(response, 400, error.message);
+    }
+    return true;
+  }
+
+  const inputFoodMatch = url.pathname.match(/^\/api\/input\/foods\/([^/]+)$/);
+  if (inputFoodMatch) {
+    const foodId = safeSlug(inputFoodMatch[1]);
+    if (request.method === 'GET') {
+      const food = readInputDatabase().foods[foodId] || null;
+      if (!food || food.deleted) sendError(response, 404, 'Input food not found.');
+      else sendJson(response, 200, { ok: true, food: publicInputFood(food) });
+      return true;
+    }
+    if (request.method === 'DELETE') {
+      try {
+        const { db, food } = deleteInputFood(foodId);
+        sendJson(response, 200, { ok: true, food: publicInputFood(food), database: db });
+      } catch (error) {
+        sendError(response, 400, error.message);
+      }
+      return true;
+    }
+  }
+
+  if (request.method === 'GET' && url.pathname === '/api/input/assets') {
+    const assets = Object.values(readInputDatabase().assets.files || {})
+      .map(publicInputAsset)
+      .sort((a, b) => a.kind.localeCompare(b.kind) || a.label.localeCompare(b.label));
+    sendJson(response, 200, { ok: true, assets });
+    return true;
+  }
+
+  if (request.method === 'POST' && url.pathname === '/api/input/assets') {
+    let body;
+    try {
+      body = await readJsonBody(request);
+      const { db, asset, food } = uploadAssetFromBody(body);
+      sendJson(response, 200, {
+        ok: true,
+        asset: publicInputAsset(asset),
+        food: food ? publicInputFood(food) : null,
+        database: db
+      });
+    } catch (error) {
+      sendError(response, 400, error.message);
+    }
     return true;
   }
 
@@ -606,6 +1046,7 @@ async function handleApi(request, response, url, options) {
       state: readStudioState(),
       summary: databaseSummary(),
       tools: TOOL_DEFINITIONS,
+      inputDatabase: readInputDatabase(),
       note: 'Browser-local builder state is added by the Studio UI during backup download.'
     });
     return true;
@@ -717,6 +1158,11 @@ function safeStaticPath(urlPathname) {
   if (pathname.startsWith('/studio-data/renders/')) {
     const filePath = path.normalize(path.join(RENDER_DIR, pathname.slice('/studio-data/renders/'.length)));
     if (!isInside(RENDER_DIR, filePath)) return { status: 403, message: 'Forbidden' };
+    return { filePath };
+  }
+  if (pathname.startsWith('/studio-data/uploads/')) {
+    const filePath = path.normalize(path.join(UPLOAD_DIR, pathname.slice('/studio-data/uploads/'.length)));
+    if (!isInside(UPLOAD_DIR, filePath)) return { status: 403, message: 'Forbidden' };
     return { filePath };
   }
   return { status: 404, message: 'Not found' };

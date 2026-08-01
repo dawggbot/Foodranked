@@ -8,7 +8,7 @@
     dbv2Placement: 'foodranked-display-builder-v2-placement-layouts-v1',
     vbv2State: 'foodranked-video-builder-v2-state-v1'
   });
-  const LAYOUT_STATE_KEYS = [STORAGE.layoutWorking, STORAGE.layoutFoodLayouts, STORAGE.layoutSavedLayouts];
+  const LAYOUT_STATE_KEYS = [STORAGE.layoutWorking, STORAGE.layoutSavedLayouts];
   const BACKUP_STORAGE_KEYS = [
     STORAGE.productionDatabase,
     ...LAYOUT_STATE_KEYS,
@@ -24,6 +24,7 @@
     'foodranked-display-builder-test-v1',
     'foodranked-video-builder-v1',
     'foodranked-video-builder-state-v1',
+    STORAGE.layoutFoodLayouts,
     'foodranked-layout-builder-v3',
     'foodranked-layout-builder-sprite-layouts'
   ];
@@ -32,6 +33,8 @@
   const REVOKED_LAYOUT_SEED_VERSIONS = new Set(['20260801-current-builder-layout-v1']);
   const REVOKED_LAYOUT_SEED_SOURCES = new Set(['docs/layout-builder/canonical-test-layout.js']);
   const REVOKED_LAYOUT_SEED_IDS = new Set(['layout_test_current_builder_20260801']);
+  const LOCKED_LAYOUT_PRESET_NAMES = ['test 1', 'test 2', 'test 3', 'test 4', 'test 5'];
+  const LOCKED_LAYOUT_PRESET_NAME_SET = new Set(LOCKED_LAYOUT_PRESET_NAMES);
 
   const els = {
     foodSearch: document.getElementById('foodSearch'),
@@ -195,25 +198,44 @@
       || REVOKED_LAYOUT_SEED_SOURCES.has(String(sourcePlacementMeta.canonicalLayoutSource || ''));
   }
 
-  function readSavedLayoutEntries() {
-    const parsed = readJsonStorage(STORAGE.layoutSavedLayouts, []);
-    return (Array.isArray(parsed) ? parsed : Object.values(parsed || {}))
-      .filter(entry => !isRevokedLayoutSeed(entry))
-      .filter(entry => entry && entry.id && entry.sections && typeof entry.sections === 'object');
+  function layoutNameKey(value) {
+    return clean(value).toLowerCase();
   }
 
-  function canonicalTestLayout() {
+  function isLockedLayoutEntry(entry) {
+    return LOCKED_LAYOUT_PRESET_NAME_SET.has(layoutNameKey(entry?.name));
+  }
+
+  function lockedLayoutSortIndex(entry) {
+    const index = LOCKED_LAYOUT_PRESET_NAMES.indexOf(layoutNameKey(entry?.name));
+    return index >= 0 ? index : Number.POSITIVE_INFINITY;
+  }
+
+  function readSavedLayoutEntries() {
+    const parsed = readJsonStorage(STORAGE.layoutSavedLayouts, []);
+    const entries = (Array.isArray(parsed) ? parsed : Object.values(parsed || {}))
+      .filter(entry => !isRevokedLayoutSeed(entry))
+      .filter(entry => entry && entry.id && entry.sections && typeof entry.sections === 'object');
+    const locked = entries.filter(isLockedLayoutEntry)
+      .sort((a, b) => lockedLayoutSortIndex(a) - lockedLayoutSortIndex(b));
+    if (locked.length !== entries.length) {
+      if (locked.length) writeJsonStorage(STORAGE.layoutSavedLayouts, locked);
+      else localStorage.removeItem(STORAGE.layoutSavedLayouts);
+      localStorage.removeItem(STORAGE.layoutFoodLayouts);
+    }
+    return locked;
+  }
+
+  function lockedTestLayout() {
     return readSavedLayoutEntries()
-      .filter(entry => clean(entry.name).toLowerCase() === 'test')
-      .sort((a, b) => String(b.updatedAt || b.createdAt || '').localeCompare(String(a.updatedAt || a.createdAt || '')))
+      .sort((a, b) => lockedLayoutSortIndex(a) - lockedLayoutSortIndex(b))
       [0] || null;
   }
 
   function currentLayoutSummary(food = selectedFood()) {
     const working = readJsonStorage(STORAGE.layoutWorking, null);
-    const foodLayouts = readJsonStorage(STORAGE.layoutFoodLayouts, {});
     const saved = readSavedLayoutEntries();
-    const test = canonicalTestLayout();
+    const test = lockedTestLayout();
     const placement = placementEntryForFood(food);
     const staleKeys = STALE_LAYOUT_KEYS.filter(key => localStorage.getItem(key) != null);
     return {
@@ -222,8 +244,8 @@
       savedNames: saved.map(entry => clean(entry.name) || entry.id).filter(Boolean),
       test,
       testLayers: countLayoutLayers(test ? { sections: test.sections } : null),
-      foodLayoutCount: foodLayouts && typeof foodLayouts === 'object' && !Array.isArray(foodLayouts) ? Object.keys(foodLayouts).length : 0,
-      selectedFoodLayout: Boolean(food?.id && foodLayouts?.[food.id]),
+      foodLayoutCount: 0,
+      selectedFoodLayout: false,
       placement,
       staleKeys,
       renderReady: Boolean(test && countLayoutLayers({ sections: test.sections }) > 0)
@@ -232,14 +254,14 @@
 
   function renderLayoutState() {
     const summary = currentLayoutSummary();
-    els.layoutStatePill.textContent = summary.renderReady ? 'Ready' : 'Needs test layout';
+    els.layoutStatePill.textContent = summary.renderReady ? 'Ready' : 'Needs locked layout';
     els.layoutStatePill.className = summary.renderReady ? 'good' : 'warn';
     const placement = summary.placement;
     const rows = [
-      ['Canonical test layout', summary.test ? `${summary.testLayers} layers` : 'Missing'],
+      ['Locked layout copy', summary.test ? `${summary.test.name} · ${summary.testLayers} layers` : 'Missing'],
       ['Saved layouts', summary.savedNames.length ? summary.savedNames.join(', ') : 'None'],
       ['Working layout', summary.workingLayers ? `${summary.workingLayers} layers` : 'None'],
-      ['Food layouts', `${summary.foodLayoutCount}${summary.selectedFoodLayout ? ' - selected food present' : ''}`],
+      ['Food layouts', 'Disabled for Layout Builder'],
       ['DBv2 placement', placement ? `${placement.sourceLayoutName || placement.sourceLayoutKey || 'DBv2'} @ ${placement.exportedAt || 'unknown time'}` : 'Will rebuild fresh'],
       ['Stale old keys', summary.staleKeys.length ? summary.staleKeys.join(', ') : 'None']
     ];
@@ -428,26 +450,18 @@
     }
     const savedLayouts = readJsonStorage(STORAGE.layoutSavedLayouts, []);
     const savedEntries = Array.isArray(savedLayouts) ? savedLayouts : Object.values(savedLayouts || {});
-    const keptSavedEntries = savedEntries.filter(entry => !isRevokedLayoutSeed(entry));
+    const keptSavedEntries = savedEntries
+      .filter(entry => !isRevokedLayoutSeed(entry))
+      .filter(isLockedLayoutEntry)
+      .sort((a, b) => lockedLayoutSortIndex(a) - lockedLayoutSortIndex(b));
     if (keptSavedEntries.length !== savedEntries.length) {
       if (keptSavedEntries.length) writeJsonStorage(STORAGE.layoutSavedLayouts, keptSavedEntries);
       else localStorage.removeItem(STORAGE.layoutSavedLayouts);
-      removed.push(`${STORAGE.layoutSavedLayouts}:revoked-seed`);
+      removed.push(`${STORAGE.layoutSavedLayouts}:non-locked`);
     }
     if (isRevokedLayoutSeed(readJsonStorage(STORAGE.layoutWorking, null))) {
       localStorage.removeItem(STORAGE.layoutWorking);
       removed.push(`${STORAGE.layoutWorking}:revoked-seed`);
-    }
-    const foodLayouts = readJsonStorage(STORAGE.layoutFoodLayouts, {});
-    if (foodLayouts && typeof foodLayouts === 'object' && !Array.isArray(foodLayouts)) {
-      const keptFoodLayouts = Object.fromEntries(
-        Object.entries(foodLayouts).filter(([, layout]) => !isRevokedLayoutSeed(layout))
-      );
-      if (Object.keys(keptFoodLayouts).length !== Object.keys(foodLayouts).length) {
-        if (Object.keys(keptFoodLayouts).length) writeJsonStorage(STORAGE.layoutFoodLayouts, keptFoodLayouts);
-        else localStorage.removeItem(STORAGE.layoutFoodLayouts);
-        removed.push(`${STORAGE.layoutFoodLayouts}:revoked-seed`);
-      }
     }
     if (localStorage.getItem(STORAGE.dbv2Placement) != null) {
       localStorage.removeItem(STORAGE.dbv2Placement);
@@ -751,19 +765,19 @@
   async function ensureFreshPlacementForFood(food) {
     const summary = currentLayoutSummary(food);
     if (!summary.renderReady) {
-      throw new Error('Current Layout Builder saved layout named test is missing. Open Layout Builder in this app and save/import the current layout as test before rendering.');
+      throw new Error('Locked Layout Builder copies test 1 through test 5 are missing. Open Layout Builder once so it can lock the current layout before rendering.');
     }
 
     clearPlacementForFood(food.id);
     const minExportedAt = Date.now() - 1000;
-    setRenderText('Preparing fresh DBv2 placement', ['Cleared old DBv2 placement export.', 'Rendering DBv2 from the current Layout Builder test layout...']);
+    setRenderText('Preparing fresh DBv2 placement', ['Cleared old DBv2 placement export.', 'Rendering DBv2 from the locked Layout Builder copy...']);
     const frame = createPlacementFrame(food);
     try {
       const placement = await waitForPlacementExport(food, minExportedAt);
       const entry = placement?.layouts?.[food.id];
       if (!placement || !entry?.layout) throw new Error('DBv2 did not export a fresh placement for this food in time.');
-      if (clean(entry.sourceLayoutName).toLowerCase() !== 'test') {
-        throw new Error(`DBv2 exported from ${entry.sourceLayoutName || entry.sourceLayoutKey || 'an unknown layout'}, not the current test layout.`);
+      if (!LOCKED_LAYOUT_PRESET_NAME_SET.has(layoutNameKey(entry.sourceLayoutName))) {
+        throw new Error(`DBv2 exported from ${entry.sourceLayoutName || entry.sourceLayoutKey || 'an unknown layout'}, not a locked Layout Builder copy.`);
       }
       return placement;
     } finally {

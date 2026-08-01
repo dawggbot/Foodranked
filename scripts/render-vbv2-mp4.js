@@ -18,7 +18,6 @@ const DISPLAY_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
 const PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
 const LAYOUT_STATE_KEYS = new Set([
   'foodranked-layout-builder-v4',
-  'foodranked-layout-builder-food-layouts-v1',
   'foodranked-layout-builder-sprite-layouts-v1'
 ]);
 const DEFAULT_PORT = 4190;

@@ -1204,7 +1204,7 @@
   <script>
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     if (APP_MODE === 'layout-builder') document.body.classList.add('layout-builder-mode');
-    const BUILDER_BUILD_ID = '20260801-macro-arrow-editable-v1';
+    const BUILDER_BUILD_ID = '20260801-layout-lockdown-v1';
     const BACKGROUND_MOTION_DEFAULT_MAX_SIZE = 80;
     const BACKGROUND_MOTION_LEGACY_MAX_SIZE = 40;
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
@@ -1231,8 +1231,8 @@
     const LOCAL_STORAGE_KEY = `${STORAGE_PREFIX}-v4`;
     const FOOD_LAYOUTS_STORAGE_KEY = `${STORAGE_PREFIX}-food-layouts-v1`;
     const SAVED_SPRITE_LAYOUTS_KEY = `${STORAGE_PREFIX}-sprite-layouts-v1`;
-    const CANONICAL_LAYOUT_PRESET_NAME = 'test';
-    const RECOVERED_TEST_BACKUP_META_KEY = 'layoutBuilderRecoveredTestBackupV1';
+    const LOCKED_LAYOUT_PRESET_NAMES = ['test 1', 'test 2', 'test 3', 'test 4', 'test 5'];
+    const LOCKED_LAYOUT_PRESET_NAME_SET = new Set(LOCKED_LAYOUT_PRESET_NAMES);
     const SAVED_LAYOUT_BACKUP_INDEX_KEY = 'foodranked-layout-builder-save-backups-v1';
     const SAVED_LAYOUT_BACKUP_STORAGE_PREFIX = 'foodranked-layout-builder-before-save';
     const REVOKED_LAYOUT_SEED_VERSIONS = new Set(['20260801-current-builder-layout-v1']);
@@ -1676,9 +1676,17 @@
       return String(value || '').trim().replace(/\s+/g, ' ').toLowerCase();
     }
 
-    function isCanonicalSavedSpriteLayoutEntry(entry) {
-      return APP_MODE === 'layout-builder'
-        && canonicalSavedLayoutName(entry?.name) === CANONICAL_LAYOUT_PRESET_NAME;
+    function isLockedSavedSpriteLayoutName(value) {
+      return LOCKED_LAYOUT_PRESET_NAME_SET.has(canonicalSavedLayoutName(value));
+    }
+
+    function isLockedSavedSpriteLayoutEntry(entry) {
+      return APP_MODE === 'layout-builder' && isLockedSavedSpriteLayoutName(entry?.name);
+    }
+
+    function lockedSavedSpriteLayoutSortIndex(entry) {
+      const index = LOCKED_LAYOUT_PRESET_NAMES.indexOf(canonicalSavedLayoutName(entry?.name));
+      return index >= 0 ? index : Number.POSITIVE_INFINITY;
     }
 
     function normalizeSavedSpriteLayoutEntry(entry) {
@@ -1708,50 +1716,14 @@
         || REVOKED_LAYOUT_SEED_SOURCES.has(String(sourcePlacementMeta.canonicalLayoutSource || ''));
     }
 
-    function isRecoverableTestBackupLayoutEntry(entry) {
-      const name = canonicalSavedLayoutName(entry?.name);
-      return name.startsWith(`${CANONICAL_LAYOUT_PRESET_NAME} backup`) && !isRevokedLayoutSeed(entry);
-    }
-
-    function latestRecoverableTestBackupLayoutEntry(entries) {
-      return [...entries]
-        .filter(isRecoverableTestBackupLayoutEntry)
-        .sort((a, b) => String(b.updatedAt || b.createdAt || '').localeCompare(String(a.updatedAt || a.createdAt || '')) || String(b.id || '').localeCompare(String(a.id || '')))[0] || null;
-    }
-
-    function recoveredCanonicalTestLayoutEntryFromBackup(entries) {
-      if (entries.some(isCanonicalSavedSpriteLayoutEntry)) return null;
-      const backup = latestRecoverableTestBackupLayoutEntry(entries);
-      if (!backup) return null;
-      const now = new Date().toISOString();
-      return normalizeSavedSpriteLayoutEntry({
-        ...structuredClone(backup),
-        id: `layout_${CANONICAL_LAYOUT_PRESET_NAME}_recovered_${Date.now().toString(36)}`,
-        name: CANONICAL_LAYOUT_PRESET_NAME,
-        updatedAt: now,
-        meta: {
-          ...(backup.meta || {}),
-          [RECOVERED_TEST_BACKUP_META_KEY]: {
-            restoredFromId: backup.id || '',
-            restoredFromName: backup.name || '',
-            restoredAt: now
-          }
-        }
-      });
-    }
-
     function readSavedSpriteLayoutEntriesFromStorage() {
       try {
         const raw = localStorage.getItem(SAVED_SPRITE_LAYOUTS_KEY);
         const parsed = raw ? JSON.parse(raw) : [];
         const entries = Array.isArray(parsed) ? parsed : Object.values(parsed || {});
         const normalized = entries.map(normalizeSavedSpriteLayoutEntry).filter(Boolean);
-        let kept = normalized.filter(entry => !isRevokedLayoutSeed(entry));
-        const recovered = APP_MODE === 'layout-builder' ? recoveredCanonicalTestLayoutEntryFromBackup(kept) : null;
-        if (recovered) {
-          kept = [recovered, ...kept.filter(entry => entry.id !== recovered.meta?.[RECOVERED_TEST_BACKUP_META_KEY]?.restoredFromId)];
-        }
-        if (APP_MODE === 'layout-builder' && (kept.length !== normalized.length || recovered)) {
+        const kept = normalized.filter(entry => !isRevokedLayoutSeed(entry));
+        if (APP_MODE === 'layout-builder' && kept.length !== normalized.length) {
           if (kept.length) localStorage.setItem(SAVED_SPRITE_LAYOUTS_KEY, JSON.stringify(kept));
           else localStorage.removeItem(SAVED_SPRITE_LAYOUTS_KEY);
           localStorage.removeItem(FOOD_LAYOUTS_STORAGE_KEY);
@@ -1760,10 +1732,6 @@
       } catch {
         return [];
       }
-    }
-
-    function canonicalSavedSpriteLayoutEntryFromStorage(entries = readSavedSpriteLayoutEntriesFromStorage()) {
-      return entries.find(isCanonicalSavedSpriteLayoutEntry) || null;
     }
 
     function loadLayoutForFood(foodId) {
@@ -1796,9 +1764,12 @@
 
     function loadSavedSpriteLayouts() {
       const entries = readSavedSpriteLayoutEntriesFromStorage();
-      const canonical = canonicalSavedSpriteLayoutEntryFromStorage(entries);
-      if (!canonical) return entries;
-      return [canonical, ...entries.filter(entry => entry.id !== canonical.id)];
+      if (APP_MODE !== 'layout-builder') return entries;
+      return [...entries].sort((a, b) => {
+        const lockedSort = lockedSavedSpriteLayoutSortIndex(a) - lockedSavedSpriteLayoutSortIndex(b);
+        if (lockedSort) return lockedSort;
+        return String(b.updatedAt).localeCompare(String(a.updatedAt)) || a.name.localeCompare(b.name);
+      });
     }
 
     function persistSavedSpriteLayouts() {
@@ -4737,9 +4708,7 @@
     }
 
     function savedLayoutBackupName(entry, now) {
-      const base = canonicalSavedLayoutName(entry?.name) === CANONICAL_LAYOUT_PRESET_NAME
-        ? CANONICAL_LAYOUT_PRESET_NAME
-        : (entry?.name || 'layout');
+      const base = entry?.name || 'layout';
       return `${base} backup ${now.replace(/[:.]/g, '-')}`;
     }
 
@@ -4835,7 +4804,7 @@
       const hasSelection = !!els.savedLayoutSelect.value;
       const selectedEntry = state.savedSpriteLayouts.find(layout => layout.id === els.savedLayoutSelect.value);
       els.loadSpriteLayout.disabled = !hasSelection;
-      els.deleteSpriteLayout.disabled = !hasSelection || isCanonicalSavedSpriteLayoutEntry(selectedEntry);
+      els.deleteSpriteLayout.disabled = !hasSelection || isLockedSavedSpriteLayoutEntry(selectedEntry);
       els.saveSpriteLayout.disabled = false;
       els.saveSpriteLayout.textContent = 'Save layout preset';
     }
@@ -4847,6 +4816,10 @@
       if (!trimmedName) return;
       const now = new Date().toISOString();
       const existing = state.savedSpriteLayouts.find(layout => layout.name.toLowerCase() === trimmedName.toLowerCase());
+      if (isLockedSavedSpriteLayoutName(trimmedName) || isLockedSavedSpriteLayoutEntry(existing)) {
+        window.alert('Locked layout copies cannot be overwritten.');
+        return;
+      }
       const snapshot = currentSpriteLayoutSnapshot();
       if (existing && !window.confirm(`Replace saved layout “${existing.name}”?`)) return;
       const backupInfo = existing ? backupSavedLayoutBeforeReplace(existing, now) : null;
@@ -4892,8 +4865,8 @@
       const selectedId = els.savedLayoutSelect.value;
       const entry = state.savedSpriteLayouts.find(layout => layout.id === selectedId);
       if (!entry) return;
-      if (isCanonicalSavedSpriteLayoutEntry(entry)) {
-        els.deleteSpriteLayout.textContent = 'Protected';
+      if (isLockedSavedSpriteLayoutEntry(entry)) {
+        els.deleteSpriteLayout.textContent = 'Locked';
         setTimeout(() => els.deleteSpriteLayout.textContent = 'Delete', 1200);
         return;
       }
@@ -6850,13 +6823,14 @@
 
     function syncFoodIntoLayout(food, { normalize = true } = {}) {
       if (normalize) normalizeLayout(state.layout);
+      if (APP_MODE === 'layout-builder') return;
       syncHeaderForFood(state.layout, food || getSelectedFoodStub());
       syncSectionSeparatorsForFood(state.layout, food || getSelectedFoodStub());
       syncSectionIndicatorSprites(state.layout, food || getSelectedFoodStub());
       syncFatsMacroTotalTextForFood(state.layout, food || getSelectedFoodStub());
       syncCarbsMacroTotalTextForFood(state.layout, food || getSelectedFoodStub());
       syncProteinMacroTotalTextForFood(state.layout, food || getSelectedFoodStub());
-      if (APP_MODE !== 'layout-builder') syncMacroSubmacroArrowsForFood(state.layout, food || getSelectedFoodStub());
+      syncMacroSubmacroArrowsForFood(state.layout, food || getSelectedFoodStub());
       syncMacroSubmetricValueColors(state.layout, food || getSelectedFoodStub());
       syncManualOutroHighlightedIndicators(state.layout, food || getSelectedFoodStub());
       const scoringFood = mergedFoodForScoring(food || getSelectedFoodStub());

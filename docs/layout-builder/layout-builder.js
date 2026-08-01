@@ -9,10 +9,10 @@
   const LAYOUT_STORAGE_KEY = 'foodranked-layout-builder-v4';
   const SAVED_LAYOUTS_KEY = 'foodranked-layout-builder-sprite-layouts-v1';
   const FOOD_LAYOUTS_KEY = 'foodranked-layout-builder-food-layouts-v1';
-  const PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
-  const RESTORE_TEST_FROM_PLACEMENT_ID = 'layoutBuilderRestoreTestFromPlacement';
-  const TEST_LAYOUT_NAME = 'test';
-  const RECOVERED_TEST_BACKUP_META_KEY = 'layoutBuilderRecoveredTestBackupV1';
+  const LOCKED_LAYOUT_PRESET_NAMES = ['test 1', 'test 2', 'test 3', 'test 4', 'test 5'];
+  const LOCKED_LAYOUT_PRESET_NAME_SET = new Set(LOCKED_LAYOUT_PRESET_NAMES);
+  const LEGACY_TEST_LAYOUT_NAME = 'test';
+  const LOCKED_LAYOUT_VERSION = '20260801-layout-lockdown-v1';
   const SAVED_LAYOUT_BACKUP_INDEX_KEY = 'foodranked-layout-builder-save-backups-v1';
   const SAVED_LAYOUT_BACKUP_STORAGE_PREFIX = 'foodranked-layout-builder-before-save';
   const REVOKED_LAYOUT_SEED_VERSIONS = new Set(['20260801-current-builder-layout-v1']);
@@ -24,7 +24,6 @@
   const SECTION_ID_ALIASES = { carbohydrates: 'carbs', proteins: 'protein' };
   const MACRO_SECTION_IDS = ['fats', 'carbs', 'protein'];
   let selectedSavedLayoutId = '';
-  let autoRestoreFromPlacementAttempted = false;
   let syncTimer = null;
   let syncFrame = 0;
 
@@ -696,14 +695,9 @@
           selectedSectionId: entry.selectedSectionId || 'intro',
           meta: clone(entry.meta || {}),
           sections: clone(entry.sections)
-        }))
-        .sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)) || a.name.localeCompare(b.name));
-      let kept = normalized.filter(entry => !isRevokedLayoutSeed(entry));
-      const recovered = recoveredCanonicalTestLayoutEntryFromBackup(kept);
-      if (recovered) {
-        kept = [recovered, ...kept.filter(entry => entry.id !== recovered.meta?.[RECOVERED_TEST_BACKUP_META_KEY]?.restoredFromId)];
-      }
-      if (kept.length !== normalized.length || recovered) {
+        }));
+      const kept = sortSavedLayoutEntries(normalized.filter(entry => !isRevokedLayoutSeed(entry)));
+      if (kept.length !== normalized.length) {
         persistSavedLayouts(win, kept);
         win.localStorage.removeItem(FOOD_LAYOUTS_KEY);
       }
@@ -726,40 +720,33 @@
     }
   }
 
-  function normalizePlacementLayoutForSavedPreset(layout) {
-    if (!layout?.sections || typeof layout.sections !== 'object') return null;
-
-    const normalizedSections = {};
-    for (const [rawSectionId, section] of Object.entries(layout.sections)) {
-      const sectionId = normalizeDisplaySectionId(rawSectionId);
-      if (!sectionId) continue;
-      const currentLayers = Array.isArray(normalizedSections[sectionId]?.layers)
-        ? normalizedSections[sectionId].layers
-        : [];
-      const incomingLayers = Array.isArray(section?.layers) ? clone(section.layers) : [];
-      const currentIds = new Set(currentLayers.map(layer => layer?.id).filter(Boolean));
-      const mergedLayers = [...currentLayers];
-      incomingLayers.forEach(layer => {
-        if (layer?.id && currentIds.has(layer.id)) return;
-        mergedLayers.push(layer);
-        if (layer?.id) currentIds.add(layer.id);
-      });
-      normalizedSections[sectionId] = { layers: mergedLayers };
-    }
-
-    SECTION_IDS.forEach(sectionId => {
-      if (!normalizedSections[sectionId]) normalizedSections[sectionId] = { layers: [] };
-    });
-
-    return {
-      selectedFoodId: layout.selectedFoodId || '',
-      selectedSectionId: normalizeDisplaySectionId(layout.selectedSectionId) || 'intro',
-      sections: normalizedSections
-    };
+  function savedLayoutNameKey(value) {
+    return collapseText(value).toLowerCase();
   }
 
-  function isTestLayoutEntry(entry) {
-    return collapseText(entry?.name).toLowerCase() === TEST_LAYOUT_NAME;
+  function isLockedLayoutName(value) {
+    return LOCKED_LAYOUT_PRESET_NAME_SET.has(savedLayoutNameKey(value));
+  }
+
+  function isLockedLayoutEntry(entry) {
+    return isLockedLayoutName(entry?.name);
+  }
+
+  function lockedLayoutIndex(entry) {
+    const index = LOCKED_LAYOUT_PRESET_NAMES.indexOf(savedLayoutNameKey(entry?.name));
+    return index >= 0 ? index : Number.POSITIVE_INFINITY;
+  }
+
+  function sortSavedLayoutEntries(entries) {
+    return entries.sort((a, b) => {
+      const lockedSort = lockedLayoutIndex(a) - lockedLayoutIndex(b);
+      if (lockedSort) return lockedSort;
+      return String(b.updatedAt).localeCompare(String(a.updatedAt)) || a.name.localeCompare(b.name);
+    });
+  }
+
+  function isLegacyTestLayoutEntry(entry) {
+    return savedLayoutNameKey(entry?.name) === LEGACY_TEST_LAYOUT_NAME;
   }
 
   function isRevokedLayoutSeed(value) {
@@ -772,93 +759,9 @@
       || REVOKED_LAYOUT_SEED_SOURCES.has(String(sourcePlacementMeta.canonicalLayoutSource || ''));
   }
 
-  function isRecoverableTestBackupLayoutEntry(entry) {
-    const name = collapseText(entry?.name).toLowerCase();
-    return name.startsWith(`${TEST_LAYOUT_NAME} backup`) && !isRevokedLayoutSeed(entry);
-  }
-
-  function latestRecoverableTestBackupLayoutEntry(entries) {
-    return [...entries]
-      .filter(isRecoverableTestBackupLayoutEntry)
-      .sort((a, b) => String(b.updatedAt || b.createdAt || '').localeCompare(String(a.updatedAt || a.createdAt || '')) || String(b.id || '').localeCompare(String(a.id || '')))[0] || null;
-  }
-
-  function recoveredCanonicalTestLayoutEntryFromBackup(entries) {
-    if (entries.some(isTestLayoutEntry)) return null;
-    const backup = latestRecoverableTestBackupLayoutEntry(entries);
-    if (!backup) return null;
-    const now = new Date().toISOString();
-    return {
-      ...clone(backup),
-      id: `layout_${TEST_LAYOUT_NAME}_recovered_${Date.now().toString(36)}`,
-      name: TEST_LAYOUT_NAME,
-      updatedAt: now,
-      meta: {
-        ...(backup.meta || {}),
-        [RECOVERED_TEST_BACKUP_META_KEY]: {
-          restoredFromId: backup.id || '',
-          restoredFromName: backup.name || '',
-          restoredAt: now
-        }
-      }
-    };
-  }
-
-  function canonicalTestLayoutEntry(entries) {
-    return [...entries]
-      .filter(isTestLayoutEntry)
-      .sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)) || String(a.id).localeCompare(String(b.id)))[0] || null;
-  }
-
-  function prepareSavedLayoutStorageForBuilder(doc) {
-    const win = getFrameWindow();
-    if (!win) return null;
-    const entries = readSavedLayouts(win);
-
-    try {
-      win.localStorage.removeItem(FOOD_LAYOUTS_KEY);
-    } catch {}
-
-    return canonicalTestLayoutEntry(entries);
-  }
-
-  function requestedPlacementFoodId(payload) {
-    const params = new URLSearchParams(window.location.search);
-    const explicit = collapseText(
-      params.get('restoreFood')
-      || params.get('food')
-      || params.get('videoBuilderExportFood')
-      || ''
-    );
-    const layouts = payload?.layouts && typeof payload.layouts === 'object' && !Array.isArray(payload.layouts)
-      ? payload.layouts
-      : {};
-    if (explicit && layouts[explicit]) return explicit;
-    const current = collapseText(payload?.currentFoodId || '');
-    if (current && layouts[current]) return current;
-    if (layouts.bacon) return 'bacon';
-    return Object.keys(layouts).find(foodId => layouts[foodId]?.layout?.sections) || '';
-  }
-
-  function placementEntryForRestore(win) {
-    const payload = readStorageJson(win, PLACEMENT_EXPORT_KEY, {});
-    const layouts = payload?.layouts && typeof payload.layouts === 'object' && !Array.isArray(payload.layouts)
-      ? payload.layouts
-      : {};
-    const foodId = requestedPlacementFoodId(payload);
-    const entry = foodId ? layouts[foodId] : null;
-    const layout = normalizePlacementLayoutForSavedPreset(entry?.layout);
-    if (!layout) return null;
-    return { foodId, entry, layout };
-  }
-
-  function testLayoutBackupName(now) {
-    return `${TEST_LAYOUT_NAME} backup ${now.replace(/[:.]/g, '-')}`;
-  }
-
   function savedLayoutBackupName(entry, now) {
     const name = collapseText(entry?.name) || 'layout';
-    const base = name.toLowerCase() === TEST_LAYOUT_NAME ? TEST_LAYOUT_NAME : name;
+    const base = savedLayoutNameKey(name) === LEGACY_TEST_LAYOUT_NAME ? LEGACY_TEST_LAYOUT_NAME : name;
     return `${base} backup ${now.replace(/[:.]/g, '-')}`;
   }
 
@@ -933,79 +836,146 @@
     };
   }
 
-  function restoreTestLayoutFromPlacement(doc, { auto = false } = {}) {
-    const win = getFrameWindow();
-    if (!win) return;
-
-    const restored = placementEntryForRestore(win);
-    if (!restored) {
-      const hint = auto
-        ? 'No DBv2/VBv2 placement export found yet'
-        : 'Open the correct VBv2 proof in this browser first';
-      setSavedLayoutMessage(doc, hint, true);
-      return;
-    }
-    const now = new Date().toISOString();
-    const entries = readSavedLayouts(win);
-    const existingIndex = entries.findIndex(entry => collapseText(entry.name).toLowerCase() === TEST_LAYOUT_NAME);
-    const existing = existingIndex >= 0 ? entries[existingIndex] : null;
-    const id = existing?.id || `layout_${TEST_LAYOUT_NAME}_${Date.now().toString(36)}`;
-    const nextEntry = {
-      id,
-      name: TEST_LAYOUT_NAME,
-      createdAt: existing?.createdAt || now,
-      updatedAt: now,
-      selectedSectionId: restored.layout.selectedSectionId,
-      meta: clone(restored.layout.meta || {}),
-      sections: clone(restored.layout.sections)
-    };
-    const backup = existing ? {
-      ...clone(existing),
-      id: `${existing.id || id}_backup_${Date.now().toString(36)}`,
-      name: testLayoutBackupName(now),
-      updatedAt: now
-    } : null;
-
-    const nextEntries = [
-      nextEntry,
-      ...(backup ? [backup] : []),
-      ...entries.filter(entry => entry.id !== nextEntry.id)
-    ];
-    persistSavedLayouts(win, nextEntries);
-
-    const current = currentLayout(doc) || {};
-    const nextLayout = {
-      ...clone(current),
-      selectedFoodId: restored.layout.selectedFoodId || restored.foodId || current.selectedFoodId || 'bacon',
-      selectedSectionId: restored.layout.selectedSectionId || current.selectedSectionId || 'intro',
-      sections: clone(restored.layout.sections),
-      meta: {
-        ...(current.meta || {}),
-        ...(restored.layout.meta || {}),
-        restoredTestLayoutFromPlacement: {
-          source: PLACEMENT_EXPORT_KEY,
-          foodId: restored.foodId,
-          sourceLayoutKey: restored.entry?.sourceLayoutKey || '',
-          sourceLayoutName: restored.entry?.sourceLayoutName || '',
-          restoredAt: now
-        }
-      }
-    };
-
-    applyLayoutJson(doc, nextLayout);
-    renderSavedLayoutSelect(doc, nextEntry.id);
-    const input = doc.getElementById(SAVED_LAYOUT_NAME_ID);
-    if (input && doc.activeElement !== input) input.value = TEST_LAYOUT_NAME;
-    const backupNote = backup ? '; previous test kept as backup' : '';
-    setSavedLayoutMessage(doc, `Restored test from ${restored.foodId || 'DBv2'} placement${backupNote}`);
+  function layoutHasSections(layout) {
+    return !!layout?.sections
+      && typeof layout.sections === 'object'
+      && SECTION_IDS.some(sectionId => Array.isArray(layout.sections?.[sectionId]?.layers));
   }
 
-  function maybeAutoRestoreTestFromPlacement(doc) {
-    if (autoRestoreFromPlacementAttempted) return;
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('restoreTestFromPlacement') !== '1') return;
-    autoRestoreFromPlacementAttempted = true;
-    window.setTimeout(() => restoreTestLayoutFromPlacement(doc, { auto: true }), 0);
+  function normalizedLayoutSnapshot(layout) {
+    if (!layoutHasSections(layout) || isRevokedLayoutSeed(layout)) return null;
+    const sections = {};
+    for (const sectionId of SECTION_IDS) {
+      const layers = Array.isArray(layout.sections?.[sectionId]?.layers) ? layout.sections[sectionId].layers : [];
+      sections[sectionId] = { layers: clone(layers) };
+    }
+    return {
+      selectedFoodId: layout.selectedFoodId || '',
+      selectedSectionId: normalizeDisplaySectionId(layout.selectedSectionId) || 'intro',
+      meta: clone(layout.meta || {}),
+      sections
+    };
+  }
+
+  function sourceLayoutForLockedCopies(doc, entries) {
+    const existingLocked = [...entries]
+      .filter(entry => isLockedLayoutEntry(entry) && layoutHasSections(entry))
+      .sort((a, b) => lockedLayoutIndex(a) - lockedLayoutIndex(b))[0];
+    if (existingLocked) return { source: normalizedLayoutSnapshot(existingLocked), sourceName: existingLocked.name, sourceId: existingLocked.id };
+
+    const current = normalizedLayoutSnapshot(currentLayout(doc));
+    if (current) return { source: current, sourceName: 'current layout builder state', sourceId: LAYOUT_STORAGE_KEY };
+
+    const legacyTest = [...entries]
+      .filter(entry => isLegacyTestLayoutEntry(entry) && !isRevokedLayoutSeed(entry) && layoutHasSections(entry))
+      .sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)) || String(b.id).localeCompare(String(a.id)))[0];
+    if (legacyTest) return { source: normalizedLayoutSnapshot(legacyTest), sourceName: legacyTest.name, sourceId: legacyTest.id };
+
+    const fallback = [...entries]
+      .filter(entry => !isRevokedLayoutSeed(entry) && layoutHasSections(entry))
+      .sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)) || String(b.id).localeCompare(String(a.id)))[0];
+    if (fallback) return { source: normalizedLayoutSnapshot(fallback), sourceName: fallback.name, sourceId: fallback.id };
+
+    return { source: null, sourceName: '', sourceId: '' };
+  }
+
+  function lockedLayoutEntryFromSource(sourceLayout, name, now, existing = null, sourceInfo = {}) {
+    return {
+      id: existing?.id || `layout_${name.replace(/\s+/g, '_')}_${Date.now().toString(36)}`,
+      name,
+      createdAt: existing?.createdAt || now,
+      updatedAt: existing?.updatedAt || now,
+      selectedSectionId: sourceLayout.selectedSectionId || 'intro',
+      meta: {
+        ...(sourceLayout.meta || {}),
+        ...(existing?.meta || {}),
+        lockedLayout: {
+          version: LOCKED_LAYOUT_VERSION,
+          lockedAt: existing?.meta?.lockedLayout?.lockedAt || now,
+          lockedName: name,
+          sourceName: existing?.meta?.lockedLayout?.sourceName || sourceInfo.sourceName || '',
+          sourceId: existing?.meta?.lockedLayout?.sourceId || sourceInfo.sourceId || ''
+        }
+      },
+      sections: clone(sourceLayout.sections)
+    };
+  }
+
+  function backupLayoutLockdown(win, entries, sourceLayout, now) {
+    try {
+      const backupId = `layout_lockdown_backup_${Date.now().toString(36)}`;
+      const primaryKey = uniqueSavedLayoutBackupStorageKey(win, '-lockdown');
+      const secondaryKey = uniqueSavedLayoutBackupStorageKey(win, '-lockdown-copy');
+      const snapshot = {
+        id: backupId,
+        createdAt: now,
+        reason: 'Before locking layout builder copies to test 1 through test 5',
+        layouts: clone(entries),
+        currentLayout: clone(sourceLayout)
+      };
+      win.localStorage.setItem(primaryKey, JSON.stringify(snapshot));
+      win.localStorage.setItem(secondaryKey, JSON.stringify(snapshot));
+      const index = readSavedLayoutBackupIndex(win);
+      index.push({
+        id: backupId,
+        createdAt: now,
+        reason: snapshot.reason,
+        primaryKey,
+        secondaryKey
+      });
+      win.localStorage.setItem(SAVED_LAYOUT_BACKUP_INDEX_KEY, JSON.stringify(index));
+    } catch (error) {
+      console.warn('Could not create layout lockdown backup', error);
+    }
+  }
+
+  function hasCompleteLockedLayoutSet(entries) {
+    return LOCKED_LAYOUT_PRESET_NAMES.every(name => {
+      const entry = entries.find(item => savedLayoutNameKey(item.name) === name);
+      return entry?.sections && entry.meta?.lockedLayout?.version === LOCKED_LAYOUT_VERSION;
+    });
+  }
+
+  function ensureLockedLayoutCopies(doc, entries) {
+    const win = getFrameWindow();
+    if (!win) return entries;
+    const now = new Date().toISOString();
+    const existingLockedByName = new Map(
+      entries
+        .filter(entry => isLockedLayoutEntry(entry) && layoutHasSections(entry))
+        .map(entry => [savedLayoutNameKey(entry.name), entry])
+    );
+    const sourceInfo = sourceLayoutForLockedCopies(doc, entries);
+    if (!sourceInfo.source) {
+      const lockedOnly = sortSavedLayoutEntries(entries.filter(isLockedLayoutEntry));
+      persistSavedLayouts(win, lockedOnly);
+      return lockedOnly;
+    }
+
+    const shouldRewrite = !hasCompleteLockedLayoutSet(entries)
+      || entries.some(entry => !isLockedLayoutEntry(entry))
+      || entries.length !== LOCKED_LAYOUT_PRESET_NAMES.length;
+    if (!shouldRewrite) return sortSavedLayoutEntries(entries.filter(isLockedLayoutEntry));
+
+    backupLayoutLockdown(win, entries, sourceInfo.source, now);
+    const lockedEntries = LOCKED_LAYOUT_PRESET_NAMES.map(name => {
+      const existing = existingLockedByName.get(name);
+      if (existing?.meta?.lockedLayout?.version === LOCKED_LAYOUT_VERSION) return existing;
+      return lockedLayoutEntryFromSource(sourceInfo.source, name, now, existing, sourceInfo);
+    });
+    persistSavedLayouts(win, sortSavedLayoutEntries(lockedEntries));
+    return lockedEntries;
+  }
+
+  function prepareSavedLayoutStorageForBuilder(doc) {
+    const win = getFrameWindow();
+    if (!win) return null;
+    const entries = readSavedLayouts(win);
+    try {
+      win.localStorage.removeItem(FOOD_LAYOUTS_KEY);
+    } catch {}
+    const lockedEntries = ensureLockedLayoutCopies(doc, entries);
+    return sortSavedLayoutEntries(lockedEntries).find(isLockedLayoutEntry) || null;
   }
 
   function setSavedLayoutMessage(doc, message, isError = false) {
@@ -1025,7 +995,7 @@
 
     const heading = stack.querySelector('h2');
     if (heading) heading.textContent = 'Saved layouts';
-    saveButton.textContent = 'Save layout';
+    saveButton.textContent = 'Locked';
 
     if (!doc.getElementById(SAVED_LAYOUT_NAME_ID)) {
       const label = doc.createElement('label');
@@ -1047,29 +1017,18 @@
       input.addEventListener('keydown', event => {
         if (event.key !== 'Enter') return;
         event.preventDefault();
-        saveCurrentLayoutPreset(doc);
+        setSavedLayoutMessage(doc, 'Locked layouts cannot be overwritten', true);
       });
     }
 
-    if (!doc.getElementById(RESTORE_TEST_FROM_PLACEMENT_ID)) {
-      const restoreButton = doc.createElement('button');
-      restoreButton.id = RESTORE_TEST_FROM_PLACEMENT_ID;
-      restoreButton.type = 'button';
-      restoreButton.textContent = 'Restore test from VBv2';
-      deleteButton.insertAdjacentElement('afterend', restoreButton);
-      restoreButton.addEventListener('click', event => {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        restoreTestLayoutFromPlacement(doc);
-      }, true);
-    }
+    doc.getElementById('layoutBuilderRestoreTestFromPlacement')?.remove();
 
     if (!stack.dataset.layoutBuilderSavedLayoutBound) {
       stack.dataset.layoutBuilderSavedLayoutBound = 'true';
       saveButton.addEventListener('click', event => {
         event.preventDefault();
         event.stopImmediatePropagation();
-        saveCurrentLayoutPreset(doc);
+        setSavedLayoutMessage(doc, 'Locked layouts cannot be overwritten', true);
       }, true);
       loadButton.addEventListener('click', event => {
         event.preventDefault();
@@ -1091,15 +1050,12 @@
 
     const canonical = prepareSavedLayoutStorageForBuilder(doc);
     const input = doc.getElementById(SAVED_LAYOUT_NAME_ID);
-    if (input) input.readOnly = false;
-    saveButton.disabled = false;
-    saveButton.textContent = 'Save layout';
+    if (input) input.readOnly = true;
+    saveButton.disabled = true;
+    saveButton.textContent = 'Locked';
     if (canonical) selectedSavedLayoutId = canonical.id;
-    const restoreButton = doc.getElementById(RESTORE_TEST_FROM_PLACEMENT_ID);
-    if (restoreButton) restoreButton.hidden = false;
 
     renderSavedLayoutSelect(doc, canonical?.id || null);
-    maybeAutoRestoreTestFromPlacement(doc);
   }
 
   function renderSavedLayoutSelect(doc, selectedId = null) {
@@ -1125,13 +1081,13 @@
       const saveButton = doc.getElementById('saveSpriteLayout');
       const input = doc.getElementById(SAVED_LAYOUT_NAME_ID);
       if (loadButton) loadButton.disabled = !hasSelection;
-      if (deleteButton) deleteButton.disabled = !hasSelection || isTestLayoutEntry(selectedEntry);
+      if (deleteButton) deleteButton.disabled = !hasSelection || isLockedLayoutEntry(selectedEntry);
       if (saveButton) {
-        saveButton.disabled = false;
-        saveButton.textContent = 'Save layout';
+        saveButton.disabled = true;
+        saveButton.textContent = 'Locked';
       }
       if (input) {
-        input.readOnly = false;
+        input.readOnly = true;
       }
       populateSelectedLayoutName(doc);
       return;
@@ -1161,13 +1117,13 @@
     const saveButton = doc.getElementById('saveSpriteLayout');
     const input = doc.getElementById(SAVED_LAYOUT_NAME_ID);
     if (loadButton) loadButton.disabled = !hasSelection;
-    if (deleteButton) deleteButton.disabled = !hasSelection || isTestLayoutEntry(selectedEntry);
+    if (deleteButton) deleteButton.disabled = !hasSelection || isLockedLayoutEntry(selectedEntry);
     if (saveButton) {
-      saveButton.disabled = false;
-      saveButton.textContent = 'Save layout';
+      saveButton.disabled = true;
+      saveButton.textContent = 'Locked';
     }
     if (input) {
-      input.readOnly = false;
+      input.readOnly = true;
     }
     select.dataset.layoutBuilderSignature = `${signature}|${select.value}`;
     populateSelectedLayoutName(doc);
@@ -1185,48 +1141,10 @@
   }
 
   function saveCurrentLayoutPreset(doc) {
-    const win = getFrameWindow();
-    const input = doc.getElementById(SAVED_LAYOUT_NAME_ID);
     const select = doc.getElementById('savedLayoutSelect');
-    const layout = currentLayout(doc);
-    if (!win || !input || !select || !layout?.sections) return;
-
-    const name = collapseText(input.value);
-    if (!name) {
-      setSavedLayoutMessage(doc, 'Enter a layout name', true);
-      input.focus();
-      return;
-    }
-
-    const now = new Date().toISOString();
-    const entries = readSavedLayouts(win);
-    const selectedId = select.value;
-    let existingIndex = entries.findIndex(entry => entry.id === selectedId);
-    if (existingIndex < 0) {
-      const normalizedName = name.toLowerCase();
-      existingIndex = entries.findIndex(entry => collapseText(entry.name).toLowerCase() === normalizedName);
-    }
-    const existing = existingIndex >= 0 ? entries[existingIndex] : null;
-    const id = existing?.id || `layout_${Date.now().toString(36)}`;
-    const backupInfo = existing ? backupSavedLayoutBeforeReplace(win, existing, now) : null;
-    const backup = existing ? backupSavedLayoutEntry(existing, now, backupInfo) : null;
-    const entry = {
-      id,
-      name,
-      createdAt: existing?.createdAt || now,
-      updatedAt: now,
-      selectedSectionId: layout.selectedSectionId || 'intro',
-      meta: clone(layout.meta || {}),
-      sections: clone(layout.sections)
-    };
-
-    if (existingIndex >= 0) entries[existingIndex] = entry;
-    else entries.push(entry);
-    if (backup) entries.push(backup);
-
-    persistSavedLayouts(win, entries);
-    renderSavedLayoutSelect(doc, id);
-    setSavedLayoutMessage(doc, backup ? 'Layout saved; previous copy backed up' : 'Layout saved');
+    setSavedLayoutMessage(doc, 'Locked layouts cannot be overwritten', true);
+    renderSavedLayoutSelect(doc, select?.value || selectedSavedLayoutId);
+    return;
   }
 
   function loadSelectedLayoutPreset(doc) {
@@ -1261,9 +1179,9 @@
     }
 
     const selectedEntry = readSavedLayouts(win).find(entry => entry.id === select.value);
-    if (isTestLayoutEntry(selectedEntry)) {
+    if (isLockedLayoutEntry(selectedEntry)) {
       renderSavedLayoutSelect(doc, selectedEntry.id);
-      setSavedLayoutMessage(doc, 'Test layout is protected from deletion', true);
+      setSavedLayoutMessage(doc, 'Locked layout copies are protected from deletion', true);
       return;
     }
 

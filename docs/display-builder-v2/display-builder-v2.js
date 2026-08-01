@@ -24,8 +24,8 @@
   const LAYOUT_BUILDER_WORKING_KEY = 'foodranked-layout-builder-v4';
   const LAYOUT_BUILDER_FOOD_LAYOUTS_KEY = 'foodranked-layout-builder-food-layouts-v1';
   const LAYOUT_BUILDER_SAVED_KEY = 'foodranked-layout-builder-sprite-layouts-v1';
-  const PREFERRED_SAVED_LAYOUT_NAME = 'test';
-  const RECOVERED_TEST_BACKUP_META_KEY = 'layoutBuilderRecoveredTestBackupV1';
+  const LOCKED_LAYOUT_PRESET_NAMES = ['test 1', 'test 2', 'test 3', 'test 4', 'test 5'];
+  const LOCKED_LAYOUT_PRESET_NAME_SET = new Set(LOCKED_LAYOUT_PRESET_NAMES);
   const REVOKED_LAYOUT_SEED_VERSIONS = new Set(['20260801-current-builder-layout-v1']);
   const REVOKED_LAYOUT_SEED_SOURCES = new Set(['docs/layout-builder/canonical-test-layout.js']);
   const REVOKED_LAYOUT_SEED_IDS = new Set(['layout_test_current_builder_20260801']);
@@ -33,8 +33,8 @@
   const PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const PLACEMENT_EXPORT_LIMIT = 60;
   const PAGE_URL_PARAMS = new URLSearchParams(window.location.search);
-  const DISPLAY_BUILDER_V2_BUILD_ID = PAGE_URL_PARAMS.get('build') || '20260801-restore-locked-test-v1';
-  const DATA_CACHE_BUST = '20260801-restore-locked-test-v1';
+  const DISPLAY_BUILDER_V2_BUILD_ID = PAGE_URL_PARAMS.get('build') || '20260801-layout-lockdown-v1';
+  const DATA_CACHE_BUST = '20260801-layout-lockdown-v1';
   const SECTION_INDICATOR_LAYOUT = window.FOODRANKED_DISPLAY_SCHEMA?.sectionIndicatorLayout || {
     startX: 33.347,
     y: 138.444,
@@ -384,20 +384,27 @@
     return String(value || '').trim().replace(/\s+/g, ' ').toLowerCase();
   }
 
+  function isLockedSavedLayoutEntry(entry) {
+    return LOCKED_LAYOUT_PRESET_NAME_SET.has(savedLayoutNameKey(entry?.name));
+  }
+
+  function lockedSavedLayoutSortIndex(entry) {
+    const index = LOCKED_LAYOUT_PRESET_NAMES.indexOf(savedLayoutNameKey(entry?.name));
+    return index >= 0 ? index : Number.POSITIVE_INFINITY;
+  }
+
   function readSavedLayoutEntries() {
     const savedRaw = parseStorageJson(LAYOUT_BUILDER_SAVED_KEY, []);
     const entries = Array.isArray(savedRaw) ? savedRaw : Object.values(savedRaw || {});
-    let kept = entries.filter(entry => !isRevokedLayoutSeed(entry));
-    const recovered = recoveredPreferredSavedLayoutEntryFromBackup(kept);
-    if (recovered) {
-      kept = [recovered, ...kept.filter(entry => entry?.id !== recovered.meta?.[RECOVERED_TEST_BACKUP_META_KEY]?.restoredFromId)];
-    }
-    if (kept.length !== entries.length || recovered) {
-      if (kept.length) localStorage.setItem(LAYOUT_BUILDER_SAVED_KEY, JSON.stringify(kept));
+    const kept = entries.filter(entry => !isRevokedLayoutSeed(entry));
+    const locked = kept.filter(isLockedSavedLayoutEntry);
+    const next = locked.length ? locked : [];
+    if (next.length !== entries.length || kept.length !== entries.length) {
+      if (next.length) localStorage.setItem(LAYOUT_BUILDER_SAVED_KEY, JSON.stringify(next));
       else localStorage.removeItem(LAYOUT_BUILDER_SAVED_KEY);
       localStorage.removeItem(LAYOUT_BUILDER_FOOD_LAYOUTS_KEY);
     }
-    return kept;
+    return next.sort((a, b) => lockedSavedLayoutSortIndex(a) - lockedSavedLayoutSortIndex(b));
   }
 
   function isRevokedLayoutSeed(value) {
@@ -410,53 +417,12 @@
       || REVOKED_LAYOUT_SEED_SOURCES.has(String(sourcePlacementMeta.canonicalLayoutSource || ''));
   }
 
-  function isRecoverableTestBackupLayoutEntry(entry) {
-    const name = savedLayoutNameKey(entry?.name);
-    return name.startsWith(`${PREFERRED_SAVED_LAYOUT_NAME} backup`) && !isRevokedLayoutSeed(entry);
-  }
-
-  function latestRecoverableTestBackupLayoutEntry(entries) {
-    return [...entries]
-      .filter(isRecoverableTestBackupLayoutEntry)
-      .sort((a, b) => String(b.updatedAt || b.createdAt || '').localeCompare(String(a.updatedAt || a.createdAt || '')) || String(b.id || '').localeCompare(String(a.id || '')))[0] || null;
-  }
-
-  function recoveredPreferredSavedLayoutEntryFromBackup(entries) {
-    if (entries.some(entry => savedLayoutNameKey(entry?.name) === PREFERRED_SAVED_LAYOUT_NAME)) return null;
-    const backup = latestRecoverableTestBackupLayoutEntry(entries);
-    if (!backup) return null;
-    const now = new Date().toISOString();
-    return {
-      ...LOGIC.clone(backup),
-      id: `layout_${PREFERRED_SAVED_LAYOUT_NAME}_recovered_${Date.now().toString(36)}`,
-      name: PREFERRED_SAVED_LAYOUT_NAME,
-      updatedAt: now,
-      meta: {
-        ...(backup.meta || {}),
-        [RECOVERED_TEST_BACKUP_META_KEY]: {
-          restoredFromId: backup.id || '',
-          restoredFromName: backup.name || '',
-          restoredAt: now
-        }
-      }
-    };
-  }
-
-  function preferredSavedLayoutEntry(entries) {
-    return [...entries]
-      .filter(entry => savedLayoutNameKey(entry?.name) === PREFERRED_SAVED_LAYOUT_NAME)
-      .sort((a, b) => String(b.updatedAt || b.createdAt || '').localeCompare(String(a.updatedAt || a.createdAt || '')) || String(a.id || '').localeCompare(String(b.id || '')))[0] || null;
-  }
-
-  function pruneLayoutBuilderStorageToPreferredSavedLayout(entry) {
-    if (!entry) return;
-    localStorage.setItem(LAYOUT_BUILDER_SAVED_KEY, JSON.stringify([entry]));
+  function pruneLayoutBuilderStorageToLockedSavedLayouts(entries) {
+    const locked = [...entries].filter(isLockedSavedLayoutEntry)
+      .sort((a, b) => lockedSavedLayoutSortIndex(a) - lockedSavedLayoutSortIndex(b));
+    if (!locked.length) return;
+    localStorage.setItem(LAYOUT_BUILDER_SAVED_KEY, JSON.stringify(locked));
     localStorage.removeItem(LAYOUT_BUILDER_FOOD_LAYOUTS_KEY);
-  }
-
-  function readFoodLayoutMap() {
-    const parsed = parseStorageJson(LAYOUT_BUILDER_FOOD_LAYOUTS_KEY, {});
-    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
   }
 
   function layoutBuilderWorkingOption() {
@@ -478,7 +444,7 @@
 
   function isPreferredSavedLayoutOption(option) {
     return /^saved:/.test(String(option?.key || ''))
-      && String(option?.name || '').trim().toLowerCase() === PREFERRED_SAVED_LAYOUT_NAME;
+      && LOCKED_LAYOUT_PRESET_NAME_SET.has(savedLayoutNameKey(option?.name));
   }
 
   function isHeaderFoodImageLayer(layer) {
@@ -607,16 +573,10 @@
   }
 
   function layoutBuilderFoodImagePlacementTemplate(foodId = state.selectedFoodId, preferredLayout = null) {
-    const foodLayoutMap = readFoodLayoutMap();
     const candidates = [];
     addLayoutGuideCandidate(candidates, preferredLayout);
     const workingLayout = parseStorageJson(LAYOUT_BUILDER_WORKING_KEY, null);
     addLayoutGuideCandidate(candidates, workingLayout);
-    addLayoutGuideCandidate(candidates, foodLayoutMap[foodId]);
-    for (const [candidateFoodId, layout] of Object.entries(foodLayoutMap)) {
-      if (candidateFoodId === foodId) continue;
-      addLayoutGuideCandidate(candidates, layout);
-    }
     for (const layout of candidates) {
       const placement = foodImagePlacementTemplateFromLayout(layout);
       if (placement) return placement;
@@ -672,12 +632,6 @@
     addLayoutGuideCandidate(candidates, preferredLayout);
     const workingOption = layoutBuilderWorkingOption();
     addLayoutGuideCandidate(candidates, workingOption?.layout);
-    const foodLayoutMap = readFoodLayoutMap();
-    addLayoutGuideCandidate(candidates, foodLayoutMap[foodId]);
-    for (const [candidateFoodId, layout] of Object.entries(foodLayoutMap)) {
-      if (candidateFoodId === foodId) continue;
-      addLayoutGuideCandidate(candidates, layout);
-    }
     return candidates;
   }
 
@@ -725,27 +679,6 @@
     return changed;
   }
 
-  function normalizeFoodLayoutOption(foodId, layout) {
-    if (!foodId || !validLayout(layout)) return null;
-    const food = state.foods.find(item => item.id === foodId);
-    const clonedLayout = normalizeLayoutSections(LOGIC.clone(layout));
-    return {
-      key: `food:${foodId}`,
-      id: `food-layout:${foodId}`,
-      name: `${food?.name || foodId} food layout`,
-      kind: 'layout-builder food layout',
-      updatedAt: clonedLayout.meta?.updatedAt || clonedLayout.updatedAt || '',
-      layout: {
-        ...clonedLayout,
-        meta: {
-          ...(clonedLayout.meta || {}),
-          source: LAYOUT_BUILDER_FOOD_LAYOUTS_KEY,
-          foodId
-        }
-      }
-    };
-  }
-
   function refreshLayoutOptions({ keepSelection = true } = {}) {
     const previousKey = keepSelection ? state.selectedLayoutKey : '';
     const options = [];
@@ -753,24 +686,19 @@
     const savedOptions = savedEntries
       .map(normalizeSavedPreset)
       .filter(Boolean)
-      .sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)) || a.name.localeCompare(b.name));
+      .sort((a, b) => lockedSavedLayoutSortIndex(a) - lockedSavedLayoutSortIndex(b));
     const preferredSaved = savedOptions.find(isPreferredSavedLayoutOption);
     if (preferredSaved) {
-      pruneLayoutBuilderStorageToPreferredSavedLayout(preferredSavedLayoutEntry(savedEntries));
-      state.layoutOptions = [preferredSaved].filter(option => countDisplayLayers(option.layout) > 0);
-      state.selectedLayoutKey = state.layoutOptions[0]?.key || '';
+      pruneLayoutBuilderStorageToLockedSavedLayouts(savedEntries);
+      state.layoutOptions = savedOptions.filter(option => countDisplayLayers(option.layout) > 0);
+      const previousStillAvailable = previousKey && state.layoutOptions.some(option => option.key === previousKey);
+      state.selectedLayoutKey = previousStillAvailable ? previousKey : preferredSaved.key;
       renderLayoutSelect();
       return;
     }
 
     const working = layoutBuilderWorkingOption();
     if (working) options.push(working);
-
-    const foodLayoutOption = normalizeFoodLayoutOption(
-      state.selectedFoodId,
-      readFoodLayoutMap()[state.selectedFoodId]
-    );
-    if (foodLayoutOption) options.push(foodLayoutOption);
 
     savedOptions.forEach(option => options.push(option));
     state.layoutOptions = options.filter(option => countDisplayLayers(option.layout) > 0);
@@ -809,7 +737,7 @@
     els.layoutSelect.value = state.selectedLayoutKey;
     const selected = selectedLayoutOption();
     els.layoutStatus.textContent = selected
-      ? `${isPreferredSavedLayoutOption(selected) ? 'Canonical test layout locked' : selected.kind}; ${countDisplayLayers(selected.layout)} display-section layers available.`
+      ? `${isPreferredSavedLayoutOption(selected) ? 'Locked layout-builder copy' : selected.kind}; ${countDisplayLayers(selected.layout)} display-section layers available.`
       : '';
     els.layoutStatus.classList.remove('warn');
   }

@@ -1206,7 +1206,7 @@
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     if (APP_MODE === 'layout-builder') document.body.classList.add('layout-builder-mode');
     const BUILDER_BUILD_ID = APP_MODE === 'layout-builder'
-      ? '20260801-macro-bar-fat-icon-scale-v1'
+      ? '20260801-indicators-arrows-v1'
       : '20260731-vbv2-helper-render-parity-v1';
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
     const SECTIONS = [
@@ -1233,9 +1233,10 @@
     const FOOD_LAYOUTS_STORAGE_KEY = `${STORAGE_PREFIX}-food-layouts-v1`;
     const SAVED_SPRITE_LAYOUTS_KEY = `${STORAGE_PREFIX}-sprite-layouts-v1`;
     const MACRO_SECTION_LAYOUT_SYNC_KEY = 'macroSectionLayoutFromFatsV6';
-    const MACRO_ARROW_PLACEMENT_SYNC_KEY = 'macroArrowPlacementFromFatsV2';
+    const MACRO_ARROW_PLACEMENT_SYNC_KEY = 'macroArrowPlacementFromFatsV3';
     const HEADER_LAYOUT_SYNC_KEY = 'headerLayoutFromFatsV1';
     const INTRO_HEADER_UI_SPRITE_SYNC_KEY = 'introHeaderUiSpriteLayoutFromIntroV3';
+    const SECTION_INDICATOR_NUDGE_SYNC_KEY = 'sectionIndicatorDownOneNudgeV1';
     const MACRO_BAR_PLACEMENT_SOURCE_FOOD_ID = 'bacon';
     const MACRO_BAR_PLACEMENT_SOURCE_SECTION_ID = 'fats';
     const MACRO_BAR_PLACEMENT_SECTIONS = ['fats', 'carbs', 'protein'];
@@ -2315,6 +2316,23 @@
         cloned.foodDriven = false;
       }
       return cloned;
+    }
+
+    function nudgeLayoutBuilderSectionIndicatorsDown(layout) {
+      if (APP_MODE !== 'layout-builder' || !layout?.sections) return false;
+      layout.meta = layout.meta || {};
+      if (layout.meta[SECTION_INDICATOR_NUDGE_SYNC_KEY]) return false;
+
+      let changed = false;
+      for (const section of SECTIONS) {
+        for (const layer of getSectionLayersFromLayout(layout, section.id)) {
+          if (!isSectionIndicatorSpriteLayer(layer)) continue;
+          layer.y = asNumber(layer.y, 0) + 1;
+          changed = true;
+        }
+      }
+      layout.meta[SECTION_INDICATOR_NUDGE_SYNC_KEY] = true;
+      return changed;
     }
 
     function syncIntroHeaderUiSpritesToAllSections(layout) {
@@ -4188,6 +4206,7 @@
       if (APP_MODE === 'layout-builder') {
         syncMacroSectionLayoutFromFats(normalized);
         syncMacroArrowPlacementFromFats(normalized);
+        nudgeLayoutBuilderSectionIndicatorsDown(normalized);
         syncIntroHeaderUiSpritesToAllSections(normalized);
       }
       syncLockedGlobalLayersFromOutro(normalized);

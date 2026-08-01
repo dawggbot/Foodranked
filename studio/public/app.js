@@ -1,15 +1,34 @@
 (function () {
-  const PRODUCTION_DATABASE_KEY = 'foodranked-production-database-v1';
-  const PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
-  const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const PLACEMENT_EXPORT_TIMEOUT_MS = 25000;
-  const PLACEMENT_EXPORT_POLL_MS = 250;
-  const STORAGE_KEYS = [
-    PRODUCTION_DATABASE_KEY,
-    'foodranked-display-builder-v2-state-v1',
-    PLACEMENT_EXPORT_KEY,
-    VIDEO_STATE_KEY
+  const STORAGE = Object.freeze({
+    productionDatabase: 'foodranked-production-database-v1',
+    layoutWorking: 'foodranked-layout-builder-v4',
+    layoutFoodLayouts: 'foodranked-layout-builder-food-layouts-v1',
+    layoutSavedLayouts: 'foodranked-layout-builder-sprite-layouts-v1',
+    dbv2State: 'foodranked-display-builder-v2-state-v1',
+    dbv2Placement: 'foodranked-display-builder-v2-placement-layouts-v1',
+    vbv2State: 'foodranked-video-builder-v2-state-v1'
+  });
+  const LAYOUT_STATE_KEYS = [STORAGE.layoutWorking, STORAGE.layoutFoodLayouts, STORAGE.layoutSavedLayouts];
+  const BACKUP_STORAGE_KEYS = [
+    STORAGE.productionDatabase,
+    ...LAYOUT_STATE_KEYS,
+    STORAGE.dbv2State,
+    STORAGE.dbv2Placement,
+    STORAGE.vbv2State
   ];
+  const STALE_LAYOUT_KEYS = [
+    'foodranked-display-builder-v4',
+    'foodranked-display-builder-food-layouts-v1',
+    'foodranked-display-builder-sprite-layouts-v1',
+    'foodranked-display-builder-state-v1',
+    'foodranked-display-builder-test-v1',
+    'foodranked-video-builder-v1',
+    'foodranked-video-builder-state-v1',
+    'foodranked-layout-builder-v3',
+    'foodranked-layout-builder-sprite-layouts'
+  ];
+  const PLACEMENT_EXPORT_TIMEOUT_MS = 30000;
+  const PLACEMENT_EXPORT_POLL_MS = 250;
 
   const els = {
     foodSearch: document.getElementById('foodSearch'),
@@ -19,8 +38,11 @@
     activeFoodType: document.getElementById('activeFoodType'),
     activeTitle: document.getElementById('activeTitle'),
     openTool: document.getElementById('openTool'),
+    clearWrongLayouts: document.getElementById('clearWrongLayouts'),
     downloadBackup: document.getElementById('downloadBackup'),
     dashboard: document.getElementById('dashboard'),
+    layoutStatePill: document.getElementById('layoutStatePill'),
+    layoutState: document.getElementById('layoutState'),
     inputPanel: document.getElementById('inputPanel'),
     toolFrameShell: document.getElementById('toolFrameShell'),
     toolFrame: document.getElementById('toolFrame'),
@@ -87,16 +109,16 @@
     return new Promise(resolve => window.setTimeout(resolve, ms));
   }
 
-  function safeFileStem(value) {
-    return String(value || 'foodranked-video')
+  function safeSlug(value, fallback = '') {
+    return String(value || fallback)
       .trim()
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '') || 'foodranked-video';
+      .replace(/^-+|-+$/g, '');
   }
 
   function videoFileName(food) {
-    return `${safeFileStem(food?.id || food?.name)}-vbv2.mp4`;
+    return `${safeSlug(food?.id || food?.name, 'foodranked-video')}-vbv2.mp4`;
   }
 
   function readJsonStorage(key, fallback) {
@@ -134,13 +156,14 @@
     return (state.health?.tools || []).find(tool => tool.id === state.activeToolId) || null;
   }
 
-  function toolUrl(tool) {
-    const food = selectedFood();
+  function toolUrl(tool, food = selectedFood()) {
     const foodId = encodeURIComponent(food?.id || state.selectedFoodId || 'bacon');
+    const bust = Date.now();
     if (!tool) return '';
-    if (tool.id === 'display') return `${tool.path}?videoBuilderExportFood=${foodId}&app=studio&t=${Date.now()}`;
-    if (tool.id === 'video') return `${tool.path}?food=${foodId}&app=studio&t=${Date.now()}`;
-    return `${tool.path}?app=studio&t=${Date.now()}`;
+    if (tool.id === 'layout') return `${tool.path}?food=${foodId}&app=studio&t=${bust}`;
+    if (tool.id === 'display') return `${tool.path}?videoBuilderExportFood=${foodId}&app=studio&t=${bust}`;
+    if (tool.id === 'video') return `${tool.path}?food=${foodId}&app=studio&t=${bust}`;
+    return `${tool.path}?app=studio&t=${bust}`;
   }
 
   function setRenderText(message, lines = []) {
@@ -151,6 +174,64 @@
   function setInputText(message, lines = []) {
     els.inputSyncState.textContent = message || 'Synced';
     els.inputLog.textContent = lines.filter(Boolean).join('\n');
+  }
+
+  function countLayoutLayers(layout) {
+    if (!layout?.sections || typeof layout.sections !== 'object') return 0;
+    return Object.values(layout.sections)
+      .reduce((total, section) => total + (Array.isArray(section?.layers) ? section.layers.length : 0), 0);
+  }
+
+  function readSavedLayoutEntries() {
+    const parsed = readJsonStorage(STORAGE.layoutSavedLayouts, []);
+    return (Array.isArray(parsed) ? parsed : Object.values(parsed || {}))
+      .filter(entry => entry && entry.id && entry.sections && typeof entry.sections === 'object');
+  }
+
+  function canonicalTestLayout() {
+    return readSavedLayoutEntries()
+      .filter(entry => clean(entry.name).toLowerCase() === 'test')
+      .sort((a, b) => String(b.updatedAt || b.createdAt || '').localeCompare(String(a.updatedAt || a.createdAt || '')))
+      [0] || null;
+  }
+
+  function currentLayoutSummary(food = selectedFood()) {
+    const working = readJsonStorage(STORAGE.layoutWorking, null);
+    const foodLayouts = readJsonStorage(STORAGE.layoutFoodLayouts, {});
+    const saved = readSavedLayoutEntries();
+    const test = canonicalTestLayout();
+    const placement = placementEntryForFood(food);
+    const staleKeys = STALE_LAYOUT_KEYS.filter(key => localStorage.getItem(key) != null);
+    return {
+      workingLayers: countLayoutLayers(working),
+      savedCount: saved.length,
+      savedNames: saved.map(entry => clean(entry.name) || entry.id).filter(Boolean),
+      test,
+      testLayers: countLayoutLayers(test ? { sections: test.sections } : null),
+      foodLayoutCount: foodLayouts && typeof foodLayouts === 'object' && !Array.isArray(foodLayouts) ? Object.keys(foodLayouts).length : 0,
+      selectedFoodLayout: Boolean(food?.id && foodLayouts?.[food.id]),
+      placement,
+      staleKeys,
+      renderReady: Boolean(test && countLayoutLayers({ sections: test.sections }) > 0)
+    };
+  }
+
+  function renderLayoutState() {
+    const summary = currentLayoutSummary();
+    els.layoutStatePill.textContent = summary.renderReady ? 'Ready' : 'Needs test layout';
+    els.layoutStatePill.className = summary.renderReady ? 'good' : 'warn';
+    const placement = summary.placement;
+    const rows = [
+      ['Canonical test layout', summary.test ? `${summary.testLayers} layers` : 'Missing'],
+      ['Saved layouts', summary.savedNames.length ? summary.savedNames.join(', ') : 'None'],
+      ['Working layout', summary.workingLayers ? `${summary.workingLayers} layers` : 'None'],
+      ['Food layouts', `${summary.foodLayoutCount}${summary.selectedFoodLayout ? ' - selected food present' : ''}`],
+      ['DBv2 placement', placement ? `${placement.sourceLayoutName || placement.sourceLayoutKey || 'DBv2'} @ ${placement.exportedAt || 'unknown time'}` : 'Will rebuild fresh'],
+      ['Stale old keys', summary.staleKeys.length ? summary.staleKeys.join(', ') : 'None']
+    ];
+    els.layoutState.innerHTML = rows.map(([label, value]) => (
+      `<dt>${escapeHtml(label)}</dt><dd class="${value === 'Missing' ? 'warn' : ''}">${escapeHtml(value)}</dd>`
+    )).join('');
   }
 
   function renderSystemStatus() {
@@ -165,7 +246,7 @@
       ['Mode', 'Local', 'ok']
     ];
     els.systemStatus.innerHTML = rows.map(([label, value, tone]) => (
-      `<dt>${label}</dt><dd class="${tone}">${value}</dd>`
+      `<dt>${escapeHtml(label)}</dt><dd class="${tone}">${escapeHtml(value)}</dd>`
     )).join('');
   }
 
@@ -226,10 +307,16 @@
     )).join('') || '<div class="food-empty">No matching foods</div>';
   }
 
+  function orderedTools() {
+    const tools = state.health?.tools || [];
+    const order = ['layout', 'display', 'video', 'database'];
+    return [...tools].sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
+  }
+
   function renderToolNav() {
-    const tools = [{ id: 'dashboard', label: 'Dashboard' }, { id: 'input', label: 'Input' }, ...(state.health?.tools || [])];
+    const tools = [{ id: 'dashboard', label: 'Dashboard' }, { id: 'input', label: 'Input' }, ...orderedTools()];
     els.toolNav.innerHTML = tools.map(tool => (
-      `<button type="button" data-tool-id="${tool.id}" aria-current="${tool.id === state.activeToolId ? 'page' : 'false'}">${tool.label}</button>`
+      `<button type="button" data-tool-id="${tool.id}" aria-current="${tool.id === state.activeToolId ? 'page' : 'false'}">${escapeHtml(tool.label)}</button>`
     )).join('');
   }
 
@@ -282,7 +369,14 @@
     els.activeFoodType.textContent = food ? `${food.foodTypeLabel || food.foodType || 'Food'} ${food.tier ? `- ${food.tier} tier` : ''}` : 'Ready';
     els.activeTitle.textContent = onDashboard ? 'Dashboard' : onInput ? 'Input' : `${tool?.label || 'Tool'} - ${food?.name || 'Food'}`;
     els.openTool.disabled = onDashboard || onInput || !tool;
-    if (!onDashboard && !onInput && tool) els.toolFrame.src = toolUrl(tool);
+
+    if (!onDashboard && !onInput && tool) {
+      const frameKey = `${tool.id}:${food?.id || state.selectedFoodId}`;
+      if (els.toolFrame.dataset.frameKey !== frameKey) {
+        els.toolFrame.dataset.frameKey = frameKey;
+        els.toolFrame.src = toolUrl(tool, food);
+      }
+    }
   }
 
   function renderAll() {
@@ -290,6 +384,7 @@
     renderFoodSearch();
     renderToolNav();
     renderMetrics();
+    renderLayoutState();
     renderInputPanel();
     renderWorkspace();
   }
@@ -301,13 +396,30 @@
     }).catch(error => setRenderText('State save failed', [error.message]));
   }
 
-  function clientStorageSnapshot() {
+  function clientStorageSnapshot(keys = BACKUP_STORAGE_KEYS) {
     const snapshot = {};
-    for (const key of STORAGE_KEYS) {
+    for (const key of keys) {
       const value = localStorage.getItem(key);
       if (value != null) snapshot[key] = value;
     }
     return snapshot;
+  }
+
+  function clearWrongLayoutCaches({ report = false } = {}) {
+    const removed = [];
+    for (const key of STALE_LAYOUT_KEYS) {
+      if (localStorage.getItem(key) == null) continue;
+      localStorage.removeItem(key);
+      removed.push(key);
+    }
+    if (localStorage.getItem(STORAGE.dbv2Placement) != null) {
+      localStorage.removeItem(STORAGE.dbv2Placement);
+      removed.push(STORAGE.dbv2Placement);
+    }
+    if (report) {
+      setRenderText('Stale layout caches cleared', removed.length ? removed : ['No stale layout caches were present.']);
+    }
+    return removed;
   }
 
   function downloadJson(name, payload) {
@@ -325,6 +437,7 @@
   async function downloadBackup() {
     const backup = await api('/api/backups/export');
     backup.browserLocalStorage = clientStorageSnapshot();
+    backup.layoutStateSummary = currentLayoutSummary();
     downloadJson(`foodranked-studio-backup-${new Date().toISOString().slice(0, 10)}.json`, backup);
   }
 
@@ -334,7 +447,7 @@
 
   function mergeInputDatabaseIntoBrowser(database) {
     if (!inputDatabaseHasRecords(database)) return;
-    const local = readJsonStorage(PRODUCTION_DATABASE_KEY, {});
+    const local = readJsonStorage(STORAGE.productionDatabase, {});
     const merged = {
       ...(local && typeof local === 'object' ? local : {}),
       schemaVersion: database.schemaVersion || 'foodranked-production-database.v1',
@@ -351,7 +464,7 @@
         ...(database.foods || {})
       }
     };
-    writeJsonStorage(PRODUCTION_DATABASE_KEY, merged);
+    writeJsonStorage(STORAGE.productionDatabase, merged);
   }
 
   async function loadInputDatabase() {
@@ -435,7 +548,7 @@
   }
 
   function entryPayloadFromForm() {
-    const id = safeFileStem(els.entryFoodId.value);
+    const id = safeSlug(els.entryFoodId.value);
     if (!id) throw new Error('Food ID is required.');
     const kcal = numberOrNull(els.entryKcal.value);
     const overallScore = numberOrNull(els.entryOverallScore.value);
@@ -443,7 +556,7 @@
       id,
       name: clean(els.entryName.value) || id.replace(/-/g, ' '),
       displayName: clean(els.entryDisplayName.value),
-      foodType: safeFileStem(els.entryFoodType.value) || 'misc',
+      foodType: safeSlug(els.entryFoodType.value, 'misc') || 'misc',
       foodTypeLabel: clean(els.entryFoodTypeLabel.value),
       tier: clean(els.entryTier.value),
       kcal,
@@ -503,7 +616,7 @@
       setInputText('Upload failed', ['Choose a file first.']);
       return;
     }
-    const foodId = safeFileStem(els.uploadFoodId.value || state.selectedFoodId);
+    const foodId = safeSlug(els.uploadFoodId.value || state.selectedFoodId);
     try {
       els.uploadAsset.disabled = true;
       setInputText('Uploading', [file.name]);
@@ -537,17 +650,45 @@
     }
   }
 
-  function placementForFood(food) {
-    const payload = readJsonStorage(PLACEMENT_EXPORT_KEY, null);
-    if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return null;
-    const foodId = food?.id || state.selectedFoodId;
-    return payload.layouts?.[foodId]?.layout ? payload : null;
+  function readPlacementExport() {
+    const payload = readJsonStorage(STORAGE.dbv2Placement, {});
+    return payload && typeof payload === 'object' && !Array.isArray(payload) ? payload : {};
   }
 
-  async function waitForPlacementExport(food, timeoutMs = PLACEMENT_EXPORT_TIMEOUT_MS) {
+  function placementEntryForFood(food = selectedFood()) {
+    const foodId = food?.id || state.selectedFoodId;
+    return readPlacementExport().layouts?.[foodId] || null;
+  }
+
+  function placementForFood(food = selectedFood(), { minExportedAt = 0 } = {}) {
+    const entry = placementEntryForFood(food);
+    if (!entry?.layout) return null;
+    const exportedAt = Date.parse(entry.exportedAt || entry.layout?.meta?.exportedAt || '');
+    if (minExportedAt && (!Number.isFinite(exportedAt) || exportedAt < minExportedAt)) return null;
+    return readPlacementExport();
+  }
+
+  function clearPlacementForFood(foodId) {
+    const payload = readPlacementExport();
+    if (!payload.layouts || typeof payload.layouts !== 'object') {
+      localStorage.removeItem(STORAGE.dbv2Placement);
+      return;
+    }
+    delete payload.layouts[foodId];
+    const remaining = Object.keys(payload.layouts);
+    if (!remaining.length) {
+      localStorage.removeItem(STORAGE.dbv2Placement);
+      return;
+    }
+    payload.currentFoodId = remaining.includes(payload.currentFoodId) ? payload.currentFoodId : remaining[0];
+    payload.updatedAt = new Date().toISOString();
+    writeJsonStorage(STORAGE.dbv2Placement, payload);
+  }
+
+  async function waitForPlacementExport(food, minExportedAt, timeoutMs = PLACEMENT_EXPORT_TIMEOUT_MS) {
     const startedAt = performance.now();
     while (performance.now() - startedAt < timeoutMs) {
-      const placement = placementForFood(food);
+      const placement = placementForFood(food, { minExportedAt });
       if (placement) return placement;
       await delay(PLACEMENT_EXPORT_POLL_MS);
     }
@@ -556,8 +697,8 @@
 
   function createPlacementFrame(food) {
     const frame = document.createElement('iframe');
-    frame.title = 'DBv2 placement exporter';
-    frame.src = `/docs/display-builder-v2/index.html?videoBuilderExportFood=${encodeURIComponent(food.id)}&app=studio-render&t=${Date.now()}`;
+    frame.title = 'DBv2 fresh placement exporter';
+    frame.src = `/docs/display-builder-v2/index.html?videoBuilderExportFood=${encodeURIComponent(food.id)}&app=studio-render-current&t=${Date.now()}`;
     frame.style.position = 'fixed';
     frame.style.left = '-10000px';
     frame.style.top = '0';
@@ -570,18 +711,27 @@
     return frame;
   }
 
-  async function ensurePlacementForFood(food) {
-    const current = placementForFood(food);
-    if (current) return current;
+  async function ensureFreshPlacementForFood(food) {
+    const summary = currentLayoutSummary(food);
+    if (!summary.renderReady) {
+      throw new Error('Current Layout Builder saved layout named test is missing. Open Layout Builder in this app and save/import the current layout as test before rendering.');
+    }
 
-    setRenderText('Preparing DBv2 placement', ['Rendering the selected food layout offscreen...']);
+    clearPlacementForFood(food.id);
+    const minExportedAt = Date.now() - 1000;
+    setRenderText('Preparing fresh DBv2 placement', ['Cleared old DBv2 placement export.', 'Rendering DBv2 from the current Layout Builder test layout...']);
     const frame = createPlacementFrame(food);
     try {
-      const placement = await waitForPlacementExport(food);
-      if (placement) return placement;
-      throw new Error('DBv2 did not export a placement for this food in time.');
+      const placement = await waitForPlacementExport(food, minExportedAt);
+      const entry = placement?.layouts?.[food.id];
+      if (!placement || !entry?.layout) throw new Error('DBv2 did not export a fresh placement for this food in time.');
+      if (clean(entry.sourceLayoutName).toLowerCase() !== 'test') {
+        throw new Error(`DBv2 exported from ${entry.sourceLayoutName || entry.sourceLayoutKey || 'an unknown layout'}, not the current test layout.`);
+      }
+      return placement;
     } finally {
       frame.remove();
+      renderLayoutState();
     }
   }
 
@@ -604,6 +754,7 @@
     state.foodQuery = selectedFood()?.name || '';
     setValue(els.uploadFoodId, foodId);
     if (state.activeToolId === 'input') fillEntryForm(selectedFood());
+    els.toolFrame.dataset.frameKey = '';
     persistSelectedFood();
     renderAll();
   }
@@ -636,9 +787,9 @@
     const food = selectedFood();
     if (!food) return;
     let layoutPlacement;
-    const videoState = readJsonStorage(VIDEO_STATE_KEY, null);
+    const videoState = readJsonStorage(STORAGE.vbv2State, null);
     try {
-      layoutPlacement = await ensurePlacementForFood(food);
+      layoutPlacement = await ensureFreshPlacementForFood(food);
     } catch (error) {
       setRenderText('Placement export failed', [error.message]);
       return;
@@ -647,13 +798,14 @@
     els.renderVideo.disabled = true;
     els.downloadVideo.hidden = true;
     state.renderDownloadedJobId = null;
-    setRenderText('Starting render', []);
+    setRenderText('Starting render', ['Sending fresh DBv2 placement and current Layout Builder state to the renderer.']);
     try {
       const response = await api('/api/vbv2-renderer/render', {
         method: 'POST',
         body: JSON.stringify({
           foodId: food.id,
           layoutPlacement,
+          layoutState: clientStorageSnapshot(LAYOUT_STATE_KEYS),
           videoState,
           force: true
         })
@@ -680,6 +832,7 @@
   }
 
   async function loadInitial() {
+    clearWrongLayoutCaches();
     const [health, foodsResponse, stateResponse] = await Promise.all([
       api('/api/health'),
       api('/api/foods'),
@@ -739,6 +892,11 @@
     if (tool) window.open(toolUrl(tool), '_blank', 'noopener');
   });
 
+  els.clearWrongLayouts.addEventListener('click', () => {
+    clearWrongLayoutCaches({ report: true });
+    renderLayoutState();
+  });
+
   els.downloadBackup.addEventListener('click', () => {
     downloadBackup().catch(error => setRenderText('Backup failed', [error.message]));
   });
@@ -766,6 +924,8 @@
     selectFood(button.dataset.inputFoodId);
     fillEntryForm(selectedFood());
   });
+  window.addEventListener('storage', renderLayoutState);
+  window.setInterval(renderLayoutState, 2000);
 
   setUploadKind('image');
   loadInitial().catch(error => {

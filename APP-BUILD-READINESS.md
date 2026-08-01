@@ -5,6 +5,7 @@
 Build one FoodRanked Studio app that contains the current production workflow end to end:
 
 - food database and finalisation state
+- current Layout Builder layout editing
 - DBv2 display layout proofing
 - VBv2 video preview and render/export
 - nutrition research and scoring
@@ -15,30 +16,36 @@ The app should make GitHub useful for versioning and deployment, but not essenti
 
 ## Current Active Tools
 
-Only these three browser tools are active workflow surfaces:
+Only these four browser tools are active workflow surfaces:
 
 1. `docs/database/`
    - Shared food and universal UI database.
    - Current storage: browser `localStorage` key `foodranked-production-database-v1`.
    - Feeds DBv2 and VBv2 through `docs/app/foodranked-database.js`.
 
-2. `docs/display-builder-v2/`
+2. `docs/layout-builder/`
+   - Current layout editor for the DBv2/VBv2 canvas.
+   - Current storage: browser `localStorage` keys `foodranked-layout-builder-v4`, `foodranked-layout-builder-food-layouts-v1`, and `foodranked-layout-builder-sprite-layouts-v1`.
+   - DBv2 prefers the saved layout named `test`.
+
+3. `docs/display-builder-v2/`
    - Applies the selected food's sprites, text, nutrition values, and section content into the current DBv2 layout.
    - Exports rendered placement to `localStorage` key `foodranked-display-builder-v2-placement-layouts-v1`.
 
-3. `docs/video-builder-v2/`
+4. `docs/video-builder-v2/`
    - Reads DBv2 placement only.
    - Adds timing, narration, subtitles, SFX, VFX, highlights, preview, and render/export behavior.
 
 The intended chain is:
 
 ```text
-Database -> DBv2 rendered placement -> VBv2 video preview/render
+Database + Layout Builder -> DBv2 rendered placement -> VBv2 video preview/render
 ```
 
 ## Current Limits To Remove
 
 - Browser `localStorage` is the real state layer, so different browsers/sessions can disagree.
+- MP4 render jobs must be seeded with the current Layout Builder keys and a fresh DBv2 placement export.
 - GitHub/repo files are still the practical asset and output carrier.
 - MP4 rendering is a helper script instead of an app-managed job queue.
 - Uploads, TTS, alignment, publishing packs, and analytics are script-driven, not app-driven.

@@ -17,7 +17,7 @@
         </div>
       </div>
 
-      <section class="food-picker" aria-label="Food picker">
+      <section class="food-picker" aria-label="Food search">
         <label class="field-label" for="foodSearch">Food</label>
         <input id="foodSearch" type="search" autocomplete="off" placeholder="Search foods" />
         <div class="food-results" id="foodResults" role="listbox" aria-label="Food search results"></div>
@@ -39,6 +39,7 @@
         </div>
         <div class="topbar-actions">
           <button type="button" id="openTool">Open Tool</button>
+          <button type="button" id="clearWrongLayouts">Clear stale layouts</button>
           <button type="button" id="downloadBackup">Backup</button>
         </div>
       </header>
@@ -65,6 +66,14 @@
 
         <section class="queue-panel">
           <div class="panel-title">
+            <h3>Current Layout Source</h3>
+            <span id="layoutStatePill">Checking</span>
+          </div>
+          <dl class="layout-state" id="layoutState"></dl>
+        </section>
+
+        <section class="queue-panel">
+          <div class="panel-title">
             <h3>Render</h3>
             <span id="renderState">Idle</span>
           </div>
@@ -78,14 +87,13 @@
         <section class="queue-panel">
           <div class="panel-title">
             <h3>Pipeline</h3>
-            <span>Local</span>
+            <span>Current tools only</span>
           </div>
           <ol class="pipeline-list">
-            <li data-state="ready">Food data</li>
-            <li data-state="ready">DBv2 layout</li>
-            <li data-state="ready">Display proof</li>
+            <li data-state="ready">Layout Builder saved layout named test</li>
+            <li data-state="ready">DBv2 fresh placement export</li>
             <li data-state="ready">VBv2 preview</li>
-            <li data-state="next">MP4 render</li>
+            <li data-state="next">MP4 render from fresh DBv2 placement</li>
             <li data-state="manual">MP4 download</li>
             <li data-state="manual">Manual upload</li>
           </ol>
@@ -183,7 +191,7 @@
       </section>
 
       <section class="tool-frame-shell" id="toolFrameShell" hidden>
-        <iframe id="toolFrame" title="FoodRanked tool"></iframe>
+        <iframe id="toolFrame" title="FoodRanked current tool"></iframe>
       </section>
     </section>
   </main>

@@ -65,6 +65,13 @@ const TOOL_DEFINITIONS = Object.freeze([
     state: 'browser-local'
   },
   {
+    id: 'layout',
+    label: 'Layout Builder',
+    path: '/docs/layout-builder/index.html',
+    role: 'layout-source',
+    state: 'browser-local'
+  },
+  {
     id: 'display',
     label: 'DBv2',
     path: '/docs/display-builder-v2/index.html',
@@ -826,6 +833,8 @@ async function startRenderJob(food, body, options) {
   if (Number.isFinite(Number(body.fps)) && Number(body.fps) > 0) args.push('--fps', String(Number(body.fps)));
   const placementJson = writeJobPayload(job, 'placement', body.layoutPlacement);
   if (placementJson) args.push('--placement-json', placementJson);
+  const layoutStateJson = writeJobPayload(job, 'layout-state', body.layoutState);
+  if (layoutStateJson) args.push('--layout-state-json', layoutStateJson);
   const videoStateJson = writeJobPayload(job, 'video-state', body.videoState);
   if (videoStateJson) args.push('--video-state-json', videoStateJson);
   if (body.noAudio) args.push('--no-audio');

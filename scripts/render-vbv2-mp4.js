@@ -16,6 +16,11 @@ const AUTHOR_GRID_HEIGHT = 186.666667;
 const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
 const DISPLAY_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
 const PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
+const LAYOUT_STATE_KEYS = new Set([
+  'foodranked-layout-builder-v4',
+  'foodranked-layout-builder-food-layouts-v1',
+  'foodranked-layout-builder-sprite-layouts-v1'
+]);
 const DEFAULT_PORT = 4190;
 const DEFAULT_FPS = 30;
 const DEFAULT_MUSIC_VOLUME = 0.14;
@@ -60,6 +65,7 @@ Options:
   --seconds <number>         Render only the first N seconds. Useful for smoke tests.
   --port <number>            Local static server port. Default: ${DEFAULT_PORT}
   --placement-json <path>    Seed VBv2 with a DBv2/VBv2 placement payload.
+  --layout-state-json <path> Seed current Layout Builder localStorage keys before render.
   --video-state-json <path>  Seed VBv2 with a Video Builder v2 state payload.
   --no-audio                 Encode video without narration/music.
   --no-music                 Keep narration, omit background music.
@@ -83,6 +89,7 @@ function parseArgs(argv) {
     seconds: null,
     port: DEFAULT_PORT,
     placementJson: '',
+    layoutStateJson: '',
     videoStateJson: '',
     audio: true,
     music: true,
@@ -123,6 +130,7 @@ function parseArgs(argv) {
     else if (arg === '--seconds') options.seconds = Number(readValue(arg));
     else if (arg === '--port') options.port = Number(readValue(arg));
     else if (arg === '--placement-json') options.placementJson = readValue(arg);
+    else if (arg === '--layout-state-json') options.layoutStateJson = readValue(arg);
     else if (arg === '--video-state-json') options.videoStateJson = readValue(arg);
     else if (arg === '--music-volume') options.musicVolume = Number(readValue(arg));
     else if (arg === '--narration-volume') options.narrationVolume = Number(readValue(arg));
@@ -466,6 +474,7 @@ function startStaticServer(port) {
 
 async function renderFrames({ food, foodId, options, framesDir, baseUrl, workDir }) {
   const placementPayload = validateVbv2PlacementPayload(readOptionalJson(options.placementJson, null), food);
+  const layoutStatePayload = readOptionalJson(options.layoutStateJson, {});
   const videoStatePayload = readOptionalJson(options.videoStateJson, {});
 
   let playwright;
@@ -483,7 +492,7 @@ async function renderFrames({ food, foodId, options, framesDir, baseUrl, workDir
   const page = await context.newPage();
 
   try {
-    await page.addInitScript(({ selectedFoodId, videoStateKey, displayStateKey, placementExportKey, placementPayload, videoStatePayload }) => {
+    await page.addInitScript(({ selectedFoodId, videoStateKey, displayStateKey, placementExportKey, layoutStateKeys, layoutStatePayload, placementPayload, videoStatePayload }) => {
       const mergeState = (key, patch) => {
         let current = {};
         try {
@@ -493,6 +502,12 @@ async function renderFrames({ food, foodId, options, framesDir, baseUrl, workDir
         }
         localStorage.setItem(key, JSON.stringify({ ...current, ...patch }));
       };
+      if (layoutStatePayload && typeof layoutStatePayload === 'object') {
+        for (const [key, raw] of Object.entries(layoutStatePayload)) {
+          if (!layoutStateKeys.includes(key) || raw == null) continue;
+          localStorage.setItem(key, typeof raw === 'string' ? raw : JSON.stringify(raw));
+        }
+      }
       if (placementPayload && typeof placementPayload === 'object') {
         localStorage.setItem(placementExportKey, JSON.stringify(placementPayload));
       }
@@ -508,6 +523,8 @@ async function renderFrames({ food, foodId, options, framesDir, baseUrl, workDir
       videoStateKey: VIDEO_STATE_KEY,
       displayStateKey: DISPLAY_STATE_KEY,
       placementExportKey: PLACEMENT_EXPORT_KEY,
+      layoutStateKeys: [...LAYOUT_STATE_KEYS],
+      layoutStatePayload,
       placementPayload,
       videoStatePayload
     });

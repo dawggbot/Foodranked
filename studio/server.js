@@ -2,6 +2,7 @@
 'use strict';
 
 const fs = require('fs');
+const crypto = require('crypto');
 const http = require('http');
 const os = require('os');
 const path = require('path');
@@ -15,6 +16,7 @@ const RENDER_DIR = path.resolve(process.env.FOODRANKED_STUDIO_RENDER_DIR || path
 const UPLOAD_DIR = path.resolve(process.env.FOODRANKED_STUDIO_UPLOAD_DIR || path.join(DATA_DIR, 'uploads'));
 const INPUT_DATABASE_FILE = path.join(DATA_DIR, 'studio-input-database.json');
 const STATE_FILE = path.join(DATA_DIR, 'studio-state.json');
+const UNIVERSAL_LAYOUT_FILE = path.join(__dirname, 'layout', 'universal-layout.json');
 const DEFAULT_HOST = '127.0.0.1';
 const DEFAULT_PORT = 4787;
 const DEFAULT_RENDER_PORT_START = 4290;
@@ -23,6 +25,11 @@ const MAX_LOG_LINES = 240;
 const JOB_HISTORY_LIMIT = 30;
 const PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
 const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
+const LAYOUT_WORKING_KEY = 'foodranked-layout-builder-v4';
+const LAYOUT_SAVED_KEY = 'foodranked-layout-builder-sprite-layouts-v1';
+const LAYOUT_FOOD_KEY = 'foodranked-layout-builder-food-layouts-v1';
+const LOCKED_LAYOUT_PRESET_NAMES = Object.freeze(['test 1', 'test 2', 'test 3', 'test 4', 'test 5']);
+const REQUIRED_LAYOUT_SECTION_IDS = Object.freeze(['intro', 'fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons', 'outro']);
 
 const FINALISATION_SAMPLE_FOOD_IDS = new Set([
   'kale',
@@ -199,6 +206,72 @@ function ensureDataDir() {
 
 function clone(value) {
   return value == null ? value : JSON.parse(JSON.stringify(value));
+}
+
+function universalLayoutStats(layout) {
+  const sections = layout?.sections && typeof layout.sections === 'object' && !Array.isArray(layout.sections)
+    ? layout.sections
+    : {};
+  const layerCounts = Object.fromEntries(REQUIRED_LAYOUT_SECTION_IDS.map(sectionId => [
+    sectionId,
+    Array.isArray(sections[sectionId]?.layers) ? sections[sectionId].layers.length : 0
+  ]));
+  return {
+    sectionIds: Object.keys(sections),
+    requiredSectionIds: [...REQUIRED_LAYOUT_SECTION_IDS],
+    missingSectionIds: REQUIRED_LAYOUT_SECTION_IDS.filter(sectionId => !Array.isArray(sections[sectionId]?.layers)),
+    layerCounts,
+    totalLayers: Object.values(layerCounts).reduce((total, count) => total + count, 0)
+  };
+}
+
+function readUniversalLayoutPayload({ includeLayout = true } = {}) {
+  const raw = fs.readFileSync(UNIVERSAL_LAYOUT_FILE, 'utf8');
+  const layout = JSON.parse(raw);
+  const stats = universalLayoutStats(layout);
+  if (stats.missingSectionIds.length) {
+    throw new Error(`Universal layout is missing sections: ${stats.missingSectionIds.join(', ')}`);
+  }
+  if (!stats.totalLayers) throw new Error('Universal layout has no layers.');
+  const fileFingerprint = crypto.createHash('sha256').update(raw).digest('hex');
+  const layoutFingerprint = crypto.createHash('sha256').update(JSON.stringify(layout)).digest('hex');
+  return {
+    ok: true,
+    storageKeys: {
+      working: LAYOUT_WORKING_KEY,
+      saved: LAYOUT_SAVED_KEY,
+      food: LAYOUT_FOOD_KEY
+    },
+    lockNames: [...LOCKED_LAYOUT_PRESET_NAMES],
+    layoutFingerprint,
+    layoutFileFingerprint: fileFingerprint,
+    sourceFileFingerprint: '78342e8cf934c98b7930b0c89d4ee947f8d05a9b42a31baffad2c5f42f52fb3f',
+    layoutBytes: Buffer.byteLength(raw),
+    importedFrom: 'universal_layout_json---874bfa4e-374f-4b0b-9ad0-e946caf75a65.txt',
+    stats,
+    layout: includeLayout ? layout : undefined
+  };
+}
+
+function universalLayoutHealth() {
+  try {
+    const payload = readUniversalLayoutPayload({ includeLayout: false });
+    return {
+      available: true,
+      fingerprint: payload.layoutFingerprint,
+      fileFingerprint: payload.layoutFileFingerprint,
+      sourceFileFingerprint: payload.sourceFileFingerprint,
+      bytes: payload.layoutBytes,
+      totalLayers: payload.stats.totalLayers,
+      layerCounts: payload.stats.layerCounts,
+      lockNames: payload.lockNames
+    };
+  } catch (error) {
+    return {
+      available: false,
+      error: error.message
+    };
+  }
 }
 
 function readJsonFile(filePath, fallback) {
@@ -929,6 +1002,7 @@ async function handleApi(request, response, url, options) {
       dataDir: DATA_DIR,
       secrets: secretPresence(),
       tools: TOOL_DEFINITIONS,
+      layout: universalLayoutHealth(),
       summary: databaseSummary(),
       runtime: {
         node: process.version,
@@ -941,6 +1015,15 @@ async function handleApi(request, response, url, options) {
 
   if (request.method === 'GET' && url.pathname === '/api/tools') {
     sendJson(response, 200, { ok: true, tools: TOOL_DEFINITIONS });
+    return true;
+  }
+
+  if (request.method === 'GET' && url.pathname === '/api/layout/universal') {
+    try {
+      sendJson(response, 200, readUniversalLayoutPayload());
+    } catch (error) {
+      sendError(response, 500, error.message);
+    }
     return true;
   }
 

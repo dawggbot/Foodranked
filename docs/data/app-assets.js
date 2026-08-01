@@ -5418,14 +5418,6 @@
     "sizeBytes": 13000
   },
   {
-    "id": "app.default.layout",
-    "label": "Default Layout",
-    "kind": "runtime",
-    "path": "app/default-layout.js",
-    "mimeType": "text/javascript",
-    "sizeBytes": 222437
-  },
-  {
     "id": "app.display.name.utils",
     "label": "Display Name Utils",
     "kind": "runtime",

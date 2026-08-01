@@ -693,7 +693,9 @@
           name: String(entry.name || 'Untitled layout'),
           createdAt: entry.createdAt || new Date().toISOString(),
           updatedAt: entry.updatedAt || entry.createdAt || new Date().toISOString(),
+          selectedFoodId: entry.selectedFoodId || '',
           selectedSectionId: entry.selectedSectionId || 'intro',
+          canvas: clone(entry.canvas || null),
           meta: clone(entry.meta || {}),
           sections: clone(entry.sections)
         }));
@@ -851,6 +853,7 @@
       sections[sectionId] = { layers: clone(layers) };
     }
     return {
+      canvas: clone(layout.canvas || null),
       selectedFoodId: layout.selectedFoodId || '',
       selectedSectionId: normalizeDisplaySectionId(layout.selectedSectionId) || 'intro',
       meta: clone(layout.meta || {}),
@@ -886,7 +889,9 @@
       name,
       createdAt: existing?.createdAt || now,
       updatedAt: existing?.updatedAt || now,
+      selectedFoodId: sourceLayout.selectedFoodId || '',
       selectedSectionId: sourceLayout.selectedSectionId || 'intro',
+      canvas: clone(sourceLayout.canvas || null),
       meta: {
         ...(sourceLayout.meta || {}),
         ...(existing?.meta || {}),
@@ -1212,6 +1217,8 @@
 
     const next = {
       ...layout,
+      canvas: clone(entry.canvas || layout.canvas || null),
+      selectedFoodId: entry.selectedFoodId || layout.selectedFoodId || '',
       selectedSectionId: entry.selectedSectionId || layout.selectedSectionId || 'intro',
       meta: { ...(layout.meta || {}), ...(entry.meta || {}) },
       sections: clone(entry.sections)

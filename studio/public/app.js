@@ -6,7 +6,8 @@
     layoutSavedLayouts: 'foodranked-layout-builder-sprite-layouts-v1',
     dbv2State: 'foodranked-display-builder-v2-state-v1',
     dbv2Placement: 'foodranked-display-builder-v2-placement-layouts-v1',
-    vbv2State: 'foodranked-video-builder-v2-state-v1'
+    vbv2State: 'foodranked-video-builder-v2-state-v1',
+    canonicalLayoutFingerprint: 'foodranked-studio-canonical-layout-fingerprint-v1'
   });
   const LAYOUT_STATE_KEYS = [STORAGE.layoutWorking, STORAGE.layoutSavedLayouts];
   const BACKUP_STORAGE_KEYS = [
@@ -35,6 +36,7 @@
   const REVOKED_LAYOUT_SEED_IDS = new Set(['layout_test_current_builder_20260801']);
   const LOCKED_LAYOUT_PRESET_NAMES = ['test 1', 'test 2', 'test 3', 'test 4', 'test 5'];
   const LOCKED_LAYOUT_PRESET_NAME_SET = new Set(LOCKED_LAYOUT_PRESET_NAMES);
+  const STUDIO_CANONICAL_LOCK_VERSION = '20260801-studio-universal-layout-json-v1';
 
   const els = {
     foodSearch: document.getElementById('foodSearch'),
@@ -94,7 +96,8 @@
     activeToolId: 'dashboard',
     latestJobId: null,
     renderDownloadedJobId: null,
-    renderPoll: null
+    renderPoll: null,
+    canonicalLayout: null
   };
 
   function clean(value) {
@@ -113,6 +116,10 @@
 
   function delay(ms) {
     return new Promise(resolve => window.setTimeout(resolve, ms));
+  }
+
+  function clone(value) {
+    return value == null ? value : JSON.parse(JSON.stringify(value));
   }
 
   function safeSlug(value, fallback = '') {
@@ -166,7 +173,7 @@
     const foodId = encodeURIComponent(food?.id || state.selectedFoodId || 'bacon');
     const bust = Date.now();
     if (!tool) return '';
-    if (tool.id === 'layout') return `${tool.path}?food=${foodId}&app=studio&t=${bust}`;
+    if (tool.id === 'layout') return `${tool.path}?app=studio&t=${bust}`;
     if (tool.id === 'display') return `${tool.path}?videoBuilderExportFood=${foodId}&app=studio&t=${bust}`;
     if (tool.id === 'video') return `${tool.path}?food=${foodId}&app=studio&t=${bust}`;
     return `${tool.path}?app=studio&t=${bust}`;
@@ -206,6 +213,65 @@
     return LOCKED_LAYOUT_PRESET_NAME_SET.has(layoutNameKey(entry?.name));
   }
 
+  function canonicalFingerprint() {
+    return clean(state.canonicalLayout?.layoutFingerprint);
+  }
+
+  function canonicalLayoutLayerCount() {
+    return Number(state.canonicalLayout?.stats?.totalLayers) || countLayoutLayers(state.canonicalLayout?.layout);
+  }
+
+  function isCanonicalLayoutEntry(entry) {
+    const fingerprint = canonicalFingerprint();
+    if (!fingerprint) return true;
+    return clean(entry?.meta?.studioCanonicalLayout?.fingerprint) === fingerprint
+      && clean(entry?.meta?.lockedLayout?.version) === STUDIO_CANONICAL_LOCK_VERSION;
+  }
+
+  function canonicalSavedLayoutId(name) {
+    const key = layoutNameKey(name).replace(/\s+/g, '_');
+    const suffix = canonicalFingerprint().slice(0, 12) || 'pending';
+    return `layout_${key}_studio_canonical_${suffix}`;
+  }
+
+  function canonicalSavedLayoutEntry(name, index) {
+    const layout = state.canonicalLayout?.layout;
+    const now = state.canonicalLayout?.importedAt || new Date().toISOString();
+    return {
+      id: canonicalSavedLayoutId(name),
+      name,
+      createdAt: now,
+      updatedAt: now,
+      selectedFoodId: layout?.selectedFoodId || '',
+      selectedSectionId: layout?.selectedSectionId || 'intro',
+      canvas: clone(layout?.canvas || null),
+      sections: clone(layout?.sections || {}),
+      meta: {
+        ...(clone(layout?.meta || {})),
+        studioCanonicalLayout: {
+          version: STUDIO_CANONICAL_LOCK_VERSION,
+          fingerprint: canonicalFingerprint(),
+          importedFrom: state.canonicalLayout?.importedFrom || '',
+          layerCount: canonicalLayoutLayerCount(),
+          lockedName: name,
+          lockIndex: index + 1
+        },
+        lockedLayout: {
+          version: STUDIO_CANONICAL_LOCK_VERSION,
+          lockedAt: now,
+          lockedName: name,
+          sourceName: 'Studio canonical universal layout',
+          sourceId: canonicalFingerprint()
+        }
+      }
+    };
+  }
+
+  function canonicalSavedLayoutEntries() {
+    if (!state.canonicalLayout?.layout?.sections) return [];
+    return LOCKED_LAYOUT_PRESET_NAMES.map(canonicalSavedLayoutEntry);
+  }
+
   function lockedLayoutSortIndex(entry) {
     const index = LOCKED_LAYOUT_PRESET_NAMES.indexOf(layoutNameKey(entry?.name));
     return index >= 0 ? index : Number.POSITIVE_INFINITY;
@@ -217,6 +283,7 @@
       .filter(entry => !isRevokedLayoutSeed(entry))
       .filter(entry => entry && entry.id && entry.sections && typeof entry.sections === 'object');
     const locked = entries.filter(isLockedLayoutEntry)
+      .filter(isCanonicalLayoutEntry)
       .sort((a, b) => lockedLayoutSortIndex(a) - lockedLayoutSortIndex(b));
     if (locked.length !== entries.length) {
       if (locked.length) writeJsonStorage(STORAGE.layoutSavedLayouts, locked);
@@ -232,23 +299,77 @@
       [0] || null;
   }
 
+  function hasCanonicalLayoutState() {
+    const fingerprint = canonicalFingerprint();
+    if (!fingerprint) return false;
+    const working = readJsonStorage(STORAGE.layoutWorking, null);
+    const saved = readSavedLayoutEntries();
+    return localStorage.getItem(STORAGE.canonicalLayoutFingerprint) === fingerprint
+      && countLayoutLayers(working) === canonicalLayoutLayerCount()
+      && saved.length === LOCKED_LAYOUT_PRESET_NAMES.length
+      && saved.every(isCanonicalLayoutEntry)
+      && saved.every(entry => countLayoutLayers({ sections: entry.sections }) === canonicalLayoutLayerCount());
+  }
+
+  async function loadCanonicalLayoutState() {
+    const payload = await api('/api/layout/universal');
+    if (!payload?.layout?.sections || payload.stats?.missingSectionIds?.length) {
+      throw new Error('Packaged universal layout is missing required sections.');
+    }
+    state.canonicalLayout = payload;
+    return payload;
+  }
+
+  async function seedCanonicalLayoutState({ force = false, report = false } = {}) {
+    if (!state.canonicalLayout) await loadCanonicalLayoutState();
+    if (!force && hasCanonicalLayoutState()) return [];
+
+    const removed = clearWrongLayoutCaches();
+    const layout = clone(state.canonicalLayout.layout);
+    writeJsonStorage(STORAGE.layoutWorking, layout);
+    writeJsonStorage(STORAGE.layoutSavedLayouts, canonicalSavedLayoutEntries());
+    localStorage.setItem(STORAGE.canonicalLayoutFingerprint, canonicalFingerprint());
+    localStorage.removeItem(STORAGE.layoutFoodLayouts);
+    localStorage.removeItem(STORAGE.dbv2Placement);
+
+    const changes = [
+      ...removed,
+      STORAGE.layoutWorking,
+      STORAGE.layoutSavedLayouts,
+      STORAGE.canonicalLayoutFingerprint,
+      `${STORAGE.layoutFoodLayouts}:removed`,
+      `${STORAGE.dbv2Placement}:removed`
+    ];
+    if (report) {
+      setRenderText('Canonical layout restored', [
+        `Seeded test 1 through test 5 from ${canonicalFingerprint().slice(0, 12)}.`,
+        `${canonicalLayoutLayerCount()} layers across the universal layout.`
+      ]);
+    }
+    return changes;
+  }
+
   function currentLayoutSummary(food = selectedFood()) {
     const working = readJsonStorage(STORAGE.layoutWorking, null);
     const saved = readSavedLayoutEntries();
     const test = lockedTestLayout();
     const placement = placementEntryForFood(food);
     const staleKeys = STALE_LAYOUT_KEYS.filter(key => localStorage.getItem(key) != null);
+    const canonicalReady = hasCanonicalLayoutState();
     return {
       workingLayers: countLayoutLayers(working),
       savedCount: saved.length,
       savedNames: saved.map(entry => clean(entry.name) || entry.id).filter(Boolean),
+      canonicalFingerprint: canonicalFingerprint(),
+      canonicalLayers: canonicalLayoutLayerCount(),
+      canonicalReady,
       test,
       testLayers: countLayoutLayers(test ? { sections: test.sections } : null),
       foodLayoutCount: 0,
       selectedFoodLayout: false,
       placement,
       staleKeys,
-      renderReady: Boolean(test && countLayoutLayers({ sections: test.sections }) > 0)
+      renderReady: Boolean(canonicalReady && test && countLayoutLayers({ sections: test.sections }) > 0)
     };
   }
 
@@ -258,6 +379,8 @@
     els.layoutStatePill.className = summary.renderReady ? 'good' : 'warn';
     const placement = summary.placement;
     const rows = [
+      ['Canonical JSON', summary.canonicalFingerprint ? `${summary.canonicalFingerprint.slice(0, 12)} · ${summary.canonicalLayers} layers` : 'Missing'],
+      ['Canonical seeded', summary.canonicalReady ? 'Yes' : 'No'],
       ['Locked layout copy', summary.test ? `${summary.test.name} · ${summary.testLayers} layers` : 'Missing'],
       ['Saved layouts', summary.savedNames.length ? summary.savedNames.join(', ') : 'None'],
       ['Working layout', summary.workingLayers ? `${summary.workingLayers} layers` : 'None'],
@@ -279,6 +402,7 @@
       ['ElevenLabs', secrets.elevenLabs?.available ? 'Ready' : 'Missing', secrets.elevenLabs?.available ? 'ok' : 'warn'],
       ['USDA', secrets.usda?.available ? 'Ready' : 'Missing', secrets.usda?.available ? 'ok' : 'warn'],
       ['FFmpeg', runtime.ffmpeg ? 'Ready' : 'Missing', runtime.ffmpeg ? 'ok' : 'bad'],
+      ['Universal layout', health.layout?.available ? 'Ready' : 'Missing', health.layout?.available ? 'ok' : 'bad'],
       ['Mode', 'Local', 'ok']
     ];
     els.systemStatus.innerHTML = rows.map(([label, value, tone]) => (
@@ -763,9 +887,10 @@
   }
 
   async function ensureFreshPlacementForFood(food) {
+    await seedCanonicalLayoutState({ force: true });
     const summary = currentLayoutSummary(food);
     if (!summary.renderReady) {
-      throw new Error('Locked Layout Builder copies test 1 through test 5 are missing. Open Layout Builder once so it can lock the current layout before rendering.');
+      throw new Error('Canonical Layout Builder JSON did not seed test 1 through test 5. Restart Studio or restore the packaged universal layout JSON.');
     }
 
     clearPlacementForFood(food.id);
@@ -883,7 +1008,8 @@
   }
 
   async function loadInitial() {
-    clearWrongLayoutCaches();
+    await loadCanonicalLayoutState();
+    await seedCanonicalLayoutState({ force: true });
     const [health, foodsResponse, stateResponse] = await Promise.all([
       api('/api/health'),
       api('/api/foods'),
@@ -944,8 +1070,9 @@
   });
 
   els.clearWrongLayouts.addEventListener('click', () => {
-    clearWrongLayoutCaches({ report: true });
-    renderLayoutState();
+    seedCanonicalLayoutState({ force: true, report: true })
+      .then(renderLayoutState)
+      .catch(error => setRenderText('Canonical layout restore failed', [error.message]));
   });
 
   els.downloadBackup.addEventListener('click', () => {

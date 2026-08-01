@@ -14,7 +14,6 @@ const roots = [
   'audio/episodes',
   'video/episodes',
   'data',
-  'app/default-layout.js',
   'app/display-schema.js',
   'app/display-name-utils.js'
 ];

@@ -372,7 +372,8 @@
       kind: 'saved layout preset',
       updatedAt: entry.updatedAt || entry.createdAt || '',
       layout: normalizeLayoutSections({
-        canvas: null,
+        canvas: LOGIC.clone(entry.canvas || null),
+        selectedFoodId: entry.selectedFoodId || '',
         selectedSectionId: entry.selectedSectionId || 'intro',
         sections: LOGIC.clone(entry.sections),
         meta: { ...(LOGIC.clone(entry.meta || {})), source: LAYOUT_BUILDER_SAVED_KEY }

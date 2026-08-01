@@ -21,13 +21,18 @@ Current first milestone:
 - health/status API with redacted API-key presence
 - embedded Database, Layout Builder, DBv2, and VBv2 webpage views
 - search-based food picker for jumping between entries
+- packaged canonical universal layout imported from James's exported JSON
+- automatic seeding of locked Layout Builder copies `test 1` through `test 5`
 - Studio Input panel and local JSON APIs for food entries, PNG uploads, and narration audio uploads
 - browser-local state backup download
 - VBv2-compatible local MP4 render endpoints fed by fresh DBv2 placement exports
 
 Studio uses the current Layout Builder -> DBv2 -> VBv2 chain directly. On startup it
-clears stale old builder placement caches, preserves the current Layout Builder keys,
-and refuses MP4 rendering unless a saved Layout Builder layout named `test` is present.
+clears stale old builder placement caches and seeds the app browser from
+`studio/layout/universal-layout.json`. The render path force-restores the canonical
+Layout Builder working state and locked saved copies `test 1` through `test 5` before
+DBv2 exports a fresh placement, so Layout Builder remains universal and DBv2 remains
+the food-specific layout stage.
 
 Local input APIs write into `studio-data/` and are mirrored by the Studio UI into
 the browser-local database used by DBv2 and VBv2:

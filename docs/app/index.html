@@ -1206,7 +1206,7 @@
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     if (APP_MODE === 'layout-builder') document.body.classList.add('layout-builder-mode');
     const BUILDER_BUILD_ID = APP_MODE === 'layout-builder'
-      ? '20260801-sync-intro-ui-v2'
+      ? '20260801-sync-intro-ui-v3'
       : '20260731-vbv2-helper-render-parity-v1';
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
     const SECTIONS = [
@@ -1235,7 +1235,7 @@
     const MACRO_SECTION_LAYOUT_SYNC_KEY = 'macroSectionLayoutFromFatsV6';
     const MACRO_ARROW_PLACEMENT_SYNC_KEY = 'macroArrowPlacementFromFatsV2';
     const HEADER_LAYOUT_SYNC_KEY = 'headerLayoutFromFatsV1';
-    const INTRO_HEADER_UI_SPRITE_SYNC_KEY = 'introHeaderUiSpriteLayoutFromIntroV2';
+    const INTRO_HEADER_UI_SPRITE_SYNC_KEY = 'introHeaderUiSpriteLayoutFromIntroV3';
     const MACRO_BAR_PLACEMENT_SOURCE_FOOD_ID = 'bacon';
     const MACRO_BAR_PLACEMENT_SOURCE_SECTION_ID = 'fats';
     const MACRO_BAR_PLACEMENT_SECTIONS = ['fats', 'carbs', 'protein'];
@@ -2066,40 +2066,129 @@
       return normal > 0 && highlighted > 0 ? highlighted / normal : 1.2;
     }
 
-    function sectionIndicatorTemplateSize(sourceLayer, active, normalTemplate = null) {
+    function sectionIndicatorSourceSize(sourceLayer, normalTemplate = null) {
       const scale = sectionIndicatorHighlightScale();
-      const sourceWidth = Number(sourceLayer.width || sourceLayer.naturalWidth || SECTION_INDICATOR_LAYOUT.normalSize);
-      const sourceHeight = Number(sourceLayer.height || sourceLayer.naturalHeight || SECTION_INDICATOR_LAYOUT.normalSize);
+      const sourceWidth = asNumber(sourceLayer.width, asNumber(sourceLayer.naturalWidth, SECTION_INDICATOR_LAYOUT.normalSize));
+      const sourceHeight = asNumber(sourceLayer.height, asNumber(sourceLayer.naturalHeight, SECTION_INDICATOR_LAYOUT.normalSize));
       const sourceHighlighted = isHighlightedSectionIndicatorSrc(sourceLayer.src || '');
-      const normalWidth = sourceHighlighted ? Number(normalTemplate?.width || (sourceWidth / scale)) : sourceWidth;
-      const normalHeight = sourceHighlighted ? Number(normalTemplate?.height || (sourceHeight / scale)) : sourceHeight;
-      if (active) return {
-        width: normalWidth * scale,
-        height: normalHeight * scale,
-        naturalWidth: sourceLayer.naturalWidth ?? null,
-        naturalHeight: sourceLayer.naturalHeight ?? null
-      };
+      const normalWidth = sourceHighlighted ? asNumber(normalTemplate?.width, sourceWidth / scale) : sourceWidth;
+      const normalHeight = sourceHighlighted ? asNumber(normalTemplate?.height, sourceHeight / scale) : sourceHeight;
       return {
-        width: normalWidth,
-        height: normalHeight,
-        naturalWidth: sourceLayer.naturalWidth ?? null,
-        naturalHeight: sourceLayer.naturalHeight ?? null
+        normalWidth,
+        normalHeight,
+        highlightedWidth: normalWidth * scale,
+        highlightedHeight: normalHeight * scale
       };
     }
 
-    function cloneIntroHeaderUiSpriteForSection(layer, sectionId, slotIndex, food, normalIndicatorTemplate = null) {
+    function sectionIndicatorNaturalSize(sourceLayer, active) {
+      const scale = sectionIndicatorHighlightScale();
+      const sourceNaturalWidth = asNumber(sourceLayer.naturalWidth, null);
+      const sourceNaturalHeight = asNumber(sourceLayer.naturalHeight, null);
+      const sourceHighlighted = isHighlightedSectionIndicatorSrc(sourceLayer.src || '');
+      if (sourceNaturalWidth == null || sourceNaturalHeight == null) return { naturalWidth: null, naturalHeight: null };
+      if (active === sourceHighlighted) return { naturalWidth: sourceNaturalWidth, naturalHeight: sourceNaturalHeight };
+      return active
+        ? { naturalWidth: sourceNaturalWidth * scale, naturalHeight: sourceNaturalHeight * scale }
+        : { naturalWidth: sourceNaturalWidth / scale, naturalHeight: sourceNaturalHeight / scale };
+    }
+
+    function sectionIndicatorFallbackCenter(sourceLayer, normalSize) {
+      return {
+        x: asNumber(sourceLayer.x, 0) + normalSize.normalWidth / 2,
+        y: asNumber(sourceLayer.y, 0) + normalSize.normalHeight / 2
+      };
+    }
+
+    function medianStep(centers, axis) {
+      const steps = [];
+      for (let index = 1; index < centers.length; index += 1) {
+        const previous = centers[index - 1];
+        const current = centers[index];
+        const indexDelta = current.index - previous.index;
+        if (!indexDelta) continue;
+        const step = (current[axis] - previous[axis]) / indexDelta;
+        if (Number.isFinite(step)) steps.push(step);
+      }
+      if (!steps.length) return null;
+      return steps.sort((a, b) => a - b)[Math.floor(steps.length / 2)];
+    }
+
+    function sectionIndicatorSlotCenters(indicatorSlots, normalTemplate = null) {
+      const sizes = indicatorSlots.map(layer => sectionIndicatorSourceSize(layer, normalTemplate));
+      const centers = indicatorSlots.map((layer, index) => {
+        if (isHighlightedSectionIndicatorSrc(layer.src || '')) return null;
+        return { index, ...sectionIndicatorFallbackCenter(layer, sizes[index]) };
+      });
+      const knownCenters = centers.filter(Boolean);
+      const stepX = medianStep(knownCenters, 'x') ?? SECTION_INDICATOR_LAYOUT.stepX;
+      const stepY = medianStep(knownCenters, 'y') ?? 0;
+
+      return indicatorSlots.map((layer, index) => {
+        if (centers[index]) return centers[index];
+        const previous = [...knownCenters].reverse().find(center => center.index < index);
+        const next = knownCenters.find(center => center.index > index);
+        if (previous && next) {
+          const progress = (index - previous.index) / (next.index - previous.index);
+          return {
+            index,
+            x: previous.x + ((next.x - previous.x) * progress),
+            y: previous.y + ((next.y - previous.y) * progress)
+          };
+        }
+        if (previous) {
+          return {
+            index,
+            x: previous.x + (stepX * (index - previous.index)),
+            y: previous.y + (stepY * (index - previous.index))
+          };
+        }
+        if (next) {
+          return {
+            index,
+            x: next.x - (stepX * (next.index - index)),
+            y: next.y - (stepY * (next.index - index))
+          };
+        }
+        return { index, ...sectionIndicatorFallbackCenter(layer, sizes[index]) };
+      });
+    }
+
+    function sectionIndicatorTemplateGeometry(sourceLayer, active, normalTemplate = null, slotCenter = null) {
+      const size = sectionIndicatorSourceSize(sourceLayer, normalTemplate);
+      const naturalSize = sectionIndicatorNaturalSize(sourceLayer, active);
+      const center = slotCenter || sectionIndicatorFallbackCenter(sourceLayer, size);
+      if (active) return {
+        x: center.x - (size.highlightedWidth / 2),
+        y: center.y - (size.highlightedHeight / 2),
+        width: size.highlightedWidth,
+        height: size.highlightedHeight,
+        ...naturalSize
+      };
+      return {
+        x: center.x - (size.normalWidth / 2),
+        y: center.y - (size.normalHeight / 2),
+        width: size.normalWidth,
+        height: size.normalHeight,
+        ...naturalSize
+      };
+    }
+
+    function cloneIntroHeaderUiSpriteForSection(layer, sectionId, slotIndex, food, normalIndicatorTemplate = null, slotCenter = null) {
       const cloned = cloneLayer(layer);
       if (slotIndex >= 0) {
         const active = slotIndex === SECTIONS.findIndex(section => section.id === sectionId);
-        const size = sectionIndicatorTemplateSize(layer, active, normalIndicatorTemplate);
+        const geometry = sectionIndicatorTemplateGeometry(layer, active, normalIndicatorTemplate, slotCenter);
         cloned.id = `lib_section_indicator_${sectionId}_${slotIndex + 1}`;
         cloned.label = active ? 'Library: highlighted section indicator' : 'Library: section indicator';
         cloned.src = active ? highlightedSectionIndicatorSrcFor(layer.src, food) : normalSectionIndicatorSrcFor(layer.src, food);
-        cloned.width = size.width;
-        cloned.height = size.height;
-        cloned.naturalWidth = size.naturalWidth;
-        cloned.naturalHeight = size.naturalHeight;
-        cloned.aspectRatio = size.height ? size.width / size.height : null;
+        cloned.x = geometry.x;
+        cloned.y = geometry.y;
+        cloned.width = geometry.width;
+        cloned.height = geometry.height;
+        cloned.naturalWidth = geometry.naturalWidth;
+        cloned.naturalHeight = geometry.naturalHeight;
+        cloned.aspectRatio = geometry.height ? geometry.width / geometry.height : null;
         cloned.foodDriven = false;
       }
       return cloned;
@@ -2124,6 +2213,8 @@
       const food = layoutFoodStub(layout);
       const indicatorSlotMap = new Map(indicatorSlots.map((layer, index) => [layer, index]));
       const normalIndicatorTemplate = indicatorSlots.find(layer => !isHighlightedSectionIndicatorSrc(layer.src || '')) || null;
+      const indicatorSlotCentersByIndex = sectionIndicatorSlotCenters(indicatorSlots, normalIndicatorTemplate);
+      const indicatorSlotCenterMap = new Map(indicatorSlots.map((layer, index) => [layer, indicatorSlotCentersByIndex[index]]));
       let changed = false;
 
       for (const section of SECTIONS) {
@@ -2131,14 +2222,30 @@
         const nextLayers = sectionLayers.filter(layer => !isHeaderUiSpriteLayer(layer));
         const clonedSourceLayers = sourceLayers.map(layer => {
           const slotIndex = indicatorSlotMap.has(layer) ? indicatorSlotMap.get(layer) : -1;
-          return cloneIntroHeaderUiSpriteForSection(layer, section.id, slotIndex, food, normalIndicatorTemplate);
+          const slotCenter = slotIndex >= 0 ? indicatorSlotCenterMap.get(layer) : null;
+          return cloneIntroHeaderUiSpriteForSection(layer, section.id, slotIndex, food, normalIndicatorTemplate, slotCenter);
         });
-        layout.sections[section.id].layers = [...nextLayers, ...clonedSourceLayers];
+        const highlightedIndicators = clonedSourceLayers.filter(layer => isHighlightedSectionIndicatorSrc(layer.src || ''));
+        const highlightedIndicatorSet = new Set(highlightedIndicators);
+        if (highlightedIndicators.length) {
+          const maxZ = [...nextLayers, ...clonedSourceLayers].reduce((highest, layer) => Math.max(highest, asNumber(layer.z, 0)), 0);
+          highlightedIndicators.forEach(layer => {
+            layer.z = maxZ + 1;
+          });
+        }
+        const inactiveClonedSourceLayers = clonedSourceLayers.filter(layer => !highlightedIndicatorSet.has(layer));
+        layout.sections[section.id].layers = [...nextLayers, ...inactiveClonedSourceLayers, ...highlightedIndicators];
         changed = true;
       }
 
       restoreDeletedLayerIds(layout, sourceLayers.map(layer => layer.id).filter(Boolean));
-      layout.meta[INTRO_HEADER_UI_SPRITE_SYNC_KEY] = signature;
+      const finalIntroLayers = getSectionLayersFromLayout(layout, 'intro').filter(isHeaderUiSpriteLayer);
+      const finalIndicatorSlots = indicatorSlotLayersFromSource(finalIntroLayers);
+      const finalIndicatorSlotSet = new Set(finalIndicatorSlots);
+      const finalSourceLayers = finalIntroLayers.filter(layer => {
+        return !isSectionIndicatorSpriteLayer(layer) || finalIndicatorSlotSet.has(layer);
+      });
+      layout.meta[INTRO_HEADER_UI_SPRITE_SYNC_KEY] = introHeaderUiSpriteSignature(finalSourceLayers);
       return changed;
     }
 

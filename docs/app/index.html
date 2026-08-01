@@ -1205,7 +1205,7 @@
   <script>
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     if (APP_MODE === 'layout-builder') document.body.classList.add('layout-builder-mode');
-    const BUILDER_BUILD_ID = '20260801-restore-locked-test-v1';
+    const BUILDER_BUILD_ID = '20260801-intro-header-sync-v1';
     const BACKGROUND_MOTION_DEFAULT_MAX_SIZE = 80;
     const BACKGROUND_MOTION_LEGACY_MAX_SIZE = 40;
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
@@ -1241,7 +1241,10 @@
     const MACRO_SECTION_LAYOUT_SYNC_KEY = 'macroSectionLayoutFromFatsV6';
     const MACRO_ARROW_PLACEMENT_SYNC_KEY = 'macroArrowPlacementFromFatsV3';
     const HEADER_LAYOUT_SYNC_KEY = 'headerLayoutFromFatsV1';
-    const INTRO_HEADER_UI_SPRITE_SYNC_KEY = 'introHeaderUiSpriteLayoutFromIntroV3';
+    const INTRO_HEADER_UI_SPRITE_SYNC_KEY = 'introHeaderLayoutFromIntroV1';
+    const INTRO_HEADER_SYNC_BACKUP_META_KEY = 'introHeaderLayoutSyncBackupV1';
+    const INTRO_HEADER_SYNC_BACKUP_INDEX_KEY = 'foodranked-layout-builder-intro-header-sync-backups-v1';
+    const INTRO_HEADER_SYNC_BACKUP_STORAGE_PREFIX = 'foodranked-layout-builder-before-intro-header-sync';
     const SECTION_INDICATOR_NUDGE_SYNC_KEY = 'sectionIndicatorDownOneNudgeV1';
     const MACRO_BAR_PLACEMENT_SOURCE_FOOD_ID = 'bacon';
     const MACRO_BAR_PLACEMENT_SOURCE_SECTION_ID = 'fats';
@@ -2287,23 +2290,102 @@
         .slice(0, SECTION_INDICATOR_COUNT);
     }
 
-    function introHeaderUiSpriteSignature(layers) {
+    function introHeaderSyncedLayerSignature(layers) {
       return JSON.stringify(layers.map(layer => ({
         id: layer.id || '',
+        kind: layer.kind || '',
         label: layer.label || '',
         src: layer.src || '',
         fallbackSrc: layer.fallbackSrc || '',
+        text: layer.text || '',
+        manualText: layer.manualText || '',
+        layoutBuilderManualText: !!layer.layoutBuilderManualText,
         x: Number(layer.x) || 0,
         y: Number(layer.y) || 0,
         z: Number(layer.z) || 0,
         width: Number(layer.width) || 0,
         height: Number(layer.height) || 0,
+        fontSize: Number(layer.fontSize) || 0,
+        autoFontSize: Number(layer.autoFontSize) || 0,
+        textBoxHeight: Number(layer.textBoxHeight) || 0,
+        align: layer.align || '',
+        color: layer.color || '',
+        strokeColor: layer.strokeColor || '',
+        strokeWidth: Number(layer.strokeWidth) || 0,
         visible: layer.visible !== false,
         preserveAspect: !!layer.preserveAspect,
         aspectRatio: layer.aspectRatio ?? null,
         naturalWidth: layer.naturalWidth ?? null,
         naturalHeight: layer.naturalHeight ?? null
       })));
+    }
+
+    function isIntroHeaderSyncedLayer(layer) {
+      return isHeaderUiSpriteLayer(layer) || isHeaderTextLayer(layer);
+    }
+
+    function readIntroHeaderSyncBackupIndex() {
+      try {
+        const raw = localStorage.getItem(INTRO_HEADER_SYNC_BACKUP_INDEX_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function uniqueIntroHeaderSyncBackupStorageKey(suffix = '') {
+      const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+      for (let attempt = 0; attempt < 100; attempt += 1) {
+        const tail = attempt ? `-${attempt}` : '';
+        const key = `${INTRO_HEADER_SYNC_BACKUP_STORAGE_PREFIX}-${stamp}-${Date.now().toString(36)}${tail}${suffix}`;
+        if (!localStorage.getItem(key)) return key;
+      }
+      return `${INTRO_HEADER_SYNC_BACKUP_STORAGE_PREFIX}-${stamp}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}${suffix}`;
+    }
+
+    function backupLayoutBeforeIntroHeaderSync(layout, signature) {
+      if (APP_MODE !== 'layout-builder' || !layout?.sections) return;
+      layout.meta = layout.meta || {};
+      const previousBackup = layout.meta[INTRO_HEADER_SYNC_BACKUP_META_KEY];
+      if (previousBackup?.signature === signature) return;
+
+      try {
+        const now = new Date().toISOString();
+        const backupId = `intro_header_sync_${Date.now().toString(36)}`;
+        const primaryKey = uniqueIntroHeaderSyncBackupStorageKey();
+        const secondaryKey = uniqueIntroHeaderSyncBackupStorageKey('-copy');
+        const snapshot = {
+          id: backupId,
+          createdAt: now,
+          reason: 'Before applying intro header layout to all sections',
+          signature,
+          layout: structuredClone(layout)
+        };
+        localStorage.setItem(primaryKey, JSON.stringify(snapshot));
+        localStorage.setItem(secondaryKey, JSON.stringify(snapshot));
+
+        const index = readIntroHeaderSyncBackupIndex();
+        index.push({
+          id: backupId,
+          createdAt: now,
+          reason: snapshot.reason,
+          signature,
+          primaryKey,
+          secondaryKey,
+          layerCount: countLayoutLayers(layout)
+        });
+        localStorage.setItem(INTRO_HEADER_SYNC_BACKUP_INDEX_KEY, JSON.stringify(index));
+        layout.meta[INTRO_HEADER_SYNC_BACKUP_META_KEY] = {
+          id: backupId,
+          createdAt: now,
+          signature,
+          primaryKey,
+          secondaryKey
+        };
+      } catch (error) {
+        console.warn('Could not create intro header layout backup before sync', error);
+      }
     }
 
     function layoutFoodStub(layout) {
@@ -2474,7 +2556,7 @@
       layout.meta = layout.meta || {};
 
       const introLayers = getSectionLayersFromLayout(layout, 'intro');
-      const rawSourceLayers = introLayers.filter(isHeaderUiSpriteLayer);
+      const rawSourceLayers = introLayers.filter(isIntroHeaderSyncedLayer);
       if (!rawSourceLayers.length) return false;
 
       const indicatorSlots = indicatorSlotLayersFromSource(rawSourceLayers);
@@ -2482,8 +2564,9 @@
       const sourceLayers = rawSourceLayers.filter(layer => {
         return !isSectionIndicatorSpriteLayer(layer) || indicatorSlotSet.has(layer);
       });
-      const signature = introHeaderUiSpriteSignature(sourceLayers);
+      const signature = introHeaderSyncedLayerSignature(sourceLayers);
       if (layout.meta[INTRO_HEADER_UI_SPRITE_SYNC_KEY] === signature) return false;
+      backupLayoutBeforeIntroHeaderSync(layout, signature);
 
       const food = layoutFoodStub(layout);
       const indicatorSlotMap = new Map(indicatorSlots.map((layer, index) => [layer, index]));
@@ -2493,8 +2576,9 @@
       let changed = false;
 
       for (const section of SECTIONS) {
+        if (section.id === 'intro') continue;
         const sectionLayers = getSectionLayersFromLayout(layout, section.id);
-        const nextLayers = sectionLayers.filter(layer => !isHeaderUiSpriteLayer(layer));
+        const nextLayers = sectionLayers.filter(layer => !isIntroHeaderSyncedLayer(layer));
         const clonedSourceLayers = sourceLayers.map(layer => {
           const slotIndex = indicatorSlotMap.has(layer) ? indicatorSlotMap.get(layer) : -1;
           const slotCenter = slotIndex >= 0 ? indicatorSlotCenterMap.get(layer) : null;
@@ -2514,13 +2598,13 @@
       }
 
       restoreDeletedLayerIds(layout, sourceLayers.map(layer => layer.id).filter(Boolean));
-      const finalIntroLayers = getSectionLayersFromLayout(layout, 'intro').filter(isHeaderUiSpriteLayer);
+      const finalIntroLayers = getSectionLayersFromLayout(layout, 'intro').filter(isIntroHeaderSyncedLayer);
       const finalIndicatorSlots = indicatorSlotLayersFromSource(finalIntroLayers);
       const finalIndicatorSlotSet = new Set(finalIndicatorSlots);
       const finalSourceLayers = finalIntroLayers.filter(layer => {
         return !isSectionIndicatorSpriteLayer(layer) || finalIndicatorSlotSet.has(layer);
       });
-      layout.meta[INTRO_HEADER_UI_SPRITE_SYNC_KEY] = introHeaderUiSpriteSignature(finalSourceLayers);
+      layout.meta[INTRO_HEADER_UI_SPRITE_SYNC_KEY] = introHeaderSyncedLayerSignature(finalSourceLayers);
       return changed;
     }
 

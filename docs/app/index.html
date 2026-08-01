@@ -1204,7 +1204,7 @@
   <script>
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     if (APP_MODE === 'layout-builder') document.body.classList.add('layout-builder-mode');
-    const BUILDER_BUILD_ID = '20260801-micro-bars-complete-v1';
+    const BUILDER_BUILD_ID = '20260801-macro-arrow-editable-v1';
     const BACKGROUND_MOTION_DEFAULT_MAX_SIZE = 80;
     const BACKGROUND_MOTION_LEGACY_MAX_SIZE = 40;
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
@@ -2610,6 +2610,7 @@
     function isMacroLayoutTemplateLayer(layer) {
       if (!layer) return false;
       if (isLockedUiSpriteLayer(layer) || isHeaderLayoutLayer(layer)) return false;
+      if (isArrowIndicatorSpriteLayer(layer)) return false;
       return isSpriteLayer(layer) || isTextLayer(layer);
     }
 
@@ -4648,7 +4649,6 @@
       ensureOutroScoreDisplayLayers(normalized);
       if (APP_MODE === 'layout-builder') {
         syncMacroSectionLayoutFromFats(normalized);
-        syncMacroArrowPlacementFromFats(normalized);
         nudgeLayoutBuilderSectionIndicatorsDown(normalized);
         syncIntroHeaderUiSpritesToAllSections(normalized);
       }
@@ -6856,7 +6856,7 @@
       syncFatsMacroTotalTextForFood(state.layout, food || getSelectedFoodStub());
       syncCarbsMacroTotalTextForFood(state.layout, food || getSelectedFoodStub());
       syncProteinMacroTotalTextForFood(state.layout, food || getSelectedFoodStub());
-      syncMacroSubmacroArrowsForFood(state.layout, food || getSelectedFoodStub());
+      if (APP_MODE !== 'layout-builder') syncMacroSubmacroArrowsForFood(state.layout, food || getSelectedFoodStub());
       syncMacroSubmetricValueColors(state.layout, food || getSelectedFoodStub());
       syncManualOutroHighlightedIndicators(state.layout, food || getSelectedFoodStub());
       const scoringFood = mergedFoodForScoring(food || getSelectedFoodStub());

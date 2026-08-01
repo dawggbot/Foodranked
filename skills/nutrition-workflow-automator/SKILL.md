@@ -1,6 +1,6 @@
 ---
 name: "nutrition-workflow-automator"
-description: "FoodRanked narration, proofing, batch refresh, episode generation, subtitle prep, and visual handoff workflow."
+description: "FoodRanked narration and proofing workflow"
 ---
 
 # FoodRanked Workflow Automator
@@ -16,19 +16,6 @@ For FoodRanked visual/layout review, default to sharing live web-page proof URLs
 - Treat MP4s as final/export artifacts or explicit user-requested files, not the primary proof surface.
 - When MP4 output appears to diverge from VBv2, do not keep asking James to inspect the MP4 first; use the live VBv2 page to confirm layout and then debug export parity separately.
 - Do not revive or route work through stale/original builders unless James explicitly changes direction.
-
-## Non-Sample Nutrition Refresh Workflow
-
-When James asks to redo food entries after skill/profile improvements:
-
-- Exclude the approved 11 finalisation samples unless James explicitly asks to include them: `kale`, `raspberries`, `oats`, `black-beans`, `sweet-potato`, `almonds`, `chia-seeds`, `bacon`, `greek-yogurt`, `extra-virgin-olive-oil`, `cola-regular`.
-- Do not regenerate or overwrite their scripts, narration, split audio, subtitles, generated episode outputs, production narration, or food JSON during a broad cleanup.
-- Work in small batches by food type or source class, so nutrition source quality and pros/cons quality can be reviewed without burying mistakes.
-- Start each batch with an audit table: food id, food type, likely source, missing/weak fields, generic pro/con candidates, and expected verification commands.
-- Run the `nutrition-geek` workflow before script generation so food data, provenance, estimates, and context items are cleaned first.
-- Then run `foodranked-script-writer` or generator workflows so scripts follow the nutritional profile rather than stale generic copy.
-- Keep `foods/`, `outputs/episodes/`, `docs/data/foods-index.json`, and `docs/data/foods-index.js` aligned for any food changed in the batch.
-- Prefer web-page proofs for visual review; treat MP4s as final/export artifacts.
 
 ## Narration Pronunciation Overrides
 

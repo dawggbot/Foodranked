@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260731-vbv2-micron-highlight-lanes-v1';
+  const BUILDER_BUILD_ID = '20260801-score-bg-macro-v1';
   const DISPLAY_BUILDER_V2_EXPORT_TIMEOUT_MS = 8000;
   const DISPLAY_BUILDER_V2_EXPORT_POLL_MS = 150;
   const AUTHOR_GRID = { width: 105, height: 186.666667 };
@@ -24,6 +24,8 @@
   const ADAM_NARRATION_VOLUME = 0.7;
   const BACKGROUND_MUSIC_VOLUME = 0.14;
   const ARCADE_MELODY_BACKGROUND_MUSIC_VOLUME = BACKGROUND_MUSIC_VOLUME * 0.3;
+  const BACKGROUND_MOTION_DEFAULT_MAX_SIZE = 80;
+  const BACKGROUND_MOTION_LEGACY_MAX_SIZE = 40;
   const AUDIO_MIX_SLIDER_SPECS = Object.freeze([
     { key: 'music', label: 'music' },
     { key: 'narration', label: 'narration' },
@@ -3170,7 +3172,9 @@
     }
     ensureOutroTierStampLayer(layout, food);
     ensureMacroBarLayers(layout);
+    ensureMacroTotalTextLayers(layout);
     syncMacroBars(layout, food);
+    syncMacroTotalText(layout, food);
     syncHeader(layout, food);
     syncOutroScoreValue(layout, food);
     syncProsCons(layout, food);
@@ -4315,9 +4319,17 @@
       minDuration: 14,
       maxDuration: 24,
       minSize: 24,
-      maxSize: 40,
+      maxSize: BACKGROUND_MOTION_DEFAULT_MAX_SIZE,
       drift: 16
     };
+  }
+
+  function backgroundMotionMaxSize(motion, minSize) {
+    const configured = asNumber(motion?.maxSize, null);
+    const maxSize = configured == null || configured === BACKGROUND_MOTION_LEGACY_MAX_SIZE
+      ? defaultBackgroundMotion().maxSize
+      : configured;
+    return Math.max(minSize, maxSize);
   }
 
   function backgroundCssLength(value) {
@@ -4489,7 +4501,7 @@
     const minDuration = Math.max(4, Number(motion.minDuration) || defaultBackgroundMotion().minDuration);
     const maxDuration = Math.max(minDuration, Number(motion.maxDuration) || defaultBackgroundMotion().maxDuration);
     const minSize = Math.max(12, Number(motion.minSize) || defaultBackgroundMotion().minSize);
-    const maxSize = Math.max(minSize, Number(motion.maxSize) || defaultBackgroundMotion().maxSize);
+    const maxSize = backgroundMotionMaxSize(motion, minSize);
     const drift = Math.max(0, Number(motion.drift) || 0);
     const opacity = Math.min(0.5, Math.max(0.04, Number(motion.opacity) || defaultBackgroundMotion().opacity));
 

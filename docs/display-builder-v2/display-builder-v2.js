@@ -29,8 +29,8 @@
   const PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const PLACEMENT_EXPORT_LIMIT = 60;
   const PAGE_URL_PARAMS = new URLSearchParams(window.location.search);
-  const DISPLAY_BUILDER_V2_BUILD_ID = PAGE_URL_PARAMS.get('build') || '20260731-vbv2-helper-render-parity-v1';
-  const DATA_CACHE_BUST = '20260731-vbv2-helper-render-parity-v1';
+  const DISPLAY_BUILDER_V2_BUILD_ID = PAGE_URL_PARAMS.get('build') || '20260801-score-bg-macro-v1';
+  const DATA_CACHE_BUST = '20260801-score-bg-macro-v1';
   const SECTION_INDICATOR_LAYOUT = window.FOODRANKED_DISPLAY_SCHEMA?.sectionIndicatorLayout || {
     startX: 33.347,
     y: 138.444,
@@ -103,6 +103,11 @@
   const OUTRO_SLOP_TIER_STAMP_MAX_WIDTH = 128;
   const OUTRO_SLOP_TIER_STAMP_SAFE_MARGIN = 9;
   const OUTRO_SLOP_TIER_STAMP_CENTER_OFFSET_Y = -3;
+  const SCORE_VALUE_COLORS = Object.freeze({
+    green: '#7cf2a7',
+    red: '#ff6f6f',
+    neutral: '#ffffff'
+  });
   const renderToken = { value: 0 };
   const PLACEMENT_LAYER_KEYS = [
     'id',
@@ -1803,6 +1808,94 @@
     return score == null ? 'N/A' : LOGIC.formatCompactNumber(score, 0);
   }
 
+  function hexToRgb(color) {
+    const value = String(color || '').trim();
+    const match = value.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
+    if (!match) return null;
+    const hex = match[1].length === 3
+      ? match[1].split('').map(char => `${char}${char}`).join('')
+      : match[1];
+    return {
+      r: parseInt(hex.slice(0, 2), 16),
+      g: parseInt(hex.slice(2, 4), 16),
+      b: parseInt(hex.slice(4, 6), 16)
+    };
+  }
+
+  function rgbToHex({ r, g, b }) {
+    return `#${[r, g, b].map(value => clamp(Math.round(value), 0, 255).toString(16).padStart(2, '0')).join('')}`;
+  }
+
+  function colorWithAlpha(color, alpha) {
+    const rgb = hexToRgb(color);
+    if (!rgb) return color;
+    return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${clamp(alpha, 0, 1).toFixed(3)})`;
+  }
+
+  function mixHexColor(from, to, amount) {
+    const start = hexToRgb(from);
+    const end = hexToRgb(to);
+    if (!start || !end) return to;
+    const t = clamp(amount, 0, 1);
+    return rgbToHex({
+      r: start.r + ((end.r - start.r) * t),
+      g: start.g + ((end.g - start.g) * t),
+      b: start.b + ((end.b - start.b) * t)
+    });
+  }
+
+  function scoreGradeColor(score) {
+    const safe = asNumber(score, null);
+    if (safe == null) return SCORE_VALUE_COLORS.neutral;
+    if (safe < 20) return SCORE_VALUE_COLORS.red;
+    if (safe >= 60) return SCORE_VALUE_COLORS.green;
+    if (safe < 40) return mixHexColor(SCORE_VALUE_COLORS.red, '#f6c65f', (safe - 20) / 20);
+    return mixHexColor('#f6c65f', SCORE_VALUE_COLORS.green, (safe - 40) / 20);
+  }
+
+  function outroScoreGlowStyle(food) {
+    const tier = normalizedTier(scoreTier(food));
+    const score = scoreTally(food);
+    if (tier === 'SLOP' || asNumber(score, 0) < 0) {
+      return {
+        gradeClass: 'score-grade-negative',
+        color: '#9a6638',
+        core: 'rgba(255, 197, 120, 0.96)',
+        soft: 'rgba(154, 102, 56, 0.78)',
+        wide: 'rgba(78, 48, 24, 0.48)'
+      };
+    }
+    if (tier === 'S' || asNumber(score, 0) >= 80) {
+      return {
+        gradeClass: 'score-grade-s',
+        color: '#00bfa5',
+        core: 'rgba(196, 255, 246, 0.98)',
+        soft: 'rgba(0, 191, 165, 0.86)',
+        wide: 'rgba(124, 242, 167, 0.46)'
+      };
+    }
+
+    const color = scoreGradeColor(score);
+    return {
+      gradeClass: 'score-grade-standard',
+      color,
+      core: colorWithAlpha(color, 0.98),
+      soft: colorWithAlpha(color, 0.72),
+      wide: colorWithAlpha(color, 0.38)
+    };
+  }
+
+  function applyOutroScoreGlow(node, layer, food) {
+    if (String(layer?.id || '').toLowerCase() !== 'outro_score_value') return;
+    const style = outroScoreGlowStyle(food);
+    node.classList.add('outro-score-glow', style.gradeClass);
+    node.style.color = style.color;
+    node.style.setProperty('--outro-score-color', style.color);
+    node.style.setProperty('--outro-score-glow-core', style.core);
+    node.style.setProperty('--outro-score-glow-soft', style.soft);
+    node.style.setProperty('--outro-score-glow-wide', style.wide);
+  }
+
   function headerFoodNameFitLayer(food, layout, sectionId, layer) {
     const foodId = String(food?.id || '');
     const baseWidth = Number(layer?.width);
@@ -2517,6 +2610,7 @@
         renderSpriteNode(node, layer, food);
       } else {
         renderTextNode(node, layer);
+        applyOutroScoreGlow(node, layer, food);
       }
       applyIntroFocusBlur(node, layer);
       els.displayCanvas.appendChild(node);

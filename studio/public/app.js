@@ -1179,11 +1179,12 @@
       });
       state.agentSync = await loadAgentSyncStatus().catch(() => state.agentSync);
       const renderJob = data.renderJob || data.run?.actions?.find(action => action.job)?.job || null;
-      if (renderJob?.foodId && state.foods.some(food => food.id === renderJob.foodId)) {
+      if (renderJob?.foodId) {
         state.selectedFoodId = renderJob.foodId;
-        state.foodQuery = selectedFood()?.name || '';
+        state.foodQuery = selectedFood()?.name || renderJob.foodId;
       }
       await refreshStudioData({ keepSelection: true });
+      if (renderJob?.foodId) state.foodQuery = selectedFood()?.name || renderJob.foodId;
       if (renderJob?.id) startRenderPolling(renderJob.id, { agentSync: true });
       setAgentSyncText(data.status === 'rendering' ? 'Render started' : 'Job complete', [
         `${data.job?.title || job.title || job.id}`,

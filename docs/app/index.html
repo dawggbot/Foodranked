@@ -1308,7 +1308,7 @@
     let pendingLayerClickSelectionUntil = 0;
     let pendingLayerClickClientX = null;
     let pendingLayerClickClientY = null;
-    const AVAILABLE_FOOD_IMAGE_IDS = new Set(['bacon', 'kale']);
+    const AVAILABLE_FOOD_IMAGE_IDS = new Set(['bacon', 'kale', 'raspberries']);
     const FOOD_IMAGE_BACON_REFERENCE = {
       x: 8,
       y: 10,
@@ -1324,7 +1324,8 @@
     };
     const FOOD_IMAGE_SPRITE_SIZES = {
       bacon: { width: 30, height: 13 },
-      kale: { width: 30, height: 30 }
+      kale: { width: 30, height: 30 },
+      raspberries: { width: 30, height: 30 }
     };
     const BACKDROP_PALETTES = {
       vegetables: { top: '#dff4cf', bottom: '#bfd8b0', glowA: 'rgba(219,255,183,.78)', glowB: 'rgba(108,169,104,.38)' },
@@ -5446,10 +5447,13 @@
     function foodSpriteCandidates(food = getSelectedFoodStub()) {
       const slug = typeSpriteSlug(food?.foodType);
       const customPath = customFoodImagePath(food);
-      const hasFoodImage = hasCustomFoodImage(food);
+      const foodId = String(food?.id || '').toLowerCase();
+      const committedPath = AVAILABLE_FOOD_IMAGE_IDS.has(foodId)
+        ? `./sprites/header/food_images/${foodId}.png`
+        : '';
       const fallback = `${ROOT_SPRITE_BASE}/header/food_plate/${slug}_food_plate.png`;
       return {
-        primary: customPath || (hasFoodImage ? `./sprites/header/food_images/${food?.id}.png` : fallback),
+        primary: committedPath || customPath || fallback,
         fallback
       };
     }

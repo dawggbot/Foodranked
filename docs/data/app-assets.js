@@ -5658,6 +5658,14 @@
     "sizeBytes": 796
   },
   {
+    "id": "app.sprites.header.food.images.raspberries",
+    "label": "Raspberries",
+    "kind": "sprite",
+    "path": "app/sprites/header/food_images/raspberries.png",
+    "mimeType": "image/png",
+    "sizeBytes": 2346
+  },
+  {
     "id": "app.sprites.header.food.plate.dairy.food.plate",
     "label": "Dairy Food Plate",
     "kind": "sprite",

@@ -94,6 +94,7 @@
   const OUTRO_SHARE_SPRITE_PATH = databaseUniversalSpritePath('outroShare', './sprites/ui/intro_&_outro/share.png');
   const INTRO_RANKED_VISIBLE_CENTER = { x: 0.5, y: 0.47 };
   const INTRO_HERO_SIZE = { ranked: 80, foodWidth: 48, foodHeight: 24 };
+  const INTRO_FOOD_REFERENCE_NATURAL_SIZE = { width: 30, height: 13 };
   const OUTRO_TIER_STAMP_SIZE = 78;
   const OUTRO_TIER_STAMP_ASSET_SIZE = 50;
   const OUTRO_CTA_STAMP_ASSET_SIZE = 15;
@@ -1514,6 +1515,44 @@
     };
   }
 
+  function introFoodHeroBox(food, box) {
+    const geometry = LOGIC.foodImageLayerGeometry?.(food) || {};
+    const naturalWidth = Number(geometry.naturalWidth);
+    const naturalHeight = Number(geometry.naturalHeight);
+    if (!Number.isFinite(naturalWidth) || naturalWidth <= 0 || !Number.isFinite(naturalHeight) || naturalHeight <= 0) {
+      return { ...box, naturalWidth: null, naturalHeight: null, aspectRatio: null };
+    }
+    if (
+      Math.abs(naturalWidth - INTRO_FOOD_REFERENCE_NATURAL_SIZE.width) < 0.001
+      && Math.abs(naturalHeight - INTRO_FOOD_REFERENCE_NATURAL_SIZE.height) < 0.001
+    ) {
+      return {
+        ...box,
+        naturalWidth,
+        naturalHeight,
+        aspectRatio: naturalHeight ? naturalWidth / naturalHeight : null
+      };
+    }
+
+    const scale = Math.min(
+      box.width / INTRO_FOOD_REFERENCE_NATURAL_SIZE.width,
+      box.height / INTRO_FOOD_REFERENCE_NATURAL_SIZE.height
+    );
+    const width = naturalWidth * scale;
+    const height = naturalHeight * scale;
+    const centerX = box.x + (box.width / 2);
+    const centerY = box.y + (box.height / 2);
+    return {
+      x: roundedLayoutNumber(centerX - (width / 2)),
+      y: roundedLayoutNumber(centerY - (height / 2)),
+      width: roundedLayoutNumber(width),
+      height: roundedLayoutNumber(height),
+      naturalWidth,
+      naturalHeight,
+      aspectRatio: naturalHeight ? naturalWidth / naturalHeight : null
+    };
+  }
+
   function introStaticStampLayers(layout, food) {
     const center = displayBuilderGridCenter(layout);
     const rankedSize = INTRO_HERO_SIZE.ranked;
@@ -1524,7 +1563,12 @@
       height: rankedSize
     };
     const foodCandidates = LOGIC.foodSpriteCandidates(food);
-    const foodGeometry = LOGIC.foodImageLayerGeometry?.(food) || {};
+    const foodBox = introFoodHeroBox(food, {
+      x: roundedLayoutNumber(ranked.x + 16),
+      y: roundedLayoutNumber(ranked.y + 20.75),
+      width: INTRO_HERO_SIZE.foodWidth,
+      height: INTRO_HERO_SIZE.foodHeight
+    });
     return [
       {
         id: 'intro_ranked_sprite',
@@ -1546,17 +1590,17 @@
         label: 'Hook food image',
         src: foodCandidates.primary,
         fallbackSrc: foodCandidates.fallback,
-        x: roundedLayoutNumber(ranked.x + 16),
-        y: roundedLayoutNumber(ranked.y + 20.75),
+        x: foodBox.x,
+        y: foodBox.y,
         z: 56,
-        width: INTRO_HERO_SIZE.foodWidth,
-        height: INTRO_HERO_SIZE.foodHeight,
-        naturalWidth: foodGeometry.naturalWidth || null,
-        naturalHeight: foodGeometry.naturalHeight || null,
+        width: foodBox.width,
+        height: foodBox.height,
+        naturalWidth: foodBox.naturalWidth || null,
+        naturalHeight: foodBox.naturalHeight || null,
         visible: true,
         foodDriven: true,
         preserveAspect: true,
-        aspectRatio: foodGeometry.naturalHeight ? foodGeometry.naturalWidth / foodGeometry.naturalHeight : null
+        aspectRatio: foodBox.aspectRatio || null
       }
     ];
   }

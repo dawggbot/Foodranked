@@ -8,7 +8,7 @@
     ...(BINDINGS.micronutrientSections || ['vitamins', 'minerals'])
   ])];
   const MACRO_BAR_MIN_VISIBLE_FILL_RATIO = 0.0011;
-  const AVAILABLE_FOOD_IMAGE_IDS = new Set(['bacon', 'kale']);
+  const AVAILABLE_FOOD_IMAGE_IDS = new Set(['bacon', 'kale', 'raspberries']);
   const FOOD_IMAGE_BACON_REFERENCE = {
     x: 8,
     y: 10,
@@ -24,7 +24,8 @@
   };
   const FOOD_IMAGE_SPRITE_SIZES = {
     bacon: { width: 30, height: 13 },
-    kale: { width: 30, height: 30 }
+    kale: { width: 30, height: 30 },
+    raspberries: { width: 30, height: 30 }
   };
 
   const PROTEIN_QUALITY_METRIC_KEYS = new Set([
@@ -290,10 +291,13 @@
   function foodSpriteCandidates(food) {
     const slug = typeSpriteSlug(food?.foodType);
     const customPath = customFoodImagePath(food);
-    const hasCommittedImage = AVAILABLE_FOOD_IMAGE_IDS.has(String(food?.id || '').toLowerCase());
+    const foodId = String(food?.id || '').toLowerCase();
+    const committedPath = AVAILABLE_FOOD_IMAGE_IDS.has(foodId)
+      ? `${ROOT_SPRITE_BASE}/header/food_images/${foodId}.png`
+      : '';
     const fallback = `${ROOT_SPRITE_BASE}/header/food_plate/${slug}_food_plate.png`;
     return {
-      primary: customPath || (hasCommittedImage ? `${ROOT_SPRITE_BASE}/header/food_images/${food?.id}.png` : fallback),
+      primary: committedPath || customPath || fallback,
       fallback
     };
   }

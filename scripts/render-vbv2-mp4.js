@@ -973,7 +973,13 @@ function normalizeSfxEvents(events, options, duration) {
           : 0,
         fadeOutSeconds: Number.isFinite(Number(event.fadeOutSeconds)) && Number(event.fadeOutSeconds) > 0
           ? Number(event.fadeOutSeconds)
-          : 0
+          : 0,
+        lowpassFrequencyHz: Number.isFinite(Number(event.lowpassFrequencyHz)) && Number(event.lowpassFrequencyHz) > 0
+          ? Number(event.lowpassFrequencyHz)
+          : null,
+        lowpassQ: Number.isFinite(Number(event.lowpassQ)) && Number(event.lowpassQ) > 0
+          ? Number(event.lowpassQ)
+          : null
       };
     })
     .filter(Boolean);
@@ -999,6 +1005,11 @@ function inputAudioFilter(inputIndex, label, options) {
   }
   parts.push('asetpts=PTS-STARTPTS');
   parts.push(...atempoFilters(playbackRate));
+  if (options.lowpassFrequencyHz) {
+    const frequency = Math.max(1, Number(options.lowpassFrequencyHz));
+    const q = Math.max(0.001, Number(options.lowpassQ || 0.707));
+    parts.push(`lowpass=f=${ffmpegNumber(frequency)}:t=q:w=${ffmpegNumber(q)}`);
+  }
   parts.push(`volume=${ffmpegNumber(options.volume)}`);
   const fadeInSeconds = Math.max(0, Number(options.fadeInSeconds || 0));
   const fadeOutSeconds = Math.max(0, Number(options.fadeOutSeconds || 0));
@@ -1059,7 +1070,9 @@ async function buildAudioTrack({ food, options, duration, workDir, sfxEvents = [
       sourceSliceSeconds: event.sourceSliceSeconds,
       durationSeconds: event.durationSeconds,
       fadeInSeconds: event.fadeInSeconds,
-      fadeOutSeconds: event.fadeOutSeconds
+      fadeOutSeconds: event.fadeOutSeconds,
+      lowpassFrequencyHz: event.lowpassFrequencyHz,
+      lowpassQ: event.lowpassQ
     }));
     labels.push(label);
   });

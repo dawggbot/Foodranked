@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260802-preview-music-continuity-v1';
+  const BUILDER_BUILD_ID = '20260802-macro-sfx-export-parity-v1';
   const REVOKED_LAYOUT_SEED_VERSIONS = new Set(['20260801-current-builder-layout-v1']);
   const REVOKED_LAYOUT_SEED_SOURCES = new Set(['docs/layout-builder/canonical-test-layout.js']);
   const REVOKED_LAYOUT_SEED_IDS = new Set(['layout_test_current_builder_20260801']);
@@ -1346,15 +1346,27 @@
     return `${ROOT_SPRITE_BASE}/${path}`.replace(/\/+/g, '/').replace(':/', '://');
   }
 
+  function customFoodImageAsset(food) {
+    const asset = food?.assets?.customFoodImage || food?.customFoodImage || {};
+    return {
+      ...asset,
+      path: asset.path || food?.customFoodImagePath || food?.foodSpritePath || ''
+    };
+  }
+
+  function customFoodImagePath(food) {
+    return customFoodImageAsset(food).path || '';
+  }
+
   function foodImagePath(food) {
-    const customPath = food?.assets?.customFoodImage?.path || food?.customFoodImage?.path;
+    const customPath = customFoodImagePath(food);
     if (customPath) return customPath;
     if (!AVAILABLE_FOOD_IMAGE_IDS.has(String(food?.id || '').toLowerCase())) return foodPlatePath(food);
     return appSpritePath(`header/food_images/${food?.id || 'bacon'}.png`);
   }
 
   function hasCustomFoodImage(food) {
-    return Boolean(food?.assets?.customFoodImage?.path || food?.customFoodImage?.path)
+    return Boolean(customFoodImagePath(food))
       || AVAILABLE_FOOD_IMAGE_IDS.has(String(food?.id || '').toLowerCase());
   }
 
@@ -1371,9 +1383,9 @@
 
   function customFoodImageNaturalSize(food) {
     const id = String(food?.id || '').toLowerCase();
-    const asset = food?.assets?.customFoodImage || food?.customFoodImage || {};
-    const assetWidth = Number(asset.width || asset.naturalWidth || 0);
-    const assetHeight = Number(asset.height || asset.naturalHeight || 0);
+    const asset = customFoodImageAsset(food);
+    const assetWidth = Number(asset.width || asset.naturalWidth || food?.customFoodImageWidth || 0);
+    const assetHeight = Number(asset.height || asset.naturalHeight || food?.customFoodImageHeight || 0);
     if (Number.isFinite(assetWidth) && assetWidth > 0 && Number.isFinite(assetHeight) && assetHeight > 0) {
       return { width: assetWidth, height: assetHeight };
     }
@@ -9787,6 +9799,8 @@
     const sourceSliceSeconds = asNumber(options.sourceSliceSeconds, null);
     const fadeInSeconds = asNumber(options.fadeInSeconds, null);
     const fadeOutSeconds = asNumber(options.fadeOutSeconds, null);
+    const lowpassFrequencyHz = asNumber(options.lowpassFrequencyHz ?? options.lowpassHz, null);
+    const lowpassQ = asNumber(options.lowpassQ ?? options.filterQ, null);
     return {
       key: event.key || `${kind}:${event.time}`,
       kind,
@@ -9801,7 +9815,9 @@
         : Number(Math.max(0.001, asNumber(options.durationSeconds, 0)).toFixed(3)),
       ...(sourceSliceSeconds == null ? {} : { sourceSliceSeconds: Number(Math.max(0.001, sourceSliceSeconds).toFixed(3)) }),
       ...(fadeInSeconds == null ? {} : { fadeInSeconds: Number(Math.max(0, fadeInSeconds).toFixed(3)) }),
-      ...(fadeOutSeconds == null ? {} : { fadeOutSeconds: Number(Math.max(0, fadeOutSeconds).toFixed(3)) })
+      ...(fadeOutSeconds == null ? {} : { fadeOutSeconds: Number(Math.max(0, fadeOutSeconds).toFixed(3)) }),
+      ...(lowpassFrequencyHz == null ? {} : { lowpassFrequencyHz: Number(Math.max(1, lowpassFrequencyHz).toFixed(3)) }),
+      ...(lowpassQ == null ? {} : { lowpassQ: Number(Math.max(0.001, lowpassQ).toFixed(3)) })
     };
   }
 
@@ -9846,13 +9862,15 @@
       ...majorConSirenSfxEvents().map(event => rendererSfxEvent('major-con-siren', event, MAJOR_CON_SIREN_SFX_PATH, majorConSirenSfxVolume())),
       ...macroBarFillSfxEvents().map(event => {
         const timing = macroBarFillSfxTiming(event);
-        return rendererSfxEvent('macro-bar-fill', event, MACRO_BAR_FILL_SFX_PATH, macroBarFillSfxVolume(), {
+        return rendererSfxEvent('macro-bar-fill', event, MACRO_BAR_FILL_SFX_PATH, macroBarFillSfxGain(), {
           playbackRate: timing.playbackRate,
           sourceOffsetSeconds: timing.sourceOffsetSeconds,
           durationSeconds: timing.playSeconds,
           sourceSliceSeconds: timing.sourceSliceSeconds,
           fadeInSeconds: timing.fadeInSeconds,
-          fadeOutSeconds: timing.fadeOutSeconds
+          fadeOutSeconds: timing.fadeOutSeconds,
+          lowpassFrequencyHz: MACRO_BAR_FILL_SFX_FILTER_HZ,
+          lowpassQ: MACRO_BAR_FILL_SFX_FILTER_Q
         });
       })
     ];

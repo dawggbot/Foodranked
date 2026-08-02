@@ -1204,7 +1204,7 @@
   <script>
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     if (APP_MODE === 'layout-builder') document.body.classList.add('layout-builder-mode');
-    const BUILDER_BUILD_ID = '20260801-layout-lockdown-v1';
+    const BUILDER_BUILD_ID = '20260802-custom-food-image-fallback-v1';
     const BACKGROUND_MOTION_DEFAULT_MAX_SIZE = 80;
     const BACKGROUND_MOTION_LEGACY_MAX_SIZE = 40;
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
@@ -5426,8 +5426,16 @@
       return raw;
     }
 
+    function customFoodImageAsset(food = getSelectedFoodStub()) {
+      const asset = food?.assets?.customFoodImage || food?.customFoodImage || {};
+      return {
+        ...asset,
+        path: asset.path || food?.customFoodImagePath || food?.foodSpritePath || ''
+      };
+    }
+
     function customFoodImagePath(food = getSelectedFoodStub()) {
-      return appLocalAssetPath(food?.assets?.customFoodImage?.path || food?.customFoodImage?.path || '');
+      return appLocalAssetPath(customFoodImageAsset(food).path || '');
     }
 
     function hasCustomFoodImage(food = getSelectedFoodStub()) {
@@ -5448,9 +5456,9 @@
 
     function customFoodImageNaturalSize(food = getSelectedFoodStub()) {
       const id = String(food?.id || '').toLowerCase();
-      const asset = food?.assets?.customFoodImage || food?.customFoodImage || {};
-      const assetWidth = Number(asset.width || asset.naturalWidth || 0);
-      const assetHeight = Number(asset.height || asset.naturalHeight || 0);
+      const asset = customFoodImageAsset(food);
+      const assetWidth = Number(asset.width || asset.naturalWidth || food?.customFoodImageWidth || 0);
+      const assetHeight = Number(asset.height || asset.naturalHeight || food?.customFoodImageHeight || 0);
       if (Number.isFinite(assetWidth) && assetWidth > 0 && Number.isFinite(assetHeight) && assetHeight > 0) {
         return { width: assetWidth, height: assetHeight };
       }

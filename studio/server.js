@@ -405,6 +405,24 @@ function normalizeInputFood(id, value) {
   entry.library = entry.library && typeof entry.library === 'object' && !Array.isArray(entry.library) ? entry.library : {};
   entry.foodPatch = entry.foodPatch && typeof entry.foodPatch === 'object' && !Array.isArray(entry.foodPatch) ? entry.foodPatch : {};
   entry.basis = entry.basis && typeof entry.basis === 'object' && !Array.isArray(entry.basis) ? entry.basis : { value: 100, unit: 'g' };
+  const customFoodImagePath = cleanString(entry.customFoodImagePath || entry.foodSpritePath || entry.assets.customFoodImage?.path || entry.customFoodImage?.path);
+  if (customFoodImagePath) {
+    entry.customFoodImagePath = customFoodImagePath;
+    const width = finiteNumber(entry.customFoodImageWidth ?? entry.assets.customFoodImage?.width ?? entry.customFoodImage?.width, null);
+    const height = finiteNumber(entry.customFoodImageHeight ?? entry.assets.customFoodImage?.height ?? entry.customFoodImage?.height, null);
+    entry.assets.customFoodImage = {
+      ...(entry.assets.customFoodImage || {}),
+      path: customFoodImagePath
+    };
+    if (width != null) {
+      entry.customFoodImageWidth = width;
+      entry.assets.customFoodImage.width = width;
+    }
+    if (height != null) {
+      entry.customFoodImageHeight = height;
+      entry.assets.customFoodImage.height = height;
+    }
+  }
   entry.kcal = finiteNumber(entry.kcal ?? entry.header.kcal, null);
   if (entry.kcal != null) entry.header.kcal = entry.kcal;
   entry.finalizedDownloaded = Boolean(entry.finalizedDownloaded || entry.status.finalizedDownloaded);
@@ -513,6 +531,10 @@ function mergeInputFood(baseFood, entry) {
       ...(merged.assets.customFoodImage || {}),
       path: entry.customFoodImagePath || entry.foodSpritePath
     };
+    const width = finiteNumber(entry.customFoodImageWidth ?? entry.assets?.customFoodImage?.width, null);
+    const height = finiteNumber(entry.customFoodImageHeight ?? entry.assets?.customFoodImage?.height, null);
+    if (width != null) merged.assets.customFoodImage.width = width;
+    if (height != null) merged.assets.customFoodImage.height = height;
   }
   if (entry.audioPath) {
     merged.episode.audio = {
@@ -1021,6 +1043,16 @@ function uploadAssetFromBody(body) {
           path: publicPath
         }
       };
+      const width = finiteNumber(body.customFoodImageWidth ?? body.assetPatch?.width ?? food.assets.customFoodImage.width, null);
+      const height = finiteNumber(body.customFoodImageHeight ?? body.assetPatch?.height ?? food.assets.customFoodImage.height, null);
+      if (width != null) {
+        food.customFoodImageWidth = width;
+        food.assets.customFoodImage.width = width;
+      }
+      if (height != null) {
+        food.customFoodImageHeight = height;
+        food.assets.customFoodImage.height = height;
+      }
     }
     if (kind === 'narration') {
       food.audioPath = publicPath;
@@ -1430,6 +1462,16 @@ function writeAgentSyncAsset(body, buffer) {
           path: publicPath
         }
       };
+      const width = finiteNumber(body.customFoodImageWidth ?? body.assetPatch?.width ?? food.assets.customFoodImage.width, null);
+      const height = finiteNumber(body.customFoodImageHeight ?? body.assetPatch?.height ?? food.assets.customFoodImage.height, null);
+      if (width != null) {
+        food.customFoodImageWidth = width;
+        food.assets.customFoodImage.width = width;
+      }
+      if (height != null) {
+        food.customFoodImageHeight = height;
+        food.assets.customFoodImage.height = height;
+      }
     } else if (normalizedKind === 'narration') {
       food.audioPath = publicPath;
       food.library.audioPath = publicPath;

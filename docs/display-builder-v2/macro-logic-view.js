@@ -275,8 +275,16 @@
     return String(src || '').split(/[?#]/)[0].split('/').filter(Boolean).pop() || '';
   }
 
+  function customFoodImageAsset(food) {
+    const asset = food?.assets?.customFoodImage || food?.customFoodImage || {};
+    return {
+      ...asset,
+      path: asset.path || food?.customFoodImagePath || food?.foodSpritePath || ''
+    };
+  }
+
   function customFoodImagePath(food) {
-    return localAssetPath(food?.assets?.customFoodImage?.path || food?.customFoodImage?.path || '');
+    return localAssetPath(customFoodImageAsset(food).path || '');
   }
 
   function foodSpriteCandidates(food) {
@@ -292,9 +300,9 @@
 
   function customFoodImageNaturalSize(food) {
     const id = String(food?.id || '').toLowerCase();
-    const asset = food?.assets?.customFoodImage || food?.customFoodImage || {};
-    const assetWidth = Number(asset.width || asset.naturalWidth || 0);
-    const assetHeight = Number(asset.height || asset.naturalHeight || 0);
+    const asset = customFoodImageAsset(food);
+    const assetWidth = Number(asset.width || asset.naturalWidth || food?.customFoodImageWidth || 0);
+    const assetHeight = Number(asset.height || asset.naturalHeight || food?.customFoodImageHeight || 0);
     if (Number.isFinite(assetWidth) && assetWidth > 0 && Number.isFinite(assetHeight) && assetHeight > 0) {
       return { width: assetWidth, height: assetHeight };
     }

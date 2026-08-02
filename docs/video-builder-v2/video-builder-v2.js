@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260802-macro-fill-sfx-export-v1';
+  const BUILDER_BUILD_ID = '20260802-preview-music-continuity-v1';
   const REVOKED_LAYOUT_SEED_VERSIONS = new Set(['20260801-current-builder-layout-v1']);
   const REVOKED_LAYOUT_SEED_SOURCES = new Set(['docs/layout-builder/canonical-test-layout.js']);
   const REVOKED_LAYOUT_SEED_IDS = new Set(['layout_test_current_builder_20260801']);
@@ -8772,7 +8772,7 @@
       || (audio.mode === 'split-blocks' && !splitPosition);
     if (waitingForNarration) {
       if (!state.audioInHold) {
-        syncAudioTime({ force: true });
+        syncAudioTime({ force: true, syncMusic: false });
         state.audioInHold = true;
       }
       if (!els.narrationAudio.paused) els.narrationAudio.pause();
@@ -8783,15 +8783,15 @@
     state.audioInHold = false;
     if (state.playing && els.narrationAudio.paused) {
       if (audio.mode === 'split-blocks' && !splitAudioPositionShouldPlay(splitPosition)) return;
-      playAudioFromCurrentTime({ forceSync: true });
+      playAudioFromCurrentTime({ forceSync: true, syncMusic: false });
       return;
     }
-    if (wasInHold) syncAudioTime({ force: true });
+    if (wasInHold) syncAudioTime({ force: true, syncMusic: false });
   }
 
-  function syncAudioTime({ force = false } = {}) {
+  function syncAudioTime({ force = false, syncMusic = true } = {}) {
     const audio = audioForFood(selectedFood());
-    syncBackgroundMusicTime({ force });
+    if (syncMusic) syncBackgroundMusicTime({ force });
     if (!audio) return false;
     syncNarrationVolumeForAudio(audio);
     if (audio.mode === 'split-blocks') {
@@ -8813,7 +8813,7 @@
     return true;
   }
 
-  function playAudioFromCurrentTime({ forceSync = true } = {}) {
+  function playAudioFromCurrentTime({ forceSync = true, syncMusic = true } = {}) {
     const audio = audioForFood(selectedFood());
     if (!state.audioEnabled || !audio) return;
     if (isSceneHoldAt(state.currentTime) || isSceneNarrationDelayAt(state.currentTime)) return;
@@ -8821,7 +8821,7 @@
       const position = splitAudioPositionForVideoTime(audio);
       if (!splitAudioPositionShouldPlay(position)) return;
     }
-    if (!syncAudioTime({ force: forceSync })) return;
+    if (!syncAudioTime({ force: forceSync, syncMusic })) return;
     if (!els.narrationAudio?.src) return;
     syncNarrationVolumeForAudio(audio);
     const playPromise = els.narrationAudio.play();

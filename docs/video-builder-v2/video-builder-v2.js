@@ -4383,13 +4383,8 @@
 
   function layoutBuilderCanvasMetrics(layout = state.layout) {
     const canvasWidth = Number(layout?.canvas?.width) || AUTHOR_GRID.width;
-    const canvasHeight = Number(layout?.canvas?.height) || (canvasWidth * (AUTHOR_GRID.height / AUTHOR_GRID.width));
-    const gridWidth = state.renderMode
-      ? canvasWidth
-      : macroReferenceCanvasGridWidth(layout, canvasWidth);
-    const gridHeight = state.renderMode
-      ? canvasHeight
-      : gridWidth * (AUTHOR_GRID.height / AUTHOR_GRID.width);
+    const gridWidth = macroReferenceCanvasGridWidth(layout, canvasWidth);
+    const gridHeight = gridWidth * (AUTHOR_GRID.height / AUTHOR_GRID.width);
     const referencePixelUnit = DISPLAY_BUILDER_V2_REFERENCE_DISPLAY_WIDTH / AUTHOR_GRID.width;
     const displayWidth = gridWidth * referencePixelUnit * DISPLAY_BUILDER_V2_CANVAS_VIEW_ZOOM;
     const displayHeight = gridHeight * referencePixelUnit * DISPLAY_BUILDER_V2_CANVAS_VIEW_ZOOM;

@@ -9,13 +9,27 @@
     vbv2State: 'foodranked-video-builder-v2-state-v1',
     canonicalLayoutFingerprint: 'foodranked-studio-canonical-layout-fingerprint-v1'
   });
-  const LAYOUT_STATE_KEYS = [STORAGE.layoutWorking, STORAGE.layoutSavedLayouts];
+  const LAYOUT_STATE_KEYS = [STORAGE.layoutWorking];
   const BACKUP_STORAGE_KEYS = [
     STORAGE.productionDatabase,
     ...LAYOUT_STATE_KEYS,
     STORAGE.dbv2State,
     STORAGE.dbv2Placement,
     STORAGE.vbv2State
+  ];
+  const QUOTA_HEAVY_LAYOUT_PREFIXES = [
+    'foodranked-layout-builder-before-save',
+    'foodranked-layout-builder-before-macro-arrow-sync',
+    'foodranked-layout-builder-before-intro-header-sync',
+    'foodranked-layout-builder-before-micro-bar-completion'
+  ];
+  const QUOTA_HEAVY_LAYOUT_KEYS = [
+    STORAGE.layoutSavedLayouts,
+    STORAGE.layoutFoodLayouts,
+    'foodranked-layout-builder-save-backups-v1',
+    'foodranked-layout-builder-macro-arrow-sync-backups-v1',
+    'foodranked-layout-builder-intro-header-sync-backups-v1',
+    'foodranked-layout-builder-micro-bar-completion-backups-v1'
   ];
   const STALE_LAYOUT_KEYS = [
     'foodranked-display-builder-v4',
@@ -145,6 +159,24 @@
 
   function writeJsonStorage(key, value) {
     localStorage.setItem(key, JSON.stringify(value));
+  }
+
+  function removeStorageKey(key, removed = []) {
+    if (!key || localStorage.getItem(key) == null) return removed;
+    localStorage.removeItem(key);
+    removed.push(key);
+    return removed;
+  }
+
+  function removeQuotaHeavyLayoutStorage(removed = []) {
+    QUOTA_HEAVY_LAYOUT_KEYS.forEach(key => removeStorageKey(key, removed));
+    const matchingKeys = [];
+    for (let index = 0; index < localStorage.length; index += 1) {
+      const key = localStorage.key(index);
+      if (QUOTA_HEAVY_LAYOUT_PREFIXES.some(prefix => key && key.startsWith(prefix))) matchingKeys.push(key);
+    }
+    matchingKeys.forEach(key => removeStorageKey(key, removed));
+    return removed;
   }
 
   function api(path, options = {}) {
@@ -282,33 +314,43 @@
     const entries = (Array.isArray(parsed) ? parsed : Object.values(parsed || {}))
       .filter(entry => !isRevokedLayoutSeed(entry))
       .filter(entry => entry && entry.id && entry.sections && typeof entry.sections === 'object');
-    const locked = entries.filter(isLockedLayoutEntry)
+    return entries.filter(isLockedLayoutEntry)
       .filter(isCanonicalLayoutEntry)
       .sort((a, b) => lockedLayoutSortIndex(a) - lockedLayoutSortIndex(b));
-    if (locked.length !== entries.length) {
-      if (locked.length) writeJsonStorage(STORAGE.layoutSavedLayouts, locked);
-      else localStorage.removeItem(STORAGE.layoutSavedLayouts);
-      localStorage.removeItem(STORAGE.layoutFoodLayouts);
-    }
-    return locked;
   }
 
   function lockedTestLayout() {
-    return readSavedLayoutEntries()
-      .sort((a, b) => lockedLayoutSortIndex(a) - lockedLayoutSortIndex(b))
-      [0] || null;
+    const saved = readSavedLayoutEntries()
+      .sort((a, b) => lockedLayoutSortIndex(a) - lockedLayoutSortIndex(b))[0];
+    if (saved) return saved;
+
+    const working = readJsonStorage(STORAGE.layoutWorking, null);
+    if (countLayoutLayers(working) !== canonicalLayoutLayerCount()) return null;
+    return {
+      id: 'layout_studio_canonical_working',
+      name: 'Universal working layout',
+      selectedFoodId: working.selectedFoodId || '',
+      selectedSectionId: working.selectedSectionId || 'intro',
+      canvas: clone(working.canvas || null),
+      sections: clone(working.sections || {}),
+      meta: {
+        ...(clone(working.meta || {})),
+        studioCanonicalLayout: {
+          version: STUDIO_CANONICAL_LOCK_VERSION,
+          fingerprint: canonicalFingerprint(),
+          layerCount: canonicalLayoutLayerCount(),
+          storageMode: 'working-layout-only'
+        }
+      }
+    };
   }
 
   function hasCanonicalLayoutState() {
     const fingerprint = canonicalFingerprint();
     if (!fingerprint) return false;
     const working = readJsonStorage(STORAGE.layoutWorking, null);
-    const saved = readSavedLayoutEntries();
     return localStorage.getItem(STORAGE.canonicalLayoutFingerprint) === fingerprint
-      && countLayoutLayers(working) === canonicalLayoutLayerCount()
-      && saved.length === LOCKED_LAYOUT_PRESET_NAMES.length
-      && saved.every(isCanonicalLayoutEntry)
-      && saved.every(entry => countLayoutLayers({ sections: entry.sections }) === canonicalLayoutLayerCount());
+      && countLayoutLayers(working) === canonicalLayoutLayerCount();
   }
 
   async function loadCanonicalLayoutState() {
@@ -325,25 +367,26 @@
     if (!force && hasCanonicalLayoutState()) return [];
 
     const removed = clearWrongLayoutCaches();
+    removeQuotaHeavyLayoutStorage(removed);
     const layout = clone(state.canonicalLayout.layout);
     writeJsonStorage(STORAGE.layoutWorking, layout);
-    writeJsonStorage(STORAGE.layoutSavedLayouts, canonicalSavedLayoutEntries());
     localStorage.setItem(STORAGE.canonicalLayoutFingerprint, canonicalFingerprint());
+    localStorage.removeItem(STORAGE.layoutSavedLayouts);
     localStorage.removeItem(STORAGE.layoutFoodLayouts);
     localStorage.removeItem(STORAGE.dbv2Placement);
 
     const changes = [
       ...removed,
       STORAGE.layoutWorking,
-      STORAGE.layoutSavedLayouts,
       STORAGE.canonicalLayoutFingerprint,
+      `${STORAGE.layoutSavedLayouts}:removed`,
       `${STORAGE.layoutFoodLayouts}:removed`,
       `${STORAGE.dbv2Placement}:removed`
     ];
     if (report) {
       setRenderText('Canonical layout restored', [
-        `Seeded test 1 through test 5 from ${canonicalFingerprint().slice(0, 12)}.`,
-        `${canonicalLayoutLayerCount()} layers across the universal layout.`
+        `Seeded the quota-safe universal layout from ${canonicalFingerprint().slice(0, 12)}.`,
+        `${canonicalLayoutLayerCount()} layers stored once as the current Layout Builder state.`
       ]);
     }
     return changes;
@@ -381,8 +424,8 @@
     const rows = [
       ['Canonical JSON', summary.canonicalFingerprint ? `${summary.canonicalFingerprint.slice(0, 12)} · ${summary.canonicalLayers} layers` : 'Missing'],
       ['Canonical seeded', summary.canonicalReady ? 'Yes' : 'No'],
-      ['Locked layout copy', summary.test ? `${summary.test.name} · ${summary.testLayers} layers` : 'Missing'],
-      ['Saved layouts', summary.savedNames.length ? summary.savedNames.join(', ') : 'None'],
+      ['Locked layout source', summary.test ? `${summary.test.name} · ${summary.testLayers} layers` : 'Missing'],
+      ['Saved layouts', summary.savedNames.length ? summary.savedNames.join(', ') : 'Skipped for app storage'],
       ['Working layout', summary.workingLayers ? `${summary.workingLayers} layers` : 'None'],
       ['Food layouts', 'Disabled for Layout Builder'],
       ['DBv2 placement', placement ? `${placement.sourceLayoutName || placement.sourceLayoutKey || 'DBv2'} @ ${placement.exportedAt || 'unknown time'}` : 'Will rebuild fresh'],
@@ -572,17 +615,7 @@
       localStorage.removeItem(key);
       removed.push(key);
     }
-    const savedLayouts = readJsonStorage(STORAGE.layoutSavedLayouts, []);
-    const savedEntries = Array.isArray(savedLayouts) ? savedLayouts : Object.values(savedLayouts || {});
-    const keptSavedEntries = savedEntries
-      .filter(entry => !isRevokedLayoutSeed(entry))
-      .filter(isLockedLayoutEntry)
-      .sort((a, b) => lockedLayoutSortIndex(a) - lockedLayoutSortIndex(b));
-    if (keptSavedEntries.length !== savedEntries.length) {
-      if (keptSavedEntries.length) writeJsonStorage(STORAGE.layoutSavedLayouts, keptSavedEntries);
-      else localStorage.removeItem(STORAGE.layoutSavedLayouts);
-      removed.push(`${STORAGE.layoutSavedLayouts}:non-locked`);
-    }
+    removeQuotaHeavyLayoutStorage(removed);
     if (isRevokedLayoutSeed(readJsonStorage(STORAGE.layoutWorking, null))) {
       localStorage.removeItem(STORAGE.layoutWorking);
       removed.push(`${STORAGE.layoutWorking}:revoked-seed`);

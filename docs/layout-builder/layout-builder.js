@@ -973,15 +973,50 @@
     return lockedEntries;
   }
 
+  function virtualLockedLayoutEntries(doc) {
+    const source = normalizedLayoutSnapshot(currentLayout(doc));
+    if (!source) return [];
+    const now = source.meta?.updatedAt || new Date().toISOString();
+    return LOCKED_LAYOUT_PRESET_NAMES.map((name, index) => ({
+      id: `layout_${name.replace(/\s+/g, '_')}_studio_working`,
+      name,
+      createdAt: now,
+      updatedAt: now,
+      selectedFoodId: source.selectedFoodId || '',
+      selectedSectionId: source.selectedSectionId || 'intro',
+      canvas: clone(source.canvas || null),
+      meta: {
+        ...(source.meta || {}),
+        lockedLayout: {
+          version: LOCKED_LAYOUT_VERSION,
+          lockedAt: now,
+          lockedName: name,
+          sourceName: 'current universal working layout',
+          sourceId: LAYOUT_STORAGE_KEY,
+          storageMode: 'virtual',
+          lockIndex: index + 1
+        }
+      },
+      sections: clone(source.sections)
+    }));
+  }
+
+  function savedLayoutsForUi(doc) {
+    const win = getFrameWindow();
+    if (!win) return [];
+    const entries = readSavedLayouts(win);
+    if (entries.length) return entries;
+    return virtualLockedLayoutEntries(doc);
+  }
+
   function prepareSavedLayoutStorageForBuilder(doc) {
     const win = getFrameWindow();
     if (!win) return null;
-    const entries = readSavedLayouts(win);
     try {
       win.localStorage.removeItem(FOOD_LAYOUTS_KEY);
+      win.localStorage.removeItem(SAVED_LAYOUTS_KEY);
     } catch {}
-    const lockedEntries = ensureLockedLayoutCopies(doc, entries);
-    return sortSavedLayoutEntries(lockedEntries).find(isLockedLayoutEntry) || null;
+    return savedLayoutsForUi(doc).find(isLockedLayoutEntry) || null;
   }
 
   function downloadTextFile(doc, filename, text, type = 'application/json') {
@@ -1001,9 +1036,9 @@
   function downloadLockedLayoutCopies(doc) {
     const win = getFrameWindow();
     if (!win) return;
-    const lockedEntries = sortSavedLayoutEntries(readSavedLayouts(win).filter(isLockedLayoutEntry));
+    const lockedEntries = sortSavedLayoutEntries(savedLayoutsForUi(doc).filter(isLockedLayoutEntry));
     if (lockedEntries.length !== LOCKED_LAYOUT_PRESET_NAMES.length) {
-      setSavedLayoutMessage(doc, 'Open/reload Layout Builder once so all five locked copies exist', true);
+      setSavedLayoutMessage(doc, 'Current working layout is not ready yet', true);
       return;
     }
     const exportedAt = new Date().toISOString();
@@ -1120,7 +1155,7 @@
     if (!win || !select) return;
 
     const currentSelection = selectedId ?? (select.value || selectedSavedLayoutId);
-    const entries = readSavedLayouts(win);
+    const entries = savedLayoutsForUi(doc);
     const signature = JSON.stringify(entries.map(entry => [entry.id, entry.name, entry.updatedAt]));
     const nextSignature = `${signature}|${currentSelection}`;
     const optionValues = Array.from(select.options).map(option => [option.value, option.textContent]);
@@ -1191,7 +1226,7 @@
     const select = doc.getElementById('savedLayoutSelect');
     if (!win || !input || !select) return;
 
-    const entry = readSavedLayouts(win).find(item => item.id === select.value);
+    const entry = savedLayoutsForUi(doc).find(item => item.id === select.value);
     if (doc.activeElement === input) return;
     input.value = entry ? entry.name : input.value;
   }
@@ -1209,7 +1244,7 @@
     const layout = currentLayout(doc);
     if (!win || !select || !layout) return;
 
-    const entry = readSavedLayouts(win).find(item => item.id === select.value);
+    const entry = savedLayoutsForUi(doc).find(item => item.id === select.value);
     if (!entry) {
       setSavedLayoutMessage(doc, 'Select a saved layout', true);
       return;
@@ -1236,7 +1271,7 @@
       return;
     }
 
-    const selectedEntry = readSavedLayouts(win).find(entry => entry.id === select.value);
+    const selectedEntry = savedLayoutsForUi(doc).find(entry => entry.id === select.value);
     if (isLockedLayoutEntry(selectedEntry)) {
       renderSavedLayoutSelect(doc, selectedEntry.id);
       setSavedLayoutMessage(doc, 'Locked layout copies are protected from deletion', true);

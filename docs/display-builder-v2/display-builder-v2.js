@@ -401,8 +401,7 @@
     const locked = kept.filter(isLockedSavedLayoutEntry);
     const next = locked.length ? locked : [];
     if (next.length !== entries.length || kept.length !== entries.length) {
-      if (next.length) localStorage.setItem(LAYOUT_BUILDER_SAVED_KEY, JSON.stringify(next));
-      else localStorage.removeItem(LAYOUT_BUILDER_SAVED_KEY);
+      localStorage.removeItem(LAYOUT_BUILDER_SAVED_KEY);
       localStorage.removeItem(LAYOUT_BUILDER_FOOD_LAYOUTS_KEY);
     }
     return next.sort((a, b) => lockedSavedLayoutSortIndex(a) - lockedSavedLayoutSortIndex(b));
@@ -422,7 +421,7 @@
     const locked = [...entries].filter(isLockedSavedLayoutEntry)
       .sort((a, b) => lockedSavedLayoutSortIndex(a) - lockedSavedLayoutSortIndex(b));
     if (!locked.length) return;
-    localStorage.setItem(LAYOUT_BUILDER_SAVED_KEY, JSON.stringify(locked));
+    localStorage.removeItem(LAYOUT_BUILDER_SAVED_KEY);
     localStorage.removeItem(LAYOUT_BUILDER_FOOD_LAYOUTS_KEY);
   }
 

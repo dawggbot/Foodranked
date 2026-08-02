@@ -1592,7 +1592,7 @@
         fallbackSrc: foodCandidates.fallback,
         x: foodBox.x,
         y: foodBox.y,
-        z: 56,
+        z: 54,
         width: foodBox.width,
         height: foodBox.height,
         naturalWidth: foodBox.naturalWidth || null,
@@ -1722,7 +1722,7 @@
     if (Object.prototype.hasOwnProperty.call(spec, 'stampRole')) layer.stampRole = spec.stampRole;
     if (isNewLayer || !Number.isFinite(Number(layer.x))) layer.x = spec.x;
     if (isNewLayer || !Number.isFinite(Number(layer.y))) layer.y = spec.y;
-    if (isNewLayer || !Number.isFinite(Number(layer.z))) layer.z = spec.z;
+    layer.z = spec.z;
   }
 
   function upsertStaticStampLayers(layout, sectionId, specs) {
@@ -2492,6 +2492,7 @@
     applyLayoutBuilderPlacementGuide(layout, food, option.layout);
     applyLayoutBuilderFoodImagePlacement(layout, food, option.layout);
     syncStaticIntroOutroStampSprites(layout, food);
+    syncFoodText(layout, food);
     syncMacroFills(layout, food);
     syncProteinRows(layout, food);
     const micronutrientReport = syncMicronutrients(layout, food);

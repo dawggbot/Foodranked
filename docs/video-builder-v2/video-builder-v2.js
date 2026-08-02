@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260801-current-pages-v1';
+  const BUILDER_BUILD_ID = '20260802-music-start-stabilize-v1';
   const REVOKED_LAYOUT_SEED_VERSIONS = new Set(['20260801-current-builder-layout-v1']);
   const REVOKED_LAYOUT_SEED_SOURCES = new Set(['docs/layout-builder/canonical-test-layout.js']);
   const REVOKED_LAYOUT_SEED_IDS = new Set(['layout_test_current_builder_20260801']);
@@ -27,6 +27,9 @@
   const ADAM_NARRATION_VOLUME = 0.7;
   const BACKGROUND_MUSIC_VOLUME = 0.14;
   const ARCADE_MELODY_BACKGROUND_MUSIC_VOLUME = BACKGROUND_MUSIC_VOLUME * 0.3;
+  const BACKGROUND_MUSIC_SYNC_TOLERANCE_SECONDS = 0.22;
+  const BACKGROUND_MUSIC_START_SYNC_TOLERANCE_SECONDS = 0.42;
+  const BACKGROUND_MUSIC_END_MARGIN_SECONDS = 0.08;
   const BACKGROUND_MOTION_DEFAULT_MAX_SIZE = 80;
   const BACKGROUND_MOTION_LEGACY_MAX_SIZE = 40;
   const AUDIO_MIX_SLIDER_SPECS = Object.freeze([
@@ -678,6 +681,7 @@
     backgroundMusicAudio: null,
     backgroundMusicPath: '',
     backgroundMusicFoodKey: '',
+    backgroundMusicPlayPromise: null,
     downloadSpriteFallbacks: new Map(),
     spriteFailures: new Map(),
     diagnosticsTimer: 0,
@@ -5258,16 +5262,28 @@
 
     pauseBackgroundMusic();
     const audio = new Audio(docsAssetPath(path));
-    audio.loop = true;
+    audio.loop = false;
     audio.preload = 'auto';
     audio.volume = music.volume;
     audio.dataset.sourcePath = path;
     audio.addEventListener('loadedmetadata', () => {
-      syncBackgroundMusicTime({ force: true });
+      syncBackgroundMusicTime({ force: !state.playing });
+    });
+    audio.addEventListener('ended', () => {
+      if (state.audioEnabled && state.playing) {
+        playBackgroundMusicFromCurrentTime({ forceSync: true });
+      }
     });
     state.backgroundMusicAudio = audio;
     state.backgroundMusicPath = path;
     return audio;
+  }
+
+  function backgroundMusicTimelineTime(audio, time = state.currentTime) {
+    const duration = asNumber(audio?.duration, null);
+    if (duration == null || duration <= BACKGROUND_MUSIC_END_MARGIN_SECONDS) return 0;
+    const loopDuration = Math.max(BACKGROUND_MUSIC_END_MARGIN_SECONDS, duration - BACKGROUND_MUSIC_END_MARGIN_SECONDS);
+    return clamp(asNumber(time, 0), 0, Number.POSITIVE_INFINITY) % loopDuration;
   }
 
   function syncBackgroundMusicTime({ force = false } = {}) {
@@ -5275,9 +5291,12 @@
     if (!audio) return false;
     const duration = asNumber(audio.duration, null);
     if (!force || duration == null || duration <= 0) return true;
-    const safeTime = state.currentTime % duration;
+    const safeTime = backgroundMusicTimelineTime(audio);
+    const tolerance = state.currentTime < 1
+      ? BACKGROUND_MUSIC_START_SYNC_TOLERANCE_SECONDS
+      : BACKGROUND_MUSIC_SYNC_TOLERANCE_SECONDS;
     try {
-      if (Math.abs(audio.currentTime - safeTime) > 0.08) audio.currentTime = safeTime;
+      if (Math.abs(audio.currentTime - safeTime) > tolerance) audio.currentTime = safeTime;
     } catch {}
     return true;
   }
@@ -5289,9 +5308,14 @@
     syncBackgroundMusicTime({ force: forceSync });
     const music = backgroundMusicForFood();
     audio.volume = music?.volume ?? BACKGROUND_MUSIC_VOLUME;
+    if (!audio.paused || state.backgroundMusicPlayPromise) return;
     const playPromise = audio.play();
-    if (playPromise?.catch) {
-      playPromise.catch(error => {
+    if (playPromise?.then) {
+      state.backgroundMusicPlayPromise = playPromise;
+      playPromise.then(() => {
+        if (state.backgroundMusicPlayPromise === playPromise) state.backgroundMusicPlayPromise = null;
+      }).catch(error => {
+        if (state.backgroundMusicPlayPromise === playPromise) state.backgroundMusicPlayPromise = null;
         if (error?.name === 'NotAllowedError') {
           state.audioEnabled = false;
           updateAudioControls('Audio blocked');
@@ -5307,11 +5331,12 @@
       try { audio.pause(); } catch {}
       return;
     }
-    if (audio.paused) playBackgroundMusicFromCurrentTime({ forceSync: true });
+    if (audio.paused && !state.backgroundMusicPlayPromise) playBackgroundMusicFromCurrentTime({ forceSync: true });
   }
 
   function pauseBackgroundMusic({ reset = false } = {}) {
     const audio = state.backgroundMusicAudio;
+    state.backgroundMusicPlayPromise = null;
     if (!audio) return;
     try {
       audio.pause();

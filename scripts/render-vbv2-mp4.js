@@ -614,6 +614,8 @@ function renderCss(width, height) {
     .preview-column {
       width: ${width}px !important;
       height: ${height}px !important;
+      max-width: none !important;
+      max-height: none !important;
       display: block !important;
       padding: 0 !important;
       margin: 0 !important;
@@ -626,6 +628,10 @@ function renderCss(width, height) {
     .phone-shell {
       width: ${width}px !important;
       height: ${height}px !important;
+      min-width: ${width}px !important;
+      min-height: ${height}px !important;
+      max-width: none !important;
+      max-height: none !important;
       aspect-ratio: auto !important;
       border: 0 !important;
       border-radius: 0 !important;
@@ -637,6 +643,11 @@ function renderCss(width, height) {
     .video-stage {
       width: ${width}px !important;
       height: ${height}px !important;
+      min-width: ${width}px !important;
+      min-height: ${height}px !important;
+      max-width: none !important;
+      max-height: none !important;
+      aspect-ratio: auto !important;
       border-radius: 0 !important;
       box-shadow: none !important;
     }

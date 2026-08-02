@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260802-highlight-text-layer-v1';
+  const BUILDER_BUILD_ID = '20260802-macro-fill-sfx-export-v1';
   const REVOKED_LAYOUT_SEED_VERSIONS = new Set(['20260801-current-builder-layout-v1']);
   const REVOKED_LAYOUT_SEED_SOURCES = new Set(['docs/layout-builder/canonical-test-layout.js']);
   const REVOKED_LAYOUT_SEED_IDS = new Set(['layout_test_current_builder_20260801']);
@@ -312,14 +312,15 @@
   });
   const MACRO_BAR_FILL_SFX_PATH = databaseUniversalSfxPath('macroBarFill', 'audio/sfx/sections/macros/macro_bar_fill_highscore.mp3');
   const MACRO_BAR_FILL_SFX_SOURCE_SECONDS = 9.408;
-  const MACRO_BAR_FILL_SFX_VOLUME = 0.31;
-  const MACRO_BAR_FILL_SFX_GAIN = 0.31;
+  const MACRO_BAR_FILL_SFX_VOLUME = 0.5;
+  const MACRO_BAR_FILL_SFX_GAIN = 0.5;
   const MACRO_BAR_FILL_SFX_FILTER_HZ = 3600;
   const MACRO_BAR_FILL_SFX_FILTER_Q = 0.25;
   const MACRO_BAR_FILL_SFX_POOL_SIZE = 1;
   const MACRO_BAR_FILL_SFX_FADE_IN_SECONDS = 0.045;
   const MACRO_BAR_FILL_SFX_FADE_OUT_SECONDS = 0.18;
   const MACRO_BAR_FILL_SFX_ENVELOPE_STEPS = 96;
+  const MACRO_BAR_FILL_SFX_MIN_PLAY_SECONDS = 0.08;
   const AUDIO_TIMELINE_SYNC_TOLERANCE_SECONDS = 0.12;
   const SPLIT_AUDIO_SCENE_SYNC_TOLERANCE_SECONDS = 0.005;
   const SPLIT_AUDIO_SCENE_TAIL_GUARD_SECONDS = 0.18;
@@ -7849,6 +7850,7 @@
             const fullSourceSeconds = macroBarFillSfxFullSourceSeconds(gifNativeSeconds);
             const sourceSliceSeconds = macroBarFillSfxSourceSliceSeconds(fillRatio, gifNativeSeconds);
             const targetSeconds = macroBarFillDurationSeconds(fillRatio);
+            if (targetSeconds < MACRO_BAR_FILL_SFX_MIN_PLAY_SECONDS) return null;
             return {
               key: `macro-bar-fill:${scene.id}:${schedule.layerId || schedule.kind}:${schedule.startSeconds}`,
               sceneId: scene.id,
@@ -7863,6 +7865,7 @@
               time: Number((scene.start + schedule.startSeconds + MACRO_BAR_START_DWELL_SECONDS).toFixed(3))
             };
           })
+          .filter(Boolean)
       ))
       .sort((a, b) => a.time - b.time || a.key.localeCompare(b.key));
   }
@@ -7991,6 +7994,7 @@
       playbackRate,
       playSeconds,
       sourceOffsetSeconds,
+      sourceSliceSeconds,
       fadeInSeconds: Math.min(MACRO_BAR_FILL_SFX_FADE_IN_SECONDS, playSeconds * 0.4),
       fadeOutSeconds: Math.min(MACRO_BAR_FILL_SFX_FADE_OUT_SECONDS, playSeconds * 0.45)
     };
@@ -9780,6 +9784,9 @@
 
   function rendererSfxEvent(kind, event, path, volume, options = {}) {
     if (!event || !path || volume <= 0) return null;
+    const sourceSliceSeconds = asNumber(options.sourceSliceSeconds, null);
+    const fadeInSeconds = asNumber(options.fadeInSeconds, null);
+    const fadeOutSeconds = asNumber(options.fadeOutSeconds, null);
     return {
       key: event.key || `${kind}:${event.time}`,
       kind,
@@ -9791,7 +9798,10 @@
       sourceOffsetSeconds: Number(asNumber(options.sourceOffsetSeconds, 0).toFixed(3)),
       durationSeconds: asNumber(options.durationSeconds, null) == null
         ? null
-        : Number(Math.max(0.001, asNumber(options.durationSeconds, 0)).toFixed(3))
+        : Number(Math.max(0.001, asNumber(options.durationSeconds, 0)).toFixed(3)),
+      ...(sourceSliceSeconds == null ? {} : { sourceSliceSeconds: Number(Math.max(0.001, sourceSliceSeconds).toFixed(3)) }),
+      ...(fadeInSeconds == null ? {} : { fadeInSeconds: Number(Math.max(0, fadeInSeconds).toFixed(3)) }),
+      ...(fadeOutSeconds == null ? {} : { fadeOutSeconds: Number(Math.max(0, fadeOutSeconds).toFixed(3)) })
     };
   }
 
@@ -9839,7 +9849,10 @@
         return rendererSfxEvent('macro-bar-fill', event, MACRO_BAR_FILL_SFX_PATH, macroBarFillSfxVolume(), {
           playbackRate: timing.playbackRate,
           sourceOffsetSeconds: timing.sourceOffsetSeconds,
-          durationSeconds: timing.playSeconds
+          durationSeconds: timing.playSeconds,
+          sourceSliceSeconds: timing.sourceSliceSeconds,
+          fadeInSeconds: timing.fadeInSeconds,
+          fadeOutSeconds: timing.fadeOutSeconds
         });
       })
     ];

@@ -266,6 +266,27 @@ function ffmpegNumber(value) {
   return Number(value).toFixed(3).replace(/\.?0+$/, match => (match === '.' ? '' : ''));
 }
 
+function normalizedPlaybackRate(value) {
+  const rate = Number(value || 1);
+  if (!Number.isFinite(rate) || rate <= 0) return 1;
+  return Math.max(0.125, Math.min(16, rate));
+}
+
+function atempoFilters(playbackRate) {
+  let remaining = normalizedPlaybackRate(playbackRate);
+  const filters = [];
+  while (remaining > 2) {
+    filters.push('atempo=2');
+    remaining /= 2;
+  }
+  while (remaining < 0.5) {
+    filters.push('atempo=0.5');
+    remaining /= 0.5;
+  }
+  if (Math.abs(remaining - 1) > 0.001) filters.push(`atempo=${ffmpegNumber(remaining)}`);
+  return filters;
+}
+
 function run(command, args, { label = command } = {}) {
   return new Promise((resolve, reject) => {
     const executable = bundledCommandPath(command);
@@ -814,11 +835,20 @@ function normalizeSfxEvents(events, options, duration) {
         path: assetPath,
         time: Math.max(0, time),
         volume,
-        playbackRate: Math.max(0.5, Math.min(2, Number(event.playbackRate || 1))),
+        playbackRate: normalizedPlaybackRate(event.playbackRate),
         sourceOffsetSeconds: Math.max(0, Number(event.sourceOffsetSeconds || 0)),
+        sourceSliceSeconds: Number.isFinite(Number(event.sourceSliceSeconds)) && Number(event.sourceSliceSeconds) > 0
+          ? Number(event.sourceSliceSeconds)
+          : null,
         durationSeconds: Number.isFinite(Number(event.durationSeconds)) && Number(event.durationSeconds) > 0
           ? Number(event.durationSeconds)
-          : null
+          : null,
+        fadeInSeconds: Number.isFinite(Number(event.fadeInSeconds)) && Number(event.fadeInSeconds) > 0
+          ? Number(event.fadeInSeconds)
+          : 0,
+        fadeOutSeconds: Number.isFinite(Number(event.fadeOutSeconds)) && Number(event.fadeOutSeconds) > 0
+          ? Number(event.fadeOutSeconds)
+          : 0
       };
     })
     .filter(Boolean);
@@ -829,16 +859,29 @@ function normalizeSfxEvents(events, options, duration) {
 
 function inputAudioFilter(inputIndex, label, options) {
   const parts = [];
-  if (options.sourceOffsetSeconds || options.durationSeconds) {
+  const playbackRate = normalizedPlaybackRate(options.playbackRate);
+  const outputDuration = Number(options.durationSeconds || 0);
+  const sourceSliceSeconds = Number(options.sourceSliceSeconds || 0);
+  const trimDurationSeconds = sourceSliceSeconds > 0
+    ? sourceSliceSeconds
+    : outputDuration > 0
+      ? outputDuration * playbackRate
+      : 0;
+  if (options.sourceOffsetSeconds || trimDurationSeconds) {
     const trim = [`start=${ffmpegNumber(options.sourceOffsetSeconds || 0)}`];
-    if (options.durationSeconds) trim.push(`duration=${ffmpegNumber(options.durationSeconds)}`);
+    if (trimDurationSeconds) trim.push(`duration=${ffmpegNumber(trimDurationSeconds)}`);
     parts.push(`atrim=${trim.join(':')}`);
   }
   parts.push('asetpts=PTS-STARTPTS');
-  if (options.playbackRate && Math.abs(options.playbackRate - 1) > 0.001) {
-    parts.push(`atempo=${ffmpegNumber(options.playbackRate)}`);
-  }
+  parts.push(...atempoFilters(playbackRate));
   parts.push(`volume=${ffmpegNumber(options.volume)}`);
+  const fadeInSeconds = Math.max(0, Number(options.fadeInSeconds || 0));
+  const fadeOutSeconds = Math.max(0, Number(options.fadeOutSeconds || 0));
+  if (fadeInSeconds > 0) parts.push(`afade=t=in:st=0:d=${ffmpegNumber(fadeInSeconds)}`);
+  if (fadeOutSeconds > 0 && outputDuration > 0) {
+    const fadeStart = Math.max(0, outputDuration - fadeOutSeconds);
+    parts.push(`afade=t=out:st=${ffmpegNumber(fadeStart)}:d=${ffmpegNumber(fadeOutSeconds)}`);
+  }
   if (options.delayMs) parts.push(`adelay=${options.delayMs}:all=1`);
   return `[${inputIndex}:a]${parts.join(',')}${label}`;
 }
@@ -888,7 +931,10 @@ async function buildAudioTrack({ food, options, duration, workDir, sfxEvents = [
       volume: event.volume,
       playbackRate: event.playbackRate,
       sourceOffsetSeconds: event.sourceOffsetSeconds,
-      durationSeconds: event.durationSeconds
+      sourceSliceSeconds: event.sourceSliceSeconds,
+      durationSeconds: event.durationSeconds,
+      fadeInSeconds: event.fadeInSeconds,
+      fadeOutSeconds: event.fadeOutSeconds
     }));
     labels.push(label);
   });

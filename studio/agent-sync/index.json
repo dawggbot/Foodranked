@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "foodranked-agent-sync-index.v1",
+  "updatedAt": "2026-08-02T18:30:00Z",
+  "repoRawBaseUrl": "https://raw.githubusercontent.com/dawggbot/Foodranked/main/",
+  "jobs": [
+    {
+      "id": "raspberries-sprite-render-20260802",
+      "title": "Raspberries sprite and MP4",
+      "description": "Attach the uploaded raspberries sprite inside the local app data, then render the VBv2 MP4 locally.",
+      "status": "ready",
+      "foodId": "raspberries",
+      "createdAt": "2026-08-02T18:30:00Z",
+      "tags": ["asset", "render", "vbv2"],
+      "actions": [
+        {
+          "type": "downloadAsset",
+          "label": "Raspberries sprite",
+          "kind": "image",
+          "foodId": "raspberries",
+          "filename": "raspberries.png",
+          "sourcePath": "sprites/header/food_images/raspberries.png",
+          "attachToFood": true,
+          "assetPatch": {
+            "width": 30,
+            "height": 30
+          }
+        },
+        {
+          "type": "upsertFood",
+          "label": "Attach sprite to raspberries",
+          "food": {
+            "id": "raspberries",
+            "name": "Raspberries",
+            "foodType": "fruits",
+            "foodTypeLabel": "Fruits",
+            "kcal": 52,
+            "customFoodImagePath": "/studio-data/uploads/images/raspberries/raspberries.png",
+            "assets": {
+              "customFoodImage": {
+                "path": "/studio-data/uploads/images/raspberries/raspberries.png",
+                "width": 30,
+                "height": 30
+              }
+            }
+          }
+        },
+        {
+          "type": "renderMp4",
+          "label": "Render raspberries MP4",
+          "foodId": "raspberries",
+          "force": true
+        }
+      ]
+    }
+  ]
+}

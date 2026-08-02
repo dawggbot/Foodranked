@@ -66,6 +66,7 @@
     layoutStatePill: document.getElementById('layoutStatePill'),
     layoutState: document.getElementById('layoutState'),
     inputPanel: document.getElementById('inputPanel'),
+    agentSyncPanel: document.getElementById('agentSyncPanel'),
     toolFrameShell: document.getElementById('toolFrameShell'),
     toolFrame: document.getElementById('toolFrame'),
     metricFoods: document.getElementById('metricFoods'),
@@ -97,7 +98,19 @@
     refreshInputData: document.getElementById('refreshInputData'),
     inputLog: document.getElementById('inputLog'),
     inputCounts: document.getElementById('inputCounts'),
-    inputRecords: document.getElementById('inputRecords')
+    inputRecords: document.getElementById('inputRecords'),
+    agentSyncState: document.getElementById('agentSyncState'),
+    agentSyncSource: document.getElementById('agentSyncSource'),
+    agentSyncLastCheck: document.getElementById('agentSyncLastCheck'),
+    agentSyncRenderer: document.getElementById('agentSyncRenderer'),
+    checkAgentSync: document.getElementById('checkAgentSync'),
+    runAgentSync: document.getElementById('runAgentSync'),
+    refreshAgentSync: document.getElementById('refreshAgentSync'),
+    agentSyncLog: document.getElementById('agentSyncLog'),
+    agentSyncCount: document.getElementById('agentSyncCount'),
+    agentSyncJobs: document.getElementById('agentSyncJobs'),
+    agentSyncDetails: document.getElementById('agentSyncDetails'),
+    agentSyncDownload: document.getElementById('agentSyncDownload')
   };
 
   const state = {
@@ -111,7 +124,9 @@
     latestJobId: null,
     renderDownloadedJobId: null,
     renderPoll: null,
-    canonicalLayout: null
+    canonicalLayout: null,
+    agentSync: null,
+    selectedAgentJobId: ''
   };
 
   function clean(value) {
@@ -219,6 +234,11 @@
   function setInputText(message, lines = []) {
     els.inputSyncState.textContent = message || 'Synced';
     els.inputLog.textContent = lines.filter(Boolean).join('\n');
+  }
+
+  function setAgentSyncText(message, lines = []) {
+    els.agentSyncState.textContent = message || 'Idle';
+    els.agentSyncLog.textContent = lines.filter(Boolean).join('\n');
   }
 
   function countLayoutLayers(layout) {
@@ -525,7 +545,7 @@
   }
 
   function renderToolNav() {
-    const tools = [{ id: 'dashboard', label: 'Dashboard' }, { id: 'input', label: 'Input' }, ...orderedTools()];
+    const tools = [{ id: 'dashboard', label: 'Dashboard' }, { id: 'input', label: 'Input' }, { id: 'agent-sync', label: 'Agent Sync' }, ...orderedTools()];
     els.toolNav.innerHTML = tools.map(tool => (
       `<button type="button" data-tool-id="${tool.id}" aria-current="${tool.id === state.activeToolId ? 'page' : 'false'}">${escapeHtml(tool.label)}</button>`
     )).join('');
@@ -569,19 +589,95 @@
     els.inputRecords.innerHTML = [...foodRows, ...assetRows].join('') || '<div class="food-empty">No app input records yet</div>';
   }
 
+  function agentSyncJobs() {
+    return state.agentSync?.index?.jobs || [];
+  }
+
+  function selectedAgentSyncJob() {
+    const jobs = agentSyncJobs();
+    return jobs.find(job => job.id === state.selectedAgentJobId) || jobs[0] || null;
+  }
+
+  function actionSummary(action) {
+    const bits = [
+      action.type,
+      action.foodId ? `food: ${action.foodId}` : '',
+      action.filename ? `file: ${action.filename}` : '',
+      action.sourcePath ? `source: ${action.sourcePath}` : '',
+      action.sections ? `sections: ${Array.isArray(action.sections) ? action.sections.join(', ') : action.sections}` : ''
+    ].filter(Boolean);
+    return bits.join(' - ');
+  }
+
+  function renderAgentSyncPanel() {
+    const sync = state.agentSync;
+    const jobs = agentSyncJobs();
+    const selected = selectedAgentSyncJob();
+    if (selected && !state.selectedAgentJobId) state.selectedAgentJobId = selected.id;
+    els.agentSyncSource.textContent = sync?.index?.sourceUrl || sync?.sourceUrl || 'Not checked';
+    els.agentSyncLastCheck.textContent = sync?.state?.lastCheckedAt || 'Never';
+    els.agentSyncRenderer.textContent = sync?.renderer?.busy
+      ? `Busy with ${sync.renderer.currentJob?.foodId || 'render'}`
+      : 'Idle';
+    els.agentSyncCount.textContent = `${jobs.length} job${jobs.length === 1 ? '' : 's'}`;
+    els.runAgentSync.disabled = !selected || Boolean(sync?.renderer?.busy);
+    els.agentSyncJobs.innerHTML = jobs.map(job => (
+      `<button type="button" class="agent-job${job.id === selected?.id ? ' active' : ''}" data-agent-job-id="${escapeHtml(job.id)}">
+        <strong>${escapeHtml(job.title || job.id)}</strong>
+        <span>${escapeHtml([job.localStatus || 'new', job.foodId || '', `${job.actionCount || 0} actions`].filter(Boolean).join(' - '))}</span>
+      </button>`
+    )).join('') || '<div class="food-empty">No Agent Sync jobs loaded yet.</div>';
+
+    if (!selected) {
+      els.agentSyncDetails.innerHTML = '<div class="food-empty">Check GitHub jobs to load the latest queue.</div>';
+      els.agentSyncDownload.hidden = true;
+      return;
+    }
+
+    const actionRows = (selected.actions || []).map((action, index) => (
+      `<li>
+        <strong>${escapeHtml(action.label || `Action ${index + 1}`)}</strong>
+        <span>${escapeHtml(actionSummary(action))}</span>
+      </li>`
+    )).join('');
+    const lastResult = selected.lastResult || null;
+    const renderJob = lastResult?.renderJob || sync?.renderer?.currentJob || null;
+    const downloadUrl = renderJob?.downloadUrl || '';
+    els.agentSyncDownload.href = downloadUrl || '#';
+    els.agentSyncDownload.download = downloadUrl ? `${safeSlug(selected.foodId || renderJob?.foodId || 'foodranked-video')}-vbv2.mp4` : '';
+    els.agentSyncDownload.hidden = !downloadUrl || renderJob?.status !== 'complete';
+    els.agentSyncDetails.innerHTML = `
+      <div class="agent-job-summary">
+        <strong>${escapeHtml(selected.title || selected.id)}</strong>
+        <p>${escapeHtml(selected.description || 'No description provided.')}</p>
+        <span>${escapeHtml([selected.id, selected.foodId || '', selected.localStatus || 'new'].filter(Boolean).join(' - '))}</span>
+      </div>
+      <ol class="agent-action-list">${actionRows}</ol>
+      ${lastResult ? `<pre>${escapeHtml(JSON.stringify(lastResult, null, 2))}</pre>` : ''}
+    `;
+  }
+
   function renderWorkspace() {
     const food = selectedFood();
     const tool = selectedTool();
     const onDashboard = state.activeToolId === 'dashboard';
     const onInput = state.activeToolId === 'input';
+    const onAgentSync = state.activeToolId === 'agent-sync';
     els.dashboard.hidden = !onDashboard;
     els.inputPanel.hidden = !onInput;
-    els.toolFrameShell.hidden = onDashboard || onInput;
+    els.agentSyncPanel.hidden = !onAgentSync;
+    els.toolFrameShell.hidden = onDashboard || onInput || onAgentSync;
     els.activeFoodType.textContent = food ? `${food.foodTypeLabel || food.foodType || 'Food'} ${food.tier ? `- ${food.tier} tier` : ''}` : 'Ready';
-    els.activeTitle.textContent = onDashboard ? 'Dashboard' : onInput ? 'Input' : `${tool?.label || 'Tool'} - ${food?.name || 'Food'}`;
-    els.openTool.disabled = onDashboard || onInput || !tool;
+    els.activeTitle.textContent = onDashboard
+      ? 'Dashboard'
+      : onInput
+      ? 'Input'
+      : onAgentSync
+      ? 'Agent Sync'
+      : `${tool?.label || 'Tool'} - ${food?.name || 'Food'}`;
+    els.openTool.disabled = onDashboard || onInput || onAgentSync || !tool;
 
-    if (!onDashboard && !onInput && tool) {
+    if (!onDashboard && !onInput && !onAgentSync && tool) {
       const frameKey = `${tool.id}:${food?.id || state.selectedFoodId}`;
       if (els.toolFrame.dataset.frameKey !== frameKey) {
         els.toolFrame.dataset.frameKey = frameKey;
@@ -597,6 +693,7 @@
     renderMetrics();
     renderLayoutState();
     renderInputPanel();
+    renderAgentSyncPanel();
     renderWorkspace();
   }
 
@@ -690,14 +787,46 @@
     return state.inputDatabase;
   }
 
+  async function loadAgentSyncStatus() {
+    const data = await api('/api/agent-sync/status');
+    state.agentSync = data;
+    return data;
+  }
+
+  async function checkAgentSyncJobs() {
+    try {
+      els.checkAgentSync.disabled = true;
+      setAgentSyncText('Checking GitHub jobs', ['Fetching the Agent Sync index...']);
+      const data = await api('/api/agent-sync/check', {
+        method: 'POST',
+        body: JSON.stringify({})
+      });
+      state.agentSync = data;
+      const jobs = agentSyncJobs();
+      if (!state.selectedAgentJobId && jobs[0]) state.selectedAgentJobId = jobs[0].id;
+      renderAll();
+      setAgentSyncText('Jobs loaded', [
+        `${jobs.length} job${jobs.length === 1 ? '' : 's'} available.`,
+        data.index?.warning ? `Fallback used: ${data.index.warning}` : '',
+        data.index?.source ? `Source: ${data.index.source}` : ''
+      ]);
+    } catch (error) {
+      setAgentSyncText('Check failed', [error.message]);
+    } finally {
+      els.checkAgentSync.disabled = false;
+    }
+  }
+
   async function refreshStudioData({ keepSelection = true } = {}) {
     const previousFoodId = state.selectedFoodId;
-    const [health, foodsResponse] = await Promise.all([
+    const [health, foodsResponse, , agentSync] = await Promise.all([
       api('/api/health'),
       api('/api/foods'),
-      loadInputDatabase()
+      loadInputDatabase(),
+      loadAgentSyncStatus()
     ]);
     state.health = health;
+    state.agentSync = agentSync;
     state.foods = foodsResponse.foods || [];
     if (!keepSelection || !state.foods.some(food => food.id === previousFoodId)) {
       state.selectedFoodId = state.foods[0]?.id || 'bacon';
@@ -998,6 +1127,76 @@
       clearInterval(state.renderPoll);
       state.renderPoll = null;
     }
+    return job;
+  }
+
+  function startRenderPolling(jobId, { agentSync = false } = {}) {
+    if (!jobId) return;
+    clearInterval(state.renderPoll);
+    state.latestJobId = jobId;
+    pollRenderJob(jobId)
+      .then(job => {
+        if (agentSync) {
+          setAgentSyncText(job.status === 'complete' ? 'MP4 ready' : job.message || job.status, [
+            `${job.status.toUpperCase()}: ${job.message || ''}`,
+            job.downloadUrl || ''
+          ]);
+          if (job.status === 'complete') {
+            loadAgentSyncStatus().then(() => renderAll()).catch(() => {});
+          }
+        }
+      })
+      .catch(error => setRenderText('Render polling failed', [error.message]));
+    state.renderPoll = setInterval(() => {
+      pollRenderJob(jobId)
+        .then(job => {
+          if (!agentSync) return;
+          setAgentSyncText(job.status === 'complete' ? 'MP4 ready' : job.message || job.status, [
+            `${job.status.toUpperCase()}: ${job.message || ''}`,
+            job.frame ? `Frames: ${job.frame.current}/${job.frame.total} (${job.frame.percent}%)` : '',
+            job.downloadUrl || ''
+          ]);
+          if (job.status === 'complete' || job.status === 'failed') {
+            loadAgentSyncStatus().then(() => renderAll()).catch(() => {});
+          }
+        })
+        .catch(error => setRenderText('Render polling failed', [error.message]));
+    }, 2000);
+  }
+
+  async function runSelectedAgentSyncJob() {
+    const job = selectedAgentSyncJob();
+    if (!job) {
+      setAgentSyncText('No job selected', ['Check GitHub jobs first.']);
+      return;
+    }
+    try {
+      els.runAgentSync.disabled = true;
+      setAgentSyncText('Running job', [`${job.title || job.id}`, 'Applying local app changes...']);
+      const data = await api(`/api/agent-sync/jobs/${encodeURIComponent(job.id)}/run`, {
+        method: 'POST',
+        body: JSON.stringify({})
+      });
+      state.agentSync = await loadAgentSyncStatus().catch(() => state.agentSync);
+      const renderJob = data.renderJob || data.run?.actions?.find(action => action.job)?.job || null;
+      if (renderJob?.foodId && state.foods.some(food => food.id === renderJob.foodId)) {
+        state.selectedFoodId = renderJob.foodId;
+        state.foodQuery = selectedFood()?.name || '';
+      }
+      await refreshStudioData({ keepSelection: true });
+      if (renderJob?.id) startRenderPolling(renderJob.id, { agentSync: true });
+      setAgentSyncText(data.status === 'rendering' ? 'Render started' : 'Job complete', [
+        `${data.job?.title || job.title || job.id}`,
+        ...(data.run?.actions || []).map(action => `${action.ok === false ? 'FAILED' : 'OK'}: ${action.label || action.type}`),
+        renderJob?.downloadUrl ? `MP4: ${renderJob.downloadUrl}` : ''
+      ]);
+    } catch (error) {
+      await loadAgentSyncStatus().then(() => renderAll()).catch(() => {});
+      setAgentSyncText('Job failed', [error.message]);
+    } finally {
+      els.runAgentSync.disabled = false;
+      renderAll();
+    }
   }
 
   async function renderVideo() {
@@ -1033,14 +1232,7 @@
         return;
       }
       const job = response.job;
-      state.latestJobId = job?.id || null;
-      if (state.latestJobId) {
-        await pollRenderJob(state.latestJobId);
-        clearInterval(state.renderPoll);
-        state.renderPoll = setInterval(() => {
-          pollRenderJob(state.latestJobId).catch(error => setRenderText('Render polling failed', [error.message]));
-        }, 2000);
-      }
+      if (job?.id) startRenderPolling(job.id);
     } catch (error) {
       setRenderText('Render failed to start', [error.message]);
     } finally {
@@ -1051,13 +1243,15 @@
   async function loadInitial() {
     await loadCanonicalLayoutState();
     await seedCanonicalLayoutState({ force: true });
-    const [health, foodsResponse, stateResponse] = await Promise.all([
+    const [health, foodsResponse, stateResponse, , agentSync] = await Promise.all([
       api('/api/health'),
       api('/api/foods'),
       api('/api/state'),
-      loadInputDatabase()
+      loadInputDatabase(),
+      loadAgentSyncStatus()
     ]);
     state.health = health;
+    state.agentSync = agentSync;
     state.foods = foodsResponse.foods || [];
     const savedFoodId = stateResponse.state?.selectedFoodId;
     state.selectedFoodId = state.foods.some(food => food.id === savedFoodId) ? savedFoodId : state.foods[0]?.id || 'bacon';
@@ -1121,6 +1315,22 @@
   });
 
   els.renderVideo.addEventListener('click', renderVideo);
+  els.checkAgentSync.addEventListener('click', checkAgentSyncJobs);
+  els.runAgentSync.addEventListener('click', runSelectedAgentSyncJob);
+  els.refreshAgentSync.addEventListener('click', () => {
+    loadAgentSyncStatus()
+      .then(() => {
+        renderAll();
+        setAgentSyncText('Status refreshed', ['Loaded local Agent Sync state.']);
+      })
+      .catch(error => setAgentSyncText('Refresh failed', [error.message]));
+  });
+  els.agentSyncJobs.addEventListener('click', event => {
+    const button = event.target.closest('button[data-agent-job-id]');
+    if (!button) return;
+    state.selectedAgentJobId = button.dataset.agentJobId;
+    renderAll();
+  });
   els.loadSelectedEntry.addEventListener('click', () => fillEntryForm(selectedFood()));
   els.clearEntry.addEventListener('click', clearEntryForm);
   els.saveEntry.addEventListener('click', saveEntry);

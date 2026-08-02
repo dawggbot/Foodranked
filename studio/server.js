@@ -4,6 +4,7 @@
 const fs = require('fs');
 const crypto = require('crypto');
 const http = require('http');
+const https = require('https');
 const os = require('os');
 const path = require('path');
 const { spawn, spawnSync } = require('child_process');
@@ -15,15 +16,20 @@ const DATA_DIR = path.resolve(process.env.FOODRANKED_STUDIO_DATA_DIR || path.joi
 const RENDER_DIR = path.resolve(process.env.FOODRANKED_STUDIO_RENDER_DIR || path.join(DATA_DIR, 'renders'));
 const UPLOAD_DIR = path.resolve(process.env.FOODRANKED_STUDIO_UPLOAD_DIR || path.join(DATA_DIR, 'uploads'));
 const AGENT_EXPORT_DIR = path.resolve(process.env.FOODRANKED_STUDIO_AGENT_EXPORT_DIR || path.join(DATA_DIR, 'agent-exports'));
+const AGENT_SYNC_DIR = path.resolve(process.env.FOODRANKED_STUDIO_AGENT_SYNC_DIR || path.join(DATA_DIR, 'agent-sync'));
 const INPUT_DATABASE_FILE = path.join(DATA_DIR, 'studio-input-database.json');
 const STATE_FILE = path.join(DATA_DIR, 'studio-state.json');
+const AGENT_SYNC_STATE_FILE = path.join(AGENT_SYNC_DIR, 'agent-sync-state.json');
 const UNIVERSAL_LAYOUT_FILE = path.join(__dirname, 'layout', 'universal-layout.json');
 const DEFAULT_HOST = '127.0.0.1';
 const DEFAULT_PORT = 4787;
 const DEFAULT_RENDER_PORT_START = 4290;
 const MAX_BODY_BYTES = 128 * 1024 * 1024;
+const MAX_AGENT_SYNC_ASSET_BYTES = 64 * 1024 * 1024;
 const MAX_LOG_LINES = 240;
 const JOB_HISTORY_LIMIT = 30;
+const AGENT_SYNC_INDEX_URL = process.env.FOODRANKED_AGENT_SYNC_INDEX_URL || 'https://raw.githubusercontent.com/dawggbot/Foodranked/main/studio/agent-sync/index.json';
+const AGENT_SYNC_REPO_RAW_BASE_URL = process.env.FOODRANKED_AGENT_SYNC_REPO_RAW_BASE_URL || 'https://raw.githubusercontent.com/dawggbot/Foodranked/main/';
 const PRODUCTION_DATABASE_KEY = 'foodranked-production-database-v1';
 const PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
 const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
@@ -209,6 +215,7 @@ function ensureDataDir() {
   fs.mkdirSync(RENDER_DIR, { recursive: true });
   fs.mkdirSync(UPLOAD_DIR, { recursive: true });
   fs.mkdirSync(AGENT_EXPORT_DIR, { recursive: true });
+  fs.mkdirSync(AGENT_SYNC_DIR, { recursive: true });
 }
 
 function clone(value) {
@@ -1039,6 +1046,600 @@ function uploadAssetFromBody(body) {
   };
 }
 
+function defaultAgentSyncState() {
+  return {
+    schemaVersion: 'foodranked-agent-sync-state.v1',
+    sourceUrl: AGENT_SYNC_INDEX_URL,
+    updatedAt: '',
+    lastCheckedAt: '',
+    lastRunAt: '',
+    jobs: {},
+    runs: []
+  };
+}
+
+function readAgentSyncState() {
+  const state = readJsonFile(AGENT_SYNC_STATE_FILE, null);
+  return state && state.schemaVersion === 'foodranked-agent-sync-state.v1'
+    ? {
+        ...defaultAgentSyncState(),
+        ...state,
+        jobs: state.jobs && typeof state.jobs === 'object' && !Array.isArray(state.jobs) ? state.jobs : {},
+        runs: Array.isArray(state.runs) ? state.runs.slice(-40) : []
+      }
+    : defaultAgentSyncState();
+}
+
+function writeAgentSyncState(nextState) {
+  const normalized = {
+    ...defaultAgentSyncState(),
+    ...(nextState && typeof nextState === 'object' ? nextState : {}),
+    schemaVersion: 'foodranked-agent-sync-state.v1',
+    sourceUrl: nextState?.sourceUrl || AGENT_SYNC_INDEX_URL,
+    updatedAt: new Date().toISOString()
+  };
+  normalized.runs = Array.isArray(normalized.runs) ? normalized.runs.slice(-40) : [];
+  normalized.jobs = normalized.jobs && typeof normalized.jobs === 'object' && !Array.isArray(normalized.jobs)
+    ? normalized.jobs
+    : {};
+  writeJsonFile(AGENT_SYNC_STATE_FILE, normalized);
+  return normalized;
+}
+
+function packagedAgentSyncIndexPath() {
+  return path.join(__dirname, 'agent-sync', 'index.json');
+}
+
+function agentSyncRunId(jobId) {
+  const stamp = new Date().toISOString().replace(/[^0-9A-Za-z]+/g, '-').replace(/^-+|-+$/g, '');
+  return `${safeSlug(jobId) || 'job'}-${stamp}`;
+}
+
+function repoRawUrlForPath(sourcePath, baseUrl = AGENT_SYNC_REPO_RAW_BASE_URL) {
+  const cleanPath = String(sourcePath || '').trim().replace(/^repo:/, '').replace(/^\/+/, '');
+  if (!cleanPath || cleanPath.includes('..')) throw new Error('Invalid repo asset path.');
+  const prefix = String(baseUrl || AGENT_SYNC_REPO_RAW_BASE_URL).replace(/\/+$/, '');
+  return `${prefix}/${cleanPath.split('/').map(encodeURIComponent).join('/')}`;
+}
+
+function assertAllowedAgentSyncUrl(url) {
+  const parsed = new URL(url);
+  if (parsed.protocol === 'file:') return;
+  if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
+    throw new Error(`Unsupported Agent Sync URL protocol: ${parsed.protocol}`);
+  }
+  if (parsed.protocol === 'http:' && !['127.0.0.1', 'localhost'].includes(parsed.hostname)) {
+    throw new Error('Agent Sync HTTP URLs are only allowed for localhost testing.');
+  }
+  if (parsed.hostname === 'raw.githubusercontent.com') {
+    if (!parsed.pathname.startsWith('/dawggbot/Foodranked/')) throw new Error('Agent Sync raw GitHub URLs must come from dawggbot/Foodranked.');
+    return;
+  }
+  if (parsed.hostname === 'github.com') {
+    if (!parsed.pathname.startsWith('/dawggbot/Foodranked/')) throw new Error('Agent Sync GitHub URLs must come from dawggbot/Foodranked.');
+    return;
+  }
+  if (/\.githubusercontent\.com$/i.test(parsed.hostname)) return;
+  if (['127.0.0.1', 'localhost'].includes(parsed.hostname)) return;
+  throw new Error(`Agent Sync URL host is not allowed: ${parsed.hostname}`);
+}
+
+function fetchUrlBuffer(url, { maxBytes = MAX_AGENT_SYNC_ASSET_BYTES, redirects = 0 } = {}) {
+  assertAllowedAgentSyncUrl(url);
+  const parsed = new URL(url);
+  if (parsed.protocol === 'file:') {
+    const filePath = path.resolve(decodeURIComponent(parsed.pathname));
+    if (!isInside(REPO_ROOT, filePath) && !isInside(DATA_DIR, filePath)) throw new Error('Agent Sync file URL is outside the allowed workspace.');
+    const stat = fs.statSync(filePath);
+    if (stat.size > maxBytes) throw new Error(`Agent Sync file is too large: ${stat.size} bytes.`);
+    return Promise.resolve(fs.readFileSync(filePath));
+  }
+
+  const client = parsed.protocol === 'https:' ? https : http;
+  return new Promise((resolve, reject) => {
+    const request = client.get(parsed, {
+      headers: {
+        'User-Agent': 'FoodRanked-Studio-Agent-Sync',
+        'Accept': '*/*'
+      }
+    }, response => {
+      const status = Number(response.statusCode) || 0;
+      if ([301, 302, 303, 307, 308].includes(status) && response.headers.location) {
+        response.resume();
+        if (redirects >= 5) {
+          reject(new Error('Agent Sync download redirected too many times.'));
+          return;
+        }
+        const nextUrl = new URL(response.headers.location, parsed).toString();
+        fetchUrlBuffer(nextUrl, { maxBytes, redirects: redirects + 1 }).then(resolve, reject);
+        return;
+      }
+      if (status < 200 || status >= 300) {
+        response.resume();
+        reject(new Error(`Agent Sync download failed with HTTP ${status}.`));
+        return;
+      }
+
+      const chunks = [];
+      let size = 0;
+      response.on('data', chunk => {
+        size += chunk.length;
+        if (size > maxBytes) {
+          request.destroy(new Error(`Agent Sync download is larger than ${Math.round(maxBytes / 1024 / 1024)} MB.`));
+          return;
+        }
+        chunks.push(chunk);
+      });
+      response.on('end', () => resolve(Buffer.concat(chunks)));
+    });
+    request.on('error', reject);
+    request.setTimeout(30000, () => request.destroy(new Error('Agent Sync download timed out.')));
+  });
+}
+
+async function fetchJsonUrl(url, fallback = null) {
+  const buffer = await fetchUrlBuffer(url, { maxBytes: 4 * 1024 * 1024 });
+  const parsed = JSON.parse(buffer.toString('utf8'));
+  return parsed && typeof parsed === 'object' ? parsed : fallback;
+}
+
+function cleanAgentActionType(value) {
+  return cleanString(value).replace(/[^A-Za-z0-9_-]+/g, '');
+}
+
+function normalizeAgentSyncJob(value) {
+  const source = value && typeof value === 'object' && !Array.isArray(value) ? clone(value) : {};
+  const id = safeSlug(source.id || source.jobId || source.title);
+  const actions = Array.isArray(source.actions)
+    ? source.actions
+        .map((action, index) => (
+          action && typeof action === 'object' && !Array.isArray(action)
+            ? { ...clone(action), type: cleanAgentActionType(action.type), index }
+            : null
+        ))
+        .filter(action => action && action.type)
+    : [];
+  return {
+    id,
+    title: cleanString(source.title) || id,
+    description: cleanString(source.description),
+    status: cleanString(source.status) || 'ready',
+    createdAt: cleanString(source.createdAt),
+    updatedAt: cleanString(source.updatedAt),
+    foodId: safeSlug(source.foodId || actions.find(action => action.foodId || action.food?.id)?.foodId || actions.find(action => action.food?.id)?.food?.id),
+    tags: Array.isArray(source.tags) ? source.tags.map(cleanString).filter(Boolean).slice(0, 12) : [],
+    actions
+  };
+}
+
+function normalizeAgentSyncIndex(value, sourceUrl = AGENT_SYNC_INDEX_URL) {
+  const source = value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+  const jobs = Array.isArray(source.jobs)
+    ? source.jobs.map(normalizeAgentSyncJob).filter(job => job.id && job.actions.length && job.status !== 'disabled')
+    : [];
+  return {
+    ok: true,
+    schemaVersion: cleanString(source.schemaVersion) || 'foodranked-agent-sync-index.v1',
+    sourceUrl,
+    repoRawBaseUrl: cleanString(source.repoRawBaseUrl) || AGENT_SYNC_REPO_RAW_BASE_URL,
+    updatedAt: cleanString(source.updatedAt),
+    jobs
+  };
+}
+
+async function fetchAgentSyncIndex(sourceUrl = AGENT_SYNC_INDEX_URL) {
+  try {
+    const remote = await fetchJsonUrl(sourceUrl, null);
+    return {
+      ...normalizeAgentSyncIndex(remote, sourceUrl),
+      source: 'remote'
+    };
+  } catch (remoteError) {
+    const localPath = packagedAgentSyncIndexPath();
+    if (!fs.existsSync(localPath)) throw remoteError;
+    const local = readJsonFile(localPath, { jobs: [] });
+    return {
+      ...normalizeAgentSyncIndex(local, `file://${localPath}`),
+      source: 'packaged',
+      warning: remoteError.message
+    };
+  }
+}
+
+function publicAgentSyncJob(job, syncState = readAgentSyncState()) {
+  const local = syncState.jobs[job.id] || {};
+  return {
+    id: job.id,
+    title: job.title,
+    description: job.description,
+    status: job.status,
+    localStatus: local.status || 'new',
+    lastRunAt: local.lastRunAt || '',
+    lastResult: local.lastResult || null,
+    foodId: job.foodId,
+    tags: job.tags,
+    actionCount: job.actions.length,
+    actions: job.actions.map(action => ({
+      index: action.index,
+      type: action.type,
+      label: cleanString(action.label) || '',
+      foodId: safeSlug(action.foodId || action.food?.id || job.foodId),
+      filename: cleanString(action.filename || action.name),
+      sourcePath: cleanString(action.sourcePath || action.path),
+      sections: action.sections || null
+    }))
+  };
+}
+
+function reconcileAgentSyncState() {
+  const syncState = readAgentSyncState();
+  let changed = false;
+  Object.entries(syncState.jobs).forEach(([jobId, entry]) => {
+    const renderJobId = entry?.lastResult?.renderJob?.id;
+    if (!renderJobId) return;
+    const liveJob = renderState.jobs.get(String(renderJobId));
+    if (!liveJob) return;
+    const publicLiveJob = publicJob(liveJob);
+    entry.lastResult = {
+      ...(entry.lastResult || {}),
+      renderJob: publicLiveJob
+    };
+    if (entry.status === 'rendering' && (liveJob.status === 'complete' || liveJob.status === 'failed')) {
+      entry.status = liveJob.status;
+      changed = true;
+    }
+    changed = true;
+    syncState.runs.forEach(run => {
+      if (run.jobId !== jobId || run.status !== 'rendering') return;
+      run.status = liveJob.status === 'complete' ? 'complete' : liveJob.status === 'failed' ? 'failed' : run.status;
+      run.completedAt = liveJob.completedAt || run.completedAt;
+      changed = true;
+    });
+  });
+  return changed ? writeAgentSyncState(syncState) : syncState;
+}
+
+function publicAgentSyncStatus({ index = null } = {}) {
+  const syncState = reconcileAgentSyncState();
+  return {
+    ok: true,
+    enabled: true,
+    sourceUrl: AGENT_SYNC_INDEX_URL,
+    repoRawBaseUrl: AGENT_SYNC_REPO_RAW_BASE_URL,
+    localOnly: true,
+    state: {
+      lastCheckedAt: syncState.lastCheckedAt,
+      lastRunAt: syncState.lastRunAt,
+      knownJobs: Object.keys(syncState.jobs).length,
+      recentRuns: syncState.runs.slice(-8).reverse()
+    },
+    renderer: {
+      busy: Boolean(renderState.currentJob),
+      currentJob: publicJob(renderState.currentJob)
+    },
+    index: index ? {
+      source: index.source,
+      sourceUrl: index.sourceUrl,
+      updatedAt: index.updatedAt,
+      warning: index.warning || '',
+      jobs: index.jobs.map(job => publicAgentSyncJob(job, syncState))
+    } : null
+  };
+}
+
+function agentSyncSourceUrlForAction(action, index) {
+  const direct = cleanString(action.sourceUrl || action.url);
+  if (direct) return direct;
+  const sourcePath = cleanString(action.sourcePath || action.path || action.repoPath);
+  if (!sourcePath) throw new Error('Asset action requires sourcePath or sourceUrl.');
+  if (/^https?:\/\//i.test(sourcePath) || sourcePath.startsWith('file:')) return sourcePath;
+  return repoRawUrlForPath(sourcePath, index?.repoRawBaseUrl || AGENT_SYNC_REPO_RAW_BASE_URL);
+}
+
+function safeAgentSyncFilename(value, kind) {
+  const filename = safeUploadFilename(value, kind === 'image' ? 'image' : kind === 'narration' ? 'narration' : 'asset');
+  const ext = path.extname(filename).toLowerCase();
+  const allowed = new Set(['.png', '.jpg', '.jpeg', '.webp', '.mp3', '.wav', '.m4a', '.json', '.txt']);
+  if (!allowed.has(ext)) throw new Error(`Agent Sync asset extension is not allowed: ${ext || '(none)'}`);
+  if (kind === 'image' && ext !== '.png') throw new Error('Food image assets must be PNG files.');
+  if (kind === 'narration' && !['.mp3', '.wav', '.m4a'].includes(ext)) throw new Error('Narration assets must be MP3, WAV, or M4A files.');
+  return filename;
+}
+
+function agentSyncSubdirForKind(kind) {
+  const clean = cleanString(kind).toLowerCase();
+  if (clean === 'image') return 'images';
+  if (clean === 'narration') return 'narration';
+  if (clean === 'split-audio' || clean === 'splitAudio') return 'split-audio';
+  if (clean === 'script') return 'scripts';
+  if (clean === 'subtitles') return 'subtitles';
+  return 'assets';
+}
+
+function baseInputFoodShell(foodId, body = {}) {
+  const base = findFood(foodId) || {};
+  return {
+    id: foodId,
+    name: cleanString(body.foodName) || base.name || foodId.replace(/-/g, ' '),
+    foodType: safeSlug(body.foodType || base.foodType || 'misc') || 'misc',
+    foodTypeLabel: cleanString(body.foodTypeLabel || base.foodTypeLabel),
+    kcal: finiteNumber(body.kcal ?? base.kcal ?? base.header?.kcal, null),
+    basis: base.basis || { value: 100, unit: 'g' },
+    header: base.header || {},
+    metrics: {},
+    assets: {},
+    episode: {},
+    status: {}
+  };
+}
+
+function writeAgentSyncAsset(body, buffer) {
+  const rawKind = cleanString(body.kind || body.type || body.role || 'asset');
+  const normalizedKind = normalizeAssetKind(rawKind);
+  const foodId = safeSlug(body.foodId || body.food?.id || '');
+  const filename = safeAgentSyncFilename(body.filename || body.name || path.basename(cleanString(body.sourcePath || body.sourceUrl || 'asset')), normalizedKind);
+  const subdir = path.join(agentSyncSubdirForKind(rawKind), foodId || 'shared');
+  const targetDir = path.join(UPLOAD_DIR, subdir);
+  fs.mkdirSync(targetDir, { recursive: true });
+  const targetPath = path.join(targetDir, filename);
+  if (!isInside(UPLOAD_DIR, targetPath)) throw new Error('Invalid Agent Sync upload path.');
+  fs.writeFileSync(targetPath, buffer);
+
+  const relativePath = path.relative(UPLOAD_DIR, targetPath).split(path.sep).join('/');
+  const publicPath = `/studio-data/uploads/${relativePath}`;
+  const stem = safeSlug(path.basename(filename, path.extname(filename))) || Date.now().toString(36);
+  const assetId = cleanString(body.assetId) || ['agent-sync', normalizedKind, foodId || 'shared', stem].join('.');
+  const now = new Date().toISOString();
+  const asset = normalizeInputAsset(assetId, {
+    id: assetId,
+    label: cleanString(body.label) || filename,
+    kind: normalizedKind,
+    path: publicPath,
+    mimeType: cleanString(body.mimeType) || CONTENT_TYPES.get(path.extname(filename).toLowerCase()) || '',
+    sizeBytes: buffer.length,
+    foodId,
+    role: cleanString(body.role || rawKind),
+    source: 'agent-sync',
+    createdAt: now,
+    updatedAt: now
+  });
+
+  const db = readInputDatabase();
+  db.assets.files[asset.id] = asset;
+
+  let food = null;
+  if (foodId && body.attachToFood !== false) {
+    food = normalizeInputFood(foodId, {
+      ...(baseInputFoodShell(foodId, body)),
+      ...(db.foods[foodId] || {})
+    });
+    food.library = {
+      ...(food.library || {}),
+      uploadedAssets: {
+        ...(food.library?.uploadedAssets || {}),
+        [asset.id]: publicPath
+      }
+    };
+    if (normalizedKind === 'image') {
+      food.customFoodImagePath = publicPath;
+      food.assets = {
+        ...(food.assets || {}),
+        customFoodImage: {
+          ...(food.assets?.customFoodImage || {}),
+          ...(body.assetPatch && typeof body.assetPatch === 'object' ? body.assetPatch : {}),
+          path: publicPath
+        }
+      };
+    } else if (normalizedKind === 'narration') {
+      food.audioPath = publicPath;
+      food.library.audioPath = publicPath;
+      food.episode = {
+        ...(food.episode || {}),
+        audio: {
+          ...(food.episode?.audio || {}),
+          path: publicPath,
+          take: cleanString(body.take) || food.episode?.audio?.take || 'agent-sync'
+        }
+      };
+    } else if (rawKind === 'split-audio' || rawKind === 'splitAudio') {
+      food.splitAudioManifestPath = publicPath;
+      food.library.splitAudioManifestPath = publicPath;
+      food.episode = {
+        ...(food.episode || {}),
+        splitAudio: {
+          ...(food.episode?.splitAudio || {}),
+          manifestPath: publicPath,
+          take: cleanString(body.take) || food.episode?.splitAudio?.take || 'agent-sync'
+        }
+      };
+    } else if (rawKind === 'script') {
+      food.library.scriptAssetPath = publicPath;
+    } else if (rawKind === 'subtitles') {
+      food.library.subtitlesPath = publicPath;
+    }
+    food.updatedAt = now;
+    db.foods[foodId] = normalizeInputFood(foodId, food);
+  }
+
+  const savedDb = writeInputDatabase(db);
+  return {
+    db: savedDb,
+    asset: savedDb.assets.files[asset.id],
+    food: foodId ? savedDb.foods[foodId] || null : null
+  };
+}
+
+async function executeAgentSyncAction(action, context, options) {
+  const type = action.type;
+  const result = { type, label: cleanString(action.label), ok: true };
+
+  if (type === 'upsertFood' || type === 'upsertFoodEntry' || type === 'food') {
+    const source = action.food && typeof action.food === 'object' ? action.food : action.entry || action.patch || action;
+    const foodId = safeSlug(source.id || source.foodId || action.foodId || context.lastFoodId || context.job?.foodId);
+    const { db, food } = upsertInputFood(inputFoodFromBody({ food: { ...source, id: foodId } }));
+    context.lastFoodId = food.id;
+    result.food = publicInputFood(food);
+    result.databaseUpdatedAt = db.updatedAt;
+    return result;
+  }
+
+  if (type === 'upsertScript' || type === 'script') {
+    const foodId = safeSlug(action.foodId || context.lastFoodId || action.food?.id);
+    if (!foodId) throw new Error('Script action requires foodId.');
+    const existing = readInputDatabase().foods[foodId] || baseInputFoodShell(foodId, action);
+    const scriptText = cleanString(action.scriptText || action.narrationText || action.text);
+    const patch = {
+      ...existing,
+      id: foodId,
+      scriptText: scriptText || existing.scriptText || existing.narrationText || '',
+      narrationText: cleanString(action.narrationText) || scriptText || existing.narrationText || '',
+      episode: {
+        ...(existing.episode || {}),
+        ...(action.episode && typeof action.episode === 'object' ? action.episode : {})
+      },
+      library: {
+        ...(existing.library || {}),
+        scriptText: scriptText || existing.library?.scriptText || ''
+      }
+    };
+    const { db, food } = upsertInputFood(patch);
+    context.lastFoodId = food.id;
+    result.food = publicInputFood(food);
+    result.databaseUpdatedAt = db.updatedAt;
+    return result;
+  }
+
+  if (type === 'downloadAsset' || type === 'attachAsset' || type === 'asset') {
+    const url = agentSyncSourceUrlForAction(action, context.index);
+    const buffer = await fetchUrlBuffer(url, { maxBytes: MAX_AGENT_SYNC_ASSET_BYTES });
+    const { db, asset, food } = writeAgentSyncAsset(action, buffer);
+    if (food?.id) context.lastFoodId = food.id;
+    result.sourceUrl = url;
+    result.asset = publicInputAsset(asset);
+    result.food = food ? publicInputFood(food) : null;
+    result.databaseUpdatedAt = db.updatedAt;
+    return result;
+  }
+
+  if (type === 'exportPngs' || type === 'pngs') {
+    const foodId = safeSlug(action.foodId || context.lastFoodId);
+    const food = findFood(foodId);
+    if (!food) throw new Error(`Food not found for PNG export: ${foodId}`);
+    const exported = await exportDbv2SectionPngs(food, context.baseUrl, action);
+    context.lastFoodId = safeSlug(food.id || food.name);
+    result.sections = exported.files.map(file => file.sectionId);
+    result.files = exported.files;
+    return result;
+  }
+
+  if (type === 'renderMp4' || type === 'mp4' || type === 'renderVideo') {
+    const foodId = safeSlug(action.foodId || context.lastFoodId);
+    const food = findFood(foodId);
+    if (!food) throw new Error(`Food not found for MP4 render: ${foodId}`);
+    if (renderState.currentJob) throw new Error(`Renderer is busy with ${renderState.currentJob.foodId}.`);
+    const renderOptions = action.options && typeof action.options === 'object' ? action.options : {};
+    const job = await startAgentRenderJob(food, context.baseUrl, {
+      ...renderOptions,
+      ...action,
+      force: action.force !== false
+    }, options);
+    context.lastFoodId = safeSlug(food.id || food.name);
+    context.renderJob = job;
+    result.job = publicJob(job);
+    return result;
+  }
+
+  if (type === 'selectFood') {
+    const foodId = safeSlug(action.foodId || context.lastFoodId);
+    if (!findFood(foodId)) throw new Error(`Food not found: ${foodId}`);
+    context.lastFoodId = foodId;
+    result.foodId = foodId;
+    return result;
+  }
+
+  throw new Error(`Unsupported Agent Sync action: ${type}`);
+}
+
+async function runAgentSyncJob(jobId, request, options) {
+  const index = await fetchAgentSyncIndex();
+  const job = index.jobs.find(item => item.id === safeSlug(jobId));
+  if (!job) throw new Error(`Agent Sync job not found: ${jobId}`);
+  if (job.status !== 'ready') throw new Error(`Agent Sync job is not ready: ${job.status}`);
+
+  const syncState = readAgentSyncState();
+  const run = {
+    id: agentSyncRunId(job.id),
+    jobId: job.id,
+    title: job.title,
+    status: 'running',
+    startedAt: new Date().toISOString(),
+    completedAt: '',
+    actions: [],
+    error: ''
+  };
+  syncState.runs.push(run);
+  syncState.jobs[job.id] = {
+    ...(syncState.jobs[job.id] || {}),
+    status: 'running',
+    lastRunAt: run.startedAt,
+    lastResult: null
+  };
+  writeAgentSyncState(syncState);
+
+  const context = {
+    index,
+    job,
+    baseUrl: requestBaseUrl(request, options),
+    lastFoodId: job.foodId,
+    renderJob: null
+  };
+
+  try {
+    for (const action of job.actions) {
+      if (action.enabled === false) {
+        run.actions.push({ type: action.type, label: cleanString(action.label), skipped: true });
+        continue;
+      }
+      const actionResult = await executeAgentSyncAction(action, context, options);
+      run.actions.push(actionResult);
+    }
+    run.status = context.renderJob ? 'rendering' : 'complete';
+    run.completedAt = new Date().toISOString();
+    const latest = readAgentSyncState();
+    latest.lastRunAt = run.completedAt;
+    latest.jobs[job.id] = {
+      status: run.status,
+      lastRunAt: run.startedAt,
+      lastResult: {
+        runId: run.id,
+        completedAt: run.completedAt,
+        renderJob: publicJob(context.renderJob)
+      }
+    };
+    latest.runs = [...latest.runs.filter(item => item.id !== run.id), run];
+    writeAgentSyncState(latest);
+    return { index, job, run, renderJob: context.renderJob };
+  } catch (error) {
+    run.status = 'failed';
+    run.completedAt = new Date().toISOString();
+    run.error = error.message;
+    const latest = readAgentSyncState();
+    latest.lastRunAt = run.completedAt;
+    latest.jobs[job.id] = {
+      status: 'failed',
+      lastRunAt: run.startedAt,
+      lastResult: {
+        runId: run.id,
+        completedAt: run.completedAt,
+        error: error.message
+      }
+    };
+    latest.runs = [...latest.runs.filter(item => item.id !== run.id), run];
+    writeAgentSyncState(latest);
+    throw error;
+  }
+}
+
 function pushLog(job, chunk) {
   String(chunk)
     .split(/\r?\n/)
@@ -1511,6 +2112,50 @@ async function handleApi(request, response, url, options) {
       sendError(response, 500, error.message);
       return true;
     }
+  }
+
+  if (request.method === 'GET' && url.pathname === '/api/agent-sync/status') {
+    sendJson(response, 200, publicAgentSyncStatus());
+    return true;
+  }
+
+  if (request.method === 'POST' && url.pathname === '/api/agent-sync/check') {
+    try {
+      const index = await fetchAgentSyncIndex();
+      const syncState = readAgentSyncState();
+      syncState.lastCheckedAt = new Date().toISOString();
+      syncState.sourceUrl = index.sourceUrl;
+      index.jobs.forEach(job => {
+        syncState.jobs[job.id] = {
+          status: syncState.jobs[job.id]?.status || 'new',
+          lastRunAt: syncState.jobs[job.id]?.lastRunAt || '',
+          lastResult: syncState.jobs[job.id]?.lastResult || null
+        };
+      });
+      writeAgentSyncState(syncState);
+      sendJson(response, 200, publicAgentSyncStatus({ index }));
+    } catch (error) {
+      sendError(response, 500, error.message);
+    }
+    return true;
+  }
+
+  const agentSyncRunMatch = url.pathname.match(/^\/api\/agent-sync\/jobs\/([^/]+)\/run$/);
+  if (request.method === 'POST' && agentSyncRunMatch) {
+    try {
+      await readJsonBody(request);
+      const result = await runAgentSyncJob(agentSyncRunMatch[1], request, options);
+      sendJson(response, result.renderJob ? 202 : 200, {
+        ok: true,
+        status: result.run.status,
+        job: publicAgentSyncJob(result.job, readAgentSyncState()),
+        run: result.run,
+        renderJob: publicJob(result.renderJob)
+      });
+    } catch (error) {
+      sendError(response, 500, error.message);
+    }
+    return true;
   }
 
   if (request.method === 'GET' && url.pathname === '/api/state') {

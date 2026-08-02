@@ -27,6 +27,7 @@ Current first milestone:
 - browser-local state backup download
 - VBv2-compatible local MP4 render endpoints fed by fresh DBv2 placement exports
 - local agent automation API for durable food input, DBv2 PNG export, and VBv2 MP4 render control
+- Agent Sync panel for pulling approved food/video jobs from GitHub and executing them locally
 
 Studio uses the current Layout Builder -> DBv2 -> VBv2 chain directly. On startup it
 clears stale old builder placement caches and seeds the app browser from
@@ -75,6 +76,19 @@ Use `POST /api/agent/foods` and `POST /api/agent/assets` as aliases for the
 input APIs when an automation client is filling out food entries. Saved PNGs are
 served from `/studio-data/agent-exports/<food-id>/png/`, and MP4 render jobs are
 served from `/studio-data/renders/<food-id>/`.
+
+Agent Sync lets the installed app pull job instructions from GitHub and run them
+on the local machine. The default index is:
+
+```text
+https://raw.githubusercontent.com/dawggbot/Foodranked/main/studio/agent-sync/index.json
+```
+
+Jobs can add or update food entries, attach local app assets, fill script and
+narration fields, export DBv2 PNG stills, and start VBv2 MP4 renders. The runner
+only accepts known action types; it does not execute arbitrary shell commands.
+Use the Studio sidebar's `Agent Sync` panel to check GitHub jobs, review the
+actions, and run the selected job locally.
 
 Secrets stay in local env files, not committed files. Supported names:
 

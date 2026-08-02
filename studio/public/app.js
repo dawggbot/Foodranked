@@ -245,6 +245,14 @@
     return LOCKED_LAYOUT_PRESET_NAME_SET.has(layoutNameKey(entry?.name));
   }
 
+  function isAcceptedDbv2PlacementSource(entry) {
+    const sourceName = layoutNameKey(entry?.sourceLayoutName);
+    const sourceKey = clean(entry?.sourceLayoutKey).toLowerCase();
+    return LOCKED_LAYOUT_PRESET_NAME_SET.has(sourceName)
+      || sourceName === 'current working layout'
+      || sourceKey === 'working:current';
+  }
+
   function canonicalFingerprint() {
     return clean(state.canonicalLayout?.layoutFingerprint);
   }
@@ -923,19 +931,19 @@
     await seedCanonicalLayoutState({ force: true });
     const summary = currentLayoutSummary(food);
     if (!summary.renderReady) {
-      throw new Error('Canonical Layout Builder JSON did not seed test 1 through test 5. Restart Studio or restore the packaged universal layout JSON.');
+      throw new Error('Canonical Layout Builder JSON did not seed the quota-safe universal layout. Restart Studio or restore the packaged universal layout JSON.');
     }
 
     clearPlacementForFood(food.id);
     const minExportedAt = Date.now() - 1000;
-    setRenderText('Preparing fresh DBv2 placement', ['Cleared old DBv2 placement export.', 'Rendering DBv2 from the locked Layout Builder copy...']);
+    setRenderText('Preparing fresh DBv2 placement', ['Cleared old DBv2 placement export.', 'Rendering DBv2 from the quota-safe universal layout...']);
     const frame = createPlacementFrame(food);
     try {
       const placement = await waitForPlacementExport(food, minExportedAt);
       const entry = placement?.layouts?.[food.id];
       if (!placement || !entry?.layout) throw new Error('DBv2 did not export a fresh placement for this food in time.');
-      if (!LOCKED_LAYOUT_PRESET_NAME_SET.has(layoutNameKey(entry.sourceLayoutName))) {
-        throw new Error(`DBv2 exported from ${entry.sourceLayoutName || entry.sourceLayoutKey || 'an unknown layout'}, not a locked Layout Builder copy.`);
+      if (!isAcceptedDbv2PlacementSource(entry)) {
+        throw new Error(`DBv2 exported from ${entry.sourceLayoutName || entry.sourceLayoutKey || 'an unknown layout'}, not the quota-safe universal layout.`);
       }
       return placement;
     } finally {

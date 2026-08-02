@@ -9,10 +9,12 @@ const { spawn, spawnSync } = require('child_process');
 const { validateVbv2PlacementPayload } = require('./vbv2-placement-validation');
 
 const REPO_ROOT = path.resolve(__dirname, '..');
+const DATA_DIR = path.resolve(process.env.FOODRANKED_STUDIO_DATA_DIR || path.join(REPO_ROOT, 'studio-data'));
 const DEFAULT_WIDTH = 1080;
 const DEFAULT_HEIGHT = 1920;
 const AUTHOR_GRID_WIDTH = 105;
 const AUTHOR_GRID_HEIGHT = 186.666667;
+const PRODUCTION_DATABASE_KEY = 'foodranked-production-database-v1';
 const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
 const DISPLAY_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
 const PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
@@ -66,6 +68,7 @@ Options:
   --placement-json <path>    Seed VBv2 with a DBv2/VBv2 placement payload.
   --layout-state-json <path> Seed current Layout Builder localStorage keys before render.
   --video-state-json <path>  Seed VBv2 with a Video Builder v2 state payload.
+  --database-json <path>     Seed the app input database for Studio-created foods/assets.
   --no-audio                 Encode video without narration/music.
   --no-music                 Keep narration, omit background music.
   --no-sfx                   Keep narration/music, omit VBv2 sound effects.
@@ -90,6 +93,7 @@ function parseArgs(argv) {
     placementJson: '',
     layoutStateJson: '',
     videoStateJson: '',
+    databaseJson: '',
     audio: true,
     music: true,
     sfx: true,
@@ -131,6 +135,7 @@ function parseArgs(argv) {
     else if (arg === '--placement-json') options.placementJson = readValue(arg);
     else if (arg === '--layout-state-json') options.layoutStateJson = readValue(arg);
     else if (arg === '--video-state-json') options.videoStateJson = readValue(arg);
+    else if (arg === '--database-json') options.databaseJson = readValue(arg);
     else if (arg === '--music-volume') options.musicVolume = Number(readValue(arg));
     else if (arg === '--narration-volume') options.narrationVolume = Number(readValue(arg));
     else if (arg === '--sfx-volume') options.sfxVolume = Number(readValue(arg));
@@ -221,8 +226,110 @@ function readOptionalJson(filePath, fallback = null) {
   return JSON.parse(fs.readFileSync(resolved, 'utf8'));
 }
 
-function findFood(foods, foodId) {
-  return foods.find(food => safeSlug(food.id) === foodId || safeSlug(food.name) === foodId) || null;
+function cleanString(value) {
+  return String(value ?? '').trim();
+}
+
+function cleanObject(value) {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+}
+
+function finiteNumber(value, fallback = null) {
+  if (value === '' || value == null) return fallback;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : fallback;
+}
+
+function inputDatabaseFoods(database) {
+  const foods = database?.foods && typeof database.foods === 'object' && !Array.isArray(database.foods)
+    ? database.foods
+    : {};
+  return foods;
+}
+
+function baseFoodFromInputEntry(entry) {
+  return {
+    id: entry.id,
+    name: entry.name || entry.displayName || entry.id,
+    displayName: entry.displayName || '',
+    shortName: entry.shortName || '',
+    foodType: entry.foodType || 'misc',
+    foodTypeLabel: entry.foodTypeLabel || '',
+    identity: entry.identity || '',
+    basis: entry.basis || { value: 100, unit: 'g' },
+    kcal: finiteNumber(entry.kcal ?? entry.header?.kcal, null),
+    header: cleanObject(entry.header),
+    metrics: cleanObject(entry.metrics),
+    assets: cleanObject(entry.assets),
+    episode: cleanObject(entry.episode),
+    status: cleanObject(entry.status),
+    foodPatch: cleanObject(entry.foodPatch),
+    customDatabaseFood: true
+  };
+}
+
+function mergeInputFood(baseFood, entry) {
+  if (!entry || entry.deleted) return null;
+  const base = baseFood && typeof baseFood === 'object' ? JSON.parse(JSON.stringify(baseFood)) : baseFoodFromInputEntry(entry);
+  const merged = {
+    ...base,
+    ...entry,
+    basis: { ...(base.basis || {}), ...(entry.basis || {}) },
+    header: { ...(base.header || {}), ...(entry.header || {}) },
+    metrics: { ...(base.metrics || {}), ...(entry.metrics || {}) },
+    assets: { ...(base.assets || {}), ...(entry.assets || {}) },
+    episode: { ...(base.episode || {}), ...(entry.episode || {}) },
+    status: { ...(base.status || {}), ...(entry.status || {}) },
+    customDatabaseFood: Boolean(base.customDatabaseFood || !baseFood)
+  };
+
+  const customFoodImagePath = cleanString(entry.customFoodImagePath || entry.foodSpritePath || entry.assets?.customFoodImage?.path);
+  if (customFoodImagePath) {
+    merged.assets.customFoodImage = {
+      ...(merged.assets.customFoodImage || {}),
+      path: customFoodImagePath
+    };
+    const width = finiteNumber(entry.customFoodImageWidth || entry.assets?.customFoodImage?.width, null);
+    const height = finiteNumber(entry.customFoodImageHeight || entry.assets?.customFoodImage?.height, null);
+    if (width != null) merged.assets.customFoodImage.width = width;
+    if (height != null) merged.assets.customFoodImage.height = height;
+  }
+
+  const audioPath = cleanString(entry.audioPath || entry.library?.audioPath);
+  if (audioPath) {
+    merged.episode.audio = {
+      ...(merged.episode.audio || {}),
+      path: audioPath,
+      take: cleanString(entry.audioTake || entry.library?.audioTake) || merged.episode.audio?.take || 'studio-input'
+    };
+  }
+
+  const splitManifestPath = cleanString(entry.splitAudioManifestPath || entry.library?.splitAudioManifestPath);
+  if (splitManifestPath) {
+    merged.episode.splitAudio = {
+      ...(merged.episode.splitAudio || {}),
+      manifestPath: splitManifestPath,
+      take: cleanString(entry.splitAudioTake || entry.library?.splitAudioTake) || merged.episode.splitAudio?.take || 'studio-input'
+    };
+  }
+
+  merged.kcal = finiteNumber(entry.kcal ?? entry.header?.kcal, base.kcal ?? base.header?.kcal ?? null);
+  merged.finalizedDownloaded = Boolean(entry.finalizedDownloaded || entry.status?.finalizedDownloaded);
+  return merged;
+}
+
+function findFood(foods, foodId, database = null) {
+  const base = foods.find(food => safeSlug(food.id) === foodId || safeSlug(food.name) === foodId) || null;
+  const dbFoods = inputDatabaseFoods(database);
+  const entry = dbFoods[foodId] || Object.values(dbFoods).find(food => safeSlug(food?.id || food?.name) === foodId) || null;
+  if (entry?.deleted) return null;
+  if (entry) return mergeInputFood(base, entry);
+  return base;
+}
+
+function isInside(parent, child) {
+  const relative = path.relative(parent, child);
+  return relative === '' || (!!relative && !relative.startsWith('..') && !path.isAbsolute(relative));
 }
 
 function publishedOutputPath(food, explicitOutput) {
@@ -235,6 +342,10 @@ function resolveDocsAsset(assetPath) {
   const raw = String(assetPath || '').trim();
   if (!raw || /^(?:https?:)?\/\//i.test(raw)) return '';
   const withoutDot = raw.replace(/^\.\//, '');
+  const withoutLeadingSlash = withoutDot.replace(/^\/+/, '');
+  if (withoutLeadingSlash.startsWith('studio-data/')) {
+    return path.join(DATA_DIR, withoutLeadingSlash.slice('studio-data/'.length));
+  }
   if (path.isAbsolute(withoutDot)) return withoutDot;
   if (withoutDot.startsWith('docs/')) return path.join(REPO_ROOT, withoutDot);
   return path.join(REPO_ROOT, 'docs', withoutDot);
@@ -330,9 +441,12 @@ function resolvePageAssetPath(src, pageUrl) {
   const url = new URL(src, pageUrl);
   if (url.protocol !== 'http:') return '';
   const pathname = decodeURIComponent(url.pathname.replace(/^\/+/, ''));
+  if (pathname.startsWith('studio-data/')) {
+    const filePath = path.normalize(path.join(DATA_DIR, pathname.slice('studio-data/'.length)));
+    return isInside(DATA_DIR, filePath) ? filePath : '';
+  }
   const filePath = path.normalize(path.join(REPO_ROOT, pathname));
-  const insideRoot = filePath === REPO_ROOT || filePath.startsWith(`${REPO_ROOT}${path.sep}`);
-  return insideRoot ? filePath : '';
+  return isInside(REPO_ROOT, filePath) ? filePath : '';
 }
 
 function gifFrameProbe(gifPath) {
@@ -447,8 +561,13 @@ function startStaticServer(port) {
       return;
     }
 
-    let filePath = path.normalize(path.join(REPO_ROOT, pathname));
-    if (!filePath.startsWith(REPO_ROOT)) {
+    const relative = pathname.replace(/^\/+/, '');
+    const servingStudioData = relative.startsWith('studio-data/');
+    let filePath = servingStudioData
+      ? path.normalize(path.join(DATA_DIR, relative.slice('studio-data/'.length)))
+      : path.normalize(path.join(REPO_ROOT, pathname));
+    const staticRoot = servingStudioData ? DATA_DIR : REPO_ROOT;
+    if (!isInside(staticRoot, filePath)) {
       response.writeHead(403);
       response.end('Forbidden');
       return;
@@ -496,6 +615,7 @@ async function renderFrames({ food, foodId, options, framesDir, baseUrl, workDir
   const placementPayload = validateVbv2PlacementPayload(readOptionalJson(options.placementJson, null), food);
   const layoutStatePayload = readOptionalJson(options.layoutStateJson, {});
   const videoStatePayload = readOptionalJson(options.videoStateJson, {});
+  const databasePayload = readOptionalJson(options.databaseJson, {});
 
   let playwright;
   try {
@@ -512,7 +632,7 @@ async function renderFrames({ food, foodId, options, framesDir, baseUrl, workDir
   const page = await context.newPage();
 
   try {
-    await page.addInitScript(({ selectedFoodId, videoStateKey, displayStateKey, placementExportKey, layoutStateKeys, layoutStatePayload, placementPayload, videoStatePayload }) => {
+    await page.addInitScript(({ selectedFoodId, databaseKey, videoStateKey, displayStateKey, placementExportKey, layoutStateKeys, layoutStatePayload, placementPayload, videoStatePayload, databasePayload }) => {
       const mergeState = (key, patch) => {
         let current = {};
         try {
@@ -528,6 +648,9 @@ async function renderFrames({ food, foodId, options, framesDir, baseUrl, workDir
           localStorage.setItem(key, typeof raw === 'string' ? raw : JSON.stringify(raw));
         }
       }
+      if (databasePayload && typeof databasePayload === 'object') {
+        localStorage.setItem(databaseKey, JSON.stringify(databasePayload));
+      }
       if (placementPayload && typeof placementPayload === 'object') {
         localStorage.setItem(placementExportKey, JSON.stringify(placementPayload));
       }
@@ -540,13 +663,15 @@ async function renderFrames({ food, foodId, options, framesDir, baseUrl, workDir
       mergeState(displayStateKey, { selectedFoodId });
     }, {
       selectedFoodId: food.id || foodId,
+      databaseKey: PRODUCTION_DATABASE_KEY,
       videoStateKey: VIDEO_STATE_KEY,
       displayStateKey: DISPLAY_STATE_KEY,
       placementExportKey: PLACEMENT_EXPORT_KEY,
       layoutStateKeys: [...LAYOUT_STATE_KEYS],
       layoutStatePayload,
       placementPayload,
-      videoStatePayload
+      videoStatePayload,
+      databasePayload
     });
 
     await page.goto(`${baseUrl}/docs/video-builder-v2/index.html?render=mp4&food=${encodeURIComponent(foodId)}`, {
@@ -1012,8 +1137,9 @@ async function main() {
   ].join('\n'));
 
   const foods = readFoodsIndex();
-  const food = findFood(foods, foodId);
-  if (!food) throw new Error(`Food not found in docs/data/foods-index.json: ${foodId}`);
+  const databasePayload = readOptionalJson(options.databaseJson, {});
+  const food = findFood(foods, foodId, databasePayload);
+  if (!food) throw new Error(`Food not found in docs/data/foods-index.json or Studio input database: ${foodId}`);
 
   const outputPath = publishedOutputPath(food, options.output);
   const workDir = fs.mkdtempSync(path.join(os.tmpdir(), `foodranked-vbv2-${foodId}-`));

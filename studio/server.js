@@ -14,6 +14,7 @@ const PUBLIC_ROOT = path.join(__dirname, 'public');
 const DATA_DIR = path.resolve(process.env.FOODRANKED_STUDIO_DATA_DIR || path.join(REPO_ROOT, 'studio-data'));
 const RENDER_DIR = path.resolve(process.env.FOODRANKED_STUDIO_RENDER_DIR || path.join(DATA_DIR, 'renders'));
 const UPLOAD_DIR = path.resolve(process.env.FOODRANKED_STUDIO_UPLOAD_DIR || path.join(DATA_DIR, 'uploads'));
+const AGENT_EXPORT_DIR = path.resolve(process.env.FOODRANKED_STUDIO_AGENT_EXPORT_DIR || path.join(DATA_DIR, 'agent-exports'));
 const INPUT_DATABASE_FILE = path.join(DATA_DIR, 'studio-input-database.json');
 const STATE_FILE = path.join(DATA_DIR, 'studio-state.json');
 const UNIVERSAL_LAYOUT_FILE = path.join(__dirname, 'layout', 'universal-layout.json');
@@ -23,11 +24,16 @@ const DEFAULT_RENDER_PORT_START = 4290;
 const MAX_BODY_BYTES = 128 * 1024 * 1024;
 const MAX_LOG_LINES = 240;
 const JOB_HISTORY_LIMIT = 30;
+const PRODUCTION_DATABASE_KEY = 'foodranked-production-database-v1';
 const PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
 const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
 const LAYOUT_WORKING_KEY = 'foodranked-layout-builder-v4';
 const LAYOUT_SAVED_KEY = 'foodranked-layout-builder-sprite-layouts-v1';
 const LAYOUT_FOOD_KEY = 'foodranked-layout-builder-food-layouts-v1';
+const DBV2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
+const CANONICAL_LAYOUT_FINGERPRINT_KEY = 'foodranked-studio-canonical-layout-fingerprint-v1';
+const STUDIO_CANONICAL_LOCK_VERSION = '20260801-studio-universal-layout-json-v1';
+const AGENT_BROWSER_TIMEOUT_MS = 45000;
 const LOCKED_LAYOUT_PRESET_NAMES = Object.freeze(['test 1', 'test 2', 'test 3', 'test 4', 'test 5']);
 const REQUIRED_LAYOUT_SECTION_IDS = Object.freeze(['intro', 'fats', 'carbs', 'protein', 'vitamins', 'minerals', 'pros', 'cons', 'outro']);
 
@@ -202,6 +208,7 @@ function ensureDataDir() {
   fs.mkdirSync(DATA_DIR, { recursive: true });
   fs.mkdirSync(RENDER_DIR, { recursive: true });
   fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+  fs.mkdirSync(AGENT_EXPORT_DIR, { recursive: true });
 }
 
 function clone(value) {
@@ -587,6 +594,243 @@ function renderFilePathForFoodId(foodId) {
   return path.join(RENDER_DIR, id, `${id}-vbv2.mp4`);
 }
 
+function requestBaseUrl(request, options) {
+  const host = request.headers.host || `${options.host || DEFAULT_HOST}:${options.activePort || options.port || DEFAULT_PORT}`;
+  return `http://${host}`;
+}
+
+function studioDataPathForFile(filePath) {
+  const resolved = path.resolve(filePath);
+  if (!isInside(DATA_DIR, resolved)) throw new Error('File is outside the Studio data directory.');
+  const relative = path.relative(DATA_DIR, resolved).split(path.sep).map(encodeURIComponent).join('/');
+  return `/studio-data/${relative}`;
+}
+
+function agentExportDirForFoodId(foodId) {
+  const id = safeSlug(foodId);
+  if (!id) throw new Error('Food id is required.');
+  return path.join(AGENT_EXPORT_DIR, id);
+}
+
+function agentPngDirForFoodId(foodId) {
+  return path.join(agentExportDirForFoodId(foodId), 'png');
+}
+
+function normalizeSectionId(value) {
+  const id = safeSlug(value);
+  if (id === 'carbohydrates') return 'carbs';
+  if (id === 'proteins') return 'protein';
+  return id;
+}
+
+function normalizeAgentSectionIds(value) {
+  if (value == null || value === '' || value === 'all') return [...REQUIRED_LAYOUT_SECTION_IDS];
+  const source = Array.isArray(value) ? value : String(value).split(',');
+  const allowed = new Set(REQUIRED_LAYOUT_SECTION_IDS);
+  const sections = [];
+  for (const item of source) {
+    const sectionId = normalizeSectionId(item);
+    if (!sectionId || sectionId === 'all') return [...REQUIRED_LAYOUT_SECTION_IDS];
+    if (!allowed.has(sectionId)) throw new Error(`Unknown section: ${item}`);
+    if (!sections.includes(sectionId)) sections.push(sectionId);
+  }
+  return sections.length ? sections : [...REQUIRED_LAYOUT_SECTION_IDS];
+}
+
+function dataUrlBuffer(dataUrl, expectedMime = 'image/png') {
+  const match = String(dataUrl || '').match(/^data:([^;,]+);base64,([A-Za-z0-9+/=\s]+)$/);
+  if (!match) throw new Error('Invalid data URL returned by DBv2.');
+  if (expectedMime && match[1] !== expectedMime) {
+    throw new Error(`Expected ${expectedMime}, got ${match[1]}.`);
+  }
+  return Buffer.from(match[2].replace(/\s+/g, ''), 'base64');
+}
+
+function agentBrowserSeed(foodId, extraState = {}) {
+  const layoutPayload = readUniversalLayoutPayload();
+  const layout = clone(layoutPayload.layout);
+  layout.selectedFoodId = foodId;
+  layout.selectedSectionId = 'intro';
+  layout.meta = {
+    ...(layout.meta || {}),
+    studioCanonicalLayout: {
+      version: STUDIO_CANONICAL_LOCK_VERSION,
+      fingerprint: layoutPayload.layoutFingerprint,
+      importedFrom: layoutPayload.importedFrom || '',
+      layerCount: layoutPayload.stats.totalLayers,
+      seededBy: 'studio-agent'
+    },
+    studioAgentSeededAt: new Date().toISOString()
+  };
+  return {
+    foodId,
+    keys: {
+      productionDatabase: PRODUCTION_DATABASE_KEY,
+      placement: PLACEMENT_EXPORT_KEY,
+      dbv2State: DBV2_STATE_KEY,
+      videoState: VIDEO_STATE_KEY,
+      layoutWorking: LAYOUT_WORKING_KEY,
+      layoutSaved: LAYOUT_SAVED_KEY,
+      layoutFood: LAYOUT_FOOD_KEY,
+      canonicalLayoutFingerprint: CANONICAL_LAYOUT_FINGERPRINT_KEY
+    },
+    database: readInputDatabase(),
+    layout,
+    layoutFingerprint: layoutPayload.layoutFingerprint,
+    dbv2State: {
+      selectedFoodId: foodId,
+      selectedSectionId: 'intro',
+      selectedLayoutKey: 'working:current'
+    },
+    videoState: {
+      ...(extraState.videoState && typeof extraState.videoState === 'object' ? extraState.videoState : {}),
+      selectedFoodId: foodId,
+      currentTime: 0,
+      selectedSceneId: 'intro'
+    }
+  };
+}
+
+async function withAgentDbv2Page(foodId, baseUrl, callback, extraState = {}) {
+  const playwright = optionalRequire('playwright');
+  if (!playwright?.chromium) throw new Error('Playwright is required for agent DBv2 automation.');
+
+  const seed = agentBrowserSeed(foodId, extraState);
+  const browser = await playwright.chromium.launch({ headless: true });
+  const context = await browser.newContext({
+    viewport: { width: 1440, height: 1200 },
+    deviceScaleFactor: 1
+  });
+  await context.addInitScript(payload => {
+    const writeJson = (key, value) => localStorage.setItem(key, JSON.stringify(value));
+    writeJson(payload.keys.productionDatabase, payload.database);
+    writeJson(payload.keys.layoutWorking, payload.layout);
+    writeJson(payload.keys.dbv2State, payload.dbv2State);
+    writeJson(payload.keys.videoState, payload.videoState);
+    localStorage.setItem(payload.keys.canonicalLayoutFingerprint, payload.layoutFingerprint);
+    localStorage.removeItem(payload.keys.layoutSaved);
+    localStorage.removeItem(payload.keys.layoutFood);
+    localStorage.removeItem(payload.keys.placement);
+  }, seed);
+
+  const page = await context.newPage();
+  try {
+    const url = `${baseUrl}/docs/display-builder-v2/index.html?videoBuilderExportFood=${encodeURIComponent(foodId)}&app=studio-agent&t=${Date.now()}`;
+    await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await page.waitForFunction(() => Boolean(window.FOODRANKED_DISPLAY_BUILDER_V2?.drawSectionStillToCanvas), null, {
+      timeout: AGENT_BROWSER_TIMEOUT_MS
+    });
+    await page.evaluate(() => document.fonts?.ready || Promise.resolve()).catch(() => {});
+    return await callback(page, seed);
+  } finally {
+    await browser.close();
+  }
+}
+
+async function freshDbv2PlacementForFood(food, baseUrl, extraState = {}) {
+  const foodId = safeSlug(food.id || food.name);
+  return withAgentDbv2Page(foodId, baseUrl, async page => {
+    await page.waitForFunction(({ key, selectedFoodId }) => {
+      try {
+        const payload = JSON.parse(localStorage.getItem(key) || '{}');
+        const entry = payload?.layouts?.[selectedFoodId];
+        return Boolean(entry?.layout?.sections?.fats?.layers?.length);
+      } catch {
+        return false;
+      }
+    }, { key: PLACEMENT_EXPORT_KEY, selectedFoodId: food.id || foodId }, { timeout: AGENT_BROWSER_TIMEOUT_MS });
+
+    const placement = await page.evaluate(key => JSON.parse(localStorage.getItem(key) || '{}'), PLACEMENT_EXPORT_KEY);
+    validateVbv2PlacementPayload(placement, food);
+    return placement;
+  }, extraState);
+}
+
+async function exportDbv2SectionPngs(food, baseUrl, body = {}) {
+  const foodId = safeSlug(food.id || food.name);
+  const sections = normalizeAgentSectionIds(body.sections);
+  const outputDir = agentPngDirForFoodId(foodId);
+  fs.mkdirSync(outputDir, { recursive: true });
+
+  return withAgentDbv2Page(foodId, baseUrl, async page => {
+    await page.waitForFunction(({ key, selectedFoodId }) => {
+      try {
+        const payload = JSON.parse(localStorage.getItem(key) || '{}');
+        const entry = payload?.layouts?.[selectedFoodId];
+        return Boolean(entry?.layout?.sections?.fats?.layers?.length);
+      } catch {
+        return false;
+      }
+    }, { key: PLACEMENT_EXPORT_KEY, selectedFoodId: food.id || foodId }, { timeout: AGENT_BROWSER_TIMEOUT_MS });
+
+    const placement = await page.evaluate(key => JSON.parse(localStorage.getItem(key) || '{}'), PLACEMENT_EXPORT_KEY);
+    validateVbv2PlacementPayload(placement, food);
+
+    const files = [];
+    for (const sectionId of sections) {
+      const dataUrl = await page.evaluate(async section => {
+        const api = window.FOODRANKED_DISPLAY_BUILDER_V2;
+        const canvas = await api.drawSectionStillToCanvas(section);
+        return canvas.toDataURL(api.sectionStillExport?.mimeType || 'image/png');
+      }, sectionId);
+      const filename = `${foodId}-${sectionId}-dbv2.png`;
+      const filePath = path.join(outputDir, filename);
+      fs.writeFileSync(filePath, dataUrlBuffer(dataUrl, 'image/png'));
+      files.push({
+        sectionId,
+        filename,
+        path: filePath,
+        url: studioDataPathForFile(filePath)
+      });
+    }
+
+    return {
+      placement,
+      files,
+      outputDir
+    };
+  }, body);
+}
+
+async function startAgentRenderJob(food, baseUrl, body, options) {
+  const foodId = safeSlug(food.id || food.name);
+  const layoutPlacement = await freshDbv2PlacementForFood(food, baseUrl, body);
+  const layout = agentBrowserSeed(foodId, body).layout;
+  return startRenderJob(food, {
+    ...body,
+    foodId,
+    layoutPlacement,
+    layoutState: {
+      [LAYOUT_WORKING_KEY]: layout,
+      ...(body.layoutState && typeof body.layoutState === 'object' ? body.layoutState : {})
+    },
+    inputDatabase: body.inputDatabase && typeof body.inputDatabase === 'object' ? body.inputDatabase : readInputDatabase(),
+    force: body.force !== false
+  }, options);
+}
+
+function agentExportsForFood(foodId) {
+  const root = agentExportDirForFoodId(foodId);
+  const files = [];
+  const visit = dir => {
+    if (!fs.existsSync(dir)) return;
+    for (const name of fs.readdirSync(dir)) {
+      const filePath = path.join(dir, name);
+      const stat = fs.statSync(filePath);
+      if (stat.isDirectory()) visit(filePath);
+      else files.push({
+        filename: name,
+        path: filePath,
+        url: studioDataPathForFile(filePath),
+        sizeBytes: stat.size,
+        updatedAt: stat.mtime.toISOString()
+      });
+    }
+  };
+  visit(root);
+  return files.sort((a, b) => a.path.localeCompare(b.path));
+}
+
 function sendJson(response, statusCode, payload) {
   const body = JSON.stringify(payload, null, 2);
   response.writeHead(statusCode, {
@@ -910,6 +1154,8 @@ async function startRenderJob(food, body, options) {
   if (layoutStateJson) args.push('--layout-state-json', layoutStateJson);
   const videoStateJson = writeJobPayload(job, 'video-state', body.videoState);
   if (videoStateJson) args.push('--video-state-json', videoStateJson);
+  const inputDatabaseJson = writeJobPayload(job, 'input-database', body.inputDatabase || readInputDatabase());
+  if (inputDatabaseJson) args.push('--database-json', inputDatabaseJson);
   if (body.noAudio) args.push('--no-audio');
   if (body.noMusic) args.push('--no-music');
   if (body.noSfx) args.push('--no-sfx');
@@ -1104,6 +1350,169 @@ async function handleApi(request, response, url, options) {
     return true;
   }
 
+  if (request.method === 'GET' && url.pathname === '/api/agent/capabilities') {
+    sendJson(response, 200, {
+      ok: true,
+      localOnly: true,
+      purpose: 'Durable local automation for Studio food entry, DBv2 PNG export, and VBv2 MP4 rendering.',
+      storage: {
+        dataDir: DATA_DIR,
+        inputDatabaseFile: INPUT_DATABASE_FILE,
+        renderDir: RENDER_DIR,
+        uploadDir: UPLOAD_DIR,
+        agentExportDir: AGENT_EXPORT_DIR
+      },
+      endpoints: {
+        upsertFood: 'POST /api/agent/foods',
+        uploadAsset: 'POST /api/agent/assets',
+        freshPlacement: 'POST /api/agent/foods/:foodId/placement',
+        pngs: 'POST /api/agent/foods/:foodId/pngs',
+        mp4: 'POST /api/agent/foods/:foodId/mp4',
+        combinedExport: 'POST /api/agent/foods/:foodId/export',
+        listExports: 'GET /api/agent/foods/:foodId/exports'
+      },
+      sections: [...REQUIRED_LAYOUT_SECTION_IDS],
+      renderer: {
+        busy: Boolean(renderState.currentJob),
+        currentJob: publicJob(renderState.currentJob)
+      }
+    });
+    return true;
+  }
+
+  if (request.method === 'POST' && url.pathname === '/api/agent/foods') {
+    try {
+      const body = await readJsonBody(request);
+      const { db, food } = upsertInputFood(inputFoodFromBody(body));
+      sendJson(response, 200, {
+        ok: true,
+        food: publicInputFood(food),
+        database: db,
+        note: 'Food saved in the local Studio input database.'
+      });
+    } catch (error) {
+      sendError(response, 400, error.message);
+    }
+    return true;
+  }
+
+  if (request.method === 'POST' && url.pathname === '/api/agent/assets') {
+    try {
+      const body = await readJsonBody(request);
+      const { db, asset, food } = uploadAssetFromBody(body);
+      sendJson(response, 200, {
+        ok: true,
+        asset: publicInputAsset(asset),
+        food: food ? publicInputFood(food) : null,
+        database: db,
+        note: 'Asset saved in the local Studio input database.'
+      });
+    } catch (error) {
+      sendError(response, 400, error.message);
+    }
+    return true;
+  }
+
+  const agentFoodMatch = url.pathname.match(/^\/api\/agent\/foods\/([^/]+)\/(placement|pngs|mp4|export|exports)$/);
+  if (agentFoodMatch) {
+    const foodId = safeSlug(agentFoodMatch[1]);
+    const action = agentFoodMatch[2];
+    const food = findFood(foodId);
+    if (!food) {
+      sendError(response, 404, `Food not found: ${foodId}`);
+      return true;
+    }
+
+    if (request.method === 'GET' && action === 'exports') {
+      try {
+        sendJson(response, 200, { ok: true, food: publicFood(food), files: agentExportsForFood(foodId) });
+      } catch (error) {
+        sendError(response, 400, error.message);
+      }
+      return true;
+    }
+
+    if (request.method !== 'POST') {
+      sendError(response, 405, 'Method not allowed.');
+      return true;
+    }
+
+    let body;
+    try {
+      body = await readJsonBody(request);
+    } catch (error) {
+      sendError(response, 400, error.message);
+      return true;
+    }
+
+    try {
+      const baseUrl = requestBaseUrl(request, options);
+      if (action === 'placement') {
+        const placement = await freshDbv2PlacementForFood(food, baseUrl, body);
+        sendJson(response, 200, { ok: true, food: publicFood(food), placement });
+        return true;
+      }
+      if (action === 'pngs') {
+        const exported = await exportDbv2SectionPngs(food, baseUrl, body);
+        sendJson(response, 200, {
+          ok: true,
+          food: publicFood(food),
+          sections: exported.files.map(file => file.sectionId),
+          files: exported.files,
+          outputDir: exported.outputDir
+        });
+        return true;
+      }
+      if (action === 'mp4') {
+        if (renderState.currentJob) {
+          if (renderState.currentJob.foodId === foodId) {
+            sendJson(response, 202, { ok: true, status: 'running', job: publicJob(renderState.currentJob) });
+            return true;
+          }
+          sendError(response, 409, `Renderer is busy with ${renderState.currentJob.foodId}.`, {
+            job: publicJob(renderState.currentJob)
+          });
+          return true;
+        }
+        const job = await startAgentRenderJob(food, baseUrl, body, options);
+        sendJson(response, 202, { ok: true, status: 'running', job: publicJob(job) });
+        return true;
+      }
+      if (action === 'export') {
+        const result = { ok: true, food: publicFood(food) };
+        if (body.pngs !== false) {
+          const exported = await exportDbv2SectionPngs(food, baseUrl, body);
+          result.pngs = {
+            sections: exported.files.map(file => file.sectionId),
+            files: exported.files,
+            outputDir: exported.outputDir
+          };
+        }
+        if (body.mp4 !== false) {
+          if (renderState.currentJob) {
+            result.mp4 = {
+              status: 'running',
+              job: publicJob(renderState.currentJob),
+              warning: `Renderer is already busy with ${renderState.currentJob.foodId}.`
+            };
+          } else {
+            const job = await startAgentRenderJob(food, baseUrl, body, options);
+            result.mp4 = { status: 'running', job: publicJob(job) };
+            response.statusCode = 202;
+          }
+        }
+        sendJson(response, response.statusCode || 200, result);
+        return true;
+      }
+    } catch (error) {
+      if ((action === 'mp4' || action === 'export') && renderState.currentJob?.foodId === foodId && !renderState.currentJob.child) {
+        renderState.currentJob = null;
+      }
+      sendError(response, 500, error.message);
+      return true;
+    }
+  }
+
   if (request.method === 'GET' && url.pathname === '/api/state') {
     sendJson(response, 200, { ok: true, state: readStudioState() });
     return true;
@@ -1248,6 +1657,11 @@ function safeStaticPath(urlPathname) {
   if (pathname.startsWith('/studio-data/uploads/')) {
     const filePath = path.normalize(path.join(UPLOAD_DIR, pathname.slice('/studio-data/uploads/'.length)));
     if (!isInside(UPLOAD_DIR, filePath)) return { status: 403, message: 'Forbidden' };
+    return { filePath };
+  }
+  if (pathname.startsWith('/studio-data/agent-exports/')) {
+    const filePath = path.normalize(path.join(AGENT_EXPORT_DIR, pathname.slice('/studio-data/agent-exports/'.length)));
+    if (!isInside(AGENT_EXPORT_DIR, filePath)) return { status: 403, message: 'Forbidden' };
     return { filePath };
   }
   return { status: 404, message: 'Not found' };

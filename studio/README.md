@@ -26,6 +26,7 @@ Current first milestone:
 - Studio Input panel and local JSON APIs for food entries, PNG uploads, and narration audio uploads
 - browser-local state backup download
 - VBv2-compatible local MP4 render endpoints fed by fresh DBv2 placement exports
+- local agent automation API for durable food input, DBv2 PNG export, and VBv2 MP4 render control
 
 Studio uses the current Layout Builder -> DBv2 -> VBv2 chain directly. On startup it
 clears stale old builder placement caches and seeds the app browser from
@@ -50,6 +51,30 @@ curl -X POST http://127.0.0.1:4787/api/input/assets \
 ```
 
 Use `kind: "narration"` for `.mp3`, `.wav`, or `.m4a` narration files.
+
+Agent automation endpoints are local-only and use the same Studio input database,
+DBv2 PNG export, and VBv2 MP4 renderer as the app:
+
+```bash
+curl http://127.0.0.1:4787/api/agent/capabilities
+```
+
+```bash
+curl -X POST http://127.0.0.1:4787/api/agent/foods/example-food/pngs \
+  -H "Content-Type: application/json" \
+  -d '{"sections":"all"}'
+```
+
+```bash
+curl -X POST http://127.0.0.1:4787/api/agent/foods/example-food/mp4 \
+  -H "Content-Type: application/json" \
+  -d '{"force":true}'
+```
+
+Use `POST /api/agent/foods` and `POST /api/agent/assets` as aliases for the
+input APIs when an automation client is filling out food entries. Saved PNGs are
+served from `/studio-data/agent-exports/<food-id>/png/`, and MP4 render jobs are
+served from `/studio-data/renders/<food-id>/`.
 
 Secrets stay in local env files, not committed files. Supported names:
 

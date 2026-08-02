@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260802-music-start-stabilize-v1';
+  const BUILDER_BUILD_ID = '20260802-highlight-text-layer-v1';
   const REVOKED_LAYOUT_SEED_VERSIONS = new Set(['20260801-current-builder-layout-v1']);
   const REVOKED_LAYOUT_SEED_SOURCES = new Set(['docs/layout-builder/canonical-test-layout.js']);
   const REVOKED_LAYOUT_SEED_IDS = new Set(['layout_test_current_builder_20260801']);
@@ -5432,10 +5432,39 @@
     };
   }
 
+  function layerNodeZIndex(node) {
+    const value = Number.parseInt(node?.style?.zIndex || '0', 10);
+    return Number.isFinite(value) ? value : 0;
+  }
+
+  function highlightGlowZIndex(node) {
+    return layerNodeZIndex(node) - 1;
+  }
+
+  function highlightedTextGlowClone(node) {
+    if (!layerKindClass(node, 'text')) return null;
+    if (!layerKindClass(node, 'submacro-narration-highlight') && !layerKindClass(node, 'pro-con-point-highlight')) return null;
+
+    const glowClone = node.cloneNode(true);
+    glowClone.removeAttribute('data-render-key');
+    glowClone.dataset.highlightClone = 'true';
+    glowClone.setAttribute('aria-hidden', 'true');
+    glowClone.style.zIndex = String(highlightGlowZIndex(node));
+
+    node.classList.remove('submacro-narration-highlight', 'pro-con-point-highlight');
+    return glowClone;
+  }
+
+  function appendHighlightedTextNode(renderParent, node) {
+    const glowClone = highlightedTextGlowClone(node);
+    if (glowClone) renderParent.appendChild(glowClone);
+    renderParent.appendChild(node);
+  }
+
   function appendLayerNode(renderParent, node, scene, revealSchedule, layerList, layer = null) {
     const columnIndex = asNumber(node.dataset.micronHighlightColumnIndex, null);
     if (columnIndex == null || revealSchedule?.family !== 'micron') {
-      renderParent.appendChild(node);
+      appendHighlightedTextNode(renderParent, node);
       return;
     }
 
@@ -5461,7 +5490,9 @@
     wrapper.style.inset = '0';
     wrapper.style.pointerEvents = 'none';
     wrapper.style.overflow = 'hidden';
-    wrapper.style.zIndex = node.style.zIndex || '0';
+    const glowZIndex = highlightGlowZIndex(node);
+    wrapper.style.zIndex = String(glowZIndex);
+    highlightClone.style.zIndex = String(glowZIndex);
     wrapper.style.clipPath = [
       `inset(calc(${lane.top.toFixed(3)}px * var(--pixel-unit))`,
       `calc(${(lane.canvasWidth - lane.right).toFixed(3)}px * var(--pixel-unit))`,

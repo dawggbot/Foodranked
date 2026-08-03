@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260803-vbv2-food-image-path-v1';
+  const BUILDER_BUILD_ID = '20260803-vbv2-placement-refresh-v1';
   const REVOKED_LAYOUT_SEED_VERSIONS = new Set(['20260801-current-builder-layout-v1']);
   const REVOKED_LAYOUT_SEED_SOURCES = new Set(['docs/layout-builder/canonical-test-layout.js']);
   const REVOKED_LAYOUT_SEED_IDS = new Set(['layout_test_current_builder_20260801']);
@@ -1916,10 +1916,26 @@
     };
   }
 
+  function displayBuilderV2PlacementBuildMatches(entry) {
+    const entryBuildId = String(entry?.buildId || '');
+    const layoutBuildId = String(entry?.layout?.meta?.exportBuildId || '');
+    return entryBuildId === BUILDER_BUILD_ID || layoutBuildId === BUILDER_BUILD_ID;
+  }
+
+  function displayBuilderV2PlacementHasFoodImageLayer(entry) {
+    const sections = entry?.layout?.sections;
+    if (!sections || typeof sections !== 'object') return false;
+    return Object.values(sections).some(section => (
+      Array.isArray(section?.layers) && section.layers.some(isHeaderFoodImageLayer)
+    ));
+  }
+
   function displayBuilderV2PlacementIsFresh(entry, foodId) {
     return Boolean(foodId)
       && entry?.foodId === foodId
-      && validLayout(entry?.layout);
+      && validLayout(entry?.layout)
+      && displayBuilderV2PlacementBuildMatches(entry)
+      && displayBuilderV2PlacementHasFoodImageLayer(entry);
   }
 
   function layoutSourceOptions() {
@@ -2339,6 +2355,26 @@
       || /^header food image$/.test(label)
       || /^selected food image$/.test(label)
       || /(^|[_-])selected[_-]food[_-]image/.test(id);
+  }
+
+  function isHeaderFoodImagePlateLayer(layer) {
+    if (!isSpriteLayer(layer)) return false;
+    const fingerprint = `${layer.src || ''} ${layer.label || ''}`.toLowerCase();
+    return fingerprint.includes('/header/food_plate/')
+      || fingerprint.includes('/header/food_image_plate/')
+      || /header food image plate/.test(fingerprint);
+  }
+
+  function headerFoodLayerRenderOrder(layer) {
+    if (isHeaderFoodImagePlateLayer(layer)) return 1;
+    if (isHeaderFoodImageLayer(layer)) return 2;
+    return 0;
+  }
+
+  function compareSceneRenderLayers(a, b) {
+    return (Number(a.layer.z) || 0) - (Number(b.layer.z) || 0)
+      || (a.persistent === b.persistent ? 0 : a.persistent ? 1 : -1)
+      || headerFoodLayerRenderOrder(a.layer) - headerFoodLayerRenderOrder(b.layer);
   }
 
   function syncHeader(layout, food) {
@@ -4197,10 +4233,7 @@
     if (!state.layout || !scene) return [];
     const content = sceneContentLayers(scene.id).map((layer, index) => ({ layer, index, persistent: false }));
     const chrome = persistentChromeLayers(scene.id, food).map((layer, index) => ({ layer, index, persistent: true }));
-    const layers = [...content, ...chrome].sort((a, b) => {
-      return (Number(a.layer.z) || 0) - (Number(b.layer.z) || 0)
-        || (a.persistent === b.persistent ? 0 : a.persistent ? 1 : -1);
-    });
+    const layers = [...content, ...chrome].sort(compareSceneRenderLayers);
     const layerList = layers.map(item => item.layer);
     return layers
       .filter(({ layer }) => layer.visible !== false)
@@ -4319,10 +4352,7 @@
     const introFocusBlur = applyIntroFocusStageEffect(roots, scene, sceneElapsed);
     const content = sceneContentLayers(scene.id).map((layer, index) => ({ layer, index, persistent: false }));
     const chrome = persistentChromeLayers(scene.id, food).map((layer, index) => ({ layer, index, persistent: true }));
-    const layers = [...content, ...chrome].sort((a, b) => {
-      return (Number(a.layer.z) || 0) - (Number(b.layer.z) || 0)
-        || (a.persistent === b.persistent ? 0 : a.persistent ? 1 : -1);
-    });
+    const layers = [...content, ...chrome].sort(compareSceneRenderLayers);
     els.videoStage.style.backgroundColor = state.layout?.canvas?.background || '#d6d6d6';
     roots.bg.style.background = backgroundFieldGradient(food);
     void renderDynamicBackground(roots.bg, food).then(() => syncDynamicBackgroundFrame(roots.bg));

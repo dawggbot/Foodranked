@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260802-macro-sfx-export-parity-v1';
+  const BUILDER_BUILD_ID = '20260803-selected-food-image-layer-v1';
   const REVOKED_LAYOUT_SEED_VERSIONS = new Set(['20260801-current-builder-layout-v1']);
   const REVOKED_LAYOUT_SEED_SOURCES = new Set(['docs/layout-builder/canonical-test-layout.js']);
   const REVOKED_LAYOUT_SEED_IDS = new Set(['layout_test_current_builder_20260801']);
@@ -2169,6 +2169,18 @@
     return ratio <= 0 ? MACRO_BAR_MIN_VISIBLE_FILL_RATIO : clamp(ratio, 0, 1);
   }
 
+  function isHeaderFoodImageLayer(layer) {
+    if (!isSpriteLayer(layer)) return false;
+    if (layer?.id === 'intro_food_hero') return false;
+    const id = String(layer.id || '').toLowerCase();
+    const src = String(layer.src || '').toLowerCase();
+    const label = String(layer.label || '').toLowerCase().replace(/^library:\s*/, '');
+    return src.includes('/header/food_images/')
+      || /^header food image$/.test(label)
+      || /^selected food image$/.test(label)
+      || /(^|[_-])selected[_-]food[_-]image/.test(id);
+  }
+
   function syncHeader(layout, food) {
     const values = {
       kcal_value_text: String(food?.header?.kcal ?? food?.kcal ?? 'N/A'),
@@ -2188,7 +2200,7 @@
         }
         if (!isSpriteLayer(layer)) continue;
         const fingerprint = `${layer.src || ''} ${layer.label || ''}`.toLowerCase();
-        if (fingerprint.includes('/header/food_images/') || /header food image$/.test(fingerprint)) {
+        if (isHeaderFoodImageLayer(layer)) {
           layer.src = foodImagePath(food);
           layer.fallbackSrc = foodPlatePath(food);
           syncFoodImageLayerGeometry(layer, food);
@@ -2209,8 +2221,7 @@
     for (const section of SECTIONS) {
       for (const layer of getSectionLayers(layout, section.id)) {
         if (!isSpriteLayer(layer)) continue;
-        const fingerprint = `${layer.src || ''} ${layer.label || ''}`.toLowerCase();
-        if (!fingerprint.includes('/header/food_images/') && !/header food image$/.test(fingerprint)) continue;
+        if (!isHeaderFoodImageLayer(layer)) continue;
         layer.src = foodImagePath(food);
         layer.fallbackSrc = foodPlatePath(food);
         syncFoodImageLayerGeometry(layer, food);

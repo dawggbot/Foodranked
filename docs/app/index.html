@@ -1204,7 +1204,7 @@
   <script>
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     if (APP_MODE === 'layout-builder') document.body.classList.add('layout-builder-mode');
-    const BUILDER_BUILD_ID = '20260802-custom-food-image-fallback-v1';
+    const BUILDER_BUILD_ID = '20260803-selected-food-image-layer-v1';
     const BACKGROUND_MOTION_DEFAULT_MAX_SIZE = 80;
     const BACKGROUND_MOTION_LEGACY_MAX_SIZE = 40;
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
@@ -1902,14 +1902,19 @@
 
     function isHeaderSpriteLayer(layer) {
       if (!isSpriteLayer(layer)) return false;
-      return String(layer.src).toLowerCase().includes('/sprites/header/');
+      return String(layer.src).toLowerCase().includes('/sprites/header/')
+        || isHeaderFoodImageLayer(layer);
     }
 
     function isHeaderFoodImageLayer(layer) {
       if (!isSpriteLayer(layer)) return false;
+      const id = String(layer.id || '').toLowerCase();
       const src = String(layer.src || '').toLowerCase();
       const label = String(layer.label || '').toLowerCase().replace(/^library:\s*/, '');
-      return src.includes('/header/food_images/') || /^header food image$/.test(label);
+      return src.includes('/header/food_images/')
+        || /^header food image$/.test(label)
+        || /^selected food image$/.test(label)
+        || /(^|[_-])selected[_-]food[_-]image/.test(id);
     }
 
     function isHeaderTextLayer(layer) {

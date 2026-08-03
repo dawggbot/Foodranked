@@ -1,8 +1,60 @@
 {
   "schemaVersion": "foodranked-agent-sync-index.v1",
-  "updatedAt": "2026-08-03T12:56:21Z",
+  "updatedAt": "2026-08-03T15:55:00Z",
   "repoRawBaseUrl": "https://raw.githubusercontent.com/dawggbot/Foodranked/main/",
   "jobs": [
+    {
+      "id": "black-beans-sprite-update-20260803",
+      "title": "Black Beans sprite update",
+      "description": "Download and attach the Black Beans food image sprite to the local app database.",
+      "status": "ready",
+      "foodId": "black-beans",
+      "createdAt": "2026-08-03T15:55:00Z",
+      "updatedAt": "2026-08-03T15:55:00Z",
+      "tags": [
+        "asset",
+        "sprite",
+        "food-image",
+        "agent-sync"
+      ],
+      "actions": [
+        {
+          "type": "downloadAsset",
+          "label": "Black Beans sprite",
+          "kind": "image",
+          "foodId": "black-beans",
+          "filename": "black-beans.png",
+          "sourcePath": "sprites/header/food_images/black-beans.png",
+          "attachToFood": true,
+          "assetPatch": {
+            "width": 30,
+            "height": 30
+          }
+        },
+        {
+          "type": "upsertFood",
+          "label": "Attach sprite to black-beans",
+          "food": {
+            "id": "black-beans",
+            "name": "Black Beans",
+            "foodType": "legumes",
+            "foodTypeLabel": "Legumes",
+            "kcal": 339,
+            "customFoodImagePath": "/studio-data/uploads/images/black-beans/black-beans.png",
+            "customFoodImageWidth": 30,
+            "customFoodImageHeight": 30,
+            "assets": {
+              "customFoodImage": {
+                "path": "/studio-data/uploads/images/black-beans/black-beans.png",
+                "width": 30,
+                "height": 30
+              }
+            }
+          }
+        }
+      ],
+      "notes": "Adds the uploaded 30x30 Black Beans sprite using the same local custom-food-image fields as existing sprite sync jobs. Does not change canvas placement."
+    },
     {
       "id": "plums-display-precision-refresh-20260803",
       "title": "Plums display precision refresh",

@@ -335,7 +335,7 @@
     "kind": "data",
     "path": "data/foods-index.js",
     "mimeType": "text/javascript",
-    "sizeBytes": 8277625
+    "sizeBytes": 8277575
   },
   {
     "id": "data.foods.index.json",
@@ -343,7 +343,7 @@
     "kind": "data",
     "path": "data/foods-index.json",
     "mimeType": "application/json",
-    "sizeBytes": 14527607
+    "sizeBytes": 14527557
   },
   {
     "id": "data.foods.acorns.sample",
@@ -5848,6 +5848,14 @@
     "path": "app/sprites/header/food_images/bacon.png",
     "mimeType": "image/png",
     "sizeBytes": 747
+  },
+  {
+    "id": "app.sprites.header.food.images.black.beans",
+    "label": "Black Beans",
+    "kind": "sprite",
+    "path": "app/sprites/header/food_images/black-beans.png",
+    "mimeType": "image/png",
+    "sizeBytes": 832
   },
   {
     "id": "app.sprites.header.food.images.buckwheat",

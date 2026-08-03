@@ -8,7 +8,7 @@
     ...(BINDINGS.micronutrientSections || ['vitamins', 'minerals'])
   ])];
   const MACRO_BAR_MIN_VISIBLE_FILL_RATIO = 0.0011;
-  const AVAILABLE_FOOD_IMAGE_IDS = new Set(['bacon', 'buckwheat', 'kale', 'raspberries']);
+  const AVAILABLE_FOOD_IMAGE_IDS = new Set(['bacon', 'black-beans', 'buckwheat', 'kale', 'raspberries']);
   const FOOD_IMAGE_BACON_REFERENCE = {
     x: 8,
     y: 10,
@@ -34,6 +34,7 @@
   };
   const FOOD_IMAGE_SPRITE_SIZES = {
     bacon: { width: 30, height: 13 },
+    'black-beans': { width: 30, height: 30 },
     buckwheat: { width: 30, height: 30 },
     kale: { width: 30, height: 30 },
     raspberries: { width: 30, height: 30 }

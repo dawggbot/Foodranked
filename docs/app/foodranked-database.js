@@ -332,17 +332,22 @@
     if (!clean) return existingScript || null;
     const blocks = narrationBlocksFromText(clean, food);
     const sectionBlocks = blocks.filter(block => block.kind === 'section');
+    const existingSections = Array.isArray(existingScript?.sections) ? existingScript.sections : [];
     return {
       ...(existingScript && typeof existingScript === 'object' ? existingScript : {}),
       source: 'foodranked-database',
       narrationText: clean,
       narrationBlocks: blocks,
-      sections: sectionBlocks.map(block => ({
-        key: block.sectionKey,
-        title: block.sectionKey,
-        narration: block.text,
-        subtitleText: block.text
-      }))
+      sections: sectionBlocks.map(block => {
+        const existingSection = existingSections.find(section => section?.key === block.sectionKey) || {};
+        return {
+          ...existingSection,
+          key: block.sectionKey,
+          title: existingSection.title || block.sectionKey,
+          narration: block.text,
+          subtitleText: block.text
+        };
+      })
     };
   }
 
@@ -409,11 +414,25 @@
     merged.header = mergeObjects(base.header, entry.header);
     merged.metrics = mergeObjects(base.metrics, entry.metrics);
     merged.assets = mergeObjects(base.assets, entry.assets);
+    merged.contextItems = mergeObjects(base.contextItems, entry.contextItems);
     merged.status = {
       ...(base.status && typeof base.status === 'object' ? base.status : {}),
       ...(entry.status && typeof entry.status === 'object' ? entry.status : {}),
       finalizedDownloaded: Boolean(entry.finalizedDownloaded)
     };
+    [
+      'ruleset',
+      'metricProvenance',
+      'nutritionDataSources',
+      'sourceNotes',
+      'scoreAdjustments',
+      'scoreReadiness',
+      'sfxProfile',
+      'musicProfile',
+      'voiceProfile'
+    ].forEach(key => {
+      if (entry[key] != null) merged[key] = clone(entry[key]);
+    });
     merged.finalizedDownloaded = Boolean(entry.finalizedDownloaded);
 
     const customFoodImagePath = cleanPath(entry.customFoodImagePath || entry.foodSpritePath || entry.assets?.customFoodImage?.path);
@@ -483,6 +502,7 @@
       kcal: finiteNumber(entry.header?.kcal ?? entry.kcal, null),
       header: entry.header || {},
       metrics: entry.metrics || {},
+      contextItems: entry.contextItems || entry.foodPatch?.contextItems || {},
       path: '',
       sourceFile: '',
       customDatabaseFood: true

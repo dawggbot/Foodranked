@@ -727,6 +727,12 @@ function headerMacro(result, key) {
   return Number(v);
 }
 
+function displayMacroGrams(value) {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return null;
+  return Number((Math.round(numeric * 10) / 10).toFixed(1));
+}
+
 function macroValueForSection(result, sectionKey) {
   const headerKey = MACRO_SECTION_HEADER_KEYS[sectionKey];
   if (!headerKey) return null;
@@ -745,7 +751,7 @@ function macroSectionDisplaysNa(result, sectionKey) {
 function macroDisplayValue(result, sectionKey) {
   const value = macroValueForSection(result, sectionKey);
   if (value === null || value === undefined || value === 0) return 'N/A';
-  return `${value}g`;
+  return `${displayMacroGrams(value)}g`;
 }
 
 function macroLine(result, key) {
@@ -753,7 +759,7 @@ function macroLine(result, key) {
   const value = macroValueForSection(result, key);
   if (value === null || value === undefined) return null;
   if (value === 0) return null;
-  return `${value}g of ${label}`;
+  return `${displayMacroGrams(value)}g of ${label}`;
 }
 
 function joinShort(parts) {

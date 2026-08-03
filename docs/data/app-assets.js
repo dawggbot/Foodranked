@@ -311,7 +311,7 @@
     "kind": "data",
     "path": "data/batch-results.json",
     "mimeType": "application/json",
-    "sizeBytes": 3646606
+    "sizeBytes": 3660386
   },
   {
     "id": "data.foods.index.js",
@@ -319,7 +319,7 @@
     "kind": "data",
     "path": "data/foods-index.js",
     "mimeType": "text/javascript",
-    "sizeBytes": 8201251
+    "sizeBytes": 8248547
   },
   {
     "id": "data.foods.index.json",
@@ -327,7 +327,7 @@
     "kind": "data",
     "path": "data/foods-index.json",
     "mimeType": "application/json",
-    "sizeBytes": 14390539
+    "sizeBytes": 14469823
   },
   {
     "id": "data.foods.acorns.sample",
@@ -1776,6 +1776,14 @@
     "path": "data/foods/plantain-green.sample.json",
     "mimeType": "application/json",
     "sizeBytes": 3755
+  },
+  {
+    "id": "data.foods.plums.sample",
+    "label": "Plums.Sample",
+    "kind": "data",
+    "path": "data/foods/plums.sample.json",
+    "mimeType": "application/json",
+    "sizeBytes": 7399
   },
   {
     "id": "data.foods.pomegranate.sample",

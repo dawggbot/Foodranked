@@ -280,7 +280,21 @@ function metricValueText(metric) {
 function trimmedDecimal(value, decimals = 2) {
   const number = Number(value);
   if (!Number.isFinite(number)) return String(value);
-  return number.toFixed(decimals).replace(/\.?0+$/g, '');
+  const cleaned = number.toFixed(decimals).replace(/\.?0+$/g, '');
+  return cleaned === '' || cleaned === '-' ? '0' : cleaned;
+}
+
+function displayDecimalPlaces(value, decimals = 1) {
+  const number = Number(value);
+  const fallbackDecimals = Number.isFinite(Number(decimals)) ? Math.max(0, Math.trunc(Number(decimals))) : 1;
+  if (!Number.isFinite(number)) return fallbackDecimals;
+  return number !== 0 && Math.abs(number) < 1 && fallbackDecimals === 1 ? 2 : fallbackDecimals;
+}
+
+function displayNumberText(value, decimals = 1) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return String(value);
+  return trimmedDecimal(number, displayDecimalPlaces(number, decimals));
 }
 
 function longMgDisplayValue(metric) {
@@ -294,8 +308,26 @@ function longMgDisplayValue(metric) {
   return `${trimmedDecimal(value / 1000, 2)}g`;
 }
 
+function displayMetricUnitValueText(metric) {
+  if (!metric) return null;
+  if (metric.scoringMode === 'dv_points' && metric.dvPercent != null) return `${displayNumberText(metric.dvPercent, 0)}% DV`;
+  if (metric.value === null || metric.value === undefined) return null;
+
+  const key = String(metric.metricKey || '');
+  if (key === 'protein_g_fallback' || key.endsWith('_g')) return `${displayNumberText(metric.value)}g`;
+  if (key.endsWith('_mg')) return `${displayNumberText(metric.value)}mg`;
+  if (key.endsWith('_mcg')) return `${displayNumberText(metric.value)}mcg`;
+  if (key.endsWith('_kg')) return `${displayNumberText(metric.value)}kg`;
+  if (key.endsWith('_percent')) return `${displayNumberText(metric.value)}%`;
+  if (key === 'essential_amino_acids_score') return `${displayNumberText(metric.value, 0)}/${metric.denominator || 9}`;
+  if (key === 'nonessential_amino_acids_score') return `${displayNumberText(metric.value, 0)}/${metric.denominator || 11}`;
+  if (key.endsWith('_score')) return `${displayNumberText(metric.value, 0)}/10`;
+  if (/glycemic/i.test(key)) return `${displayNumberText(metric.value, 0)} GI`;
+  return String(metric.value);
+}
+
 function displayMetricValueText(metric) {
-  return longMgDisplayValue(metric) || metricValueText(metric);
+  return longMgDisplayValue(metric) || displayMetricUnitValueText(metric) || metricValueText(metric);
 }
 
 function spokenMetricValueText(metric) {
@@ -322,6 +354,23 @@ function scoreFromBands(value, bands) {
     if (minOk && maxOk) return { label: band.label, score: band.score };
   }
   return null;
+}
+
+function canonicalArrowBandFromScore(score) {
+  const numericScore = toFiniteNumber(score);
+  if (numericScore === null) return null;
+  if (numericScore >= 100) return '3_green';
+  if (numericScore >= 80) return '2_green';
+  if (numericScore >= 60) return '1_green';
+  if (numericScore >= 40) return '1_red';
+  if (numericScore >= 20) return '2_red';
+  return '3_red';
+}
+
+function canonicalArrowBand(metric) {
+  const mode = String(metric?.scoringMode || '');
+  if (mode !== 'arrow_bands' && mode !== 'display_fallback') return metric?.band || null;
+  return canonicalArrowBandFromScore(metric?.score ?? metric?.weightedScore) || metric?.band || null;
 }
 
 function clampRounded(value, min, max) {
@@ -1931,10 +1980,12 @@ function completeMacroDisplayItems(result, sectionKey) {
     const scored = scoredByKey.get(metricKey);
     const denominator = displayDenominatorForMetric(result, metricKey, scored);
     if (scored) {
+      const displayMetric = { ...scored, denominator };
       return {
-        ...scored,
+        ...displayMetric,
+        band: canonicalArrowBand(displayMetric),
         denominator,
-        displayValue: displayMetricValueText({ ...scored, denominator }),
+        displayValue: displayMetricValueText(displayMetric),
         displaySource: 'scored'
       };
     }
@@ -1987,6 +2038,7 @@ function completeMacroDisplayItems(result, sectionKey) {
           : 'missing_submacro_value'
         : null
     };
+    row.band = canonicalArrowBand(row);
     row.text = metricDisplayText(row, { speakDailyValue: false });
     row.displayValue = displayMetricValueText(row);
     return row;

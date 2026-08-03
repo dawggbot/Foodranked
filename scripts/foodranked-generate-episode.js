@@ -249,24 +249,44 @@ function metricLabel(metricKey) {
     .trim();
 }
 
+function trimmedDecimal(value, decimals = 2) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return String(value);
+  const cleaned = number.toFixed(decimals).replace(/\.?0+$/g, '');
+  return cleaned === '' || cleaned === '-' ? '0' : cleaned;
+}
+
+function displayDecimalPlaces(value, decimals = 1) {
+  const number = Number(value);
+  const fallbackDecimals = Number.isFinite(Number(decimals)) ? Math.max(0, Math.trunc(Number(decimals))) : 1;
+  if (!Number.isFinite(number)) return fallbackDecimals;
+  return number !== 0 && Math.abs(number) < 1 && fallbackDecimals === 1 ? 2 : fallbackDecimals;
+}
+
+function displayNumberText(value, decimals = 1) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return String(value);
+  return trimmedDecimal(number, displayDecimalPlaces(number, decimals));
+}
+
 function metricDisplayValue(item) {
   if (item?.displayValue != null) return item.displayValue;
-  if (item?.dvPercent != null) return `${item.dvPercent}% DV`;
+  if (item?.dvPercent != null) return `${displayNumberText(item.dvPercent, 0)}% DV`;
   if (item?.value == null) return 'N/A';
   const key = String(item.metricKey || '');
   if (LONG_MG_DISPLAY_METRIC_KEYS.has(key) && Number.isFinite(Number(item.value))) {
     const value = Number(item.value);
     if (String(Math.trunc(Math.abs(value))).length >= LONG_MG_DISPLAY_DIGITS) {
-      return `${(value / 1000).toFixed(2).replace(/\.?0+$/g, '')}g`;
+      return `${trimmedDecimal(value / 1000, 2)}g`;
     }
   }
-  if (key.endsWith('_mg')) return `${item.value}mg`;
-  if (key.endsWith('_g')) return `${item.value}g`;
-  if (key.endsWith('_percent')) return `${item.value}%`;
-  if (key === 'essential_amino_acids_score') return `${item.value}/9`;
-  if (key === 'nonessential_amino_acids_score') return `${item.value}/${item.denominator || 11}`;
-  if (key.endsWith('_score')) return `${item.value}/10`;
-  if (/glycemic/i.test(key)) return `${item.value} GI`;
+  if (key.endsWith('_mg')) return `${displayNumberText(item.value)}mg`;
+  if (key.endsWith('_g')) return `${displayNumberText(item.value)}g`;
+  if (key.endsWith('_percent')) return `${displayNumberText(item.value)}%`;
+  if (key === 'essential_amino_acids_score') return `${displayNumberText(item.value, 0)}/9`;
+  if (key === 'nonessential_amino_acids_score') return `${displayNumberText(item.value, 0)}/${item.denominator || 11}`;
+  if (key.endsWith('_score')) return `${displayNumberText(item.value, 0)}/10`;
+  if (/glycemic/i.test(key)) return `${displayNumberText(item.value, 0)} GI`;
   return String(item.value);
 }
 

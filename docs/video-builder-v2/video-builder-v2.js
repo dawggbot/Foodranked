@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260803-food-image-placement-template-v1';
+  const BUILDER_BUILD_ID = '20260803-plums-playback-display-sprite-v1';
   const REVOKED_LAYOUT_SEED_VERSIONS = new Set(['20260801-current-builder-layout-v1']);
   const REVOKED_LAYOUT_SEED_SOURCES = new Set(['docs/layout-builder/canonical-test-layout.js']);
   const REVOKED_LAYOUT_SEED_IDS = new Set(['layout_test_current_builder_20260801']);
@@ -438,6 +438,16 @@
   const FOOD_IMAGE_REFERENCE_CENTER = {
     x: FOOD_IMAGE_BACON_REFERENCE.x + (FOOD_IMAGE_BACON_REFERENCE.width / 2),
     y: FOOD_IMAGE_BACON_REFERENCE.y + (FOOD_IMAGE_BACON_REFERENCE.height / 2)
+  };
+  const FOOD_IMAGE_PLATE_REFERENCE = {
+    x: 5,
+    y: 2,
+    width: 29,
+    height: 29
+  };
+  const FOOD_IMAGE_PLATE_CENTER = {
+    x: FOOD_IMAGE_PLATE_REFERENCE.x + (FOOD_IMAGE_PLATE_REFERENCE.width / 2),
+    y: FOOD_IMAGE_PLATE_REFERENCE.y + (FOOD_IMAGE_PLATE_REFERENCE.height / 2)
   };
   const FOOD_IMAGE_SPRITE_SIZES = {
     bacon: { width: 30, height: 13 },
@@ -994,13 +1004,21 @@
     const safe = asNumber(value, null);
     if (safe == null) return 'N/A';
     if (Number.isInteger(safe)) return String(safe);
-    return safe.toFixed(decimals).replace(/\.0+$/, '').replace(/(\.\d*[1-9])0+$/, '$1');
+    const displayDecimals = decimals === 1 && safe !== 0 && Math.abs(safe) < 1 ? 2 : decimals;
+    return safe.toFixed(displayDecimals).replace(/\.0+$/, '').replace(/(\.\d*[1-9])0+$/, '$1');
   }
 
   function formatMetric(value, unit) {
     const safe = asNumber(value, null);
     if (safe == null) return 'N/A';
     return `${formatCompactNumber(safe)}${unit}`;
+  }
+
+  function formatMacroTotalMetric(value, unit) {
+    const safe = asNumber(value, null);
+    if (safe == null) return 'N/A';
+    if (Number.isInteger(safe)) return `${safe}${unit}`;
+    return `${safe.toFixed(1).replace(/\.0+$/, '').replace(/(\.\d*[1-9])0+$/, '$1')}${unit}`;
   }
 
   function longMgDisplayValue(item) {
@@ -1412,8 +1430,8 @@
     if (!size) {
       if (!hasCustomFoodImage(food)) return null;
       return {
-        x: FOOD_IMAGE_REFERENCE_CENTER.x - (FOOD_IMAGE_BACON_REFERENCE.width / 2),
-        y: FOOD_IMAGE_REFERENCE_CENTER.y - (FOOD_IMAGE_BACON_REFERENCE.width / 2),
+        x: FOOD_IMAGE_PLATE_CENTER.x - (FOOD_IMAGE_BACON_REFERENCE.width / 2),
+        y: FOOD_IMAGE_PLATE_CENTER.y - (FOOD_IMAGE_BACON_REFERENCE.width / 2),
         width: FOOD_IMAGE_BACON_REFERENCE.width,
         height: FOOD_IMAGE_BACON_REFERENCE.width,
         naturalWidth: null,
@@ -1428,9 +1446,10 @@
     }
     const width = size.width * FOOD_IMAGE_REFERENCE_SCALE;
     const height = size.height * FOOD_IMAGE_REFERENCE_SCALE;
+    const center = FOOD_IMAGE_PLATE_CENTER;
     return {
-      x: FOOD_IMAGE_REFERENCE_CENTER.x - (width / 2),
-      y: FOOD_IMAGE_REFERENCE_CENTER.y - (height / 2),
+      x: center.x - (width / 2),
+      y: center.y - (height / 2),
       width,
       height,
       naturalWidth: size.width,
@@ -1438,10 +1457,10 @@
     };
   }
 
-  function syncFoodImageLayerGeometry(layer, food) {
+  function syncFoodImageLayerGeometry(layer, food, options = {}) {
     const geometry = foodImageLayerGeometry(food);
     if (!geometry) return;
-    if (!layer.manualPosition) {
+    if (options.force === true || layer.foodDriven === true || !layer.manualPosition) {
       layer.x = Number(geometry.x.toFixed(3));
       layer.y = Number(geometry.y.toFixed(3));
       layer.width = Number(geometry.width.toFixed(3));
@@ -1528,12 +1547,10 @@
   }
 
   function syncHeaderFoodImageLayer(layer, food) {
-    const placement = foodImagePlacementSnapshot(layer);
     layer.src = foodImagePath(food);
     layer.fallbackSrc = foodPlatePath(food);
-    if (!applyFoodImagePlacementToLayer(layer, placement, food)) {
-      syncFoodImageLayerGeometry(layer, food);
-    }
+    layer.foodDriven = true;
+    syncFoodImageLayerGeometry(layer, food, { force: true });
   }
 
   function canvasGridUnit(axis = 'x') {
@@ -2592,9 +2609,9 @@
   }
 
   function syncMacroTotalText(layout, food) {
-    syncMacroTotalTextForSection(layout, 'fats', 'fats', formatMetric(food?.header?.fat_g, 'g'));
-    syncMacroTotalTextForSection(layout, 'carbs', 'CARBS', formatMetric(macroTotalValue(food, 'carbs'), 'g'));
-    syncMacroTotalTextForSection(layout, 'protein', 'PROTEIN', formatMetric(food?.header?.protein_g, 'g'));
+    syncMacroTotalTextForSection(layout, 'fats', 'fats', formatMacroTotalMetric(food?.header?.fat_g, 'g'));
+    syncMacroTotalTextForSection(layout, 'carbs', 'CARBS', formatMacroTotalMetric(macroTotalValue(food, 'carbs'), 'g'));
+    syncMacroTotalTextForSection(layout, 'protein', 'PROTEIN', formatMacroTotalMetric(food?.header?.protein_g, 'g'));
   }
 
   function macroBarLayerSection(layer, fallbackSectionId = '') {

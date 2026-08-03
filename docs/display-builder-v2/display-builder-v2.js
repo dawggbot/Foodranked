@@ -1778,7 +1778,8 @@
         } else if (isHeaderFoodImageLayer(layer)) {
           layer.src = imageCandidates.primary;
           layer.fallbackSrc = imageCandidates.fallback;
-          LOGIC.syncFoodImageLayerGeometry?.(layer, food);
+          layer.foodDriven = true;
+          LOGIC.syncFoodImageLayerGeometry?.(layer, food, { force: true });
         } else if (src.includes('/header/food_plate/') || src.includes('/header/food_image_plate/') || /header food image plate/.test(label)) {
           layer.src = LOGIC.headerFoodPlateSpritePath(food);
         } else if (src.includes('/ui/section_separator/') || /^section separator$/.test(label)) {
@@ -2495,6 +2496,7 @@
     syncStaticIntroOutroStampSprites(layout, food);
     applyLayoutBuilderPlacementGuide(layout, food, option.layout);
     applyLayoutBuilderFoodImagePlacement(layout, food, option.layout);
+    syncFoodSprites(layout, food);
     syncStaticIntroOutroStampSprites(layout, food);
     syncFoodText(layout, food);
     syncMacroFills(layout, food);

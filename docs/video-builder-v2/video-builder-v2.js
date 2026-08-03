@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260803-preview-performance-sync-v1';
+  const BUILDER_BUILD_ID = '20260803-vbv2-food-image-path-v1';
   const REVOKED_LAYOUT_SEED_VERSIONS = new Set(['20260801-current-builder-layout-v1']);
   const REVOKED_LAYOUT_SEED_SOURCES = new Set(['docs/layout-builder/canonical-test-layout.js']);
   const REVOKED_LAYOUT_SEED_IDS = new Set(['layout_test_current_builder_20260801']);
@@ -1391,6 +1391,22 @@
     return `${ROOT_SPRITE_BASE}/${path}`.replace(/\/+/g, '/').replace(':/', '://');
   }
 
+  function localAssetPath(path) {
+    if (!path || /^(data:|https?:|blob:)/i.test(path)) return path || '';
+    const raw = String(path);
+    if (raw.startsWith('../app/')) return raw;
+    if (raw.startsWith('./sprites/')) return `../app/${raw.slice(2)}`;
+    if (raw.startsWith('sprites/')) return `../app/${raw}`;
+    if (raw.startsWith('app/')) return `../${raw}`;
+    if (raw.startsWith('./app/')) return `../${raw.slice(2)}`;
+    if (raw.startsWith('docs/app/')) return `../app/${raw.slice('docs/app/'.length)}`;
+    if (raw.startsWith('/docs/app/')) return `../app/${raw.slice('/docs/app/'.length)}`;
+    const marker = '/docs/app/';
+    const markerIndex = raw.indexOf(marker);
+    if (markerIndex >= 0) return `../app/${raw.slice(markerIndex + marker.length)}`;
+    return raw;
+  }
+
   function customFoodImageAsset(food) {
     const asset = food?.assets?.customFoodImage || food?.customFoodImage || {};
     return {
@@ -1400,14 +1416,28 @@
   }
 
   function customFoodImagePath(food) {
-    return customFoodImageAsset(food).path || '';
+    return localAssetPath(customFoodImageAsset(food).path || '');
   }
 
   function foodImagePath(food) {
     const customPath = customFoodImagePath(food);
-    const foodId = String(food?.id || '').toLowerCase();
     if (customPath) return customPath;
-    if (AVAILABLE_FOOD_IMAGE_IDS.has(foodId)) return appSpritePath(`header/food_images/${foodId}.png`);
+    const committedPath = committedFoodImagePath(food);
+    if (committedPath) return committedPath;
+    return foodPlatePath(food);
+  }
+
+  function committedFoodImagePath(food) {
+    const foodId = String(food?.id || '').toLowerCase();
+    return AVAILABLE_FOOD_IMAGE_IDS.has(foodId)
+      ? appSpritePath(`header/food_images/${foodId}.png`)
+      : '';
+  }
+
+  function foodImageFallbackPath(food) {
+    const customPath = customFoodImagePath(food);
+    const committedPath = committedFoodImagePath(food);
+    if (customPath && committedPath && customPath !== committedPath) return committedPath;
     return foodPlatePath(food);
   }
 
@@ -1423,7 +1453,7 @@
   function foodSpriteCandidates(food) {
     return {
       primary: foodImagePath(food),
-      fallback: foodPlatePath(food)
+      fallback: foodImageFallbackPath(food)
     };
   }
 
@@ -1561,7 +1591,7 @@
 
   function syncHeaderFoodImageLayer(layer, food) {
     layer.src = foodImagePath(food);
-    layer.fallbackSrc = foodPlatePath(food);
+    layer.fallbackSrc = foodImageFallbackPath(food);
     layer.foodDriven = true;
     syncFoodImageLayerGeometry(layer, food, { force: true });
   }
@@ -1700,7 +1730,7 @@
         kind: 'sprite',
         label: 'Hook food image',
         src: foodImagePath(food),
-        fallbackSrc: foodPlatePath(food),
+        fallbackSrc: foodImageFallbackPath(food),
         x: foodBox.x,
         y: foodBox.y,
         z: 54,
@@ -4390,11 +4420,6 @@
       if (layer.kind === 'sprite') {
         const primarySpriteSrc = spritePath(layer.src);
         const nextSpriteSrc = resolvedSpritePath(layer, { sectionId: scene.id, food });
-        if (node.dataset.spriteSrc !== nextSpriteSrc) {
-          node.dataset.spriteSrc = nextSpriteSrc;
-          node.src = nextSpriteSrc;
-        }
-        node.alt = layer.label || '';
         node.onerror = () => {
           const failedSrc = node.currentSrc || node.src || primarySpriteSrc;
           if (layer.fallbackSrc && node.src !== new URL(spritePath(layer.fallbackSrc), window.location.href).href) {
@@ -4406,6 +4431,11 @@
           }
           recordSpriteFailure(failedSrc, '', layer.label || '');
         };
+        if (node.dataset.spriteSrc !== nextSpriteSrc) {
+          node.dataset.spriteSrc = nextSpriteSrc;
+          node.src = nextSpriteSrc;
+        }
+        node.alt = layer.label || '';
       } else {
         node.textContent = layer.text || '';
         node.style.color = layer.color || '#fff7e9';

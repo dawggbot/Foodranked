@@ -1205,7 +1205,7 @@
   <script>
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     if (APP_MODE === 'layout-builder') document.body.classList.add('layout-builder-mode');
-    const BUILDER_BUILD_ID = '20260803-preview-performance-sync-v1';
+    const BUILDER_BUILD_ID = '20260803-food-image-fallback-v1';
     const BACKGROUND_MOTION_DEFAULT_MAX_SIZE = 80;
     const BACKGROUND_MOTION_LEGACY_MAX_SIZE = 40;
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
@@ -5471,7 +5471,7 @@
       const fallback = `${ROOT_SPRITE_BASE}/header/food_plate/${slug}_food_plate.png`;
       return {
         primary: customPath || committedPath || fallback,
-        fallback
+        fallback: customPath && committedPath && customPath !== committedPath ? committedPath : fallback
       };
     }
 
@@ -7051,8 +7051,19 @@
           node.style.left = `calc(${Number(layer.x || 0) - indicatorOffset}px * var(--pixel-unit))`;
           node.style.top = `calc(${Number(layer.y || 0) - indicatorOffset}px * var(--pixel-unit))`;
           if (isHighlightedIndicator) node.style.zIndex = String((Number(layer.z) || 0) + 10);
-          node.src = renderedSrc;
           node.alt = layer.label;
+          node.onerror = () => {
+            const failedSrc = node.currentSrc || node.src || renderedSrc;
+            if (layer.fallbackSrc && node.src !== new URL(layer.fallbackSrc, window.location.href).href) {
+              recordSpriteFailure(failedSrc, layer.fallbackSrc, layer.label);
+              node.src = layer.fallbackSrc;
+              return;
+            }
+            recordSpriteFailure(failedSrc, '', layer.label);
+            node.onerror = null;
+            node.src = safeSpritePath('', state.layout.selectedFoodId.toUpperCase().slice(0, 8));
+          };
+          node.src = renderedSrc;
           if (isIndicatorLayer) {
             const indicatorSize = isHighlightedIndicator
               ? SECTION_INDICATOR_LAYOUT.highlightedSize
@@ -7085,17 +7096,6 @@
               void renderCanvas();
             }
           }, { once: true });
-          node.onerror = () => {
-            const failedSrc = node.currentSrc || node.src || renderedSrc;
-            if (layer.fallbackSrc && node.src !== new URL(layer.fallbackSrc, window.location.href).href) {
-              recordSpriteFailure(failedSrc, layer.fallbackSrc, layer.label);
-              node.src = layer.fallbackSrc;
-              return;
-            }
-            recordSpriteFailure(failedSrc, '', layer.label);
-            node.onerror = null;
-            node.src = safeSpritePath('', state.layout.selectedFoodId.toUpperCase().slice(0, 8));
-          };
         } else {
           node.textContent = layer.text || '';
           node.style.fontSize = `calc(${textLayerFontSize(layer)}px * var(--pixel-unit))`;

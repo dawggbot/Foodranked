@@ -325,7 +325,7 @@
     const fallback = `${ROOT_SPRITE_BASE}/header/food_plate/${slug}_food_plate.png`;
     return {
       primary: customPath || committedPath || fallback,
-      fallback
+      fallback: customPath && committedPath && customPath !== committedPath ? committedPath : fallback
     };
   }
 

@@ -33,7 +33,7 @@
   const PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const PLACEMENT_EXPORT_LIMIT = 60;
   const PAGE_URL_PARAMS = new URLSearchParams(window.location.search);
-  const DISPLAY_BUILDER_V2_BUILD_ID = PAGE_URL_PARAMS.get('build') || '20260803-food-image-fallback-v1';
+  const DISPLAY_BUILDER_V2_BUILD_ID = PAGE_URL_PARAMS.get('build') || '20260803-vbv2-header-stack-v1';
   const DATA_CACHE_BUST = '20260801-layout-lockdown-v1';
   const SECTION_INDICATOR_LAYOUT = window.FOODRANKED_DISPLAY_SCHEMA?.sectionIndicatorLayout || {
     startX: 33.347,
@@ -458,6 +458,39 @@
       || /^header food image$/.test(label)
       || /^selected food image$/.test(label)
       || /(^|[_-])selected[_-]food[_-]image/.test(id);
+  }
+
+  function isHeaderFoodImagePlateLayer(layer) {
+    if (!isSpriteLayer(layer)) return false;
+    const fingerprint = `${layer.src || ''} ${layer.label || ''}`.toLowerCase();
+    return fingerprint.includes('/header/food_plate/')
+      || fingerprint.includes('/header/food_image_plate/')
+      || /header food image plate/.test(fingerprint);
+  }
+
+  function isHeaderCalorieBubbleLayer(layer) {
+    if (!isSpriteLayer(layer)) return false;
+    const fingerprint = `${layer.src || ''} ${layer.label || ''}`.toLowerCase();
+    return fingerprint.includes('/header/calorie_bubble/')
+      || /header calorie bubble/.test(fingerprint);
+  }
+
+  function headerFoodLayerRenderOrder(layer) {
+    if (isHeaderFoodImagePlateLayer(layer)) return 0;
+    if (isHeaderCalorieBubbleLayer(layer)) return 1;
+    if (isHeaderFoodImageLayer(layer)) return 2;
+    return null;
+  }
+
+  function compareDisplayCanvasLayers(a, b) {
+    const foodStackA = headerFoodLayerRenderOrder(a.layer);
+    const foodStackB = headerFoodLayerRenderOrder(b.layer);
+    if (foodStackA != null && foodStackB != null && foodStackA !== foodStackB) {
+      return foodStackA - foodStackB;
+    }
+    return (Number(a.layer.z) || 0) - (Number(b.layer.z) || 0)
+      || ((foodStackA ?? 0) - (foodStackB ?? 0))
+      || a.originalIndex - b.originalIndex;
   }
 
   function isHeaderUnderlineSpriteLayer(layer) {
@@ -2631,7 +2664,7 @@
 
     const sorted = sectionLayers
       .map((layer, originalIndex) => ({ layer, originalIndex }))
-      .sort((a, b) => (Number(a.layer.z) || 0) - (Number(b.layer.z) || 0) || a.originalIndex - b.originalIndex);
+      .sort(compareDisplayCanvasLayers);
 
     for (const { layer } of sorted) {
       if (layer.visible === false) continue;

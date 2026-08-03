@@ -1205,7 +1205,7 @@
   <script>
     const APP_MODE = new URLSearchParams(window.location.search).get('mode') || '';
     if (APP_MODE === 'layout-builder') document.body.classList.add('layout-builder-mode');
-    const BUILDER_BUILD_ID = '20260803-food-image-fallback-v1';
+    const BUILDER_BUILD_ID = '20260803-vbv2-header-stack-v1';
     const BACKGROUND_MOTION_DEFAULT_MAX_SIZE = 80;
     const BACKGROUND_MOTION_LEGACY_MAX_SIZE = 40;
     const REPO_LAYOUT_VERSION = '20260620-layout-restore-v1';
@@ -1926,6 +1926,38 @@
         || /^header food image$/.test(label)
         || /^selected food image$/.test(label)
         || /(^|[_-])selected[_-]food[_-]image/.test(id);
+    }
+
+    function isHeaderFoodImagePlateLayer(layer) {
+      if (!isSpriteLayer(layer)) return false;
+      const fingerprint = `${layer.src || ''} ${layer.label || ''}`.toLowerCase();
+      return fingerprint.includes('/header/food_plate/')
+        || fingerprint.includes('/header/food_image_plate/')
+        || /header food image plate/.test(fingerprint);
+    }
+
+    function isHeaderCalorieBubbleLayer(layer) {
+      if (!isSpriteLayer(layer)) return false;
+      const fingerprint = `${layer.src || ''} ${layer.label || ''}`.toLowerCase();
+      return fingerprint.includes('/header/calorie_bubble/')
+        || /header calorie bubble/.test(fingerprint);
+    }
+
+    function headerFoodLayerRenderOrder(layer) {
+      if (isHeaderFoodImagePlateLayer(layer)) return 0;
+      if (isHeaderCalorieBubbleLayer(layer)) return 1;
+      if (isHeaderFoodImageLayer(layer)) return 2;
+      return null;
+    }
+
+    function compareCanvasRenderLayers(a, b) {
+      const foodStackA = headerFoodLayerRenderOrder(a);
+      const foodStackB = headerFoodLayerRenderOrder(b);
+      if (foodStackA != null && foodStackB != null && foodStackA !== foodStackB) {
+        return foodStackA - foodStackB;
+      }
+      return (Number(a.z) || 0) - (Number(b.z) || 0)
+        || ((foodStackA ?? 0) - (foodStackB ?? 0));
     }
 
     function isHeaderTextLayer(layer) {
@@ -7033,7 +7065,7 @@
       }
 
 
-      const layers = [...getCurrentSectionLayers()].sort((a,b) => (a.z || 0) - (b.z || 0));
+      const layers = [...getCurrentSectionLayers()].sort(compareCanvasRenderLayers);
       for (const layer of layers) {
         if (!shouldRenderLayerOnCanvas(layer)) continue;
         const node = document.createElement(layer.kind === 'sprite' ? 'img' : 'div');

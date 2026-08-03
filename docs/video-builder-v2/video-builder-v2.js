@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260803-vbv2-placement-refresh-v1';
+  const BUILDER_BUILD_ID = '20260803-vbv2-header-stack-v1';
   const REVOKED_LAYOUT_SEED_VERSIONS = new Set(['20260801-current-builder-layout-v1']);
   const REVOKED_LAYOUT_SEED_SOURCES = new Set(['docs/layout-builder/canonical-test-layout.js']);
   const REVOKED_LAYOUT_SEED_IDS = new Set(['layout_test_current_builder_20260801']);
@@ -2365,16 +2365,29 @@
       || /header food image plate/.test(fingerprint);
   }
 
+  function isHeaderCalorieBubbleLayer(layer) {
+    if (!isSpriteLayer(layer)) return false;
+    const fingerprint = `${layer.src || ''} ${layer.label || ''}`.toLowerCase();
+    return fingerprint.includes('/header/calorie_bubble/')
+      || /header calorie bubble/.test(fingerprint);
+  }
+
   function headerFoodLayerRenderOrder(layer) {
-    if (isHeaderFoodImagePlateLayer(layer)) return 1;
+    if (isHeaderFoodImagePlateLayer(layer)) return 0;
+    if (isHeaderCalorieBubbleLayer(layer)) return 1;
     if (isHeaderFoodImageLayer(layer)) return 2;
-    return 0;
+    return null;
   }
 
   function compareSceneRenderLayers(a, b) {
+    const foodStackA = headerFoodLayerRenderOrder(a.layer);
+    const foodStackB = headerFoodLayerRenderOrder(b.layer);
+    if (foodStackA != null && foodStackB != null && foodStackA !== foodStackB) {
+      return foodStackA - foodStackB;
+    }
     return (Number(a.layer.z) || 0) - (Number(b.layer.z) || 0)
       || (a.persistent === b.persistent ? 0 : a.persistent ? 1 : -1)
-      || headerFoodLayerRenderOrder(a.layer) - headerFoodLayerRenderOrder(b.layer);
+      || ((foodStackA ?? 0) - (foodStackB ?? 0));
   }
 
   function syncHeader(layout, food) {

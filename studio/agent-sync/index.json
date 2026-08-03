@@ -1,6 +1,6 @@
 {
   "schemaVersion": "foodranked-agent-sync-index.v1",
-  "updatedAt": "2026-08-03T00:00:00Z",
+  "updatedAt": "2026-08-03T12:00:00Z",
   "repoRawBaseUrl": "https://raw.githubusercontent.com/dawggbot/Foodranked/main/",
   "jobs": [
     {
@@ -61,11 +61,11 @@
     {
       "id": "buckwheat-sprite-20260803",
       "title": "Buckwheat sprite update",
-      "description": "Download the committed Buckwheat PNG sprite and attach it to the local Buckwheat food entry for DBv2 and VBv2.",
-      "status": "ready",
+      "description": "Superseded by buckwheat-sprite-plate-20260803, which mirrors the sprite into the VBv2 food-image plate data path.",
+      "status": "disabled",
       "foodId": "buckwheat",
       "createdAt": "2026-08-03T00:00:00Z",
-      "updatedAt": "2026-08-03T00:00:00Z",
+      "updatedAt": "2026-08-03T12:00:00Z",
       "tags": [
         "asset",
         "sprite",
@@ -104,6 +104,90 @@
                 "height": 30
               }
             }
+          }
+        },
+        {
+          "type": "selectFood",
+          "label": "Confirm Buckwheat is selectable",
+          "foodId": "buckwheat"
+        }
+      ]
+    },
+    {
+      "id": "buckwheat-sprite-plate-20260803",
+      "title": "Buckwheat sprite plate fix",
+      "description": "Download the committed Buckwheat PNG sprite, then mirror it into the custom food-image fields DBv2 and VBv2 use for the header food plate.",
+      "status": "ready",
+      "foodId": "buckwheat",
+      "createdAt": "2026-08-03T00:00:00Z",
+      "updatedAt": "2026-08-03T12:00:00Z",
+      "tags": [
+        "asset",
+        "sprite",
+        "food-plate",
+        "dbv2",
+        "vbv2"
+      ],
+      "actions": [
+        {
+          "type": "downloadAsset",
+          "label": "Buckwheat sprite",
+          "kind": "image",
+          "foodId": "buckwheat",
+          "filename": "buckwheat.png",
+          "sourcePath": "sprites/header/food_images/buckwheat.png",
+          "attachToFood": true,
+          "assetPatch": {
+            "width": 30,
+            "height": 30,
+            "naturalWidth": 30,
+            "naturalHeight": 30
+          }
+        },
+        {
+          "type": "upsertFood",
+          "label": "Mirror Buckwheat sprite into food plate data",
+          "food": {
+            "id": "buckwheat",
+            "name": "Buckwheat",
+            "foodType": "grains",
+            "foodTypeLabel": "Grains",
+            "customFoodImagePath": "/studio-data/uploads/images/buckwheat/buckwheat.png",
+            "foodSpritePath": "/studio-data/uploads/images/buckwheat/buckwheat.png",
+            "customFoodImageWidth": 30,
+            "customFoodImageHeight": 30,
+            "customFoodImage": {
+              "path": "/studio-data/uploads/images/buckwheat/buckwheat.png",
+              "width": 30,
+              "height": 30,
+              "naturalWidth": 30,
+              "naturalHeight": 30
+            },
+            "assets": {
+              "customFoodImage": {
+                "path": "/studio-data/uploads/images/buckwheat/buckwheat.png",
+                "width": 30,
+                "height": 30,
+                "naturalWidth": 30,
+                "naturalHeight": 30
+              }
+            },
+            "foodPatch": {
+              "customFoodImagePath": "/studio-data/uploads/images/buckwheat/buckwheat.png",
+              "foodSpritePath": "/studio-data/uploads/images/buckwheat/buckwheat.png",
+              "customFoodImageWidth": 30,
+              "customFoodImageHeight": 30,
+              "assets": {
+                "customFoodImage": {
+                  "path": "/studio-data/uploads/images/buckwheat/buckwheat.png",
+                  "width": 30,
+                  "height": 30,
+                  "naturalWidth": 30,
+                  "naturalHeight": 30
+                }
+              }
+            },
+            "notes": "Agent Sync plate fix: mirror Buckwheat sprite into all custom food-image fields used by DBv2 and VBv2."
           }
         },
         {

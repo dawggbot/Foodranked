@@ -5658,6 +5658,14 @@
     "sizeBytes": 747
   },
   {
+    "id": "app.sprites.header.food.images.buckwheat",
+    "label": "Buckwheat",
+    "kind": "sprite",
+    "path": "app/sprites/header/food_images/buckwheat.png",
+    "mimeType": "image/png",
+    "sizeBytes": 2208
+  },
+  {
     "id": "app.sprites.header.food.images.kale",
     "label": "Kale",
     "kind": "sprite",

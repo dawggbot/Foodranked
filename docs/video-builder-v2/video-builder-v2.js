@@ -425,7 +425,7 @@
   const OUTRO_CTA_WAVE_PULSE_SECONDS = 0.46;
   const OUTRO_CTA_WAVE_LIFT = 2.2;
   const OUTRO_CTA_WAVE_SCALE = 0.14;
-  const AVAILABLE_FOOD_IMAGE_IDS = new Set(['bacon', 'kale', 'raspberries']);
+  const AVAILABLE_FOOD_IMAGE_IDS = new Set(['bacon', 'buckwheat', 'kale', 'raspberries']);
   const FOOD_IMAGE_BACON_REFERENCE = {
     x: 8,
     y: 10,
@@ -441,6 +441,7 @@
   };
   const FOOD_IMAGE_SPRITE_SIZES = {
     bacon: { width: 30, height: 13 },
+    buckwheat: { width: 30, height: 30 },
     kale: { width: 30, height: 30 },
     raspberries: { width: 30, height: 30 }
   };
@@ -1362,8 +1363,8 @@
   function foodImagePath(food) {
     const customPath = customFoodImagePath(food);
     const foodId = String(food?.id || '').toLowerCase();
-    if (AVAILABLE_FOOD_IMAGE_IDS.has(foodId)) return appSpritePath(`header/food_images/${foodId}.png`);
     if (customPath) return customPath;
+    if (AVAILABLE_FOOD_IMAGE_IDS.has(foodId)) return appSpritePath(`header/food_images/${foodId}.png`);
     return foodPlatePath(food);
   }
 

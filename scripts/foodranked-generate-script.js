@@ -284,7 +284,8 @@ function trimmedDecimal(value, decimals = 2) {
   return cleaned === '' || cleaned === '-' ? '0' : cleaned;
 }
 
-function displayDecimalPlaces(value, decimals = 1) {
+// One decimal by default; tiny nonzero values stay visible, e.g. 0.017g -> 0.02g.
+function submacroDisplayDecimalPlaces(value, decimals = 1) {
   const number = Number(value);
   const fallbackDecimals = Number.isFinite(Number(decimals)) ? Math.max(0, Math.trunc(Number(decimals))) : 1;
   if (!Number.isFinite(number)) return fallbackDecimals;
@@ -294,7 +295,7 @@ function displayDecimalPlaces(value, decimals = 1) {
 function displayNumberText(value, decimals = 1) {
   const number = Number(value);
   if (!Number.isFinite(number)) return String(value);
-  return trimmedDecimal(number, displayDecimalPlaces(number, decimals));
+  return trimmedDecimal(number, submacroDisplayDecimalPlaces(number, decimals));
 }
 
 function longMgDisplayValue(metric) {

@@ -172,8 +172,16 @@
     const safe = asNumber(value, null);
     if (safe == null) return '—';
     if (Number.isInteger(safe)) return String(safe);
-    const displayDecimals = decimals === 1 && safe !== 0 && Math.abs(safe) < 1 ? 2 : decimals;
+    const displayDecimals = displayDecimalPlaces(safe, decimals);
     return safe.toFixed(displayDecimals).replace(/\.0+$/, '').replace(/(\.\d*[1-9])0+$/, '$1');
+  }
+
+  // One decimal by default; tiny nonzero values stay visible, e.g. 0.017g -> 0.02g.
+  function displayDecimalPlaces(value, decimals = 1) {
+    const fallbackDecimals = Number.isFinite(Number(decimals)) ? Math.max(0, Math.trunc(Number(decimals))) : 1;
+    const safe = asNumber(value, null);
+    if (safe == null) return fallbackDecimals;
+    return fallbackDecimals === 1 && safe !== 0 && Math.abs(safe) < 1 ? 2 : fallbackDecimals;
   }
 
   function formatMetricText(value, unit = '') {

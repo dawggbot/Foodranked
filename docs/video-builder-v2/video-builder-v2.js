@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260803-plums-playback-display-sprite-v1';
+  const BUILDER_BUILD_ID = '20260803-preview-performance-sync-v1';
   const REVOKED_LAYOUT_SEED_VERSIONS = new Set(['20260801-current-builder-layout-v1']);
   const REVOKED_LAYOUT_SEED_SOURCES = new Set(['docs/layout-builder/canonical-test-layout.js']);
   const REVOKED_LAYOUT_SEED_IDS = new Set(['layout_test_current_builder_20260801']);
@@ -32,6 +32,10 @@
   const BACKGROUND_MUSIC_END_MARGIN_SECONDS = 0.08;
   const BACKGROUND_MOTION_DEFAULT_MAX_SIZE = 80;
   const BACKGROUND_MOTION_LEGACY_MAX_SIZE = 40;
+  const PREVIEW_BACKGROUND_MOTION_DENSITY_MAX = 8;
+  const PREVIEW_BACKGROUND_MOTION_MAX_SIZE = 56;
+  const PLAYBACK_PREVIEW_FRAME_RATE = 24;
+  const PLAYBACK_PREVIEW_FRAME_INTERVAL_MS = 1000 / PLAYBACK_PREVIEW_FRAME_RATE;
   const AUDIO_MIX_SLIDER_SPECS = Object.freeze([
     { key: 'music', label: 'music' },
     { key: 'narration', label: 'narration' },
@@ -727,6 +731,7 @@
     renderHelperAvailable: false,
     renderHelperBusy: false,
     renderHelperJobId: null,
+    playbackLastRenderAt: 0,
     macroBarRenderRefreshPending: false,
     renderGifFrameOverrides: new Map(),
     playbackSfxEvents: null
@@ -1004,8 +1009,16 @@
     const safe = asNumber(value, null);
     if (safe == null) return 'N/A';
     if (Number.isInteger(safe)) return String(safe);
-    const displayDecimals = decimals === 1 && safe !== 0 && Math.abs(safe) < 1 ? 2 : decimals;
+    const displayDecimals = displayDecimalPlaces(safe, decimals);
     return safe.toFixed(displayDecimals).replace(/\.0+$/, '').replace(/(\.\d*[1-9])0+$/, '$1');
+  }
+
+  // One decimal by default; tiny nonzero values stay visible, e.g. 0.017g -> 0.02g.
+  function displayDecimalPlaces(value, decimals = 1) {
+    const fallbackDecimals = Number.isFinite(Number(decimals)) ? Math.max(0, Math.trunc(Number(decimals))) : 1;
+    const safe = asNumber(value, null);
+    if (safe == null) return fallbackDecimals;
+    return fallbackDecimals === 1 && safe !== 0 && Math.abs(safe) < 1 ? 2 : fallbackDecimals;
   }
 
   function formatMetric(value, unit) {
@@ -4475,6 +4488,19 @@
     return Math.max(minSize, maxSize);
   }
 
+  function previewBackgroundMotion(motion) {
+    if (state.renderMode) return motion;
+    const minSize = Math.max(12, Number(motion?.minSize) || defaultBackgroundMotion().minSize);
+    return {
+      ...motion,
+      density: Math.min(
+        Math.max(1, Number(motion?.density) || defaultBackgroundMotion().density),
+        PREVIEW_BACKGROUND_MOTION_DENSITY_MAX
+      ),
+      maxSize: Math.min(backgroundMotionMaxSize(motion, minSize), PREVIEW_BACKGROUND_MOTION_MAX_SIZE)
+    };
+  }
+
   function backgroundCssLength(value) {
     const safe = Number(value) || 0;
     if (!state.renderMode) return `${safe}px`;
@@ -4597,7 +4623,7 @@
   }
 
   async function renderDynamicBackground(field, food) {
-    const motion = { ...defaultBackgroundMotion(), ...((state.layout?.canvas?.backgroundMotion) || {}) };
+    const motion = previewBackgroundMotion({ ...defaultBackgroundMotion(), ...((state.layout?.canvas?.backgroundMotion) || {}) });
     const key = JSON.stringify({
       foodId: food?.id || '',
       foodType: normalizeFoodType(food?.foodType),
@@ -6702,7 +6728,9 @@
     state.macroBarRenderRefreshPending = true;
     window.requestAnimationFrame(() => {
       state.macroBarRenderRefreshPending = false;
-      if (state.layout) renderStage();
+      if (!state.layout) return;
+      if (state.playing) renderDynamic({ playbackFrame: true, now: performance.now() });
+      else renderStage();
     });
   }
 
@@ -8476,6 +8504,7 @@
     state.playing = false;
     state.audioInHold = false;
     state.playbackSfxEvents = null;
+    state.playbackLastRenderAt = 0;
     els.playPause.textContent = 'Play';
     if (els.narrationAudio) els.narrationAudio.pause();
     pauseBackgroundMusic();
@@ -8507,6 +8536,7 @@
     state.playedMajorConSirenSfxKeys = new Set();
     state.playedBarFillSfxKeys = new Set();
     state.playbackSfxEvents = buildPlaybackSfxEvents();
+    state.playbackLastRenderAt = 0;
     els.playPause.textContent = 'Pause';
     primeStampSfx();
     primeDTierStampSfx();
@@ -8539,17 +8569,27 @@
       stopPlayback({ pauseSfx: false });
     }
     syncAudioPlaybackState();
-    renderDynamic();
+    renderDynamic({ playbackFrame: true, now });
     if (state.playing) requestAnimationFrame(tick);
   }
 
-  function renderDynamic({ fullUi = false } = {}) {
+  function renderDynamic({ fullUi = false, playbackFrame = false, now = performance.now() } = {}) {
     const sceneChanged = syncSelectedSceneToPlayhead();
-    renderStage();
+    const limitPlaybackFrame = playbackFrame && state.playing && !fullUi;
+    const shouldRenderFrame = !limitPlaybackFrame
+      || sceneChanged
+      || !state.playbackLastRenderAt
+      || now - state.playbackLastRenderAt >= PLAYBACK_PREVIEW_FRAME_INTERVAL_MS;
+    if (shouldRenderFrame) {
+      state.playbackLastRenderAt = now;
+      renderStage();
+    }
     if (fullUi || sceneChanged) renderSceneList();
-    renderTimelineStrip();
-    if (fullUi || sceneChanged) renderControls();
-    else updatePlaybackControls(null, { refreshAudioStatus: false });
+    if (shouldRenderFrame || fullUi || sceneChanged) {
+      renderTimelineStrip();
+      if (fullUi || sceneChanged) renderControls();
+      else updatePlaybackControls(null, { refreshAudioStatus: false });
+    }
   }
 
   function renderAll() {

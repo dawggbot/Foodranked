@@ -2,7 +2,7 @@
   const DISPLAY_BUILDER_V2_STATE_KEY = 'foodranked-display-builder-v2-state-v1';
   const DISPLAY_BUILDER_V2_PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const VIDEO_STATE_KEY = 'foodranked-video-builder-v2-state-v1';
-  const BUILDER_BUILD_ID = '20260803-selected-food-image-layer-v1';
+  const BUILDER_BUILD_ID = '20260803-food-image-placement-template-v1';
   const REVOKED_LAYOUT_SEED_VERSIONS = new Set(['20260801-current-builder-layout-v1']);
   const REVOKED_LAYOUT_SEED_SOURCES = new Set(['docs/layout-builder/canonical-test-layout.js']);
   const REVOKED_LAYOUT_SEED_IDS = new Set(['layout_test_current_builder_20260801']);
@@ -445,6 +445,17 @@
     kale: { width: 30, height: 30 },
     raspberries: { width: 30, height: 30 }
   };
+  const FOOD_IMAGE_PLACEMENT_KEYS = [
+    'x',
+    'y',
+    'z',
+    'width',
+    'height',
+    'preserveAspect',
+    'rotation',
+    'rotate',
+    'manualPosition'
+  ];
   const SUBMACRO_VALUE_COLORS = {
     green: '#7cf2a7',
     red: '#ff6f6f',
@@ -1202,6 +1213,7 @@
     if (!path) return '';
     path = databaseAssetPath(path, path);
     if (/^(data:|https?:|blob:)/i.test(path)) return path;
+    if (path.startsWith('/')) return path;
     if (path.startsWith('../') || path.startsWith('./')) return path;
     return `../${path}`;
   }
@@ -1441,6 +1453,89 @@
     layer.aspectRatio = geometry.naturalHeight ? geometry.naturalWidth / geometry.naturalHeight : null;
   }
 
+  function foodImagePlacementSnapshot(layer) {
+    if (!layer) return null;
+    const placement = {};
+    for (const key of FOOD_IMAGE_PLACEMENT_KEYS) {
+      if (Object.prototype.hasOwnProperty.call(layer, key)) placement[key] = layer[key];
+    }
+    const naturalWidth = Number(layer?.naturalWidth);
+    const naturalHeight = Number(layer?.naturalHeight);
+    if (Number.isFinite(naturalWidth) && naturalWidth > 0) placement.templateNaturalWidth = naturalWidth;
+    if (Number.isFinite(naturalHeight) && naturalHeight > 0) placement.templateNaturalHeight = naturalHeight;
+    return Object.keys(placement).length ? placement : null;
+  }
+
+  function foodImageTemplateScale(placement) {
+    const width = positiveNumber(placement?.width);
+    const height = positiveNumber(placement?.height);
+    const naturalWidth = positiveNumber(placement?.templateNaturalWidth);
+    const naturalHeight = positiveNumber(placement?.templateNaturalHeight);
+    if (!width || !height || !naturalWidth || !naturalHeight) return null;
+    const scale = Math.min(width / naturalWidth, height / naturalHeight);
+    return Number.isFinite(scale) && scale > 0 ? scale : null;
+  }
+
+  function sameFoodImageNaturalSize(placement, size) {
+    const templateWidth = positiveNumber(placement?.templateNaturalWidth);
+    const templateHeight = positiveNumber(placement?.templateNaturalHeight);
+    return !!templateWidth
+      && !!templateHeight
+      && !!size?.width
+      && !!size?.height
+      && Math.abs(templateWidth - size.width) < 0.001
+      && Math.abs(templateHeight - size.height) < 0.001;
+  }
+
+  function applyFoodImageScaledPlacement(layer, placement, food) {
+    const width = positiveNumber(placement?.width);
+    const height = positiveNumber(placement?.height);
+    const x = Number(placement?.x);
+    const y = Number(placement?.y);
+    const scale = foodImageTemplateScale(placement);
+    const naturalSize = customFoodImageNaturalSize(food);
+    if (!width || !height || !Number.isFinite(x) || !Number.isFinite(y) || !scale || !naturalSize) return false;
+    if (sameFoodImageNaturalSize(placement, naturalSize)) return false;
+
+    const centerX = x + (width / 2);
+    const centerY = y + (height / 2);
+    const nextWidth = naturalSize.width * scale;
+    const nextHeight = naturalSize.height * scale;
+    layer.x = roundedGridNumber(centerX - (nextWidth / 2));
+    layer.y = roundedGridNumber(centerY - (nextHeight / 2));
+    layer.width = roundedGridNumber(nextWidth);
+    layer.height = roundedGridNumber(nextHeight);
+    layer.naturalWidth = naturalSize.width;
+    layer.naturalHeight = naturalSize.height;
+    layer.aspectRatio = naturalSize.height ? naturalSize.width / naturalSize.height : null;
+    layer.preserveAspect = true;
+    layer.manualPosition = true;
+    return true;
+  }
+
+  function applyFoodImagePlacementToLayer(layer, placement, food) {
+    if (!layer || !placement) return false;
+    const scaledPlacementApplied = applyFoodImageScaledPlacement(layer, placement, food);
+    let changed = false;
+    for (const key of FOOD_IMAGE_PLACEMENT_KEYS) {
+      if (scaledPlacementApplied && ['x', 'y', 'width', 'height', 'preserveAspect', 'manualPosition'].includes(key)) continue;
+      if (!Object.prototype.hasOwnProperty.call(placement, key)) continue;
+      if (layer[key] === placement[key]) continue;
+      layer[key] = placement[key];
+      changed = true;
+    }
+    return scaledPlacementApplied || changed;
+  }
+
+  function syncHeaderFoodImageLayer(layer, food) {
+    const placement = foodImagePlacementSnapshot(layer);
+    layer.src = foodImagePath(food);
+    layer.fallbackSrc = foodPlatePath(food);
+    if (!applyFoodImagePlacementToLayer(layer, placement, food)) {
+      syncFoodImageLayerGeometry(layer, food);
+    }
+  }
+
   function canvasGridUnit(axis = 'x') {
     const fallback = cssPixels(getComputedStyle(document.documentElement).getPropertyValue('--pixel-unit'), 4);
     const stageRect = els.videoStage?.getBoundingClientRect?.();
@@ -1506,6 +1601,11 @@
     const number = Number(value);
     if (!Number.isFinite(number)) return null;
     return Number(number.toFixed(3));
+  }
+
+  function positiveNumber(value) {
+    const number = Number(value);
+    return Number.isFinite(number) && number > 0 ? number : null;
   }
 
   function sameFoodImageReferenceSize(size) {
@@ -2201,9 +2301,7 @@
         if (!isSpriteLayer(layer)) continue;
         const fingerprint = `${layer.src || ''} ${layer.label || ''}`.toLowerCase();
         if (isHeaderFoodImageLayer(layer)) {
-          layer.src = foodImagePath(food);
-          layer.fallbackSrc = foodPlatePath(food);
-          syncFoodImageLayerGeometry(layer, food);
+          syncHeaderFoodImageLayer(layer, food);
         } else if (fingerprint.includes('/header/food_type_plate/') || /header food type/.test(fingerprint)) {
           layer.src = typePlatePath(food);
         } else if (fingerprint.includes('/header/calorie_bubble/') || /header calorie bubble/.test(fingerprint)) {
@@ -2222,9 +2320,7 @@
       for (const layer of getSectionLayers(layout, section.id)) {
         if (!isSpriteLayer(layer)) continue;
         if (!isHeaderFoodImageLayer(layer)) continue;
-        layer.src = foodImagePath(food);
-        layer.fallbackSrc = foodPlatePath(food);
-        syncFoodImageLayerGeometry(layer, food);
+        syncHeaderFoodImageLayer(layer, food);
       }
     }
   }

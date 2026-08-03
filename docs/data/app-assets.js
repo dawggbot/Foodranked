@@ -274,6 +274,14 @@
     "sizeBytes": 11824
   },
   {
+    "id": "audio.episodes.plums.voice.v2.blocks",
+    "label": "Voice V2 Blocks",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/plums/voice-v2-blocks.json",
+    "mimeType": "application/json",
+    "sizeBytes": 11825
+  },
+  {
     "id": "audio.episodes.raspberries.voice.v1.blocks",
     "label": "Voice V1 Blocks",
     "kind": "audio-manifest",
@@ -327,7 +335,7 @@
     "kind": "data",
     "path": "data/foods-index.js",
     "mimeType": "text/javascript",
-    "sizeBytes": 8248547
+    "sizeBytes": 8277625
   },
   {
     "id": "data.foods.index.json",
@@ -335,7 +343,7 @@
     "kind": "data",
     "path": "data/foods-index.json",
     "mimeType": "application/json",
-    "sizeBytes": 14469823
+    "sizeBytes": 14527607
   },
   {
     "id": "data.foods.acorns.sample",
@@ -5080,6 +5088,94 @@
     "path": "audio/episodes/plums/voice-v1-blocks/11-final_reveal.mp3",
     "mimeType": "audio/mpeg",
     "sizeBytes": 18016
+  },
+  {
+    "id": "audio.episodes.plums.voice.v2.blocks.01.hook.food",
+    "label": "01 Hook Food",
+    "kind": "narration-audio",
+    "path": "audio/episodes/plums/voice-v2-blocks/01-hook_food.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 16762
+  },
+  {
+    "id": "audio.episodes.plums.voice.v2.blocks.02.hook.ranked",
+    "label": "02 Hook Ranked",
+    "kind": "narration-audio",
+    "path": "audio/episodes/plums/voice-v2-blocks/02-hook_ranked.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 13836
+  },
+  {
+    "id": "audio.episodes.plums.voice.v2.blocks.03.fats",
+    "label": "03 Fats",
+    "kind": "narration-audio",
+    "path": "audio/episodes/plums/voice-v2-blocks/03-fats.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 194395
+  },
+  {
+    "id": "audio.episodes.plums.voice.v2.blocks.04.carbs",
+    "label": "04 Carbs",
+    "kind": "narration-audio",
+    "path": "audio/episodes/plums/voice-v2-blocks/04-carbs.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 435557
+  },
+  {
+    "id": "audio.episodes.plums.voice.v2.blocks.05.proteins",
+    "label": "05 Proteins",
+    "kind": "narration-audio",
+    "path": "audio/episodes/plums/voice-v2-blocks/05-proteins.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 150509
+  },
+  {
+    "id": "audio.episodes.plums.voice.v2.blocks.06.vitamins",
+    "label": "06 Vitamins",
+    "kind": "narration-audio",
+    "path": "audio/episodes/plums/voice-v2-blocks/06-vitamins.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 328559
+  },
+  {
+    "id": "audio.episodes.plums.voice.v2.blocks.07.minerals",
+    "label": "07 Minerals",
+    "kind": "narration-audio",
+    "path": "audio/episodes/plums/voice-v2-blocks/07-minerals.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 321454
+  },
+  {
+    "id": "audio.episodes.plums.voice.v2.blocks.08.pros",
+    "label": "08 Pros",
+    "kind": "narration-audio",
+    "path": "audio/episodes/plums/voice-v2-blocks/08-pros.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 392507
+  },
+  {
+    "id": "audio.episodes.plums.voice.v2.blocks.09.cons",
+    "label": "09 Cons",
+    "kind": "narration-audio",
+    "path": "audio/episodes/plums/voice-v2-blocks/09-cons.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 415495
+  },
+  {
+    "id": "audio.episodes.plums.voice.v2.blocks.10.closing.summary",
+    "label": "10 Closing Summary",
+    "kind": "narration-audio",
+    "path": "audio/episodes/plums/voice-v2-blocks/10-closing_summary.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 268373
+  },
+  {
+    "id": "audio.episodes.plums.voice.v2.blocks.11.final.reveal",
+    "label": "11 Final Reveal",
+    "kind": "narration-audio",
+    "path": "audio/episodes/plums/voice-v2-blocks/11-final_reveal.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 15926
   },
   {
     "id": "audio.episodes.raspberries.voice.v1.blocks.01.hook.food",

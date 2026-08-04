@@ -477,8 +477,8 @@
 
   function headerFoodLayerRenderOrder(layer) {
     if (isHeaderFoodImagePlateLayer(layer)) return 0;
-    if (isHeaderCalorieBubbleLayer(layer)) return 1;
-    if (isHeaderFoodImageLayer(layer)) return 2;
+    if (isHeaderFoodImageLayer(layer)) return 1;
+    if (isHeaderCalorieBubbleLayer(layer)) return 2;
     return null;
   }
 

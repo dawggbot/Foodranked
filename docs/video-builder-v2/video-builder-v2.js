@@ -332,6 +332,7 @@
   const SPLIT_AUDIO_REPLAY_END_MARGIN_SECONDS = 0.08;
   const SPLIT_AUDIO_FINAL_REVEAL_END_MARGIN_SECONDS = 0;
   const SPLIT_AUDIO_FINAL_REVEAL_START_GRACE_SECONDS = 0.22;
+  const SPLIT_AUDIO_FALLBACK_BLOCK_GAP_SECONDS = 0.08;
   const INTRO_RANKED_AFTER_FOOD_GAP_SECONDS = 0.32;
   const INTRO_RANKED_WORD_LEAD_SECONDS = 0.08;
   const SECTION_HOLD_SECONDS = 0.5;
@@ -658,6 +659,9 @@
     audioInHold: false,
     splitAudioMetadataDurations: new Map(),
     splitAudioMetadataProbes: new Map(),
+    splitAudioManifestHydrated: new Map(),
+    splitAudioManifestRequests: new Map(),
+    splitAudioManifestFailures: new Map(),
     stampSfxPool: [],
     stampSfxPoolIndex: 0,
     stampSfxPath: '',
@@ -2375,8 +2379,8 @@
 
   function headerFoodLayerRenderOrder(layer) {
     if (isHeaderFoodImagePlateLayer(layer)) return 0;
-    if (isHeaderCalorieBubbleLayer(layer)) return 1;
-    if (isHeaderFoodImageLayer(layer)) return 2;
+    if (isHeaderFoodImageLayer(layer)) return 1;
+    if (isHeaderCalorieBubbleLayer(layer)) return 2;
     return null;
   }
 
@@ -8856,23 +8860,164 @@
     });
   }
 
-  function normalizeSplitAudioBlocks(blocks) {
+  function normalizeManifestAudioPath(path) {
+    const clean = String(path || '').trim().replace(/\\/g, '/');
+    if (!clean) return '';
+    if (clean.startsWith('docs/')) return clean.slice('docs/'.length);
+    if (clean.startsWith('studio-data/')) return `/${clean}`;
+    return clean;
+  }
+
+  function splitAudioManifestKey(food, splitAudio = null) {
+    const source = splitAudio || food?.episode?.splitAudio || food?.splitAudio || null;
+    const path = String(source?.manifestPath || '').trim();
+    return food?.id && path ? `${food.id}|${path}` : '';
+  }
+
+  function splitAudioNeedsManifestHydration(food) {
+    const splitAudio = food?.episode?.splitAudio || food?.splitAudio || null;
+    if (!splitAudio?.manifestPath) return false;
+    if (state.splitAudioManifestHydrated.has(splitAudioManifestKey(food, splitAudio))) return false;
+    return splitAudio.mode !== 'split-blocks' || !Array.isArray(splitAudio.blocks) || splitAudio.blocks.length === 0;
+  }
+
+  function hydratedSplitAudioForFood(food, splitAudio = null) {
+    const key = splitAudioManifestKey(food, splitAudio);
+    return key ? state.splitAudioManifestHydrated.get(key) || null : null;
+  }
+
+  function splitAudioManifestLoading(food) {
+    const key = splitAudioManifestKey(food);
+    return Boolean(key && state.splitAudioManifestRequests.has(key));
+  }
+
+  function splitAudioManifestFailure(food) {
+    const key = splitAudioManifestKey(food);
+    return key ? state.splitAudioManifestFailures.get(key) || '' : '';
+  }
+
+  function splitAudioFromManifest(manifest, manifestPath, existing = {}) {
+    const blocks = Array.isArray(manifest?.blocks) ? manifest.blocks : [];
+    if (!blocks.length) return null;
+
+    const blockGapSeconds = asNumber(
+      manifest.blockGapSeconds ?? existing.blockGapSeconds,
+      SPLIT_AUDIO_FALLBACK_BLOCK_GAP_SECONDS
+    );
+    let cursor = 0;
+    const normalizedBlocks = blocks
+      .map((block, index) => {
+        const durationSeconds = asNumber(block.durationSeconds ?? block.mediaDurationSeconds, null);
+        const explicitOffsetSeconds = asNumber(block.offsetSeconds, null);
+        const offsetSeconds = explicitOffsetSeconds ?? (durationSeconds != null ? cursor : null);
+        const path = normalizeManifestAudioPath(block.path || block.audioFile || '');
+        if (durationSeconds != null && durationSeconds > 0 && offsetSeconds != null) {
+          cursor = offsetSeconds + durationSeconds + blockGapSeconds;
+        }
+        return {
+          id: block.id || null,
+          index: asNumber(block.index, index),
+          kind: block.kind || null,
+          sectionKey: block.sectionKey || null,
+          path,
+          productionPath: block.productionPath || block.productionAudioFile || null,
+          text: block.text || '',
+          ...(block.ttsText && block.ttsText !== block.text ? {
+            ttsText: block.ttsText,
+            ttsTextSha256: block.ttsTextSha256 || null,
+            pronunciationNote: block.pronunciationNote || null
+          } : {}),
+          offsetSeconds,
+          durationSeconds,
+          mediaDurationSeconds: asNumber(block.mediaDurationSeconds, null)
+        };
+      })
+      .filter(block => block.path && block.offsetSeconds != null && block.durationSeconds != null && block.durationSeconds > 0);
+
+    if (!normalizedBlocks.length) return null;
+    const inferredDurationSeconds = Math.max(...normalizedBlocks.map(block => block.offsetSeconds + block.durationSeconds));
+    return {
+      ...existing,
+      mode: 'split-blocks',
+      take: manifest.take || existing.take || null,
+      manifestPath,
+      productionManifestPath: manifest.productionManifestPath || manifest.productionAudioManifestFile || existing.productionManifestPath || null,
+      profileId: manifest.profileId || manifest.settings?.profileId || existing.profileId || null,
+      voiceLabel: manifest.voice?.label || manifest.voiceLabel || manifest.settings?.voiceLabel || existing.voiceLabel || null,
+      modelId: manifest.modelId || manifest.settings?.modelId || existing.modelId || null,
+      generatedAt: manifest.generatedAt || existing.generatedAt || null,
+      narrationVolume: asNumber(manifest.narrationVolume ?? manifest.playbackVolume ?? existing.narrationVolume, null),
+      blockCount: manifest.blockCount ?? normalizedBlocks.length,
+      blockGapSeconds,
+      durationSeconds: asNumber(manifest.durationSeconds ?? existing.durationSeconds, inferredDurationSeconds),
+      pronunciationOverrides: Array.isArray(manifest.pronunciationOverrides)
+        ? manifest.pronunciationOverrides
+        : Array.isArray(existing.pronunciationOverrides)
+          ? existing.pronunciationOverrides
+          : [],
+      blocks: normalizedBlocks
+    };
+  }
+
+  function requestSplitAudioManifestHydration(food) {
+    const splitAudio = food?.episode?.splitAudio || food?.splitAudio || null;
+    if (!food || !splitAudioNeedsManifestHydration(food)) return false;
+    const key = splitAudioManifestKey(food, splitAudio);
+    if (!key || state.splitAudioManifestRequests.has(key) || state.splitAudioManifestFailures.has(key)) return Boolean(key && state.splitAudioManifestRequests.has(key));
+
+    const manifestPath = String(splitAudio.manifestPath || '').trim();
+    const request = fetch(docsAssetPath(manifestPath), { cache: 'no-store' })
+      .then(response => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.json();
+      })
+      .then(manifest => {
+        const hydrated = splitAudioFromManifest(manifest, manifestPath, splitAudio);
+        if (!hydrated) throw new Error('No playable split-audio blocks');
+        state.splitAudioManifestHydrated.set(key, hydrated);
+        state.splitAudioManifestFailures.delete(key);
+        state.audioTimelineKey = '';
+        state.audioDurationSeconds = null;
+        state.scenes = buildScenes(food, state.scenes);
+        syncAudioForFood();
+        renderAll();
+      })
+      .catch(error => {
+        state.splitAudioManifestFailures.set(key, error?.message || 'Audio manifest failed');
+      })
+      .finally(() => {
+        state.splitAudioManifestRequests.delete(key);
+        updateAudioControls();
+      });
+
+    state.splitAudioManifestRequests.set(key, request);
+    return true;
+  }
+
+  function normalizeSplitAudioBlocks(blocks, splitAudio = null) {
+    const blockGapSeconds = asNumber(splitAudio?.blockGapSeconds, SPLIT_AUDIO_FALLBACK_BLOCK_GAP_SECONDS);
+    let cursor = 0;
     return (Array.isArray(blocks) ? blocks : [])
       .map(block => {
-        const offsetSeconds = asNumber(block.offsetSeconds, null);
+        const path = normalizeManifestAudioPath(block.path || block.audioFile || '');
         const durationCandidates = [
           asNumber(block.durationSeconds, null),
           asNumber(block.mediaDurationSeconds, null),
-          block.path ? asNumber(state.splitAudioMetadataDurations.get(block.path), null) : null
+          path ? asNumber(state.splitAudioMetadataDurations.get(path), null) : null
         ].filter(value => value != null && value > 0);
         const durationSeconds = durationCandidates.length ? Math.max(...durationCandidates) : null;
+        const explicitOffsetSeconds = asNumber(block.offsetSeconds, null);
+        const offsetSeconds = explicitOffsetSeconds ?? (durationSeconds != null ? cursor : null);
+        if (offsetSeconds != null && durationSeconds != null) {
+          cursor = offsetSeconds + durationSeconds + blockGapSeconds;
+        }
         return {
           id: block.id || null,
           index: asNumber(block.index, null),
           kind: block.kind || null,
           sectionKey: block.sectionKey || null,
-          path: block.path || null,
-          productionPath: block.productionPath || null,
+          path: path || null,
+          productionPath: block.productionPath || block.productionAudioFile || null,
           text: block.text || '',
           offsetSeconds,
           durationSeconds,
@@ -8884,8 +9029,9 @@
   }
 
   function audioForFood(food) {
-    const splitAudio = food?.episode?.splitAudio || food?.splitAudio || null;
-    const splitBlocks = normalizeSplitAudioBlocks(splitAudio?.blocks);
+    const sourceSplitAudio = food?.episode?.splitAudio || food?.splitAudio || null;
+    const splitAudio = hydratedSplitAudioForFood(food, sourceSplitAudio) || sourceSplitAudio;
+    const splitBlocks = normalizeSplitAudioBlocks(splitAudio?.blocks, splitAudio);
     if (splitAudio?.mode === 'split-blocks' && splitBlocks.length) {
       let durationSeconds = asNumber(splitAudio.durationSeconds, null);
       const blockDurationSeconds = Math.max(...splitBlocks.map(block => block.endSeconds || 0));
@@ -8981,6 +9127,7 @@
   function syncAudioForFood() {
     const food = selectedFood();
     syncBackgroundMusicForFood(food);
+    const loadingSplitAudio = requestSplitAudioManifestHydration(food);
     const audio = audioForFood(food);
     if (!els.narrationAudio) return;
     if (!audio) {
@@ -8988,7 +9135,7 @@
       syncNarrationVolumeForAudio(null);
       els.narrationAudio.load();
       syncBackgroundMusicTime({ force: true });
-      updateAudioControls();
+      updateAudioControls(loadingSplitAudio ? 'Loading audio' : null);
       primeStampSfx();
       primeDTierStampSfx();
       return;
@@ -10307,7 +10454,9 @@
         return totalDuration();
       },
       ready() {
-        return Boolean(state.layout && els.videoStage?.childElementCount) && totalDuration() > 0;
+        return Boolean(state.layout && els.videoStage?.childElementCount)
+          && totalDuration() > 0
+          && !splitAudioManifestLoading(selectedFood());
       },
       setTime(time, options = {}) {
         const pixelUnit = asNumber(options.pixelUnit, null);
@@ -10370,8 +10519,11 @@
   }
 
   function updateAudioControls(overrideStatus) {
-    const audio = audioForFood(selectedFood());
-    const music = backgroundMusicForFood(selectedFood());
+    const food = selectedFood();
+    const audio = audioForFood(food);
+    const music = backgroundMusicForFood(food);
+    const loadingAudio = splitAudioManifestLoading(food);
+    const audioFailure = splitAudioManifestFailure(food);
     if (!els.audioToggle || !els.audioStatus) return;
     const hasAudio = Boolean(audio || music);
     els.audioToggle.disabled = !hasAudio;
@@ -10382,7 +10534,10 @@
       : '';
     const modeLabel = audio?.mode === 'split-blocks' ? ' split' : '';
     const musicLabel = music ? ` · music ${music.path.split('/').pop()?.replace(/_loop_240s\.mp3$/i, '') || 'ready'}` : '';
-    els.audioStatus.textContent = overrideStatus || (hasAudio ? `${audio?.take || 'Audio'}${modeLabel} ready${syncLabel}${musicLabel}` : 'No audio');
+    els.audioStatus.textContent = overrideStatus
+      || (!audio && loadingAudio ? 'Loading audio' : '')
+      || (!audio && audioFailure ? `Audio unavailable: ${audioFailure}` : '')
+      || (hasAudio ? `${audio?.take || 'Audio'}${modeLabel} ready${syncLabel}${musicLabel}` : 'No audio');
   }
 
   els.narrationAudio.addEventListener('loadedmetadata', () => {

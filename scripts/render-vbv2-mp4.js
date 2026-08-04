@@ -26,6 +26,7 @@ const DEFAULT_PORT = 4190;
 const DEFAULT_FPS = 30;
 const DEFAULT_MUSIC_VOLUME = 0.14;
 const DEFAULT_NARRATION_VOLUME = 1;
+const SPLIT_AUDIO_FALLBACK_BLOCK_GAP_SECONDS = 0.08;
 const AUDIO_DURATION_CACHE = new Map();
 
 const CONTENT_TYPES = new Map([
@@ -240,6 +241,84 @@ function finiteNumber(value, fallback = null) {
   return Number.isFinite(number) ? number : fallback;
 }
 
+function normalizeManifestAudioPath(assetPath) {
+  const clean = cleanString(assetPath).replace(/\\/g, '/');
+  if (!clean) return '';
+  if (clean.startsWith('docs/')) return clean.slice('docs/'.length);
+  if (clean.startsWith('studio-data/')) return `/${clean}`;
+  return clean;
+}
+
+function splitAudioFromManifest(manifest, manifestPath, existing = {}) {
+  const blocks = Array.isArray(manifest?.blocks) ? manifest.blocks : [];
+  if (!blocks.length) return null;
+
+  const blockGapSeconds = finiteNumber(
+    manifest.blockGapSeconds ?? existing.blockGapSeconds,
+    SPLIT_AUDIO_FALLBACK_BLOCK_GAP_SECONDS
+  );
+  let cursor = 0;
+  const normalizedBlocks = blocks
+    .map((block, index) => {
+      const durationSeconds = finiteNumber(block.durationSeconds ?? block.mediaDurationSeconds, null);
+      const explicitOffsetSeconds = finiteNumber(block.offsetSeconds, null);
+      const offsetSeconds = explicitOffsetSeconds ?? (durationSeconds != null ? cursor : null);
+      const path = normalizeManifestAudioPath(block.path || block.audioFile || '');
+      if (durationSeconds != null && durationSeconds > 0 && offsetSeconds != null) {
+        cursor = offsetSeconds + durationSeconds + blockGapSeconds;
+      }
+      return {
+        id: block.id || null,
+        index: finiteNumber(block.index, index),
+        kind: block.kind || null,
+        sectionKey: block.sectionKey || null,
+        path,
+        productionPath: block.productionPath || block.productionAudioFile || null,
+        text: block.text || '',
+        offsetSeconds,
+        durationSeconds,
+        mediaDurationSeconds: finiteNumber(block.mediaDurationSeconds, null)
+      };
+    })
+    .filter(block => block.path && block.offsetSeconds != null && block.durationSeconds != null && block.durationSeconds > 0);
+
+  if (!normalizedBlocks.length) return null;
+  const inferredDurationSeconds = Math.max(...normalizedBlocks.map(block => block.offsetSeconds + block.durationSeconds));
+  return {
+    ...existing,
+    mode: 'split-blocks',
+    take: manifest.take || existing.take || null,
+    manifestPath,
+    productionManifestPath: manifest.productionManifestPath || manifest.productionAudioManifestFile || existing.productionManifestPath || null,
+    profileId: manifest.profileId || manifest.settings?.profileId || existing.profileId || null,
+    voiceLabel: manifest.voice?.label || manifest.voiceLabel || manifest.settings?.voiceLabel || existing.voiceLabel || null,
+    modelId: manifest.modelId || manifest.settings?.modelId || existing.modelId || null,
+    generatedAt: manifest.generatedAt || existing.generatedAt || null,
+    narrationVolume: finiteNumber(manifest.narrationVolume ?? manifest.playbackVolume ?? existing.narrationVolume, null),
+    blockCount: manifest.blockCount ?? normalizedBlocks.length,
+    blockGapSeconds,
+    durationSeconds: finiteNumber(manifest.durationSeconds ?? existing.durationSeconds, inferredDurationSeconds),
+    pronunciationOverrides: Array.isArray(manifest.pronunciationOverrides)
+      ? manifest.pronunciationOverrides
+      : Array.isArray(existing.pronunciationOverrides)
+        ? existing.pronunciationOverrides
+        : [],
+    blocks: normalizedBlocks
+  };
+}
+
+function hydrateSplitAudioFromManifestPath(splitAudio) {
+  if (!splitAudio?.manifestPath) return splitAudio || null;
+  if (splitAudio.mode === 'split-blocks' && Array.isArray(splitAudio.blocks) && splitAudio.blocks.length) return splitAudio;
+  const manifestFile = resolveDocsAsset(splitAudio.manifestPath);
+  if (!manifestFile || !fs.existsSync(manifestFile)) return splitAudio;
+  try {
+    return splitAudioFromManifest(JSON.parse(fs.readFileSync(manifestFile, 'utf8')), splitAudio.manifestPath, splitAudio) || splitAudio;
+  } catch {
+    return splitAudio;
+  }
+}
+
 function inputDatabaseFoods(database) {
   const foods = database?.foods && typeof database.foods === 'object' && !Array.isArray(database.foods)
     ? database.foods
@@ -311,6 +390,9 @@ function mergeInputFood(baseFood, entry) {
       manifestPath: splitManifestPath,
       take: cleanString(entry.splitAudioTake || entry.library?.splitAudioTake) || merged.episode.splitAudio?.take || 'studio-input'
     };
+  }
+  if (merged.episode?.splitAudio) {
+    merged.episode.splitAudio = hydrateSplitAudioFromManifestPath(merged.episode.splitAudio);
   }
 
   merged.kcal = finiteNumber(entry.kcal ?? entry.header?.kcal, base.kcal ?? base.header?.kcal ?? null);
@@ -869,16 +951,24 @@ async function setVideoTime(page, time, pixelUnit) {
 }
 
 function splitAudioBlocks(food) {
-  const audio = food?.episode?.splitAudio || food?.splitAudio || null;
+  const audio = hydrateSplitAudioFromManifestPath(food?.episode?.splitAudio || food?.splitAudio || null);
   if (audio?.mode !== 'split-blocks' || !Array.isArray(audio.blocks)) return [];
+  const blockGapSeconds = finiteNumber(audio.blockGapSeconds, SPLIT_AUDIO_FALLBACK_BLOCK_GAP_SECONDS);
+  let cursor = 0;
   return audio.blocks
-    .map(block => ({
-      path: resolveDocsAsset(block.path),
-      offsetSeconds: Number(block.offsetSeconds || 0),
-      durationSeconds: Number(block.durationSeconds || 0),
-      sourceOffsetSeconds: 0,
-      id: block.id || block.kind || ''
-    }))
+    .map((block, index) => {
+      const durationSeconds = finiteNumber(block.durationSeconds ?? block.mediaDurationSeconds, 0);
+      const explicitOffsetSeconds = finiteNumber(block.offsetSeconds, null);
+      const offsetSeconds = explicitOffsetSeconds ?? cursor;
+      cursor = offsetSeconds + durationSeconds + blockGapSeconds;
+      return {
+        path: resolveDocsAsset(normalizeManifestAudioPath(block.path || block.audioFile || '')),
+        offsetSeconds,
+        durationSeconds,
+        sourceOffsetSeconds: 0,
+        id: block.id || block.kind || `split-audio-${index}`
+      };
+    })
     .filter(block => block.path && fs.existsSync(block.path));
 }
 

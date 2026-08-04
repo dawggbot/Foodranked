@@ -780,7 +780,7 @@ function headerMacro(result, key) {
 function displayMacroGrams(value) {
   const numeric = Number(value);
   if (!Number.isFinite(numeric)) return null;
-  return Number((Math.round(numeric * 10) / 10).toFixed(1));
+  return (Math.round(numeric * 10) / 10).toFixed(1);
 }
 
 function macroValueForSection(result, sectionKey) {

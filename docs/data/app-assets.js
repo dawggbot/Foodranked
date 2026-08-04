@@ -186,6 +186,14 @@
     "sizeBytes": 10801
   },
   {
+    "id": "audio.episodes.cranberries.voice.v1.blocks",
+    "label": "Voice V1 Blocks",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/cranberries/voice-v1-blocks.json",
+    "mimeType": "application/json",
+    "sizeBytes": 12020
+  },
+  {
     "id": "audio.episodes.extra.virgin.olive.oil.voice.v1.blocks",
     "label": "Voice V1 Blocks",
     "kind": "audio-manifest",
@@ -335,7 +343,7 @@
     "kind": "data",
     "path": "data/foods-index.js",
     "mimeType": "text/javascript",
-    "sizeBytes": 8277575
+    "sizeBytes": 8277780
   },
   {
     "id": "data.foods.index.json",
@@ -343,7 +351,7 @@
     "kind": "data",
     "path": "data/foods-index.json",
     "mimeType": "application/json",
-    "sizeBytes": 14527557
+    "sizeBytes": 14527818
   },
   {
     "id": "data.foods.acorns.sample",
@@ -4122,6 +4130,94 @@
     "sizeBytes": 13000
   },
   {
+    "id": "audio.episodes.cranberries.voice.v1.blocks.01.hook.food",
+    "label": "01 Hook Food",
+    "kind": "narration-audio",
+    "path": "audio/episodes/cranberries/voice-v1-blocks/01-hook_food.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 15090
+  },
+  {
+    "id": "audio.episodes.cranberries.voice.v1.blocks.02.hook.ranked",
+    "label": "02 Hook Ranked",
+    "kind": "narration-audio",
+    "path": "audio/episodes/cranberries/voice-v1-blocks/02-hook_ranked.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 10911
+  },
+  {
+    "id": "audio.episodes.cranberries.voice.v1.blocks.03.fats",
+    "label": "03 Fats",
+    "kind": "narration-audio",
+    "path": "audio/episodes/cranberries/voice-v1-blocks/03-fats.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 145075
+  },
+  {
+    "id": "audio.episodes.cranberries.voice.v1.blocks.04.carbs",
+    "label": "04 Carbs",
+    "kind": "narration-audio",
+    "path": "audio/episodes/cranberries/voice-v1-blocks/04-carbs.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 343606
+  },
+  {
+    "id": "audio.episodes.cranberries.voice.v1.blocks.05.proteins",
+    "label": "05 Proteins",
+    "kind": "narration-audio",
+    "path": "audio/episodes/cranberries/voice-v1-blocks/05-proteins.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 112475
+  },
+  {
+    "id": "audio.episodes.cranberries.voice.v1.blocks.06.vitamins",
+    "label": "06 Vitamins",
+    "kind": "narration-audio",
+    "path": "audio/episodes/cranberries/voice-v1-blocks/06-vitamins.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 229921
+  },
+  {
+    "id": "audio.episodes.cranberries.voice.v1.blocks.07.minerals",
+    "label": "07 Minerals",
+    "kind": "narration-audio",
+    "path": "audio/episodes/cranberries/voice-v1-blocks/07-minerals.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 274643
+  },
+  {
+    "id": "audio.episodes.cranberries.voice.v1.blocks.08.pros",
+    "label": "08 Pros",
+    "kind": "narration-audio",
+    "path": "audio/episodes/cranberries/voice-v1-blocks/08-pros.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 324380
+  },
+  {
+    "id": "audio.episodes.cranberries.voice.v1.blocks.09.cons",
+    "label": "09 Cons",
+    "kind": "narration-audio",
+    "path": "audio/episodes/cranberries/voice-v1-blocks/09-cons.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 339844
+  },
+  {
+    "id": "audio.episodes.cranberries.voice.v1.blocks.10.closing.summary",
+    "label": "10 Closing Summary",
+    "kind": "narration-audio",
+    "path": "audio/episodes/cranberries/voice-v1-blocks/10-closing_summary.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 171407
+  },
+  {
+    "id": "audio.episodes.cranberries.voice.v1.blocks.11.final.reveal",
+    "label": "11 Final Reveal",
+    "kind": "narration-audio",
+    "path": "audio/episodes/cranberries/voice-v1-blocks/11-final_reveal.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 14254
+  },
+  {
     "id": "audio.episodes.extra.virgin.olive.oil.voice.v1.blocks.01.hook.food",
     "label": "01 Hook Food",
     "kind": "narration-audio",
@@ -5864,6 +5960,14 @@
     "path": "app/sprites/header/food_images/buckwheat.png",
     "mimeType": "image/png",
     "sizeBytes": 2208
+  },
+  {
+    "id": "app.sprites.header.food.images.cranberries",
+    "label": "Cranberries",
+    "kind": "sprite",
+    "path": "app/sprites/header/food_images/cranberries.png",
+    "mimeType": "image/png",
+    "sizeBytes": 1447
   },
   {
     "id": "app.sprites.header.food.images.kale",

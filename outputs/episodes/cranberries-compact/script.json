@@ -1,0 +1,635 @@
+{
+  "status": "ok",
+  "schemaVersion": "foodranked-script.v2",
+  "narrationFormat": "elevenlabs-blocks-v1",
+  "food": {
+    "id": "cranberries",
+    "name": "Cranberries",
+    "foodType": "fruits",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "identity": {
+      "canonicalName": "Cranberries, raw",
+      "commonName": "Cranberries",
+      "form": "raw whole cranberries",
+      "state": "raw",
+      "ediblePortion": "whole raw berry",
+      "basisReason": "Raw per-100g whole-fruit basis matches the FoodRanked fruit comparison lane.",
+      "includes": [
+        "plain raw cranberries"
+      ],
+      "excludes": [
+        "dried sweetened cranberries",
+        "cranberry juice",
+        "cranberry sauce",
+        "cranberry products with added sugar"
+      ]
+    },
+    "scoreReadiness": {
+      "status": "production-safe",
+      "summary": "New FoodRanked fruit entry with USDA per-100g nutrition, explicit provenance, completed context pros/cons, approved narration override, and app-ready sprite path.",
+      "blockers": [],
+      "caveats": [
+        "Fresh cranberry glycemic index is a context value rather than a USDA nutrient.",
+        "Real foods vary by cultivar, season, and preparation; this record is a canonical comparison entry."
+      ]
+    },
+    "sourceNotes": [
+      "USDA FoodData Central 171722, Cranberries, raw, per 100g.",
+      "Daily value percentages are derived from USDA nutrients using FDA adult DVs and rounded to the nearest whole percent.",
+      "Glycemic index is a non-USDA context value for fresh cranberries and is used only as a scoring/display context signal."
+    ]
+  },
+  "ruleset": {
+    "id": "fruits.v1",
+    "version": 1,
+    "tierScoreMap": {
+      "Slop": -20,
+      "D": 20,
+      "C": 40,
+      "B": 60,
+      "A": 80,
+      "S": 100
+    },
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
+  },
+  "header": {
+    "kcal": 46,
+    "fat_g": 0.13,
+    "carb_g": 11.97,
+    "protein_g": 0.46
+  },
+  "hook": "Cranberries ranked.",
+  "sections": [
+    {
+      "key": "fats",
+      "title": "Fats",
+      "narration": "0.1 grams of fat. Saturated fat is 0.01 grams, supporting a cleaner fat profile. Although the fat profile is almost irrelevant for fruits.",
+      "displayItems": [
+        {
+          "metricKey": "saturated_fat_g",
+          "text": "saturated fat at 0.01g",
+          "weightedScore": 100,
+          "scoringMode": "arrow_bands",
+          "band": "3_green",
+          "polarity": "higher_worse",
+          "dvPercent": null,
+          "value": 0.008,
+          "score": 100,
+          "denominator": null,
+          "displayValue": "0.01g",
+          "displaySource": "scored"
+        },
+        {
+          "metricKey": "polyunsaturated_fat_g",
+          "text": "polyunsaturated fat at 0.06g",
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
+          "band": "3_red",
+          "polarity": "higher_better",
+          "dvPercent": null,
+          "value": 0.055,
+          "score": 0,
+          "denominator": null,
+          "displayValue": "0.06g",
+          "displaySource": "scored"
+        },
+        {
+          "metricKey": "omega3_mg",
+          "text": "omega 3 at 22mg",
+          "weightedScore": 20,
+          "scoringMode": "arrow_bands",
+          "band": "2_red",
+          "polarity": "higher_better",
+          "dvPercent": null,
+          "value": 22,
+          "score": 20,
+          "denominator": null,
+          "displayValue": "22mg",
+          "displaySource": "scored"
+        },
+        {
+          "metricKey": "cholesterol_mg",
+          "text": "cholesterol at 0mg",
+          "weightedScore": 100,
+          "scoringMode": "arrow_bands",
+          "band": "3_green",
+          "polarity": "higher_worse",
+          "dvPercent": null,
+          "value": 0,
+          "score": 100,
+          "denominator": null,
+          "displayValue": "0mg",
+          "displaySource": "scored"
+        }
+      ],
+      "macroDisplayValue": "0.1g",
+      "subtitleText": "0.1g of fat. Saturated fat is 0.01g, supporting a cleaner fat profile. Although the fat profile is almost irrelevant for fruits.",
+      "timingHint": "short-medium",
+      "score": 55
+    },
+    {
+      "key": "carbs",
+      "title": "Carbs",
+      "narration": "12.0 grams of carbs. Glycemic index is low at 45, meaning the carbs should land slower and steadier. Fibre is 3.6 grams, which gives a better fullness and digestion signal than most light fruits. Sugar is 4.3 grams, which is low for fruit and helps the carb section. Sugar control and fibre are the most important parts of the carbohydrate profile of fruits.",
+      "displayItems": [
+        {
+          "metricKey": "fibre_g",
+          "text": "fibre at 3.6g",
+          "weightedScore": 160,
+          "scoringMode": "arrow_bands",
+          "band": "1_red",
+          "polarity": "higher_better",
+          "dvPercent": null,
+          "value": 3.6,
+          "score": 40,
+          "denominator": null,
+          "displayValue": "3.6g",
+          "displaySource": "scored"
+        },
+        {
+          "metricKey": "sugar_g",
+          "text": "sugar at 4.3g",
+          "weightedScore": 500,
+          "scoringMode": "arrow_bands",
+          "band": "3_green",
+          "polarity": "higher_worse",
+          "dvPercent": null,
+          "value": 4.27,
+          "score": 100,
+          "denominator": null,
+          "displayValue": "4.3g",
+          "displaySource": "scored"
+        },
+        {
+          "metricKey": "starch_g",
+          "text": "starch at 0g",
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
+          "band": "3_red",
+          "polarity": "higher_better",
+          "dvPercent": null,
+          "value": 0,
+          "score": 0,
+          "denominator": null,
+          "displayValue": "0g",
+          "displaySource": "scored"
+        },
+        {
+          "metricKey": "glycemic_index",
+          "text": "glycemic index at 45 GI",
+          "weightedScore": 400,
+          "scoringMode": "arrow_bands",
+          "band": "2_green",
+          "polarity": "higher_worse",
+          "dvPercent": null,
+          "value": 45,
+          "score": 80,
+          "denominator": null,
+          "displayValue": "45 GI",
+          "displaySource": "scored"
+        }
+      ],
+      "macroDisplayValue": "12.0g",
+      "subtitleText": "12.0g of carbs. Glycemic index is low at 45, meaning the carbs should land slower and steadier. Fibre is 3.6g, which gives a better fullness and digestion signal than most light fruits. Sugar is 4.3g, which is low for fruit and helps the carb section. Sugar control and fibre are the most important parts of the carbohydrate profile of fruits.",
+      "timingHint": "short-medium",
+      "score": 70.7
+    },
+    {
+      "key": "proteins",
+      "title": "Proteins",
+      "narration": "0.5 grams of protein. Not enough protein to be a real strength. For fruits, protein isn't really something to rely on.",
+      "displayItems": [
+        {
+          "metricKey": "collagen_g",
+          "text": "collagen at 0g",
+          "weightedScore": null,
+          "scoringMode": "display_fallback",
+          "band": "3_red",
+          "polarity": "higher_better",
+          "dvPercent": null,
+          "value": 0,
+          "score": 0,
+          "denominator": null,
+          "displaySource": "protein_display_estimate",
+          "displayEstimated": true,
+          "displayEstimateBasis": "display-only estimate from FoodRanked protein source class; source metric remains N/A unless directly sourced",
+          "displayDefault": false,
+          "displayDefaultReason": null,
+          "displayValue": "0g"
+        },
+        {
+          "metricKey": "essential_amino_acids_score",
+          "text": "essential amino acids score at 0/9",
+          "weightedScore": null,
+          "scoringMode": "display_fallback",
+          "band": "3_red",
+          "polarity": "higher_better",
+          "dvPercent": null,
+          "value": 0,
+          "score": 0,
+          "denominator": 9,
+          "displaySource": "protein_display_estimate",
+          "displayEstimated": true,
+          "displayEstimateBasis": "display-only estimate from useful-protein-gated amount band and protein source class; not a source amino-acid profile",
+          "displayDefault": false,
+          "displayDefaultReason": null,
+          "displayValue": "0/9"
+        },
+        {
+          "metricKey": "nonessential_amino_acids_score",
+          "text": "nonessential amino acids score at 0/11",
+          "weightedScore": null,
+          "scoringMode": "display_fallback",
+          "band": "3_red",
+          "polarity": "higher_better",
+          "dvPercent": null,
+          "value": 0,
+          "score": 0,
+          "denominator": 11,
+          "displaySource": "protein_display_estimate",
+          "displayEstimated": true,
+          "displayEstimateBasis": "display-only estimate from useful-protein-gated amount band and protein source class; not a source amino-acid profile",
+          "displayDefault": false,
+          "displayDefaultReason": null,
+          "displayValue": "0/11"
+        },
+        {
+          "metricKey": "bioavailability_percent",
+          "text": "bioavailability at 35%",
+          "weightedScore": null,
+          "scoringMode": "display_fallback",
+          "band": "2_red",
+          "polarity": "higher_better",
+          "dvPercent": null,
+          "value": 35,
+          "score": 20,
+          "denominator": null,
+          "displaySource": "protein_display_estimate",
+          "displayEstimated": true,
+          "displayEstimateBasis": "display-only estimate from FoodRanked protein source class; not a measured digestibility value",
+          "displayDefault": false,
+          "displayDefaultReason": null,
+          "displayValue": "35%"
+        }
+      ],
+      "macroDisplayValue": "0.5g",
+      "subtitleText": "0.5g of protein. Not enough protein to be a real strength. For fruits, protein isn't really something to rely on.",
+      "timingHint": "short-medium",
+      "score": 0,
+      "displayPolicy": {
+        "policyId": "protein-section-display.v1",
+        "rowCount": 4,
+        "visibleRows": [
+          "collagen_g",
+          "essential_amino_acids_score",
+          "nonessential_amino_acids_score",
+          "bioavailability_percent"
+        ],
+        "hiddenFallbackMetricKey": "protein_g_fallback",
+        "missingValueDisplay": "N/A",
+        "showProteinFallbackAsVisibleRow": false,
+        "rules": {
+          "visibleRowsOnly": true,
+          "visibleSubmacroRowsDisplayNaOnlyWhenMainMacroNa": true,
+          "missingSubmacroRowsUseDisplayDefault": true,
+          "proteinQualityGateSkippedRowsUseDisplayDefault": true,
+          "doNotDisplayProteinFallbackAsSubmacro": true
+        }
+      }
+    },
+    {
+      "key": "vitamins",
+      "title": "Vitamins",
+      "narration": "Vitamin C is 16% daily value, useful for collagen formation and antioxidant support. Vitamin A is basically 0% daily value, not bringing much vision or immune support. For fruit, vitamin C and vitamin A matter most.",
+      "displayItems": [
+        {
+          "metricKey": "vitamin_c_dv",
+          "text": "vitamin C at 16% DV",
+          "weightedScore": 40,
+          "scoringMode": "dv_points",
+          "band": null,
+          "polarity": null,
+          "dvPercent": 16,
+          "value": null,
+          "score": 10,
+          "denominator": null
+        },
+        {
+          "metricKey": "vitamin_a_dv",
+          "text": "vitamin A at 0% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "polarity": null,
+          "dvPercent": 0,
+          "value": null,
+          "score": 0,
+          "denominator": null
+        }
+      ],
+      "macroDisplayValue": null,
+      "subtitleText": "Vitamin C is 16% daily value, useful for collagen formation and antioxidant support. Vitamin A is basically 0% daily value, not bringing much vision or immune support. For fruit, vitamin C and vitamin A matter most.",
+      "timingHint": "short-medium",
+      "score": 8
+    },
+    {
+      "key": "minerals",
+      "title": "Minerals",
+      "narration": "Potassium is 2% daily value, which is the best tracked mineral here, but still too low to matter much. Iron is only 1% daily value, not bringing much oxygen-transport support. For fruit, minerals are mostly just an extra bonus, and only matter when they are in amounts that actually mean something.",
+      "displayItems": [
+        {
+          "metricKey": "magnesium_dv",
+          "text": "magnesium at 1% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "polarity": null,
+          "dvPercent": 1,
+          "value": null,
+          "score": 0,
+          "denominator": null
+        },
+        {
+          "metricKey": "potassium_dv",
+          "text": "potassium at 2% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "polarity": null,
+          "dvPercent": 2,
+          "value": null,
+          "score": 0,
+          "denominator": null
+        },
+        {
+          "metricKey": "iron_dv",
+          "text": "iron at 1% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "polarity": null,
+          "dvPercent": 1,
+          "value": null,
+          "score": 0,
+          "denominator": null
+        }
+      ],
+      "macroDisplayValue": null,
+      "subtitleText": "Potassium is 2% daily value, which is the best tracked mineral here, but still too low to matter much. Iron is only 1% daily value, not bringing much oxygen-transport support. For fruit, minerals are mostly just an extra bonus, and only matter when they are in amounts that actually mean something.",
+      "timingHint": "short-medium",
+      "score": 0
+    },
+    {
+      "key": "pros",
+      "title": "Pros",
+      "narration": "Pros first: sharp tart flavour tool. A small amount can brighten sauces, oats, salads, or baking without needing much fruit volume. Freezes well. It holds up well from frozen, so it is easier to keep around than many soft fresh fruits. Polyphenol-rich skin. The deep red skin brings a stronger plant-compound angle than many mild fruits.",
+      "displayItems": [
+        {
+          "type": "pro",
+          "title": "sharp tart flavour tool",
+          "explanation": "A small amount can brighten sauces, oats, salads, or baking without needing much fruit volume.",
+          "impactLevel": "minor",
+          "resolvedScoreValue": 50
+        },
+        {
+          "type": "pro",
+          "title": "freezes well",
+          "explanation": "It holds up well from frozen, so it is easier to keep around than many soft fresh fruits.",
+          "impactLevel": "minor",
+          "resolvedScoreValue": 50
+        },
+        {
+          "type": "pro",
+          "title": "polyphenol-rich skin",
+          "explanation": "The deep red skin brings a stronger plant-compound angle than many mild fruits.",
+          "impactLevel": "minor",
+          "resolvedScoreValue": 50
+        }
+      ],
+      "macroDisplayValue": null,
+      "subtitleText": "Pros first: sharp tart flavour tool. A small amount can brighten sauces, oats, salads, or baking without needing much fruit volume. Freezes well. It holds up well from frozen, so it is easier to keep around than many soft fresh fruits. Polyphenol-rich skin. The deep red skin brings a stronger plant-compound angle than many mild fruits.",
+      "timingHint": "medium",
+      "score": 50
+    },
+    {
+      "key": "cons",
+      "title": "Cons",
+      "narration": "Cons next: too tart for plain snacking. Most people do not eat raw cranberries by the handful, so the practical snack role is limited. Often needs added sugar. Cranberry sauces, juices, and dried versions commonly rely on sweetening to make the flavour work. Seasonal and recipe-dependent. Fresh cranberries are not as effortless year-round as everyday fruits like apples, bananas, or berries.",
+      "displayItems": [
+        {
+          "type": "con",
+          "title": "too tart for plain snacking",
+          "explanation": "Most people do not eat raw cranberries by the handful, so the practical snack role is limited.",
+          "impactLevel": "minor",
+          "resolvedScoreValue": 50
+        },
+        {
+          "type": "con",
+          "title": "often needs added sugar",
+          "explanation": "Cranberry sauces, juices, and dried versions commonly rely on sweetening to make the flavour work.",
+          "impactLevel": "minor",
+          "resolvedScoreValue": 50
+        },
+        {
+          "type": "con",
+          "title": "seasonal and recipe-dependent",
+          "explanation": "Fresh cranberries are not as effortless year-round as everyday fruits like apples, bananas, or berries.",
+          "impactLevel": "minor",
+          "resolvedScoreValue": 50
+        }
+      ],
+      "macroDisplayValue": null,
+      "subtitleText": "Cons next: too tart for plain snacking. Most people do not eat raw cranberries by the handful, so the practical snack role is limited. Often needs added sugar. Cranberry sauces, juices, and dried versions commonly rely on sweetening to make the flavour work. Seasonal and recipe-dependent. Fresh cranberries are not as effortless year-round as everyday fruits like apples, bananas, or berries.",
+      "timingHint": "medium",
+      "score": 50
+    }
+  ],
+  "closing": {
+    "summary": "Best bits are low glycemic index and fibre. Weak spots are low minerals and vitamin A. Best for sharp low-calorie flavour swaps, and it makes a nice sauce. But that's about it.",
+    "overview": "Best bits are low glycemic index and fibre. Weak spots are low minerals and vitamin A. Best for sharp low-calorie flavour swaps, and it makes a nice sauce. But that's about it.",
+    "useCases": [
+      {
+        "key": "flavour_swaps",
+        "label": "low-calorie flavour swaps",
+        "reason": "it adds flavour without adding many calories",
+        "score": 139
+      },
+      {
+        "key": "digestion",
+        "label": "digestion",
+        "reason": "fibre helps digestion and keeps meals steadier",
+        "score": 99.5
+      },
+      {
+        "key": "low_calorie_volume",
+        "label": "low-calorie volume",
+        "reason": "it helps fill out a meal without many calories",
+        "score": 89
+      }
+    ],
+    "strengthHighlights": [
+      "fibre",
+      "sharp tart flavour tool",
+      "freezes well"
+    ],
+    "weaknessHighlights": [
+      "low protein amount",
+      "low magnesium",
+      "low vitamin A"
+    ],
+    "finalReveal": "D tier.",
+    "useCaseNote": "Best only when the convenience or taste matters more than the nutrition return.",
+    "cta": "Would you rank it the same, or nah?"
+  },
+  "tier": "D",
+  "overallScore": 20,
+  "overallScoreExact": 20,
+  "calibratedOverallScore": 15.4,
+  "calibratedOverallScoreExact": 15.4235,
+  "anomalyAdjustedScore": 15.4,
+  "anomalyAdjustedScoreExact": 15.4235,
+  "rankingScore": 15.4,
+  "rankingScoreExact": 15.4235,
+  "scoreAdjustmentTotal": 0,
+  "scoreAdjustments": [],
+  "baseOverallScore": 33.4,
+  "baseOverallScoreExact": 33.381,
+  "sectionOrder": [
+    "fats",
+    "carbs",
+    "proteins",
+    "vitamins",
+    "minerals",
+    "pros",
+    "cons"
+  ],
+  "narrationBlocks": [
+    {
+      "kind": "hook_food",
+      "text": "Cranberries!"
+    },
+    {
+      "kind": "hook_ranked",
+      "text": "Ranked!"
+    },
+    {
+      "kind": "section",
+      "sectionKey": "fats",
+      "text": "0.1 grams of fat. Saturated fat is 0.01 grams, supporting a cleaner fat profile. Although the fat profile is almost irrelevant for fruits."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "carbs",
+      "text": "12.0 grams of carbs. Glycemic index is low at 45, meaning the carbs should land slower and steadier. Fibre is 3.6 grams, which gives a better fullness and digestion signal than most light fruits. Sugar is 4.3 grams, which is low for fruit and helps the carb section. Sugar control and fibre are the most important parts of the carbohydrate profile of fruits."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "proteins",
+      "text": "0.5 grams of protein. Not enough protein to be a real strength. For fruits, protein isn't really something to rely on."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "vitamins",
+      "text": "Vitamin C is 16% daily value, useful for collagen formation and antioxidant support. Vitamin A is basically 0% daily value, not bringing much vision or immune support. For fruit, vitamin C and vitamin A matter most."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "minerals",
+      "text": "Potassium is 2% daily value, which is the best tracked mineral here, but still too low to matter much. Iron is only 1% daily value, not bringing much oxygen-transport support. For fruit, minerals are mostly just an extra bonus, and only matter when they are in amounts that actually mean something."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "pros",
+      "text": "Pros first: sharp tart flavour tool. A small amount can brighten sauces, oats, salads, or baking without needing much fruit volume. Freezes well. It holds up well from frozen, so it is easier to keep around than many soft fresh fruits. Polyphenol-rich skin. The deep red skin brings a stronger plant-compound angle than many mild fruits."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "cons",
+      "text": "Cons next: too tart for plain snacking. Most people do not eat raw cranberries by the handful, so the practical snack role is limited. Often needs added sugar. Cranberry sauces, juices, and dried versions commonly rely on sweetening to make the flavour work. Seasonal and recipe-dependent. Fresh cranberries are not as effortless year-round as everyday fruits like apples, bananas, or berries."
+    },
+    {
+      "kind": "closing_summary",
+      "text": "Best bits are low glycemic index and fibre. Weak spots are low minerals and vitamin A. Best for sharp low-calorie flavour swaps, and it makes a nice sauce. But that's about it."
+    },
+    {
+      "kind": "final_reveal",
+      "text": "D tier."
+    }
+  ],
+  "explanation": {
+    "summary": "Carbs are carrying this food most, while minerals are holding it back most. It lands in D tier.",
+    "whyThisTier": "This food lands in D tier with a display score of 20. Section scores: fats 55, carbs 70.7, proteins 0, vitamins 8, minerals 0, pros 50, cons 50.",
+    "strongestSection": {
+      "key": "carbs",
+      "label": "Carbs",
+      "score": 70.7
+    },
+    "weakestSection": {
+      "key": "minerals",
+      "label": "Minerals",
+      "score": 0
+    },
+    "scoreAdjustments": [],
+    "topPros": [
+      {
+        "title": "sharp tart flavour tool",
+        "explanation": "A small amount can brighten sauces, oats, salads, or baking without needing much fruit volume.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "freezes well",
+        "explanation": "It holds up well from frozen, so it is easier to keep around than many soft fresh fruits.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "polyphenol-rich skin",
+        "explanation": "The deep red skin brings a stronger plant-compound angle than many mild fruits.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      }
+    ],
+    "topCons": [
+      {
+        "title": "too tart for plain snacking",
+        "explanation": "Most people do not eat raw cranberries by the handful, so the practical snack role is limited.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "often needs added sugar",
+        "explanation": "Cranberry sauces, juices, and dried versions commonly rely on sweetening to make the flavour work.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "seasonal and recipe-dependent",
+        "explanation": "Fresh cranberries are not as effortless year-round as everyday fruits like apples, bananas, or berries.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
+      }
+    ],
+    "narrationNotes": [
+      "Strongest section: Carbs.",
+      "Weakest section: Minerals.",
+      "Final verdict: D tier."
+    ]
+  },
+  "scriptOverride": {
+    "schemaVersion": "foodranked-script-overrides.v1",
+    "source": "production/episodes/cranberries/script-overrides.json"
+  }
+}

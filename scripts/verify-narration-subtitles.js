@@ -94,6 +94,16 @@ function compactMetricValue(item, section = null) {
   return String(item.value);
 }
 
+function compactMetricMentionValues(item, section = null) {
+  const values = new Set();
+  const rawValue = compactMetricValue(item, section);
+  if (!rawValue) return [];
+  if (rawValue) values.add(rawValue);
+  const displayValue = String(item?.displayValue || '').trim();
+  if (displayValue && displayValue !== 'N/A') values.add(displayValue);
+  return [...values];
+}
+
 function formatMetricKey(metricKey) {
   const labels = {
     protein_g_fallback: 'protein amount',
@@ -162,11 +172,11 @@ function sectionHasSubmacroValueMention(section) {
   return (section.displayItems || [])
     .filter(item => !(section.key === 'proteins' && item.metricKey === 'protein_g_fallback'))
     .some(item => {
-    const value = compactMetricValue(item, section);
-    if (!value) return false;
+    const values = compactMetricMentionValues(item, section);
+    if (!values.length) return false;
     const labels = metricMentionLabels(item.metricKey);
     return sentences.some(sentence => (
-      sentence.includes(value) &&
+      values.some(value => sentence.includes(value)) &&
       labels.some(label => new RegExp(`\\b${label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(sentence))
     ));
   });
@@ -271,7 +281,7 @@ function checkScript(failures, file, script) {
     if (MACRO_SECTION_KEYS.has(section.key)) {
       const displayedValues = (section.displayItems || [])
         .filter(item => !(section.key === 'proteins' && item.metricKey === 'protein_g_fallback'))
-        .map(item => compactMetricValue(item, section))
+        .flatMap(item => compactMetricMentionValues(item, section))
         .filter(Boolean);
       if (displayedValues.length && !sectionHasSubmacroValueMention(section)) {
         addFailure(failures, file, `${section.key} subtitleText is missing a displayed submacro value`);

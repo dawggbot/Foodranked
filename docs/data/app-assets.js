@@ -343,7 +343,7 @@
     "kind": "data",
     "path": "data/foods-index.js",
     "mimeType": "text/javascript",
-    "sizeBytes": 8360872
+    "sizeBytes": 8361472
   },
   {
     "id": "data.foods.index.json",
@@ -351,7 +351,7 @@
     "kind": "data",
     "path": "data/foods-index.json",
     "mimeType": "application/json",
-    "sizeBytes": 14675714
+    "sizeBytes": 14676714
   },
   {
     "id": "data.foods.acorns.sample",

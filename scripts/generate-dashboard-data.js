@@ -20,6 +20,17 @@ function ensureDir(dir) { fs.mkdirSync(dir, { recursive: true }); }
 function readJson(file) { return JSON.parse(fs.readFileSync(file, 'utf8')); }
 function exists(file) { return fs.existsSync(file); }
 
+function readPngDimensions(file) {
+  if (!exists(file)) return null;
+  const buffer = fs.readFileSync(file);
+  const pngSignature = '89504e470d0a1a0a';
+  if (buffer.length < 24 || buffer.toString('hex', 0, 8) !== pngSignature) return null;
+  return {
+    width: buffer.readUInt32BE(16),
+    height: buffer.readUInt32BE(20)
+  };
+}
+
 function titleCase(value) {
   return String(value || '').replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 }
@@ -36,10 +47,17 @@ function findCustomFoodImage(foodId) {
   const docsPath = path.join(docsAppDir, 'sprites', 'header', 'food_images', `${foodId}.png`);
   const sourcePath = path.join(sourceSpritesDir, 'header', 'food_images', `${foodId}.png`);
   if (!exists(docsPath) && !exists(sourcePath)) return null;
+  const dimensions = readPngDimensions(docsPath) || readPngDimensions(sourcePath);
   return {
     path: `app/sprites/header/food_images/${foodId}.png`,
     sourcePath: `sprites/header/food_images/${foodId}.png`,
-    docsPath: `app/sprites/header/food_images/${foodId}.png`
+    docsPath: `app/sprites/header/food_images/${foodId}.png`,
+    ...(dimensions ? {
+      width: dimensions.width,
+      height: dimensions.height,
+      naturalWidth: dimensions.width,
+      naturalHeight: dimensions.height
+    } : {})
   };
 }
 

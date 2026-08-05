@@ -343,7 +343,7 @@
     "kind": "data",
     "path": "data/foods-index.js",
     "mimeType": "text/javascript",
-    "sizeBytes": 8360055
+    "sizeBytes": 8360872
   },
   {
     "id": "data.foods.index.json",
@@ -351,7 +351,7 @@
     "kind": "data",
     "path": "data/foods-index.json",
     "mimeType": "application/json",
-    "sizeBytes": 14674673
+    "sizeBytes": 14675714
   },
   {
     "id": "data.foods.acorns.sample",
@@ -5970,12 +5970,28 @@
     "sizeBytes": 2208
   },
   {
+    "id": "app.sprites.header.food.images.chia.seeds",
+    "label": "Chia Seeds",
+    "kind": "sprite",
+    "path": "app/sprites/header/food_images/chia-seeds.png",
+    "mimeType": "image/png",
+    "sizeBytes": 1086
+  },
+  {
     "id": "app.sprites.header.food.images.cranberries",
     "label": "Cranberries",
     "kind": "sprite",
     "path": "app/sprites/header/food_images/cranberries.png",
     "mimeType": "image/png",
     "sizeBytes": 1447
+  },
+  {
+    "id": "app.sprites.header.food.images.greek.yogurt",
+    "label": "Greek Yogurt",
+    "kind": "sprite",
+    "path": "app/sprites/header/food_images/greek-yogurt.png",
+    "mimeType": "image/png",
+    "sizeBytes": 2346
   },
   {
     "id": "app.sprites.header.food.images.hazelnuts",

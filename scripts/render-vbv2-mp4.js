@@ -28,14 +28,15 @@ const DEFAULT_MUSIC_VOLUME = 0.14;
 const DEFAULT_NARRATION_VOLUME = 1;
 const SPLIT_AUDIO_FALLBACK_BLOCK_GAP_SECONDS = 0.08;
 const MACRO_BAR_FILL_EXPORT_VOLUME_MULTIPLIER = 2;
-const MACRO_BAR_FILL_EXPORT_MIN_GROUP_VOLUME = 1;
-const MACRO_BAR_FILL_EXPORT_MAX_GROUP_VOLUME = 1.5;
+const MACRO_BAR_FILL_EXPORT_MIN_GROUP_VOLUME = 1.3;
+const MACRO_BAR_FILL_EXPORT_MAX_GROUP_VOLUME = 2;
 const MACRO_BAR_FILL_EXPORT_TINY_SECONDS = 0.35;
 const MACRO_BAR_FILL_EXPORT_SHORT_SECONDS = 0.75;
-const MACRO_BAR_FILL_EXPORT_TINY_SINGLE_MIN_VOLUME = 2.6;
-const MACRO_BAR_FILL_EXPORT_TINY_SINGLE_MAX_VOLUME = 3;
-const MACRO_BAR_FILL_EXPORT_SHORT_SINGLE_MIN_VOLUME = 2.1;
-const MACRO_BAR_FILL_EXPORT_SHORT_SINGLE_MAX_VOLUME = 2.5;
+const MACRO_BAR_FILL_EXPORT_TINY_SINGLE_MIN_VOLUME = 4;
+const MACRO_BAR_FILL_EXPORT_TINY_SINGLE_MAX_VOLUME = 4.6;
+const MACRO_BAR_FILL_EXPORT_SHORT_SINGLE_MIN_VOLUME = 3.3;
+const MACRO_BAR_FILL_EXPORT_SHORT_SINGLE_MAX_VOLUME = 4;
+const AUDIO_MIX_LIMITER = 'alimiter=limit=0.95:attack=2:release=80:level=false';
 const AUDIO_DURATION_CACHE = new Map();
 
 const CONTENT_TYPES = new Map([
@@ -1233,9 +1234,9 @@ async function buildAudioTrack({ food, options, duration, workDir, sfxEvents = [
   });
 
   if (labels.length === 1) {
-    filters.push(`${labels[0]}atrim=0:${ffmpegNumber(duration)},apad=whole_dur=${ffmpegNumber(duration)},atrim=0:${ffmpegNumber(duration)},asetpts=PTS-STARTPTS[aout]`);
+    filters.push(`${labels[0]}atrim=0:${ffmpegNumber(duration)},apad=whole_dur=${ffmpegNumber(duration)},atrim=0:${ffmpegNumber(duration)},asetpts=PTS-STARTPTS,${AUDIO_MIX_LIMITER}[aout]`);
   } else {
-    filters.push(`${labels.join('')}amix=inputs=${labels.length}:duration=longest:normalize=0,apad=whole_dur=${ffmpegNumber(duration)},atrim=0:${ffmpegNumber(duration)},asetpts=PTS-STARTPTS[aout]`);
+    filters.push(`${labels.join('')}amix=inputs=${labels.length}:duration=longest:normalize=0,apad=whole_dur=${ffmpegNumber(duration)},atrim=0:${ffmpegNumber(duration)},asetpts=PTS-STARTPTS,${AUDIO_MIX_LIMITER}[aout]`);
   }
 
   args.push(

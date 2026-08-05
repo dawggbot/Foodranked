@@ -5,8 +5,14 @@
   const MICRONUTRIENT_SECTIONS = BINDINGS.micronutrientSections || ['vitamins', 'minerals'];
   const CONTEXT_SECTIONS = BINDINGS.contextSections || ['pros', 'cons'];
   const CONTEXT_ITEM_COUNT = Math.max(1, Number(BINDINGS.contextItemCount) || 3);
-  const DISPLAY_SECTIONS = BINDINGS.displaySections || ['intro', ...MACRO_SECTIONS];
+  const THUMBNAIL_SECTION_ID = 'thumbnail';
+  const VIDEO_DISPLAY_SECTIONS = (BINDINGS.displaySections || ['intro', ...MACRO_SECTIONS])
+    .filter(sectionId => sectionId !== THUMBNAIL_SECTION_ID);
+  const DISPLAY_SECTIONS = [THUMBNAIL_SECTION_ID, ...VIDEO_DISPLAY_SECTIONS];
+  const SECTION_INDICATOR_SECTIONS = VIDEO_DISPLAY_SECTIONS;
+  const PLACEMENT_EXPORT_SECTIONS = VIDEO_DISPLAY_SECTIONS;
   const SECTION_LABELS = {
+    thumbnail: 'Thumbnail',
     intro: 'Intro',
     fats: 'Fats',
     carbs: 'Carbohydrates',
@@ -33,7 +39,7 @@
   const PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const PLACEMENT_EXPORT_LIMIT = 60;
   const PAGE_URL_PARAMS = new URLSearchParams(window.location.search);
-  const DISPLAY_BUILDER_V2_BUILD_ID = PAGE_URL_PARAMS.get('build') || '20260803-vbv2-header-stack-v1';
+  const DISPLAY_BUILDER_V2_BUILD_ID = PAGE_URL_PARAMS.get('build') || '20260805-dbv2-thumbnail-section-v1';
   const DATA_CACHE_BUST = '20260801-layout-lockdown-v1';
   const SECTION_INDICATOR_LAYOUT = window.FOODRANKED_DISPLAY_SCHEMA?.sectionIndicatorLayout || {
     startX: 33.347,
@@ -104,6 +110,7 @@
   const OUTRO_CTA_STAMP_GAP_Y = 4;
   const INTRO_FOCUS_BLUR_PX = 2;
   const INTRO_FOCUS_CLEAR_LAYER_IDS = new Set(['intro_ranked_sprite', 'intro_food_hero']);
+  const THUMBNAIL_FOCUS_CLEAR_LAYER_IDS = new Set(['thumbnail_ranked_sprite', 'thumbnail_food_hero']);
   const DBV2_STATIC_STAMP_LAYER_FLAG = 'displayBuilderV2StaticStamp';
   const OUTRO_SLOP_TIER_STAMP_MAX_WIDTH = 128;
   const OUTRO_SLOP_TIER_STAMP_SAFE_MARGIN = 9;
@@ -801,7 +808,7 @@
 
   function placementLayoutSnapshot(layout, food, layoutOption, exportedAt) {
     const sections = {};
-    DISPLAY_SECTIONS.forEach(sectionId => {
+    PLACEMENT_EXPORT_SECTIONS.forEach(sectionId => {
       sections[sectionId] = {
         layers: getSectionLayers(layout, sectionId)
           .map(placementLayerSnapshot)
@@ -1276,7 +1283,7 @@
 
   function sectionIndicatorSrcForLayer(layout, sectionId, layer, food) {
     const layerIndex = sectionIndicatorLayerIndex(layout, sectionId, layer);
-    const activeIndex = DISPLAY_SECTIONS.indexOf(sectionId);
+    const activeIndex = SECTION_INDICATOR_SECTIONS.indexOf(sectionId);
     return LOGIC.sectionIndicatorSpritePath(food, layerIndex >= 0 && layerIndex === activeIndex);
   }
 
@@ -1314,7 +1321,7 @@
 
   function defaultSectionIndicatorTemplate(food) {
     const normalSize = Number(SECTION_INDICATOR_LAYOUT.normalSize) || 2.528;
-    return DISPLAY_SECTIONS.map((sectionId, slotIndex) => ({
+    return SECTION_INDICATOR_SECTIONS.map((sectionId, slotIndex) => ({
       id: `dbv2_default_indicator_template_${slotIndex + 1}`,
       kind: 'sprite',
       label: 'DBv2: section indicator template',
@@ -1341,13 +1348,13 @@
       const label = String(layer.label || '').toLowerCase();
       return id.startsWith('lib_section_indicator_') || label.startsWith('library:') || !/^intro_indicator_\d+$/.test(id);
     });
-    const candidates = manualIndicators.length >= DISPLAY_SECTIONS.length ? manualIndicators : indicators;
-    if (candidates.length < DISPLAY_SECTIONS.length) return [];
+    const candidates = manualIndicators.length >= SECTION_INDICATOR_SECTIONS.length ? manualIndicators : indicators;
+    if (candidates.length < SECTION_INDICATOR_SECTIONS.length) return [];
     const dominantRow = indicatorRows(candidates)
       .sort((a, b) => b.layers.length - a.layers.length || a.y - b.y)[0]?.layers || candidates;
     return [...dominantRow]
       .sort((a, b) => (Number(a.x) || 0) - (Number(b.x) || 0) || (Number(a.y) || 0) - (Number(b.y) || 0))
-      .slice(0, DISPLAY_SECTIONS.length);
+      .slice(0, SECTION_INDICATOR_SECTIONS.length);
   }
 
   function normalIndicatorGeometry(layer) {
@@ -1365,7 +1372,7 @@
   }
 
   function sectionIndicatorLayerFromIntroTemplate(food, sectionId, slotIndex, sourceLayer) {
-    const active = slotIndex === DISPLAY_SECTIONS.indexOf(sectionId);
+    const active = slotIndex === SECTION_INDICATOR_SECTIONS.indexOf(sectionId);
     const base = LOGIC.clone(sourceLayer);
     const normal = normalIndicatorGeometry(sourceLayer);
     const width = active ? normal.width * SECTION_INDICATOR_HIGHLIGHT_SCALE : normal.width;
@@ -1389,7 +1396,7 @@
   function usableSectionIndicatorTemplate(layout, food) {
     const template = introSectionIndicatorTemplate(layout);
     const bounds = layoutCanvasBounds(layout);
-    if (template.length >= DISPLAY_SECTIONS.length && template.some(layer => layerIntersectsCanvas(layer, bounds))) {
+    if (template.length >= SECTION_INDICATOR_SECTIONS.length && template.some(layer => layerIntersectsCanvas(layer, bounds))) {
       return template;
     }
     return defaultSectionIndicatorTemplate(food);
@@ -1397,16 +1404,16 @@
 
   function sectionIndicatorsNeedRebuild(layout, sectionId) {
     const indicators = getSectionLayers(layout, sectionId).filter(isSectionIndicatorLayer);
-    if (indicators.length < DISPLAY_SECTIONS.length) return true;
+    if (indicators.length < SECTION_INDICATOR_SECTIONS.length) return true;
     const bounds = layoutCanvasBounds(layout);
     return !indicators.some(layer => layerIntersectsCanvas(layer, bounds));
   }
 
   function syncSectionIndicatorsFromIntroTemplate(layout, food) {
     const template = usableSectionIndicatorTemplate(layout, food);
-    if (template.length < DISPLAY_SECTIONS.length) return false;
+    if (template.length < SECTION_INDICATOR_SECTIONS.length) return false;
     let changed = false;
-    DISPLAY_SECTIONS.forEach(sectionId => {
+    SECTION_INDICATOR_SECTIONS.forEach(sectionId => {
       const layers = getSectionLayers(layout, sectionId);
       if (!sectionIndicatorsNeedRebuild(layout, sectionId)) return;
       const indicators = template.map((sourceLayer, slotIndex) => {
@@ -1590,7 +1597,10 @@
     };
   }
 
-  function introStaticStampLayers(layout, food) {
+  function introStaticStampLayers(layout, food, sectionId = 'intro') {
+    const isThumbnail = sectionId === THUMBNAIL_SECTION_ID;
+    const rankedId = isThumbnail ? 'thumbnail_ranked_sprite' : 'intro_ranked_sprite';
+    const foodHeroId = isThumbnail ? 'thumbnail_food_hero' : 'intro_food_hero';
     const center = displayBuilderGridCenter(layout);
     const rankedSize = INTRO_HERO_SIZE.ranked;
     const ranked = {
@@ -1608,9 +1618,9 @@
     });
     return [
       {
-        id: 'intro_ranked_sprite',
+        id: rankedId,
         kind: 'sprite',
-        label: 'Hook ranked sprite',
+        label: isThumbnail ? 'Thumbnail ranked sprite' : 'Hook ranked sprite',
         src: INTRO_RANKED_SPRITE_PATH,
         x: ranked.x,
         y: ranked.y,
@@ -1622,9 +1632,9 @@
         aspectRatio: 1
       },
       {
-        id: 'intro_food_hero',
+        id: foodHeroId,
         kind: 'sprite',
-        label: 'Hook food image',
+        label: isThumbnail ? 'Thumbnail food image' : 'Hook food image',
         src: foodCandidates.primary,
         fallbackSrc: foodCandidates.fallback,
         x: foodBox.x,
@@ -1640,6 +1650,15 @@
         aspectRatio: foodBox.aspectRatio || null
       }
     ];
+  }
+
+  function syncStaticThumbnailStampSprites(layout, food) {
+    layout.sections[THUMBNAIL_SECTION_ID] = {
+      layers: introStaticStampLayers(layout, food, THUMBNAIL_SECTION_ID).map(layer => ({
+        ...layer,
+        [DBV2_STATIC_STAMP_LAYER_FLAG]: true
+      }))
+    };
   }
 
   function scoreTier(food) {
@@ -1776,6 +1795,7 @@
   }
 
   function syncStaticIntroOutroStampSprites(layout, food) {
+    syncStaticThumbnailStampSprites(layout, food);
     upsertStaticStampLayers(layout, 'intro', introStaticStampLayers(layout, food));
     upsertStaticStampLayers(layout, 'outro', outroStaticStampLayers(layout, food));
   }
@@ -2619,21 +2639,43 @@
     return filters.join(' ');
   }
 
-  function shouldBlurIntroLayer(layer) {
-    return state.selectedSectionId === 'intro'
-      && !INTRO_FOCUS_CLEAR_LAYER_IDS.has(String(layer?.id || ''));
+  function focusClearLayerIds(sectionId) {
+    if (sectionId === THUMBNAIL_SECTION_ID) return THUMBNAIL_FOCUS_CLEAR_LAYER_IDS;
+    if (sectionId === 'intro') return INTRO_FOCUS_CLEAR_LAYER_IDS;
+    return null;
   }
 
-  function applyIntroFocusBlur(node, layer) {
-    if (!shouldBlurIntroLayer(layer)) return;
+  function isFocusBackdropSection(sectionId = state.selectedSectionId) {
+    return sectionId === 'intro' || sectionId === THUMBNAIL_SECTION_ID;
+  }
+
+  function shouldBlurFocusLayer(layer, sectionId = state.selectedSectionId) {
+    const clearIds = focusClearLayerIds(sectionId);
+    return !!clearIds && !clearIds.has(String(layer?.id || ''));
+  }
+
+  function applyFocusLayerBlur(node, layer) {
+    if (!shouldBlurFocusLayer(layer)) return;
     node.style.filter = introFocusBlurFilter(node.style.filter || '');
     node.dataset.introFocusBlur = 'true';
   }
 
-  function applyIntroFocusBackdropBlur(node) {
-    if (state.selectedSectionId !== 'intro') return;
+  function applyFocusBackdropBlur(node) {
+    if (!isFocusBackdropSection()) return;
     node.style.filter = introFocusBlurFilter(node.style.filter || '');
     node.dataset.introFocusBlur = 'true';
+  }
+
+  function isThumbnailSection(sectionId = state.selectedSectionId) {
+    return sectionId === THUMBNAIL_SECTION_ID;
+  }
+
+  function canvasBackdropBackground(food, sectionId = state.selectedSectionId) {
+    const palette = LOGIC.backdropPalette(food);
+    if (isThumbnailSection(sectionId)) {
+      return `linear-gradient(180deg, ${palette.top} 0%, ${palette.bottom} 100%)`;
+    }
+    return `radial-gradient(circle at 18% 12%, ${palette.glowA}, transparent 24%), radial-gradient(circle at 82% 16%, ${palette.glowB}, transparent 28%), linear-gradient(180deg, ${palette.top} 0%, ${palette.bottom} 100%)`;
   }
 
   function renderCanvas(layout, food) {
@@ -2685,7 +2727,7 @@
         renderTextNode(node, layer);
         applyOutroScoreGlow(node, layer, food);
       }
-      applyIntroFocusBlur(node, layer);
+      applyFocusLayerBlur(node, layer);
       els.displayCanvas.appendChild(node);
     }
   }
@@ -2693,14 +2735,16 @@
   function renderCanvasBackground(food) {
     const bgField = document.createElement('div');
     bgField.className = 'canvas-bg-field';
-    const palette = LOGIC.backdropPalette(food);
-    bgField.style.background = `radial-gradient(circle at 18% 12%, ${palette.glowA}, transparent 24%), radial-gradient(circle at 82% 16%, ${palette.glowB}, transparent 28%), linear-gradient(180deg, ${palette.top} 0%, ${palette.bottom} 100%)`;
-    applyIntroFocusBackdropBlur(bgField);
+    if (isThumbnailSection()) bgField.classList.add('thumbnail-bg-field');
+    bgField.style.background = canvasBackdropBackground(food);
+    applyFocusBackdropBlur(bgField);
     els.displayCanvas.appendChild(bgField);
+
+    if (isThumbnailSection()) return;
 
     const phoneBg = document.createElement('div');
     phoneBg.className = 'phone-bg';
-    applyIntroFocusBackdropBlur(phoneBg);
+    applyFocusBackdropBlur(phoneBg);
     els.displayCanvas.appendChild(phoneBg);
   }
 
@@ -2770,7 +2814,7 @@
     };
   }
 
-  function drawExportBackdrop(ctx, food, exportBounds) {
+  function drawExportBackdrop(ctx, food, exportBounds, sectionId) {
     const { outputWidth, outputHeight, scale } = exportBounds;
     const palette = LOGIC.backdropPalette(food);
     const base = ctx.createLinearGradient(0, 0, 0, outputHeight);
@@ -2779,8 +2823,10 @@
     ctx.fillStyle = base;
     ctx.fillRect(0, 0, outputWidth, outputHeight);
 
-    drawExportRadialGlow(ctx, outputWidth * 0.18, outputHeight * 0.12, Math.max(outputWidth, outputHeight) * 0.24, palette.glowA);
-    drawExportRadialGlow(ctx, outputWidth * 0.82, outputHeight * 0.16, Math.max(outputWidth, outputHeight) * 0.28, palette.glowB);
+    if (!isThumbnailSection(sectionId)) {
+      drawExportRadialGlow(ctx, outputWidth * 0.18, outputHeight * 0.12, Math.max(outputWidth, outputHeight) * 0.24, palette.glowA);
+      drawExportRadialGlow(ctx, outputWidth * 0.82, outputHeight * 0.16, Math.max(outputWidth, outputHeight) * 0.28, palette.glowB);
+    }
 
     ctx.save();
     ctx.strokeStyle = 'rgba(0,0,0,.08)';
@@ -2888,7 +2934,7 @@
     const drawRect = preserveAspectExportRect(image, layer, rect);
     ctx.save();
     ctx.imageSmoothingEnabled = false;
-    if (sectionId === 'intro' && !INTRO_FOCUS_CLEAR_LAYER_IDS.has(String(layer?.id || ''))) {
+    if (shouldBlurFocusLayer(layer, sectionId)) {
       ctx.filter = `blur(${INTRO_FOCUS_BLUR_PX * exportBounds.scale}px)`;
     }
 
@@ -3035,7 +3081,7 @@
     ctx.save();
     ctx.rect(rect.x - bleed, rect.y - bleed, rect.width + (bleed * 2), rect.height + (bleed * 2));
     ctx.clip();
-    if (sectionId === 'intro' && !INTRO_FOCUS_CLEAR_LAYER_IDS.has(String(layer?.id || ''))) {
+    if (shouldBlurFocusLayer(layer, sectionId)) {
       ctx.filter = `blur(${INTRO_FOCUS_BLUR_PX * exportBounds.scale}px)`;
     }
     ctx.font = `700 ${fontSize}px "Tiny5", monospace`;
@@ -3080,7 +3126,7 @@
     if (!ctx) throw new Error('PNG export canvas is unavailable.');
     ctx.imageSmoothingEnabled = false;
 
-    drawExportBackdrop(ctx, food, exportBounds);
+    drawExportBackdrop(ctx, food, exportBounds, sectionId);
 
     const sorted = sectionLayers
       .map((layer, originalIndex) => ({ layer, originalIndex }))

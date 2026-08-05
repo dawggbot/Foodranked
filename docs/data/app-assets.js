@@ -343,7 +343,7 @@
     "kind": "data",
     "path": "data/foods-index.js",
     "mimeType": "text/javascript",
-    "sizeBytes": 8277780
+    "sizeBytes": 8360055
   },
   {
     "id": "data.foods.index.json",
@@ -351,7 +351,7 @@
     "kind": "data",
     "path": "data/foods-index.json",
     "mimeType": "application/json",
-    "sizeBytes": 14527818
+    "sizeBytes": 14674673
   },
   {
     "id": "data.foods.acorns.sample",
@@ -904,6 +904,14 @@
     "path": "data/foods/couscous-whole-wheat.sample.json",
     "mimeType": "application/json",
     "sizeBytes": 3808
+  },
+  {
+    "id": "data.foods.cranberries.sample",
+    "label": "Cranberries.Sample",
+    "kind": "data",
+    "path": "data/foods/cranberries.sample.json",
+    "mimeType": "application/json",
+    "sizeBytes": 9347
   },
   {
     "id": "data.foods.cream.cheese.sample",
@@ -5970,6 +5978,14 @@
     "sizeBytes": 1447
   },
   {
+    "id": "app.sprites.header.food.images.hazelnuts",
+    "label": "Hazelnuts",
+    "kind": "sprite",
+    "path": "app/sprites/header/food_images/hazelnuts.png",
+    "mimeType": "image/png",
+    "sizeBytes": 1964
+  },
+  {
     "id": "app.sprites.header.food.images.kale",
     "label": "Kale",
     "kind": "sprite",
@@ -5984,6 +6000,14 @@
     "path": "app/sprites/header/food_images/raspberries.png",
     "mimeType": "image/png",
     "sizeBytes": 2346
+  },
+  {
+    "id": "app.sprites.header.food.images.white.potato",
+    "label": "White Potato",
+    "kind": "sprite",
+    "path": "app/sprites/header/food_images/white-potato.png",
+    "mimeType": "image/png",
+    "sizeBytes": 1525
   },
   {
     "id": "app.sprites.header.food.plate.dairy.food.plate",

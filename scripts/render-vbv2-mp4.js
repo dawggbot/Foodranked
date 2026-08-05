@@ -27,6 +27,9 @@ const DEFAULT_FPS = 30;
 const DEFAULT_MUSIC_VOLUME = 0.14;
 const DEFAULT_NARRATION_VOLUME = 1;
 const SPLIT_AUDIO_FALLBACK_BLOCK_GAP_SECONDS = 0.08;
+const MACRO_BAR_FILL_EXPORT_VOLUME_MULTIPLIER = 2;
+const MACRO_BAR_FILL_EXPORT_MIN_GROUP_VOLUME = 1;
+const MACRO_BAR_FILL_EXPORT_MAX_GROUP_VOLUME = 1.5;
 const AUDIO_DURATION_CACHE = new Map();
 
 const CONTENT_TYPES = new Map([
@@ -1075,7 +1078,43 @@ function normalizeSfxEvents(events, options, duration) {
     .filter(Boolean);
 
   for (const item of missing) console.warn(`Skipping missing SFX asset: ${item}`);
-  return normalized;
+  return rebalanceMacroBarFillExportLevels(normalized);
+}
+
+function macroBarFillExportGroupKey(event) {
+  return [
+    event.kind,
+    event.path,
+    ffmpegNumber(event.time),
+    ffmpegNumber(event.playbackRate),
+    ffmpegNumber(event.sourceOffsetSeconds),
+    ffmpegNumber(event.sourceSliceSeconds || 0),
+    ffmpegNumber(event.durationSeconds || 0)
+  ].join('|');
+}
+
+function rebalanceMacroBarFillExportLevels(events) {
+  const groups = new Map();
+  for (const event of events) {
+    if (event.kind !== 'macro-bar-fill') continue;
+    const key = macroBarFillExportGroupKey(event);
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(event);
+  }
+
+  for (const group of groups.values()) {
+    const currentSum = group.reduce((sum, event) => sum + event.volume, 0);
+    if (!Number.isFinite(currentSum) || currentSum <= 0) continue;
+    const targetSum = Math.min(
+      MACRO_BAR_FILL_EXPORT_MAX_GROUP_VOLUME,
+      Math.max(MACRO_BAR_FILL_EXPORT_MIN_GROUP_VOLUME, currentSum * MACRO_BAR_FILL_EXPORT_VOLUME_MULTIPLIER)
+    );
+    const multiplier = targetSum / currentSum;
+    if (!Number.isFinite(multiplier) || Math.abs(multiplier - 1) <= 0.001) continue;
+    for (const event of group) event.volume *= multiplier;
+  }
+
+  return events;
 }
 
 function inputAudioFilter(inputIndex, label, options) {

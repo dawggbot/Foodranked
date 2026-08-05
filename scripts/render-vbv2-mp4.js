@@ -27,15 +27,7 @@ const DEFAULT_FPS = 30;
 const DEFAULT_MUSIC_VOLUME = 0.14;
 const DEFAULT_NARRATION_VOLUME = 1;
 const SPLIT_AUDIO_FALLBACK_BLOCK_GAP_SECONDS = 0.08;
-const MACRO_BAR_FILL_EXPORT_VOLUME_MULTIPLIER = 2;
-const MACRO_BAR_FILL_EXPORT_MIN_GROUP_VOLUME = 1.3;
-const MACRO_BAR_FILL_EXPORT_MAX_GROUP_VOLUME = 2;
-const MACRO_BAR_FILL_EXPORT_TINY_SECONDS = 0.35;
-const MACRO_BAR_FILL_EXPORT_SHORT_SECONDS = 0.75;
-const MACRO_BAR_FILL_EXPORT_TINY_SINGLE_MIN_VOLUME = 4;
-const MACRO_BAR_FILL_EXPORT_TINY_SINGLE_MAX_VOLUME = 4.6;
-const MACRO_BAR_FILL_EXPORT_SHORT_SINGLE_MIN_VOLUME = 3.3;
-const MACRO_BAR_FILL_EXPORT_SHORT_SINGLE_MAX_VOLUME = 4;
+const MACRO_BAR_FILL_EXPORT_TARGET_GROUP_VOLUME = 4;
 const AUDIO_MIX_LIMITER = 'alimiter=limit=0.95:attack=2:release=80:level=false';
 const AUDIO_DURATION_CACHE = new Map();
 
@@ -1100,29 +1092,6 @@ function macroBarFillExportGroupKey(event) {
   ].join('|');
 }
 
-function macroBarFillExportTargetGroupVolume(group, currentSum) {
-  if (group.length === 1) {
-    const durationSeconds = Number(group[0]?.durationSeconds);
-    if (Number.isFinite(durationSeconds) && durationSeconds > 0 && durationSeconds <= MACRO_BAR_FILL_EXPORT_TINY_SECONDS) {
-      return Math.min(
-        MACRO_BAR_FILL_EXPORT_TINY_SINGLE_MAX_VOLUME,
-        Math.max(MACRO_BAR_FILL_EXPORT_TINY_SINGLE_MIN_VOLUME, currentSum * MACRO_BAR_FILL_EXPORT_VOLUME_MULTIPLIER)
-      );
-    }
-    if (Number.isFinite(durationSeconds) && durationSeconds > 0 && durationSeconds <= MACRO_BAR_FILL_EXPORT_SHORT_SECONDS) {
-      return Math.min(
-        MACRO_BAR_FILL_EXPORT_SHORT_SINGLE_MAX_VOLUME,
-        Math.max(MACRO_BAR_FILL_EXPORT_SHORT_SINGLE_MIN_VOLUME, currentSum * MACRO_BAR_FILL_EXPORT_VOLUME_MULTIPLIER)
-      );
-    }
-  }
-
-  return Math.min(
-    MACRO_BAR_FILL_EXPORT_MAX_GROUP_VOLUME,
-    Math.max(MACRO_BAR_FILL_EXPORT_MIN_GROUP_VOLUME, currentSum * MACRO_BAR_FILL_EXPORT_VOLUME_MULTIPLIER)
-  );
-}
-
 function rebalanceMacroBarFillExportLevels(events) {
   const groups = new Map();
   for (const event of events) {
@@ -1135,7 +1104,7 @@ function rebalanceMacroBarFillExportLevels(events) {
   for (const group of groups.values()) {
     const currentSum = group.reduce((sum, event) => sum + event.volume, 0);
     if (!Number.isFinite(currentSum) || currentSum <= 0) continue;
-    const targetSum = macroBarFillExportTargetGroupVolume(group, currentSum);
+    const targetSum = MACRO_BAR_FILL_EXPORT_TARGET_GROUP_VOLUME;
     const multiplier = targetSum / currentSum;
     if (!Number.isFinite(multiplier) || Math.abs(multiplier - 1) <= 0.001) continue;
     for (const event of group) event.volume *= multiplier;

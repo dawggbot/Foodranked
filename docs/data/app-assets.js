@@ -343,7 +343,7 @@
     "kind": "data",
     "path": "data/foods-index.js",
     "mimeType": "text/javascript",
-    "sizeBytes": 8361472
+    "sizeBytes": 8344950
   },
   {
     "id": "data.foods.index.json",
@@ -351,7 +351,7 @@
     "kind": "data",
     "path": "data/foods-index.json",
     "mimeType": "application/json",
-    "sizeBytes": 14676714
+    "sizeBytes": 14634657
   },
   {
     "id": "data.foods.acorns.sample",
@@ -367,7 +367,7 @@
     "kind": "data",
     "path": "data/foods/almond-butter-unsweetened.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3789
+    "sizeBytes": 8002
   },
   {
     "id": "data.foods.almonds.sample",
@@ -911,7 +911,7 @@
     "kind": "data",
     "path": "data/foods/cranberries.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 9347
+    "sizeBytes": 9357
   },
   {
     "id": "data.foods.cream.cheese.sample",
@@ -5984,6 +5984,14 @@
     "path": "app/sprites/header/food_images/cranberries.png",
     "mimeType": "image/png",
     "sizeBytes": 1447
+  },
+  {
+    "id": "app.sprites.header.food.images.extra.virgin.olive.oil",
+    "label": "Extra Virgin Olive Oil",
+    "kind": "sprite",
+    "path": "app/sprites/header/food_images/extra-virgin-olive-oil.png",
+    "mimeType": "image/png",
+    "sizeBytes": 1791
   },
   {
     "id": "app.sprites.header.food.images.greek.yogurt",

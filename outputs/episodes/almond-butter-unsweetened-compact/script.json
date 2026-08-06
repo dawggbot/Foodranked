@@ -10,17 +10,45 @@
       "value": 100,
       "unit": "g"
     },
-    "identity": null,
-    "scoreReadiness": null,
+    "identity": {
+      "canonicalName": "Nuts, almond butter, plain, without salt added",
+      "commonName": "Almond Butter (Unsweetened)",
+      "form": "plain almond butter",
+      "state": "unsweetened / unsalted",
+      "ediblePortion": "ground almond kernels",
+      "basisReason": "Plain unsweetened, unsalted almond butter keeps the entry comparable with almonds without added sugar or salt changing the profile.",
+      "includes": [
+        "plain almond butter without added sugar",
+        "plain almond butter without added salt"
+      ],
+      "excludes": [
+        "sweetened almond butter",
+        "salted almond butter",
+        "flavoured almond spreads",
+        "almond milk",
+        "whole almonds"
+      ]
+    },
+    "scoreReadiness": {
+      "status": "production-safe",
+      "summary": "Plain unsweetened almond butter now uses a source-backed per-100g profile with USDA alpha-tocopherol for vitamin E.",
+      "blockers": [],
+      "caveats": [
+        "Brand formulations vary, especially salt, sugar, oil separation, and roasted-versus-raw almond inputs; this record is a canonical plain unsweetened comparison entry."
+      ]
+    },
     "sourceNotes": [
-      "Calibration benchmark sample for FoodRanked.",
-      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
+      "Production-lane source audit pass.",
+      "All displayed nutrition values are stored and checked on a per-100g basis.",
+      "Primary identity is USDA FDC 168588: Nuts, almond butter, plain, without salt added.",
+      "Vitamin E is now source-backed from USDA alpha-tocopherol per 100g."
     ]
   },
   "ruleset": {
     "id": "nuts.v1",
     "version": 1,
     "tierScoreMap": {
+      "Slop": -20,
       "D": 20,
       "C": 40,
       "B": 60,
@@ -36,14 +64,14 @@
     "kcal": 614,
     "fat_g": 55.5,
     "carb_g": 18.8,
-    "protein_g": 21.2
+    "protein_g": 21
   },
   "hook": "Almond Butter (Unsweetened) ranked.",
   "sections": [
     {
       "key": "fats",
       "title": "Fats",
-      "narration": "55.5 grams of fat. Saturated fat is 4.2 grams, supporting a cleaner fat profile. Omega 3 is 30 milligrams, not adding much omega 3, so that's a real downside for nuts. For nuts, fat quality has to justify the calories.",
+      "narration": "55.5 grams of fat. Saturated fat is 4.2 grams, supporting a cleaner fat profile. Omega 3 is 6 milligrams, not adding much omega 3, so that's a real downside for nuts. For nuts, fat quality has to justify the calories.",
       "displayItems": [
         {
           "metricKey": "saturated_fat_g",
@@ -61,53 +89,51 @@
         },
         {
           "metricKey": "polyunsaturated_fat_g",
-          "text": "polyunsaturated fat at 12.3g",
+          "text": "polyunsaturated fat at 13.6g",
           "weightedScore": 120,
           "scoringMode": "arrow_bands",
           "band": "1_red",
           "polarity": "higher_better",
           "dvPercent": null,
-          "value": 12.3,
+          "value": 13.6,
           "score": 40,
           "denominator": null,
-          "displayValue": "12.3g",
+          "displayValue": "13.6g",
           "displaySource": "scored"
         },
         {
           "metricKey": "omega3_mg",
-          "text": "omega 3 at 30mg",
-          "weightedScore": 100,
+          "text": "omega 3 at 6mg",
+          "weightedScore": 0,
           "scoringMode": "arrow_bands",
-          "band": "2_red",
+          "band": "3_red",
           "polarity": "higher_better",
           "dvPercent": null,
-          "value": 30,
-          "score": 20,
+          "value": 6,
+          "score": 0,
           "denominator": null,
-          "displayValue": "30mg",
+          "displayValue": "6mg",
           "displaySource": "scored"
         },
         {
           "metricKey": "cholesterol_mg",
           "text": "cholesterol at 0mg",
-          "weightedScore": null,
-          "scoringMode": "display_fallback",
+          "weightedScore": 100,
+          "scoringMode": "arrow_bands",
           "band": "3_green",
           "polarity": "higher_worse",
           "dvPercent": null,
           "value": 0,
           "score": 100,
           "denominator": null,
-          "displaySource": "submacro_display_default",
-          "displayDefault": true,
-          "displayDefaultReason": "missing_submacro_value",
-          "displayValue": "0mg"
+          "displayValue": "0mg",
+          "displaySource": "scored"
         }
       ],
       "macroDisplayValue": "55.5g",
-      "subtitleText": "55.5g of fat. Saturated fat is 4.2g, supporting a cleaner fat profile. Omega 3 is 30mg, not adding much omega 3, so that's a real downside for nuts. For nuts, fat quality has to justify the calories.",
+      "subtitleText": "55.5g of fat. Saturated fat is 4.2g, supporting a cleaner fat profile. Omega 3 is 6mg, not adding much omega 3, so that's a real downside for nuts. For nuts, fat quality has to justify the calories.",
       "timingHint": "short-medium",
-      "score": 41.8
+      "score": 38.3
     },
     {
       "key": "carbs",
@@ -116,30 +142,30 @@
       "displayItems": [
         {
           "metricKey": "fibre_g",
-          "text": "fibre at 10.8g",
+          "text": "fibre at 10.3g",
           "weightedScore": 240,
           "scoringMode": "arrow_bands",
           "band": "2_green",
           "polarity": "higher_better",
           "dvPercent": null,
-          "value": 10.8,
+          "value": 10.3,
           "score": 80,
           "denominator": null,
-          "displayValue": "10.8g",
+          "displayValue": "10.3g",
           "displaySource": "scored"
         },
         {
           "metricKey": "sugar_g",
-          "text": "sugar at 6.3g",
-          "weightedScore": 80,
+          "text": "sugar at 4.4g",
+          "weightedScore": 120,
           "scoringMode": "arrow_bands",
-          "band": "1_red",
+          "band": "1_green",
           "polarity": "higher_worse",
           "dvPercent": null,
-          "value": 6.3,
-          "score": 40,
+          "value": 4.4,
+          "score": 60,
           "denominator": null,
-          "displayValue": "6.3g",
+          "displayValue": "4.4g",
           "displaySource": "scored"
         },
         {
@@ -174,12 +200,12 @@
       "macroDisplayValue": "18.8g",
       "subtitleText": "18.8g of carbs. Glycemic index is 15, helping with steadier carb behaviour. Starch is 2g, not bringing much steady carb energy, so that's a small downside for nuts. For nuts, carbs matter most when sugar or fibre changes the balance.",
       "timingHint": "short-medium",
-      "score": 68.6
+      "score": 74.3
     },
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "21.2 grams of protein. That amount is useful enough to count. Essential amino acids score is 7 out of 9, making the protein useful for repair and maintenance, and it is still a strong secondary mark. For nuts, protein helps, but it is not the main thing.",
+      "narration": "21.0 grams of protein. That amount is useful enough to count. Essential amino acids score is 7 out of 9, making the protein useful for repair and maintenance, and it is still a strong secondary mark. For nuts, protein helps, but it is not the main thing.",
       "displayItems": [
         {
           "metricKey": "collagen_g",
@@ -204,7 +230,7 @@
           "text": "essential amino acids score at 7/9",
           "weightedScore": null,
           "scoringMode": "display_fallback",
-          "band": "↑↑",
+          "band": "2_green",
           "polarity": "higher_better",
           "dvPercent": null,
           "value": 7,
@@ -222,7 +248,7 @@
           "text": "nonessential amino acids score at 8/11",
           "weightedScore": null,
           "scoringMode": "display_fallback",
-          "band": "↑",
+          "band": "1_green",
           "polarity": "higher_better",
           "dvPercent": null,
           "value": 8,
@@ -240,7 +266,7 @@
           "text": "bioavailability at 74%",
           "weightedScore": null,
           "scoringMode": "display_fallback",
-          "band": "↑",
+          "band": "1_green",
           "polarity": "higher_better",
           "dvPercent": null,
           "value": 74,
@@ -254,8 +280,8 @@
           "displayValue": "74%"
         }
       ],
-      "macroDisplayValue": "21.2g",
-      "subtitleText": "21.2g of protein. That amount is useful enough to count. Essential amino acids score is 7/9, making the protein useful for repair and maintenance, and it is still a strong secondary mark. For nuts, protein helps, but it is not the main thing.",
+      "macroDisplayValue": "21.0g",
+      "subtitleText": "21.0g of protein. That amount is useful enough to count. Essential amino acids score is 7/9, making the protein useful for repair and maintenance, and it is still a strong secondary mark. For nuts, protein helps, but it is not the main thing.",
       "timingHint": "short-medium",
       "score": 80,
       "displayPolicy": {
@@ -282,72 +308,84 @@
     {
       "key": "vitamins",
       "title": "Vitamins",
-      "narration": "Vitamin E is 40% daily value, adding useful vitamin support. For nuts, vitamin E matters most.",
+      "narration": "Vitamin E is 161% daily value, adding useful vitamin support. For nuts, vitamin E matters most.",
       "displayItems": [
         {
           "metricKey": "vitamin_e_dv",
-          "text": "vitamin E at 40% DV",
-          "weightedScore": 80,
+          "text": "vitamin E at 161% DV",
+          "weightedScore": 200,
           "scoringMode": "dv_points",
           "band": null,
           "polarity": null,
-          "dvPercent": 40,
+          "dvPercent": 161,
           "value": null,
-          "score": 40,
+          "score": 100,
+          "denominator": null
+        },
+        {
+          "metricKey": "vitamin_b12_dv",
+          "text": "vitamin B12 at 0% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "polarity": null,
+          "dvPercent": 0,
+          "value": null,
+          "score": 0,
           "denominator": null
         }
       ],
       "macroDisplayValue": null,
-      "subtitleText": "Vitamin E is 40% DV, adding useful vitamin support. For nuts, vitamin E matters most.",
+      "subtitleText": "Vitamin E is 161% DV, adding useful vitamin support. For nuts, vitamin E matters most.",
       "timingHint": "short-medium",
-      "score": 40
+      "score": 66.7
     },
     {
       "key": "minerals",
       "title": "Minerals",
-      "narration": "Magnesium is 61% daily value, adding useful mineral support. Iron is 20% daily value, not bringing much oxygen-transport support. For nuts, minerals help justify the calories.",
+      "narration": "Magnesium is 66% daily value, adding useful mineral support. Iron is 19% daily value, not bringing much oxygen-transport support. For nuts, minerals help justify the calories.",
       "displayItems": [
         {
           "metricKey": "magnesium_dv",
-          "text": "magnesium at 61% DV",
+          "text": "magnesium at 66% DV",
           "weightedScore": 180,
           "scoringMode": "dv_points",
           "band": null,
           "polarity": null,
-          "dvPercent": 61,
+          "dvPercent": 66,
           "value": null,
           "score": 60,
           "denominator": null
         },
         {
           "metricKey": "iron_dv",
-          "text": "iron at 20% DV",
-          "weightedScore": 20,
+          "text": "iron at 19% DV",
+          "weightedScore": 10,
           "scoringMode": "dv_points",
           "band": null,
           "polarity": null,
-          "dvPercent": 20,
+          "dvPercent": 19,
           "value": null,
-          "score": 20,
+          "score": 10,
           "denominator": null
         },
         {
           "metricKey": "zinc_dv",
-          "text": "zinc at 21% DV",
-          "weightedScore": 40,
+          "text": "zinc at 30% DV",
+          "weightedScore": 60,
           "scoringMode": "dv_points",
           "band": null,
           "polarity": null,
-          "dvPercent": 21,
+          "dvPercent": 30,
           "value": null,
-          "score": 20,
+          "score": 30,
           "denominator": null
         }
       ],
       "macroDisplayValue": null,
-      "subtitleText": "Magnesium is 61% DV, adding useful mineral support. Iron is 20% DV, not bringing much oxygen-transport support. For nuts, minerals help justify the calories.",
+      "subtitleText": "Magnesium is 66% DV, adding useful mineral support. Iron is 19% DV, not bringing much oxygen-transport support. For nuts, minerals help justify the calories.",
       "timingHint": "short-medium",
-      "score": 40
+      "score": 41.7
     },
     {
       "key": "pros",
@@ -415,26 +453,26 @@
     }
   ],
   "closing": {
-    "summary": "Best bits are protein and fibre. Weak spots are vitamins and low iron. Best for digestion and heart health because fibre helps digestion and keeps meals steadier and fibre is useful for heart health.",
-    "overview": "Best bits are protein and fibre. Weak spots are vitamins and low iron. Best for digestion and heart health because fibre helps digestion and keeps meals steadier and fibre is useful for heart health.",
+    "summary": "Best bits are protein and fibre. Weak spots are low omega 3 and low iron. Best for digestion and heart health because fibre helps digestion and keeps meals steadier and fibre is useful for heart health.",
+    "overview": "Best bits are protein and fibre. Weak spots are low omega 3 and low iron. Best for digestion and heart health because fibre helps digestion and keeps meals steadier and fibre is useful for heart health.",
     "useCases": [
       {
         "key": "digestion",
         "label": "digestion",
         "reason": "fibre helps digestion and keeps meals steadier",
-        "score": 155
+        "score": 156.7
       },
       {
         "key": "heart_health",
         "label": "heart health",
         "reason": "fibre is useful for heart health",
-        "score": 153.9
+        "score": 153.86
       },
       {
-        "key": "bone_health",
-        "label": "bone health",
-        "reason": "calcium and magnesium can support bones",
-        "score": 125
+        "key": "immune_support",
+        "label": "immune support",
+        "reason": "zinc helps support the immune system",
+        "score": 138.4
       }
     ],
     "strengthHighlights": [
@@ -443,9 +481,9 @@
       "vitamin E"
     ],
     "weaknessHighlights": [
-      "vitamins",
+      "low omega 3",
       "low iron",
-      "low omega 3"
+      "spread form makes overdoing it easier"
     ],
     "finalReveal": "S tier.",
     "useCaseNote": "Best in small amounts where the fats and minerals matter more than sheer calories.",
@@ -454,16 +492,16 @@
   "tier": "S",
   "overallScore": 100,
   "overallScoreExact": 100,
-  "calibratedOverallScore": 81.2,
-  "calibratedOverallScoreExact": 81.2365,
-  "anomalyAdjustedScore": 81.2,
-  "anomalyAdjustedScoreExact": 81.2365,
-  "rankingScore": 81.2,
-  "rankingScoreExact": 81.2365,
+  "calibratedOverallScore": 83,
+  "calibratedOverallScoreExact": 82.9763,
+  "anomalyAdjustedScore": 83,
+  "anomalyAdjustedScoreExact": 82.9763,
+  "rankingScore": 83,
+  "rankingScoreExact": 82.9763,
   "scoreAdjustmentTotal": 0,
   "scoreAdjustments": [],
-  "baseOverallScore": 52.9,
-  "baseOverallScoreExact": 52.9128,
+  "baseOverallScore": 57.3,
+  "baseOverallScoreExact": 57.2789,
   "sectionOrder": [
     "fats",
     "carbs",
@@ -485,7 +523,7 @@
     {
       "kind": "section",
       "sectionKey": "fats",
-      "text": "55.5 grams of fat. Saturated fat is 4.2 grams, supporting a cleaner fat profile. Omega 3 is 30 milligrams, not adding much omega 3, so that's a real downside for nuts. For nuts, fat quality has to justify the calories."
+      "text": "55.5 grams of fat. Saturated fat is 4.2 grams, supporting a cleaner fat profile. Omega 3 is 6 milligrams, not adding much omega 3, so that's a real downside for nuts. For nuts, fat quality has to justify the calories."
     },
     {
       "kind": "section",
@@ -495,17 +533,17 @@
     {
       "kind": "section",
       "sectionKey": "proteins",
-      "text": "21.2 grams of protein. That amount is useful enough to count. Essential amino acids score is 7 out of 9, making the protein useful for repair and maintenance, and it is still a strong secondary mark. For nuts, protein helps, but it is not the main thing."
+      "text": "21.0 grams of protein. That amount is useful enough to count. Essential amino acids score is 7 out of 9, making the protein useful for repair and maintenance, and it is still a strong secondary mark. For nuts, protein helps, but it is not the main thing."
     },
     {
       "kind": "section",
       "sectionKey": "vitamins",
-      "text": "Vitamin E is 40% daily value, adding useful vitamin support. For nuts, vitamin E matters most."
+      "text": "Vitamin E is 161% daily value, adding useful vitamin support. For nuts, vitamin E matters most."
     },
     {
       "kind": "section",
       "sectionKey": "minerals",
-      "text": "Magnesium is 61% daily value, adding useful mineral support. Iron is 20% daily value, not bringing much oxygen-transport support. For nuts, minerals help justify the calories."
+      "text": "Magnesium is 66% daily value, adding useful mineral support. Iron is 19% daily value, not bringing much oxygen-transport support. For nuts, minerals help justify the calories."
     },
     {
       "kind": "section",
@@ -519,7 +557,7 @@
     },
     {
       "kind": "closing_summary",
-      "text": "Best bits are protein and fibre. Weak spots are vitamins and low iron. Best for digestion and heart health because fibre helps digestion and keeps meals steadier and fibre is useful for heart health."
+      "text": "Best bits are protein and fibre. Weak spots are low omega 3 and low iron. Best for digestion and heart health because fibre helps digestion and keeps meals steadier and fibre is useful for heart health."
     },
     {
       "kind": "final_reveal",
@@ -527,17 +565,17 @@
     }
   ],
   "explanation": {
-    "summary": "Proteins are carrying this food most, while minerals are holding it back most. It lands in S tier.",
-    "whyThisTier": "This food lands in S tier with a display score of 100. Section scores: fats 41.8, carbs 68.6, proteins 80, vitamins 40, minerals 40, pros 50, cons 50.",
+    "summary": "Proteins are carrying this food most, while fats are holding it back most. It lands in S tier.",
+    "whyThisTier": "This food lands in S tier with a display score of 100. Section scores: fats 38.3, carbs 74.3, proteins 80, vitamins 66.7, minerals 41.7, pros 50, cons 50.",
     "strongestSection": {
       "key": "proteins",
       "label": "Proteins",
       "score": 80
     },
     "weakestSection": {
-      "key": "minerals",
-      "label": "Minerals",
-      "score": 40
+      "key": "fats",
+      "label": "Fats",
+      "score": 38.3
     },
     "scoreAdjustments": [],
     "topPros": [
@@ -588,7 +626,7 @@
     ],
     "narrationNotes": [
       "Strongest section: Proteins.",
-      "Weakest section: Minerals.",
+      "Weakest section: Fats.",
       "Final verdict: S tier."
     ]
   }

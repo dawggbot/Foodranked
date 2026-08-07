@@ -5978,6 +5978,14 @@
     "sizeBytes": 1086
   },
   {
+    "id": "app.sprites.header.food.images.cola.regular",
+    "label": "Cola Regular",
+    "kind": "sprite",
+    "path": "app/sprites/header/food_images/cola-regular.png",
+    "mimeType": "image/png",
+    "sizeBytes": 1032
+  },
+  {
     "id": "app.sprites.header.food.images.cranberries",
     "label": "Cranberries",
     "kind": "sprite",

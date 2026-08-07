@@ -1,8 +1,60 @@
 {
   "schemaVersion": "foodranked-agent-sync-index.v1",
-  "updatedAt": "2026-08-06T21:03:15.883Z",
+  "updatedAt": "2026-08-07T12:26:51Z",
   "repoRawBaseUrl": "https://raw.githubusercontent.com/dawggbot/Foodranked/main/",
   "jobs": [
+    {
+      "id": "regular-cola-sprite-update-20260807",
+      "title": "Regular Cola sprite update",
+      "description": "Download and attach the Regular Cola 30x30 food image sprite to the local app database.",
+      "status": "ready",
+      "foodId": "cola-regular",
+      "createdAt": "2026-08-07T12:26:51Z",
+      "updatedAt": "2026-08-07T12:26:51Z",
+      "tags": [
+        "asset",
+        "sprite",
+        "food-image",
+        "agent-sync"
+      ],
+      "actions": [
+        {
+          "type": "downloadAsset",
+          "label": "Regular Cola sprite",
+          "kind": "image",
+          "foodId": "cola-regular",
+          "filename": "cola-regular.png",
+          "sourcePath": "sprites/header/food_images/cola-regular.png",
+          "attachToFood": true,
+          "assetPatch": {
+            "width": 30,
+            "height": 30
+          }
+        },
+        {
+          "type": "upsertFood",
+          "label": "Attach sprite to cola-regular",
+          "food": {
+            "id": "cola-regular",
+            "name": "Regular Cola",
+            "foodType": "misc",
+            "foodTypeLabel": "Misc",
+            "kcal": 42,
+            "customFoodImagePath": "/studio-data/uploads/images/cola-regular/cola-regular.png",
+            "customFoodImageWidth": 30,
+            "customFoodImageHeight": 30,
+            "assets": {
+              "customFoodImage": {
+                "path": "/studio-data/uploads/images/cola-regular/cola-regular.png",
+                "width": 30,
+                "height": 30
+              }
+            }
+          }
+        }
+      ],
+      "notes": "Adds the normalized app-id sprite for Regular Cola. Does not change canvas placement."
+    },
     {
       "id": "extra-virgin-olive-oil-sprite-update-20260806",
       "title": "Extra Virgin Olive Oil sprite update",

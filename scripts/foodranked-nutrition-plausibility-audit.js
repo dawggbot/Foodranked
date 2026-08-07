@@ -185,6 +185,7 @@ function auditMetricBounds(food, file, errors, warnings) {
   const carbs = finiteNumber(header.carb_g);
   const protein = finiteNumber(header.protein_g);
   const saturatedFat = finiteNumber(metrics.saturated_fat_g);
+  const monounsaturatedFat = finiteNumber(metrics.monounsaturated_fat_g);
   const polyunsaturatedFat = finiteNumber(metrics.polyunsaturated_fat_g);
   const omega3 = finiteNumber(metrics.omega3_mg);
   const sugar = finiteNumber(metrics.sugar_g);
@@ -197,6 +198,21 @@ function auditMetricBounds(food, file, errors, warnings) {
   }
   if (fat !== null && polyunsaturatedFat !== null && polyunsaturatedFat > fat + MACRO_PARENT_TOLERANCE_G) {
     issue(errors, file, 'polyunsaturated fat exceeds total fat', { polyunsaturated_fat_g: polyunsaturatedFat, fat_g: fat });
+  }
+  if (fat !== null && monounsaturatedFat !== null && monounsaturatedFat > fat + MACRO_PARENT_TOLERANCE_G) {
+    issue(errors, file, 'monounsaturated fat exceeds total fat', { monounsaturated_fat_g: monounsaturatedFat, fat_g: fat });
+  }
+  if (fat !== null && [saturatedFat, monounsaturatedFat, polyunsaturatedFat].every(value => value !== null)) {
+    const componentSum = saturatedFat + monounsaturatedFat + polyunsaturatedFat;
+    const tolerance = Math.max(MACRO_PARENT_TOLERANCE_G, fat * 0.05);
+    if (componentSum > fat + tolerance) {
+      issue(warnings, file, 'fat subcomponents are higher than total fat; verify mixed source methods', {
+        saturated_fat_g: saturatedFat,
+        monounsaturated_fat_g: monounsaturatedFat,
+        polyunsaturated_fat_g: polyunsaturatedFat,
+        fat_g: fat
+      });
+    }
   }
   if (fat !== null && omega3 !== null && omega3 > fat * 1000 + FAT_PARENT_TOLERANCE_MG) {
     issue(errors, file, 'omega 3 milligrams exceed total fat grams converted to milligrams', {

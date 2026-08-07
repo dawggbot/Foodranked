@@ -14,6 +14,7 @@
     "scoreReadiness": null,
     "sourceNotes": [
       "Calibration benchmark sample for FoodRanked.",
+      "Monounsaturated fat uses USDA FoodData Central SR Legacy FDC 170178, Nuts, macadamia nuts, raw, per 100g.",
       "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
     ]
   },
@@ -21,6 +22,7 @@
     "id": "nuts.v1",
     "version": 1,
     "tierScoreMap": {
+      "Slop": -20,
       "D": 20,
       "C": 40,
       "B": 60,
@@ -43,7 +45,7 @@
     {
       "key": "fats",
       "title": "Fats",
-      "narration": "75.8 grams of fat. Omega 3 is 200 milligrams, the best number here but still only modest help. Polyunsaturated fat is 1.5 grams, not adding much useful unsaturated fat, so that's a real downside for nuts. For nuts, fat quality has to justify the calories.",
+      "narration": "75.8 grams of fat. Monounsaturated fat is 58.9 grams, supporting the unsaturated-fat profile. Polyunsaturated fat is 1.5 grams, not adding much polyunsaturated-fat support, so that's a real downside for nuts. For nuts, fat quality has to justify the calories.",
       "displayItems": [
         {
           "metricKey": "saturated_fat_g",
@@ -105,9 +107,9 @@
         }
       ],
       "macroDisplayValue": "75.8g",
-      "subtitleText": "75.8g of fat. Omega 3 is 200mg, the best number here but still only modest help. Polyunsaturated fat is 1.5g, not adding much useful unsaturated fat, so that's a real downside for nuts. For nuts, fat quality has to justify the calories.",
+      "subtitleText": "75.8g of fat. Monounsaturated fat is 58.9g, supporting the unsaturated-fat profile. Polyunsaturated fat is 1.5g, not adding much polyunsaturated-fat support, so that's a real downside for nuts. For nuts, fat quality has to justify the calories.",
       "timingHint": "short-medium",
-      "score": 23.6
+      "score": 40
     },
     {
       "key": "carbs",
@@ -158,7 +160,7 @@
         },
         {
           "metricKey": "glycemic_index",
-          "text": "glycemic index at 10 GI",
+          "text": "glycemic index at 1 GI",
           "weightedScore": 150,
           "scoringMode": "arrow_bands",
           "band": "3_green",
@@ -167,7 +169,7 @@
           "value": 10,
           "score": 100,
           "denominator": null,
-          "displayValue": "10 GI",
+          "displayValue": "1 GI",
           "displaySource": "scored"
         }
       ],
@@ -204,7 +206,7 @@
           "text": "essential amino acids score at 0/9",
           "weightedScore": null,
           "scoringMode": "display_fallback",
-          "band": "↓↓↓",
+          "band": "3_red",
           "polarity": "higher_better",
           "dvPercent": null,
           "value": 0,
@@ -222,7 +224,7 @@
           "text": "nonessential amino acids score at 0/11",
           "weightedScore": null,
           "scoringMode": "display_fallback",
-          "band": "↓↓↓",
+          "band": "3_red",
           "polarity": "higher_better",
           "dvPercent": null,
           "value": 0,
@@ -240,7 +242,7 @@
           "text": "bioavailability at 74%",
           "weightedScore": null,
           "scoringMode": "display_fallback",
-          "band": "↑",
+          "band": "1_green",
           "polarity": "higher_better",
           "dvPercent": null,
           "value": 74,
@@ -415,20 +417,20 @@
     }
   ],
   "closing": {
-    "summary": "Best bits are fibre and magnesium. Weak spots are low protein amount and low vitamin E. Best for digestion and heart health because fibre helps digestion and keeps meals steadier and fibre is useful for heart health.",
-    "overview": "Best bits are fibre and magnesium. Weak spots are low protein amount and low vitamin E. Best for digestion and heart health because fibre helps digestion and keeps meals steadier and fibre is useful for heart health.",
+    "summary": "Best bits are fibre and magnesium. Weak spots are low protein amount and low vitamin E. Best for heart health and digestion because fibre is useful for heart health and fibre helps digestion and keeps meals steadier.",
+    "overview": "Best bits are fibre and magnesium. Weak spots are low protein amount and low vitamin E. Best for heart health and digestion because fibre is useful for heart health and fibre helps digestion and keeps meals steadier.",
     "useCases": [
+      {
+        "key": "heart_health",
+        "label": "heart health",
+        "reason": "fibre is useful for heart health",
+        "score": 170.1385
+      },
       {
         "key": "digestion",
         "label": "digestion",
         "reason": "fibre helps digestion and keeps meals steadier",
         "score": 133.1
-      },
-      {
-        "key": "heart_health",
-        "label": "heart health",
-        "reason": "fibre is useful for heart health",
-        "score": 124.30000000000001
       },
       {
         "key": "bone_health",
@@ -454,16 +456,16 @@
   "tier": "C",
   "overallScore": 40,
   "overallScoreExact": 40,
-  "calibratedOverallScore": 20.4,
-  "calibratedOverallScoreExact": 20.4382,
-  "anomalyAdjustedScore": 20.4,
-  "anomalyAdjustedScoreExact": 20.4382,
-  "rankingScore": 20.4,
-  "rankingScoreExact": 20.4382,
+  "calibratedOverallScore": 25,
+  "calibratedOverallScoreExact": 25.0082,
+  "anomalyAdjustedScore": 25,
+  "anomalyAdjustedScoreExact": 25.0082,
+  "rankingScore": 25,
+  "rankingScoreExact": 25.0082,
   "scoreAdjustmentTotal": 0,
   "scoreAdjustments": [],
-  "baseOverallScore": 29.9,
-  "baseOverallScoreExact": 29.9412,
+  "baseOverallScore": 32.3,
+  "baseOverallScoreExact": 32.2789,
   "sectionOrder": [
     "fats",
     "carbs",
@@ -485,7 +487,7 @@
     {
       "kind": "section",
       "sectionKey": "fats",
-      "text": "75.8 grams of fat. Omega 3 is 200 milligrams, the best number here but still only modest help. Polyunsaturated fat is 1.5 grams, not adding much useful unsaturated fat, so that's a real downside for nuts. For nuts, fat quality has to justify the calories."
+      "text": "75.8 grams of fat. Monounsaturated fat is 58.9 grams, supporting the unsaturated-fat profile. Polyunsaturated fat is 1.5 grams, not adding much polyunsaturated-fat support, so that's a real downside for nuts. For nuts, fat quality has to justify the calories."
     },
     {
       "kind": "section",
@@ -519,7 +521,7 @@
     },
     {
       "kind": "closing_summary",
-      "text": "Best bits are fibre and magnesium. Weak spots are low protein amount and low vitamin E. Best for digestion and heart health because fibre helps digestion and keeps meals steadier and fibre is useful for heart health."
+      "text": "Best bits are fibre and magnesium. Weak spots are low protein amount and low vitamin E. Best for heart health and digestion because fibre is useful for heart health and fibre helps digestion and keeps meals steadier."
     },
     {
       "kind": "final_reveal",
@@ -528,7 +530,7 @@
   ],
   "explanation": {
     "summary": "Carbs are carrying this food most, while vitamins are holding it back most. It lands in C tier.",
-    "whyThisTier": "This food lands in C tier with a display score of 40. Section scores: fats 23.6, carbs 64.3, proteins 0, vitamins 0, minerals 21.7, pros 50, cons 50.",
+    "whyThisTier": "This food lands in C tier with a display score of 40. Section scores: fats 40, carbs 64.3, proteins 0, vitamins 0, minerals 21.7, pros 50, cons 50.",
     "strongestSection": {
       "key": "carbs",
       "label": "Carbs",

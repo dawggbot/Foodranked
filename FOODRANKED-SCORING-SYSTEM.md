@@ -54,6 +54,7 @@ These are the real inputs used to build the section scores:
 - fat submetrics
   - saturated fat
   - omega 3
+  - monounsaturated fat
   - polyunsaturated fat
   - cholesterol
 - carb submetrics
@@ -90,6 +91,7 @@ Examples:
 - macro totals: display-only, outside submacro arrow scoring
 
 Viewer-facing arrow direction is metric-level stable. Do not flip the same submacro between `higher_better` and `higher_worse` by food type; tune category importance with weights, thresholds, or `not_applicable` instead.
+Polyunsaturated fat is not a proxy for total unsaturated fat. When source-backed monounsaturated fat exists, it should score and narrate as its own fat-quality signal so high-MUFA foods are not treated as low in unsaturated fat overall.
 
 ## Step 2: submacro band system
 

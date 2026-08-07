@@ -77,13 +77,21 @@ These are important for the video UI and viewer understanding, but do not direct
 - V1 role: scored
 - Notes: major signal in nuts, seeds, oils & fats; sometimes minor elsewhere
 
+### monounsaturated_fat_g
+- Display name: Monounsaturated Fat
+- Unit: g
+- Default section: fats
+- Default polarity: `higher_better`
+- V1 role: scored hidden/narration metric
+- Notes: source-backed MUFA should contribute to fat quality when present. It is tracked separately from polyunsaturated fat so low PUFA foods with high MUFA are not treated as low in unsaturated fat overall.
+
 ### polyunsaturated_fat_g
 - Display name: Polyunsaturated Fat
 - Unit: g
 - Default section: fats
 - Default polarity: `higher_better`
 - V1 role: scored
-- Notes: not equally important in every category
+- Notes: not equally important in every category; do not use it as a proxy for total unsaturated fat when MUFA is source-backed
 
 ### cholesterol_mg
 - Display name: Cholesterol

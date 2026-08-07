@@ -54,6 +54,7 @@
 
   const DEFAULT_SUBMACRO_POLARITIES = {
     saturated_fat_g: 'higher_worse',
+    monounsaturated_fat_g: 'higher_better',
     polyunsaturated_fat_g: 'higher_better',
     omega3_mg: 'higher_better',
     cholesterol_mg: 'higher_worse',
@@ -68,6 +69,7 @@
   };
   const SUBMACRO_DISPLAY_DEFAULT_VALUES = {
     saturated_fat_g: 0,
+    monounsaturated_fat_g: 0,
     polyunsaturated_fat_g: 0,
     omega3_mg: 0,
     cholesterol_mg: 0,
@@ -96,6 +98,7 @@
   const AMINO_ACID_DISPLAY_USEFUL_SCORE_MIN = 60;
   const METRIC_SHORT_LABELS = {
     saturated_fat_g: 'SAT FAT',
+    monounsaturated_fat_g: 'MONO FAT',
     polyunsaturated_fat_g: 'POLY FAT',
     omega3_mg: 'OMEGA 3',
     cholesterol_mg: 'CHOLEST.',

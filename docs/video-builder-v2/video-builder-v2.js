@@ -539,6 +539,7 @@
   };
   const METRIC_SHORT_LABELS = {
     saturated_fat_g: 'SAT FAT',
+    monounsaturated_fat_g: 'MONO FAT',
     polyunsaturated_fat_g: 'POLY FAT',
     omega3_mg: 'OMEGA 3',
     cholesterol_mg: 'CHOLEST.',
@@ -559,6 +560,7 @@
 
   const METRIC_SPEECH_TERMS = {
     saturated_fat_g: ['saturated fat', 'sat fat'],
+    monounsaturated_fat_g: ['monounsaturated fat', 'monounsaturated', 'mono fat'],
     polyunsaturated_fat_g: ['polyunsaturated fat', 'polyunsaturated', 'poly fat'],
     omega3_mg: ['omega 3', 'omega3'],
     cholesterol_mg: ['cholesterol'],

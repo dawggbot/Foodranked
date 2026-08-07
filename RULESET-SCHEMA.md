@@ -64,6 +64,7 @@ Source-backed numeric submacros must use `higher_better` or `higher_worse` with 
 Visible macro subrows may display `N/A` only when the main macro for that section also displays `N/A`.
 Any visible numeric subrow must resolve a red/green arrow band.
 Shared submacro metrics must keep the same polarity in every food type so viewers do not have to relearn arrow direction. Use category weights, thresholds, or `not_applicable` for food-type differences instead of flipping polarity.
+Monounsaturated fat is a canonical scored fat submetric when source-backed, but it may remain hidden from the v1 four-row fat display. Do not collapse low polyunsaturated fat into low unsaturated fat when MUFA is available.
 
 ## Main entities
 

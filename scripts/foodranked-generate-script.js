@@ -55,7 +55,13 @@ const PROTEIN_QUALITY_VISIBLE_METRIC_KEYS = new Set([
 ]);
 const LONG_MG_DISPLAY_METRIC_KEYS = new Set(['omega3_mg', 'cholesterol_mg']);
 const LONG_MG_DISPLAY_DIGITS = 5;
-const UNSATURATED_FAT_NARRATION_METRIC_KEYS = new Set(['omega3_mg', 'polyunsaturated_fat_g']);
+const MONOUNSATURATED_FAT_METRIC_KEY = 'monounsaturated_fat_g';
+const POLYUNSATURATED_FAT_METRIC_KEY = 'polyunsaturated_fat_g';
+const UNSATURATED_FAT_NARRATION_METRIC_KEYS = new Set([
+  'omega3_mg',
+  POLYUNSATURATED_FAT_METRIC_KEY,
+  MONOUNSATURATED_FAT_METRIC_KEY
+]);
 const ZERO_CHOLESTEROL_NARRATION_RELEVANT_FOOD_TYPES = new Set(['dairy', 'meats']);
 const LOW_FAT_UNSATURATED_NARRATION_MAX_FAT_G = 1;
 const CLOSING_USE_CASE_LIMIT = 2;
@@ -76,6 +82,7 @@ const MACRO_SECTION_SUBMACRO_KEYS = {
 };
 const DEFAULT_SUBMACRO_POLARITIES = {
   saturated_fat_g: 'higher_worse',
+  monounsaturated_fat_g: 'higher_better',
   polyunsaturated_fat_g: 'higher_better',
   omega3_mg: 'higher_better',
   cholesterol_mg: 'higher_worse',
@@ -90,6 +97,7 @@ const DEFAULT_SUBMACRO_POLARITIES = {
 };
 const SUBMACRO_DISPLAY_DEFAULT_VALUES = {
   saturated_fat_g: 0,
+  monounsaturated_fat_g: 0,
   polyunsaturated_fat_g: 0,
   omega3_mg: 0,
   cholesterol_mg: 0,
@@ -134,6 +142,7 @@ const DEFAULT_HIGHER_WORSE_BANDS = [
 ];
 const METRIC_DISPLAY_NAMES = {
   protein_g_fallback: 'protein amount',
+  monounsaturated_fat_g: 'monounsaturated fat',
   vitamin_b12_dv: 'vitamin B12',
   vitamin_b_dv: 'vitamin B12',
   vitamin_a_dv: 'vitamin A',
@@ -265,15 +274,15 @@ function metricValueText(metric) {
   if (metric.value === null || metric.value === undefined) return null;
 
   const key = String(metric.metricKey || '');
-  if (key === 'protein_g_fallback' || key.endsWith('_g')) return `${metric.value}g`;
-  if (key.endsWith('_mg')) return `${metric.value}mg`;
-  if (key.endsWith('_mcg')) return `${metric.value}mcg`;
-  if (key.endsWith('_kg')) return `${metric.value}kg`;
-  if (key.endsWith('_percent')) return `${metric.value}%`;
-  if (key === 'essential_amino_acids_score') return `${metric.value}/${metric.denominator || 9}`;
-  if (key === 'nonessential_amino_acids_score') return `${metric.value}/${metric.denominator || 11}`;
-  if (key.endsWith('_score')) return `${metric.value}/10`;
-  if (/glycemic/i.test(key)) return `${metric.value} GI`;
+  if (key === 'protein_g_fallback' || key.endsWith('_g')) return `${displayNumberText(metric.value)}g`;
+  if (key.endsWith('_mg')) return `${displayNumberText(metric.value)}mg`;
+  if (key.endsWith('_mcg')) return `${displayNumberText(metric.value)}mcg`;
+  if (key.endsWith('_kg')) return `${displayNumberText(metric.value)}kg`;
+  if (key.endsWith('_percent')) return `${displayNumberText(metric.value)}%`;
+  if (key === 'essential_amino_acids_score') return `${displayNumberText(metric.value, 0)}/${metric.denominator || 9}`;
+  if (key === 'nonessential_amino_acids_score') return `${displayNumberText(metric.value, 0)}/${metric.denominator || 11}`;
+  if (key.endsWith('_score')) return `${displayNumberText(metric.value, 0)}/10`;
+  if (/glycemic/i.test(key)) return `${displayNumberText(metric.value, 0)} GI`;
   return String(metric.value);
 }
 
@@ -739,6 +748,28 @@ function isLowFatUnsaturatedNarrationWeakness(result, sectionKey, metric) {
   return (metricSectionScore(metric) ?? 100) < 50;
 }
 
+function narrationMetricByKey(result, sectionKey, metricKey) {
+  return macroNarrationMetrics(result, sectionKey)
+    .find(metric => metric.metricKey === metricKey && metricHasDefensibleValue(metric))
+    || null;
+}
+
+function monounsaturatedFatCompanionLine(result, selectedMetrics = []) {
+  const selected = (selectedMetrics || []).filter(Boolean);
+  const mentionsPoly = selected.some(metric => metric.metricKey === POLYUNSATURATED_FAT_METRIC_KEY);
+  const mentionsMono = selected.some(metric => metric.metricKey === MONOUNSATURATED_FAT_METRIC_KEY);
+  if (!mentionsPoly || mentionsMono) return null;
+
+  const mono = narrationMetricByKey(result, 'fats', MONOUNSATURATED_FAT_METRIC_KEY);
+  if (!mono) return null;
+
+  const monoScore = metricSectionScore(mono);
+  if (monoScore !== null && monoScore >= 60) {
+    return `${metricValuePhrase(mono)}, so low polyunsaturated fat does not mean low unsaturated fat overall`;
+  }
+  return `${metricValuePhrase(mono)}, keeping the unsaturated-fat picture separate from polyunsaturated fat alone`;
+}
+
 function outstandingMacroMetrics(result, sectionKey, limit = 4) {
   if (macroSectionDisplaysNa(result, sectionKey)) return [];
 
@@ -895,7 +926,8 @@ function strongestMetricLine(result, sectionKey) {
     const omega3 = metrics.find(metric => metric.metricKey === 'omega3_mg' && (metric.value || 0) > 0 && metric.weightedScore > 0);
     const saturatedFat = metrics.find(metric => metric.metricKey === 'saturated_fat_g' && (metric.value || 0) > 0);
     const cholesterol = metrics.find(metric => metric.metricKey === 'cholesterol_mg');
-    const polyunsaturatedFat = metrics.find(metric => metric.metricKey === 'polyunsaturated_fat_g' && metric.weightedScore > 0);
+    const polyunsaturatedFat = metrics.find(metric => metric.metricKey === POLYUNSATURATED_FAT_METRIC_KEY && metric.weightedScore > 0);
+    const monounsaturatedFat = metrics.find(metric => metric.metricKey === MONOUNSATURATED_FAT_METRIC_KEY && metric.weightedScore > 0);
 
     if (foodType === 'meats') {
       if (saturatedFat && (saturatedFat.value || 0) >= 8) return `${metricValuePhrase(saturatedFat)}, a big downside`;
@@ -908,6 +940,7 @@ function strongestMetricLine(result, sectionKey) {
 
     if (foodType === 'oils-and-fats') {
       if (saturatedFat && (saturatedFat.value || 0) >= 20) return `${metricValuePhrase(saturatedFat)}, a big downside`;
+      if (monounsaturatedFat && (!saturatedFat || (saturatedFat.value || 0) <= 18)) return `${metricValuePhrase(monounsaturatedFat)}, doing a lot of the fat-quality work here`;
       if (polyunsaturatedFat && (!saturatedFat || (saturatedFat.value || 0) <= 15)) return `${metricValuePhrase(polyunsaturatedFat)}, doing most of the work here`;
     }
 
@@ -917,6 +950,7 @@ function strongestMetricLine(result, sectionKey) {
       : `${metricValuePhrase(omega3)}, helping a lot here`;
     if (saturatedFat) return `${metricValuePhrase(saturatedFat)}, a big downside`;
     if (cholesterol && (cholesterol.value || 0) >= 100) return `${metricValuePhrase(cholesterol)}, adding to the tradeoff`;
+    if (monounsaturatedFat) return `${metricValuePhrase(monounsaturatedFat)}, one of the better parts of the profile`;
     if (polyunsaturatedFat) return `${metricValuePhrase(polyunsaturatedFat)}, one of the better parts of the profile`;
   }
 
@@ -975,6 +1009,7 @@ function bestMetricContext(metric, sectionKey) {
   const key = metric?.metricKey;
   const contexts = {
     saturated_fat_g: 'supporting a cleaner fat profile',
+    monounsaturated_fat_g: 'supporting the unsaturated-fat profile',
     polyunsaturated_fat_g: 'helping with cell structure and healthy signalling',
     omega3_mg: 'supporting a more useful fat profile',
     cholesterol_mg: 'keeping the fat tradeoff lighter',
@@ -1015,7 +1050,8 @@ function weakMetricImpactContext(metric, sectionKey) {
   }
   const contexts = {
     saturated_fat_g: 'working against a cleaner fat profile',
-    polyunsaturated_fat_g: 'not adding much useful unsaturated fat',
+    monounsaturated_fat_g: 'not adding much monounsaturated-fat support',
+    polyunsaturated_fat_g: 'not adding much polyunsaturated-fat support',
     omega3_mg: 'not adding much omega 3',
     cholesterol_mg: 'adding to the cardiovascular tradeoff',
     fibre_g: 'with only modest fullness and digestion support',
@@ -1161,7 +1197,7 @@ function compareMetricsByStrength(a, b) {
 function weakFallbackPriority(metric, sectionKey) {
   if (!metric) return 99;
   if (metric.polarity === 'higher_better') return 0;
-  if (sectionKey === 'fats' && ['omega3_mg', 'polyunsaturated_fat_g'].includes(metric.metricKey)) return 0;
+  if (sectionKey === 'fats' && ['omega3_mg', POLYUNSATURATED_FAT_METRIC_KEY, MONOUNSATURATED_FAT_METRIC_KEY].includes(metric.metricKey)) return 0;
   return 1;
 }
 
@@ -1301,9 +1337,13 @@ function outstandingMacroLine(result, sectionKey) {
   const best = strongestPositiveMetric(metrics) || strongestAvailableMetric(metrics);
   const weakCandidates = weakNarrationMetrics(result, metrics, sectionKey, best);
   const weakest = weakestOutstandingMetric(weakCandidates, best) || weakestAvailableMetric(weakCandidates, best, sectionKey);
+  const companion = sectionKey === 'fats'
+    ? monounsaturatedFatCompanionLine(result, [best, weakest])
+    : null;
   return joinShort([
     bestAvailableMetricLine(best, sectionKey),
-    secondMetricLine(weakest, result, sectionKey)
+    secondMetricLine(weakest, result, sectionKey),
+    companion
   ]).replace(/[.]$/g, '');
 }
 
@@ -1507,6 +1547,7 @@ function shortContextTitle(item) {
 
 function shortMetricLabel(metricKey) {
   return formatMetricKey(metricKey)
+    .replace(/monounsaturated fat/i, 'fat quality')
     .replace(/polyunsaturated fat/i, 'fat quality')
     .replace(/protein g fallback/i, 'protein')
     .replace(/essential amino acids score/i, 'protein quality')
@@ -1531,7 +1572,8 @@ function positiveSectionHighlight(result, sectionKey) {
   if (sectionKey === 'fats' && score >= 55) {
     if (result.food.foodType === 'oils-and-fats') return 'fat quality';
     if (metrics.find(metric => metric.metricKey === 'omega3_mg' && (metric.value || 0) >= 100)) return 'omega 3';
-    if (metrics.find(metric => metric.metricKey === 'polyunsaturated_fat_g' && (metric.value || 0) >= 2)) return 'fat quality';
+    if (metrics.find(metric => metric.metricKey === MONOUNSATURATED_FAT_METRIC_KEY && (metric.value || 0) >= 5)) return 'fat quality';
+    if (metrics.find(metric => metric.metricKey === POLYUNSATURATED_FAT_METRIC_KEY && (metric.value || 0) >= 2)) return 'fat quality';
   }
 
   if (sectionKey === 'carbs' && score >= 55) {
@@ -1594,7 +1636,8 @@ function rankedFoodUseCases(result) {
   const proteinG = metricNumberForSummary(result, 'protein_g') ?? 0;
   const fibreG = metricNumberForSummary(result, 'fibre_g') ?? 0;
   const omega3Mg = metricNumberForSummary(result, 'omega3_mg') ?? 0;
-  const polyunsaturatedFatG = metricNumberForSummary(result, 'polyunsaturated_fat_g') ?? 0;
+  const monounsaturatedFatG = metricNumberForSummary(result, MONOUNSATURATED_FAT_METRIC_KEY) ?? 0;
+  const polyunsaturatedFatG = metricNumberForSummary(result, POLYUNSATURATED_FAT_METRIC_KEY) ?? 0;
   const saturatedFatG = metricNumberForSummary(result, 'saturated_fat_g') ?? 0;
   const vitaminC = metricNumberForSummary(result, 'vitamin_c_dv') ?? 0;
   const vitaminA = metricNumberForSummary(result, 'vitamin_a_dv') ?? 0;
@@ -1620,7 +1663,7 @@ function rankedFoodUseCases(result) {
 
   const hormoneFatCase = fatsScore >= 55 && (
     (type === 'oils-and-fats' && fatG >= 15 && saturatedFatG <= 20)
-    || (saturatedFatG <= 8 && (polyunsaturatedFatG >= 2 || omega3Mg >= 100 || fatG >= 5))
+    || (saturatedFatG <= 8 && (polyunsaturatedFatG >= 2 || monounsaturatedFatG >= 5 || omega3Mg >= 100 || fatG >= 5))
   );
   if (hormoneFatCase) {
     addUseCase(
@@ -1630,7 +1673,7 @@ function rankedFoodUseCases(result) {
       type === 'oils-and-fats'
         ? 'fat quality is the main reason to use it when portions stay controlled'
         : 'the fat section has enough useful fats for a support role',
-      fatsScore + polyunsaturatedFatG + (omega3Mg / 100)
+      fatsScore + polyunsaturatedFatG + (monounsaturatedFatG / 2) + (omega3Mg / 100)
     );
   }
 
@@ -1663,7 +1706,7 @@ function rankedFoodUseCases(result) {
     && fatsScore >= 55
     && saturatedFatG <= 16
     && /\b(polyphenol|olive|unsaturated|evoo|fat quality)\b/.test(`${prosText} ${consText}`);
-  const heartFromFatQuality = fatsScore >= 65 && saturatedFatG <= 2 && polyunsaturatedFatG >= 4;
+  const heartFromFatQuality = fatsScore >= 65 && saturatedFatG <= 4 && (polyunsaturatedFatG >= 4 || monounsaturatedFatG >= 10);
   if (heartFromFibre || heartFromOmega || heartFromOilQuality || heartFromFatQuality) {
     const reason = heartFromFibre
       ? 'fibre is useful for heart health'
@@ -1672,7 +1715,7 @@ function rankedFoodUseCases(result) {
         : heartFromOmega
           ? 'omega 3 helps the fat-quality story without a big saturated-fat tradeoff'
           : 'fat quality is useful for heart health';
-    addUseCase(cases, 'heart_health', 'heart health', reason, fatsScore + carbsScore + fibreG * 4 + (omega3Mg / 100));
+    addUseCase(cases, 'heart_health', 'heart health', reason, fatsScore + carbsScore + fibreG * 4 + (monounsaturatedFatG / 2) + (omega3Mg / 100));
   }
 
   if (potassium >= 10) {

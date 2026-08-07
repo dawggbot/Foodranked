@@ -67,6 +67,7 @@ const LABEL_SCORES = {
 };
 const EXPECTED_METRIC_POLARITIES = {
   saturated_fat_g: 'higher_worse',
+  monounsaturated_fat_g: 'higher_better',
   polyunsaturated_fat_g: 'higher_better',
   omega3_mg: 'higher_better',
   cholesterol_mg: 'higher_worse',

@@ -110,6 +110,7 @@ This file defines the **11 FoodRanked food types** and their category logic.
 - Icon / sprite idea: shell crest, nut emblem, woodland token
 - Main nutritional priorities:
   - omega 3
+  - monounsaturated fat
   - polyunsaturated fat
   - fibre
   - useful protein submetrics
@@ -129,6 +130,7 @@ This file defines the **11 FoodRanked food types** and their category logic.
 - Icon / sprite idea: seed pod, sand rune, grain mote cluster
 - Main nutritional priorities:
   - omega 3
+  - monounsaturated fat
   - polyunsaturated fat
   - fibre
   - minerals
@@ -183,6 +185,7 @@ This file defines the **11 FoodRanked food types** and their category logic.
 - Icon / sprite idea: oil drop, bottle icon, golden vial
 - Main nutritional priorities:
   - omega 3
+  - monounsaturated fat
   - polyunsaturated fat
   - low saturated fat
   - useful cholesterol profile where relevant
@@ -226,6 +229,7 @@ Prefer this over radically different top-level score formulas per category.
 ### Usually relevant across many plant categories
 - saturated fat
 - omega 3
+- monounsaturated fat
 - polyunsaturated fat
 - starch
 - fibre
@@ -237,6 +241,7 @@ Prefer this over radically different top-level score formulas per category.
 ### Usually relevant across many animal categories
 - saturated fat
 - omega 3
+- monounsaturated fat
 - polyunsaturated fat
 - cholesterol
 - collagen

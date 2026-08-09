@@ -15,7 +15,7 @@ This folder is the GitHub-facing catalogue for generated narration files. The MP
 [Greek Yogurt](greek-yogurt.md) | `voice-v1` | `split-blocks` | 161.8s | 11 | 14 | 12 | 15
 [Hazelnuts](hazelnuts.md) | `voice-v1` | `split-blocks` | 143.8s | 11 | 13 | 12 | 15
 [Kale](kale.md) | `voice-v7` | `split-blocks` | 155.2s | 11 | 86 | 84 | 87
-[Macadamia Nuts](macadamia.md) |  |  |  |  | 2 | 0 | 3
+[Macadamia Nuts](macadamia.md) | `voice-v1` | `split-blocks` | 108.0s | 11 | 14 | 12 | 4
 [Oats](oats.md) |  |  |  |  | 2 | 0 | 3
 [Plums](plums.md) | `voice-v2` | `split-blocks` | 160.1s | 11 | 25 | 24 | 27
 [Raspberries](raspberries.md) | `voice-v4` | `split-blocks` | 126.2s | 11 | 50 | 48 | 51

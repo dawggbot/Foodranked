@@ -274,6 +274,14 @@
     "sizeBytes": 12920
   },
   {
+    "id": "audio.episodes.macadamia.voice.v1.blocks",
+    "label": "Voice V1 Blocks",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/macadamia/voice-v1-blocks.json",
+    "mimeType": "application/json",
+    "sizeBytes": 10810
+  },
+  {
     "id": "audio.episodes.plums.voice.v1.blocks",
     "label": "Voice V1 Blocks",
     "kind": "audio-manifest",
@@ -343,7 +351,7 @@
     "kind": "data",
     "path": "data/foods-index.js",
     "mimeType": "text/javascript",
-    "sizeBytes": 8459509
+    "sizeBytes": 8460893
   },
   {
     "id": "data.foods.index.json",
@@ -351,7 +359,7 @@
     "kind": "data",
     "path": "data/foods-index.json",
     "mimeType": "application/json",
-    "sizeBytes": 14941345
+    "sizeBytes": 14943243
   },
   {
     "id": "data.foods.acorns.sample",
@@ -5104,6 +5112,94 @@
     "path": "audio/episodes/kale/voice-v7-blocks/11-final_reveal.mp3",
     "mimeType": "audio/mpeg",
     "sizeBytes": 15090
+  },
+  {
+    "id": "audio.episodes.macadamia.voice.v1.blocks.01.hook.food",
+    "label": "01 Hook Food",
+    "kind": "narration-audio",
+    "path": "audio/episodes/macadamia/voice-v1-blocks/01-hook_food.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 18016
+  },
+  {
+    "id": "audio.episodes.macadamia.voice.v1.blocks.02.hook.ranked",
+    "label": "02 Hook Ranked",
+    "kind": "narration-audio",
+    "path": "audio/episodes/macadamia/voice-v1-blocks/02-hook_ranked.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 12164
+  },
+  {
+    "id": "audio.episodes.macadamia.voice.v1.blocks.03.fats",
+    "label": "03 Fats",
+    "kind": "narration-audio",
+    "path": "audio/episodes/macadamia/voice-v1-blocks/03-fats.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 234937
+  },
+  {
+    "id": "audio.episodes.macadamia.voice.v1.blocks.04.carbs",
+    "label": "04 Carbs",
+    "kind": "narration-audio",
+    "path": "audio/episodes/macadamia/voice-v1-blocks/04-carbs.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 229085
+  },
+  {
+    "id": "audio.episodes.macadamia.voice.v1.blocks.05.proteins",
+    "label": "05 Proteins",
+    "kind": "narration-audio",
+    "path": "audio/episodes/macadamia/voice-v1-blocks/05-proteins.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 209023
+  },
+  {
+    "id": "audio.episodes.macadamia.voice.v1.blocks.06.vitamins",
+    "label": "06 Vitamins",
+    "kind": "narration-audio",
+    "path": "audio/episodes/macadamia/voice-v1-blocks/06-vitamins.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 51035
+  },
+  {
+    "id": "audio.episodes.macadamia.voice.v1.blocks.07.minerals",
+    "label": "07 Minerals",
+    "kind": "narration-audio",
+    "path": "audio/episodes/macadamia/voice-v1-blocks/07-minerals.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 156360
+  },
+  {
+    "id": "audio.episodes.macadamia.voice.v1.blocks.08.pros",
+    "label": "08 Pros",
+    "kind": "narration-audio",
+    "path": "audio/episodes/macadamia/voice-v1-blocks/08-pros.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 269209
+  },
+  {
+    "id": "audio.episodes.macadamia.voice.v1.blocks.09.cons",
+    "label": "09 Cons",
+    "kind": "narration-audio",
+    "path": "audio/episodes/macadamia/voice-v1-blocks/09-cons.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 263358
+  },
+  {
+    "id": "audio.episodes.macadamia.voice.v1.blocks.10.closing.summary",
+    "label": "10 Closing Summary",
+    "kind": "narration-audio",
+    "path": "audio/episodes/macadamia/voice-v1-blocks/10-closing_summary.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 264194
+  },
+  {
+    "id": "audio.episodes.macadamia.voice.v1.blocks.11.final.reveal",
+    "label": "11 Final Reveal",
+    "kind": "narration-audio",
+    "path": "audio/episodes/macadamia/voice-v1-blocks/11-final_reveal.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 12164
   },
   {
     "id": "audio.episodes.plums.voice.v1.blocks.01.hook.food",

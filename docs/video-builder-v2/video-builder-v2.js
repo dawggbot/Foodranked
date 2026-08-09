@@ -8885,7 +8885,11 @@
     const splitAudio = food?.episode?.splitAudio || food?.splitAudio || null;
     if (!splitAudio?.manifestPath) return false;
     if (state.splitAudioManifestHydrated.has(splitAudioManifestKey(food, splitAudio))) return false;
-    return splitAudio.mode !== 'split-blocks' || !Array.isArray(splitAudio.blocks) || splitAudio.blocks.length === 0;
+    const blocks = Array.isArray(splitAudio.blocks) ? splitAudio.blocks : [];
+    if (splitAudio.mode !== 'split-blocks' || blocks.length === 0) return true;
+    const manifestPath = normalizeManifestAudioPath(splitAudio.manifestPath);
+    if (!manifestPath.startsWith('/studio-data/')) return false;
+    return blocks.some(block => !normalizeManifestAudioPath(block.path || block.audioFile || '').startsWith('/studio-data/'));
   }
 
   function hydratedSplitAudioForFood(food, splitAudio = null) {

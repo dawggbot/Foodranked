@@ -1388,6 +1388,75 @@ function agentSyncSubdirForKind(kind) {
   return 'assets';
 }
 
+function normalizeSplitAudioManifestPath(value) {
+  const clean = cleanString(value).replace(/\\/g, '/');
+  if (!clean) return '';
+  if (clean.startsWith('docs/')) return clean.slice('docs/'.length);
+  if (clean.startsWith('studio-data/')) return `/${clean}`;
+  return clean;
+}
+
+function splitAudioFromManifestBuffer(buffer, manifestPath, existing = {}, take = '') {
+  let manifest = null;
+  try {
+    manifest = JSON.parse(buffer.toString('utf8'));
+  } catch {
+    throw new Error('Split-audio asset must be a JSON manifest.');
+  }
+
+  const blocks = Array.isArray(manifest.blocks) ? manifest.blocks : [];
+  if (!blocks.length) throw new Error('Split-audio manifest has no blocks.');
+
+  const blockGapSeconds = finiteNumber(
+    manifest.blockGapSeconds ?? existing.blockGapSeconds,
+    0.08
+  );
+  let cursor = 0;
+  const normalizedBlocks = blocks.map((block, index) => {
+    const audioPath = normalizeSplitAudioManifestPath(block.path || block.audioFile);
+    const durationSeconds = finiteNumber(block.durationSeconds ?? block.mediaDurationSeconds, null);
+    const explicitOffsetSeconds = finiteNumber(block.offsetSeconds, null);
+    const offsetSeconds = explicitOffsetSeconds ?? (durationSeconds != null ? cursor : null);
+    if (durationSeconds != null && durationSeconds > 0 && offsetSeconds != null) {
+      cursor = offsetSeconds + durationSeconds + blockGapSeconds;
+    }
+    return {
+      id: cleanString(block.id),
+      index: finiteNumber(block.index, index),
+      kind: cleanString(block.kind),
+      sectionKey: cleanString(block.sectionKey) || null,
+      path: audioPath,
+      productionPath: cleanString(block.productionPath || block.productionAudioFile) || null,
+      text: cleanString(block.text),
+      offsetSeconds,
+      durationSeconds,
+      mediaDurationSeconds: finiteNumber(block.mediaDurationSeconds, null)
+    };
+  }).filter(block => block.path && block.offsetSeconds != null && block.durationSeconds != null && block.durationSeconds > 0);
+
+  if (!normalizedBlocks.length) throw new Error('Split-audio manifest has no playable blocks.');
+  const inferredDurationSeconds = Math.max(...normalizedBlocks.map(block => block.offsetSeconds + block.durationSeconds));
+  return {
+    mode: 'split-blocks',
+    take: cleanString(take || manifest.take || existing.take) || 'agent-sync',
+    manifestPath,
+    productionManifestPath: cleanString(manifest.productionManifestPath || manifest.productionAudioManifestFile || existing.productionManifestPath) || null,
+    profileId: cleanString(manifest.profileId || manifest.settings?.profileId || existing.profileId) || null,
+    voiceLabel: cleanString(manifest.voice?.label || manifest.voiceLabel || manifest.settings?.voiceLabel || existing.voiceLabel) || null,
+    modelId: cleanString(manifest.modelId || manifest.settings?.modelId || existing.modelId) || null,
+    generatedAt: cleanString(manifest.generatedAt || existing.generatedAt) || null,
+    blockCount: finiteNumber(manifest.blockCount, normalizedBlocks.length),
+    blockGapSeconds,
+    durationSeconds: finiteNumber(manifest.durationSeconds ?? existing.durationSeconds, inferredDurationSeconds),
+    pronunciationOverrides: Array.isArray(manifest.pronunciationOverrides)
+      ? manifest.pronunciationOverrides
+      : Array.isArray(existing.pronunciationOverrides)
+        ? existing.pronunciationOverrides
+        : [],
+    blocks: normalizedBlocks
+  };
+}
+
 function baseInputFoodShell(foodId, body = {}) {
   const base = findFood(foodId) || {};
   return {
@@ -1484,15 +1553,17 @@ function writeAgentSyncAsset(body, buffer) {
         }
       };
     } else if (rawKind === 'split-audio' || rawKind === 'splitAudio') {
+      const splitAudioManifest = splitAudioFromManifestBuffer(
+        buffer,
+        publicPath,
+        food.episode?.splitAudio || {},
+        cleanString(body.take) || ''
+      );
       food.splitAudioManifestPath = publicPath;
       food.library.splitAudioManifestPath = publicPath;
       food.episode = {
         ...(food.episode || {}),
-        splitAudio: {
-          ...(food.episode?.splitAudio || {}),
-          manifestPath: publicPath,
-          take: cleanString(body.take) || food.episode?.splitAudio?.take || 'agent-sync'
-        }
+        splitAudio: splitAudioManifest
       };
     } else if (rawKind === 'script') {
       food.library.scriptAssetPath = publicPath;

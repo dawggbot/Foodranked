@@ -343,7 +343,7 @@
     "kind": "data",
     "path": "data/foods-index.js",
     "mimeType": "text/javascript",
-    "sizeBytes": 8345218
+    "sizeBytes": 8459509
   },
   {
     "id": "data.foods.index.json",
@@ -351,7 +351,7 @@
     "kind": "data",
     "path": "data/foods-index.json",
     "mimeType": "application/json",
-    "sizeBytes": 14635021
+    "sizeBytes": 14941345
   },
   {
     "id": "data.foods.acorns.sample",
@@ -6024,6 +6024,14 @@
     "path": "app/sprites/header/food_images/kale.png",
     "mimeType": "image/png",
     "sizeBytes": 796
+  },
+  {
+    "id": "app.sprites.header.food.images.macadamia",
+    "label": "Macadamia",
+    "kind": "sprite",
+    "path": "app/sprites/header/food_images/macadamia.png",
+    "mimeType": "image/png",
+    "sizeBytes": 2110
   },
   {
     "id": "app.sprites.header.food.images.raspberries",

@@ -23,4 +23,5 @@ This folder is the GitHub-facing catalogue for generated narration files. The MP
 [Rice Cakes](rice-cakes.md) |  |  |  |  | 2 | 0 | 3
 [Salmon](salmon.md) |  |  |  |  | 2 | 0 | 3
 [Sweet Potato](sweet-potato.md) |  |  |  |  | 2 | 0 | 3
+[Tater Tots](tater-tots.md) | `voice-v1` | `split-blocks` | 108.9s | 11 | 13 | 12 | 4
 [White Potato](white-potato.md) | `voice-v1` | `split-blocks` | 119.3s | 11 | 13 | 12 | 15

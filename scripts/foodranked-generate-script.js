@@ -1915,7 +1915,7 @@ function buildClosing(result) {
 }
 
 function finalRevealForTier(tier) {
-  return String(tier || '').trim().toLowerCase() === 'slop' ? 'SLOP' : `${tier} tier.`;
+  return String(tier || '').trim().toLowerCase() === 'slop' ? 'Slop tier.' : `${tier} tier.`;
 }
 
 function sectionNarration(result, sectionKey) {

@@ -330,6 +330,14 @@
     "sizeBytes": 12377
   },
   {
+    "id": "audio.episodes.tater.tots.voice.v1.blocks",
+    "label": "Voice V1 Blocks",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/tater-tots/voice-v1-blocks.json",
+    "mimeType": "application/json",
+    "sizeBytes": 14410
+  },
+  {
     "id": "audio.episodes.white.potato.voice.v1.blocks",
     "label": "Voice V1 Blocks",
     "kind": "audio-manifest",
@@ -5730,6 +5738,94 @@
     "sizeBytes": 12164
   },
   {
+    "id": "audio.episodes.tater.tots.voice.v1.blocks.01.hook.food",
+    "label": "01 Hook Food",
+    "kind": "narration-audio",
+    "path": "audio/episodes/tater-tots/voice-v1-blocks/01-hook_food.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 15925
+  },
+  {
+    "id": "audio.episodes.tater.tots.voice.v1.blocks.02.hook.ranked",
+    "label": "02 Hook Ranked",
+    "kind": "narration-audio",
+    "path": "audio/episodes/tater-tots/voice-v1-blocks/02-hook_ranked.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 11327
+  },
+  {
+    "id": "audio.episodes.tater.tots.voice.v1.blocks.03.fats",
+    "label": "03 Fats",
+    "kind": "narration-audio",
+    "path": "audio/episodes/tater-tots/voice-v1-blocks/03-fats.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 214874
+  },
+  {
+    "id": "audio.episodes.tater.tots.voice.v1.blocks.04.carbs",
+    "label": "04 Carbs",
+    "kind": "narration-audio",
+    "path": "audio/episodes/tater-tots/voice-v1-blocks/04-carbs.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 290106
+  },
+  {
+    "id": "audio.episodes.tater.tots.voice.v1.blocks.05.proteins",
+    "label": "05 Proteins",
+    "kind": "narration-audio",
+    "path": "audio/episodes/tater-tots/voice-v1-blocks/05-proteins.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 139223
+  },
+  {
+    "id": "audio.episodes.tater.tots.voice.v1.blocks.06.vitamins",
+    "label": "06 Vitamins",
+    "kind": "narration-audio",
+    "path": "audio/episodes/tater-tots/voice-v1-blocks/06-vitamins.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 97009
+  },
+  {
+    "id": "audio.episodes.tater.tots.voice.v1.blocks.07.minerals",
+    "label": "07 Minerals",
+    "kind": "narration-audio",
+    "path": "audio/episodes/tater-tots/voice-v1-blocks/07-minerals.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 137133
+  },
+  {
+    "id": "audio.episodes.tater.tots.voice.v1.blocks.08.pros",
+    "label": "08 Pros",
+    "kind": "narration-audio",
+    "path": "audio/episodes/tater-tots/voice-v1-blocks/08-pros.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 272970
+  },
+  {
+    "id": "audio.episodes.tater.tots.voice.v1.blocks.09.cons",
+    "label": "09 Cons",
+    "kind": "narration-audio",
+    "path": "audio/episodes/tater-tots/voice-v1-blocks/09-cons.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 287181
+  },
+  {
+    "id": "audio.episodes.tater.tots.voice.v1.blocks.10.closing.summary",
+    "label": "10 Closing Summary",
+    "kind": "narration-audio",
+    "path": "audio/episodes/tater-tots/voice-v1-blocks/10-closing_summary.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 254998
+  },
+  {
+    "id": "audio.episodes.tater.tots.voice.v1.blocks.11.final.reveal",
+    "label": "11 Final Reveal",
+    "kind": "narration-audio",
+    "path": "audio/episodes/tater-tots/voice-v1-blocks/11-final_reveal.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 13835
+  },
+  {
     "id": "audio.episodes.white.potato.voice.v1.blocks.01.hook.food",
     "label": "01 Hook Food",
     "kind": "narration-audio",
@@ -6136,6 +6232,14 @@
     "path": "app/sprites/header/food_images/raspberries.png",
     "mimeType": "image/png",
     "sizeBytes": 2346
+  },
+  {
+    "id": "app.sprites.header.food.images.tater.tots",
+    "label": "Tater Tots",
+    "kind": "sprite",
+    "path": "app/sprites/header/food_images/tater-tots.png",
+    "mimeType": "image/png",
+    "sizeBytes": 1847
   },
   {
     "id": "app.sprites.header.food.images.white.potato",

@@ -1,19 +1,20 @@
 {
   "schemaVersion": "foodranked-agent-sync-index.v1",
-  "updatedAt": "2026-08-09T00:00:00Z",
+  "updatedAt": "2026-08-09T09:17:22Z",
   "repoRawBaseUrl": "https://raw.githubusercontent.com/dawggbot/Foodranked/main/",
   "jobs": [
     {
       "id": "macadamia-full-entry-sprite-update-20260809",
-      "title": "Macadamia full entry and sprite update",
-      "description": "Install the approved Macadamia Nuts compact episode data and attach the 30x30 food image sprite in the local Studio app.",
+      "title": "Macadamia full entry, sprite, and narration update",
+      "description": "Install the approved Macadamia Nuts compact episode data, attach the 30x30 food image sprite, and download the final narration text in the local Studio app.",
       "status": "ready",
       "foodId": "macadamia",
       "createdAt": "2026-08-09T00:00:00Z",
-      "updatedAt": "2026-08-09T00:00:00Z",
+      "updatedAt": "2026-08-09T09:17:22Z",
       "tags": [
         "food-entry",
         "script",
+        "narration",
         "sprite",
         "food-image",
         "agent-sync"
@@ -4167,8 +4168,10 @@
             "library": {
               "scriptText": "Macadamia Nuts!\n-\nRanked!\n-\n75.8 grams of fat. Omega 3 is 200 milligrams, the best number here but still not the best. Polyunsaturated fat is 1.5 grams, not adding much useful unsaturated fat, which is a real downside for nuts. For nuts, fat quality has to justify the calories.\n-\n13.8 grams of carbs. Glycemic index is 10, helping with steadier carb behaviour. Starch is 0 grams, not bringing much steady carb energy, so that's a small downside for nuts. For nuts, carbs matter most when sugar or fibre changes the balance.\n-\n7.9 grams of protein. Protein helps, but most people pick this for other reasons. Essential amino acids score is 0 out of 9, not giving much repair-and-maintenance protein support. For nuts, protein helps, but it is not the main thing.\n-\nVitamins are low overall. For nuts, vitamin E matters most.\n-\nMagnesium is 31% daily value, adding useful mineral support. Zinc is 13% daily value, not bringing much immune support. For nuts, minerals also help justify the calories.\n-\nThe upsides first: holds up as a better snack default than most packaged options. That real-world swap value counts. Texture helps them feel satisfying. That can make moderation easier than with softer snack foods. Still a recognisable whole-food option. That keeps them cleaner than most processed snacks.\n-\nThe drawbacks next: needs the right supporting foods. It works better as part of a fuller plate than as the whole answer. Portions are easy to overshoot. Dense or snackable formats punish casual serving sizes. Cost or allergy issues can limit use. Practical downsides still count.\n-\nBest bits are fibre, magnesium, and unsaturated fats. Even though polyunsaturated fats are low monounsaturated fats are high. Weak spots are low protein amount and low vitamin E. Best for digestion and heart health because fibre helps digestion and keeps meals steadier and fibre is useful for heart health.\n-\nC tier.",
               "uploadedAssets": {
-                "agent-sync.image.macadamia.macadamia": "/studio-data/uploads/images/macadamia/macadamia.png"
-              }
+                "agent-sync.image.macadamia.macadamia": "/studio-data/uploads/images/macadamia/macadamia.png",
+                "agent-sync.asset.macadamia.final-narration": "/studio-data/uploads/scripts/macadamia/final-narration.txt"
+              },
+              "scriptAssetPath": "/studio-data/uploads/scripts/macadamia/final-narration.txt"
             },
             "finalizedDownloaded": false,
             "status": {
@@ -4177,6 +4180,15 @@
               "agentSyncPreparedAt": "2026-08-09T00:00:00Z"
             }
           }
+        },
+        {
+          "type": "downloadAsset",
+          "label": "Macadamia final narration text",
+          "kind": "script",
+          "foodId": "macadamia",
+          "filename": "final-narration.txt",
+          "sourcePath": "production/episodes/macadamia/voice/final-narration.txt",
+          "attachToFood": true
         },
         {
           "type": "upsertScript",
@@ -5791,7 +5803,7 @@
           "foodId": "macadamia"
         }
       ],
-      "notes": "Adds Macadamia to Agent Sync after the app data commit. No narration audio is included yet; this installs the script/episode data and sprite."
+      "notes": "Adds Macadamia to Agent Sync after the app data commit. Installs the approved narration text and sprite; MP3 voice blocks still need a valid ElevenLabs API key to generate."
     },
     {
       "id": "regular-cola-sprite-update-20260807",

@@ -5,9 +5,11 @@ Food id: `raspberries`
 ## Active Take
 
 - Mode: `split-blocks`
-- Take: `voice-v3`
+- Take: `voice-v4`
+- Duration: `126.2s`
 - Blocks: `11`
-- Manifest: [docs/audio/episodes/raspberries/voice-v3-blocks.json](../../../docs/audio/episodes/raspberries/voice-v3-blocks.json)
+- Manifest: [docs/audio/episodes/raspberries/voice-v4-blocks.json](../../../docs/audio/episodes/raspberries/voice-v4-blocks.json)
+- Alignment: [outputs/episodes/raspberries-compact/voice-v4-blocks-forced-alignment.json](../../../outputs/episodes/raspberries-compact/voice-v4-blocks-forced-alignment.json)
 
 ## Takes
 
@@ -16,6 +18,7 @@ Food id: `raspberries`
 `voice-v1` | `split-blocks` | George - Warm, Captivating Storyteller | 11 | 2026-07-25T03:29:55.563Z | [voice-v1-blocks.json](../../../docs/audio/episodes/raspberries/voice-v1-blocks.json)
 `voice-v2` | `split-blocks` | Eryn - Informative, Neutral and Measured | 11 | 2026-07-27T11:40:38.897Z | [voice-v2-blocks.json](../../../docs/audio/episodes/raspberries/voice-v2-blocks.json)
 `voice-v3` | `split-blocks` | Eryn - Informative, Neutral and Measured | 11 | 2026-07-27T12:20:30.638Z | [voice-v3-blocks.json](../../../docs/audio/episodes/raspberries/voice-v3-blocks.json)
+`voice-v4` | `split-blocks` | George - Warm, Captivating Storyteller | 11 | 2026-07-30T14:58:41.837Z | [voice-v4-blocks.json](../../../docs/audio/episodes/raspberries/voice-v4-blocks.json)
 
 ## Pronunciation Overrides
 
@@ -23,6 +26,7 @@ Food id: `raspberries`
 | --- | --- | --- | --- | --- |
 `voice-v2` | `11-final_reveal` | `A tier.` | `Ay tier!` | Spell out the letter A sound so it is not read as the article "a".
 `voice-v3` | `11-final_reveal` | `A tier.` | `A-tier!` | Use the common hyphenated tier phrase so the letter A is not read as an article or as "I".
+`voice-v4` | `11-final_reveal` | `A tier.` | `A-tier!` | Use the common hyphenated tier phrase so the letter A is not read as an article or as "I".
 
 ## Files
 
@@ -66,6 +70,18 @@ Food id: `raspberries`
 - [production/episodes/raspberries/voice/voice-v3-blocks/09-cons.mp3](../../../production/episodes/raspberries/voice/voice-v3-blocks/09-cons.mp3)
 - [production/episodes/raspberries/voice/voice-v3-blocks/10-closing_summary.mp3](../../../production/episodes/raspberries/voice/voice-v3-blocks/10-closing_summary.mp3)
 - [production/episodes/raspberries/voice/voice-v3-blocks/11-final_reveal.mp3](../../../production/episodes/raspberries/voice/voice-v3-blocks/11-final_reveal.mp3)
+- [production/episodes/raspberries/voice/voice-v4-blocks.json](../../../production/episodes/raspberries/voice/voice-v4-blocks.json)
+- [production/episodes/raspberries/voice/voice-v4-blocks/01-hook_food.mp3](../../../production/episodes/raspberries/voice/voice-v4-blocks/01-hook_food.mp3)
+- [production/episodes/raspberries/voice/voice-v4-blocks/02-hook_ranked.mp3](../../../production/episodes/raspberries/voice/voice-v4-blocks/02-hook_ranked.mp3)
+- [production/episodes/raspberries/voice/voice-v4-blocks/03-fats.mp3](../../../production/episodes/raspberries/voice/voice-v4-blocks/03-fats.mp3)
+- [production/episodes/raspberries/voice/voice-v4-blocks/04-carbs.mp3](../../../production/episodes/raspberries/voice/voice-v4-blocks/04-carbs.mp3)
+- [production/episodes/raspberries/voice/voice-v4-blocks/05-proteins.mp3](../../../production/episodes/raspberries/voice/voice-v4-blocks/05-proteins.mp3)
+- [production/episodes/raspberries/voice/voice-v4-blocks/06-vitamins.mp3](../../../production/episodes/raspberries/voice/voice-v4-blocks/06-vitamins.mp3)
+- [production/episodes/raspberries/voice/voice-v4-blocks/07-minerals.mp3](../../../production/episodes/raspberries/voice/voice-v4-blocks/07-minerals.mp3)
+- [production/episodes/raspberries/voice/voice-v4-blocks/08-pros.mp3](../../../production/episodes/raspberries/voice/voice-v4-blocks/08-pros.mp3)
+- [production/episodes/raspberries/voice/voice-v4-blocks/09-cons.mp3](../../../production/episodes/raspberries/voice/voice-v4-blocks/09-cons.mp3)
+- [production/episodes/raspberries/voice/voice-v4-blocks/10-closing_summary.mp3](../../../production/episodes/raspberries/voice/voice-v4-blocks/10-closing_summary.mp3)
+- [production/episodes/raspberries/voice/voice-v4-blocks/11-final_reveal.mp3](../../../production/episodes/raspberries/voice/voice-v4-blocks/11-final_reveal.mp3)
 
 ### Docs Mirror
 
@@ -105,6 +121,18 @@ Food id: `raspberries`
 - [docs/audio/episodes/raspberries/voice-v3-blocks/09-cons.mp3](../../../docs/audio/episodes/raspberries/voice-v3-blocks/09-cons.mp3)
 - [docs/audio/episodes/raspberries/voice-v3-blocks/10-closing_summary.mp3](../../../docs/audio/episodes/raspberries/voice-v3-blocks/10-closing_summary.mp3)
 - [docs/audio/episodes/raspberries/voice-v3-blocks/11-final_reveal.mp3](../../../docs/audio/episodes/raspberries/voice-v3-blocks/11-final_reveal.mp3)
+- [docs/audio/episodes/raspberries/voice-v4-blocks.json](../../../docs/audio/episodes/raspberries/voice-v4-blocks.json)
+- [docs/audio/episodes/raspberries/voice-v4-blocks/01-hook_food.mp3](../../../docs/audio/episodes/raspberries/voice-v4-blocks/01-hook_food.mp3)
+- [docs/audio/episodes/raspberries/voice-v4-blocks/02-hook_ranked.mp3](../../../docs/audio/episodes/raspberries/voice-v4-blocks/02-hook_ranked.mp3)
+- [docs/audio/episodes/raspberries/voice-v4-blocks/03-fats.mp3](../../../docs/audio/episodes/raspberries/voice-v4-blocks/03-fats.mp3)
+- [docs/audio/episodes/raspberries/voice-v4-blocks/04-carbs.mp3](../../../docs/audio/episodes/raspberries/voice-v4-blocks/04-carbs.mp3)
+- [docs/audio/episodes/raspberries/voice-v4-blocks/05-proteins.mp3](../../../docs/audio/episodes/raspberries/voice-v4-blocks/05-proteins.mp3)
+- [docs/audio/episodes/raspberries/voice-v4-blocks/06-vitamins.mp3](../../../docs/audio/episodes/raspberries/voice-v4-blocks/06-vitamins.mp3)
+- [docs/audio/episodes/raspberries/voice-v4-blocks/07-minerals.mp3](../../../docs/audio/episodes/raspberries/voice-v4-blocks/07-minerals.mp3)
+- [docs/audio/episodes/raspberries/voice-v4-blocks/08-pros.mp3](../../../docs/audio/episodes/raspberries/voice-v4-blocks/08-pros.mp3)
+- [docs/audio/episodes/raspberries/voice-v4-blocks/09-cons.mp3](../../../docs/audio/episodes/raspberries/voice-v4-blocks/09-cons.mp3)
+- [docs/audio/episodes/raspberries/voice-v4-blocks/10-closing_summary.mp3](../../../docs/audio/episodes/raspberries/voice-v4-blocks/10-closing_summary.mp3)
+- [docs/audio/episodes/raspberries/voice-v4-blocks/11-final_reveal.mp3](../../../docs/audio/episodes/raspberries/voice-v4-blocks/11-final_reveal.mp3)
 
 ### Output And Alignment
 
@@ -147,3 +175,15 @@ Food id: `raspberries`
 - [outputs/episodes/raspberries-compact/voice-v3-blocks/09-cons-forced-alignment.json](../../../outputs/episodes/raspberries-compact/voice-v3-blocks/09-cons-forced-alignment.json)
 - [outputs/episodes/raspberries-compact/voice-v3-blocks/10-closing_summary-forced-alignment.json](../../../outputs/episodes/raspberries-compact/voice-v3-blocks/10-closing_summary-forced-alignment.json)
 - [outputs/episodes/raspberries-compact/voice-v3-blocks/11-final_reveal-forced-alignment.json](../../../outputs/episodes/raspberries-compact/voice-v3-blocks/11-final_reveal-forced-alignment.json)
+- [outputs/episodes/raspberries-compact/voice-v4-blocks-forced-alignment.json](../../../outputs/episodes/raspberries-compact/voice-v4-blocks-forced-alignment.json)
+- [outputs/episodes/raspberries-compact/voice-v4-blocks/01-hook_food-forced-alignment.json](../../../outputs/episodes/raspberries-compact/voice-v4-blocks/01-hook_food-forced-alignment.json)
+- [outputs/episodes/raspberries-compact/voice-v4-blocks/02-hook_ranked-forced-alignment.json](../../../outputs/episodes/raspberries-compact/voice-v4-blocks/02-hook_ranked-forced-alignment.json)
+- [outputs/episodes/raspberries-compact/voice-v4-blocks/03-fats-forced-alignment.json](../../../outputs/episodes/raspberries-compact/voice-v4-blocks/03-fats-forced-alignment.json)
+- [outputs/episodes/raspberries-compact/voice-v4-blocks/04-carbs-forced-alignment.json](../../../outputs/episodes/raspberries-compact/voice-v4-blocks/04-carbs-forced-alignment.json)
+- [outputs/episodes/raspberries-compact/voice-v4-blocks/05-proteins-forced-alignment.json](../../../outputs/episodes/raspberries-compact/voice-v4-blocks/05-proteins-forced-alignment.json)
+- [outputs/episodes/raspberries-compact/voice-v4-blocks/06-vitamins-forced-alignment.json](../../../outputs/episodes/raspberries-compact/voice-v4-blocks/06-vitamins-forced-alignment.json)
+- [outputs/episodes/raspberries-compact/voice-v4-blocks/07-minerals-forced-alignment.json](../../../outputs/episodes/raspberries-compact/voice-v4-blocks/07-minerals-forced-alignment.json)
+- [outputs/episodes/raspberries-compact/voice-v4-blocks/08-pros-forced-alignment.json](../../../outputs/episodes/raspberries-compact/voice-v4-blocks/08-pros-forced-alignment.json)
+- [outputs/episodes/raspberries-compact/voice-v4-blocks/09-cons-forced-alignment.json](../../../outputs/episodes/raspberries-compact/voice-v4-blocks/09-cons-forced-alignment.json)
+- [outputs/episodes/raspberries-compact/voice-v4-blocks/10-closing_summary-forced-alignment.json](../../../outputs/episodes/raspberries-compact/voice-v4-blocks/10-closing_summary-forced-alignment.json)
+- [outputs/episodes/raspberries-compact/voice-v4-blocks/11-final_reveal-forced-alignment.json](../../../outputs/episodes/raspberries-compact/voice-v4-blocks/11-final_reveal-forced-alignment.json)

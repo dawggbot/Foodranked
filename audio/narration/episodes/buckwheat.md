@@ -6,8 +6,10 @@ Food id: `buckwheat`
 
 - Mode: `split-blocks`
 - Take: `voice-v1`
+- Duration: `131.7s`
 - Blocks: `11`
 - Manifest: [docs/audio/episodes/buckwheat/voice-v1-blocks.json](../../../docs/audio/episodes/buckwheat/voice-v1-blocks.json)
+- Alignment: [outputs/episodes/buckwheat-compact/voice-v1-blocks-forced-alignment.json](../../../outputs/episodes/buckwheat-compact/voice-v1-blocks-forced-alignment.json)
 
 ## Takes
 

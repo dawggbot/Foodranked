@@ -6,8 +6,10 @@ Food id: `black-beans`
 
 - Mode: `split-blocks`
 - Take: `voice-v2`
+- Duration: `140.6s`
 - Blocks: `11`
 - Manifest: [docs/audio/episodes/black-beans/voice-v2-blocks.json](../../../docs/audio/episodes/black-beans/voice-v2-blocks.json)
+- Alignment: [outputs/episodes/black-beans-compact/voice-v2-blocks-forced-alignment.json](../../../outputs/episodes/black-beans-compact/voice-v2-blocks-forced-alignment.json)
 
 ## Takes
 

@@ -5,9 +5,11 @@ Food id: `kale`
 ## Active Take
 
 - Mode: `split-blocks`
-- Take: `voice-v6`
+- Take: `voice-v7`
+- Duration: `155.2s`
 - Blocks: `11`
-- Manifest: [docs/audio/episodes/kale/voice-v6-blocks.json](../../../docs/audio/episodes/kale/voice-v6-blocks.json)
+- Manifest: [docs/audio/episodes/kale/voice-v7-blocks.json](../../../docs/audio/episodes/kale/voice-v7-blocks.json)
+- Alignment: [outputs/episodes/kale-compact/voice-v7-blocks-forced-alignment.json](../../../outputs/episodes/kale-compact/voice-v7-blocks-forced-alignment.json)
 
 ## Takes
 
@@ -19,6 +21,7 @@ Food id: `kale`
 `voice-v4` | `split-blocks` | Adam - Dominant, Firm | 11 | 2026-07-23T12:47:09.943Z | [voice-v4-blocks.json](../../../docs/audio/episodes/kale/voice-v4-blocks.json)
 `voice-v5` | `split-blocks` | Adam - Dominant, Firm | 11 | 2026-07-27T11:39:55.840Z | [voice-v5-blocks.json](../../../docs/audio/episodes/kale/voice-v5-blocks.json)
 `voice-v6` | `split-blocks` | Adam - Dominant, Firm | 11 | 2026-07-27T12:20:02.320Z | [voice-v6-blocks.json](../../../docs/audio/episodes/kale/voice-v6-blocks.json)
+`voice-v7` | `split-blocks` | Charlie - Deep, Confident, Energetic | 11 | 2026-07-30T14:58:11.237Z | [voice-v7-blocks.json](../../../docs/audio/episodes/kale/voice-v7-blocks.json)
 
 ## Pronunciation Overrides
 
@@ -29,6 +32,8 @@ Food id: `kale`
 `voice-v5` | `11-final_reveal` | `S tier.` | `Ess tier!` | Spell out the letter S sound so it does not get clipped or blend into tier.
 `voice-v6` | `01-hook_food` | `Kale!` | `Kail!` | Use phonetic spelling so the hook does not sound like "kalay".
 `voice-v6` | `11-final_reveal` | `S tier.` | `Ess tier!` | Spell out the letter S sound so it does not get clipped or blend into tier.
+`voice-v7` | `01-hook_food` | `Kale!` | `Kail!` | Use phonetic spelling so the hook does not sound like "kalay".
+`voice-v7` | `11-final_reveal` | `S tier.` | `Ess tier!` | Spell out the letter S sound so it does not get clipped or blend into tier.
 
 ## Files
 
@@ -108,6 +113,18 @@ Food id: `kale`
 - [production/episodes/kale/voice/voice-v6-blocks/09-cons.mp3](../../../production/episodes/kale/voice/voice-v6-blocks/09-cons.mp3)
 - [production/episodes/kale/voice/voice-v6-blocks/10-closing_summary.mp3](../../../production/episodes/kale/voice/voice-v6-blocks/10-closing_summary.mp3)
 - [production/episodes/kale/voice/voice-v6-blocks/11-final_reveal.mp3](../../../production/episodes/kale/voice/voice-v6-blocks/11-final_reveal.mp3)
+- [production/episodes/kale/voice/voice-v7-blocks.json](../../../production/episodes/kale/voice/voice-v7-blocks.json)
+- [production/episodes/kale/voice/voice-v7-blocks/01-hook_food.mp3](../../../production/episodes/kale/voice/voice-v7-blocks/01-hook_food.mp3)
+- [production/episodes/kale/voice/voice-v7-blocks/02-hook_ranked.mp3](../../../production/episodes/kale/voice/voice-v7-blocks/02-hook_ranked.mp3)
+- [production/episodes/kale/voice/voice-v7-blocks/03-fats.mp3](../../../production/episodes/kale/voice/voice-v7-blocks/03-fats.mp3)
+- [production/episodes/kale/voice/voice-v7-blocks/04-carbs.mp3](../../../production/episodes/kale/voice/voice-v7-blocks/04-carbs.mp3)
+- [production/episodes/kale/voice/voice-v7-blocks/05-proteins.mp3](../../../production/episodes/kale/voice/voice-v7-blocks/05-proteins.mp3)
+- [production/episodes/kale/voice/voice-v7-blocks/06-vitamins.mp3](../../../production/episodes/kale/voice/voice-v7-blocks/06-vitamins.mp3)
+- [production/episodes/kale/voice/voice-v7-blocks/07-minerals.mp3](../../../production/episodes/kale/voice/voice-v7-blocks/07-minerals.mp3)
+- [production/episodes/kale/voice/voice-v7-blocks/08-pros.mp3](../../../production/episodes/kale/voice/voice-v7-blocks/08-pros.mp3)
+- [production/episodes/kale/voice/voice-v7-blocks/09-cons.mp3](../../../production/episodes/kale/voice/voice-v7-blocks/09-cons.mp3)
+- [production/episodes/kale/voice/voice-v7-blocks/10-closing_summary.mp3](../../../production/episodes/kale/voice/voice-v7-blocks/10-closing_summary.mp3)
+- [production/episodes/kale/voice/voice-v7-blocks/11-final_reveal.mp3](../../../production/episodes/kale/voice/voice-v7-blocks/11-final_reveal.mp3)
 
 ### Docs Mirror
 
@@ -183,6 +200,18 @@ Food id: `kale`
 - [docs/audio/episodes/kale/voice-v6-blocks/09-cons.mp3](../../../docs/audio/episodes/kale/voice-v6-blocks/09-cons.mp3)
 - [docs/audio/episodes/kale/voice-v6-blocks/10-closing_summary.mp3](../../../docs/audio/episodes/kale/voice-v6-blocks/10-closing_summary.mp3)
 - [docs/audio/episodes/kale/voice-v6-blocks/11-final_reveal.mp3](../../../docs/audio/episodes/kale/voice-v6-blocks/11-final_reveal.mp3)
+- [docs/audio/episodes/kale/voice-v7-blocks.json](../../../docs/audio/episodes/kale/voice-v7-blocks.json)
+- [docs/audio/episodes/kale/voice-v7-blocks/01-hook_food.mp3](../../../docs/audio/episodes/kale/voice-v7-blocks/01-hook_food.mp3)
+- [docs/audio/episodes/kale/voice-v7-blocks/02-hook_ranked.mp3](../../../docs/audio/episodes/kale/voice-v7-blocks/02-hook_ranked.mp3)
+- [docs/audio/episodes/kale/voice-v7-blocks/03-fats.mp3](../../../docs/audio/episodes/kale/voice-v7-blocks/03-fats.mp3)
+- [docs/audio/episodes/kale/voice-v7-blocks/04-carbs.mp3](../../../docs/audio/episodes/kale/voice-v7-blocks/04-carbs.mp3)
+- [docs/audio/episodes/kale/voice-v7-blocks/05-proteins.mp3](../../../docs/audio/episodes/kale/voice-v7-blocks/05-proteins.mp3)
+- [docs/audio/episodes/kale/voice-v7-blocks/06-vitamins.mp3](../../../docs/audio/episodes/kale/voice-v7-blocks/06-vitamins.mp3)
+- [docs/audio/episodes/kale/voice-v7-blocks/07-minerals.mp3](../../../docs/audio/episodes/kale/voice-v7-blocks/07-minerals.mp3)
+- [docs/audio/episodes/kale/voice-v7-blocks/08-pros.mp3](../../../docs/audio/episodes/kale/voice-v7-blocks/08-pros.mp3)
+- [docs/audio/episodes/kale/voice-v7-blocks/09-cons.mp3](../../../docs/audio/episodes/kale/voice-v7-blocks/09-cons.mp3)
+- [docs/audio/episodes/kale/voice-v7-blocks/10-closing_summary.mp3](../../../docs/audio/episodes/kale/voice-v7-blocks/10-closing_summary.mp3)
+- [docs/audio/episodes/kale/voice-v7-blocks/11-final_reveal.mp3](../../../docs/audio/episodes/kale/voice-v7-blocks/11-final_reveal.mp3)
 
 ### Output And Alignment
 
@@ -261,3 +290,15 @@ Food id: `kale`
 - [outputs/episodes/kale-compact/voice-v6-blocks/09-cons-forced-alignment.json](../../../outputs/episodes/kale-compact/voice-v6-blocks/09-cons-forced-alignment.json)
 - [outputs/episodes/kale-compact/voice-v6-blocks/10-closing_summary-forced-alignment.json](../../../outputs/episodes/kale-compact/voice-v6-blocks/10-closing_summary-forced-alignment.json)
 - [outputs/episodes/kale-compact/voice-v6-blocks/11-final_reveal-forced-alignment.json](../../../outputs/episodes/kale-compact/voice-v6-blocks/11-final_reveal-forced-alignment.json)
+- [outputs/episodes/kale-compact/voice-v7-blocks-forced-alignment.json](../../../outputs/episodes/kale-compact/voice-v7-blocks-forced-alignment.json)
+- [outputs/episodes/kale-compact/voice-v7-blocks/01-hook_food-forced-alignment.json](../../../outputs/episodes/kale-compact/voice-v7-blocks/01-hook_food-forced-alignment.json)
+- [outputs/episodes/kale-compact/voice-v7-blocks/02-hook_ranked-forced-alignment.json](../../../outputs/episodes/kale-compact/voice-v7-blocks/02-hook_ranked-forced-alignment.json)
+- [outputs/episodes/kale-compact/voice-v7-blocks/03-fats-forced-alignment.json](../../../outputs/episodes/kale-compact/voice-v7-blocks/03-fats-forced-alignment.json)
+- [outputs/episodes/kale-compact/voice-v7-blocks/04-carbs-forced-alignment.json](../../../outputs/episodes/kale-compact/voice-v7-blocks/04-carbs-forced-alignment.json)
+- [outputs/episodes/kale-compact/voice-v7-blocks/05-proteins-forced-alignment.json](../../../outputs/episodes/kale-compact/voice-v7-blocks/05-proteins-forced-alignment.json)
+- [outputs/episodes/kale-compact/voice-v7-blocks/06-vitamins-forced-alignment.json](../../../outputs/episodes/kale-compact/voice-v7-blocks/06-vitamins-forced-alignment.json)
+- [outputs/episodes/kale-compact/voice-v7-blocks/07-minerals-forced-alignment.json](../../../outputs/episodes/kale-compact/voice-v7-blocks/07-minerals-forced-alignment.json)
+- [outputs/episodes/kale-compact/voice-v7-blocks/08-pros-forced-alignment.json](../../../outputs/episodes/kale-compact/voice-v7-blocks/08-pros-forced-alignment.json)
+- [outputs/episodes/kale-compact/voice-v7-blocks/09-cons-forced-alignment.json](../../../outputs/episodes/kale-compact/voice-v7-blocks/09-cons-forced-alignment.json)
+- [outputs/episodes/kale-compact/voice-v7-blocks/10-closing_summary-forced-alignment.json](../../../outputs/episodes/kale-compact/voice-v7-blocks/10-closing_summary-forced-alignment.json)
+- [outputs/episodes/kale-compact/voice-v7-blocks/11-final_reveal-forced-alignment.json](../../../outputs/episodes/kale-compact/voice-v7-blocks/11-final_reveal-forced-alignment.json)

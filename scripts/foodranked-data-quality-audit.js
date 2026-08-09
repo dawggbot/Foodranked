@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 const fs = require('fs');
 const path = require('path');
+const { spawnSync } = require('child_process');
 const { prosConsTitleTextIssues } = require('./lib/pros-cons-title-fit');
 const { contextTitleRecapIssue } = require('./lib/context-item-normalizer');
 
@@ -9,6 +10,7 @@ const foodsDir = path.join(repoRoot, 'foods');
 const rulesetsDir = path.join(repoRoot, 'rulesets');
 const episodesDir = path.join(repoRoot, 'outputs', 'episodes');
 const dataDir = path.join(repoRoot, 'docs', 'data');
+const scorerPath = path.join(repoRoot, 'scripts', 'foodranked-scorer.js');
 const finalisationConfig = path.join(repoRoot, 'config', 'finalisation-sample-foods.v1.json');
 const aminoAcidThresholdsPath = path.join(repoRoot, 'config', 'amino-acid-thresholds.v1.json');
 const aminoAcidThresholds = fs.existsSync(aminoAcidThresholdsPath) ? readJson(aminoAcidThresholdsPath) : null;
@@ -52,6 +54,7 @@ const EXPECTED_TIER_THRESHOLDS = [
   { tier: 'D', min: 0, max: 19.9999 },
   { tier: 'Slop', min: -100, max: -0.0001 }
 ];
+const VALID_TIERS = new Set(EXPECTED_TIER_THRESHOLDS.map(item => item.tier));
 const RAREST_TIER = 'S';
 const NORMAL_RARITY_TIERS = ['D', 'C', 'B', 'A'];
 const SPECIAL_BOTTOM_TIER = 'Slop';
@@ -284,6 +287,47 @@ function needsStrictSourceEvidence(food, finalIds) {
   return finalIds.has(food.id) || /production-safe/i.test(food.scoreReadiness?.status || '');
 }
 
+function scoreFoodForExpectedTierAudit(file, food) {
+  const rulesetPath = path.join(rulesetsDir, `${food.foodType}.v1.json`);
+  if (!fs.existsSync(rulesetPath)) return { ok: false, error: `missing ruleset ${path.relative(repoRoot, rulesetPath)}` };
+
+  const res = spawnSync(process.execPath, [scorerPath, file, rulesetPath], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    maxBuffer: 50 * 1024 * 1024
+  });
+  if (res.status !== 0) return { ok: false, error: (res.stderr || res.stdout || '').trim() };
+
+  try {
+    return { ok: true, result: JSON.parse(res.stdout) };
+  } catch (error) {
+    return { ok: false, error: error.message };
+  }
+}
+
+function auditExpectedTierValue(food, file, errors) {
+  if (food.expectedTier === undefined) return;
+  if (!VALID_TIERS.has(food.expectedTier)) {
+    issue(errors, file, 'expectedTier must be one of Slop/D/C/B/A/S', { expectedTier: food.expectedTier });
+    return;
+  }
+  if (!food.foodType) return;
+
+  const scored = scoreFoodForExpectedTierAudit(file, food);
+  if (!scored.ok) {
+    issue(errors, file, 'could not score food while auditing expectedTier', { error: scored.error });
+    return;
+  }
+  if (scored.result.tier !== food.expectedTier) {
+    issue(errors, file, 'expectedTier must match scorer tier', {
+      expectedTier: food.expectedTier,
+      scoredTier: scored.result.tier,
+      rankingScore: scored.result.rankingScore ?? null,
+      baseOverallScore: scored.result.baseOverallScore ?? null
+    });
+  }
+}
+
 function auditFoods(errors, warnings) {
   const finalIds = finalisationIds();
   const foodFiles = listJson(foodsDir).filter(file => file.endsWith('.sample.json'));
@@ -305,6 +349,12 @@ function auditFoods(errors, warnings) {
     if (food.id) {
       if (seenIds.has(food.id)) issue(errors, file, `duplicate food id with ${seenIds.get(food.id)}`);
       else seenIds.set(food.id, path.relative(repoRoot, file));
+    }
+
+    auditExpectedTierValue(food, file, errors);
+    const publishedFoodFile = path.join(dataDir, 'foods', path.basename(file));
+    if (fs.existsSync(publishedFoodFile)) {
+      auditExpectedTierValue(readJson(publishedFoodFile), publishedFoodFile, errors);
     }
 
     const normalizedName = String(food.name || '').trim().toLowerCase();

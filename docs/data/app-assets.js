@@ -202,6 +202,14 @@
     "sizeBytes": 12444
   },
   {
+    "id": "audio.episodes.fennel.seeds.voice.v1.blocks",
+    "label": "Voice V1 Blocks",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/fennel-seeds/voice-v1-blocks.json",
+    "mimeType": "application/json",
+    "sizeBytes": 14771
+  },
+  {
     "id": "audio.episodes.greek.yogurt.voice.v1.blocks",
     "label": "Voice V1 Blocks",
     "kind": "audio-manifest",
@@ -359,7 +367,7 @@
     "kind": "data",
     "path": "data/foods-index.js",
     "mimeType": "text/javascript",
-    "sizeBytes": 8467897
+    "sizeBytes": 8512916
   },
   {
     "id": "data.foods.index.json",
@@ -367,7 +375,7 @@
     "kind": "data",
     "path": "data/foods-index.json",
     "mimeType": "application/json",
-    "sizeBytes": 14953218
+    "sizeBytes": 15022365
   },
   {
     "id": "data.foods.acorns.sample",
@@ -1079,7 +1087,7 @@
     "kind": "data",
     "path": "data/foods/fennel-seeds.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3755
+    "sizeBytes": 3874
   },
   {
     "id": "data.foods.feta.sample",
@@ -2343,7 +2351,7 @@
     "kind": "data",
     "path": "data/foods/tater-tots.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 4072
+    "sizeBytes": 4168
   },
   {
     "id": "data.foods.tea.black.sample",
@@ -4330,6 +4338,94 @@
     "sizeBytes": 15090
   },
   {
+    "id": "audio.episodes.fennel.seeds.voice.v1.blocks.01.hook.food",
+    "label": "01 Hook Food",
+    "kind": "narration-audio",
+    "path": "audio/episodes/fennel-seeds/voice-v1-blocks/01-hook_food.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 7916
+  },
+  {
+    "id": "audio.episodes.fennel.seeds.voice.v1.blocks.02.hook.ranked",
+    "label": "02 Hook Ranked",
+    "kind": "narration-audio",
+    "path": "audio/episodes/fennel-seeds/voice-v1-blocks/02-hook_ranked.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 5420
+  },
+  {
+    "id": "audio.episodes.fennel.seeds.voice.v1.blocks.03.fats",
+    "label": "03 Fats",
+    "kind": "narration-audio",
+    "path": "audio/episodes/fennel-seeds/voice-v1-blocks/03-fats.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 165164
+  },
+  {
+    "id": "audio.episodes.fennel.seeds.voice.v1.blocks.04.carbs",
+    "label": "04 Carbs",
+    "kind": "narration-audio",
+    "path": "audio/episodes/fennel-seeds/voice-v1-blocks/04-carbs.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 143276
+  },
+  {
+    "id": "audio.episodes.fennel.seeds.voice.v1.blocks.05.proteins",
+    "label": "05 Proteins",
+    "kind": "narration-audio",
+    "path": "audio/episodes/fennel-seeds/voice-v1-blocks/05-proteins.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 130988
+  },
+  {
+    "id": "audio.episodes.fennel.seeds.voice.v1.blocks.06.vitamins",
+    "label": "06 Vitamins",
+    "kind": "narration-audio",
+    "path": "audio/episodes/fennel-seeds/voice-v1-blocks/06-vitamins.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 73772
+  },
+  {
+    "id": "audio.episodes.fennel.seeds.voice.v1.blocks.07.minerals",
+    "label": "07 Minerals",
+    "kind": "narration-audio",
+    "path": "audio/episodes/fennel-seeds/voice-v1-blocks/07-minerals.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 126764
+  },
+  {
+    "id": "audio.episodes.fennel.seeds.voice.v1.blocks.08.pros",
+    "label": "08 Pros",
+    "kind": "narration-audio",
+    "path": "audio/episodes/fennel-seeds/voice-v1-blocks/08-pros.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 134252
+  },
+  {
+    "id": "audio.episodes.fennel.seeds.voice.v1.blocks.09.cons",
+    "label": "09 Cons",
+    "kind": "narration-audio",
+    "path": "audio/episodes/fennel-seeds/voice-v1-blocks/09-cons.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 159212
+  },
+  {
+    "id": "audio.episodes.fennel.seeds.voice.v1.blocks.10.closing.summary",
+    "label": "10 Closing Summary",
+    "kind": "narration-audio",
+    "path": "audio/episodes/fennel-seeds/voice-v1-blocks/10-closing_summary.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 131372
+  },
+  {
+    "id": "audio.episodes.fennel.seeds.voice.v1.blocks.11.final.reveal",
+    "label": "11 Final Reveal",
+    "kind": "narration-audio",
+    "path": "audio/episodes/fennel-seeds/voice-v1-blocks/11-final_reveal.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 6380
+  },
+  {
     "id": "audio.episodes.greek.yogurt.voice.v1.blocks.01.hook.food",
     "label": "01 Hook Food",
     "kind": "narration-audio",
@@ -6192,6 +6288,14 @@
     "path": "app/sprites/header/food_images/extra-virgin-olive-oil.png",
     "mimeType": "image/png",
     "sizeBytes": 1791
+  },
+  {
+    "id": "app.sprites.header.food.images.fennel.seeds",
+    "label": "Fennel Seeds",
+    "kind": "sprite",
+    "path": "app/sprites/header/food_images/fennel-seeds.png",
+    "mimeType": "image/png",
+    "sizeBytes": 1809
   },
   {
     "id": "app.sprites.header.food.images.greek.yogurt",

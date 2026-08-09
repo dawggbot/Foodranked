@@ -12,6 +12,7 @@ This folder is the GitHub-facing catalogue for generated narration files. The MP
 [Regular Cola](cola-regular.md) | `voice-v1` | `split-blocks` | 152.7s | 11 | 13 | 12 | 15
 [Cranberries](cranberries.md) | `voice-v1` | `split-blocks` | 21.4s | 11 | 13 | 12 | 15
 [Extra Virgin Olive Oil](extra-virgin-olive-oil.md) | `voice-v1` | `split-blocks` | 136.5s | 11 | 14 | 12 | 15
+[Fennel Seeds](fennel-seeds.md) |  |  |  |  | 13 | 12 | 4
 [Greek Yogurt](greek-yogurt.md) | `voice-v1` | `split-blocks` | 161.8s | 11 | 14 | 12 | 15
 [Hazelnuts](hazelnuts.md) | `voice-v1` | `split-blocks` | 143.8s | 11 | 13 | 12 | 15
 [Kale](kale.md) | `voice-v7` | `split-blocks` | 155.2s | 11 | 86 | 84 | 87

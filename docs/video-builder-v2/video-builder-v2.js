@@ -1103,9 +1103,7 @@
   }
 
   function macroSubmetricSpecsForFood(sectionId, food) {
-    const generatedItems = sectionId === 'protein'
-      ? sectionDisplayItems(food, sectionId).filter(item => item?.metricKey).slice(0, 4)
-      : [];
+    const generatedItems = sectionDisplayItems(food, sectionId).filter(item => item?.metricKey).slice(0, 4);
     if (!generatedItems.length) return MACRO_SUBMETRIC_SPECS[sectionId] || [];
     return generatedItems.map((item, index) => ({
       key: item.metricKey,
@@ -5381,7 +5379,7 @@
 
   function macroSubmetricHighlightMap(scene, sceneProgress) {
     const sectionId = scene?.id || '';
-    const specs = MACRO_SUBMETRIC_SPECS[sectionId] || [];
+    const specs = macroSubmetricSpecsForFood(sectionId, selectedFood());
     if (!specs.length) return new Map();
     const timing = sceneTimingModel(scene);
     const fade = clamp(0.22 / Math.max(1, sceneNarrationDuration(scene)), 0.018, 0.08);
@@ -5596,9 +5594,10 @@
   }
 
   function macroSubmetricHighlightColor(sectionId, rowIndex) {
-    const spec = MACRO_SUBMETRIC_SPECS[sectionId]?.[rowIndex];
+    const food = selectedFood();
+    const spec = macroSubmetricSpecsForFood(sectionId, food)[rowIndex];
     if (!spec) return SUBMACRO_VALUE_COLORS.neutral;
-    const presentation = macroArrowPresentation(selectedFood(), sectionId, spec);
+    const presentation = macroArrowPresentation(food, sectionId, spec);
     return presentation.textColor || SUBMACRO_VALUE_COLORS[presentation.color] || SUBMACRO_VALUE_COLORS.neutral;
   }
 

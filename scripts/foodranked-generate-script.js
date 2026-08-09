@@ -197,6 +197,21 @@ function macroSubmetricKeysForSection(result, sectionKey) {
     const policy = proteinDisplayPolicy(result);
     return policy.visibleRows.slice(0, policy.rowCount);
   }
+  if (sectionKey === 'fats') {
+    const hasMonounsaturatedFat = toFiniteNumber(result.foodMetrics?.[MONOUNSATURATED_FAT_METRIC_KEY]) !== null
+      || (result.metricBreakdown || []).some(metric => metric.metricKey === MONOUNSATURATED_FAT_METRIC_KEY);
+    const cholesterol = toFiniteNumber(result.foodMetrics?.cholesterol_mg);
+    const cholesterolIsRelevant = cholesterol !== null
+      && (cholesterol > 0 || ZERO_CHOLESTEROL_NARRATION_RELEVANT_FOOD_TYPES.has(result.food?.foodType));
+    if (hasMonounsaturatedFat && !cholesterolIsRelevant) {
+      return [
+        'saturated_fat_g',
+        'omega3_mg',
+        POLYUNSATURATED_FAT_METRIC_KEY,
+        MONOUNSATURATED_FAT_METRIC_KEY
+      ];
+    }
+  }
   return MACRO_SECTION_SUBMACRO_KEYS[sectionKey] || [];
 }
 

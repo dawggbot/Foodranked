@@ -75,7 +75,8 @@ function main() {
     validateUpload(upload, foodId);
     const imported = importSprite(upload, foodId);
     run(process.execPath, ['scripts/foodranked-generate-episode.js', foodId, '--compact', '--no-cta']);
-    run(process.execPath, ['scripts/foodranked-generate-voice.js', foodId, '--take', 'voice-v1']);
+    run(process.execPath, ['scripts/foodranked-generate-voice.js', foodId, '--take', 'voice-v1', '--split-blocks']);
+    run(process.execPath, ['scripts/foodranked-align-subtitles.js', foodId, '--take', 'voice-v1', '--refresh']);
     processed.push({
       foodId,
       upload: relativeRepoPath(upload),
@@ -85,6 +86,7 @@ function main() {
   }
 
   run(process.execPath, ['scripts/generate-dashboard-data.js']);
+  run(process.execPath, ['scripts/generate-narration-index.js']);
   console.log(JSON.stringify({ status: 'ok', processed }, null, 2));
 }
 

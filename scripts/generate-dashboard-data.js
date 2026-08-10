@@ -15,6 +15,7 @@ const { completeSfxProfile } = require('./lib/sfx-profiles');
 const { completeMusicProfile } = require('./lib/music-profiles');
 const { completeVoiceProfile, narrationVolumeMetadata } = require('./lib/voice-profiles');
 const MAX_VIDEO_DURATION_SECONDS = 180;
+const SPLIT_AUDIO_FALLBACK_BLOCK_GAP_SECONDS = 0.08;
 
 function ensureDir(dir) { fs.mkdirSync(dir, { recursive: true }); }
 function readJson(file) { return JSON.parse(fs.readFileSync(file, 'utf8')); }
@@ -143,10 +144,20 @@ function findEpisodeSplitAudio(foodId, episode) {
       loss: aligned.loss ?? null
     };
   });
-  const timedBlocks = blocks.filter(block => Number.isFinite(Number(block.offsetSeconds)) && Number.isFinite(Number(block.durationSeconds)));
+  const timedBlocks = blocks.filter(block => (
+    block.offsetSeconds != null
+    && block.durationSeconds != null
+    && Number.isFinite(Number(block.offsetSeconds))
+    && Number.isFinite(Number(block.durationSeconds))
+  ));
+  const blockGapSeconds = alignment?.blockGapSeconds ?? SPLIT_AUDIO_FALLBACK_BLOCK_GAP_SECONDS;
   const durationSeconds = timedBlocks.length
     ? Math.max(...timedBlocks.map(block => Number(block.offsetSeconds) + Number(block.durationSeconds)))
-    : null;
+    : blocks.length && blocks.every(block => block.durationSeconds != null && Number.isFinite(Number(block.durationSeconds)))
+      ? Number(blocks.reduce((cursor, block, index) => (
+        cursor + Number(block.durationSeconds) + (index < blocks.length - 1 ? blockGapSeconds : 0)
+      ), 0).toFixed(3))
+      : null;
 
   return {
     mode: 'split-blocks',
@@ -159,7 +170,7 @@ function findEpisodeSplitAudio(foodId, episode) {
     generatedAt: metadata.generatedAt || null,
     ...narrationVolumeMetadata(voiceLabel),
     blockCount: metadata.blockCount ?? blocks.length,
-    blockGapSeconds: alignment?.blockGapSeconds ?? null,
+    blockGapSeconds,
     durationSeconds,
     alignmentPath: alignmentPath && exists(alignmentPath) ? path.relative(repoRoot, alignmentPath) : null,
     pronunciationOverrides: Array.isArray(metadata.pronunciationOverrides)

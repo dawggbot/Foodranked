@@ -338,6 +338,14 @@
     "sizeBytes": 12377
   },
   {
+    "id": "audio.episodes.rice.cakes.voice.v1.blocks",
+    "label": "Voice V1 Blocks",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/rice-cakes/voice-v1-blocks.json",
+    "mimeType": "application/json",
+    "sizeBytes": 10944
+  },
+  {
     "id": "audio.episodes.tater.tots.voice.v1.blocks",
     "label": "Voice V1 Blocks",
     "kind": "audio-manifest",
@@ -367,7 +375,7 @@
     "kind": "data",
     "path": "data/foods-index.js",
     "mimeType": "text/javascript",
-    "sizeBytes": 8512916
+    "sizeBytes": 8573094
   },
   {
     "id": "data.foods.index.json",
@@ -375,7 +383,7 @@
     "kind": "data",
     "path": "data/foods-index.json",
     "mimeType": "application/json",
-    "sizeBytes": 15022365
+    "sizeBytes": 15113317
   },
   {
     "id": "data.foods.acorns.sample",
@@ -5834,6 +5842,94 @@
     "sizeBytes": 12164
   },
   {
+    "id": "audio.episodes.rice.cakes.voice.v1.blocks.01.hook.food",
+    "label": "01 Hook Food",
+    "kind": "narration-audio",
+    "path": "audio/episodes/rice-cakes/voice-v1-blocks/01-hook_food.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 15926
+  },
+  {
+    "id": "audio.episodes.rice.cakes.voice.v1.blocks.02.hook.ranked",
+    "label": "02 Hook Ranked",
+    "kind": "narration-audio",
+    "path": "audio/episodes/rice-cakes/voice-v1-blocks/02-hook_ranked.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 12164
+  },
+  {
+    "id": "audio.episodes.rice.cakes.voice.v1.blocks.03.fats",
+    "label": "03 Fats",
+    "kind": "narration-audio",
+    "path": "audio/episodes/rice-cakes/voice-v1-blocks/03-fats.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 231593
+  },
+  {
+    "id": "audio.episodes.rice.cakes.voice.v1.blocks.04.carbs",
+    "label": "04 Carbs",
+    "kind": "narration-audio",
+    "path": "audio/episodes/rice-cakes/voice-v1-blocks/04-carbs.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 249983
+  },
+  {
+    "id": "audio.episodes.rice.cakes.voice.v1.blocks.05.proteins",
+    "label": "05 Proteins",
+    "kind": "narration-audio",
+    "path": "audio/episodes/rice-cakes/voice-v1-blocks/05-proteins.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 237444
+  },
+  {
+    "id": "audio.episodes.rice.cakes.voice.v1.blocks.06.vitamins",
+    "label": "06 Vitamins",
+    "kind": "narration-audio",
+    "path": "audio/episodes/rice-cakes/voice-v1-blocks/06-vitamins.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 176422
+  },
+  {
+    "id": "audio.episodes.rice.cakes.voice.v1.blocks.07.minerals",
+    "label": "07 Minerals",
+    "kind": "narration-audio",
+    "path": "audio/episodes/rice-cakes/voice-v1-blocks/07-minerals.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 198156
+  },
+  {
+    "id": "audio.episodes.rice.cakes.voice.v1.blocks.08.pros",
+    "label": "08 Pros",
+    "kind": "narration-audio",
+    "path": "audio/episodes/rice-cakes/voice-v1-blocks/08-pros.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 198574
+  },
+  {
+    "id": "audio.episodes.rice.cakes.voice.v1.blocks.09.cons",
+    "label": "09 Cons",
+    "kind": "narration-audio",
+    "path": "audio/episodes/rice-cakes/voice-v1-blocks/09-cons.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 268373
+  },
+  {
+    "id": "audio.episodes.rice.cakes.voice.v1.blocks.10.closing.summary",
+    "label": "10 Closing Summary",
+    "kind": "narration-audio",
+    "path": "audio/episodes/rice-cakes/voice-v1-blocks/10-closing_summary.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 206097
+  },
+  {
+    "id": "audio.episodes.rice.cakes.voice.v1.blocks.11.final.reveal",
+    "label": "11 Final Reveal",
+    "kind": "narration-audio",
+    "path": "audio/episodes/rice-cakes/voice-v1-blocks/11-final_reveal.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 13000
+  },
+  {
     "id": "audio.episodes.tater.tots.voice.v1.blocks.01.hook.food",
     "label": "01 Hook Food",
     "kind": "narration-audio",
@@ -6336,6 +6432,14 @@
     "path": "app/sprites/header/food_images/raspberries.png",
     "mimeType": "image/png",
     "sizeBytes": 2346
+  },
+  {
+    "id": "app.sprites.header.food.images.rice.cakes",
+    "label": "Rice Cakes",
+    "kind": "sprite",
+    "path": "app/sprites/header/food_images/rice-cakes.png",
+    "mimeType": "image/png",
+    "sizeBytes": 2147
   },
   {
     "id": "app.sprites.header.food.images.tater.tots",

@@ -39,7 +39,7 @@
   const PLACEMENT_EXPORT_KEY = 'foodranked-display-builder-v2-placement-layouts-v1';
   const PLACEMENT_EXPORT_LIMIT = 60;
   const PAGE_URL_PARAMS = new URLSearchParams(window.location.search);
-  const DISPLAY_BUILDER_V2_BUILD_ID = PAGE_URL_PARAMS.get('build') || '20260805-dbv2-thumbnail-section-v1';
+  const DISPLAY_BUILDER_V2_BUILD_ID = PAGE_URL_PARAMS.get('build') || '20260810-misc-thumbnail-palette-v1';
   const DATA_CACHE_BUST = '20260801-layout-lockdown-v1';
   const SECTION_INDICATOR_LAYOUT = window.FOODRANKED_DISPLAY_SCHEMA?.sectionIndicatorLayout || {
     startX: 33.347,
@@ -2670,10 +2670,26 @@
     return sectionId === THUMBNAIL_SECTION_ID;
   }
 
+  function hasThumbnailBackdropPalette(palette) {
+    return !!(palette?.thumbnailTop || palette?.thumbnailMid || palette?.thumbnailBottom || palette?.thumbnailGlowA || palette?.thumbnailGlowB);
+  }
+
+  function thumbnailBackdropBackground(palette) {
+    const top = palette.thumbnailTop || palette.top;
+    const mid = palette.thumbnailMid || palette.top;
+    const bottom = palette.thumbnailBottom || palette.bottom;
+    const glowA = palette.thumbnailGlowA || palette.glowA;
+    const glowB = palette.thumbnailGlowB || palette.glowB;
+    if (!hasThumbnailBackdropPalette(palette)) {
+      return `linear-gradient(180deg, ${top} 0%, ${bottom} 100%)`;
+    }
+    return `radial-gradient(circle at 22% 14%, ${glowA}, transparent 34%), radial-gradient(circle at 80% 72%, ${glowB}, transparent 38%), linear-gradient(180deg, ${top} 0%, ${mid} 48%, ${bottom} 100%)`;
+  }
+
   function canvasBackdropBackground(food, sectionId = state.selectedSectionId) {
     const palette = LOGIC.backdropPalette(food);
     if (isThumbnailSection(sectionId)) {
-      return `linear-gradient(180deg, ${palette.top} 0%, ${palette.bottom} 100%)`;
+      return thumbnailBackdropBackground(palette);
     }
     return `radial-gradient(circle at 18% 12%, ${palette.glowA}, transparent 24%), radial-gradient(circle at 82% 16%, ${palette.glowB}, transparent 28%), linear-gradient(180deg, ${palette.top} 0%, ${palette.bottom} 100%)`;
   }
@@ -2817,15 +2833,29 @@
   function drawExportBackdrop(ctx, food, exportBounds, sectionId) {
     const { outputWidth, outputHeight, scale } = exportBounds;
     const palette = LOGIC.backdropPalette(food);
+    const thumbnail = isThumbnailSection(sectionId);
+    const hasThumbnailPalette = thumbnail && hasThumbnailBackdropPalette(palette);
+    const top = hasThumbnailPalette ? (palette.thumbnailTop || palette.top) : palette.top;
+    const mid = hasThumbnailPalette ? (palette.thumbnailMid || top) : null;
+    const bottom = hasThumbnailPalette ? (palette.thumbnailBottom || palette.bottom) : palette.bottom;
     const base = ctx.createLinearGradient(0, 0, 0, outputHeight);
-    base.addColorStop(0, palette.top);
-    base.addColorStop(1, palette.bottom);
+    base.addColorStop(0, top);
+    if (mid) base.addColorStop(0.48, mid);
+    base.addColorStop(1, bottom);
     ctx.fillStyle = base;
     ctx.fillRect(0, 0, outputWidth, outputHeight);
 
-    if (!isThumbnailSection(sectionId)) {
-      drawExportRadialGlow(ctx, outputWidth * 0.18, outputHeight * 0.12, Math.max(outputWidth, outputHeight) * 0.24, palette.glowA);
-      drawExportRadialGlow(ctx, outputWidth * 0.82, outputHeight * 0.16, Math.max(outputWidth, outputHeight) * 0.28, palette.glowB);
+    if (!thumbnail || hasThumbnailPalette) {
+      const glowA = hasThumbnailPalette ? (palette.thumbnailGlowA || palette.glowA) : palette.glowA;
+      const glowB = hasThumbnailPalette ? (palette.thumbnailGlowB || palette.glowB) : palette.glowB;
+      const glowAX = hasThumbnailPalette ? 0.22 : 0.18;
+      const glowAY = hasThumbnailPalette ? 0.14 : 0.12;
+      const glowBX = hasThumbnailPalette ? 0.80 : 0.82;
+      const glowBY = hasThumbnailPalette ? 0.72 : 0.16;
+      const glowARadius = hasThumbnailPalette ? 0.34 : 0.24;
+      const glowBRadius = hasThumbnailPalette ? 0.38 : 0.28;
+      drawExportRadialGlow(ctx, outputWidth * glowAX, outputHeight * glowAY, Math.max(outputWidth, outputHeight) * glowARadius, glowA);
+      drawExportRadialGlow(ctx, outputWidth * glowBX, outputHeight * glowBY, Math.max(outputWidth, outputHeight) * glowBRadius, glowB);
     }
 
     ctx.save();

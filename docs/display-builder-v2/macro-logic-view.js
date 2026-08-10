@@ -161,7 +161,7 @@
     meats: { top: '#f2d0d3', bottom: '#c08a90', glowA: 'rgba(255,188,196,.72)', glowB: 'rgba(146,61,73,.28)' },
     dairy: { top: '#f4f0e8', bottom: '#d9d2c2', glowA: 'rgba(255,255,255,.68)', glowB: 'rgba(214,196,155,.22)' },
     'oils-and-fats': { top: '#f6e7a9', bottom: '#d1b851', glowA: 'rgba(255,235,135,.74)', glowB: 'rgba(175,138,28,.28)' },
-    misc: { top: '#ece7e2', bottom: '#cfc5bc', glowA: 'rgba(255,255,255,.66)', glowB: 'rgba(140,120,108,.22)' }
+    misc: { top: '#eadcff', bottom: '#b98bea', glowA: 'rgba(229,118,255,.72)', glowB: 'rgba(70,205,220,.28)', thumbnailTop: '#f2d7ff', thumbnailMid: '#ce8dff', thumbnailBottom: '#8d65d8', thumbnailGlowA: 'rgba(231,75,255,.80)', thumbnailGlowB: 'rgba(62,216,219,.36)' }
   };
 
   function clone(value) {

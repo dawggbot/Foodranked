@@ -304,7 +304,10 @@ function metricValueText(metric) {
 function trimmedDecimal(value, decimals = 2) {
   const number = Number(value);
   if (!Number.isFinite(number)) return String(value);
-  const cleaned = number.toFixed(decimals).replace(/\.?0+$/g, '');
+  const fixed = number.toFixed(decimals);
+  const cleaned = fixed.includes('.')
+    ? fixed.replace(/\.?0+$/g, '')
+    : fixed;
   return cleaned === '' || cleaned === '-' ? '0' : cleaned;
 }
 

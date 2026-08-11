@@ -201,7 +201,8 @@ function finiteNumber(value) {
 function trimmedDecimal(value, decimals = 2) {
   const number = Number(value);
   if (!Number.isFinite(number)) return String(value);
-  return number.toFixed(decimals).replace(/\.?0+$/g, '');
+  const fixed = number.toFixed(decimals);
+  return fixed.includes('.') ? fixed.replace(/\.?0+$/g, '') : fixed;
 }
 
 function expectedLongMgDisplayValue(item) {

@@ -3449,6 +3449,7 @@
     ensureMacroTotalTextLayers(layout);
     syncMacroBars(layout, food);
     syncMacroTotalText(layout, food);
+    syncMacroText(layout, food);
     syncHeader(layout, food);
     syncOutroScoreValue(layout, food);
     syncProsCons(layout, food);

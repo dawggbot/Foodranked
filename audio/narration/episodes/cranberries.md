@@ -6,7 +6,7 @@ Food id: `cranberries`
 
 - Mode: `split-blocks`
 - Take: `voice-v1`
-- Duration: `21.4s`
+- Duration: `124.3s`
 - Blocks: `11`
 - Manifest: [docs/audio/episodes/cranberries/voice-v1-blocks.json](../../../docs/audio/episodes/cranberries/voice-v1-blocks.json)
 

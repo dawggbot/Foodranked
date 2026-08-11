@@ -4,7 +4,12 @@ Food id: `fennel-seeds`
 
 ## Active Take
 
-- No active audio take is listed in `docs/data/foods-index.json`.
+- Mode: `split-blocks`
+- Take: `voice-v1`
+- Duration: `136.0s`
+- Blocks: `11`
+- Manifest: [docs/audio/episodes/fennel-seeds/voice-v1-blocks.json](../../../docs/audio/episodes/fennel-seeds/voice-v1-blocks.json)
+- Alignment: [outputs/episodes/fennel-seeds-compact/voice-v1-blocks-forced-alignment.json](../../../outputs/episodes/fennel-seeds-compact/voice-v1-blocks-forced-alignment.json)
 
 ## Takes
 

@@ -41,13 +41,15 @@
       "Production-lane source audit pass.",
       "All displayed nutrition values are stored and checked on a per-100g basis.",
       "Primary and cross-check nutrition references are listed in nutritionDataSources.",
-      "Contextual GI and protein-quality fields are optional when not canonical nutrient facts."
+      "Contextual GI and protein-quality fields are optional when not canonical nutrient facts.",
+      "Bioavailability is a FoodRanked display estimate for protein usability, not a USDA-measured nutrient."
     ]
   },
   "ruleset": {
     "id": "meats.v1",
     "version": 1,
     "tierScoreMap": {
+      "Slop": -20,
       "D": 20,
       "C": 40,
       "B": 60,
@@ -70,7 +72,7 @@
     {
       "key": "fats",
       "title": "Fats",
-      "narration": "13 grams of fat. Omega 3 is 2200 milligrams, supporting a more useful fat profile. Saturated fat is 3.1 grams, supporting a cleaner fat profile, but it is the smaller helper in this section. For meats, fat quality is the main tradeoff.",
+      "narration": "13 grams of fat. Omega 3 is 2200 milligrams, which is a huge strength here. Saturated fat is 3.1 grams, so the fat profile stays pretty clean for a meat. For meats, fat quality is the main tradeoff, and salmon handles that really well.",
       "displayItems": [
         {
           "metricKey": "saturated_fat_g",
@@ -129,15 +131,15 @@
           "displaySource": "scored"
         }
       ],
-      "macroDisplayValue": "13g",
-      "subtitleText": "13g of fat. Omega 3 is 2200mg, supporting a more useful fat profile. Saturated fat is 3.1g, supporting a cleaner fat profile, but it is the smaller helper in this section. For meats, fat quality is the main tradeoff.",
+      "macroDisplayValue": "13.0g",
+      "subtitleText": "13g of fat. Omega 3 is 2200mg, which is a huge strength here. Saturated fat is 3.1g, so the fat profile stays pretty clean for a meat. For meats, fat quality is the main tradeoff, and salmon handles that really well.",
       "timingHint": "short-medium",
       "score": 80
     },
     {
       "key": "carbs",
       "title": "Carbs",
-      "narration": "No defensible carb submacros to call out. For meats, carbs barely matter unless something is added.",
+      "narration": "No defensible carb submacros to call out. For meats, carbs barely matter unless something has been added, so this section is basically neutral.",
       "displayItems": [
         {
           "metricKey": "fibre_g",
@@ -197,21 +199,21 @@
         }
       ],
       "macroDisplayValue": "N/A",
-      "subtitleText": "No defensible carb submacros to call out. For meats, carbs barely matter unless something is added.",
+      "subtitleText": "No defensible carb submacros to call out. For meats, carbs barely matter unless something has been added, so this section is basically neutral.",
       "timingHint": "short-medium",
       "score": null
     },
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "20.4 grams of protein. Essential amino acids score is 9 out of 9, making the protein useful for repair and maintenance. Collagen is only 0.3 grams, not adding much structural protein, so for meats, that collagen side of the protein score stays weak. For meats, protein quality matters a lot.",
+      "narration": "20.4 grams of protein. Essential amino acids score is 9 out of 9, and nonessential amino acids score is 10 out of 11, so the protein quality is strong. Collagen is only 0.3 grams, so the structural-protein side is weak. For meats, complete protein matters a lot, and the 94% bio availability does bring it back up a lot too.",
       "displayItems": [
         {
           "metricKey": "collagen_g",
           "text": "collagen at 0.3g",
           "weightedScore": 0,
           "scoringMode": "arrow_bands",
-          "band": "↓↓↓",
+          "band": "3_red",
           "polarity": "higher_better",
           "dvPercent": null,
           "value": 0.3,
@@ -225,7 +227,7 @@
           "text": "essential amino acids score at 9/9",
           "weightedScore": 200,
           "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
+          "band": "3_green",
           "polarity": "higher_better",
           "dvPercent": null,
           "value": 9,
@@ -236,41 +238,37 @@
         },
         {
           "metricKey": "nonessential_amino_acids_score",
-          "text": "nonessential amino acids score at 10/11",
+          "text": "nonessential amino acids score at 1/11",
           "weightedScore": 80,
           "scoringMode": "arrow_bands",
-          "band": "↑↑",
+          "band": "2_green",
           "polarity": "higher_better",
           "dvPercent": null,
           "value": 10,
           "score": 80,
           "denominator": 11,
-          "displayValue": "10/11",
+          "displayValue": "1/11",
           "displaySource": "scored"
         },
         {
           "metricKey": "bioavailability_percent",
           "text": "bioavailability at 94%",
-          "weightedScore": null,
-          "scoringMode": "display_fallback",
-          "band": "↑↑↑",
+          "weightedScore": 200,
+          "scoringMode": "arrow_bands",
+          "band": "3_green",
           "polarity": "higher_better",
           "dvPercent": null,
           "value": 94,
           "score": 100,
           "denominator": null,
-          "displaySource": "protein_display_estimate",
-          "displayEstimated": true,
-          "displayEstimateBasis": "display-only estimate from FoodRanked protein source class; not a measured digestibility value",
-          "displayDefault": false,
-          "displayDefaultReason": null,
-          "displayValue": "94%"
+          "displayValue": "94%",
+          "displaySource": "scored"
         }
       ],
       "macroDisplayValue": "20.4g",
-      "subtitleText": "20.4g of protein. Essential amino acids score is 9/9, making the protein useful for repair and maintenance. Collagen is only 0.3g, not adding much structural protein, so for meats, that collagen side of the protein score stays weak. For meats, protein quality matters a lot.",
+      "subtitleText": "20.4g of protein. Essential amino acids score is 9/9, and nonessential amino acids score is 10/11, so the protein quality is strong. Collagen is only 0.3g, so the structural-protein side is weak. For meats, complete protein matters a lot, and the 94% bio availability does bring it back up a lot too.",
       "timingHint": "short-medium",
-      "score": 70,
+      "score": 80,
       "displayPolicy": {
         "policyId": "protein-section-display.v1",
         "rowCount": 4,
@@ -295,7 +293,7 @@
     {
       "key": "vitamins",
       "title": "Vitamins",
-      "narration": "Vitamin B12 is 117% daily value, useful for nerve and blood-cell support. Vitamin D is 66% daily value, useful for bone and immune support, but it is not the standout here, so that's a small downside for meats. For meats, vitamin B12 and vitamin D matter most.",
+      "narration": "Vitamin B12 is 117% daily value, which is excellent for nerve and blood-cell support. Vitamin D is 66% daily value, which is also a serious mark for bone and immune support. Vitamin C is 0, but for meats, B12 and vitamin D matter much more.",
       "displayItems": [
         {
           "metricKey": "vitamin_b12_dv",
@@ -323,14 +321,14 @@
         }
       ],
       "macroDisplayValue": null,
-      "subtitleText": "Vitamin B12 is 117% DV, useful for nerve and blood-cell support. Vitamin D is 66% DV, useful for bone and immune support, but it is not the standout here, so that's a small downside for meats. For meats, vitamin B12 and vitamin D matter most.",
+      "subtitleText": "Vitamin B12 is 117% daily value, which is excellent for nerve and blood-cell support. Vitamin D is 66% daily value, which is also a serious mark for bone and immune support. Vitamin C is 0, but for meats, B12 and vitamin D matter much more.",
       "timingHint": "short-medium",
       "score": 84
     },
     {
       "key": "minerals",
       "title": "Minerals",
-      "narration": "Potassium is 8% daily value, the best number here but still too low to carry this section. Iron is only 4% daily value, not bringing much oxygen-transport support. For meats, iron and zinc can add real value.",
+      "narration": "Minerals are the weak section. Potassium is 8% daily value, which is the best number here but still low. Iron is only 4% daily value, and zinc is only 4% too. For meats, minerals can add value, but salmon is not winning through this section.",
       "displayItems": [
         {
           "metricKey": "iron_dv",
@@ -370,14 +368,14 @@
         }
       ],
       "macroDisplayValue": null,
-      "subtitleText": "Potassium is 8% DV, the best number here but still too low to carry this section. Iron is only 4% DV, not bringing much oxygen-transport support. For meats, iron and zinc can add real value.",
+      "subtitleText": "Minerals are the weak section. Potassium is 8% daily value, which is the best number here but still low. Iron is only 4% daily value, and zinc is only 4% too. For meats, minerals can add value, but salmon is not winning through this section.",
       "timingHint": "short-medium",
       "score": 0
     },
     {
       "key": "pros",
       "title": "Pros",
-      "narration": "The upsides first: easy to build a strong meal around. It works as a genuine centrepiece instead of needing lots of nutritional excuses. Helps make meals feel complete. That practical meal role matters beyond the score rows. Has unusually strong trust with viewers. People already read it as a serious healthy-food choice, which matches its overall case.",
+      "narration": "The upsides first: easy to build a strong meal around. Works as a real centrepiece food. Helps meals feel complete. Very useful when you want protein without needing lots of extras. Strong healthy-food reputation. In this case, the reputation actually matches the numbers.",
       "displayItems": [
         {
           "type": "pro",
@@ -402,14 +400,14 @@
         }
       ],
       "macroDisplayValue": null,
-      "subtitleText": "The upsides first: easy to build a strong meal around. It works as a genuine centrepiece instead of needing lots of nutritional excuses. Helps make meals feel complete. That practical meal role matters beyond the score rows. Has unusually strong trust with viewers. People already read it as a serious healthy-food choice, which matches its overall case.",
+      "subtitleText": "The upsides first: easy to build a strong meal around. Works as a real centrepiece food. Helps meals feel complete. Very useful when you want protein without needing lots of extras. Strong healthy-food reputation. In this case, the reputation actually matches the numbers.",
       "timingHint": "medium",
       "score": 66.7
     },
     {
       "key": "cons",
       "title": "Cons",
-      "narration": "Cons next: can be expensive. Price can make it less practical. Quality varies with sourcing. Sourcing changes the real-world quality. Needs good storage and handling. It is less convenient than shelf-stable options.",
+      "narration": "Cons next: can be expensive. Price can make it less practical. Quality varies with sourcing. Wild, farmed, fresh, and frozen versions can shift the real-world result. Needs good storage and handling. It is not as easy as shelf-stable protein.",
       "displayItems": [
         {
           "type": "con",
@@ -434,14 +432,14 @@
         }
       ],
       "macroDisplayValue": null,
-      "subtitleText": "Cons next: can be expensive. Price can make it less practical. Quality varies with sourcing. Sourcing changes the real-world quality. Needs good storage and handling. It is less convenient than shelf-stable options.",
+      "subtitleText": "Cons next: can be expensive. Price can make it less practical. Quality varies with sourcing. Wild, farmed, fresh, and frozen versions can shift the real-world result. Needs good storage and handling. It is not as easy as shelf-stable protein.",
       "timingHint": "medium",
       "score": 50
     }
   ],
   "closing": {
-    "summary": "Best bits are vitamin B12 and omega 3. Weak spots are low iron and expensive. Best for blood and oxygen support and hormone health because vitamin B12 supports the blood-and-oxygen side and the fat section has enough useful fats for a support role.",
-    "overview": "Best bits are vitamin B12 and omega 3. Weak spots are low iron and expensive. Best for blood and oxygen support and hormone health because vitamin B12 supports the blood-and-oxygen side and the fat section has enough useful fats for a support role.",
+    "summary": "Best bits are omega 3, vitamin B12, vitamin D, and complete protein. Weak spots are the low minerals, and the practical issues around price, sourcing, and storage. Best as a protein-and-fat source for heart health, muscle support, bone support, immune support, and practical high-protein meals.",
+    "overview": "Best bits are omega 3, vitamin B12, vitamin D, and complete protein. Weak spots are the low minerals, and the practical issues around price, sourcing, and storage. Best as a protein-and-fat source for heart health, muscle support, bone support, immune support, and practical high-protein meals.",
     "useCases": [
       {
         "key": "blood_support",
@@ -479,16 +477,16 @@
   "tier": "S",
   "overallScore": 100,
   "overallScoreExact": 100,
-  "calibratedOverallScore": 81.1,
-  "calibratedOverallScoreExact": 81.0873,
-  "anomalyAdjustedScore": 81.1,
-  "anomalyAdjustedScoreExact": 81.0873,
-  "rankingScore": 81.1,
-  "rankingScoreExact": 81.0873,
+  "calibratedOverallScore": 81.8,
+  "calibratedOverallScoreExact": 81.8458,
+  "anomalyAdjustedScore": 81.8,
+  "anomalyAdjustedScoreExact": 81.8458,
+  "rankingScore": 81.8,
+  "rankingScoreExact": 81.8458,
   "scoreAdjustmentTotal": 0,
   "scoreAdjustments": [],
-  "baseOverallScore": 58.4,
-  "baseOverallScoreExact": 58.4444,
+  "baseOverallScore": 60.1,
+  "baseOverallScoreExact": 60.1111,
   "sectionOrder": [
     "fats",
     "carbs",
@@ -510,41 +508,41 @@
     {
       "kind": "section",
       "sectionKey": "fats",
-      "text": "13 grams of fat. Omega 3 is 2200 milligrams, supporting a more useful fat profile. Saturated fat is 3.1 grams, supporting a cleaner fat profile, but it is the smaller helper in this section. For meats, fat quality is the main tradeoff."
+      "text": "13 grams of fat. Omega 3 is 2200 milligrams, which is a huge strength here. Saturated fat is 3.1 grams, so the fat profile stays pretty clean for a meat. For meats, fat quality is the main tradeoff, and salmon handles that really well."
     },
     {
       "kind": "section",
       "sectionKey": "carbs",
-      "text": "No defensible carb submacros to call out. For meats, carbs barely matter unless something is added."
+      "text": "No defensible carb submacros to call out. For meats, carbs barely matter unless something has been added, so this section is basically neutral."
     },
     {
       "kind": "section",
       "sectionKey": "proteins",
-      "text": "20.4 grams of protein. Essential amino acids score is 9 out of 9, making the protein useful for repair and maintenance. Collagen is only 0.3 grams, not adding much structural protein, so for meats, that collagen side of the protein score stays weak. For meats, protein quality matters a lot."
+      "text": "20.4 grams of protein. Essential amino acids score is 9 out of 9, and nonessential amino acids score is 10 out of 11, so the protein quality is strong. Collagen is only 0.3 grams, so the structural-protein side is weak. For meats, complete protein matters a lot, and the 94% bio availability does bring it back up a lot too."
     },
     {
       "kind": "section",
       "sectionKey": "vitamins",
-      "text": "Vitamin B12 is 117% daily value, useful for nerve and blood-cell support. Vitamin D is 66% daily value, useful for bone and immune support, but it is not the standout here, so that's a small downside for meats. For meats, vitamin B12 and vitamin D matter most."
+      "text": "Vitamin B12 is 117% daily value, which is excellent for nerve and blood-cell support. Vitamin D is 66% daily value, which is also a serious mark for bone and immune support. Vitamin C is 0, but for meats, B12 and vitamin D matter much more."
     },
     {
       "kind": "section",
       "sectionKey": "minerals",
-      "text": "Potassium is 8% daily value, the best number here but still too low to carry this section. Iron is only 4% daily value, not bringing much oxygen-transport support. For meats, iron and zinc can add real value."
+      "text": "Minerals are the weak section. Potassium is 8% daily value, which is the best number here but still low. Iron is only 4% daily value, and zinc is only 4% too. For meats, minerals can add value, but salmon is not winning through this section."
     },
     {
       "kind": "section",
       "sectionKey": "pros",
-      "text": "The upsides first: easy to build a strong meal around. It works as a genuine centrepiece instead of needing lots of nutritional excuses. Helps make meals feel complete. That practical meal role matters beyond the score rows. Has unusually strong trust with viewers. People already read it as a serious healthy-food choice, which matches its overall case."
+      "text": "The upsides first: easy to build a strong meal around. Works as a real centrepiece food. Helps meals feel complete. Very useful when you want protein without needing lots of extras. Strong healthy-food reputation. In this case, the reputation actually matches the numbers."
     },
     {
       "kind": "section",
       "sectionKey": "cons",
-      "text": "Cons next: can be expensive. Price can make it less practical. Quality varies with sourcing. Sourcing changes the real-world quality. Needs good storage and handling. It is less convenient than shelf-stable options."
+      "text": "Cons next: can be expensive. Price can make it less practical. Quality varies with sourcing. Wild, farmed, fresh, and frozen versions can shift the real-world result. Needs good storage and handling. It is not as easy as shelf-stable protein."
     },
     {
       "kind": "closing_summary",
-      "text": "Best bits are vitamin B12 and omega 3. Weak spots are low iron and expensive. Best for blood and oxygen support and hormone health because vitamin B12 supports the blood-and-oxygen side and the fat section has enough useful fats for a support role."
+      "text": "Best bits are omega 3, vitamin B12, vitamin D, and complete protein. Weak spots are the low minerals, and the practical issues around price, sourcing, and storage. Best as a protein-and-fat source for heart health, muscle support, bone support, immune support, and practical high-protein meals."
     },
     {
       "kind": "final_reveal",
@@ -553,7 +551,7 @@
   ],
   "explanation": {
     "summary": "Vitamins are carrying this food most, while minerals are holding it back most. It lands in S tier.",
-    "whyThisTier": "This food lands in S tier with a display score of 100. Section scores: fats 80, proteins 70, vitamins 84, minerals 0, pros 66.7, cons 50.",
+    "whyThisTier": "This food lands in S tier with a display score of 100. Section scores: fats 80, proteins 80, vitamins 84, minerals 0, pros 66.7, cons 50.",
     "strongestSection": {
       "key": "vitamins",
       "label": "Vitamins",
@@ -616,5 +614,9 @@
       "Weakest section: Minerals.",
       "Final verdict: S tier."
     ]
+  },
+  "scriptOverride": {
+    "schemaVersion": "foodranked-script-overrides.v1",
+    "source": "production/episodes/salmon/script-overrides.json"
   }
 }

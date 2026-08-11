@@ -146,7 +146,12 @@ function metricMentionLabels(metricKey) {
     labels.add('nonessential amino acids score');
     labels.add('amino acid quality');
   }
-  if (metricKey === 'bioavailability_percent') labels.add('bioavailability');
+  if (metricKey === 'bioavailability_percent') {
+    labels.add('bioavailability');
+    labels.add('bio availability');
+    labels.add('bioavailable');
+    labels.add('bio available');
+  }
   if (metricKey === 'collagen_g') labels.add('collagen');
   return [...labels].filter(Boolean);
 }

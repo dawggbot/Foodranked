@@ -571,7 +571,7 @@
     collagen_g: ['collagen'],
     essential_amino_acids_score: ['essential amino', 'eaa'],
     nonessential_amino_acids_score: ['nonessential amino', 'non essential amino', 'n eaa'],
-    bioavailability_percent: ['bioavailability'],
+    bioavailability_percent: ['bioavailability', 'bio availability', 'bioavailable', 'bio available'],
     vitamin_a_dv: ['vitamin a'],
     vitamin_c_dv: ['vitamin c'],
     vitamin_d_dv: ['vitamin d'],
@@ -588,7 +588,7 @@
   const SECTION_ANCHOR_TERMS = {
     fats: ['fat', 'saturated fat', 'fat quality'],
     carbs: ['carbs', 'lackluster'],
-    protein: ['protein', 'protein quantity', 'bioavailability'],
+    protein: ['protein', 'protein quantity', 'bioavailability', 'bio availability'],
     vitamins: ['vitamin', 'daily value'],
     minerals: ['zinc', 'daily value'],
     pros: ['pros first', 'plus side'],

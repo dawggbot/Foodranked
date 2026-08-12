@@ -383,7 +383,7 @@
     "kind": "data",
     "path": "data/foods-index.js",
     "mimeType": "text/javascript",
-    "sizeBytes": 8704939
+    "sizeBytes": 8736532
   },
   {
     "id": "data.foods.index.json",
@@ -391,7 +391,7 @@
     "kind": "data",
     "path": "data/foods-index.json",
     "mimeType": "application/json",
-    "sizeBytes": 15315850
+    "sizeBytes": 15361385
   },
   {
     "id": "data.foods.acorns.sample",
@@ -6448,6 +6448,14 @@
     "path": "app/sprites/header/food_images/buckwheat.png",
     "mimeType": "image/png",
     "sizeBytes": 2208
+  },
+  {
+    "id": "app.sprites.header.food.images.cannellini.beans",
+    "label": "Cannellini Beans",
+    "kind": "sprite",
+    "path": "app/sprites/header/food_images/cannellini-beans.png",
+    "mimeType": "image/png",
+    "sizeBytes": 1746
   },
   {
     "id": "app.sprites.header.food.images.chia.seeds",

@@ -230,7 +230,13 @@ function main() {
   }
 
   const newIds = new Set(jobs.map(job => job.id));
-  index.jobs = [...jobs, ...index.jobs.filter(job => !newIds.has(job.id))];
+  const seenFoods = new Set();
+  index.jobs = [...jobs, ...index.jobs.filter(job => !newIds.has(job.id))].filter(job => {
+    const key = job.foodId || job.id;
+    if (seenFoods.has(key)) return false;
+    seenFoods.add(key);
+    return true;
+  });
   index.updatedAt = timestamp;
   fs.writeFileSync(INDEX_PATH, `${JSON.stringify(index, null, 2)}\n`);
   console.log(JSON.stringify({ status: 'ok', jobs: jobs.map(job => ({ id: job.id, actions: job.actions.length })) }, null, 2));

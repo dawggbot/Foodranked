@@ -146,6 +146,102 @@
     "sizeBytes": 10092
   },
   {
+    "id": "audio.episodes.beef.sirloin.voice.v1.blocks",
+    "label": "Voice V1 Blocks",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/beef-sirloin/voice-v1-blocks.json",
+    "mimeType": "application/json",
+    "sizeBytes": 14260
+  },
+  {
+    "id": "audio.episodes.beef.sirloin.voice.v1.blocks.01.hook.food.timing",
+    "label": "01 Hook Food Timing",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/beef-sirloin/voice-v1-blocks/01-hook_food-timing.json",
+    "mimeType": "application/json",
+    "sizeBytes": 1604
+  },
+  {
+    "id": "audio.episodes.beef.sirloin.voice.v1.blocks.02.hook.ranked.timing",
+    "label": "02 Hook Ranked Timing",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/beef-sirloin/voice-v1-blocks/02-hook_ranked-timing.json",
+    "mimeType": "application/json",
+    "sizeBytes": 1160
+  },
+  {
+    "id": "audio.episodes.beef.sirloin.voice.v1.blocks.03.fats.timing",
+    "label": "03 Fats Timing",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/beef-sirloin/voice-v1-blocks/03-fats-timing.json",
+    "mimeType": "application/json",
+    "sizeBytes": 26092
+  },
+  {
+    "id": "audio.episodes.beef.sirloin.voice.v1.blocks.04.carbs.timing",
+    "label": "04 Carbs Timing",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/beef-sirloin/voice-v1-blocks/04-carbs-timing.json",
+    "mimeType": "application/json",
+    "sizeBytes": 21936
+  },
+  {
+    "id": "audio.episodes.beef.sirloin.voice.v1.blocks.05.proteins.timing",
+    "label": "05 Proteins Timing",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/beef-sirloin/voice-v1-blocks/05-proteins-timing.json",
+    "mimeType": "application/json",
+    "sizeBytes": 28502
+  },
+  {
+    "id": "audio.episodes.beef.sirloin.voice.v1.blocks.06.vitamins.timing",
+    "label": "06 Vitamins Timing",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/beef-sirloin/voice-v1-blocks/06-vitamins-timing.json",
+    "mimeType": "application/json",
+    "sizeBytes": 21711
+  },
+  {
+    "id": "audio.episodes.beef.sirloin.voice.v1.blocks.07.minerals.timing",
+    "label": "07 Minerals Timing",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/beef-sirloin/voice-v1-blocks/07-minerals-timing.json",
+    "mimeType": "application/json",
+    "sizeBytes": 28452
+  },
+  {
+    "id": "audio.episodes.beef.sirloin.voice.v1.blocks.08.pros.timing",
+    "label": "08 Pros Timing",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/beef-sirloin/voice-v1-blocks/08-pros-timing.json",
+    "mimeType": "application/json",
+    "sizeBytes": 26336
+  },
+  {
+    "id": "audio.episodes.beef.sirloin.voice.v1.blocks.09.cons.timing",
+    "label": "09 Cons Timing",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/beef-sirloin/voice-v1-blocks/09-cons-timing.json",
+    "mimeType": "application/json",
+    "sizeBytes": 26059
+  },
+  {
+    "id": "audio.episodes.beef.sirloin.voice.v1.blocks.10.closing.summary.timing",
+    "label": "10 Closing Summary Timing",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/beef-sirloin/voice-v1-blocks/10-closing_summary-timing.json",
+    "mimeType": "application/json",
+    "sizeBytes": 33238
+  },
+  {
+    "id": "audio.episodes.beef.sirloin.voice.v1.blocks.11.final.reveal.timing",
+    "label": "11 Final Reveal Timing",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/beef-sirloin/voice-v1-blocks/11-final_reveal-timing.json",
+    "mimeType": "application/json",
+    "sizeBytes": 1161
+  },
+  {
     "id": "audio.episodes.black.beans.voice.v1.blocks",
     "label": "Voice V1 Blocks",
     "kind": "audio-manifest",
@@ -168,6 +264,14 @@
     "path": "audio/episodes/buckwheat/voice-v1-blocks.json",
     "mimeType": "application/json",
     "sizeBytes": 11215
+  },
+  {
+    "id": "audio.episodes.cannellini.beans.voice.v1.blocks",
+    "label": "Voice V1 Blocks",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/cannellini-beans/voice-v1-blocks.json",
+    "mimeType": "application/json",
+    "sizeBytes": 12245
   },
   {
     "id": "audio.episodes.chia.seeds.voice.v1.blocks",
@@ -200,6 +304,14 @@
     "path": "audio/episodes/extra-virgin-olive-oil/voice-v1-blocks.json",
     "mimeType": "application/json",
     "sizeBytes": 12444
+  },
+  {
+    "id": "audio.episodes.farro.voice.v1.blocks",
+    "label": "Voice V1 Blocks",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/farro/voice-v1-blocks.json",
+    "mimeType": "application/json",
+    "sizeBytes": 11750
   },
   {
     "id": "audio.episodes.fennel.seeds.voice.v1.blocks",
@@ -288,6 +400,14 @@
     "path": "audio/episodes/macadamia/voice-v1-blocks.json",
     "mimeType": "application/json",
     "sizeBytes": 13959
+  },
+  {
+    "id": "audio.episodes.pistachios.roasted.salted.voice.v1.blocks",
+    "label": "Voice V1 Blocks",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/pistachios-roasted-salted/voice-v1-blocks.json",
+    "mimeType": "application/json",
+    "sizeBytes": 12737
   },
   {
     "id": "audio.episodes.plums.voice.v1.blocks",
@@ -383,7 +503,7 @@
     "kind": "data",
     "path": "data/foods-index.js",
     "mimeType": "text/javascript",
-    "sizeBytes": 8736532
+    "sizeBytes": 8849722
   },
   {
     "id": "data.foods.index.json",
@@ -391,7 +511,7 @@
     "kind": "data",
     "path": "data/foods-index.json",
     "mimeType": "application/json",
-    "sizeBytes": 15361385
+    "sizeBytes": 15549910
   },
   {
     "id": "data.foods.acorns.sample",
@@ -535,7 +655,7 @@
     "kind": "data",
     "path": "data/foods/beef-sirloin.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3758
+    "sizeBytes": 9068
   },
   {
     "id": "data.foods.beef.tallow.sample",
@@ -3738,6 +3858,94 @@
     "sizeBytes": 15090
   },
   {
+    "id": "audio.episodes.beef.sirloin.voice.v1.blocks.01.hook.food",
+    "label": "01 Hook Food",
+    "kind": "narration-audio",
+    "path": "audio/episodes/beef-sirloin/voice-v1-blocks/01-hook_food.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 16762
+  },
+  {
+    "id": "audio.episodes.beef.sirloin.voice.v1.blocks.02.hook.ranked",
+    "label": "02 Hook Ranked",
+    "kind": "narration-audio",
+    "path": "audio/episodes/beef-sirloin/voice-v1-blocks/02-hook_ranked.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 12164
+  },
+  {
+    "id": "audio.episodes.beef.sirloin.voice.v1.blocks.03.fats",
+    "label": "03 Fats",
+    "kind": "narration-audio",
+    "path": "audio/episodes/beef-sirloin/voice-v1-blocks/03-fats.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 316021
+  },
+  {
+    "id": "audio.episodes.beef.sirloin.voice.v1.blocks.04.carbs",
+    "label": "04 Carbs",
+    "kind": "narration-audio",
+    "path": "audio/episodes/beef-sirloin/voice-v1-blocks/04-carbs.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 241206
+  },
+  {
+    "id": "audio.episodes.beef.sirloin.voice.v1.blocks.05.proteins",
+    "label": "05 Proteins",
+    "kind": "narration-audio",
+    "path": "audio/episodes/beef-sirloin/voice-v1-blocks/05-proteins.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 323544
+  },
+  {
+    "id": "audio.episodes.beef.sirloin.voice.v1.blocks.06.vitamins",
+    "label": "06 Vitamins",
+    "kind": "narration-audio",
+    "path": "audio/episodes/beef-sirloin/voice-v1-blocks/06-vitamins.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 267955
+  },
+  {
+    "id": "audio.episodes.beef.sirloin.voice.v1.blocks.07.minerals",
+    "label": "07 Minerals",
+    "kind": "narration-audio",
+    "path": "audio/episodes/beef-sirloin/voice-v1-blocks/07-minerals.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 311841
+  },
+  {
+    "id": "audio.episodes.beef.sirloin.voice.v1.blocks.08.pros",
+    "label": "08 Pros",
+    "kind": "narration-audio",
+    "path": "audio/episodes/beef-sirloin/voice-v1-blocks/08-pros.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 296795
+  },
+  {
+    "id": "audio.episodes.beef.sirloin.voice.v1.blocks.09.cons",
+    "label": "09 Cons",
+    "kind": "narration-audio",
+    "path": "audio/episodes/beef-sirloin/voice-v1-blocks/09-cons.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 282584
+  },
+  {
+    "id": "audio.episodes.beef.sirloin.voice.v1.blocks.10.closing.summary",
+    "label": "10 Closing Summary",
+    "kind": "narration-audio",
+    "path": "audio/episodes/beef-sirloin/voice-v1-blocks/10-closing_summary.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 345278
+  },
+  {
+    "id": "audio.episodes.beef.sirloin.voice.v1.blocks.11.final.reveal",
+    "label": "11 Final Reveal",
+    "kind": "narration-audio",
+    "path": "audio/episodes/beef-sirloin/voice-v1-blocks/11-final_reveal.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 13000
+  },
+  {
     "id": "audio.episodes.black.beans.voice.v1.blocks.01.hook.food",
     "label": "01 Hook Food",
     "kind": "narration-audio",
@@ -4000,6 +4208,94 @@
     "path": "audio/episodes/buckwheat/voice-v1-blocks/11-final_reveal.mp3",
     "mimeType": "audio/mpeg",
     "sizeBytes": 14254
+  },
+  {
+    "id": "audio.episodes.cannellini.beans.voice.v1.blocks.01.hook.food",
+    "label": "01 Hook Food",
+    "kind": "narration-audio",
+    "path": "audio/episodes/cannellini-beans/voice-v1-blocks/01-hook_food.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 20524
+  },
+  {
+    "id": "audio.episodes.cannellini.beans.voice.v1.blocks.02.hook.ranked",
+    "label": "02 Hook Ranked",
+    "kind": "narration-audio",
+    "path": "audio/episodes/cannellini-beans/voice-v1-blocks/02-hook_ranked.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 12164
+  },
+  {
+    "id": "audio.episodes.cannellini.beans.voice.v1.blocks.03.fats",
+    "label": "03 Fats",
+    "kind": "narration-audio",
+    "path": "audio/episodes/cannellini-beans/voice-v1-blocks/03-fats.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 286346
+  },
+  {
+    "id": "audio.episodes.cannellini.beans.voice.v1.blocks.04.carbs",
+    "label": "04 Carbs",
+    "kind": "narration-audio",
+    "path": "audio/episodes/cannellini-beans/voice-v1-blocks/04-carbs.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 342770
+  },
+  {
+    "id": "audio.episodes.cannellini.beans.voice.v1.blocks.05.proteins",
+    "label": "05 Proteins",
+    "kind": "narration-audio",
+    "path": "audio/episodes/cannellini-beans/voice-v1-blocks/05-proteins.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 284256
+  },
+  {
+    "id": "audio.episodes.cannellini.beans.voice.v1.blocks.06.vitamins",
+    "label": "06 Vitamins",
+    "kind": "narration-audio",
+    "path": "audio/episodes/cannellini-beans/voice-v1-blocks/06-vitamins.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 273807
+  },
+  {
+    "id": "audio.episodes.cannellini.beans.voice.v1.blocks.07.minerals",
+    "label": "07 Minerals",
+    "kind": "narration-audio",
+    "path": "audio/episodes/cannellini-beans/voice-v1-blocks/07-minerals.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 322708
+  },
+  {
+    "id": "audio.episodes.cannellini.beans.voice.v1.blocks.08.pros",
+    "label": "08 Pros",
+    "kind": "narration-audio",
+    "path": "audio/episodes/cannellini-beans/voice-v1-blocks/08-pros.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 292197
+  },
+  {
+    "id": "audio.episodes.cannellini.beans.voice.v1.blocks.09.cons",
+    "label": "09 Cons",
+    "kind": "narration-audio",
+    "path": "audio/episodes/cannellini-beans/voice-v1-blocks/09-cons.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 383730
+  },
+  {
+    "id": "audio.episodes.cannellini.beans.voice.v1.blocks.10.closing.summary",
+    "label": "10 Closing Summary",
+    "kind": "narration-audio",
+    "path": "audio/episodes/cannellini-beans/voice-v1-blocks/10-closing_summary.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 458963
+  },
+  {
+    "id": "audio.episodes.cannellini.beans.voice.v1.blocks.11.final.reveal",
+    "label": "11 Final Reveal",
+    "kind": "narration-audio",
+    "path": "audio/episodes/cannellini-beans/voice-v1-blocks/11-final_reveal.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 13000
   },
   {
     "id": "audio.episodes.chia.seeds.voice.v1.blocks.01.hook.food",
@@ -4352,6 +4648,94 @@
     "path": "audio/episodes/extra-virgin-olive-oil/voice-v1-blocks/11-final_reveal.mp3",
     "mimeType": "audio/mpeg",
     "sizeBytes": 15090
+  },
+  {
+    "id": "audio.episodes.farro.voice.v1.blocks.01.hook.food",
+    "label": "01 Hook Food",
+    "kind": "narration-audio",
+    "path": "audio/episodes/farro/voice-v1-blocks/01-hook_food.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 13000
+  },
+  {
+    "id": "audio.episodes.farro.voice.v1.blocks.02.hook.ranked",
+    "label": "02 Hook Ranked",
+    "kind": "narration-audio",
+    "path": "audio/episodes/farro/voice-v1-blocks/02-hook_ranked.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 11328
+  },
+  {
+    "id": "audio.episodes.farro.voice.v1.blocks.03.fats",
+    "label": "03 Fats",
+    "kind": "narration-audio",
+    "path": "audio/episodes/farro/voice-v1-blocks/03-fats.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 270881
+  },
+  {
+    "id": "audio.episodes.farro.voice.v1.blocks.04.carbs",
+    "label": "04 Carbs",
+    "kind": "narration-audio",
+    "path": "audio/episodes/farro/voice-v1-blocks/04-carbs.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 313931
+  },
+  {
+    "id": "audio.episodes.farro.voice.v1.blocks.05.proteins",
+    "label": "05 Proteins",
+    "kind": "narration-audio",
+    "path": "audio/episodes/farro/voice-v1-blocks/05-proteins.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 340680
+  },
+  {
+    "id": "audio.episodes.farro.voice.v1.blocks.06.vitamins",
+    "label": "06 Vitamins",
+    "kind": "narration-audio",
+    "path": "audio/episodes/farro/voice-v1-blocks/06-vitamins.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 250819
+  },
+  {
+    "id": "audio.episodes.farro.voice.v1.blocks.07.minerals",
+    "label": "07 Minerals",
+    "kind": "narration-audio",
+    "path": "audio/episodes/farro/voice-v1-blocks/07-minerals.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 218636
+  },
+  {
+    "id": "audio.episodes.farro.voice.v1.blocks.08.pros",
+    "label": "08 Pros",
+    "kind": "narration-audio",
+    "path": "audio/episodes/farro/voice-v1-blocks/08-pros.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 316857
+  },
+  {
+    "id": "audio.episodes.farro.voice.v1.blocks.09.cons",
+    "label": "09 Cons",
+    "kind": "narration-audio",
+    "path": "audio/episodes/farro/voice-v1-blocks/09-cons.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 325634
+  },
+  {
+    "id": "audio.episodes.farro.voice.v1.blocks.10.closing.summary",
+    "label": "10 Closing Summary",
+    "kind": "narration-audio",
+    "path": "audio/episodes/farro/voice-v1-blocks/10-closing_summary.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 397941
+  },
+  {
+    "id": "audio.episodes.farro.voice.v1.blocks.11.final.reveal",
+    "label": "11 Final Reveal",
+    "kind": "narration-audio",
+    "path": "audio/episodes/farro/voice-v1-blocks/11-final_reveal.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 13836
   },
   {
     "id": "audio.episodes.fennel.seeds.voice.v1.blocks.01.hook.food",
@@ -5320,6 +5704,94 @@
     "path": "audio/episodes/macadamia/voice-v1-blocks/11-final_reveal.mp3",
     "mimeType": "audio/mpeg",
     "sizeBytes": 12332
+  },
+  {
+    "id": "audio.episodes.pistachios.roasted.salted.voice.v1.blocks.01.hook.food",
+    "label": "01 Hook Food",
+    "kind": "narration-audio",
+    "path": "audio/episodes/pistachios-roasted-salted/voice-v1-blocks/01-hook_food.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 30137
+  },
+  {
+    "id": "audio.episodes.pistachios.roasted.salted.voice.v1.blocks.02.hook.ranked",
+    "label": "02 Hook Ranked",
+    "kind": "narration-audio",
+    "path": "audio/episodes/pistachios-roasted-salted/voice-v1-blocks/02-hook_ranked.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 12164
+  },
+  {
+    "id": "audio.episodes.pistachios.roasted.salted.voice.v1.blocks.03.fats",
+    "label": "03 Fats",
+    "kind": "narration-audio",
+    "path": "audio/episodes/pistachios-roasted-salted/voice-v1-blocks/03-fats.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 303482
+  },
+  {
+    "id": "audio.episodes.pistachios.roasted.salted.voice.v1.blocks.04.carbs",
+    "label": "04 Carbs",
+    "kind": "narration-audio",
+    "path": "audio/episodes/pistachios-roasted-salted/voice-v1-blocks/04-carbs.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 313931
+  },
+  {
+    "id": "audio.episodes.pistachios.roasted.salted.voice.v1.blocks.05.proteins",
+    "label": "05 Proteins",
+    "kind": "narration-audio",
+    "path": "audio/episodes/pistachios-roasted-salted/voice-v1-blocks/05-proteins.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 274643
+  },
+  {
+    "id": "audio.episodes.pistachios.roasted.salted.voice.v1.blocks.06.vitamins",
+    "label": "06 Vitamins",
+    "kind": "narration-audio",
+    "path": "audio/episodes/pistachios-roasted-salted/voice-v1-blocks/06-vitamins.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 261268
+  },
+  {
+    "id": "audio.episodes.pistachios.roasted.salted.voice.v1.blocks.07.minerals",
+    "label": "07 Minerals",
+    "kind": "narration-audio",
+    "path": "audio/episodes/pistachios-roasted-salted/voice-v1-blocks/07-minerals.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 247057
+  },
+  {
+    "id": "audio.episodes.pistachios.roasted.salted.voice.v1.blocks.08.pros",
+    "label": "08 Pros",
+    "kind": "narration-audio",
+    "path": "audio/episodes/pistachios-roasted-salted/voice-v1-blocks/08-pros.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 311005
+  },
+  {
+    "id": "audio.episodes.pistachios.roasted.salted.voice.v1.blocks.09.cons",
+    "label": "09 Cons",
+    "kind": "narration-audio",
+    "path": "audio/episodes/pistachios-roasted-salted/voice-v1-blocks/09-cons.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 305154
+  },
+  {
+    "id": "audio.episodes.pistachios.roasted.salted.voice.v1.blocks.10.closing.summary",
+    "label": "10 Closing Summary",
+    "kind": "narration-audio",
+    "path": "audio/episodes/pistachios-roasted-salted/voice-v1-blocks/10-closing_summary.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 387492
+  },
+  {
+    "id": "audio.episodes.pistachios.roasted.salted.voice.v1.blocks.11.final.reveal",
+    "label": "11 Final Reveal",
+    "kind": "narration-audio",
+    "path": "audio/episodes/pistachios-roasted-salted/voice-v1-blocks/11-final_reveal.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 13836
   },
   {
     "id": "audio.episodes.plums.voice.v1.blocks.01.hook.food",

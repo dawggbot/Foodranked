@@ -383,7 +383,7 @@
     "kind": "data",
     "path": "data/foods-index.js",
     "mimeType": "text/javascript",
-    "sizeBytes": 8704632
+    "sizeBytes": 8704939
   },
   {
     "id": "data.foods.index.json",
@@ -391,7 +391,7 @@
     "kind": "data",
     "path": "data/foods-index.json",
     "mimeType": "application/json",
-    "sizeBytes": 15315447
+    "sizeBytes": 15315850
   },
   {
     "id": "data.foods.acorns.sample",
@@ -6528,6 +6528,14 @@
     "path": "app/sprites/header/food_images/macadamia.png",
     "mimeType": "image/png",
     "sizeBytes": 2110
+  },
+  {
+    "id": "app.sprites.header.food.images.pistachios.roasted.salted",
+    "label": "Pistachios Roasted Salted",
+    "kind": "sprite",
+    "path": "app/sprites/header/food_images/pistachios-roasted-salted.png",
+    "mimeType": "image/png",
+    "sizeBytes": 2272
   },
   {
     "id": "app.sprites.header.food.images.raspberries",

@@ -26,6 +26,7 @@ function usage() {
     '  --source <path>      Narration text path. Defaults to outputs/episodes/<food>-compact/narration.txt.',
     '  --config <path>      Voice config path.',
     '  --force              Regenerate even when metadata matches.',
+    '  --over-limit-speed   Use the single approved 1.13x exception after a 1.12x narration exceeds 180 seconds.',
     '  --split-blocks       Generate one audio file per narration block.',
     '  --list-suitable-voices  Print suitable random voice candidates and exit.',
     '  --dry-run            Resolve settings and selected voice without generating audio.',
@@ -45,6 +46,7 @@ function parseArgs(argv) {
     take: 'voice-v1',
     source: null,
     force: false,
+    overLimitSpeed: false,
     splitBlocks: false,
     listSuitableVoices: false,
     dryRun: false,
@@ -56,6 +58,7 @@ function parseArgs(argv) {
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === '--force') options.force = true;
+    else if (arg === '--over-limit-speed') options.overLimitSpeed = true;
     else if (arg === '--split-blocks' || arg === '--split-sections') options.splitBlocks = true;
     else if (arg === '--list-suitable-voices') options.listSuitableVoices = true;
     else if (arg === '--dry-run') options.dryRun = true;
@@ -496,16 +499,53 @@ function scoreVoiceCandidate(voice, config, modelId) {
   return { accepted: true, score, reasons };
 }
 
-function generationDefaults(config) {
+function narrationDurationPolicy(config) {
+  const configured = config.narrationDurationPolicy || {};
+  return {
+    maximumSeconds: Number(configured.maximumSeconds) || 180,
+    defaultSpeed: Number(configured.defaultSpeed) || 1.12,
+    overLimitSpeed: Number(configured.overLimitSpeed) || 1.13
+  };
+}
+
+function narrationDurationReview(config, durationSeconds, appliedSpeed) {
+  const policy = narrationDurationPolicy(config);
+  const duration = Number(durationSeconds);
+  if (!Number.isFinite(duration) || duration <= 0) return null;
+  const overLimit = duration > policy.maximumSeconds;
+  const usingApprovedException = Number(appliedSpeed) === policy.overLimitSpeed;
+  return {
+    durationSeconds: Number(duration.toFixed(3)),
+    maximumSeconds: policy.maximumSeconds,
+    appliedSpeed: Number(appliedSpeed),
+    overLimit,
+    status: !overLimit
+      ? 'within-limit'
+      : usingApprovedException
+        ? 'still-over-limit-after-approved-speed'
+        : 'regenerate-with-over-limit-speed',
+    ...(overLimit && !usingApprovedException ? {
+      replacementSpeed: policy.overLimitSpeed,
+      replacementFlag: '--over-limit-speed'
+    } : {})
+  };
+}
+
+function generationDefaults(config, options = {}) {
   const fallbackProfile = config.profiles?.[config.defaultProfile] || {};
   const defaults = config.generationDefaults || {};
+  const durationPolicy = narrationDurationPolicy(config);
+  const voiceSettings = {
+    ...(fallbackProfile.voiceSettings || {}),
+    ...(defaults.voiceSettings || {})
+  };
+  voiceSettings.speed = options.overLimitSpeed
+    ? durationPolicy.overLimitSpeed
+    : durationPolicy.defaultSpeed;
   return {
     modelId: defaults.modelId || fallbackProfile.modelId || 'eleven_multilingual_v2',
     outputFormat: defaults.outputFormat || fallbackProfile.outputFormat || 'mp3_44100_128',
-    voiceSettings: {
-      ...(fallbackProfile.voiceSettings || {}),
-      ...(defaults.voiceSettings || {})
-    }
+    voiceSettings
   };
 }
 
@@ -649,7 +689,7 @@ async function randomSuitableProfile({ apiKey, config, settings, seed }) {
 }
 
 async function resolveProfile({ apiKey, config, options }) {
-  const settings = generationDefaults(config);
+  const settings = generationDefaults(config, options);
   if (options.voiceId) {
     return {
       profile: normalizeProfileFromVoice({
@@ -868,8 +908,16 @@ async function generateSplitBlockSpeech({
         displayText: block.text,
         ttsText: block.ttsText,
         reason: pronunciationTtsOverride(foodId, block)?.reason || 'Use pronunciation-safe TTS text while keeping display text unchanged.'
-      }))
+      })),
+    narrationDurationSeconds: generatedBlocks.every(block => Number.isFinite(Number(block.mediaDurationSeconds)))
+      ? Number(generatedBlocks.reduce((total, block) => total + Number(block.mediaDurationSeconds), 0).toFixed(3))
+      : null
   };
+  metadata.durationPolicyReview = narrationDurationReview(
+    readJson(options.configPath),
+    metadata.narrationDurationSeconds,
+    profile.voiceSettings?.speed
+  );
 
   writeJson(metadataFile, metadata);
   if (options.docsMirror) mirrorSplitMetadata(metadata, docsBlocksDir, docsMetadataFile, metadataFile);
@@ -880,6 +928,8 @@ async function generateSplitBlockSpeech({
     foodId,
     take,
     blockCount: generatedBlocks.length,
+    narrationDurationSeconds: metadata.narrationDurationSeconds,
+    durationPolicyReview: metadata.durationPolicyReview,
     audioManifestFile: relativeRepoPath(metadataFile),
     docsAudioManifestFile: options.docsMirror ? relativeRepoPath(docsMetadataFile) : null
   }, null, 2));
@@ -897,7 +947,7 @@ async function main() {
   const config = readJson(options.configPath);
   const apiKeyName = config.environment?.apiKeyVariable || 'ELEVENLABS_API_KEY';
   const apiKey = process.env[apiKeyName];
-  const defaultSettings = generationDefaults(config);
+  const defaultSettings = generationDefaults(config, options);
 
   if (options.listSuitableVoices) {
     const candidates = await suitableVoiceCandidates({ apiKey, config, settings: defaultSettings });
@@ -1108,6 +1158,7 @@ async function main() {
     characterCount: text.length,
     byteLength: result.bytes,
     ...(result.mediaDurationSeconds ? { mediaDurationSeconds: result.mediaDurationSeconds } : {}),
+    durationPolicyReview: narrationDurationReview(config, result.mediaDurationSeconds, profile.voiceSettings?.speed),
     elevenLabs: {
       requestId: result.requestId,
       historyItemId: result.historyItemId
@@ -1138,6 +1189,7 @@ async function main() {
     take,
     audioFile: relativeRepoPath(outputFile),
     docsAudioFile: options.docsMirror ? relativeRepoPath(docsAudioFile) : null,
+    durationPolicyReview: metadata.durationPolicyReview,
     bytes: result.bytes
   }, null, 2));
 }

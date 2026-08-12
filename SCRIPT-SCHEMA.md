@@ -24,6 +24,8 @@ It is the bridge between:
 
 - narration must stay aligned with the scored result
 - generated narration should stay direct and simple: short sentences, one idea per sentence, practical wording, and no abstract phrasing that makes viewers think hard to understand the point
+- write for the broadest audience and assume no prior nutrition knowledge; prefer common everyday words for all non-nutrition phrasing
+- keep genuine nutrition terminology when it is educational, but explain it immediately in plain English instead of surrounding it with more technical language
 - packaged videos must stay at or below 180 seconds
 - the ElevenLabs-ready block layout is first-class, not an afterthought
 - audio-only narration expands measurement abbreviations, so `3g`, `24g`, `15mg`, and similar values are spoken as full unit words

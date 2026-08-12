@@ -39,13 +39,19 @@ Use `config/elevenlabs-voice-settings.v1.json` as the source of truth. The model
 - similarity boost: `75%`
 - style: `10%`
 - speaker boost: enabled
-- speed: `1.10x`
+- speed: `1.12x`
+
+Keep `1.12x` as the constant FoodRanked narration speed for existing and future episodes. If a completed narration take exceeds 180 seconds, use the single approved exception of `1.13x` for its replacement take. Do not introduce other per-video speed variation.
+
+For that exception, regenerate the replacement take with `--over-limit-speed`; the voice tool records the measured narration duration and whether the take is within the policy.
 
 The voice can change per video. Default generation uses `random_suitable`, which chooses a clear, relatively professional English voice from ElevenLabs and avoids silly, character-style, or very strong-accent reads. Use `--profile <id>` or `--voice-id <id>` only when a voice needs to be pinned.
 
 Tone notes still apply across voices:
 - clear, confident, fair
 - lightly punchy, not overhyped
+- assume no prior nutrition knowledge: keep the general wording simple and explain necessary nutrition terms in plain English
+- avoid technical words and abstract phrases unless they are real nutrition terminology that teaches the viewer something useful
 - keep section breaks audible, but do not over-pause
 - final line: `X tier.` should sound like a hard stop
 

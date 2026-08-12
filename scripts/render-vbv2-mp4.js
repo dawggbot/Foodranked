@@ -101,6 +101,7 @@ function parseArgs(argv) {
     music: true,
     sfx: true,
     musicVolume: DEFAULT_MUSIC_VOLUME,
+    musicVolumeExplicit: false,
     narrationVolume: DEFAULT_NARRATION_VOLUME,
     sfxVolume: 1,
     keepFrames: false
@@ -139,7 +140,10 @@ function parseArgs(argv) {
     else if (arg === '--layout-state-json') options.layoutStateJson = readValue(arg);
     else if (arg === '--video-state-json') options.videoStateJson = readValue(arg);
     else if (arg === '--database-json') options.databaseJson = readValue(arg);
-    else if (arg === '--music-volume') options.musicVolume = Number(readValue(arg));
+    else if (arg === '--music-volume') {
+      options.musicVolume = Number(readValue(arg));
+      options.musicVolumeExplicit = true;
+    }
     else if (arg === '--narration-volume') options.narrationVolume = Number(readValue(arg));
     else if (arg === '--sfx-volume') options.sfxVolume = Number(readValue(arg));
     else if (arg === '--no-audio') options.audio = false;
@@ -1147,7 +1151,7 @@ function inputAudioFilter(inputIndex, label, options) {
   return `[${inputIndex}:a]${parts.join(',')}${label}`;
 }
 
-async function buildAudioTrack({ food, options, duration, workDir, sfxEvents = [], narrationEvents = [] }) {
+async function buildAudioTrack({ food, options, duration, workDir, sfxEvents = [], narrationEvents = [], rendererManifest = null }) {
   if (!options.audio) return '';
 
   const narrationInputs = narrationInputsForFood(food, narrationEvents);
@@ -1177,8 +1181,12 @@ async function buildAudioTrack({ food, options, duration, workDir, sfxEvents = [
   if (musicPath) {
     args.push('-stream_loop', '-1', '-i', musicPath);
     const musicInputIndex = narrationInputs.length;
+    const rendererMusicVolume = Number(rendererManifest?.backgroundMusic?.volume);
+    const musicVolume = !options.musicVolumeExplicit && Number.isFinite(rendererMusicVolume) && rendererMusicVolume >= 0
+      ? rendererMusicVolume
+      : options.musicVolume;
     filters.push(
-      `[${musicInputIndex}:a]atrim=0:${ffmpegNumber(duration)},asetpts=PTS-STARTPTS,volume=${ffmpegNumber(options.musicVolume)}[music]`
+      `[${musicInputIndex}:a]atrim=0:${ffmpegNumber(duration)},asetpts=PTS-STARTPTS,volume=${ffmpegNumber(musicVolume)}[music]`
     );
     labels.push('[music]');
   }
@@ -1295,7 +1303,8 @@ async function main() {
       duration: frameResult.duration,
       workDir,
       sfxEvents: frameResult.sfxEvents,
-      narrationEvents: frameResult.narrationEvents
+      narrationEvents: frameResult.narrationEvents,
+      rendererManifest: frameResult.rendererManifest
     });
     await encodeMp4({
       framesDir,

@@ -203,7 +203,7 @@ node scripts/foodranked-generate-voice.js <food-id> --take voice-v7 --split-bloc
 node scripts/foodranked-align-subtitles.js <food-id> --take voice-v7 --refresh
 ```
 
-Split-block audio keeps the exact same spoken text and block order, but each block gets its own MP3 and forced-alignment request. The subtitle aligner then stitches block word timings into one episode timeline with controlled gaps.
+Split-block audio keeps the exact same spoken text and block order. Narration speed is locked to `1.13` for every take. New MP3 generation uses ElevenLabs' timestamped TTS response, saving character timings beside each block so subtitle alignment does not depend on a second API permission. The subtitle aligner converts those timings into words and stitches the blocks into one episode timeline with controlled gaps. Older takes may use forced alignment or speech-to-text timing when the account permits it.
 
 Generated website data exposes split narration as `episode.splitAudio`, including each block path, offset, and duration. The video builder should prefer that timed split take when available, while keeping `episode.audio` available for older single-file takes.
 
@@ -225,7 +225,7 @@ Rules:
 - the closing summary should use a wider-but-safe centered `summary-full` subtitle placement across the page, then the final `X tier.` cue should use centered `tier-center` placement until a tier sprite replaces it
 - the video builder preview should render from generated subtitle cues, not spoken narration blocks, so the visible captions keep `g` while audio says `grams`
 - the video builder preview should calibrate scene timing to the loaded narration audio duration when audio metadata is available
-- when forced-alignment metadata exists for a narration take, generated subtitles should carry per-word timing data and preview/export tools should use those timings for highlighted-word sync instead of estimated word weights
+- when native TTS, forced-alignment, or speech-to-text timing metadata exists for a narration take, generated subtitles should carry per-word timing data and preview/export tools should use those timings for highlighted-word sync instead of estimated word weights
 - pros/cons should keep all 3 items each when possible
 - on-screen body text should remain subtitle-driven
 

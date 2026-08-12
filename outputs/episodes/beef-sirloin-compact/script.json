@@ -1,0 +1,607 @@
+{
+  "status": "ok",
+  "schemaVersion": "foodranked-script.v2",
+  "narrationFormat": "elevenlabs-blocks-v1",
+  "food": {
+    "id": "beef-sirloin",
+    "name": "Beef Sirloin",
+    "foodType": "meats",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "identity": {
+      "canonicalName": "Beef, top sirloin, steak, separable lean and fat, trimmed to 1/8 inch fat, all grades, raw",
+      "commonName": "Beef Sirloin",
+      "form": "top sirloin steak with separable lean and fat",
+      "state": "raw",
+      "ediblePortion": "separable lean and fat",
+      "basisReason": "Raw per-100g edible-meat basis follows the FoodRanked default for unprepared meats and avoids cooked water-loss distortion.",
+      "includes": [
+        "plain raw top sirloin steak trimmed to 1/8 inch external fat"
+      ],
+      "excludes": [
+        "cooked sirloin values",
+        "sirloin with all separable fat removed",
+        "ground sirloin",
+        "marinated or breaded sirloin products"
+      ]
+    },
+    "scoreReadiness": {
+      "status": "production-safe",
+      "summary": "Canonical raw top-sirloin entry with exact USDA nutrient and amino-acid rows, documented per-100g conversions, and a labelled FoodRanked protein-usability estimate.",
+      "blockers": [],
+      "caveats": [
+        "Sirloin varies by grade, marbling, external-fat trim, and cooking loss; this entry represents the named raw USDA identity rather than every steak sold as sirloin."
+      ]
+    },
+    "sourceNotes": [
+      "Production source pass for raw top sirloin steak.",
+      "All displayed nutrition values use a per-100g basis.",
+      "Primary nutrient and amino-acid identity is USDA FoodData Central FDC 168726.",
+      "Bioavailability is a FoodRanked display estimate for protein usability, not a USDA nutrient measurement."
+    ]
+  },
+  "ruleset": {
+    "id": "meats.v1",
+    "version": 1,
+    "tierScoreMap": {
+      "Slop": -20,
+      "D": 20,
+      "C": 40,
+      "B": 60,
+      "A": 80,
+      "S": 100
+    },
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
+  },
+  "header": {
+    "kcal": 201,
+    "fat_g": 12.7,
+    "carb_g": 0,
+    "protein_g": 20.4
+  },
+  "hook": "Beef Sirloin ranked.",
+  "sections": [
+    {
+      "key": "fats",
+      "title": "Fats",
+      "narration": "12.7 grams of fat. Cholesterol is 75 milligrams, which is a fairly controlled mark for a meat. Polyunsaturated fat is only 0.48 grams, so very little of the fat comes from that more heart-friendly type. Saturated fat is 5.2 grams, which adds some real baggage. For meats, the fat mix decides how much baggage comes with the protein.",
+      "displayItems": [
+        {
+          "metricKey": "saturated_fat_g",
+          "text": "saturated fat at 5.2g",
+          "weightedScore": 120,
+          "scoringMode": "arrow_bands",
+          "band": "1_red",
+          "polarity": "higher_worse",
+          "dvPercent": null,
+          "value": 5.2,
+          "score": 40,
+          "denominator": null,
+          "displayValue": "5.2g",
+          "displaySource": "scored"
+        },
+        {
+          "metricKey": "polyunsaturated_fat_g",
+          "text": "polyunsaturated fat at 0.48g",
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
+          "band": "3_red",
+          "polarity": "higher_better",
+          "dvPercent": null,
+          "value": 0.48,
+          "score": 0,
+          "denominator": null,
+          "displayValue": "0.48g",
+          "displaySource": "scored"
+        },
+        {
+          "metricKey": "omega3_mg",
+          "text": "omega 3 at 152mg",
+          "weightedScore": 120,
+          "scoringMode": "arrow_bands",
+          "band": "1_red",
+          "polarity": "higher_better",
+          "dvPercent": null,
+          "value": 152,
+          "score": 40,
+          "denominator": null,
+          "displayValue": "152mg",
+          "displaySource": "scored"
+        },
+        {
+          "metricKey": "cholesterol_mg",
+          "text": "cholesterol at 75mg",
+          "weightedScore": 160,
+          "scoringMode": "arrow_bands",
+          "band": "2_green",
+          "polarity": "higher_worse",
+          "dvPercent": null,
+          "value": 75,
+          "score": 80,
+          "denominator": null,
+          "displayValue": "75mg",
+          "displaySource": "scored"
+        }
+      ],
+      "macroDisplayValue": "12.7g",
+      "subtitleText": "12.7g of fat. Cholesterol is 75mg, which is a fairly controlled mark for a meat. Polyunsaturated fat is only 0.48g, so very little of the fat comes from that more heart-friendly type. Saturated fat is 5.2g, which adds some real baggage. For meats, the fat mix decides how much baggage comes with the protein.",
+      "timingHint": "short-medium",
+      "score": 48
+    },
+    {
+      "key": "carbs",
+      "title": "Carbs",
+      "narration": "0 grams of carbs. There is no sugar, starch, or fibre to score, which is completely normal for plain beef. That makes sirloin easy to fit into a lower-carb meal, but your vegetables or sides still need to bring the fibre. For meats, carbs are not the job unless something is added.",
+      "displayItems": [
+        {
+          "metricKey": "fibre_g",
+          "text": "fibre at N/A",
+          "weightedScore": null,
+          "scoringMode": "not_applicable",
+          "band": null,
+          "polarity": null,
+          "dvPercent": null,
+          "value": null,
+          "score": null,
+          "denominator": null,
+          "displayValue": "N/A",
+          "notApplicableReason": "main_macro_zero"
+        },
+        {
+          "metricKey": "sugar_g",
+          "text": "sugar at N/A",
+          "weightedScore": null,
+          "scoringMode": "not_applicable",
+          "band": null,
+          "polarity": null,
+          "dvPercent": null,
+          "value": null,
+          "score": null,
+          "denominator": null,
+          "displayValue": "N/A",
+          "notApplicableReason": "main_macro_zero"
+        },
+        {
+          "metricKey": "starch_g",
+          "text": "starch at N/A",
+          "weightedScore": null,
+          "scoringMode": "not_applicable",
+          "band": null,
+          "polarity": null,
+          "dvPercent": null,
+          "value": null,
+          "score": null,
+          "denominator": null,
+          "displayValue": "N/A",
+          "notApplicableReason": "main_macro_zero"
+        },
+        {
+          "metricKey": "glycemic_index",
+          "text": "glycemic index at N/A",
+          "weightedScore": null,
+          "scoringMode": "not_applicable",
+          "band": null,
+          "polarity": null,
+          "dvPercent": null,
+          "value": null,
+          "score": null,
+          "denominator": null,
+          "displayValue": "N/A",
+          "notApplicableReason": "main_macro_zero"
+        }
+      ],
+      "macroDisplayValue": "N/A",
+      "subtitleText": "0g of carbs. There is no sugar, starch, or fibre to score, which is completely normal for plain beef. That makes sirloin easy to fit into a lower-carb meal, but your vegetables or sides still need to bring the fibre. For meats, carbs are not the job unless something is added.",
+      "timingHint": "short-medium",
+      "score": null
+    },
+    {
+      "key": "proteins",
+      "title": "Proteins",
+      "narration": "20.4 grams of protein. Essential amino acids score 9 out of 9. That means all nine amino acids your body cannot make on its own show up in useful amounts, helping muscle repair and maintenance. Collagen is only 1.6 grams, so sirloin is not doing much on that structural-protein side. For meats, usable complete protein is the main job, and sirloin nails that part.",
+      "displayItems": [
+        {
+          "metricKey": "collagen_g",
+          "text": "collagen at 1.6g",
+          "weightedScore": 40,
+          "scoringMode": "arrow_bands",
+          "band": "1_red",
+          "polarity": "higher_better",
+          "dvPercent": null,
+          "value": 1.6,
+          "score": 40,
+          "denominator": null,
+          "displayValue": "1.6g",
+          "displaySource": "scored"
+        },
+        {
+          "metricKey": "essential_amino_acids_score",
+          "text": "essential amino acids score at 9/9",
+          "weightedScore": 200,
+          "scoringMode": "arrow_bands",
+          "band": "3_green",
+          "polarity": "higher_better",
+          "dvPercent": null,
+          "value": 9,
+          "score": 100,
+          "denominator": 9,
+          "displayValue": "9/9",
+          "displaySource": "scored"
+        },
+        {
+          "metricKey": "nonessential_amino_acids_score",
+          "text": "nonessential amino acids score at 10/11",
+          "weightedScore": 80,
+          "scoringMode": "arrow_bands",
+          "band": "2_green",
+          "polarity": "higher_better",
+          "dvPercent": null,
+          "value": 10,
+          "score": 80,
+          "denominator": 11,
+          "displayValue": "10/11",
+          "displaySource": "scored"
+        },
+        {
+          "metricKey": "bioavailability_percent",
+          "text": "bioavailability at 95%",
+          "weightedScore": 200,
+          "scoringMode": "arrow_bands",
+          "band": "3_green",
+          "polarity": "higher_better",
+          "dvPercent": null,
+          "value": 95,
+          "score": 100,
+          "denominator": null,
+          "displayValue": "95%",
+          "displaySource": "scored"
+        }
+      ],
+      "macroDisplayValue": "20.4g",
+      "subtitleText": "20.4g of protein. Essential amino acids score 9/9. That means all nine amino acids your body cannot make on its own show up in useful amounts, helping muscle repair and maintenance. Collagen is only 1.6g, so sirloin is not doing much on that structural-protein side. For meats, usable complete protein is the main job, and sirloin nails that part.",
+      "timingHint": "short-medium",
+      "score": 86.7,
+      "displayPolicy": {
+        "policyId": "protein-section-display.v1",
+        "rowCount": 4,
+        "visibleRows": [
+          "collagen_g",
+          "essential_amino_acids_score",
+          "nonessential_amino_acids_score",
+          "bioavailability_percent"
+        ],
+        "hiddenFallbackMetricKey": "protein_g_fallback",
+        "missingValueDisplay": "N/A",
+        "showProteinFallbackAsVisibleRow": false,
+        "rules": {
+          "visibleRowsOnly": true,
+          "visibleSubmacroRowsDisplayNaOnlyWhenMainMacroNa": true,
+          "missingSubmacroRowsUseDisplayDefault": true,
+          "proteinQualityGateSkippedRowsUseDisplayDefault": true,
+          "doNotDisplayProteinFallbackAsSubmacro": true
+        }
+      }
+    },
+    {
+      "key": "vitamins",
+      "title": "Vitamins",
+      "narration": "Vitamin B12 is 44% daily value. B12 helps your nerves work properly and helps make red blood cells, which carry oxygen around the body. The rest of the vitamin panel is very quiet. For meats, B12 is a real strength, but one strong vitamin does not equal broad vitamin coverage.",
+      "displayItems": [
+        {
+          "metricKey": "vitamin_b12_dv",
+          "text": "vitamin B12 at 44% DV",
+          "weightedScore": 120,
+          "scoringMode": "dv_points",
+          "band": null,
+          "polarity": null,
+          "dvPercent": 44,
+          "value": null,
+          "score": 40,
+          "denominator": null
+        }
+      ],
+      "macroDisplayValue": null,
+      "subtitleText": "Vitamin B12 is 44% daily value. B12 helps your nerves work properly and helps make red blood cells, which carry oxygen around the body. The rest of the vitamin panel is very quiet. For meats, B12 is a real strength, but one strong vitamin does not equal broad vitamin coverage.",
+      "timingHint": "short-medium",
+      "score": 40
+    },
+    {
+      "key": "minerals",
+      "title": "Minerals",
+      "narration": "Zinc is 32% daily value, a strong amount for immune function and wound healing. Potassium is only 7% daily value, so it does not bring much help with fluid balance or normal muscle function. Iron is 9% daily value, useful but smaller than beef's reputation might suggest. For meats, zinc and iron can add value beyond protein, and zinc does most of that work here.",
+      "displayItems": [
+        {
+          "metricKey": "zinc_dv",
+          "text": "zinc at 32% DV",
+          "weightedScore": 90,
+          "scoringMode": "dv_points",
+          "band": null,
+          "polarity": null,
+          "dvPercent": 32,
+          "value": null,
+          "score": 30,
+          "denominator": null
+        },
+        {
+          "metricKey": "potassium_dv",
+          "text": "potassium at 7% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "polarity": null,
+          "dvPercent": 7,
+          "value": null,
+          "score": 0,
+          "denominator": null
+        },
+        {
+          "metricKey": "iron_dv",
+          "text": "iron at 9% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "polarity": null,
+          "dvPercent": 9,
+          "value": null,
+          "score": 0,
+          "denominator": null
+        }
+      ],
+      "macroDisplayValue": null,
+      "subtitleText": "Zinc is 32% daily value, a strong amount for immune function and wound healing. Potassium is only 7% daily value, so it does not bring much help with fluid balance or normal muscle function. Iron is 9% daily value, useful but smaller than beef's reputation might suggest. For meats, zinc and iron can add value beyond protein, and zinc does most of that work here.",
+      "timingHint": "short-medium",
+      "score": 11.3
+    },
+    {
+      "key": "pros",
+      "title": "Pros",
+      "narration": "The upsides first: a plain whole cut keeps processing low. There is no curing, breading, or long ingredient list getting in the way. Easy to build a proper meal around. Add vegetables and a carb and dinner is basically sorted. Works across plenty of simple meals. Grill it, pan-sear it, slice it into wraps, or throw it into a stir-fry.",
+      "displayItems": [
+        {
+          "type": "pro",
+          "title": "a plain whole cut keeps processing low",
+          "explanation": "There is no curing, breading, or long ingredient list getting in the way.",
+          "impactLevel": "minor",
+          "resolvedScoreValue": 50
+        },
+        {
+          "type": "pro",
+          "title": "easy to build a proper meal around",
+          "explanation": "Add vegetables and a carb and dinner is basically sorted.",
+          "impactLevel": "minor",
+          "resolvedScoreValue": 50
+        },
+        {
+          "type": "pro",
+          "title": "works across plenty of simple meals",
+          "explanation": "It can be grilled, pan-seared, sliced into wraps, or added to a stir-fry.",
+          "impactLevel": "minor",
+          "resolvedScoreValue": 50
+        }
+      ],
+      "macroDisplayValue": null,
+      "subtitleText": "The upsides first: a plain whole cut keeps processing low. There is no curing, breading, or long ingredient list getting in the way. Easy to build a proper meal around. Add vegetables and a carb and dinner is basically sorted. Works across plenty of simple meals. Grill it, pan-sear it, slice it into wraps, or throw it into a stir-fry.",
+      "timingHint": "medium",
+      "score": 50
+    },
+    {
+      "key": "cons",
+      "title": "Cons",
+      "narration": "The drawbacks next: the fat trim can change the numbers fast. A leaner piece and a heavily marbled piece are not the same food in practice. Overcooking can make it dry and tough. Sirloin rewards a little attention in the pan. Cost and cold storage add some friction. It is pricier and less convenient than a shelf-stable meal anchor.",
+      "displayItems": [
+        {
+          "type": "con",
+          "title": "the fat trim can change the numbers fast",
+          "explanation": "A leaner piece and a heavily marbled piece are not the same food in practice.",
+          "impactLevel": "minor",
+          "resolvedScoreValue": 50
+        },
+        {
+          "type": "con",
+          "title": "overcooking can make it dry and tough",
+          "explanation": "Sirloin rewards a little attention more than a low-effort processed option.",
+          "impactLevel": "minor",
+          "resolvedScoreValue": 50
+        },
+        {
+          "type": "con",
+          "title": "cost and cold storage add some friction",
+          "explanation": "It is pricier and less convenient than shelf-stable meal anchors.",
+          "impactLevel": "minor",
+          "resolvedScoreValue": 50
+        }
+      ],
+      "macroDisplayValue": null,
+      "subtitleText": "The drawbacks next: the fat trim can change the numbers fast. A leaner piece and a heavily marbled piece are not the same food in practice. Overcooking can make it dry and tough. Sirloin rewards a little attention in the pan. Cost and cold storage add some friction. It is pricier and less convenient than a shelf-stable meal anchor.",
+      "timingHint": "medium",
+      "score": 50
+    }
+  ],
+  "closing": {
+    "summary": "Best bits are complete, highly usable protein, vitamin B12, zinc, and being an easy whole-cut meal anchor. Weak spots are the middling fat profile, low potassium, thin vitamin range, and how much the trim changes the result. Best for muscle-focused meals and practical dinners because it gives you serious protein without processed-meat baggage. Pair it with vegetables and a fibre-rich carb, and keep an eye on the fat trim.",
+    "overview": "Best bits are complete, highly usable protein, vitamin B12, zinc, and being an easy whole-cut meal anchor. Weak spots are the middling fat profile, low potassium, thin vitamin range, and how much the trim changes the result. Best for muscle-focused meals and practical dinners because it gives you serious protein without processed-meat baggage. Pair it with vegetables and a fibre-rich carb, and keep an eye on the fat trim.",
+    "useCases": [
+      {
+        "key": "muscles_strength",
+        "label": "muscles and strength sports",
+        "reason": "the protein section supports repair and maintenance",
+        "score": 107.1
+      },
+      {
+        "key": "blood_support",
+        "label": "blood and oxygen support",
+        "reason": "vitamin B12 supports the blood-and-oxygen side",
+        "score": 104.3
+      },
+      {
+        "key": "immune_support",
+        "label": "immune support",
+        "reason": "zinc helps support the immune system",
+        "score": 83.3
+      }
+    ],
+    "strengthHighlights": [
+      "protein",
+      "vitamin B12",
+      "a plain whole cut keeps processing low"
+    ],
+    "weaknessHighlights": [
+      "low potassium",
+      "vitamins",
+      "low fat quality"
+    ],
+    "finalReveal": "B tier.",
+    "useCaseNote": "Best when you want efficient protein and can accept the category tradeoffs that come with it.",
+    "cta": "Would you rank it the same, or nah?"
+  },
+  "tier": "B",
+  "overallScore": 60,
+  "overallScoreExact": 60,
+  "calibratedOverallScore": 56.7,
+  "calibratedOverallScoreExact": 56.7204,
+  "anomalyAdjustedScore": 56.7,
+  "anomalyAdjustedScoreExact": 56.7204,
+  "rankingScore": 56.7,
+  "rankingScoreExact": 56.7204,
+  "scoreAdjustmentTotal": 0,
+  "scoreAdjustments": [],
+  "baseOverallScore": 47.7,
+  "baseOverallScoreExact": 47.6528,
+  "sectionOrder": [
+    "fats",
+    "carbs",
+    "proteins",
+    "vitamins",
+    "minerals",
+    "pros",
+    "cons"
+  ],
+  "narrationBlocks": [
+    {
+      "kind": "hook_food",
+      "text": "Beef Sirloin!"
+    },
+    {
+      "kind": "hook_ranked",
+      "text": "Ranked!"
+    },
+    {
+      "kind": "section",
+      "sectionKey": "fats",
+      "text": "12.7 grams of fat. Cholesterol is 75 milligrams, which is a fairly controlled mark for a meat. Polyunsaturated fat is only 0.48 grams, so very little of the fat comes from that more heart-friendly type. Saturated fat is 5.2 grams, which adds some real baggage. For meats, the fat mix decides how much baggage comes with the protein."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "carbs",
+      "text": "0 grams of carbs. There is no sugar, starch, or fibre to score, which is completely normal for plain beef. That makes sirloin easy to fit into a lower-carb meal, but your vegetables or sides still need to bring the fibre. For meats, carbs are not the job unless something is added."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "proteins",
+      "text": "20.4 grams of protein. Essential amino acids score 9 out of 9. That means all nine amino acids your body cannot make on its own show up in useful amounts, helping muscle repair and maintenance. Collagen is only 1.6 grams, so sirloin is not doing much on that structural-protein side. For meats, usable complete protein is the main job, and sirloin nails that part."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "vitamins",
+      "text": "Vitamin B12 is 44% daily value. B12 helps your nerves work properly and helps make red blood cells, which carry oxygen around the body. The rest of the vitamin panel is very quiet. For meats, B12 is a real strength, but one strong vitamin does not equal broad vitamin coverage."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "minerals",
+      "text": "Zinc is 32% daily value, a strong amount for immune function and wound healing. Potassium is only 7% daily value, so it does not bring much help with fluid balance or normal muscle function. Iron is 9% daily value, useful but smaller than beef's reputation might suggest. For meats, zinc and iron can add value beyond protein, and zinc does most of that work here."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "pros",
+      "text": "The upsides first: a plain whole cut keeps processing low. There is no curing, breading, or long ingredient list getting in the way. Easy to build a proper meal around. Add vegetables and a carb and dinner is basically sorted. Works across plenty of simple meals. Grill it, pan-sear it, slice it into wraps, or throw it into a stir-fry."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "cons",
+      "text": "The drawbacks next: the fat trim can change the numbers fast. A leaner piece and a heavily marbled piece are not the same food in practice. Overcooking can make it dry and tough. Sirloin rewards a little attention in the pan. Cost and cold storage add some friction. It is pricier and less convenient than a shelf-stable meal anchor."
+    },
+    {
+      "kind": "closing_summary",
+      "text": "Best bits are complete, highly usable protein, vitamin B12, zinc, and being an easy whole-cut meal anchor. Weak spots are the middling fat profile, low potassium, thin vitamin range, and how much the trim changes the result. Best for muscle-focused meals and practical dinners because it gives you serious protein without processed-meat baggage. Pair it with vegetables and a fibre-rich carb, and keep an eye on the fat trim."
+    },
+    {
+      "kind": "final_reveal",
+      "text": "B tier."
+    }
+  ],
+  "explanation": {
+    "summary": "Proteins are carrying this food most, while minerals are holding it back most. It lands in B tier.",
+    "whyThisTier": "This food lands in B tier with a display score of 60. Section scores: fats 48, proteins 86.7, vitamins 40, minerals 11.3, pros 50, cons 50.",
+    "strongestSection": {
+      "key": "proteins",
+      "label": "Proteins",
+      "score": 86.7
+    },
+    "weakestSection": {
+      "key": "minerals",
+      "label": "Minerals",
+      "score": 11.3
+    },
+    "scoreAdjustments": [],
+    "topPros": [
+      {
+        "title": "a plain whole cut keeps processing low",
+        "explanation": "There is no curing, breading, or long ingredient list getting in the way.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "easy to build a proper meal around",
+        "explanation": "Add vegetables and a carb and dinner is basically sorted.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "works across plenty of simple meals",
+        "explanation": "It can be grilled, pan-seared, sliced into wraps, or added to a stir-fry.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      }
+    ],
+    "topCons": [
+      {
+        "title": "the fat trim can change the numbers fast",
+        "explanation": "A leaner piece and a heavily marbled piece are not the same food in practice.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "overcooking can make it dry and tough",
+        "explanation": "Sirloin rewards a little attention more than a low-effort processed option.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "cost and cold storage add some friction",
+        "explanation": "It is pricier and less convenient than shelf-stable meal anchors.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
+      }
+    ],
+    "narrationNotes": [
+      "Strongest section: Proteins.",
+      "Weakest section: Minerals.",
+      "Final verdict: B tier."
+    ]
+  },
+  "scriptOverride": {
+    "schemaVersion": "foodranked-script-overrides.v1",
+    "source": "production/episodes/beef-sirloin/script-overrides.json"
+  }
+}

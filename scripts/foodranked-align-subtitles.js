@@ -278,7 +278,7 @@ function applyForcedAlignment(manifest, subtitles, alignment, narrationText, ali
   manifest.scenePlan.totalEstimatedDurationSeconds = audioEnd;
   manifest.scenePlan.subtitleCues = allCues;
   manifest.scenePlan.alignment = {
-    provider: alignment.blockMode ? 'elevenlabs-forced-alignment-blocks' : 'elevenlabs-forced-alignment',
+    provider: alignment.provider || (alignment.blockMode ? 'elevenlabs-forced-alignment-blocks' : 'elevenlabs-forced-alignment'),
     source: 'word',
     alignmentPath: relative(alignmentPath),
     audioManifestPath: alignment.audioManifestPath || null,
@@ -325,8 +325,198 @@ async function fetchForcedAlignment({ apiKey, audioPath, narrationPath, narratio
   return wrapped;
 }
 
+function longestCommonWordMatches(sourceTokens, targetTokens) {
+  const rows = sourceTokens.length + 1;
+  const columns = targetTokens.length + 1;
+  const table = Array.from({ length: rows }, () => Array(columns).fill(0));
+  for (let sourceIndex = sourceTokens.length - 1; sourceIndex >= 0; sourceIndex -= 1) {
+    for (let targetIndex = targetTokens.length - 1; targetIndex >= 0; targetIndex -= 1) {
+      table[sourceIndex][targetIndex] = sourceTokens[sourceIndex] === targetTokens[targetIndex]
+        ? table[sourceIndex + 1][targetIndex + 1] + 1
+        : Math.max(table[sourceIndex + 1][targetIndex], table[sourceIndex][targetIndex + 1]);
+    }
+  }
+  const matches = [];
+  let sourceIndex = 0;
+  let targetIndex = 0;
+  while (sourceIndex < sourceTokens.length && targetIndex < targetTokens.length) {
+    if (sourceTokens[sourceIndex] === targetTokens[targetIndex]) {
+      matches.push({ sourceIndex, targetIndex });
+      sourceIndex += 1;
+      targetIndex += 1;
+    } else if (table[sourceIndex + 1][targetIndex] >= table[sourceIndex][targetIndex + 1]) {
+      sourceIndex += 1;
+    } else {
+      targetIndex += 1;
+    }
+  }
+  return matches;
+}
+
+function distributeTargetWords(tokens, start, end) {
+  if (!tokens.length) return [];
+  const safeStart = Number.isFinite(Number(start)) ? Number(start) : 0;
+  const safeEnd = Math.max(safeStart, Number.isFinite(Number(end)) ? Number(end) : safeStart);
+  const weights = tokens.map(token => Math.max(1, token.length));
+  const totalWeight = weights.reduce((total, weight) => total + weight, 0);
+  let cursor = safeStart;
+  return tokens.map((token, index) => {
+    const tokenEnd = index === tokens.length - 1
+      ? safeEnd
+      : cursor + ((safeEnd - safeStart) * weights[index] / totalWeight);
+    const word = { text: token, start: roundSeconds(cursor), end: roundSeconds(tokenEnd) };
+    cursor = tokenEnd;
+    return word;
+  });
+}
+
+function remapAlignedWordsToText(words, displayText) {
+  const sourceWords = words.filter(word => hasSpeechToken(word.text));
+  const sourceTokens = sourceWords.map(word => normalizeToken(word.text));
+  const targetTokens = textSpeechTokens(displayText);
+  if (targetTokens.length === sourceTokens.length && targetTokens.every((token, index) => token === sourceTokens[index])) {
+    return sourceWords;
+  }
+  if (!targetTokens.length || !sourceWords.length) return sourceWords;
+
+  const matches = longestCommonWordMatches(sourceTokens, targetTokens);
+  if (!matches.length) {
+    return distributeTargetWords(targetTokens, sourceWords[0].start, sourceWords[sourceWords.length - 1].end);
+  }
+
+  const remapped = Array(targetTokens.length);
+  matches.forEach(match => {
+    remapped[match.targetIndex] = {
+      text: targetTokens[match.targetIndex],
+      start: roundSeconds(sourceWords[match.sourceIndex].start),
+      end: roundSeconds(sourceWords[match.sourceIndex].end)
+    };
+  });
+  const anchors = [
+    { sourceIndex: -1, targetIndex: -1 },
+    ...matches,
+    { sourceIndex: sourceWords.length, targetIndex: targetTokens.length }
+  ];
+  for (let index = 0; index < anchors.length - 1; index += 1) {
+    const left = anchors[index];
+    const right = anchors[index + 1];
+    const targetStart = left.targetIndex + 1;
+    const targetEnd = right.targetIndex;
+    if (targetStart >= targetEnd) continue;
+    const sourceStart = left.sourceIndex + 1;
+    const sourceEnd = right.sourceIndex;
+    const rangeStart = sourceStart < sourceEnd
+      ? sourceWords[sourceStart].start
+      : left.sourceIndex >= 0
+        ? sourceWords[left.sourceIndex].end
+        : sourceWords[0].start;
+    const rangeEnd = sourceStart < sourceEnd
+      ? sourceWords[sourceEnd - 1].end
+      : right.sourceIndex < sourceWords.length
+        ? sourceWords[right.sourceIndex].start
+        : sourceWords[sourceWords.length - 1].end;
+    const distributed = distributeTargetWords(targetTokens.slice(targetStart, targetEnd), rangeStart, rangeEnd);
+    distributed.forEach((word, offset) => { remapped[targetStart + offset] = word; });
+  }
+  return remapped.filter(Boolean);
+}
+
+async function fetchSpeechToTextAlignment({ apiKey, audioPath, narrationText, alignmentPath, textPath }) {
+  const form = new FormData();
+  const audio = fs.readFileSync(audioPath);
+  form.append('file', new Blob([audio], { type: 'audio/mpeg' }), path.basename(audioPath));
+  form.append('model_id', 'scribe_v2');
+  form.append('language_code', 'eng');
+  form.append('tag_audio_events', 'false');
+  form.append('diarize', 'false');
+  form.append('timestamps_granularity', 'word');
+
+  const response = await fetch('https://api.elevenlabs.io/v1/speech-to-text', {
+    method: 'POST',
+    headers: { 'xi-api-key': apiKey },
+    body: form
+  });
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(`ElevenLabs speech-to-text alignment failed (${response.status}): ${message.slice(0, 400)}`);
+  }
+  const payload = await response.json();
+  const spokenWords = (payload.words || []).filter(word => word.type === 'word' && hasSpeechToken(word.text));
+  const wrapped = {
+    schemaVersion: 'foodranked-speech-to-text-alignment.v1',
+    provider: 'elevenlabs-scribe-v2',
+    audioPath: relative(audioPath),
+    textPath: relative(textPath),
+    generatedAt: new Date().toISOString(),
+    languageCode: payload.language_code || null,
+    languageProbability: payload.language_probability ?? null,
+    transcriptText: payload.text || null,
+    loss: null,
+    words: remapAlignedWordsToText(spokenWords, narrationText),
+    characters: []
+  };
+  writeJson(alignmentPath, wrapped);
+  return wrapped;
+}
+
 function maxWordEnd(alignment) {
   return Math.max(0, ...(alignment.words || []).map(word => Number(word.end) || 0));
+}
+
+function wordsFromNativeCharacterAlignment(nativeAlignment) {
+  const characters = Array.isArray(nativeAlignment?.characters) ? nativeAlignment.characters : [];
+  const starts = Array.isArray(nativeAlignment?.character_start_times_seconds)
+    ? nativeAlignment.character_start_times_seconds
+    : [];
+  const ends = Array.isArray(nativeAlignment?.character_end_times_seconds)
+    ? nativeAlignment.character_end_times_seconds
+    : [];
+  const words = [];
+  let text = '';
+  let start = null;
+  let end = null;
+
+  function flush() {
+    if (!text || start == null || end == null) {
+      text = '';
+      start = null;
+      end = null;
+      return;
+    }
+    words.push({ text, start: roundSeconds(start), end: roundSeconds(end) });
+    text = '';
+    start = null;
+    end = null;
+  }
+
+  characters.forEach((character, index) => {
+    if (/\s/.test(String(character))) {
+      flush();
+      return;
+    }
+    const characterStart = Number(starts[index]);
+    const characterEnd = Number(ends[index]);
+    if (start == null && Number.isFinite(characterStart)) start = characterStart;
+    if (Number.isFinite(characterEnd)) end = characterEnd;
+    text += String(character);
+  });
+  flush();
+  return words;
+}
+
+function nativeTtsTimingToAlignment(timing, displayText, timingPath) {
+  const characterAlignment = timing?.alignment || timing?.normalizedAlignment || timing?.normalized_alignment;
+  const nativeWords = wordsFromNativeCharacterAlignment(characterAlignment);
+  if (!nativeWords.length) throw new Error(`Native TTS timing has no usable words: ${relative(timingPath)}`);
+  return {
+    schemaVersion: 'foodranked-tts-alignment.v1',
+    provider: 'elevenlabs-tts-timestamps',
+    generatedAt: timing.generatedAt || new Date().toISOString(),
+    timingPath: relative(timingPath),
+    loss: null,
+    words: remapAlignedWordsToText(nativeWords, displayText),
+    characters: []
+  };
 }
 
 async function readOrFetchBlockAlignment({ apiKey, block, audioManifestPath, episodeDir, take, refresh }) {
@@ -334,17 +524,37 @@ async function readOrFetchBlockAlignment({ apiKey, block, audioManifestPath, epi
   ensureDir(blockAlignmentDir);
   const blockAlignmentPath = path.join(blockAlignmentDir, `${block.id}-forced-alignment.json`);
   if (exists(blockAlignmentPath) && !refresh) return readJson(blockAlignmentPath);
+  const nativeTimingPath = block.timingFile ? path.join(repoRoot, block.timingFile) : null;
+  if (nativeTimingPath && exists(nativeTimingPath)) {
+    const alignment = nativeTtsTimingToAlignment(readJson(nativeTimingPath), block.text, nativeTimingPath);
+    writeJson(blockAlignmentPath, alignment);
+    return alignment;
+  }
   if (!apiKey) throw new Error('ELEVENLABS_API_KEY is required to create split forced alignment');
   const audioPath = path.join(repoRoot, block.audioFile);
   if (!exists(audioPath)) throw new Error(`Missing split audio block: ${relative(audioPath)}`);
-  return fetchForcedAlignment({
-    apiKey,
-    audioPath,
-    narrationPath: audioManifestPath,
-    textPath: audioManifestPath,
-    narrationText: block.text,
-    alignmentPath: blockAlignmentPath
-  });
+  try {
+    return await fetchForcedAlignment({
+      apiKey,
+      audioPath,
+      narrationPath: audioManifestPath,
+      textPath: audioManifestPath,
+      narrationText: block.text,
+      alignmentPath: blockAlignmentPath
+    });
+  } catch (forcedAlignmentError) {
+    try {
+      return await fetchSpeechToTextAlignment({
+        apiKey,
+        audioPath,
+        narrationText: block.text,
+        alignmentPath: blockAlignmentPath,
+        textPath: audioManifestPath
+      });
+    } catch (speechToTextError) {
+      throw new Error(`${forcedAlignmentError.message}; fallback failed: ${speechToTextError.message}`);
+    }
+  }
 }
 
 function alignmentTailSecondsForBlock(block) {
@@ -363,6 +573,7 @@ async function buildSplitForcedAlignment({ apiKey, audioManifestPath, episodeDir
   let offsetSeconds = 0;
   const alignedBlocks = [];
   const words = [];
+  const providers = new Set();
 
   for (const block of blocks) {
     const blockAlignment = await readOrFetchBlockAlignment({
@@ -373,6 +584,7 @@ async function buildSplitForcedAlignment({ apiKey, audioManifestPath, episodeDir
       take,
       refresh
     });
+    providers.add(blockAlignment.provider || 'elevenlabs-forced-alignment');
     const mediaDurationSeconds = positiveSeconds(block.mediaDurationSeconds);
     const alignedSpeechDuration = maxWordEnd(blockAlignment) + alignmentTailSecondsForBlock(block);
     const blockDuration = roundSeconds(Math.max(alignedSpeechDuration, mediaDurationSeconds || 0));
@@ -403,7 +615,9 @@ async function buildSplitForcedAlignment({ apiKey, audioManifestPath, episodeDir
 
   const aggregate = {
     schemaVersion: 'foodranked-forced-alignment-blocks.v1',
-    provider: 'elevenlabs',
+    provider: providers.size === 1
+      ? [...providers][0]
+      : 'elevenlabs-mixed-block-alignment',
     blockMode: true,
     audioManifestPath: relative(audioManifestPath),
     generatedAt: new Date().toISOString(),
@@ -431,9 +645,17 @@ async function main() {
   const subtitlesPath = path.join(episodeDir, 'subtitles.json');
   const narrationPath = path.join(episodeDir, 'narration.txt');
   const audioPath = path.join(docsAudioDir, foodId, `${take}.mp3`);
+  const audioMetadataPath = path.join(docsAudioDir, foodId, `${take}.json`);
   const splitAudioManifestPath = path.join(docsAudioDir, foodId, `${take}-blocks.json`);
   const useSplitAudio = exists(splitAudioManifestPath);
-  const alignmentPath = path.join(episodeDir, useSplitAudio ? `${take}-blocks-forced-alignment.json` : `${take}-forced-alignment.json`);
+  const audioMetadata = exists(audioMetadataPath) ? readJson(audioMetadataPath) : null;
+  const nativeTimingPath = audioMetadata?.timingFile ? path.join(repoRoot, audioMetadata.timingFile) : null;
+  const useNativeTiming = !useSplitAudio && nativeTimingPath && exists(nativeTimingPath);
+  const alignmentPath = path.join(episodeDir, useSplitAudio
+    ? `${take}-blocks-forced-alignment.json`
+    : useNativeTiming
+      ? `${take}-tts-alignment.json`
+      : `${take}-forced-alignment.json`);
   if (!exists(manifestPath) || !exists(subtitlesPath) || !exists(narrationPath)) {
     throw new Error(`Missing generated episode files in ${relative(episodeDir)}`);
   }
@@ -453,6 +675,9 @@ async function main() {
     });
   } else if (exists(alignmentPath) && !options.refresh) {
     alignment = readJson(alignmentPath);
+  } else if (useNativeTiming) {
+    alignment = nativeTtsTimingToAlignment(readJson(nativeTimingPath), fs.readFileSync(narrationPath, 'utf8'), nativeTimingPath);
+    writeJson(alignmentPath, alignment);
   } else {
     if (!apiKey) throw new Error('ELEVENLABS_API_KEY is required to create forced alignment');
     ensureDir(path.dirname(alignmentPath));
@@ -487,7 +712,15 @@ async function main() {
   }, null, 2));
 }
 
-main().catch(error => {
-  console.error(error.message);
-  process.exit(1);
-});
+if (require.main === module) {
+  main().catch(error => {
+    console.error(error.message);
+    process.exit(1);
+  });
+}
+
+module.exports = {
+  longestCommonWordMatches,
+  remapAlignedWordsToText,
+  wordsFromNativeCharacterAlignment
+};

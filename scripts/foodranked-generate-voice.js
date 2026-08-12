@@ -26,7 +26,7 @@ function usage() {
     '  --source <path>      Narration text path. Defaults to outputs/episodes/<food>-compact/narration.txt.',
     '  --config <path>      Voice config path.',
     '  --force              Regenerate even when metadata matches.',
-    '  --over-limit-speed   Use the single approved 1.13x exception after a 1.12x narration exceeds 180 seconds.',
+    '  --over-limit-speed   Legacy compatibility flag; narration speed is already locked to 1.13x.',
     '  --split-blocks       Generate one audio file per narration block.',
     '  --list-suitable-voices  Print suitable random voice candidates and exit.',
     '  --dry-run            Resolve settings and selected voice without generating audio.',
@@ -503,7 +503,7 @@ function narrationDurationPolicy(config) {
   const configured = config.narrationDurationPolicy || {};
   return {
     maximumSeconds: Number(configured.maximumSeconds) || 180,
-    defaultSpeed: Number(configured.defaultSpeed) || 1.12,
+    defaultSpeed: Number(configured.defaultSpeed) || 1.13,
     overLimitSpeed: Number(configured.overLimitSpeed) || 1.13
   };
 }
@@ -513,21 +513,12 @@ function narrationDurationReview(config, durationSeconds, appliedSpeed) {
   const duration = Number(durationSeconds);
   if (!Number.isFinite(duration) || duration <= 0) return null;
   const overLimit = duration > policy.maximumSeconds;
-  const usingApprovedException = Number(appliedSpeed) === policy.overLimitSpeed;
   return {
     durationSeconds: Number(duration.toFixed(3)),
     maximumSeconds: policy.maximumSeconds,
     appliedSpeed: Number(appliedSpeed),
     overLimit,
-    status: !overLimit
-      ? 'within-limit'
-      : usingApprovedException
-        ? 'still-over-limit-after-approved-speed'
-        : 'regenerate-with-over-limit-speed',
-    ...(overLimit && !usingApprovedException ? {
-      replacementSpeed: policy.overLimitSpeed,
-      replacementFlag: '--over-limit-speed'
-    } : {})
+    status: overLimit ? 'over-limit-at-locked-speed' : 'within-limit'
   };
 }
 
@@ -539,9 +530,7 @@ function generationDefaults(config, options = {}) {
     ...(fallbackProfile.voiceSettings || {}),
     ...(defaults.voiceSettings || {})
   };
-  voiceSettings.speed = options.overLimitSpeed
-    ? durationPolicy.overLimitSpeed
-    : durationPolicy.defaultSpeed;
+  voiceSettings.speed = durationPolicy.defaultSpeed;
   return {
     modelId: defaults.modelId || fallbackProfile.modelId || 'eleven_multilingual_v2',
     outputFormat: defaults.outputFormat || fallbackProfile.outputFormat || 'mp3_44100_128',
@@ -731,7 +720,7 @@ async function resolveProfile({ apiKey, config, options }) {
 }
 
 async function generateSpeech({ apiKey, profile, text, outputFile }) {
-  const url = new URL(`https://api.elevenlabs.io/v1/text-to-speech/${profile.voiceId}`);
+  const url = new URL(`https://api.elevenlabs.io/v1/text-to-speech/${profile.voiceId}/with-timestamps`);
   url.searchParams.set('output_format', profile.outputFormat || 'mp3_44100_128');
 
   const response = await fetch(url, {
@@ -751,11 +740,27 @@ async function generateSpeech({ apiKey, profile, text, outputFile }) {
     throw new Error(`ElevenLabs request failed: ${apiErrorMessage(response.status, await response.text())}`);
   }
 
-  const audio = Buffer.from(await response.arrayBuffer());
+  const payload = await response.json();
+  if (!payload.audio_base64) {
+    throw new Error('ElevenLabs timestamped speech response did not include audio_base64.');
+  }
+  const audio = Buffer.from(payload.audio_base64, 'base64');
   fs.writeFileSync(outputFile, audio);
+  const timingFile = outputFile.replace(/\.mp3$/i, '-timing.json');
+  writeJson(timingFile, {
+    schemaVersion: 'foodranked-elevenlabs-tts-alignment.v1',
+    provider: 'elevenlabs',
+    source: 'text-to-speech-with-timestamps',
+    generatedAt: new Date().toISOString(),
+    audioFile: relativeRepoPath(outputFile),
+    text,
+    alignment: payload.alignment || null,
+    normalizedAlignment: payload.normalized_alignment || null
+  });
   return {
     bytes: audio.length,
     mediaDurationSeconds: mediaDurationSeconds(outputFile),
+    timingFile: relativeRepoPath(timingFile),
     requestId: response.headers.get('request-id') || response.headers.get('x-request-id') || null,
     historyItemId: response.headers.get('history-item-id') || response.headers.get('x-history-item-id') || null
   };
@@ -777,10 +782,20 @@ function mirrorSplitMetadata(metadata, docsBlocksDir, docsMetadataFile, producti
     const productionAudioFile = path.join(repoRoot, block.audioFile);
     const docsAudioFile = path.join(docsBlocksDir, path.basename(block.audioFile));
     fs.copyFileSync(productionAudioFile, docsAudioFile);
+    let timingFields = {};
+    if (block.timingFile && fs.existsSync(path.join(repoRoot, block.timingFile))) {
+      const docsTimingFile = path.join(docsBlocksDir, path.basename(block.timingFile));
+      fs.copyFileSync(path.join(repoRoot, block.timingFile), docsTimingFile);
+      timingFields = {
+        timingFile: relativeRepoPath(docsTimingFile),
+        productionTimingFile: block.productionTimingFile || block.timingFile
+      };
+    }
     return {
       ...block,
       audioFile: relativeRepoPath(docsAudioFile),
-      productionAudioFile: block.audioFile
+      productionAudioFile: block.audioFile,
+      ...timingFields
     };
   });
 
@@ -796,6 +811,26 @@ function mirrorSplitMetadata(metadata, docsBlocksDir, docsMetadataFile, producti
         audioDirectory: relativeRepoPath(docsBlocksDir)
       }
     ]
+  });
+}
+
+function mirrorSingleMetadata(metadata, docsDir, docsAudioFile, docsMetadataFile, productionAudioFile, productionMetadataFile) {
+  fs.copyFileSync(productionAudioFile, docsAudioFile);
+  let timingFields = {};
+  if (metadata.timingFile && fs.existsSync(path.join(repoRoot, metadata.timingFile))) {
+    const docsTimingFile = path.join(docsDir, path.basename(metadata.timingFile));
+    fs.copyFileSync(path.join(repoRoot, metadata.timingFile), docsTimingFile);
+    timingFields = {
+      timingFile: relativeRepoPath(docsTimingFile),
+      productionTimingFile: metadata.productionTimingFile || metadata.timingFile
+    };
+  }
+  writeJson(docsMetadataFile, {
+    ...metadata,
+    audioFile: relativeRepoPath(docsAudioFile),
+    productionAudioFile: relativeRepoPath(productionAudioFile),
+    productionMetadataFile: relativeRepoPath(productionMetadataFile),
+    ...timingFields
   });
 }
 
@@ -863,6 +898,7 @@ async function generateSplitBlockSpeech({
       byteLength: result.bytes,
       ...(result.mediaDurationSeconds ? { mediaDurationSeconds: result.mediaDurationSeconds } : {}),
       audioFile: relativeRepoPath(outputFile),
+      timingFile: result.timingFile,
       elevenLabs: {
         requestId: result.requestId,
         historyItemId: result.historyItemId
@@ -1021,13 +1057,7 @@ async function main() {
     } else if (fs.existsSync(outputFile) && metadataMatchesGeneration(metadataFile, textHash, defaultSettings)) {
       const metadata = readJson(metadataFile);
       if (options.docsMirror) {
-        fs.copyFileSync(outputFile, docsAudioFile);
-        writeJson(docsMetadataFile, {
-          ...metadata,
-          audioFile: relativeRepoPath(docsAudioFile),
-          productionAudioFile: relativeRepoPath(outputFile),
-          productionMetadataFile: relativeRepoPath(metadataFile)
-        });
+        mirrorSingleMetadata(metadata, docsDir, docsAudioFile, docsMetadataFile, outputFile, metadataFile);
       }
       console.log(JSON.stringify({
         status: 'skipped',
@@ -1115,13 +1145,7 @@ async function main() {
   if (!options.force && fs.existsSync(outputFile) && metadataMatches(metadataFile, textHash, settingsHash)) {
     if (options.docsMirror) {
       const metadata = readJson(metadataFile);
-      fs.copyFileSync(outputFile, docsAudioFile);
-      writeJson(docsMetadataFile, {
-        ...metadata,
-        audioFile: relativeRepoPath(docsAudioFile),
-        productionAudioFile: relativeRepoPath(outputFile),
-        productionMetadataFile: relativeRepoPath(metadataFile)
-      });
+      mirrorSingleMetadata(metadata, docsDir, docsAudioFile, docsMetadataFile, outputFile, metadataFile);
     }
     console.log(JSON.stringify({
       status: 'skipped',
@@ -1153,6 +1177,7 @@ async function main() {
     outputFormat: profile.outputFormat,
     voiceSettings: profile.voiceSettings,
     audioFile: relativeRepoPath(outputFile),
+    timingFile: result.timingFile,
     textSha256: textHash,
     settingsSha256: settingsHash,
     characterCount: text.length,
@@ -1174,13 +1199,7 @@ async function main() {
 
   writeJson(metadataFile, metadata);
   if (options.docsMirror) {
-    fs.copyFileSync(outputFile, docsAudioFile);
-    writeJson(docsMetadataFile, {
-      ...metadata,
-      audioFile: relativeRepoPath(docsAudioFile),
-      productionAudioFile: relativeRepoPath(outputFile),
-      productionMetadataFile: relativeRepoPath(metadataFile)
-    });
+    mirrorSingleMetadata(metadata, docsDir, docsAudioFile, docsMetadataFile, outputFile, metadataFile);
   }
 
   console.log(JSON.stringify({

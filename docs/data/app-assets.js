@@ -346,6 +346,14 @@
     "sizeBytes": 10944
   },
   {
+    "id": "audio.episodes.salmon.voice.v1.blocks",
+    "label": "Voice V1 Blocks",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/salmon/voice-v1-blocks.json",
+    "mimeType": "application/json",
+    "sizeBytes": 11304
+  },
+  {
     "id": "audio.episodes.tater.tots.voice.v1.blocks",
     "label": "Voice V1 Blocks",
     "kind": "audio-manifest",
@@ -367,7 +375,7 @@
     "kind": "data",
     "path": "data/batch-results.json",
     "mimeType": "application/json",
-    "sizeBytes": 3660386
+    "sizeBytes": 3709647
   },
   {
     "id": "data.foods.index.js",
@@ -375,7 +383,7 @@
     "kind": "data",
     "path": "data/foods-index.js",
     "mimeType": "text/javascript",
-    "sizeBytes": 8573094
+    "sizeBytes": 8704632
   },
   {
     "id": "data.foods.index.json",
@@ -383,7 +391,7 @@
     "kind": "data",
     "path": "data/foods-index.json",
     "mimeType": "application/json",
-    "sizeBytes": 15113317
+    "sizeBytes": 15315447
   },
   {
     "id": "data.foods.acorns.sample",
@@ -663,7 +671,7 @@
     "kind": "data",
     "path": "data/foods/cannellini-beans.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3765
+    "sizeBytes": 10133
   },
   {
     "id": "data.foods.canola.oil.sample",
@@ -1087,7 +1095,7 @@
     "kind": "data",
     "path": "data/foods/farro.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3812
+    "sizeBytes": 9687
   },
   {
     "id": "data.foods.fennel.seeds.sample",
@@ -1807,7 +1815,7 @@
     "kind": "data",
     "path": "data/foods/pistachios-roasted-salted.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 3780
+    "sizeBytes": 9624
   },
   {
     "id": "data.foods.pistachios.sample",
@@ -2071,7 +2079,7 @@
     "kind": "data",
     "path": "data/foods/salmon.sample.json",
     "mimeType": "application/json",
-    "sizeBytes": 9563
+    "sizeBytes": 9655
   },
   {
     "id": "data.foods.salted.mixed.nuts.sample",
@@ -5930,6 +5938,94 @@
     "sizeBytes": 13000
   },
   {
+    "id": "audio.episodes.salmon.voice.v1.blocks.01.hook.food",
+    "label": "01 Hook Food",
+    "kind": "narration-audio",
+    "path": "audio/episodes/salmon/voice-v1-blocks/01-hook_food.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 11328
+  },
+  {
+    "id": "audio.episodes.salmon.voice.v1.blocks.02.hook.ranked",
+    "label": "02 Hook Ranked",
+    "kind": "narration-audio",
+    "path": "audio/episodes/salmon/voice-v1-blocks/02-hook_ranked.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 11328
+  },
+  {
+    "id": "audio.episodes.salmon.voice.v1.blocks.03.fats",
+    "label": "03 Fats",
+    "kind": "narration-audio",
+    "path": "audio/episodes/salmon/voice-v1-blocks/03-fats.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 224906
+  },
+  {
+    "id": "audio.episodes.salmon.voice.v1.blocks.04.carbs",
+    "label": "04 Carbs",
+    "kind": "narration-audio",
+    "path": "audio/episodes/salmon/voice-v1-blocks/04-carbs.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 112475
+  },
+  {
+    "id": "audio.episodes.salmon.voice.v1.blocks.05.proteins",
+    "label": "05 Proteins",
+    "kind": "narration-audio",
+    "path": "audio/episodes/salmon/voice-v1-blocks/05-proteins.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 305572
+  },
+  {
+    "id": "audio.episodes.salmon.voice.v1.blocks.06.vitamins",
+    "label": "06 Vitamins",
+    "kind": "narration-audio",
+    "path": "audio/episodes/salmon/voice-v1-blocks/06-vitamins.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 246222
+  },
+  {
+    "id": "audio.episodes.salmon.voice.v1.blocks.07.minerals",
+    "label": "07 Minerals",
+    "kind": "narration-audio",
+    "path": "audio/episodes/salmon/voice-v1-blocks/07-minerals.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 219472
+  },
+  {
+    "id": "audio.episodes.salmon.voice.v1.blocks.08.pros",
+    "label": "08 Pros",
+    "kind": "narration-audio",
+    "path": "audio/episodes/salmon/voice-v1-blocks/08-pros.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 251655
+  },
+  {
+    "id": "audio.episodes.salmon.voice.v1.blocks.09.cons",
+    "label": "09 Cons",
+    "kind": "narration-audio",
+    "path": "audio/episodes/salmon/voice-v1-blocks/09-cons.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 224070
+  },
+  {
+    "id": "audio.episodes.salmon.voice.v1.blocks.10.closing.summary",
+    "label": "10 Closing Summary",
+    "kind": "narration-audio",
+    "path": "audio/episodes/salmon/voice-v1-blocks/10-closing_summary.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 252909
+  },
+  {
+    "id": "audio.episodes.salmon.voice.v1.blocks.11.final.reveal",
+    "label": "11 Final Reveal",
+    "kind": "narration-audio",
+    "path": "audio/episodes/salmon/voice-v1-blocks/11-final_reveal.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 14254
+  },
+  {
     "id": "audio.episodes.tater.tots.voice.v1.blocks.01.hook.food",
     "label": "01 Hook Food",
     "kind": "narration-audio",
@@ -6386,6 +6482,14 @@
     "sizeBytes": 1791
   },
   {
+    "id": "app.sprites.header.food.images.farro",
+    "label": "Farro",
+    "kind": "sprite",
+    "path": "app/sprites/header/food_images/farro.png",
+    "mimeType": "image/png",
+    "sizeBytes": 2200
+  },
+  {
     "id": "app.sprites.header.food.images.fennel.seeds",
     "label": "Fennel Seeds",
     "kind": "sprite",
@@ -6440,6 +6544,14 @@
     "path": "app/sprites/header/food_images/rice-cakes.png",
     "mimeType": "image/png",
     "sizeBytes": 2147
+  },
+  {
+    "id": "app.sprites.header.food.images.salmon",
+    "label": "Salmon",
+    "kind": "sprite",
+    "path": "app/sprites/header/food_images/salmon.png",
+    "mimeType": "image/png",
+    "sizeBytes": 1770
   },
   {
     "id": "app.sprites.header.food.images.tater.tots",

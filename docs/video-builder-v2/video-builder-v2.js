@@ -3958,7 +3958,7 @@
       const splitDuration = splitAudioSceneDuration(audio, scene.id);
       if (splitDuration == null) return scene;
       const currentNarrationDuration = sceneNarrationDuration(scene);
-      if (currentNarrationDuration + SPLIT_AUDIO_SCENE_SYNC_TOLERANCE_SECONDS >= splitDuration) return scene;
+      if (Math.abs(currentNarrationDuration - splitDuration) <= SPLIT_AUDIO_SCENE_SYNC_TOLERANCE_SECONDS) return scene;
 
       changed = true;
       const narrationDelay = sceneNarrationDelaySeconds(scene);
@@ -5019,7 +5019,15 @@
     });
     const sourceStart = sourceTimes.length ? Math.min(...sourceTimes) : 0;
     const sourceEnd = sourceTimes.length ? Math.max(...sourceTimes) : sourceStart + duration;
-    const preserveSceneSeconds = audioForFood(selectedFood())?.mode === 'split-blocks';
+    const hasAlignedWordTimings = timingCues.some(cue => (
+      Array.isArray(cue.wordTimings)
+      && cue.wordTimings.some(word => (
+        word?.text
+        && Number.isFinite(asNumber(word.startSeconds, null))
+        && Number.isFinite(asNumber(word.endSeconds, null))
+      ))
+    ));
+    const preserveSceneSeconds = audioForFood(selectedFood())?.mode === 'split-blocks' && hasAlignedWordTimings;
     const sourceDuration = preserveSceneSeconds ? duration : Math.max(0.001, sourceEnd - sourceStart);
     const words = [];
     const chunks = [];

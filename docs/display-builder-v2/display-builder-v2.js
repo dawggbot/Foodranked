@@ -40,7 +40,7 @@
   const PLACEMENT_EXPORT_LIMIT = 60;
   const PAGE_URL_PARAMS = new URLSearchParams(window.location.search);
   const DISPLAY_BUILDER_V2_BUILD_ID = PAGE_URL_PARAMS.get('build') || '20260810-misc-thumbnail-palette-v2';
-  const DATA_CACHE_BUST = '20260801-layout-lockdown-v1';
+  const DATA_CACHE_BUST = '20260812-three-proofread-foods-v1';
   const SECTION_INDICATOR_LAYOUT = window.FOODRANKED_DISPLAY_SCHEMA?.sectionIndicatorLayout || {
     startX: 33.347,
     y: 138.444,

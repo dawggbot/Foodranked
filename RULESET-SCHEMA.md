@@ -214,7 +214,7 @@ Suggested fields:
 
 Rulesets may also define `proteinQualityGate.minimumProteinG` as an explicit absolute protein floor for amino-acid quality scoring. When it is absent, the scorer falls back to the first useful green `proteinFallback` band. Use the explicit gate when a category's green amount band is a category-quality judgment rather than the minimum amount needed for amino acids to be nutritionally meaningful.
 
-Protein quality fields should only score when the protein amount is useful enough for the category and the food has source-backed `amino_acids_mg` values. EAA/NEAA scores must be derived by counting only amino-acid groups that clear the useful-amount thresholds in `config/amino-acid-thresholds.v1.json`; do not let amino-acid presence or old aggregate proxy fields create a misleading protein-quality win. Essential groups also have a 100mg-per-100g material floor, and nonessential groups have a 500mg-per-100g material floor.
+Protein quality fields should only score when the protein amount is useful enough for the category and the food has `amino_acids_mg` values found through exact database data, exact-food Google research, or a last-resort source-backed protein analogue. EAA/NEAA scores must be derived by counting only amino-acid groups that clear the useful-amount thresholds in `config/amino-acid-thresholds.v1.json`; do not let amino-acid presence or old aggregate proxy fields create a misleading protein-quality win. Essential groups also have a 100mg-per-100g material floor, and nonessential groups have a 500mg-per-100g material floor.
 
 Important display rule:
 - `protein_g_fallback` is a scoring and narration bridge, not a visible protein submacro row.
@@ -243,11 +243,10 @@ Locked v1 visible row order:
 Protein display rules:
 - Always keep those four visible row slots for the proteins section.
 - Visible protein rows may display `N/A` only when the protein macro bubble displays `N/A`.
-- If the protein macro displays a value and a visible protein row is missing, skipped, or withheld, display source-backed values first, then a labelled display-only protein estimate when available, then that row's default value as a final presentation fallback.
-- Protein display estimates are presentation-only values marked with `displaySource: protein_display_estimate`; they may be derived from the category-specific `proteinFallback` band and broad protein source class, but they are not amino-acid profile or bioavailability source evidence.
-- Display-only EAA/NEAA estimates must be useful-protein-gated and floor-based: red protein fallback bands produce `0/9` and `0/11`; useful green bands can estimate counts, but the count is floored rather than rounded up.
-- Final protein row display defaults are `0g` for collagen, `0/9` for essential amino acids, `0/11` for non-essential amino acids, and `0%` for bioavailability.
-- Display estimates/defaults are presentation-only; do not write them back into food source metrics or treat them as source-backed nutrition evidence.
+- Final production entries must fill every visible protein row through the hierarchy: exact-food database source, exact-identity Google research with a checked or corroborated AI Overview value, then a source-backed protein analogue as the last resort.
+- Analogue-derived EAA/NEAA scores require the analogue's source-backed `amino_acids_mg` rows. Bioavailability may use food-specific research or a documented category estimate. Store source tier and derivation in metric provenance.
+- Plant collagen uses a structural `0g`; it is not left uncertain.
+- Protein display defaults remain draft/runtime safeguards only. A finalized food must not depend on unreviewed `0/9`, `0/11`, or `0%` defaults.
 - `protein_g_fallback` may contribute to the proteins section score and narration when quality metrics are not usable, but it must not appear in `sections[].displayItems`.
 
 ### score_calibrations
@@ -360,7 +359,7 @@ cons_section_score = 100 - cons_severity_score
 9. Aggregate metric scores by section.
 10. Score vitamins/minerals from DV% tiers.
 11. Score pros and cons from major/minor item levels.
-12. Apply `proteinFallback` when the proteins section would otherwise depend on weak proxy fields; keep the visible protein rows controlled by `proteinDisplay`.
+12. Complete eligible protein rows through exact data, source-backed analogue data, or documented estimates; apply `proteinFallback` only when the food fails the useful-protein gate, and keep visible protein rows controlled by `proteinDisplay`.
 13. Average the 7 scored content section scores using equal top-level weights to produce `baseOverallScore`.
 14. Apply the active category `scoreCalibration` to produce `calibratedOverallScore`.
 15. Apply food-specific `scoreAdjustments`, when present, to produce `anomalyAdjustedScore` / `rankingScore`.

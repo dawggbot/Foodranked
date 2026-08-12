@@ -181,11 +181,10 @@ The related `proteinFallback.metricKey` is intentionally hidden from the visible
 - it may guide narration, because the protein amount is still relevant context
 - it must not be displayed as a protein submacro row, because the protein macro bubble already displays `protein_g`
 
-Missing, skipped, or withheld protein-quality fields use source-backed values first, then labelled display-only estimates when available, then the visible row's display default when the protein macro displays a value.
-Display estimates are marked with `displaySource: protein_display_estimate` and can use the category-specific protein fallback band plus broad protein source class; they are not stored as source nutrition metrics.
-EAA/NEAA display estimates are useful-protein-gated and floor-based: if the protein fallback band is red, estimated amino-acid counts stay at `0`; when the fallback band reaches a useful green band, estimated counts are floored before the normal arrow band is resolved.
-Final display defaults are `0g` for collagen, `0/9` for essential amino acids, `0/11` for non-essential amino acids, and `0%` for bioavailability, with the normal arrow band resolved from the row's rules.
-These estimates/defaults are presentation-only and must not be written into source food metrics as if they were source-backed nutrition evidence.
+Final production entries fill missing protein-quality fields from exact-food database data first, then exact-identity Google research with AI Overview values checked against a linked or corroborating source, and a source-backed protein analogue only as the last resort. Analogue-derived EAA/NEAA scores require source-backed `amino_acids_mg`; provenance records the matched identity, preparation relationship, and derivation.
+Plant collagen resolves to `0g`. Bioavailability may use food-specific research or a documented category estimate.
+Display defaults of `0g`, `0/9`, `0/11`, and `0%` remain draft/runtime safeguards. They must not be the unreviewed basis of a finalized entry.
+Finished narration states the selected production values confidently while the data layer preserves whether each value was exact, analogue-derived, or estimated.
 
 ### 4. Keep context items separate from nutrient metrics
 Do not force antioxidants, pesticide risk, sodium concerns, convenience tradeoffs, and similar contextual notes into the same metric array as nutrient data.
@@ -249,8 +248,8 @@ The scorer should:
 1. compute submacro section scores from resolved color bands
 2. compute vitamin/mineral section scores from DV% tiers
 3. compute pros/cons as first-class sections from major/minor levels
-4. derive EAA/NEAA scores from source-backed `amino_acids_mg` and the useful-amount threshold policy, never from trace presence or old aggregate proxy fields; source thresholds include a 100mg essential material floor and a 500mg nonessential material floor
-5. use `proteinFallback` when direct protein-quality metrics are intentionally unavailable or the food fails the useful-protein gate, while keeping visible protein rows controlled by `proteinDisplay`
+4. derive EAA/NEAA scores from exact-food or closest-defensible-analogue source-backed `amino_acids_mg` and the useful-amount threshold policy, never from trace presence or old aggregate proxy fields; source thresholds include a 100mg essential material floor and a 500mg nonessential material floor
+5. use `proteinFallback` when the food fails the useful-protein gate, while finalized foods with useful protein complete visible protein rows through exact data, source-backed analogues, or documented estimates
 6. average all 7 scored content section scores into `baseOverallScore`
 7. apply `scoreCalibration` to produce `calibratedOverallScore`
 8. apply any food-specific `scoreAdjustments` to produce `anomalyAdjustedScore` / `rankingScore`

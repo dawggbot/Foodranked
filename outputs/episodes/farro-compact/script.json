@@ -1,0 +1,632 @@
+{
+  "status": "ok",
+  "schemaVersion": "foodranked-script.v2",
+  "narrationFormat": "elevenlabs-blocks-v1",
+  "food": {
+    "id": "farro",
+    "name": "Farro",
+    "foodType": "grains",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "identity": {
+      "canonicalName": "Farro, pearled, dry, raw",
+      "commonName": "Farro",
+      "scientificName": "Triticum dicoccum",
+      "form": "pearled emmer wheat grain",
+      "state": "dry raw",
+      "ediblePortion": "plain dry pearled kernels",
+      "basisReason": "Dry per-100g basis matches the sold grain identity and avoids water dilution from cooking.",
+      "includes": [
+        "plain pearled farro",
+        "dry raw pearled emmer wheat"
+      ],
+      "excludes": [
+        "whole unpearled farro",
+        "semi-pearled farro",
+        "cooked farro",
+        "farro salads",
+        "seasoned farro products"
+      ]
+    },
+    "scoreReadiness": {
+      "status": "production-safe",
+      "summary": "Every visible DBv2 metric is populated on the locked per-100g identity, with exact-food Google research used before any fallback.",
+      "blockers": [],
+      "caveats": [
+        "Farro varies by wheat species and pearling intensity; this entry is specifically plain pearled emmer on a dry raw basis."
+      ]
+    },
+    "sourceNotes": [
+      "Production entry for plain pearled farro on a dry raw per-100g basis.",
+      "USDA FoodData Central supplies the canonical macros, starch, fibre, and minerals.",
+      "Required gaps were filled with exact-identity Google-discovered values and exact pearled-emmer composition data; no other-food nutrient profile is used.",
+      "Narration uses the selected production values directly while provenance preserves exact, derived, and estimated status."
+    ]
+  },
+  "ruleset": {
+    "id": "grains.v1",
+    "version": 1,
+    "tierScoreMap": {
+      "Slop": -20,
+      "D": 20,
+      "C": 40,
+      "B": 60,
+      "A": 80,
+      "S": 100
+    },
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
+  },
+  "header": {
+    "kcal": 367,
+    "fat_g": 3.1,
+    "carb_g": 72.1,
+    "protein_g": 12.6
+  },
+  "hook": "Farro ranked.",
+  "sections": [
+    {
+      "key": "fats",
+      "title": "Fats",
+      "narration": "3.1 grams of fat. Saturated fat is 0.5 grams, supporting a cleaner fat profile. Omega 3 is 100 milligrams, not adding much omega 3. For grains, fat usually matters less than carbs.",
+      "displayItems": [
+        {
+          "metricKey": "saturated_fat_g",
+          "text": "saturated fat at 0.5g",
+          "weightedScore": 100,
+          "scoringMode": "arrow_bands",
+          "band": "3_green",
+          "polarity": "higher_worse",
+          "dvPercent": null,
+          "value": 0.5,
+          "score": 100,
+          "denominator": null,
+          "displayValue": "0.5g",
+          "displaySource": "scored"
+        },
+        {
+          "metricKey": "polyunsaturated_fat_g",
+          "text": "polyunsaturated fat at 1.8g",
+          "weightedScore": 60,
+          "scoringMode": "arrow_bands",
+          "band": "1_green",
+          "polarity": "higher_better",
+          "dvPercent": null,
+          "value": 1.8,
+          "score": 60,
+          "denominator": null,
+          "displayValue": "1.8g",
+          "displaySource": "scored"
+        },
+        {
+          "metricKey": "omega3_mg",
+          "text": "omega 3 at 100mg",
+          "weightedScore": 40,
+          "scoringMode": "arrow_bands",
+          "band": "1_red",
+          "polarity": "higher_better",
+          "dvPercent": null,
+          "value": 100,
+          "score": 40,
+          "denominator": null,
+          "displayValue": "100mg",
+          "displaySource": "scored"
+        },
+        {
+          "metricKey": "cholesterol_mg",
+          "text": "cholesterol at 0mg",
+          "weightedScore": 100,
+          "scoringMode": "arrow_bands",
+          "band": "3_green",
+          "polarity": "higher_worse",
+          "dvPercent": null,
+          "value": 0,
+          "score": 100,
+          "denominator": null,
+          "displayValue": "0mg",
+          "displaySource": "scored"
+        }
+      ],
+      "macroDisplayValue": "3.1g",
+      "subtitleText": "3.1g of fat. Saturated fat is 0.5g, supporting a cleaner fat profile. Omega 3 is 100mg, not adding much omega 3. For grains, fat usually matters less than carbs.",
+      "timingHint": "short-medium",
+      "score": 75
+    },
+    {
+      "key": "carbs",
+      "title": "Carbs",
+      "narration": "72.1 grams of carbs. Sugar is 0 grams, helping keep the sugar load under control. Glycemic index is 63, not great for steadier carb behaviour, so that's a real downside for grains. For grains, carb quality matters most.",
+      "displayItems": [
+        {
+          "metricKey": "fibre_g",
+          "text": "fibre at 7.3g",
+          "weightedScore": 300,
+          "scoringMode": "arrow_bands",
+          "band": "1_green",
+          "polarity": "higher_better",
+          "dvPercent": null,
+          "value": 7.31,
+          "score": 60,
+          "denominator": null,
+          "displayValue": "7.3g",
+          "displaySource": "scored"
+        },
+        {
+          "metricKey": "sugar_g",
+          "text": "sugar at 0g",
+          "weightedScore": 200,
+          "scoringMode": "arrow_bands",
+          "band": "3_green",
+          "polarity": "higher_worse",
+          "dvPercent": null,
+          "value": 0,
+          "score": 100,
+          "denominator": null,
+          "displayValue": "0g",
+          "displaySource": "scored"
+        },
+        {
+          "metricKey": "starch_g",
+          "text": "starch at 61.7g",
+          "weightedScore": 80,
+          "scoringMode": "arrow_bands",
+          "band": "2_green",
+          "polarity": "higher_better",
+          "dvPercent": null,
+          "value": 61.7,
+          "score": 80,
+          "denominator": null,
+          "displayValue": "61.7g",
+          "displaySource": "scored"
+        },
+        {
+          "metricKey": "glycemic_index",
+          "text": "glycemic index at 63 GI",
+          "weightedScore": 200,
+          "scoringMode": "arrow_bands",
+          "band": "1_red",
+          "polarity": "higher_worse",
+          "dvPercent": null,
+          "value": 63,
+          "score": 40,
+          "denominator": null,
+          "displayValue": "63 GI",
+          "displaySource": "scored"
+        }
+      ],
+      "macroDisplayValue": "72.1g",
+      "subtitleText": "72.1g of carbs. Sugar is 0g, helping keep the sugar load under control. Glycemic index is 63, not great for steadier carb behaviour, so that's a real downside for grains. For grains, carb quality matters most.",
+      "timingHint": "short-medium",
+      "score": 60
+    },
+    {
+      "key": "proteins",
+      "title": "Proteins",
+      "narration": "12.6 grams of protein. Essential amino acids score is 8 out of 9, making the protein useful for repair and maintenance. Nonessential amino acids score is 8 out of 11, adding supporting amino acid coverage, but it is the smaller helper in this section. For grains, protein helps, but carbs matter more.",
+      "displayItems": [
+        {
+          "metricKey": "collagen_g",
+          "text": "collagen at 0g",
+          "weightedScore": null,
+          "scoringMode": "display_fallback",
+          "band": "3_red",
+          "polarity": "higher_better",
+          "dvPercent": null,
+          "value": 0,
+          "score": 0,
+          "denominator": null,
+          "displaySource": "macro_numeric_fallback",
+          "displayDefault": false,
+          "displayDefaultReason": null,
+          "displayValue": "0g"
+        },
+        {
+          "metricKey": "essential_amino_acids_score",
+          "text": "essential amino acids score at 8/9",
+          "weightedScore": 200,
+          "scoringMode": "arrow_bands",
+          "band": "3_green",
+          "polarity": "higher_better",
+          "dvPercent": null,
+          "value": 8,
+          "score": 100,
+          "denominator": 9,
+          "displayValue": "8/9",
+          "displaySource": "scored"
+        },
+        {
+          "metricKey": "nonessential_amino_acids_score",
+          "text": "nonessential amino acids score at 8/11",
+          "weightedScore": 60,
+          "scoringMode": "arrow_bands",
+          "band": "1_green",
+          "polarity": "higher_better",
+          "dvPercent": null,
+          "value": 8,
+          "score": 60,
+          "denominator": 11,
+          "displayValue": "8/11",
+          "displaySource": "scored"
+        },
+        {
+          "metricKey": "bioavailability_percent",
+          "text": "bioavailability at 80%",
+          "weightedScore": 160,
+          "scoringMode": "arrow_bands",
+          "band": "2_green",
+          "polarity": "higher_better",
+          "dvPercent": null,
+          "value": 80,
+          "score": 80,
+          "denominator": null,
+          "displayValue": "80%",
+          "displaySource": "scored"
+        }
+      ],
+      "macroDisplayValue": "12.6g",
+      "subtitleText": "12.6g of protein. Essential amino acids score is 8/9, making the protein useful for repair and maintenance. Nonessential amino acids score is 8/11, adding supporting amino acid coverage, but it is the smaller helper in this section. For grains, protein helps, but carbs matter more.",
+      "timingHint": "short-medium",
+      "score": 84,
+      "displayPolicy": {
+        "policyId": "protein-section-display.v1",
+        "rowCount": 4,
+        "visibleRows": [
+          "collagen_g",
+          "essential_amino_acids_score",
+          "nonessential_amino_acids_score",
+          "bioavailability_percent"
+        ],
+        "hiddenFallbackMetricKey": "protein_g_fallback",
+        "missingValueDisplay": "N/A",
+        "showProteinFallbackAsVisibleRow": false,
+        "rules": {
+          "visibleRowsOnly": true,
+          "visibleSubmacroRowsDisplayNaOnlyWhenMainMacroNa": true,
+          "missingSubmacroRowsUseDisplayDefault": true,
+          "proteinQualityGateSkippedRowsUseDisplayDefault": true,
+          "doNotDisplayProteinFallbackAsSubmacro": true
+        }
+      }
+    },
+    {
+      "key": "vitamins",
+      "title": "Vitamins",
+      "narration": "Vitamins are low overall. For grains, carbs and minerals matter more.",
+      "displayItems": [
+        {
+          "metricKey": "vitamin_e_dv",
+          "text": "vitamin E at 5% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "polarity": null,
+          "dvPercent": 5,
+          "value": null,
+          "score": 0,
+          "denominator": null
+        },
+        {
+          "metricKey": "vitamin_b12_dv",
+          "text": "vitamin B12 at 0% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "polarity": null,
+          "dvPercent": 0,
+          "value": null,
+          "score": 0,
+          "denominator": null
+        }
+      ],
+      "macroDisplayValue": null,
+      "subtitleText": "Vitamins are low overall. For grains, carbs and minerals matter more.",
+      "timingHint": "short-medium",
+      "score": 0
+    },
+    {
+      "key": "minerals",
+      "title": "Minerals",
+      "narration": "Zinc is 36% daily value, useful for immune support. Calcium is only 2% daily value, not bringing much bone support. For grains, minerals help round out the score.",
+      "displayItems": [
+        {
+          "metricKey": "zinc_dv",
+          "text": "zinc at 36% DV",
+          "weightedScore": 120,
+          "scoringMode": "dv_points",
+          "band": null,
+          "polarity": null,
+          "dvPercent": 36,
+          "value": null,
+          "score": 30,
+          "denominator": null
+        },
+        {
+          "metricKey": "calcium_dv",
+          "text": "calcium at 2% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "polarity": null,
+          "dvPercent": 2,
+          "value": null,
+          "score": 0,
+          "denominator": null
+        },
+        {
+          "metricKey": "magnesium_dv",
+          "text": "magnesium at 28% DV",
+          "weightedScore": 100,
+          "scoringMode": "dv_points",
+          "band": null,
+          "polarity": null,
+          "dvPercent": 28,
+          "value": null,
+          "score": 20,
+          "denominator": null
+        },
+        {
+          "metricKey": "iron_dv",
+          "text": "iron at 18% DV",
+          "weightedScore": 40,
+          "scoringMode": "dv_points",
+          "band": null,
+          "polarity": null,
+          "dvPercent": 18,
+          "value": null,
+          "score": 10,
+          "denominator": null
+        }
+      ],
+      "macroDisplayValue": null,
+      "subtitleText": "Zinc is 36% DV, useful for immune support. Calcium is only 2% DV, not bringing much bone support. For grains, minerals help round out the score.",
+      "timingHint": "short-medium",
+      "score": 16.3
+    },
+    {
+      "key": "pros",
+      "title": "Pros",
+      "narration": "The upsides first: chewy texture holds up in full meals. It works in soups, salads, and grain bowls without turning to mush. Batch-cooks into a practical meal base. One pot can cover several meals and takes stronger toppings well. Pearled farro is easier to cook. Removing some outer bran shortens the cooking time and makes it more approachable.",
+      "displayItems": [
+        {
+          "type": "pro",
+          "title": "chewy texture holds up in full meals",
+          "explanation": "It works in soups, salads, and grain bowls without turning to mush.",
+          "impactLevel": "minor",
+          "resolvedScoreValue": 50
+        },
+        {
+          "type": "pro",
+          "title": "batch-cooks into a practical meal base",
+          "explanation": "One pot can cover several meals and takes stronger toppings well.",
+          "impactLevel": "minor",
+          "resolvedScoreValue": 50
+        },
+        {
+          "type": "pro",
+          "title": "pearled farro is easier to cook",
+          "explanation": "Removing some outer bran shortens the cooking time and makes it more approachable.",
+          "impactLevel": "minor",
+          "resolvedScoreValue": 50
+        }
+      ],
+      "macroDisplayValue": null,
+      "subtitleText": "The upsides first: chewy texture holds up in full meals. It works in soups, salads, and grain bowls without turning to mush. Batch-cooks into a practical meal base. One pot can cover several meals and takes stronger toppings well. Pearled farro is easier to cook. Removing some outer bran shortens the cooking time and makes it more approachable.",
+      "timingHint": "medium",
+      "score": 50
+    },
+    {
+      "key": "cons",
+      "title": "Cons",
+      "narration": "Downsides next: pearling strips away part of the bran. That convenience costs some fibre and micronutrient potential. Contains gluten. It is not suitable for coeliac disease or a gluten-free diet. Still needs cooking and planning. It is less instant than rice or couscous and definitely is not grab-and-go.",
+      "displayItems": [
+        {
+          "type": "con",
+          "title": "pearling strips away part of the bran",
+          "explanation": "That convenience costs some fibre and micronutrient potential.",
+          "impactLevel": "minor",
+          "resolvedScoreValue": 50
+        },
+        {
+          "type": "con",
+          "title": "contains gluten",
+          "explanation": "It is not suitable for coeliac disease or a gluten-free diet.",
+          "impactLevel": "minor",
+          "resolvedScoreValue": 50
+        },
+        {
+          "type": "con",
+          "title": "still needs cooking and planning",
+          "explanation": "It is less instant than rice or couscous and definitely is not grab-and-go.",
+          "impactLevel": "minor",
+          "resolvedScoreValue": 50
+        }
+      ],
+      "macroDisplayValue": null,
+      "subtitleText": "Downsides next: pearling strips away part of the bran. That convenience costs some fibre and micronutrient potential. Contains gluten. It is not suitable for coeliac disease or a gluten-free diet. Still needs cooking and planning. It is less instant than rice or couscous and definitely is not grab-and-go.",
+      "timingHint": "medium",
+      "score": 50
+    }
+  ],
+  "closing": {
+    "summary": "Best bits are protein and omega 3. Weak spots are low vitamin E and low calcium. Best for heart health and energy because fibre is useful for heart health and the carb section gives it a clear fuel role.",
+    "overview": "Best bits are protein and omega 3. Weak spots are low vitamin E and low calcium. Best for heart health and energy because fibre is useful for heart health and the carb section gives it a clear fuel role.",
+    "useCases": [
+      {
+        "key": "heart_health",
+        "label": "heart health",
+        "reason": "fibre is useful for heart health",
+        "score": 165.24
+      },
+      {
+        "key": "energy",
+        "label": "energy",
+        "reason": "the carb section gives it a clear fuel role",
+        "score": 132.1
+      },
+      {
+        "key": "digestion",
+        "label": "digestion",
+        "reason": "fibre helps digestion and keeps meals steadier",
+        "score": 118.47999999999999
+      }
+    ],
+    "strengthHighlights": [
+      "protein",
+      "omega 3",
+      "fibre"
+    ],
+    "weaknessHighlights": [
+      "low vitamin E",
+      "low calcium",
+      "pearling strips away part of the bran"
+    ],
+    "finalReveal": "B tier.",
+    "useCaseNote": "Best when you want a staple carb that actually brings something useful with it.",
+    "cta": "Would you rank it the same, or nah?"
+  },
+  "tier": "B",
+  "overallScore": 60,
+  "overallScoreExact": 60,
+  "calibratedOverallScore": 59.2,
+  "calibratedOverallScoreExact": 59.1925,
+  "anomalyAdjustedScore": 59.2,
+  "anomalyAdjustedScoreExact": 59.1925,
+  "rankingScore": 59.2,
+  "rankingScoreExact": 59.1925,
+  "scoreAdjustmentTotal": 0,
+  "scoreAdjustments": [],
+  "baseOverallScore": 47.9,
+  "baseOverallScoreExact": 47.8929,
+  "sectionOrder": [
+    "fats",
+    "carbs",
+    "proteins",
+    "vitamins",
+    "minerals",
+    "pros",
+    "cons"
+  ],
+  "narrationBlocks": [
+    {
+      "kind": "hook_food",
+      "text": "Farro!"
+    },
+    {
+      "kind": "hook_ranked",
+      "text": "Ranked!"
+    },
+    {
+      "kind": "section",
+      "sectionKey": "fats",
+      "text": "3.1 grams of fat. Saturated fat is 0.5 grams, supporting a cleaner fat profile. Omega 3 is 100 milligrams, not adding much omega 3. For grains, fat usually matters less than carbs."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "carbs",
+      "text": "72.1 grams of carbs. Sugar is 0 grams, helping keep the sugar load under control. Glycemic index is 63, not great for steadier carb behaviour, so that's a real downside for grains. For grains, carb quality matters most."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "proteins",
+      "text": "12.6 grams of protein. Essential amino acids score is 8 out of 9, making the protein useful for repair and maintenance. Nonessential amino acids score is 8 out of 11, adding supporting amino acid coverage, but it is the smaller helper in this section. For grains, protein helps, but carbs matter more."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "vitamins",
+      "text": "Vitamins are low overall. For grains, carbs and minerals matter more."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "minerals",
+      "text": "Zinc is 36% daily value, useful for immune support. Calcium is only 2% daily value, not bringing much bone support. For grains, minerals help round out the score."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "pros",
+      "text": "The upsides first: chewy texture holds up in full meals. It works in soups, salads, and grain bowls without turning to mush. Batch-cooks into a practical meal base. One pot can cover several meals and takes stronger toppings well. Pearled farro is easier to cook. Removing some outer bran shortens the cooking time and makes it more approachable."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "cons",
+      "text": "Downsides next: pearling strips away part of the bran. That convenience costs some fibre and micronutrient potential. Contains gluten. It is not suitable for coeliac disease or a gluten-free diet. Still needs cooking and planning. It is less instant than rice or couscous and definitely is not grab-and-go."
+    },
+    {
+      "kind": "closing_summary",
+      "text": "Best bits are protein and omega 3. Weak spots are low vitamin E and low calcium. Best for heart health and energy because fibre is useful for heart health and the carb section gives it a clear fuel role."
+    },
+    {
+      "kind": "final_reveal",
+      "text": "B tier."
+    }
+  ],
+  "explanation": {
+    "summary": "Proteins are carrying this food most, while vitamins are holding it back most. It lands in B tier.",
+    "whyThisTier": "This food lands in B tier with a display score of 60. Section scores: fats 75, carbs 60, proteins 84, vitamins 0, minerals 16.3, pros 50, cons 50.",
+    "strongestSection": {
+      "key": "proteins",
+      "label": "Proteins",
+      "score": 84
+    },
+    "weakestSection": {
+      "key": "vitamins",
+      "label": "Vitamins",
+      "score": 0
+    },
+    "scoreAdjustments": [],
+    "topPros": [
+      {
+        "title": "chewy texture holds up in full meals",
+        "explanation": "It works in soups, salads, and grain bowls without turning to mush.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "batch-cooks into a practical meal base",
+        "explanation": "One pot can cover several meals and takes stronger toppings well.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "pearled farro is easier to cook",
+        "explanation": "Removing some outer bran shortens the cooking time and makes it more approachable.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      }
+    ],
+    "topCons": [
+      {
+        "title": "pearling strips away part of the bran",
+        "explanation": "That convenience costs some fibre and micronutrient potential.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "contains gluten",
+        "explanation": "It is not suitable for coeliac disease or a gluten-free diet.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "still needs cooking and planning",
+        "explanation": "It is less instant than rice or couscous and definitely is not grab-and-go.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
+      }
+    ],
+    "narrationNotes": [
+      "Strongest section: Proteins.",
+      "Weakest section: Vitamins.",
+      "Final verdict: B tier."
+    ]
+  }
+}

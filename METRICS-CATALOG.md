@@ -143,10 +143,10 @@ Visible v1 protein row order is locked:
 3. `nonessential_amino_acids_score`
 4. `bioavailability_percent`
 
-Rows that are missing, skipped by the useful-protein gate, intentionally withheld, or not source-backed for the exact food identity stay missing in source metrics.
-If the protein macro displays a value, generated display rows use source-backed values first, then labelled display-only estimates when available, then presentation-only defaults (`0g`, `0/9`, `0/11`, `0%`) as the final fallback.
-Display-only EAA/NEAA estimates are useful-protein-gated and floor-based, so red protein fallback bands keep amino-acid counts at `0` and borderline green estimates do not round upward.
-If the protein macro displays `N/A`, the visible protein rows may display `N/A` with no arrow.
+Final production profiles fill all four visible protein rows whenever the protein macro has a value. Use exact-food database data first, then exact-identity Google research with AI Overview values checked against a linked or corroborating source, and another protein analogue only as the last resort.
+EAA/NEAA values must be derived from actual amino-acid rows belonging to the exact or matched analogue profile and the FoodRanked thresholds. Bioavailability may come from food-specific digestibility research or a documented category estimate. Plant collagen resolves to a structural `0g` rather than an unknown value.
+Store the source tier, matched identity, preparation relationship, and derivation in provenance. Finished scripts narrate the selected values confidently; they do not expose audit uncertainty.
+Presentation-only defaults (`0g`, `0/9`, `0/11`, `0%`) remain draft/runtime safeguards and are not acceptable as the unreviewed basis of a finalized food.
 
 ### collagen_g
 - Display name: Collagen
@@ -162,7 +162,7 @@ If the protein macro displays `N/A`, the visible protein rows may display `N/A` 
 - Default section: proteins
 - Default polarity: `higher_better`
 - V1 role: scored where meaningful
-- Notes: `/9` useful-amount score derived from source-backed `amino_acids_mg`; each amino-acid group must clear the v1 threshold rather than merely be present. V1 uses the adult RDA pattern plus a 100mg-per-100g material floor.
+- Notes: `/9` useful-amount score derived from source-backed `amino_acids_mg` found through exact database data, exact-food Google research, or a last-resort defensible analogue; each amino-acid group must clear the v1 threshold rather than merely be present. V1 uses the adult RDA pattern plus a 100mg-per-100g material floor.
 
 ### nonessential_amino_acids_score
 - Display name: Non-essential Amino Acids
@@ -170,7 +170,7 @@ If the protein macro displays `N/A`, the visible protein rows may display `N/A` 
 - Default section: proteins
 - Default polarity: `higher_better`
 - V1 role: scored where meaningful
-- Notes: `/11` useful-amount score derived from source-backed `amino_acids_mg`; no official adult DRI exists for nonessential amino acids, so v1 uses a material 500mg-per-100g threshold.
+- Notes: `/11` useful-amount score derived from source-backed `amino_acids_mg` found through exact database data, exact-food Google research, or a last-resort defensible analogue; no official adult DRI exists for nonessential amino acids, so v1 uses a material 500mg-per-100g threshold.
 
 ### bioavailability_percent
 - Display name: Bioavailability

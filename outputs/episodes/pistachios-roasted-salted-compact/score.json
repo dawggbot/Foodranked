@@ -1,0 +1,885 @@
+{
+  "status": "ok",
+  "food": {
+    "id": "pistachios-roasted-salted",
+    "name": "Pistachios (Roasted & Salted)",
+    "foodType": "nuts"
+  },
+  "ruleset": {
+    "id": "nuts.v1",
+    "version": 1,
+    "tierScoreMap": {
+      "Slop": -20,
+      "D": 20,
+      "C": 40,
+      "B": 60,
+      "A": 80,
+      "S": 100
+    },
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
+  },
+  "header": {
+    "kcal": 569,
+    "fat_g": 45.8,
+    "carb_g": 27.6,
+    "protein_g": 21.1
+  },
+  "foodMetrics": {
+    "saturated_fat_g": 5.64,
+    "omega3_mg": 212,
+    "polyunsaturated_fat_g": 13.3,
+    "cholesterol_mg": 0,
+    "starch_g": 1.38,
+    "fibre_g": 10.3,
+    "sugar_g": 7.69,
+    "glycemic_index": 30,
+    "collagen_g": 0,
+    "essential_amino_acids_score": 9,
+    "nonessential_amino_acids_score": 10,
+    "bioavailability_percent": 83,
+    "vitamin_a_dv": 1,
+    "vitamin_c_dv": 3,
+    "vitamin_d_dv": 0,
+    "vitamin_e_dv": 14,
+    "vitamin_k_dv": 11,
+    "vitamin_b12_dv": 0,
+    "iron_dv": 22,
+    "magnesium_dv": 26,
+    "zinc_dv": 21,
+    "calcium_dv": 8,
+    "potassium_dv": 21,
+    "amino_acids_mg": {
+      "tryptophan_mg": 270,
+      "threonine_mg": 650,
+      "isoleucine_mg": 850,
+      "leucine_mg": 1400,
+      "lysine_mg": 980,
+      "methionine_mg": 280,
+      "cystine_mg": 350,
+      "phenylalanine_mg": 940,
+      "tyrosine_mg": 530,
+      "valine_mg": 1200,
+      "arginine_mg": 1800,
+      "histidine_mg": 470,
+      "alanine_mg": 790,
+      "aspartic_acid_mg": 1700,
+      "glutamic_acid_mg": 3900,
+      "glycine_mg": 840,
+      "proline_mg": 790,
+      "serine_mg": 1100
+    }
+  },
+  "aminoAcidScoring": {
+    "policyId": "foodranked-amino-acid-thresholds.v1",
+    "profileAvailable": true,
+    "sourceMetric": "amino_acids_mg",
+    "essential": {
+      "value": 9,
+      "denominator": 9,
+      "details": [
+        {
+          "key": "histidine",
+          "label": "histidine",
+          "metricKeys": [
+            "histidine_mg"
+          ],
+          "amountMg": 470,
+          "thresholdMg": 245,
+          "useful": true,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "isoleucine",
+          "label": "isoleucine",
+          "metricKeys": [
+            "isoleucine_mg"
+          ],
+          "amountMg": 850,
+          "thresholdMg": 333,
+          "useful": true,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "leucine",
+          "label": "leucine",
+          "metricKeys": [
+            "leucine_mg"
+          ],
+          "amountMg": 1400,
+          "thresholdMg": 735,
+          "useful": true,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "lysine",
+          "label": "lysine",
+          "metricKeys": [
+            "lysine_mg"
+          ],
+          "amountMg": 980,
+          "thresholdMg": 665,
+          "useful": true,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "methionine_cystine",
+          "label": "methionine + cystine",
+          "metricKeys": [
+            "methionine_mg",
+            "cystine_mg"
+          ],
+          "amountMg": 630,
+          "thresholdMg": 333,
+          "useful": true,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "phenylalanine_tyrosine",
+          "label": "phenylalanine + tyrosine",
+          "metricKeys": [
+            "phenylalanine_mg",
+            "tyrosine_mg"
+          ],
+          "amountMg": 1470,
+          "thresholdMg": 578,
+          "useful": true,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "threonine",
+          "label": "threonine",
+          "metricKeys": [
+            "threonine_mg"
+          ],
+          "amountMg": 650,
+          "thresholdMg": 350,
+          "useful": true,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "tryptophan",
+          "label": "tryptophan",
+          "metricKeys": [
+            "tryptophan_mg"
+          ],
+          "amountMg": 270,
+          "thresholdMg": 100,
+          "useful": true,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "valine",
+          "label": "valine",
+          "metricKeys": [
+            "valine_mg"
+          ],
+          "amountMg": 1200,
+          "thresholdMg": 420,
+          "useful": true,
+          "missingMetricKeys": []
+        }
+      ]
+    },
+    "nonessential": {
+      "value": 10,
+      "denominator": 11,
+      "details": [
+        {
+          "key": "alanine",
+          "label": "alanine",
+          "metricKeys": [
+            "alanine_mg"
+          ],
+          "amountMg": 790,
+          "thresholdMg": 500,
+          "useful": true,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "arginine",
+          "label": "arginine",
+          "metricKeys": [
+            "arginine_mg"
+          ],
+          "amountMg": 1800,
+          "thresholdMg": 500,
+          "useful": true,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "aspartic_acid",
+          "label": "aspartic acid",
+          "metricKeys": [
+            "aspartic_acid_mg"
+          ],
+          "amountMg": 1700,
+          "thresholdMg": 500,
+          "useful": true,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "asparagine_proxy",
+          "label": "asparagine proxy",
+          "metricKeys": [
+            "aspartic_acid_mg"
+          ],
+          "amountMg": 1700,
+          "thresholdMg": 500,
+          "useful": true,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "cystine_cysteine",
+          "label": "cystine / cysteine",
+          "metricKeys": [
+            "cystine_mg"
+          ],
+          "amountMg": 350,
+          "thresholdMg": 500,
+          "useful": false,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "glutamic_acid",
+          "label": "glutamic acid",
+          "metricKeys": [
+            "glutamic_acid_mg"
+          ],
+          "amountMg": 3900,
+          "thresholdMg": 500,
+          "useful": true,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "glutamine_proxy",
+          "label": "glutamine proxy",
+          "metricKeys": [
+            "glutamic_acid_mg"
+          ],
+          "amountMg": 3900,
+          "thresholdMg": 500,
+          "useful": true,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "glycine",
+          "label": "glycine",
+          "metricKeys": [
+            "glycine_mg"
+          ],
+          "amountMg": 840,
+          "thresholdMg": 500,
+          "useful": true,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "proline",
+          "label": "proline",
+          "metricKeys": [
+            "proline_mg"
+          ],
+          "amountMg": 790,
+          "thresholdMg": 500,
+          "useful": true,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "serine",
+          "label": "serine",
+          "metricKeys": [
+            "serine_mg"
+          ],
+          "amountMg": 1100,
+          "thresholdMg": 500,
+          "useful": true,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "tyrosine",
+          "label": "tyrosine",
+          "metricKeys": [
+            "tyrosine_mg"
+          ],
+          "amountMg": 530,
+          "thresholdMg": 500,
+          "useful": true,
+          "missingMetricKeys": []
+        }
+      ]
+    }
+  },
+  "proteinQualityGate": {
+    "proteinG": 21.1,
+    "minimumProteinG": 14,
+    "eligible": true,
+    "aminoAcidProfileAvailable": true,
+    "usefulEssentialAminoAcidGroups": 9,
+    "usefulNonessentialAminoAcidGroups": 10,
+    "aminoAcidThresholdPolicy": "foodranked-amino-acid-thresholds.v1",
+    "skippedMetricKeys": []
+  },
+  "sectionScores": {
+    "fats": 55,
+    "carbs": 60,
+    "proteins": 88,
+    "vitamins": 6.7,
+    "minerals": 20,
+    "pros": 50,
+    "cons": 33.3
+  },
+  "overallScore": 80,
+  "overallScoreExact": 80,
+  "calibratedOverallScore": 65.6,
+  "calibratedOverallScoreExact": 65.6016,
+  "anomalyAdjustedScore": 65.6,
+  "anomalyAdjustedScoreExact": 65.6016,
+  "rankingScore": 65.6,
+  "rankingScoreExact": 65.6016,
+  "scoreAdjustmentTotal": 0,
+  "scoreAdjustmentTotalExact": 0,
+  "baseOverallScore": 44.7,
+  "baseOverallScoreExact": 44.7143,
+  "tier": "A",
+  "summary": "Proteins are carrying this food most, while vitamins are holding it back most. It lands in A tier.",
+  "explanation": {
+    "summary": "Proteins are carrying this food most, while vitamins are holding it back most. It lands in A tier.",
+    "whyThisTier": "This food lands in A tier with a display score of 80. Section scores: fats 55, carbs 60, proteins 88, vitamins 6.7, minerals 20, pros 50, cons 33.3.",
+    "strongestSection": {
+      "key": "proteins",
+      "label": "Proteins",
+      "score": 88
+    },
+    "weakestSection": {
+      "key": "vitamins",
+      "label": "Vitamins",
+      "score": 6.7
+    },
+    "scoreAdjustments": [],
+    "topPros": [
+      {
+        "title": "portable and shelf-stable",
+        "explanation": "They are easy to keep around and need no preparation.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "roasted crunch makes a small serving satisfying",
+        "explanation": "The texture and flavour give this snack more staying power than many light packaged options.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "still resembles the food it came from",
+        "explanation": "Even roasted and salted, it remains closer to a whole food than most savoury snacks.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      }
+    ],
+    "topCons": [
+      {
+        "title": "the salt adds a sodium tradeoff",
+        "explanation": "This exact entry has 428 milligrams of sodium per 100 grams.",
+        "impactLevel": "major",
+        "side": "con",
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "handfuls add up quickly",
+        "explanation": "The dense, snackable format makes casual portions easy to overshoot.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "nut allergy rules them out for some people",
+        "explanation": "That is a hard practical limit, not a tiny downside.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
+      }
+    ],
+    "narrationNotes": [
+      "Strongest section: Proteins.",
+      "Weakest section: Vitamins.",
+      "Final verdict: A tier."
+    ]
+  },
+  "contextItems": {
+    "pros": [
+      {
+        "itemKey": "portable_and_shelf_stable",
+        "impactLevel": "minor",
+        "title": "portable and shelf-stable",
+        "explanation": "They are easy to keep around and need no preparation.",
+        "evidenceType": "manual",
+        "confidence": "high",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      },
+      {
+        "itemKey": "roasted_crunch_satisfaction",
+        "impactLevel": "minor",
+        "title": "roasted crunch makes a small serving satisfying",
+        "explanation": "The texture and flavour give this snack more staying power than many light packaged options.",
+        "evidenceType": "manual",
+        "confidence": "medium",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      },
+      {
+        "itemKey": "recognisable_whole_food",
+        "impactLevel": "minor",
+        "title": "still resembles the food it came from",
+        "explanation": "Even roasted and salted, it remains closer to a whole food than most savoury snacks.",
+        "evidenceType": "manual",
+        "confidence": "medium",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      }
+    ],
+    "cons": [
+      {
+        "itemKey": "added_salt_tradeoff",
+        "impactLevel": "major",
+        "title": "the salt adds a sodium tradeoff",
+        "explanation": "This exact entry has 428 milligrams of sodium per 100 grams.",
+        "evidenceType": "source_backed",
+        "confidence": "high",
+        "side": "con",
+        "resolvedScoreValue": 100
+      },
+      {
+        "itemKey": "portion_overshoot",
+        "impactLevel": "minor",
+        "title": "handfuls add up quickly",
+        "explanation": "The dense, snackable format makes casual portions easy to overshoot.",
+        "evidenceType": "manual",
+        "confidence": "medium",
+        "side": "con",
+        "resolvedScoreValue": 50
+      },
+      {
+        "itemKey": "tree_nut_allergy",
+        "impactLevel": "minor",
+        "title": "nut allergy rules them out for some people",
+        "explanation": "That is a hard practical limit, not a tiny downside.",
+        "evidenceType": "manual",
+        "confidence": "high",
+        "side": "con",
+        "resolvedScoreValue": 50
+      }
+    ]
+  },
+  "scoreAdjustments": [],
+  "metricBreakdown": [
+    {
+      "metricKey": "saturated_fat_g",
+      "sectionKey": "fats",
+      "scoringMode": "arrow_bands",
+      "value": 5.64,
+      "band": "2_green",
+      "polarity": "higher_worse",
+      "score": 80,
+      "weight": 3,
+      "weightedScore": 240
+    },
+    {
+      "metricKey": "omega3_mg",
+      "sectionKey": "fats",
+      "scoringMode": "arrow_bands",
+      "value": 212,
+      "band": "1_red",
+      "polarity": "higher_better",
+      "score": 40,
+      "weight": 5,
+      "weightedScore": 200
+    },
+    {
+      "metricKey": "polyunsaturated_fat_g",
+      "sectionKey": "fats",
+      "scoringMode": "arrow_bands",
+      "value": 13.3,
+      "band": "1_red",
+      "polarity": "higher_better",
+      "score": 40,
+      "weight": 3,
+      "weightedScore": 120
+    },
+    {
+      "metricKey": "cholesterol_mg",
+      "sectionKey": "fats",
+      "scoringMode": "arrow_bands",
+      "value": 0,
+      "band": "3_green",
+      "polarity": "higher_worse",
+      "score": 100,
+      "weight": 1,
+      "weightedScore": 100
+    },
+    {
+      "metricKey": "starch_g",
+      "sectionKey": "carbs",
+      "scoringMode": "arrow_bands",
+      "value": 1.38,
+      "band": "2_red",
+      "polarity": "higher_better",
+      "score": 20,
+      "weight": 0.5,
+      "weightedScore": 10
+    },
+    {
+      "metricKey": "fibre_g",
+      "sectionKey": "carbs",
+      "scoringMode": "arrow_bands",
+      "value": 10.3,
+      "band": "2_green",
+      "polarity": "higher_better",
+      "score": 80,
+      "weight": 3,
+      "weightedScore": 240
+    },
+    {
+      "metricKey": "sugar_g",
+      "sectionKey": "carbs",
+      "scoringMode": "arrow_bands",
+      "value": 7.69,
+      "band": "1_red",
+      "polarity": "higher_worse",
+      "score": 40,
+      "weight": 2,
+      "weightedScore": 80
+    },
+    {
+      "metricKey": "glycemic_index",
+      "sectionKey": "carbs",
+      "scoringMode": "arrow_bands",
+      "value": 30,
+      "band": "1_green",
+      "polarity": "higher_worse",
+      "score": 60,
+      "weight": 1.5,
+      "weightedScore": 90
+    },
+    {
+      "metricKey": "essential_amino_acids_score",
+      "sectionKey": "proteins",
+      "scoringMode": "arrow_bands",
+      "value": 9,
+      "band": "↑↑↑",
+      "polarity": "higher_better",
+      "score": 100,
+      "weight": 2,
+      "weightedScore": 200,
+      "denominator": 9,
+      "derivedFrom": "amino_acids_mg",
+      "aminoAcidThresholdPolicy": "foodranked-amino-acid-thresholds.v1",
+      "aminoAcidGroups": [
+        {
+          "key": "histidine",
+          "label": "histidine",
+          "metricKeys": [
+            "histidine_mg"
+          ],
+          "amountMg": 470,
+          "thresholdMg": 245,
+          "useful": true,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "isoleucine",
+          "label": "isoleucine",
+          "metricKeys": [
+            "isoleucine_mg"
+          ],
+          "amountMg": 850,
+          "thresholdMg": 333,
+          "useful": true,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "leucine",
+          "label": "leucine",
+          "metricKeys": [
+            "leucine_mg"
+          ],
+          "amountMg": 1400,
+          "thresholdMg": 735,
+          "useful": true,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "lysine",
+          "label": "lysine",
+          "metricKeys": [
+            "lysine_mg"
+          ],
+          "amountMg": 980,
+          "thresholdMg": 665,
+          "useful": true,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "methionine_cystine",
+          "label": "methionine + cystine",
+          "metricKeys": [
+            "methionine_mg",
+            "cystine_mg"
+          ],
+          "amountMg": 630,
+          "thresholdMg": 333,
+          "useful": true,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "phenylalanine_tyrosine",
+          "label": "phenylalanine + tyrosine",
+          "metricKeys": [
+            "phenylalanine_mg",
+            "tyrosine_mg"
+          ],
+          "amountMg": 1470,
+          "thresholdMg": 578,
+          "useful": true,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "threonine",
+          "label": "threonine",
+          "metricKeys": [
+            "threonine_mg"
+          ],
+          "amountMg": 650,
+          "thresholdMg": 350,
+          "useful": true,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "tryptophan",
+          "label": "tryptophan",
+          "metricKeys": [
+            "tryptophan_mg"
+          ],
+          "amountMg": 270,
+          "thresholdMg": 100,
+          "useful": true,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "valine",
+          "label": "valine",
+          "metricKeys": [
+            "valine_mg"
+          ],
+          "amountMg": 1200,
+          "thresholdMg": 420,
+          "useful": true,
+          "missingMetricKeys": []
+        }
+      ]
+    },
+    {
+      "metricKey": "nonessential_amino_acids_score",
+      "sectionKey": "proteins",
+      "scoringMode": "arrow_bands",
+      "value": 10,
+      "band": "↑↑",
+      "polarity": "higher_better",
+      "score": 80,
+      "weight": 1,
+      "weightedScore": 80,
+      "denominator": 11,
+      "derivedFrom": "amino_acids_mg",
+      "aminoAcidThresholdPolicy": "foodranked-amino-acid-thresholds.v1",
+      "aminoAcidGroups": [
+        {
+          "key": "alanine",
+          "label": "alanine",
+          "metricKeys": [
+            "alanine_mg"
+          ],
+          "amountMg": 790,
+          "thresholdMg": 500,
+          "useful": true,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "arginine",
+          "label": "arginine",
+          "metricKeys": [
+            "arginine_mg"
+          ],
+          "amountMg": 1800,
+          "thresholdMg": 500,
+          "useful": true,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "aspartic_acid",
+          "label": "aspartic acid",
+          "metricKeys": [
+            "aspartic_acid_mg"
+          ],
+          "amountMg": 1700,
+          "thresholdMg": 500,
+          "useful": true,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "asparagine_proxy",
+          "label": "asparagine proxy",
+          "metricKeys": [
+            "aspartic_acid_mg"
+          ],
+          "amountMg": 1700,
+          "thresholdMg": 500,
+          "useful": true,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "cystine_cysteine",
+          "label": "cystine / cysteine",
+          "metricKeys": [
+            "cystine_mg"
+          ],
+          "amountMg": 350,
+          "thresholdMg": 500,
+          "useful": false,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "glutamic_acid",
+          "label": "glutamic acid",
+          "metricKeys": [
+            "glutamic_acid_mg"
+          ],
+          "amountMg": 3900,
+          "thresholdMg": 500,
+          "useful": true,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "glutamine_proxy",
+          "label": "glutamine proxy",
+          "metricKeys": [
+            "glutamic_acid_mg"
+          ],
+          "amountMg": 3900,
+          "thresholdMg": 500,
+          "useful": true,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "glycine",
+          "label": "glycine",
+          "metricKeys": [
+            "glycine_mg"
+          ],
+          "amountMg": 840,
+          "thresholdMg": 500,
+          "useful": true,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "proline",
+          "label": "proline",
+          "metricKeys": [
+            "proline_mg"
+          ],
+          "amountMg": 790,
+          "thresholdMg": 500,
+          "useful": true,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "serine",
+          "label": "serine",
+          "metricKeys": [
+            "serine_mg"
+          ],
+          "amountMg": 1100,
+          "thresholdMg": 500,
+          "useful": true,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "tyrosine",
+          "label": "tyrosine",
+          "metricKeys": [
+            "tyrosine_mg"
+          ],
+          "amountMg": 530,
+          "thresholdMg": 500,
+          "useful": true,
+          "missingMetricKeys": []
+        }
+      ]
+    },
+    {
+      "metricKey": "bioavailability_percent",
+      "sectionKey": "proteins",
+      "scoringMode": "arrow_bands",
+      "value": 83,
+      "band": "↑↑",
+      "polarity": "higher_better",
+      "score": 80,
+      "weight": 2,
+      "weightedScore": 160
+    },
+    {
+      "metricKey": "vitamin_e_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 14,
+      "points": 1,
+      "score": 10,
+      "weight": 2,
+      "weightedScore": 20
+    },
+    {
+      "metricKey": "vitamin_b12_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 0,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "magnesium_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 26,
+      "points": 2,
+      "score": 20,
+      "weight": 3,
+      "weightedScore": 60
+    },
+    {
+      "metricKey": "zinc_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 21,
+      "points": 2,
+      "score": 20,
+      "weight": 2,
+      "weightedScore": 40
+    },
+    {
+      "metricKey": "iron_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 22,
+      "points": 2,
+      "score": 20,
+      "weight": 1,
+      "weightedScore": 20
+    }
+  ]
+}

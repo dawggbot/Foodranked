@@ -125,13 +125,11 @@ Numeric mapping:
 There is no neutral middle band on purpose.
 Every scored submacro should land in a clearly good or clearly bad visual state for its category.
 If a submacro has a defensible numeric value for a food, an arrow indicator must be displayed.
-Visible macro subrows may display `N/A` only when the main macro for that section displays `N/A`.
-Any visible numeric subrow must resolve a red/green arrow band.
-Do not park a source-backed numeric submacro as `not_applicable`; either give it a category-specific 6-band ladder or make the food value `N/A` when it is not defensibly sourceable.
-When a visible submacro source value is missing, skipped, or intentionally withheld but the main macro displays a value, generated display rows use presentation-only fallback values.
-Protein rows may first use `displaySource: protein_display_estimate` values derived from the category-specific protein fallback band and broad protein source class; other final fallback rows use `displaySource: submacro_display_default`.
-Display-only EAA/NEAA estimates are useful-protein-gated and floor-based: if the protein fallback band is still red, amino-acid counts stay `0`; if it reaches a useful green band, estimated counts are floored rather than rounded up.
-Do not write these display estimates/defaults back into source food metrics or treat them as source-backed nutrition evidence.
+Final production entries must give every required visible submacro a numeric working value whenever the main macro displays a value. Resolve missing exact-food values in this order: exact USDA/OFF record; an exact-identity Google search using the AI Overview as a discovery or documented estimate after checking its linked source or corroborating the value; then a source-backed analogue for the same preparation, variety, or food class as the last resort.
+Any visible numeric subrow must resolve a red/green arrow band. Use `not_applicable` only when a row is structurally irrelevant to the food, such as plant collagen, and store the defensible numeric zero used by the display contract.
+Record each analogue or estimate in metric provenance with the matched record, preparation relationship, derivation, and source tier. These values may be stored and scored as the entry's production working profile, but they must not be mislabeled as exact analytical measurements.
+Presentation-only defaults remain runtime safety fallbacks for incomplete drafts. They must not survive finalization as the basis of a production entry.
+Protein rows follow the same hierarchy. Search for exact-food amino-acid and digestibility research before using another protein analogue. EAA/NEAA values should be derived from source-backed amino-acid rows for the exact food or last-resort analogue; bioavailability may use food-specific research, a corroborated Google AI Overview estimate, or a documented category estimate. Finished narration states the selected values directly and does not narrate sourcing uncertainty.
 
 Protein has an additional locked display contract: the visible rows are collagen, essential amino acids, non-essential amino acids, and bioavailability. `protein_g_fallback` can score and narrate weak/ungated protein sections, but it is not a visible submacro because the macro bubble already displays protein grams.
 
@@ -285,17 +283,18 @@ EAA/NEAA arrow bands are integer count bands, not raw milligram bands:
 - EAA `/9`: `0-2` three-red, `3-4` two-red, `5` one-red, `6` one-green, `7` two-green, `8-9` three-green
 - NEAA `/11`: `0-2` three-red, `3-5` two-red, `6-7` one-red, `8` one-green, `9-10` two-green, `11` three-green
 
-If the food does not provide enough protein for amino-acid quality to matter, lacks source-backed specific amino-acid amounts, or only has old aggregate proxy fields, the protein section should score and narrate protein amount instead.
+If the food does not provide enough protein for amino-acid quality to matter, the protein section may score and narrate protein amount instead. If the protein amount passes the useful-protein gate but the exact database record lacks amino-acid rows, search Google for an exact-food profile first and use another protein analogue only after that exact-identity research is exhausted.
 
 This is the intended bridge rule for v1:
-- prefer direct protein submetrics when they are genuinely source-backed and trusted at the specific amino-acid level
+- prefer exact-food protein submetrics when they are source-backed and trusted at the specific amino-acid level
+- when exact database rows are absent, search Google for exact-food amino-acid research first; if none exists, use the closest defensible analogue's source-backed `amino_acids_mg`, scaled to the exact food's protein amount when appropriate, and record that derivation in provenance
 - skip amino-acid and bioavailability scoring below the food type's useful-protein gate
 - skip aggregate amino-acid proxy scores unless they were derived from source-backed `amino_acids_mg`
-- otherwise leave those protein-quality source values as `N/A`; generated display rows may still use labelled presentation-only protein estimates/defaults when the protein macro displays a value, but EAA/NEAA estimates must stay `0` until the protein fallback band reaches a useful green band
+- use food-specific digestibility research or a documented category estimate for bioavailability when no exact measurement exists
 - let a category-specific `proteinFallback` keep the proteins section alive in a stable, auditable arrow-band way
 - keep `proteinFallback` out of the visible submacro rows; visible protein display remains `collagen_g`, `essential_amino_acids_score`, `nonessential_amino_acids_score`, and `bioavailability_percent`
 
-That is stronger than forcing fake precision from shaky proxy fields.
+This produces a complete production profile without confusing an analogue-derived value with an exact analytical measurement.
 
 ## Step 10: section score calculation
 

@@ -9,7 +9,7 @@ This folder is the GitHub-facing catalogue for generated narration files. The MP
 [Beef Sirloin](beef-sirloin.md) | `voice-v1` | `split-blocks` | 152.5s | 11 | 24 | 23 | 15
 [Black Beans](black-beans.md) | `voice-v2` | `split-blocks` | 140.6s | 11 | 26 | 24 | 27
 [Buckwheat](buckwheat.md) | `voice-v1` | `split-blocks` | 131.7s | 11 | 13 | 12 | 15
-[Cannellini Beans](cannellini-beans.md) | `voice-v1` | `split-blocks` | 168.6s | 11 | 13 | 12 | 3
+[Cannellini Beans](cannellini-beans.md) | `voice-v2` | `split-blocks` | 160.1s | 11 | 36 | 35 | 15
 [Chia Seeds](chia-seeds.md) | `voice-v1` | `split-blocks` | 159.8s | 11 | 14 | 12 | 15
 [Regular Cola](cola-regular.md) | `voice-v1` | `split-blocks` | 152.7s | 11 | 13 | 12 | 15
 [Cranberries](cranberries.md) | `voice-v1` | `split-blocks` | 124.3s | 11 | 13 | 12 | 15

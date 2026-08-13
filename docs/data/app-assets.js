@@ -274,6 +274,102 @@
     "sizeBytes": 12245
   },
   {
+    "id": "audio.episodes.cannellini.beans.voice.v2.blocks",
+    "label": "Voice V2 Blocks",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/cannellini-beans/voice-v2-blocks.json",
+    "mimeType": "application/json",
+    "sizeBytes": 14461
+  },
+  {
+    "id": "audio.episodes.cannellini.beans.voice.v2.blocks.01.hook.food.timing",
+    "label": "01 Hook Food Timing",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/cannellini-beans/voice-v2-blocks/01-hook_food-timing.json",
+    "mimeType": "application/json",
+    "sizeBytes": 1912
+  },
+  {
+    "id": "audio.episodes.cannellini.beans.voice.v2.blocks.02.hook.ranked.timing",
+    "label": "02 Hook Ranked Timing",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/cannellini-beans/voice-v2-blocks/02-hook_ranked-timing.json",
+    "mimeType": "application/json",
+    "sizeBytes": 1162
+  },
+  {
+    "id": "audio.episodes.cannellini.beans.voice.v2.blocks.03.fats.timing",
+    "label": "03 Fats Timing",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/cannellini-beans/voice-v2-blocks/03-fats-timing.json",
+    "mimeType": "application/json",
+    "sizeBytes": 21993
+  },
+  {
+    "id": "audio.episodes.cannellini.beans.voice.v2.blocks.04.carbs.timing",
+    "label": "04 Carbs Timing",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/cannellini-beans/voice-v2-blocks/04-carbs-timing.json",
+    "mimeType": "application/json",
+    "sizeBytes": 27055
+  },
+  {
+    "id": "audio.episodes.cannellini.beans.voice.v2.blocks.05.proteins.timing",
+    "label": "05 Proteins Timing",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/cannellini-beans/voice-v2-blocks/05-proteins-timing.json",
+    "mimeType": "application/json",
+    "sizeBytes": 24075
+  },
+  {
+    "id": "audio.episodes.cannellini.beans.voice.v2.blocks.06.vitamins.timing",
+    "label": "06 Vitamins Timing",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/cannellini-beans/voice-v2-blocks/06-vitamins-timing.json",
+    "mimeType": "application/json",
+    "sizeBytes": 23469
+  },
+  {
+    "id": "audio.episodes.cannellini.beans.voice.v2.blocks.07.minerals.timing",
+    "label": "07 Minerals Timing",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/cannellini-beans/voice-v2-blocks/07-minerals-timing.json",
+    "mimeType": "application/json",
+    "sizeBytes": 26585
+  },
+  {
+    "id": "audio.episodes.cannellini.beans.voice.v2.blocks.08.pros.timing",
+    "label": "08 Pros Timing",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/cannellini-beans/voice-v2-blocks/08-pros-timing.json",
+    "mimeType": "application/json",
+    "sizeBytes": 24831
+  },
+  {
+    "id": "audio.episodes.cannellini.beans.voice.v2.blocks.09.cons.timing",
+    "label": "09 Cons Timing",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/cannellini-beans/voice-v2-blocks/09-cons-timing.json",
+    "mimeType": "application/json",
+    "sizeBytes": 32681
+  },
+  {
+    "id": "audio.episodes.cannellini.beans.voice.v2.blocks.10.closing.summary.timing",
+    "label": "10 Closing Summary Timing",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/cannellini-beans/voice-v2-blocks/10-closing_summary-timing.json",
+    "mimeType": "application/json",
+    "sizeBytes": 31148
+  },
+  {
+    "id": "audio.episodes.cannellini.beans.voice.v2.blocks.11.final.reveal.timing",
+    "label": "11 Final Reveal Timing",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/cannellini-beans/voice-v2-blocks/11-final_reveal-timing.json",
+    "mimeType": "application/json",
+    "sizeBytes": 1161
+  },
+  {
     "id": "audio.episodes.chia.seeds.voice.v1.blocks",
     "label": "Voice V1 Blocks",
     "kind": "audio-manifest",
@@ -503,7 +599,7 @@
     "kind": "data",
     "path": "data/foods-index.js",
     "mimeType": "text/javascript",
-    "sizeBytes": 8849722
+    "sizeBytes": 8875848
   },
   {
     "id": "data.foods.index.json",
@@ -511,7 +607,7 @@
     "kind": "data",
     "path": "data/foods-index.json",
     "mimeType": "application/json",
-    "sizeBytes": 15549910
+    "sizeBytes": 15610127
   },
   {
     "id": "data.foods.acorns.sample",
@@ -2743,7 +2839,7 @@
     "kind": "music",
     "path": "audio/music/lucadialessandro_arcade_melody_295434_loop_240s.mp3",
     "mimeType": "audio/mpeg",
-    "sizeBytes": 4813366
+    "sizeBytes": 4822770
   },
   {
     "id": "audio.music.retro.bgm.chan.low.level.enemy.534609.loop.240s",
@@ -4296,6 +4392,94 @@
     "path": "audio/episodes/cannellini-beans/voice-v1-blocks/11-final_reveal.mp3",
     "mimeType": "audio/mpeg",
     "sizeBytes": 13000
+  },
+  {
+    "id": "audio.episodes.cannellini.beans.voice.v2.blocks.01.hook.food",
+    "label": "01 Hook Food",
+    "kind": "narration-audio",
+    "path": "audio/episodes/cannellini-beans/voice-v2-blocks/01-hook_food.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 19688
+  },
+  {
+    "id": "audio.episodes.cannellini.beans.voice.v2.blocks.02.hook.ranked",
+    "label": "02 Hook Ranked",
+    "kind": "narration-audio",
+    "path": "audio/episodes/cannellini-beans/voice-v2-blocks/02-hook_ranked.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 11328
+  },
+  {
+    "id": "audio.episodes.cannellini.beans.voice.v2.blocks.03.fats",
+    "label": "03 Fats",
+    "kind": "narration-audio",
+    "path": "audio/episodes/cannellini-beans/voice-v2-blocks/03-fats.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 292197
+  },
+  {
+    "id": "audio.episodes.cannellini.beans.voice.v2.blocks.04.carbs",
+    "label": "04 Carbs",
+    "kind": "narration-audio",
+    "path": "audio/episodes/cannellini-beans/voice-v2-blocks/04-carbs.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 331903
+  },
+  {
+    "id": "audio.episodes.cannellini.beans.voice.v2.blocks.05.proteins",
+    "label": "05 Proteins",
+    "kind": "narration-audio",
+    "path": "audio/episodes/cannellini-beans/voice-v2-blocks/05-proteins.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 276733
+  },
+  {
+    "id": "audio.episodes.cannellini.beans.voice.v2.blocks.06.vitamins",
+    "label": "06 Vitamins",
+    "kind": "narration-audio",
+    "path": "audio/episodes/cannellini-beans/voice-v2-blocks/06-vitamins.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 278404
+  },
+  {
+    "id": "audio.episodes.cannellini.beans.voice.v2.blocks.07.minerals",
+    "label": "07 Minerals",
+    "kind": "narration-audio",
+    "path": "audio/episodes/cannellini-beans/voice-v2-blocks/07-minerals.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 311841
+  },
+  {
+    "id": "audio.episodes.cannellini.beans.voice.v2.blocks.08.pros",
+    "label": "08 Pros",
+    "kind": "narration-audio",
+    "path": "audio/episodes/cannellini-beans/voice-v2-blocks/08-pros.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 297631
+  },
+  {
+    "id": "audio.episodes.cannellini.beans.voice.v2.blocks.09.cons",
+    "label": "09 Cons",
+    "kind": "narration-audio",
+    "path": "audio/episodes/cannellini-beans/voice-v2-blocks/09-cons.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 379968
+  },
+  {
+    "id": "audio.episodes.cannellini.beans.voice.v2.blocks.10.closing.summary",
+    "label": "10 Closing Summary",
+    "kind": "narration-audio",
+    "path": "audio/episodes/cannellini-beans/voice-v2-blocks/10-closing_summary.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 333993
+  },
+  {
+    "id": "audio.episodes.cannellini.beans.voice.v2.blocks.11.final.reveal",
+    "label": "11 Final Reveal",
+    "kind": "narration-audio",
+    "path": "audio/episodes/cannellini-beans/voice-v2-blocks/11-final_reveal.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 13836
   },
   {
     "id": "audio.episodes.chia.seeds.voice.v1.blocks.01.hook.food",

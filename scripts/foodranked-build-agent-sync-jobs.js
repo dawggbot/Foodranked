@@ -36,6 +36,7 @@ function foodIdsFromArgs() {
 }
 
 function localManifestFor(foodId, foodName, sourceManifest) {
+  const take = sourceManifest.take || 'voice-v1';
   let offsetSeconds = 0;
   const blocks = sourceManifest.blocks.map((block, index) => {
     const filename = block.filename || `${block.id}.mp3`;
@@ -46,9 +47,9 @@ function localManifestFor(foodId, foodName, sourceManifest) {
     const localBlock = {
       ...block,
       audioFile: `/studio-data/uploads/narration/${foodId}/${filename}`,
-      productionAudioFile: block.productionAudioFile || `production/episodes/${foodId}/voice/voice-v1-blocks/${filename}`,
+      productionAudioFile: block.productionAudioFile || `production/episodes/${foodId}/voice/${take}-blocks/${filename}`,
       filename,
-      docsAudioFile: block.docsAudioFile || `audio/episodes/${foodId}/voice-v1-blocks/${filename}`,
+      docsAudioFile: block.docsAudioFile || `audio/episodes/${foodId}/${take}-blocks/${filename}`,
       durationSeconds,
       offsetSeconds: roundSeconds(offsetSeconds),
       wordCount: block.wordCount ?? null,
@@ -62,23 +63,24 @@ function localManifestFor(foodId, foodName, sourceManifest) {
   return {
     ...sourceManifest,
     audioDirectory: `/studio-data/uploads/narration/${foodId}`,
-    audioManifestFile: `/studio-data/uploads/split-audio/${foodId}/voice-v1-blocks-local.json`,
+    audioManifestFile: `/studio-data/uploads/split-audio/${foodId}/${take}-blocks-local.json`,
     blocks,
-    productionAudioManifestFile: `production/episodes/${foodId}/voice/voice-v1-blocks.json`,
-    title: `${foodName} voice-v1 split narration (Studio-local)`,
+    productionAudioManifestFile: `production/episodes/${foodId}/voice/${take}-blocks.json`,
+    title: `${foodName} ${take} split narration (Studio-local)`,
     durationSeconds: roundSeconds(offsetSeconds),
-    docsManifestFile: `docs/audio/episodes/${foodId}/voice-v1-blocks.json`,
+    docsManifestFile: `docs/audio/episodes/${foodId}/${take}-blocks.json`,
     blockGapSeconds: BLOCK_GAP_SECONDS
   };
 }
 
 function localSplitAudioFor(foodId, existing, localManifest) {
+  const take = localManifest.take || 'voice-v1';
   return {
     ...existing,
     mode: 'split-blocks',
-    take: 'voice-v1',
-    manifestPath: `/studio-data/uploads/split-audio/${foodId}/voice-v1-blocks-local.json`,
-    productionManifestPath: `production/episodes/${foodId}/voice/voice-v1-blocks.json`,
+    take,
+    manifestPath: `/studio-data/uploads/split-audio/${foodId}/${take}-blocks-local.json`,
+    productionManifestPath: `production/episodes/${foodId}/voice/${take}-blocks.json`,
     blockCount: localManifest.blocks.length,
     blockGapSeconds: BLOCK_GAP_SECONDS,
     durationSeconds: localManifest.durationSeconds,
@@ -86,7 +88,7 @@ function localSplitAudioFor(foodId, existing, localManifest) {
     voice: localManifest.voice,
     voiceSelection: localManifest.voiceSelection,
     audioDirectory: localManifest.audioDirectory,
-    docsManifestPath: `audio/episodes/${foodId}/voice-v1-blocks.json`
+    docsManifestPath: `audio/episodes/${foodId}/${take}-blocks.json`
   };
 }
 
@@ -121,6 +123,7 @@ function appFoodFor(food, localSplitAudio) {
 }
 
 function jobFor(food, localManifest, localSplitAudio, timestamp, dateStamp) {
+  const take = localManifest.take || 'voice-v1';
   const narrationText = String(food.episode?.narrationText || '').trim();
   if (!narrationText) throw new Error(`${food.id}: missing episode narrationText`);
   const installedFood = appFoodFor(food, localSplitAudio);
@@ -152,24 +155,24 @@ function jobFor(food, localManifest, localSplitAudio, timestamp, dateStamp) {
     },
     ...localManifest.blocks.map(block => ({
       type: 'downloadAsset',
-      label: `${food.name} voice-v1 narration block ${block.id}`,
+      label: `${food.name} ${take} narration block ${block.id}`,
       kind: 'narration',
       foodId: food.id,
       filename: block.filename,
-      sourcePath: `docs/audio/episodes/${food.id}/voice-v1-blocks/${block.filename}`,
+      sourcePath: `docs/audio/episodes/${food.id}/${take}-blocks/${block.filename}`,
       attachToFood: false,
       role: 'split-audio-block',
-      take: 'voice-v1'
+      take
     })),
     {
       type: 'downloadAsset',
-      label: `${food.name} voice-v1 local split-audio manifest`,
+      label: `${food.name} ${take} local split-audio manifest`,
       kind: 'split-audio',
       foodId: food.id,
-      filename: 'voice-v1-blocks-local.json',
-      sourcePath: `studio/agent-sync/assets/${food.id}/voice-v1-blocks-local.json`,
+      filename: `${take}-blocks-local.json`,
+      sourcePath: `studio/agent-sync/assets/${food.id}/${take}-blocks-local.json`,
       attachToFood: true,
-      take: 'voice-v1'
+      take
     },
     {
       type: 'upsertScript',
@@ -189,12 +192,12 @@ function jobFor(food, localManifest, localSplitAudio, timestamp, dateStamp) {
   return {
     id: `${food.id}-full-entry-sprite-update-${dateStamp}`,
     title: `${food.name} full entry, sprite, and app-local split narration update`,
-    description: `Install the approved ${food.name} episode data, attach the 30x30 food image sprite, and pull the ElevenLabs voice-v1 split narration into the local Studio app with app-local audio paths.`,
+    description: `Install the approved ${food.name} episode data, attach the 30x30 food image sprite, and pull the ElevenLabs ${take} split narration into the local Studio app with app-local audio paths.`,
     status: 'ready',
     foodId: food.id,
     createdAt: timestamp,
     updatedAt: timestamp,
-    tags: ['food-entry', 'script', 'narration', 'sprite', 'food-image', 'agent-sync', 'audio', 'split-audio', 'voice-v1', 'app-local-audio'],
+    tags: ['food-entry', 'script', 'narration', 'sprite', 'food-image', 'agent-sync', 'audio', 'split-audio', take, 'app-local-audio'],
     actions
   };
 }
@@ -213,7 +216,8 @@ function main() {
   for (const foodId of foodIds) {
     const food = foods.find(entry => entry.id === foodId);
     if (!food) throw new Error(`${foodId}: missing from docs/data/foods-index.json`);
-    const manifestPath = path.join(ROOT, 'production', 'episodes', foodId, 'voice', 'voice-v1-blocks.json');
+    const take = food.episode?.splitAudio?.take || 'voice-v1';
+    const manifestPath = path.join(ROOT, 'production', 'episodes', foodId, 'voice', `${take}-blocks.json`);
     const sourceManifest = readJson(manifestPath);
     if (!Array.isArray(sourceManifest.blocks) || sourceManifest.blocks.length !== 11) {
       throw new Error(`${foodId}: expected 11 split narration blocks`);
@@ -225,7 +229,7 @@ function main() {
     const localSplitAudio = localSplitAudioFor(foodId, food.episode?.splitAudio || {}, localManifest);
     const assetDir = path.join(ROOT, 'studio', 'agent-sync', 'assets', foodId);
     fs.mkdirSync(assetDir, { recursive: true });
-    fs.writeFileSync(path.join(assetDir, 'voice-v1-blocks-local.json'), `${JSON.stringify(localManifest, null, 2)}\n`);
+    fs.writeFileSync(path.join(assetDir, `${take}-blocks-local.json`), `${JSON.stringify(localManifest, null, 2)}\n`);
     jobs.push(jobFor(food, localManifest, localSplitAudio, timestamp, dateStamp));
   }
 

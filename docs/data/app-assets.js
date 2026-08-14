@@ -6879,7 +6879,7 @@
     "kind": "runtime",
     "path": "app/food-type-palettes.js",
     "mimeType": "text/javascript",
-    "sizeBytes": 4514
+    "sizeBytes": 5478
   },
   {
     "id": "audio.sfx.readme",

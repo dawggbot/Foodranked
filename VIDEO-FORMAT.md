@@ -110,7 +110,7 @@ Outro stamp rules:
 ### Food-type identity
 - each of the 11 food types should have its own colour palette
 - this palette should influence the display and help category recognition
-- thumbnail backdrops should use the stronger shades from `docs/app/food-type-palettes.js`, while DBv2, VBv2, and exported video frames use the matching full-frame shades from that same shared source
+- thumbnail backdrops, DBv2, VBv2, and exported video frames should use the matching dark, base, and light ramp from `docs/app/food-type-palettes.js`; those values must match the food-type sprites exactly
 
 ### Tier identity
 Current tier colour direction:

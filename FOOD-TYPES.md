@@ -11,14 +11,14 @@ This file defines the **11 FoodRanked food types** and their category logic.
   - metric weights
   - explanation style
 - Food types do **not** change the locked 9-section video shell or the 7-section scoring body.
-- The canonical accent names below remain available to generated episode metadata. Production backdrops use the higher-separation shared palette in `docs/app/food-type-palettes.js`; thumbnails, DBv2, VBv2, and the app canvas must all read that same palette so category colour cannot drift between surfaces.
+- Each canonical colour below is the base shade from that food type's sprite ramp. Production backdrops use the exact dark, base, and light sprite shades in `docs/app/food-type-palettes.js`; thumbnails, DBv2, VBv2, and the app canvas must all read that same palette so category colour cannot drift between surfaces or away from the sprites.
 
 ## The 11 food types
 
 ### Vegetables
 - Purpose: judge foods that are primarily valued for micronutrients, fibre, and general health support rather than energy density.
 - Description: low-energy plant foods used mainly for maintenance, repair, and nutrient density.
-- Colour palette: Leaf Green `#4CAF50`
+- Colour palette: Leaf Green `#318D34`
 - Icon / sprite idea: leaf, vine, sprout, herb satchel
 - Main nutritional priorities:
   - vitamins
@@ -53,7 +53,7 @@ This file defines the **11 FoodRanked food types** and their category logic.
 ### Grains
 - Purpose: judge staple carbohydrate foods by carb quality, not just carb quantity.
 - Description: starch-forward wholefood staples such as rice, oats, barley, and similar foods.
-- Colour palette: Golden Wheat `#D4A017`
+- Colour palette: Golden Wheat `#B76A10`
 - Icon / sprite idea: wheat stalk, grain sack, mill sigil
 - Main nutritional priorities:
   - starch quality
@@ -71,7 +71,7 @@ This file defines the **11 FoodRanked food types** and their category logic.
 ### Legumes
 - Purpose: judge beans, lentils, peas, and similar foods by slow carbs plus useful protein.
 - Description: mixed carb/protein plant staples with strong fibre and mineral potential.
-- Colour palette: Earth Brown `#8D6E63`
+- Colour palette: Earth Brown `#8A6F30`
 - Icon / sprite idea: bean pod, lentil pouch, harvest token
 - Main nutritional priorities:
   - fibre
@@ -89,7 +89,7 @@ This file defines the **11 FoodRanked food types** and their category logic.
 ### Tubers
 - Purpose: judge root and tuber energy foods mostly by carb behaviour and support nutrients.
 - Description: root-based staples whose main role is energy provision.
-- Colour palette: Rust Orange `#BF6D2A`
+- Colour palette: Rust Orange `#B44820`
 - Icon / sprite idea: root badge, shovel sigil, cellar crate
 - Main nutritional priorities:
   - glycemic index control
@@ -127,7 +127,7 @@ This file defines the **11 FoodRanked food types** and their category logic.
 ### Seeds
 - Purpose: judge seed foods as extreme dense-fat / dense-fibre foods with strong mineral potential.
 - Description: compact wholefoods similar to nuts but often even more fibre- and omega-heavy.
-- Colour palette: Sand Beige `#C2A878`
+- Colour palette: Seed Olive `#95AF49`
 - Icon / sprite idea: seed pod, sand rune, grain mote cluster
 - Main nutritional priorities:
   - omega 3
@@ -165,7 +165,7 @@ This file defines the **11 FoodRanked food types** and their category logic.
 ### Dairy
 - Purpose: judge milk-based foods by protein usefulness, calcium/minerals, vitamin support, and fat/lactose tradeoffs.
 - Description: animal-derived foods with mixed macro profiles and strong calcium identity.
-- Colour palette: Cream White `#F5F5DC`
+- Colour palette: Cream Gold `#E1E193`
 - Icon / sprite idea: milk crest, cheese wedge, dairy seal
 - Main nutritional priorities:
   - protein submetrics
@@ -182,7 +182,7 @@ This file defines the **11 FoodRanked food types** and their category logic.
 ### Oils & Fats
 - Purpose: judge pure-fat foods almost entirely by fat chemistry.
 - Description: foods where fat composition overwhelmingly defines category value.
-- Colour palette: Amber Yellow `#FFC107`
+- Colour palette: Amber Yellow `#D09F0C`
 - Icon / sprite idea: oil drop, bottle icon, golden vial
 - Main nutritional priorities:
   - omega 3
@@ -201,7 +201,7 @@ This file defines the **11 FoodRanked food types** and their category logic.
 ### Misc
 - Purpose: hold uncategorisable wholefoods that do not fit cleanly into the other 10 categories.
 - Description: context-driven category for edge-case foods that need judgment beyond standard composition patterns.
-- Colour palette: Neutral Grey `#9E9E9E`
+- Colour palette: Wildcard Purple `#B71DD5`
 - Icon / sprite idea: question badge, neutral rune, wildcard token
 - Main nutritional priorities:
   - vitamins

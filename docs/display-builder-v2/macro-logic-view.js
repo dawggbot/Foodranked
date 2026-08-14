@@ -150,19 +150,7 @@
     };
   }
 
-  const BACKDROP_PALETTES = {
-    vegetables: { top: '#dff4cf', bottom: '#bfd8b0', glowA: 'rgba(219,255,183,.78)', glowB: 'rgba(108,169,104,.38)' },
-    fruits: { top: '#ffe0dc', bottom: '#e7b8b5', glowA: 'rgba(255,173,165,.78)', glowB: 'rgba(219,109,101,.34)' },
-    grains: { top: '#f6e7bf', bottom: '#dbc48a', glowA: 'rgba(255,235,163,.78)', glowB: 'rgba(199,151,66,.30)' },
-    legumes: { top: '#e5d8c9', bottom: '#c0a78a', glowA: 'rgba(234,204,163,.76)', glowB: 'rgba(142,102,62,.28)' },
-    tubers: { top: '#f5d7bf', bottom: '#d2a17d', glowA: 'rgba(255,196,144,.74)', glowB: 'rgba(182,106,58,.28)' },
-    nuts: { top: '#ead8c8', bottom: '#c39b7f', glowA: 'rgba(243,207,175,.76)', glowB: 'rgba(128,77,47,.28)' },
-    seeds: { top: '#f2e2c8', bottom: '#cfb48f', glowA: 'rgba(255,231,188,.76)', glowB: 'rgba(162,128,80,.26)' },
-    meats: { top: '#f2d0d3', bottom: '#c08a90', glowA: 'rgba(255,188,196,.72)', glowB: 'rgba(146,61,73,.28)' },
-    dairy: { top: '#f4f0e8', bottom: '#d9d2c2', glowA: 'rgba(255,255,255,.68)', glowB: 'rgba(214,196,155,.22)' },
-    'oils-and-fats': { top: '#f6e7a9', bottom: '#d1b851', glowA: 'rgba(255,235,135,.74)', glowB: 'rgba(175,138,28,.28)' },
-    misc: { top: '#f0e8f6', bottom: '#cdbde8', glowA: 'rgba(177,124,214,.42)', glowB: 'rgba(102,178,190,.18)', thumbnailTop: '#f5eaf9', thumbnailMid: '#ddc8ef', thumbnailBottom: '#bfa9e1', thumbnailGlowA: 'rgba(191,111,222,.36)', thumbnailGlowB: 'rgba(84,186,192,.16)' }
-  };
+  const BACKDROP_PALETTES = window.FOODRANKED_FOOD_TYPE_PALETTES;
 
   function clone(value) {
     return value == null ? value : structuredClone(value);

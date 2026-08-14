@@ -11,6 +11,7 @@ This file defines the **11 FoodRanked food types** and their category logic.
   - metric weights
   - explanation style
 - Food types do **not** change the locked 9-section video shell or the 7-section scoring body.
+- The canonical accent names below remain available to generated episode metadata. Production backdrops use the higher-separation shared palette in `docs/app/food-type-palettes.js`; thumbnails, DBv2, VBv2, and the app canvas must all read that same palette so category colour cannot drift between surfaces.
 
 ## The 11 food types
 

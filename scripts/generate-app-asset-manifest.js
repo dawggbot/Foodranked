@@ -15,7 +15,8 @@ const roots = [
   'video/episodes',
   'data',
   'app/display-schema.js',
-  'app/display-name-utils.js'
+  'app/display-name-utils.js',
+  'app/food-type-palettes.js'
 ];
 
 const EXT_MIME = {

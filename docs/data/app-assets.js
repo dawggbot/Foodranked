@@ -6874,6 +6874,14 @@
     "sizeBytes": 4147
   },
   {
+    "id": "app.food.type.palettes",
+    "label": "Food Type Palettes",
+    "kind": "runtime",
+    "path": "app/food-type-palettes.js",
+    "mimeType": "text/javascript",
+    "sizeBytes": 4514
+  },
+  {
     "id": "audio.sfx.readme",
     "label": "README",
     "kind": "sfx",

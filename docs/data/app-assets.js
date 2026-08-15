@@ -2831,7 +2831,7 @@
     "kind": "music",
     "path": "audio/music/lucadialessandro_arcade_melody_295434_loop_240s.mp3",
     "mimeType": "audio/mpeg",
-    "sizeBytes": 4842101
+    "sizeBytes": 4879717
   },
   {
     "id": "audio.music.retro.bgm.chan.low.level.enemy.534609.loop.240s",

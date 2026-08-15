@@ -1,41 +1,40 @@
 ---
 name: "foodranked-script-writer"
-description: "James Plums narration style reference"
+description: "Learn James's Tater Tots narration tone."
 ---
 
-# James Plums Narration Style Update
+# James Tater Tots Narration Style Lesson
 
-Use this when drafting or revising FoodRanked narration scripts.
+Use this update when drafting FoodRanked scripts after James approved the Tater Tots script as the strongest style reference so far.
 
-## Keep Locked Structure
+## Tone
 
-- Preserve the ElevenLabs block format: `FOOD!`, `-`, `RANKED!`, `-`, one spoken block for each scoring section, conclusion summary, final `X tier.`
-- Keep the section order: fats, carbs, protein, vitamins, minerals, pros, cons, conclusion, final tier.
-- Keep per-100g macro values rounded to the nearest decimal place in narration unless a tiny value is only meaningful with extra precision, such as saturated fat at `0.017 grams`.
-- Do not speak the overall score.
+- Keep the voice casual, direct, and slightly informal without becoming sloppy.
+- It is okay to use conversational phrases like `not the best`, `does hurt the score`, `and that's all that really needs to be said`, and `of course` when they make the script feel human.
+- Prefer practical explanations over polished report language.
+- Keep the FoodRanked structure exact, but let each section sound like a person making a clear judgment.
 
-## Voice And Phrasing
+## Information Pattern
 
-- Write plainly and conversationally, like a practical review rather than a report.
-- Prefer short explanatory clauses that tell the viewer why a number matters.
-- Use category-aware caveats naturally: `Although the fat profile isn't that important for fruits.` or `For fruits, protein isn't really something to look out for.`
-- When a nutrient is technically the best in a weak section, say that clearly without overselling it: `which may be the best number here, but still too low to matter much.`
-- Avoid robotic transitions. Use compact phrases like `Pros first:` and `Cons next:` for the pros/cons blocks.
+- Mention the category-specific job of the food early in each section, especially when the section is not the main point.
+- For weak sections, be brief and confident. Example pattern: `Protein barely matters here. And that's all that really needs to be said about this section.`
+- For carbs in tubers, highlight starch, glycemic index, and sugar in a natural order. Sugar can be framed as expected rather than overpraised.
+- For processed versions of whole-food categories, distinguish the underlying food identity from the convenience format.
 
-## Section Guidance
+## Pros And Cons Pattern
 
-- For macros, name the per-100g macro first, then one or two meaningful submetrics, then say how much that section matters for the food type.
-- For fruit carbohydrates, treat sugar control and fibre as the most important points when defensible values exist.
-- For low vitamin or mineral sections, it is acceptable to group the rest as not worth talking about after naming the most relevant high/low numbers.
-- Pros and cons should read as direct on-screen-item narration: item title, then a practical sentence explaining it.
-- Pros/cons should emphasize meal role, convenience, handling, ripeness, preparation, texture, tolerance, sourcing, and similar practical traits rather than repeating displayed nutrient scores.
+- Pros may include convenience, texture, meal role, and home-preparation upside.
+- Cons should directly hit processing, frying/cooking method, added fat/calorie burden, and overeating/portion creep when relevant.
+- Avoid making generic category pros sound stronger than the actual processed food deserves.
+- For homemade versions, phrase as a practical improvement possibility, not as a rescue of the packaged version.
 
 ## Conclusion Pattern
 
-- Use the pattern: `Best bits are ... Weak spots are ... Best for ...`
-- Choose strengths and weaknesses from the actual script evidence, not only the highest/lowest score sections.
-- End with concrete use cases in everyday language, for example quick on-the-go snacks, low-calorie volume, or complementing other foods.
+- Use: `Best bits are ... Weak spots are ... Best for ...`
+- Add one casual concluding judgment sentence when it clarifies the tier, such as `Essentially this convenience food format takes a basic tuber idea and just makes the nutrition tradeoff worse.`
+- Keep final reveal in locked form: `X tier.` or `Slop tier.`
 
-## Style Example
+## Editing Hygiene
 
-`Best bits are that it's an easy fresh-fruit snack and low glycemic index. Weak spots are low fiber and low vitamin A. Best for quick on the go snacks, low-calorie to volume ratio, and its ability to compliment many other foods.`
+- Preserve James's phrasing where possible, but fix obvious typos and grammar that would look or sound accidental, such as `heath` to `health`.
+- Do not smooth away every informal turn of phrase; the informality is part of the target style.

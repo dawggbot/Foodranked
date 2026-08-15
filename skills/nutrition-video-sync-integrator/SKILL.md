@@ -1,43 +1,31 @@
 ---
 name: "nutrition-video-sync-integrator"
-description: "Render and publish VBv2 MP4s without browser recording."
+description: "Add app-local split narration sync guardrails."
 ---
 
-# nutrition-video-sync-integrator
+# FoodRanked App-Local Split Narration Guardrail
 
-Use this skill when FoodRanked work involves VBv2 video timing, direct MP4 export, published video artifacts, audio/subtitle alignment, or making the website download an existing video file rather than recording the browser.
+When a FoodRanked entry is meant to work in the installed Studio app, do not rely on hosted `docs/audio/...` split-audio block paths just because the webpage VBv2 works.
 
-## Core Rule
+## Required Agent Sync Shape
 
-VBv2 downloads must be direct downloads of already-published MP4 files. Do not solve download requests by screen recording, `getDisplayMedia`, `canvas.captureStream`, or browser `MediaRecorder` unless James explicitly asks for a recording-based prototype.
+For app-facing Agent Sync jobs:
 
-## Published MP4 Contract
+- Download each split narration MP3 with `downloadAsset` actions using `kind: "narration"`, `role: "split-audio-block"`, and `attachToFood: false`.
+- Download the local split-audio manifest with `kind: "split-audio"`, `attachToFood: true`, and the correct `take`.
+- The app-local split manifest must use block `audioFile` paths under `/studio-data/uploads/narration/<food-id>/`.
+- The `upsertFood` payload should set `episode.splitAudio.manifestPath` to `/studio-data/uploads/split-audio/<food-id>/<take>-blocks-local.json` but should not include inline `episode.splitAudio.blocks` unless every block path is app-local.
 
-Published videos live at:
+## Why
 
-```text
-docs/video/episodes/<food-id>/<food-id>-vbv2.mp4
-```
+VBv2 can have perfect narration on the hosted webpage while the installed app is silent if inline split-audio blocks point at `audio/episodes/...` paths that are not available in the packaged or local app state. If inline blocks exist, older VBv2 code may skip hydrating the downloaded local manifest.
 
-The VBv2 `Download MP4` button should check for that file, enable only when it exists, and download it directly with an `<a download>` link. If the file is missing, the UI should say no published MP4 exists rather than recording the preview.
+## Verification
 
-## Renderer Workflow
+Before calling app narration done:
 
-1. Ensure the episode is current:
-   - regenerate script/manifest when narration changed,
-   - generate or choose the active split audio take,
-   - run forced alignment,
-   - refresh `docs/data/foods-index.*`.
-2. Render the VBv2 timeline offline from local source-of-truth assets.
-3. Encode H.264/AAC MP4 at 9:16, normally `1080x1920` and 30 fps.
-4. Write the final file to `docs/video/episodes/<food-id>/<food-id>-vbv2.mp4`.
-5. Verify the file exists, has nonzero size, and VBv2 enables `Download MP4` for that food.
-6. Use Playwright to confirm the download button starts a direct file download and does not invoke screen/canvas recording.
-
-## Guardrails
-
-- Preserve sprites, layer coordinates, subtitles, reveal timing, and audio mix from VBv2 unless James asks for visual changes.
-- Treat missing sprites as render blockers unless there is an approved fallback already used by VBv2.
-- Keep downloaded files in MP4 format.
-- Do not invent or fake a published MP4; if a renderer cannot complete, say what is missing.
-- Commit both the renderer changes and any published MP4 artifacts when James asks for a finished downloadable video.
+1. Run the Agent Sync job against a clean temp `FOODRANKED_STUDIO_DATA_DIR`.
+2. Confirm all 11 MP3 blocks exist in `studio-data/uploads/narration/<food-id>/`.
+3. Confirm the stored input database either has no inline `episode.splitAudio.blocks` or has 11 blocks with `/studio-data/uploads/narration/<food-id>/...` paths.
+4. Render a short app-path VBv2 MP4 with narration only and verify it has an audio stream and audible loudness.
+5. Keep the hosted webpage proof, but do not treat it as proof of installed-app narration parity.

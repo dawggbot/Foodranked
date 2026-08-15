@@ -1,8 +1,9 @@
 # Raw Basis Decisions
 
 Rule being applied:
-- use **raw per-100g values** by default for base foods
-- keep cooked / prepared / processed values only when that prepared state is the real thing being ranked
+- use one **raw per-100g entry** for whole foods
+- do not keep separate cooked or prepared whole-food variants
+- allow packaged, processed, or branded products to use the state in which they are sold or eaten
 
 ## Production-lane decisions from the focused cleanup pass
 
@@ -52,13 +53,10 @@ These should stay as they are, because the prepared or format-specific version i
   - **Tentative keep, but rename/rework recommended.**
   - **Reason:** soy milk is a real finished format, but the current `powder basis` naming is awkward and easy to misunderstand.
 
-## Convert to raw-base episode or replace with raw equivalent
-These should not be the default basis if the goal is to rank the base food.
-
-### Convert
+## Removed cooked whole-food variant
 - `foods/cassava-boiled.sample.json`
-  - **Decision:** convert or replace with a raw cassava-default entry if cassava is meant to be the base food.
-  - **Reason:** `boiled` is a preparation state, not the core identity. if the episode is meant to be cassava generally, raw should be the default basis and boiling should be treated as preparation context.
+  - **Decision:** removed from the dataset; keep the existing raw cassava entry instead.
+  - **Reason:** `boiled` is a preparation state, not a separate whole-food identity. Boiling belongs in preparation context rather than a second food entry.
 
 ## Rename / restructure recommended
 These are probably fine to keep conceptually, but should be clearer in the dataset.
@@ -70,10 +68,10 @@ These are probably fine to keep conceptually, but should be clearer in the datas
 
 ## Notes
 - The real mistake is not having prepared-food entries.
-- The real mistake is letting a prepared state quietly stand in for the base food by default.
+- The real mistake is keeping separate cooking-state entries for a whole food when a raw/base identity already exists.
 - The other real mistake is letting approximate proxy metrics sneak through as if they were canonical source-backed facts.
 - So the safest approach is:
-  - base ingredient -> raw values
-  - prepared product / snack / dish -> prepared values
+  - whole food -> one raw/base entry
+  - packaged, processed, or branded product -> prepared/as-sold values when appropriate
   - weak proxy metric -> remove or explicitly block
 - `foods/bacon.sample.json` has been switched back to a raw-bacon basis so the published numbers reflect what people actually buy and what package labels usually show, rather than cooked concentration.

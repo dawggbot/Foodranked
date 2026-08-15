@@ -261,7 +261,6 @@
 - Hash Browns — D (20)
 - Cassava — D (20)
 - Jerusalem Artichoke — D (20)
-- Cassava (Boiled) — D (20)
 - Tapioca Pearls — D (20)
 - Tater Tots — Slop (-20)
 - Taro Chips — Slop (-20)

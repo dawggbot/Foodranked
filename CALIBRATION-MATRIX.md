@@ -1,6 +1,6 @@
 # CALIBRATION-MATRIX
 
-This is the durable 25-food benchmark matrix for every FoodRanked category. Each category uses fixed 5-food S/A/B/C/D raw-score benchmark buckets to build category-specific calibration anchors, then food-specific anomaly adjustments can push clearly negative foods into the special Slop tier below D.
+This is the durable benchmark matrix for every FoodRanked category. Categories normally use 25 foods in fixed 5-food S/A/B/C/D raw-score benchmark buckets to build category-specific calibration anchors, then food-specific anomaly adjustments can push clearly negative foods into the special Slop tier below D. Tubers currently has 24 entries after the cooked Boiled Cassava whole-food variant was removed; its existing calibration anchors remain locked until a raw whole-food replacement is added.
 
 Shared tier thresholds for internal calibrated/ranking scores: S 80-100 | A 61-79.9999 | B 40-60.9999 | C 20-39.9999 | D 0-19.9999 | Slop -100--0.0001
 
@@ -384,7 +384,6 @@ Public `overallScore` is snapped from the final tier, using `Slop=-20`, `D=20`, 
 
 ### C
 - Tapioca Pearls (tapioca-pearls-dry) - calibrated 39.0001, raw 36.8519
-- Cassava (Boiled) (cassava-boiled) - calibrated 38.8057, raw 36.7619
 - Beetroot (beetroot) - calibrated 38.2571, raw 36.5079
 - Cassava (cassava) - calibrated 27.9028, raw 31.7143
 - Potato Chips (potato-chips) - calibrated 25, raw 30.3704

@@ -41,7 +41,8 @@ This verifies internal calibrated/ranking score tier placement. Public `overallS
 - mismatches: none
 
 ## tubers
-- matched: 25/25
+- historical calibration run: matched 25/25 before the Boiled Cassava entry was removed
+- current benchmark count: 24; existing tuber calibration anchors are retained pending a raw whole-food replacement
 - mismatches: none
 
 ## vegetables

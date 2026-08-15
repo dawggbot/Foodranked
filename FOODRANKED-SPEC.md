@@ -34,7 +34,8 @@ Build a repeatable system that can:
 ### Basis
 - all food values judged per 100g
 - default to **raw** values for base foods whenever that is reasonably available
-- only use cooked / prepared / processed values when that prepared state is the actual food being ranked
+- do not keep separate cooked or prepared entries for whole foods; the raw/base entry is the canonical food
+- packaged, processed, or branded foods may use cooked/prepared values when that state is the actual product being ranked
 - pros/cons must feel like extra food-specific context, not a recap of macro, submacro, vitamin, or mineral sections already shown on screen
 - a pro/con may build on a previous section only when it adds a genuinely separate angle such as absorbability, fermentation, antioxidants, anti-nutrients, processing burden, sourcing, tolerance, preparation, storage, convenience, meal role, or a named food-specific compound; for example, `ALA omega-3 is the headline fat` is acceptable because it explains why chia is distinctive, while `protein contribution is tiny` and `mineral density is genuinely strong` are not acceptable because they merely summarize sections the viewer already saw
 - public final score is locked to the tier: `D=20`, `C=40`, `B=60`, `A=80`, `S=100`; use internal calibrated/anomaly-adjusted scores for fairness, sorting, and audit

@@ -1,8 +1,9 @@
 # Raw Basis Audit
 
 Default rule:
-- base foods should use **raw per-100g values** where reasonably available
-- cooked / prepared / processed values should only be used when that prepared state is the actual thing being ranked
+- whole foods should use one **raw per-100g base entry** where reasonably available
+- do not keep separate cooked or prepared whole-food entries
+- packaged, processed, or branded products may use the prepared state in which they are sold or eaten
 
 ## Production-lane audit status
 
@@ -38,7 +39,6 @@ Default rule:
 These file names still strongly suggest prepared-state or format-specific entries:
 
 - `foods/baked-beans.sample.json`
-- `foods/cassava-boiled.sample.json`
 - `foods/popcorn-air-popped.sample.json`
 - `foods/soy-milk-unsweetened-powder-basis.sample.json`
 - `foods/watermelon-seeds-roasted-salted.sample.json`
@@ -46,11 +46,11 @@ These file names still strongly suggest prepared-state or format-specific entrie
 - `foods/mixed-nuts-unsalted.sample.json`
 
 ## Likely treatment
-- keep as-is **only if** the prepared / mixed / processed format is the real episode subject
-- otherwise replace with a raw-base version and treat preparation as context, not the main nutrient basis
+- keep as-is **only if** the prepared / mixed / processed format is a packaged, processed, or branded product that is the real episode subject
+- remove cooked/prepared whole-food variants and keep the raw-base food; treat preparation as context, not a second food entry
 - see `RAW-BASIS-DECISIONS.md` for the current keep / convert calls
 
 ## Notes
-- some foods like fries, baked beans, roasted salted seeds, and drinks may reasonably stay prepared-format because the prepared format is the actual thing viewers are judging
-- the important rule is to avoid using cooked/prepared values as the default basis for a base ingredient when a raw-base entry is what people actually expect
+- some foods like fries, baked beans, roasted salted seeds, and drinks may reasonably stay prepared-format because they are packaged or processed products viewers judge in that form
+- the important rule is to keep one raw/base identity for whole foods instead of separate cooking-state variants
 - a second rule is now explicit too: if a metric is only a weak proxy for the locked food identity, remove it instead of pretending it is canonical

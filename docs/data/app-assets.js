@@ -591,7 +591,7 @@
     "kind": "data",
     "path": "data/batch-results.json",
     "mimeType": "application/json",
-    "sizeBytes": 3709647
+    "sizeBytes": 3696668
   },
   {
     "id": "data.foods.index.js",
@@ -599,7 +599,7 @@
     "kind": "data",
     "path": "data/foods-index.js",
     "mimeType": "text/javascript",
-    "sizeBytes": 8875848
+    "sizeBytes": 8832128
   },
   {
     "id": "data.foods.index.json",
@@ -607,7 +607,7 @@
     "kind": "data",
     "path": "data/foods-index.json",
     "mimeType": "application/json",
-    "sizeBytes": 15610127
+    "sizeBytes": 15535306
   },
   {
     "id": "data.foods.acorns.sample",
@@ -928,14 +928,6 @@
     "path": "data/foods/cashews.sample.json",
     "mimeType": "application/json",
     "sizeBytes": 3727
-  },
-  {
-    "id": "data.foods.cassava.boiled.sample",
-    "label": "Cassava Boiled.Sample",
-    "kind": "data",
-    "path": "data/foods/cassava-boiled.sample.json",
-    "mimeType": "application/json",
-    "sizeBytes": 3756
   },
   {
     "id": "data.foods.cassava.chips.sample",
@@ -2839,7 +2831,7 @@
     "kind": "music",
     "path": "audio/music/lucadialessandro_arcade_melody_295434_loop_240s.mp3",
     "mimeType": "audio/mpeg",
-    "sizeBytes": 4822770
+    "sizeBytes": 4842101
   },
   {
     "id": "audio.music.retro.bgm.chan.low.level.enemy.534609.loop.240s",

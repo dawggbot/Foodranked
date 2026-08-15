@@ -2134,6 +2134,12 @@ function displayPolicyForSection(result, sectionKey) {
     hiddenFallbackMetricKey: policy.hiddenFallbackMetricKey,
     missingValueDisplay: policy.missingValueDisplay,
     showProteinFallbackAsVisibleRow: policy.showProteinFallbackAsVisibleRow,
+    proteinQualityGate: result.proteinQualityGate ? {
+      eligible: result.proteinQualityGate.eligible,
+      proteinG: result.proteinQualityGate.proteinG,
+      minimumProteinG: result.proteinQualityGate.minimumProteinG,
+      aminoAcidProfileAvailable: result.proteinQualityGate.aminoAcidProfileAvailable
+    } : null,
     rules: {
       visibleRowsOnly: true,
       visibleSubmacroRowsDisplayNaOnlyWhenMainMacroNa: true,

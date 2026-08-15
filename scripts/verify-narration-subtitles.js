@@ -288,7 +288,9 @@ function checkScript(failures, file, script) {
         .filter(item => !(section.key === 'proteins' && item.metricKey === 'protein_g_fallback'))
         .flatMap(item => compactMetricMentionValues(item, section))
         .filter(Boolean);
-      if (displayedValues.length && !sectionHasSubmacroValueMention(section)) {
+      const proteinQualityIsGated = section.key === 'proteins'
+        && section.displayPolicy?.proteinQualityGate?.eligible === false;
+      if (displayedValues.length && !proteinQualityIsGated && !sectionHasSubmacroValueMention(section)) {
         addFailure(failures, file, `${section.key} subtitleText is missing a displayed submacro value`);
       }
     }

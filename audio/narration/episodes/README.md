@@ -18,7 +18,8 @@ This folder is the GitHub-facing catalogue for generated narration files. The MP
 [Fennel Seeds](fennel-seeds.md) | `voice-v1` | `split-blocks` | 136.0s | 11 | 13 | 12 | 4
 [Greek Yogurt](greek-yogurt.md) | `voice-v1` | `split-blocks` | 161.8s | 11 | 14 | 12 | 15
 [Hazelnuts](hazelnuts.md) | `voice-v1` | `split-blocks` | 143.8s | 11 | 13 | 12 | 15
-[Kale](kale.md) | `voice-v7` | `split-blocks` | 155.2s | 11 | 86 | 84 | 87
+[Kale](kale.md) | `voice-v8` | `split-blocks` | 152.1s | 11 | 109 | 107 | 98
+[Plain Kefir](kefir-plain.md) | `voice-v1` | `split-blocks` | 160.3s | 11 | 24 | 23 | 15
 [Macadamia Nuts](macadamia.md) | `voice-v1` | `split-blocks` | 108.0s | 11 | 14 | 12 | 4
 [Oats](oats.md) |  |  |  |  | 2 | 0 | 3
 [Pistachios (Roasted & Salted)](pistachios-roasted-salted.md) | `voice-v1` | `split-blocks` | 154.2s | 11 | 13 | 12 | 3

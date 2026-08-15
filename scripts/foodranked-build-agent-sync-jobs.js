@@ -92,7 +92,16 @@ function localSplitAudioFor(foodId, existing, localManifest) {
   };
 }
 
-function appFoodFor(food, localSplitAudio) {
+function appFoodFor(food, localSplitAudio, options = {}) {
+  if (options.includeSprite === false) {
+    return {
+      ...food,
+      episode: {
+        ...(food.episode || {}),
+        splitAudio: localSplitAudio
+      }
+    };
+  }
   const image = {
     path: `/studio-data/uploads/images/${food.id}/${food.id}.png`,
     sourcePath: `sprites/header/food_images/${food.id}.png`,
@@ -122,14 +131,15 @@ function appFoodFor(food, localSplitAudio) {
   };
 }
 
-function jobFor(food, localManifest, localSplitAudio, timestamp, dateStamp) {
+function jobFor(food, localManifest, localSplitAudio, timestamp, dateStamp, options = {}) {
   const take = localManifest.take || 'voice-v1';
   const narrationText = String(food.episode?.narrationText || '').trim();
   if (!narrationText) throw new Error(`${food.id}: missing episode narrationText`);
-  const installedFood = appFoodFor(food, localSplitAudio);
+  const includeSprite = options.includeSprite !== false;
+  const installedFood = appFoodFor(food, localSplitAudio, { includeSprite });
   const { episode: installedEpisode, ...installedFoodWithoutEpisode } = installedFood;
   const actions = [
-    {
+    ...(includeSprite ? [{
       type: 'downloadAsset',
       label: `${food.name} food image sprite`,
       kind: 'image',
@@ -138,7 +148,7 @@ function jobFor(food, localManifest, localSplitAudio, timestamp, dateStamp) {
       sourcePath: `sprites/header/food_images/${food.id}.png`,
       attachToFood: true,
       assetPatch: { width: 30, height: 30, naturalWidth: 30, naturalHeight: 30 }
-    },
+    }] : []),
     {
       type: 'upsertFood',
       label: `Install ${food.name} food entry`,
@@ -189,15 +199,31 @@ function jobFor(food, localManifest, localSplitAudio, timestamp, dateStamp) {
     }
   ];
 
+  const jobKind = includeSprite ? 'full-entry-sprite-update' : 'entry-narration-update';
+  const titleScope = includeSprite ? 'full entry, sprite, and' : 'entry and';
+  const descriptionScope = includeSprite
+    ? `Install the approved ${food.name} episode data, attach the 30x30 food image sprite, and pull`
+    : `Install the approved ${food.name} episode data and pull`;
+
   return {
-    id: `${food.id}-full-entry-sprite-update-${dateStamp}`,
-    title: `${food.name} full entry, sprite, and app-local split narration update`,
-    description: `Install the approved ${food.name} episode data, attach the 30x30 food image sprite, and pull the ElevenLabs ${take} split narration into the local Studio app with app-local audio paths.`,
+    id: `${food.id}-${jobKind}-${dateStamp}`,
+    title: `${food.name} ${titleScope} app-local split narration update`,
+    description: `${descriptionScope} the ElevenLabs ${take} split narration into the local Studio app with app-local audio paths.`,
     status: 'ready',
     foodId: food.id,
     createdAt: timestamp,
     updatedAt: timestamp,
-    tags: ['food-entry', 'script', 'narration', 'sprite', 'food-image', 'agent-sync', 'audio', 'split-audio', take, 'app-local-audio'],
+    tags: [
+      'food-entry',
+      'script',
+      'narration',
+      ...(includeSprite ? ['sprite', 'food-image'] : []),
+      'agent-sync',
+      'audio',
+      'split-audio',
+      take,
+      'app-local-audio'
+    ],
     actions
   };
 }
@@ -209,6 +235,7 @@ function main() {
   }
   const timestamp = optionValue('--timestamp') || new Date().toISOString();
   const dateStamp = optionValue('--date') || timestamp.slice(0, 10).replaceAll('-', '');
+  const includeSprite = !process.argv.includes('--no-sprite');
   const foods = readJson(FOODS_PATH);
   const index = readJson(INDEX_PATH);
   const jobs = [];
@@ -222,15 +249,17 @@ function main() {
     if (!Array.isArray(sourceManifest.blocks) || sourceManifest.blocks.length !== 11) {
       throw new Error(`${foodId}: expected 11 split narration blocks`);
     }
-    const spritePath = path.join(ROOT, 'sprites', 'header', 'food_images', `${foodId}.png`);
-    if (!fs.existsSync(spritePath)) throw new Error(`${foodId}: missing canonical sprite ${spritePath}`);
+    if (includeSprite) {
+      const spritePath = path.join(ROOT, 'sprites', 'header', 'food_images', `${foodId}.png`);
+      if (!fs.existsSync(spritePath)) throw new Error(`${foodId}: missing canonical sprite ${spritePath}`);
+    }
 
     const localManifest = localManifestFor(foodId, food.name, sourceManifest);
     const localSplitAudio = localSplitAudioFor(foodId, food.episode?.splitAudio || {}, localManifest);
     const assetDir = path.join(ROOT, 'studio', 'agent-sync', 'assets', foodId);
     fs.mkdirSync(assetDir, { recursive: true });
     fs.writeFileSync(path.join(assetDir, `${take}-blocks-local.json`), `${JSON.stringify(localManifest, null, 2)}\n`);
-    jobs.push(jobFor(food, localManifest, localSplitAudio, timestamp, dateStamp));
+    jobs.push(jobFor(food, localManifest, localSplitAudio, timestamp, dateStamp, { includeSprite }));
   }
 
   const newIds = new Set(jobs.map(job => job.id));

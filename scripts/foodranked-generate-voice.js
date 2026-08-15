@@ -26,7 +26,7 @@ function usage() {
     '  --source <path>      Narration text path. Defaults to outputs/episodes/<food>-compact/narration.txt.',
     '  --config <path>      Voice config path.',
     '  --force              Regenerate even when metadata matches.',
-    '  --over-limit-speed   Legacy compatibility flag; narration speed is already locked to 1.13x.',
+    '  --over-limit-speed   Legacy compatibility flag; narration speed is already locked to 1.15x.',
     '  --split-blocks       Generate one audio file per narration block.',
     '  --list-suitable-voices  Print suitable random voice candidates and exit.',
     '  --dry-run            Resolve settings and selected voice without generating audio.',
@@ -503,8 +503,8 @@ function narrationDurationPolicy(config) {
   const configured = config.narrationDurationPolicy || {};
   return {
     maximumSeconds: Number(configured.maximumSeconds) || 180,
-    defaultSpeed: Number(configured.defaultSpeed) || 1.13,
-    overLimitSpeed: Number(configured.overLimitSpeed) || 1.13
+    defaultSpeed: Number(configured.defaultSpeed) || 1.15,
+    overLimitSpeed: Number(configured.overLimitSpeed) || 1.15
   };
 }
 

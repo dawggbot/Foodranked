@@ -11,6 +11,7 @@ const scorerPath = path.join(__dirname, 'foodranked-scorer.js');
 const scriptGeneratorPath = path.join(__dirname, 'foodranked-generate-script.js');
 const visualTemplatePath = path.join(repoRoot, 'templates', 'visual-template.v1.json');
 const spritesRoot = path.join(repoRoot, 'sprites');
+const voiceSettingsPath = path.join(repoRoot, 'config', 'elevenlabs-voice-settings.v1.json');
 const { completeSfxProfile } = require('./lib/sfx-profiles');
 const { completeMusicProfile } = require('./lib/music-profiles');
 const { completeVoiceProfile } = require('./lib/voice-profiles');
@@ -19,6 +20,9 @@ const SUBTITLE_MAX_CHARACTERS_PER_LINE = 18;
 const SUMMARY_SUBTITLE_MAX_CHARACTERS_PER_LINE = 24;
 const MAX_VIDEO_DURATION_SECONDS = 180;
 const MAX_VIDEO_DURATION_TOLERANCE_SECONDS = 0.01;
+const LOCKED_NARRATION_SPEED = Number(
+  JSON.parse(fs.readFileSync(voiceSettingsPath, 'utf8'))?.generationDefaults?.voiceSettings?.speed
+) || 1;
 const LONG_MG_DISPLAY_METRIC_KEYS = new Set(['omega3_mg', 'cholesterol_mg']);
 const LONG_MG_DISPLAY_DIGITS = 5;
 
@@ -208,7 +212,7 @@ function buildNarrationText(script, options = {}) {
 function estimateDurationSeconds(text, wordsPerMinute = 165, floorSeconds = 1.4) {
   const words = String(text || '').trim().split(/\s+/).filter(Boolean).length;
   if (!words) return floorSeconds;
-  const raw = (words / wordsPerMinute) * 60;
+  const raw = (words / (wordsPerMinute * LOCKED_NARRATION_SPEED)) * 60;
   return Number(Math.max(raw, floorSeconds).toFixed(2));
 }
 
@@ -634,6 +638,7 @@ function buildScenePlan(script, score, template, options = {}) {
     mode: compact ? 'compact' : 'standard',
     visualProfile: profile.name,
     maxDurationSeconds: MAX_VIDEO_DURATION_SECONDS,
+    narrationSpeedEstimate: LOCKED_NARRATION_SPEED,
     subtitleRules: {
       maxLines: SUBTITLE_MAX_LINES,
       maxCharactersPerLine: SUBTITLE_MAX_CHARACTERS_PER_LINE

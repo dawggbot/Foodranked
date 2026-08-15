@@ -204,7 +204,7 @@ node scripts/foodranked-generate-voice.js <food-id> --take voice-v7 --split-bloc
 node scripts/foodranked-align-subtitles.js <food-id> --take voice-v7 --refresh
 ```
 
-Split-block audio keeps the exact same spoken text and block order. Narration speed is locked to `1.13` for every take. New MP3 generation uses ElevenLabs' timestamped TTS response, saving character timings beside each block so subtitle alignment does not depend on a second API permission. The subtitle aligner converts those timings into words and stitches the blocks into one episode timeline with controlled gaps. Older takes may use forced alignment or speech-to-text timing when the account permits it.
+Split-block audio keeps the exact same spoken text and block order. Narration speed is locked to `1.15` for every new take. New MP3 generation uses ElevenLabs' timestamped TTS response, saving character timings beside each block so subtitle alignment does not depend on a second API permission. The subtitle aligner converts those timings into words and stitches the blocks into one episode timeline with controlled gaps. Older takes may use forced alignment or speech-to-text timing when the account permits it.
 
 Generated website data exposes split narration as `episode.splitAudio`, including each block path, offset, and duration. The video builder should prefer that timed split take when available, while keeping `episode.audio` available for older single-file takes.
 

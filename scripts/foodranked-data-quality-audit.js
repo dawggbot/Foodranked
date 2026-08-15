@@ -85,6 +85,8 @@ const EXPECTED_METRIC_POLARITIES = {
 };
 const PLACEHOLDER_NOTE_RE = /placeholder|calibration benchmark|not a clinical nutrient database|tuning only/i;
 const BAD_TEXT_PATTERNS = [
+  { pattern: /\bhas a more specific food identity\b/i, message: 'vague food-identity filler' },
+  { pattern: /\bthere is a reason it earns attention beyond the basic role\b/i, message: 'vague food-identity filler explanation' },
   { pattern: /\bnot a complete food on its own\b/i, message: 'generic complete-food con' },
   { pattern: /\bnot complete\b/i, message: 'generic complete-food con' },
   { pattern: /\bcomplete by themselves\b/i, message: 'generic complete-food con' },

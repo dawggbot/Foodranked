@@ -1,6 +1,8 @@
 const CONTEXT_SIDES = ['pros', 'cons'];
+const VAGUE_FOOD_IDENTITY_TITLE = 'has a more specific food identity';
 
 const SECTION_RECAP_CONTEXT_TITLE_PATTERNS = [
+  { pattern: /\bhas a more specific food identity\b/i, message: 'vague food-identity filler in context item' },
   { pattern: /\bprotein contribution is tiny\b/i, message: 'plain protein-section recap in context item' },
   { pattern: /\bprotein is basically absent\b/i, message: 'plain protein-section recap in context item' },
   { pattern: /\bprotein support is weak\b/i, message: 'plain protein-section recap in context item' },
@@ -271,8 +273,9 @@ function contextKind(item) {
 function candidateCopies(food, itemToNormalize, side) {
   const type = food.foodType || 'misc';
   const kind = contextKind(itemToNormalize);
+  const isVagueFoodIdentity = normalizedTitleKey(itemToNormalize?.title) === VAGUE_FOOD_IDENTITY_TITLE;
   return [
-    ...((kind && KIND_COPY[side]?.[kind]) || []),
+    ...((!isVagueFoodIdentity && kind && KIND_COPY[side]?.[kind]) || []),
     ...(TYPE_FALLBACKS[type]?.[side] || []),
     ...(TYPE_FALLBACKS.misc[side] || [])
   ];

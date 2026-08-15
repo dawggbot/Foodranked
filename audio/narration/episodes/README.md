@@ -24,6 +24,7 @@ This folder is the GitHub-facing catalogue for generated narration files. The MP
 [Oats](oats.md) |  |  |  |  | 2 | 0 | 3
 [Pistachios (Roasted & Salted)](pistachios-roasted-salted.md) | `voice-v1` | `split-blocks` | 154.2s | 11 | 13 | 12 | 3
 [Plums](plums.md) | `voice-v2` | `split-blocks` | 160.1s | 11 | 25 | 24 | 27
+[Pork Loin](pork-loin.md) | `voice-v1` | `split-blocks` | 154.2s | 11 | 24 | 23 | 15
 [Raspberries](raspberries.md) | `voice-v4` | `split-blocks` | 126.2s | 11 | 50 | 48 | 51
 [Regular Cola](regular-cola.md) |  |  |  |  | 2 | 0 | 0
 [Rice Cakes](rice-cakes.md) | `voice-v1` | `split-blocks` | 113.5s | 11 | 14 | 12 | 3

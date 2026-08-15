@@ -137,6 +137,9 @@ function metricMentionLabels(metricKey) {
   if (metricKey === 'essential_amino_acids_score') {
     labels.add('essential amino acid score');
     labels.add('essential amino acids score');
+    labels.add('essential amino-acid score');
+    labels.add('essential amino-acids score');
+    labels.add('essential amino-acid groups');
     labels.add('essential amino acid support');
     labels.add('essential amino acid quality');
     labels.add('amino acid quality');
@@ -144,6 +147,10 @@ function metricMentionLabels(metricKey) {
   if (metricKey === 'nonessential_amino_acids_score') {
     labels.add('nonessential amino acid score');
     labels.add('nonessential amino acids score');
+    labels.add('nonessential amino-acid score');
+    labels.add('nonessential amino-acids score');
+    labels.add('nonessential score');
+    labels.add('nonessential groups');
     labels.add('amino acid quality');
   }
   if (metricKey === 'bioavailability_percent') {

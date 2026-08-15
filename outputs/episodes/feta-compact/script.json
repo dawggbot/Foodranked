@@ -10,17 +10,43 @@
       "value": 100,
       "unit": "g"
     },
-    "identity": null,
-    "scoreReadiness": null,
+    "identity": {
+      "canonicalName": "Cheese, feta",
+      "commonName": "Feta",
+      "form": "plain feta cheese",
+      "state": "as sold",
+      "ediblePortion": "cheese",
+      "basisReason": "Per-100g as-sold cheese basis matches the USDA record and FoodRanked's packaged-food convention.",
+      "includes": [
+        "plain feta cheese"
+      ],
+      "excludes": [
+        "flavoured feta products",
+        "feta-style spreads",
+        "reduced-fat feta",
+        "dishes containing feta"
+      ]
+    },
+    "scoreReadiness": {
+      "status": "production-safe",
+      "summary": "Canonical feta entry with exact USDA nutrient and amino-acid rows, including a source-derived 9-of-9 essential amino-acid result.",
+      "blockers": [],
+      "caveats": [
+        "Feta recipes and brines vary; this entry represents the generic USDA cheese identity rather than every branded feta."
+      ]
+    },
     "sourceNotes": [
-      "Calibration benchmark sample for FoodRanked.",
-      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
+      "Production source pass for plain feta cheese.",
+      "All displayed nutrition values use a per-100g basis.",
+      "Primary nutrient and amino-acid identity is USDA FoodData Central FDC 173420.",
+      "The Protected Designation of Origin context comes from the European Commission's feta registration page."
     ]
   },
   "ruleset": {
     "id": "dairy.v1",
     "version": 1,
     "tierScoreMap": {
+      "Slop": -20,
       "D": 20,
       "C": 40,
       "B": 60,
@@ -33,58 +59,58 @@
     }
   },
   "header": {
-    "kcal": 264,
-    "fat_g": 21.3,
-    "carb_g": 4.1,
-    "protein_g": 14.2
+    "kcal": 265,
+    "fat_g": 21.49,
+    "carb_g": 3.88,
+    "protein_g": 14.21
   },
   "hook": "Feta ranked.",
   "sections": [
     {
       "key": "fats",
       "title": "Fats",
-      "narration": "21.3 grams of fat. Cholesterol is 89 milligrams, the best number here but still only modest help. Saturated fat is 14.9 grams, working against a cleaner fat profile. For dairy, fat can help or drag the score down.",
+      "narration": "21.5 grams of fat. Saturated fat is 13.3 grams, which is a seriously heavy mark even for cheese. Cholesterol is 89 milligrams, adding another downside, while polyunsaturated fat is only 0.59 grams and cannot do much to balance things out. For dairy, fat can bring richness, but this particular fat mix comes with plenty of baggage.",
       "displayItems": [
         {
           "metricKey": "saturated_fat_g",
-          "text": "saturated fat at 14.9g",
+          "text": "saturated fat at 13.3g",
           "weightedScore": 0,
           "scoringMode": "arrow_bands",
-          "band": "↑↑↑",
+          "band": "3_red",
           "polarity": "higher_worse",
           "dvPercent": null,
-          "value": 14.9,
+          "value": 13.3,
           "score": 0,
           "denominator": null,
-          "displayValue": "14.9g",
+          "displayValue": "13.3g",
           "displaySource": "scored"
         },
         {
           "metricKey": "polyunsaturated_fat_g",
-          "text": "polyunsaturated fat at 0.6g",
+          "text": "polyunsaturated fat at 0.59g",
           "weightedScore": 40,
           "scoringMode": "arrow_bands",
-          "band": "↓",
+          "band": "1_red",
           "polarity": "higher_better",
           "dvPercent": null,
-          "value": 0.6,
+          "value": 0.591,
           "score": 40,
           "denominator": null,
-          "displayValue": "0.6g",
+          "displayValue": "0.59g",
           "displaySource": "scored"
         },
         {
           "metricKey": "omega3_mg",
-          "text": "omega 3 at 100mg",
-          "weightedScore": 40,
+          "text": "omega 3 at 265mg",
+          "weightedScore": 80,
           "scoringMode": "arrow_bands",
-          "band": "↓",
+          "band": "2_green",
           "polarity": "higher_better",
           "dvPercent": null,
-          "value": 100,
-          "score": 40,
+          "value": 265,
+          "score": 80,
           "denominator": null,
-          "displayValue": "100mg",
+          "displayValue": "265mg",
           "displaySource": "scored"
         },
         {
@@ -92,7 +118,7 @@
           "text": "cholesterol at 89mg",
           "weightedScore": 80,
           "scoringMode": "arrow_bands",
-          "band": "↑↑",
+          "band": "2_red",
           "polarity": "higher_worse",
           "dvPercent": null,
           "value": 89,
@@ -102,22 +128,22 @@
           "displaySource": "scored"
         }
       ],
-      "macroDisplayValue": "21.3g",
-      "subtitleText": "21.3g of fat. Cholesterol is 89mg, the best number here but still only modest help. Saturated fat is 14.9g, working against a cleaner fat profile. For dairy, fat can help or drag the score down.",
+      "macroDisplayValue": "21.5g",
+      "subtitleText": "21.5g of fat. Saturated fat is 13.3g, which is a seriously heavy mark even for cheese. Cholesterol is 89mg, adding another downside, while polyunsaturated fat is only 0.59g and cannot do much to balance things out. For dairy, fat can bring richness, but this particular fat mix comes with plenty of baggage.",
       "timingHint": "short-medium",
-      "score": 13.3
+      "score": 21.5
     },
     {
       "key": "carbs",
       "title": "Carbs",
-      "narration": "4.1 grams of carbs. Sugar is 4.1 grams, helping keep the sugar load under control. Fibre is 0 grams, with only modest fullness and digestion support, so that's a small downside for dairy. For dairy, carbs mostly mean sugar control.",
+      "narration": "3.9 grams of carbs. There is very little carbohydrate here to begin with, and the glycemic index is around 27, so blood-sugar impact is not the concern. Fibre is 0 grams because cheese was never going to help much with digestion or fullness from plants. For dairy, the carb section is quiet and mostly harmless.",
       "displayItems": [
         {
           "metricKey": "fibre_g",
           "text": "fibre at 0g",
           "weightedScore": 0,
           "scoringMode": "arrow_bands",
-          "band": "↓↓↓",
+          "band": "3_red",
           "polarity": "higher_better",
           "dvPercent": null,
           "value": 0,
@@ -128,16 +154,16 @@
         },
         {
           "metricKey": "sugar_g",
-          "text": "sugar at 4.1g",
-          "weightedScore": 320,
+          "text": "sugar at 0g",
+          "weightedScore": 400,
           "scoringMode": "arrow_bands",
-          "band": "↓↓",
+          "band": "3_green",
           "polarity": "higher_worse",
           "dvPercent": null,
-          "value": 4.1,
-          "score": 80,
+          "value": 0,
+          "score": 100,
           "denominator": null,
-          "displayValue": "4.1g",
+          "displayValue": "0g",
           "displaySource": "scored"
         },
         {
@@ -159,7 +185,7 @@
           "text": "glycemic index at 27 GI",
           "weightedScore": 160,
           "scoringMode": "arrow_bands",
-          "band": "↓↓",
+          "band": "2_green",
           "polarity": "higher_worse",
           "dvPercent": null,
           "value": 27,
@@ -169,15 +195,15 @@
           "displaySource": "scored"
         }
       ],
-      "macroDisplayValue": "4.1g",
-      "subtitleText": "4.1g of carbs. Sugar is 4.1g, helping keep the sugar load under control. Fibre is 0g, with only modest fullness and digestion support, so that's a small downside for dairy. For dairy, carbs mostly mean sugar control.",
+      "macroDisplayValue": "3.9g",
+      "subtitleText": "3.9g of carbs. There is very little carbohydrate here to begin with, and the glycemic index is around 27, so blood-sugar impact is not the concern. Fibre is 0g because cheese was never going to help much with digestion or fullness from plants. For dairy, the carb section is quiet and mostly harmless.",
       "timingHint": "short-medium",
-      "score": 60
+      "score": 70
     },
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "14.2 grams of protein. That amount is useful enough to count. Essential amino acids score is 7 out of 9, making the protein useful for repair and maintenance, and it is still a strong secondary mark. For dairy, useful protein matters a lot.",
+      "narration": "14.2 grams of protein. All 9 essential amino-acid groups reach useful amounts, giving the body the complete set needed for repair and maintenance. The nonessential score is 8 out of 11, which is still solid wider coverage. For dairy, useful protein matters, and feta brings a respectable amount even though it is normally eaten in fairly small servings.",
       "displayItems": [
         {
           "metricKey": "collagen_g",
@@ -197,46 +223,38 @@
         },
         {
           "metricKey": "essential_amino_acids_score",
-          "text": "essential amino acids score at 7/9",
-          "weightedScore": null,
-          "scoringMode": "display_fallback",
-          "band": "↑↑",
+          "text": "essential amino acids score at 9/9",
+          "weightedScore": 200,
+          "scoringMode": "arrow_bands",
+          "band": "3_green",
           "polarity": "higher_better",
           "dvPercent": null,
-          "value": 7,
-          "score": 80,
+          "value": 9,
+          "score": 100,
           "denominator": 9,
-          "displaySource": "protein_display_estimate",
-          "displayEstimated": true,
-          "displayEstimateBasis": "display-only estimate from useful-protein-gated amount band and protein source class; not a source amino-acid profile",
-          "displayDefault": false,
-          "displayDefaultReason": null,
-          "displayValue": "7/9"
+          "displayValue": "9/9",
+          "displaySource": "scored"
         },
         {
           "metricKey": "nonessential_amino_acids_score",
           "text": "nonessential amino acids score at 8/11",
-          "weightedScore": null,
-          "scoringMode": "display_fallback",
-          "band": "↑",
+          "weightedScore": 60,
+          "scoringMode": "arrow_bands",
+          "band": "1_green",
           "polarity": "higher_better",
           "dvPercent": null,
           "value": 8,
           "score": 60,
           "denominator": 11,
-          "displaySource": "protein_display_estimate",
-          "displayEstimated": true,
-          "displayEstimateBasis": "display-only estimate from useful-protein-gated amount band and protein source class; not a source amino-acid profile",
-          "displayDefault": false,
-          "displayDefaultReason": null,
-          "displayValue": "8/11"
+          "displayValue": "8/11",
+          "displaySource": "scored"
         },
         {
           "metricKey": "bioavailability_percent",
           "text": "bioavailability at 92%",
           "weightedScore": null,
           "scoringMode": "display_fallback",
-          "band": "↑↑↑",
+          "band": "3_green",
           "polarity": "higher_better",
           "dvPercent": null,
           "value": 92,
@@ -251,9 +269,9 @@
         }
       ],
       "macroDisplayValue": "14.2g",
-      "subtitleText": "14.2g of protein. That amount is useful enough to count. Essential amino acids score is 7/9, making the protein useful for repair and maintenance, and it is still a strong secondary mark. For dairy, useful protein matters a lot.",
+      "subtitleText": "14.2g of protein. All 9 essential amino-acid groups reach useful amounts, giving the body the complete set needed for repair and maintenance. The nonessential score is 8/11, which is still solid wider coverage. For dairy, useful protein matters, and feta brings a respectable amount even though it is normally eaten in fairly small servings.",
       "timingHint": "short-medium",
-      "score": 80,
+      "score": 86.7,
       "displayPolicy": {
         "policyId": "protein-section-display.v1",
         "rowCount": 4,
@@ -266,6 +284,12 @@
         "hiddenFallbackMetricKey": "protein_g_fallback",
         "missingValueDisplay": "N/A",
         "showProteinFallbackAsVisibleRow": false,
+        "proteinQualityGate": {
+          "eligible": true,
+          "proteinG": 14.21,
+          "minimumProteinG": 9,
+          "aminoAcidProfileAvailable": true
+        },
         "rules": {
           "visibleRowsOnly": true,
           "visibleSubmacroRowsDisplayNaOnlyWhenMainMacroNa": true,
@@ -278,18 +302,18 @@
     {
       "key": "vitamins",
       "title": "Vitamins",
-      "narration": "Vitamin B12 is 27% daily value, useful for nerve and blood-cell support. Vitamin A is 14% daily value, not bringing much vision or immune support. For dairy, vitamin D and B12 matter most.",
+      "narration": "Vitamin B12 is 70% daily value, which is the surprise star here. B12 supports the nerves and helps make red blood cells that carry oxygen around the body. Vitamin A is 14% daily value, adding some vision and immune support, but vitamin D is only 2%. For dairy, the B12 result is excellent even though the rest of the vitamin panel is much less exciting.",
       "displayItems": [
         {
           "metricKey": "vitamin_b12_dv",
-          "text": "vitamin B12 at 27% DV",
-          "weightedScore": 40,
+          "text": "vitamin B12 at 70% DV",
+          "weightedScore": 140,
           "scoringMode": "dv_points",
           "band": null,
           "polarity": null,
-          "dvPercent": 27,
+          "dvPercent": 70,
           "value": null,
-          "score": 20,
+          "score": 70,
           "denominator": null
         },
         {
@@ -306,23 +330,23 @@
         }
       ],
       "macroDisplayValue": null,
-      "subtitleText": "Vitamin B12 is 27% DV, useful for nerve and blood-cell support. Vitamin A is 14% DV, not bringing much vision or immune support. For dairy, vitamin D and B12 matter most.",
+      "subtitleText": "Vitamin B12 is 70% daily value, which is the surprise star here. B12 supports the nerves and helps make red blood cells that carry oxygen around the body. Vitamin A is 14% daily value, adding some vision and immune support, but vitamin D is only 2%. For dairy, the B12 result is excellent even though the rest of the vitamin panel is much less exciting.",
       "timingHint": "short-medium",
-      "score": 16.7
+      "score": 50
     },
     {
       "key": "minerals",
       "title": "Minerals",
-      "narration": "Calcium is 37% daily value, useful for bone support. Magnesium is only 5% daily value, not bringing much mineral support. For dairy, calcium is the main mineral check.",
+      "narration": "Calcium is 38% daily value, a strong amount for bones, teeth, and normal muscle function. Zinc is 26% daily value, giving useful support for immunity and wound healing. Potassium is only 1% daily value though, so feta brings almost nothing for fluid balance. For dairy, calcium is the headline mineral, with zinc as a genuinely useful bonus.",
       "displayItems": [
         {
           "metricKey": "calcium_dv",
-          "text": "calcium at 37% DV",
+          "text": "calcium at 38% DV",
           "weightedScore": 90,
           "scoringMode": "dv_points",
           "band": null,
           "polarity": null,
-          "dvPercent": 37,
+          "dvPercent": 38,
           "value": null,
           "score": 30,
           "denominator": null
@@ -341,137 +365,137 @@
         },
         {
           "metricKey": "zinc_dv",
-          "text": "zinc at 19% DV",
-          "weightedScore": 10,
+          "text": "zinc at 26% DV",
+          "weightedScore": 20,
           "scoringMode": "dv_points",
           "band": null,
           "polarity": null,
-          "dvPercent": 19,
+          "dvPercent": 26,
           "value": null,
-          "score": 10,
+          "score": 20,
           "denominator": null
         }
       ],
       "macroDisplayValue": null,
-      "subtitleText": "Calcium is 37% DV, useful for bone support. Magnesium is only 5% DV, not bringing much mineral support. For dairy, calcium is the main mineral check.",
+      "subtitleText": "Calcium is 38% daily value, a strong amount for bones, teeth, and normal muscle function. Zinc is 26% daily value, giving useful support for immunity and wound healing. Potassium is only 1% daily value though, so feta brings almost nothing for fluid balance. For dairy, calcium is the headline mineral, with zinc as a genuinely useful bonus.",
       "timingHint": "short-medium",
-      "score": 20
+      "score": 22
     },
     {
       "key": "pros",
       "title": "Pros",
-      "narration": "Positives first: easy to fit into familiar meals. That lowers friction for regular use. Helps make meals feel complete. That practical meal role matters beyond the score rows. Slots into meals very easily. Practical versatility matters a lot for dairy.",
+      "narration": "The upsides first: a little feta can change a whole plate. The salty tang means a small crumble can wake up salads, eggs, wraps, and vegetables. Real Protected Designation of Origin feta has a protected origin story. In the European Union, it has to come from Greece and use sheep's milk, sometimes mixed with goat's milk. The crumble format is genuinely useful. You can spread flavour across a meal without needing a thick slab of cheese.",
       "displayItems": [
         {
           "type": "pro",
-          "title": "easy to fit into familiar meals",
-          "explanation": "That lowers friction for regular use.",
+          "title": "a little feta can change a whole plate",
+          "explanation": "The salty tang means a small crumble can wake up salads, eggs, wraps, and vegetables.",
           "impactLevel": "minor",
           "resolvedScoreValue": 50
         },
         {
           "type": "pro",
-          "title": "helps make meals feel complete",
-          "explanation": "That practical meal role matters beyond the score rows.",
+          "title": "real feta has a Protected Designation of Origin",
+          "explanation": "In the European Union, it has to come from Greece and use sheep's milk, sometimes mixed with goat's milk.",
           "impactLevel": "minor",
           "resolvedScoreValue": 50
         },
         {
           "type": "pro",
-          "title": "slots into meals very easily",
-          "explanation": "Practical versatility matters a lot for dairy.",
+          "title": "the crumble format is genuinely useful",
+          "explanation": "You can spread flavour across a meal without needing a thick slab of cheese.",
           "impactLevel": "minor",
           "resolvedScoreValue": 50
         }
       ],
       "macroDisplayValue": null,
-      "subtitleText": "Positives first: easy to fit into familiar meals. That lowers friction for regular use. Helps make meals feel complete. That practical meal role matters beyond the score rows. Slots into meals very easily. Practical versatility matters a lot for dairy.",
+      "subtitleText": "The upsides first: a little feta can change a whole plate. The salty tang means a small crumble can wake up salads, eggs, wraps, and vegetables. Real Protected Designation of Origin feta has a protected origin story. In the European Union, it has to come from Greece and use sheep's milk, sometimes mixed with goat's milk. The crumble format is genuinely useful. You can spread flavour across a meal without needing a thick slab of cheese.",
       "timingHint": "medium",
       "score": 50
     },
     {
       "key": "cons",
       "title": "Cons",
-      "narration": "Downsides next: format choices can drag it down fast. The exact version and how it is used matter a lot. Not everyone tolerates dairy well. That is a real use-case limitation. Processing changes the category a lot. The label alone does not tell the whole story.",
+      "narration": "The drawbacks next: the salt is the real catch. Brining pushes sodium to roughly 1.1 grams per 100 grams, so portions matter even before the saturated fat gets involved. It is still a dairy food. Milk allergy or poor dairy tolerance can rule it out completely. The sharp flavour can take over. Feta works brilliantly as an accent, but it is not always what you want dominating the entire meal.",
       "displayItems": [
         {
           "type": "con",
-          "title": "format choices can drag it down fast",
-          "explanation": "The exact version and how it is used matter a lot.",
+          "title": "the salt is the real catch",
+          "explanation": "Brining pushes sodium to roughly 1.1 grams per 100 grams, so portions matter even before the saturated fat gets involved.",
           "impactLevel": "minor",
           "resolvedScoreValue": 50
         },
         {
           "type": "con",
-          "title": "not everyone tolerates dairy well",
-          "explanation": "That is a real use-case limitation.",
+          "title": "it is still a dairy food",
+          "explanation": "Milk allergy or poor dairy tolerance can rule it out completely.",
           "impactLevel": "minor",
           "resolvedScoreValue": 50
         },
         {
           "type": "con",
-          "title": "processing changes the category a lot",
-          "explanation": "The label alone does not tell the whole story.",
+          "title": "the sharp flavour can take over",
+          "explanation": "Feta works brilliantly as an accent, but it is not always what you want dominating the entire meal.",
           "impactLevel": "minor",
           "resolvedScoreValue": 50
         }
       ],
       "macroDisplayValue": null,
-      "subtitleText": "Downsides next: format choices can drag it down fast. The exact version and how it is used matter a lot. Not everyone tolerates dairy well. That is a real use-case limitation. Processing changes the category a lot. The label alone does not tell the whole story.",
+      "subtitleText": "The drawbacks next: the salt is the real catch. Brining pushes sodium to roughly 1.1g per 100g, so portions matter even before the saturated fat gets involved. It is still a dairy food. Milk allergy or poor dairy tolerance can rule it out completely. The sharp flavour can take over. Feta works brilliantly as an accent, but it is not always what you want dominating the entire meal.",
       "timingHint": "medium",
       "score": 50
     }
   ],
   "closing": {
-    "summary": "Best bits are protein and carb quality. Weak spots are saturated fat and low vitamin A. Best for practical meals and muscles because it's easy to build meals around and protein still gives it some muscle support.",
-    "overview": "Best bits are protein and carb quality. Weak spots are saturated fat and low vitamin A. Best for practical meals and muscles because it's easy to build meals around and protein still gives it some muscle support.",
+    "summary": "Best bits are complete protein, huge vitamin B12, strong calcium and zinc, and loads of flavour from a small amount. Weak spots are saturated fat, very high sodium, almost no potassium, and the fact that normal portions are much smaller than 100 grams. Best used as a flavour booster rather than the main event. Crumble a little over vegetables, grains, or eggs and let the rest of the meal provide the volume.",
+    "overview": "Best bits are complete protein, huge vitamin B12, strong calcium and zinc, and loads of flavour from a small amount. Weak spots are saturated fat, very high sodium, almost no potassium, and the fact that normal portions are much smaller than 100 grams. Best used as a flavour booster rather than the main event. Crumble a little over vegetables, grains, or eggs and let the rest of the meal provide the volume.",
     "useCases": [
+      {
+        "key": "blood_support",
+        "label": "blood and oxygen support",
+        "reason": "vitamin B12 supports the blood-and-oxygen side",
+        "score": 146
+      },
       {
         "key": "practical_meals",
         "label": "practical meals",
         "reason": "it's easy to build meals around",
-        "score": 110
-      },
-      {
-        "key": "muscles",
-        "label": "muscles",
-        "reason": "protein still gives it some muscle support",
-        "score": 94.2
+        "score": 120
       },
       {
         "key": "immune_support",
         "label": "immune support",
         "reason": "vitamin A and zinc help support the immune system",
-        "score": 69.7
+        "score": 112
       }
     ],
     "strengthHighlights": [
       "protein",
       "carb quality",
-      "calcium"
+      "vitamin B12"
     ],
     "weaknessHighlights": [
       "saturated fat",
-      "low vitamin A",
-      "low magnesium"
+      "low magnesium",
+      "low vitamin A"
     ],
-    "finalReveal": "B tier.",
+    "finalReveal": "A tier.",
     "useCaseNote": "Best when the protein or fermentation benefit outweighs the fat and sodium tradeoffs.",
     "cta": "Would you rank it the same, or nah?"
   },
-  "tier": "B",
-  "overallScore": 60,
-  "overallScoreExact": 60,
-  "calibratedOverallScore": 46.1,
-  "calibratedOverallScoreExact": 46.1425,
-  "anomalyAdjustedScore": 46.1,
-  "anomalyAdjustedScoreExact": 46.1425,
-  "rankingScore": 46.1,
-  "rankingScoreExact": 46.1425,
+  "tier": "A",
+  "overallScore": 80,
+  "overallScoreExact": 80,
+  "calibratedOverallScore": 79.8,
+  "calibratedOverallScoreExact": 79.8407,
+  "anomalyAdjustedScore": 79.8,
+  "anomalyAdjustedScoreExact": 79.8407,
+  "rankingScore": 79.8,
+  "rankingScoreExact": 79.8407,
   "scoreAdjustmentTotal": 0,
   "scoreAdjustments": [],
-  "baseOverallScore": 41.4,
-  "baseOverallScoreExact": 41.4286,
+  "baseOverallScore": 50,
+  "baseOverallScoreExact": 50.0293,
   "sectionOrder": [
     "fats",
     "carbs",
@@ -493,79 +517,79 @@
     {
       "kind": "section",
       "sectionKey": "fats",
-      "text": "21.3 grams of fat. Cholesterol is 89 milligrams, the best number here but still only modest help. Saturated fat is 14.9 grams, working against a cleaner fat profile. For dairy, fat can help or drag the score down."
+      "text": "21.5 grams of fat. Saturated fat is 13.3 grams, which is a seriously heavy mark even for cheese. Cholesterol is 89 milligrams, adding another downside, while polyunsaturated fat is only 0.59 grams and cannot do much to balance things out. For dairy, fat can bring richness, but this particular fat mix comes with plenty of baggage."
     },
     {
       "kind": "section",
       "sectionKey": "carbs",
-      "text": "4.1 grams of carbs. Sugar is 4.1 grams, helping keep the sugar load under control. Fibre is 0 grams, with only modest fullness and digestion support, so that's a small downside for dairy. For dairy, carbs mostly mean sugar control."
+      "text": "3.9 grams of carbs. There is very little carbohydrate here to begin with, and the glycemic index is around 27, so blood-sugar impact is not the concern. Fibre is 0 grams because cheese was never going to help much with digestion or fullness from plants. For dairy, the carb section is quiet and mostly harmless."
     },
     {
       "kind": "section",
       "sectionKey": "proteins",
-      "text": "14.2 grams of protein. That amount is useful enough to count. Essential amino acids score is 7 out of 9, making the protein useful for repair and maintenance, and it is still a strong secondary mark. For dairy, useful protein matters a lot."
+      "text": "14.2 grams of protein. All 9 essential amino-acid groups reach useful amounts, giving the body the complete set needed for repair and maintenance. The nonessential score is 8 out of 11, which is still solid wider coverage. For dairy, useful protein matters, and feta brings a respectable amount even though it is normally eaten in fairly small servings."
     },
     {
       "kind": "section",
       "sectionKey": "vitamins",
-      "text": "Vitamin B12 is 27% daily value, useful for nerve and blood-cell support. Vitamin A is 14% daily value, not bringing much vision or immune support. For dairy, vitamin D and B12 matter most."
+      "text": "Vitamin B12 is 70% daily value, which is the surprise star here. B12 supports the nerves and helps make red blood cells that carry oxygen around the body. Vitamin A is 14% daily value, adding some vision and immune support, but vitamin D is only 2%. For dairy, the B12 result is excellent even though the rest of the vitamin panel is much less exciting."
     },
     {
       "kind": "section",
       "sectionKey": "minerals",
-      "text": "Calcium is 37% daily value, useful for bone support. Magnesium is only 5% daily value, not bringing much mineral support. For dairy, calcium is the main mineral check."
+      "text": "Calcium is 38% daily value, a strong amount for bones, teeth, and normal muscle function. Zinc is 26% daily value, giving useful support for immunity and wound healing. Potassium is only 1% daily value though, so feta brings almost nothing for fluid balance. For dairy, calcium is the headline mineral, with zinc as a genuinely useful bonus."
     },
     {
       "kind": "section",
       "sectionKey": "pros",
-      "text": "Positives first: easy to fit into familiar meals. That lowers friction for regular use. Helps make meals feel complete. That practical meal role matters beyond the score rows. Slots into meals very easily. Practical versatility matters a lot for dairy."
+      "text": "The upsides first: a little feta can change a whole plate. The salty tang means a small crumble can wake up salads, eggs, wraps, and vegetables. Real Protected Designation of Origin feta has a protected origin story. In the European Union, it has to come from Greece and use sheep's milk, sometimes mixed with goat's milk. The crumble format is genuinely useful. You can spread flavour across a meal without needing a thick slab of cheese."
     },
     {
       "kind": "section",
       "sectionKey": "cons",
-      "text": "Downsides next: format choices can drag it down fast. The exact version and how it is used matter a lot. Not everyone tolerates dairy well. That is a real use-case limitation. Processing changes the category a lot. The label alone does not tell the whole story."
+      "text": "The drawbacks next: the salt is the real catch. Brining pushes sodium to roughly 1.1 grams per 100 grams, so portions matter even before the saturated fat gets involved. It is still a dairy food. Milk allergy or poor dairy tolerance can rule it out completely. The sharp flavour can take over. Feta works brilliantly as an accent, but it is not always what you want dominating the entire meal."
     },
     {
       "kind": "closing_summary",
-      "text": "Best bits are protein and carb quality. Weak spots are saturated fat and low vitamin A. Best for practical meals and muscles because it's easy to build meals around and protein still gives it some muscle support."
+      "text": "Best bits are complete protein, huge vitamin B12, strong calcium and zinc, and loads of flavour from a small amount. Weak spots are saturated fat, very high sodium, almost no potassium, and the fact that normal portions are much smaller than 100 grams. Best used as a flavour booster rather than the main event. Crumble a little over vegetables, grains, or eggs and let the rest of the meal provide the volume."
     },
     {
       "kind": "final_reveal",
-      "text": "B tier."
+      "text": "A tier."
     }
   ],
   "explanation": {
-    "summary": "Proteins are carrying this food most, while fats are holding it back most. It lands in B tier.",
-    "whyThisTier": "This food lands in B tier with a display score of 60. Section scores: fats 13.3, carbs 60, proteins 80, vitamins 16.7, minerals 20, pros 50, cons 50.",
+    "summary": "Proteins are carrying this food most, while fats are holding it back most. It lands in A tier.",
+    "whyThisTier": "This food lands in A tier with a display score of 80. Section scores: fats 21.5, carbs 70, proteins 86.7, vitamins 50, minerals 22, pros 50, cons 50.",
     "strongestSection": {
       "key": "proteins",
       "label": "Proteins",
-      "score": 80
+      "score": 86.7
     },
     "weakestSection": {
       "key": "fats",
       "label": "Fats",
-      "score": 13.3
+      "score": 21.5
     },
     "scoreAdjustments": [],
     "topPros": [
       {
-        "title": "easy to fit into familiar meals",
-        "explanation": "That lowers friction for regular use.",
+        "title": "a little feta can change a whole plate",
+        "explanation": "The salty tang means a small crumble can wake up salads, eggs, wraps, and vegetables.",
         "impactLevel": "minor",
         "side": "pro",
         "resolvedScoreValue": 50
       },
       {
-        "title": "helps make meals feel complete",
-        "explanation": "That practical meal role matters beyond the score rows.",
+        "title": "real feta has a Protected Designation of Origin",
+        "explanation": "In the European Union, it has to come from Greece and use sheep's milk, sometimes mixed with goat's milk.",
         "impactLevel": "minor",
         "side": "pro",
         "resolvedScoreValue": 50
       },
       {
-        "title": "slots into meals very easily",
-        "explanation": "Practical versatility matters a lot for dairy.",
+        "title": "the crumble format is genuinely useful",
+        "explanation": "You can spread flavour across a meal without needing a thick slab of cheese.",
         "impactLevel": "minor",
         "side": "pro",
         "resolvedScoreValue": 50
@@ -573,22 +597,22 @@
     ],
     "topCons": [
       {
-        "title": "format choices can drag it down fast",
-        "explanation": "The exact version and how it is used matter a lot.",
+        "title": "the salt is the real catch",
+        "explanation": "Brining pushes sodium to roughly 1.1 grams per 100 grams, so portions matter even before the saturated fat gets involved.",
         "impactLevel": "minor",
         "side": "con",
         "resolvedScoreValue": 50
       },
       {
-        "title": "not everyone tolerates dairy well",
-        "explanation": "That is a real use-case limitation.",
+        "title": "it is still a dairy food",
+        "explanation": "Milk allergy or poor dairy tolerance can rule it out completely.",
         "impactLevel": "minor",
         "side": "con",
         "resolvedScoreValue": 50
       },
       {
-        "title": "processing changes the category a lot",
-        "explanation": "The label alone does not tell the whole story.",
+        "title": "the sharp flavour can take over",
+        "explanation": "Feta works brilliantly as an accent, but it is not always what you want dominating the entire meal.",
         "impactLevel": "minor",
         "side": "con",
         "resolvedScoreValue": 50
@@ -597,7 +621,11 @@
     "narrationNotes": [
       "Strongest section: Proteins.",
       "Weakest section: Fats.",
-      "Final verdict: B tier."
+      "Final verdict: A tier."
     ]
+  },
+  "scriptOverride": {
+    "schemaVersion": "foodranked-script-overrides.v1",
+    "source": "production/episodes/feta/script-overrides.json"
   }
 }

@@ -10,6 +10,7 @@ const foodsDir = path.join(repoRoot, 'foods');
 const rulesetsDir = path.join(repoRoot, 'rulesets');
 const episodesDir = path.join(repoRoot, 'outputs', 'episodes');
 const dataDir = path.join(repoRoot, 'docs', 'data');
+const publishedFoodsDir = path.join(dataDir, 'foods');
 const scorerPath = path.join(repoRoot, 'scripts', 'foodranked-scorer.js');
 const finalisationConfig = path.join(repoRoot, 'config', 'finalisation-sample-foods.v1.json');
 const aminoAcidThresholdsPath = path.join(repoRoot, 'config', 'amino-acid-thresholds.v1.json');
@@ -139,6 +140,21 @@ function sameArray(left, right) {
     && Array.isArray(right)
     && left.length === right.length
     && left.every((value, index) => value === right[index]);
+}
+
+function sameJsonValue(left, right) {
+  return JSON.stringify(left) === JSON.stringify(right);
+}
+
+function auditSurfaceObject(errors, file, foodId, surface, field, expected, actual) {
+  if (sameJsonValue(expected, actual)) return 0;
+  issue(errors, file, `${surface} ${field} must match canonical foods source`, {
+    foodId,
+    field,
+    expected,
+    actual
+  });
+  return 1;
 }
 
 function sameTierThresholds(left, right) {
@@ -965,6 +981,133 @@ function auditGeneratedProteinDisplay(errors) {
   return { macroDisplayScripts: checked };
 }
 
+function sourceFoodsForPublishedAlignment() {
+  const finalIds = finalisationIds();
+  return listJson(foodsDir)
+    .filter(file => file.endsWith('.sample.json'))
+    .map(file => ({ file, food: readJson(file) }))
+    .filter(({ food }) => {
+      if (scope === 'finalisation') return finalIds.has(food.id);
+      if (scope === 'production') return needsStrictSourceEvidence(food, finalIds);
+      return true;
+    });
+}
+
+function parseFoodsIndexJs(file, errors) {
+  if (!fs.existsSync(file)) return null;
+  const text = fs.readFileSync(file, 'utf8');
+  const prefix = 'window.FOODS_INDEX = ';
+  const marker = ';\nwindow.FOODRANKED_DATA = ';
+  const end = text.indexOf(marker);
+  if (!text.startsWith(prefix) || end === -1) {
+    issue(errors, file, 'foods-index.js does not expose the expected generated FOODS_INDEX payload');
+    return null;
+  }
+  try {
+    return JSON.parse(text.slice(prefix.length, end));
+  } catch (error) {
+    issue(errors, file, 'foods-index.js contains invalid generated food JSON', { error: error.message });
+    return null;
+  }
+}
+
+function auditPublishedDataAlignment(errors) {
+  const sources = sourceFoodsForPublishedAlignment();
+  const indexFile = path.join(dataDir, 'foods-index.json');
+  const indexJsFile = path.join(dataDir, 'foods-index.js');
+  const batchFile = path.join(dataDir, 'batch-results.json');
+  const indexRows = fs.existsSync(indexFile) ? readJson(indexFile) : [];
+  const indexById = new Map(indexRows.map(food => [food.id, food]));
+  const batchPayload = fs.existsSync(batchFile) ? readJson(batchFile) : null;
+  const batchById = new Map((batchPayload?.details || [])
+    .map(item => item?.result)
+    .filter(result => result?.food?.id)
+    .map(result => [result.food.id, result]));
+  const indexJsRows = parseFoodsIndexJs(indexJsFile, errors);
+  let comparisons = 0;
+
+  if (indexJsRows && !sameJsonValue(indexRows, indexJsRows)) {
+    issue(errors, indexJsFile, 'foods-index.js payload must match foods-index.json exactly');
+  }
+
+  const indexedSourceFields = [
+    'name',
+    'foodType',
+    'identity',
+    'basis',
+    'header',
+    'metrics',
+    'metricProvenance',
+    'nutritionDataSources',
+    'sourceNotes',
+    'scoreReadiness',
+    'contextItems',
+    'scoreAdjustments'
+  ];
+  const normalizedIndexedSourceField = (food, field) => {
+    if (field === 'identity' || field === 'scoreReadiness') return food[field] || null;
+    if (field === 'metricProvenance') return food[field] || {};
+    if (field === 'nutritionDataSources' || field === 'sourceNotes' || field === 'scoreAdjustments') return food[field] || [];
+    if (field === 'contextItems') return food[field] || { pros: [], cons: [] };
+    return food[field] ?? null;
+  };
+
+  for (const { file, food } of sources) {
+    const publishedFile = path.join(publishedFoodsDir, path.basename(file));
+    if (!fs.existsSync(publishedFile)) {
+      issue(errors, publishedFile, 'published per-food JSON is missing', { foodId: food.id });
+    } else {
+      const published = readJson(publishedFile);
+      comparisons += 1;
+      if (!sameJsonValue(food, published)) {
+        issue(errors, publishedFile, 'published per-food JSON must match canonical foods source exactly', { foodId: food.id });
+      }
+    }
+
+    const indexed = indexById.get(food.id);
+    if (!indexed) {
+      issue(errors, indexFile, 'canonical food is missing from foods-index.json', { foodId: food.id });
+    } else {
+      for (const field of indexedSourceFields) {
+        comparisons += 1;
+        auditSurfaceObject(errors, indexFile, food.id, 'foods-index', field, normalizedIndexedSourceField(food, field), indexed[field] ?? null);
+      }
+
+      for (const section of indexed.episode?.script?.sections || []) {
+        for (const item of section.displayItems || []) {
+          if (!item?.metricKey || item.displaySource !== 'scored') continue;
+          const expected = food.metrics?.[item.metricKey] ?? null;
+          const actual = item.dvPercent != null ? item.dvPercent : (item.value ?? null);
+          comparisons += 1;
+          if (!sameJsonValue(expected, actual)) {
+            issue(errors, indexFile, 'scored episode display value must match canonical food metric', {
+              foodId: food.id,
+              sectionKey: section.key,
+              metricKey: item.metricKey,
+              expected,
+              actual
+            });
+          }
+        }
+      }
+    }
+
+    const batch = batchById.get(food.id);
+    if (!batch) {
+      issue(errors, batchFile, 'canonical food is missing a successful batch score', { foodId: food.id });
+    } else {
+      comparisons += 2;
+      auditSurfaceObject(errors, batchFile, food.id, 'batch-results', 'header', food.header || {}, batch.header || {});
+      auditSurfaceObject(errors, batchFile, food.id, 'batch-results', 'foodMetrics', food.metrics || {}, batch.foodMetrics || {});
+    }
+  }
+
+  return {
+    publishedAlignmentFoods: sources.length,
+    publishedAlignmentComparisons: comparisons
+  };
+}
+
 function main() {
   const errors = [];
   const warnings = [];
@@ -974,6 +1117,7 @@ function main() {
   const generatedStats = auditGeneratedText(errors);
   const tierDistributionStats = auditGeneratedTierDistribution(errors);
   const proteinDisplayStats = auditGeneratedProteinDisplay(errors);
+  const publishedAlignmentStats = auditPublishedDataAlignment(errors);
   const result = {
     status: errors.length ? 'fail' : 'ok',
     scope,
@@ -986,7 +1130,8 @@ function main() {
       ...ruleStats,
       ...generatedStats,
       ...tierDistributionStats,
-      ...proteinDisplayStats
+      ...proteinDisplayStats,
+      ...publishedAlignmentStats
     },
     errors,
     warnings: args.has('--show-warnings') ? warnings : warnings.slice(0, 80)

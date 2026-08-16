@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 const fs = require('fs');
 const path = require('path');
+const { spawnSync } = require('child_process');
 
 const repoRoot = path.resolve(__dirname, '..');
 const foodsDir = path.join(repoRoot, 'foods');
@@ -11,6 +12,13 @@ const publishedFoodsDir = path.join(outDir, 'foods');
 const docsAppDir = path.join(repoRoot, 'docs', 'app');
 const docsAudioDir = path.join(repoRoot, 'docs', 'audio', 'episodes');
 const sourceSpritesDir = path.join(repoRoot, 'sprites');
+const scoreAllPath = path.join(repoRoot, 'scripts', 'foodranked-score-all.js');
+const foodsIndexConsumerHtmlPaths = [
+  path.join(repoRoot, 'docs', 'app', 'index.html'),
+  path.join(repoRoot, 'docs', 'database', 'index.html'),
+  path.join(repoRoot, 'docs', 'display-builder-v2', 'index.html'),
+  path.join(repoRoot, 'docs', 'video-builder-v2', 'index.html')
+];
 const { completeSfxProfile } = require('./lib/sfx-profiles');
 const { completeMusicProfile } = require('./lib/music-profiles');
 const { completeVoiceProfile, narrationVolumeMetadata } = require('./lib/voice-profiles');
@@ -20,6 +28,45 @@ const SPLIT_AUDIO_FALLBACK_BLOCK_GAP_SECONDS = 0.08;
 function ensureDir(dir) { fs.mkdirSync(dir, { recursive: true }); }
 function readJson(file) { return JSON.parse(fs.readFileSync(file, 'utf8')); }
 function exists(file) { return fs.existsSync(file); }
+
+function writeTextIfChanged(file, text) {
+  if (exists(file) && fs.readFileSync(file, 'utf8') === text) return false;
+  fs.writeFileSync(file, text);
+  return true;
+}
+
+function syncPublishedFood(sourceFile, publishedFile) {
+  const sourceText = fs.readFileSync(sourceFile, 'utf8');
+  writeTextIfChanged(publishedFile, sourceText);
+}
+
+function refreshBatchResults() {
+  const result = spawnSync(process.execPath, [scoreAllPath], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+    maxBuffer: 100 * 1024 * 1024
+  });
+  if (result.status !== 0) {
+    throw new Error((result.stderr || result.stdout || 'Batch scoring failed').trim());
+  }
+  const payload = JSON.parse(result.stdout);
+  if (payload.status !== 'ok') throw new Error('Batch scoring did not return an ok result.');
+  writeTextIfChanged(path.join(outDir, 'batch-results.json'), `${JSON.stringify(payload, null, 2)}\n`);
+}
+
+function refreshFoodsIndexConsumerCacheTokens(generatedAt) {
+  const token = `data-${String(generatedAt || '').replace(/\D/g, '').slice(0, 14) || 'current'}`;
+  for (const file of foodsIndexConsumerHtmlPaths) {
+    if (!exists(file)) continue;
+    const source = fs.readFileSync(file, 'utf8');
+    const pattern = /(<script src="\.\.\/data\/foods-index\.js\?v=)[^"]+("><\/script>)/;
+    if (!pattern.test(source)) {
+      throw new Error(`Could not refresh foods-index cache token in ${path.relative(repoRoot, file)}`);
+    }
+    const updated = source.replace(pattern, `$1${token}$2`);
+    writeTextIfChanged(file, updated);
+  }
+}
 
 function readPngDimensions(file) {
   if (!exists(file)) return null;
@@ -198,6 +245,10 @@ function ruleSummary(ruleset) {
   return summary;
 }
 
+ensureDir(outDir);
+ensureDir(publishedFoodsDir);
+refreshBatchResults();
+
 const foods = fs.readdirSync(foodsDir)
   .filter(name => name.endsWith('.sample.json'))
   .sort()
@@ -205,6 +256,7 @@ const foods = fs.readdirSync(foodsDir)
     const file = path.join(foodsDir, name);
     const food = readJson(file);
     const publishedFoodFile = path.join(publishedFoodsDir, name);
+    syncPublishedFood(file, publishedFoodFile);
     const publishedFood = exists(publishedFoodFile) ? readJson(publishedFoodFile) : null;
     // The builders fetch item.path from docs/data/foods; keep indexed nutrition in step with that public copy.
     const displayFood = publishedFood ? {
@@ -332,7 +384,6 @@ const payload = {
 
 const outFile = path.join(outDir, 'foods-index.json');
 const outJsFile = path.join(outDir, 'foods-index.js');
-ensureDir(outDir);
 fs.writeFileSync(outFile, JSON.stringify(foods, null, 2) + '\n');
 const foodsIndexJs = JSON.stringify(foods);
 const payloadMetadataJs = JSON.stringify({
@@ -343,4 +394,5 @@ fs.writeFileSync(
   outJsFile,
   `window.FOODS_INDEX = ${foodsIndexJs};\nwindow.FOODRANKED_DATA = ${payloadMetadataJs};\nwindow.FOODRANKED_DATA.foods = window.FOODS_INDEX;\n`
 );
+refreshFoodsIndexConsumerCacheTokens(payload.generatedAt);
 console.log(`Wrote ${outFile} and ${outJsFile} with ${foods.length} foods.`);

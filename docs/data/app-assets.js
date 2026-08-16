@@ -514,6 +514,102 @@
     "sizeBytes": 1153
   },
   {
+    "id": "audio.episodes.feta.voice.v2.blocks",
+    "label": "Voice V2 Blocks",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/feta/voice-v2-blocks.json",
+    "mimeType": "application/json",
+    "sizeBytes": 14517
+  },
+  {
+    "id": "audio.episodes.feta.voice.v2.blocks.01.hook.food.timing",
+    "label": "01 Hook Food Timing",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/feta/voice-v2-blocks/01-hook_food-timing.json",
+    "mimeType": "application/json",
+    "sizeBytes": 1000
+  },
+  {
+    "id": "audio.episodes.feta.voice.v2.blocks.02.hook.ranked.timing",
+    "label": "02 Hook Ranked Timing",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/feta/voice-v2-blocks/02-hook_ranked-timing.json",
+    "mimeType": "application/json",
+    "sizeBytes": 1148
+  },
+  {
+    "id": "audio.episodes.feta.voice.v2.blocks.03.fats.timing",
+    "label": "03 Fats Timing",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/feta/voice-v2-blocks/03-fats-timing.json",
+    "mimeType": "application/json",
+    "sizeBytes": 28642
+  },
+  {
+    "id": "audio.episodes.feta.voice.v2.blocks.04.carbs.timing",
+    "label": "04 Carbs Timing",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/feta/voice-v2-blocks/04-carbs-timing.json",
+    "mimeType": "application/json",
+    "sizeBytes": 20957
+  },
+  {
+    "id": "audio.episodes.feta.voice.v2.blocks.05.proteins.timing",
+    "label": "05 Proteins Timing",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/feta/voice-v2-blocks/05-proteins-timing.json",
+    "mimeType": "application/json",
+    "sizeBytes": 28413
+  },
+  {
+    "id": "audio.episodes.feta.voice.v2.blocks.06.vitamins.timing",
+    "label": "06 Vitamins Timing",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/feta/voice-v2-blocks/06-vitamins-timing.json",
+    "mimeType": "application/json",
+    "sizeBytes": 28499
+  },
+  {
+    "id": "audio.episodes.feta.voice.v2.blocks.07.minerals.timing",
+    "label": "07 Minerals Timing",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/feta/voice-v2-blocks/07-minerals-timing.json",
+    "mimeType": "application/json",
+    "sizeBytes": 27812
+  },
+  {
+    "id": "audio.episodes.feta.voice.v2.blocks.08.pros.timing",
+    "label": "08 Pros Timing",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/feta/voice-v2-blocks/08-pros-timing.json",
+    "mimeType": "application/json",
+    "sizeBytes": 29650
+  },
+  {
+    "id": "audio.episodes.feta.voice.v2.blocks.09.cons.timing",
+    "label": "09 Cons Timing",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/feta/voice-v2-blocks/09-cons-timing.json",
+    "mimeType": "application/json",
+    "sizeBytes": 30841
+  },
+  {
+    "id": "audio.episodes.feta.voice.v2.blocks.10.closing.summary.timing",
+    "label": "10 Closing Summary Timing",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/feta/voice-v2-blocks/10-closing_summary-timing.json",
+    "mimeType": "application/json",
+    "sizeBytes": 34484
+  },
+  {
+    "id": "audio.episodes.feta.voice.v2.blocks.11.final.reveal.timing",
+    "label": "11 Final Reveal Timing",
+    "kind": "audio-manifest",
+    "path": "audio/episodes/feta/voice-v2-blocks/11-final_reveal-timing.json",
+    "mimeType": "application/json",
+    "sizeBytes": 1145
+  },
+  {
     "id": "audio.episodes.greek.yogurt.voice.v1.blocks",
     "label": "Voice V1 Blocks",
     "kind": "audio-manifest",
@@ -983,7 +1079,7 @@
     "kind": "data",
     "path": "data/foods-index.js",
     "mimeType": "text/javascript",
-    "sizeBytes": 9013035
+    "sizeBytes": 9006431
   },
   {
     "id": "data.foods.index.json",
@@ -991,7 +1087,7 @@
     "kind": "data",
     "path": "data/foods-index.json",
     "mimeType": "application/json",
-    "sizeBytes": 15868283
+    "sizeBytes": 15856245
   },
   {
     "id": "data.foods.acorns.sample",
@@ -5472,6 +5568,94 @@
     "path": "audio/episodes/feta/voice-v1-blocks/11-final_reveal.mp3",
     "mimeType": "audio/mpeg",
     "sizeBytes": 13836
+  },
+  {
+    "id": "audio.episodes.feta.voice.v2.blocks.01.hook.food",
+    "label": "01 Hook Food",
+    "kind": "narration-audio",
+    "path": "audio/episodes/feta/voice-v2-blocks/01-hook_food.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 12164
+  },
+  {
+    "id": "audio.episodes.feta.voice.v2.blocks.02.hook.ranked",
+    "label": "02 Hook Ranked",
+    "kind": "narration-audio",
+    "path": "audio/episodes/feta/voice-v2-blocks/02-hook_ranked.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 11328
+  },
+  {
+    "id": "audio.episodes.feta.voice.v2.blocks.03.fats",
+    "label": "03 Fats",
+    "kind": "narration-audio",
+    "path": "audio/episodes/feta/voice-v2-blocks/03-fats.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 377043
+  },
+  {
+    "id": "audio.episodes.feta.voice.v2.blocks.04.carbs",
+    "label": "04 Carbs",
+    "kind": "narration-audio",
+    "path": "audio/episodes/feta/voice-v2-blocks/04-carbs.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 242460
+  },
+  {
+    "id": "audio.episodes.feta.voice.v2.blocks.05.proteins",
+    "label": "05 Proteins",
+    "kind": "narration-audio",
+    "path": "audio/episodes/feta/voice-v2-blocks/05-proteins.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 314767
+  },
+  {
+    "id": "audio.episodes.feta.voice.v2.blocks.06.vitamins",
+    "label": "06 Vitamins",
+    "kind": "narration-audio",
+    "path": "audio/episodes/feta/voice-v2-blocks/06-vitamins.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 308497
+  },
+  {
+    "id": "audio.episodes.feta.voice.v2.blocks.07.minerals",
+    "label": "07 Minerals",
+    "kind": "narration-audio",
+    "path": "audio/episodes/feta/voice-v2-blocks/07-minerals.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 293869
+  },
+  {
+    "id": "audio.episodes.feta.voice.v2.blocks.08.pros",
+    "label": "08 Pros",
+    "kind": "narration-audio",
+    "path": "audio/episodes/feta/voice-v2-blocks/08-pros.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 330231
+  },
+  {
+    "id": "audio.episodes.feta.voice.v2.blocks.09.cons",
+    "label": "09 Cons",
+    "kind": "narration-audio",
+    "path": "audio/episodes/feta/voice-v2-blocks/09-cons.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 341934
+  },
+  {
+    "id": "audio.episodes.feta.voice.v2.blocks.10.closing.summary",
+    "label": "10 Closing Summary",
+    "kind": "narration-audio",
+    "path": "audio/episodes/feta/voice-v2-blocks/10-closing_summary.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 337755
+  },
+  {
+    "id": "audio.episodes.feta.voice.v2.blocks.11.final.reveal",
+    "label": "11 Final Reveal",
+    "kind": "narration-audio",
+    "path": "audio/episodes/feta/voice-v2-blocks/11-final_reveal.mp3",
+    "mimeType": "audio/mpeg",
+    "sizeBytes": 14254
   },
   {
     "id": "audio.episodes.greek.yogurt.voice.v1.blocks.01.hook.food",

@@ -430,7 +430,7 @@
   const OUTRO_CTA_WAVE_PULSE_SECONDS = 0.46;
   const OUTRO_CTA_WAVE_LIFT = 2.2;
   const OUTRO_CTA_WAVE_SCALE = 0.14;
-  const AVAILABLE_FOOD_IMAGE_IDS = new Set(['bacon', 'black-beans', 'buckwheat', 'chia-seeds', 'cola-regular', 'cranberries', 'greek-yogurt', 'hazelnuts', 'kale', 'raspberries', 'white-potato']);
+  const AVAILABLE_FOOD_IMAGE_IDS = new Set(['bacon', 'black-beans', 'buckwheat', 'chia-seeds', 'cola-regular', 'cranberries', 'feta', 'greek-yogurt', 'hazelnuts', 'kale', 'kefir-plain', 'pork-loin', 'raspberries', 'white-potato']);
   const FOOD_IMAGE_BACON_REFERENCE = {
     x: 8,
     y: 10,

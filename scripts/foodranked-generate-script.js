@@ -24,7 +24,7 @@ const DEFAULT_PROTEIN_DISPLAY_POLICY = {
     'collagen_g',
     'essential_amino_acids_score',
     'nonessential_amino_acids_score',
-    'bioavailability_percent'
+    'protein_digestibility_percent'
   ],
   hiddenFallbackMetricKey: 'protein_g_fallback',
   missingValueDisplay: 'N/A',
@@ -33,7 +33,7 @@ const DEFAULT_PROTEIN_DISPLAY_POLICY = {
 const PROTEIN_SUBMACRO_KEYS = DEFAULT_PROTEIN_DISPLAY_POLICY.visibleRows;
 const PROTEIN_QUALITY_METRIC_KEYS = new Set([
   'essential_amino_acids_score',
-  'bioavailability_percent',
+  'protein_digestibility_percent',
   'nonessential_amino_acids_score'
 ]);
 const DISPLAY_BACKED_NARRATION_METRIC_KEYS = new Set([
@@ -41,7 +41,7 @@ const DISPLAY_BACKED_NARRATION_METRIC_KEYS = new Set([
   'collagen_g',
   'essential_amino_acids_score',
   'nonessential_amino_acids_score',
-  'bioavailability_percent'
+  'protein_digestibility_percent'
 ]);
 const COLLAGEN_NARRATION_FOOD_TYPES = new Set(['meats']);
 const LOW_STARCH_NARRATION_NEUTRAL_FOOD_TYPES = new Set(['dairy', 'fruits']);
@@ -51,7 +51,7 @@ const LOW_FAT_UNSATURATED_NARRATION_NEUTRAL_FOOD_TYPES = new Set(['fruits', 'veg
 const PROTEIN_QUALITY_VISIBLE_METRIC_KEYS = new Set([
   'essential_amino_acids_score',
   'nonessential_amino_acids_score',
-  'bioavailability_percent'
+  'protein_digestibility_percent'
 ]);
 const LONG_MG_DISPLAY_METRIC_KEYS = new Set(['omega3_mg', 'cholesterol_mg']);
 const LONG_MG_DISPLAY_DIGITS = 5;
@@ -78,7 +78,7 @@ const MACRO_SECTION_LABELS = {
 const MACRO_SECTION_SUBMACRO_KEYS = {
   fats: ['saturated_fat_g', 'polyunsaturated_fat_g', 'omega3_mg', 'cholesterol_mg'],
   carbs: ['fibre_g', 'sugar_g', 'starch_g', 'glycemic_index'],
-  proteins: ['collagen_g', 'essential_amino_acids_score', 'nonessential_amino_acids_score', 'bioavailability_percent']
+  proteins: ['collagen_g', 'essential_amino_acids_score', 'nonessential_amino_acids_score', 'protein_digestibility_percent']
 };
 const DEFAULT_SUBMACRO_POLARITIES = {
   saturated_fat_g: 'higher_worse',
@@ -93,7 +93,7 @@ const DEFAULT_SUBMACRO_POLARITIES = {
   collagen_g: 'higher_better',
   essential_amino_acids_score: 'higher_better',
   nonessential_amino_acids_score: 'higher_better',
-  bioavailability_percent: 'higher_better'
+  protein_digestibility_percent: 'higher_better'
 };
 const SUBMACRO_DISPLAY_DEFAULT_VALUES = {
   saturated_fat_g: 0,
@@ -108,9 +108,9 @@ const SUBMACRO_DISPLAY_DEFAULT_VALUES = {
   collagen_g: 0,
   essential_amino_acids_score: 0,
   nonessential_amino_acids_score: 0,
-  bioavailability_percent: 0
+  protein_digestibility_percent: 0
 };
-const BIOAVAILABILITY_DISPLAY_ESTIMATES_BY_TYPE = {
+const PROTEIN_DIGESTIBILITY_DISPLAY_ESTIMATES_BY_TYPE = {
   meats: 92,
   dairy: 90,
   legumes: 72,
@@ -440,7 +440,7 @@ function estimatedCollagenDisplayValue(result) {
   return 0.8;
 }
 
-function estimatedBioavailabilityDisplayValue(result) {
+function estimatedProteinDigestibilityDisplayValue(result) {
   const key = textKeyForFood(result);
   if (/whey/.test(key)) return 99;
   if (/protein.?bar/.test(key)) return 80;
@@ -454,7 +454,7 @@ function estimatedBioavailabilityDisplayValue(result) {
   if (/protein/.test(key)) return 80;
   if (/cocoa/.test(key)) return 55;
   if (/matcha/.test(key)) return 45;
-  return BIOAVAILABILITY_DISPLAY_ESTIMATES_BY_TYPE[result.food?.foodType] ?? 50;
+  return PROTEIN_DIGESTIBILITY_DISPLAY_ESTIMATES_BY_TYPE[result.food?.foodType] ?? 50;
 }
 
 function proteinDisplayQualityScore(result) {
@@ -500,9 +500,9 @@ function proteinDisplayEstimate(result, metricKey) {
       basis: 'display-only estimate from FoodRanked protein source class; source metric remains N/A unless directly sourced'
     };
   }
-  if (metricKey === 'bioavailability_percent') {
+  if (metricKey === 'protein_digestibility_percent') {
     return {
-      value: estimatedBioavailabilityDisplayValue(result),
+      value: estimatedProteinDigestibilityDisplayValue(result),
       basis: 'display-only estimate from FoodRanked protein source class; not a measured digestibility value'
     };
   }
@@ -986,7 +986,7 @@ function strongestMetricLine(result, sectionKey) {
   if (sectionKey === 'proteins') {
     const proteinMetrics = topMetricsForSection(result, sectionKey, 4);
     const proteinAmount = proteinMetrics.find(metric => metric.metricKey === 'protein_g_fallback');
-    const bioavailability = proteinMetrics.find(metric => metric.metricKey === 'bioavailability_percent');
+    const proteinDigestibility = proteinMetrics.find(metric => metric.metricKey === 'protein_digestibility_percent');
     const essentialAmino = proteinMetrics.find(metric => metric.metricKey === 'essential_amino_acids_score');
     const nonessentialAmino = proteinMetrics.find(metric => metric.metricKey === 'nonessential_amino_acids_score');
     const collagen = proteinMetrics.find(metric => metric.metricKey === 'collagen_g');
@@ -994,18 +994,18 @@ function strongestMetricLine(result, sectionKey) {
     if (essentialAmino && Number(essentialAmino.value) < 6) {
       return `${metricValuePhrase(essentialAmino)}, after trace amino acids are filtered out`;
     }
-    if (essentialAmino && bioavailability) {
-      return `${metricValuePhrase(essentialAmino)}, with ${metricValueText(bioavailability)} bioavailability`;
+    if (essentialAmino && proteinDigestibility) {
+      return `${metricValuePhrase(essentialAmino)}, with protein digestibility at ${metricValueText(proteinDigestibility)}`;
     }
-    if (bioavailability) return `${metricValuePhrase(bioavailability)}, one of the best parts of the protein story`;
+    if (proteinDigestibility) return `${metricValuePhrase(proteinDigestibility)}, one of the best parts of the protein story`;
     if (essentialAmino) return `${metricValuePhrase(essentialAmino)}, one of the better parts here`;
     if (nonessentialAmino) return `${metricValuePhrase(nonessentialAmino)}, adding supporting amino acid quality`;
     if (collagen) return `${metricValuePhrase(collagen)}, a specific protein-side detail`;
 
-    const scoredBioavailability = metrics.find(metric => metric.metricKey === 'bioavailability_percent' && metric.weightedScore > 0);
+    const scoredProteinDigestibility = metrics.find(metric => metric.metricKey === 'protein_digestibility_percent' && metric.weightedScore > 0);
     const scoredEssentialAmino = metrics.find(metric => metric.metricKey === 'essential_amino_acids_score' && metric.weightedScore > 0);
-    if (scoredBioavailability && scoredEssentialAmino) return `${metricValuePhrase(scoredBioavailability)}, and amino acid quality is strong`;
-    if (scoredBioavailability) return `${metricValuePhrase(scoredBioavailability)}, one of the best parts of the protein story`;
+    if (scoredProteinDigestibility && scoredEssentialAmino) return `${metricValuePhrase(scoredProteinDigestibility)}, and amino acid quality is strong`;
+    if (scoredProteinDigestibility) return `${metricValuePhrase(scoredProteinDigestibility)}, one of the best parts of the protein story`;
     if (scoredEssentialAmino) return `${metricValuePhrase(scoredEssentialAmino)}, one of the better parts here`;
   }
 
@@ -1040,7 +1040,7 @@ function bestMetricContext(metric, sectionKey) {
       ? 'making the protein useful for repair and maintenance'
       : 'after trace amino acids are filtered out',
     nonessential_amino_acids_score: 'adding supporting amino acid coverage',
-    bioavailability_percent: 'helping more of that protein count',
+    protein_digestibility_percent: 'meaning more of that protein can be digested and absorbed',
     vitamin_b12_dv: 'useful for nerve and blood-cell support',
     vitamin_d_dv: 'useful for bone and immune support',
     vitamin_c_dv: 'useful for collagen formation and antioxidant support',
@@ -1079,7 +1079,7 @@ function weakMetricImpactContext(metric, sectionKey) {
     collagen_g: 'not adding much structural protein',
     essential_amino_acids_score: 'not giving much repair-and-maintenance protein support',
     nonessential_amino_acids_score: 'not bringing much amino-acid coverage',
-    bioavailability_percent: 'not great for how much protein your body can use',
+    protein_digestibility_percent: 'meaning less of that protein is digested and absorbed',
     vitamin_b12_dv: 'not bringing much nerve or blood-cell support',
     vitamin_d_dv: 'not bringing much bone or immune support',
     vitamin_c_dv: 'not bringing much collagen or antioxidant support',
@@ -1247,7 +1247,7 @@ function preferredProteinQualityNarrationMetric(metrics, exclude = null) {
     ))
     .map(metric => [metric.metricKey, metric]));
   return byKey.get('essential_amino_acids_score')
-    || byKey.get('bioavailability_percent')
+    || byKey.get('protein_digestibility_percent')
     || byKey.get('nonessential_amino_acids_score')
     || null;
 }
@@ -1321,7 +1321,7 @@ function outstandingMacroLine(result, sectionKey) {
     const byKey = key => metrics.find(metric => metric.metricKey === key);
     const proteinAmount = byKey('protein_g_fallback');
     const essentialAmino = byKey('essential_amino_acids_score');
-    const bioavailability = byKey('bioavailability_percent');
+    const proteinDigestibility = byKey('protein_digestibility_percent');
     const score = result.sectionScores?.proteins ?? null;
     const gateLine = proteinQualityGateLine(result);
     if (gateLine) {
@@ -1339,7 +1339,7 @@ function outstandingMacroLine(result, sectionKey) {
         secondMetricLine(second, result, sectionKey)
       ]).replace(/[.]$/g, '');
     }
-    const bestMetric = essentialAmino || bioavailability || strongestAvailableMetric(metrics);
+    const bestMetric = essentialAmino || proteinDigestibility || strongestAvailableMetric(metrics);
     const secondPool = weakNarrationMetrics(result, metrics, sectionKey, bestMetric);
     const second = weakestOutstandingMetric(secondPool, bestMetric) || weakestAvailableMetric(secondPool, bestMetric, sectionKey);
     const essentialAminoValue = Number(essentialAmino?.value);
@@ -1569,7 +1569,7 @@ function shortMetricLabel(metricKey) {
     .replace(/polyunsaturated fat/i, 'fat quality')
     .replace(/protein g fallback/i, 'protein')
     .replace(/essential amino acids score/i, 'protein quality')
-    .replace(/bioavailability/i, 'protein quality');
+    .replace(/protein digestibility(?: percent)?/i, 'protein quality');
 }
 
 function positiveSectionHighlight(result, sectionKey) {
@@ -1580,7 +1580,7 @@ function positiveSectionHighlight(result, sectionKey) {
   if (sectionKey === 'proteins') {
     const proteinGrams = headerMacro(result, 'protein_g') ?? 0;
     const hasMeaningfulQualitySignal = metrics.some(metric => {
-      if (!['bioavailability_percent', 'essential_amino_acids_score', 'nonessential_amino_acids_score'].includes(metric.metricKey)) return false;
+      if (!['protein_digestibility_percent', 'essential_amino_acids_score', 'nonessential_amino_acids_score'].includes(metric.metricKey)) return false;
       return (toFiniteNumber(metric.weightedScore) ?? 0) >= 60 || (toFiniteNumber(metric.score) ?? 0) >= 60;
     });
     if (proteinGrams >= 12 || score >= 60 || (proteinGrams >= 8 && hasMeaningfulQualitySignal)) return 'protein';

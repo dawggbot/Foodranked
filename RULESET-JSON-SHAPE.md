@@ -89,7 +89,7 @@ Keep the JSON split into:
       "collagen_g",
       "essential_amino_acids_score",
       "nonessential_amino_acids_score",
-      "bioavailability_percent"
+      "protein_digestibility_percent"
     ],
     "hiddenFallbackMetricKey": "protein_g_fallback",
     "missingValueDisplay": "N/A",
@@ -174,7 +174,7 @@ Every v1 ruleset should include `proteinDisplay`, and it should lock these four 
 1. `collagen_g`
 2. `essential_amino_acids_score`
 3. `nonessential_amino_acids_score`
-4. `bioavailability_percent`
+4. `protein_digestibility_percent`
 
 The related `proteinFallback.metricKey` is intentionally hidden from the visible protein row list:
 - `protein_g_fallback` may score the proteins section when amino-acid quality is missing, skipped by the useful-protein gate, or intentionally withheld.
@@ -182,7 +182,7 @@ The related `proteinFallback.metricKey` is intentionally hidden from the visible
 - it must not be displayed as a protein submacro row, because the protein macro bubble already displays `protein_g`
 
 Final production entries fill missing protein-quality fields from exact-food database data first, then exact-identity Google research with AI Overview values checked against a linked or corroborating source, and a source-backed protein analogue only as the last resort. Analogue-derived EAA/NEAA scores require source-backed `amino_acids_mg`; provenance records the matched identity, preparation relationship, and derivation.
-Plant collagen resolves to `0g`. Bioavailability may use food-specific research or a documented category estimate.
+Plant collagen resolves to `0g`. Protein digestibility may use food-specific research or a documented category estimate. It represents protein digested and absorbed, not the fraction ultimately retained or used; preserve food-form and measurement-method mismatches in provenance.
 Display defaults of `0g`, `0/9`, `0/11`, and `0%` remain draft/runtime safeguards. They must not be the unreviewed basis of a finalized entry.
 Finished narration states the selected production values confidently while the data layer preserves whether each value was exact, analogue-derived, or estimated.
 

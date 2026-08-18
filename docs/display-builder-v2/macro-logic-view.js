@@ -49,7 +49,7 @@
   const PROTEIN_QUALITY_METRIC_KEYS = new Set([
     'essential_amino_acids_score',
     'nonessential_amino_acids_score',
-    'bioavailability_percent'
+    'protein_digestibility_percent'
   ]);
 
   const DEFAULT_SUBMACRO_POLARITIES = {
@@ -65,7 +65,7 @@
     collagen_g: 'higher_better',
     essential_amino_acids_score: 'higher_better',
     nonessential_amino_acids_score: 'higher_better',
-    bioavailability_percent: 'higher_better'
+    protein_digestibility_percent: 'higher_better'
   };
   const SUBMACRO_DISPLAY_DEFAULT_VALUES = {
     saturated_fat_g: 0,
@@ -80,9 +80,9 @@
     collagen_g: 0,
     essential_amino_acids_score: 0,
     nonessential_amino_acids_score: 0,
-    bioavailability_percent: 0
+    protein_digestibility_percent: 0
   };
-  const BIOAVAILABILITY_DISPLAY_ESTIMATES_BY_TYPE = {
+  const PROTEIN_DIGESTIBILITY_DISPLAY_ESTIMATES_BY_TYPE = {
     meats: 92,
     dairy: 90,
     legumes: 72,
@@ -109,7 +109,7 @@
     collagen_g: 'COLLAGEN',
     essential_amino_acids_score: 'EAA',
     nonessential_amino_acids_score: 'NEAA',
-    bioavailability_percent: 'BIOAVAIL.'
+    protein_digestibility_percent: 'DIGEST.'
   };
 
   const DEFAULT_HIGHER_BETTER_BANDS = [
@@ -550,7 +550,7 @@
     return 0.8;
   }
 
-  function estimatedBioavailabilityDisplayValue(food) {
+  function estimatedProteinDigestibilityDisplayValue(food) {
     const key = textKeyForFood(food);
     if (/whey/.test(key)) return 99;
     if (/protein.?bar/.test(key)) return 80;
@@ -564,7 +564,7 @@
     if (/protein/.test(key)) return 80;
     if (/cocoa/.test(key)) return 55;
     if (/matcha/.test(key)) return 45;
-    return BIOAVAILABILITY_DISPLAY_ESTIMATES_BY_TYPE[normalizeFoodType(food?.foodType)] ?? 50;
+    return PROTEIN_DIGESTIBILITY_DISPLAY_ESTIMATES_BY_TYPE[normalizeFoodType(food?.foodType)] ?? 50;
   }
 
   function proteinDisplayQualityScore(food) {
@@ -604,7 +604,7 @@
 
   function proteinDisplayEstimate(food, metricKey) {
     if (metricKey === 'collagen_g') return estimatedCollagenDisplayValue(food);
-    if (metricKey === 'bioavailability_percent') return estimatedBioavailabilityDisplayValue(food);
+    if (metricKey === 'protein_digestibility_percent') return estimatedProteinDigestibilityDisplayValue(food);
     const score = proteinDisplayQualityScore(food);
     if (score == null) return null;
     if (metricKey === 'essential_amino_acids_score') return clampRounded(Math.floor((score / 100) * 9), 0, 9);

@@ -35,7 +35,7 @@ const PROTEIN_SCORE_LIMITS = {
   collagen_g: { maxFromHeader: 'protein_g' },
   essential_amino_acids_score: { min: 0, max: 9 },
   nonessential_amino_acids_score: { min: 0, max: 11 },
-  bioavailability_percent: { min: 0, max: 100 }
+  protein_digestibility_percent: { min: 0, max: 100 }
 };
 
 function readJson(file) {

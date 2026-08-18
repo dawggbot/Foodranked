@@ -66,7 +66,7 @@ These are the real inputs used to build the section scores:
   - collagen
   - essential amino acids
   - non-essential amino acids
-  - bioavailability
+  - protein digestibility
 - vitamins
 - minerals
 - contextual pros
@@ -129,9 +129,9 @@ Final production entries must give every required visible submacro a numeric wor
 Any visible numeric subrow must resolve a red/green arrow band. Use `not_applicable` only when a row is structurally irrelevant to the food, such as plant collagen, and store the defensible numeric zero used by the display contract.
 Record each analogue or estimate in metric provenance with the matched record, preparation relationship, derivation, and source tier. These values may be stored and scored as the entry's production working profile, but they must not be mislabeled as exact analytical measurements.
 Presentation-only defaults remain runtime safety fallbacks for incomplete drafts. They must not survive finalization as the basis of a production entry.
-Protein rows follow the same hierarchy. Search for exact-food amino-acid and digestibility research before using another protein analogue. EAA/NEAA values should be derived from source-backed amino-acid rows for the exact food or last-resort analogue; bioavailability may use food-specific research, a corroborated Google AI Overview estimate, or a documented category estimate. Finished narration states the selected values directly and does not narrate sourcing uncertainty.
+Protein rows follow the same hierarchy. Search for exact-food amino-acid and digestibility research before using another protein analogue. EAA/NEAA values should be derived from source-backed amino-acid rows for the exact food or last-resort analogue; protein digestibility may use food-specific research, a corroborated Google AI Overview estimate, or a documented category estimate. Prefer true ileal protein digestibility because it reflects protein digested and amino acids absorbed by the end of the small intestine. Do not describe this percentage as protein actually retained or used by the body; that is a utilisation outcome such as NPPU. Finished narration states the selected values directly and does not narrate sourcing uncertainty.
 
-Protein has an additional locked display contract: the visible rows are collagen, essential amino acids, non-essential amino acids, and bioavailability. `protein_g_fallback` can score and narrate weak/ungated protein sections, but it is not a visible submacro because the macro bubble already displays protein grams.
+Protein has an additional locked display contract: the visible rows are collagen, essential amino acids, non-essential amino acids, and protein digestibility. `protein_g_fallback` can score and narrate weak/ungated protein sections, but it is not a visible submacro because the macro bubble already displays protein grams.
 
 ## Step 3: vitamin and mineral DV scoring
 
@@ -271,7 +271,7 @@ That matters for metrics kept in the schema for display, future use, or category
 ## Step 9: protein fallback policy
 
 Protein-quality proxies are still uneven across the current food library.
-When amino-acid or bioavailability fields are missing, weak, intentionally withheld, or not present in a useful protein amount, the ruleset may use a `proteinFallback` based on plain `protein_g` from the header.
+When amino-acid or protein digestibility fields are missing, weak, intentionally withheld, or not present in a useful protein amount, the ruleset may use a `proteinFallback` based on plain `protein_g` from the header.
 
 Amino-acid quality must not be counted from presence alone. The scorer only counts EAAs/NEAAs when source-backed `amino_acids_mg` values show that the specific amino-acid group clears the current useful-amount threshold in `config/amino-acid-thresholds.v1.json`.
 
@@ -288,11 +288,11 @@ If the food does not provide enough protein for amino-acid quality to matter, th
 This is the intended bridge rule for v1:
 - prefer exact-food protein submetrics when they are source-backed and trusted at the specific amino-acid level
 - when exact database rows are absent, search Google for exact-food amino-acid research first; if none exists, use the closest defensible analogue's source-backed `amino_acids_mg`, scaled to the exact food's protein amount when appropriate, and record that derivation in provenance
-- skip amino-acid and bioavailability scoring below the food type's useful-protein gate
+- skip amino-acid and protein digestibility scoring below the food type's useful-protein gate
 - skip aggregate amino-acid proxy scores unless they were derived from source-backed `amino_acids_mg`
-- use food-specific digestibility research or a documented category estimate for bioavailability when no exact measurement exists
+- use food-specific digestibility research or a documented category estimate for protein digestibility when no exact measurement exists; record isolate, preparation, species, or method mismatches in provenance
 - let a category-specific `proteinFallback` keep the proteins section alive in a stable, auditable arrow-band way
-- keep `proteinFallback` out of the visible submacro rows; visible protein display remains `collagen_g`, `essential_amino_acids_score`, `nonessential_amino_acids_score`, and `bioavailability_percent`
+- keep `proteinFallback` out of the visible submacro rows; visible protein display remains `collagen_g`, `essential_amino_acids_score`, `nonessential_amino_acids_score`, and `protein_digestibility_percent`
 
 This produces a complete production profile without confusing an analogue-derived value with an exact analytical measurement.
 

@@ -534,7 +534,7 @@
       { key: 'collagen_g', label: 'COLLAGEN', value: food => formatMacroMetric(food, 'protein', 'collagen_g', 'g') },
       { key: 'essential_amino_acids_score', label: 'EAA', value: food => formatMacroRatio(food, 'protein', 'essential_amino_acids_score', 9) },
       { key: 'nonessential_amino_acids_score', label: 'NEAA', value: food => formatMacroRatio(food, 'protein', 'nonessential_amino_acids_score', 11) },
-      { key: 'bioavailability_percent', label: 'BIOAVAIL.', value: food => formatMacroMetric(food, 'protein', 'bioavailability_percent', '%') }
+      { key: 'protein_digestibility_percent', label: 'DIGEST.', value: food => formatMacroMetric(food, 'protein', 'protein_digestibility_percent', '%') }
     ]
   };
   const METRIC_SHORT_LABELS = {
@@ -550,12 +550,12 @@
     collagen_g: 'COLLAGEN',
     essential_amino_acids_score: 'EAA',
     nonessential_amino_acids_score: 'NEAA',
-    bioavailability_percent: 'BIOAVAIL.'
+    protein_digestibility_percent: 'DIGEST.'
   };
   const PROTEIN_QUALITY_METRIC_KEYS = new Set([
     'essential_amino_acids_score',
     'nonessential_amino_acids_score',
-    'bioavailability_percent'
+    'protein_digestibility_percent'
   ]);
 
   const METRIC_SPEECH_TERMS = {
@@ -571,7 +571,7 @@
     collagen_g: ['collagen'],
     essential_amino_acids_score: ['essential amino', 'eaa'],
     nonessential_amino_acids_score: ['nonessential amino', 'non essential amino', 'n eaa'],
-    bioavailability_percent: ['bioavailability', 'bio availability', 'bioavailable', 'bio available'],
+    protein_digestibility_percent: ['protein digestibility', 'digestibility', 'digested', 'absorbed', 'bioavailability', 'bio availability'],
     vitamin_a_dv: ['vitamin a'],
     vitamin_c_dv: ['vitamin c'],
     vitamin_d_dv: ['vitamin d'],
@@ -588,7 +588,7 @@
   const SECTION_ANCHOR_TERMS = {
     fats: ['fat', 'saturated fat', 'fat quality'],
     carbs: ['carbs', 'lackluster'],
-    protein: ['protein', 'protein quantity', 'bioavailability', 'bio availability'],
+    protein: ['protein', 'protein quantity', 'protein digestibility', 'digestibility', 'bioavailability'],
     vitamins: ['vitamin', 'daily value'],
     minerals: ['zinc', 'daily value'],
     pros: ['pros first', 'plus side'],
@@ -2936,7 +2936,7 @@
     if (metricKey === 'collagen_g') return safe >= 3 ? SUBMACRO_VALUE_COLORS.green : SUBMACRO_VALUE_COLORS.red;
     if (metricKey === 'essential_amino_acids_score') return safe >= 3 ? SUBMACRO_VALUE_COLORS.green : SUBMACRO_VALUE_COLORS.red;
     if (metricKey === 'nonessential_amino_acids_score') return safe >= 4 ? SUBMACRO_VALUE_COLORS.green : SUBMACRO_VALUE_COLORS.red;
-    if (metricKey === 'bioavailability_percent') return safe >= 40 ? SUBMACRO_VALUE_COLORS.green : SUBMACRO_VALUE_COLORS.red;
+    if (metricKey === 'protein_digestibility_percent') return safe >= 40 ? SUBMACRO_VALUE_COLORS.green : SUBMACRO_VALUE_COLORS.red;
     return SUBMACRO_VALUE_COLORS.green;
   }
 
@@ -2958,7 +2958,7 @@
       if (safe >= 4) return { count: 1, color: 'green', direction: null };
       return { count: 3, color: 'red', direction: null };
     }
-    if (metricKey === 'bioavailability_percent') {
+    if (metricKey === 'protein_digestibility_percent') {
       if (safe >= 85) return { count: 3, color: 'green', direction: null };
       if (safe >= 60) return { count: 2, color: 'green', direction: null };
       if (safe >= 40) return { count: 1, color: 'green', direction: null };
@@ -3567,7 +3567,7 @@
     const fallbacks = {
       fats: `${formatMetric(header.fat_g, 'g')} of fat. Saturated fat: ${formatMetric(metrics.saturated_fat_g, 'g')}.`,
       carbs: `${formatMetric(header.carb_g, 'g')} of carbs. Fibre: ${formatMetric(metrics.fibre_g, 'g')}.`,
-      protein: `${formatMetric(header.protein_g, 'g')} of protein. Bioavailability: ${formatMetric(metrics.bioavailability_percent, '%')}.`,
+      protein: `${formatMetric(header.protein_g, 'g')} of protein. Protein digestibility: ${formatMetric(metrics.protein_digestibility_percent, '%')}.`,
       vitamins: `Vitamin support: B12 ${formatDvPercent(food, 'vitamin_b12_dv')}, E ${formatDvPercent(food, 'vitamin_e_dv')}.`,
       minerals: `Mineral support: iron ${formatDvPercent(food, 'iron_dv')}, zinc ${formatDvPercent(food, 'zinc_dv')}.`,
       pros: `${name} has three useful upside points.`,

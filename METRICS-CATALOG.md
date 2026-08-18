@@ -141,10 +141,10 @@ Visible v1 protein row order is locked:
 1. `collagen_g`
 2. `essential_amino_acids_score`
 3. `nonessential_amino_acids_score`
-4. `bioavailability_percent`
+4. `protein_digestibility_percent`
 
 Final production profiles fill all four visible protein rows whenever the protein macro has a value. Use exact-food database data first, then exact-identity Google research with AI Overview values checked against a linked or corroborating source, and another protein analogue only as the last resort.
-EAA/NEAA values must be derived from actual amino-acid rows belonging to the exact or matched analogue profile and the FoodRanked thresholds. Bioavailability may come from food-specific digestibility research or a documented category estimate. Plant collagen resolves to a structural `0g` rather than an unknown value.
+EAA/NEAA values must be derived from actual amino-acid rows belonging to the exact or matched analogue profile and the FoodRanked thresholds. Protein digestibility may come from food-specific digestibility research or a documented category estimate. Plant collagen resolves to a structural `0g` rather than an unknown value.
 Store the source tier, matched identity, preparation relationship, and derivation in provenance. Finished scripts narrate the selected values confidently; they do not expose audit uncertainty.
 Presentation-only defaults (`0g`, `0/9`, `0/11`, `0%`) remain draft/runtime safeguards and are not acceptable as the unreviewed basis of a finalized food.
 
@@ -172,12 +172,15 @@ Presentation-only defaults (`0g`, `0/9`, `0/11`, `0%`) remain draft/runtime safe
 - V1 role: scored where meaningful
 - Notes: `/11` useful-amount score derived from source-backed `amino_acids_mg` found through exact database data, exact-food Google research, or a last-resort defensible analogue; no official adult DRI exists for nonessential amino acids, so v1 uses a material 500mg-per-100g threshold.
 
-### bioavailability_percent
-- Display name: Bioavailability
+### protein_digestibility_percent
+- Display name: Protein digestibility
 - Unit: %
 - Default section: proteins
 - Default polarity: `higher_better`
 - V1 role: scored where meaningful
+- Definition: percentage of dietary protein digested by the end of the small intestine. True ileal protein digestibility is preferred because it most closely reflects the amino acids absorbed into the body.
+- Interpretation: this row covers protein being digested and absorbed, making its amino acids available for the body to use. It does not claim that all absorbed amino acids were retained or used for tissue protein; that is protein utilisation and requires a separate measure such as NPPU.
+- Source policy: prefer a human true-ileal measurement for the exact food and preparation. If an isolate, cooked form, animal model, faecal estimate, or food-class estimate is used, preserve that form/method mismatch in provenance.
 - Notes: major signal in animal categories; context-dependent elsewhere
 
 ## Vitamin metrics

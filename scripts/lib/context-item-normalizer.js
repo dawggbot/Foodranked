@@ -260,7 +260,7 @@ function contextTitleRecapIssue(title) {
 
 function contextKind(item) {
   const text = `${item?.itemKey || ''} ${item?.title || ''} ${item?.explanation || ''}`.toLowerCase();
-  if (/\b(protein|amino|collagen|bioavailability)\b/.test(text)) return 'protein';
+  if (/\b(protein|amino|collagen|digestibility|bioavailability)\b/.test(text)) return 'protein';
   if (/\b(fibre|fiber|satiety|filling)\b/.test(text)) return 'fibre';
   if (/\b(glycemic|gi\b|carb|starch)\b/.test(text)) return 'carb';
   if (/\b(sugar|sweet|syrup|honey|jam)\b/.test(text)) return 'sweet';

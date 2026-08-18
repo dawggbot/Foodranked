@@ -15,7 +15,7 @@ It tests:
 - pros/cons title fit for the 3-line layout-builder textboxes
 - tier assignment flow
 - narration/subtitle packaging rules for compact units, expanded spoken units, two-line subtitle cues, and macro/micronutrient sections with strongest plus weakest/lowest defensible section marks when two source-backed or approved display-backed values exist, including arrow-band-first narration ranking, non-meat collagen weak-callout skipping, and all-low vitamin grouping with category context
-- protein display contract: visible protein rows stay locked to collagen, EAA, NEAA, and bioavailability; hidden protein fallback scoring must not replace those rows with protein amount
+- protein display contract: visible protein rows stay locked to collagen, EAA, NEAA, and protein digestibility; hidden protein fallback scoring must not replace those rows with protein amount
 
 ## Included files
 
@@ -80,13 +80,13 @@ Grains are judged on how good their carbs are, not simply on having lots of carb
 Judges meats mainly on:
 - protein quality
 - amino acid usefulness
-- bioavailability
+- protein digestibility
 - mineral support
 - fat/cholesterol tradeoffs
 
 ### Main weighted ideas
 - essential amino acids = very high importance
-- bioavailability = very high importance
+- protein digestibility = very high importance
 - non-essential amino acids = high importance
 - iron / zinc support matters
 - carb metrics are not applicable
@@ -158,7 +158,7 @@ Meats should win through protein usefulness and micronutrients, while still bein
 
 ### Notable metric ideas in sample
 - strong protein usefulness
-- strong bioavailability
+- strong protein digestibility
 - decent zinc / B12 support
 - cholesterol is a real penalty
 - carb metrics are intentionally not applicable

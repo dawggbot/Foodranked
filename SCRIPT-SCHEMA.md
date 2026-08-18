@@ -174,7 +174,7 @@ The proteins section has a fixed v1 display contract. `sections[].displayItems` 
 1. `collagen_g`
 2. `essential_amino_acids_score`
 3. `nonessential_amino_acids_score`
-4. `bioavailability_percent`
+4. `protein_digestibility_percent`
 
 Rules:
 - `protein_g` belongs in the macro bubble/header, not in the submacro rows.
@@ -182,7 +182,8 @@ Rules:
 - Visible macro subrows may display `N/A` only when the main macro bubble for that section displays `N/A`.
 - If the protein macro displays a value, missing or protein-gate-skipped visible rows use source-backed values first, then labelled display-only estimates when available, then the row default (`0g`, `0/9`, `0/11`, or `0%`) as the final fallback.
 - Display estimates use `displaySource: protein_display_estimate`; final defaults use `displaySource: submacro_display_default`. Neither may be written back into food source metrics or treated as source-backed nutrition evidence.
-- Narration may use the approved display-backed protein-quality rows, but collagen should not be selected as the weak protein callout outside meats when bioavailability, EAAs, or NEAAs are available.
+- Narration may use the approved display-backed protein-quality rows, but collagen should not be selected as the weak protein callout outside meats when protein digestibility, EAAs, or NEAAs are available.
+- Narrate protein digestibility as the share digested and absorbed, making its amino acids available for use. Do not say that the same percentage was actually used or retained unless a separate utilisation measure supports that claim.
 - When both EAA and NEAA display estimates are available for protein narration, prefer EAAs before NEAAs because essential amino acids are the more meaningful protein-quality callout.
 - EAA/NEAA display estimates are useful-protein-gated and floor-based: red protein fallback bands emit `0/9` and `0/11`, and green-band estimates use `floor()` before resolving arrow bands.
 - Protein narration may mention protein amount when fallback scoring is used, but the subtitle/body display still follows the four visible row slots above.

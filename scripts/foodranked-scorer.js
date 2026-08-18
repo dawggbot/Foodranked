@@ -15,10 +15,37 @@ function round1(n) {
   return Number(n.toFixed(1));
 }
 
+const PROTEIN_DIGESTIBILITY_METRIC_KEY = 'protein_digestibility_percent';
+const LEGACY_PROTEIN_DIGESTIBILITY_METRIC_KEY = 'bioavailability_percent';
+
+function normalizeProteinDigestibilityContract(food, ruleset) {
+  const metrics = food?.metrics || {};
+  if (
+    metrics[PROTEIN_DIGESTIBILITY_METRIC_KEY] === undefined
+    && metrics[LEGACY_PROTEIN_DIGESTIBILITY_METRIC_KEY] !== undefined
+  ) {
+    metrics[PROTEIN_DIGESTIBILITY_METRIC_KEY] = metrics[LEGACY_PROTEIN_DIGESTIBILITY_METRIC_KEY];
+  }
+  delete metrics[LEGACY_PROTEIN_DIGESTIBILITY_METRIC_KEY];
+
+  for (const rule of ruleset?.metricRules || []) {
+    if (rule.metricKey === LEGACY_PROTEIN_DIGESTIBILITY_METRIC_KEY) {
+      rule.metricKey = PROTEIN_DIGESTIBILITY_METRIC_KEY;
+    }
+  }
+  if (Array.isArray(ruleset?.proteinDisplay?.visibleRows)) {
+    ruleset.proteinDisplay.visibleRows = ruleset.proteinDisplay.visibleRows.map(metricKey => (
+      metricKey === LEGACY_PROTEIN_DIGESTIBILITY_METRIC_KEY
+        ? PROTEIN_DIGESTIBILITY_METRIC_KEY
+        : metricKey
+    ));
+  }
+}
+
 const PROTEIN_QUALITY_METRIC_KEYS = new Set([
   'essential_amino_acids_score',
   'nonessential_amino_acids_score',
-  'bioavailability_percent'
+  'protein_digestibility_percent'
 ]);
 const AMINO_ACID_SCORE_METRIC_KEYS = new Set([
   'essential_amino_acids_score',
@@ -443,6 +470,7 @@ function main() {
 
   const food = readJson(foodPath);
   const ruleset = readJson(rulesetPath);
+  normalizeProteinDigestibilityContract(food, ruleset);
 
   const exactCountErrors = validateExactContextCount(food, ruleset);
   if (exactCountErrors.length) {

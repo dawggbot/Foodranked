@@ -2456,7 +2456,7 @@
         if (item.metricKey === 'starch_g') return /starch/.test(fingerprint);
         if (item.metricKey === 'glycemic_index') return /glycemic|\bgi\b/.test(fingerprint);
         if (item.metricKey === 'collagen_g') return /collagen/.test(fingerprint);
-        if (item.metricKey === 'bioavailability_percent') return /bioavail/.test(fingerprint);
+        if (item.metricKey === 'protein_digestibility_percent') return /digest|bioavail/.test(fingerprint);
         if (item.metricKey === 'nonessential_amino_acids_score') return /non[ _-]?eaa|nonessential/.test(fingerprint);
         if (item.metricKey === 'essential_amino_acids_score') return /\beaa\b|essential/.test(fingerprint);
         return false;

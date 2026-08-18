@@ -29,7 +29,7 @@ const PROTEIN_VISIBLE_ROWS = [
   'collagen_g',
   'essential_amino_acids_score',
   'nonessential_amino_acids_score',
-  'bioavailability_percent'
+  'protein_digestibility_percent'
 ];
 const MACRO_DISPLAY_SECTION_KEYS = ['fats', 'carbs', 'proteins'];
 const PROTEIN_HIDDEN_FALLBACK_METRIC_KEY = 'protein_g_fallback';
@@ -82,7 +82,7 @@ const EXPECTED_METRIC_POLARITIES = {
   collagen_g: 'higher_better',
   essential_amino_acids_score: 'higher_better',
   nonessential_amino_acids_score: 'higher_better',
-  bioavailability_percent: 'higher_better'
+  protein_digestibility_percent: 'higher_better'
 };
 const PLACEHOLDER_NOTE_RE = /placeholder|calibration benchmark|not a clinical nutrient database|tuning only/i;
 const BAD_TEXT_PATTERNS = [
@@ -263,8 +263,8 @@ function auditAminoAcidScoring(food, file, errors) {
     }
   }
 
-  if (typeof food.metrics?.bioavailability_percent === 'number' && !hasProfile) {
-    issue(errors, file, 'bioavailability_percent cannot be numeric without source-backed amino_acids_mg');
+  if (typeof food.metrics?.protein_digestibility_percent === 'number' && !hasProfile) {
+    issue(errors, file, 'protein_digestibility_percent cannot be numeric without source-backed amino_acids_mg');
   }
 
   if (!hasProfile || !aminoAcidThresholds) return;
@@ -642,7 +642,7 @@ function auditRulesets(errors) {
         });
       }
       if (!sameArray(proteinDisplay.visibleRows, PROTEIN_VISIBLE_ROWS)) {
-        issue(errors, file, 'proteinDisplay visibleRows must stay locked to collagen/EAA/NEAA/bioavailability', {
+        issue(errors, file, 'proteinDisplay visibleRows must stay locked to collagen/EAA/NEAA/protein digestibility', {
           expected: PROTEIN_VISIBLE_ROWS,
           actual: proteinDisplay.visibleRows || null
         });
@@ -925,7 +925,7 @@ function auditProteinDisplaySection(script, file, errors, extra = {}) {
   const items = section.displayItems || [];
   const metricKeys = items.map(item => item.metricKey);
   if (!sameArray(metricKeys, PROTEIN_VISIBLE_ROWS)) {
-    issue(errors, file, 'generated proteins displayItems must stay collagen/EAA/NEAA/bioavailability', {
+    issue(errors, file, 'generated proteins displayItems must stay collagen/EAA/NEAA/protein digestibility', {
       ...extra,
       expected: PROTEIN_VISIBLE_ROWS,
       actual: metricKeys

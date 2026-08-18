@@ -177,10 +177,10 @@ function applyDerivedProteinScores(food, hasExactAminoProfile) {
 
   food.metrics.essential_amino_acids_score = null;
   food.metrics.nonessential_amino_acids_score = null;
-  food.metrics.bioavailability_percent = null;
+  food.metrics.protein_digestibility_percent = null;
   food.metricProvenance.essential_amino_acids_score = 'N/A until source-backed specific amino-acid amounts are available; trace/presence proxy scores are not used.';
   food.metricProvenance.nonessential_amino_acids_score = 'N/A until source-backed specific amino-acid amounts are available; trace/presence proxy scores are not used.';
-  food.metricProvenance.bioavailability_percent = 'N/A until protein quality is source-backed for this exact food identity.';
+  food.metricProvenance.protein_digestibility_percent = 'N/A until protein quality is source-backed for this exact food identity.';
 }
 
 async function main() {

@@ -1198,7 +1198,7 @@
     </aside>
   </div>
 
-  <script src="../data/foods-index.js?v=data-20260816192922"></script>
+  <script src="../data/foods-index.js?v=data-20260818201117"></script>
   <script src="./display-schema.js?v=20260731-vbv2-helper-render-parity-v1"></script>
   <script src="./food-type-palettes.js?v=20260814-sprite-matched-food-type-palettes-v2"></script>
   <script src="./default-layout.js?v=20260731-vbv2-helper-render-parity-v1"></script>
@@ -3084,7 +3084,7 @@
     const PROTEIN_QUALITY_METRIC_KEYS = new Set([
       'essential_amino_acids_score',
       'nonessential_amino_acids_score',
-      'bioavailability_percent'
+      'protein_digestibility_percent'
     ]);
     const DEFAULT_SUBMACRO_POLARITIES = {
       saturated_fat_g: 'higher_worse',
@@ -3099,7 +3099,7 @@
       collagen_g: 'higher_better',
       essential_amino_acids_score: 'higher_better',
       nonessential_amino_acids_score: 'higher_better',
-      bioavailability_percent: 'higher_better'
+      protein_digestibility_percent: 'higher_better'
     };
     const METRIC_SHORT_LABELS = {
       saturated_fat_g: 'SAT FAT',
@@ -3114,7 +3114,7 @@
       collagen_g: 'COLLAGEN',
       essential_amino_acids_score: 'EAA',
       nonessential_amino_acids_score: 'NEAA',
-      bioavailability_percent: 'BIOAVAIL.'
+      protein_digestibility_percent: 'DIGEST.'
     };
     const DEFAULT_HIGHER_BETTER_BANDS = [
       { label: '3_red', max: 0, score: 0 },
@@ -3173,7 +3173,7 @@
           { key: 'collagen', metricKey: 'collagen_g', label: 'COLLAGEN', value: food => formatMacroMetricText(food, 'protein', 'collagen_g', 'g') },
           { key: 'eaa', metricKey: 'essential_amino_acids_score', label: 'EAA', value: food => formatMacroRatioMetricText(food, 'protein', 'essential_amino_acids_score', 9) },
           { key: 'neaa', metricKey: 'nonessential_amino_acids_score', label: 'NEAA', value: food => formatMacroRatioMetricText(food, 'protein', 'nonessential_amino_acids_score', 11) },
-          { key: 'bioavailability', metricKey: 'bioavailability_percent', label: 'BIOAVAIL.', value: food => formatMacroMetricText(food, 'protein', 'bioavailability_percent', '%') }
+          { key: 'protein_digestibility', metricKey: 'protein_digestibility_percent', label: 'DIGEST.', value: food => formatMacroMetricText(food, 'protein', 'protein_digestibility_percent', '%') }
         ]
       };
       specs.fats.forEach(spec => {
@@ -3340,7 +3340,7 @@
       const defaultOrders = {
         fats: ['sat_fat', 'poly_fat', 'omega3', 'cholesterol'],
         carbs: ['fibre', 'sugar', 'starch', 'glycemic_index'],
-        protein: ['collagen', 'eaa', 'neaa', 'bioavailability']
+        protein: ['collagen', 'eaa', 'neaa', 'protein_digestibility']
       };
       const defaultOrder = food && sectionId === 'protein' ? specs.map(spec => spec.key) : (defaultOrders[sectionId] || specs.map(spec => spec.key));
       const remaining = [...defaultOrder];
@@ -3358,7 +3358,7 @@
         else if (/glycemic|\bgi\b/.test(fingerprint)) key = 'glycemic_index';
         else if (/protein[ _-]?(amount|quantity)|\bamount\b|protein_g/.test(fingerprint)) key = null;
         else if (/collagen/.test(fingerprint)) key = 'collagen';
-        else if (/bioavail/.test(fingerprint)) key = 'bioavailability';
+        else if (/digest|bioavail/.test(fingerprint)) key = 'protein_digestibility';
         else if (/non[ _-]?eaa|nonessential/.test(fingerprint)) key = 'neaa';
         else if (/\beaa\b|essential/.test(fingerprint)) key = 'eaa';
         else if (/protein/.test(fingerprint)) key = null;
@@ -6779,7 +6779,7 @@
           headline: `${formatMacroTotalMetricText(food, 'protein')} PROTEIN`,
           lines: [
             `Essential amino score ${formatMacroRatioMetricText(food, 'protein', 'essential_amino_acids_score', 9)}`,
-            `Bioavailability ${formatMacroMetricText(food, 'protein', 'bioavailability_percent', '%')}`,
+            `Protein digestibility ${formatMacroMetricText(food, 'protein', 'protein_digestibility_percent', '%')}`,
             `Collagen ${formatMacroMetricText(food, 'protein', 'collagen_g', 'g')}`
           ],
           caption: `Protein is not just grams. This section calls out amino quality, usability, and whether the protein is actually meaningful.`

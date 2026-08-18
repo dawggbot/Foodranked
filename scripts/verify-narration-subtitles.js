@@ -153,7 +153,11 @@ function metricMentionLabels(metricKey) {
     labels.add('nonessential groups');
     labels.add('amino acid quality');
   }
-  if (metricKey === 'bioavailability_percent') {
+  if (metricKey === 'protein_digestibility_percent') {
+    labels.add('protein digestibility');
+    labels.add('digestibility');
+    labels.add('digested');
+    labels.add('absorbed');
     labels.add('bioavailability');
     labels.add('bio availability');
     labels.add('bioavailable');

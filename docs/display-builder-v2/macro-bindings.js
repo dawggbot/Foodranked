@@ -33,8 +33,8 @@
       protein_submacro_value_2: { kind: 'ratioMetricValue', metricKey: 'essential_amino_acids_score', displayItemIndex: 1, field: 'metrics.essential_amino_acids_score', denominator: 9, source: 'generated protein displayItems row 2' },
       protein_submacro_label_3: { kind: 'metricLabel', metricKey: 'nonessential_amino_acids_score', displayItemIndex: 2, label: 'NEAA', source: 'generated protein displayItems row 3' },
       protein_submacro_value_3: { kind: 'ratioMetricValue', metricKey: 'nonessential_amino_acids_score', displayItemIndex: 2, field: 'metrics.nonessential_amino_acids_score', denominator: 11, source: 'generated protein displayItems row 3' },
-      protein_submacro_label_4: { kind: 'metricLabel', metricKey: 'bioavailability_percent', displayItemIndex: 3, label: 'BIOAVAIL.', source: 'generated protein displayItems row 4' },
-      protein_submacro_value_4: { kind: 'metricValue', metricKey: 'bioavailability_percent', displayItemIndex: 3, field: 'metrics.bioavailability_percent', unit: '%', source: 'generated protein displayItems row 4' }
+      protein_submacro_label_4: { kind: 'metricLabel', metricKey: 'protein_digestibility_percent', displayItemIndex: 3, label: 'DIGEST.', source: 'generated protein displayItems row 4' },
+      protein_submacro_value_4: { kind: 'metricValue', metricKey: 'protein_digestibility_percent', displayItemIndex: 3, field: 'metrics.protein_digestibility_percent', unit: '%', source: 'generated protein displayItems row 4' }
     }
   };
 
@@ -61,7 +61,7 @@
       { rowKey: 'collagen', metricKey: 'collagen_g', label: 'Collagen' },
       { rowKey: 'eaa', metricKey: 'essential_amino_acids_score', label: 'Essential amino acids' },
       { rowKey: 'neaa', metricKey: 'nonessential_amino_acids_score', label: 'Non-essential amino acids' },
-      { rowKey: 'bioavailability', metricKey: 'bioavailability_percent', label: 'Bioavailability' }
+      { rowKey: 'protein_digestibility', metricKey: 'protein_digestibility_percent', label: 'Protein digestibility' }
     ]
   };
 
@@ -90,11 +90,11 @@
       longLabel: 'Non-essential amino acids',
       valueBinding: { kind: 'ratioMetricValue', metricKey: 'nonessential_amino_acids_score', field: 'metrics.nonessential_amino_acids_score', denominator: 11, source: 'generated protein scoring breakdown' }
     },
-    bioavailability_percent: {
-      metricKey: 'bioavailability_percent',
-      label: 'BIO-A',
-      longLabel: 'Bioavailability',
-      valueBinding: { kind: 'metricValue', metricKey: 'bioavailability_percent', field: 'metrics.bioavailability_percent', unit: '%', source: 'generated protein scoring breakdown' }
+    protein_digestibility_percent: {
+      metricKey: 'protein_digestibility_percent',
+      label: 'DIGEST.',
+      longLabel: 'Protein digestibility',
+      valueBinding: { kind: 'metricValue', metricKey: 'protein_digestibility_percent', field: 'metrics.protein_digestibility_percent', unit: '%', source: 'generated protein scoring breakdown' }
     }
   };
 

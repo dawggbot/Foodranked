@@ -202,7 +202,7 @@ Recommended default:
 - category differentiation should happen inside the ruleset, not by warping the final 7-way split
 
 ### protein_fallbacks
-Bridge policy for the proteins section when amino-acid or bioavailability fields are weak, missing, intentionally withheld, or below a useful protein amount.
+Bridge policy for the proteins section when amino-acid or protein digestibility fields are weak, missing, intentionally withheld, or below a useful protein amount.
 
 Suggested fields:
 - id
@@ -238,13 +238,13 @@ Locked v1 visible row order:
 1. `collagen_g`
 2. `essential_amino_acids_score`
 3. `nonessential_amino_acids_score`
-4. `bioavailability_percent`
+4. `protein_digestibility_percent`
 
 Protein display rules:
 - Always keep those four visible row slots for the proteins section.
 - Visible protein rows may display `N/A` only when the protein macro bubble displays `N/A`.
 - Final production entries must fill every visible protein row through the hierarchy: exact-food database source, exact-identity Google research with a checked or corroborated AI Overview value, then a source-backed protein analogue as the last resort.
-- Analogue-derived EAA/NEAA scores require the analogue's source-backed `amino_acids_mg` rows. Bioavailability may use food-specific research or a documented category estimate. Store source tier and derivation in metric provenance.
+- Analogue-derived EAA/NEAA scores require the analogue's source-backed `amino_acids_mg` rows. Protein digestibility may use food-specific research or a documented category estimate. Prefer human true-ileal measurements; record isolate, preparation, species, and measurement-method mismatches. Store source tier and derivation in metric provenance.
 - Plant collagen uses a structural `0g`; it is not left uncertain.
 - Protein display defaults remain draft/runtime safeguards only. A finalized food must not depend on unreviewed `0/9`, `0/11`, or `0%` defaults.
 - `protein_g_fallback` may contribute to the proteins section score and narration when quality metrics are not usable, but it must not appear in `sections[].displayItems`.

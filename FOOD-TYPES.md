@@ -120,7 +120,7 @@ This file defines the **11 FoodRanked food types** and their category logic.
   - saturated fat
   - sugar
   - glycemic index
-  - poor bioavailability where relevant
+  - poor protein digestibility where relevant
 - Notes:
   - philosophy: fat quality + fibre density define nuts
 
@@ -145,13 +145,13 @@ This file defines the **11 FoodRanked food types** and their category logic.
 
 ### Meats
 - Purpose: judge animal flesh foods by protein quality, micronutrients, and fat quality tradeoffs.
-- Description: protein-forward animal foods with near-zero carbs and strong bioavailability relevance.
+- Description: protein-forward animal foods with near-zero carbs and strong protein digestibility relevance.
 - Colour palette: Deep Red `#8B0000`
 - Icon / sprite idea: butcher crest, cut icon, iron blade emblem
 - Main nutritional priorities:
   - essential amino acids
   - non-essential amino acids
-  - bioavailability
+  - protein digestibility
   - minerals
   - vitamins
 - Main penalties:
@@ -248,7 +248,7 @@ Prefer this over radically different top-level score formulas per category.
 - collagen
 - essential amino acids
 - non-essential amino acids
-- bioavailability
+- protein digestibility
 - vitamins
 - minerals
 

@@ -26,7 +26,7 @@ Default rule:
 - `foods/chicken-thigh.sample.json`
   - locked to **chicken thigh, meat only, raw**
   - raw meat-only basis is coherent
-  - weak amino-acid, collagen, and bioavailability proxy metrics removed
+  - weak amino-acid, collagen, and protein digestibility proxy metrics removed
   - near-production-safe, not fully production-safe yet
 
 ### Still blocked on identity honesty

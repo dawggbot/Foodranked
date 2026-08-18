@@ -138,14 +138,14 @@ Keep lines short and centered.
 - macro headline: `37g`
 - supporting cards:
   - essential amino score
-  - bioavailability
+  - protein digestibility
 - use clean cyan/teal lift, not bright celebratory green
 
 ### Motion beats
 - **19.28** protein chip enters with cleaner, more confident sound
 - **19.70** `37g protein` flips into place
 - **21.00** essential amino card appears
-- **22.30** bioavailability card appears with sharper highlight edge
+- **22.30** protein digestibility card appears with sharper highlight edge
 - **24.20** a faint rise animation on the whole frame to imply recovery
 - **26.00–27.53** hold before micros
 
@@ -417,7 +417,7 @@ Protein exists, but not enough to save the food.
 ### Motion beats
 - **14.80** protein chip enters
 - **15.20** macro `7g` appears
-- **16.20** bioavailability card appears
+- **16.20** protein digestibility card appears
 - **17.20** brief hopeful lift
 - **18.10** lift dies away before the transition
 

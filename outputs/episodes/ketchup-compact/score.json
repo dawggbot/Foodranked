@@ -1,0 +1,696 @@
+{
+  "status": "ok",
+  "food": {
+    "id": "ketchup",
+    "name": "Ketchup",
+    "foodType": "misc"
+  },
+  "ruleset": {
+    "id": "misc.v1",
+    "version": 1,
+    "tierScoreMap": {
+      "Slop": -20,
+      "D": 20,
+      "C": 40,
+      "B": 60,
+      "A": 80,
+      "S": 100
+    },
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
+  },
+  "header": {
+    "kcal": 101,
+    "fat_g": 0.1,
+    "carb_g": 27.4,
+    "protein_g": 1.04
+  },
+  "foodMetrics": {
+    "saturated_fat_g": 0.014,
+    "omega3_mg": 1,
+    "monounsaturated_fat_g": 0.015,
+    "polyunsaturated_fat_g": 0.041,
+    "cholesterol_mg": 0,
+    "starch_g": 0.1,
+    "fibre_g": 0.3,
+    "sugar_g": 21.27,
+    "glycemic_index": 55,
+    "collagen_g": 0,
+    "essential_amino_acids_score": 0,
+    "nonessential_amino_acids_score": 0,
+    "protein_digestibility_percent": 78,
+    "vitamin_a_dv": 3,
+    "vitamin_c_dv": 5,
+    "vitamin_d_dv": 0,
+    "vitamin_e_dv": 10,
+    "vitamin_k_dv": 3,
+    "vitamin_b12_dv": 0,
+    "iron_dv": 2,
+    "magnesium_dv": 3,
+    "zinc_dv": 2,
+    "calcium_dv": 1,
+    "potassium_dv": 6,
+    "amino_acids_mg": {
+      "tryptophan_mg": 5,
+      "threonine_mg": 19,
+      "isoleucine_mg": 14,
+      "leucine_mg": 21,
+      "lysine_mg": 23,
+      "methionine_mg": 5,
+      "cystine_mg": 5,
+      "phenylalanine_mg": 21,
+      "tyrosine_mg": 9,
+      "valine_mg": 14,
+      "arginine_mg": 16,
+      "histidine_mg": 13,
+      "alanine_mg": 33,
+      "aspartic_acid_mg": 133,
+      "glutamic_acid_mg": 349,
+      "glycine_mg": 16,
+      "proline_mg": 12,
+      "serine_mg": 21
+    }
+  },
+  "aminoAcidScoring": {
+    "policyId": "foodranked-amino-acid-thresholds.v1",
+    "profileAvailable": true,
+    "sourceMetric": "amino_acids_mg",
+    "essential": {
+      "value": 0,
+      "denominator": 9,
+      "details": [
+        {
+          "key": "histidine",
+          "label": "histidine",
+          "metricKeys": [
+            "histidine_mg"
+          ],
+          "amountMg": 13,
+          "thresholdMg": 245,
+          "useful": false,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "isoleucine",
+          "label": "isoleucine",
+          "metricKeys": [
+            "isoleucine_mg"
+          ],
+          "amountMg": 14,
+          "thresholdMg": 333,
+          "useful": false,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "leucine",
+          "label": "leucine",
+          "metricKeys": [
+            "leucine_mg"
+          ],
+          "amountMg": 21,
+          "thresholdMg": 735,
+          "useful": false,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "lysine",
+          "label": "lysine",
+          "metricKeys": [
+            "lysine_mg"
+          ],
+          "amountMg": 23,
+          "thresholdMg": 665,
+          "useful": false,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "methionine_cystine",
+          "label": "methionine + cystine",
+          "metricKeys": [
+            "methionine_mg",
+            "cystine_mg"
+          ],
+          "amountMg": 10,
+          "thresholdMg": 333,
+          "useful": false,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "phenylalanine_tyrosine",
+          "label": "phenylalanine + tyrosine",
+          "metricKeys": [
+            "phenylalanine_mg",
+            "tyrosine_mg"
+          ],
+          "amountMg": 30,
+          "thresholdMg": 578,
+          "useful": false,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "threonine",
+          "label": "threonine",
+          "metricKeys": [
+            "threonine_mg"
+          ],
+          "amountMg": 19,
+          "thresholdMg": 350,
+          "useful": false,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "tryptophan",
+          "label": "tryptophan",
+          "metricKeys": [
+            "tryptophan_mg"
+          ],
+          "amountMg": 5,
+          "thresholdMg": 100,
+          "useful": false,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "valine",
+          "label": "valine",
+          "metricKeys": [
+            "valine_mg"
+          ],
+          "amountMg": 14,
+          "thresholdMg": 420,
+          "useful": false,
+          "missingMetricKeys": []
+        }
+      ]
+    },
+    "nonessential": {
+      "value": 0,
+      "denominator": 11,
+      "details": [
+        {
+          "key": "alanine",
+          "label": "alanine",
+          "metricKeys": [
+            "alanine_mg"
+          ],
+          "amountMg": 33,
+          "thresholdMg": 500,
+          "useful": false,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "arginine",
+          "label": "arginine",
+          "metricKeys": [
+            "arginine_mg"
+          ],
+          "amountMg": 16,
+          "thresholdMg": 500,
+          "useful": false,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "aspartic_acid",
+          "label": "aspartic acid",
+          "metricKeys": [
+            "aspartic_acid_mg"
+          ],
+          "amountMg": 133,
+          "thresholdMg": 500,
+          "useful": false,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "asparagine_proxy",
+          "label": "asparagine proxy",
+          "metricKeys": [
+            "aspartic_acid_mg"
+          ],
+          "amountMg": 133,
+          "thresholdMg": 500,
+          "useful": false,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "cystine_cysteine",
+          "label": "cystine / cysteine",
+          "metricKeys": [
+            "cystine_mg"
+          ],
+          "amountMg": 5,
+          "thresholdMg": 500,
+          "useful": false,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "glutamic_acid",
+          "label": "glutamic acid",
+          "metricKeys": [
+            "glutamic_acid_mg"
+          ],
+          "amountMg": 349,
+          "thresholdMg": 500,
+          "useful": false,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "glutamine_proxy",
+          "label": "glutamine proxy",
+          "metricKeys": [
+            "glutamic_acid_mg"
+          ],
+          "amountMg": 349,
+          "thresholdMg": 500,
+          "useful": false,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "glycine",
+          "label": "glycine",
+          "metricKeys": [
+            "glycine_mg"
+          ],
+          "amountMg": 16,
+          "thresholdMg": 500,
+          "useful": false,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "proline",
+          "label": "proline",
+          "metricKeys": [
+            "proline_mg"
+          ],
+          "amountMg": 12,
+          "thresholdMg": 500,
+          "useful": false,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "serine",
+          "label": "serine",
+          "metricKeys": [
+            "serine_mg"
+          ],
+          "amountMg": 21,
+          "thresholdMg": 500,
+          "useful": false,
+          "missingMetricKeys": []
+        },
+        {
+          "key": "tyrosine",
+          "label": "tyrosine",
+          "metricKeys": [
+            "tyrosine_mg"
+          ],
+          "amountMg": 9,
+          "thresholdMg": 500,
+          "useful": false,
+          "missingMetricKeys": []
+        }
+      ]
+    }
+  },
+  "proteinQualityGate": {
+    "proteinG": 1.04,
+    "minimumProteinG": 6,
+    "eligible": false,
+    "aminoAcidProfileAvailable": true,
+    "usefulEssentialAminoAcidGroups": 0,
+    "usefulNonessentialAminoAcidGroups": 0,
+    "aminoAcidThresholdPolicy": "foodranked-amino-acid-thresholds.v1",
+    "skippedMetricKeys": [
+      "essential_amino_acids_score",
+      "nonessential_amino_acids_score",
+      "protein_digestibility_percent"
+    ]
+  },
+  "sectionScores": {
+    "fats": 40,
+    "carbs": 20,
+    "proteins": 20,
+    "vitamins": 2.5,
+    "minerals": 0,
+    "pros": 66.7,
+    "cons": 33.3
+  },
+  "overallScore": -20,
+  "overallScoreExact": -20,
+  "calibratedOverallScore": 49.7,
+  "calibratedOverallScoreExact": 49.7264,
+  "anomalyAdjustedScore": -10.3,
+  "anomalyAdjustedScoreExact": -10.2736,
+  "rankingScore": -10.3,
+  "rankingScoreExact": -10.2736,
+  "scoreAdjustmentTotal": -60,
+  "scoreAdjustmentTotalExact": -60,
+  "baseOverallScore": 26.1,
+  "baseOverallScoreExact": 26.0714,
+  "tier": "Slop",
+  "summary": "Pros are carrying this food most, while minerals are holding it back most. It lands in SLOP.",
+  "explanation": {
+    "summary": "Pros are carrying this food most, while minerals are holding it back most. It lands in SLOP.",
+    "whyThisTier": "This food lands in SLOP with a display score of -20. Section scores: fats 40, carbs 20, proteins 20, vitamins 2.5, minerals 0, pros 66.7, cons 33.3. Food-specific anomaly adjustment: -60.",
+    "strongestSection": {
+      "key": "pros",
+      "label": "Pros",
+      "score": 66.7
+    },
+    "weakestSection": {
+      "key": "minerals",
+      "label": "Minerals",
+      "score": 0
+    },
+    "scoreAdjustments": [
+      {
+        "itemKey": "sweet_condiment_slop_penalty",
+        "label": "sweet condiment slop-tier penalty",
+        "points": -60,
+        "reason": "A sweet condiment should not benefit too much from low fat while giving little nutrition back.",
+        "source": "manual",
+        "scope": "food_specific_anomaly"
+      }
+    ],
+    "topPros": [
+      {
+        "title": "processed tomato brings a lycopene angle",
+        "explanation": "The USDA record contains about 12 milligrams of lycopene per 100g, and tomato processing can make the carotenoid easier to absorb.",
+        "impactLevel": "major",
+        "side": "pro",
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "strong flavour can replace richer sauces",
+        "explanation": "A little sweetness, acidity, and tomato umami can add flavour without needing a heavy creamy sauce.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "cheap, familiar, and easy to use",
+        "explanation": "It is widely available, needs no preparation, and works as a quick condiment for everyday foods.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      }
+    ],
+    "topCons": [
+      {
+        "title": "salt stacks up quickly",
+        "explanation": "The USDA record contains 907 milligrams of sodium per 100g, a material tradeoff outside the visible mineral rows.",
+        "impactLevel": "major",
+        "side": "con",
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "acidity can bother reflux",
+        "explanation": "Tomato and vinegar make ketchup a rough fit for some people whose reflux is triggered by acidic foods.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "squeeze bottles encourage portion creep",
+        "explanation": "A freehand squirt is easy to underestimate when it is spread across several parts of a meal.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
+      }
+    ],
+    "narrationNotes": [
+      "Strongest section: Pros.",
+      "Weakest section: Minerals.",
+      "Final verdict: SLOP."
+    ]
+  },
+  "contextItems": {
+    "pros": [
+      {
+        "itemKey": "lycopene_concentrate",
+        "impactLevel": "major",
+        "title": "processed tomato brings a lycopene angle",
+        "explanation": "The USDA record contains about 12 milligrams of lycopene per 100g, and tomato processing can make the carotenoid easier to absorb.",
+        "evidenceType": "source_backed",
+        "confidence": "high",
+        "side": "pro",
+        "resolvedScoreValue": 100
+      },
+      {
+        "itemKey": "low_calorie_flavour_swap",
+        "impactLevel": "minor",
+        "title": "strong flavour can replace richer sauces",
+        "explanation": "A little sweetness, acidity, and tomato umami can add flavour without needing a heavy creamy sauce.",
+        "evidenceType": "manual",
+        "confidence": "high",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      },
+      {
+        "itemKey": "cheap_convenient_condiment",
+        "impactLevel": "minor",
+        "title": "cheap, familiar, and easy to use",
+        "explanation": "It is widely available, needs no preparation, and works as a quick condiment for everyday foods.",
+        "evidenceType": "manual",
+        "confidence": "high",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      }
+    ],
+    "cons": [
+      {
+        "itemKey": "sodium_load",
+        "impactLevel": "major",
+        "title": "salt stacks up quickly",
+        "explanation": "The USDA record contains 907 milligrams of sodium per 100g, a material tradeoff outside the visible mineral rows.",
+        "evidenceType": "source_backed",
+        "confidence": "high",
+        "side": "con",
+        "resolvedScoreValue": 100
+      },
+      {
+        "itemKey": "acid_reflux_tolerance",
+        "impactLevel": "minor",
+        "title": "acidity can bother reflux",
+        "explanation": "Tomato and vinegar make ketchup a rough fit for some people whose reflux is triggered by acidic foods.",
+        "evidenceType": "source_backed",
+        "confidence": "high",
+        "side": "con",
+        "resolvedScoreValue": 50
+      },
+      {
+        "itemKey": "squeeze_bottle_portion_creep",
+        "impactLevel": "minor",
+        "title": "squeeze bottles encourage portion creep",
+        "explanation": "A freehand squirt is easy to underestimate when it is spread across several parts of a meal.",
+        "evidenceType": "manual",
+        "confidence": "high",
+        "side": "con",
+        "resolvedScoreValue": 50
+      }
+    ]
+  },
+  "scoreAdjustments": [
+    {
+      "itemKey": "sweet_condiment_slop_penalty",
+      "label": "sweet condiment slop-tier penalty",
+      "points": -60,
+      "reason": "A sweet condiment should not benefit too much from low fat while giving little nutrition back.",
+      "source": "manual",
+      "scope": "food_specific_anomaly"
+    }
+  ],
+  "metricBreakdown": [
+    {
+      "metricKey": "saturated_fat_g",
+      "sectionKey": "fats",
+      "scoringMode": "arrow_bands",
+      "value": 0.014,
+      "band": "↓↓↓",
+      "polarity": "higher_worse",
+      "score": 100,
+      "weight": 1,
+      "weightedScore": 100
+    },
+    {
+      "metricKey": "omega3_mg",
+      "sectionKey": "fats",
+      "scoringMode": "arrow_bands",
+      "value": 1,
+      "band": "↓↓↓",
+      "polarity": "higher_better",
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "monounsaturated_fat_g",
+      "sectionKey": "fats",
+      "scoringMode": "arrow_bands",
+      "value": 0.015,
+      "band": "↓↓↓",
+      "polarity": "higher_better",
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "polyunsaturated_fat_g",
+      "sectionKey": "fats",
+      "scoringMode": "arrow_bands",
+      "value": 0.041,
+      "band": "↓↓↓",
+      "polarity": "higher_better",
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "cholesterol_mg",
+      "sectionKey": "fats",
+      "scoringMode": "arrow_bands",
+      "value": 0,
+      "band": "↓↓↓",
+      "polarity": "higher_worse",
+      "score": 100,
+      "weight": 1,
+      "weightedScore": 100
+    },
+    {
+      "metricKey": "starch_g",
+      "sectionKey": "carbs",
+      "scoringMode": "arrow_bands",
+      "value": 0.1,
+      "band": "2_red",
+      "polarity": "higher_better",
+      "score": 20,
+      "weight": 1,
+      "weightedScore": 20
+    },
+    {
+      "metricKey": "fibre_g",
+      "sectionKey": "carbs",
+      "scoringMode": "arrow_bands",
+      "value": 0.3,
+      "band": "↓↓↓",
+      "polarity": "higher_better",
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "sugar_g",
+      "sectionKey": "carbs",
+      "scoringMode": "arrow_bands",
+      "value": 21.27,
+      "band": "↑↑",
+      "polarity": "higher_worse",
+      "score": 20,
+      "weight": 1,
+      "weightedScore": 20
+    },
+    {
+      "metricKey": "glycemic_index",
+      "sectionKey": "carbs",
+      "scoringMode": "arrow_bands",
+      "value": 55,
+      "band": "↑",
+      "polarity": "higher_worse",
+      "score": 40,
+      "weight": 1,
+      "weightedScore": 40
+    },
+    {
+      "metricKey": "vitamin_c_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 5,
+      "points": 0,
+      "score": 0,
+      "weight": 2,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "vitamin_e_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 10,
+      "points": 1,
+      "score": 10,
+      "weight": 1,
+      "weightedScore": 10
+    },
+    {
+      "metricKey": "vitamin_k_dv",
+      "sectionKey": "vitamins",
+      "scoringMode": "dv_points",
+      "dvPercent": 3,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "magnesium_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 3,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "potassium_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 6,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "iron_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 2,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "zinc_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 2,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "calcium_dv",
+      "sectionKey": "minerals",
+      "scoringMode": "dv_points",
+      "dvPercent": 1,
+      "points": 0,
+      "score": 0,
+      "weight": 1,
+      "weightedScore": 0
+    },
+    {
+      "metricKey": "protein_g_fallback",
+      "sectionKey": "proteins",
+      "scoringMode": "arrow_bands",
+      "value": 1.04,
+      "band": "↓↓",
+      "polarity": "higher_better",
+      "score": 20,
+      "weight": 2,
+      "weightedScore": 40,
+      "fallbackApplied": true
+    }
+  ]
+}

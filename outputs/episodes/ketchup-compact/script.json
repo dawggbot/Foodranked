@@ -1,0 +1,678 @@
+{
+  "status": "ok",
+  "schemaVersion": "foodranked-script.v2",
+  "narrationFormat": "elevenlabs-blocks-v1",
+  "food": {
+    "id": "ketchup",
+    "name": "Ketchup",
+    "foodType": "misc",
+    "basis": {
+      "value": 100,
+      "unit": "g"
+    },
+    "identity": {
+      "canonicalName": "Catsup",
+      "commonName": "Ketchup",
+      "form": "generic tomato ketchup",
+      "state": "packaged condiment as sold",
+      "ediblePortion": "ready-to-eat sauce",
+      "basisReason": "Ketchup is a packaged processed food, so the prepared state in which it is sold and eaten is the canonical per-100g comparison identity.",
+      "includes": [
+        "standard sweetened tomato ketchup",
+        "generic tomato catsup"
+      ],
+      "excludes": [
+        "no-added-sugar ketchup",
+        "reduced-sodium ketchup",
+        "homemade tomato sauce",
+        "barbecue sauce"
+      ]
+    },
+    "scoreReadiness": {
+      "status": "production-safe",
+      "summary": "Complete generic ketchup profile with exact USDA nutrients and amino acids plus clearly labelled starch, GI, and digestibility working values.",
+      "blockers": [],
+      "caveats": [
+        "Protein digestibility is a documented category estimate, not an exact ketchup measurement.",
+        "Glycemic index is a contextual estimate and varies with brand formulation and serving context.",
+        "Sugar, sodium, tomato concentration, and micronutrients vary across brands."
+      ]
+    },
+    "sourceNotes": [
+      "Production-safe generic packaged ketchup entry scored as sold per 100g.",
+      "USDA SR Legacy FDC 168556 supplies the canonical catsup nutrient and amino-acid profile.",
+      "The 78% protein-digestibility value is a documented vegetable-category estimate; it describes the tiny protein amount and does not make ketchup a protein food.",
+      "Brand recipes vary materially in sugar, sodium, and tomato concentration, so this is a generic baseline rather than a claim about every bottle."
+    ]
+  },
+  "ruleset": {
+    "id": "misc.v1",
+    "version": 1,
+    "tierScoreMap": {
+      "Slop": -20,
+      "D": 20,
+      "C": 40,
+      "B": 60,
+      "A": 80,
+      "S": 100
+    },
+    "scoreCalibration": {
+      "version": 1,
+      "method": "piecewise_linear_raw_to_shared_tier_score"
+    }
+  },
+  "header": {
+    "kcal": 101,
+    "fat_g": 0.1,
+    "carb_g": 27.4,
+    "protein_g": 1.04
+  },
+  "hook": "Ketchup ranked.",
+  "sections": [
+    {
+      "key": "fats",
+      "title": "Fats",
+      "narration": "0.1 grams of fat. Cholesterol is 0 milligrams and saturated fat is only 0.01 grams, so there is almost no saturated-fat baggage. Polyunsaturated fat is just 0.04 grams and omega 3 is only 1 milligram, so there is no useful fat story either. In the misc category, being nearly fat-free does not rescue the rest of the food.",
+      "displayItems": [
+        {
+          "metricKey": "saturated_fat_g",
+          "text": "saturated fat at 0.01g",
+          "weightedScore": 100,
+          "scoringMode": "arrow_bands",
+          "band": "3_green",
+          "polarity": "higher_worse",
+          "dvPercent": null,
+          "value": 0.014,
+          "score": 100,
+          "denominator": null,
+          "displayValue": "0.01g",
+          "displaySource": "scored"
+        },
+        {
+          "metricKey": "omega3_mg",
+          "text": "omega 3 at 1mg",
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
+          "band": "3_red",
+          "polarity": "higher_better",
+          "dvPercent": null,
+          "value": 1,
+          "score": 0,
+          "denominator": null,
+          "displayValue": "1mg",
+          "displaySource": "scored"
+        },
+        {
+          "metricKey": "polyunsaturated_fat_g",
+          "text": "polyunsaturated fat at 0.04g",
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
+          "band": "3_red",
+          "polarity": "higher_better",
+          "dvPercent": null,
+          "value": 0.041,
+          "score": 0,
+          "denominator": null,
+          "displayValue": "0.04g",
+          "displaySource": "scored"
+        },
+        {
+          "metricKey": "monounsaturated_fat_g",
+          "text": "monounsaturated fat at 0.01g",
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
+          "band": "3_red",
+          "polarity": "higher_better",
+          "dvPercent": null,
+          "value": 0.015,
+          "score": 0,
+          "denominator": null,
+          "displayValue": "0.01g",
+          "displaySource": "scored"
+        }
+      ],
+      "macroDisplayValue": "0.1g",
+      "subtitleText": "0.1g of fat. Cholesterol is 0mg and saturated fat is only 0.01g, so there is almost no saturated-fat baggage. Polyunsaturated fat is just 0.04g and omega 3 is only 1mg, so there is no useful fat story either. In the misc category, being nearly fat-free does not rescue the rest of the food.",
+      "timingHint": "short-medium",
+      "score": 40
+    },
+    {
+      "key": "carbs",
+      "title": "Carbs",
+      "narration": "27.4 grams of carbs. Sugar is 21.3 grams, while fibre is only 0.3 grams, so very little slows the carbohydrate down. The glycemic index is 55, although a normal spoonful keeps the real glycemic load smaller than the 100-gram sheet suggests. For a sweet condiment, this is still a weak carb profile.",
+      "displayItems": [
+        {
+          "metricKey": "fibre_g",
+          "text": "fibre at 0.3g",
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
+          "band": "3_red",
+          "polarity": "higher_better",
+          "dvPercent": null,
+          "value": 0.3,
+          "score": 0,
+          "denominator": null,
+          "displayValue": "0.3g",
+          "displaySource": "scored"
+        },
+        {
+          "metricKey": "sugar_g",
+          "text": "sugar at 21.3g",
+          "weightedScore": 20,
+          "scoringMode": "arrow_bands",
+          "band": "2_red",
+          "polarity": "higher_worse",
+          "dvPercent": null,
+          "value": 21.27,
+          "score": 20,
+          "denominator": null,
+          "displayValue": "21.3g",
+          "displaySource": "scored"
+        },
+        {
+          "metricKey": "starch_g",
+          "text": "starch at 0.1g",
+          "weightedScore": 20,
+          "scoringMode": "arrow_bands",
+          "band": "2_red",
+          "polarity": "higher_better",
+          "dvPercent": null,
+          "value": 0.1,
+          "score": 20,
+          "denominator": null,
+          "displayValue": "0.1g",
+          "displaySource": "scored"
+        },
+        {
+          "metricKey": "glycemic_index",
+          "text": "glycemic index at 55 GI",
+          "weightedScore": 40,
+          "scoringMode": "arrow_bands",
+          "band": "1_red",
+          "polarity": "higher_worse",
+          "dvPercent": null,
+          "value": 55,
+          "score": 40,
+          "denominator": null,
+          "displayValue": "55 GI",
+          "displaySource": "scored"
+        }
+      ],
+      "macroDisplayValue": "27.4g",
+      "subtitleText": "27.4g of carbs. Sugar is 21.3g, while fibre is only 0.3g, so very little slows the carbohydrate down. The glycemic index is 55, although a normal spoonful keeps the real glycemic load smaller than the 100-g sheet suggests. For a sweet condiment, this is still a weak carb profile.",
+      "timingHint": "short-medium",
+      "score": 20
+    },
+    {
+      "key": "proteins",
+      "title": "Proteins",
+      "narration": "1 gram of protein. Essential amino acids score 0 out of 9 because none reaches a useful amount at this food quantity. Protein digestibility is 78%, but that percentage only describes how digestible the tiny amount is. It does not turn ketchup into a protein food. In this category, the protein section barely matters.",
+      "displayItems": [
+        {
+          "metricKey": "collagen_g",
+          "text": "collagen at 0g",
+          "weightedScore": null,
+          "scoringMode": "display_fallback",
+          "band": "3_red",
+          "polarity": "higher_better",
+          "dvPercent": null,
+          "value": 0,
+          "score": 0,
+          "denominator": null,
+          "displaySource": "macro_numeric_fallback",
+          "displayDefault": false,
+          "displayDefaultReason": null,
+          "displayValue": "0g"
+        },
+        {
+          "metricKey": "essential_amino_acids_score",
+          "text": "essential amino acids score at 0/9",
+          "weightedScore": null,
+          "scoringMode": "display_fallback",
+          "band": "3_red",
+          "polarity": "higher_better",
+          "dvPercent": null,
+          "value": 0,
+          "score": 0,
+          "denominator": 9,
+          "displaySource": "protein_display_estimate",
+          "displayEstimated": true,
+          "displayEstimateBasis": "display-only estimate from useful-protein-gated amount band and protein source class; not a source amino-acid profile",
+          "displayDefault": false,
+          "displayDefaultReason": null,
+          "displayValue": "0/9"
+        },
+        {
+          "metricKey": "nonessential_amino_acids_score",
+          "text": "nonessential amino acids score at 0/11",
+          "weightedScore": null,
+          "scoringMode": "display_fallback",
+          "band": "3_red",
+          "polarity": "higher_better",
+          "dvPercent": null,
+          "value": 0,
+          "score": 0,
+          "denominator": 11,
+          "displaySource": "protein_display_estimate",
+          "displayEstimated": true,
+          "displayEstimateBasis": "display-only estimate from useful-protein-gated amount band and protein source class; not a source amino-acid profile",
+          "displayDefault": false,
+          "displayDefaultReason": null,
+          "displayValue": "0/11"
+        },
+        {
+          "metricKey": "protein_digestibility_percent",
+          "text": "protein digestibility at 50%",
+          "weightedScore": null,
+          "scoringMode": "display_fallback",
+          "band": "1_red",
+          "polarity": "higher_better",
+          "dvPercent": null,
+          "value": 50,
+          "score": 40,
+          "denominator": null,
+          "displaySource": "protein_display_estimate",
+          "displayEstimated": true,
+          "displayEstimateBasis": "display-only estimate from FoodRanked protein source class; not a measured digestibility value",
+          "displayDefault": false,
+          "displayDefaultReason": null,
+          "displayValue": "50%"
+        }
+      ],
+      "macroDisplayValue": "1.0g",
+      "subtitleText": "1g of protein. Essential amino acids score 0/9 because none reaches a useful amount at this food quantity. Protein digestibility is 78%, but that percentage only describes how digestible the tiny amount is. It does not turn ketchup into a protein food. In this category, the protein section barely matters.",
+      "timingHint": "short-medium",
+      "score": 20,
+      "displayPolicy": {
+        "policyId": "protein-section-display.v1",
+        "rowCount": 4,
+        "visibleRows": [
+          "collagen_g",
+          "essential_amino_acids_score",
+          "nonessential_amino_acids_score",
+          "protein_digestibility_percent"
+        ],
+        "hiddenFallbackMetricKey": "protein_g_fallback",
+        "missingValueDisplay": "N/A",
+        "showProteinFallbackAsVisibleRow": false,
+        "proteinQualityGate": {
+          "eligible": false,
+          "proteinG": 1.04,
+          "minimumProteinG": 6,
+          "aminoAcidProfileAvailable": true
+        },
+        "rules": {
+          "visibleRowsOnly": true,
+          "visibleSubmacroRowsDisplayNaOnlyWhenMainMacroNa": true,
+          "missingSubmacroRowsUseDisplayDefault": true,
+          "proteinQualityGateSkippedRowsUseDisplayDefault": true,
+          "doNotDisplayProteinFallbackAsSubmacro": true
+        }
+      }
+    },
+    {
+      "key": "vitamins",
+      "title": "Vitamins",
+      "narration": "Vitamin E is the best mark at 10% daily value and vitamin C is 5%. Vitamin E helps protect cell membranes from oxidative damage, but the rest of the panel is tiny or absent. For a processed tomato condiment, there is a little vitamin value, just nowhere near enough to carry the score.",
+      "displayItems": [
+        {
+          "metricKey": "vitamin_e_dv",
+          "text": "vitamin E at 10% DV",
+          "weightedScore": 10,
+          "scoringMode": "dv_points",
+          "band": null,
+          "polarity": null,
+          "dvPercent": 10,
+          "value": null,
+          "score": 10,
+          "denominator": null
+        },
+        {
+          "metricKey": "vitamin_k_dv",
+          "text": "vitamin K at 3% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "polarity": null,
+          "dvPercent": 3,
+          "value": null,
+          "score": 0,
+          "denominator": null
+        },
+        {
+          "metricKey": "vitamin_c_dv",
+          "text": "vitamin C at 5% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "polarity": null,
+          "dvPercent": 5,
+          "value": null,
+          "score": 0,
+          "denominator": null
+        }
+      ],
+      "macroDisplayValue": null,
+      "subtitleText": "Vitamin E is the best mark at 10% daily value and vitamin C is 5%. Vitamin E helps protect cell membranes from oxidative damage, but the rest of the panel is tiny or absent. For a processed tomato condiment, there is a little vitamin value, just nowhere near enough to carry the score.",
+      "timingHint": "short-medium",
+      "score": 2.5
+    },
+    {
+      "key": "minerals",
+      "title": "Minerals",
+      "narration": "Potassium is the best mineral at only 6% daily value, while calcium is just 1%. Potassium supports fluid balance and normal muscle function, but this amount is small. For the misc category, useful minerals can create a reason to exist, and ketchup is not getting one here.",
+      "displayItems": [
+        {
+          "metricKey": "calcium_dv",
+          "text": "calcium at 1% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "polarity": null,
+          "dvPercent": 1,
+          "value": null,
+          "score": 0,
+          "denominator": null
+        },
+        {
+          "metricKey": "magnesium_dv",
+          "text": "magnesium at 3% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "polarity": null,
+          "dvPercent": 3,
+          "value": null,
+          "score": 0,
+          "denominator": null
+        },
+        {
+          "metricKey": "potassium_dv",
+          "text": "potassium at 6% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "polarity": null,
+          "dvPercent": 6,
+          "value": null,
+          "score": 0,
+          "denominator": null
+        },
+        {
+          "metricKey": "iron_dv",
+          "text": "iron at 2% DV",
+          "weightedScore": 0,
+          "scoringMode": "dv_points",
+          "band": null,
+          "polarity": null,
+          "dvPercent": 2,
+          "value": null,
+          "score": 0,
+          "denominator": null
+        }
+      ],
+      "macroDisplayValue": null,
+      "subtitleText": "Potassium is the best mineral at only 6% daily value, while calcium is just 1%. Potassium supports fluid balance and normal muscle function, but this amount is small. For the misc category, useful minerals can create a reason to exist, and ketchup is not getting one here.",
+      "timingHint": "short-medium",
+      "score": 0
+    },
+    {
+      "key": "pros",
+      "title": "Pros",
+      "narration": "The upsides first: processed tomato brings a lycopene angle. The USDA record contains about 12 milligrams of lycopene per 100 grams, and processing tomato can make that carotenoid easier to absorb. Strong flavour can replace richer sauces. A little sweetness, acidity, and tomato umami can make a meal more appealing without needing a heavy creamy sauce. Cheap, familiar, and easy to use. It is widely available, needs no preparation, and works as a quick condiment for plenty of everyday foods.",
+      "displayItems": [
+        {
+          "type": "pro",
+          "title": "processed tomato brings a lycopene angle",
+          "explanation": "The USDA record contains about 12 milligrams of lycopene per 100g, and tomato processing can make the carotenoid easier to absorb.",
+          "impactLevel": "major",
+          "resolvedScoreValue": 100
+        },
+        {
+          "type": "pro",
+          "title": "strong flavour can replace richer sauces",
+          "explanation": "A little sweetness, acidity, and tomato umami can add flavour without needing a heavy creamy sauce.",
+          "impactLevel": "minor",
+          "resolvedScoreValue": 50
+        },
+        {
+          "type": "pro",
+          "title": "cheap, familiar, and easy to use",
+          "explanation": "It is widely available, needs no preparation, and works as a quick condiment for everyday foods.",
+          "impactLevel": "minor",
+          "resolvedScoreValue": 50
+        }
+      ],
+      "macroDisplayValue": null,
+      "subtitleText": "The upsides first: processed tomato brings a lycopene angle. The USDA record contains about 12mg of lycopene per 100g, and processing tomato can make that carotenoid easier to absorb. Strong flavour can replace richer sauces. A little sweetness, acidity, and tomato umami can make a meal more appealing without needing a heavy creamy sauce. Cheap, familiar, and easy to use. It is widely available, needs no preparation, and works as a quick condiment for plenty of everyday foods.",
+      "timingHint": "medium",
+      "score": 66.7
+    },
+    {
+      "key": "cons",
+      "title": "Cons",
+      "narration": "The drawbacks next: salt stacks up quickly. The USDA record contains 907 milligrams of sodium per 100 grams, which is a real tradeoff hidden outside the visible mineral rows. Acidity can bother reflux. Tomato and vinegar make this a rough fit for some people whose reflux is triggered by acidic foods. Squeeze bottles encourage portion creep. A freehand squirt is easy to underestimate, especially when the sauce is spread across chips, burgers, or several parts of a meal.",
+      "displayItems": [
+        {
+          "type": "con",
+          "title": "salt stacks up quickly",
+          "explanation": "The USDA record contains 907 milligrams of sodium per 100g, a material tradeoff outside the visible mineral rows.",
+          "impactLevel": "major",
+          "resolvedScoreValue": 100
+        },
+        {
+          "type": "con",
+          "title": "acidity can bother reflux",
+          "explanation": "Tomato and vinegar make ketchup a rough fit for some people whose reflux is triggered by acidic foods.",
+          "impactLevel": "minor",
+          "resolvedScoreValue": 50
+        },
+        {
+          "type": "con",
+          "title": "squeeze bottles encourage portion creep",
+          "explanation": "A freehand squirt is easy to underestimate when it is spread across several parts of a meal.",
+          "impactLevel": "minor",
+          "resolvedScoreValue": 50
+        }
+      ],
+      "macroDisplayValue": null,
+      "subtitleText": "The drawbacks next: salt stacks up quickly. The USDA record contains 907mg of sodium per 100g, which is a real tradeoff hidden outside the visible mineral rows. Acidity can bother reflux. Tomato and vinegar make this a rough fit for some people whose reflux is triggered by acidic foods. Squeeze bottles encourage portion creep. A freehand squirt is easy to underestimate, especially when the sauce is spread across chips, burgers, or several parts of a meal.",
+      "timingHint": "medium",
+      "score": 33.3
+    }
+  ],
+  "closing": {
+    "summary": "Best bits are the lycopene angle, strong flavour, convenience, and some value as a lighter swap for creamy sauces. Weak spots are the sugar-heavy carb profile, almost no fibre or protein, weak vitamins and minerals, plus the sodium and reflux tradeoffs. Best for occasional low-calorie flavour rather than nutrition. Essentially, ketchup takes tomatoes, concentrates the flavour, then adds enough baggage that the useful tomato story cannot save the score.",
+    "overview": "Best bits are the lycopene angle, strong flavour, convenience, and some value as a lighter swap for creamy sauces. Weak spots are the sugar-heavy carb profile, almost no fibre or protein, weak vitamins and minerals, plus the sodium and reflux tradeoffs. Best for occasional low-calorie flavour rather than nutrition. Essentially, ketchup takes tomatoes, concentrates the flavour, then adds enough baggage that the useful tomato story cannot save the score.",
+    "useCases": [
+      {
+        "key": "flavour_swaps",
+        "label": "low-calorie flavour swaps",
+        "reason": "it adds flavour without adding many calories",
+        "score": 84
+      },
+      {
+        "key": "practical_meals",
+        "label": "practical meals",
+        "reason": "it's easy to build meals around",
+        "score": 70
+      }
+    ],
+    "strengthHighlights": [
+      "processed tomato brings a lycopene angle",
+      "strong flavour can replace richer sauces",
+      "cheap, familiar, and easy to use"
+    ],
+    "weaknessHighlights": [
+      "low calcium",
+      "low vitamin K",
+      "low fibre"
+    ],
+    "finalReveal": "Slop tier.",
+    "useCaseNote": "Best treated as an occasional context item, not a nutritional base.",
+    "cta": "Would you rank it the same, or nah?"
+  },
+  "tier": "Slop",
+  "overallScore": -20,
+  "overallScoreExact": -20,
+  "calibratedOverallScore": 49.7,
+  "calibratedOverallScoreExact": 49.7264,
+  "anomalyAdjustedScore": -10.3,
+  "anomalyAdjustedScoreExact": -10.2736,
+  "rankingScore": -10.3,
+  "rankingScoreExact": -10.2736,
+  "scoreAdjustmentTotal": -60,
+  "scoreAdjustments": [
+    {
+      "itemKey": "sweet_condiment_slop_penalty",
+      "label": "sweet condiment slop-tier penalty",
+      "points": -60,
+      "reason": "A sweet condiment should not benefit too much from low fat while giving little nutrition back.",
+      "source": "manual",
+      "scope": "food_specific_anomaly"
+    }
+  ],
+  "baseOverallScore": 26.1,
+  "baseOverallScoreExact": 26.0714,
+  "sectionOrder": [
+    "fats",
+    "carbs",
+    "proteins",
+    "vitamins",
+    "minerals",
+    "pros",
+    "cons"
+  ],
+  "narrationBlocks": [
+    {
+      "kind": "hook_food",
+      "text": "Ketchup!"
+    },
+    {
+      "kind": "hook_ranked",
+      "text": "Ranked!"
+    },
+    {
+      "kind": "section",
+      "sectionKey": "fats",
+      "text": "0.1 grams of fat. Cholesterol is 0 milligrams and saturated fat is only 0.01 grams, so there is almost no saturated-fat baggage. Polyunsaturated fat is just 0.04 grams and omega 3 is only 1 milligram, so there is no useful fat story either. In the misc category, being nearly fat-free does not rescue the rest of the food."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "carbs",
+      "text": "27.4 grams of carbs. Sugar is 21.3 grams, while fibre is only 0.3 grams, so very little slows the carbohydrate down. The glycemic index is 55, although a normal spoonful keeps the real glycemic load smaller than the 100-gram sheet suggests. For a sweet condiment, this is still a weak carb profile."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "proteins",
+      "text": "1 gram of protein. Essential amino acids score 0 out of 9 because none reaches a useful amount at this food quantity. Protein digestibility is 78%, but that percentage only describes how digestible the tiny amount is. It does not turn ketchup into a protein food. In this category, the protein section barely matters."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "vitamins",
+      "text": "Vitamin E is the best mark at 10% daily value and vitamin C is 5%. Vitamin E helps protect cell membranes from oxidative damage, but the rest of the panel is tiny or absent. For a processed tomato condiment, there is a little vitamin value, just nowhere near enough to carry the score."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "minerals",
+      "text": "Potassium is the best mineral at only 6% daily value, while calcium is just 1%. Potassium supports fluid balance and normal muscle function, but this amount is small. For the misc category, useful minerals can create a reason to exist, and ketchup is not getting one here."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "pros",
+      "text": "The upsides first: processed tomato brings a lycopene angle. The USDA record contains about 12 milligrams of lycopene per 100 grams, and processing tomato can make that carotenoid easier to absorb. Strong flavour can replace richer sauces. A little sweetness, acidity, and tomato umami can make a meal more appealing without needing a heavy creamy sauce. Cheap, familiar, and easy to use. It is widely available, needs no preparation, and works as a quick condiment for plenty of everyday foods."
+    },
+    {
+      "kind": "section",
+      "sectionKey": "cons",
+      "text": "The drawbacks next: salt stacks up quickly. The USDA record contains 907 milligrams of sodium per 100 grams, which is a real tradeoff hidden outside the visible mineral rows. Acidity can bother reflux. Tomato and vinegar make this a rough fit for some people whose reflux is triggered by acidic foods. Squeeze bottles encourage portion creep. A freehand squirt is easy to underestimate, especially when the sauce is spread across chips, burgers, or several parts of a meal."
+    },
+    {
+      "kind": "closing_summary",
+      "text": "Best bits are the lycopene angle, strong flavour, convenience, and some value as a lighter swap for creamy sauces. Weak spots are the sugar-heavy carb profile, almost no fibre or protein, weak vitamins and minerals, plus the sodium and reflux tradeoffs. Best for occasional low-calorie flavour rather than nutrition. Essentially, ketchup takes tomatoes, concentrates the flavour, then adds enough baggage that the useful tomato story cannot save the score."
+    },
+    {
+      "kind": "final_reveal",
+      "text": "Slop tier."
+    }
+  ],
+  "explanation": {
+    "summary": "Pros are carrying this food most, while minerals are holding it back most. It lands in SLOP.",
+    "whyThisTier": "This food lands in SLOP with a display score of -20. Section scores: fats 40, carbs 20, proteins 20, vitamins 2.5, minerals 0, pros 66.7, cons 33.3. Food-specific anomaly adjustment: -60.",
+    "strongestSection": {
+      "key": "pros",
+      "label": "Pros",
+      "score": 66.7
+    },
+    "weakestSection": {
+      "key": "minerals",
+      "label": "Minerals",
+      "score": 0
+    },
+    "scoreAdjustments": [
+      {
+        "itemKey": "sweet_condiment_slop_penalty",
+        "label": "sweet condiment slop-tier penalty",
+        "points": -60,
+        "reason": "A sweet condiment should not benefit too much from low fat while giving little nutrition back.",
+        "source": "manual",
+        "scope": "food_specific_anomaly"
+      }
+    ],
+    "topPros": [
+      {
+        "title": "processed tomato brings a lycopene angle",
+        "explanation": "The USDA record contains about 12 milligrams of lycopene per 100g, and tomato processing can make the carotenoid easier to absorb.",
+        "impactLevel": "major",
+        "side": "pro",
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "strong flavour can replace richer sauces",
+        "explanation": "A little sweetness, acidity, and tomato umami can add flavour without needing a heavy creamy sauce.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "cheap, familiar, and easy to use",
+        "explanation": "It is widely available, needs no preparation, and works as a quick condiment for everyday foods.",
+        "impactLevel": "minor",
+        "side": "pro",
+        "resolvedScoreValue": 50
+      }
+    ],
+    "topCons": [
+      {
+        "title": "salt stacks up quickly",
+        "explanation": "The USDA record contains 907 milligrams of sodium per 100g, a material tradeoff outside the visible mineral rows.",
+        "impactLevel": "major",
+        "side": "con",
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "acidity can bother reflux",
+        "explanation": "Tomato and vinegar make ketchup a rough fit for some people whose reflux is triggered by acidic foods.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
+      },
+      {
+        "title": "squeeze bottles encourage portion creep",
+        "explanation": "A freehand squirt is easy to underestimate when it is spread across several parts of a meal.",
+        "impactLevel": "minor",
+        "side": "con",
+        "resolvedScoreValue": 50
+      }
+    ],
+    "narrationNotes": [
+      "Strongest section: Pros.",
+      "Weakest section: Minerals.",
+      "Final verdict: SLOP."
+    ]
+  },
+  "scriptOverride": {
+    "schemaVersion": "foodranked-script-overrides.v1",
+    "source": "production/episodes/ketchup/script-overrides.json"
+  }
+}

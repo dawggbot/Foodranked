@@ -8,6 +8,7 @@ This folder is the GitHub-facing catalogue for generated narration files. The MP
 [Bacon](bacon.md) | `voice-v18` | `split-blocks` | 118.0s | 11 | 160 | 155 | 138
 [Beef Sirloin](beef-sirloin.md) | `voice-v1` | `split-blocks` | 152.5s | 11 | 24 | 23 | 15
 [Black Beans](black-beans.md) | `voice-v2` | `split-blocks` | 140.6s | 11 | 26 | 24 | 27
+[Brussels Sprouts](brussels-sprouts.md) | `voice-v1` | `split-blocks` | 124.9s | 11 | 24 | 23 | 15
 [Buckwheat](buckwheat.md) | `voice-v1` | `split-blocks` | 131.7s | 11 | 13 | 12 | 15
 [Cannellini Beans](cannellini-beans.md) | `voice-v2` | `split-blocks` | 160.1s | 11 | 36 | 35 | 15
 [Chia Seeds](chia-seeds.md) | `voice-v1` | `split-blocks` | 159.8s | 11 | 14 | 12 | 15
@@ -17,10 +18,12 @@ This folder is the GitHub-facing catalogue for generated narration files. The MP
 [Farro](farro.md) | `voice-v1` | `split-blocks` | 155.1s | 11 | 13 | 12 | 3
 [Fennel Seeds](fennel-seeds.md) | `voice-v1` | `split-blocks` | 136.0s | 11 | 13 | 12 | 4
 [Feta](feta.md) | `voice-v2` | `split-blocks` | 162.4s | 11 | 47 | 46 | 27
+[Flax Seeds](flax-seeds.md) | `voice-v1` | `split-blocks` | 174.9s | 11 | 24 | 23 | 15
 [Greek Yogurt](greek-yogurt.md) | `voice-v1` | `split-blocks` | 161.8s | 11 | 14 | 12 | 15
 [Hazelnuts](hazelnuts.md) | `voice-v1` | `split-blocks` | 143.8s | 11 | 13 | 12 | 15
 [Kale](kale.md) | `voice-v8` | `split-blocks` | 152.1s | 11 | 109 | 107 | 98
 [Plain Kefir](kefir-plain.md) | `voice-v1` | `split-blocks` | 160.3s | 11 | 24 | 23 | 15
+[Ketchup](ketchup.md) | `voice-v1` | `split-blocks` | 158.2s | 11 | 24 | 23 | 15
 [Macadamia Nuts](macadamia.md) | `voice-v1` | `split-blocks` | 108.0s | 11 | 14 | 12 | 4
 [Oats](oats.md) |  |  |  |  | 2 | 0 | 3
 [Pistachios (Roasted & Salted)](pistachios-roasted-salted.md) | `voice-v1` | `split-blocks` | 154.2s | 11 | 13 | 12 | 3

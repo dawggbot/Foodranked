@@ -10,17 +10,45 @@
       "value": 100,
       "unit": "g"
     },
-    "identity": null,
-    "scoreReadiness": null,
+    "identity": {
+      "canonicalName": "Brussels sprouts, raw",
+      "commonName": "Brussels Sprouts",
+      "form": "whole Brussels sprouts",
+      "state": "raw",
+      "ediblePortion": "trimmed sprouts",
+      "basisReason": "The raw per-100g identity is the canonical whole-food entry; roasting, steaming, shredding, and boiling are preparation guidance rather than separate entries.",
+      "includes": [
+        "plain raw green Brussels sprouts",
+        "the same sprouts prepared at home without becoming a separate product identity"
+      ],
+      "excludes": [
+        "frozen seasoned Brussels sprouts",
+        "Brussels sprouts cooked with bacon, oil, glaze, or sauce",
+        "packaged Brussels-sprout snacks"
+      ]
+    },
+    "scoreReadiness": {
+      "status": "production-safe",
+      "summary": "Complete per-100g raw Brussels-sprout profile using exact USDA nutrients, an exact-food amino-acid record, and a documented category digestibility estimate.",
+      "blockers": [],
+      "caveats": [
+        "Protein digestibility is a documented other-vegetables category estimate, not an exact Brussels-sprout measurement.",
+        "Glycemic index is a contextual estimate rather than a universal exact-food laboratory value.",
+        "Variety, season, storage, and cooking method can change the realised nutrient profile."
+      ]
+    },
     "sourceNotes": [
-      "Calibration benchmark sample for FoodRanked.",
-      "Values are approximate representative placeholders for ruleset tuning, not a clinical nutrient database."
+      "Production-safe raw whole-food entry scored per 100g.",
+      "USDA Foundation FDC 2685575 supplies the primary macro profile and vitamin C; USDA SR Legacy FDC 170383 fills missing fat, vitamin, and mineral rows.",
+      "The Japanese food-composition record supplies an exact raw Brussels-sprout amino-acid profile.",
+      "The 65% protein-digestibility value is a documented WHO other-vegetables category estimate rather than an exact Brussels-sprout measurement."
     ]
   },
   "ruleset": {
     "id": "vegetables.v1",
     "version": 1,
     "tierScoreMap": {
+      "Slop": -20,
       "D": 20,
       "C": 40,
       "B": 60,
@@ -33,99 +61,97 @@
     }
   },
   "header": {
-    "kcal": 43,
-    "fat_g": 0.3,
-    "carb_g": 9,
-    "protein_g": 3.4
+    "kcal": 49,
+    "fat_g": 0.565,
+    "carb_g": 9.615625,
+    "protein_g": 3.984375
   },
   "hook": "Brussels Sprouts ranked.",
   "sections": [
     {
       "key": "fats",
       "title": "Fats",
-      "narration": "0.3 grams of fat. Saturated fat is 0.1 grams, supporting a cleaner fat profile. Omega 3 is 150 milligrams, supporting a more useful fat profile, but it is the smaller helper in this section. For vegetables, fat is usually just a tiny side detail.",
+      "narration": "0.6 grams of fat. Cholesterol is 0 milligrams, keeping the fat tradeoff clean. Monounsaturated fat is only 0.02 grams, so there is barely any useful fat here. For vegetables, fat is not really the job anyway.",
       "displayItems": [
         {
           "metricKey": "saturated_fat_g",
-          "text": "saturated fat at 0.1g",
+          "text": "saturated fat at 0.06g",
           "weightedScore": 100,
           "scoringMode": "arrow_bands",
-          "band": "↓↓↓",
+          "band": "3_green",
           "polarity": "higher_worse",
           "dvPercent": null,
-          "value": 0.1,
+          "value": 0.062,
           "score": 100,
           "denominator": null,
-          "displayValue": "0.1g",
-          "displaySource": "scored"
-        },
-        {
-          "metricKey": "polyunsaturated_fat_g",
-          "text": "polyunsaturated fat at 0.1g",
-          "weightedScore": 0,
-          "scoringMode": "arrow_bands",
-          "band": "↓↓↓",
-          "polarity": "higher_better",
-          "dvPercent": null,
-          "value": 0.1,
-          "score": 0,
-          "denominator": null,
-          "displayValue": "0.1g",
+          "displayValue": "0.06g",
           "displaySource": "scored"
         },
         {
           "metricKey": "omega3_mg",
-          "text": "omega 3 at 150mg",
-          "weightedScore": 60,
+          "text": "omega 3 at 99mg",
+          "weightedScore": 40,
           "scoringMode": "arrow_bands",
-          "band": "↑",
+          "band": "1_red",
           "polarity": "higher_better",
           "dvPercent": null,
-          "value": 150,
-          "score": 60,
+          "value": 99,
+          "score": 40,
           "denominator": null,
-          "displayValue": "150mg",
+          "displayValue": "99mg",
           "displaySource": "scored"
         },
         {
-          "metricKey": "cholesterol_mg",
-          "text": "cholesterol at 0mg",
-          "weightedScore": null,
-          "scoringMode": "display_fallback",
-          "band": "↓↓↓",
-          "polarity": "higher_worse",
+          "metricKey": "polyunsaturated_fat_g",
+          "text": "polyunsaturated fat at 0.15g",
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
+          "band": "3_red",
+          "polarity": "higher_better",
           "dvPercent": null,
-          "value": 0,
-          "score": 100,
+          "value": 0.153,
+          "score": 0,
           "denominator": null,
-          "displaySource": "submacro_display_default",
-          "displayDefault": true,
-          "displayDefaultReason": "missing_submacro_value",
-          "displayValue": "0mg"
+          "displayValue": "0.15g",
+          "displaySource": "scored"
+        },
+        {
+          "metricKey": "monounsaturated_fat_g",
+          "text": "monounsaturated fat at 0.02g",
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
+          "band": "3_red",
+          "polarity": "higher_better",
+          "dvPercent": null,
+          "value": 0.023,
+          "score": 0,
+          "denominator": null,
+          "displayValue": "0.02g",
+          "displaySource": "scored"
         }
       ],
-      "macroDisplayValue": "0.3g",
-      "subtitleText": "0.3g of fat. Saturated fat is 0.1g, supporting a cleaner fat profile. Omega 3 is 150mg, supporting a more useful fat profile, but it is the smaller helper in this section. For vegetables, fat is usually just a tiny side detail.",
+      "macroDisplayValue": "0.6g",
+      "subtitleText": "0.6g of fat. Cholesterol is 0mg, keeping the fat tradeoff clean. Monounsaturated fat is only 0.02g, so there is barely any useful fat here. For vegetables, fat is not really the job anyway.",
       "timingHint": "short-medium",
-      "score": 53.3
+      "score": 48
     },
     {
       "key": "carbs",
       "title": "Carbs",
-      "narration": "9 grams of carbs. Glycemic index is 15, helping with steadier carb behaviour. Starch is 0 grams, not bringing much steady carb energy, so that's a small downside for vegetables. For vegetables, light carbs are easy to work with.",
+      "narration": "9.6 grams of carbs. Glycemic index is 15, landing in the strongest band for steadier carb behaviour. Fibre is 4.8 grams, strong for a vegetable and useful for digestion and fullness. Starch is only 0.6 grams, but that is expected for a non-starchy vegetable.",
       "displayItems": [
         {
           "metricKey": "fibre_g",
-          "text": "fibre at 3.8g",
-          "weightedScore": 180,
+          "text": "fibre at 4.8g",
+          "weightedScore": 240,
           "scoringMode": "arrow_bands",
-          "band": "↑",
+          "band": "2_green",
           "polarity": "higher_better",
           "dvPercent": null,
-          "value": 3.8,
-          "score": 60,
+          "value": 4.785,
+          "score": 80,
           "denominator": null,
-          "displayValue": "3.8g",
+          "displayValue": "4.8g",
           "displaySource": "scored"
         },
         {
@@ -133,7 +159,7 @@
           "text": "sugar at 2.2g",
           "weightedScore": 240,
           "scoringMode": "arrow_bands",
-          "band": "↓↓",
+          "band": "2_green",
           "polarity": "higher_worse",
           "dvPercent": null,
           "value": 2.2,
@@ -144,16 +170,16 @@
         },
         {
           "metricKey": "starch_g",
-          "text": "starch at 0g",
-          "weightedScore": 0,
+          "text": "starch at 0.6g",
+          "weightedScore": 40,
           "scoringMode": "arrow_bands",
-          "band": "3_red",
+          "band": "1_red",
           "polarity": "higher_better",
           "dvPercent": null,
-          "value": 0,
-          "score": 0,
+          "value": 0.6,
+          "score": 40,
           "denominator": null,
-          "displayValue": "0g",
+          "displayValue": "0.6g",
           "displaySource": "scored"
         },
         {
@@ -161,7 +187,7 @@
           "text": "glycemic index at 15 GI",
           "weightedScore": 300,
           "scoringMode": "arrow_bands",
-          "band": "↓↓↓",
+          "band": "3_green",
           "polarity": "higher_worse",
           "dvPercent": null,
           "value": 15,
@@ -171,15 +197,15 @@
           "displaySource": "scored"
         }
       ],
-      "macroDisplayValue": "9g",
-      "subtitleText": "9g of carbs. Glycemic index is 15, helping with steadier carb behaviour. Starch is 0g, not bringing much steady carb energy, so that's a small downside for vegetables. For vegetables, light carbs are easy to work with.",
+      "macroDisplayValue": "9.6g",
+      "subtitleText": "9.6g of carbs. Glycemic index is 15, landing in the strongest band for steadier carb behaviour. Fibre is 4.8g, strong for a vegetable and useful for digestion and fullness. Starch is only 0.6g, but that is expected for a non-starchy vegetable.",
       "timingHint": "short-medium",
-      "score": 72
+      "score": 82
     },
     {
       "key": "proteins",
       "title": "Proteins",
-      "narration": "3.4 grams of protein. That amount is useful enough to count. Essential amino acids score is 5 out of 9, not giving much repair-and-maintenance protein support. For vegetables, protein is a bonus, not something to rely on.",
+      "narration": "4 grams of protein. Protein digestibility is 65%, which is decent for a whole vegetable. Essential amino acids score is 0 out of 9 because the total amount is too small to clear any useful-amount threshold. Protein helps a little here, but it is not why you eat Brussels sprouts.",
       "displayItems": [
         {
           "metricKey": "collagen_g",
@@ -192,72 +218,58 @@
           "value": 0,
           "score": 0,
           "denominator": null,
-          "displaySource": "protein_display_estimate",
-          "displayEstimated": true,
-          "displayEstimateBasis": "display-only estimate from FoodRanked protein source class; source metric remains N/A unless directly sourced",
+          "displaySource": "macro_numeric_fallback",
           "displayDefault": false,
           "displayDefaultReason": null,
           "displayValue": "0g"
         },
         {
           "metricKey": "essential_amino_acids_score",
-          "text": "essential amino acids score at 5/9",
-          "weightedScore": null,
-          "scoringMode": "display_fallback",
-          "band": "↓",
+          "text": "essential amino acids score at 0/9",
+          "weightedScore": 0,
+          "scoringMode": "arrow_bands",
+          "band": "3_red",
           "polarity": "higher_better",
           "dvPercent": null,
-          "value": 5,
-          "score": 40,
+          "value": 0,
+          "score": 0,
           "denominator": 9,
-          "displaySource": "protein_display_estimate",
-          "displayEstimated": true,
-          "displayEstimateBasis": "display-only estimate from useful-protein-gated amount band and protein source class; not a source amino-acid profile",
-          "displayDefault": false,
-          "displayDefaultReason": null,
-          "displayValue": "5/9"
+          "displayValue": "0/9",
+          "displaySource": "scored"
         },
         {
           "metricKey": "nonessential_amino_acids_score",
-          "text": "nonessential amino acids score at 6/11",
-          "weightedScore": null,
-          "scoringMode": "display_fallback",
-          "band": "↓",
+          "text": "nonessential amino acids score at 3/11",
+          "weightedScore": 20,
+          "scoringMode": "arrow_bands",
+          "band": "2_red",
           "polarity": "higher_better",
           "dvPercent": null,
-          "value": 6,
-          "score": 40,
+          "value": 3,
+          "score": 20,
           "denominator": 11,
-          "displaySource": "protein_display_estimate",
-          "displayEstimated": true,
-          "displayEstimateBasis": "display-only estimate from useful-protein-gated amount band and protein source class; not a source amino-acid profile",
-          "displayDefault": false,
-          "displayDefaultReason": null,
-          "displayValue": "6/11"
+          "displayValue": "3/11",
+          "displaySource": "scored"
         },
         {
           "metricKey": "protein_digestibility_percent",
-          "text": "bioavailability at 45%",
-          "weightedScore": null,
-          "scoringMode": "display_fallback",
-          "band": "↓↓",
+          "text": "protein digestibility at 65%",
+          "weightedScore": 120,
+          "scoringMode": "arrow_bands",
+          "band": "1_green",
           "polarity": "higher_better",
           "dvPercent": null,
-          "value": 45,
-          "score": 20,
+          "value": 65,
+          "score": 60,
           "denominator": null,
-          "displaySource": "protein_display_estimate",
-          "displayEstimated": true,
-          "displayEstimateBasis": "display-only estimate from FoodRanked protein source class; not a measured digestibility value",
-          "displayDefault": false,
-          "displayDefaultReason": null,
-          "displayValue": "45%"
+          "displayValue": "65%",
+          "displaySource": "scored"
         }
       ],
-      "macroDisplayValue": "3.4g",
-      "subtitleText": "3.4g of protein. That amount is useful enough to count. Essential amino acids score is 5/9, not giving much repair-and-maintenance protein support. For vegetables, protein is a bonus, not something to rely on.",
+      "macroDisplayValue": "4.0g",
+      "subtitleText": "4g of protein. Protein digestibility is 65%, which is decent for a whole vegetable. Essential amino acids score is 0/9 because the total amount is too small to clear any useful-amount threshold. Protein helps a little here, but it is not why you eat Brussels sprouts.",
       "timingHint": "short-medium",
-      "score": 60,
+      "score": 28,
       "displayPolicy": {
         "policyId": "protein-section-display.v1",
         "rowCount": 4,
@@ -270,6 +282,12 @@
         "hiddenFallbackMetricKey": "protein_g_fallback",
         "missingValueDisplay": "N/A",
         "showProteinFallbackAsVisibleRow": false,
+        "proteinQualityGate": {
+          "eligible": true,
+          "proteinG": 3.984375,
+          "minimumProteinG": 3,
+          "aminoAcidProfileAvailable": true
+        },
         "rules": {
           "visibleRowsOnly": true,
           "visibleSubmacroRowsDisplayNaOnlyWhenMainMacroNa": true,
@@ -282,7 +300,7 @@
     {
       "key": "vitamins",
       "title": "Vitamins",
-      "narration": "Vitamin K is 148% daily value, adding useful vitamin support. Vitamin A is 15% daily value, not bringing much vision or immune support. For vegetables, vitamins can move the ranking a lot.",
+      "narration": "Vitamin C is 159% daily value, excellent for immune support and collagen production. Vitamin K is 148% daily value, excellent for normal blood clotting and bone support. Vitamin D and vitamin B12 are both at zero, but that is expected for a vegetable.",
       "displayItems": [
         {
           "metricKey": "vitamin_k_dv",
@@ -298,47 +316,47 @@
         },
         {
           "metricKey": "vitamin_a_dv",
-          "text": "vitamin A at 15% DV",
-          "weightedScore": 20,
+          "text": "vitamin A at 4% DV",
+          "weightedScore": 0,
           "scoringMode": "dv_points",
           "band": null,
           "polarity": null,
-          "dvPercent": 15,
+          "dvPercent": 4,
           "value": null,
-          "score": 10,
+          "score": 0,
           "denominator": null
         },
         {
           "metricKey": "vitamin_c_dv",
-          "text": "vitamin C at 94% DV",
-          "weightedScore": 180,
+          "text": "vitamin C at 159% DV",
+          "weightedScore": 200,
           "scoringMode": "dv_points",
           "band": null,
           "polarity": null,
-          "dvPercent": 94,
+          "dvPercent": 159,
           "value": null,
-          "score": 90,
+          "score": 100,
           "denominator": null
         }
       ],
       "macroDisplayValue": null,
-      "subtitleText": "Vitamin K is 148% DV, adding useful vitamin support. Vitamin A is 15% DV, not bringing much vision or immune support. For vegetables, vitamins can move the ranking a lot.",
+      "subtitleText": "Vitamin C is 159% daily value, excellent for immune support and collagen production. Vitamin K is 148% daily value, excellent for normal blood clotting and bone support. Vitamin D and vitamin B12 are both at zero, but that is expected for a vegetable.",
       "timingHint": "short-medium",
       "score": 71.4
     },
     {
       "key": "minerals",
       "title": "Minerals",
-      "narration": "Potassium is 11% daily value, useful for fluid balance. Calcium is only 3% daily value, not bringing much bone support. For vegetables, minerals help when the numbers are strong.",
+      "narration": "Potassium is 10% daily value, giving the best mineral mark and helping with fluid balance. Calcium is only 3% daily value, weak for bone support. Minerals are easily the softest section here.",
       "displayItems": [
         {
           "metricKey": "potassium_dv",
-          "text": "potassium at 11% DV",
+          "text": "potassium at 10% DV",
           "weightedScore": 20,
           "scoringMode": "dv_points",
           "band": null,
           "polarity": null,
-          "dvPercent": 11,
+          "dvPercent": 10,
           "value": null,
           "score": 10,
           "denominator": null
@@ -357,131 +375,131 @@
         },
         {
           "metricKey": "magnesium_dv",
-          "text": "magnesium at 5% DV",
+          "text": "magnesium at 6% DV",
           "weightedScore": 0,
           "scoringMode": "dv_points",
           "band": null,
           "polarity": null,
-          "dvPercent": 5,
+          "dvPercent": 6,
           "value": null,
           "score": 0,
           "denominator": null
         },
         {
           "metricKey": "iron_dv",
-          "text": "iron at 7% DV",
+          "text": "iron at 4% DV",
           "weightedScore": 0,
           "scoringMode": "dv_points",
           "band": null,
           "polarity": null,
-          "dvPercent": 7,
+          "dvPercent": 4,
           "value": null,
           "score": 0,
           "denominator": null
         }
       ],
       "macroDisplayValue": null,
-      "subtitleText": "Potassium is 11% DV, useful for fluid balance. Calcium is only 3% DV, not bringing much bone support. For vegetables, minerals help when the numbers are strong.",
+      "subtitleText": "Potassium is 10% daily value, giving the best mineral mark and helping with fluid balance. Calcium is only 3% daily value, weak for bone support. Minerals are easily the softest section here.",
       "timingHint": "short-medium",
       "score": 3.3
     },
     {
       "key": "pros",
       "title": "Pros",
-      "narration": "Pros first: makes meals feel more balanced. The category has real value beyond single-nutrient stats. Good volume for the calories. That matters for satiety and general usefulness. Very low downside whole food. Vegetables win a lot simply by offering clean nutritional payoff.",
+      "narration": "Pros first: glucosinolate-rich brassica profile. That gives Brussels sprouts a food-specific plant-compound story beyond the visible vitamin bars. Lots of whole-food volume without much calorie pressure. Useful when you want a bigger plate without making the meal heavy. Flexible side dish when roasted, steamed, or shredded. That makes it practical across a lot of normal meals.",
       "displayItems": [
         {
           "type": "pro",
-          "title": "makes meals feel more balanced",
-          "explanation": "The category has real value beyond single-nutrient stats.",
+          "title": "glucosinolate-rich brassica profile",
+          "explanation": "Brussels sprouts have a food-specific glucosinolate story beyond the visible vitamin bars.",
+          "impactLevel": "major",
+          "resolvedScoreValue": 100
+        },
+        {
+          "type": "pro",
+          "title": "lots of whole-food volume without much calorie pressure",
+          "explanation": "They add useful plate volume without making the meal heavy.",
           "impactLevel": "minor",
           "resolvedScoreValue": 50
         },
         {
           "type": "pro",
-          "title": "good volume for the calories",
-          "explanation": "That matters for satiety and general usefulness.",
-          "impactLevel": "minor",
-          "resolvedScoreValue": 50
-        },
-        {
-          "type": "pro",
-          "title": "very low downside whole food",
-          "explanation": "Vegetables win a lot simply by offering clean nutritional payoff.",
+          "title": "flexible side dish when roasted, steamed, or shredded",
+          "explanation": "The same raw whole-food identity can fill several practical meal roles.",
           "impactLevel": "minor",
           "resolvedScoreValue": 50
         }
       ],
       "macroDisplayValue": null,
-      "subtitleText": "Pros first: makes meals feel more balanced. The category has real value beyond single-nutrient stats. Good volume for the calories. That matters for satiety and general usefulness. Very low downside whole food. Vegetables win a lot simply by offering clean nutritional payoff.",
+      "subtitleText": "Pros first: glucosinolate-rich brassica profile. That gives Brussels sprouts a food-specific plant-compound story beyond the visible vitamin bars. Lots of whole-food volume without much calorie pressure. Useful when you want a bigger plate without making the meal heavy. Flexible side dish when roasted, steamed, or shredded. That makes it practical across a lot of normal meals.",
       "timingHint": "medium",
-      "score": 50
+      "score": 66.7
     },
     {
       "key": "cons",
       "title": "Cons",
-      "narration": "The drawbacks next: taste and texture can limit compliance. A strong paper profile still needs real-world repeatability. Very light profile can feel underpowered. For some vegetables, the practical payoff is more volume and texture than a big nutrient payload. Prep can decide whether it actually gets eaten. Vegetables can lose practical value when washing, chopping, or cooking becomes a barrier.",
+      "narration": "Downsides next: bitter flavour is polarising. The same glucosinolate family behind part of the plant-compound story also contributes to the taste. Can cause gas and bloating for some people. Raffinose and fermentable fibre are not equally comfortable for every gut. Boiling can wash out part of the payoff. It causes more nutrient loss than gentler methods such as steaming.",
       "displayItems": [
         {
           "type": "con",
-          "title": "taste and texture can limit compliance",
-          "explanation": "A strong paper profile still needs real-world repeatability.",
+          "title": "bitter flavour is polarising",
+          "explanation": "The same sulfur-containing compound family behind part of the plant story also contributes to the characteristic taste.",
           "impactLevel": "minor",
           "resolvedScoreValue": 50
         },
         {
           "type": "con",
-          "title": "very light profile can feel underpowered",
-          "explanation": "For some vegetables, the practical payoff is more volume and texture than a big nutrient payload.",
+          "title": "can cause gas and bloating for some people",
+          "explanation": "Raffinose and fermentable fibre are not equally comfortable for every gut.",
           "impactLevel": "minor",
           "resolvedScoreValue": 50
         },
         {
           "type": "con",
-          "title": "prep can decide whether it actually gets eaten",
-          "explanation": "Vegetables can lose practical value when washing, chopping, or cooking becomes a barrier.",
+          "title": "boiling can wash out part of the payoff",
+          "explanation": "Boiling causes more nutrient and glucosinolate loss than gentler methods such as steaming.",
           "impactLevel": "minor",
           "resolvedScoreValue": 50
         }
       ],
       "macroDisplayValue": null,
-      "subtitleText": "The drawbacks next: taste and texture can limit compliance. A strong paper profile still needs real-world repeatability. Very light profile can feel underpowered. For some vegetables, the practical payoff is more volume and texture than a big nutrient payload. Prep can decide whether it actually gets eaten. Vegetables can lose practical value when washing, chopping, or cooking becomes a barrier.",
+      "subtitleText": "Downsides next: bitter flavour is polarising. The same glucosinolate family behind part of the plant-compound story also contributes to the taste. Can cause gas and bloating for some people. Raffinose and fermentable fibre are not equally comfortable for every gut. Boiling can wash out part of the payoff. It causes more nutrient loss than gentler methods such as steaming.",
       "timingHint": "medium",
       "score": 50
     }
   ],
   "closing": {
-    "summary": "Best bits are fibre and vitamin K. Weak spots are low calcium and omega 3. Best for immune support and digestion because vitamin C and vitamin A help support the immune system and fibre helps digestion and keeps meals steadier.",
-    "overview": "Best bits are fibre and vitamin K. Weak spots are low calcium and omega 3. Best for immune support and digestion because vitamin C and vitamin A help support the immune system and fibre helps digestion and keeps meals steadier.",
+    "summary": "Best bits are fibre, low glycemic impact, vitamins C and K, and the glucosinolate profile. Weak spots are useful fat, useful amino-acid amounts, minerals, and digestive tolerance. Best for digestion, immune support, bone support, and low-calorie volume because the fibre helps the gut, the vitamins do real work, and it adds a lot to a plate without much energy.",
+    "overview": "Best bits are fibre, low glycemic impact, vitamins C and K, and the glucosinolate profile. Weak spots are useful fat, useful amino-acid amounts, minerals, and digestive tolerance. Best for digestion, immune support, bone support, and low-calorie volume because the fibre helps the gut, the vitamins do real work, and it adds a lot to a plate without much energy.",
     "useCases": [
       {
         "key": "immune_support",
         "label": "immune support",
-        "reason": "vitamin C and vitamin A help support the immune system",
-        "score": 185.7
+        "reason": "vitamin C helps support the immune system",
+        "score": 240.7
+      },
+      {
+        "key": "practical_meals",
+        "label": "practical meals",
+        "reason": "it's easy to build meals around",
+        "score": 132
       },
       {
         "key": "digestion",
         "label": "digestion",
         "reason": "fibre helps digestion and keeps meals steadier",
-        "score": 102.4
-      },
-      {
-        "key": "low_calorie_volume",
-        "label": "low-calorie volume",
-        "reason": "it helps fill out a meal without many calories",
-        "score": 92
+        "score": 120.28
       }
     ],
     "strengthHighlights": [
       "fibre",
       "vitamin K",
-      "protein"
+      "glucosinolate-rich brassica profile"
     ],
     "weaknessHighlights": [
       "low calcium",
-      "omega 3",
-      "taste and texture can limit compliance"
+      "low protein quality",
+      "fats"
     ],
     "finalReveal": "A tier.",
     "useCaseNote": "Best when you want low downside and easy micronutrient support.",
@@ -490,16 +508,16 @@
   "tier": "A",
   "overallScore": 80,
   "overallScoreExact": 80,
-  "calibratedOverallScore": 64.5,
-  "calibratedOverallScoreExact": 64.53,
-  "anomalyAdjustedScore": 64.5,
-  "anomalyAdjustedScoreExact": 64.53,
-  "rankingScore": 64.5,
-  "rankingScoreExact": 64.53,
+  "calibratedOverallScore": 61.4,
+  "calibratedOverallScoreExact": 61.4425,
+  "anomalyAdjustedScore": 61.4,
+  "anomalyAdjustedScoreExact": 61.4425,
+  "rankingScore": 61.4,
+  "rankingScoreExact": 61.4425,
   "scoreAdjustmentTotal": 0,
   "scoreAdjustments": [],
-  "baseOverallScore": 51.4,
-  "baseOverallScoreExact": 51.4422,
+  "baseOverallScore": 49.9,
+  "baseOverallScoreExact": 49.9184,
   "sectionOrder": [
     "fats",
     "carbs",
@@ -521,41 +539,41 @@
     {
       "kind": "section",
       "sectionKey": "fats",
-      "text": "0.3 grams of fat. Saturated fat is 0.1 grams, supporting a cleaner fat profile. Omega 3 is 150 milligrams, supporting a more useful fat profile, but it is the smaller helper in this section. For vegetables, fat is usually just a tiny side detail."
+      "text": "0.6 grams of fat. Cholesterol is 0 milligrams, keeping the fat tradeoff clean. Monounsaturated fat is only 0.02 grams, so there is barely any useful fat here. For vegetables, fat is not really the job anyway."
     },
     {
       "kind": "section",
       "sectionKey": "carbs",
-      "text": "9 grams of carbs. Glycemic index is 15, helping with steadier carb behaviour. Starch is 0 grams, not bringing much steady carb energy, so that's a small downside for vegetables. For vegetables, light carbs are easy to work with."
+      "text": "9.6 grams of carbs. Glycemic index is 15, landing in the strongest band for steadier carb behaviour. Fibre is 4.8 grams, strong for a vegetable and useful for digestion and fullness. Starch is only 0.6 grams, but that is expected for a non-starchy vegetable."
     },
     {
       "kind": "section",
       "sectionKey": "proteins",
-      "text": "3.4 grams of protein. That amount is useful enough to count. Essential amino acids score is 5 out of 9, not giving much repair-and-maintenance protein support. For vegetables, protein is a bonus, not something to rely on."
+      "text": "4 grams of protein. Protein digestibility is 65%, which is decent for a whole vegetable. Essential amino acids score is 0 out of 9 because the total amount is too small to clear any useful-amount threshold. Protein helps a little here, but it is not why you eat Brussels sprouts."
     },
     {
       "kind": "section",
       "sectionKey": "vitamins",
-      "text": "Vitamin K is 148% daily value, adding useful vitamin support. Vitamin A is 15% daily value, not bringing much vision or immune support. For vegetables, vitamins can move the ranking a lot."
+      "text": "Vitamin C is 159% daily value, excellent for immune support and collagen production. Vitamin K is 148% daily value, excellent for normal blood clotting and bone support. Vitamin D and vitamin B12 are both at zero, but that is expected for a vegetable."
     },
     {
       "kind": "section",
       "sectionKey": "minerals",
-      "text": "Potassium is 11% daily value, useful for fluid balance. Calcium is only 3% daily value, not bringing much bone support. For vegetables, minerals help when the numbers are strong."
+      "text": "Potassium is 10% daily value, giving the best mineral mark and helping with fluid balance. Calcium is only 3% daily value, weak for bone support. Minerals are easily the softest section here."
     },
     {
       "kind": "section",
       "sectionKey": "pros",
-      "text": "Pros first: makes meals feel more balanced. The category has real value beyond single-nutrient stats. Good volume for the calories. That matters for satiety and general usefulness. Very low downside whole food. Vegetables win a lot simply by offering clean nutritional payoff."
+      "text": "Pros first: glucosinolate-rich brassica profile. That gives Brussels sprouts a food-specific plant-compound story beyond the visible vitamin bars. Lots of whole-food volume without much calorie pressure. Useful when you want a bigger plate without making the meal heavy. Flexible side dish when roasted, steamed, or shredded. That makes it practical across a lot of normal meals."
     },
     {
       "kind": "section",
       "sectionKey": "cons",
-      "text": "The drawbacks next: taste and texture can limit compliance. A strong paper profile still needs real-world repeatability. Very light profile can feel underpowered. For some vegetables, the practical payoff is more volume and texture than a big nutrient payload. Prep can decide whether it actually gets eaten. Vegetables can lose practical value when washing, chopping, or cooking becomes a barrier."
+      "text": "Downsides next: bitter flavour is polarising. The same glucosinolate family behind part of the plant-compound story also contributes to the taste. Can cause gas and bloating for some people. Raffinose and fermentable fibre are not equally comfortable for every gut. Boiling can wash out part of the payoff. It causes more nutrient loss than gentler methods such as steaming."
     },
     {
       "kind": "closing_summary",
-      "text": "Best bits are fibre and vitamin K. Weak spots are low calcium and omega 3. Best for immune support and digestion because vitamin C and vitamin A help support the immune system and fibre helps digestion and keeps meals steadier."
+      "text": "Best bits are fibre, low glycemic impact, vitamins C and K, and the glucosinolate profile. Weak spots are useful fat, useful amino-acid amounts, minerals, and digestive tolerance. Best for digestion, immune support, bone support, and low-calorie volume because the fibre helps the gut, the vitamins do real work, and it adds a lot to a plate without much energy."
     },
     {
       "kind": "final_reveal",
@@ -564,11 +582,11 @@
   ],
   "explanation": {
     "summary": "Carbs are carrying this food most, while minerals are holding it back most. It lands in A tier.",
-    "whyThisTier": "This food lands in A tier with a display score of 80. Section scores: fats 53.3, carbs 72, proteins 60, vitamins 71.4, minerals 3.3, pros 50, cons 50.",
+    "whyThisTier": "This food lands in A tier with a display score of 80. Section scores: fats 48, carbs 82, proteins 28, vitamins 71.4, minerals 3.3, pros 66.7, cons 50.",
     "strongestSection": {
       "key": "carbs",
       "label": "Carbs",
-      "score": 72
+      "score": 82
     },
     "weakestSection": {
       "key": "minerals",
@@ -578,22 +596,22 @@
     "scoreAdjustments": [],
     "topPros": [
       {
-        "title": "makes meals feel more balanced",
-        "explanation": "The category has real value beyond single-nutrient stats.",
+        "title": "glucosinolate-rich brassica profile",
+        "explanation": "Brussels sprouts have a food-specific glucosinolate story beyond the visible vitamin bars.",
+        "impactLevel": "major",
+        "side": "pro",
+        "resolvedScoreValue": 100
+      },
+      {
+        "title": "lots of whole-food volume without much calorie pressure",
+        "explanation": "They add useful plate volume without making the meal heavy.",
         "impactLevel": "minor",
         "side": "pro",
         "resolvedScoreValue": 50
       },
       {
-        "title": "good volume for the calories",
-        "explanation": "That matters for satiety and general usefulness.",
-        "impactLevel": "minor",
-        "side": "pro",
-        "resolvedScoreValue": 50
-      },
-      {
-        "title": "very low downside whole food",
-        "explanation": "Vegetables win a lot simply by offering clean nutritional payoff.",
+        "title": "flexible side dish when roasted, steamed, or shredded",
+        "explanation": "The same raw whole-food identity can fill several practical meal roles.",
         "impactLevel": "minor",
         "side": "pro",
         "resolvedScoreValue": 50
@@ -601,22 +619,22 @@
     ],
     "topCons": [
       {
-        "title": "taste and texture can limit compliance",
-        "explanation": "A strong paper profile still needs real-world repeatability.",
+        "title": "bitter flavour is polarising",
+        "explanation": "The same sulfur-containing compound family behind part of the plant story also contributes to the characteristic taste.",
         "impactLevel": "minor",
         "side": "con",
         "resolvedScoreValue": 50
       },
       {
-        "title": "very light profile can feel underpowered",
-        "explanation": "For some vegetables, the practical payoff is more volume and texture than a big nutrient payload.",
+        "title": "can cause gas and bloating for some people",
+        "explanation": "Raffinose and fermentable fibre are not equally comfortable for every gut.",
         "impactLevel": "minor",
         "side": "con",
         "resolvedScoreValue": 50
       },
       {
-        "title": "prep can decide whether it actually gets eaten",
-        "explanation": "Vegetables can lose practical value when washing, chopping, or cooking becomes a barrier.",
+        "title": "boiling can wash out part of the payoff",
+        "explanation": "Boiling causes more nutrient and glucosinolate loss than gentler methods such as steaming.",
         "impactLevel": "minor",
         "side": "con",
         "resolvedScoreValue": 50
@@ -627,5 +645,9 @@
       "Weakest section: Minerals.",
       "Final verdict: A tier."
     ]
+  },
+  "scriptOverride": {
+    "schemaVersion": "foodranked-script-overrides.v1",
+    "source": "production/episodes/brussels-sprouts/script-overrides.json"
   }
 }

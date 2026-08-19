@@ -123,9 +123,17 @@ function displayWordSpeechTokens(word) {
   if (/^DV[.,!?;:]*$/i.test(raw)) {
     return ['daily', 'value'];
   }
+  const hyphenatedUnit = raw.match(/^(\d+(?:\.\d+)?)-(mcg|mg|kg|kcal|g)([.,!?;:]*)$/i);
+  if (hyphenatedUnit) {
+    return [normalizeToken(`${hyphenatedUnit[1]}${unitWord(hyphenatedUnit[2], 1)}`)];
+  }
   const compactUnit = raw.match(/^(\d+(?:\.\d+)?)(mcg|mg|kg|kcal|g)([.,!?;:]*)$/i);
   if (compactUnit) {
     return [normalizeToken(compactUnit[1]), normalizeToken(unitWord(compactUnit[2], compactUnit[1]))];
+  }
+  const alphabeticCompound = raw.match(/^([a-z]+(?:-[a-z]+)+)([.,!?;:]*)$/i);
+  if (alphabeticCompound) {
+    return alphabeticCompound[1].split('-').map(normalizeToken).filter(Boolean);
   }
   const ratio = raw.match(/^(\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)([.,!?;:]*)$/);
   if (ratio) {
@@ -192,7 +200,17 @@ function sceneBlockIndexes(sceneId) {
 }
 
 function sceneAlignedWords(scene, alignedBlocks) {
-  return sceneBlockIndexes(scene.id).flatMap(index => alignedBlocks[index]?.words || []);
+  return sceneBlockIndexes(scene.id)
+    .flatMap(index => alignedBlocks[index]?.words || [])
+    .flatMap(word => {
+      const compound = String(word.text || '').match(/^([a-z]+(?:-[a-z]+)+)([.,!?;:]*)$/i);
+      if (!compound) return [word];
+      return distributeTargetWords(compound[1].split('-'), word.start, word.end).map(part => ({
+        ...word,
+        ...part,
+        normalized: normalizeToken(part.text)
+      }));
+    });
 }
 
 function alignmentAudioEndSeconds(alignment) {
